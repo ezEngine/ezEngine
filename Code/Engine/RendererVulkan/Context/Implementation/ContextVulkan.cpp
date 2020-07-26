@@ -142,7 +142,7 @@ void ezGALContextVulkan::DrawIndexedInstancedIndirectPlatform(const ezGALBuffer*
 
   vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
 
-  currentCmdBuffer.drawIndexedIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetVulkanBuffer(), uiArgumentOffsetInBytes, 1, 0);
+  currentCmdBuffer.drawIndexedIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetBuffer(), uiArgumentOffsetInBytes, 1, 0);
 }
 
 void ezGALContextVulkan::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
@@ -160,7 +160,7 @@ void ezGALContextVulkan::DrawInstancedIndirectPlatform(const ezGALBuffer* pIndir
 
   vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
 
-  currentCmdBuffer.drawIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetVulkanBuffer(), uiArgumentOffsetInBytes, 1, 0);
+  currentCmdBuffer.drawIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetBuffer(), uiArgumentOffsetInBytes, 1, 0);
 }
 
 void ezGALContextVulkan::DrawAutoPlatform()
@@ -353,7 +353,7 @@ void ezGALContextVulkan::DispatchIndirectPlatform(const ezGALBuffer* pIndirectAr
 
   vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
 
-  currentCmdBuffer.dispatchIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetVulkanBuffer(), uiArgumentOffsetInBytes);
+  currentCmdBuffer.dispatchIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetBuffer(), uiArgumentOffsetInBytes);
 }
 
 
@@ -376,7 +376,7 @@ void ezGALContextVulkan::SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer)
   if (pIndexBuffer != nullptr)
   {
     const ezGALBufferVulkan* pVulkanBuffer = static_cast<const ezGALBufferVulkan*>(pIndexBuffer);
-    currentCmdBuffer.bindIndexBuffer(pVulkanBuffer->GetVulkanBuffer(), 0, pVulkanBuffer->GetIndexFormat());
+    currentCmdBuffer.bindIndexBuffer(pVulkanBuffer->GetBuffer(), 0, pVulkanBuffer->GetIndexType());
   }
   else
   {
@@ -390,7 +390,7 @@ void ezGALContextVulkan::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuf
 {
   EZ_ASSERT_DEV(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
 
-  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pVertexBuffer)->GetVulkanBuffer() : nullptr;
+  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pVertexBuffer)->GetBuffer() : nullptr;
   m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
   m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
 }
@@ -400,8 +400,9 @@ void ezGALContextVulkan::SetVertexDeclarationPlatform(const ezGALVertexDeclarati
   if (pVertexDeclaration)
   {
     m_pCurrentVertexLayout = &static_cast<const ezGALVertexDeclarationVulkan*>(pVertexDeclaration)->GetInputLayout();
+    m_bPipelineStateDirty = true;
   }
-  // TODO deferr to pipeline update
+  // TODO defer to pipeline update
   //m_pDXContext->IASetInputLayout(
   //  pVertexDeclaration != nullptr ? static_cast<const ezGALVertexDeclarationVulkan*>(pVertexDeclaration)->GetDXInputLayout() : nullptr);
 }
@@ -422,13 +423,13 @@ void ezGALContextVulkan::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::En
 void ezGALContextVulkan::SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer)
 {
   // \todo Check if the device supports the slot index?
-  m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pBuffer)->GetVulkanBuffer() : nullptr;
+  m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pBuffer)->GetBuffer() : nullptr;
 
   // The GAL doesn't care about stages for constant buffer, but we need to handle this internaly.
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     m_BoundConstantBuffersRange[stage].SetToIncludeValue(uiSlot);
 
-  m_bPipelineStateDirty = true;
+  m_bDescriptorsDirty = true;
 }
 
 void ezGALContextVulkan::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState)
@@ -437,6 +438,8 @@ void ezGALContextVulkan::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, e
   m_pBoundSamplerStates[Stage][uiSlot] =
     pSamplerState != nullptr ? static_cast<const ezGALSamplerStateVulkan*>(pSamplerState)->GetSamplerState() : nullptr;
   m_BoundSamplerStatesRange[Stage].SetToIncludeValue(uiSlot);
+
+  m_bDescriptorsDirty = true;
 }
 
 void ezGALContextVulkan::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView)
@@ -444,8 +447,10 @@ void ezGALContextVulkan::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, e
   auto& boundShaderResourceViews = m_pBoundShaderResourceViews[Stage];
   boundShaderResourceViews.EnsureCount(uiSlot + 1);
   boundShaderResourceViews[uiSlot] =
-    pResourceView != nullptr ? static_cast<const ezGALResourceViewVulkan*>(pResourceView)->GetResourceView() : nullptr;
+    pResourceView != nullptr ? static_cast<const ezGALResourceViewVulkan*>(pResourceView) : nullptr;
   m_BoundShaderResourceViewsRange[Stage].SetToIncludeValue(uiSlot);
+
+  m_bDescriptorsDirty = true;
 }
 
 void ezGALContextVulkan::SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRenderTargetView*> pRenderTargetViews,
@@ -463,25 +468,23 @@ void ezGALContextVulkan::SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRend
     {
       if (pRenderTargetViews[i] != nullptr)
       {
-        m_pBoundRenderTargets[i] = static_cast<const ezGALRenderTargetViewVulkan*>(pRenderTargetViews[i])->GetRenderTargetView();
+        m_pBoundRenderTargets[i] = static_cast<const ezGALRenderTargetViewVulkan*>(pRenderTargetViews[i]);
       }
     }
 
     if (pDepthStencilView != nullptr)
     {
-      m_pBoundDepthStencilTarget = static_cast<const ezGALRenderTargetViewVulkan*>(pDepthStencilView)->GetDepthStencilView();
+      m_pBoundDepthStencilTarget = static_cast<const ezGALRenderTargetViewVulkan*>(pDepthStencilView);
     }
 
-    // Bind rendertargets, bind max(new rt count, old rt count) to overwrite bound rts if new count < old count
-    m_pDXContext->OMSetRenderTargets(ezMath::Max(pRenderTargetViews.GetCount(), m_uiBoundRenderTargetCount), m_pBoundRenderTargets,
-      m_pBoundDepthStencilTarget);
-
+    // TODO start renderpass, bind framebuffer and so on deferred
+    m_bFrameBufferDirty = true;
     m_uiBoundRenderTargetCount = pRenderTargetViews.GetCount();
   }
   else
   {
     m_pBoundDepthStencilTarget = nullptr;
-    m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
+    // TODO stop renderpass?
     m_uiBoundRenderTargetCount = 0;
   }
 }
@@ -490,54 +493,54 @@ void ezGALContextVulkan::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const e
 {
   m_pBoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
   m_pBoundUnoderedAccessViews[uiSlot] =
-    pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewVulkan*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
+    pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewVulkan*>(pUnorderedAccessView) : nullptr;
   m_pBoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
+
+  m_bDescriptorsDirty = true;
 }
 
 void ezGALContextVulkan::SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
 {
-  FLOAT BlendFactors[4] = {BlendFactor.r, BlendFactor.g, BlendFactor.b, BlendFactor.a};
-
-  m_pDXContext->OMSetBlendState(pBlendState != nullptr ? static_cast<const ezGALBlendStateVulkan*>(pBlendState)->GetDXBlendState() : nullptr,
-    BlendFactors, uiSampleMask);
+  m_pCurrentBlendState = pBlendState != nullptr ? static_cast<const ezGALBlendStateVulkan*>(pBlendState) : nullptr;
+  m_bPipelineStateDirty = true;
 }
 
 void ezGALContextVulkan::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
 {
-  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr
-                                         ? static_cast<const ezGALDepthStencilStateVulkan*>(pDepthStencilState)->GetDXDepthStencilState()
-                                         : nullptr,
-    uiStencilRefValue);
+  m_pCurrentDepthStencilState = pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateVulkan*>(pDepthStencilState) : nullptr;
+  m_bPipelineStateDirty = true;
 }
 
 void ezGALContextVulkan::SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState)
 {
-  m_pDXContext->RSSetState(
-    pRasterizerState != nullptr ? static_cast<const ezGALRasterizerStateVulkan*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
+  m_pCurrentRasterizerState = pRasterizerState != nullptr ? static_cast<const ezGALRasterizerStateVulkan*>(pRasterizerState) : nullptr;
+  m_bPipelineStateDirty = true;
 }
 
 void ezGALContextVulkan::SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
 {
-  D3D11_VIEWPORT Viewport;
-  Viewport.TopLeftX = rect.x;
-  Viewport.TopLeftY = rect.y;
-  Viewport.Width = rect.width;
-  Viewport.Height = rect.height;
-  Viewport.MinDepth = fMinDepth;
-  Viewport.MaxDepth = fMaxDepth;
+  vk::Viewport viewport = {};
+  viewport.x = rect.x;
+  viewport.y = rect.y;
+  viewport.width = rect.width;
+  viewport.height = rect.height;
+  viewport.minDepth = fMinDepth;
+  viewport.maxDepth = fMaxDepth;
 
-  m_pDXContext->RSSetViewports(1, &Viewport);
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.setViewport(0, 1, &viewport);
 }
 
 void ezGALContextVulkan::SetScissorRectPlatform(const ezRectU32& rect)
 {
-  D3D11_RECT ScissorRect;
-  ScissorRect.left = rect.x;
-  ScissorRect.top = rect.y;
-  ScissorRect.right = rect.x + rect.width;
-  ScissorRect.bottom = rect.y + rect.height;
+  vk::Rect2D scissor;
+  scissor.offset.x = rect.x;
+  scissor.offset.y = rect.y;
+  scissor.extent.width = rect.width;
+  scissor.extent.height = rect.height;
 
-  m_pDXContext->RSSetScissorRects(1, &ScissorRect);
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.setScissor(0, 1, &scissor);
 }
 
 void ezGALContextVulkan::SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset)
@@ -549,75 +552,105 @@ void ezGALContextVulkan::SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGAL
 
 void ezGALContextVulkan::InsertFencePlatform(const ezGALFence* pFence)
 {
-  m_pDXContext->End(static_cast<const ezGALFenceVulkan*>(pFence)->GetDXFence());
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
+  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
+
+  vk::Queue queue = pVulkanDevice->GetQueue();
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+
+  currentCmdBuffer.end();
+  vk::SubmitInfo submitInfo = {};
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &currentCmdBuffer;
+
+  queue.submit(1, &submitInfo, pVulkanFence->GetFence());
 }
 
 bool ezGALContextVulkan::IsFenceReachedPlatform(const ezGALFence* pFence)
 {
   BOOL data = FALSE;
-  if (m_pDXContext->GetData(static_cast<const ezGALFenceVulkan*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
-  {
-    EZ_ASSERT_DEV(data == TRUE, "Implementation error");
-    return true;
-  }
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
+  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
+  vk::Result fenceStatus = pVulkanDevice->GetVulkanDevice().getFenceStatus(pVulkanFence->GetFence());
 
-  return false;
+  EZ_ASSERT_DEV(fenceStatus != vk::Result::eErrorDeviceLost, "Device lost during fence status query!");
+
+  return fenceStatus == vk::Result::eSuccess;
 }
 
 void ezGALContextVulkan::WaitForFencePlatform(const ezGALFence* pFence)
 {
-  BOOL data = FALSE;
-  while (m_pDXContext->GetData(static_cast<const ezGALFenceVulkan*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
+  while (!IsFenceReachedPlatform(pFence))
   {
     ezThreadUtils::YieldTimeSlice();
   }
-
-  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
 }
 
 void ezGALContextVulkan::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
-  m_pDXContext->Begin(static_cast<const ezGALQueryVulkan*>(pQuery)->GetDXQuery());
+  auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
+
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+
+  // TODO how to decide the query type etc in Vulkan?
+
+  currentCmdBuffer.beginQuery(pVulkanQuery->GetPool(), pVulkanQuery->GetID(), {});
 }
 
 void ezGALContextVulkan::EndQueryPlatform(const ezGALQuery* pQuery)
 {
-  m_pDXContext->End(static_cast<const ezGALQueryVulkan*>(pQuery)->GetDXQuery());
+  auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
+
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.endQuery(pVulkanQuery->GetPool(), pVulkanQuery->GetID());
 }
 
 ezResult ezGALContextVulkan::GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult)
 {
-  return m_pDXContext->GetData(static_cast<const ezGALQueryVulkan*>(pQuery)->GetDXQuery(), &uiQueryResult, sizeof(ezUInt64),
-           D3D11_ASYNC_GETDATA_DONOTFLUSH) == S_FALSE
-           ? EZ_FAILURE
-           : EZ_SUCCESS;
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
+  auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
+  vk::Result result = pVulkanDevice->GetVulkanDevice().getQueryPoolResults(pVulkanQuery->GetPool(), pVulkanQuery->GetID(), 1u, sizeof(ezUInt64), &uiQueryResult, 0, vk::QueryResultFlagBits::e64);
+
+  return result == vk::Result::eSuccess ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezGALContextVulkan::InsertTimestampPlatform(ezGALTimestampHandle hTimestamp)
 {
-  ID3D11Query* pDXQuery = static_cast<ezGALDeviceVulkan*>(GetDevice())->GetTimestamp(hTimestamp);
-
-  m_pDXContext->End(pDXQuery);
+  // TODO how to implement this in Vulkan?
+  //ID3D11Query* pDXQuery = static_cast<ezGALDeviceVulkan*>(GetDevice())->GetTimestamp(hTimestamp);
+  //
+  //m_pDXContext->End(pDXQuery);
 }
 
 // Resource update functions
 
 void ezGALContextVulkan::CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource)
 {
-  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferVulkan*>(pDestination)->GetDXBuffer();
-  ID3D11Buffer* pDXSource = static_cast<const ezGALBufferVulkan*>(pSource)->GetDXBuffer();
+  vk::Buffer destination = static_cast<const ezGALBufferVulkan*>(pDestination)->GetBuffer();
+  vk::Buffer source = static_cast<const ezGALBufferVulkan*>(pSource)->GetBuffer();
 
-  m_pDXContext->CopyResource(pDXDestination, pDXSource);
+  EZ_ASSERT_DEV(pSource->GetSize() != pDestination->GetSize(), "Source and destination buffer sizes mismatch!");
+
+  // TODO do this in an immediate command buffer?
+  vk::BufferCopy bufferCopy = {};
+  bufferCopy.size = pSource->GetSize();
+
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.copyBuffer(source, destination, 1, &bufferCopy);
 }
 
 void ezGALContextVulkan::CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource,
   ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
 {
-  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferVulkan*>(pDestination)->GetDXBuffer();
-  ID3D11Buffer* pDXSource = static_cast<const ezGALBufferVulkan*>(pSource)->GetDXBuffer();
+  vk::Buffer destination = static_cast<const ezGALBufferVulkan*>(pDestination)->GetBuffer();
+  vk::Buffer source = static_cast<const ezGALBufferVulkan*>(pSource)->GetBuffer();
+  vk::BufferCopy bufferCopy = {};
+  bufferCopy.dstOffset = uiDestOffset;
+  bufferCopy.srcOffset = uiSourceOffset;
+  bufferCopy.size = uiByteCount;
 
-  D3D11_BOX srcBox = {uiSourceOffset, 0, 0, uiSourceOffset + uiByteCount, 1, 1};
-  m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXSource, 0, &srcBox);
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.copyBuffer(source, destination, 1, &bufferCopy);
 }
 
 void ezGALContextVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
@@ -625,37 +658,32 @@ void ezGALContextVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, e
 {
   EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
 
-  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferVulkan*>(pDestination)->GetDXBuffer();
+  auto pVulkanDestination = static_cast<const ezGALBufferVulkan*>(pDestination);
 
   if (pDestination->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer)
   {
-    EZ_ASSERT_DEV(uiDestOffset == 0 && pSourceData.GetCount() == pDestination->GetSize(),
-      "Constant buffers can't be updated partially (and we don't check for Vulkan.1)!");
-
-    D3D11_MAPPED_SUBRESOURCE MapResult;
-    if (SUCCEEDED(m_pDXContext->Map(pDXDestination, 0, D3D11_MAP_WRITE_DISCARD, 0, &MapResult)))
-    {
-      memcpy(MapResult.pData, pSourceData.GetPtr(), pSourceData.GetCount());
-
-      m_pDXContext->Unmap(pDXDestination, 0);
-    }
+    vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+    currentCmdBuffer.updateBuffer(pVulkanDestination->GetBuffer(), uiDestOffset, pSourceData.GetCount(), pSourceData.GetPtr());
   }
   else
   {
+    auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
+
     if (updateMode == ezGALUpdateMode::CopyToTempStorage)
     {
-      if (ID3D11Resource* pDXTempBuffer = static_cast<ezGALDeviceVulkan*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
+      if (ezGALBufferVulkan* tmpBuffer = static_cast<ezGALDeviceVulkan*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
       {
-        D3D11_MAPPED_SUBRESOURCE MapResult;
-        HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, 0, &MapResult);
-        EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+        EZ_ASSERT_DEV(tmpBuffer->GetSize() >= pSourceData.GetCount(), "Source data is too big to copy staged!");
 
-        memcpy(MapResult.pData, pSourceData.GetPtr(), pSourceData.GetCount());
+        void* pData = pVulkanDevice->GetVulkanDevice().mapMemory(tmpBuffer->GetMemory(), tmpBuffer->GetMemoryOffset(), tmpBuffer->GetSize());
 
-        m_pDXContext->Unmap(pDXTempBuffer, 0);
+        EZ_ASSERT_DEV(pData, "Implementation error");
 
-        D3D11_BOX srcBox = {0, 0, 0, pSourceData.GetCount(), 1, 1};
-        m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXTempBuffer, 0, &srcBox);
+        ezMemoryUtils::Copy((ezUInt8*)pData, pSourceData.GetPtr(), pSourceData.GetCount());
+
+        pVulkanDevice->GetVulkanDevice().unmapMemory(tmpBuffer->GetMemory());
+
+        CopyBufferRegionPlatform(pDestination, uiDestOffset, tmpBuffer, 0, pSourceData.GetCount());
       }
       else
       {
@@ -664,14 +692,16 @@ void ezGALContextVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, e
     }
     else
     {
-      D3D11_MAP mapType = (updateMode == ezGALUpdateMode::Discard) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
+      // TODO is this behavior available on Vulkan?
+      //D3D11_MAP mapType = (updateMode == ezGALUpdateMode::Discard) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
 
-      D3D11_MAPPED_SUBRESOURCE MapResult;
-      if (SUCCEEDED(m_pDXContext->Map(pDXDestination, 0, mapType, 0, &MapResult)))
+      void* pData = pVulkanDevice->GetVulkanDevice().mapMemory(pVulkanDestination->GetMemory(), pVulkanDestination->GetMemoryOffset(), pVulkanDestination->GetSize());
+
+      if (pData)
       {
-        memcpy(ezMemoryUtils::AddByteOffset(MapResult.pData, uiDestOffset), pSourceData.GetPtr(), pSourceData.GetCount());
+        ezMemoryUtils::Copy((ezUInt8*)pData, pSourceData.GetPtr(), pSourceData.GetCount());
 
-        m_pDXContext->Unmap(pDXDestination, 0);
+        pVulkanDevice->GetVulkanDevice().unmapMemory(pVulkanDestination->GetMemory());
       }
     }
   }
@@ -679,44 +709,99 @@ void ezGALContextVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, e
 
 void ezGALContextVulkan::CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureVulkan*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<const ezGALTextureVulkan*>(pSource)->GetDXTexture();
+  auto destination = static_cast<const ezGALTextureVulkan*>(pDestination);
+  auto source = static_cast<const ezGALTextureVulkan*>(pSource);
 
-  m_pDXContext->CopyResource(pDXDestination, pDXSource);
+  const ezGALTextureCreationDescription& destDesc = pDestination->GetDescription();
+  const ezGALTextureCreationDescription& srcDesc = pSource->GetDescription();
+
+  EZ_ASSERT_DEBUG(ezGALResourceFormat::IsDepthFormat(destDesc.m_Format) == ezGALResourceFormat::IsDepthFormat(srcDesc.m_Format), "");
+  EZ_ASSERT_DEBUG(destDesc.m_uiArraySize == srcDesc.m_uiArraySize, "");
+  EZ_ASSERT_DEBUG(destDesc.m_uiMipLevelCount == srcDesc.m_uiMipLevelCount, "");
+  EZ_ASSERT_DEBUG(destDesc.m_uiWidth == srcDesc.m_uiWidth, "");
+  EZ_ASSERT_DEBUG(destDesc.m_uiHeight == srcDesc.m_uiHeight, "");
+  EZ_ASSERT_DEBUG(destDesc.m_uiDepth == srcDesc.m_uiDepth, "");
+
+  vk::ImageAspectFlagBits imageAspect = ezGALResourceFormat::IsDepthFormat(destDesc.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+
+  // TODO need to copy every mip level
+  ezHybridArray<vk::ImageCopy, 14> imageCopies;
+
+  for (int i = 0; i < destDesc.m_uiMipLevelCount; ++i)
+  {
+    vk::ImageCopy& imageCopy = imageCopies.ExpandAndGetRef();
+    imageCopy.dstOffset = {};
+    imageCopy.dstSubresource.aspectMask = imageAspect;
+    imageCopy.dstSubresource.baseArrayLayer = 0;
+    imageCopy.dstSubresource.layerCount = destDesc.m_uiArraySize;
+    imageCopy.dstSubresource.mipLevel = i;
+    imageCopy.extent.width = destDesc.m_uiWidth;
+    imageCopy.extent.height = destDesc.m_uiHeight;
+    imageCopy.extent.depth = destDesc.m_uiDepth;
+    imageCopy.srcOffset = {};
+    imageCopy.srcSubresource.aspectMask = imageAspect;
+    imageCopy.srcSubresource.baseArrayLayer = 0;
+    imageCopy.srcSubresource.layerCount = srcDesc.m_uiArraySize;
+    imageCopy.srcSubresource.mipLevel = i;
+  }
+
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.copyImage(source->GetImage(), vk::ImageLayout::eGeneral, destination->GetImage(), vk::ImageLayout::eGeneral, destDesc.m_uiMipLevelCount, imageCopies.GetData());
 }
 
 void ezGALContextVulkan::CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
   const ezVec3U32& DestinationPoint, const ezGALTexture* pSource,
   const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureVulkan*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<const ezGALTextureVulkan*>(pSource)->GetDXTexture();
+  auto destination = static_cast<const ezGALTextureVulkan*>(pDestination);
+  auto source = static_cast<const ezGALTextureVulkan*>(pSource);
 
-  ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice,
-    pDestination->GetDescription().m_uiMipLevelCount);
-  ezUInt32 srcSubResource =
-    D3D11CalcSubresource(SourceSubResource.m_uiMipLevel, SourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
+  const ezGALTextureCreationDescription& destDesc = pDestination->GetDescription();
+  const ezGALTextureCreationDescription& srcDesc = pSource->GetDescription();
 
-  D3D11_BOX srcBox = {Box.m_vMin.x, Box.m_vMin.y, Box.m_vMin.z, Box.m_vMax.x, Box.m_vMax.y, Box.m_vMax.z};
-  m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, DestinationPoint.x, DestinationPoint.y, DestinationPoint.z, pDXSource,
-    srcSubResource, &srcBox);
+  EZ_ASSERT_DEBUG(ezGALResourceFormat::IsDepthFormat(destDesc.m_Format) == ezGALResourceFormat::IsDepthFormat(srcDesc.m_Format), "");
+
+  vk::ImageAspectFlagBits imageAspect = ezGALResourceFormat::IsDepthFormat(destDesc.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+
+  ezVec3U32 extent = Box.m_vMax - Box.m_vMin;
+
+  vk::ImageCopy imageCopy = {};
+  imageCopy.dstOffset.x = DestinationPoint.x;
+  imageCopy.dstOffset.y = DestinationPoint.y;
+  imageCopy.dstOffset.z = DestinationPoint.z;
+  imageCopy.dstSubresource.aspectMask = imageAspect;
+  imageCopy.dstSubresource.baseArrayLayer = DestinationSubResource.m_uiArraySlice;
+  imageCopy.dstSubresource.layerCount = 1;
+  imageCopy.dstSubresource.mipLevel = DestinationSubResource.m_uiMipLevel;
+  imageCopy.extent.width = extent.x;
+  imageCopy.extent.height = extent.y;
+  imageCopy.extent.depth = extent.z;
+  imageCopy.srcOffset.x = Box.m_vMin.x;
+  imageCopy.srcOffset.y = Box.m_vMin.y;
+  imageCopy.srcOffset.z = Box.m_vMin.z;
+  imageCopy.srcSubresource.aspectMask = imageAspect;
+  imageCopy.srcSubresource.baseArrayLayer = DestinationSubResource.m_uiArraySlice;
+  imageCopy.srcSubresource.layerCount = 1;
+  imageCopy.srcSubresource.mipLevel = SourceSubResource.m_uiMipLevel;
+
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.copyImage(source->GetImage(), vk::ImageLayout::eGeneral, destination->GetImage(), vk::ImageLayout::eGeneral, 1, &imageCopy);
 }
 
 void ezGALContextVulkan::UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
   const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureVulkan*>(pDestination)->GetDXTexture();
-
   ezUInt32 uiWidth = ezMath::Max(DestinationBox.m_vMax.x - DestinationBox.m_vMin.x, 1u);
   ezUInt32 uiHeight = ezMath::Max(DestinationBox.m_vMax.y - DestinationBox.m_vMin.y, 1u);
   ezUInt32 uiDepth = ezMath::Max(DestinationBox.m_vMax.z - DestinationBox.m_vMin.z, 1u);
   ezGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
 
-  if (ID3D11Resource* pDXTempTexture = static_cast<ezGALDeviceVulkan*>(GetDevice())->FindTempTexture(uiWidth, uiHeight, uiDepth, format))
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
+
+  if (ezGALTextureVulkan* pTempTexture = pVulkanDevice->FindTempTexture(uiWidth, uiHeight, uiDepth, format))
   {
-    D3D11_MAPPED_SUBRESOURCE MapResult;
-    HRESULT hRes = m_pDXContext->Map(pDXTempTexture, 0, D3D11_MAP_WRITE, 0, &MapResult);
-    EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+    void* pData = pVulkanDevice->GetVulkanDevice().mapMemory(pTempTexture->GetMemory(), pTempTexture->GetMemoryOffset(), pTempTexture->GetMemorySize());
+    EZ_ASSERT_DEV(pData, "Implementation error");
 
     ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(format) / 8;
     ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
@@ -724,16 +809,16 @@ void ezGALContextVulkan::UpdateTexturePlatform(const ezGALTexture* pDestination,
     EZ_ASSERT_DEV(pSourceData.m_uiSlicePitch == 0 || pSourceData.m_uiSlicePitch == uiSlicePitch,
       "Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, pSourceData.m_uiSlicePitch);
 
-    memcpy(MapResult.pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
+    ezMemoryUtils::Copy(pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
 
-    m_pDXContext->Unmap(pDXTempTexture, 0);
+    pVulkanDevice->GetVulkanDevice().unmapMemory(pTempTexture->GetMemory());
 
-    ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice,
-      pDestination->GetDescription().m_uiMipLevelCount);
-
-    D3D11_BOX srcBox = {0, 0, 0, uiWidth, uiHeight, uiDepth};
-    m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, DestinationBox.m_vMin.x, DestinationBox.m_vMin.y,
-      DestinationBox.m_vMin.z, pDXTempTexture, 0, &srcBox);
+    ezGALTextureSubresource sourceSubResource;
+    sourceSubResource.m_uiArraySlice = 0;
+    sourceSubResource.m_uiMipLevel = 0;
+    ezBoundingBoxu32 sourceBox = DestinationBox;
+    sourceBox.Translate(-sourceBox.m_vMin);
+    CopyTextureRegionPlatform(pDestination, DestinationSubResource, DestinationBox.m_vMin, pTempTexture, sourceSubResource, sourceBox);
   }
   else
   {
@@ -744,73 +829,94 @@ void ezGALContextVulkan::UpdateTexturePlatform(const ezGALTexture* pDestination,
 void ezGALContextVulkan::ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
   const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureVulkan*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<const ezGALTextureVulkan*>(pSource)->GetDXTexture();
+  EZ_ASSERT_ALWAYS(DestinationSubResource.m_uiMipLevel == 0, "Resolving of higher mips not implemented yet!");
+  EZ_ASSERT_ALWAYS(SourceSubResource.m_uiMipLevel == 0, "Resolving of higher mips not implemented yet!");
 
-  ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice,
-    pDestination->GetDescription().m_uiMipLevelCount);
-  ezUInt32 srcSubResource =
-    D3D11CalcSubresource(SourceSubResource.m_uiMipLevel, SourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
+  auto pVulkanDestination = static_cast<const ezGALTextureVulkan*>(pDestination);
+  auto pVulkanSource = static_cast<const ezGALTextureVulkan*>(pSource);
 
-  DXGI_FORMAT DXFormat = static_cast<ezGALDeviceVulkan*>(GetDevice())
-                           ->GetFormatLookupTable()
-                           .GetFormatInfo(pDestination->GetDescription().m_Format)
-                           .m_eResourceViewType;
+  const ezGALTextureCreationDescription& destDesc = pDestination->GetDescription();
+  const ezGALTextureCreationDescription& srcDesc = pSource->GetDescription();
 
-  m_pDXContext->ResolveSubresource(pDXDestination, dstSubResource, pDXSource, srcSubResource, DXFormat);
+  EZ_ASSERT_DEBUG(ezGALResourceFormat::IsDepthFormat(destDesc.m_Format) == ezGALResourceFormat::IsDepthFormat(srcDesc.m_Format), "");
+
+  vk::ImageAspectFlagBits imageAspect = ezGALResourceFormat::IsDepthFormat(destDesc.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+
+  // TODO need to determine size of the subresource
+  vk::ImageResolve resolveRegion = {};
+  resolveRegion.dstSubresource.aspectMask = imageAspect;
+  resolveRegion.dstSubresource.baseArrayLayer = DestinationSubResource.m_uiArraySlice;
+  resolveRegion.dstSubresource.layerCount = 1; // TODO is this correct?
+  resolveRegion.dstSubresource.mipLevel = 0; // TODO implement resolve of higher mips
+  resolveRegion.extent.width = destDesc.m_uiWidth;
+  resolveRegion.extent.height = destDesc.m_uiHeight;
+  resolveRegion.extent.depth = destDesc.m_uiDepth;
+  resolveRegion.srcSubresource.aspectMask = imageAspect;
+  resolveRegion.srcSubresource.baseArrayLayer = DestinationSubResource.m_uiArraySlice;
+  resolveRegion.srcSubresource.layerCount = 1;
+  resolveRegion.srcSubresource.mipLevel = 0;// TODO implement resolve of higher mips
+
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.resolveImage(pVulkanSource->GetImage(), vk::ImageLayout::eGeneral, pVulkanDestination->GetImage, vk::ImageLayout::eGeneral, 1, &resolveRegion);
 }
 
 void ezGALContextVulkan::ReadbackTexturePlatform(const ezGALTexture* pTexture)
 {
-  const ezGALTextureVulkan* pDXTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
+  const ezGALTextureVulkan* pVulkanTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
 
   // MSAA textures (e.g. backbuffers) need to be converted to non MSAA versions
-  const bool bMSAASourceTexture = pDXTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
+  const bool bMSAASourceTexture = pVulkanTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
 
-  EZ_ASSERT_DEV(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
-  EZ_ASSERT_DEV(pDXTexture->GetDXTexture() != nullptr, "Texture object is invalid");
+  EZ_ASSERT_DEV(pVulkanTexture->GetStagingBuffer(), "No staging resource available for read-back");
+  EZ_ASSERT_DEV(pVulkanTexture->GetImage(), "Texture object is invalid");
 
   if (bMSAASourceTexture)
   {
-    /// \todo Other mip levels etc?
-    m_pDXContext->ResolveSubresource(pDXTexture->GetDXStagingTexture(), 0, pDXTexture->GetDXTexture(), 0, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
   else
   {
-    m_pDXContext->CopyResource(pDXTexture->GetDXStagingTexture(), pDXTexture->GetDXTexture());
+    const ezGALTextureCreationDescription& textureDesc = pVulkanTexture->GetDescription();
+
+    vk::ImageAspectFlagBits imageAspect = ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+
+    vk::BufferImageCopy copyRegion = {};
+    copyRegion.bufferImageHeight = textureDesc.m_uiHeight;
+    copyRegion.bufferRowLength = textureDesc.m_uiWidth;
+    copyRegion.bufferOffset = 0;
+    copyRegion.imageExtent.width = textureDesc.m_uiWidth;
+    copyRegion.imageExtent.height = textureDesc.m_uiWidth;
+    copyRegion.imageExtent.depth = textureDesc.m_uiDepth;
+    copyRegion.imageSubresource.aspectMask = imageAspect;
+    copyRegion.imageSubresource.baseArrayLayer = 0;
+    copyRegion.imageSubresource.layerCount = textureDesc.m_uiArraySize;
+    copyRegion.imageSubresource.mipLevel = 0; // TODO need to support all mip levels
+
+    // TODO do we need to do this immediately?
+    vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+    currentCmdBuffer.copyImageToBuffer(pVulkanTexture->GetImage(), vk::ImageLayout::eGeneral, pVulkanTexture->GetStagingBuffer()->GetBuffer(), 1, &copyRegion);
   }
 }
 
 void ezGALContextVulkan::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture,
   const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
 {
-  const ezGALTextureVulkan* pDXTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
+  auto pVulkanTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
 
-  EZ_ASSERT_DEV(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
+  ezGALBufferVulkan* pStagingBuffer= pVulkanTexture->GetStagingBuffer();
 
-  D3D11_MAPPED_SUBRESOURCE Mapped;
-  if (SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))
+  EZ_ASSERT_DEV(pStagingBuffer, "No staging resource available for read-back");
+
+  // Data should be tightly packed in the staging buffer already, so
+  // just map the memory and copy it over
+  void* pSrcData = pVulkanDevice->GetVulkanDevice().mapMemory(pStagingBuffer->GetMemory(), pStagingBuffer->GetMemoryOffset(), pStagingBuffer->GetSize());
+  if (pSrcData)
   {
-    if (Mapped.RowPitch == (*pData)[0].m_uiRowPitch)
-    {
-      const ezUInt32 uiMemorySize = ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) *
-                                    pDXTexture->GetDescription().m_uiWidth * pDXTexture->GetDescription().m_uiHeight / 8;
-      memcpy((*pData)[0].m_pData, Mapped.pData, uiMemorySize);
-    }
-    else
-    {
-      // Copy row by row
-      for (ezUInt32 y = 0; y < pDXTexture->GetDescription().m_uiHeight; ++y)
-      {
-        const void* pSource = ezMemoryUtils::AddByteOffset(Mapped.pData, y * Mapped.RowPitch);
-        void* pDest = ezMemoryUtils::AddByteOffset((*pData)[0].m_pData, y * (*pData)[0].m_uiRowPitch);
+    // TODO size of the buffer could missmatch the texture data size necessary
+    ezMemoryUtils::Copy(pData->GetPtr()->m_pData, pSrcData, pStagingBuffer->GetSize());
 
-        memcpy(pDest, pSource,
-          ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) * pDXTexture->GetDescription().m_uiWidth / 8);
-      }
-    }
-
-    m_pDXContext->Unmap(pDXTexture->GetDXStagingTexture(), 0);
+    pVulkanDevice->GetVulkanDevice().unmapMemory(pStagingBuffer->GetMemory());
   }
 }
 
@@ -818,7 +924,7 @@ void ezGALContextVulkan::GenerateMipMapsPlatform(const ezGALResourceView* pResou
 {
   const ezGALResourceViewVulkan* pDXResourceView = static_cast<const ezGALResourceViewVulkan*>(pResourceView);
 
-  m_pDXContext->GenerateMips(pDXResourceView->GetDXResourceView());
+  // TODO texture blit based approach
 }
 
 void ezGALContextVulkan::FlushPlatform()
@@ -830,30 +936,32 @@ void ezGALContextVulkan::FlushPlatform()
 
 void ezGALContextVulkan::PushMarkerPlatform(const char* szMarker)
 {
-  if (m_pDXAnnotation != nullptr)
-  {
-    ezStringWChar wsMarker(szMarker);
-    m_pDXAnnotation->BeginEvent(wsMarker.GetData());
-  }
+  // TODO early out if device doesn't support debug markers
+
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+
+  constexpr float markerColor[4] = {1, 1, 1, 1};
+  vk::DebugMarkerMarkerInfoEXT markerInfo = {};
+  ezMemoryUtils::Copy(markerInfo.color, markerColor, EZ_ARRAY_SIZE(markerColor));
+  markerInfo.pMarkerName = szMarker;
+  currentCmdBuffer.debugMarkerBeginEXT(markerInfo);
 }
 
 void ezGALContextVulkan::PopMarkerPlatform()
 {
-  if (m_pDXAnnotation != nullptr)
-  {
-    m_pDXAnnotation->EndEvent();
-  }
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  currentCmdBuffer.debugMarkerEndEXT();
 }
 
 void ezGALContextVulkan::InsertEventMarkerPlatform(const char* szMarker)
 {
-  if (m_pDXAnnotation != nullptr)
-  {
-    ezStringWChar wsMarker(szMarker);
-    m_pDXAnnotation->SetMarker(wsMarker.GetData());
-  }
+  vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
+
+  constexpr float markerColor[4] = {1, 1, 1, 1};
+  vk::DebugMarkerMarkerInfoEXT markerInfo = {};
+  ezMemoryUtils::Copy(markerInfo.color, markerColor, EZ_ARRAY_SIZE(markerColor));
+  markerInfo.pMarkerName = szMarker;
+  currentCmdBuffer.debugMarkerInsertEXT(markerInfo);
 }
-
-
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Context_Implementation_ContextVulkan);

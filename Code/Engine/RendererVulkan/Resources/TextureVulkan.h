@@ -9,9 +9,14 @@ class ezGALTextureVulkan : public ezGALTexture
 {
 public:
 
-  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
+  EZ_ALWAYS_INLINE vk::Image GetImage() const;
 
-  EZ_ALWAYS_INLINE ID3D11Resource* GetDXStagingTexture() const;
+  EZ_ALWAYS_INLINE ezGALBufferVulkan* GetStagingBuffer() const;
+
+  EZ_ALWAYS_INLINE vk::DeviceMemory GetMemory() const;
+
+  EZ_ALWAYS_INLINE vk::DeviceSize GetMemoryOffset() const;
+  EZ_ALWAYS_INLINE vk::DeviceSize GetMemorySize() const;
 
 protected:
 

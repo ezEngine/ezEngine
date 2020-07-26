@@ -31,6 +31,15 @@ ezInt32 getGraphicsAndComputeQueue(ezArrayPtr<vk::QueueFamilyProperties> queueFa
   return -1;
 }
 
+// Need to implement these extension functions so vulkan hpp can call them
+// They're basically just adapters calling the function pointer retreived previously
+// TODO the pointers will probably differ for different devices so how could we go about that?
+
+PFN_vkCmdDebugMarkerBeginEXT vkCmdDebugMarkerBeginEXT;
+PFN_vkCmdDebugMarkerEndEXT vkCmdDebugMarkerEndEXT;
+PFN_vkCmdDebugMarkerInsertEXT vkCmdDebugMarkerInsertEXT;
+
+
 
 ezGALDeviceVulkan::ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
@@ -112,15 +121,23 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   deviceQueueCreateInfo.queueCount = 1;
   deviceQueueCreateInfo.queueFamilyIndex = graphicsQueueIndex;
 
+  const char* deviceExtensions[] = {VK_EXT_DEBUG_MARKER_EXTENSION_NAME}; // TODO need to check for availability
+
   vk::DeviceCreateInfo deviceCreateInfo = {};
-  deviceCreateInfo.enabledExtensionCount;
+  deviceCreateInfo.enabledExtensionCount = EZ_ARRAY_SIZE(deviceExtensions);
   deviceCreateInfo.enabledLayerCount;
   deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures; // Enabling all available features for now
-  deviceCreateInfo.ppEnabledExtensionNames;
+  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
   deviceCreateInfo.ppEnabledLayerNames;
   deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
   deviceCreateInfo.queueCreateInfoCount = 1;
   m_device = m_physicalDevice.createDevice(deviceCreateInfo);
+
+  m_queue = m_device.getQueue(m_queueFamilyIndices[0], 0);
+
+  vkCmdDebugMarkerBeginEXT = (PFN_vkCmdDebugMarkerBeginEXT)m_device.getProcAddr("vkCmdDebugMarkerBeginEXT");
+  vkCmdDebugMarkerEndEXT = (PFN_vkCmdDebugMarkerEndEXT)m_device.getProcAddr("vkCmdDebugMarkerEndEXT");
+  vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)m_device.getProcAddr("vkCmdDebugMarkerInsertEXT");
 
   // Fill lookup table
   FillFormatLookupTable();

@@ -26,6 +26,7 @@ public:
   vk::Device GetVulkanDevice() const;
 
   ezArrayPtr<ezUInt32> GetQueueFamilyIndices() const;
+  vk::Queue GetQueue();
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 
@@ -165,6 +166,7 @@ private:
   vk::Instance m_instance;
   vk::PhysicalDevice m_physicalDevice;
   vk::Device m_device;
+  vk::Queue m_queue;
 
   ezHybridArray<ezUInt32, 2> m_queueFamilyIndices;
   ezGALFormatLookupTableVulkan m_FormatLookupTable;

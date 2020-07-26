@@ -9,9 +9,12 @@ class EZ_RENDERERVULKAN_DLL ezGALBufferVulkan : public ezGALBuffer
 {
 public:
 
-  EZ_ALWAYS_INLINE vk::Buffer GetVulkanBuffer() const;
+  EZ_ALWAYS_INLINE vk::Buffer GetBuffer() const;
 
-  EZ_ALWAYS_INLINE vk::IndexType GetIndexFormat() const;
+  EZ_ALWAYS_INLINE vk::IndexType GetIndexType() const;
+
+  EZ_ALWAYS_INLINE vk::DeviceMemory GetMemory() const;
+  EZ_ALWAYS_INLINE vk::DeviceSize GetMemoryOffset() const;
 
 protected:
 
@@ -27,9 +30,9 @@ protected:
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
-  vk::Buffer m_vulkanBuffer;
+  vk::Buffer m_buffer;
 
-  vk::IndexType m_IndexFormat; // Only applicable for index buffers
+  vk::IndexType m_indexType; // Only applicable for index buffers
 };
 
 #include <RendererVulkan/Resources/Implementation/BufferVulkan_inl.h>

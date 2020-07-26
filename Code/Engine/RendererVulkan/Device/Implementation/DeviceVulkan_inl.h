@@ -1,3 +1,4 @@
+#include "..\DeviceVulkan.h"
 
 EZ_ALWAYS_INLINE vk::Device ezGALDeviceVulkan::GetVulkanDevice() const
 {
@@ -12,6 +13,11 @@ EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetVulkanInstance() const
 EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetFamilyQueueIndices() const
 {
   return m_queueFamilyIndices;
+}
+
+inline vk::Queue ezGALDeviceVulkan::GetQueue()
+{
+  return m_queue;
 }
 
 EZ_ALWAYS_INLINE const ezGALFormatLookupTableVulkan& ezGALDeviceVulkan::GetFormatLookupTable() const

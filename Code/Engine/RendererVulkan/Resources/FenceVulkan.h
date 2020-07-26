@@ -1,17 +1,17 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Resources/Fence.h>
 
-struct ID3D11Query;
+#include <vulkan/vulkan.hpp>
 
 class EZ_RENDERERVULKAN_DLL ezGALFenceVulkan : public ezGALFence
 {
 public:
 
-  EZ_ALWAYS_INLINE ID3D11Query* GetDXFence() const
+  EZ_ALWAYS_INLINE vk::Fence GetFence() const
   {
-    return m_pDXFence;
+    return m_fence;
   }
 
 protected:
@@ -27,5 +27,5 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11Query* m_pDXFence;
+  vk::Fence m_fence;
 };

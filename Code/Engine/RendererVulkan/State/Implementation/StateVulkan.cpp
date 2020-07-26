@@ -192,9 +192,9 @@ ezResult ezGALRasterizerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 // Sampler state
 
 ezGALSamplerStateVulkan::ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description)
-    : ezGALSamplerState(Description)
-    , m_vulkanSamplerState({})
-    , m_sampler(nullptr)
+  : ezGALSamplerState(Description)
+  , m_samplerState({})
+  , m_sampler(nullptr)
 {
 }
 

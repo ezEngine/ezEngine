@@ -1,5 +1,5 @@
 
-ID3D11Query* ezGALQueryVulkan::GetDXQuery() const
+ezUInt32 ezGALQueryVulkan::GetID() const
 {
-  return m_pDXQuery;
+  return m_uiID;
 }

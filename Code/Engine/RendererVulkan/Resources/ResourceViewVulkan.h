@@ -1,15 +1,16 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Resources/ResourceView.h>
 
-struct ID3D11ShaderResourceView;
+#include <vulkan/vulkan.hpp>
 
 class ezGALResourceViewVulkan : public ezGALResourceView
 {
 public:
 
-  EZ_ALWAYS_INLINE ID3D11ShaderResourceView* GetDXResourceView() const;
+  EZ_ALWAYS_INLINE vk::DescriptorSetLayoutBinding& GetResourceBinding() const;
+  EZ_ALWAYS_INLINE vk::WriteDescriptorSet& GetResourceBindingData() const;
 
 protected:
 
@@ -24,7 +25,11 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11ShaderResourceView* m_pDXResourceView;
+  vk::ImageView m_imageView;
+  vk::DescriptorSetLayoutBinding m_resourceBinding;
+  vk::WriteDescriptorSet m_resourceBindingData;
+  vk::DescriptorBufferInfo m_resourceBufferInfo;
+  vk::DescriptorImageInfo m_resourceImageInfo;
 };
 
 #include <RendererVulkan/Resources/Implementation/ResourceViewVulkan_inl.h>

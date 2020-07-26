@@ -1,10 +1,10 @@
 
-vk::Buffer ezGALBufferVulkan::GetVulkanBuffer() const
+vk::Buffer ezGALBufferVulkan::GetBuffer() const
 {
-  return m_vulkanBuffer;
+  return m_buffer;
 }
 
-vk::Format ezGALBufferVulkan::GetIndexFormat() const
+vk::IndexType ezGALBufferVulkan::GetIndexType() const
 {
-  return m_IndexFormat;
+  return m_indexType;
 }

@@ -8,6 +8,13 @@
 
 #include <vulkan/vulkan.hpp>
 
+class ezGALBlendStateVulkan;
+class ezGALDepthStencilStateVulkan;
+class ezGALResourceViewVulkan;
+class ezGALUnorderedAccessViewVulkan;
+class ezGALRasterizerStateVulkan;
+class ezGALRenderTargetViewVulkan;
+
 /// \brief The Vulkan implementation of the graphics context.
 class EZ_RENDERERVULKAN_DLL ezGALContextVulkan : public ezGALContext
 {
@@ -150,14 +157,19 @@ protected:
 
   ezUInt32 m_uiCurrentCmdBufferIndex = 0;
   const ezGALShaderVulkan* m_pCurrentShader;
+  const ezGALBlendStateVulkan* m_pCurrentBlendState;
+  const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState;
+  const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState;
   const vk::PipelineVertexInputStateCreateInfo* m_pCurrentVertexLayout;
   vk::PrimitiveTopology m_currentPrimitiveTopology;
 
   bool m_bPipelineStateDirty = false;
+  bool m_bFrameBufferDirty = false;
+  bool m_bDescriptorsDirty = false;
 
   // Bound objects for deferred state flushes
-  vk::Image m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];
-  vk::Image m_pBoundDepthStencilTarget;
+  const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];
+  const ezGALRenderTargetView* m_pBoundDepthStencilTarget;
   ezUInt32 m_uiBoundRenderTargetCount;
 
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
@@ -166,16 +178,16 @@ protected:
   ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
 
-  vk::Buffer m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
+  const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
   ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<vk::DescriptorSetLayoutBinding*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT];
+  ezHybridArray<const ezGALResourceViewVulkan*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT];
   ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<vk::DescriptorSetLayoutBinding*, 16> m_pBoundUnoderedAccessViews;
+  ezHybridArray<const ezGALUnorderedAccessViewVulkan*, 16> m_pBoundUnoderedAccessViews;
   ezGAL::ModifiedRange m_pBoundUnoderedAccessViewsRange;
 
-  vk::DescriptorSetLayoutBinding* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
+  const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
   ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
 };
 

@@ -4,8 +4,7 @@
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-
-#include <d3d11.h>
+#include <RendererVulkan/State/StateVulkan.h>
 
 bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
 {
@@ -13,8 +12,9 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALReso
 }
 
 ezGALResourceViewVulkan::ezGALResourceViewVulkan(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
-    : ezGALResourceView(pResource, Description)
-    , m_pDXResourceView(nullptr)
+  : ezGALResourceView(pResource, Description)
+  , m_resourceBinding{}
+  , m_resourceBindingData{}
 {
 }
 
@@ -36,7 +36,6 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-
   ezGALResourceFormat::Enum ViewFormat = m_Description.m_OverrideViewFormat;
 
   if (pTexture)
@@ -56,36 +55,31 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     }
   }
 
-  ezGALDeviceVulkan* pDXDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
+  m_resourceBinding.descriptorCount = 1;
+  m_resourceBindingData.descriptorCount = 1;
 
-  DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
-  if (ezGALResourceFormat::IsDepthFormat(ViewFormat))
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eDepthOnlyType;
-  }
-  else
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eResourceViewType;
-  }
-
-  if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
-  {
-    ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", ViewFormat);
-    return EZ_FAILURE;
-  }
-
-  D3D11_SHADER_RESOURCE_VIEW_DESC DXSRVDesc;
-  DXSRVDesc.Format = DXViewFormat;
-
-  ID3D11Resource* pDXResource = nullptr;
+  m_resourceBinding.descriptorType = pTexture ? vk::DescriptorType::eCombinedImageSampler : vk::DescriptorType::eStorageBuffer;
+  m_resourceBindingData.descriptorType = m_resourceBinding.descriptorType;
+  m_resourceBindingData.pBufferInfo = pTexture ? nullptr : &m_resourceBufferInfo;
+  m_resourceBindingData.pImageInfo = pTexture ? &m_resourceImageInfo : nullptr;
 
   if (pTexture)
   {
-    pDXResource = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource())->GetDXTexture();
+    auto image = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource())->GetImage();
     const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
     const bool bIsArrayView = IsArrayView(texDesc, m_Description);
+
+    m_resourceImageInfo.imageLayout = vk::ImageLayout::eGeneral;
+    ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : m_Description.m_OverrideViewFormat;
+    vk::ImageViewCreateInfo viewCreateInfo = {};
+    viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
+    viewCreateInfo.image = image;
+    viewCreateInfo.subresourceRange.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+    viewCreateInfo.subresourceRange.layerCount = m_Description.m_uiArraySize;
+    viewCreateInfo.subresourceRange.levelCount = m_Description.m_uiMipLevelsToUse;
 
     switch (texDesc.m_Type)
     {
@@ -94,33 +88,28 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
         if (!bIsArrayView)
         {
-          if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
-          {
-            DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-            DXSRVDesc.Texture2D.MipLevels = m_Description.m_uiMipLevelsToUse;
-            DXSRVDesc.Texture2D.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
-          }
-          else
-          {
-            DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-          }
+          // TODO what to to about multisampled textures in vulkan
+          // views/descriptors?
+          //if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
+          //{
+          viewCreateInfo.viewType = vk::ImageViewType::e2D;
+          //}
+          //else
+          //{
+          //
+          //}
         }
         else
         {
-          if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
-          {
-            DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-            DXSRVDesc.Texture2DArray.MipLevels = m_Description.m_uiMipLevelsToUse;
-            DXSRVDesc.Texture2DArray.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
-            DXSRVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
-            DXSRVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
-          }
-          else
-          {
-            DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
-            DXSRVDesc.Texture2DMSArray.ArraySize = m_Description.m_uiArraySize;
-            DXSRVDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
-          }
+          //if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
+          //{
+          viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
+          viewCreateInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstArraySlice;
+          viewCreateInfo.subresourceRange.baseMipLevel = m_Description.m_uiMostDetailedMipLevel;
+          //}
+          //else
+          //{
+          //}
         }
 
         break;
@@ -129,26 +118,20 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
         if (!bIsArrayView)
         {
-          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-          DXSRVDesc.TextureCube.MipLevels = m_Description.m_uiMipLevelsToUse;
-          DXSRVDesc.TextureCube.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
+          viewCreateInfo.viewType = vk::ImageViewType::eCube;
         }
         else
         {
-          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
-          DXSRVDesc.TextureCube.MipLevels = m_Description.m_uiMipLevelsToUse;
-          DXSRVDesc.TextureCube.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
-          DXSRVDesc.TextureCubeArray.NumCubes = m_Description.m_uiArraySize;
-          DXSRVDesc.TextureCubeArray.First2DArrayFace = m_Description.m_uiFirstArraySlice;
+          viewCreateInfo.viewType = vk::ImageViewType::eCubeArray;
+          viewCreateInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstArraySlice;
+          viewCreateInfo.subresourceRange.baseMipLevel = m_Description.m_uiMostDetailedMipLevel;
         }
 
         break;
 
       case ezGALTextureType::Texture3D:
 
-        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-        DXSRVDesc.Texture3D.MipLevels = m_Description.m_uiMipLevelsToUse;
-        DXSRVDesc.Texture3D.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
+          viewCreateInfo.viewType = vk::ImageViewType::e3D;
 
         break;
 
@@ -156,33 +139,36 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
         EZ_ASSERT_NOT_IMPLEMENTED;
         return EZ_FAILURE;
     }
+
+    m_imageView = pVulkanDevice->GetVulkanDevice().createImageView(viewCreateInfo);
+
+    if (!m_imageView)
+    {
+      return EZ_FAILURE;
+    }
+
+    m_resourceImageInfo.imageView = m_imageView;
   }
   else if (pBuffer)
   {
-    pDXResource = static_cast<const ezGALBufferVulkan*>(pBuffer)->GetDXBuffer();
+    vk::Buffer buffer = static_cast<const ezGALBufferVulkan*>(pBuffer)->GetBuffer();
 
-    if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
-      DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
-
-    DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-    DXSRVDesc.BufferEx.FirstElement = DXSRVDesc.Buffer.FirstElement = m_Description.m_uiFirstElement;
-    DXSRVDesc.BufferEx.NumElements = DXSRVDesc.Buffer.NumElements = m_Description.m_uiNumElements;
-    DXSRVDesc.BufferEx.Flags = m_Description.m_bRawView ? D3D11_BUFFEREX_SRV_FLAG_RAW : 0;
+    m_resourceBufferInfo.buffer = buffer;
+    m_resourceBufferInfo.offset = m_Description.m_uiFirstElement;
+    m_resourceBufferInfo.range = m_Description.m_uiNumElements;
   }
 
-  if (FAILED(pDXDevice->GetDXDevice()->CreateShaderResourceView(pDXResource, &DXSRVDesc, &m_pDXResourceView)))
-  {
-    return EZ_FAILURE;
-  }
-  else
-  {
-    return EZ_SUCCESS;
-  }
+  return EZ_SUCCESS;
 }
 
 ezResult ezGALResourceViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  EZ_GAL_Vulkan_RELEASE(m_pDXResourceView);
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  if (m_imageView)
+  {
+    pVulkanDevice->GetVulkanDevice().destroyImageView(m_imageView);
+  }
+
   return EZ_SUCCESS;
 }
 

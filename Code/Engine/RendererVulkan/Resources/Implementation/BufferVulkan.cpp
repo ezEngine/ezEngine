@@ -8,8 +8,8 @@
 
 ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description)
     : ezGALBuffer(Description)
-    , m_pDXBuffer(nullptr)
-    , m_IndexFormat(DXGI_FORMAT_UNKNOWN)
+    , m_buffer(nullptr)
+    , m_IndexFormat(vk::IndexType::eUint16)
 {
 }
 
