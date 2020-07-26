@@ -280,7 +280,7 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
   }
 
   pRbComp->EnsureSimulationStarted();
-  pActor = pRbComp->GetActor();
+  pActor = pRbComp->GetPxActor();
 
   if (pActor == nullptr)
   {
@@ -341,7 +341,7 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
   //}
 
   pRbComp->EnsureSimulationStarted();
-  pActor = pRbComp->GetActor();
+  pActor = pRbComp->GetPxActor();
 
   if (pActor == nullptr)
   {

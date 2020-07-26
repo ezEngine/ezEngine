@@ -27,7 +27,7 @@ void ezPxDynamicActorComponentManager::UpdateKinematicActors()
 
   for (auto pKinematicActorComponent : m_KinematicActorComponents)
   {
-    if (PxRigidDynamic* pActor = pKinematicActorComponent->GetActor())
+    if (PxRigidDynamic* pActor = pKinematicActorComponent->GetPxActor())
     {
       ezGameObject* pObject = pKinematicActorComponent->GetOwner();
 
@@ -83,7 +83,7 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    physx::PxRigidDynamic* pActor = it->GetActor();
+    physx::PxRigidDynamic* pActor = it->GetPxActor();
 
     if (pActor != nullptr)
     {

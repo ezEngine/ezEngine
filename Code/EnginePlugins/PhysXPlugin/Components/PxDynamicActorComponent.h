@@ -50,7 +50,7 @@ public:
   ezPxDynamicActorComponent();
   ~ezPxDynamicActorComponent();
 
-  physx::PxRigidDynamic* GetActor() const { return m_pActor; }
+  physx::PxRigidDynamic* GetPxActor() const { return m_pActor; }
 
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]

@@ -216,7 +216,9 @@ void ezPx6DOFJointComponent::ApplySettings()
 
     if (freeAxis.IsAnySet(ezPxAxis::Y | ezPxAxis::Z))
     {
-      PxJointLimitCone l(m_SwingLimit.GetRadian(), m_SwingLimit.GetRadian());
+      const float fSwingLimit = ezMath::Max(ezAngle::Degree(0.5f).GetRadian(), m_SwingLimit.GetRadian());
+
+      PxJointLimitCone l(fSwingLimit, fSwingLimit);
 
       if (m_SwingLimitMode == ezPxJointLimitMode::SoftLimit)
       {
@@ -258,6 +260,12 @@ void ezPx6DOFJointComponent::ApplySettings()
       if (l.lower > l.upper)
       {
         ezMath::Swap(l.lower, l.upper);
+      }
+
+      if (ezMath::IsEqual(l.lower, l.upper, ezAngle::Degree(0.5f).GetRadian()))
+      {
+        l.lower -= ezAngle::Degree(0.5f).GetRadian();
+        l.upper += ezAngle::Degree(0.5f).GetRadian();
       }
 
       if (m_TwistLimitMode == ezPxJointLimitMode::SoftLimit)

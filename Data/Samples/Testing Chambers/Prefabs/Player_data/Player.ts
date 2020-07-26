@@ -58,8 +58,7 @@ export class Player extends ez.TickedTypescriptComponent {
             this.weaponUnlocked[_ge.Weapon.Shotgun] = true;
             this.weaponUnlocked[_ge.Weapon.RocketLauncher] = true;
 
-            for (var ammoType = _ge.Consumable.AmmoTypes_Start + 1; ammoType < _ge.Consumable.AmmoTypes_End; ++ammoType)
-            {
+            for (var ammoType = _ge.Consumable.AmmoTypes_Start + 1; ammoType < _ge.Consumable.AmmoTypes_End; ++ammoType) {
                 this.ammoPouch.ammo[ammoType] = 1000;
             }
         }
@@ -158,19 +157,30 @@ export class Player extends ez.TickedTypescriptComponent {
                 this.SwitchToWeapon(_ge.Weapon.RocketLauncher);
 
             if (msg.InputActionHash == ez.Utils.StringToHash("Use")) {
-                this.interact.ExecuteInteraction();
-                this.grabObject.TryGrabObject();
+
+                if (this.grabObject.HasObjectGrabbed()) {
+                    this.grabObject.DropGrabbedObject();
+                }
+                else if (!this.grabObject.GrabNearbyObject()) {
+                    this.interact.ExecuteInteraction();
+                }
             }
         }
 
         if (msg.InputActionHash == ez.Utils.StringToHash("Shoot")) {
 
-            let msgInteract = new _guns.MsgGunInteraction();
-            msgInteract.keyState = msg.TriggerState;
-            msgInteract.ammoPouch = this.ammoPouch;
-            msgInteract.interaction = _guns.GunInteraction.Fire;
+            if (this.grabObject.HasObjectGrabbed()) {
+                let dir = new ez.Vec3(10, 0, 0);
+                this.grabObject.ThrowGrabbedObject();
+            }
+            else {
+                let msgInteract = new _guns.MsgGunInteraction();
+                msgInteract.keyState = msg.TriggerState;
+                msgInteract.ammoPouch = this.ammoPouch;
+                msgInteract.interaction = _guns.GunInteraction.Fire;
 
-            this.guns[this.activeWeapon].SendMessage(msgInteract);
+                this.guns[this.activeWeapon].SendMessage(msgInteract);
+            }
         }
 
         if (msg.InputActionHash == ez.Utils.StringToHash("Reload")) {
@@ -282,4 +292,3 @@ export class Player extends ez.TickedTypescriptComponent {
         }
     }
 }
-

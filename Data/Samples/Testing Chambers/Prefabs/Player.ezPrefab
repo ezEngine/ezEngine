@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{9208813484817910392}
+		u4 %Hash{17311864210464958593}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -504,6 +504,9 @@ o
 	p
 	{
 		b %Active{1}
+		f %BreakDistance{0x0000003F}
+		f %SpringDamping{0x00002041}
+		f %SpringStiffness{0x00002042}
 	}
 }
 o
@@ -1385,7 +1388,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxGrabObjectComponent"}
-		u3 %TypeSize{64}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
