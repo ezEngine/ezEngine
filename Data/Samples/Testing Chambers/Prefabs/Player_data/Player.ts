@@ -131,6 +131,13 @@ export class Player extends ez.TickedTypescriptComponent {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgDamage, "OnMsgMsgDamage");
         ez.TypescriptComponent.RegisterMessageHandler(_gm.MsgAddConsumable, "OnMsgAddConsumable");
         ez.TypescriptComponent.RegisterMessageHandler(_gm.MsgUnlockWeapon, "OnMsgUnlockWeapon");
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgPhysicsJointBroke, "OnMsgPhysicsJointBroke");
+    }
+
+    OnMsgPhysicsJointBroke(msg: ez.MsgPhysicsJointBroke): void {
+        // must be the 'object grabber' joint
+
+        this.SwitchToWeapon(this.holsteredWeapon);
     }
 
     OnMsgInputActionTriggered(msg: ez.MsgInputActionTriggered): void {
@@ -144,20 +151,24 @@ export class Player extends ez.TickedTypescriptComponent {
                 this.flashlight.SetActiveFlag(!this.flashlight.GetActiveFlag());
             }
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon1"))
-                this.SwitchToWeapon(_ge.Weapon.Pistol);
+            if (!this.grabObject.HasObjectGrabbed()) {
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon2"))
-                this.SwitchToWeapon(_ge.Weapon.Shotgun);
+                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon1"))
+                    this.SwitchToWeapon(_ge.Weapon.Pistol);
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon3"))
-                this.SwitchToWeapon(_ge.Weapon.MachineGun);
+                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon2"))
+                    this.SwitchToWeapon(_ge.Weapon.Shotgun);
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon4"))
-                this.SwitchToWeapon(_ge.Weapon.PlasmaRifle);
+                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon3"))
+                    this.SwitchToWeapon(_ge.Weapon.MachineGun);
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon5"))
-                this.SwitchToWeapon(_ge.Weapon.RocketLauncher);
+                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon4"))
+                    this.SwitchToWeapon(_ge.Weapon.PlasmaRifle);
+
+                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon5"))
+                    this.SwitchToWeapon(_ge.Weapon.RocketLauncher);
+
+            }
 
             if (msg.InputActionHash == ez.Utils.StringToHash("Use")) {
 
@@ -191,7 +202,7 @@ export class Player extends ez.TickedTypescriptComponent {
 
                     this.SwitchToWeapon(this.holsteredWeapon);
                 }
-                else {
+                else if (this.guns[this.activeWeapon]) {
                     let msgInteract = new _guns.MsgGunInteraction();
                     msgInteract.keyState = msg.TriggerState;
                     msgInteract.ammoPouch = this.ammoPouch;
@@ -204,12 +215,16 @@ export class Player extends ez.TickedTypescriptComponent {
 
         if (msg.InputActionHash == ez.Utils.StringToHash("Reload")) {
 
-            let msgInteract = new _guns.MsgGunInteraction();
-            msgInteract.keyState = msg.TriggerState;
-            msgInteract.ammoPouch = this.ammoPouch;
-            msgInteract.interaction = _guns.GunInteraction.Reload;
+            if (this.guns[this.activeWeapon]) {
 
-            this.guns[this.activeWeapon].SendMessage(msgInteract);
+                let msgInteract = new _guns.MsgGunInteraction();
+                msgInteract.keyState = msg.TriggerState;
+                msgInteract.ammoPouch = this.ammoPouch;
+                msgInteract.interaction = _guns.GunInteraction.Reload;
+
+                this.guns[this.activeWeapon].SendMessage(msgInteract);
+
+            }
         }
     }
 
@@ -291,7 +306,7 @@ export class Player extends ez.TickedTypescriptComponent {
         if (this.activeWeapon == weapon)
             return;
 
-            this.requireNoShoot = true;
+        this.requireNoShoot = true;
 
         if (this.gunComp[this.activeWeapon])
             this.gunComp[this.activeWeapon].DeselectGun();

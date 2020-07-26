@@ -157,9 +157,9 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
     //pJoint->SetSwingLimitMode(ezPxJointLimitMode::SoftLimit);
     //pJoint->SetSwingStiffness(m_fSpringStiffness);
     //pJoint->SetSwingDamping(m_fSpringDamping);
-    pJoint->SetTwistLimitMode(ezPxJointLimitMode::SoftLimit);
-    pJoint->SetTwistStiffness(m_fSpringStiffness);
-    pJoint->SetTwistDamping(m_fSpringDamping);
+    //pJoint->SetTwistLimitMode(ezPxJointLimitMode::SoftLimit);
+    //pJoint->SetTwistStiffness(m_fSpringStiffness);
+    //pJoint->SetTwistDamping(m_fSpringDamping);
 
     pJoint->SetFreeLinearAxis(ezPxAxis::X | ezPxAxis::Y | ezPxAxis::Z);
     pJoint->SetLinearLimitMode(ezPxJointLimitMode::SoftLimit);
@@ -288,6 +288,10 @@ void ezPxGrabObjectComponent::Update()
 
   if (PxD6Joint* pJointD6 = static_cast<PxD6Joint*>(pJoint->GetPxJoint()))
   {
+    // TODO: for some reason using a drive can crash when the grabbed object is rotated just right, probably hitting a singularity
+    // when computing the rotation direction
     pJointD6->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+    //pJointD6->setDrive(PxD6Drive::eSWING, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+    //pJointD6->setDrive(PxD6Drive::eTWIST, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
   }
 }
