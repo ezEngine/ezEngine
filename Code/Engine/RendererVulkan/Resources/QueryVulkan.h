@@ -2,8 +2,6 @@
 
 #include <RendererFoundation/Resources/Query.h>
 
-struct ID3D11Query;
-
 class ezGALQueryVulkan : public ezGALQuery
 {
 public:

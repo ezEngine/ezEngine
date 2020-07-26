@@ -30,6 +30,8 @@ public:
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 
+  ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
+
   void ReportLiveGpuObjects();
 
   // These functions need to be implemented by a render API abstraction
@@ -170,6 +172,8 @@ private:
 
   ezHybridArray<ezUInt32, 2> m_queueFamilyIndices;
   ezGALFormatLookupTableVulkan m_FormatLookupTable;
+
+  vk::PhysicalDeviceMemoryProperties m_memoryProperties;
 
   PerFrameData m_PerFrameData[4];
   ezUInt8 m_uiCurrentPerFrameData = 0;

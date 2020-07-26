@@ -38,8 +38,7 @@ ezInt32 getGraphicsAndComputeQueue(ezArrayPtr<vk::QueueFamilyProperties> queueFa
 PFN_vkCmdDebugMarkerBeginEXT vkCmdDebugMarkerBeginEXT;
 PFN_vkCmdDebugMarkerEndEXT vkCmdDebugMarkerEndEXT;
 PFN_vkCmdDebugMarkerInsertEXT vkCmdDebugMarkerInsertEXT;
-
-
+PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT;
 
 ezGALDeviceVulkan::ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
@@ -138,6 +137,9 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   vkCmdDebugMarkerBeginEXT = (PFN_vkCmdDebugMarkerBeginEXT)m_device.getProcAddr("vkCmdDebugMarkerBeginEXT");
   vkCmdDebugMarkerEndEXT = (PFN_vkCmdDebugMarkerEndEXT)m_device.getProcAddr("vkCmdDebugMarkerEndEXT");
   vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)m_device.getProcAddr("vkCmdDebugMarkerInsertEXT");
+  vkDebugMarkerSetObjectNameEXT = (PFN_vkDebugMarkerSetObjectNameEXT)m_device.getProcAddr("vkDebugMarkerSetObjectNameEXT");
+
+  m_memoryProperties = m_physicalDevice.getMemoryProperties();
 
   // Fill lookup table
   FillFormatLookupTable();
@@ -870,6 +872,21 @@ ID3D11Resource* ezGALDeviceVulkan::FindTempTexture(ezUInt32 uiWidth, ezUInt32 ui
 }
 
 #endif
+
+ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const
+{
+
+  for (ezUInt32 i = 0; i < m_memoryProperties.memoryTypeCount; ++i)
+  {
+    const vk::MemoryType& type = m_memoryProperties.memoryTypes[i];
+    if (requirements.memoryTypeBits & (1 << i) && (type.propertyFlags & properties))
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
 
 void ezGALDeviceVulkan::FreeTempResources(ezUInt64 uiFrame)
 {

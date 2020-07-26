@@ -692,6 +692,8 @@ void ezGALContextVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, e
     }
     else
     {
+      // TODO need to check if the buffer is mappable
+
       // TODO is this behavior available on Vulkan?
       //D3D11_MAP mapType = (updateMode == ezGALUpdateMode::Discard) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
 
@@ -904,7 +906,7 @@ void ezGALContextVulkan::CopyTextureReadbackResultPlatform(const ezGALTexture* p
   auto pVulkanTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
 
-  ezGALBufferVulkan* pStagingBuffer= pVulkanTexture->GetStagingBuffer();
+  const ezGALBufferVulkan* pStagingBuffer = pVulkanTexture->GetStagingBuffer();
 
   EZ_ASSERT_DEV(pStagingBuffer, "No staging resource available for read-back");
 
@@ -931,6 +933,8 @@ void ezGALContextVulkan::FlushPlatform()
 {
   FlushDeferredStateChanges();
 }
+
+// TODO mechanism to use new command buffer when old one has been submitted
 
 // Debug helper functions
 

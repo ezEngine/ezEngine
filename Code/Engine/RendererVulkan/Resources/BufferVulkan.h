@@ -31,6 +31,9 @@ protected:
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
   vk::Buffer m_buffer;
+  vk::DeviceMemory m_memory;
+  vk::DeviceSize m_memoryOffset;
+  vk::Device m_device;
 
   vk::IndexType m_indexType; // Only applicable for index buffers
 };

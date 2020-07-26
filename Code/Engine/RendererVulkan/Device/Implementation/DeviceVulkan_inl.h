@@ -24,6 +24,7 @@ EZ_ALWAYS_INLINE const ezGALFormatLookupTableVulkan& ezGALDeviceVulkan::GetForma
 {
   return m_FormatLookupTable;
 }
+
 /*
 inline ID3D11Query* ezGALDeviceVulkan::GetTimestamp(ezGALTimestampHandle hTimestamp)
 {

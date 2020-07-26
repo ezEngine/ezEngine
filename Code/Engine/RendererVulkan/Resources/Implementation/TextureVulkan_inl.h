@@ -1,11 +1,24 @@
-
-
-ID3D11Resource* ezGALTextureVulkan::GetDXTexture() const
+vk::Image ezGALTextureVulkan::GetImage() const
 {
-	return m_pDXTexture;
+  return m_image;
 }
 
-ID3D11Resource* ezGALTextureVulkan::GetDXStagingTexture() const
+const ezGALBufferVulkan* ezGALTextureVulkan::GetStagingBuffer() const
 {
-  return m_pDXStagingTexture;
+  return m_pStagingBuffer;
+}
+
+vk::DeviceMemory ezGALTextureVulkan::GetMemory() const
+{
+  return m_memory;
+}
+
+vk::DeviceSize ezGALTextureVulkan::GetMemoryOffset() const
+{
+  return m_memoryOffset;
+}
+
+vk::DeviceSize ezGALTextureVulkan::GetMemorySize() const
+{
+  return m_memorySize;
 }
