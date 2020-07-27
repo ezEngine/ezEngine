@@ -31,6 +31,8 @@ public:
   float m_fBreakDistance = 0.5f;
   float m_fSpringStiffness = 50.0f;
   float m_fSpringDamping = 10.0f;
+  float m_fRaycastDistance = 5.0f;
+  ezUInt8 m_uiCollisionLayer = 0;
 
   void SetAttachToReference(const char* szReference); // [ property ]
 
@@ -40,13 +42,20 @@ protected:
   void Update();
   void ReleaseGrabbedObject();
 
-  ezTime m_AboveBreakdistanceSince;
-  float m_fPrevMass = 0.0f;
-  bool m_bPrevGravity = true;
-  ezUInt32 m_uiPrevPosIterations;
-  ezUInt32 m_uiPrevVelIterations;
-  ezComponentHandle m_hJoint;
+  ezPxDynamicActorComponent* FindGrabbableActor();
+  ezPxDynamicActorComponent* GetAttachToActor();
+  ezResult DetermineGrabPoint(ezPxDynamicActorComponent* pActor);
+  void AdjustGrabbedActor(ezPxDynamicActorComponent* pActor);
+  void CreateJoint(ezPxDynamicActorComponent* pParent, ezPxDynamicActorComponent* pChild);
+
   ezComponentHandle m_hGrabbedActor;
+  bool m_bGrabbedActorGravity = true;
+  float m_fGrabbedActorMass = 0.0f;
+  ezUInt32 m_uiGrabbedActorPosIterations;
+  ezUInt32 m_uiGrabbedActorVelIterations;
+
+  ezComponentHandle m_hJoint;
+  ezTime m_AboveBreakdistanceSince;
   ezTransform m_ChildAnchorLocal;
 
 private:

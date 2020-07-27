@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{7499373162159405429}
+		u4 %Hash{1660006838862845117}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -448,10 +448,10 @@ o
 		b %Active{1}
 		s %AttachTo{"{ 01739dee-d14d-4cad-8ea6-8c03b449ffb3 }"}
 		f %BreakDistance{0x0000003F}
-		f %GrabRadius{0x0000803F}
-		s %MarkerType{"GrabObjectMarker"}
-		f %SpringDamping{0x00002041}
-		f %SpringStiffness{0x00002042}
+		u1 %CollisionLayer{0}
+		f %RaycastDistance{0x0000A040}
+		f %SpringDamping{0x00004842}
+		f %SpringStiffness{0x0000C842}
 	}
 }
 o
@@ -580,7 +580,7 @@ o
 			Uuid{u4{13471698595058773401,5199300975315597103}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000003F,0,0}}
+		Vec3 %LocalPosition{f{0x0000803F,0,0}}
 		Quat %LocalRotation{f{0,0xB57EB2BD,0,0x9E067F3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
