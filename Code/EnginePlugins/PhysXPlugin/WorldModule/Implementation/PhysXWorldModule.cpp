@@ -727,8 +727,7 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
   }
 }
 
-bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
-  const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection /*= ezPhysicsHitCollection::Closest*/) const
+bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection /*= ezPhysicsHitCollection::Closest*/) const
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
@@ -736,6 +735,12 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
   filterData.flags = PxQueryFlag::ePREFILTER;
+
+  if (params.m_bIgnoreInitialOverlap)
+  {
+    // the postFilter will discard hits from initial overlaps (ie. when the raycast starts inside a shape)
+    filterData.flags |= PxQueryFlag::ePOSTFILTER;
+  }
 
   if (params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Static))
   {

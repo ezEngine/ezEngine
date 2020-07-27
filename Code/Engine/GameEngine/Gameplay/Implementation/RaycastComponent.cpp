@@ -200,26 +200,32 @@ void ezRaycastComponent::Update()
 
   float fHitDistance = m_fMaxDistance;
   ezPhysicsCastResult hit;
-  if (m_pPhysicsWorldModule->Raycast(hit, rayStartPosition, rayDir, m_fMaxDistance, ezPhysicsQueryParameters(m_uiCollisionLayerEndPoint)))
-  {
-    fHitDistance = hit.m_fDistance;
 
-    if (!pEndObject->GetActiveFlag() && m_bDisableTargetObjectOnNoHit)
-    {
-      pEndObject->SetActiveFlag(true);
-    }
-  }
-  else
   {
-    if (m_bDisableTargetObjectOnNoHit)
+    ezPhysicsQueryParameters queryParams(m_uiCollisionLayerEndPoint);
+    queryParams.m_bIgnoreInitialOverlap = true;
+
+    if (m_pPhysicsWorldModule->Raycast(hit, rayStartPosition, rayDir, m_fMaxDistance, queryParams))
     {
-      pEndObject->SetActiveFlag(false);
+      fHitDistance = hit.m_fDistance;
+
+      if (!pEndObject->GetActiveFlag() && m_bDisableTargetObjectOnNoHit)
+      {
+        pEndObject->SetActiveFlag(true);
+      }
     }
     else
     {
-      if (!pEndObject->GetActiveFlag())
+      if (m_bDisableTargetObjectOnNoHit)
       {
-        pEndObject->SetActiveFlag(true);
+        pEndObject->SetActiveFlag(false);
+      }
+      else
+      {
+        if (!pEndObject->GetActiveFlag())
+        {
+          pEndObject->SetActiveFlag(true);
+        }
       }
     }
   }
@@ -227,7 +233,10 @@ void ezRaycastComponent::Update()
   if (!m_sTriggerMessage.IsEmpty() && m_uiCollisionLayerEndPoint != m_uiCollisionLayerTrigger)
   {
     ezPhysicsCastResult triggerHit;
-    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, ezPhysicsQueryParameters(m_uiCollisionLayerTrigger)) &&
+    ezPhysicsQueryParameters queryParams2(m_uiCollisionLayerTrigger);
+    queryParams2.m_bIgnoreInitialOverlap = true;
+
+    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, queryParams2) &&
         triggerHit.m_fDistance < fHitDistance)
     {
       // We have a hit, check the objects

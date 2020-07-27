@@ -105,8 +105,7 @@ void ezPxAllocatorCallback::VerifyAllocations()
 
 //////////////////////////////////////////////////////////////////////////
 
-PxQueryHitType::Enum ezPxQueryFilter::preFilter(
-  const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
+PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
 {
   if (shape->getFlags().isSet(PxShapeFlag::eTRIGGER_SHAPE))
   {
@@ -137,7 +136,12 @@ PxQueryHitType::Enum ezPxQueryFilter::preFilter(
 
 PxQueryHitType::Enum ezPxQueryFilter::postFilter(const PxFilterData& filterData, const PxQueryHit& hit)
 {
-  return PxQueryHitType::eNONE;
+  const PxLocationHit& locHit = static_cast<const PxLocationHit&>(hit);
+
+  if (locHit.hadInitialOverlap())
+    return PxQueryHitType::eNONE;
+
+  return PxQueryHitType::eBLOCK;
 }
 
 //////////////////////////////////////////////////////////////////////////

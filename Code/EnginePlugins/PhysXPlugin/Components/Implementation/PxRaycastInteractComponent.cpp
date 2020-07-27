@@ -80,8 +80,10 @@ void ezPxRaycastInteractComponent::ExecuteInteraction()
   }
 
   ezPhysicsCastResult res;
-  if (!pModule->Raycast(res, GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance,
-        ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, uiIgnoreShapeID)))
+  ezPhysicsQueryParameters queryParams(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, uiIgnoreShapeID);
+  queryParams.m_bIgnoreInitialOverlap = true;
+
+  if (!pModule->Raycast(res, GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, queryParams))
   {
     return;
   }
