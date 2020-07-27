@@ -2,6 +2,8 @@
 
 #include <PhysXPlugin/Components/PxComponent.h>
 
+class ezPx6DOFJointComponent;
+
 using ezPxGrabObjectComponentManager = ezComponentManagerSimple<class ezPxGrabObjectComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
 class EZ_PHYSXPLUGIN_DLL ezPxGrabObjectComponent : public ezPxComponent
@@ -33,6 +35,7 @@ public:
   float m_fSpringDamping = 10.0f;
   float m_fRaycastDistance = 5.0f;
   ezUInt8 m_uiCollisionLayer = 0;
+  float m_fAllowGrabAnyObjectWithMass = 30.0f;
 
   void SetAttachToReference(const char* szReference); // [ property ]
 
@@ -47,6 +50,7 @@ protected:
   ezResult DetermineGrabPoint(ezPxDynamicActorComponent* pActor);
   void AdjustGrabbedActor(ezPxDynamicActorComponent* pActor);
   void CreateJoint(ezPxDynamicActorComponent* pParent, ezPxDynamicActorComponent* pChild);
+  void DetectDistanceViolation(ezPxDynamicActorComponent* pGrabbedActor, ezPx6DOFJointComponent* pJoint);
 
   ezComponentHandle m_hGrabbedActor;
   bool m_bGrabbedActorGravity = true;

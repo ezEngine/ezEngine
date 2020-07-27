@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10343536139760208028,4918522812857774060}}
-		u4 %Hash{71585854064464400}
+		u4 %Hash{10508650190928242031}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{969519408616889768,7780583395582206609}}
@@ -93,7 +93,6 @@ o
 		{
 			Uuid{u4{15271397146903771069,5390075707354059791}}
 			Uuid{u4{8584485513893092503,5529416803815089842}}
-			Uuid{u4{8041682011393493634,5466949424478412235}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x8FC2F53E}}
@@ -165,18 +164,6 @@ o
 			d %Health{0x0000000000003440}
 		}
 		s %Script{"{ 05aa1141-42b4-43e9-90a6-ac4d7fbb0ee6 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{8041682011393493634,5466949424478412235}}
-	s %t{"ezMarkerComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Marker{"GrabObjectMarker"}
-		f %Radius{0xCDCCCC3E}
 	}
 }
 o
@@ -273,24 +260,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8577194213068516669,1439152778878942207}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezMarkerComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

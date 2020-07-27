@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8921397508138308280,4775389567195594987}}
-		u4 %Hash{13617143238133221585}
+		u4 %Hash{3759824468527069127}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{8705566681200281013,16448772277288333049}}
@@ -133,7 +133,7 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{3}
 		s %OnContact{""}
 		f %Radius{0x0000003F}
 		s %Surface{""}

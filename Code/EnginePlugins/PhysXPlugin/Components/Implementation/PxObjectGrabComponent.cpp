@@ -227,39 +227,66 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
   const auto vOwnerDir = pOwner->GetGlobalDirForwards();
   const auto pActorObj = pActorComp->GetOwner();
 
+  const ezTransform& actorTransform = pActorObj->GetGlobalTransform();
+  ezHybridArray<ezGrabbableItemGrabPoint, 16> grabPoints;
+
   const ezGrabbableItemComponent* pGrabbableItemComp = nullptr;
   if (pActorObj->TryGetComponentOfBaseType(pGrabbableItemComp) && !pGrabbableItemComp->m_GrabPoints.IsEmpty())
   {
-    float fBestScore = 0.0f;
-    ezUInt32 uiBestPoint = 0;
+    grabPoints = pGrabbableItemComp->m_GrabPoints;
+  }
+  else if (pActorComp->GetMass() <= m_fAllowGrabAnyObjectWithMass)
+  {
+    const auto& box = pActorComp->GetOwner()->GetLocalBounds().GetBox();
+    const ezVec3& center = box.GetCenter();
+    const ezVec3& halfExt = box.GetHalfExtents();
 
-    const ezTransform& actorTransform = pActorObj->GetGlobalTransform();
-    const auto& grabPoints = pGrabbableItemComp->m_GrabPoints;
+    grabPoints.SetCount(4);
+    grabPoints[0].m_vLocalPosition.Set(-halfExt.x, 0, 0);
+    grabPoints[0].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitXAxis());
+    grabPoints[1].m_vLocalPosition.Set(+halfExt.x, 0, 0);
+    grabPoints[1].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitXAxis());
+    grabPoints[2].m_vLocalPosition.Set(0, -halfExt.y, 0);
+    grabPoints[2].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitYAxis());
+    grabPoints[3].m_vLocalPosition.Set(0, +halfExt.y, 0);
+    grabPoints[3].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitYAxis());
+    //grabPoints[4].m_vLocalPosition.Set(0, 0, -halfExt.z);
+    //grabPoints[4].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+    //grabPoints[5].m_vLocalPosition.Set(0, 0, +halfExt.z);
+    //grabPoints[5].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
 
     for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
     {
-      const ezVec3 vGrabPointPos = actorTransform.TransformPosition(grabPoints[i].m_vLocalPosition);
-      const ezQuat qGrabPointRot = actorTransform.m_qRotation * grabPoints[i].m_qLocalRotation;
-      const ezVec3 vGrabPointDir = qGrabPointRot * ezVec3(1, 0, 0);
-
-      float fScore = 1.0f / (vGrabPointPos - vOwnerPos).GetLengthSquared();
-
-      if (fScore > fBestScore)
-      {
-        fBestScore = fScore;
-        uiBestPoint = i;
-      }
+      grabPoints[i].m_vLocalPosition += center;
     }
-
-    m_ChildAnchorLocal.m_vPosition = pGrabbableItemComp->m_GrabPoints[uiBestPoint].m_vLocalPosition;
-    m_ChildAnchorLocal.m_qRotation = pGrabbableItemComp->m_GrabPoints[uiBestPoint].m_qLocalRotation;
-
-    return EZ_SUCCESS;
   }
-  else
-  {
+
+  if (grabPoints.IsEmpty())
     return EZ_FAILURE;
+
+  float fBestScore = 0.0f;
+  ezUInt32 uiBestPoint = 0;
+
+  for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
+  {
+    const ezVec3 vGrabPointPos = actorTransform.TransformPosition(grabPoints[i].m_vLocalPosition);
+    const ezQuat qGrabPointRot = actorTransform.m_qRotation * grabPoints[i].m_qLocalRotation;
+    const ezVec3 vGrabPointDir = qGrabPointRot * ezVec3(1, 0, 0);
+
+    // TODO: factor in direction
+    float fScore = 1.0f / (vGrabPointPos - vOwnerPos).GetLengthSquared();
+
+    if (fScore > fBestScore)
+    {
+      fBestScore = fScore;
+      uiBestPoint = i;
+    }
   }
+
+  m_ChildAnchorLocal.m_vPosition = grabPoints[uiBestPoint].m_vLocalPosition;
+  m_ChildAnchorLocal.m_qRotation = grabPoints[uiBestPoint].m_qLocalRotation;
+
+  return EZ_SUCCESS;
 }
 
 void ezPxGrabObjectComponent::AdjustGrabbedActor(ezPxDynamicActorComponent* pActor)
@@ -289,26 +316,14 @@ void ezPxGrabObjectComponent::CreateJoint(ezPxDynamicActorComponent* pParent, ez
   pJoint->SetActors(pParent->GetOwner()->GetHandle(), ezTransform::IdentityTransform(), pChild->GetOwner()->GetHandle(), tAnchor);
 }
 
-void ezPxGrabObjectComponent::Update()
+void ezPxGrabObjectComponent::DetectDistanceViolation(ezPxDynamicActorComponent* pGrabbedActor, ezPx6DOFJointComponent* pJoint)
 {
-  if (m_hJoint.IsInvalidated())
+  if (m_fBreakDistance <= 0)
     return;
-
-  ezPxDynamicActorComponent* pGrabbedActor;
-  ezPx6DOFJointComponent* pJoint;
-  if (!GetWorld()->TryGetComponent(m_hGrabbedActor, pGrabbedActor) ||
-      !GetWorld()->TryGetComponent(m_hJoint, pJoint))
-  {
-    ReleaseGrabbedObject();
-    return;
-  }
 
   const ezVec3 vAnchorPos = pGrabbedActor->GetOwner()->GetGlobalTransform().TransformPosition(m_ChildAnchorLocal.m_vPosition);
   const ezVec3 vJointPos = pJoint->GetOwner()->GetGlobalPosition();
   const float fDistance = (vAnchorPos - vJointPos).GetLength();
-
-  ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(vAnchorPos, 0.1), ezColor::IndianRed);
-  ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(vJointPos, 0.1), ezColor::MediumBlue);
 
   if (fDistance < m_fBreakDistance)
   {
@@ -328,6 +343,21 @@ void ezPxGrabObjectComponent::Update()
       return;
     }
   }
+}
+
+void ezPxGrabObjectComponent::Update()
+{
+  if (m_hJoint.IsInvalidated())
+    return;
+
+  ezPxDynamicActorComponent* pGrabbedActor;
+  ezPx6DOFJointComponent* pJoint;
+  if (!GetWorld()->TryGetComponent(m_hGrabbedActor, pGrabbedActor) ||
+      !GetWorld()->TryGetComponent(m_hJoint, pJoint))
+  {
+    BreakObjectGrab();
+    return;
+  }
 
   if (PxD6Joint* pJointD6 = static_cast<PxD6Joint*>(pJoint->GetPxJoint()))
   {
@@ -336,4 +366,12 @@ void ezPxGrabObjectComponent::Update()
     pJointD6->setDrive(PxD6Drive::eZ, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
     pJointD6->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
   }
+
+  DetectDistanceViolation(pGrabbedActor, pJoint);
 }
+
+// TODO: figure out whether grab point is too far away
+// TODO: (script) function to return potential grab object / point
+// TODO: prevent character controller from jumping onto grabbed object
+// TODO: choose grab point by rotation
+// TODO: grab any physics object with low mass
