@@ -154,10 +154,13 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
     // locked rotation feels better than springy rotation, but can result in objects being flung away on pickup
     // could probably use spring at pickup, wait till object is rotated nicely, and then lock the rotation axis
     pJoint->SetFreeAngularAxis(ezPxAxis::All);
-    //pJoint->SetSwingLimitMode(ezPxJointLimitMode::SoftLimit);
+    pJoint->SetSwingLimitMode(ezPxJointLimitMode::HardLimit);
+    pJoint->SetSwingLimit(ezAngle::Degree(175));
     //pJoint->SetSwingStiffness(m_fSpringStiffness);
     //pJoint->SetSwingDamping(m_fSpringDamping);
-    //pJoint->SetTwistLimitMode(ezPxJointLimitMode::SoftLimit);
+    pJoint->SetTwistLimitMode(ezPxJointLimitMode::HardLimit);
+    pJoint->SetLowerTwistLimit(ezAngle::Degree(-175));
+    pJoint->SetUpperTwistLimit(ezAngle::Degree(+175));
     //pJoint->SetTwistStiffness(m_fSpringStiffness);
     //pJoint->SetTwistDamping(m_fSpringDamping);
 
@@ -287,11 +290,11 @@ void ezPxGrabObjectComponent::Update()
   }
 
   if (PxD6Joint* pJointD6 = static_cast<PxD6Joint*>(pJoint->GetPxJoint()))
-  {
-    // TODO: for some reason using a drive can crash when the grabbed object is rotated just right, probably hitting a singularity
-    // when computing the rotation direction
-    pJointD6->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
-    //pJointD6->setDrive(PxD6Drive::eSWING, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
-    //pJointD6->setDrive(PxD6Drive::eTWIST, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
-  }
-}
+      {
+        // TODO: for some reason using a drive can crash when the grabbed object is rotated just right, probably hitting a singularity
+        // when computing the rotation direction
+        pJointD6->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+        //pJointD6->setDrive(PxD6Drive::eSWING, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+        //pJointD6->setDrive(PxD6Drive::eTWIST, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+      }
+    }

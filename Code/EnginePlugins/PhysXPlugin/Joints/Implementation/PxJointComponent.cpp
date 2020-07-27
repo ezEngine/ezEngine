@@ -71,6 +71,9 @@ void ezPxJointComponent::OnSimulationStarted()
   if (FindChildBody(pActorB).Failed())
     return;
 
+  m_localFrameA.m_qRotation.Normalize();
+  m_localFrameB.m_qRotation.Normalize();
+
   const PxTransform tLocalToActorA = ezPxConversionUtils::ToTransform(m_localFrameA);
   const PxTransform tLocalToActorB = ezPxConversionUtils::ToTransform(m_localFrameB);
 
