@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{8714586720801970924}
+		u4 %Hash{7499373162159405429}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -312,15 +312,16 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{12970166489352808078,5525302446520507886}}
+		}
 		VarArray %Components
 		{
 			Uuid{u4{8956292293887385260,5254815049793214947}}
-			Uuid{u4{15597097777252018062,5072145675253549325}}
-			Uuid{u4{8450210029735248003,5384274317472989406}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A03F,0,0}}
+		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -413,7 +414,7 @@ o
 }
 o
 {
-	Uuid %id{u4{15597097777252018062,5072145675253549325}}
+	Uuid %id{u4{13471698595058773401,5199300975315597103}}
 	s %t{"ezPxShapeSphereComponent"}
 	u3 %v{1}
 	p
@@ -445,11 +446,30 @@ o
 	p
 	{
 		b %Active{1}
+		s %AttachTo{"{ 01739dee-d14d-4cad-8ea6-8c03b449ffb3 }"}
 		f %BreakDistance{0x0000003F}
 		f %GrabRadius{0x0000803F}
 		s %MarkerType{"GrabObjectMarker"}
 		f %SpringDamping{0x00002041}
 		f %SpringStiffness{0x00002042}
+	}
+}
+o
+{
+	Uuid %id{u4{17326174765063266968,5264378509893530765}}
+	s %t{"ezPxDynamicActorComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		f %AngularDamping{0x0000803F}
+		b %ContinuousCollisionDetection{0}
+		f %Density{0x0000C842}
+		b %DisableGravity{0}
+		b %Kinematic{1}
+		f %LinearDamping{0xCDCC4C3E}
+		f %Mass{0}
+		f %MaxContactImpulse{0x0050C347}
 	}
 }
 o
@@ -477,24 +497,6 @@ o
 			Uuid{u4{5121193683583553927,4640371911975832841}}
 			Uuid{u4{1610230968024984728,5447546008841232887}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{8450210029735248003,5384274317472989406}}
-	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		f %AngularDamping{0x0000803F}
-		b %ContinuousCollisionDetection{0}
-		f %Density{0x0000C842}
-		b %DisableGravity{0}
-		b %Kinematic{1}
-		f %LinearDamping{0xCDCC4C3E}
-		f %Mass{0}
-		f %MaxContactImpulse{0x0050C347}
 	}
 }
 o
@@ -552,6 +554,34 @@ o
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x4084E02F,0,0xDA11BABD}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{12970166489352808078,5525302446520507886}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17326174765063266968,5264378509893530765}}
+			Uuid{u4{13471698595058773401,5199300975315597103}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000003F,0,0}}
+		Quat %LocalRotation{f{0,0xB57EB2BD,0,0x9E067F3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -1258,7 +1288,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxGrabObjectComponent"}
-		u3 %TypeSize{120}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }

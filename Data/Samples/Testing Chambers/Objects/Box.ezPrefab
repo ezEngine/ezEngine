@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2653273945935889549,5408382608569466657}}
-		u4 %Hash{13463547193210389195}
+		u4 %Hash{16225865688992838185}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11971242699897598154,12838358576299228189}}
@@ -51,7 +51,7 @@ o
 			Uuid{u4{7906224441069663639,2673834784278647053}}
 			Uuid{u4{9862340153366023520,2835924350731503410}}
 			Uuid{u4{3322103975013396075,2987500510966301286}}
-			Uuid{u4{2609181299216468914,5610674892668088285}}
+			Uuid{u4{11794192176365346495,4727709182479083056}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x0000003F}}
@@ -114,14 +114,63 @@ o
 }
 o
 {
-	Uuid %id{u4{2609181299216468914,5610674892668088285}}
-	s %t{"ezMarkerComponent"}
+	Uuid %id{u4{11794192176365346495,4727709182479083056}}
+	s %t{"ezGrabbableItemComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %Marker{"GrabObjectMarker"}
-		f %Radius{0x9A99193F}
+		VarArray %GrabPoints
+		{
+			Uuid{u4{10095708354277971635,5568517892087939109}}
+			Uuid{u4{11598514399489397409,5665196584855518603}}
+			Uuid{u4{14229167397029895573,5501943711183693288}}
+			Uuid{u4{16472688989518818689,5139949315865586510}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16472688989518818689,5139949315865586510}}
+	s %t{"ezGrabbableItemGrabPoint"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %LocalPosition{f{0,0x000000BF,0}}
+		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
+	}
+}
+o
+{
+	Uuid %id{u4{14229167397029895573,5501943711183693288}}
+	s %t{"ezGrabbableItemGrabPoint"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %LocalPosition{f{0x000000B3,0xFFFFFF3E,0}}
+		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
+	}
+}
+o
+{
+	Uuid %id{u4{10095708354277971635,5568517892087939109}}
+	s %t{"ezGrabbableItemGrabPoint"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %LocalPosition{f{0x000000BF,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{11598514399489397409,5665196584855518603}}
+	s %t{"ezGrabbableItemGrabPoint"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %LocalPosition{f{0x0000003F,0,0}}
+		Quat %LocalRotation{f{0x32EC15B2,0x3ADFF426,0x0000803F,0xB4105134}}
 	}
 }
 o
@@ -172,7 +221,7 @@ o
 }
 o
 {
-	Uuid %id{u4{8577194213068516669,1439152778878942207}}
+	Uuid %id{u4{17139407494789178422,2798501593186722351}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -183,8 +232,26 @@ o
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezMarkerComponent"}
+		s %TypeName{"ezGrabbableItemComponent"}
 		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6755576329617394298,3026008437813170610}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGrabbableItemGrabPoint"}
+		u3 %TypeSize{28}
 		u3 %TypeVersion{1}
 	}
 }

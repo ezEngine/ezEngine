@@ -3,6 +3,7 @@
 #include <Components/PxDynamicActorComponent.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Gameplay/GrabbableItemComponent.h>
 #include <PhysXPlugin/Components/PxObjectGrabComponent.h>
 #include <PhysXPlugin/Joints/Px6DOFJointComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
@@ -14,11 +15,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxGrabObjectComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("GrabRadius", m_fGrabRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("MarkerType", GetMarkerType, SetMarkerType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum")),
     EZ_MEMBER_PROPERTY("SpringStiffness", m_fSpringStiffness)->AddAttributes(new ezDefaultValueAttribute(50.0f)),
     EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("BreakDistance", m_fBreakDistance)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+    EZ_ACCESSOR_PROPERTY("AttachTo", DummyGetter, SetAttachToReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -39,6 +39,7 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezPxGrabObjectComponent::ezPxGrabObjectComponent() = default;
+ezPxGrabObjectComponent::~ezPxGrabObjectComponent() = default;
 
 void ezPxGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -49,8 +50,8 @@ void ezPxGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fBreakDistance;
   s << m_fSpringStiffness;
   s << m_fSpringDamping;
-  s << m_sMarkerType;
-  s << m_fGrabRadius;
+
+  stream.WriteGameObjectHandle(m_hAttachTo);
 }
 
 void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
@@ -63,27 +64,8 @@ void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fBreakDistance;
   s >> m_fSpringStiffness;
   s >> m_fSpringDamping;
-  s >> m_sMarkerType;
-  s >> m_fGrabRadius;
-}
 
-static ezPxDynamicActorComponent* FindActor(ezGameObject* pObject)
-{
-  while (pObject != nullptr)
-  {
-    ezPxDynamicActorComponent* pActor;
-    if (pObject->TryGetComponentOfBaseType(pActor))
-    {
-      if (pActor->GetKinematic())
-        return nullptr;
-
-      return pActor;
-    }
-
-    pObject = pObject->GetParent();
-  }
-
-  return nullptr;
+  m_hAttachTo = stream.ReadGameObjectHandle();
 }
 
 bool ezPxGrabObjectComponent::GrabNearbyObject()
@@ -93,46 +75,70 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
 
   auto pOwner = GetOwner();
 
-  // TODO: allow multiple / prefer some over others (?)
-  // e.g. have one marker that also orients, another that just grabs without rotation (requires to adjust joint rotation)
-  auto marker = ezSpatialData::RegisterCategory(m_sMarkerType.GetString());
-
-  ezHybridArray<ezGameObject*, 16> objects;
-
-  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere(pOwner->GetGlobalPosition(), m_fGrabRadius), marker.GetBitmask(), objects);
-
-  if (objects.IsEmpty())
-    return false;
-
-  const ezVec3 vOwnPos = pOwner->GetGlobalPosition();
-
-  float fClosest = ezMath::MaxValue<float>();
-  ezGameObject* pClosestMarker = nullptr;
   ezPxDynamicActorComponent* pClosestActor = nullptr;
-
-  for (auto pObj : objects)
   {
-    const float fDist = (vOwnPos - pObj->GetGlobalPosition()).GetLengthSquared();
+    ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 
-    if (fDist < fClosest)
+    ezPhysicsCastResult hit;
+    ezPhysicsQueryParameters queryParam;
+    queryParam.m_bIgnoreInitialOverlap = true;
+    queryParam.m_uiCollisionLayer = 0; // TODO
+    queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+
+    if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), 5.0f /* TODO*/, queryParam))
+      return false;
+
+    ezGameObject* pActorObj;
+    if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
+      return false;
+
+    if (!pActorObj->TryGetComponentOfBaseType(pClosestActor))
+      return false;
+
+    if (pClosestActor->GetKinematic())
+      return false;
+
+    ezGrabbableItemComponent* pGrabbable;
+    if (!pActorObj->TryGetComponentOfBaseType(pGrabbable))
+      return false;
+
+    m_ChildAnchorLocal.SetIdentity();
+
+    if (!pGrabbable->m_GrabPoints.IsEmpty())
     {
-      if (auto pActor = FindActor(pObj))
+      float fBestScore = 0.0f;
+      ezUInt32 uiBestPoint = 0;
+
+      const ezTransform parentTransform = pActorObj->GetGlobalTransform();
+
+      for (ezUInt32 i = 0; i < pGrabbable->m_GrabPoints.GetCount(); ++i)
       {
-        pClosestMarker = pObj;
-        pClosestActor = pActor;
-        fClosest = fDist;
+        const ezVec3 vGlobalPos = parentTransform.TransformPosition(pGrabbable->m_GrabPoints[i].m_vLocalPosition);
+        const ezQuat qGlobalRot = parentTransform.m_qRotation * pGrabbable->m_GrabPoints[i].m_qLocalRotation;
+
+        const ezVec3 vDir = qGlobalRot * ezVec3(1, 0, 0);
+
+        float fScore = 1.0f / (vGlobalPos - pOwner->GetGlobalPosition()).GetLengthSquared();
+
+        if (fScore > fBestScore)
+        {
+          fBestScore = fScore;
+          uiBestPoint = i;
+        }
       }
+
+      m_ChildAnchorLocal.m_vPosition = pGrabbable->m_GrabPoints[uiBestPoint].m_vLocalPosition;
+      m_ChildAnchorLocal.m_qRotation = pGrabbable->m_GrabPoints[uiBestPoint].m_qLocalRotation;
     }
   }
 
-  if (pClosestActor == nullptr)
-    return false;
-
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-
   ezPxDynamicActorComponent* pParentActor = nullptr;
+  ezGameObject* pAttachToObj = nullptr;
   {
-    if (!pOwner->TryGetComponentOfBaseType(pParentActor))
+    if (!GetWorld()->TryGetObject(m_hAttachTo, pAttachToObj))
+      return false;
+
+    if (!pAttachToObj->TryGetComponentOfBaseType(pParentActor))
       return false;
 
     if (!pParentActor->GetKinematic())
@@ -142,25 +148,27 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
   EZ_PX_WRITE_LOCK(*(pClosestActor->GetPxActor()->getScene()));
 
   m_hGrabbedActor = pClosestActor->GetHandle();
-  m_hGrabbedAnchor = pClosestMarker->GetHandle();
   m_fPrevMass = pClosestActor->GetMass();
   pClosestActor->SetMass(0.1f);
 
+  m_bPrevGravity = !pClosestActor->GetDisableGravity();
+  pClosestActor->SetDisableGravity(true);
+
   {
     ezPx6DOFJointComponent* pJoint = nullptr;
-    m_hJoint = GetWorld()->GetOrCreateComponentManager<ezPx6DOFJointComponentManager>()->CreateComponent(pOwner, pJoint);
+    m_hJoint = GetWorld()->GetOrCreateComponentManager<ezPx6DOFJointComponentManager>()->CreateComponent(pAttachToObj, pJoint);
 
     // TODO: swing/twist leeway (also to prevent object from flying away)
     // locked rotation feels better than springy rotation, but can result in objects being flung away on pickup
     // could probably use spring at pickup, wait till object is rotated nicely, and then lock the rotation axis
     pJoint->SetFreeAngularAxis(ezPxAxis::All);
-    pJoint->SetSwingLimitMode(ezPxJointLimitMode::HardLimit);
-    pJoint->SetSwingLimit(ezAngle::Degree(175));
+    //pJoint->SetSwingLimitMode(ezPxJointLimitMode::HardLimit);
+    //pJoint->SetSwingLimit(ezAngle::Degree(175));
     //pJoint->SetSwingStiffness(m_fSpringStiffness);
     //pJoint->SetSwingDamping(m_fSpringDamping);
-    pJoint->SetTwistLimitMode(ezPxJointLimitMode::HardLimit);
-    pJoint->SetLowerTwistLimit(ezAngle::Degree(-175));
-    pJoint->SetUpperTwistLimit(ezAngle::Degree(+175));
+    //pJoint->SetTwistLimitMode(ezPxJointLimitMode::HardLimit);
+    //pJoint->SetLowerTwistLimit(ezAngle::Degree(-175));
+    //pJoint->SetUpperTwistLimit(ezAngle::Degree(+175));
     //pJoint->SetTwistStiffness(m_fSpringStiffness);
     //pJoint->SetTwistDamping(m_fSpringDamping);
 
@@ -171,9 +179,7 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
     pJoint->SetLinearStiffness(m_fSpringStiffness);
     pJoint->SetLinearDamping(m_fSpringDamping);
 
-    pJoint->SetParentActor(pParentActor->GetOwner()->GetHandle());
-    pJoint->SetChildActor(pClosestActor->GetOwner()->GetHandle());
-    pJoint->SetChildActorAnchor(pClosestMarker->GetHandle());
+    pJoint->SetActors(pParentActor->GetOwner()->GetHandle(), ezTransform::IdentityTransform(), pClosestActor->GetOwner()->GetHandle(), m_ChildAnchorLocal);
 
     pClosestActor->GetPxActor()->getSolverIterationCounts(m_uiPrevPosIterations, m_uiPrevVelIterations);
     pClosestActor->GetPxActor()->setSolverIterationCounts(16, 16);
@@ -215,14 +221,14 @@ void ezPxGrabObjectComponent::BreakObjectGrab()
   GetOwner()->PostEventMessage(msg, this, ezTime::Zero());
 }
 
-void ezPxGrabObjectComponent::SetMarkerType(const char* szType)
+void ezPxGrabObjectComponent::SetAttachToReference(const char* szReference)
 {
-  m_sMarkerType.Assign(szType);
-}
+  auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
-const char* ezPxGrabObjectComponent::GetMarkerType() const
-{
-  return m_sMarkerType.GetData();
+  if (!resolver.IsValid())
+    return;
+
+  m_hAttachTo = resolver(szReference, GetHandle(), "AttachTo");
 }
 
 void ezPxGrabObjectComponent::ReleaseGrabbedObject()
@@ -236,6 +242,7 @@ void ezPxGrabObjectComponent::ReleaseGrabbedObject()
     EZ_PX_WRITE_LOCK(*(pActor->GetPxActor()->getScene()));
 
     pActor->SetMass(m_fPrevMass); // TODO: not sure that's the best way to reset the mass
+    pActor->SetDisableGravity(!m_bPrevGravity);
     pActor->GetPxActor()->setSolverIterationCounts(m_uiPrevPosIterations, m_uiPrevVelIterations);
   }
 
@@ -247,7 +254,6 @@ void ezPxGrabObjectComponent::ReleaseGrabbedObject()
 
   m_hJoint.Invalidate();
   m_hGrabbedActor.Invalidate();
-  m_hGrabbedAnchor.Invalidate();
 }
 
 void ezPxGrabObjectComponent::Update()
@@ -257,16 +263,14 @@ void ezPxGrabObjectComponent::Update()
 
   ezPxDynamicActorComponent* pActor;
   ezPx6DOFJointComponent* pJoint;
-  ezGameObject* pMarker;
   if (!GetWorld()->TryGetComponent(m_hGrabbedActor, pActor) ||
-      !GetWorld()->TryGetComponent(m_hJoint, pJoint) ||
-      !GetWorld()->TryGetObject(m_hGrabbedAnchor, pMarker))
+      !GetWorld()->TryGetComponent(m_hJoint, pJoint))
   {
     ReleaseGrabbedObject();
     return;
   }
 
-  const ezVec3 vAnchorPos = pMarker->GetGlobalPosition();
+  const ezVec3 vAnchorPos = pActor->GetOwner()->GetGlobalTransform().TransformPosition(m_ChildAnchorLocal.m_vPosition);
   const ezVec3 vJointPos = pJoint->GetOwner()->GetGlobalPosition();
   const float fDistance = (vAnchorPos - vJointPos).GetLength();
 
@@ -290,11 +294,9 @@ void ezPxGrabObjectComponent::Update()
   }
 
   if (PxD6Joint* pJointD6 = static_cast<PxD6Joint*>(pJoint->GetPxJoint()))
-      {
-        // TODO: for some reason using a drive can crash when the grabbed object is rotated just right, probably hitting a singularity
-        // when computing the rotation direction
-        pJointD6->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
-        //pJointD6->setDrive(PxD6Drive::eSWING, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
-        //pJointD6->setDrive(PxD6Drive::eTWIST, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
-      }
-    }
+  {
+    pJointD6->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+    //pJointD6->setDrive(PxD6Drive::eSWING, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+    //pJointD6->setDrive(PxD6Drive::eTWIST, PxD6JointDrive(m_fSpringStiffness, m_fSpringDamping, ezMath::MaxValue<float>(), true));
+  }
+}

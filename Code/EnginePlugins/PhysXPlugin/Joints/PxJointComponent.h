@@ -86,8 +86,7 @@ protected:
   ezResult FindParentBody(physx::PxRigidActor*& pActor);
   ezResult FindChildBody(physx::PxRigidActor*& pActor);
 
-  virtual void CreateJointType(
-    physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) = 0;
+  virtual void CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) = 0;
 
   void QueueApplySettings();
 

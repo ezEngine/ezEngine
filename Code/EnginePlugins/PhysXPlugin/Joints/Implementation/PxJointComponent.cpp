@@ -10,7 +10,7 @@
 using namespace physx;
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -122,6 +122,8 @@ void ezPxJointComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_localFrameA;
   s << m_localFrameB;
+
+  stream.WriteGameObjectHandle(m_hActorBAnchor);
 }
 
 void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
@@ -143,6 +145,11 @@ void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
 
     s >> m_localFrameA;
     s >> m_localFrameB;
+  }
+
+  if (uiVersion >= 3)
+  {
+    m_hActorBAnchor = stream.ReadGameObjectHandle();
   }
 }
 
