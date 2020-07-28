@@ -225,6 +225,7 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
   const auto pOwner = GetOwner();
   const auto vOwnerPos = pOwner->GetGlobalPosition();
   const auto vOwnerDir = pOwner->GetGlobalDirForwards();
+  const auto vOwnerUp = pOwner->GetGlobalDirUp();
   const auto pActorObj = pActorComp->GetOwner();
 
   const ezTransform& actorTransform = pActorObj->GetGlobalTransform();
@@ -264,27 +265,29 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
   if (grabPoints.IsEmpty())
     return EZ_FAILURE;
 
-  float fBestScore = 0.0f;
-  ezUInt32 uiBestPoint = 0;
+  ezUInt32 uiBestPointIndex = 0;
+  float fBestScore = -1000.0f;
 
   for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
   {
     const ezVec3 vGrabPointPos = actorTransform.TransformPosition(grabPoints[i].m_vLocalPosition);
     const ezQuat qGrabPointRot = actorTransform.m_qRotation * grabPoints[i].m_qLocalRotation;
     const ezVec3 vGrabPointDir = qGrabPointRot * ezVec3(1, 0, 0);
+    const ezVec3 vGrabPointUp = qGrabPointRot * ezVec3(0, 0, 1);
 
-    // TODO: factor in direction
-    float fScore = 1.0f / (vGrabPointPos - vOwnerPos).GetLengthSquared();
+    float fScore = 1.0f - (vGrabPointPos - vOwnerPos).GetLengthSquared();
+    fScore += vGrabPointDir.Dot(vOwnerDir);
+    fScore += vGrabPointUp.Dot(vOwnerUp) * 0.5f; // up has less weight than forward
 
     if (fScore > fBestScore)
     {
+      uiBestPointIndex = i;
       fBestScore = fScore;
-      uiBestPoint = i;
     }
   }
 
-  m_ChildAnchorLocal.m_vPosition = grabPoints[uiBestPoint].m_vLocalPosition;
-  m_ChildAnchorLocal.m_qRotation = grabPoints[uiBestPoint].m_qLocalRotation;
+  m_ChildAnchorLocal.m_vPosition = grabPoints[uiBestPointIndex].m_vLocalPosition;
+  m_ChildAnchorLocal.m_qRotation = grabPoints[uiBestPointIndex].m_qLocalRotation;
 
   return EZ_SUCCESS;
 }

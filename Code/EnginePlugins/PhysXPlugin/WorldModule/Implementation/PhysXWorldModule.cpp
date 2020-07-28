@@ -373,7 +373,7 @@ public:
           {
             const ezVec3 vRelativeVelocity = vVelocity1 - vVelocity0;
 
-            if (!vRelativeVelocity.IsZero())
+            if (!vRelativeVelocity.IsZero(0.0001f))
             {
               const ezVec3 vRelativeVelocityDir = vRelativeVelocity.GetNormalized();
 
