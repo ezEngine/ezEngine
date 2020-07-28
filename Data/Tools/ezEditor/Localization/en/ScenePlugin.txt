@@ -233,9 +233,9 @@ Scene.GameMode.PlayFromHere;Play From Here
 Scene.GameObject.CreateEmptyHere;Create Empty Object Here
 ezPlayerStartPointComponent;Player Start Point
 ezInstancedMeshComponent;Instanced Mesh
-ezMarkerComponent;Marker Component
-ezRaycastComponent;Raycast Placement Component
-ezBeamComponent;Beam Component
+ezMarkerComponent;Marker
+ezRaycastComponent;Raycast Placement
+ezBeamComponent;Beam
 ezMoveToComponent;Move To
 ezDeviceTrackingComponent;Device Tracking
 ezStageSpaceComponent;Stage Space
@@ -266,3 +266,5 @@ ezXRStageSpace::Seated;Seated
 ezXRStageSpace::Standing;Standing
 InstanceData;Instance Data
 Scene.Render.PickTransparent;Select Transparent
+ezGrabbableItemComponent;Grabbable Item
+ezVisualizeHandComponent;Visualize Hand

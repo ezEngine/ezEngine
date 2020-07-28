@@ -23,7 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxGrabObjectComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("BreakDistance", m_fBreakDistance)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
     EZ_ACCESSOR_PROPERTY("AttachTo", DummyGetter, SetAttachToReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_MEMBER_PROPERTY("GrabAnyObjectWithMass", m_fAllowGrabAnyObjectWithMass)->AddAttributes(new ezDefaultValueAttribute(20.0f)),
+    EZ_MEMBER_PROPERTY("GrabAnyObjectWithSize", m_fAllowGrabAnyObjectWithSize)->AddAttributes(new ezDefaultValueAttribute(0.75f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -58,7 +58,7 @@ void ezPxGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSpringDamping;
   s << m_fMaxGrabPointDistance;
   s << m_uiCollisionLayer;
-  s << m_fAllowGrabAnyObjectWithMass;
+  s << m_fAllowGrabAnyObjectWithSize;
 
   stream.WriteGameObjectHandle(m_hAttachTo);
 }
@@ -75,7 +75,7 @@ void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSpringDamping;
   s >> m_fMaxGrabPointDistance;
   s >> m_uiCollisionLayer;
-  s >> m_fAllowGrabAnyObjectWithMass;
+  s >> m_fAllowGrabAnyObjectWithSize;
 
   m_hAttachTo = stream.ReadGameObjectHandle();
 }
@@ -262,29 +262,34 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
   {
     grabPoints = pGrabbableItemComp->m_GrabPoints;
   }
-  else if (pActorComp->GetMass() <= m_fAllowGrabAnyObjectWithMass)
+  else
   {
     const auto& box = pActorComp->GetOwner()->GetLocalBounds().GetBox();
-    const ezVec3& center = box.GetCenter();
-    const ezVec3& halfExt = box.GetHalfExtents();
+    const ezVec3 ext = box.GetExtents().CompMul(pActorComp->GetOwner()->GetGlobalScaling());
 
-    grabPoints.SetCount(4);
-    grabPoints[0].m_vLocalPosition.Set(-halfExt.x, 0, 0);
-    grabPoints[0].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitXAxis());
-    grabPoints[1].m_vLocalPosition.Set(+halfExt.x, 0, 0);
-    grabPoints[1].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitXAxis());
-    grabPoints[2].m_vLocalPosition.Set(0, -halfExt.y, 0);
-    grabPoints[2].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitYAxis());
-    grabPoints[3].m_vLocalPosition.Set(0, +halfExt.y, 0);
-    grabPoints[3].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitYAxis());
-    //grabPoints[4].m_vLocalPosition.Set(0, 0, -halfExt.z);
-    //grabPoints[4].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
-    //grabPoints[5].m_vLocalPosition.Set(0, 0, +halfExt.z);
-    //grabPoints[5].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
-
-    for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
+    if (ext.x <= m_fAllowGrabAnyObjectWithSize && ext.y <= m_fAllowGrabAnyObjectWithSize && ext.z <= m_fAllowGrabAnyObjectWithSize)
     {
-      grabPoints[i].m_vLocalPosition += center;
+      const ezVec3 halfExt = box.GetHalfExtents().CompMul(pActorComp->GetOwner()->GetGlobalScaling());
+      const ezVec3& center = box.GetCenter();
+
+      grabPoints.SetCount(4);
+      grabPoints[0].m_vLocalPosition.Set(-halfExt.x, 0, 0);
+      grabPoints[0].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitXAxis());
+      grabPoints[1].m_vLocalPosition.Set(+halfExt.x, 0, 0);
+      grabPoints[1].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitXAxis());
+      grabPoints[2].m_vLocalPosition.Set(0, -halfExt.y, 0);
+      grabPoints[2].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitYAxis());
+      grabPoints[3].m_vLocalPosition.Set(0, +halfExt.y, 0);
+      grabPoints[3].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitYAxis());
+      //grabPoints[4].m_vLocalPosition.Set(0, 0, -halfExt.z);
+      //grabPoints[4].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      //grabPoints[5].m_vLocalPosition.Set(0, 0, +halfExt.z);
+      //grabPoints[5].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
+
+      for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
+      {
+        grabPoints[i].m_vLocalPosition += center;
+      }
     }
   }
 
@@ -448,5 +453,3 @@ void ezPxGrabObjectComponent::Update()
     BreakObjectGrab();
   }
 }
-
-// TODO: prevent picking up large objects (size limit)

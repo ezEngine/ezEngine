@@ -6,6 +6,14 @@ class ezPx6DOFJointComponent;
 
 using ezPxGrabObjectComponentManager = ezComponentManagerSimple<class ezPxGrabObjectComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
+/// \brief Used to 'grab' physical objects and attach them to an object. For player objects to pick up objects.
+///
+/// The component does a raycast along its X axis to detect nearby physics objects. If it finds a non-kinematic ezPxDynamicActor
+/// it connects a dedicated object with the picked object through a 6DOF joint, which is set up to drag the picked object towards its
+/// position and rotation.
+/// The grabbed object can be dropped or thrown away.
+///
+/// If the picked object has a ezGrabbableItemComponent, the custom grab points are used to determine how to grab the object.
 class EZ_PHYSXPLUGIN_DLL ezPxGrabObjectComponent : public ezPxComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxGrabObjectComponent, ezPxComponent, ezPxGrabObjectComponentManager);
@@ -63,8 +71,8 @@ public:
   /// The collision layer to use for the raycast.
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
-  /// If non-zero, the player can pick up objects that have no ezGrabbableItemComponent, if their mass is below this value.
-  float m_fAllowGrabAnyObjectWithMass = 20.0f; // [ property ]
+  /// If non-zero, the player can pick up objects that have no ezGrabbableItemComponent, if their bounding box extents are below this value.
+  float m_fAllowGrabAnyObjectWithSize = 0.75f; // [ property ]
 
   void SetAttachToReference(const char* szReference); // [ property ]
 

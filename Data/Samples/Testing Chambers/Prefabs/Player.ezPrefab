@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{4962957049417785833}
+		u4 %Hash{13858799032331177944}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -449,7 +449,7 @@ o
 		s %AttachTo{"{ 01739dee-d14d-4cad-8ea6-8c03b449ffb3 }"}
 		f %BreakDistance{0x0000003F}
 		u1 %CollisionLayer{0}
-		f %GrabAnyObjectWithMass{0x0000A041}
+		f %GrabAnyObjectWithSize{0x9A99993F}
 		f %MaxGrabPointDistance{0x00000040}
 		f %SpringDamping{0x0000C842}
 		f %SpringStiffness{0x0000FA43}

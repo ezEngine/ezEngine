@@ -46,3 +46,4 @@ ezPxJointLimitMode::SoftLimit; Soft Limit
 ezPxJointDriveMode::NoDrive;No Drive
 ezPxJointDriveMode::DriveAndSpin; Drive and Spin
 ezPxJointDriveMode::DriveAndBrake; Drive and Brake
+ezPxGrabObjectComponent;PhysX Grab Object
