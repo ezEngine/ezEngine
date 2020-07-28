@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
+#include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxObjectGrabComponent.h>
 #include <PhysXPlugin/Joints/Px6DOFJointComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
@@ -16,12 +17,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxGrabObjectComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RaycastDistance", m_fRaycastDistance)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
+    EZ_MEMBER_PROPERTY("MaxGrabPointDistance", m_fMaxGrabPointDistance)->AddAttributes(new ezDefaultValueAttribute(2.0f)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("SpringStiffness", m_fSpringStiffness)->AddAttributes(new ezDefaultValueAttribute(50.0f)),
     EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("BreakDistance", m_fBreakDistance)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
     EZ_ACCESSOR_PROPERTY("AttachTo", DummyGetter, SetAttachToReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    EZ_MEMBER_PROPERTY("GrabAnyObjectWithMass", m_fAllowGrabAnyObjectWithMass)->AddAttributes(new ezDefaultValueAttribute(20.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -30,6 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxGrabObjectComponent, 1, ezComponentMode::Static)
     EZ_SCRIPT_FUNCTION_PROPERTY(HasObjectGrabbed),
     EZ_SCRIPT_FUNCTION_PROPERTY(DropGrabbedObject),
     EZ_SCRIPT_FUNCTION_PROPERTY(ThrowGrabbedObject, In, "Direction"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(BreakObjectGrab),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -53,8 +56,9 @@ void ezPxGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fBreakDistance;
   s << m_fSpringStiffness;
   s << m_fSpringDamping;
-  s << m_fRaycastDistance;
+  s << m_fMaxGrabPointDistance;
   s << m_uiCollisionLayer;
+  s << m_fAllowGrabAnyObjectWithMass;
 
   stream.WriteGameObjectHandle(m_hAttachTo);
 }
@@ -69,10 +73,27 @@ void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fBreakDistance;
   s >> m_fSpringStiffness;
   s >> m_fSpringDamping;
-  s >> m_fRaycastDistance;
+  s >> m_fMaxGrabPointDistance;
   s >> m_uiCollisionLayer;
+  s >> m_fAllowGrabAnyObjectWithMass;
 
   m_hAttachTo = stream.ReadGameObjectHandle();
+}
+
+bool ezPxGrabObjectComponent::FindNearbyObject(ezPxDynamicActorComponent*& out_pActorToGrab, ezTransform& out_LocalGrabPoint) const
+{
+  out_pActorToGrab = FindGrabbableActor();
+
+  if (out_pActorToGrab == nullptr)
+    return false;
+
+  if (IsCharacterStandingOnObject(out_pActorToGrab->GetOwner()->GetHandle()))
+    return false;
+
+  if (DetermineGrabPoint(out_pActorToGrab, out_LocalGrabPoint).Failed())
+    return false;
+
+  return true;
 }
 
 bool ezPxGrabObjectComponent::GrabNearbyObject()
@@ -80,16 +101,21 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
   if (!m_hJoint.IsInvalidated())
     return false;
 
+  const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
+
+  // a cooldown to grab something again after we stood on the held object
+  if (m_LastValidTime > curTime)
+    return false;
+
   ezPxDynamicActorComponent* pAttachToActor = GetAttachToActor();
   if (pAttachToActor == nullptr)
+  {
+    ezLog::Error("Can't grab object, no target actor to attach it to is set.");
     return false;
+  }
 
-  ezPxDynamicActorComponent* pActorToGrab = FindGrabbableActor();
-
-  if (pActorToGrab == nullptr)
-    return false;
-
-  if (DetermineGrabPoint(pActorToGrab).Failed())
+  ezPxDynamicActorComponent* pActorToGrab = nullptr;
+  if (!FindNearbyObject(pActorToGrab, m_ChildAnchorLocal))
     return false;
 
   EZ_PX_WRITE_LOCK(*(pActorToGrab->GetPxActor()->getScene()));
@@ -98,7 +124,7 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
 
   CreateJoint(pAttachToActor, pActorToGrab);
 
-  m_AboveBreakdistanceSince = GetWorld()->GetClock().GetAccumulatedTime();
+  m_LastValidTime = curTime;
 
   return true;
 }
@@ -169,7 +195,7 @@ void ezPxGrabObjectComponent::ReleaseGrabbedObject()
   m_hGrabbedActor.Invalidate();
 }
 
-ezPxDynamicActorComponent* ezPxGrabObjectComponent::FindGrabbableActor()
+ezPxDynamicActorComponent* ezPxGrabObjectComponent::FindGrabbableActor() const
 {
   const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
 
@@ -184,27 +210,27 @@ ezPxDynamicActorComponent* ezPxGrabObjectComponent::FindGrabbableActor()
   queryParam.m_uiCollisionLayer = m_uiCollisionLayer;
   queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
 
-  if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fRaycastDistance, queryParam))
+  if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
     return nullptr;
 
-  ezGameObject* pActorObj;
+  const ezGameObject* pActorObj;
   if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
     return nullptr;
 
-  ezPxDynamicActorComponent* pActorComp = nullptr;
+  const ezPxDynamicActorComponent* pActorComp = nullptr;
   if (!pActorObj->TryGetComponentOfBaseType(pActorComp))
     return nullptr;
 
   if (pActorComp->GetKinematic())
     return nullptr;
 
-  return pActorComp;
+  return const_cast<ezPxDynamicActorComponent*>(pActorComp);
 }
 
-ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor()
+ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor() const
 {
-  ezPxDynamicActorComponent* pActor = nullptr;
-  ezGameObject* pObject = nullptr;
+  const ezPxDynamicActorComponent* pActor = nullptr;
+  const ezGameObject* pObject = nullptr;
 
   if (!GetWorld()->TryGetObject(m_hAttachTo, pObject))
     return nullptr;
@@ -215,12 +241,12 @@ ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor()
   if (!pActor->GetKinematic())
     return nullptr;
 
-  return pActor;
+  return const_cast<ezPxDynamicActorComponent*>(pActor);
 }
 
-ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* pActorComp)
+ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* pActorComp, ezTransform& out_LocalGrabPoint) const
 {
-  m_ChildAnchorLocal.SetIdentity();
+  out_LocalGrabPoint.SetIdentity();
 
   const auto pOwner = GetOwner();
   const auto vOwnerPos = pOwner->GetGlobalPosition();
@@ -265,7 +291,9 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
   if (grabPoints.IsEmpty())
     return EZ_FAILURE;
 
-  ezUInt32 uiBestPointIndex = 0;
+  const float fMaxDistSqr = ezMath::Square(m_fMaxGrabPointDistance);
+
+  ezUInt32 uiBestPointIndex = 0xFFFFFFFF;
   float fBestScore = -1000.0f;
 
   for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
@@ -275,7 +303,12 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
     const ezVec3 vGrabPointDir = qGrabPointRot * ezVec3(1, 0, 0);
     const ezVec3 vGrabPointUp = qGrabPointRot * ezVec3(0, 0, 1);
 
-    float fScore = 1.0f - (vGrabPointPos - vOwnerPos).GetLengthSquared();
+    const float fLenSqr = (vGrabPointPos - vOwnerPos).GetLengthSquared();
+
+    if (fLenSqr >= fMaxDistSqr)
+      continue;
+
+    float fScore = 1.0f - fLenSqr;
     fScore += vGrabPointDir.Dot(vOwnerDir);
     fScore += vGrabPointUp.Dot(vOwnerUp) * 0.5f; // up has less weight than forward
 
@@ -286,8 +319,11 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
     }
   }
 
-  m_ChildAnchorLocal.m_vPosition = grabPoints[uiBestPointIndex].m_vLocalPosition;
-  m_ChildAnchorLocal.m_qRotation = grabPoints[uiBestPointIndex].m_qLocalRotation;
+  if (uiBestPointIndex >= grabPoints.GetCount())
+    return EZ_FAILURE;
+
+  out_LocalGrabPoint.m_vPosition = grabPoints[uiBestPointIndex].m_vLocalPosition;
+  out_LocalGrabPoint.m_qRotation = grabPoints[uiBestPointIndex].m_qLocalRotation;
 
   return EZ_SUCCESS;
 }
@@ -330,9 +366,9 @@ void ezPxGrabObjectComponent::DetectDistanceViolation(ezPxDynamicActorComponent*
 
   if (fDistance < m_fBreakDistance)
   {
-    m_AboveBreakdistanceSince = GetWorld()->GetClock().GetAccumulatedTime();
+    m_LastValidTime = GetWorld()->GetClock().GetAccumulatedTime();
   }
-  else if (fDistance > m_fBreakDistance * 2.0f) // TODO: make this configurable?
+  else if (fDistance > m_fMaxGrabPointDistance * 1.1f)
   {
     BreakObjectGrab();
     return;
@@ -340,11 +376,43 @@ void ezPxGrabObjectComponent::DetectDistanceViolation(ezPxDynamicActorComponent*
   else
   {
     // TODO: make this configurable?
-    if (GetWorld()->GetClock().GetAccumulatedTime() - m_AboveBreakdistanceSince > ezTime::Seconds(1.0))
+    if (GetWorld()->GetClock().GetAccumulatedTime() - m_LastValidTime > ezTime::Seconds(1.0))
     {
       BreakObjectGrab();
       return;
     }
+  }
+}
+
+bool ezPxGrabObjectComponent::IsCharacterStandingOnObject(ezGameObjectHandle hActorToGrab) const
+{
+  const ezPxCharacterProxyComponent* pProxy;
+  if (GetWorld()->TryGetComponent(m_hCharacterProxyComponent, pProxy))
+  {
+    if (pProxy->GetTouchedActorObject() == hActorToGrab)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void ezPxGrabObjectComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  ezGameObject* pObj = GetOwner();
+
+  while (pObj)
+  {
+    ezPxCharacterProxyComponent* pProxy;
+    if (pObj->TryGetComponentOfBaseType(pProxy))
+    {
+      m_hCharacterProxyComponent = pProxy->GetHandle();
+    }
+
+    pObj = pObj->GetParent();
   }
 }
 
@@ -371,10 +439,14 @@ void ezPxGrabObjectComponent::Update()
   }
 
   DetectDistanceViolation(pGrabbedActor, pJoint);
+
+  if (IsCharacterStandingOnObject(pGrabbedActor->GetOwner()->GetHandle()))
+  {
+    // disallow grabbing something again until that time
+    // to prevent grabbing an object in air that we just jumped off of
+    m_LastValidTime = GetWorld()->GetClock().GetAccumulatedTime() + ezTime::Milliseconds(400);
+    BreakObjectGrab();
+  }
 }
 
-// TODO: figure out whether grab point is too far away
-// TODO: (script) function to return potential grab object / point
-// TODO: prevent character controller from jumping onto grabbed object
-// TODO: choose grab point by rotation
-// TODO: grab any physics object with low mass
+// TODO: prevent picking up large objects (size limit)
