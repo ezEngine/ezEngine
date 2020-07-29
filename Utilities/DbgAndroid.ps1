@@ -13,7 +13,8 @@ param(
 	[string]$apk,
 	[switch]$PrepareOnly,
 	[switch]$PrintCmds,
-	[switch]$MessageBoxOnError
+	[switch]$MessageBoxOnError,
+	[switch]$StartLogcat
 )
 
 $ErrorActionPreference = "Stop"
@@ -233,6 +234,11 @@ while(-not $appPid)
 	$appPid = ($appInfo -replace "\s+"," " -split " ")[1]
 }
 Write-Host "App PID is" $appPid
+
+if($StartLogcat)
+{
+	Start-Process -FilePath "$env:comspec" -ArgumentList "/C adb logcat --pid=$appPid"
+}
 
 # Forward the java debugger port
 Adb-Cmd forward tcp:12345 jdwp:$appPid
