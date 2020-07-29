@@ -141,8 +141,7 @@ void ezFmodEventComponentManager::RemoveOcclusionState(ezUInt32 uiIndex)
   }
 }
 
-void ezFmodEventComponentManager::ShootOcclusionRays(
-  OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezTime deltaTime)
+void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezTime deltaTime)
 {
   ezVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
   ezUInt8 uiCollisionLayer = state.m_pComponent->m_uiOcclusionCollisionLayer;

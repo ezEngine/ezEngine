@@ -60,7 +60,7 @@ struct ezOnPhysXContact
 
   struct Bits
   {
-    StorageType ContactReports : 1;
+    StorageType SendReportMsg : 1;
     StorageType ImpactReactions : 1;
     StorageType SlideReactions : 1;
     StorageType RollXReactions : 1;

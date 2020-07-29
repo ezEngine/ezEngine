@@ -5,13 +5,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 
-class EZ_GAMEENGINE_DLL ezMarkerComponentManager : public ezComponentManager<class ezMarkerComponent, ezBlockStorageType::Compact>
-{
-  typedef ezComponentManager<ezMarkerComponent, ezBlockStorageType::Compact> SUPER;
-
-public:
-  ezMarkerComponentManager(ezWorld* pWorld);
-};
+using ezMarkerComponentManager = ezComponentManager<class ezMarkerComponent, ezBlockStorageType::Compact>;
 
 class EZ_GAMEENGINE_DLL ezMarkerComponent : public ezComponent
 {

@@ -10,7 +10,7 @@
 using namespace physx;
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -71,6 +71,9 @@ void ezPxJointComponent::OnSimulationStarted()
   if (FindChildBody(pActorB).Failed())
     return;
 
+  m_localFrameA.m_qRotation.Normalize();
+  m_localFrameB.m_qRotation.Normalize();
+
   const PxTransform tLocalToActorA = ezPxConversionUtils::ToTransform(m_localFrameA);
   const PxTransform tLocalToActorB = ezPxConversionUtils::ToTransform(m_localFrameB);
 
@@ -119,6 +122,8 @@ void ezPxJointComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_localFrameA;
   s << m_localFrameB;
+
+  stream.WriteGameObjectHandle(m_hActorBAnchor);
 }
 
 void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
@@ -140,6 +145,11 @@ void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
 
     s >> m_localFrameA;
     s >> m_localFrameB;
+  }
+
+  if (uiVersion >= 3)
+  {
+    m_hActorBAnchor = stream.ReadGameObjectHandle();
   }
 }
 
@@ -184,6 +194,12 @@ void ezPxJointComponent::SetChildActor(ezGameObjectHandle hActor)
 {
   SetUserFlag(1, false); // local frame B is not valid
   m_hActorB = hActor;
+}
+
+void ezPxJointComponent::SetChildActorAnchor(ezGameObjectHandle hActor)
+{
+  SetUserFlag(1, false); // local frame B is not valid
+  m_hActorBAnchor = hActor;
 }
 
 void ezPxJointComponent::SetActors(
@@ -274,7 +290,7 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
   }
 
   pRbComp->EnsureSimulationStarted();
-  pActor = pRbComp->GetActor();
+  pActor = pRbComp->GetPxActor();
 
   if (pActor == nullptr)
   {
@@ -335,7 +351,7 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
   //}
 
   pRbComp->EnsureSimulationStarted();
-  pActor = pRbComp->GetActor();
+  pActor = pRbComp->GetPxActor();
 
   if (pActor == nullptr)
   {

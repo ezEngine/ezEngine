@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11281838771480088251,5140108322494537448}}
-		u4 %Hash{10075010758428172167}
+		u4 %Hash{12968565319639002054}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17374589031583292623,5460030219854842637}}
@@ -598,7 +598,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxJointComponent"}
 		u3 %TypeSize{176}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

@@ -156,8 +156,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 
         const float fMaxLen = vDirection.GetLengthAndNormalize();
 
-        if (m_pPhysicsModule != nullptr &&
-            m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen, ezPhysicsQueryParameters(m_uiCollisionLayer)))
+        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen, ezPhysicsQueryParameters(m_uiCollisionLayer)))
         {
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {

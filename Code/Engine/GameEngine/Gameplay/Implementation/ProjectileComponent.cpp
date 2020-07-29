@@ -115,8 +115,11 @@ void ezProjectileComponent::Update()
     if (!vCurDirection.IsZero())
       fDistance = vCurDirection.GetLengthAndNormalize();
 
+    ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
+    queryParams.m_bIgnoreInitialOverlap = true;
+
     ezPhysicsCastResult castResult;
-    if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, ezPhysicsQueryParameters(m_uiCollisionLayer)))
+    if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, queryParams))
     {
       const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
 

@@ -114,12 +114,4 @@ void ezMarkerComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-ezMarkerComponentManager::ezMarkerComponentManager(ezWorld* pWorld)
-  : SUPER(pWorld)
-{
-}
-
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_MarkerComponent);

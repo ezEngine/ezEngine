@@ -112,6 +112,9 @@ void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& stream)
 void ezPx6DOFJointComponent::CreateJointType(
   PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
+  EZ_ASSERT_DEV(localFrame0.isFinite() && localFrame0.isValid() && localFrame0.isSane(), "frame 0");
+  EZ_ASSERT_DEV(localFrame1.isFinite() && localFrame1.isValid() && localFrame1.isSane(), "frame 1");
+
   m_pJoint = PxD6JointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }
 
@@ -216,7 +219,9 @@ void ezPx6DOFJointComponent::ApplySettings()
 
     if (freeAxis.IsAnySet(ezPxAxis::Y | ezPxAxis::Z))
     {
-      PxJointLimitCone l(m_SwingLimit.GetRadian(), m_SwingLimit.GetRadian());
+      const float fSwingLimit = ezMath::Max(ezAngle::Degree(0.5f).GetRadian(), m_SwingLimit.GetRadian());
+
+      PxJointLimitCone l(fSwingLimit, fSwingLimit);
 
       if (m_SwingLimitMode == ezPxJointLimitMode::SoftLimit)
       {
@@ -258,6 +263,12 @@ void ezPx6DOFJointComponent::ApplySettings()
       if (l.lower > l.upper)
       {
         ezMath::Swap(l.lower, l.upper);
+      }
+
+      if (ezMath::IsEqual(l.lower, l.upper, ezAngle::Degree(0.5f).GetRadian()))
+      {
+        l.lower -= ezAngle::Degree(0.5f).GetRadian();
+        l.upper += ezAngle::Degree(0.5f).GetRadian();
       }
 
       if (m_TwistLimitMode == ezPxJointLimitMode::SoftLimit)

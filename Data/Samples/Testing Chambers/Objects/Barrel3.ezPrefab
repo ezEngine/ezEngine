@@ -265,7 +265,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{5}
 	}
 }
@@ -319,7 +319,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeConvexComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -409,7 +409,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{3}
 	}
 }

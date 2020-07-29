@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10343536139760208028,4918522812857774060}}
-		u4 %Hash{17290520511660860647}
+		u4 %Hash{10508650190928242031}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{969519408616889768,7780583395582206609}}
@@ -136,7 +136,7 @@ o
 {
 	Uuid %id{u4{16562644321202315681,5390301789803891935}}
 	s %t{"ezSpawnComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -144,6 +144,7 @@ o
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0}}
 		Time %MinDelay{d{0x000000000000F03F}}
+		VarDict %Parameters{}
 		s %Prefab{"{ 9bd6d5f2-c682-451b-91a0-8b719e3e29c1 }"}
 		b %SpawnAtStart{0}
 		b %SpawnContinuously{0}
@@ -330,8 +331,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpawnComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o
