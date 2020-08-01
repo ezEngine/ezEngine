@@ -23,6 +23,7 @@ static int __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(duk_context* pDuk)
 static int __CPP_GameObject_TryGetScriptComponent(duk_context* pDuk);
 static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk);
 static int __CPP_GameObject_SendMessage(duk_context* pDuk);
+static int __CPP_GameObject_SendEventMessage(duk_context* pDuk);
 static int __CPP_GameObject_SetString(duk_context* pDuk);
 static int __CPP_GameObject_GetString(duk_context* pDuk);
 static int __CPP_GameObject_SetTeamID(duk_context* pDuk);
@@ -83,8 +84,8 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_TryGetComponentOfBaseTypeNameHash", __CPP_GameObject_TryGetComponentOfBaseTypeNameHash, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_TryGetScriptComponent", __CPP_GameObject_TryGetScriptComponent, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SearchForChildByNameSequence", __CPP_GameObject_SearchForChildByNameSequence, 3);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 5, 0);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostMessage", __CPP_GameObject_SendMessage, 5, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendEventMessage", __CPP_GameObject_SendEventMessage, 5, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostEventMessage", __CPP_GameObject_SendEventMessage, 5, 1);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirForwards", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirForwards);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirRight", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirRight);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
@@ -645,6 +646,44 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
 
   return duk.ReturnVoid();
 }
+
+static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+  ezTypeScriptComponent* pSender = ezTypeScriptBinding::ExpectComponent<ezTypeScriptComponent>(duk, 3);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+
+  if (duk.GetFunctionMagicValue() == 0) // SendEventMessage
+  {
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+
+    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
+
+    pGameObject->SendEventMessage(*pEventMsg, pSender);
+
+    if (duk.GetBoolValue(4)) // expect the message to have result values
+    {
+      // sync msg back to TS
+      ezTypeScriptBinding::SyncEzObjectToTsObject(pDuk, pMsg->GetDynamicRTTI(), pMsg.Borrow(), 1);
+    }
+  }
+  else // PostEventMessage
+  {
+    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
+
+    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
+
+    pGameObject->PostEventMessage(*pEventMsg, pSender, delay);
+  }
+
+  return duk.ReturnVoid();
+}
+
 
 static int __CPP_GameObject_SetString(duk_context* pDuk)
 {

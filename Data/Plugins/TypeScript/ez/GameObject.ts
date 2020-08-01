@@ -12,6 +12,7 @@ export import Time = __Time.Time;
 
 import __Message = require("./Message")
 export import Message = __Message.Message;
+export import EventMessage = __Message.EventMessage;
 
 import __Component = require("./Component")
 export import Component = __Component.Component;
@@ -65,6 +66,9 @@ declare function __CPP_GameObject_TryGetScriptComponent(_this: GameObject, typeN
 
 declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, expectMsgResult: boolean): void;
 declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number): void;
+
+declare function __CPP_GameObject_SendEventMessage(_this: GameObject, typeNameHash: number, msg: EventMessage, sender: TypescriptComponent, expectMsgResult: boolean): void;
+declare function __CPP_GameObject_PostEventMessage(_this: GameObject, typeNameHash: number, msg: EventMessage, sender: TypescriptComponent, delay: number): void;
 
 declare function __CPP_GameObject_SetTags(_this: GameObject, ...tags: string[]): void;
 declare function __CPP_GameObject_AddTags(_this: GameObject, ...tags: string[]): void;
@@ -429,7 +433,7 @@ export class GameObject {
      * Queues a message to be sent to all the components on this GameObject (but not its children).
      * 
      * The message is delivered after the timeout.
-     * If the timeout is zero, the message is delivered within this frame, but not immediately.
+     * If the timeout is zero, the message is delivered in the next frame.
      */
     PostMessage(msg: Message, delay: number = Time.Zero()): void { // [tested]
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, false, delay);
@@ -439,10 +443,34 @@ export class GameObject {
      * Queues a message to be sent to all the components on this GameObject (including all its children).
      * 
      * The message is delivered after the timeout.
-     * If the timeout is zero, the message is delivered within this frame, but not immediately.
+     * If the timeout is zero, the message is delivered in the next frame.
      */
     PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void { // [tested]
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, true, delay);
+    }
+
+    /**
+     * Sends an *event message* up the object hierarchy to the closest event handler (typically another script).
+     * 
+     * The message is delivered immediately.
+     * 
+     * @param expectResultData If set to true, the calling code assumes that the message receiver(s) may write result data
+     *   back into the message and thus the caller is interested in reading that data afterwards. If set to false
+     *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
+     *   has been delivered and thus any data written into the message by the receiver, is lost.
+     */
+    SendEventMessage(msg: EventMessage, sender: TypescriptComponent, expectMsgResult: boolean = false): void {
+        __CPP_GameObject_SendEventMessage(this, msg.TypeNameHash, msg, sender, expectMsgResult);
+    }
+
+    /**
+     * Queues an *event message* to be sent up the object hierarchy to the closest event handler (typically another script).
+     * 
+     * The message is delivered after the timeout.
+     * If the timeout is zero, the message is delivered in the next frame.
+     */
+    PostEventMessage(msg: EventMessage, sender: TypescriptComponent, delay: number = Time.Zero()): void {
+        __CPP_GameObject_PostEventMessage(this, msg.TypeNameHash, msg, sender, delay);
     }
 
     /**
