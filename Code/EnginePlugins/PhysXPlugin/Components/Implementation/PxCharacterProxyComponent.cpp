@@ -153,6 +153,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 3, ezComponentMode::Dynamic
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
+      new ezCategoryAttribute("Physics/Special"),
       new ezCapsuleManipulatorAttribute("CapsuleHeight", "CapsuleRadius"),
       new ezCapsuleVisualizerAttribute("CapsuleHeight", "CapsuleRadius"),
   }

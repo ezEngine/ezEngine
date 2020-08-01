@@ -21,11 +21,10 @@ ezPxSteppingMode::Variable;Variable
 ezPxSteppingMode::Fixed;Fixed
 ezPxSteppingMode::SemiFixed;SemiFixed
 ezPxTriggerComponent;PhysX Trigger
-ezPxRaycastInteractComponent;Raycast Interaction
 ezPxVisColMeshComponent;PhysX Collision Mesh Visualization
 CollisionMeshImport.TriangleMesh;Triangle Collision Mesh
 CollisionMeshImport.ConvexMesh;Convex Collision Mesh
-ezBreakableSheetComponent;Breakable Sheet
+ezBreakableSheetComponent;PhysX Breakable Sheet
 ezPxAxis::X;X
 ezPxAxis::Y;Y
 ezPxAxis::Z;Z

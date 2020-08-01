@@ -59,7 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics"),
+    new ezCategoryAttribute("Physics/Special"),
     new ezNonUniformBoxManipulatorAttribute("Width", "Thickness", "Height"),
   }
   EZ_END_ATTRIBUTES;

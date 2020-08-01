@@ -26,7 +26,6 @@ export class Player extends ez.TickedTypescriptComponent {
     holsteredWeapon: _ge.Weapon = _ge.Weapon.None;
     guns: ez.GameObject[] = [];
     gunComp: _guns.Gun[] = [];
-    interact: ez.PxRaycastInteractComponent = null;
     ammoPouch: _guns.AmmoPouch = new _guns.AmmoPouch();
     weaponUnlocked: boolean[] = [];
     grabObject: ez.PxGrabObjectComponent = null;
@@ -47,7 +46,6 @@ export class Player extends ez.TickedTypescriptComponent {
         this.guns[_ge.Weapon.PlasmaRifle] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("PlasmaRifle", true));
         this.guns[_ge.Weapon.RocketLauncher] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("RocketLauncher", true));
 
-        this.interact = this.camera.TryGetComponentOfBaseType(ez.PxRaycastInteractComponent);
         this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.PxGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
 
@@ -181,7 +179,16 @@ export class Player extends ez.TickedTypescriptComponent {
                     this.SwitchToWeapon(_ge.Weapon.None);
                 }
                 else {
-                    this.interact.ExecuteInteraction();
+                    let owner = this.GetOwner();
+                    let hit = ez.Physics.Raycast(owner.GetGlobalPosition(), owner.GetGlobalDirForwards(), 2.0, 0);
+
+                    if (hit != null && hit.actorObject)  {
+
+                        let msg = new ez.MsgGenericEvent;
+                        msg.Message = "Use";
+
+                        hit.actorObject.SendEventMessage(msg, this);
+                    }
                 }
             }
         }

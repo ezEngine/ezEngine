@@ -70,6 +70,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dy
     EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Physics/Special"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on

@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{13858799032331177944}
+		u4 %Hash{8013423454078364263}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -124,19 +124,6 @@ o
 		b %ShowStats{0}
 		Time %ShutterTime{d{0x000000000000F03F}}
 		s %UsageHint{"ezCameraUsageHint::MainView"}
-	}
-}
-o
-{
-	Uuid %id{u4{5148922913639600777,1093623068829373769}}
-	s %t{"ezPxRaycastInteractComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		u1 %CollisionLayer{0}
-		f %MaxDistance{0x00000040}
-		s %UserMessage{"Use"}
 	}
 }
 o
@@ -252,7 +239,6 @@ o
 		{
 			Uuid{u4{17183932176149474540,14437762879067406406}}
 			Uuid{u4{6640024761792138632,1016865748585375154}}
-			Uuid{u4{5148922913639600777,1093623068829373769}}
 			Uuid{u4{2143267828838415199,10066006265502260468}}
 		}
 		s %GlobalKey{""}
@@ -966,24 +952,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezHeadBoneComponent"}
 		u3 %TypeSize{64}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{282463861952624547,4699758092572784874}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxRaycastInteractComponent"}
-		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
 	}
 }

@@ -7,8 +7,17 @@
 
 using namespace physx;
 
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, 1)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Physics/Actors"),
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_ABSTRACT_COMPONENT_TYPE
+// clang-format on
 
 ezPxActorComponent::ezPxActorComponent() = default;
 ezPxActorComponent::~ezPxActorComponent() = default;
