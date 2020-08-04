@@ -84,6 +84,8 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_TryGetComponentOfBaseTypeNameHash", __CPP_GameObject_TryGetComponentOfBaseTypeNameHash, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_TryGetScriptComponent", __CPP_GameObject_TryGetScriptComponent, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SearchForChildByNameSequence", __CPP_GameObject_SearchForChildByNameSequence, 3);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 5, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostMessage", __CPP_GameObject_SendMessage, 5, 1);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendEventMessage", __CPP_GameObject_SendEventMessage, 5, 0);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostEventMessage", __CPP_GameObject_SendEventMessage, 5, 1);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirForwards", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirForwards);
