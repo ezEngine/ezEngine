@@ -11,6 +11,10 @@
 #include <limits.h>
 #include <stddef.h>
 
+#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+  #define LUA_BUILD_AS_DLL
+#endif
+
 
 /*
 ** ===================================================================
