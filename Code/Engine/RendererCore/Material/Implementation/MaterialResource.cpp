@@ -411,6 +411,28 @@ void ezMaterialResource::ResetResource()
   }
 }
 
+const char* ezMaterialResource::GetDefaultMaterialFileName(DefaultMaterialType MaterialType)
+{
+  switch (MaterialType)
+  {
+    case DefaultMaterialType::Fullbright:
+      return "Base/Materials/BaseMaterials/Fullbright.ezMaterialAsset";
+    case DefaultMaterialType::FullbrightAlphaTest:
+      return "Base/Materials/BaseMaterials/FullbrightAlphaTest.ezMaterialAsset";
+    case DefaultMaterialType::Lit:
+      return "Base/Materials/BaseMaterials/Lit.ezMaterialAsset";
+    case DefaultMaterialType::LitAlphaTest:
+      return "Base/Materials/BaseMaterials/LitAlphaTest.ezMaterialAsset";
+    case DefaultMaterialType::Sky:
+      return "Base/Materials/BaseMaterials/Sky.ezMaterialAsset";
+    case DefaultMaterialType::MissingMaterial:
+      return "Base/Materials/BaseMaterials/MissingMaterial.ezMaterialAsset";
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return "";
+  }
+}
+
 ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 {
   if (m_Desc.m_hBaseMaterial.IsValid())
