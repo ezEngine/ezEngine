@@ -13,6 +13,7 @@
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Scene.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <RendererCore/Material/MaterialResource.h>
 
 namespace ezMeshImportUtils
 {
@@ -381,7 +382,7 @@ namespace ezMeshImportUtils
 
     // find the default material asset
     {
-      static const char* defaultMaterialAssetPath = "Base/Materials/BaseMaterials/Lit.ezMaterialAsset";
+      static const char* defaultMaterialAssetPath = ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::Lit);
       ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindSubAsset(defaultMaterialAssetPath)->m_Data.m_Guid, defaultMaterialAssetId);
     }
 

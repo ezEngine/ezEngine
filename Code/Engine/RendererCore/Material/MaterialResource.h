@@ -82,6 +82,20 @@ public:
   void PreserveCurrentDesc();
   virtual void ResetResource() override;
 
+  /// \brief Use these enum values together with GetDefaultMaterialFileName() to get the default file names for these material types.
+  enum class DefaultMaterialType
+  {
+    Fullbright,
+    FullbrightAlphaTest,
+    Lit,
+    LitAlphaTest,
+    Sky,
+    MissingMaterial
+  };
+
+  /// \brief Returns the default material file name for the given type (materials in Data/Base/Materials/BaseMaterials).
+  static const char* GetDefaultMaterialFileName(DefaultMaterialType MaterialType);
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;

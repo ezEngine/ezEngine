@@ -1,6 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
@@ -1187,7 +1188,7 @@ ezUuid ezMaterialAssetDocument::GetLitBaseMaterial()
 {
   if (!s_LitBaseMaterial.IsValid())
   {
-    static const char* szLitMaterialAssetPath = "Base/Materials/BaseMaterials/Lit.ezMaterialAsset";
+    static const char* szLitMaterialAssetPath = ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::Lit);
     auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitMaterialAssetPath);
     if (assetInfo)
       s_LitBaseMaterial = assetInfo->m_Data.m_Guid;
@@ -1197,11 +1198,11 @@ ezUuid ezMaterialAssetDocument::GetLitBaseMaterial()
   return s_LitBaseMaterial;
 }
 
-ezUuid ezMaterialAssetDocument::GetLitAlphaTextBaseMaterial()
+ezUuid ezMaterialAssetDocument::GetLitAlphaTestBaseMaterial()
 {
   if (!s_LitAlphaTextBaseMaterial.IsValid())
   {
-    static const char* szLitAlphaTestMaterialAssetPath = "Base/Materials/BaseMaterials/LitAlphaTest.ezMaterialAsset";
+    static const char* szLitAlphaTestMaterialAssetPath = ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::LitAlphaTest);
     auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitAlphaTestMaterialAssetPath);
     if (assetInfo)
       s_LitAlphaTextBaseMaterial = assetInfo->m_Data.m_Guid;

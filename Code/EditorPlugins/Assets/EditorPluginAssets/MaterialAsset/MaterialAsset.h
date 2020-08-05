@@ -110,7 +110,7 @@ public:
   void RemoveDisconnectedNodes();
 
   static ezUuid GetLitBaseMaterial();
-  static ezUuid GetLitAlphaTextBaseMaterial();
+  static ezUuid GetLitAlphaTestBaseMaterial();
   static ezUuid GetNeutralNormalMap();
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
