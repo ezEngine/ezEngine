@@ -10,6 +10,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <DirectXTex/DirectXTex.h>
+#  include <Foundation/Basics/Platform/Win/HResultUtils.h>
 
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 
@@ -231,7 +232,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     HRESULT res = SaveToWICMemory(outputImages.GetData(), outputImages.GetCount(), flags, GetWICCodec(WIC_CODEC_TIFF), targetBlob);
     if (FAILED(res))
     {
-      ezLog::Error(pLog, "Failed to save image data to local memory blob - result: {}!", res);
+      ezLog::Error(pLog, "Failed to save image data to local memory blob - result: {}!", ezHRESULTtoString(res));
       return EZ_FAILURE;
     }
 
