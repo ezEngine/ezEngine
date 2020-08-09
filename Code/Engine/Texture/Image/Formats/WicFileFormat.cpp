@@ -6,6 +6,7 @@
 #include <Texture/Image/Formats/WicFileFormat.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
+#include <Foundation/Basics/Platform/Win/HResultUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -231,7 +232,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     HRESULT res = SaveToWICMemory(outputImages.GetData(), outputImages.GetCount(), flags, GetWICCodec(WIC_CODEC_TIFF), targetBlob);
     if (FAILED(res))
     {
-      ezLog::Error(pLog, "Failed to save image data to local memory blob - result: {}!", res);
+      ezLog::Error(pLog, "Failed to save image data to local memory blob - result: {}!", ezHRESULTtoString(res));
       return EZ_FAILURE;
     }
 
