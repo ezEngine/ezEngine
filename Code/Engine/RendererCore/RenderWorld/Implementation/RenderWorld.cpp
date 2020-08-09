@@ -683,6 +683,17 @@ void ezRenderWorld::OnEngineStartup()
 
 void ezRenderWorld::OnEngineShutdown()
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  for (auto it : s_CachedRenderData)
+  {
+    auto& cachedRenderDataPerComponent = it.Value();
+    if (cachedRenderDataPerComponent.IsEmpty() == false)
+    {
+      EZ_REPORT_FAILURE("Leaked cached render data of type '{}'", cachedRenderDataPerComponent[0]->GetDynamicRTTI()->GetTypeName());
+    }
+  }
+#endif
+
   ClearRenderDataCache();
 
   EZ_DEFAULT_DELETE(s_pCacheAllocator);
