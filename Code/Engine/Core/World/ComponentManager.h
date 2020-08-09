@@ -88,6 +88,7 @@ class ezComponentManager : public ezComponentManagerBase
 {
 public:
   typedef T ComponentType;
+  typedef ezComponentManagerBase SUPER;
 
   /// \brief Although the constructor is public always use ezWorld::CreateComponentManager to create an instance.
   ezComponentManager(ezWorld* pWorld);
