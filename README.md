@@ -6,7 +6,7 @@ ez is built in a modular way, enabling users to either use all available functio
 
 The [ezEditor](https://ezengine.github.io/docs/editor/editor-overview.html) is a full blown editor used for editing scenes and importing and authoring assets.
 
-If you want to learn more, please [have a look at the documentation](https://ezengine.github.io/docs). It is very straight-forward to [build ez](https://ezengine.github.io/docs/build/building-ez.html) and there are a [couple of samples](https://ezengine.github.io/docs/#samples) and [videos](https://ezengine.github.io/docs/appendix/videos.html) to get you started. Finally, you can also get the ezEngine [API documentation](https://ezengine.github.io/docs/api-docs/api-docs.html).
+If you want to learn more, please [have a look at the documentation](https://ezengine.github.io/docs). It is very straight-forward to [build ez](https://ezengine.github.io/docs/build/building-ez.html) and there are a [couple of samples](https://ezengine.github.io/docs/#samples) and [videos](http://ezengine.net/getting-started/videos.html) to get you started. Finally, you can also get the ezEngine [API documentation](http://ezengine.net/getting-started/api-docs.html).
 
 If you have a question, [contact us](https://ezengine.github.io/docs/appendix/contact.html).
 
