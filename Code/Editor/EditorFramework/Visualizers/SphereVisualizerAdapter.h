@@ -21,4 +21,5 @@ protected:
   float m_Scale;
   ezVec3 m_vPositionOffset;
   ezEngineGizmoHandle m_Gizmo;
+  ezBitflags<ezVisualizerAnchor> m_Anchor;
 };

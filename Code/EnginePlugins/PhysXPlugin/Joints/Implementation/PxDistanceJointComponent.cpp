@@ -21,8 +21,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("MinDistance", nullptr, ezColor::IndianRed),
-    new ezSphereVisualizerAttribute("MaxDistance", nullptr, ezColor::LightSkyBlue),
+    new ezSphereVisualizerAttribute("MinDistance", ezColor::IndianRed),
+    new ezSphereVisualizerAttribute("MaxDistance", ezColor::LightSkyBlue),
   }
   EZ_END_ATTRIBUTES;
 }

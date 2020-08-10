@@ -179,7 +179,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 1, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Procedural Generation"),
     new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius", nullptr, ezColor::LimeGreen),
+    new ezSphereVisualizerAttribute("Radius", ezColor::LimeGreen),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -265,7 +265,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 1, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Procedural Generation"),
     new ezBoxManipulatorAttribute("Extents"),
-    new ezBoxVisualizerAttribute("Extents", nullptr, ezColor::LimeGreen),
+    new ezBoxVisualizerAttribute("Extents", ezColor::LimeGreen),
   }
   EZ_END_ATTRIBUTES;
 }

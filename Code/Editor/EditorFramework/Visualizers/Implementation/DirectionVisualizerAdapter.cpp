@@ -36,7 +36,7 @@ void ezDirectionVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezDirectionVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>());
+    m_Gizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 }
 

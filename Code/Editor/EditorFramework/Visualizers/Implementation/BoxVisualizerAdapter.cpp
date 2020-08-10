@@ -5,9 +5,8 @@
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezBoxVisualizerAdapter::ezBoxVisualizerAdapter() {}
-
-ezBoxVisualizerAdapter::~ezBoxVisualizerAdapter() {}
+ezBoxVisualizerAdapter::ezBoxVisualizerAdapter() = default;
+ezBoxVisualizerAdapter::~ezBoxVisualizerAdapter() = default;
 
 void ezBoxVisualizerAdapter::Finalize()
 {
@@ -41,10 +40,10 @@ void ezBoxVisualizerAdapter::Update()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezBoxVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>());
+    m_Gizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 
-  m_vPositionOffset = pAttr->m_vOffset;
+  m_vPositionOffset = pAttr->m_vOffsetOrScale;
 
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
@@ -52,7 +51,11 @@ void ezBoxVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezBoxVisualizerAttribute 'offset'");
-    m_vPositionOffset += value.ConvertTo<ezVec3>();
+
+    if (m_vPositionOffset.IsZero())
+      m_vPositionOffset = value.ConvertTo<ezVec3>();
+    else
+      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
   }
 
   m_Rotation.SetIdentity();
@@ -61,6 +64,8 @@ void ezBoxVisualizerAdapter::Update()
   {
     m_Rotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
   }
+
+  m_Anchor = pAttr->m_Anchor;
 }
 
 void ezBoxVisualizerAdapter::UpdateGizmoTransform()
@@ -69,6 +74,23 @@ void ezBoxVisualizerAdapter::UpdateGizmoTransform()
   t.m_vScale = m_Scale;
   t.m_vPosition = m_vPositionOffset;
   t.m_qRotation = m_Rotation;
+
+  ezVec3 vOffset = ezVec3::ZeroVector();
+
+  if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
+    vOffset.x -= t.m_vScale.x * 0.5f;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::NegX))
+    vOffset.x += t.m_vScale.x * 0.5f;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::PosY))
+    vOffset.y -= t.m_vScale.y * 0.5f;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::NegY))
+    vOffset.y += t.m_vScale.y * 0.5f;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::PosZ))
+    vOffset.z -= t.m_vScale.z * 0.5f;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::NegZ))
+    vOffset.z += t.m_vScale.z * 0.5f;
+
+  t.m_vPosition += vOffset;
 
   m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }

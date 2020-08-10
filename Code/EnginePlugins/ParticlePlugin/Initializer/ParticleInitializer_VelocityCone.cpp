@@ -18,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 1, ez
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveZ, "Angle", 1.0f, nullptr, nullptr, ezColor::CornflowerBlue)
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveZ, "Angle", 1.0f, nullptr, ezColor::CornflowerBlue)
   }
   EZ_END_ATTRIBUTES;
 }

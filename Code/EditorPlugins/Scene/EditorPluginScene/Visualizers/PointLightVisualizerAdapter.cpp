@@ -48,7 +48,7 @@ void ezPointLightVisualizerAdapter::Update()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezSphereVisualizerAttribute 'color'");
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezPointLightVisualizerAdapter 'color'");
     m_Gizmo.SetColor(value.ConvertTo<ezColor>());
   }
 }
