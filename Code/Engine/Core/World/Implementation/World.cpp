@@ -1292,11 +1292,13 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
 
   if (preserve == ezGameObject::TransformPreservation::PreserveGlobal)
   {
+    // SetGlobalTransform will internally trigger bounds update for static objects
     pObject->SetGlobalTransform(pObject->m_pTransformationData->m_globalTransform);
   }
   else
   {
-    pObject->UpdateGlobalTransform();
+    // Explicitly trigger transform AND bounds update, otherwise bounds would be outdated for static objects
+    pObject->UpdateGlobalTransformAndBounds();
   }
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
