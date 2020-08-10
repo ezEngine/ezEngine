@@ -118,7 +118,14 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
 private:
   friend class ezExtractor;
 
-  ezHybridArray<ezInternal::RenderDataCacheEntry, 16> m_ExtractedRenderData;
+  struct Data
+  {
+    const ezRenderData* m_pRenderData = nullptr;
+    ezUInt16 m_uiCategory = 0;
+    bool m_bCacheIfStatic = false;
+  };
+
+  ezHybridArray<Data, 16> m_ExtractedRenderData;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

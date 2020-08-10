@@ -369,6 +369,10 @@ public:
   /// \brief Returns a list of all components attached to this object.
   ezArrayPtr<const ezComponent* const> GetComponents() const;
 
+  /// \brief Returns the current version of components attached to this object.
+  /// This version is increased whenever components are added or removed and can be used for cache validation.
+  ezUInt16 GetComponentVersion() const { return m_uiComponentVersion; }
+
 
   /// \brief Sends a message to all components of this object.
   bool SendMessage(ezMessage& msg);

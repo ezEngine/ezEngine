@@ -154,30 +154,18 @@ void ezRenderData::ClearRendererInstances()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezRenderData::Category ezDefaultRenderDataCategories::Light =
-  ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Decal =
-  ezRenderData::RegisterCategory("Decal", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Sky =
-  ezRenderData::RegisterCategory("Sky", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::LitOpaque =
-  ezRenderData::RegisterCategory("LitOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::LitMasked =
-  ezRenderData::RegisterCategory("LitMasked", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::LitTransparent =
-  ezRenderData::RegisterCategory("LitTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
-ezRenderData::Category ezDefaultRenderDataCategories::LitForeground =
-  ezRenderData::RegisterCategory("LitForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::SimpleOpaque =
-  ezRenderData::RegisterCategory("SimpleOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::SimpleTransparent =
-  ezRenderData::RegisterCategory("SimpleTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
-ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground =
-  ezRenderData::RegisterCategory("SimpleForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Selection =
-  ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::GUI =
-  ezRenderData::RegisterCategory("GUI", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
+ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Decal = ezRenderData::RegisterCategory("Decal", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Sky = ezRenderData::RegisterCategory("Sky", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::LitOpaque = ezRenderData::RegisterCategory("LitOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::LitMasked = ezRenderData::RegisterCategory("LitMasked", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::LitTransparent = ezRenderData::RegisterCategory("LitTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
+ezRenderData::Category ezDefaultRenderDataCategories::LitForeground = ezRenderData::RegisterCategory("LitForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::SimpleOpaque = ezRenderData::RegisterCategory("SimpleOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::SimpleTransparent = ezRenderData::RegisterCategory("SimpleTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
+ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground = ezRenderData::RegisterCategory("SimpleForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::GUI = ezRenderData::RegisterCategory("GUI", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -187,8 +175,7 @@ void ezMsgExtractRenderData::AddRenderData(
   auto& cached = m_ExtractedRenderData.ExpandAndGetRef();
   cached.m_pRenderData = pRenderData;
   cached.m_uiCategory = category.m_uiValue;
-  cached.m_uiComponentIndex = 0x7FFF;
-  cached.m_uiCacheIfStatic = (cachingBehavior == ezRenderData::Caching::IfStatic);
+  cached.m_bCacheIfStatic = (cachingBehavior == ezRenderData::Caching::IfStatic);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderData);

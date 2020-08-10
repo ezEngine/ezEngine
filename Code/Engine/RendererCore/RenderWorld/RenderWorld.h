@@ -43,22 +43,20 @@ public:
   static void DeleteView(const ezViewHandle& hView);
 
   static bool TryGetView(const ezViewHandle& hView, ezView*& out_pView);
-  static ezView* GetViewByUsageHint(
-    ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint = ezCameraUsageHint::None, const ezWorld* pWorld = nullptr);
+  static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint = ezCameraUsageHint::None, const ezWorld* pWorld = nullptr);
 
   static void AddMainView(const ezViewHandle& hView);
   static void RemoveMainView(const ezViewHandle& hView);
   static void ClearMainViews();
   static ezArrayPtr<ezViewHandle> GetMainViews();
 
-  static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
-    ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
+  static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
 
   static void DeleteAllCachedRenderData();
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
   static void DeleteCachedRenderDataRecursive(const ezGameObject* pOwnerObject);
   static void DeleteCachedRenderData(ezView& view);
-  static ezArrayPtr<ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner);
+  static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion);
 
   static void AddViewToRender(const ezViewHandle& hView);
 

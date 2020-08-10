@@ -137,20 +137,51 @@ bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObje
   return false;
 }
 
-void ezExtractor::ExtractRenderData(
-  const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const
+void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const
 {
   if (FilterByViewTags(view, pObject))
   {
     return;
   }
 
-  msg.m_ExtractedRenderData.Clear();
-  ezUInt32 uiNumUncachedRenderData = 0;
+  auto AddRenderDataFromMessage = [&](const ezMsgExtractRenderData& msg) {
+    if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+    {
+      for (auto& data : msg.m_ExtractedRenderData)
+      {
+        extractedRenderData.AddRenderData(data.m_pRenderData, msg.m_OverrideCategory);
+      }
+    }
+    else
+    {
+      for (auto& data : msg.m_ExtractedRenderData)
+      {
+        extractedRenderData.AddRenderData(data.m_pRenderData, ezRenderData::Category(data.m_uiCategory));
+      }
+    }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    m_uiNumUncachedRenderData += msg.m_ExtractedRenderData.GetCount();
+#endif
+  };
 
   if (pObject->IsStatic())
   {
-    auto cachedRenderData = ezRenderWorld::GetCachedRenderData(view, pObject->GetHandle());
+    ezUInt16 uiComponentVersion = pObject->GetComponentVersion();
+
+    auto cachedRenderData = ezRenderWorld::GetCachedRenderData(view, pObject->GetHandle(), uiComponentVersion);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    for (ezUInt32 i = 1; i < cachedRenderData.GetCount(); ++i)
+    {
+      EZ_ASSERT_DEBUG(cachedRenderData[i - 1].m_uiComponentIndex <= cachedRenderData[i].m_uiComponentIndex, "Cached render data needs to be sorted");
+      if (cachedRenderData[i - 1].m_uiComponentIndex == cachedRenderData[i].m_uiComponentIndex)
+      {
+        EZ_ASSERT_DEBUG(cachedRenderData[i - 1].m_uiPartIndex < cachedRenderData[i].m_uiPartIndex, "Cached render data needs to be sorted");
+      }
+    }
+#endif
+
     ezUInt32 uiCacheIndex = 0;
 
     auto components = pObject->GetComponents();
@@ -160,9 +191,14 @@ void ezExtractor::ExtractRenderData(
       bool bCacheFound = false;
       while (uiCacheIndex < cachedRenderData.GetCount() && cachedRenderData[uiCacheIndex].m_uiComponentIndex == uiComponentIndex)
       {
-        if (cachedRenderData[uiCacheIndex].m_pRenderData != nullptr)
+        const ezInternal::RenderDataCacheEntry& cacheEntry = cachedRenderData[uiCacheIndex];
+        if (cacheEntry.m_pRenderData != nullptr)
         {
-          msg.m_ExtractedRenderData.PushBack(cachedRenderData[uiCacheIndex]);
+          extractedRenderData.AddRenderData(cacheEntry.m_pRenderData, msg.m_OverrideCategory != ezInvalidRenderDataCategory ? msg.m_OverrideCategory : ezRenderData::Category(cacheEntry.m_uiCategory));
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+          ++m_uiNumCachedRenderData;
+#endif
         }
         ++uiCacheIndex;
 
@@ -174,66 +210,55 @@ void ezExtractor::ExtractRenderData(
         continue;
       }
 
-      ezUInt32 uiOldRenderDataCount = msg.m_ExtractedRenderData.GetCount();
       const ezComponent* pComponent = components[uiComponentIndex];
+      msg.m_ExtractedRenderData.Clear();
       if (pComponent->SendMessage(msg))
       {
-        if (msg.m_ExtractedRenderData.GetCount() > uiOldRenderDataCount)
+        if (msg.m_ExtractedRenderData.IsEmpty() == false)
         {
-          auto newCacheEntries = msg.m_ExtractedRenderData.GetArrayPtr().GetSubArray(uiOldRenderDataCount);
-          if (newCacheEntries[0].m_uiCacheIfStatic)
-          {
-            for (auto& newCacheEntry : newCacheEntries)
-            {
-              newCacheEntry.m_uiComponentIndex = uiComponentIndex;
-            }
+          ezHybridArray<ezInternal::RenderDataCacheEntry, 16> newCacheEntries(ezFrameAllocator::GetCurrentAllocator());
 
-            ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), newCacheEntries);
+          for (ezUInt32 uiPartIndex = 0; uiPartIndex < msg.m_ExtractedRenderData.GetCount(); ++uiPartIndex)
+          {
+            if (msg.m_ExtractedRenderData[uiPartIndex].m_bCacheIfStatic)
+            {
+              auto& newCacheEntry = newCacheEntries.ExpandAndGetRef();
+              newCacheEntry.m_pRenderData = msg.m_ExtractedRenderData[uiPartIndex].m_pRenderData;
+              newCacheEntry.m_uiCategory = msg.m_ExtractedRenderData[uiPartIndex].m_uiCategory;
+              newCacheEntry.m_uiComponentIndex = uiComponentIndex;
+              newCacheEntry.m_uiPartIndex = uiPartIndex;
+            }
           }
 
-          uiNumUncachedRenderData += newCacheEntries.GetCount();
+          if (newCacheEntries.IsEmpty() == false)
+          {
+            ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, newCacheEntries);
+          }
         }
+
+        AddRenderDataFromMessage(msg);
       }
       else // component does not handle extract message at all
       {
+        EZ_ASSERT_DEV(pComponent->GetDynamicRTTI()->CanHandleMessage<ezMsgExtractRenderData>() == false, "");
+
         // Create a dummy cache entry so we don't call send message next time
         ezInternal::RenderDataCacheEntry dummyEntry;
         dummyEntry.m_pRenderData = nullptr;
-        dummyEntry.m_uiSortingKey = 0;
         dummyEntry.m_uiCategory = ezInvalidRenderDataCategory.m_uiValue;
         dummyEntry.m_uiComponentIndex = uiComponentIndex;
-        dummyEntry.m_uiCacheIfStatic = true;
 
-        ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), ezMakeArrayPtr(&dummyEntry, 1));
+        ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, ezMakeArrayPtr(&dummyEntry, 1));
       }
     }
   }
   else
   {
+    msg.m_ExtractedRenderData.Clear();
     pObject->SendMessage(msg);
 
-    uiNumUncachedRenderData += msg.m_ExtractedRenderData.GetCount();
+    AddRenderDataFromMessage(msg);
   }
-
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
-  {
-    for (auto& cached : msg.m_ExtractedRenderData)
-    {
-      extractedRenderData.AddRenderData(cached.m_pRenderData, msg.m_OverrideCategory);
-    }
-  }
-  else
-  {
-    for (auto& cached : msg.m_ExtractedRenderData)
-    {
-      extractedRenderData.AddRenderData(cached.m_pRenderData, ezRenderData::Category(cached.m_uiCategory));
-    }
-  }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_uiNumCachedRenderData += msg.m_ExtractedRenderData.GetCount() - uiNumUncachedRenderData;
-  m_uiNumUncachedRenderData += uiNumUncachedRenderData;
-#endif
 }
 
 void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
