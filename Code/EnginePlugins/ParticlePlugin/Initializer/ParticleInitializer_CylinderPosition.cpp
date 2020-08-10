@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", nullptr, ezColor::MediumVioletRed, "PositionOffset")
+    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }

@@ -18,8 +18,9 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  float m_fRadius;
-  float m_fHeight;
+  float m_fRadius = 0.0f;
+  float m_fHeight = 0.0f;
+  ezBitflags<ezVisualizerAnchor> m_Anchor;
 
   ezEngineGizmoHandle m_SphereTop;
   ezEngineGizmoHandle m_SphereBottom;

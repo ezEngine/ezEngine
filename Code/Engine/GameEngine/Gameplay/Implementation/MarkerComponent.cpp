@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMarkerComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezSphereVisualizerAttribute("Radius", nullptr, ezColor::LightSkyBlue),
+    new ezSphereVisualizerAttribute("Radius", ezColor::LightSkyBlue),
   }
   EZ_END_ATTRIBUTES;
 }

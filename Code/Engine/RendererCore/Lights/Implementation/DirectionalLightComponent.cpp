@@ -26,9 +26,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, "LightColor"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::White, "LightColor"),
   }
   EZ_END_ATTRIBUTES;
 }
