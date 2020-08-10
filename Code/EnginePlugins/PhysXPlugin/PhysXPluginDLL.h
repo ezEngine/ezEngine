@@ -23,9 +23,11 @@ namespace physx
   class PxRigidActor;
   class PxRigidDynamic;
   class PxRigidStatic;
+  class PxController;
   class PxCapsuleController;
   class PxMaterial;
   class PxJoint;
   class PxScene;
   class PxControllerManager;
+  class PxQueryFilterCallback;
 } // namespace physx

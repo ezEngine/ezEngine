@@ -101,7 +101,7 @@ protected:
   ezComponentHandle m_hJoint;
   ezTime m_LastValidTime;
   ezTransform m_ChildAnchorLocal;
-  ezComponentHandle m_hCharacterProxyComponent;
+  ezComponentHandle m_hCharacterShapeComponent;
 
 private:
   const char* DummyGetter() const { return nullptr; }

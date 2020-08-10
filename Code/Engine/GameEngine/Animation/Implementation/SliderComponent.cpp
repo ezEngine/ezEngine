@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute("Axis", 1.0, ezColor::MediumPurple, "Distance")
+    new ezDirectionVisualizerAttribute("Axis", 1.0, ezColor::MediumPurple, nullptr, "Distance")
   }
   EZ_END_ATTRIBUTES;
 }
