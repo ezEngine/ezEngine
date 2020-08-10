@@ -648,17 +648,16 @@ void ezRenderWorld::UpdateRenderDataCache()
       auto& perObjectCache = perObjectCaches[uiCacheIndex];
       if (perObjectCache.m_uiVersion != newEntries.m_Cache.m_uiVersion)
       {
-        EZ_ASSERT_DEV(perObjectCache.m_Entries.IsEmpty(), "");
-
         perObjectCache.m_Entries.Clear();
         perObjectCache.m_uiVersion = newEntries.m_Cache.m_uiVersion;
       }
 
       for (auto& newEntry : newEntries.m_Cache.m_Entries)
       {
-        EZ_ASSERT_DEBUG(!perObjectCache.m_Entries.Contains(newEntry), "");
-
-        perObjectCache.m_Entries.PushBack(newEntry);
+        if (!perObjectCache.m_Entries.Contains(newEntry))
+        {
+          perObjectCache.m_Entries.PushBack(newEntry);
+        }
       }
 
       // keep entries sorted, otherwise the logic ezExtractor::ExtractRenderData doesn't work

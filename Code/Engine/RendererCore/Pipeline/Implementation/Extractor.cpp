@@ -238,7 +238,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
 
         AddRenderDataFromMessage(msg);
       }
-      else // component does not handle extract message at all
+      else if (pComponent->IsActiveAndInitialized()) // component does not handle extract message at all
       {
         EZ_ASSERT_DEV(pComponent->GetDynamicRTTI()->CanHandleMessage<ezMsgExtractRenderData>() == false, "");
 
