@@ -247,6 +247,9 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
   if (!m_Data.m_Objects.TryGetValue(hObject, pObject))
     return;
 
+  // inform external systems that we are about to delete this object
+  m_Data.m_ObjectDeletionEvent.Broadcast(pObject);
+
   // set object to inactive so components and children know that they shouldn't access the object anymore.
   pObject->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
 

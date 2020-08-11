@@ -63,10 +63,10 @@ void ezView::SetWorld(ezWorld* pWorld)
 {
   if (m_pWorld != pWorld)
   {
-    ezRenderWorld::DeleteCachedRenderData(*this);
-  }
+    m_pWorld = pWorld;
 
-  m_pWorld = pWorld;
+    ezRenderWorld::ResetRenderDataCache(*this);
+  }  
 }
 
 void ezView::SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup)

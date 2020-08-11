@@ -53,6 +53,10 @@ public:
   /// valid until then.
   void DeleteObjectDelayed(const ezGameObjectHandle& object);
 
+  /// \brief Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
+  /// which is associated with the deleted object.
+  const ezEvent<const ezGameObject*>& GetObjectDeletionEvent() const;
+
   /// \brief Returns whether the given handle corresponds to a valid object.
   bool IsValidObject(const ezGameObjectHandle& object) const;
 
@@ -351,8 +355,7 @@ private:
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
-  void PostMessage(
-    const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
+  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
