@@ -50,20 +50,16 @@ public:
   static void FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
     ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData);
 
-private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
-  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-
-protected:
-  friend class ezRenderContext;
-
-  ezTexture2DResource(DoUpdate ResourceUpdateThread);
-
   const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
   const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
 
 protected:
+  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
+
+  ezTexture2DResource(DoUpdate ResourceUpdateThread);
+
   ezUInt8 m_uiLoadedTextures = 0;
   ezGALTextureHandle m_hGALTexture[2];
   ezUInt32 m_uiMemoryGPU[2] = {0, 0};

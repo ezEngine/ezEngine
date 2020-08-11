@@ -4,7 +4,6 @@ Joints;Joints
 Shapes;Shapes
 ezPxCenterOfMassComponent;PhysX Center of Mass
 ezPxCharacterControllerComponent;PhysX Character Controller
-ezPxCharacterProxyComponent;PhysX Character Proxy
 ezPxDynamicActorComponent;PhysX Dynamic Actor
 ezPxStaticActorComponent;PhysX Static Actor
 ezPx6DOFJointComponent;PhysX 6DOF Joint
@@ -46,3 +45,4 @@ ezPxJointDriveMode::NoDrive;No Drive
 ezPxJointDriveMode::DriveAndSpin; Drive and Spin
 ezPxJointDriveMode::DriveAndBrake; Drive and Brake
 ezPxGrabObjectComponent;PhysX Grab Object
+ezPxCharacterCapsuleShapeComponent;PhysX Character Capsule Shape

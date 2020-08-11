@@ -4,7 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
-#include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
+#include <PhysXPlugin/Components/PxCharacterShapeComponent.h>
 #include <PhysXPlugin/Components/PxObjectGrabComponent.h>
 #include <PhysXPlugin/Joints/Px6DOFJointComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
@@ -391,10 +391,10 @@ void ezPxGrabObjectComponent::DetectDistanceViolation(ezPxDynamicActorComponent*
 
 bool ezPxGrabObjectComponent::IsCharacterStandingOnObject(ezGameObjectHandle hActorToGrab) const
 {
-  const ezPxCharacterProxyComponent* pProxy;
-  if (GetWorld()->TryGetComponent(m_hCharacterProxyComponent, pProxy))
+  const ezPxCharacterShapeComponent* pShape;
+  if (GetWorld()->TryGetComponent(m_hCharacterShapeComponent, pShape))
   {
-    if (pProxy->GetTouchedActorObject() == hActorToGrab)
+    if (pShape->GetStandingOnActor() == hActorToGrab)
     {
       return true;
     }
@@ -411,10 +411,10 @@ void ezPxGrabObjectComponent::OnSimulationStarted()
 
   while (pObj)
   {
-    ezPxCharacterProxyComponent* pProxy;
-    if (pObj->TryGetComponentOfBaseType(pProxy))
+    ezPxCharacterShapeComponent* pShape;
+    if (pObj->TryGetComponentOfBaseType(pShape))
     {
-      m_hCharacterProxyComponent = pProxy->GetHandle();
+      m_hCharacterShapeComponent = pShape->GetHandle();
     }
 
     pObj = pObj->GetParent();

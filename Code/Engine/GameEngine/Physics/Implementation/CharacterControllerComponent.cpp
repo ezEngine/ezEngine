@@ -42,7 +42,9 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(RawMove, In, "move"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(RawMove, In, "moveDeltaGlobal"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS

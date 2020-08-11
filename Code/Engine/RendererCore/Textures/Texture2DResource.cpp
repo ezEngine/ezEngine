@@ -162,8 +162,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
 
   {
 
-    const ezUInt32 uiNumMipmapsLowRes =
-      ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
+    const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
     ezUInt32 uiUploadNumMipLevels = 0;
     bool bCouldLoadMore = false;
 

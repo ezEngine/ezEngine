@@ -36,7 +36,8 @@ public:
   void DeleteShapeId(ezUInt32& uiShapeId);
 
   ezUInt32 AllocateUserData(ezPxUserData*& out_pUserData);
-  void DeallocateUserData(ezUInt32& uiUserDataIndex);
+  void DeallocateUserData(ezUInt32& uiUserDataId);
+  ezPxUserData& GetUserData(ezUInt32 uiUserDataId);
 
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
   virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }

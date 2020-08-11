@@ -47,18 +47,14 @@ public:
   EZ_ALWAYS_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
   EZ_ALWAYS_INLINE ezUInt32 GetWidthAndHeight() const { return m_uiWidthAndHeight; }
 
-private:
+  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
+  const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
+
+protected:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-private:
-  friend class ezRenderContext;
-
-  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
-  const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
-
-private:
   ezUInt8 m_uiLoadedTextures;
   ezGALTextureHandle m_hGALTexture[2];
   ezUInt32 m_uiMemoryGPU[2];

@@ -22,8 +22,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxPrismaticJointComponent, 2, ezComponentMode::Static)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::Orange, "UpperLimit"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::Teal, "LowerLimit"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::Orange, nullptr, "UpperLimit"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::Teal, nullptr, "LowerLimit"),
   }
   EZ_END_ATTRIBUTES;
 }

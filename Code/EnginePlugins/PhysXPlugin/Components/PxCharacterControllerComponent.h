@@ -36,8 +36,10 @@ protected:
   // ezCharacterControllerComponent
 
 public:
+  virtual void RawMove(const ezVec3& vMoveDeltaGlobal) override;
   virtual void MoveCharacter(ezMsgMoveCharacterController& msg) override;
-  virtual void RawMove(const ezVec3& vMove) override;
+  virtual void TeleportCharacter(const ezVec3& vGlobalFootPos) override;
+  virtual bool IsDestinationUnobstructed(const ezVec3& vGlobalFootPos, float fCharacterHeight) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -50,6 +52,7 @@ public:
 
   float m_fWalkSpeed = 5.0f;                      ///< [ property ] How many meters the character walks per second
   float m_fRunSpeed = 15.0f;                      ///< [ property ] How many meters the character runs per second
+  float m_fCrouchHeight = 0.2f;                   ///< [ property ] How many meters the character walks per second while crouching
   float m_fCrouchSpeed = 2.0f;                    ///< [ property ] How many meters the character walks per second while crouching
   float m_fAirSpeed = 2.5f;                       ///< [ property ] How fast the character can change direction while not standing on solid round
   float m_fAirFriction = 0.5f;                    ///< [ property ] How much damping is applied to the velocity when the character is jumping
@@ -67,6 +70,8 @@ public:
   void SetFallbackWalkSurfaceFile(const char* szFile); // [ property ]
   const char* GetFallbackWalkSurfaceFile() const;      // [ property ]
 
+  void SetHeadObjectReference(const char* szReference); // [ property ]
+
 protected:
   void Update();
 
@@ -78,11 +83,22 @@ protected:
   };
 
   ezUInt8 m_InputStateBits = 0;
-  ezComponentHandle m_hProxy;
+  ezComponentHandle m_hCharacterShape;
   ezVec3 m_vRelativeMoveDirection = ezVec3::ZeroVector();
   ezAngle m_RotateZ;
   bool m_bWantsCrouch = false;
+  bool m_bIsCrouching = false;
+  bool m_bWantsTeleport = false;
+  float m_fStandingHeight = 1.0f;
   float m_fVelocityUp = 0.0f;
   ezVec3 m_vVelocityLateral = ezVec3::ZeroVector();
   float m_fAccumulatedWalkDistance = 0.0f;
+  ezVec3 m_vTeleportTo;
+
+  float m_fHeadHeightOffset = 0.0f;
+  float m_fHeadTargetHeight = 0.0f;
+  ezGameObjectHandle m_hHeadObject;
+
+private:
+  const char* DummyGetter() const { return nullptr; }
 };

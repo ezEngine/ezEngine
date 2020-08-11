@@ -702,16 +702,23 @@ ezUInt32 ezPhysXWorldModule::AllocateUserData(ezPxUserData*& out_pUserData)
   return m_AllocatedUserData.GetCount() - 1;
 }
 
-void ezPhysXWorldModule::DeallocateUserData(ezUInt32& uiUserDataIndex)
+void ezPhysXWorldModule::DeallocateUserData(ezUInt32& uiUserDataId)
 {
-  if (uiUserDataIndex == ezInvalidIndex)
+  if (uiUserDataId == ezInvalidIndex)
     return;
 
-  m_AllocatedUserData[uiUserDataIndex].Invalidate();
+  m_AllocatedUserData[uiUserDataId].Invalidate();
 
-  m_FreeUserDataAfterSimulationStep.PushBack(uiUserDataIndex);
+  m_FreeUserDataAfterSimulationStep.PushBack(uiUserDataId);
 
-  uiUserDataIndex = ezInvalidIndex;
+  uiUserDataId = ezInvalidIndex;
+}
+
+ezPxUserData& ezPhysXWorldModule::GetUserData(ezUInt32 uiUserDataId)
+{
+  EZ_ASSERT_DEBUG(uiUserDataId != ezInvalidIndex, "Invalid ezPxUserData ID");
+
+  return m_AllocatedUserData[uiUserDataId];
 }
 
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)

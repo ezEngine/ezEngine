@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{12654001004580960328}
+		u4 %Hash{18200657731308048046}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -52,7 +52,6 @@ o
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ 852fa58a-7bea-4486-832b-3a2b2792fea3 }"}
 			s{"{ 935e1236-35a1-4670-a87c-657e77cd7029 }"}
-			s{"{ a0e40c49-9113-4bdf-ba33-3e603732813e }"}
 			s{"{ a14fde66-a586-4ab3-96fa-18612f2d744d }"}
 			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
 			s{"{ ac49f52b-70b6-468e-b934-af2373a806bc }"}
@@ -107,8 +106,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000001440}
-			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 			d %ConsumableType{0x0000000000002040}
+			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -581,8 +580,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000001440}
-			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 			d %ConsumableType{0x0000000000002040}
+			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -1965,8 +1964,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000002440}
-			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 			d %ConsumableType{0x0000000000001840}
+			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -2032,8 +2031,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000004940}
-			Color %Color{f{0x4959E93D,0xB1ED9640,0x91C7893F,0x0000803F}}
 			d %ConsumableType{0x0000000000001C40}
+			Color %Color{f{0x4959E93D,0xB1ED9640,0x91C7893F,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -2181,8 +2180,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000004940}
-			Color %Color{f{0x4959E93D,0xB1ED9640,0x91C7893F,0x0000803F}}
 			d %ConsumableType{0x0000000000001C40}
+			Color %Color{f{0x4959E93D,0xB1ED9640,0x91C7893F,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -3469,8 +3468,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000003940}
-			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 			d %ConsumableType{0x0000000000001440}
+			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -3713,18 +3712,6 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ cb429221-40ae-4e6d-842b-b37b3709cd58 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{11345234260838128031,4656747688231801471}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ a0e40c49-9113-4bdf-ba33-3e603732813e }"}
 	}
 }
 o
@@ -7432,8 +7419,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			s %ExternalReference{"{ 9eb93984-b784-d398-f5df-7a2062a7cbfd }"}
 			Color %LineColor{f{0x97A1313F,0x68C1993D,0x5159183B,0x0000803F}}
+			s %ExternalReference{"{ 9eb93984-b784-d398-f5df-7a2062a7cbfd }"}
 		}
 		s %Prefab{"{ 2d50dee8-5549-4755-bbce-4cc39624919c }"}
 	}
@@ -9197,19 +9184,6 @@ o
 }
 o
 {
-	Uuid %id{u4{73692088514654630,5399020776929266763}}
-	s %t{"ezMeshComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		VarArray %Materials{}
-		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
-	}
-}
-o
-{
 	Uuid %id{u4{3679166575847682718,5409238956759978835}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -10259,33 +10233,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11760211815870364837,5557077646280887088}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{73692088514654630,5399020776929266763}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00004040,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{17647128152408169384,5558615963430381509}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -11224,33 +11171,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4382497142018906022,5674144696190179333}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{11345234260838128031,4656747688231801471}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x716C1C41,0x1C25FC40,0x00004040}}
-		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{1691112776627474321,5674150869289287211}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -12040,7 +11960,6 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{11760211815870364837,5557077646280887088}}
 			Uuid{u4{13081308201213958791,4956457019869618818}}
 			Uuid{u4{15741144884394227859,4720260600600687772}}
 			Uuid{u4{5055258833408452529,5146335676450753171}}
@@ -12418,7 +12337,6 @@ o
 			Uuid{u4{5090052030726901462,14755704998172041488}}
 			Uuid{u4{10729628513296342483,14444023143057806417}}
 			Uuid{u4{7717916035250563548,14704190824280588932}}
-			Uuid{u4{4382497142018906022,5674144696190179333}}
 			Uuid{u4{13159348584870302967,14748045632723975986}}
 			Uuid{u4{13853839906143985899,15009258297159967798}}
 			Uuid{u4{8150297546212877301,14986854640988275552}}
@@ -12794,8 +12712,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000002440}
-			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 			d %ConsumableType{0x0000000000001840}
+			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -13164,8 +13082,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000002440}
-			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 			d %ConsumableType{0x0000000000001840}
+			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -13505,8 +13423,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000001440}
-			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 			d %ConsumableType{0x0000000000002040}
+			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -14303,8 +14221,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000003940}
-			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 			d %ConsumableType{0x0000000000001440}
+			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -14347,8 +14265,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000003940}
-			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 			d %ConsumableType{0x0000000000001440}
+			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -14667,8 +14585,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000003940}
-			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 			d %ConsumableType{0x0000000000001440}
+			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -15676,8 +15594,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000003940}
-			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 			d %ConsumableType{0x0000000000001440}
+			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -17094,8 +17012,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000003940}
-			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 			d %ConsumableType{0x0000000000001440}
+			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -17251,8 +17169,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			s %ExternalReference{"{ 9c6cc4ea-7781-8a80-5714-b66061141680 }"}
 			Color %LineColor{f{0xE06BDA3D,0x4E79213F,0x92614A3D,0x0000803F}}
+			s %ExternalReference{"{ 9c6cc4ea-7781-8a80-5714-b66061141680 }"}
 		}
 		s %Prefab{"{ 2d50dee8-5549-4755-bbce-4cc39624919c }"}
 	}
@@ -21410,8 +21328,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000001440}
-			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 			d %ConsumableType{0x0000000000002040}
+			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -23135,8 +23053,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			s %ExternalReference{"{ 6637429d-c2d4-40df-a717-7359af5851fd }"}
 			Color %LineColor{f{0x8C7C373D,0xF91ADE3D,0xD2D23E3F,0x0000803F}}
+			s %ExternalReference{"{ 6637429d-c2d4-40df-a717-7359af5851fd }"}
 		}
 		s %Prefab{"{ 2d50dee8-5549-4755-bbce-4cc39624919c }"}
 	}
@@ -24414,8 +24332,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000004940}
-			Color %Color{f{0x4959E93D,0xB1ED9640,0x91C7893F,0x0000803F}}
 			d %ConsumableType{0x0000000000001C40}
+			Color %Color{f{0x4959E93D,0xB1ED9640,0x91C7893F,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -26069,8 +25987,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000002440}
-			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 			d %ConsumableType{0x0000000000001840}
+			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -27551,8 +27469,8 @@ o
 		VarDict %Parameters
 		{
 			d %Amount{0x0000000000001440}
-			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 			d %ConsumableType{0x0000000000002040}
+			Color %Color{f{0x2C536841,0,0x5F72993C,0x0000803F}}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 	}
@@ -27875,7 +27793,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezBreakableSheetComponent"}
-		u3 %TypeSize{432}
+		u3 %TypeSize{440}
 		u3 %TypeVersion{1}
 	}
 }

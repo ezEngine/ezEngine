@@ -84,7 +84,7 @@ export class Player extends ez.TickedTypescriptComponent {
             {
                 let msg = new ez.MsgMoveCharacterController();
 
-                msg.Jump = this.input.GetCurrentInputState("Jump", false) > 0.5;
+                msg.Jump = this.input.GetCurrentInputState("Jump", true) > 0.5;
                 msg.MoveForwards = this.input.GetCurrentInputState("MoveForwards", false);
                 msg.MoveBackwards = this.input.GetCurrentInputState("MoveBackwards", false);
                 msg.StrafeLeft = this.input.GetCurrentInputState("StrafeLeft", false);
@@ -151,6 +151,9 @@ export class Player extends ez.TickedTypescriptComponent {
 
             if (!this.grabObject.HasObjectGrabbed()) {
 
+                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon0"))
+                    this.SwitchToWeapon(_ge.Weapon.None);
+
                 if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon1"))
                     this.SwitchToWeapon(_ge.Weapon.Pistol);
 
@@ -179,16 +182,30 @@ export class Player extends ez.TickedTypescriptComponent {
                     this.SwitchToWeapon(_ge.Weapon.None);
                 }
                 else {
-                    let owner = this.GetOwner();
-                    let hit = ez.Physics.Raycast(owner.GetGlobalPosition(), owner.GetGlobalDirForwards(), 2.0, 0);
+                    
+                    let hit = ez.Physics.Raycast(this.camera.GetGlobalPosition(), this.camera.GetGlobalDirForwards(), 2.0, 8);
 
-                    if (hit != null && hit.actorObject)  {
+                    if (hit != null && hit.actorObject) {
 
                         let msg = new ez.MsgGenericEvent;
                         msg.Message = "Use";
 
                         hit.actorObject.SendEventMessage(msg, this);
                     }
+                }
+            }
+
+            if (msg.InputActionHash == ez.Utils.StringToHash("Teleport")) {
+                let owner = this.characterController.GetOwner();
+                let pos = owner.GetGlobalPosition();
+                let dir = owner.GetGlobalDirForwards();
+                dir.z = 0;
+                dir.Normalize();
+                dir.MulNumber(5.0);
+                pos.AddVec3(dir);
+
+                if (this.characterController.IsDestinationUnobstructed(pos, 0)) {
+                    this.characterController.TeleportCharacter(pos);
                 }
             }
         }
