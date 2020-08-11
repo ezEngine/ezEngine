@@ -122,10 +122,10 @@ private:
   {
     const ezRenderData* m_pRenderData = nullptr;
     ezUInt16 m_uiCategory = 0;
-    bool m_bCacheIfStatic = false;
   };
 
   ezHybridArray<Data, 16> m_ExtractedRenderData;
+  ezUInt32 m_uiNumCacheIfStatic = 0;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

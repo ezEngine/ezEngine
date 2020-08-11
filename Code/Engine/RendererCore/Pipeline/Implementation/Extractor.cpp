@@ -211,29 +211,27 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
       }
 
       const ezComponent* pComponent = components[uiComponentIndex];
+
       msg.m_ExtractedRenderData.Clear();
+      msg.m_uiNumCacheIfStatic = 0;
+
       if (pComponent->SendMessage(msg))
       {
-        if (msg.m_ExtractedRenderData.IsEmpty() == false)
+        // Only cache render data if all parts should be cached otherwise the cache is incomplete and we won't call SendMessage again
+        if (msg.m_uiNumCacheIfStatic > 0 && msg.m_ExtractedRenderData.GetCount() == msg.m_uiNumCacheIfStatic)
         {
           ezHybridArray<ezInternal::RenderDataCacheEntry, 16> newCacheEntries(ezFrameAllocator::GetCurrentAllocator());
 
           for (ezUInt32 uiPartIndex = 0; uiPartIndex < msg.m_ExtractedRenderData.GetCount(); ++uiPartIndex)
           {
-            if (msg.m_ExtractedRenderData[uiPartIndex].m_bCacheIfStatic)
-            {
-              auto& newCacheEntry = newCacheEntries.ExpandAndGetRef();
-              newCacheEntry.m_pRenderData = msg.m_ExtractedRenderData[uiPartIndex].m_pRenderData;
-              newCacheEntry.m_uiCategory = msg.m_ExtractedRenderData[uiPartIndex].m_uiCategory;
-              newCacheEntry.m_uiComponentIndex = uiComponentIndex;
-              newCacheEntry.m_uiPartIndex = uiPartIndex;
-            }
+            auto& newCacheEntry = newCacheEntries.ExpandAndGetRef();
+            newCacheEntry.m_pRenderData = msg.m_ExtractedRenderData[uiPartIndex].m_pRenderData;
+            newCacheEntry.m_uiCategory = msg.m_ExtractedRenderData[uiPartIndex].m_uiCategory;
+            newCacheEntry.m_uiComponentIndex = uiComponentIndex;
+            newCacheEntry.m_uiPartIndex = uiPartIndex;
           }
 
-          if (newCacheEntries.IsEmpty() == false)
-          {
-            ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, newCacheEntries);
-          }
+          ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, newCacheEntries);
         }
 
         AddRenderDataFromMessage(msg);

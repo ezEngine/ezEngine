@@ -175,7 +175,11 @@ void ezMsgExtractRenderData::AddRenderData(
   auto& cached = m_ExtractedRenderData.ExpandAndGetRef();
   cached.m_pRenderData = pRenderData;
   cached.m_uiCategory = category.m_uiValue;
-  cached.m_bCacheIfStatic = (cachingBehavior == ezRenderData::Caching::IfStatic);
+
+  if (cachingBehavior == ezRenderData::Caching::IfStatic)
+  {
+    ++m_uiNumCacheIfStatic;
+  }
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderData);
