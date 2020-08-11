@@ -125,7 +125,7 @@ const char* ezQtVersionChecker::GetOwnVersion() const
   // TODO: this has to be updated for every release!
   // could this be made more data driven ?
 
-  return "20.5";
+  return "20.8";
 }
 
 const char* ezQtVersionChecker::GetKnownLatestVersion() const
