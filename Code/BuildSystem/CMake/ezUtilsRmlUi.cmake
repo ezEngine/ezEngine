@@ -2,7 +2,7 @@
 ### RmlUi support
 ######################################
 
-set (EZ_BUILD_RMLUI OFF CACHE BOOL "Whether support for RmlUi should be added")
+set (EZ_BUILD_RMLUI ON CACHE BOOL "Whether support for RmlUi should be added")
 
 ######################################
 ### ez_requires_rmlui()
