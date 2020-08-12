@@ -34,7 +34,8 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(SampleGamePluginStartupGroup, SampleGamePluginMainStartup);
 
   void OnCoreSystemsStartup()
-  { /* we could do something important here */
+  {
+    /* we could do something important here */
   }
 };
 // END-DOCS-CODE-SNIPPET

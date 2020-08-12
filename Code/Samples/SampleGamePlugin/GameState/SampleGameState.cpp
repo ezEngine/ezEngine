@@ -30,18 +30,21 @@ void SampleGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPos
 
   SUPER::OnActivation(pWorld, pStartPosition);
 
+// BEGIN-DOCS-CODE-SNIPPET: imgui-alloc
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   if (ezImgui::GetSingleton() == nullptr)
   {
     EZ_DEFAULT_NEW(ezImgui);
   }
 #endif
+  // END-DOCS-CODE-SNIPPET
 }
 
 void SampleGameState::OnDeactivation()
 {
   EZ_LOG_BLOCK("GameState::Deactivate");
 
+// BEGIN-DOCS-CODE-SNIPPET: imgui-dealloc
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   if (ezImgui::GetSingleton() != nullptr)
   {
@@ -49,6 +52,7 @@ void SampleGameState::OnDeactivation()
     EZ_DEFAULT_DELETE(pImgui);
   }
 #endif
+  // END-DOCS-CODE-SNIPPET
 
   SUPER::OnDeactivation();
 }
@@ -86,10 +90,14 @@ void SampleGameState::BeforeWorldUpdate()
     static float color[3];
     static float slider = 0.5f;
 
+    // BEGIN-DOCS-CODE-SNIPPET: imgui-activate
     ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
+    // END-DOCS-CODE-SNIPPET
+
     ezImgui::GetSingleton()->SetPassInputToImgui(
       false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
 
+    // BEGIN-DOCS-CODE-SNIPPET: imgui-panel
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
     ImGui::Begin("Imgui Window", &window);
     ImGui::Text("Hello World!");
@@ -108,6 +116,7 @@ void SampleGameState::BeforeWorldUpdate()
     }
 
     ImGui::End();
+    // END-DOCS-CODE-SNIPPET
   }
 #endif
 }
@@ -127,8 +136,7 @@ void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: input-config
-static void RegisterInputAction(
-  const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
+static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
   ezInputActionConfig cfg;
   cfg.m_bApplyTimeScaling = true;
