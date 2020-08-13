@@ -36,12 +36,12 @@ template <typename Derived>
 struct ezEnum : public Derived
 {
 public:
-  typedef ezEnum<Derived> SelfType;
-  typedef typename Derived::StorageType StorageType;
+  using SelfType = ezEnum<Derived>;
+  using StorageType = typename Derived::StorageType;
 
   /// \brief Default constructor
   EZ_ALWAYS_INLINE ezEnum()
-      : m_value((StorageType)Derived::Default)
+    : m_value((StorageType)Derived::Default)
   {
   } // [tested]
 
@@ -53,7 +53,7 @@ public:
 
   /// \brief Construct from a C++ enum, and implicit conversion from enum type
   EZ_ALWAYS_INLINE ezEnum(typename Derived::Enum init)
-      : m_value((StorageType)init)
+    : m_value((StorageType)init)
   {
   } // [tested]
 
@@ -111,8 +111,8 @@ private:
 };
 
 
-#define EZ_ENUM_VALUE_TO_STRING(name)                                                                                                      \
-  case name:                                                                                                                               \
+#define EZ_ENUM_VALUE_TO_STRING(name)                                                                                                                \
+  case name:                                                                                                                                         \
     return EZ_STRINGIZE(name);
 
 /// \brief Helper macro to generate a 'ToString' function for enum values.
@@ -131,14 +131,13 @@ private:
 ///
 ///   EZ_ENUM_TO_STRING(A, B, C);
 /// };
-#define EZ_ENUM_TO_STRING(...)                                                                                                             \
-  const char* ToString(ezUInt32 value)                                                                                                     \
-  {                                                                                                                                        \
-    switch (value)                                                                                                                         \
-    {                                                                                                                                      \
-      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__)                                                                               \
-      default:                                                                                                                             \
-        return nullptr;                                                                                                                    \
-    }                                                                                                                                      \
+#define EZ_ENUM_TO_STRING(...)                                                                                                                       \
+  const char* ToString(ezUInt32 value)                                                                                                               \
+  {                                                                                                                                                  \
+    switch (value)                                                                                                                                   \
+    {                                                                                                                                                \
+      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__)                                                                                         \
+      default:                                                                                                                                       \
+        return nullptr;                                                                                                                              \
+    }                                                                                                                                                \
   }
-

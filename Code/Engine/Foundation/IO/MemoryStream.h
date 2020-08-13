@@ -81,7 +81,11 @@ public:
       return nullptr;
     return &m_Storage[0];
   }
-  virtual void Reserve(ezUInt64 uiBytes) override { m_Storage.Reserve(uiBytes); }
+  virtual void Reserve(ezUInt64 uiBytes) override
+  {
+    EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerStorage only supports 32 bit addressable sizes.");
+    m_Storage.Reserve(static_cast<ezUInt32>(uiBytes));
+  }
 
 private:
   virtual const ezUInt8* GetInternalData() const override { return &m_Storage[0]; }
@@ -130,7 +134,11 @@ public:
       return nullptr;
     return &(*m_pStorage)[0];
   }
-  virtual void Reserve(ezUInt64 uiBytes) override { m_pStorage->Reserve(uiBytes); }
+  virtual void Reserve(ezUInt64 uiBytes) override
+  {
+    EZ_ASSERT_DEV(uiBytes < ezMath::MaxValue<ezUInt32>(), "Container can currently only hold 32 bit addressable bytes.");
+    m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
+  }
 
 private:
   virtual const ezUInt8* GetInternalData() const override { return &(*m_pStorage)[0]; }
@@ -176,6 +184,9 @@ public:
 
   /// \brief Sets the read position to be used
   void SetReadPosition(ezUInt32 uiReadPosition); // [tested]
+
+  /// \brief Returns the current read position
+  ezUInt32 GetReadPosition() const { return m_uiReadPosition; }
 
   /// \brief Returns the total available bytes in the memory stream
   ezUInt32 GetByteCount() const; // [tested]
@@ -276,6 +287,9 @@ public:
 
   /// \brief Sets the read position to be used
   void SetReadPosition(ezUInt64 uiReadPosition); // [tested]
+
+  /// \brief Returns the current read position in the raw memory block
+  ezUInt64 GetReadPosition() const { return m_uiReadPosition; }
 
   /// \brief Returns the total available bytes in the memory stream
   ezUInt64 GetByteCount() const; // [tested]

@@ -21,18 +21,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    ezMat4T::ComponentType testBlock[16] = {
-        (ezMat4T::ComponentType)1,  (ezMat4T::ComponentType)2,  (ezMat4T::ComponentType)3,  (ezMat4T::ComponentType)4,
-        (ezMat4T::ComponentType)5,  (ezMat4T::ComponentType)6,  (ezMat4T::ComponentType)7,  (ezMat4T::ComponentType)8,
-        (ezMat4T::ComponentType)9,  (ezMat4T::ComponentType)10, (ezMat4T::ComponentType)11, (ezMat4T::ComponentType)12,
-        (ezMat4T::ComponentType)13, (ezMat4T::ComponentType)14, (ezMat4T::ComponentType)15, (ezMat4T::ComponentType)16};
+    ezMat4T::ComponentType testBlock[16] = {(ezMat4T::ComponentType)1, (ezMat4T::ComponentType)2, (ezMat4T::ComponentType)3,
+      (ezMat4T::ComponentType)4, (ezMat4T::ComponentType)5, (ezMat4T::ComponentType)6, (ezMat4T::ComponentType)7, (ezMat4T::ComponentType)8,
+      (ezMat4T::ComponentType)9, (ezMat4T::ComponentType)10, (ezMat4T::ComponentType)11, (ezMat4T::ComponentType)12, (ezMat4T::ComponentType)13,
+      (ezMat4T::ComponentType)14, (ezMat4T::ComponentType)15, (ezMat4T::ComponentType)16};
     ezMat4T* m = ::new ((void*)&testBlock[0]) ezMat4T;
 
     EZ_TEST_BOOL(m->m_fElementsCM[0] == 1.0f && m->m_fElementsCM[1] == 2.0f && m->m_fElementsCM[2] == 3.0f && m->m_fElementsCM[3] == 4.0f &&
                  m->m_fElementsCM[4] == 5.0f && m->m_fElementsCM[5] == 6.0f && m->m_fElementsCM[6] == 7.0f && m->m_fElementsCM[7] == 8.0f &&
-                 m->m_fElementsCM[8] == 9.0f && m->m_fElementsCM[9] == 10.0f && m->m_fElementsCM[10] == 11.0f &&
-                 m->m_fElementsCM[11] == 12.0f && m->m_fElementsCM[12] == 13.0f && m->m_fElementsCM[13] == 14.0f &&
-                 m->m_fElementsCM[14] == 15.0f && m->m_fElementsCM[15] == 16.0f);
+                 m->m_fElementsCM[8] == 9.0f && m->m_fElementsCM[9] == 10.0f && m->m_fElementsCM[10] == 11.0f && m->m_fElementsCM[11] == 12.0f &&
+                 m->m_fElementsCM[12] == 13.0f && m->m_fElementsCM[13] == 14.0f && m->m_fElementsCM[14] == 15.0f && m->m_fElementsCM[15] == 16.0f);
 #endif
   }
 
@@ -45,9 +43,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 2.0f && m.m_fElementsCM[2] == 3.0f && m.m_fElementsCM[3] == 4.0f &&
                    m.m_fElementsCM[4] == 5.0f && m.m_fElementsCM[5] == 6.0f && m.m_fElementsCM[6] == 7.0f && m.m_fElementsCM[7] == 8.0f &&
-                   m.m_fElementsCM[8] == 9.0f && m.m_fElementsCM[9] == 10.0f && m.m_fElementsCM[10] == 11.0f &&
-                   m.m_fElementsCM[11] == 12.0f && m.m_fElementsCM[12] == 13.0f && m.m_fElementsCM[13] == 14.0f &&
-                   m.m_fElementsCM[14] == 15.0f && m.m_fElementsCM[15] == 16.0f);
+                   m.m_fElementsCM[8] == 9.0f && m.m_fElementsCM[9] == 10.0f && m.m_fElementsCM[10] == 11.0f && m.m_fElementsCM[11] == 12.0f &&
+                   m.m_fElementsCM[12] == 13.0f && m.m_fElementsCM[13] == 14.0f && m.m_fElementsCM[14] == 15.0f && m.m_fElementsCM[15] == 16.0f);
     }
 
     {
@@ -55,9 +52,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 5.0f && m.m_fElementsCM[2] == 9.0f && m.m_fElementsCM[3] == 13.0f &&
                    m.m_fElementsCM[4] == 2.0f && m.m_fElementsCM[5] == 6.0f && m.m_fElementsCM[6] == 10.0f && m.m_fElementsCM[7] == 14.0f &&
-                   m.m_fElementsCM[8] == 3.0f && m.m_fElementsCM[9] == 7.0f && m.m_fElementsCM[10] == 11.0f &&
-                   m.m_fElementsCM[11] == 15.0f && m.m_fElementsCM[12] == 4.0f && m.m_fElementsCM[13] == 8.0f &&
-                   m.m_fElementsCM[14] == 12.0f && m.m_fElementsCM[15] == 16.0f);
+                   m.m_fElementsCM[8] == 3.0f && m.m_fElementsCM[9] == 7.0f && m.m_fElementsCM[10] == 11.0f && m.m_fElementsCM[11] == 15.0f &&
+                   m.m_fElementsCM[12] == 4.0f && m.m_fElementsCM[13] == 8.0f && m.m_fElementsCM[14] == 12.0f && m.m_fElementsCM[15] == 16.0f);
     }
   }
 
@@ -118,9 +114,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 2.0f && m.m_fElementsCM[2] == 3.0f && m.m_fElementsCM[3] == 4.0f &&
                    m.m_fElementsCM[4] == 5.0f && m.m_fElementsCM[5] == 6.0f && m.m_fElementsCM[6] == 7.0f && m.m_fElementsCM[7] == 8.0f &&
-                   m.m_fElementsCM[8] == 9.0f && m.m_fElementsCM[9] == 10.0f && m.m_fElementsCM[10] == 11.0f &&
-                   m.m_fElementsCM[11] == 12.0f && m.m_fElementsCM[12] == 13.0f && m.m_fElementsCM[13] == 14.0f &&
-                   m.m_fElementsCM[14] == 15.0f && m.m_fElementsCM[15] == 16.0f);
+                   m.m_fElementsCM[8] == 9.0f && m.m_fElementsCM[9] == 10.0f && m.m_fElementsCM[10] == 11.0f && m.m_fElementsCM[11] == 12.0f &&
+                   m.m_fElementsCM[12] == 13.0f && m.m_fElementsCM[13] == 14.0f && m.m_fElementsCM[14] == 15.0f && m.m_fElementsCM[15] == 16.0f);
     }
 
     {
@@ -129,9 +124,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 5.0f && m.m_fElementsCM[2] == 9.0f && m.m_fElementsCM[3] == 13.0f &&
                    m.m_fElementsCM[4] == 2.0f && m.m_fElementsCM[5] == 6.0f && m.m_fElementsCM[6] == 10.0f && m.m_fElementsCM[7] == 14.0f &&
-                   m.m_fElementsCM[8] == 3.0f && m.m_fElementsCM[9] == 7.0f && m.m_fElementsCM[10] == 11.0f &&
-                   m.m_fElementsCM[11] == 15.0f && m.m_fElementsCM[12] == 4.0f && m.m_fElementsCM[13] == 8.0f &&
-                   m.m_fElementsCM[14] == 12.0f && m.m_fElementsCM[15] == 16.0f);
+                   m.m_fElementsCM[8] == 3.0f && m.m_fElementsCM[9] == 7.0f && m.m_fElementsCM[10] == 11.0f && m.m_fElementsCM[11] == 15.0f &&
+                   m.m_fElementsCM[12] == 4.0f && m.m_fElementsCM[13] == 8.0f && m.m_fElementsCM[14] == 12.0f && m.m_fElementsCM[15] == 16.0f);
     }
   }
 
@@ -681,9 +675,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
     ezVec3T s = m.GetScalingFactors();
     EZ_TEST_VEC3(s,
-                 ezVec3T(ezMath::Sqrt((ezMathTestType)(1 * 1 + 5 * 5 + 9 * 9)), ezMath::Sqrt((ezMathTestType)(2 * 2 + 6 * 6 + 10 * 10)),
-                         ezMath::Sqrt((ezMathTestType)(3 * 3 + 7 * 7 + 11 * 11))),
-                 0.0001f);
+      ezVec3T(ezMath::Sqrt((ezMathTestType)(1 * 1 + 5 * 5 + 9 * 9)), ezMath::Sqrt((ezMathTestType)(2 * 2 + 6 * 6 + 10 * 10)),
+        ezMath::Sqrt((ezMathTestType)(3 * 3 + 7 * 7 + 11 * 11))),
+      0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingFactors")
@@ -747,9 +741,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     const ezVec4T r = m.Transform(ezVec4T(1, 2, 3, 4));
 
     EZ_TEST_VEC4(r,
-                 ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 8 * 4, 1 * 9 + 2 * 10 + 3 * 11 + 12 * 4,
-                         1 * 13 + 2 * 14 + 3 * 15 + 4 * 16),
-                 0.0001f);
+      ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 8 * 4, 1 * 9 + 2 * 10 + 3 * 11 + 12 * 4, 1 * 13 + 2 * 14 + 3 * 15 + 4 * 16),
+      0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform(array)")
@@ -761,13 +754,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     m.Transform(data, 2);
 
     EZ_TEST_VEC4(data[0],
-                 ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 8 * 4, 1 * 9 + 2 * 10 + 3 * 11 + 12 * 4,
-                         1 * 13 + 2 * 14 + 3 * 15 + 4 * 16),
-                 0.0001f);
+      ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 8 * 4, 1 * 9 + 2 * 10 + 3 * 11 + 12 * 4, 1 * 13 + 2 * 14 + 3 * 15 + 4 * 16),
+      0.0001f);
     EZ_TEST_VEC4(data[1],
-                 ezVec4T(5 * 1 + 6 * 2 + 7 * 3 + 8 * 4, 5 * 5 + 6 * 6 + 7 * 7 + 8 * 8, 5 * 9 + 6 * 10 + 7 * 11 + 12 * 8,
-                         5 * 13 + 6 * 14 + 7 * 15 + 8 * 16),
-                 0.0001f);
+      ezVec4T(5 * 1 + 6 * 2 + 7 * 3 + 8 * 4, 5 * 5 + 6 * 6 + 7 * 7 + 8 * 8, 5 * 9 + 6 * 10 + 7 * 11 + 12 * 8, 5 * 13 + 6 * 14 + 7 * 15 + 8 * 16),
+      0.0001f);
     EZ_TEST_VEC4(data[2], ezVec4T(9, 10, 11, 12), 0);
   }
 
@@ -830,21 +821,21 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     ezMat4T r = m1 * m2;
 
     EZ_TEST_VEC4(r.GetColumn(0),
-                 ezVec4T(-1 * 1 + -5 * 2 + -9 * 3 + -13 * 4, -1 * 5 + -5 * 6 + -9 * 7 + -13 * 8, -1 * 9 + -5 * 10 + -9 * 11 + -13 * 12,
-                         -1 * 13 + -5 * 14 + -9 * 15 + -13 * 16),
-                 0.001f);
+      ezVec4T(-1 * 1 + -5 * 2 + -9 * 3 + -13 * 4, -1 * 5 + -5 * 6 + -9 * 7 + -13 * 8, -1 * 9 + -5 * 10 + -9 * 11 + -13 * 12,
+        -1 * 13 + -5 * 14 + -9 * 15 + -13 * 16),
+      0.001f);
     EZ_TEST_VEC4(r.GetColumn(1),
-                 ezVec4T(-2 * 1 + -6 * 2 + -10 * 3 + -14 * 4, -2 * 5 + -6 * 6 + -10 * 7 + -14 * 8, -2 * 9 + -6 * 10 + -10 * 11 + -14 * 12,
-                         -2 * 13 + -6 * 14 + -10 * 15 + -14 * 16),
-                 0.001f);
+      ezVec4T(-2 * 1 + -6 * 2 + -10 * 3 + -14 * 4, -2 * 5 + -6 * 6 + -10 * 7 + -14 * 8, -2 * 9 + -6 * 10 + -10 * 11 + -14 * 12,
+        -2 * 13 + -6 * 14 + -10 * 15 + -14 * 16),
+      0.001f);
     EZ_TEST_VEC4(r.GetColumn(2),
-                 ezVec4T(-3 * 1 + -7 * 2 + -11 * 3 + -15 * 4, -3 * 5 + -7 * 6 + -11 * 7 + -15 * 8, -3 * 9 + -7 * 10 + -11 * 11 + -15 * 12,
-                         -3 * 13 + -7 * 14 + -11 * 15 + -15 * 16),
-                 0.001f);
+      ezVec4T(-3 * 1 + -7 * 2 + -11 * 3 + -15 * 4, -3 * 5 + -7 * 6 + -11 * 7 + -15 * 8, -3 * 9 + -7 * 10 + -11 * 11 + -15 * 12,
+        -3 * 13 + -7 * 14 + -11 * 15 + -15 * 16),
+      0.001f);
     EZ_TEST_VEC4(r.GetColumn(3),
-                 ezVec4T(-4 * 1 + -8 * 2 + -12 * 3 + -16 * 4, -4 * 5 + -8 * 6 + -12 * 7 + -16 * 8, -4 * 9 + -8 * 10 + -12 * 11 + -16 * 12,
-                         -4 * 13 + -8 * 14 + -12 * 15 + -16 * 16),
-                 0.001f);
+      ezVec4T(-4 * 1 + -8 * 2 + -12 * 3 + -16 * 4, -4 * 5 + -8 * 6 + -12 * 7 + -16 * 8, -4 * 9 + -8 * 10 + -12 * 11 + -16 * 12,
+        -4 * 13 + -8 * 14 + -12 * 15 + -16 * 16),
+      0.001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, vec3)")
@@ -863,9 +854,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     const ezVec4T r = m * ezVec4T(1, 2, 3, 4);
 
     EZ_TEST_VEC4(r,
-                 ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 4 * 8, 1 * 9 + 2 * 10 + 3 * 11 + 4 * 12,
-                         1 * 13 + 2 * 14 + 3 * 15 + 4 * 16),
-                 0.0001f);
+      ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 4 * 8, 1 * 9 + 2 * 10 + 3 * 11 + 4 * 12, 1 * 13 + 2 * 14 + 3 * 15 + 4 * 16),
+      0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, float) | operator*(float, mat)")

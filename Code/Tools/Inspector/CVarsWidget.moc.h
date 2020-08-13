@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Inspector/ui_CVarsWidget.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Configuration/CVar.h>
 #include <GuiFoundation/Widgets/CVarWidget.moc.h>
+#include <Inspector/ui_CVarsWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtCVarsWidget : public ads::CDockWidget, public Ui_CVarsWidget
@@ -30,15 +30,12 @@ public:
   void ResetStats();
 
 private:
-  //void UpdateCVarsTable(bool bRecreate);
-  
+  // void UpdateCVarsTable(bool bRecreate);
+
 
   void SendCVarUpdateToServer(const char* szName, const ezCVarWidgetData& cvd);
   void SyncAllCVarsToServer();
 
   ezMap<ezString, ezCVarWidgetData> m_CVars;
   ezMap<ezString, ezCVarWidgetData> m_CVarsBackup;
-
 };
-
-

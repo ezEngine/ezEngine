@@ -10,25 +10,25 @@ struct ezStringBase;
 template <class STRING>
 struct ezStringIterator
 {
-  typedef std::bidirectional_iterator_tag iterator_category;
-  typedef ezUInt32 value_type;
-  typedef ptrdiff_t difference_type;
-  typedef const char* pointer;
-  typedef ezUInt32 reference;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using value_type = ezUInt32;
+  using difference_type = ptrdiff_t;
+  using pointer = const char*;
+  using reference = ezUInt32;
 
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Constructs an invalid iterator.
   EZ_ALWAYS_INLINE ezStringIterator()
-      : m_String(nullptr)
-      , m_pElement(nullptr)
+    : m_String(nullptr)
+    , m_pElement(nullptr)
   {
   } // [tested]
 
   /// \brief Constructs either a begin or end iterator for the given string.
   EZ_FORCE_INLINE explicit ezStringIterator(const ezStringBase<STRING>& string, bool bIsEnd)
-      : m_String(&string)
-      , m_pElement(nullptr) // [tested]
+    : m_String(&string)
+    , m_pElement(nullptr) // [tested]
   {
     if (bIsEnd)
     {
@@ -45,10 +45,7 @@ struct ezStringIterator
   EZ_ALWAYS_INLINE bool IsValid() const { return m_pElement != nullptr && m_pElement != m_String->InternalGetDataEnd(); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const
-  {
-    return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0);
-  } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
   EZ_ALWAYS_INLINE ezUInt32 Value() const { return GetCharacter(); }
@@ -152,8 +149,8 @@ struct ezStringIterator
   void SetCurrentPosition(const char* szCurPos)
   {
     const char* szEnd = m_String->InternalGetDataEnd();
-    EZ_ASSERT_DEV((szCurPos >= m_String->InternalGetData()) && (szCurPos <= szEnd),
-                  "New current position must still be inside the iterator's range.");
+    EZ_ASSERT_DEV(
+      (szCurPos >= m_String->InternalGetData()) && (szCurPos <= szEnd), "New current position must still be inside the iterator's range.");
 
     m_pElement = szCurPos;
   }
@@ -169,25 +166,25 @@ protected:
 template <class STRING>
 struct ezStringReverseIterator
 {
-  typedef std::bidirectional_iterator_tag iterator_category;
-  typedef ezUInt32 value_type;
-  typedef ptrdiff_t difference_type;
-  typedef const char* pointer;
-  typedef ezUInt32 reference;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using value_type = ezUInt32;
+  using difference_type = ptrdiff_t;
+  using pointer = const char*;
+  using reference = ezUInt32;
 
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Constructs an invalid iterator.
   EZ_ALWAYS_INLINE ezStringReverseIterator()
-      : m_String(nullptr)
-      , m_pElement(nullptr)
+    : m_String(nullptr)
+    , m_pElement(nullptr)
   {
   } // [tested]
 
   /// \brief Constructs either a rbegin or rend iterator for the given string.
   EZ_FORCE_INLINE explicit ezStringReverseIterator(const ezStringBase<STRING>& string, bool bIsEnd)
-      : m_String(&string)
-      , m_pElement(nullptr) // [tested]
+    : m_String(&string)
+    , m_pElement(nullptr) // [tested]
   {
     if (bIsEnd)
     {
@@ -204,10 +201,7 @@ struct ezStringReverseIterator
   EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const
-  {
-    return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0);
-  } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
 
   /// \brief Returns the address the iterator currently points to.
   EZ_ALWAYS_INLINE const char* GetData() const { return m_pElement; } // [tested]
@@ -321,8 +315,8 @@ struct ezStringReverseIterator
   {
     const char* szBegin = m_String->InternalGetData();
     const char* szEnd = m_String->InternalGetDataEnd();
-    EZ_ASSERT_DEV(szCurPos == nullptr || ((szCurPos >= szBegin) && (szCurPos < szEnd)),
-                  "New current position must still be inside the iterator's range.");
+    EZ_ASSERT_DEV(
+      szCurPos == nullptr || ((szCurPos >= szBegin) && (szCurPos < szEnd)), "New current position must still be inside the iterator's range.");
 
     m_pElement = szCurPos;
   }
@@ -331,4 +325,3 @@ protected:
   const ezStringBase<STRING>* m_String;
   const char* m_pElement;
 };
-

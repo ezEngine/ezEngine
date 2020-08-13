@@ -121,10 +121,7 @@ public:
     m_iInt32 = 32;
   }
 
-  bool operator==(const ezTestStruct3& rhs) const
-  {
-    return m_fFloat1 == rhs.m_fFloat1 && m_iInt32 == rhs.m_iInt32 && m_UInt8 == rhs.m_UInt8;
-  }
+  bool operator==(const ezTestStruct3& rhs) const { return m_fFloat1 == rhs.m_fFloat1 && m_iInt32 == rhs.m_iInt32 && m_UInt8 == rhs.m_UInt8; }
 
   bool operator!=(const ezTestStruct3& rhs) const { return !(*this == rhs); }
 
@@ -164,10 +161,7 @@ public:
     m_MyVector.Set(1, 2, 3);
   }
 
-  bool operator==(const ezTestClass1& rhs) const
-  {
-    return m_Struct == rhs.m_Struct && m_MyVector == rhs.m_MyVector && m_Color == rhs.m_Color;
-  }
+  bool operator==(const ezTestClass1& rhs) const { return m_Struct == rhs.m_Struct && m_MyVector == rhs.m_MyVector && m_Color == rhs.m_Color; }
 
   ezVec3 GetVector() const { return m_MyVector; }
 

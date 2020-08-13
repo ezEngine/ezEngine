@@ -21,7 +21,6 @@ public:
   static ezActionDescriptorHandle s_hSceneCategory;
   static ezActionDescriptorHandle s_hSceneUtilsMenu;
   static ezActionDescriptorHandle s_hExportScene;
-  static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hGameModeSimulate;
   static ezActionDescriptorHandle s_hGameModePlay;
   static ezActionDescriptorHandle s_hGameModePlayFromHere;
@@ -44,8 +43,7 @@ class EZ_EDITORPLUGINSCENE_DLL ezSceneAction : public ezButtonAction
 public:
   enum class ActionType
   {
-    ExportScene,
-    RunScene,
+    ExportAndRunScene,
     StartGameModeSimulate,
     StartGameModePlay,
     StartGameModePlayFromHere,
@@ -103,6 +101,9 @@ public:
   ~ezSceneAction();
 
   virtual void Execute(const ezVariant& value) override;
+
+  void LaunchPlayer();
+  QStringList GetPlayerCommandLine(ezStringBuilder& out_SingleLine) const;
 
 private:
   void SceneEventHandler(const ezGameObjectEvent& e);

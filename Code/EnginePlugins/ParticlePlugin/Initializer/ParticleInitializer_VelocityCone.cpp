@@ -18,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 1, ez
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveZ, "Angle", 1.0f, nullptr, nullptr, ezColor::CornflowerBlue)
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveZ, "Angle", 1.0f, nullptr, ezColor::CornflowerBlue)
   }
   EZ_END_ATTRIBUTES;
 }
@@ -88,15 +88,15 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
   ezRandom& rng = GetRNG();
 
-  //const float dist = 1.0f / ezMath::Tan(m_Angle);
+  // const float dist = 1.0f / ezMath::Tan(m_Angle);
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
     const ezVec3 dir = ezVec3::CreateRandomDeviationZ(rng, m_Angle);
-    //dir.z = 0;
-    //float len = 0.0f;
+    // dir.z = 0;
+    // float len = 0.0f;
 
-    //do
+    // do
     //{
     //  // random point in a rectangle
     //  dir.x = (float)rng.DoubleMinMax(-1.0, 1.0);
@@ -106,8 +106,8 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
     //  len = dir.GetLengthSquared();
     //} while (len > 1.0f);
 
-    //dir.z = dist;
-    //dir.Normalize();
+    // dir.z = dist;
+    // dir.Normalize();
 
     const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 

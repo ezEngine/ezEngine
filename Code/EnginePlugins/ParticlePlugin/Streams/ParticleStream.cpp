@@ -13,8 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleStreamFactory::ezParticleStreamFactory(const char* szStreamName, ezProcessingStream::DataType dataType,
-                                                 const ezRTTI* pStreamTypeToCreate)
+ezParticleStreamFactory::ezParticleStreamFactory(const char* szStreamName, ezProcessingStream::DataType dataType, const ezRTTI* pStreamTypeToCreate)
 {
   m_szStreamName = szStreamName;
   m_DataType = dataType;
@@ -77,8 +76,8 @@ void ezParticleStream::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumE
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
     ezMemoryUtils::ZeroFill<ezUInt8>(
-        static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))),
-        static_cast<size_t>(uiElementSize));
+      static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))),
+      static_cast<size_t>(uiElementSize));
   }
 }
 

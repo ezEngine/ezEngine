@@ -5,7 +5,7 @@
 #include <QWidget>
 
 ezQtFileserveAllFilesModel::ezQtFileserveAllFilesModel(QWidget* parent)
-    : QAbstractListModel(parent)
+  : QAbstractListModel(parent)
 {
 }
 

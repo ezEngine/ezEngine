@@ -48,7 +48,7 @@ namespace ezInternal
       const ezGameObject& operator*() const;
       const ezGameObject* operator->() const;
 
-      operator const ezGameObject*() const;
+      operator const ezGameObject *() const;
 
       /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();
@@ -123,7 +123,7 @@ namespace ezInternal
     template <typename VISITOR>
     static ezVisitorExecution::Enum TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
     template <typename VISITOR>
-    static ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+    ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
     typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> VisitorFunc;
     void TraverseBreadthFirst(VisitorFunc& func);
@@ -133,14 +133,16 @@ namespace ezInternal
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
 
-    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
-    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformAndSpatialData(
+      ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(
+      ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
 
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
     // game object lookups
     ezHashTable<ezUInt32, ezGameObjectId, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
-    ezHashTable<ezUInt32, ezHashedString, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
+    ezHashTable<ezUInt64, ezHashedString, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
 
     // modules
     ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_Modules;
@@ -155,7 +157,7 @@ namespace ezInternal
 
       ezHashedString m_sName;
       bool m_bMustFinishWithinOneFrame = true;
-      bool m_bIsReady = false;      
+      bool m_bIsReady = false;
 
       ezUInt32 m_uiNextComponentToInitialize = 0;
       ezUInt32 m_uiNextComponentToStartSimulation = 0;
@@ -192,7 +194,7 @@ namespace ezInternal
     ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldModule::UpdateFunctionDesc::Phase::COUNT];
     ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToRegister;
 
-    ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
+    ezDynamicArray<ezSharedPtr<UpdateTask>, ezLocalAllocatorWrapper> m_UpdateTasks;
 
     ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
     ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
@@ -210,7 +212,8 @@ namespace ezInternal
       {
       }
 
-      union {
+      union
+      {
         struct
         {
           ezUInt64 m_uiReceiverObjectOrComponent : 62;

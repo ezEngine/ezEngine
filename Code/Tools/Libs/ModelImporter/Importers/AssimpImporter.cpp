@@ -88,8 +88,8 @@ namespace ezModelImporter
   ezQuat ConvertAssimpType(const aiQuaternion& value) { return ezQuat(value.x, value.y, value.z, value.w); }
 
   template <typename assimpType, typename ezType>
-  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, SemanticHint::Enum semantic,
-                             const aiMaterial& assimpMaterial, Material& material, bool invert = false)
+  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, SemanticHint::Enum semantic, const aiMaterial& assimpMaterial,
+    Material& material, bool invert = false)
   {
     assimpType assimpValue;
     if (assimpMaterial.Get(pKey, type, idx, assimpValue) == AI_SUCCESS)
@@ -102,7 +102,7 @@ namespace ezModelImporter
   }
 
   void TryReadAssimpTextures(aiTextureType assimpTextureType, const char* semanticString, SemanticHint::Enum semanticHint,
-                             const aiMaterial& assimpMaterial, Material& material)
+    const aiMaterial& assimpMaterial, Material& material)
   {
     material.m_Textures.Reserve(material.m_Textures.GetCount() + assimpMaterial.GetTextureCount(assimpTextureType));
     for (unsigned int i = 0; i < assimpMaterial.GetTextureCount(assimpTextureType); ++i)
@@ -147,15 +147,14 @@ namespace ezModelImporter
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_ENABLE_WIREFRAME, SemanticHint::WIREFRAME, *assimpMaterial, *material);
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_TWOSIDED, SemanticHint::TWOSIDED, *assimpMaterial, *material);
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_SHADING_MODEL, SemanticHint::SHADINGMODEL, *assimpMaterial, *material);
-      TryReadAssimpProperty<int, ezInt32>(
-          AI_MATKEY_BLEND_FUNC, SemanticHint::UNKNOWN, *assimpMaterial,
-          *material); // There is only "additive" and "default". Rather impractical so we're mapping to UNKNOWN.
+      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_BLEND_FUNC, SemanticHint::UNKNOWN, *assimpMaterial,
+        *material); // There is only "additive" and "default". Rather impractical so we're mapping to UNKNOWN.
       TryReadAssimpProperty<float, float>(AI_MATKEY_OPACITY, SemanticHint::OPACITY, *assimpMaterial,
-                                          *material); // Yes, we can end up with two properties with semantic hint "OPACITY"
+        *material); // Yes, we can end up with two properties with semantic hint "OPACITY"
       TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS, SemanticHint::ROUGHNESS, *assimpMaterial, *material);
       TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS_STRENGTH, SemanticHint::METALLIC, *assimpMaterial,
-                                          *material); // From assimp documentation "Scales the specular color of the material. This value is
-                                                      // kept separate from the specular color by most modelers, and so do we."
+        *material); // From assimp documentation "Scales the specular color of the material. This value is
+                    // kept separate from the specular color by most modelers, and so do we."
       TryReadAssimpProperty<float, float>(AI_MATKEY_REFRACTI, SemanticHint::REFRACTIONINDEX, *assimpMaterial, *material);
 
       // Read textures.
@@ -170,14 +169,14 @@ namespace ezModelImporter
       TryReadAssimpTextures(aiTextureType_DISPLACEMENT, "Displacement", SemanticHint::DISPLACEMENT, *assimpMaterial, *material);
       TryReadAssimpTextures(aiTextureType_LIGHTMAP, "LightMap", SemanticHint::LIGHTMAP, *assimpMaterial, *material);
       TryReadAssimpTextures(aiTextureType_REFLECTION, "Reflection", SemanticHint::METALLIC, *assimpMaterial,
-                            *material); // From Assimp documentation "Contains the color of a perfect mirror reflection."
+        *material); // From Assimp documentation "Contains the color of a perfect mirror reflection."
 
       outMaterialHandles.PushBack(outScene.AddMaterial(std::move(material)));
     }
   }
 
-  void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName,
-                    Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles, const ezDynamicArray<JointInfo>& allMeshJoints)
+  void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName, Scene& outScene,
+    ezDynamicArray<ObjectHandle>& outMeshHandles, const ezDynamicArray<JointInfo>& allMeshJoints)
   {
     outMeshHandles.Reserve(assimpMeshes.GetCount());
 
@@ -210,8 +209,8 @@ namespace ezModelImporter
       }
 
       if (assimpMesh->GetNumColorChannels() > 2)
-        ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first two sets will be imported!", mesh->m_Name,
-          szFileName, assimpMesh->GetNumColorChannels());
+        ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first two sets will be imported!", mesh->m_Name, szFileName,
+          assimpMesh->GetNumColorChannels());
 
       ezUInt32 numColorChannels = ezMath::Min(assimpMesh->GetNumColorChannels(), 2u);
       for (ezUInt32 colorSet = 0; colorSet < numColorChannels; ++colorSet)
@@ -242,12 +241,12 @@ namespace ezModelImporter
         unsigned int texcoordDimensionality = assimpMesh->mNumUVComponents[texcoordSet];
 
         VertexDataStream* texcoords = mesh->AddDataStream(
-            static_cast<ezGALVertexAttributeSemantic::Enum>(ezGALVertexAttributeSemantic::TexCoord0 + texcoordSet), texcoordDimensionality);
+          static_cast<ezGALVertexAttributeSemantic::Enum>(ezGALVertexAttributeSemantic::TexCoord0 + texcoordSet), texcoordDimensionality);
         texcoords->ReserveData(assimpMesh->mNumVertices);
         for (unsigned int coord = 0; coord < assimpMesh->mNumVertices; ++coord)
         {
-          texcoords->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(assimpMesh->mTextureCoords[texcoordSet] + coord),
-                                                texcoordDimensionality * sizeof(float)));
+          texcoords->AddValues(
+            ezArrayPtr<char>(reinterpret_cast<char*>(assimpMesh->mTextureCoords[texcoordSet] + coord), texcoordDimensionality * sizeof(float)));
         }
         vertexDataStreams.PushBack(texcoords);
       }
@@ -311,9 +310,9 @@ namespace ezModelImporter
         }
 
         jointWeightStream->AddValues(
-            ezArrayPtr<char>(reinterpret_cast<char*>(jointWeightData.GetData()), jointWeightData.GetCount() * 4 * sizeof(float)));
+          ezArrayPtr<char>(reinterpret_cast<char*>(jointWeightData.GetData()), jointWeightData.GetCount() * 4 * sizeof(float)));
         jointIndicesStream->AddValues(
-            ezArrayPtr<char>(reinterpret_cast<char*>(jointIndexData.GetData()), jointIndexData.GetCount() * 4 * sizeof(ezUInt32)));
+          ezArrayPtr<char>(reinterpret_cast<char*>(jointIndexData.GetData()), jointIndexData.GetCount() * 4 * sizeof(ezUInt32)));
       }
 
       // Triangles/Indices
@@ -334,7 +333,7 @@ namespace ezModelImporter
       // Material - an assimp mesh uses only a single material!
       if (assimpMesh->mMaterialIndex >= materialHandles.GetCount())
         ezLog::Warning("Mesh '{0}' in '{1}' points to material {2}, but there are only {3} materials.", mesh->m_Name, szFileName,
-                       assimpMesh->mMaterialIndex, materialHandles.GetCount());
+          assimpMesh->mMaterialIndex, materialHandles.GetCount());
       else
       {
         SubMesh subMesh;
@@ -577,7 +576,8 @@ namespace ezModelImporter
     ezUInt32 uiAssimpFlags = 0;
     if (importFlags.IsSet(ImportFlags::Meshes))
     {
-      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
+      uiAssimpFlags |=
+        aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
     }
 
     const aiScene* assimpScene = importer.ReadFile(szFileName, uiAssimpFlags);
@@ -622,8 +622,8 @@ namespace ezModelImporter
     ezDynamicArray<ObjectHandle> meshHandles;
     if (importFlags.IsAnySet(ImportFlags::Meshes))
     {
-      ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles,
-                   allMeshJoints);
+      ImportMeshes(
+        ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles, allMeshJoints);
     }
 
     if (importFlags.IsSet(ImportFlags::Animations) && assimpScene->HasAnimations())
@@ -648,4 +648,4 @@ namespace ezModelImporter
 
     return outScene;
   }
-}
+} // namespace ezModelImporter

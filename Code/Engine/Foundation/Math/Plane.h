@@ -23,7 +23,7 @@ public:
   // Means this object can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
   // *** Data ***
 public:
@@ -45,13 +45,15 @@ public:
   /// \brief Creates the plane-equation from three points on the plane, given as an array.
   ezPlaneTemplate(const ezVec3Template<Type>* const pVertices); // [tested]
 
-  /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other for the typical algorithm.
+  /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other
+  /// for the typical algorithm.
   ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 iMaxVertices); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
+                               "all code-paths properly initialize this object.");
   }
 #endif
 
@@ -67,11 +69,13 @@ public:
   /// \brief Creates the plane-equation from three points on the plane, given as an array.
   ezResult SetFromPoints(const ezVec3Template<Type>* const pVertices); // [tested]
 
-  /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other for the typical algorithm. Returns false, if no reliable set of points could be found. Does try to create a plane anyway.
+  /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other
+  /// for the typical algorithm. Returns false, if no reliable set of points could be found. Does try to create a plane anyway.
   ezResult SetFromPoints(const ezVec3Template<Type>* const pVertices, ezUInt32 iMaxVertices); // [tested]
 
   /// \brief Creates a plane from two direction vectors that span the plane, and one point on it.
-  ezResult SetFromDirections(const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane); // [tested]
+  ezResult SetFromDirections(
+    const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
   /// \brief Sets the plane to an invalid state (all zero).
   void SetInvalid(); // [tested]
@@ -85,13 +89,15 @@ public:
   ///
   /// 'Minimum' means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower distance'
   /// than a point in front of the plane, even if that is closer to the plane's surface.
-  Type GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  Type GetMinimumDistanceTo(
+    const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Returns the minimum and maximum distance that any of the given points had to the plane.
   ///
-  /// 'Minimum' (and 'maximum') means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower distance'
-  /// than a point in front of the plane, even if that is closer to the plane's surface.
-  void GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  /// 'Minimum' (and 'maximum') means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower
+  /// distance' than a point in front of the plane, even if that is closer to the plane's surface.
+  void GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints,
+    ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Returns on which side of the plane the point lies.
   ezPositionOnPlane::Enum GetPointPosition(const ezVec3Template<Type>& vPoint) const; // [tested]
@@ -158,21 +164,28 @@ public:
   ///
   /// Intersections with \a out_fIntersection less than zero will be discarded and not reported as intersections.
   /// If such intersections are desired, use GetRayIntersectionBiDirectional instead.
-  bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr,
+    ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
-  /// \brief Returns true, if the ray intersects the plane. Intersection time and point are stored in the out-parameters. Allows for intersections at negative times (shooting into the opposite direction).
-  bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  /// \brief Returns true, if the ray intersects the plane. Intersection time and point are stored in the out-parameters. Allows for intersections at
+  /// negative times (shooting into the opposite direction).
+  bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir,
+    Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
-  /// \brief Returns true, if there is any intersection with the plane between the line's start and end position. Returns the fraction along the line and the actual intersection point.
-  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  /// \brief Returns true, if there is any intersection with the plane between the line's start and end position. Returns the fraction along the line
+  /// and the actual intersection point.
+  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
+    Type* out_fHitFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Computes the one point where all three planes intersect. Returns EZ_FAILURE if no such point exists.
-  static ezResult GetPlanesIntersectionPoint(const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_Result); // [tested]
+  static ezResult GetPlanesIntersectionPoint(
+    const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_Result); // [tested]
 
   // *** Helper Functions ***
 public:
   /// \brief Returns three points from an unreliable set of points, that reliably form a plane. Returns false, if there are none.
-  static ezResult FindSupportPoints(const ezVec3Template<Type>* const pVertices, ezInt32 iMaxVertices, ezInt32& out_v1, ezInt32& out_v2, ezInt32& out_v3); // [tested]
+  static ezResult FindSupportPoints(
+    const ezVec3Template<Type>* const pVertices, ezInt32 iMaxVertices, ezInt32& out_v1, ezInt32& out_v2, ezInt32& out_v3); // [tested]
 };
 
 /// \brief Checks whether this plane and the other are identical.
@@ -184,4 +197,3 @@ template <typename Type>
 bool operator!=(const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Plane_inl.h>
-

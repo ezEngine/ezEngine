@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Math/Vec2.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QGraphicsView>
 
 class ezQtNodeScene;
@@ -22,7 +22,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void wheelEvent(QWheelEvent* event) override;
   virtual void contextMenuEvent(QContextMenuEvent* event) override;
-  virtual void resizeEvent(QResizeEvent *) override;
+  virtual void resizeEvent(QResizeEvent*) override;
 
 private:
   void UpdateView();

@@ -57,12 +57,10 @@ private:
   ///@{
 
 public:
-
   /// \brief If the thread is currently idle, this will wake it up and return EZ_SUCCESS.
   ezTaskWorkerState WakeUpIfIdle();
 
 private:
-
   // Puts the thread to sleep (idle state)
   void WaitForWork();
 
@@ -73,7 +71,7 @@ private:
 
   // used to indicate whether this thread is currently idle
   // if so, it can be woken up using m_WakeUpSignal
-  //ezAtomicBool m_bIsIdle = false;
+  // ezAtomicBool m_bIsIdle = false;
   ezAtomicInteger32 m_WorkerState; // ezTaskWorkerState
 
   ///@}

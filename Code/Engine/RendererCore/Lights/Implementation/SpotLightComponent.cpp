@@ -9,8 +9,8 @@
 #include <RendererCore/Pipeline/View.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarVisLightSize("r_VisLightScreenSpaceSize", false, ezCVarFlags::Default,
-  "Enables debug visualization of light screen space size calculation");
+ezCVarBool CVarVisLightSize(
+  "r_VisLightScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
 #endif
 
 // clang-format off
@@ -79,6 +79,8 @@ float ezSpotLightComponent::GetEffectiveRange() const
 void ezSpotLightComponent::SetInnerSpotAngle(ezAngle spotAngle)
 {
   m_InnerSpotAngle = ezMath::Clamp(spotAngle, ezAngle::Degree(0.0f), m_OuterSpotAngle);
+
+  InvalidateCachedRenderData();
 }
 
 ezAngle ezSpotLightComponent::GetInnerSpotAngle() const
@@ -101,6 +103,8 @@ ezAngle ezSpotLightComponent::GetOuterSpotAngle() const
 void ezSpotLightComponent::SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture)
 {
   m_hProjectedTexture = hProjectedTexture;
+
+  InvalidateCachedRenderData();
 }
 
 const ezTexture2DResourceHandle& ezSpotLightComponent::GetProjectedTexture() const
@@ -227,8 +231,8 @@ ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute()
 {
 }
 
-ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty,
-  const char* szIntensityProperty, const char* szColorProperty)
+ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(
+  const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
   : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }

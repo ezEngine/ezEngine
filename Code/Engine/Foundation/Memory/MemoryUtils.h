@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <stdint.h> // for uintptr_t
+#include <cstdint> // for uintptr_t
 
 /// \brief This class provides functions to work on raw memory.
 ///
@@ -19,9 +19,9 @@
 class ezMemoryUtils
 {
 public:
-  typedef void (*ConstructorFunction)(void* pDestination);
-  typedef void (*CopyConstructorFunction)(void* pDestination, const void* pSource);
-  typedef void (*DestructorFunction)(void* pDestination);
+  using ConstructorFunction = void (*)(void* pDestination);
+  using CopyConstructorFunction = void (*)(void* pDestination, const void* pSource);
+  using DestructorFunction = void (*)(void* pDestination);
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   ///
@@ -197,8 +197,8 @@ private:
   static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
 
 
-  typedef std::false_type NotRValueReference;
-  typedef std::true_type IsRValueReference;
+  using NotRValueReference = std::false_type;
+  using IsRValueReference = std::true_type;
 
   template <typename Destination, typename Source>
   static void CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference);

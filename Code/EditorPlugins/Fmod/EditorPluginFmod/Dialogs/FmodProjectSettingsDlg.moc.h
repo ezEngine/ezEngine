@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorPluginFmod/EditorPluginFmodDLL.h>
-#include <QDialog>
 #include <EditorPluginFmod/ui_FmodProjectSettingsDlg.h>
 #include <FmodPlugin/FmodSingleton.h>
+#include <QDialog>
 
 class ezQtFmodProjectSettingsDlg : public QDialog, public Ui_FmodProjectSettingsDlg
 {

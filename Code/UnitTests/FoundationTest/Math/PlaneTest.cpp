@@ -13,13 +13,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     {
       // In debug the default constructor initializes everything with NaN.
       ezPlaneT p;
-      EZ_TEST_BOOL(ezMath::IsNaN(p.m_vNormal.x) && ezMath::IsNaN(p.m_vNormal.y) && ezMath::IsNaN(p.m_vNormal.z) &&
-                   ezMath::IsNaN(p.m_fNegDistance));
+      EZ_TEST_BOOL(ezMath::IsNaN(p.m_vNormal.x) && ezMath::IsNaN(p.m_vNormal.y) && ezMath::IsNaN(p.m_vNormal.z) && ezMath::IsNaN(p.m_fNegDistance));
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    ezPlaneT::ComponentType testBlock[4] = {(ezPlaneT::ComponentType)1, (ezPlaneT::ComponentType)2, (ezPlaneT::ComponentType)3,
-                                            (ezPlaneT::ComponentType)4};
+    ezPlaneT::ComponentType testBlock[4] = {
+      (ezPlaneT::ComponentType)1, (ezPlaneT::ComponentType)2, (ezPlaneT::ComponentType)3, (ezPlaneT::ComponentType)4};
     ezPlaneT* p = ::new ((void*)&testBlock[0]) ezPlaneT;
     EZ_TEST_BOOL(p->m_vNormal.x == (ezPlaneT::ComponentType)1 && p->m_vNormal.y == (ezPlaneT::ComponentType)2 &&
                  p->m_vNormal.z == (ezPlaneT::ComponentType)3 && p->m_fNegDistance == (ezPlaneT::ComponentType)4);

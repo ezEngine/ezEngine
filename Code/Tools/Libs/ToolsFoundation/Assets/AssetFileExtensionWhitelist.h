@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 /// \brief A global whitelist for file extension that may be used as certain asset types
 ///
@@ -11,7 +11,6 @@
 class EZ_TOOLSFOUNDATION_DLL ezAssetFileExtensionWhitelist
 {
 public:
-
   static void AddAssetFileExtension(const char* szAssetType, const char* szAllowedFileExtension);
 
   static bool IsFileOnAssetWhitelist(const char* szAssetType, const char* szFile);

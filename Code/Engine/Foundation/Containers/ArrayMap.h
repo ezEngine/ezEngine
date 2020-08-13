@@ -2,7 +2,8 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 
-/// \brief An associative container, similar to ezMap, but all data is stored in a sorted contiguous array, which makes frequent lookups more efficient.
+/// \brief An associative container, similar to ezMap, but all data is stored in a sorted contiguous array, which makes frequent lookups more
+/// efficient.
 ///
 /// Prefer this container over ezMap when you modify the container less often than you look things up (which is in most cases), and when
 /// you do not need to store iterators to elements and require them to stay valid when the container is modified.
@@ -21,15 +22,9 @@ public:
 
     EZ_DETECT_TYPE_CLASS(KEY, VALUE);
 
-    EZ_ALWAYS_INLINE bool operator<(const Pair& rhs) const
-    {
-      return key < rhs.key;
-    }
+    EZ_ALWAYS_INLINE bool operator<(const Pair& rhs) const { return key < rhs.key; }
 
-    EZ_ALWAYS_INLINE bool operator==(const Pair& rhs) const
-    {
-      return key == rhs.key;
-    }
+    EZ_ALWAYS_INLINE bool operator==(const Pair& rhs) const { return key == rhs.key; }
   };
 
   /// \brief Constructor.
@@ -81,6 +76,12 @@ public:
   /// \brief Returns the value that is stored at the given index.
   VALUE& GetValue(ezUInt32 index); // [tested]
 
+  /// \brief Returns a reference to the map data array.
+  ezDynamicArray<Pair>& GetData();
+
+  /// \brief Returns a constant reference to the map data array.
+  const ezDynamicArray<Pair>& GetData() const;
+
   /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
   template <typename CompatibleKeyType>
   VALUE& FindOrAdd(const CompatibleKeyType& key, bool* bExisted = nullptr); // [tested]
@@ -99,7 +100,8 @@ public:
   /// are removed, or new values are going to be inserted, as well, \a bKeepSorted should be left to false.
   void RemoveAtAndCopy(ezUInt32 index, bool bKeepSorted = false);
 
-  /// \brief Removes one element with the given key. Returns true, if one was found and removed. If the same key exists multiple times, you need to call this function multiple times to remove them all.
+  /// \brief Removes one element with the given key. Returns true, if one was found and removed. If the same key exists multiple times, you need to
+  /// call this function multiple times to remove them all.
   ///
   /// If the map is sorted and bKeepSorted is true, the element will be removed such that the map stays sorted.
   /// This is only useful, if only a single (or very few) elements are removed before the next lookup. If multiple values
@@ -130,6 +132,11 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); } // [tested]
 
+  using const_iterator = typename ezDynamicArray<Pair>::const_iterator;
+  using const_reverse_iterator = typename ezDynamicArray<Pair>::const_reverse_iterator;
+  using iterator = typename ezDynamicArray<Pair>::iterator;
+  using reverse_iterator = typename ezDynamicArray<Pair>::reverse_iterator;
+
 private:
   mutable bool m_bSorted;
   mutable ezDynamicArray<Pair> m_Data;
@@ -152,5 +159,77 @@ public:
   void operator=(const ezArrayMapBase<KEY, VALUE>& rhs);
 };
 
-#include <Foundation/Containers/Implementation/ArrayMap_inl.h>
 
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::iterator begin(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return begin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator begin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return begin(container.GetData());
+}
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator cbegin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return cbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rbegin(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator rbegin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crbegin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return crbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::iterator end(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return end(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator end(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return end(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator cend(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return cend(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rend(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rend(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator rend(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rend(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crend(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return crend(container.GetData());
+}
+
+
+#include <Foundation/Containers/Implementation/ArrayMap_inl.h>

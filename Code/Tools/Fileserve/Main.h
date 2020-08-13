@@ -1,9 +1,9 @@
 #pragma once
 
+#include <FileservePlugin/Fileserver/Fileserver.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <FileservePlugin/Fileserver/Fileserver.h>
 
 /// \brief A stand-alone application for the ezFileServer.
 ///
@@ -19,7 +19,8 @@ class ezFileserverApp : public ezApplication
 public:
   typedef ezApplication SUPER;
 
-  ezFileserverApp() : ezApplication("Fileserve")
+  ezFileserverApp()
+    : ezApplication("Fileserve")
   {
   }
 
@@ -35,7 +36,4 @@ public:
   ezUInt32 m_uiConnections = 0;
   ezTime m_CloseAppTimeout;
   ezTime m_TimeTillClosing;
-
-
 };
-

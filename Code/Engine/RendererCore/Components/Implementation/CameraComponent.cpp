@@ -35,6 +35,8 @@ void ezCameraComponentManager::Initialize()
 void ezCameraComponentManager::Deinitialize()
 {
   ezRenderWorld::s_ViewCreatedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
+
+  SUPER::Deinitialize();
 }
 
 void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -165,7 +167,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 9, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DarkSlateBlue),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::DarkSlateBlue),
     new ezCameraVisualizerAttribute("Mode", "FOV", "Dimensions", "NearPlane", "FarPlane"),
   }
   EZ_END_ATTRIBUTES;
@@ -279,6 +281,7 @@ void ezCameraComponent::UpdateRenderTargetCamera()
   if (!m_bRenderTargetInitialized)
     return;
 
+  // recreate everything, if the view got invalidated in between
   if (m_hRenderTargetView.IsInvalidated())
   {
     DeactivateRenderToTexture();
@@ -296,8 +299,8 @@ void ezCameraComponent::UpdateRenderTargetCamera()
   else
     m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fOrthoDimension, m_fNearPlane, m_fFarPlane);
 
-  m_RenderTargetCamera.LookAt(GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(),
-    GetOwner()->GetGlobalDirUp());
+  m_RenderTargetCamera.LookAt(
+    GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(), GetOwner()->GetGlobalDirUp());
 }
 
 void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
@@ -519,8 +522,8 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
       const char* szName = GetOwner()->GetName();
 
       ezStringBuilder sb;
-      sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(),
-        GetExposure());
+      sb.Format(
+        "Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
       ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
     }
 
@@ -662,6 +665,8 @@ void ezCameraComponent::DeactivateRenderToTexture()
 
   m_bRenderTargetInitialized = false;
   m_hCachedRenderPipeline.Invalidate();
+
+  EZ_ASSERT_DEBUG(m_hRenderTarget.IsValid(), "Render Target should be valid");
 
   if (m_hRenderTarget.IsValid())
   {

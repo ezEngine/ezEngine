@@ -105,6 +105,9 @@ void ezGreyBoxEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)
     case ezGameObjectEvent::Type::ActiveEditToolChanged:
       UpdateGizmoState();
       break;
+
+    default:
+      break;
   }
 }
 

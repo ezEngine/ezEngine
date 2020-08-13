@@ -5,7 +5,7 @@
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <ProcGenPlugin/VM/ExpressionFunctions.h>
 
-//static
+// static
 void ezDefaultExpressionFunctions::Random(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
 {
   auto seeds = inputs[0];
@@ -30,7 +30,7 @@ namespace
   static ezSimdPerlinNoise s_PerlinNoise(12345);
 }
 
-//static
+// static
 void ezDefaultExpressionFunctions::PerlinNoise(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
 {
   const ezSimdVec4f* pPosX = inputs[0].GetPtr();

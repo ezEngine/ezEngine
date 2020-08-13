@@ -5,7 +5,7 @@ ALL
 
 #include "Common.h"
 
-#ifdef PLATFORM_DX11
+#if EZ_ENABLED(PLATFORM_DX11)
 
 VS_OUT main(VS_IN Input)
 {
@@ -24,7 +24,7 @@ VS_OUT main(VS_IN Input)
 
 #include "Common.h"
 
-#ifdef PLATFORM_DX11
+#if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D DiffuseTexture;
 SamplerState DiffuseTexture_AutoSampler;

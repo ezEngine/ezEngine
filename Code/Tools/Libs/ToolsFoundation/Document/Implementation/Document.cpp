@@ -77,6 +77,10 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
 
 ezDocument::~ezDocument()
 {
+  if (m_activeSaveTask.IsValid())
+  {
+    ezTaskSystem::WaitForGroup(m_activeSaveTask);
+  }
   m_SelectionManager.SetOwner(nullptr);
 
   m_pObjectManager->DestroyAllObjects();
@@ -132,10 +136,15 @@ ezStatus ezDocument::SaveDocument(bool bForce)
   if (!IsModified() && !bForce)
     return ezStatus(EZ_SUCCESS);
 
+  // In the unlikely event that we manage to edit a doc and call save again while
+  // an async save is already in progress we block on the first save to ensure
+  // the correct chronological state on disk after both save ops are done.
+  if (m_activeSaveTask.IsValid())
+  {
+    ezTaskSystem::WaitForGroup(m_activeSaveTask);
+  }
   ezStatus result;
-  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) {
-    result = res;
-  });
+  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
   ezTaskSystem::WaitForGroup(m_activeSaveTask);
   return result;
 }
@@ -164,7 +173,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
   EZ_PROFILE_SCOPE("InternalSaveDocument");
   ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
-  auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+  auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
   {
     saveTask->m_document = this;
     saveTask->file.SetOutput(m_sDocumentPath);
@@ -197,7 +206,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 
   ezTaskGroupID afterSaveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::SomeFrameMainThread);
   {
-    auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+    auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask);
     afterSaveTask->m_document = this;
     afterSaveTask->m_callback = callback;
     ezTaskSystem::AddTaskToGroup(afterSaveID, afterSaveTask);
@@ -213,8 +222,8 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   return afterSaveID;
 }
 
-ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header,
-  ezUniquePtr<ezAbstractObjectGraph>& objects, ezUniquePtr<ezAbstractObjectGraph>& types)
+ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header, ezUniquePtr<ezAbstractObjectGraph>& objects,
+  ezUniquePtr<ezAbstractObjectGraph>& types)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
@@ -312,8 +321,8 @@ ezStatus ezDocument::InternalLoadDocument()
 
   {
     EZ_PROFILE_SCOPE("Restoring Objects");
-    ezDocumentObjectConverterReader objectConverter(objects.Borrow(), GetObjectManager(),
-      ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+    ezDocumentObjectConverterReader objectConverter(
+      objects.Borrow(), GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
     // range.BeginNextStep("Restoring Objects");
     auto* pRootNode = objects->GetNodeByName("ObjectTree");
     objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());

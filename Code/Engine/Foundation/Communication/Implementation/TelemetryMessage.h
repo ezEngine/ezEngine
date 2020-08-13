@@ -35,4 +35,3 @@ private:
   ezMemoryStreamReader m_Reader;
   ezMemoryStreamWriter m_Writer;
 };
-

@@ -18,7 +18,7 @@ ezToolsProjectRequest::ezToolsProjectRequest()
 }
 
 ezToolsProject::ezToolsProject(const char* szProjectPath)
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_bIsClosing = false;
 

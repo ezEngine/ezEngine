@@ -1,7 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
-#include <Texture/Image/ImageConversion.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
@@ -9,9 +8,10 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
+#include <Texture/Image/ImageConversion.h>
 
 ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocument)
-    : ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {

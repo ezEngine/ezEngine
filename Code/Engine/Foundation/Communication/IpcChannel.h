@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Communication/RemoteInterface.h>
-#include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Threading/ThreadSignal.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezIpcChannel;
 class ezMessageLoop;
@@ -14,14 +14,18 @@ struct EZ_FOUNDATION_DLL ezIpcChannelEvent
 {
   enum Type
   {
-    ConnectedToClient,        ///< brief Sent whenever a new connection to a client has been established.
-    ConnectedToServer,        ///< brief Sent whenever a connection to the server has been established.
-    DisconnectedFromClient,   ///< Sent every time the connection to a client is dropped
-    DisconnectedFromServer,   ///< Sent when the connection to the server has been lost
-    NewMessages,              ///< Sent when a new message has been received.
+    ConnectedToClient,      ///< brief Sent whenever a new connection to a client has been established.
+    ConnectedToServer,      ///< brief Sent whenever a connection to the server has been established.
+    DisconnectedFromClient, ///< Sent every time the connection to a client is dropped
+    DisconnectedFromServer, ///< Sent when the connection to the server has been lost
+    NewMessages,            ///< Sent when a new message has been received.
   };
 
-  ezIpcChannelEvent(Type type, ezIpcChannel* pChannel) : m_Type(type), m_pChannel(pChannel) {}
+  ezIpcChannelEvent(Type type, ezIpcChannel* pChannel)
+    : m_Type(type)
+    , m_pChannel(pChannel)
+  {
+  }
 
   Type m_Type;
   ezIpcChannel* m_pChannel;
@@ -64,7 +68,7 @@ public:
   /// \brief Block and wait for new messages and call ProcessMessages.
   void WaitForMessages();
 
-  ezEvent<const ezIpcChannelEvent&> m_Events; ///< Will be sent from any thread.
+  ezEvent<const ezIpcChannelEvent&> m_Events;      ///< Will be sent from any thread.
   ezEvent<const ezProcessMessage*> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
 
 protected:
@@ -99,8 +103,8 @@ private:
 protected:
   enum Constants : ezUInt32
   {
-    HEADER_SIZE = 8, ///< Magic value and size ezUint32
-    MAGIC_VALUE = 'USED', ///< Magic value
+    HEADER_SIZE = 8,                     ///< Magic value and size ezUint32
+    MAGIC_VALUE = 'USED',                ///< Magic value
     MAX_MESSAGE_SIZE = 1024 * 1024 * 16, ///< Arbitrary message size limit
   };
 
@@ -124,4 +128,3 @@ protected:
   ezDeque<ezUniquePtr<ezProcessMessage>> m_IncomingQueue;
   ezThreadSignal m_IncomingMessages;
 };
-

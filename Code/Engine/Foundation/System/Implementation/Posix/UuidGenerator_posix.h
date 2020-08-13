@@ -16,4 +16,3 @@ void ezUuid::CreateNewUuid()
   m_uiHigh = uiUuidData[0];
   m_uiLow = uiUuidData[1];
 }
-

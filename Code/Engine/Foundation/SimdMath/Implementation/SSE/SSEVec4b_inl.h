@@ -95,4 +95,3 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet() const
   const int mask = EZ_BIT(N) - 1;
   return (_mm_movemask_ps(m_v) & mask) == 0;
 }
-

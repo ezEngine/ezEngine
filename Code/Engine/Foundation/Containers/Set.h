@@ -34,16 +34,19 @@ public:
   /// \brief Base class for all iterators.
   struct Iterator
   {
-    typedef std::forward_iterator_tag iterator_category;
-    typedef Iterator value_type;
-    typedef ptrdiff_t difference_type;
-    typedef Iterator* pointer;
-    typedef Iterator& reference;
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = Iterator;
+    using difference_type = ptrdiff_t;
+    using pointer = Iterator*;
+    using reference = Iterator&;
 
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE Iterator() : m_pElement(nullptr) {} // [tested]
+    EZ_ALWAYS_INLINE Iterator()
+      : m_pElement(nullptr)
+    {
+    } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
     EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
@@ -79,7 +82,10 @@ public:
   protected:
     friend class ezSetBase<KeyType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit) : m_pElement(pInit) {}
+    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)
+      : m_pElement(pInit)
+    {
+    }
 
     Node* m_pElement;
   };
@@ -135,11 +141,13 @@ public:
   /// \brief Checks whether all keys of the given set are in the container.
   bool ContainsSet(const ezSetBase<KeyType, Comparer>& operand) const; // [tested]
 
-  /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
+  /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such
+  /// element.
   template <typename CompatibleKeyType>
   Iterator LowerBound(const CompatibleKeyType& key) const; // [tested]
 
-  /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such element.
+  /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such
+  /// element.
   template <typename CompatibleKeyType>
   Iterator UpperBound(const CompatibleKeyType& key) const; // [tested]
 
@@ -242,23 +250,40 @@ public:
 
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator begin(ezSetBase<KeyType, Comparer>& container) { return container.GetIterator(); }
+typename ezSetBase<KeyType, Comparer>::Iterator begin(ezSetBase<KeyType, Comparer>& container)
+{
+  return container.GetIterator();
+}
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator begin(const ezSetBase<KeyType, Comparer>& container) { return container.GetIterator(); }
+typename ezSetBase<KeyType, Comparer>::Iterator begin(const ezSetBase<KeyType, Comparer>& container)
+{
+  return container.GetIterator();
+}
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator cbegin(const ezSetBase<KeyType, Comparer>& container) { return container.GetIterator(); }
+typename ezSetBase<KeyType, Comparer>::Iterator cbegin(const ezSetBase<KeyType, Comparer>& container)
+{
+  return container.GetIterator();
+}
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& container) { return typename ezSetBase<KeyType, Comparer>::Iterator(); }
+typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& container)
+{
+  return typename ezSetBase<KeyType, Comparer>::Iterator();
+}
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator end(const ezSetBase<KeyType, Comparer>& container) { return typename ezSetBase<KeyType, Comparer>::Iterator(); }
+typename ezSetBase<KeyType, Comparer>::Iterator end(const ezSetBase<KeyType, Comparer>& container)
+{
+  return typename ezSetBase<KeyType, Comparer>::Iterator();
+}
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator cend(const ezSetBase<KeyType, Comparer>& container) { return typename ezSetBase<KeyType, Comparer>::Iterator(); }
+typename ezSetBase<KeyType, Comparer>::Iterator cend(const ezSetBase<KeyType, Comparer>& container)
+{
+  return typename ezSetBase<KeyType, Comparer>::Iterator();
+}
 
 
 #include <Foundation/Containers/Implementation/Set_inl.h>
-

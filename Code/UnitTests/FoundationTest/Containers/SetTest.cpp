@@ -572,7 +572,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     // seems to be fixed in VS 2019 though
 
     set1->~ezSet<ezString>();
-    //ezMemoryUtils::PatternFill(set1Mem, 0xBA, uiSetSize);
+    // ezMemoryUtils::PatternFill(set1Mem, 0xBA, uiSetSize);
 
     set2->~ezSet<ezString>();
     ezMemoryUtils::PatternFill(set2Mem, 0xBA, uiSetSize);

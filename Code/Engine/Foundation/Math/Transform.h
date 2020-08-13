@@ -43,7 +43,9 @@ public:
   ezTransformTemplate(){}; // [tested]
 
   /// \brief Sets position and rotation.
-  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(), const ezVec3Template<Type>& vScale = ezVec3(1.0f)); // [tested]
+  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition,
+    const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(),
+    const ezVec3Template<Type>& vScale = ezVec3(1.0f)); // [tested]
 
   /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling and shearing will get lost in the process.
   void SetFromMat4(const ezMat4& mat);
@@ -130,4 +132,3 @@ template <typename Type>
 bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
 
 #include <Foundation/Math/Implementation/Transform_inl.h>
-

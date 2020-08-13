@@ -56,7 +56,8 @@ public:
   void UpdateCameraInterpolation();
 
   /// \brief The view's camera will be interpolated to the given coordinates
-  void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr, bool bImmediate = false);
+  void InterpolateCameraTo(
+    const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr, bool bImmediate = false);
 
   /// \brief If disabled, no picking takes place in this view.
   ///

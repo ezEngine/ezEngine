@@ -4,6 +4,7 @@
 #include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezTask;
@@ -12,6 +13,7 @@ class ezTaskWorkerThread;
 class ezTaskSystemState;
 class ezTaskSystemThreadState;
 class ezDGMLGraph;
+class ezAllocatorBase;
 
 /// \brief Describes the priority with which to execute a task.
 ///
@@ -109,12 +111,17 @@ public:
   /// \brief Resets the GroupID into an invalid state.
   EZ_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
 
-  EZ_ALWAYS_INLINE bool operator==(const ezTaskGroupID& other) const { return m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter == other.m_uiGroupCounter; }
-  EZ_ALWAYS_INLINE bool operator!=(const ezTaskGroupID& other) const { return m_pTaskGroup != other.m_pTaskGroup || m_uiGroupCounter != other.m_uiGroupCounter; }
+  EZ_ALWAYS_INLINE bool operator==(const ezTaskGroupID& other) const
+  {
+    return m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter == other.m_uiGroupCounter;
+  }
+  EZ_ALWAYS_INLINE bool operator!=(const ezTaskGroupID& other) const
+  {
+    return m_pTaskGroup != other.m_pTaskGroup || m_uiGroupCounter != other.m_uiGroupCounter;
+  }
   EZ_ALWAYS_INLINE bool operator<(const ezTaskGroupID& other) const
   {
-    return m_pTaskGroup < other.m_pTaskGroup ||
-      (m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter < other.m_uiGroupCounter);
+    return m_pTaskGroup < other.m_pTaskGroup || (m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter < other.m_uiGroupCounter);
   }
 
 private:
@@ -133,7 +140,7 @@ private:
 using ezOnTaskGroupFinishedCallback = ezDelegate<void(ezTaskGroupID)>;
 
 /// \brief Callback type when a task has been finished (or canceled).
-using ezOnTaskFinishedCallback = ezDelegate<void(ezTask*)>;
+using ezOnTaskFinishedCallback = ezDelegate<void(const ezSharedPtr<ezTask>&)>;
 
 struct ezTaskGroupDependency
 {
@@ -174,6 +181,9 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
   ezUInt32 uiMaxTasksPerThread = 2;
 
   ezTaskNesting nestingMode = ezTaskNesting::Never;
+
+  /// The allocator used to for the tasks that the parallel-for uses internally. If null, will use the default allocator.
+  ezAllocatorBase* pTaskAllocator = nullptr;
 
   /// Returns the multiplicity to use for the given task. If 0 is returned,
   /// serial execution is to be performed.

@@ -29,9 +29,17 @@ void ezQtEditorApp::SlotQueuedCloseProject()
   ezQtImageCache::GetSingleton()->EnableRequestProcessing();
 }
 
-void ezQtEditorApp::OpenProject(const char* szProject)
+ezResult ezQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= false*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szProject));
+  if (bImmediate)
+  {
+    return CreateOrOpenProject(false, szProject);
+  }
+  else
+  {
+    QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szProject));
+    return EZ_SUCCESS;
+  }
 }
 
 void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
@@ -57,7 +65,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sFile)
   {
     ezQtUiServices::MessageBoxInformation("The selected project is already open");
-    return EZ_SUCCESS;
+    return EZ_FAILURE;
   }
 
   if (!ezToolsProject::CanCloseProject())
@@ -118,7 +126,10 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       }
     }
 
-    ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+    if (!ezQtEditorApp::GetSingleton()->IsInSafeMode())
+    {
+      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+    }
   }
   return EZ_SUCCESS;
 }
@@ -166,7 +177,9 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-      if (!m_StartupFlags.IsSet(ezQtEditorApp::StartupFlags::Headless) && pPreferences->m_bBackgroundAssetProcessing)
+      if (m_StartupFlags.AreNoneSet(
+            ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) &&
+          pPreferences->m_bBackgroundAssetProcessing)
       {
         QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
       }
@@ -224,6 +237,9 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       SaveAllOpenDocuments();
       break;
     }
+
+    default:
+      break;
   }
 }
 

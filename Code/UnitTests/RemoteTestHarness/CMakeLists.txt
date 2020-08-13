@@ -5,6 +5,11 @@ ez_requires_qt()
 ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 ez_requires(EZ_3RDPARTY_ENET_SUPPORT)
 
+# Building C# code is currently only supported in the visual studio generators by CMake
+if(NOT (${CMAKE_GENERATOR} MATCHES "Visual Studio"))
+	return()
+endif()
+
 ez_nuget_init()
 
 # Get the name of this folder as the project name

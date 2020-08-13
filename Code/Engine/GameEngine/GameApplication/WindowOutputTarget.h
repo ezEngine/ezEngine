@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/GameApplication/WindowOutputTargetBase.h>
+#include <GameEngine/GameEngineDLL.h>
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
@@ -20,7 +20,3 @@ public:
 
   ezGALSwapChainHandle m_hSwapChain;
 };
-
-
-
-

@@ -96,8 +96,7 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& graph, ezHybridArray<ezA
   }
 }
 
-ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject,
-                                    const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData)
+ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData)
 {
   auto pMeta = documentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
   ezUuid source = pMeta->m_CreateFromPrefab;
@@ -116,8 +115,7 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject,
 }
 
 
-ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty,
-                                         ezVariant index)
+ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index)
 {
   const ezAbstractObjectNode* pNode = graph.GetNode(objectGuid);
   if (!pNode)
@@ -174,8 +172,8 @@ void ezPrefabUtils::WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& merge
   }
 }
 
-void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph,
-                          const ezAbstractObjectGraph& rightGraph, ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff)
+void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph, const ezAbstractObjectGraph& rightGraph,
+  ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff)
 {
   // debug output
   if (PREFAB_DEBUG)
@@ -225,8 +223,8 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
   }
 }
 
-void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab,
-                          const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph)
+void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& PrefabSeed,
+  ezStringBuilder& out_sNewGraph)
 {
   // prepare the original prefab as a graph
   ezAbstractObjectGraph baseGraph;

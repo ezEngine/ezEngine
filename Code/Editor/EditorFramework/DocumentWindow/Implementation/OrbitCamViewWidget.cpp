@@ -4,7 +4,7 @@
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 
 ezQtOrbitCamViewWidget::ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-    : ezQtEngineViewWidget(nullptr, pOwnerWindow, pViewConfig)
+  : ezQtEngineViewWidget(nullptr, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
@@ -18,8 +18,7 @@ ezQtOrbitCamViewWidget::ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerW
 ezQtOrbitCamViewWidget::~ezQtOrbitCamViewWidget() = default;
 
 
-void ezQtOrbitCamViewWidget::ConfigureOrbitCameraVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize,
-                                                        const ezVec3& vDefaultCameraPosition)
+void ezQtOrbitCamViewWidget::ConfigureOrbitCameraVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition)
 {
   m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize, vDefaultCameraPosition, true);
 }

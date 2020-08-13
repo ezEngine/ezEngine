@@ -21,15 +21,9 @@ public:
     m_Data = tmp.GetData();
   }
 
-  const wchar_t* GetData() const
-  {
-    return m_Data.GetData();
-  }
+  const wchar_t* GetData() const { return m_Data.GetData(); }
 
-  operator const wchar_t*() const
-  {
-    return m_Data.GetData();
-  }
+  operator const wchar_t *() const { return m_Data.GetData(); }
 
   ezStringWChar m_Data;
 };

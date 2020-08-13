@@ -9,8 +9,8 @@ ezTestLogInterface::~ezTestLogInterface()
   for (const ExpectedMsg& msg : m_expectedMessages)
   {
     ezInt32 count = msg.m_iCount;
-    EZ_TEST_BOOL_MSG(count == 0, "Message \"%s\" was logged %d times %s than expected.", msg.m_sMsgSubString.GetData(),
-      count < 0 ? -count : count, count < 0 ? "more" : "less");
+    EZ_TEST_BOOL_MSG(count == 0, "Message \"%s\" was logged %d times %s than expected.", msg.m_sMsgSubString.GetData(), count < 0 ? -count : count,
+      count < 0 ? "more" : "less");
   }
 }
 

@@ -43,6 +43,9 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -60,8 +63,7 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
   {
     ezSet<ezString> allCamPipes;
 
-    auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("CameraPipelines");
-    dynEnum.Clear();
+    auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("CameraPipelines");
 
     for (ezUInt32 profileIdx = 0; profileIdx < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++profileIdx)
     {
@@ -130,7 +132,8 @@ void OnLoadPlugin(bool bReloading)
 
   // View Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
-  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+  ezViewActions::MapActions(
+    "EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
   ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers

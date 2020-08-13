@@ -24,11 +24,11 @@ public:
   void SetIsDefault(bool bIsDefault);
 
 protected:
-  virtual void contextMenuEvent(QContextMenuEvent *ev) override;
+  virtual void contextMenuEvent(QContextMenuEvent* ev) override;
   virtual void showEvent(QShowEvent* event) override;
 
 private:
-  virtual void mousePressEvent(QMouseEvent *ev) override;
+  virtual void mousePressEvent(QMouseEvent* ev) override;
   virtual void enterEvent(QEvent* ev) override;
   virtual void leaveEvent(QEvent* ev) override;
 

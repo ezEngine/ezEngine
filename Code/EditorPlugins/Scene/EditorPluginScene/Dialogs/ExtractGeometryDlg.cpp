@@ -13,7 +13,7 @@ int ezQtExtractGeometryDlg::s_iCoordinateSystem = 1;
 
 ezQtExtractGeometryDlg::ezQtExtractGeometryDlg(QWidget* parent)
 
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
@@ -72,8 +72,8 @@ void ezQtExtractGeometryDlg::on_ButtonBox_clicked(QAbstractButton* button)
 void ezQtExtractGeometryDlg::on_BrowseButton_clicked()
 {
   QString allFilters = "OBJ (*.obj)";
-  QString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Destination file"), s_sDestinationFile,
-                                               allFilters, nullptr, QFileDialog::Option::DontResolveSymlinks);
+  QString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Destination file"), s_sDestinationFile, allFilters,
+    nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
     return;

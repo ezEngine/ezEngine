@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezGameObjectDocument;
 
@@ -32,7 +32,6 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectSelectionAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectSelectionAction, ezButtonAction);
 
 public:
-
   enum class ActionType
   {
     ShowInScenegraph,
@@ -56,7 +55,3 @@ private:
   ezGameObjectDocument* m_pSceneDocument;
   ActionType m_Type;
 };
-
-
-
-

@@ -182,14 +182,14 @@ void ezParticleTypeTrail::CreateRequiredStreams()
 
   m_pStreamVariation = nullptr;
 
-  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations ||
-      m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
+  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
   {
     CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
   }
 }
 
-void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeTrail::ExtractTypeRenderData(
+  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE_SCOPE("PFX: Trail");
 
@@ -217,12 +217,12 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(m_uiMaxPoints);
 
     // this will automatically be deallocated at the end of the frame
-    m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData,
-      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_BaseParticleData =
+      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
     m_TrailPointsShared =
       EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
-    m_TrailParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleShaderData,
-      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_TrailParticleData =
+      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
@@ -246,9 +246,9 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
         if (i > m_uiCurFirstIndex)
         {
           pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex + m_uiMaxPoints - i];
-      }
+        }
         else
-      {
+        {
           pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i];
         }
       }
@@ -281,6 +281,9 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   switch (m_TextureAtlasType)
   {
+    case ezParticleTextureAtlasType::None:
+      break;
+
     case ezParticleTextureAtlasType::RandomVariations:
       pRenderData->m_uiNumVariationsX = m_uiNumSpritesX;
       pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;

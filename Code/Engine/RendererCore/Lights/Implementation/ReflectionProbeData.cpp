@@ -10,7 +10,7 @@ namespace
     value.PushBack(ezStringView("SkyLight"));
     return value;
   }
-}
+} // namespace
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectionProbeData, ezNoBase, 1, ezRTTINoAllocator)
@@ -52,4 +52,3 @@ ezResult ezReflectionProbeData::Deserialize(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionProbeData);
-

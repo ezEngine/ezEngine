@@ -6,11 +6,13 @@
 class ezPhantomRTTI : public ezRTTI
 {
   friend class ezPhantomRttiManager;
+
 public:
   ~ezPhantomRTTI();
 
 private:
-  ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName);
+  ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+    ezBitflags<ezTypeFlags> flags, const char* szPluginName);
 
   void SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>& properties);
   void SetFunctions(ezDynamicArray<ezReflectedFunctionDescriptor>& functions);

@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", nullptr, ezColor::MediumVioletRed, "PositionOffset")
+    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }
@@ -72,7 +72,7 @@ float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(con
   {
     const float s0 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius + /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fHeight;
     const float s1 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius * fScaleRadius * fScaleRadius +
-                             /*2.0f * ezMath::Pi<float>() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
+                     /*2.0f * ezMath::Pi<float>() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
 
     return s1 / s0;
   }

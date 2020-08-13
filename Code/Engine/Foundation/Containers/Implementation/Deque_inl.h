@@ -2,22 +2,22 @@
 
 #include <Foundation/Math/Math.h>
 
-#define REDUCE_SIZE(iReduction)     \
-  m_iReduceSizeTimer -= iReduction; \
-  if (m_iReduceSizeTimer <= 0)      \
+#define REDUCE_SIZE(iReduction)                                                                                                                      \
+  m_iReduceSizeTimer -= iReduction;                                                                                                                  \
+  if (m_iReduceSizeTimer <= 0)                                                                                                                       \
     ReduceSize(0);
 
-#define RESERVE(uiCount)                                         \
-  if (uiCount > m_uiCount)                                       \
-  {                                                              \
-    m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount);           \
-    if ((m_uiFirstElement <= 0) || (GetCurMaxCount() < uiCount)) \
-      Reserve(uiCount);                                          \
+#define RESERVE(uiCount)                                                                                                                             \
+  if (uiCount > m_uiCount)                                                                                                                           \
+  {                                                                                                                                                  \
+    m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount);                                                                                               \
+    if ((m_uiFirstElement <= 0) || (GetCurMaxCount() < uiCount))                                                                                     \
+      Reserve(uiCount);                                                                                                                              \
   }
 
-#define CHUNK_SIZE(Type) \
-  (4096 / sizeof(Type) < 32 ? 32 : 4096 / sizeof(Type))
-//(sizeof(Type) <= 8 ? 256 : (sizeof(Type) <= 16 ? 128 : (sizeof(Type) <= 32 ? 64 : 32))) // although this is Pow(2), this is slower than just having larger chunks
+#define CHUNK_SIZE(Type) (4096 / sizeof(Type) < 32 ? 32 : 4096 / sizeof(Type))
+//(sizeof(Type) <= 8 ? 256 : (sizeof(Type) <= 16 ? 128 : (sizeof(Type) <= 32 ? 64 : 32))) // although this is Pow(2), this is slower than just having
+//larger chunks
 
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Constructor(ezAllocatorBase* pAllocator)
@@ -390,8 +390,9 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
-template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger early.
-void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
+template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger
+                    // early.
+                    void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
 {
   static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
 
@@ -983,32 +984,38 @@ ezUInt64 ezDequeBase<T, Construct>::GetHeapMemoryUsage() const
 
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque() : ezDequeBase<T, Construct>(A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque()
+  : ezDequeBase<T, Construct>(A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezAllocatorBase* pAllocator) : ezDequeBase<T, Construct>(pAllocator)
+ezDeque<T, A, Construct>::ezDeque(ezAllocatorBase* pAllocator)
+  : ezDequeBase<T, Construct>(pAllocator)
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other)
+  : ezDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other)
+  : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(const ezDequeBase<T, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(const ezDequeBase<T, Construct>& other)
+  : ezDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other)
+  : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 
@@ -1035,4 +1042,3 @@ void ezDeque<T, A, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
 {
   ezDequeBase<T, Construct>::operator=(std::move(rhs));
 }
-

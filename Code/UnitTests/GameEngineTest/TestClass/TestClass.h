@@ -1,8 +1,8 @@
 #pragma once
 
-#include <TestFramework/Framework/TestBaseClass.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>
+#include <TestFramework/Framework/TestBaseClass.h>
 #include <Texture/Image/Image.h>
 
 class ezGameEngineTestGameState : public ezFallbackGameState
@@ -59,5 +59,3 @@ protected:
 
   ezGameEngineTestApplication* m_pApplication = nullptr;
 };
-
-

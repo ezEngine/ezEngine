@@ -8,8 +8,8 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
 
-ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType,
-                     ezStringBuilder& out_sAbsoluteFilePath)
+ezResult FileLocator(
+  const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
@@ -60,8 +60,7 @@ public:
       const ezPreprocessor::ProcessingEvent& event = m_EventStack[i];
 
       if (event.m_pToken != nullptr)
-        m_sOutput.AppendFormat("{0}: Line {1} [{2}]: ", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine,
-                               event.m_pToken->m_uiColumn);
+        m_sOutput.AppendFormat("{0}: Line {1} [{2}]: ", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
 
       switch (event.m_Type)
       {
@@ -98,7 +97,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);
   EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS,
-                   "Failed to mount data dir '%s'", sWriteDir.GetData());
+    "Failed to mount data dir '%s'", sWriteDir.GetData());
 
   ezTokenizedFileCache SharedCache;
 
@@ -150,12 +149,12 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   {
     struct PPTestSettings
     {
-      PPTestSettings(const char* szFileName, bool bPassThroughLines = false, bool bPassThroughPragmas = false,
-                     bool bPassThroughUnknownCommands = false)
-          : m_szFileName(szFileName)
-          , m_bPassThroughLines(bPassThroughLines)
-          , m_bPassThroughPragmas(bPassThroughPragmas)
-          , m_bPassThroughUnknownCommands(bPassThroughUnknownCommands)
+      PPTestSettings(
+        const char* szFileName, bool bPassThroughLines = false, bool bPassThroughPragmas = false, bool bPassThroughUnknownCommands = false)
+        : m_szFileName(szFileName)
+        , m_bPassThroughLines(bPassThroughLines)
+        , m_bPassThroughPragmas(bPassThroughPragmas)
+        , m_bPassThroughUnknownCommands(bPassThroughUnknownCommands)
       {
       }
 
@@ -166,47 +165,47 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     };
 
     PPTestSettings TestSettings[] = {
-        PPTestSettings("PragmaOnce"),
-        PPTestSettings("LinePragmaPassThrough", true, true),
-        PPTestSettings("Undef"),
-        PPTestSettings("InvalidIf1"),
-        PPTestSettings("Parameters"),
-        PPTestSettings("LineControl"),
-        PPTestSettings("LineControl2"),
-        PPTestSettings("DefineFile"),
-        PPTestSettings("DefineLine"),
-        PPTestSettings("DefineDefined"),
-        PPTestSettings("Stringify"),
-        PPTestSettings("BuildFlags"),
-        PPTestSettings("Empty"),
-        PPTestSettings("Test1"),
-        PPTestSettings("FailedInclude"), /// \todo Better error message
-        PPTestSettings("PassThroughUnknown", false, false, true),
-        PPTestSettings("IncorrectNesting1"),
-        PPTestSettings("IncorrectNesting2"),
-        PPTestSettings("IncorrectNesting3"),
-        PPTestSettings("IncorrectNesting4"),
-        PPTestSettings("IncorrectNesting5"),
-        PPTestSettings("IncorrectNesting6"),
-        PPTestSettings("IncorrectNesting7"),
-        PPTestSettings("Error"),
-        PPTestSettings("Warning"),
-        PPTestSettings("Expressions"),
-        PPTestSettings("ExpressionsBit"),
-        PPTestSettings("ExpandSelf"),
-        PPTestSettings("InvalidLogic1"),
-        PPTestSettings("InvalidLogic2"),
-        PPTestSettings("InvalidLogic3"),
-        PPTestSettings("InvalidLogic4"),
-        PPTestSettings("InvalidExpandSelf1"),
-        PPTestSettings("InvalidExpandSelf2"),
-        PPTestSettings("ErrorNoQuotes"),
-        PPTestSettings("ErrorBadQuotes"),
-        PPTestSettings("ErrorBadQuotes2"),
-        PPTestSettings("ErrorLineBreaks"),
-        PPTestSettings("Redefine"),
-        PPTestSettings("ErrorBadBrackets"),
-        PPTestSettings("IfTrueFalse"),
+      PPTestSettings("PragmaOnce"),
+      PPTestSettings("LinePragmaPassThrough", true, true),
+      PPTestSettings("Undef"),
+      PPTestSettings("InvalidIf1"),
+      PPTestSettings("Parameters"),
+      PPTestSettings("LineControl"),
+      PPTestSettings("LineControl2"),
+      PPTestSettings("DefineFile"),
+      PPTestSettings("DefineLine"),
+      PPTestSettings("DefineDefined"),
+      PPTestSettings("Stringify"),
+      PPTestSettings("BuildFlags"),
+      PPTestSettings("Empty"),
+      PPTestSettings("Test1"),
+      PPTestSettings("FailedInclude"), /// \todo Better error message
+      PPTestSettings("PassThroughUnknown", false, false, true),
+      PPTestSettings("IncorrectNesting1"),
+      PPTestSettings("IncorrectNesting2"),
+      PPTestSettings("IncorrectNesting3"),
+      PPTestSettings("IncorrectNesting4"),
+      PPTestSettings("IncorrectNesting5"),
+      PPTestSettings("IncorrectNesting6"),
+      PPTestSettings("IncorrectNesting7"),
+      PPTestSettings("Error"),
+      PPTestSettings("Warning"),
+      PPTestSettings("Expressions"),
+      PPTestSettings("ExpressionsBit"),
+      PPTestSettings("ExpandSelf"),
+      PPTestSettings("InvalidLogic1"),
+      PPTestSettings("InvalidLogic2"),
+      PPTestSettings("InvalidLogic3"),
+      PPTestSettings("InvalidLogic4"),
+      PPTestSettings("InvalidExpandSelf1"),
+      PPTestSettings("InvalidExpandSelf2"),
+      PPTestSettings("ErrorNoQuotes"),
+      PPTestSettings("ErrorBadQuotes"),
+      PPTestSettings("ErrorBadQuotes2"),
+      PPTestSettings("ErrorLineBreaks"),
+      PPTestSettings("Redefine"),
+      PPTestSettings("ErrorBadBrackets"),
+      PPTestSettings("IfTrueFalse"),
     };
 
     ezStringBuilder sOutput;
@@ -230,7 +229,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.AddCustomDefine("PP_OBJ");
         pp.AddCustomDefine("PP_FUNC(a) a");
         pp.SetPassThroughUnknownCmdsCB(
-            [](const char* s) -> bool { return ezStringUtils::IsEqual(s, "version"); }); // TestSettings[i].m_bPassThroughUnknownCommands);
+          [](const char* s) -> bool { return ezStringUtils::IsEqual(s, "version"); }); // TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
           fileName.Format("Preprocessor/{0}.txt", TestSettings[i].m_szFileName);

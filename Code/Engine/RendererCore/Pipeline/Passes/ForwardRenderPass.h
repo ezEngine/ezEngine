@@ -33,7 +33,6 @@ public:
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-
   virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext);
@@ -46,4 +45,3 @@ protected:
 
   ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality;
 };
-

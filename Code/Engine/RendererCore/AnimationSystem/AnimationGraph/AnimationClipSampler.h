@@ -30,7 +30,7 @@ public:
 
   void SetAnimationClip(const ezAnimationClipResourceHandle& hAnimationClip);
   const ezAnimationClipResourceHandle& GetAnimationClip() const { return m_hAnimationClip; }
-  
+
   void JumpToSampleTime(ezTime time);
 
   ezTime GetClipDuration() const { return m_ClipDuration; }
@@ -55,4 +55,3 @@ private:
   float m_fPlaybackSpeed = 1.0f;
   bool m_bLoop = false;
 };
-

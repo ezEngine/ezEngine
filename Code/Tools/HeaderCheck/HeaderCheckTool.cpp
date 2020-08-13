@@ -55,6 +55,7 @@ private:
 
   IgnoreInfo m_ignoreTarget;
   IgnoreInfo m_ignoreSource;
+
 public:
   typedef ezApplication SUPER;
 
@@ -146,7 +147,7 @@ public:
             if (ParseArray(it2.Value(), info.m_byName).Failed())
             {
               ezLog::Error("Failed to parse value of '{0}.{1}'.", it.Key(), it2.Key());
-              EZ_FAILURE;
+              return EZ_FAILURE;
             }
           }
           else
@@ -399,14 +400,13 @@ public:
       ezStringBuilder currentFileLower = currentFile.GetFileNameAndExtension();
       currentFileLower.ToLower();
 
-      bool ignore = m_ignoreTarget.m_byName.Contains(includeFileLower)
-        || m_ignoreSource.m_byName.Contains(currentFileLower);
+      bool ignore = m_ignoreTarget.m_byName.Contains(includeFileLower) || m_ignoreSource.m_byName.Contains(currentFileLower);
 
       if (!ignore)
       {
-        ezLog::Error(
-          "Including '{0}' in {1}:{2} leaks underlying implementation details. Including system or thirdparty headers in public ez header "
-          "files is not allowed. Please use an interface, factory or pimpl pattern to hide the implementation and avoid the include. See the Documentation Chapter 'General->Header Files' for details.",
+        ezLog::Error("Including '{0}' in {1}:{2} leaks underlying implementation details. Including system or thirdparty headers in public ez header "
+                     "files is not allowed. Please use an interface, factory or pimpl pattern to hide the implementation and avoid the include. See "
+                     "the Documentation Chapter 'General->Header Files' for details.",
           includePath.GetView(), currentFile.GetView(), line);
       }
     }

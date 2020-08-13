@@ -1,6 +1,6 @@
 #pragma once
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 ezObjectMetaData<KEY, VALUE>::ezObjectMetaData()
 {
   m_AcessingKey = KEY();
@@ -8,7 +8,7 @@ ezObjectMetaData<KEY, VALUE>::ezObjectMetaData()
   m_DefaultValue = VALUE();
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 const VALUE* ezObjectMetaData<KEY, VALUE>::BeginReadMetaData(const KEY ObjectKey) const
 {
   m_Mutex.Lock();
@@ -23,7 +23,7 @@ const VALUE* ezObjectMetaData<KEY, VALUE>::BeginReadMetaData(const KEY ObjectKey
   return &m_DefaultValue;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::ClearMetaData(const KEY ObjectKey)
 {
   EZ_LOCK(m_Mutex);
@@ -41,7 +41,7 @@ void ezObjectMetaData<KEY, VALUE>::ClearMetaData(const KEY ObjectKey)
   }
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 bool ezObjectMetaData<KEY, VALUE>::HasMetaData(const KEY ObjectKey) const
 {
   EZ_LOCK(m_Mutex);
@@ -49,7 +49,7 @@ bool ezObjectMetaData<KEY, VALUE>::HasMetaData(const KEY ObjectKey) const
   return m_MetaData.TryGetValue(ObjectKey, pValue);
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 VALUE* ezObjectMetaData<KEY, VALUE>::BeginModifyMetaData(const KEY ObjectKey)
 {
   m_Mutex.Lock();
@@ -60,7 +60,7 @@ VALUE* ezObjectMetaData<KEY, VALUE>::BeginModifyMetaData(const KEY ObjectKey)
   return &m_MetaData[ObjectKey];
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::EndReadMetaData() const
 {
   EZ_ASSERT_DEV(m_AccessMode == AccessMode::Read, "Not accessing data at the moment");
@@ -70,7 +70,7 @@ void ezObjectMetaData<KEY, VALUE>::EndReadMetaData() const
 }
 
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::EndModifyMetaData(ezUInt32 uiModifiedFlags /*= 0xFFFFFFFF*/)
 {
   EZ_ASSERT_DEV(m_AccessMode == AccessMode::Write, "Not accessing data at the moment");
@@ -90,7 +90,7 @@ void ezObjectMetaData<KEY, VALUE>::EndModifyMetaData(ezUInt32 uiModifiedFlags /*
 }
 
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph) const
 {
   auto& AllNodes = graph.GetAllNodes();
@@ -108,7 +108,8 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
       if (pProp->GetCategory() != ezPropertyCategory::Member)
         continue;
 
-      DefaultValues[pProp->GetPropertyName()] = ezReflectionUtils::GetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), &m_DefaultValue);
+      DefaultValues[pProp->GetPropertyName()] =
+        ezReflectionUtils::GetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), &m_DefaultValue);
     }
   }
 
@@ -123,7 +124,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
 
       const VALUE* pMeta = nullptr;
       if (!m_MetaData.TryGetValue(guid, pMeta)) // TryGetValue is not const correct with the second parameter
-        continue; // it is the default object, so all values are default -> skip
+        continue;                               // it is the default object, so all values are default -> skip
 
       for (const auto& pProp : pMeta->GetDynamicRTTI()->GetProperties())
       {
@@ -142,7 +143,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
 }
 
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph)
 {
   EZ_LOCK(m_Mutex);
@@ -173,7 +174,8 @@ void ezObjectMetaData<KEY, VALUE>::RestoreMetaDataFromAbstractGraph(const ezAbst
       {
         VALUE* pValue = &m_MetaData[guid];
 
-        ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pValue->GetDynamicRTTI()->FindPropertyByName(name)), pValue, pProp->m_Value);
+        ezReflectionUtils::SetMemberPropertyValue(
+          static_cast<ezAbstractMemberProperty*>(pValue->GetDynamicRTTI()->FindPropertyByName(name)), pValue, pProp->m_Value);
       }
     }
   }

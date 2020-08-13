@@ -12,10 +12,10 @@ ezActionDescriptorHandle ezProcGenActions::s_hDumpDisassembly;
 void ezProcGenActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("ProcGen");
-  s_hDumpAST = EZ_REGISTER_ACTION_1(
-    "ProcGen.DumpAST", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpAST);
-  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProcGen.DumpDisassembly", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction,
-    ezProcGenAction::ActionType::DumpDisassembly);
+  s_hDumpAST =
+    EZ_REGISTER_ACTION_1("ProcGen.DumpAST", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpAST);
+  s_hDumpDisassembly = EZ_REGISTER_ACTION_1(
+    "ProcGen.DumpDisassembly", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpDisassembly);
 }
 
 void ezProcGenActions::UnregisterActions()

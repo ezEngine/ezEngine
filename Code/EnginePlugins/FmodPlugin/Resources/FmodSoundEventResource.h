@@ -1,7 +1,7 @@
 #pragma once
 
-#include <FmodPlugin/FmodPluginDLL.h>
 #include <Core/ResourceManager/Resource.h>
+#include <FmodPlugin/FmodPluginDLL.h>
 
 typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
 typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
@@ -40,10 +40,13 @@ private:
 class EZ_FMODPLUGIN_DLL ezFmodSoundEventResourceLoader : public ezResourceTypeLoader
 {
 public:
-
   struct LoadedData
   {
-    LoadedData() : m_Reader(&m_Storage), m_pEventDescription(nullptr) { }
+    LoadedData()
+      : m_Reader(&m_Storage)
+      , m_pEventDescription(nullptr)
+    {
+    }
 
     ezMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
@@ -55,5 +58,3 @@ public:
   virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };
-
-

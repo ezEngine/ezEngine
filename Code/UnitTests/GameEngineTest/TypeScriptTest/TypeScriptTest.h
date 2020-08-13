@@ -46,5 +46,3 @@ private:
 
   ezGameEngineTestApplication_TypeScript* m_pOwnApplication = nullptr;
 };
-
-

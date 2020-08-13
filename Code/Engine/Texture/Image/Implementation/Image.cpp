@@ -35,7 +35,7 @@ void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezCon
   ezUInt64 dataSize = ComputeLayout();
 
   EZ_ASSERT_DEV(imageData.GetCount() == dataSize, "Provided image storage ({} bytes) doesn't match required data size ({} bytes)",
-                imageData.GetCount(), dataSize);
+    imageData.GetCount(), dataSize);
 
   // Const cast is safe here as we will only perform non-const access if this is an ezImage which owns mutable access to the storage
   m_dataPtr = ezBlobPtr<ezUInt8>(const_cast<ezUInt8*>(static_cast<const ezUInt8*>(imageData.GetPtr())), imageData.GetCount());
@@ -80,8 +80,8 @@ const ezImageHeader& ezImageView::GetHeader() const
   return *this;
 }
 
-ezImageView ezImageView::GetRowView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 y /*= 0*/,
-                                    ezUInt32 z /*= 0*/) const
+ezImageView ezImageView::GetRowView(
+  ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/) const
 {
   ezImageHeader header;
   header.SetNumMipLevels(1);
@@ -104,9 +104,11 @@ ezImageView ezImageView::GetRowView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace
 
 void ezImageView::ReinterpretAs(ezImageFormat::Enum format)
 {
-  EZ_ASSERT_DEBUG(ezImageFormat::IsCompressed(format) == ezImageFormat::IsCompressed(GetImageFormat()), "Cannot reinterpret compressed and non-compressed formats");
+  EZ_ASSERT_DEBUG(
+    ezImageFormat::IsCompressed(format) == ezImageFormat::IsCompressed(GetImageFormat()), "Cannot reinterpret compressed and non-compressed formats");
 
-  EZ_ASSERT_DEBUG(ezImageFormat::GetBitsPerPixel(GetImageFormat()) == ezImageFormat::GetBitsPerPixel(format), "Cannot reinterpret between formats of different sizes");
+  EZ_ASSERT_DEBUG(ezImageFormat::GetBitsPerPixel(GetImageFormat()) == ezImageFormat::GetBitsPerPixel(format),
+    "Cannot reinterpret between formats of different sizes");
 
   SetImageFormat(format);
 }
@@ -248,7 +250,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
   ezFileReader reader;
   if (reader.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::Warning(pLog, "Failed to open image file '{0}'", szFileName);
+    ezLog::Warning(pLog, "Failed to open image file '{0}'", ezArgSensitive(szFileName, "File"));
     return EZ_FAILURE;
   }
 
@@ -256,13 +258,13 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
 
   if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
-      if (pFormat->ReadImage(reader, *this, pLog, it.GetStartPointer()) != EZ_SUCCESS)
-      {
-        ezLog::Warning(pLog, "Failed to read image file '{0}'", szFileName);
-        return EZ_FAILURE;
-      }
+    if (pFormat->ReadImage(reader, *this, pLog, it.GetStartPointer()) != EZ_SUCCESS)
+    {
+      ezLog::Warning(pLog, "Failed to read image file '{0}'", ezArgSensitive(szFileName, "File"));
+      return EZ_FAILURE;
+    }
 
-      return EZ_SUCCESS;
+    return EZ_SUCCESS;
   }
 
   ezLog::Warning(pLog, "No known image file format for extension '{0}'", it);
@@ -299,8 +301,8 @@ ezImage ezImage::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*
   ezImageView constView = ezImageView::GetSubImageView(uiMipLevel, uiFace, uiArrayIndex);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
-  return ezImage(constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
-                                                         constView.GetBlobPtr<ezUInt8>().GetCount()));
+  return ezImage(
+    constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
 ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/)
@@ -308,12 +310,11 @@ ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0
   ezImageView constView = ezImageView::GetSliceView(uiMipLevel, uiFace, uiArrayIndex, z);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
-  return ezImage(constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
-                                                         constView.GetBlobPtr<ezUInt8>().GetCount()));
+  return ezImage(
+    constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
-ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/,
-                                      ezUInt32 z /*= 0*/) const
+ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/) const
 {
   ezImageHeader header;
   header.SetNumMipLevels(1);
@@ -338,4 +339,3 @@ bool ezImage::UsesExternalStorage() const
 }
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_Image);
-

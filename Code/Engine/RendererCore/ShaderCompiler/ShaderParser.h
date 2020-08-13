@@ -35,9 +35,8 @@ public:
 
   static void ParsePermutationSection(
     ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars);
-  static void ParsePermutationSection(ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_PermVars,
-    ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars);
+  static void ParsePermutationSection(
+    ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars);
 
-  static void ParsePermutationVarConfig(
-    ezStringView sPermutationVarConfig, ezVariant& out_DefaultValue, EnumDefinition& out_EnumDefinition);
+  static void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_DefaultValue, EnumDefinition& out_EnumDefinition);
 };

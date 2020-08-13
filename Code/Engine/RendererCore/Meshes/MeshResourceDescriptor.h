@@ -2,13 +2,12 @@
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 
 class EZ_RENDERERCORE_DLL ezMeshResourceDescriptor
 {
 public:
-
   struct SubMesh
   {
     EZ_DECLARE_POD_TYPE();
@@ -58,7 +57,6 @@ public:
   const ezSkeletonResourceHandle& GetSkeleton() const;
 
 private:
-
   ezHybridArray<Material, 8> m_Materials;
   ezHybridArray<SubMesh, 8> m_SubMeshes;
   ezMeshBufferResourceDescriptor m_MeshBufferDescriptor;
@@ -67,4 +65,3 @@ private:
 
   ezBoundingBoxSphere m_Bounds;
 };
-

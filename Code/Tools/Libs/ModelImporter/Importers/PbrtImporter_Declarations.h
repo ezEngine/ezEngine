@@ -31,5 +31,5 @@ namespace ezModelImporter
     };
 
     class ParseContext;
-  }
-}
+  } // namespace Pbrt
+} // namespace ezModelImporter

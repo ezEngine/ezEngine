@@ -20,7 +20,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
       EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
       EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
+      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)
+        ->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
     } EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
@@ -36,8 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
       EZ_MESSAGE_SENDER(m_ReachedEndMsgSender),
     } EZ_END_MESSAGESENDERS;
     EZ_BEGIN_FUNCTIONS
-    {
-      EZ_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")} EZ_END_FUNCTIONS;
+    {EZ_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")} EZ_END_FUNCTIONS;
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -192,8 +192,8 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
   }
 }
 
-void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject,
-  const ezGameObjectHandle& hGameObject)
+void ezPropertyAnimComponent::CreateGameObjectBinding(
+  const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezGameObjectHandle& hGameObject)
 {
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::RotationZ)
     return;
@@ -267,8 +267,8 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
   }
 }
 
-void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject,
-  const ezComponentHandle& hComponent)
+void ezPropertyAnimComponent::CreateFloatPropertyBinding(
+  const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
 {
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
     return;
@@ -343,8 +343,8 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   }
 }
 
-void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject,
-  const ezComponentHandle& hComponent)
+void ezPropertyAnimComponent::CreateColorPropertyBinding(
+  const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
 {
   if (pAnim->m_Target != ezPropertyAnimTarget::Color)
     return;
@@ -468,14 +468,14 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
       m_AnimationTime = m_AnimationRangeHigh;
       m_bPlaying = false;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
     }
     else if (m_fSpeed < 0 && m_AnimationTime <= m_AnimationRangeLow)
     {
       m_AnimationTime = m_AnimationRangeLow;
       m_bPlaying = false;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
     }
 
     EvaluateEventTrack(tStart, m_AnimationTime);
@@ -488,7 +488,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     {
       m_AnimationTime -= duration;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
 
       EvaluateEventTrack(tStart, m_AnimationRangeHigh);
       tStart = m_AnimationRangeLow;
@@ -498,7 +498,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     {
       m_AnimationTime += duration;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
 
       EvaluateEventTrack(tStart, m_AnimationRangeLow);
       tStart = m_AnimationRangeHigh;
@@ -526,7 +526,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         EvaluateEventTrack(tStart, m_AnimationRangeHigh);
         tStart = m_AnimationRangeHigh;
 
-        m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+        m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
       }
       else if (m_AnimationTime < m_AnimationRangeLow)
       {
@@ -536,7 +536,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         EvaluateEventTrack(tStart, m_AnimationRangeLow);
         tStart = m_AnimationRangeLow;
 
-        m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+        m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
       }
       else
       {
@@ -563,7 +563,7 @@ void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTim
   {
     ezMsgGenericEvent msg;
     msg.m_sMessage = sEvent.GetString();
-    m_EventTrackMsgSender.SendMessage(msg, this, GetOwner());
+    m_EventTrackMsgSender.SendEventMessage(msg, this, GetOwner());
   }
 }
 
@@ -636,7 +636,8 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
   {
     ezTypedMemberProperty<bool>* pTyped = static_cast<ezTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, fFinalValue < 0.5);
+    pTyped->SetValue(binding.m_pObject,
+      fFinalValue > 0.99); // this is close to what ezVariant does (not identical, that does an int cast != 0), but faster to evaluate
     return;
   }
   else if (pRtti == ezGetStaticRTTI<ezAngle>())

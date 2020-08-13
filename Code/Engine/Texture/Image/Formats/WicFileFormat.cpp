@@ -6,10 +6,11 @@
 #include <Texture/Image/Formats/WicFileFormat.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
+#include <Foundation/Basics/Platform/Win/HResultUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <DirectXTex/DirectXTex.h>
+#  include <DirectXTex/DirectXTex.h>
 
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 
@@ -80,7 +81,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   // Read WIC data from local storage
   ScratchImage scratchImage;
-  DWORD flags = WIC_FLAGS_ALL_FRAMES;
+  DWORD flags = WIC_FLAGS_ALL_FRAMES | WIC_FLAGS_IGNORE_SRGB /* just treat PNG, JPG etc as non-sRGB, we determine this through our 'Usage' later */;
   if (FAILED(LoadFromWICMemory(storage.GetData(), storage.GetCount(), flags, nullptr, scratchImage)))
   {
     ezLog::Error(pLog, "Failure to process image data.");
@@ -159,8 +160,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   return EZ_SUCCESS;
 }
 
-ezResult ezWicFileFormat::WriteImage(
-  ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   if (m_bTryCoInit)
   {
@@ -186,8 +186,7 @@ ezResult ezWicFileFormat::WriteImage(
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(
-      pLog, "No conversion from format '{0}' to a format suitable for TIFF files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::Error(pLog, "No conversion from format '{0}' to a format suitable for TIFF files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -198,8 +197,7 @@ ezResult ezWicFileFormat::WriteImage(
     if (ezImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
     {
       // This should never happen
-      EZ_ASSERT_DEV(
-        false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+      EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
       return EZ_FAILURE;
     }
 
@@ -234,7 +232,7 @@ ezResult ezWicFileFormat::WriteImage(
     HRESULT res = SaveToWICMemory(outputImages.GetData(), outputImages.GetCount(), flags, GetWICCodec(WIC_CODEC_TIFF), targetBlob);
     if (FAILED(res))
     {
-      ezLog::Error(pLog, "Failed to save image data to local memory blob - result: {}!", res);
+      ezLog::Error(pLog, "Failed to save image data to local memory blob - result: {}!", ezHRESULTtoString(res));
       return EZ_FAILURE;
     }
 
@@ -251,12 +249,16 @@ ezResult ezWicFileFormat::WriteImage(
 
 bool ezWicFileFormat::CanReadFileType(const char* szExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
+  return ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg") ||
+         // ezStringUtils::IsEqual_NoCase(szExtension, "hdr") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
 }
 
 bool ezWicFileFormat::CanWriteFileType(const char* szExtension) const
 {
-  return CanReadFileType(szExtension);
+  // png, jpg and jpeg are handled by STB (ezStbImageFileFormats)
+  return ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
 }
 
 #endif

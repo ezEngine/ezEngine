@@ -88,11 +88,9 @@ public:
   const ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid) const;
   ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid);
 
-  ezStatus CanAnimate(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
+  ezStatus CanAnimate(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
 
-  ezUuid FindTrack(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
+  ezUuid FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
   ezUuid CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target);
 
   ezUuid FindCurveCp(const ezUuid& trackGuid, ezInt64 tickX);
@@ -128,8 +126,8 @@ private:
   {
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezPropertyReference& key)
     {
-      return ezHashingUtils::xxHash32(&key.m_Object, sizeof(ezUuid)) +
-             ezHashingUtils::xxHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*)) + (ezUInt32)key.m_Index.ComputeHash();
+      return ezHashingUtils::xxHash32(&key.m_Object, sizeof(ezUuid)) + ezHashingUtils::xxHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*)) +
+             (ezUInt32)key.m_Index.ComputeHash();
     }
 
     EZ_ALWAYS_INLINE static bool Equal(const ezPropertyReference& a, const ezPropertyReference& b)
@@ -141,10 +139,10 @@ private:
   void RebuildMapping();
   void RemoveTrack(const ezUuid& track);
   void AddTrack(const ezUuid& track);
-  void FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath,
-    ezHybridArray<ezPropertyReference, 1>& keys) const;
-  void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
-    ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
+  void FindTrackKeys(
+    const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const;
+  void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezStringBuilder& sObjectSearchSequence,
+    ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
   void ApplyAnimation();
   void ApplyAnimation(const ezPropertyReference& key, const PropertyValue& value);
 

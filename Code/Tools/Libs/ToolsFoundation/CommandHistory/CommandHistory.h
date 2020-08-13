@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Command/Command.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezCommandHistory;
 
@@ -10,7 +10,7 @@ class EZ_TOOLSFOUNDATION_DLL ezCommandTransaction : public ezCommand
   EZ_ADD_DYNAMIC_REFLECTION(ezCommandTransaction, ezCommand);
 
 public:
-  ezCommandTransaction() { }
+  ezCommandTransaction() {}
   ~ezCommandTransaction();
 
   ezString m_sDisplayString;
@@ -33,11 +33,11 @@ struct ezCommandHistoryEvent
     UndoEnded,
     RedoStarted,
     RedoEnded,
-    TransactionStarted, ///< Emit after initial transaction started.
-    BeforeTransactionEnded, ///< Emit before initial transaction ended.
+    TransactionStarted,        ///< Emit after initial transaction started.
+    BeforeTransactionEnded,    ///< Emit before initial transaction ended.
     BeforeTransactionCanceled, ///< Emit before initial transaction ended.
-    TransactionEnded, ///< Emit after initial transaction ended.
-    TransactionCanceled, ///< Emit after initial transaction canceled.
+    TransactionEnded,          ///< Emit after initial transaction ended.
+    TransactionCanceled,       ///< Emit after initial transaction canceled.
   };
 
   Type m_Type;
@@ -47,7 +47,6 @@ struct ezCommandHistoryEvent
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 {
 public:
-
   ezCopyOnBroadcastEvent<const ezCommandHistoryEvent&> m_Events;
 
 public:
@@ -74,8 +73,8 @@ public:
   bool IsInUndoRedo() const { return m_bIsInUndoRedo; }
 
   /// \brief Call this to start a serious of transactions that typically change the same value over and over (e.g. dragging an object to a position).
-  /// Every time a new transaction is started, the previous one is undone first. At the end of a serious of temporary transactions, only the last transaction will be stored as a single undo step.
-  /// Call this first and then start a transaction inside it.
+  /// Every time a new transaction is started, the previous one is undone first. At the end of a serious of temporary transactions, only the last
+  /// transaction will be stored as a single undo step. Call this first and then start a transaction inside it.
   void BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands = false);
   void CancelTemporaryCommands();
   void FinishTemporaryCommands();

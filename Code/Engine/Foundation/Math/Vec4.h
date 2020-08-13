@@ -11,7 +11,7 @@ public:
   // Means that vectors can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
   // *** Data ***
 public:

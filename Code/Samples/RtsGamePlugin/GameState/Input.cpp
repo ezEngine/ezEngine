@@ -86,11 +86,9 @@ void RtsGameState::UpdateMousePosition()
   }
 
   m_MouseInputState.m_bLeftMouseMoved =
-    m_MouseInputState.m_bLeftMouseMoved ||
-    RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
+    m_MouseInputState.m_bLeftMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
   m_MouseInputState.m_bRightMouseMoved =
-    m_MouseInputState.m_bRightMouseMoved ||
-    RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
+    m_MouseInputState.m_bRightMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
 
   ComputePickingRay();
 }
@@ -99,24 +97,11 @@ void RtsGameState::ProcessInput()
 {
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
-  bool bProcessInput = true;
-
-  if (ezImgui::GetSingleton() != nullptr)
-  {
-    // we got input (ie. this function was called), so let Imgui know that it can use the input
-    ezImgui::GetSingleton()->SetPassInputToImgui(true);
-
-    // do not process input, when Imgui already wants to work with it
-    if (ezImgui::GetSingleton()->WantsInput())
-      bProcessInput = false;
-  }
-
   UpdateMousePosition();
 
   if (m_pActiveGameMode)
   {
-    if (bProcessInput)
-      m_pActiveGameMode->ProcessInput(m_MouseInputState);
+    m_pActiveGameMode->ProcessInput(m_MouseInputState);
 
     m_pActiveGameMode->AfterProcessInput();
   }

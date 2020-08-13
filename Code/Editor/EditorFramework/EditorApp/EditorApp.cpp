@@ -63,6 +63,30 @@ void ezQtEditorApp::SlotSaveSettings()
   SaveSettings();
 }
 
+void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced)
+{
+  if (bForced || bNewVersionReleased)
+  {
+    if (m_VersionChecker.IsLatestNewer())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation(
+        ezFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A "
+              "href=\"http://ezengine.net/releases/release-notes.html\">Release Notes</A> for details.</html>",
+          m_VersionChecker.GetKnownLatestVersion(), m_VersionChecker.GetOwnVersion()));
+    }
+    else
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation("You have the latest version.");
+    }
+  }
+
+  if (m_VersionChecker.IsLatestNewer())
+  {
+    ezQtUiServices::GetSingleton()->ShowGlobalStatusBarMessage(
+      ezFmt("New version '{}' available, please update.", m_VersionChecker.GetKnownLatestVersion()));
+  }
+}
+
 void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
@@ -83,6 +107,14 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
 
     default:
       return;
+  }
+}
+
+void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
+{
+  if (e.m_Type == ezQtUiServices::Event::Type::CheckForUpdates)
+  {
+    m_VersionChecker.Check(true);
   }
 }
 
@@ -114,25 +146,14 @@ bool ezQtEditorApp::IsProgressBarProcessingEvents() const
 
 void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDynamicStringEnum& e)
 {
-  ezStringBuilder sFile, tmp;
-  sFile.Format("Editor/{}.txt", szEnumName);
+  ezStringBuilder sFile;
+  sFile.Format(":project/Editor/{}.txt", szEnumName);
 
-  ezFileReader file;
-  if (file.Open(sFile).Succeeded())
-  {
-    m_DynamicEnumStringsToClear.Insert(szEnumName);
+  // enums loaded this way are user editable
+  e.SetStorageFile(sFile);
+  e.ReadFromStorage();
 
-    sFile.ReadAll(file);
-
-    ezHybridArray<ezStringView, 32> values;
-
-    sFile.Split(false, values, "\n", "\r");
-
-    for (auto val : values)
-    {
-      e.AddValidValue(val.GetData(tmp));
-    }
-  }
+  m_DynamicEnumStringsToClear.Insert(szEnumName);
 }
 
 void ezQtEditorApp::ReloadEngineResources()

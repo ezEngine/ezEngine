@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
+#include <EditorPluginScene/ui_ExtractGeometryDlg.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Mat3.h>
-#include <EditorPluginScene/ui_ExtractGeometryDlg.h>
 
 #include <QPushButton>
 

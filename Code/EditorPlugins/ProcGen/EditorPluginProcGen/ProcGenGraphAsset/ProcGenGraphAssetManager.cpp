@@ -45,10 +45,14 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezProcGenGraphAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezProcGenGraphAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezProcGenGraphAssetDocument(szPath);
 }

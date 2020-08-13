@@ -1,13 +1,13 @@
 #include <RendererDX11PCH.h>
 
-#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererDX11/Resources/FenceDX11.h>
 
 #include <d3d11.h>
 
 ezGALFenceDX11::ezGALFenceDX11()
-    : m_pDXFence(nullptr)
+  : m_pDXFence(nullptr)
 {
 }
 

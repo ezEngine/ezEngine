@@ -27,7 +27,7 @@ public:
   {
     ezStringBuilder name;
     name.Format("Long Op: '{}'", "TODO: NAME"); // TODO
-    ConfigureTask(name, ezTaskNesting::Maybe, [](ezTask* pThis) { EZ_DEFAULT_DELETE(pThis); });
+    ConfigureTask(name, ezTaskNesting::Maybe);
   }
 
   ~ezLongOpTask() = default;
@@ -98,7 +98,7 @@ void ezLongOpWorkerManager::LaunchWorkerOperation(WorkerOpInfo& opInfo, ezStream
   }
   else
   {
-    ezLongOpTask* pTask = EZ_DEFAULT_NEW(ezLongOpTask);
+    ezSharedPtr<ezLongOpTask> pTask = EZ_DEFAULT_NEW(ezLongOpTask);
     pTask->m_OperationGuid = opInfo.m_OperationGuid;
     pTask->m_pWorkerOp = opInfo.m_pWorkerOp.Borrow();
     pTask->m_pProgress = &opInfo.m_Progress;

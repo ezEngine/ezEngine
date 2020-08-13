@@ -161,7 +161,8 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
         ezHybridArray<ezAbstractProperty*, 32> properties;
         m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
 
-        for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
+        const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
+        for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
         {
           if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
               properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
@@ -185,18 +186,18 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
 
       if (!m_hComponent.IsInvalidated())
       {
-        pWorld->PostMessage(m_hComponent, *m_pMessageToSend, ezObjectMsgQueueType::NextFrame, m_Delay);
+        pWorld->PostMessage(m_hComponent, *m_pMessageToSend, m_Delay);
       }
       else
       {
         ezGameObjectHandle hObject = m_hObject.IsInvalidated() ? pInstance->GetOwner() : m_hObject;
         if (m_bRecursive)
         {
-          pWorld->PostMessageRecursive(hObject, *m_pMessageToSend, ezObjectMsgQueueType::NextFrame, m_Delay);
+          pWorld->PostMessageRecursive(hObject, *m_pMessageToSend, m_Delay);
         }
         else
         {
-          pWorld->PostMessage(hObject, *m_pMessageToSend, ezObjectMsgQueueType::NextFrame, m_Delay);
+          pWorld->PostMessage(hObject, *m_pMessageToSend, m_Delay);
         }
       }
     }
@@ -252,13 +253,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FunctionCall, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall()
-{
-}
+ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall() {}
 
-ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall()
-{
-}
+ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall() {}
 
 void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -309,7 +306,8 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   if (!pComponent->GetDynamicRTTI()->IsDerivedFrom(m_pExpectedType))
   {
-    ezLog::Error("VisScript function call: Target component of type '{}' is not of the expected base type '{}'", pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
+    ezLog::Error("VisScript function call: Target component of type '{}' is not of the expected base type '{}'",
+      pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
 
     m_pFunctionToCall = nullptr;
     return;
@@ -322,7 +320,8 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
     if (ConvertArgumentToRequiredType(m_Arguments[arg], targetType).Failed())
     {
-      ezLog::Error("VisScript function call: Could not convert argument {} from variant type '{}' to target type '{}'", arg, (int)var.GetType(), (int)targetType);
+      ezLog::Error("VisScript function call: Could not convert argument {} from variant type '{}' to target type '{}'", arg, (int)var.GetType(),
+        (int)targetType);
 
       // probably a stale script with a mismatching pin <-> argument configuration
       m_pFunctionToCall = nullptr;
@@ -334,7 +333,7 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
   m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
   // now we need to pull the data from return values and out parameters and pass them into our output pins
-  ezUInt32 uiOutputPinIndex = 0;
+  ezUInt8 uiOutputPinIndex = 0;
 
   if (m_ReturnValue.IsValid())
   {

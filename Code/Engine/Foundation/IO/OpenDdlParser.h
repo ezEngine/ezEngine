@@ -19,12 +19,12 @@ enum class ezOpenDdlPrimitiveType
   UInt16,
   UInt32,
   UInt64,
-  //Half, // Currently not supported
+  // Half, // Currently not supported
   Float,
   Double,
   String,
-  //Ref, // Currently not supported
-  //Type // Currently not supported
+  // Ref, // Currently not supported
+  // Type // Currently not supported
   Custom
 };
 
@@ -35,7 +35,7 @@ class EZ_FOUNDATION_DLL ezOpenDdlParser
 {
 public:
   ezOpenDdlParser();
-  virtual ~ezOpenDdlParser() {}
+  virtual ~ezOpenDdlParser() = default;
 
   /// \brief Whether an error occured during parsing that resulted in cancelation of further parsing.
   bool HadFatalParsingError() const { return m_bHadFatalParsingError; } // [tested]
@@ -44,7 +44,8 @@ protected:
   /// \brief Sets an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
-  /// \brief Data is returned in larger chunks, to reduce the number of function calls. The cache size determines the maximum chunk size per primitive type.
+  /// \brief Data is returned in larger chunks, to reduce the number of function calls. The cache size determines the maximum chunk size per primitive
+  /// type.
   ///
   /// Default cache size is 4 KB. That means up to 1000 integers may be returned in one chunk (or 500 doubles).
   /// It does not help to increase the chunk size, when the input data doesn't use such large data lists.
@@ -94,8 +95,8 @@ protected:
   virtual void OnEndPrimitiveList() = 0;
 
   /// \todo Currently not supported
-  //virtual void OnBeginPrimitiveArrayList(ezOpenDdlPrimitiveType type, ezUInt32 uiGroupSize) = 0;
-  //virtual void OnEndPrimitiveArrayList() = 0;
+  // virtual void OnBeginPrimitiveArrayList(ezOpenDdlPrimitiveType type, ezUInt32 uiGroupSize) = 0;
+  // virtual void OnEndPrimitiveArrayList() = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll) = 0;
@@ -147,8 +148,14 @@ private:
 
   struct DdlState
   {
-    DdlState() : m_State(Idle) {}
-    DdlState(State s) : m_State(s) {}
+    DdlState()
+      : m_State(Idle)
+    {
+    }
+    DdlState(State s)
+      : m_State(s)
+    {
+    }
 
     State m_State;
   };
@@ -203,4 +210,3 @@ private:
   float* m_pFloatCache;
   double* m_pDoubleCache;
 };
-

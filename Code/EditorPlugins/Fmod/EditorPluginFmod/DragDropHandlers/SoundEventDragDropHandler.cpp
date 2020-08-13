@@ -23,7 +23,7 @@ void ezSoundEventComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pIn
     CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
     CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
-                     pInfo->m_iTargetObjectInsertChildIndex);
+      pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

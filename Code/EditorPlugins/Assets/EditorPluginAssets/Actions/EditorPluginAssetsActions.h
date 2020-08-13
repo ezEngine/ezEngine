@@ -19,6 +19,7 @@ public:
 class ezImportAssetAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezImportAssetAction, ezButtonAction);
+
 public:
   ezImportAssetAction(const ezActionContext& context, const char* name);
   ~ezImportAssetAction();

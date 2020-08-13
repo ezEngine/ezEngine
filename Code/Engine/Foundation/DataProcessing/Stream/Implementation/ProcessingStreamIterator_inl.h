@@ -1,7 +1,9 @@
 
 template <typename Type>
 ezProcessingStreamIterator<Type>::ezProcessingStreamIterator(const ezProcessingStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex)
-    : m_pCurrentPtr(nullptr), m_pEndPtr(nullptr), m_uiElementStride(0)
+  : m_pCurrentPtr(nullptr)
+  , m_pEndPtr(nullptr)
+  , m_uiElementStride(0)
 {
   EZ_ASSERT_DEV(pStream != nullptr, "Stream pointer may not be null!");
 
@@ -34,4 +36,3 @@ EZ_ALWAYS_INLINE void ezProcessingStreamIterator<Type>::Advance(ezUInt32 numElem
 {
   m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<ptrdiff_t>(m_uiElementStride * numElements));
 }
-

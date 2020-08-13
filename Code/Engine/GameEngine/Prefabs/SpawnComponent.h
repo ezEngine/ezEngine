@@ -1,7 +1,9 @@
 #pragma once
 
-#include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
+
+#include <Core/World/World.h>
+#include <Foundation/Types/RangeView.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 
 struct ezMsgComponentInternalTrigger;
@@ -26,6 +28,7 @@ struct ezSpawnComponentFlags
     StorageType SpawnAtStart : 1;
     StorageType SpawnContinuously : 1;
     StorageType AttachAsChild : 1;
+    StorageType SpawnInFlight : 1;
   };
 };
 
@@ -46,6 +49,7 @@ public:
 
 protected:
   virtual void OnSimulationStarted() override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -95,6 +99,12 @@ public:
   /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
   ezAngle m_MaxDeviation; // [ property ]
 
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ] (exposed parameter)
+  void SetParameter(const char* szKey, const ezVariant& value);     // [ property ] (exposed parameter)
+  void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
+  bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
+
+  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 
 protected:
   ezBitflags<ezSpawnComponentFlags> m_SpawnFlags;

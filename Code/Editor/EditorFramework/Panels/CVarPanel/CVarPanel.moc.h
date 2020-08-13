@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
-#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <GuiFoundation/Widgets/CVarWidget.moc.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Containers/Map.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
+#include <GuiFoundation/Widgets/CVarWidget.moc.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezQtCVarWidget;
 

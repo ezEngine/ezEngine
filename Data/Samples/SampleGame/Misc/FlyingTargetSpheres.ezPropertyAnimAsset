@@ -1,0 +1,2816 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{5128363452708663971,5303639935987779633}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"PropertyAnim"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{5128363452708663971,5303639935987779633}}
+		u4 %Hash{5095195355499332319}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{2025567277842583838,863267675226247267}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{11650168429668162493,1232657814387603344}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{16006015172906670806,2749191619980266560}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{4401192105176474699,2841537538456757753}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{205,92,92,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{10825639585818641595,5235607862646196881}}
+			Uuid{u4{10446558686179951012,4930576819514379078}}
+			Uuid{u4{1260212480820119956,4653565709081071941}}
+			Uuid{u4{9780388177139200665,4994785477902442840}}
+			Uuid{u4{6716074570360260767,5095721514776153768}}
+			Uuid{u4{13214879025074919307,5714919905809420949}}
+			Uuid{u4{2335582767940636085,5129998705901735005}}
+			Uuid{u4{95355056025934227,5583701237443517278}}
+			Uuid{u4{6761944414906677136,5356181994593390994}}
+			Uuid{u4{17245670459233726650,5440095592544319263}}
+			Uuid{u4{9511484591946435210,5304678561787096324}}
+			Uuid{u4{9191304963949055413,4937349720419893645}}
+			Uuid{u4{18256053346158772927,5540426122660365394}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9411180607548521182,3038008874084446276}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{14002085323343659125,4406426765055085067}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{102,205,170,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{10749051000092966556,5217398428888366448}}
+			Uuid{u4{11083594305131266691,5056322916469116371}}
+			Uuid{u4{5321143532924673210,4681182740290320567}}
+			Uuid{u4{4042155582519237545,5572011486250715127}}
+			Uuid{u4{8601042123777171097,5437948967679816989}}
+			Uuid{u4{1387592407921680522,5446823496163974171}}
+			Uuid{u4{5412598179107622808,5590667437589874037}}
+			Uuid{u4{1200644166984397246,5078798482887599739}}
+			Uuid{u4{11383041863268816315,5581768846507251926}}
+			Uuid{u4{8986966661232988826,5337198681310581627}}
+			Uuid{u4{18371290994398282427,5287981424752841650}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2500410090340543908,4624956066154015683}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33600}
+		d %Value{0x000000C0F4CF2EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{2464106204693693616,4632235750089438515}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28880}
+		d %Value{0x000000007C6EF63F}
+	}
+}
+o
+{
+	Uuid %id{u4{7317138900765668754,4634867479196865994}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{1352354233718763076,14542214577101500541}}
+		Uuid %Gradient{u4{15596115972570261692,10425453435356020658}}
+		s %ObjectPath{"Bubble3"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorY"}
+	}
+}
+o
+{
+	Uuid %id{u4{1260212480820119956,4653565709081071941}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9680}
+		d %Value{0x000000E04787FB3F}
+	}
+}
+o
+{
+	Uuid %id{u4{1029354813506177973,4658655292442750287}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x000000C011AD27C0}
+	}
+}
+o
+{
+	Uuid %id{u4{2294248433262795655,4662671541631712231}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28800}
+		d %Value{0x0000008043DB2640}
+	}
+}
+o
+{
+	Uuid %id{u4{5321143532924673210,4681182740290320567}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9520}
+		d %Value{0x00000040EC0F27C0}
+	}
+}
+o
+{
+	Uuid %id{u4{5804057697450152615,4688161923655770628}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4720}
+		d %Value{0x000000C0BC7D10C0}
+	}
+}
+o
+{
+	Uuid %id{u4{16496295912931759643,4697099663949297027}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{255,182,193,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{14676821239481473681,5273006999985744900}}
+			Uuid{u4{5804057697450152615,4688161923655770628}}
+			Uuid{u4{3605308017299251370,5104189329131497327}}
+			Uuid{u4{4805709207746529430,5360195340177043417}}
+			Uuid{u4{8658849805238745787,5640581841330207007}}
+			Uuid{u4{16930745751125839500,5612414665374732153}}
+			Uuid{u4{17767848393055110557,5092330960265366479}}
+			Uuid{u4{3063798898236863118,4932168672882348739}}
+			Uuid{u4{5801179115644607670,5179269464337155172}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17995849814057156745,4698103646391653330}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{10953857644684356280,8242992492980325577}}
+		Uuid %Gradient{u4{5009551657683557007,15707664854609950044}}
+		s %ObjectPath{"Bubble4"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorZ"}
+	}
+}
+o
+{
+	Uuid %id{u4{11999826273284875408,4698450571419114439}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9520}
+		d %Value{0x000000C0721CE1BF}
+	}
+}
+o
+{
+	Uuid %id{u4{2371653267703572878,4704733356169896885}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14560}
+		d %Value{0x000000408026FA3F}
+	}
+}
+o
+{
+	Uuid %id{u4{185642821907112848,4705354071677756137}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14400}
+		d %Value{0x0000000068BD0040}
+	}
+}
+o
+{
+	Uuid %id{u4{18048646264289748375,4727811002923799931}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x000000E0CF7AF53F}
+	}
+}
+o
+{
+	Uuid %id{u4{1026890148182910132,4729469754599535202}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24080}
+		d %Value{0x00000020A70F16C0}
+	}
+}
+o
+{
+	Uuid %id{u4{4637245283662381184,4768913459153542603}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14560}
+		d %Value{0x00000000525113C0}
+	}
+}
+o
+{
+	Uuid %id{u4{8605309845322451587,4784123163254623770}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x00000080CBDBD7BF}
+	}
+}
+o
+{
+	Uuid %id{u4{4177329911280093370,4789894876331231767}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{16496295912931759643,4697099663949297027}}
+		Uuid %Gradient{u4{896935904810067951,15359406525082911798}}
+		s %ObjectPath{"Bubble4"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorX"}
+	}
+}
+o
+{
+	Uuid %id{u4{6612628386026648749,4800479297220560636}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{23920}
+		d %Value{0x00000040DE2C26C0}
+	}
+}
+o
+{
+	Uuid %id{u4{2601996849607515323,4843588109344199888}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9520}
+		d %Value{0x00000020357920C0}
+	}
+}
+o
+{
+	Uuid %id{u4{189838317243035806,4845127106363327315}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x00000080CBDBD7BF}
+	}
+}
+o
+{
+	Uuid %id{u4{10040871988026416803,4845999518426586641}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{13674280618732590017,11113697190014096171}}
+		Uuid %Gradient{u4{9411180607548521182,3038008874084446276}}
+		s %ObjectPath{"Bubble1"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorX"}
+	}
+}
+o
+{
+	Uuid %id{u4{6958274290072055978,4853110641197974923}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0x00000080270AD63F}
+	}
+}
+o
+{
+	Uuid %id{u4{7559335005121239708,4859359793138086613}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000C011AD27C0}
+	}
+}
+o
+{
+	Uuid %id{u4{13723132896105797550,4871271916779119723}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19120}
+		d %Value{0x000000C0112D21C0}
+	}
+}
+o
+{
+	Uuid %id{u4{1455968346457802394,4901253516705307215}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9520}
+		d %Value{0x000000E0E02F0A40}
+	}
+}
+o
+{
+	Uuid %id{u4{6285825038788636229,4918658725539654333}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{76,255,0,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{7559335005121239708,4859359793138086613}}
+			Uuid{u4{8651531221331139005,5515753740460933885}}
+			Uuid{u4{2601996849607515323,4843588109344199888}}
+			Uuid{u4{4637245283662381184,4768913459153542603}}
+			Uuid{u4{17483476052421270462,5020657969453280138}}
+			Uuid{u4{15418313680824376709,5702520390848923666}}
+			Uuid{u4{2678531586429077414,5245474532492793804}}
+			Uuid{u4{9765857409627093137,5547666125030321117}}
+			Uuid{u4{3962214357495183499,5758978598781991980}}
+			Uuid{u4{2853292991063991938,5151885801936014313}}
+			Uuid{u4{1029354813506177973,4658655292442750287}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4503938140371229851,4918894192770389515}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14560}
+		d %Value{0x000000403730ECBF}
+	}
+}
+o
+{
+	Uuid %id{u4{1307178538084226959,4919613296434313116}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19200}
+		d %Value{0x0000000070E4E73F}
+	}
+}
+o
+{
+	Uuid %id{u4{16975667488183410600,4924460400904326443}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{38400}
+		d %Value{0x000000801DA031C0}
+	}
+}
+o
+{
+	Uuid %id{u4{3538693738644787869,4929938946097345150}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000C0112D27C0}
+	}
+}
+o
+{
+	Uuid %id{u4{10446558686179951012,4930576819514379078}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0x000000A08C27F13F}
+	}
+}
+o
+{
+	Uuid %id{u4{3063798898236863118,4932168672882348739}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{38480}
+		d %Value{0x000000C0BC7D11C0}
+	}
+}
+o
+{
+	Uuid %id{u4{9191304963949055413,4937349720419893645}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{45120}
+		d %Value{0xD0275FE88B67F13F}
+	}
+}
+o
+{
+	Uuid %id{u4{6768965556936986764,4946118031346594128}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33600}
+		d %Value{0x000000A078EB1D40}
+	}
+}
+o
+{
+	Uuid %id{u4{16422989023124517505,4954505529686321640}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x00000000831A04C0}
+	}
+}
+o
+{
+	Uuid %id{u4{7353598361958050692,4957658619608977676}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000E0CF7AF53F}
+	}
+}
+o
+{
+	Uuid %id{u4{6334884817871609483,4958632114563732917}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14480}
+		d %Value{0x00000060C0F8F43F}
+	}
+}
+o
+{
+	Uuid %id{u4{9393105067896809357,4966538798895920425}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24000}
+		d %Value{0x0000008003101F40}
+	}
+}
+o
+{
+	Uuid %id{u4{6658013617517484195,4969571131424460422}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{10967258354972870496,18426407061255734861}}
+		Uuid %Gradient{u4{11341709027873161474,6816110972756365774}}
+		s %ObjectPath{"Bubble2"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorZ"}
+	}
+}
+o
+{
+	Uuid %id{u4{9780388177139200665,4994785477902442840}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14480}
+		d %Value{0x000000201D19D73F}
+	}
+}
+o
+{
+	Uuid %id{u4{13803707286383762304,5013136918052224069}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{38400}
+		d %Value{0x000000C0DBDA0A40}
+	}
+}
+o
+{
+	Uuid %id{u4{17483476052421270462,5020657969453280138}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19200}
+		d %Value{0x000000209CD313C0}
+	}
+}
+o
+{
+	Uuid %id{u4{12805012380111103121,5027235651759834438}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33680}
+		d %Value{0x000000801B33E63F}
+	}
+}
+o
+{
+	Uuid %id{u4{11083594305131266691,5056322916469116371}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0x000000E0744223C0}
+	}
+}
+o
+{
+	Uuid %id{u4{8934069967566989485,5058772902780291176}}
+	s %t{"ezPropertyAnimationTrackGroup"}
+	u3 %v{1}
+	p
+	{
+		u4 %Duration{48000}
+		Uuid %EventTrack{u4{13615810813161385309,13858433693330044302}}
+		u3 %FPS{60}
+		VarArray %Tracks
+		{
+			Uuid{u4{17930264862366751419,5688111483898455108}}
+			Uuid{u4{4177329911280093370,4789894876331231767}}
+			Uuid{u4{17995849814057156745,4698103646391653330}}
+			Uuid{u4{13722878742593830073,5522895721159335749}}
+			Uuid{u4{6371594155161792907,5601855541172279541}}
+			Uuid{u4{6658013617517484195,4969571131424460422}}
+			Uuid{u4{8744281074179774115,5257155791241289489}}
+			Uuid{u4{7317138900765668754,4634867479196865994}}
+			Uuid{u4{6736390558630759590,5240431183462257726}}
+			Uuid{u4{343435221924811417,5451845885372262611}}
+			Uuid{u4{17849760985584705169,5672171176601667408}}
+			Uuid{u4{10040871988026416803,4845999518426586641}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1200644166984397246,5078798482887599739}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33600}
+		d %Value{0x00000000E840E63F}
+	}
+}
+o
+{
+	Uuid %id{u4{184554954964927407,5086204997236667579}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{43360}
+		d %Value{0x00000060F43E28C0}
+	}
+}
+o
+{
+	Uuid %id{u4{17767848393055110557,5092330960265366479}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28800}
+		d %Value{0x00000000F3F6FDBF}
+	}
+}
+o
+{
+	Uuid %id{u4{16549985541410856109,5095547890294163086}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x000000C011AD20C0}
+	}
+}
+o
+{
+	Uuid %id{u4{6716074570360260767,5095721514776153768}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19120}
+		d %Value{0x000000E0019701C0}
+	}
+}
+o
+{
+	Uuid %id{u4{3605308017299251370,5104189329131497327}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9680}
+		d %Value{0x00000000E6EDEBBF}
+	}
+}
+o
+{
+	Uuid %id{u4{12561722938274180243,5104547586621393876}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9680}
+		d %Value{0x00000040DE64F23F}
+	}
+}
+o
+{
+	Uuid %id{u4{2335582767940636085,5129998705901735005}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28880}
+		d %Value{0x000000E0A0D71EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{17962062815648265602,5149651836780036001}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19120}
+		d %Value{0x00000000C1B10040}
+	}
+}
+o
+{
+	Uuid %id{u4{2853292991063991938,5151885801936014313}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{43200}
+		d %Value{0x000000C09E6128C0}
+	}
+}
+o
+{
+	Uuid %id{u4{11882854426393982386,5155547038926686298}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x000000E0CF7AF53F}
+	}
+}
+o
+{
+	Uuid %id{u4{12828494564937838478,5156381087017266220}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19120}
+		d %Value{0x000000004CA118C0}
+	}
+}
+o
+{
+	Uuid %id{u4{18233246057613081515,5159223378723807784}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x000000C0112D27C0}
+	}
+}
+o
+{
+	Uuid %id{u4{16205157609836623241,5160035412121066361}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9680}
+		d %Value{0x000000C011AD22C0}
+	}
+}
+o
+{
+	Uuid %id{u4{6916104029566649241,5165312525327288330}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9680}
+		d %Value{0x000000E0CF7AFD3F}
+	}
+}
+o
+{
+	Uuid %id{u4{13501995300048711841,5173708071112467557}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24080}
+		d %Value{0x000000004CA117C0}
+	}
+}
+o
+{
+	Uuid %id{u4{14225993844711809171,5175762896171002392}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x0000008073F4E83F}
+	}
+}
+o
+{
+	Uuid %id{u4{5801179115644607670,5179269464337155172}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x0000008079FB0EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{9553466900646984333,5179464525435174238}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28880}
+		d %Value{0x000000A01F3D00C0}
+	}
+}
+o
+{
+	Uuid %id{u4{9124396582756494756,5193358130788320089}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14560}
+		d %Value{0x000000A0ABF3FB3F}
+	}
+}
+o
+{
+	Uuid %id{u4{10749051000092966556,5217398428888366448}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x00000000E82B1EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{10825639585818641595,5235607862646196881}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000C0E5EDE3BF}
+	}
+}
+o
+{
+	Uuid %id{u4{2642564543109535900,5236117241758087563}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24000}
+		d %Value{0x0000004093330740}
+	}
+}
+o
+{
+	Uuid %id{u4{6736390558630759590,5240431183462257726}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{17461800862424806655,18364030431877389782}}
+		Uuid %Gradient{u4{2025567277842583838,863267675226247267}}
+		s %ObjectPath{"Bubble3"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorZ"}
+	}
+}
+o
+{
+	Uuid %id{u4{2678531586429077414,5245474532492793804}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28880}
+		d %Value{0x00000060BDAF26C0}
+	}
+}
+o
+{
+	Uuid %id{u4{4046030108473662849,5249112035991648726}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24080}
+		d %Value{0x00000060187FEB3F}
+	}
+}
+o
+{
+	Uuid %id{u4{2980940298580161454,5251158645850290203}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33520}
+		d %Value{0x000000C011AD2CC0}
+	}
+}
+o
+{
+	Uuid %id{u4{8744281074179774115,5257155791241289489}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{4401192105176474699,2841537538456757753}}
+		Uuid %Gradient{u4{17920981004725202737,6910932745215946542}}
+		s %ObjectPath{"Bubble3"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorX"}
+	}
+}
+o
+{
+	Uuid %id{u4{17044038694818077607,5259544976379060539}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19120}
+		d %Value{0x00000060420E25C0}
+	}
+}
+o
+{
+	Uuid %id{u4{14676821239481473681,5273006999985744900}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x0000008079FB0EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{18371290994398282427,5287981424752841650}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x00000000E82B1EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{13631047755396955808,5303831907168300983}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14400}
+		d %Value{0x00000080235A10C0}
+	}
+}
+o
+{
+	Uuid %id{u4{9511484591946435210,5304678561787096324}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x000000C0E5EDE3BF}
+	}
+}
+o
+{
+	Uuid %id{u4{10859788714507033001,5317776576106085801}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000C09FF5EA3F}
+	}
+}
+o
+{
+	Uuid %id{u4{3738161805738289834,5325677988762501443}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9520}
+		d %Value{0x000000002E6FBFBF}
+	}
+}
+o
+{
+	Uuid %id{u4{3779830108736134318,5335232864273339521}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14560}
+		d %Value{0x000000008CA7DEBF}
+	}
+}
+o
+{
+	Uuid %id{u4{8986966661232988826,5337198681310581627}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{43120}
+		d %Value{0x00000020641EF4BF}
+	}
+}
+o
+{
+	Uuid %id{u4{8766804304499096754,5337753179528467664}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0x000000207B7021C0}
+	}
+}
+o
+{
+	Uuid %id{u4{12206738218295148423,5343053943533874606}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{45680}
+		d %Value{0x9BA56674AB5A23C0}
+	}
+}
+o
+{
+	Uuid %id{u4{12772361505291353534,5345333117723025482}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28880}
+		d %Value{0x00000060AF042AC0}
+	}
+}
+o
+{
+	Uuid %id{u4{16916590379759178368,5354222139281311079}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33600}
+		d %Value{0x00000000B3B0D6BF}
+	}
+}
+o
+{
+	Uuid %id{u4{6761944414906677136,5356181994593390994}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{38400}
+		d %Value{0x000000806ACC0940}
+	}
+}
+o
+{
+	Uuid %id{u4{4805709207746529430,5360195340177043417}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14400}
+		d %Value{0x00000000E6EDE3BF}
+	}
+}
+o
+{
+	Uuid %id{u4{5787675557291124400,5363506941645665730}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000C011AD20C0}
+	}
+}
+o
+{
+	Uuid %id{u4{6935540360201487008,5372978743605428613}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{48000}
+		d %Value{0x000000C09FF5EA3F}
+	}
+}
+o
+{
+	Uuid %id{u4{15439795907640830134,5382445137404941325}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{43200}
+		d %Value{0x000000A07CD10740}
+	}
+}
+o
+{
+	Uuid %id{u4{3361751716941152662,5388010065886132192}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28800}
+		d %Value{0x000000005ADD0840}
+	}
+}
+o
+{
+	Uuid %id{u4{14636570740182099883,5390061340971122699}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4960}
+		d %Value{0x00000000E7710540}
+	}
+}
+o
+{
+	Uuid %id{u4{17191888018962215069,5427393632756154674}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9680}
+		d %Value{0x0000000050A024C0}
+	}
+}
+o
+{
+	Uuid %id{u4{8601042123777171097,5437948967679816989}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19360}
+		d %Value{0x00000020C2832BC0}
+	}
+}
+o
+{
+	Uuid %id{u4{17245670459233726650,5440095592544319263}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{42160}
+		d %Value{0x285C8F422CAE1640}
+	}
+}
+o
+{
+	Uuid %id{u4{1387592407921680522,5446823496163974171}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24000}
+		d %Value{0x000000E0C7B72BC0}
+	}
+}
+o
+{
+	Uuid %id{u4{343435221924811417,5451845885372262611}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{6285825038788636229,4918658725539654333}}
+		Uuid %Gradient{u4{16006015172906670806,2749191619980266560}}
+		s %ObjectPath{"Bubble1"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorY"}
+	}
+}
+o
+{
+	Uuid %id{u4{4364385265677638552,5452125692986047492}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{23920}
+		d %Value{0x00000080E6940540}
+	}
+}
+o
+{
+	Uuid %id{u4{13692453304234894496,5466040742153738548}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28800}
+		d %Value{0x000000C011AD29C0}
+	}
+}
+o
+{
+	Uuid %id{u4{185843865572019599,5476995824474846355}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19200}
+		d %Value{0x000000A07F640AC0}
+	}
+}
+o
+{
+	Uuid %id{u4{7541765885702799272,5491184560581656927}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000E0CF7AF53F}
+	}
+}
+o
+{
+	Uuid %id{u4{8651531221331139005,5515753740460933885}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4960}
+		d %Value{0x00000060588825C0}
+	}
+}
+o
+{
+	Uuid %id{u4{13722878742593830073,5522895721159335749}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{14002085323343659125,4406426765055085067}}
+		Uuid %Gradient{u4{3246497072773978850,17874028905028045775}}
+		s %ObjectPath{"Bubble2"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorY"}
+	}
+}
+o
+{
+	Uuid %id{u4{7591904348530939532,5530012241475478541}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{38400}
+		d %Value{0x000000A00F0C0740}
+	}
+}
+o
+{
+	Uuid %id{u4{1264318675079372929,5533327441566416325}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33600}
+		d %Value{0x000000802CB60040}
+	}
+}
+o
+{
+	Uuid %id{u4{1076744010465488058,5534372019688290956}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14480}
+		d %Value{0x000000C01D5D26C0}
+	}
+}
+o
+{
+	Uuid %id{u4{18256053346158772927,5540426122660365394}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{2640}
+		d %Value{0xE0A13EE412D6D4BF}
+	}
+}
+o
+{
+	Uuid %id{u4{9765857409627093137,5547666125030321117}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33680}
+		d %Value{0x000000C05A462EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{3869791958457448860,5551684545646879504}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28800}
+		d %Value{0x00000000C014DABF}
+	}
+}
+o
+{
+	Uuid %id{u4{4042155582519237545,5572011486250715127}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14560}
+		d %Value{0x000000A0DDBF28C0}
+	}
+}
+o
+{
+	Uuid %id{u4{11383041863268816315,5581768846507251926}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{38400}
+		d %Value{0x00000080747FD1BF}
+	}
+}
+o
+{
+	Uuid %id{u4{95355056025934227,5583701237443517278}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33600}
+		d %Value{0x00000040239607C0}
+	}
+}
+o
+{
+	Uuid %id{u4{5412598179107622808,5590667437589874037}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{28800}
+		d %Value{0x00000020ABD116C0}
+	}
+}
+o
+{
+	Uuid %id{u4{6371594155161792907,5601855541172279541}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{708808181976957163,11205675395202038990}}
+		Uuid %Gradient{u4{4687249596319950022,17227911799916197592}}
+		s %ObjectPath{"Bubble2"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorX"}
+	}
+}
+o
+{
+	Uuid %id{u4{17243335602771900090,5611062756848169049}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x00000000831A04C0}
+	}
+}
+o
+{
+	Uuid %id{u4{16930745751125839500,5612414665374732153}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24080}
+		d %Value{0x000000000D09FA3F}
+	}
+}
+o
+{
+	Uuid %id{u4{8658849805238745787,5640581841330207007}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19120}
+		d %Value{0x000000A021412840}
+	}
+}
+o
+{
+	Uuid %id{u4{2276657418844287618,5644827455852595051}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{33520}
+		d %Value{0x00000000D07AF13F}
+	}
+}
+o
+{
+	Uuid %id{u4{18133166849964190097,5671286302984103156}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{43120}
+		d %Value{0x0000000050A0ECBF}
+	}
+}
+o
+{
+	Uuid %id{u4{17849760985584705169,5672171176601667408}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{8480587775702096053,13642804917288761521}}
+		Uuid %Gradient{u4{15672834365303949156,14543475401296534441}}
+		s %ObjectPath{"Bubble1"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorZ"}
+	}
+}
+o
+{
+	Uuid %id{u4{12993968369605046197,5681673675000764093}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19360}
+		d %Value{0x0000004035E0FD3F}
+	}
+}
+o
+{
+	Uuid %id{u4{17930264862366751419,5688111483898455108}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{""}
+		Uuid %FloatCurve{u4{9352761200738834016,17890174022351356678}}
+		Uuid %Gradient{u4{11650168429668162493,1232657814387603344}}
+		s %ObjectPath{"Bubble4"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorY"}
+	}
+}
+o
+{
+	Uuid %id{u4{9484567929925866431,5690033859533937400}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x0000008073F4E83F}
+	}
+}
+o
+{
+	Uuid %id{u4{15418313680824376709,5702520390848923666}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{24080}
+		d %Value{0x000000A045AB20C0}
+	}
+}
+o
+{
+	Uuid %id{u4{13214879025074919307,5714919905809420949}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{23920}
+		d %Value{0x000000C0F78715C0}
+	}
+}
+o
+{
+	Uuid %id{u4{6610754504576608958,5716516320666010623}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{9520}
+		d %Value{0x0000008005F6EFBF}
+	}
+}
+o
+{
+	Uuid %id{u4{5475993507351952295,5733020919022278278}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{19360}
+		d %Value{0x00000080A3CE0440}
+	}
+}
+o
+{
+	Uuid %id{u4{4244394990590108069,5737741469457459709}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0x000000000635FCBF}
+	}
+}
+o
+{
+	Uuid %id{u4{3962214357495183499,5758978598781991980}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{38400}
+		d %Value{0x000000A048202EC0}
+	}
+}
+o
+{
+	Uuid %id{u4{6097690276591128756,5762869907271281194}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4720}
+		d %Value{0x000000C011AD26C0}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8934069967566989485,5058772902780291176}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11341709027873161474,6816110972756365774}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{17920981004725202737,6910932745215946542}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{10953857644684356280,8242992492980325577}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{100,149,237,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{10859788714507033001,5317776576106085801}}
+			Uuid{u4{6916104029566649241,5165312525327288330}}
+			Uuid{u4{185642821907112848,4705354071677756137}}
+			Uuid{u4{12828494564937838478,5156381087017266220}}
+			Uuid{u4{13501995300048711841,5173708071112467557}}
+			Uuid{u4{3869791958457448860,5551684545646879504}}
+			Uuid{u4{2276657418844287618,5644827455852595051}}
+			Uuid{u4{6935540360201487008,5372978743605428613}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15596115972570261692,10425453435356020658}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{13674280618732590017,11113697190014096171}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{255,102,0,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{189838317243035806,4845127106363327315}}
+			Uuid{u4{3738161805738289834,5325677988762501443}}
+			Uuid{u4{3779830108736134318,5335232864273339521}}
+			Uuid{u4{185843865572019599,5476995824474846355}}
+			Uuid{u4{1026890148182910132,4729469754599535202}}
+			Uuid{u4{9553466900646984333,5179464525435174238}}
+			Uuid{u4{12805012380111103121,5027235651759834438}}
+			Uuid{u4{13803707286383762304,5013136918052224069}}
+			Uuid{u4{8605309845322451587,4784123163254623770}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{708808181976957163,11205675395202038990}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{255,182,193,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{17243335602771900090,5611062756848169049}}
+			Uuid{u4{4244394990590108069,5737741469457459709}}
+			Uuid{u4{6610754504576608958,5716516320666010623}}
+			Uuid{u4{2371653267703572878,4704733356169896885}}
+			Uuid{u4{5475993507351952295,5733020919022278278}}
+			Uuid{u4{2642564543109535900,5236117241758087563}}
+			Uuid{u4{3361751716941152662,5388010065886132192}}
+			Uuid{u4{1264318675079372929,5533327441566416325}}
+			Uuid{u4{18133166849964190097,5671286302984103156}}
+			Uuid{u4{16422989023124517505,4954505529686321640}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8480587775702096053,13642804917288761521}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{0,255,255,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{7541765885702799272,5491184560581656927}}
+			Uuid{u4{14636570740182099883,5390061340971122699}}
+			Uuid{u4{1455968346457802394,4901253516705307215}}
+			Uuid{u4{9124396582756494756,5193358130788320089}}
+			Uuid{u4{1307178538084226959,4919613296434313116}}
+			Uuid{u4{4046030108473662849,5249112035991648726}}
+			Uuid{u4{2464106204693693616,4632235750089438515}}
+			Uuid{u4{7591904348530939532,5530012241475478541}}
+			Uuid{u4{15439795907640830134,5382445137404941325}}
+			Uuid{u4{18048646264289748375,4727811002923799931}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13615810813161385309,13858433693330044302}}
+	s %t{"ezEventTrackData"}
+	u3 %v{3}
+	p
+	{
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{1352354233718763076,14542214577101500541}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{120,158,39,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{5787675557291124400,5363506941645665730}}
+			Uuid{u4{8766804304499096754,5337753179528467664}}
+			Uuid{u4{17191888018962215069,5427393632756154674}}
+			Uuid{u4{1076744010465488058,5534372019688290956}}
+			Uuid{u4{17044038694818077607,5259544976379060539}}
+			Uuid{u4{6612628386026648749,4800479297220560636}}
+			Uuid{u4{12772361505291353534,5345333117723025482}}
+			Uuid{u4{2500410090340543908,4624956066154015683}}
+			Uuid{u4{16975667488183410600,4924460400904326443}}
+			Uuid{u4{184554954964927407,5086204997236667579}}
+			Uuid{u4{16549985541410856109,5095547890294163086}}
+			Uuid{u4{12206738218295148423,5343053943533874606}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15672834365303949156,14543475401296534441}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{896935904810067951,15359406525082911798}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{5009551657683557007,15707664854609950044}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{4687249596319950022,17227911799916197592}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{3246497072773978850,17874028905028045775}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{9352761200738834016,17890174022351356678}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{102,205,170,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{3538693738644787869,4929938946097345150}}
+			Uuid{u4{6097690276591128756,5762869907271281194}}
+			Uuid{u4{16205157609836623241,5160035412121066361}}
+			Uuid{u4{13631047755396955808,5303831907168300983}}
+			Uuid{u4{13723132896105797550,4871271916779119723}}
+			Uuid{u4{13692453304234894496,5466040742153738548}}
+			Uuid{u4{2980940298580161454,5251158645850290203}}
+			Uuid{u4{18233246057613081515,5159223378723807784}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17461800862424806655,18364030431877389782}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{81,120,188,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{7353598361958050692,4957658619608977676}}
+			Uuid{u4{12561722938274180243,5104547586621393876}}
+			Uuid{u4{6334884817871609483,4958632114563732917}}
+			Uuid{u4{17962062815648265602,5149651836780036001}}
+			Uuid{u4{4364385265677638552,5452125692986047492}}
+			Uuid{u4{16916590379759178368,5354222139281311079}}
+			Uuid{u4{11882854426393982386,5155547038926686298}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10967258354972870496,18426407061255734861}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{100,149,237,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{9484567929925866431,5690033859533937400}}
+			Uuid{u4{6958274290072055978,4853110641197974923}}
+			Uuid{u4{11999826273284875408,4698450571419114439}}
+			Uuid{u4{4503938140371229851,4918894192770389515}}
+			Uuid{u4{12993968369605046197,5681673675000764093}}
+			Uuid{u4{9393105067896809357,4966538798895920425}}
+			Uuid{u4{2294248433262795655,4662671541631712231}}
+			Uuid{u4{6768965556936986764,4946118031346594128}}
+			Uuid{u4{14225993844711809171,5175762896171002392}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{14722461902623688675,2098269905474166124}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{4976983466369834828,2223514201630482789}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{13216943865831982294,3766144591255929939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9491473581377719452,4451399860225586302}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAlphaControlPoint"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{10475186617569707554,5730318259636107165}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAnimTarget"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11550114622701834799,5955288077373963950}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAnimationTrack"}
+		u3 %TypeSize{328}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4645803681883095669,7506122234867881289}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezIntensityControlPoint"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11015610706821488674,9052215883761519321}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventTrackData"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{9143222088539867141,9609721939939207251}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientAssetData"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{15825214546671979369,10573770284991632156}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAnimationTrackGroup"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13088963179257465887,12792043508414429321}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorControlPoint"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{11235755960658565766,14374470961055231674}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventTrackControlPointData"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}

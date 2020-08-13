@@ -18,6 +18,7 @@
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
+bool ezQtDocumentWindow::s_bAllowRestoreWindowLayout = true;
 
 void ezQtDocumentWindow::Constructor()
 {
@@ -337,6 +338,9 @@ void ezQtDocumentWindow::SaveWindowLayout()
 
 void ezQtDocumentWindow::RestoreWindowLayout()
 {
+  if (!s_bAllowRestoreWindowLayout)
+    return;
+
   ezQtScopedUpdatesDisabled _(this);
 
   ezStringBuilder sGroup;
@@ -440,14 +444,15 @@ bool ezQtDocumentWindow::CanCloseWindow()
 
 bool ezQtDocumentWindow::InternalCanCloseWindow()
 {
+  // I guess this is to remove the focus from other widgets like input boxes,
+  // such that they may modify the document
   setFocus();
   clearFocus();
 
   if (m_pDocument && m_pDocument->IsModified())
   {
     QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"),
-      QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
-      QMessageBox::StandardButton::Cancel);
+      QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;

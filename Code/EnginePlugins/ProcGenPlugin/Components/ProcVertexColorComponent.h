@@ -9,7 +9,7 @@ class EZ_PROCGENPLUGIN_DLL ezProcVertexColorRenderData : public ezMeshRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezProcVertexColorRenderData, ezMeshRenderData);
 
 public:
-  virtual void FillBatchIdAndSortingKey();
+  virtual void FillBatchIdAndSortingKey() override;
 
   ezGALBufferHandle m_hVertexColorBuffer;
   ezUInt32 m_uiBufferAccessData = 0;
@@ -21,8 +21,7 @@ struct ezRenderWorldExtractionEvent;
 struct ezRenderWorldRenderEvent;
 class ezProcVertexColorComponent;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager
-  : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
+class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezProcVertexColorComponentManager);
 
@@ -50,7 +49,7 @@ private:
 
   ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
 
-  ezDynamicArray<ezUniquePtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;
+  ezDynamicArray<ezSharedPtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;
   ezTaskGroupID m_UpdateTaskGroupID;
   ezUInt32 m_uiNextTaskIndex = 0;
 

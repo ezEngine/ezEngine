@@ -8,8 +8,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
   {
     ezMat4 mProj, mProjInv;
 
-    mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(85.0f), 2.0f, 1.0f, 1000.0f,
-      ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(
+      ezAngle::Degree(85.0f), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
     mProjInv = mProj.GetInverse();
 
     for (ezUInt32 y = 0; y < 25; ++y)
@@ -24,8 +24,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
         EZ_TEST_VEC3(vDir, vPoint.GetNormalized(), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::MinusOneToOne)
-                       .Succeeded());
+        EZ_TEST_BOOL(
+          ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::MinusOneToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float)x, (float)y, 0.5f), 0.01f);
       }
@@ -51,8 +51,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
         EZ_TEST_VEC3(vDir, vPoint.GetNormalized(), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(
-          ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::ZeroToOne).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::ZeroToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float)x, (float)y, 0.5f), 0.01f);
       }
@@ -79,8 +78,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
         EZ_TEST_VEC3(vDir, ezVec3(0, 0, 1.0f), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::MinusOneToOne)
-                       .Succeeded());
+        EZ_TEST_BOOL(
+          ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::MinusOneToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float)x, (float)y, 0.5f), 0.01f);
       }
@@ -106,8 +105,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
         EZ_TEST_VEC3(vDir, ezVec3(0, 0, 1.0f), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(
-          ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::ZeroToOne).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezClipSpaceDepthRange::ZeroToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float)x, (float)y, 0.5f), 0.01f);
       }
@@ -119,8 +117,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
     ezMat4 mProj1, mProj2;
     mProj1 = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(
       ezAngle::Degree(85.0f), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
-    mProj2 = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(85.0f), 2.0f, 1.0f, 1000.0f,
-      ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    mProj2 = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(
+      ezAngle::Degree(85.0f), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
     ezMat4 mProj1b = mProj1;
     ezMat4 mProj2b = mProj2;
@@ -137,8 +135,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
     {
       {
         ezMat4 mProj;
-        mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(angle), 2.0f, 1.0f, 1000.0f,
-          ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+        mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(
+          ezAngle::Degree(angle), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
         ezAngle fovx, fovy;
         ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fovx, fovy);
@@ -148,8 +146,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
 
       {
         ezMat4 mProj;
-        mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(angle), 1.0f / 3.0f, 1.0f, 1000.0f,
-          ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+        mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+          ezAngle::Degree(angle), 1.0f / 3.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
         ezAngle fovx, fovy;
         ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fovx, fovy);
@@ -167,8 +165,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       const float fFarIn = 10.0f + i * 10.0f;
 
       ezMat4 mProj;
-      mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(70.0f), 0.7f, fNearIn, fFarIn,
-        ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+      mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+        ezAngle::Degree(70.0f), 0.7f, fNearIn, fFarIn, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
       float fNearOut, fFarOut;
       ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(fNearOut, fFarOut, mProj, ezClipSpaceDepthRange::ZeroToOne);
@@ -183,8 +181,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       const float fFarIn = 100.0f + i * 50.0f;
 
       ezMat4 mProj;
-      mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(10.0f), 1.7f, fNearIn, fFarIn,
-        ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+      mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+        ezAngle::Degree(10.0f), 1.7f, fNearIn, fFarIn, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
       float fNearOut, fFarOut;
       ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(fNearOut, fFarOut, mProj, ezClipSpaceDepthRange::MinusOneToOne);
@@ -202,8 +200,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       float farPlane = 1000.0f;
 
       ezMat4 mProj;
-      mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(90.0f), 1.0f, nearPlane, farPlane,
-        ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+      mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+        ezAngle::Degree(90.0f), 1.0f, nearPlane, farPlane, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
       const ezPlane horz = ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
         ezGraphicsUtils::FrustumPlaneInterpolation::LeftToRight, i * 0.1f, mProj, ezClipSpaceDepthRange::ZeroToOne);

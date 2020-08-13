@@ -22,7 +22,7 @@ enum class ezGameStatePriority
 /// It's main purpose is to implement high-level game logic.
 ///
 /// ezGameApplication will loop through all available ezGameState implementations and ask each available one
-/// whether it can handle a certain level. Each game state returns a 'score' how well it can handle the game.
+/// whether it can handle a certain level. Each game state returns a 'priority' how well it can handle the game.
 ///
 /// In a typical game you only have one game state linked into the binary, so in that case there is no reason for
 /// such a system. However, in an editor you might have multiple game states available through plugins, but
@@ -68,7 +68,6 @@ public:
 
   /// \brief Called by ezGameApplication to determine which game state is best suited to handle a situation.
   ///
-  /// The application type is passed along, such that game states that cannot run inside the editor can bail out (or vice versa).
   /// If the application already has a world that should be shown, the game state can inspect it.
   /// If the game state is expected to create a new world, pWorld will be nullptr.
   virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const = 0;
@@ -87,4 +86,3 @@ public:
 protected:
   bool m_bStateWantsToQuit = false;
 };
-

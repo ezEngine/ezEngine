@@ -1,7 +1,7 @@
 #pragma once
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-#include <Foundation/System/Process.h>
+#  include <Foundation/System/Process.h>
 
 /// \brief Process groups are used to tie multiple processes together and ensure they get terminated either on demand or when the
 /// application crashes

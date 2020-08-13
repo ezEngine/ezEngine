@@ -1,17 +1,17 @@
 #include <FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <Foundation/Application/Application.h>
-#include <Foundation/Application/Implementation/uwp/Application_uwp.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Strings/StringConversion.h>
+#  include <Foundation/Application/Application.h>
+#  include <Foundation/Application/Implementation/uwp/Application_uwp.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/IO/OSFile.h>
+#  include <Foundation/Strings/StringConversion.h>
 
-#include <windows.ui.core.h>
-#include <wrl/event.h>
+#  include <windows.ui.core.h>
+#  include <wrl/event.h>
 
 ezUwpApplication::ezUwpApplication(ezApplication* application)
-    : m_application(application)
+  : m_application(application)
 {
 }
 
@@ -26,9 +26,9 @@ HRESULT ezUwpApplication::CreateView(IFrameworkView** viewProvider)
 HRESULT ezUwpApplication::Initialize(ICoreApplicationView* applicationView)
 {
   using OnActivatedHandler =
-      __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs;
+    __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs;
   EZ_SUCCEED_OR_RETURN(applicationView->add_Activated(
-      Microsoft::WRL::Callback<OnActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
+    Microsoft::WRL::Callback<OnActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
 
   return S_OK;
 }
@@ -95,7 +95,7 @@ EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 {
   ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplication> coreApplication;
   HRESULT result = ABI::Windows::Foundation::GetActivationFactory(
-      HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
+    HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
   if (FAILED(result))
   {
     ezLog::Printf("Failed to create core application: %i\n", result);
@@ -114,4 +114,3 @@ EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_uwp_Application_uwp);
-

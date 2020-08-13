@@ -111,8 +111,7 @@ public:
 
 
   virtual void SetListenerOverrideMode(bool enabled) override;
-  virtual void SetListener(
-    ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
+  virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
   ezVec3 GetListenerPosition() { return m_ListenerPosition; }
 
 private:

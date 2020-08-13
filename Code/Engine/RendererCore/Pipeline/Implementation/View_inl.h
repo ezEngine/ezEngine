@@ -80,9 +80,9 @@ EZ_FORCE_INLINE bool ezView::IsValid() const
   return m_pWorld != nullptr && m_pRenderPipeline != nullptr && m_pCamera != nullptr && m_Data.m_ViewPortRect.HasNonZeroArea();
 }
 
-EZ_ALWAYS_INLINE ezTask* ezView::GetExtractTask()
+EZ_ALWAYS_INLINE const ezSharedPtr<ezTask>& ezView::GetExtractTask()
 {
-  return &m_ExtractTask;
+  return m_pExtractTask;
 }
 
 EZ_FORCE_INLINE ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir) const
@@ -132,4 +132,3 @@ EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix(ezCameraEy
   UpdateCachedMatrices();
   return m_Data.m_InverseViewProjectionMatrix[static_cast<int>(eye)];
 }
-

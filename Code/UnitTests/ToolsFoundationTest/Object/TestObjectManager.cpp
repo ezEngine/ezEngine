@@ -11,8 +11,8 @@ ezTestDocumentObjectManager::ezTestDocumentObjectManager() {}
 ezTestDocumentObjectManager::~ezTestDocumentObjectManager() {}
 
 ezTestDocument::ezTestDocument(const char* szDocumentPath, bool bUseIPCObjectMirror /*= false*/)
-    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
-    , m_bUseIPCObjectMirror(bUseIPCObjectMirror)
+  : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
+  , m_bUseIPCObjectMirror(bUseIPCObjectMirror)
 {
 }
 

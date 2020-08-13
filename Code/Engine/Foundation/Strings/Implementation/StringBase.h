@@ -18,10 +18,10 @@ template <typename Derived>
 struct ezStringBase : public ezThisIsAString
 {
 public:
-  typedef ezStringIterator<Derived> iterator;
-  typedef ezStringIterator<Derived> const_iterator;
-  typedef ezStringReverseIterator<Derived> reverse_iterator;
-  typedef ezStringReverseIterator<Derived> const_reverse_iterator;
+  using iterator = ezStringIterator<Derived>;
+  using const_iterator = ezStringIterator<Derived>;
+  using reverse_iterator = ezStringReverseIterator<Derived>;
+  using const_reverse_iterator = ezStringReverseIterator<Derived>;
 
   /// Returns whether the string is an empty string.
   bool IsEmpty() const; // [tested]
@@ -57,12 +57,12 @@ public:
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr.
   const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
-                            const char* szStartSearchAt = nullptr) const; // [tested]
+    const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr. Ignores case.
   const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
-                                   const char* szStartSearchAt = nullptr) const; // [tested]
+    const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise.
   ezInt32 Compare(const char* pString2) const; // [tested]
@@ -195,4 +195,3 @@ typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<
 }
 
 #include <Foundation/Strings/Implementation/StringBase_inl.h>
-

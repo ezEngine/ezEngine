@@ -25,7 +25,8 @@ void ezTypeScriptTranspiler::StartLoadTranspiler()
   if (m_LoadTaskGroup.IsValid())
     return;
 
-  ezDelegateTask<void>* pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]() //
+  ezSharedPtr<ezTask> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "",
+    [this]() //
     {
       EZ_PROFILE_SCOPE("Load TypeScript Transpiler");
 
@@ -37,7 +38,7 @@ void ezTypeScriptTranspiler::StartLoadTranspiler()
       ezLog::Success("Loaded TypeScript transpiler.");
     });
 
-  pTask->ConfigureTask("Load TypeScript Transpiler", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+  pTask->ConfigureTask("Load TypeScript Transpiler", ezTaskNesting::Never);
   m_LoadTaskGroup = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunning);
 }
 

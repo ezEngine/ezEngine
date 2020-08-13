@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Texture/TextureDLL.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/EnumerableClass.h>
+#include <Texture/TextureDLL.h>
 
 class ezStreamReader;
 class ezStreamWriter;
@@ -33,4 +33,3 @@ public:
 
   EZ_DECLARE_ENUMERABLE_CLASS(ezImageFileFormat);
 };
-

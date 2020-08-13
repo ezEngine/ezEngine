@@ -102,8 +102,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
   }
 
-  auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("ComponentTypes");
-  dynEnum.Clear();
+  auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
 
   for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
@@ -133,9 +132,9 @@ static ezColor PinTypeColor(ezVisualScriptDataPinType::Enum type)
       return ezColor::Maroon;
     case ezVisualScriptDataPinType::ComponentHandle:
       return ezColor::DodgerBlue;
+    default:
+      return ezColor::Pink;
   }
-
-  return ezColor::Pink;
 }
 
 void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
@@ -445,6 +444,8 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
       case ezVariantType::Vector3:
         pid.m_DataType = ezVisualScriptDataPinType::Vec3;
         break;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     pid.m_sName = prop->GetPropertyName();
@@ -532,6 +533,8 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
       case ezVariantType::Vector3:
         pid.m_DataType = ezVisualScriptDataPinType::Vec3;
         break;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     pid.m_sName = prop->GetPropertyName();
@@ -691,7 +694,8 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       prd.m_sName = sName;
       prd.m_sType = pFunction->GetArgumentType(argIdx)->GetTypeName();
 
-      ezVisScriptMappingAttribute* pMappingAttr = ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
+      ezVisScriptMappingAttribute* pMappingAttr =
+        ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
       pMappingAttr->m_iMapping = argIdx;
       prd.m_Attributes.PushBack(pMappingAttr);
 

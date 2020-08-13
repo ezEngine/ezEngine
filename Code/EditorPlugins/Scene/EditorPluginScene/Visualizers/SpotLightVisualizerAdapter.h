@@ -1,8 +1,8 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 
 class ezSpotLightVisualizerAdapter : public ezVisualizerAdapter
 {

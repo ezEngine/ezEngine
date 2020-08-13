@@ -12,7 +12,7 @@ namespace ezMemoryPolicies
   {
   public:
     ezAlignedAllocation(ezAllocatorBase* pParent)
-        : m_allocator(pParent)
+      : m_allocator(pParent)
     {
     }
 
@@ -79,10 +79,7 @@ namespace ezMemoryPolicies
 
     // Store offset between pMemory and pAlignedMemory in the lower 24 bit of meta-data.
     // The upper 8 bit are used to store the Log2 of the alignment.
-    EZ_ALWAYS_INLINE ezUInt32 PackMetadata(ezUInt32 uiOffset, ezUInt32 uiAlignment)
-    {
-      return uiOffset | (ezMath::Log2i(uiAlignment) << 24);
-    }
+    EZ_ALWAYS_INLINE ezUInt32 PackMetadata(ezUInt32 uiOffset, ezUInt32 uiAlignment) { return uiOffset | (ezMath::Log2i(uiAlignment) << 24); }
 
     EZ_ALWAYS_INLINE ezUInt32 UnpackOffset(ezUInt32 uiMetadata) { return uiMetadata & 0x00FFFFFF; }
 
@@ -90,5 +87,4 @@ namespace ezMemoryPolicies
 
     T m_allocator;
   };
-}
-
+} // namespace ezMemoryPolicies

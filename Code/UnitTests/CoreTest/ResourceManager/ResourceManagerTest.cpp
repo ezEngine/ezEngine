@@ -74,10 +74,7 @@ namespace
     }
 
   public:
-    void Test()
-    {
-      EZ_TEST_BOOL(!m_Data.IsEmpty());
-    }
+    void Test() { EZ_TEST_BOOL(!m_Data.IsEmpty()); }
 
   private:
     TestResourceHandle m_Nested;

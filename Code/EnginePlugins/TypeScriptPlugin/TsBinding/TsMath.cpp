@@ -59,7 +59,8 @@ ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ez
   return res;
 }
 
-ezVec2 ezTypeScriptBinding::GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback /*= ezVec2::ZeroVector()*/)
+ezVec2 ezTypeScriptBinding::GetVec2Property(
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback /*= ezVec2::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -132,7 +133,8 @@ ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ez
   return res;
 }
 
-ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback /*= ezVec3::ZeroVector()*/)
+ezVec3 ezTypeScriptBinding::GetVec3Property(
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback /*= ezVec3::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -228,7 +230,8 @@ ezMat3 ezTypeScriptBinding::GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ez
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
 }
 
-ezMat3 ezTypeScriptBinding::GetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& fallback /*= ezMat3::ZeroVector()*/)
+ezMat3 ezTypeScriptBinding::GetMat3Property(
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& fallback /*= ezMat3::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -338,7 +341,8 @@ ezMat4 ezTypeScriptBinding::GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ez
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
 }
 
-ezMat4 ezTypeScriptBinding::GetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& fallback /*= ezMat4::ZeroVector()*/)
+ezMat4 ezTypeScriptBinding::GetMat4Property(
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& fallback /*= ezMat4::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -417,7 +421,8 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat f
   return res;
 }
 
-ezQuat ezTypeScriptBinding::GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback /*= ezQuat::IdentityQuaternion()*/)
+ezQuat ezTypeScriptBinding::GetQuatProperty(
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback /*= ezQuat::IdentityQuaternion()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -487,7 +492,8 @@ ezColor ezTypeScriptBinding::GetColor(duk_context* pDuk, ezInt32 iObjIdx, const 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
 }
 
-ezColor ezTypeScriptBinding::GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& fallback /*= ezColor::White*/)
+ezColor ezTypeScriptBinding::GetColorProperty(
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& fallback /*= ezColor::White*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -552,7 +558,8 @@ ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx
   return res;
 }
 
-ezTransform ezTypeScriptBinding::GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
+ezTransform ezTypeScriptBinding::GetTransformProperty(
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -665,9 +672,9 @@ void ezTypeScriptBinding::PushVariant(duk_context* pDuk, const ezVariant& value)
       break;
 
       // TODO: implement these types
-      //case ezVariant::Type::Vector4:
-      //case ezVariant::Type::Vector4I:
-      //case ezVariant::Type::Vector4U:
+      // case ezVariant::Type::Vector4:
+      // case ezVariant::Type::Vector4I:
+      // case ezVariant::Type::Vector4U:
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -783,14 +790,14 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
     case ezVariant::Type::Matrix4:
       return ezTypeScriptBinding::GetMat4(duk, iObjIdx);
 
-      //case ezVariant::Type::Vector4:
+      // case ezVariant::Type::Vector4:
       //  break;
-      //case ezVariant::Type::Vector4I:
+      // case ezVariant::Type::Vector4I:
       //  break;
-      //case ezVariant::Type::Vector4U:
+      // case ezVariant::Type::Vector4U:
       //  break;
 
-      //case ezVariant::Type::Uuid:
+      // case ezVariant::Type::Uuid:
       //  break;
 
     default:

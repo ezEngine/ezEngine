@@ -78,10 +78,10 @@ protected:
   virtual void CreateActors();
 
   /// \brief Adds custom input actions, if necessary.
-  /// Unless overridden Activate() will call this.
+  /// Unless overridden OnActivation() will call this.
   virtual void ConfigureInputActions();
 
-  /// \brief Overrideable function that may create a player object.
+  /// \brief Overridable function that may create a player object.
   ///
   /// By default called by OnActivation().
   /// The default implementation will search the world for ezPlayerStartComponent's and instantiate the given player prefab at one of those
@@ -92,8 +92,7 @@ protected:
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
 
   /// \brief Creates a default main view with the given render pipeline.
-  void SetupMainView(
-    ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
+  ezView* CreateMainView(ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
@@ -107,7 +106,7 @@ protected:
   /// \brief Override this to modify the default output target creation behavior. Called by CreateActors().
   virtual ezUniquePtr<ezWindowOutputTargetBase> CreateMainOutputTarget(ezWindow* pMainWindow);
 
-  /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
+  /// \brief Creates a default render view. Unless overridden, OnActivation() will do this for the main window.
   virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize);
 
   /// \brief Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
@@ -120,4 +119,5 @@ protected:
 
   ezCamera m_MainCamera;
   bool m_bStateWantsToQuit = false;
+  bool m_bXREnabled = false;
 };

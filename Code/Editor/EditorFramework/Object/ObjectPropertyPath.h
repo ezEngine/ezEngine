@@ -34,10 +34,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezObjectPropertyPathContext
 class EZ_EDITORFRAMEWORK_DLL ezObjectPropertyPath
 {
 public:
-  static ezStatus CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop,
-    ezStringBuilder& out_sObjectSearchSequence, ezStringBuilder& out_sComponentType, ezStringBuilder& out_sPropertyPath);
-  static ezStatus CreatePropertyPath(
-    const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sPropertyPath);
+  static ezStatus CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sObjectSearchSequence,
+    ezStringBuilder& out_sComponentType, ezStringBuilder& out_sPropertyPath);
+  static ezStatus CreatePropertyPath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sPropertyPath);
 
   static ezStatus ResolvePath(const ezObjectPropertyPathContext& context, ezHybridArray<ezPropertyReference, 1>& out_keys,
     const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath);

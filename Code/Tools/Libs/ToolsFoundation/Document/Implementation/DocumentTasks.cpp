@@ -3,9 +3,9 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <ToolsFoundation/Document/DocumentTasks.h>
 
-ezSaveDocumentTask::ezSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished)
+ezSaveDocumentTask::ezSaveDocumentTask()
 {
-  ConfigureTask("ezSaveDocumentTask", ezTaskNesting::Maybe, onTaskFinished);
+  ConfigureTask("ezSaveDocumentTask", ezTaskNesting::Maybe);
 }
 
 ezSaveDocumentTask::~ezSaveDocumentTask() = default;
@@ -24,9 +24,9 @@ void ezSaveDocumentTask::Execute()
   }
 }
 
-ezAfterSaveDocumentTask::ezAfterSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished)
+ezAfterSaveDocumentTask::ezAfterSaveDocumentTask()
 {
-  ConfigureTask("ezAfterSaveDocumentTask", ezTaskNesting::Maybe, onTaskFinished);
+  ConfigureTask("ezAfterSaveDocumentTask", ezTaskNesting::Maybe);
 }
 
 ezAfterSaveDocumentTask::~ezAfterSaveDocumentTask() = default;
@@ -56,4 +56,5 @@ void ezAfterSaveDocumentTask::Execute()
   {
     m_callback(m_document, m_document->m_lastSaveResult);
   }
+  m_document->m_activeSaveTask.Invalidate();
 }

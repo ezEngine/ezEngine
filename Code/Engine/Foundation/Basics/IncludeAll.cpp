@@ -4,6 +4,7 @@
 // For non-template code this is not really necessary, but to be sure, just include everything.
 
 #include <Foundation/Algorithm/Comparer.h>
+#include <Foundation/Algorithm/HashStream.h>
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Algorithm/Sorting.h>
 
@@ -160,11 +161,11 @@
 #include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Tracks/EventTrack.h>
 
+#include <Foundation/System/StackTracer.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <Foundation/System/StackTracer.h>
 #include <Foundation/Utilities/Stats.h>
 
 

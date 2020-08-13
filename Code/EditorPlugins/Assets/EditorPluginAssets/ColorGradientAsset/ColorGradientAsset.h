@@ -12,7 +12,7 @@ public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
 
-  //double m_fPositionX;
+  // double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
   ezUInt8 m_Red;
   ezUInt8 m_Green;
@@ -27,7 +27,7 @@ public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
 
-  //double m_fPositionX;
+  // double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
   ezUInt8 m_Alpha;
 };
@@ -40,7 +40,7 @@ public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
 
-  //double m_fPositionX;
+  // double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
   float m_fIntensity;
 };
@@ -72,6 +72,7 @@ public:
   void WriteResource(ezStreamWriter& stream) const;
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };

@@ -30,9 +30,11 @@
 
 
 /// \brief Assert handler callback. Should return true to trigger a break point or false if the assert should be ignored
-typedef bool (*ezAssertHandler)(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
+using ezAssertHandler = bool (*)(
+  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
 
-EZ_FOUNDATION_DLL bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
+EZ_FOUNDATION_DLL bool ezDefaultAssertHandler(
+  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
 
 /// \brief Gets the current assert handler. The default assert handler shows a dialog on windows or prints to the console on other platforms.
 EZ_FOUNDATION_DLL ezAssertHandler ezGetAssertHandler();
@@ -41,7 +43,8 @@ EZ_FOUNDATION_DLL ezAssertHandler ezGetAssertHandler();
 EZ_FOUNDATION_DLL void ezSetAssertHandler(ezAssertHandler handler);
 
 /// \brief Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
-EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg);
+EZ_FOUNDATION_DLL bool ezFailedCheck(
+  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg);
 EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* msg);
 
 /// \brief Dummy version of ezFmt that only takes a single argument
@@ -50,29 +53,32 @@ inline const char* ezFmt(const char* szFormat)
   return szFormat;
 }
 
-/// \brief Macro to report a failure when that code is reached. This will ALWAYS be executed, even in release builds, therefore might crash the application (or trigger a debug break).
-#define EZ_REPORT_FAILURE(szErrorMsg, ...)                                                                       \
-  do                                                                                                             \
-  {                                                                                                              \
-    if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, "", ezFmt(szErrorMsg, ##__VA_ARGS__))) \
-      EZ_DEBUG_BREAK;                                                                                            \
+/// \brief Macro to report a failure when that code is reached. This will ALWAYS be executed, even in release builds, therefore might crash the
+/// application (or trigger a debug break).
+#define EZ_REPORT_FAILURE(szErrorMsg, ...)                                                                                                           \
+  do                                                                                                                                                 \
+  {                                                                                                                                                  \
+    if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, "", ezFmt(szErrorMsg, ##__VA_ARGS__)))                                     \
+      EZ_DEBUG_BREAK;                                                                                                                                \
   } while (false)
 
-/// \brief Macro to raise an error, if a condition is not met. Allows to write a message using printf style. This assert will be triggered, even in non-development builds and cannot be deactivated.
-#define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...)                                                                       \
-  do                                                                                                                        \
-  {                                                                                                                         \
-    EZ_MSVC_ANALYSIS_WARNING_PUSH                                                                                           \
-    EZ_MSVC_ANALYSIS_WARNING_DISABLE(6326) /* disable static analysis for the comparison */                                 \
-    if (!!(bCondition) == false)                                                                                            \
-    {                                                                                                                       \
-      if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, ezFmt(szErrorMsg, ##__VA_ARGS__))) \
-        EZ_DEBUG_BREAK;                                                                                                     \
-    }                                                                                                                       \
-    EZ_MSVC_ANALYSIS_WARNING_POP                                                                                            \
+/// \brief Macro to raise an error, if a condition is not met. Allows to write a message using printf style. This assert will be triggered, even in
+/// non-development builds and cannot be deactivated.
+#define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...)                                                                                                \
+  do                                                                                                                                                 \
+  {                                                                                                                                                  \
+    EZ_MSVC_ANALYSIS_WARNING_PUSH                                                                                                                    \
+    EZ_MSVC_ANALYSIS_WARNING_DISABLE(6326) /* disable static analysis for the comparison */                                                          \
+    if (!!(bCondition) == false)                                                                                                                     \
+    {                                                                                                                                                \
+      if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, ezFmt(szErrorMsg, ##__VA_ARGS__)))                          \
+        EZ_DEBUG_BREAK;                                                                                                                              \
+    }                                                                                                                                                \
+    EZ_MSVC_ANALYSIS_WARNING_POP                                                                                                                     \
   } while (false)
 
-/// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these asserts.
+/// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these
+/// asserts.
 #define EZ_ASSERT_NOT_IMPLEMENTED EZ_REPORT_FAILURE("Not implemented");
 
 // Occurrences of EZ_ASSERT_DEBUG are compiled out in non-debug builds
@@ -82,14 +88,14 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEBUG EZ_ASSERT_ALWAYS
+#  define EZ_ASSERT_DEBUG EZ_ASSERT_ALWAYS
 #else
 /// \brief Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using printf style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...)
+#  define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...)
 #endif
 
 
@@ -101,14 +107,14 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEV EZ_ASSERT_ALWAYS
+#  define EZ_ASSERT_DEV EZ_ASSERT_ALWAYS
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
 /// so you may execute important code in it.
-#define EZ_VERIFY EZ_ASSERT_ALWAYS
+#  define EZ_VERIFY EZ_ASSERT_ALWAYS
 
 #else
 
@@ -117,17 +123,17 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...)
+#  define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...)
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
 /// so you may execute important code in it.
-#define EZ_VERIFY(bCondition, szErrorMsg, ...)                             \
-  if (!!(bCondition) == false)                                             \
-  { /* The condition is evaluated, even though nothing is done with it. */ \
-  }
+#  define EZ_VERIFY(bCondition, szErrorMsg, ...)                                                                                                     \
+    if (!!(bCondition) == false)                                                                                                                     \
+    { /* The condition is evaluated, even though nothing is done with it. */                                                                         \
+    }
 
 #endif
 
@@ -138,7 +144,7 @@ inline const char* ezFmt(const char* szFormat)
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
 /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-#define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...)
+#  define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...)
 
 #else
 
@@ -147,7 +153,12 @@ inline const char* ezFmt(const char* szFormat)
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
 /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-#define EZ_ASSERT_RELEASE EZ_ASSERT_ALWAYS
+#  define EZ_ASSERT_RELEASE EZ_ASSERT_ALWAYS
 
 #endif
 
+/// \brief Macro to make unhandled cases in a switch block an error.
+#define EZ_DEFAULT_CASE_NOT_IMPLEMENTED                                                                                                              \
+  default:                                                                                                                                           \
+    EZ_ASSERT_NOT_IMPLEMENTED                                                                                                                        \
+    break;

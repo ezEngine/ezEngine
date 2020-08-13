@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
 class EZ_ENGINEPLUGINASSETS_DLL ezDecalContext : public ezEngineProcessDocumentContext
@@ -20,7 +20,5 @@ protected:
 private:
   ezMeshResourceHandle m_hPreviewMeshResource;
 
-  //ezDecalResourceHandle m_hDecal;
+  // ezDecalResourceHandle m_hDecal;
 };
-
-

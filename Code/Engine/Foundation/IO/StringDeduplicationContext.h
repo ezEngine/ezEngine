@@ -1,10 +1,10 @@
 
 #pragma once
 
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/SerializationContext.h>
-#include <Foundation/Containers/Map.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/String.h>
 
 class ezStreamWriter;
@@ -17,13 +17,14 @@ class ezStreamReader;
 class EZ_FOUNDATION_DLL ezStringDeduplicationWriteContext : public ezSerializationContext<ezStringDeduplicationWriteContext>
 {
   EZ_DECLARE_SERIALIZATION_CONTEXT(ezStringDeduplicationWriteContext);
-public:
 
+public:
   /// \brief Setup the write context to perform string deduplication.
   ezStringDeduplicationWriteContext(ezStreamWriter& OriginalStream);
   ~ezStringDeduplicationWriteContext();
 
-  /// \brief Call this method to begin string deduplicaton. You need to use the returned stream writer for subsequent serialization operations until End() is called.
+  /// \brief Call this method to begin string deduplicaton. You need to use the returned stream writer for subsequent serialization operations until
+  /// End() is called.
   ezStreamWriter& Begin();
 
   /// \brief Ends the string deduplication and writes the string table to the original stream
@@ -39,7 +40,6 @@ public:
   ezStreamWriter& GetOriginalStream() { return m_OriginalStream; }
 
 protected:
-
   ezStreamWriter& m_OriginalStream;
 
   ezMemoryStreamStorage m_TempStreamStorage;
@@ -52,6 +52,7 @@ protected:
 class EZ_FOUNDATION_DLL ezStringDeduplicationReadContext : public ezSerializationContext<ezStringDeduplicationReadContext>
 {
   EZ_DECLARE_SERIALIZATION_CONTEXT(ezStringDeduplicationReadContext);
+
 public:
   /// \brief Setup the string table used internally.
   ezStringDeduplicationReadContext(ezStreamReader& Stream);

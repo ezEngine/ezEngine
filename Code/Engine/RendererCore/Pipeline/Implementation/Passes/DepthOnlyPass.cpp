@@ -21,14 +21,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezDepthOnlyPass::ezDepthOnlyPass(const char* szName)
-    : ezRenderPipelinePass(szName)
+  : ezRenderPipelinePass(szName)
 {
 }
 
 ezDepthOnlyPass::~ezDepthOnlyPass() {}
 
-bool ezDepthOnlyPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                                  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezDepthOnlyPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // DepthStencil
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
@@ -45,7 +45,7 @@ bool ezDepthOnlyPass::GetRenderTargetDescriptions(const ezView& view, const ezAr
 }
 
 void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                              const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -69,4 +69,3 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_DepthOnlyPass);
-

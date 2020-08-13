@@ -29,7 +29,7 @@ ezResult ezWorldModuleConfig::Save()
     writer.BeginObject("InterfaceImpl");
 
     ezOpenDdlUtils::StoreString(writer, interfaceImpl.m_sInterfaceName, "Interface");
-    ezOpenDdlUtils::StoreBool(writer, interfaceImpl.m_sImplementationName, "Implementation");
+    ezOpenDdlUtils::StoreString(writer, interfaceImpl.m_sImplementationName, "Implementation");
 
     writer.EndObject();
   }
@@ -39,30 +39,34 @@ ezResult ezWorldModuleConfig::Save()
 
 void ezWorldModuleConfig::Load()
 {
-  EZ_LOG_BLOCK("ezWorldModuleConfig::Load()");
+  const char* szPath = ":project/WorldModules.ddl";
+
+  EZ_LOG_BLOCK("ezWorldModuleConfig::Load()", szPath);
 
   m_InterfaceImpls.Clear();
 
-  ezStringBuilder sPath;
-  sPath = ":project/WorldModules.ddl";
-
   ezFileReader file;
-  if (file.Open(sPath).Failed())
+  if (file.Open(szPath).Failed())
   {
-    ezLog::Warning("Could not open world module interface impl config file '{0}'", sPath);
+    ezLog::Dev("World module config file is not available: '{0}'", szPath);
     return;
+  }
+  else
+  {
+    ezLog::Success("World module config file is available: '{0}'", szPath);
   }
 
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
-    ezLog::Error("Failed to parse world module interface impl config file '{0}'", sPath);
+    ezLog::Error("Failed to parse world module config file '{0}'", szPath);
     return;
   }
 
   const ezOpenDdlReaderElement* pTree = reader.GetRootElement();
 
-  for (const ezOpenDdlReaderElement* pInterfaceImpl = pTree->GetFirstChild(); pInterfaceImpl != nullptr; pInterfaceImpl = pInterfaceImpl->GetSibling())
+  for (const ezOpenDdlReaderElement* pInterfaceImpl = pTree->GetFirstChild(); pInterfaceImpl != nullptr;
+       pInterfaceImpl = pInterfaceImpl->GetSibling())
   {
     if (!pInterfaceImpl->IsCustomType("InterfaceImpl"))
       continue;
@@ -113,4 +117,3 @@ void ezWorldModuleConfig::RemoveInterfaceImplementation(ezStringView sInterfaceN
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModuleConfig);
-

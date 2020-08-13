@@ -57,7 +57,8 @@ ezQtLogPanel::~ezQtLogPanel()
 
 void ezQtLogPanel::OnNewWarningsOrErrors(const char* szText, bool bError)
 {
-  m_uiKnownNumWarnings = EditorLog->GetLog()->GetNumSeriousWarnings() + EditorLog->GetLog()->GetNumWarnings() + EngineLog->GetLog()->GetNumSeriousWarnings() + EngineLog->GetLog()->GetNumWarnings();
+  m_uiKnownNumWarnings = EditorLog->GetLog()->GetNumSeriousWarnings() + EditorLog->GetLog()->GetNumWarnings() +
+                         EngineLog->GetLog()->GetNumSeriousWarnings() + EngineLog->GetLog()->GetNumWarnings();
   m_uiKnownNumErrors = EditorLog->GetLog()->GetNumErrors() + EngineLog->GetLog()->GetNumErrors();
 
   ezQtUiServices::Event::TextType type = ezQtUiServices::Event::Info;
@@ -100,7 +101,8 @@ void ezQtLogPanel::OnNewWarningsOrErrors(const char* szText, bool bError)
 
   if (!ezStringUtils::IsNullOrEmpty(szText))
   {
-    ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("{}: {}", bError ? "Error" : "Warning", szText), ezTime::Seconds(10));
+    ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
+      ezFmt("{}: {}", bError ? "Error" : "Warning", szText), ezTime::Seconds(10));
   }
 }
 
@@ -117,6 +119,9 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
         setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
     }
     break;
+
+    default:
+      break;
   }
 
   ezQtApplicationPanel::ToolsProjectEventHandler(e);

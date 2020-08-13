@@ -656,7 +656,11 @@ void CFloatingDockContainer::updateWindowTitle()
 	if (TopLevelDockArea)
 	{
 		CDockWidget* CurrentWidget = TopLevelDockArea->currentDockWidget();
-		d->reflectCurrentWidget(CurrentWidget);
+
+    if (CurrentWidget)
+    {
+		  d->reflectCurrentWidget(CurrentWidget);
+    }
 	}
 	else
 	{

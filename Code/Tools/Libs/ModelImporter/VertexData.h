@@ -11,24 +11,30 @@ namespace ezModelImporter
   {
     EZ_DECLARE_POD_TYPE();
 
-    VertexDataIndex(ezUInt32 index) : m_Value(index) {}
-    VertexDataIndex() : m_Value(s_InvalidDataIndex) {}
-    void operator = (ezUInt32 index) { m_Value = index; }
+    VertexDataIndex(ezUInt32 index)
+      : m_Value(index)
+    {
+    }
+    VertexDataIndex()
+      : m_Value(s_InvalidDataIndex)
+    {
+    }
+    void operator=(ezUInt32 index) { m_Value = index; }
 
     bool IsValid() const { return m_Value != s_InvalidDataIndex; }
-    bool operator == (VertexDataIndex b) const { return m_Value == b.m_Value; }
-    bool operator != (VertexDataIndex b) const { return m_Value != b.m_Value; }
+    bool operator==(VertexDataIndex b) const { return m_Value == b.m_Value; }
+    bool operator!=(VertexDataIndex b) const { return m_Value != b.m_Value; }
 
     ezUInt32 GetValue() const { return m_Value; }
 
   private:
     friend class VertexDataStream;
-    template<typename Attribute, bool>
+    template <typename Attribute, bool>
     friend class TypedVertexDataStreamView_Base;
-    template<typename Attribute>
+    template <typename Attribute>
     friend class TypedVertexDataStreamView_ReadWrite;
 
-    operator ezUInt32 () const { return m_Value; }
+    operator ezUInt32() const { return m_Value; }
 
     static const ezUInt32 s_InvalidDataIndex = 0xFFFFFFFF;
     ezUInt32 m_Value;
@@ -66,26 +72,26 @@ namespace ezModelImporter
 
 
     /// Number of elements per vertex attribute.
-    ezUInt32 GetNumElementsPerVertex() const  { return m_uiNumElementsPerVertex; }
+    ezUInt32 GetNumElementsPerVertex() const { return m_uiNumElementsPerVertex; }
 
     /// Type of vertex element the vertex attribute consists of.
-    VertexElementType GetElementType() const        { return m_ElementType; }
+    VertexElementType GetElementType() const { return m_ElementType; }
 
     /// Returns size of a single element (not the vertex attribute).
     ///
     /// All element types are 4 bytes right now, but we use this function for future proving.
-    ezUInt32 GetElementSize() const           { return 4; }
+    ezUInt32 GetElementSize() const { return 4; }
 
     /// Total size of a vertex attribute.
     ///
     /// This is also the minimal offset between two VertexDataIndex.
-    ezUInt32 GetAttributeSize() const         { return GetElementSize() * m_uiNumElementsPerVertex; }
+    ezUInt32 GetAttributeSize() const { return GetElementSize() * m_uiNumElementsPerVertex; }
 
   private:
     friend class Mesh;
-    template<typename Attribute, bool>
+    template <typename Attribute, bool>
     friend class TypedVertexDataStreamView_Base;
-    template<typename Attribute>
+    template <typename Attribute>
     friend class TypedVertexDataStreamView_ReadWrite;
 
     VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles, VertexElementType elementType);
@@ -111,8 +117,9 @@ namespace ezModelImporter
   /// Creation guarantees that the element type is correct (therefore asserting only once for element count and element type).
   ///
   /// Implementation notes:
-  /// Inheriting from VertexDataStream would be nice, but creation as such is not practical. Casting into it anyway would be possible but non-standard and weird.
-  template<typename Attribute, bool ReadOnly>
+  /// Inheriting from VertexDataStream would be nice, but creation as such is not practical. Casting into it anyway would be possible but non-standard
+  /// and weird.
+  template <typename Attribute, bool ReadOnly>
   class TypedVertexDataStreamView_Base
   {
     EZ_DISALLOW_COPY_AND_ASSIGN(TypedVertexDataStreamView_Base);
@@ -136,20 +143,22 @@ namespace ezModelImporter
     Attribute GetValue(VertexDataIndex index) const;
 
     /// Access to wrapped data stream.
-    StreamType* operator -> () { return &m_DataStream; }
+    StreamType* operator->() { return &m_DataStream; }
 
   protected:
     StreamType& m_DataStream;
   };
 
   /// Read/write version.
-  template<typename Attribute>
+  template <typename Attribute>
   class TypedVertexDataStreamView_ReadWrite : public TypedVertexDataStreamView_Base<Attribute, false>
   {
   public:
-
     /// Asserts if the Attribute type is invalid or does not fulfill the element type and count properties of this data stream.
-    TypedVertexDataStreamView_ReadWrite(VertexDataStream& sourceDataStream) : TypedVertexDataStreamView_Base<Attribute, false>(sourceDataStream) {}
+    TypedVertexDataStreamView_ReadWrite(VertexDataStream& sourceDataStream)
+      : TypedVertexDataStreamView_Base<Attribute, false>(sourceDataStream)
+    {
+    }
 
     /// Sets a value for vertex. If the vertex is pointing to an invalid DataIndex, a new data entry will be created.
     void SetValue(VertexIndex index, const Attribute& value);
@@ -162,8 +171,8 @@ namespace ezModelImporter
   };
 
   /// Read only version.
-  template<typename Attribute>
+  template <typename Attribute>
   using TypedVertexDataStreamView = TypedVertexDataStreamView_Base<Attribute, true>;
-}
+} // namespace ezModelImporter
 
 #include <ModelImporter/VertexData.inl>

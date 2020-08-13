@@ -101,7 +101,7 @@ void ezQtTimeWidget::UpdateStats()
       pItem->setCheckState(it.Value().m_bDisplay ? Qt::Checked : Qt::Unchecked);
       pItem->setData(Qt::UserRole, QString(it.Key().GetData()));
 
-      pItem->setForeground(s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+      pItem->setForeground(s_Colors[it.Value().m_uiColor % s_uiMaxColors]);
 
       it.Value().m_pListItem = pItem;
     }
@@ -117,7 +117,7 @@ void ezQtTimeWidget::UpdateStats()
     if (it.Value().m_TimeSamples.IsEmpty() || !it.Value().m_bDisplay)
       continue;
 
-    const ezUInt32 uiColorPath = it.Value().m_iColor % s_uiMaxColors;
+    const ezUInt32 uiColorPath = it.Value().m_uiColor % s_uiMaxColors;
     ClockData& Clock = it.Value();
     const ezDeque<TimeSample>& Samples = Clock.m_TimeSamples;
 
@@ -227,8 +227,7 @@ void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
 
     s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, Sample.m_AtGlobalTime);
 
-    if (ad.m_TimeSamples.GetCount() > 1 &&
-        (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::Microseconds(100))))
+    if (ad.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::Microseconds(100))))
       ad.m_TimeSamples.PeekBack() = Sample;
     else
       ad.m_TimeSamples.PushBack(Sample);
@@ -245,16 +244,16 @@ void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
     ads.m_MinTimestep = ezMath::Min(ads.m_MinTimestep, SampleSmooth.m_Timestep);
     ads.m_MaxTimestep = ezMath::Max(ads.m_MaxTimestep, SampleSmooth.m_Timestep);
 
-    if (ad.m_iColor < 0)
+    if (ad.m_uiColor == 0xFF)
     {
-      ad.m_iColor = s_pWidget->m_uiColorsUsed;
+      ad.m_uiColor = s_pWidget->m_uiColorsUsed;
       ++s_pWidget->m_uiColorsUsed;
       s_pWidget->m_bClocksChanged = true;
     }
 
-    if (ads.m_iColor < 0)
+    if (ads.m_uiColor == 0xFF)
     {
-      ads.m_iColor = s_pWidget->m_uiColorsUsed;
+      ads.m_uiColor = s_pWidget->m_uiColorsUsed;
       ++s_pWidget->m_uiColorsUsed;
       s_pWidget->m_bClocksChanged = true;
     }
@@ -274,15 +273,14 @@ void ezQtTimeWidget::on_ListClocks_itemChanged(QListWidgetItem* item)
 
 void ezQtTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  const ezUInt32 uiSeconds[] =
-    {
-      10,
-      30,
-      60 * 1,
-      60 * 2,
-      60 * 5,
-      60 * 10,
-    };
+  const ezUInt32 uiSeconds[] = {
+    10,
+    30,
+    60 * 1,
+    60 * 2,
+    60 * 5,
+    60 * 10,
+  };
 
   m_DisplayInterval = ezTime::Seconds(uiSeconds[index]);
 }

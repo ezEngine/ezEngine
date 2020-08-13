@@ -71,3 +71,4 @@ if($lastexitcode -ne 0)
 {
 	exit $lastexitcode
 }
+Write-Host "Done building apk $finalApkPath"

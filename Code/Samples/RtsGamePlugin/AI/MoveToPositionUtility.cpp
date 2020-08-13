@@ -4,9 +4,7 @@
 #include <RtsGamePlugin/Components/UnitComponent.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
-void RtsMoveToPositionAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent)
-{
-}
+void RtsMoveToPositionAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
 
 void RtsMoveToPositionAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent)
 {

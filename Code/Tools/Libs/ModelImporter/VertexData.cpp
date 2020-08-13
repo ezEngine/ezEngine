@@ -5,8 +5,8 @@
 namespace ezModelImporter
 {
   VertexDataStream::VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles, VertexElementType elementType)
-      : m_uiNumElementsPerVertex(uiNumElementsPerVertex)
-      , m_ElementType(elementType)
+    : m_uiNumElementsPerVertex(uiNumElementsPerVertex)
+    , m_ElementType(elementType)
   {
     m_IndexToData.SetCount(uiNumTriangles * 3);
   }
@@ -16,4 +16,4 @@ namespace ezModelImporter
     // +1 for the zero entry at the start of the array.
     m_Data.Reserve((numExpectedValues + 1) * GetAttributeSize());
   }
-}
+} // namespace ezModelImporter

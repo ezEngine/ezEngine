@@ -13,9 +13,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxFixedJointComponent::ezPxFixedJointComponent() = default;
 ezPxFixedJointComponent::~ezPxFixedJointComponent() = default;
 
-PxJoint* ezPxFixedJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+void ezPxFixedJointComponent::ApplySettings()
 {
-  return PxFixedJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
+  ezPxJointComponent::ApplySettings();
+}
+
+void ezPxFixedJointComponent::CreateJointType(
+  PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+{
+  m_pJoint = PxFixedJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxFixedJointComponent);

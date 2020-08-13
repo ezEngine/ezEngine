@@ -105,7 +105,7 @@ void ezAssetProcessor::ShutdownProcessTask()
 
       // Delete and remove under lock.
       EZ_LOCK(m_ProcessorMutex);
-      EZ_DEFAULT_DELETE(taskAndGroup.m_pTask);
+      taskAndGroup.m_pTask.Clear();
     }
   }
 
@@ -131,7 +131,7 @@ void ezAssetProcessor::RemoveLogWriter(ezLoggingEvent::Handler handler)
   m_CuratorLog.RemoveLogWriter(handler);
 }
 
-void ezAssetProcessor::OnProcessTaskFinished(ezTask* pTask)
+void ezAssetProcessor::OnProcessTaskFinished(const ezSharedPtr<ezTask>& pTask)
 {
   RunNextProcessTask();
 }
@@ -153,8 +153,7 @@ void ezAssetProcessor::RunNextProcessTask()
     const ezUInt32 uiWorkerCount = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
     for (ezUInt32 i = 0; i < uiWorkerCount; ++i)
     {
-      ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i, ezMakeDelegate(&ezAssetProcessor::OnProcessTaskFinished, this));
-      m_ProcessTasks.ExpandAndGetRef().m_pTask = pTask;
+      m_ProcessTasks.ExpandAndGetRef().m_pTask = EZ_DEFAULT_NEW(ezProcessTask, i, ezMakeDelegate(&ezAssetProcessor::OnProcessTaskFinished, this));
     }
   }
 
@@ -294,6 +293,8 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
           }
           case ezAssetInfo::TransformState::UpToDate:
             continue;
+
+            EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
         }
       }
     }
@@ -310,7 +311,8 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
   }
 
-  if (bComplete && !ezAssetCurator::GetSingleton()->m_Updating.Contains(pInfo->m_Info->m_DocumentID) && !ezAssetCurator::GetSingleton()->m_TransformStateStale.Contains(pInfo->m_Info->m_DocumentID))
+  if (bComplete && !ezAssetCurator::GetSingleton()->m_Updating.Contains(pInfo->m_Info->m_DocumentID) &&
+      !ezAssetCurator::GetSingleton()->m_TransformStateStale.Contains(pInfo->m_Info->m_DocumentID))
   {
     ezAssetCurator::GetSingleton()->m_Updating.Insert(pInfo->m_Info->m_DocumentID);
     out_guid = pInfo->m_Info->m_DocumentID;
@@ -326,8 +328,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
 {
   EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
-  for (auto it = ezAssetCurator::GetSingleton()->m_TransformState[ezAssetInfo::TransformState::NeedsTransform].GetIterator(); it.IsValid();
-       ++it)
+  for (auto it = ezAssetCurator::GetSingleton()->m_TransformState[ezAssetInfo::TransformState::NeedsTransform].GetIterator(); it.IsValid(); ++it)
   {
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
@@ -338,8 +339,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
     }
   }
 
-  for (auto it = ezAssetCurator::GetSingleton()->m_TransformState[ezAssetInfo::TransformState::NeedsThumbnail].GetIterator(); it.IsValid();
-       ++it)
+  for (auto it = ezAssetCurator::GetSingleton()->m_TransformState[ezAssetInfo::TransformState::NeedsThumbnail].GetIterator(); it.IsValid(); ++it)
   {
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
@@ -380,7 +380,8 @@ void ezProcessTask::Execute()
     }
     m_bDidWork = true;
     ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_assetGuid, nullptr, nullptr, m_AssetHash, m_ThumbHash);
-    EZ_ASSERT_DEV(state == ezAssetInfo::TransformState::NeedsTransform || state == ezAssetInfo::TransformState::NeedsThumbnail, "An asset was selected that is already up to date.");
+    EZ_ASSERT_DEV(state == ezAssetInfo::TransformState::NeedsTransform || state == ezAssetInfo::TransformState::NeedsThumbnail,
+      "An asset was selected that is already up to date.");
   }
 
   if (!m_bProcessShouldBeRunning)

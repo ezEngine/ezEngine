@@ -19,7 +19,6 @@ struct ezSnapProviderEvent
 class EZ_EDITORFRAMEWORK_DLL ezSnapProvider
 {
 public:
-
   static ezAngle GetRotationSnapValue();
   static float GetScaleSnapValue();
   static float GetTranslationSnapValue();

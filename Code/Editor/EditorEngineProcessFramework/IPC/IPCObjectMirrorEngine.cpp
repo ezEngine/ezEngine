@@ -4,7 +4,7 @@
 #include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
 
 ezIPCObjectMirrorEngine::ezIPCObjectMirrorEngine()
-    : ezDocumentObjectMirror()
+  : ezDocumentObjectMirror()
 {
 }
 

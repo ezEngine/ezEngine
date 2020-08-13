@@ -10,8 +10,7 @@ ezGALRenderTargetSetup::ezGALRenderTargetSetup()
 
 ezGALRenderTargetSetup& ezGALRenderTargetSetup::SetRenderTarget(ezUInt8 uiIndex, ezGALRenderTargetViewHandle hRenderTarget)
 {
-  EZ_ASSERT_DEV(
-    uiIndex < EZ_GAL_MAX_RENDERTARGET_COUNT, "Render target index out of bounds - should be less than EZ_GAL_MAX_RENDERTARGET_COUNT");
+  EZ_ASSERT_DEV(uiIndex < EZ_GAL_MAX_RENDERTARGET_COUNT, "Render target index out of bounds - should be less than EZ_GAL_MAX_RENDERTARGET_COUNT");
 
   m_hRTs[uiIndex] = hRenderTarget;
 

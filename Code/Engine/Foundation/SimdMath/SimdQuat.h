@@ -32,7 +32,8 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle (in Radians), that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFloat& angle, const ezSimdFloat& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
+  ezResult GetRotationAxisAndAngle(
+    ezSimdVec4f& vAxis, ezSimdFloat& angle, const ezSimdFloat& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
   ezSimdMat4f GetAsMat4() const; // [tested]
@@ -68,4 +69,3 @@ public:
 };
 
 #include <Foundation/SimdMath/Implementation/SimdQuat_inl.h>
-

@@ -91,20 +91,20 @@ void ezTransformGizmoActions::RegisterActions()
   s_hGizmoCategory = EZ_REGISTER_CATEGORY("GizmoCategory");
   s_hGizmoMenu = EZ_REGISTER_MENU("Gizmo.Menu");
   s_hNoGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Select", ezActionScope::Document, "Gizmo", "Q", ezGizmoAction, nullptr);
-  s_hTranslateGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Translate", ezActionScope::Document, "Gizmo", "W", ezToggleWorldSpaceGizmo,
-    ezGetStaticRTTI<ezTranslateGizmoEditTool>());
-  s_hRotateGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Rotate", ezActionScope::Document, "Gizmo", "E", ezToggleWorldSpaceGizmo,
-    ezGetStaticRTTI<ezRotateGizmoEditTool>());
-  s_hScaleGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Scale", ezActionScope::Document, "Gizmo", "R", ezGizmoAction,
-    ezGetStaticRTTI<ezScaleGizmoEditTool>());
-  s_hDragToPositionGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.DragToPosition", ezActionScope::Document, "Gizmo", "T", ezGizmoAction,
-    ezGetStaticRTTI<ezDragToPositionGizmoEditTool>());
-  s_hWorldSpace = EZ_REGISTER_ACTION_1("Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
-    ezTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
+  s_hTranslateGizmo = EZ_REGISTER_ACTION_1(
+    "Gizmo.Mode.Translate", ezActionScope::Document, "Gizmo", "W", ezToggleWorldSpaceGizmo, ezGetStaticRTTI<ezTranslateGizmoEditTool>());
+  s_hRotateGizmo = EZ_REGISTER_ACTION_1(
+    "Gizmo.Mode.Rotate", ezActionScope::Document, "Gizmo", "E", ezToggleWorldSpaceGizmo, ezGetStaticRTTI<ezRotateGizmoEditTool>());
+  s_hScaleGizmo =
+    EZ_REGISTER_ACTION_1("Gizmo.Mode.Scale", ezActionScope::Document, "Gizmo", "R", ezGizmoAction, ezGetStaticRTTI<ezScaleGizmoEditTool>());
+  s_hDragToPositionGizmo = EZ_REGISTER_ACTION_1(
+    "Gizmo.Mode.DragToPosition", ezActionScope::Document, "Gizmo", "T", ezGizmoAction, ezGetStaticRTTI<ezDragToPositionGizmoEditTool>());
+  s_hWorldSpace = EZ_REGISTER_ACTION_1(
+    "Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction, ezTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
   s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
     ezTransformGizmoAction::ActionType::GizmoToggleMoveParentOnly);
-  s_SnapSettings = EZ_REGISTER_ACTION_1("Gizmo.SnapSettings", ezActionScope::Document, "Gizmo", "End", ezTransformGizmoAction,
-    ezTransformGizmoAction::ActionType::GizmoSnapSettings);
+  s_SnapSettings = EZ_REGISTER_ACTION_1(
+    "Gizmo.SnapSettings", ezActionScope::Document, "Gizmo", "End", ezTransformGizmoAction, ezTransformGizmoAction::ActionType::GizmoSnapSettings);
 }
 
 void ezTransformGizmoActions::UnregisterActions()
@@ -264,9 +264,8 @@ void ezTranslateGizmoAction::RegisterActions()
   s_hSnappingValueMenu = EZ_REGISTER_CATEGORY("Gizmo.Translate.Snap.Menu");
   s_hSnapPivotToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.PivotToGrid", ezActionScope::Document, "Gizmo - Position Snap", "Ctrl+End",
     ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapSelectionPivotToGrid);
-  s_hSnapObjectsToGrid =
-    EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", ezActionScope::Document, "Gizmo - Position Snap", "",
-      ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid);
+  s_hSnapObjectsToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", ezActionScope::Document, "Gizmo - Position Snap", "",
+    ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid);
 }
 
 void ezTranslateGizmoAction::UnregisterActions()

@@ -55,4 +55,3 @@ ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Message);
-

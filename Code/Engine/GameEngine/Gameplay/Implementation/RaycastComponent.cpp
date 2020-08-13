@@ -21,7 +21,8 @@ void ezRaycastComponentManager::Initialize()
   // we DO NOT want to use post transform update, because when we move the target object
   // child objects of the target node should still get the full global transform update within this frame
 
-  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezRaycastComponentManager::Update, this), "ezRaycastComponentManager::Update");
+  auto desc =
+    ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezRaycastComponentManager::Update, this), "ezRaycastComponentManager::Update");
   desc.m_bOnlyUpdateWhenSimulating = true;
   desc.m_Phase = UpdateFunctionDesc::Phase::PostAsync;
   desc.m_fPriority = -1000;
@@ -58,7 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::YellowGreen),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::YellowGreen),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -194,31 +195,37 @@ void ezRaycastComponent::Update()
   const ezVec3 rayStartPosition = GetOwner()->GetGlobalPosition();
   const ezVec3 rayDir = GetOwner()->GetGlobalDirForwards().GetNormalized(); // PhysX is very picky about normalized vectors
 
-  //ezDebugRenderer::Line lines[] = { {rayStartPosition, rayStartPosition + rayDir * m_fMaxDistance} };
-  //ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::RebeccaPurple);
+  // ezDebugRenderer::Line lines[] = { {rayStartPosition, rayStartPosition + rayDir * m_fMaxDistance} };
+  // ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::RebeccaPurple);
 
   float fHitDistance = m_fMaxDistance;
   ezPhysicsCastResult hit;
-  if (m_pPhysicsWorldModule->Raycast(hit, rayStartPosition, rayDir, m_fMaxDistance, ezPhysicsQueryParameters(m_uiCollisionLayerEndPoint)))
-  {
-    fHitDistance = hit.m_fDistance;
 
-    if (!pEndObject->GetActiveFlag() && m_bDisableTargetObjectOnNoHit)
-    {
-      pEndObject->SetActiveFlag(true);
-    }
-  }
-  else
   {
-    if (m_bDisableTargetObjectOnNoHit)
+    ezPhysicsQueryParameters queryParams(m_uiCollisionLayerEndPoint);
+    queryParams.m_bIgnoreInitialOverlap = true;
+
+    if (m_pPhysicsWorldModule->Raycast(hit, rayStartPosition, rayDir, m_fMaxDistance, queryParams))
     {
-      pEndObject->SetActiveFlag(false);
+      fHitDistance = hit.m_fDistance;
+
+      if (!pEndObject->GetActiveFlag() && m_bDisableTargetObjectOnNoHit)
+      {
+        pEndObject->SetActiveFlag(true);
+      }
     }
     else
     {
-      if (!pEndObject->GetActiveFlag())
+      if (m_bDisableTargetObjectOnNoHit)
       {
-        pEndObject->SetActiveFlag(true);
+        pEndObject->SetActiveFlag(false);
+      }
+      else
+      {
+        if (!pEndObject->GetActiveFlag())
+        {
+          pEndObject->SetActiveFlag(true);
+        }
       }
     }
   }
@@ -226,7 +233,11 @@ void ezRaycastComponent::Update()
   if (!m_sTriggerMessage.IsEmpty() && m_uiCollisionLayerEndPoint != m_uiCollisionLayerTrigger)
   {
     ezPhysicsCastResult triggerHit;
-    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, ezPhysicsQueryParameters(m_uiCollisionLayerTrigger)) && triggerHit.m_fDistance < fHitDistance)
+    ezPhysicsQueryParameters queryParams2(m_uiCollisionLayerTrigger);
+    queryParams2.m_bIgnoreInitialOverlap = true;
+
+    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, queryParams2) &&
+        triggerHit.m_fDistance < fHitDistance)
     {
       // We have a hit, check the objects
       if (m_hLastTriggerObjectInRay != triggerHit.m_hActorObject)
@@ -283,9 +294,8 @@ void ezRaycastComponent::PostTriggerMessage(ezTriggerState::Enum state, ezGameOb
   msg.m_uiMessageStringHash = m_sTriggerMessage.GetHash();
   msg.m_hTriggeringObject = hObject;
 
-  m_TriggerEventSender.PostMessage(msg, this, GetOwner(), ezObjectMsgQueueType::PostTransform);
+  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
 }
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_RaycastComponent);
-

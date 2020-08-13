@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezPreferences;
 struct ezGameObjectEvent;
@@ -37,7 +37,6 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocumentAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocumentAction, ezButtonAction);
 
 public:
-
   enum class ActionType
   {
     RenderSelectionOverlay,
@@ -69,7 +68,6 @@ class EZ_EDITORFRAMEWORK_DLL ezCameraSpeedSliderAction : public ezSliderAction
   EZ_ADD_DYNAMIC_REFLECTION(ezCameraSpeedSliderAction, ezSliderAction);
 
 public:
-
   enum class ActionType
   {
     CameraSpeed,
@@ -87,9 +85,3 @@ private:
   ezGameObjectDocument* m_pGameObjectDocument;
   ActionType m_Type;
 };
-
-
-
-
-
-

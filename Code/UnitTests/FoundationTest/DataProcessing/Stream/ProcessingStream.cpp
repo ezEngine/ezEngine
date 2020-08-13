@@ -17,7 +17,7 @@ class AddOneStreamProcessor : public ezProcessingStreamProcessor
 
 public:
   AddOneStreamProcessor()
-      : m_pStream(nullptr)
+    : m_pStream(nullptr)
   {
   }
 

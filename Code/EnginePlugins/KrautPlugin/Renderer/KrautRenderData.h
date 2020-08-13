@@ -1,10 +1,10 @@
 #pragma once
 
-#include <KrautPlugin/KrautDeclarations.h>
-#include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <KrautPlugin/KrautDeclarations.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 

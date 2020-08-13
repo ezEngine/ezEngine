@@ -1,22 +1,22 @@
 #include <RendererDX11PCH.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <System/Window/Window.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 #include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <d3d11.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#include <RendererDX11/Context/ContextDX11.h>
-#include <dxgi1_3.h>
+#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <RendererDX11/Context/ContextDX11.h>
+#  include <dxgi1_3.h>
 #endif
 
 ezGALSwapChainDX11::ezGALSwapChainDX11(const ezGALSwapChainCreationDescription& Description)
-    : ezGALSwapChain(Description)
-    , m_pDXSwapChain(nullptr)
+  : ezGALSwapChain(Description)
+  , m_pDXSwapChain(nullptr)
 {
 }
 
@@ -68,13 +68,13 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   DXGI_SWAP_CHAIN_DESC SwapChainDesc;
   SwapChainDesc.BufferCount = m_Description.m_bDoubleBuffered ? 2 : 1;
   SwapChainDesc.Flags =
-      DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
+    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
   SwapChainDesc.SampleDesc.Count = m_Description.m_SampleCount;
   SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_Description
   SwapChainDesc.OutputWindow = ezMinWindows::ToNative(m_Description.m_pWindow->GetNativeWindowHandle());
   SwapChainDesc.SwapEffect =
-      DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See
-                                // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+    DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See
+                              // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
   SwapChainDesc.Windowed = m_Description.m_pWindow->IsFullscreenWindow(true) ? FALSE : TRUE;
 
   /// \todo Get from enumeration of available modes
@@ -97,8 +97,8 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
     ComPtr<IDXGISwapChain1> swapChain1;
     ComPtr<IDXGISwapChain> swapChain;
-    HRESULT result = dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(),
-                                                                &SwapChainDesc, nullptr, &swapChain1);
+    HRESULT result = dxgiFactory3->CreateSwapChainForCoreWindow(
+      pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1);
     if (FAILED(result))
     {
       if (result == E_ACCESSDENIED)
@@ -107,7 +107,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
                      "Make sure all resources referencing the swap chain were destroyed, keeping in mind the 'Deferred Destruction' that "
                      "applies with FLIP swapchains. "
                      "https://msdn.microsoft.com/en-us/library/windows/desktop/ff476425(v=vs.85).aspx#Defer_Issues_with_Flip",
-                     result);
+          result);
       }
       else
       {

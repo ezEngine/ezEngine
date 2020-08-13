@@ -52,4 +52,3 @@ bool ezSkeletonBuilder::HasJoints() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonBuilder);
-

@@ -23,6 +23,7 @@ static int __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(duk_context* pDuk)
 static int __CPP_GameObject_TryGetScriptComponent(duk_context* pDuk);
 static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk);
 static int __CPP_GameObject_SendMessage(duk_context* pDuk);
+static int __CPP_GameObject_SendEventMessage(duk_context* pDuk);
 static int __CPP_GameObject_SetString(duk_context* pDuk);
 static int __CPP_GameObject_GetString(duk_context* pDuk);
 static int __CPP_GameObject_SetTeamID(duk_context* pDuk);
@@ -33,26 +34,29 @@ static int __CPP_GameObject_GetParent(duk_context* pDuk);
 static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk);
 static int __CPP_GameObject_GetChildren(duk_context* pDuk);
 
-enum GameObject_X
+namespace GameObject_X
 {
-  LocalPosition,
-  GlobalPosition,
-  LocalScaling,
-  GlobalScaling,
-  LocalUniformScaling,
-  LocalRotation,
-  GlobalRotation,
-  GlobalDirForwards,
-  GlobalDirRight,
-  GlobalDirUp,
-  Velocity,
-  ActiveFlag,
-  Active,
-  ChildCount,
-  SetParent,
-  AddChild,
-  DetachChild,
-};
+  enum Enum
+  {
+    LocalPosition,
+    GlobalPosition,
+    LocalScaling,
+    GlobalScaling,
+    LocalUniformScaling,
+    LocalRotation,
+    GlobalRotation,
+    GlobalDirForwards,
+    GlobalDirRight,
+    GlobalDirUp,
+    Velocity,
+    ActiveFlag,
+    Active,
+    ChildCount,
+    SetParent,
+    AddChild,
+    DetachChild,
+  };
+}
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
@@ -82,6 +86,8 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SearchForChildByNameSequence", __CPP_GameObject_SearchForChildByNameSequence, 3);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 5, 0);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostMessage", __CPP_GameObject_SendMessage, 5, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendEventMessage", __CPP_GameObject_SendEventMessage, 5, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostEventMessage", __CPP_GameObject_SendEventMessage, 5, 1);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirForwards", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirForwards);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirRight", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirRight);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
@@ -159,7 +165,8 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
 
   // set the ezGameObjectHandle property
   {
-    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject object buffer ]
+    ezGameObjectHandle* pHandleBuffer =
+      reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject object buffer ]
     *pHandleBuffer = handle;
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
   }
@@ -222,7 +229,8 @@ static int __CPP_GameObject_SetX_Vec3(duk_context* pDuk)
 
   if (!pGameObject->IsDynamic())
   {
-    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    ezLog::SeriousWarning(
+      "TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
     pGameObject->MakeDynamic();
   }
 
@@ -316,7 +324,8 @@ static int __CPP_GameObject_SetX_Float(duk_context* pDuk)
 
   if (!pGameObject->IsDynamic())
   {
-    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    ezLog::SeriousWarning(
+      "TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
     pGameObject->MakeDynamic();
   }
 
@@ -366,7 +375,8 @@ static int __CPP_GameObject_SetX_Quat(duk_context* pDuk)
 
   if (!pGameObject->IsDynamic())
   {
-    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    ezLog::SeriousWarning(
+      "TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
     pGameObject->MakeDynamic();
   }
 
@@ -631,13 +641,51 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 
     if (duk.GetBoolValue(3))
-      pGameObject->PostMessageRecursive(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+      pGameObject->PostMessageRecursive(*pMsg, delay);
     else
-      pGameObject->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+      pGameObject->PostMessage(*pMsg, delay);
   }
 
   return duk.ReturnVoid();
 }
+
+static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+  ezTypeScriptComponent* pSender = ezTypeScriptBinding::ExpectComponent<ezTypeScriptComponent>(duk, 3);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+
+  if (duk.GetFunctionMagicValue() == 0) // SendEventMessage
+  {
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+
+    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
+
+    pGameObject->SendEventMessage(*pEventMsg, pSender);
+
+    if (duk.GetBoolValue(4)) // expect the message to have result values
+    {
+      // sync msg back to TS
+      ezTypeScriptBinding::SyncEzObjectToTsObject(pDuk, pMsg->GetDynamicRTTI(), pMsg.Borrow(), 1);
+    }
+  }
+  else // PostEventMessage
+  {
+    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
+
+    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
+
+    pGameObject->PostEventMessage(*pEventMsg, pSender, delay);
+  }
+
+  return duk.ReturnVoid();
+}
+
 
 static int __CPP_GameObject_SetString(duk_context* pDuk)
 {
@@ -804,7 +852,8 @@ static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk)
 
   ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 1);
 
-  const ezGameObject::TransformPreservation preserve = duk.GetBoolValue(2) ? ezGameObject::TransformPreservation::PreserveGlobal : ezGameObject::TransformPreservation::PreserveLocal;
+  const ezGameObject::TransformPreservation preserve =
+    duk.GetBoolValue(2) ? ezGameObject::TransformPreservation::PreserveGlobal : ezGameObject::TransformPreservation::PreserveLocal;
 
   switch (duk.GetFunctionMagicValue())
   {

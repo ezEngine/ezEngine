@@ -74,7 +74,7 @@ public:
   void SetCount(ezUInt32 uiCount); // [tested]
 
   /// \Same as SetCount(), but new elements do not get default constructed.
-  template <typename = void> // Template is used to only conditionally compile this function in when it is actually used.
+  template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
   void SetCountUninitialized(ezUInt32 uiCount); // [tested]
 
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
@@ -166,10 +166,10 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
-  typedef const_iterator_base<ezDequeBase<T, Construct>, T, false> const_iterator;
-  typedef const_iterator_base<ezDequeBase<T, Construct>, T, true> const_reverse_iterator;
-  typedef iterator_base<ezDequeBase<T, Construct>, T, false> iterator;
-  typedef iterator_base<ezDequeBase<T, Construct>, T, true> reverse_iterator;
+  using const_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, false>;
+  using const_reverse_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, true>;
+  using iterator = iterator_base<ezDequeBase<T, Construct>, T, false>;
+  using reverse_iterator = iterator_base<ezDequeBase<T, Construct>, T, true>;
 
   /// \brief Returns the number of elements after uiStartIndex that are stored in contiguous memory.
   ///
@@ -249,15 +249,15 @@ private:
   void DeallocateAll();
 
   ezAllocatorBase* m_pAllocator;
-  T** m_pChunks;             ///< The chunk index array for redirecting accesses. Not all chunks must be allocated.
-  ezUInt32 m_uiChunks;       ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
-  ezUInt32 m_uiFirstElement; ///< Which element (across all chunks) is considered to be the first.
-  ezUInt32 m_uiCount;        ///< How many elements are actually active at the moment.
+  T** m_pChunks;                ///< The chunk index array for redirecting accesses. Not all chunks must be allocated.
+  ezUInt32 m_uiChunks;          ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
+  ezUInt32 m_uiFirstElement;    ///< Which element (across all chunks) is considered to be the first.
+  ezUInt32 m_uiCount;           ///< How many elements are actually active at the moment.
   ezUInt32 m_uiAllocatedChunks; ///< How many entries in the m_pChunks array are allocated at the moment.
   ezInt32 m_iReduceSizeTimer;   ///< Every time this counter reaches zero, a 'garbage collection' step is performed, which might deallocate
                                 ///< chunks.
-  ezUInt32 m_uiMaxCount; ///< How many elements were maximally active since the last 'garbage collection' to prevent deallocating too much
-                         ///< memory.
+  ezUInt32 m_uiMaxCount;        ///< How many elements were maximally active since the last 'garbage collection' to prevent deallocating too much
+                                ///< memory.
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   ezUInt32 m_uiChunkSize; // needed for debugger visualization

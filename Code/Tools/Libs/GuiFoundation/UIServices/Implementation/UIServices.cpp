@@ -147,6 +147,13 @@ ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char*
   return EZ_SUCCESS;
 }
 
+void ezQtUiServices::CheckForUpdates()
+{
+  Event e;
+  e.m_Type = Event::Type::CheckForUpdates;
+  s_Events.Broadcast(e);
+}
+
 void ezQtUiServices::LoadState()
 {
   QSettings Settings;
@@ -213,7 +220,20 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 
 ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
 {
-  QString sVsCodeExe = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
+  QString sVsCodeExe =
+    QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
+
+  if (!QFile().exists(sVsCodeExe))
+  {
+    QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\Code.exe\\shell\\open\\command", QSettings::NativeFormat);
+    QString sVsCodeExeKey = settings.value(".", "").value<QString>();
+
+    if (sVsCodeExeKey.length() > 5)
+    {
+      // Remove shell parameter and normalize QT Compatible path, QFile expects the file separator to be '/' regardless of operating system
+      sVsCodeExe = sVsCodeExeKey.left(sVsCodeExeKey.length() - 5).replace("\\", "/").replace("\"", "");
+    }
+  }
 
   if (!QFile().exists(sVsCodeExe))
   {

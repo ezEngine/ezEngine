@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Tracks/ColorGradient.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 #include <QWidget>
 
@@ -79,7 +79,8 @@ private:
   void PaintCoordinateStrip(QPainter& p, const QRect& area) const;
   void PaintCoordinateLines(QPainter& p);
 
-  void PaintControlPoint(QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const;
+  void PaintControlPoint(
+    QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const;
   void PaintColorCPs(QPainter& p) const;
   void PaintAlphaCPs(QPainter& p) const;
   void PaintIntensityCPs(QPainter& p) const;

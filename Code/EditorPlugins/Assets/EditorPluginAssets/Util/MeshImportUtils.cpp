@@ -13,12 +13,19 @@
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Scene.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <RendererCore/Material/MaterialResource.h>
 
 namespace ezMeshImportUtils
 {
   ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, const char* szTexturePath,
     ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
   {
+    if (!ezUnicodeUtils::IsValidUtf8(szTexturePath))
+    {
+      ezLog::Error("Texture to resolve is not a valid UTF-8 string.");
+      return ezString();
+    }
+
     ezStringBuilder textureNameTemp = ezStringBuilder(szTexturePath).GetFileName();
     ezStringBuilder textureName;
     ezPathUtils::MakeValidFilename(textureNameTemp, '_', textureName);
@@ -126,8 +133,8 @@ namespace ezMeshImportUtils
     }
   };
 
-  void ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material,
-    const char* szImportSourceFolder, const char* szImportTargetFolder)
+  void ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material, const char* szImportSourceFolder,
+    const char* szImportTargetFolder)
   {
     ezStringBuilder materialName = ezPathUtils::GetFileName(materialDocument->GetDocumentPath());
 
@@ -140,8 +147,8 @@ namespace ezMeshImportUtils
     ezStringBuilder tmp;
 
     // Set base material.
-    ezStatus res = pAccessor->SetValue(
-      pMaterialAsset, "BaseMaterial", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial(), tmp).GetData());
+    ezStatus res =
+      pAccessor->SetValue(pMaterialAsset, "BaseMaterial", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial(), tmp).GetData());
     res.LogFailure();
     if (res.Failed())
       return;
@@ -190,8 +197,7 @@ namespace ezMeshImportUtils
       else
       {
         pAccessor
-          ->SetValue(pMaterialProperties, "NormalTexture",
-            ezConversionUtils::ToString(ezMaterialAssetDocument::GetNeutralNormalMap(), tmp).GetData())
+          ->SetValue(pMaterialProperties, "NormalTexture", ezConversionUtils::ToString(ezMaterialAssetDocument::GetNeutralNormalMap(), tmp).GetData())
           .LogFailure();
       }
       if (roughnessTexture)
@@ -306,8 +312,8 @@ namespace ezMeshImportUtils
           }
         }
 
-        ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(
-          ezQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, ezDocumentFlags::AsyncSave));
+        ezMaterialAssetDocument* materialDocument =
+          ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, ezDocumentFlags::AsyncSave));
         if (!materialDocument)
         {
           ezLog::Error("Failed to create new material '{0}'", material->m_Name);
@@ -318,8 +324,7 @@ namespace ezMeshImportUtils
         // ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
         inout_MaterialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid(), tmp);
 
-        ezTaskGroupID id =
-          materialDocument->SaveDocumentAsync([](ezDocument* doc, ezStatus res) { doc->GetDocumentManager()->CloseDocument(doc); });
+        ezTaskGroupID id = materialDocument->SaveDocumentAsync([](ezDocument* doc, ezStatus res) { doc->GetDocumentManager()->CloseDocument(doc); });
         pendingSaveTasks.PushBack(id);
 
         // TODO: We have to flush because Materials create worlds in the engine process and there
@@ -377,9 +382,8 @@ namespace ezMeshImportUtils
 
     // find the default material asset
     {
-      static const char* defaultMaterialAssetPath = "Base/Materials/BaseMaterials/Lit.ezMaterialAsset";
-      ezConversionUtils::ToString(
-        ezAssetCurator::GetSingleton()->FindSubAsset(defaultMaterialAssetPath)->m_Data.m_Guid, defaultMaterialAssetId);
+      static const char* defaultMaterialAssetPath = ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::Lit);
+      ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindSubAsset(defaultMaterialAssetPath)->m_Data.m_Guid, defaultMaterialAssetId);
     }
 
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
@@ -410,9 +414,8 @@ namespace ezMeshImportUtils
     }
   }
 
-  void UpdateMaterialSlots(const char* szDocumentPath, const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh,
-    bool bImportMaterials, bool bUseSubFolderForImportedMaterials, const char* szMeshFile,
-    ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots)
+  void UpdateMaterialSlots(const char* szDocumentPath, const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, bool bImportMaterials,
+    bool bUseSubFolderForImportedMaterials, const char* szMeshFile, ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots)
   {
     EZ_PROFILE_SCOPE("UpdateMaterialSlots");
     inout_MaterialSlots.SetCount(mesh.GetNumSubMeshes());
@@ -429,8 +432,7 @@ namespace ezMeshImportUtils
 
     if (bImportMaterials)
     {
-      ezMeshImportUtils::ImportMeshAssetMaterials(
-        szDocumentPath, szMeshFile, bUseSubFolderForImportedMaterials, scene, mesh, inout_MaterialSlots);
+      ezMeshImportUtils::ImportMeshAssetMaterials(szDocumentPath, szMeshFile, bUseSubFolderForImportedMaterials, scene, mesh, inout_MaterialSlots);
     }
 
     if (mesh.GetNumSubMeshes() == 0)
@@ -550,8 +552,7 @@ namespace ezMeshImportUtils
         return ezStatus(ezFmt("Mesh '{0}' from has no position vertex data stream.", mesh.m_Name));
 
       if (dataStreams[Normal] == nullptr)
-        return ezStatus(
-          ezFmt("Mesh '{0}' from has no normal vertex data stream. Something went wrong during normal generation.", mesh.m_Name));
+        return ezStatus(ezFmt("Mesh '{0}' from has no normal vertex data stream. Something went wrong during normal generation.", mesh.m_Name));
     }
 
     const ezModelImporter::TypedVertexDataStreamView<ezVec3> streamPosition(*dataStreams[Position]);
@@ -579,7 +580,8 @@ namespace ezMeshImportUtils
 
     // Allocate buffer
     {
-      uiStreamIdx[Streams::Position] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      uiStreamIdx[Streams::Position] =
+        meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
       uiStreamIdx[Streams::Normal] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, normalFormat);
 
       if (bUseTangents)
@@ -599,12 +601,14 @@ namespace ezMeshImportUtils
 
       if (dataStreams[Color0])
       {
-        uiStreamIdx[Streams::Color0] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+        uiStreamIdx[Streams::Color0] =
+          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
       }
 
       if (dataStreams[Color1])
       {
-        uiStreamIdx[Streams::Color1] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        uiStreamIdx[Streams::Color1] =
+          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
       }
 
       if (bUseJoints)
@@ -638,7 +642,8 @@ namespace ezMeshImportUtils
 
         meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Position], uiVertexIndex, vPosition);
 
-        ezMeshBufferUtils::EncodeNormal(vNormal, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Normal], uiVertexIndex), normalFormat);
+        ezMeshBufferUtils::EncodeNormal(
+          vNormal, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Normal], uiVertexIndex), normalFormat);
       }
     }
 
@@ -674,8 +679,8 @@ namespace ezMeshImportUtils
 
           biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
 
-          ezMeshBufferUtils::EncodeTangent(vTangent, biTangentSign,
-            meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex), tangentFormat);
+          ezMeshBufferUtils::EncodeTangent(
+            vTangent, biTangentSign, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex), tangentFormat);
         }
       }
       else
@@ -684,8 +689,8 @@ namespace ezMeshImportUtils
         {
           ezUInt32 uiVertexIndex = it.Value();
 
-          ezMeshBufferUtils::EncodeTangent(ezVec3::ZeroVector(), 1.0f,
-            meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex), tangentFormat);
+          ezMeshBufferUtils::EncodeTangent(
+            ezVec3::ZeroVector(), 1.0f, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex), tangentFormat);
         }
       }
     }
@@ -723,7 +728,8 @@ namespace ezMeshImportUtils
           {
             ezUInt32 uiVertexIndex = it.Value();
 
-            ezMeshBufferUtils::EncodeTexCoord(ezVec2::ZeroVector(), meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIndex, uiVertexIndex), texCoordFormat);
+            ezMeshBufferUtils::EncodeTexCoord(
+              ezVec2::ZeroVector(), meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIndex, uiVertexIndex), texCoordFormat);
           }
         }
       }
@@ -828,8 +834,9 @@ namespace ezMeshImportUtils
   }
 
   ezStatus TryImportMesh(ezSharedPtr<ezModelImporter::Scene>& out_pScene, ezModelImporter::Mesh*& out_pMesh, const char* szMeshFile,
-    const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals, ezMeshNormalPrecision::Enum normalPrecision,
-    ezMeshTexCoordPrecision::Enum texCoordPrecision, ezProgressRange& range, ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh)
+    const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals,
+    ezMeshNormalPrecision::Enum normalPrecision, ezMeshTexCoordPrecision::Enum texCoordPrecision, ezProgressRange& range,
+    ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh)
   {
     ezMat3 mInverseTransform = mMeshTransform;
 
@@ -853,6 +860,7 @@ namespace ezMeshImportUtils
 
     range.BeginNextStep("Generating Mesh Data");
 
-    return ezMeshImportUtils::GenerateMeshBuffer(*out_pMesh, meshDescriptor, mMeshTransform, bInvertNormals, normalPrecision, texCoordPrecision, bSkinnedMesh);
+    return ezMeshImportUtils::GenerateMeshBuffer(
+      *out_pMesh, meshDescriptor, mMeshTransform, bInvertNormals, normalPrecision, texCoordPrecision, bSkinnedMesh);
   }
 } // namespace ezMeshImportUtils

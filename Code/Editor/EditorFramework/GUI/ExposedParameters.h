@@ -18,6 +18,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezExposedParameter)
 class EZ_EDITORFRAMEWORK_DLL ezExposedParameters : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExposedParameters, ezReflectedClass);
+
 public:
   ezExposedParameters();
   virtual ~ezExposedParameters();

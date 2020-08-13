@@ -22,7 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 1, 
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("Radius", nullptr, ezColor::MediumVioletRed, "PositionOffset"),
+    new ezSphereVisualizerAttribute("Radius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -77,7 +77,7 @@ float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const
     {
       // original volume
       const float v0 = 1.0f;
-       /* 4.0f / 3.0f * ezMath::Pi<float>() * m_fRadius* m_fRadius* m_fRadius; */
+      /* 4.0f / 3.0f * ezMath::Pi<float>() * m_fRadius* m_fRadius* m_fRadius; */
       // new volume
       const float v1 = 1.0f /* 4.0f / 3.0f * ezMath::Pi<float>() * m_fRadius * m_fRadius * m_fRadius*/ * fScale * fScale * fScale;
 

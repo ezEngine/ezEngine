@@ -14,8 +14,7 @@ struct ezContainerSubTypeResolver<ezTagSetTemplate<T>>
 
 
 template <typename Class>
-class ezMemberSetProperty<Class, ezTagSet, const char*>
-  : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
+class ezMemberSetProperty<Class, ezTagSet, const char*> : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
 {
 public:
   typedef ezTagSet Container;
@@ -40,22 +39,22 @@ public:
 
   virtual void Clear(void* pInstance) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetByName(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).RemoveByName(*static_cast<const RealType*>(pObject));
   }
 
@@ -162,10 +161,8 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 
   if (!IsTagInAllocatedRange(Tag))
   {
-    const ezUInt32 uiNewBlockStart =
-      (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Min(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
-    const ezUInt32 uiNewBlockIndex =
-      (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Max(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
+    const ezUInt32 uiNewBlockStart = (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Min(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
+    const ezUInt32 uiNewBlockIndex = (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Max(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
 
     Reallocate(uiNewBlockStart, uiNewBlockIndex);
   }
@@ -358,35 +355,56 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
   m_TagBlocks = helperArray;
 }
 
+static ezTypeVersion s_TagSetVersion = 1;
+
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
 {
-  const ezUInt32 uiNumTags = GetNumTagsSet();
+  const ezUInt16 uiNumTags = GetNumTagsSet();
   stream << uiNumTags;
+
+  stream.WriteVersion(s_TagSetVersion);
 
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
   {
     const ezTag* pTag = *it;
 
-    const ezUInt32 uiTagHash = pTag->GetTagHash();
-    stream << uiTagHash;
+    stream << pTag->m_TagString;
   }
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
-void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, const ezTagRegistry& registry)
+void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, ezTagRegistry& registry)
 {
-  ezUInt32 uiNumTags = 0;
+  ezUInt16 uiNumTags = 0;
   stream >> uiNumTags;
 
-  for (ezUInt32 i = 0; i < uiNumTags; ++i)
+  // Manually read version value since 0 can be a valid version here
+  ezTypeVersion version;
+  stream.ReadWordValue(&version);
+
+  if (version == 0)
   {
-    ezUInt32 uiTagHash = 0;
-    stream >> uiTagHash;
+    for (ezUInt32 i = 0; i < uiNumTags; ++i)
+    {
+      ezUInt32 uiTagMurmurHash = 0;
+      stream >> uiTagMurmurHash;
 
-    const ezTag* pTag = registry.GetTagByName(ezTempHashedString(uiTagHash));
+      if (const ezTag* pTag = registry.GetTagByMurmurHash(uiTagMurmurHash))
+      {
+        Set(*pTag);
+      }
+    }
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < uiNumTags; ++i)
+    {
+      ezHashedString tagString;
+      stream >> tagString;
 
-    if (pTag != nullptr)
-      Set(*pTag);
+      const ezTag& tag = registry.RegisterTag(tagString);
+      Set(tag);
+    }
   }
 }

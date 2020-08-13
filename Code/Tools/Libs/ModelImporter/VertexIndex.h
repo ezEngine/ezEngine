@@ -11,17 +11,17 @@ namespace ezModelImporter
   struct EZ_MODELIMPORTER_DLL VertexIndex
   {
     EZ_DECLARE_POD_TYPE();
-    bool operator == (VertexIndex b) { return m_Value == b.m_Value; }
+    bool operator==(VertexIndex b) { return m_Value == b.m_Value; }
 
   private:
     friend class Mesh;
     friend class VertexDataStream;
-    template<typename Attribute, bool>
+    template <typename Attribute, bool>
     friend class TypedVertexDataStreamView_Base;
-    template<typename Attribute>
+    template <typename Attribute>
     friend class TypedVertexDataStreamView_ReadWrite;
 
-    EZ_ALWAYS_INLINE operator ezUInt32 () const { return m_Value; }
+    EZ_ALWAYS_INLINE operator ezUInt32() const { return m_Value; }
 
     ezUInt32 m_Value;
   };
@@ -33,4 +33,4 @@ namespace ezModelImporter
     INT32,
     UINT32,
   };
-}
+} // namespace ezModelImporter

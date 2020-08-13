@@ -21,5 +21,4 @@ private:
   virtual ezResult InitializeTest() override;
   virtual ezResult DeInitializeTest() override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
-
 };

@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSoundEventAssetDocument::ezSoundEventAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezSoundEventAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezSoundEventAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -31,7 +31,7 @@ void ezSoundEventAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
 }
 
 ezStatus ezSoundEventAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                           const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSoundEventAssetProperties* pProp = GetProperties();
 

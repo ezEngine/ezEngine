@@ -1,9 +1,9 @@
 #pragma once
 
-#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <RendererCore/Declarations.h>
+#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/Declarations.h>
 
 class EZ_ENGINEPLUGINASSETS_DLL ezSkeletonContext : public ezEngineProcessDocumentContext
 {
@@ -27,5 +27,3 @@ private:
   ezGameObject* m_pGameObject = nullptr;
   ezSkeletonResourceHandle m_hMesh;
 };
-
-

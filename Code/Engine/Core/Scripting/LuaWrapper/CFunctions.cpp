@@ -19,9 +19,9 @@ void* ezLuaWrapper::GetFunctionLightUserData() const
 bool ezLuaWrapper::PrepareFunctionCall(const char* szFunctionName)
 {
   EZ_ASSERT_DEV(m_States.m_iLuaReturnValues == 0,
-                "ezLuaWrapper::PrepareFunctionCall: You didn't discard the return-values of the previous script call. {0} Return-values "
-                "were expected.",
-                m_States.m_iLuaReturnValues);
+    "ezLuaWrapper::PrepareFunctionCall: You didn't discard the return-values of the previous script call. {0} Return-values "
+    "were expected.",
+    m_States.m_iLuaReturnValues);
 
   m_States.m_iParametersPushed = 0;
 
@@ -68,8 +68,7 @@ ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 iExpectedReturnValues, ezLo
 
   // before resetting the state, make sure the returned state has no stuff left
   EZ_ASSERT_DEV((m_States.m_iLuaReturnValues == 0) && (m_States.m_iOpenTables == 0),
-                "After ezLuaWrapper::CallPreparedFunction: Return values: {0}, Open Tables: {1}", m_States.m_iLuaReturnValues,
-                m_States.m_iOpenTables);
+    "After ezLuaWrapper::CallPreparedFunction: Return values: {0}, Open Tables: {1}", m_States.m_iLuaReturnValues, m_States.m_iOpenTables);
 
   m_States = StackedStates;
   return EZ_SUCCESS;
@@ -135,4 +134,3 @@ const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 iReturnValue) const
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_CFunctions);
-

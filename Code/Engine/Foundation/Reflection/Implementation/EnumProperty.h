@@ -13,7 +13,7 @@ class ezAbstractEnumerationProperty : public ezAbstractMemberProperty
 public:
   /// \brief Passes the property name through to ezAbstractMemberProperty.
   ezAbstractEnumerationProperty(const char* szPropertyName)
-      : ezAbstractMemberProperty(szPropertyName)
+    : ezAbstractMemberProperty(szPropertyName)
   {
   }
 
@@ -38,7 +38,7 @@ class ezTypedEnumProperty : public ezAbstractEnumerationProperty
 public:
   /// \brief Passes the property name through to ezAbstractEnumerationProperty.
   ezTypedEnumProperty(const char* szPropertyName)
-      : ezAbstractEnumerationProperty(szPropertyName)
+    : ezAbstractEnumerationProperty(szPropertyName)
   {
   }
 
@@ -56,13 +56,13 @@ template <typename Class, typename EnumType, typename Type>
 class ezEnumAccessorProperty : public ezTypedEnumProperty<EnumType>
 {
 public:
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef Type (Class::*GetterFunc)() const;
-  typedef void (Class::*SetterFunc)(Type value);
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetterFunc = Type (Class::*)() const;
+  using SetterFunc = void (Class::*)(Type value);
 
   /// \brief Constructor.
   ezEnumAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter)
-      : ezTypedEnumProperty<EnumType>(szPropertyName)
+    : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
     ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::IsEnum);
@@ -88,8 +88,7 @@ public:
 
   virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
   {
-    EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.",
-                  ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     if (m_Setter)
       (static_cast<Class*>(pInstance)->*m_Setter)((typename EnumType::Enum)value);
   }
@@ -105,13 +104,13 @@ template <typename Class, typename EnumType, typename Type>
 class ezEnumMemberProperty : public ezTypedEnumProperty<EnumType>
 {
 public:
-  typedef Type (*GetterFunc)(const Class* pInstance);
-  typedef void (*SetterFunc)(Class* pInstance, Type value);
-  typedef void* (*PointerFunc)(const Class* pInstance);
+  using GetterFunc = Type (*)(const Class* pInstance);
+  using SetterFunc = void (*)(Class* pInstance, Type value);
+  using PointerFunc = void* (*)(const Class* pInstance);
 
   /// \brief Constructor.
   ezEnumMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer)
-      : ezTypedEnumProperty<EnumType>(szPropertyName)
+    : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
     ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::IsEnum);
@@ -134,8 +133,7 @@ public:
 
   virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
   {
-    EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.",
-                  ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
       m_Setter(static_cast<Class*>(pInstance), (typename EnumType::Enum)value);
@@ -146,4 +144,3 @@ private:
   SetterFunc m_Setter;
   PointerFunc m_Pointer;
 };
-

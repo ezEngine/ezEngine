@@ -61,7 +61,8 @@ struct ezPropertyFlags
     PointerOwner = EZ_BIT(7), ///< This pointer property takes ownership of the passed pointer.
     ReadOnly = EZ_BIT(8),     ///< Can only be read but not modified.
     Hidden = EZ_BIT(9),       ///< This property should not appear in the UI.
-    Phantom = EZ_BIT(10),     ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used for data driven types, e.g. by the Visual Shader asset.
+    Phantom = EZ_BIT(10), ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used
+                          ///< for data driven types, e.g. by the Visual Shader asset.
 
     VarOut = EZ_BIT(11),   ///< Tag for non-const-ref function parameters to indicate usage 'out'
     VarInOut = EZ_BIT(12), ///< Tag for non-const-ref function parameters to indicate usage 'inout'
@@ -131,7 +132,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezPropertyFlags)
 /// \brief Describes what category a property belongs to.
 struct ezPropertyCategory
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -153,7 +154,7 @@ public:
   /// \brief The constructor must get the name of the property. The string must be a compile-time constant.
   ezAbstractProperty(const char* szPropertyName) { m_szPropertyName = szPropertyName; }
 
-  virtual ~ezAbstractProperty() {}
+  virtual ~ezAbstractProperty() = default;
 
   /// \brief Returns the name of the property.
   const char* GetPropertyName() const { return m_szPropertyName; }
@@ -177,9 +178,8 @@ public:
 
   /// \brief Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using
   /// standard 'new'.
-  ezAbstractProperty* AddAttributes(ezPropertyAttribute* pAttrib1, ezPropertyAttribute* pAttrib2 = nullptr,
-    ezPropertyAttribute* pAttrib3 = nullptr, ezPropertyAttribute* pAttrib4 = nullptr,
-    ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)
+  ezAbstractProperty* AddAttributes(ezPropertyAttribute* pAttrib1, ezPropertyAttribute* pAttrib2 = nullptr, ezPropertyAttribute* pAttrib3 = nullptr,
+    ezPropertyAttribute* pAttrib4 = nullptr, ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)
   {
     EZ_ASSERT_DEV(pAttrib1 != nullptr, "invalid attribute");
 
@@ -385,13 +385,13 @@ struct getArgument;
 template <class Head, class... Tail>
 struct getArgument<0, Head, Tail...>
 {
-  typedef Head Type;
+  using Type = Head;
 };
 
 template <int _Index, class Head, class... Tail>
 struct getArgument<_Index, Head, Tail...>
 {
-  typedef typename getArgument<_Index - 1, Tail...>::Type Type;
+  using Type = typename getArgument<_Index - 1, Tail...>::Type;
 };
 
 /// \brief Template that allows to probe a function for a parameter and return type.
@@ -408,8 +408,8 @@ struct ezFunctionParameterTypeResolver<I, R (*)(P...)>
     Arguments = sizeof...(P),
   };
   EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
-  typedef typename getArgument<I, P...>::Type ParameterType;
-  typedef R ReturnType;
+  using ParameterType = typename getArgument<I, P...>::Type;
+  using ReturnType = R;
 };
 
 template <int I, class Class, typename R, typename... P>
@@ -420,8 +420,8 @@ struct ezFunctionParameterTypeResolver<I, R (Class::*)(P...)>
     Arguments = sizeof...(P),
   };
   EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
-  typedef typename getArgument<I, P...>::Type ParameterType;
-  typedef R ReturnType;
+  using ParameterType = typename getArgument<I, P...>::Type;
+  using ReturnType = R;
 };
 
 template <int I, class Class, typename R, typename... P>
@@ -432,8 +432,8 @@ struct ezFunctionParameterTypeResolver<I, R (Class::*)(P...) const>
     Arguments = sizeof...(P),
   };
   EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
-  typedef typename getArgument<I, P...>::Type ParameterType;
-  typedef R ReturnType;
+  using ParameterType = typename getArgument<I, P...>::Type;
+  using ReturnType = R;
 };
 
 /// \brief Template that allows to probe a single parameter function for parameter and return type.
@@ -445,8 +445,8 @@ struct ezMemberFunctionParameterTypeResolver
 template <class Class, typename R, typename P>
 struct ezMemberFunctionParameterTypeResolver<R (Class::*)(P)>
 {
-  typedef P ParameterType;
-  typedef R ReturnType;
+  using ParameterType = P;
+  using ReturnType = R;
 };
 
 /// \brief Template that allows to probe a container for its element type.
@@ -458,62 +458,62 @@ struct ezContainerSubTypeResolver
 template <typename T>
 struct ezContainerSubTypeResolver<ezArrayPtr<T>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename T>
 struct ezContainerSubTypeResolver<ezDynamicArray<T>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename T, ezUInt32 Size>
 struct ezContainerSubTypeResolver<ezHybridArray<T, Size>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename T, ezUInt32 Size>
 struct ezContainerSubTypeResolver<ezStaticArray<T, Size>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename T>
 struct ezContainerSubTypeResolver<ezDeque<T>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename T>
 struct ezContainerSubTypeResolver<ezSet<T>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename T>
 struct ezContainerSubTypeResolver<ezHashSet<T>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename K, typename T>
 struct ezContainerSubTypeResolver<ezHashTable<K, T>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 template <typename K, typename T>
 struct ezContainerSubTypeResolver<ezMap<K, T>>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
 
 /// \brief Describes what kind of function a property is.
 struct ezFunctionType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

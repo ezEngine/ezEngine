@@ -42,10 +42,14 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezCollectionAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezCollectionAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezCollectionAssetDocument(szPath);
 }

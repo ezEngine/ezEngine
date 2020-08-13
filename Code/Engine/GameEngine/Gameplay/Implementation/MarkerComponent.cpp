@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMarkerComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezSphereVisualizerAttribute("Radius", nullptr, ezColor::LightSkyBlue),
+    new ezSphereVisualizerAttribute("Radius", ezColor::LightSkyBlue),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -114,13 +114,4 @@ void ezMarkerComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-ezMarkerComponentManager::ezMarkerComponentManager(ezWorld* pWorld)
-  : SUPER(pWorld)
-{
-}
-
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_MarkerComponent);
-

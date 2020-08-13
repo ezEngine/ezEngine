@@ -142,12 +142,12 @@ float CalculateAcceleratedMovement(
   double fDecTime = 0.0f;
   if (fDeceleration > 0.0f)
     fDecTime = fMaxVelocity / fDeceleration;
-  float fDecDist = fMaxVelocity * fDecTime * 0.5f;
+  double fDecDist = fMaxVelocity * fDecTime * 0.5f;
 
   // if acceleration and deceleration take longer, than the whole path is long
   if (fAccDist + fDecDist > fDistanceInMeters)
   {
-    float fFactor = fDistanceInMeters / (fAccDist + fDecDist);
+    double fFactor = fDistanceInMeters / (fAccDist + fDecDist);
 
     // shorten the acceleration path
     if (fAcceleration > 0.0f)
@@ -166,7 +166,7 @@ float CalculateAcceleratedMovement(
 
   // if the time is still within the acceleration phase, return accelerated distance
   if (fTimeSinceStartInSec.GetSeconds() <= fAccTime)
-    return 0.5 * fAcceleration * ezMath::Square(fTimeSinceStartInSec.GetSeconds());
+    return static_cast<float>(0.5 * fAcceleration * ezMath::Square(fTimeSinceStartInSec.GetSeconds()));
 
   // calculate duration and length of the path, that has maximum velocity
   const double fMaxVelDistance = fDistanceInMeters - (fAccDist + fDecDist);
@@ -174,7 +174,7 @@ float CalculateAcceleratedMovement(
 
   // if the time is within this phase, return the accelerated path plus the constant velocity path
   if (fTimeSinceStartInSec.GetSeconds() <= fAccTime + fMaxVelTime)
-    return fAccDist + (fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity;
+    return static_cast<float>(fAccDist + (fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity);
 
   // if the time is, however, outside the whole path, just return the upper end
   if (fTimeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
@@ -187,8 +187,9 @@ float CalculateAcceleratedMovement(
   const double fDecTime2 = fTimeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
 
   // return the distance with the decelerated movement
-  return fDistanceInMeters - 0.5 * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
+  return static_cast<float>(fDistanceInMeters - 0.5 * fDeceleration * ezMath::Square(fDecTime - fDecTime2));
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

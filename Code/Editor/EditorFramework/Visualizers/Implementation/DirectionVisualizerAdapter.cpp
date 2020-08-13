@@ -36,7 +36,7 @@ void ezDirectionVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezDirectionVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>());
+    m_Gizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 }
 
@@ -75,6 +75,6 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
   ezTransform t;
   t.m_qRotation = axisRotation;
   t.m_vScale = ezVec3(fScale);
-  t.m_vPosition = axisRotation * ezVec3(fScale, 0, 0);
+  t.m_vPosition = axisRotation * ezVec3(fScale * 0.5f, 0, 0);
   m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }

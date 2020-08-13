@@ -71,12 +71,13 @@ public:
   bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
 
   /// \brief Nested prefabs are not allowed
-  virtual bool ArePrefabsAllowed() const { return !IsPrefab(); }
+  virtual bool ArePrefabsAllowed() const override { return !IsPrefab(); }
 
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
+  virtual bool Paste(
+    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
   bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
   bool CopySelectedObjects(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
@@ -87,7 +88,8 @@ public:
   /// \brief Removes the link to the prefab template, making the editor prefab a simple object
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection) override;
 
-  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed) override;
+  virtual ezUuid ReplaceByPrefab(
+    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab) override;
 
   /// \brief Reverts all selected editor prefabs to their original template state
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
@@ -96,6 +98,10 @@ public:
   virtual void ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& Selection);
   /// \brief Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
   virtual void ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& Selection);
+
+  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
+    ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
+    ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>()) override;
 
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
@@ -106,7 +112,8 @@ public:
   bool StopGameMode();
 
   ezStatus ExportScene(bool bCreateThumbnail);
-  void ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
+  void ExportSceneGeometry(
+    const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
@@ -121,7 +128,8 @@ public:
   const ezDocumentObject* GetSettingsObject() const;
   const ezSceneDocumentSettings* GetSettings() const;
 
-  ezStatus CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
+  ezStatus CreateExposedProperty(
+    const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
   ezStatus AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
   ezInt32 FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
   ezStatus RemoveExposedParameter(ezInt32 index);
@@ -155,7 +163,7 @@ protected:
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
-  template<typename Func>
+  template <typename Func>
   void ApplyRecursive(const ezDocumentObject* pObject, Func f)
   {
     f(pObject);
@@ -167,7 +175,6 @@ protected:
   }
 
 private:
-
   void EnsureSettingsObjectExist();
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
@@ -175,14 +182,17 @@ private:
 
   ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   void SyncObjectHiddenState();
   void SyncObjectHiddenState(ezDocumentObject* pObject);
 
-  /// \brief Finds all objects that are actively being 'debugged' (or visualized) by the editor and thus should get the debug visualization flag in the runtime.
+  /// \brief Finds all objects that are actively being 'debugged' (or visualized) by the editor and thus should get the debug visualization flag in
+  /// the runtime.
   void UpdateObjectDebugTargets();
 
   bool m_bIsPrefab;
@@ -199,5 +209,4 @@ private:
   /// Communication with other document types
   virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
   void GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsgInterDoc* pMsg) const;
-
 };

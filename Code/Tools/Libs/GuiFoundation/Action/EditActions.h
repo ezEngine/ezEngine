@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 ///
 class EZ_GUIFOUNDATION_DLL ezEditActions
@@ -26,6 +26,7 @@ public:
 class EZ_GUIFOUNDATION_DLL ezEditAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditAction, ezButtonAction);
+
 public:
   enum class ButtonType
   {
@@ -44,8 +45,3 @@ private:
 
   ButtonType m_ButtonType;
 };
-
-
-
-
-

@@ -93,8 +93,8 @@ void ezNonUniformBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
       if (pAttr->HasSixAxis())
       {
-        ChangeProperties(pAttr->GetNegXProperty(), neg.x, pAttr->GetPosXProperty(), pos.x, pAttr->GetNegYProperty(), neg.y,
-          pAttr->GetPosYProperty(), pos.y, pAttr->GetNegZProperty(), neg.z, pAttr->GetPosZProperty(), pos.z);
+        ChangeProperties(pAttr->GetNegXProperty(), neg.x, pAttr->GetPosXProperty(), pos.x, pAttr->GetNegYProperty(), neg.y, pAttr->GetPosYProperty(),
+          pos.y, pAttr->GetNegZProperty(), neg.z, pAttr->GetPosZProperty(), pos.z);
       }
       else
       {

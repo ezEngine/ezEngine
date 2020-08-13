@@ -34,7 +34,8 @@ ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
+ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory,
+  const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {
@@ -48,7 +49,8 @@ ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAsset
 }
 
 
-bool ezMaterialAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
+bool ezMaterialAssetDocumentManager::IsOutputUpToDate(
+  const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {
@@ -84,15 +86,18 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMaterialAssetDocument>())
       {
-        ezQtMaterialAssetDocumentWindow* pDocWnd =
-          new ezQtMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
+        ezQtMaterialAssetDocumentWindow* pDocWnd = new ezQtMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezMaterialAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezMaterialAssetDocument(szPath);
 }

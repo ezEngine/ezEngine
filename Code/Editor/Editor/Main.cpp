@@ -1,7 +1,7 @@
 #include <EditorPCH.h>
 
-#include <Foundation/Application/Application.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Application/Application.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>

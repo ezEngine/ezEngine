@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/World/World.h>
 #include <Core/Graphics/Camera.h>
+#include <Core/World/World.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
@@ -31,4 +31,3 @@ private:
   ezGameObjectHandle m_hPlayerShips[MaxPlayers];
   ezCamera m_Camera;
 };
-

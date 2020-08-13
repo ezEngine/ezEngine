@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11281838771480088251,5140108322494537448}}
-		u4 %Hash{15368387128390800840}
+		u4 %Hash{12968565319639002054}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17374589031583292623,5460030219854842637}}
@@ -156,9 +156,10 @@ o
 		b %Active{1}
 		f %BreakForce{0}
 		f %BreakTorque{0}
-		s %ChildActor{""}
-		f %MaxDistance{0x0000803F}
-		f %MinDistance{0xCDCCCC3D}
+		s %ChildActor{"{ 66bcb5ce-bf94-4c0f-85a0-9fd4bc354130 }"}
+		s %ChildActorAnchor{""}
+		f %MaxDistance{0x0000403F}
+		f %MinDistance{0}
 		b %PairCollision{0}
 		s %ParentActor{""}
 		f %SpringDamping{0}
@@ -213,6 +214,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -254,6 +256,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{3477119472444088453,5480809915632891342}}
@@ -396,7 +399,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{5}
 	}
 }
@@ -504,7 +507,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{3}
 	}
 }
@@ -522,7 +525,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxDistanceJointComponent"}
-		u3 %TypeSize{184}
+		u3 %TypeSize{200}
 		u3 %TypeVersion{1}
 	}
 }
@@ -594,8 +597,8 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxJointComponent"}
-		u3 %TypeSize{160}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{176}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -648,7 +651,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeSphereComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

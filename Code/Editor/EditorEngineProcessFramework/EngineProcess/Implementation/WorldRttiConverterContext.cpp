@@ -1,7 +1,7 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+#include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
 void ezWorldRttiConverterContext::Clear()
 {
@@ -211,7 +211,7 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
       object.m_pObject = nullptr;
       object.m_pType = nullptr;
       // this can happen when one manipulates a running scene, and an object just deleted itself
-      //EZ_REPORT_FAILURE("Can't resolve game object GUID!");
+      // EZ_REPORT_FAILURE("Can't resolve game object GUID!");
       return object;
     }
 

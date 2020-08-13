@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Foundation/Math/Math.h>
-
 EZ_ALWAYS_INLINE ezInt32 ezStringUtils::CompareChars(ezUInt32 uiCharacter1, ezUInt32 uiCharacter2)
 {
   return (ezInt32)uiCharacter1 - (ezInt32)uiCharacter2;
@@ -82,8 +80,8 @@ inline ezUInt32 ezStringUtils::GetCharacterCount(const char* szUtf8, const char*
   return uiCharacters;
 }
 
-inline void ezStringUtils::GetCharacterAndElementCount(const char* szUtf8, ezUInt32& uiCharacterCount, ezUInt32& uiElementCount,
-                                                       const char* pStringEnd)
+inline void ezStringUtils::GetCharacterAndElementCount(
+  const char* szUtf8, ezUInt32& uiCharacterCount, ezUInt32& uiElementCount, const char* pStringEnd)
 {
   uiCharacterCount = 0;
   uiElementCount = 0;
@@ -94,7 +92,7 @@ inline void ezStringUtils::GetCharacterAndElementCount(const char* szUtf8, ezUIn
   while (szUtf8 < pStringEnd)
   {
     char uiByte = *szUtf8;
-    if(uiByte == '\0')
+    if (uiByte == '\0')
     {
       break;
     }
@@ -113,20 +111,19 @@ EZ_ALWAYS_INLINE bool ezStringUtils::IsEqual(const char* pString1, const char* p
   return ezStringUtils::Compare(pString1, pString2, pString1End, pString2End) == 0;
 }
 
-EZ_ALWAYS_INLINE bool ezStringUtils::IsEqualN(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare,
-                                              const char* pString1End, const char* pString2End)
+EZ_ALWAYS_INLINE bool ezStringUtils::IsEqualN(
+  const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End, const char* pString2End)
 {
   return ezStringUtils::CompareN(pString1, pString2, uiCharsToCompare, pString1End, pString2End) == 0;
 }
 
-EZ_ALWAYS_INLINE bool ezStringUtils::IsEqual_NoCase(const char* pString1, const char* pString2, const char* pString1End,
-                                                    const char* pString2End)
+EZ_ALWAYS_INLINE bool ezStringUtils::IsEqual_NoCase(const char* pString1, const char* pString2, const char* pString1End, const char* pString2End)
 {
   return ezStringUtils::Compare_NoCase(pString1, pString2, pString1End, pString2End) == 0;
 }
 
-EZ_ALWAYS_INLINE bool ezStringUtils::IsEqualN_NoCase(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare,
-                                                     const char* pString1End, const char* pString2End)
+EZ_ALWAYS_INLINE bool ezStringUtils::IsEqualN_NoCase(
+  const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End, const char* pString2End)
 {
   return ezStringUtils::CompareN_NoCase(pString1, pString2, uiCharsToCompare, pString1End, pString2End) == 0;
 }

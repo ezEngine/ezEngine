@@ -139,6 +139,7 @@ public:
   ezVec2I32 m_Vec2I;
   ezVec3I32 m_Vec3I;
   ezVec4I32 m_Vec4I;
+
 private:
   ezVec2 m_Vec2;
   ezVec3 m_Vec3;
@@ -154,10 +155,10 @@ struct ezExampleEnum
   typedef ezInt8 StorageType;
   enum Enum
   {
-    Value1 = 0,          // normal value
-    Value2 = -2,         // normal value
-    Value3 = 4,          // normal value
-    Default = Value1     // Default initialization value (required)
+    Value1 = 0,      // normal value
+    Value2 = -2,     // normal value
+    Value3 = 4,      // normal value
+    Default = Value1 // Default initialization value (required)
   };
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
@@ -211,6 +212,7 @@ private:
 struct InnerStruct
 {
   EZ_DECLARE_POD_TYPE();
+
 public:
   float m_fP1;
 };
@@ -239,10 +241,7 @@ class ezObjectTest : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezObjectTest, ezReflectedClass);
 
 public:
-  ezObjectTest()
-  {
-
-  }
+  ezObjectTest() {}
   ~ezObjectTest()
   {
     for (OuterClass* pTest : m_ClassPtrArray)
@@ -283,9 +282,7 @@ class ezMirrorTest : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezMirrorTest, ezReflectedClass);
 
 public:
-  ezMirrorTest()
-  {
-  }
+  ezMirrorTest() {}
 
   ezMathClass m_math;
   ezObjectTest m_object;

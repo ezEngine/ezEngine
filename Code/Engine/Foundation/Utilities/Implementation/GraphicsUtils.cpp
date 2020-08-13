@@ -2,8 +2,8 @@
 
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX,
-  const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
+ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY,
+  const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
   ezClipSpaceDepthRange::Enum DepthRange)
 {
   const ezVec4 vToProject = vPoint.GetAsVec4(1.0f);
@@ -30,9 +30,9 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProj
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX,
-  const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
-  ezVec3* out_vDirection, ezClipSpaceDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY,
+  const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection,
+  ezClipSpaceDepthRange::Enum DepthRange)
 {
   ezVec3 vClipSpace = vScreenPos;
 
@@ -63,8 +63,8 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelV
 
     const ezVec4 vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
 
-    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0f,
-      "It should not be possible that the first projected point has a w other than zero, but the second one has!");
+    EZ_ASSERT_DEV(
+      vWorldSpacePoint2.w != 0.0f, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3 vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
@@ -108,8 +108,8 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModel
 
     const ezVec4d vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
 
-    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0,
-      "It should not be possible that the first projected point has a w other than zero, but the second one has!");
+    EZ_ASSERT_DEV(
+      vWorldSpacePoint2.w != 0.0, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3d vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
@@ -237,8 +237,8 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, floa
   return CreatePerspectiveProjectionMatrix(-vw, vw, -vh, vh, fNearZ, fFarZ, DepthRange, yRange, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ,
-  float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ,
+  ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
   const float xm = fNearZ * ezMath::Tan(fieldOfViewX * 0.5f);
   const float ym = xm / fAspectRatioWidthDivHeight;
@@ -246,8 +246,8 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldO
   return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange, yRange, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ,
-  float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ,
+  ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
   const float ym = fNearZ * ezMath::Tan(fieldOfViewY * 0.5);
   const float xm = ym * fAspectRatioWidthDivHeight;
@@ -410,8 +410,7 @@ ezMat3 ezGraphicsUtils::CreateInverseLookAtViewMatrix(const ezVec3& vTarget, con
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreateLookAtViewMatrix(
-  const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir, ezHandedness::Enum handedness)
 {
   const ezMat3 rotation = CreateLookAtViewMatrix(vLookAtPos - vEyePos, vUpDir, handedness);
 

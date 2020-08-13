@@ -77,4 +77,4 @@ namespace ezProcGenInternal
   ezHashedString ExpressionOutputs::s_sG = ezMakeHashedString("G");
   ezHashedString ExpressionOutputs::s_sB = ezMakeHashedString("B");
   ezHashedString ExpressionOutputs::s_sA = ezMakeHashedString("A");
-}
+} // namespace ezProcGenInternal

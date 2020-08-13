@@ -13,33 +13,33 @@ class ezOpenDdlReaderElement;
 
 // Include the proper Input implementation to use
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
-#include <System/Window/Implementation/SFML/InputDevice_SFML.h>
+#  include <System/Window/Implementation/SFML/InputDevice_SFML.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#include <System/Window/Implementation/Win32/InputDevice_win32.h>
+#  include <System/Window/Implementation/Win32/InputDevice_win32.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <System/Window/Implementation/uwp/InputDevice_uwp.h>
+#  include <System/Window/Implementation/uwp/InputDevice_uwp.h>
 #else
-#error "Missing code for ezWindow Input!"
+#  error "Missing code for ezWindow Input!"
 #endif
 
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
 
 typedef sf::Window* ezWindowHandle;
-#define INVALID_WINDOW_HANDLE_VALUE (sf::Window*)(0)
+#  define INVALID_WINDOW_HANDLE_VALUE (sf::Window*)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Basics/Platform/Win/MinWindows.h>
 typedef ezMinWindows::HWND ezWindowHandle;
-#define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+#  define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 typedef IUnknown* ezWindowHandle;
-#define INVALID_WINDOW_HANDLE_VALUE nullptr
+#  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
 #else
-#error "Missing Platform Code!"
+#  error "Missing Platform Code!"
 #endif
 
 /// \brief Base class of all window classes that have a client area and a native window handle.
@@ -68,11 +68,11 @@ struct EZ_SYSTEM_DLL ezWindowMode
   enum Enum
   {
     WindowFixedResolution, ///< The resolution and size are what the user picked and will not be changed. The window will not be resizable.
-    WindowResizable, ///< The resolution and size are what the user picked and will not be changed. Allows window resizing by the user.
+    WindowResizable,       ///< The resolution and size are what the user picked and will not be changed. Allows window resizing by the user.
     FullscreenBorderlessNativeResolution, ///< A borderless window, the position and resolution are taken from the monitor on which the
                                           ///< window shall appear.
-    FullscreenFixedResolution, ///< A fullscreen window using the user provided resolution. Tries to change the monitor resolution
-                               ///< accordingly.
+    FullscreenFixedResolution,            ///< A fullscreen window using the user provided resolution. Tries to change the monitor resolution
+                                          ///< accordingly.
 
     Default = WindowFixedResolution
   };
@@ -117,8 +117,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   ezInt8 m_iMonitor = -1;
 
   /// The virtual position of the window. Determines on which monitor the window ends up.
-  ezVec2I32 m_Position =
-      ezVec2I32(0x80000000, 0x80000000); // Magic number on windows that positions the window at a 'good default position'
+  ezVec2I32 m_Position = ezVec2I32(0x80000000, 0x80000000); // Magic number on windows that positions the window at a 'good default position'
 
   /// The pixel resolution of the window.
   ezSizeU32 m_Resolution = ezSizeU32(1280, 720);
@@ -242,7 +241,7 @@ public:
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #else
-#error "Missing code for ezWindow on this platform!"
+#  error "Missing code for ezWindow on this platform!"
 #endif
 
   /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
@@ -251,7 +250,7 @@ public:
   /// \brief Returns a number that can be used as a window number in ezWindowCreationDesc
   ///
   /// This number just increments every time an ezWindow is created. It starts at zero.
-  static ezUInt32 GetNextUnusedWindowNumber();
+  static ezUInt8 GetNextUnusedWindowNumber();
 
 protected:
   /// Description at creation time. ezWindow will not update this in any method other than Initialize.
@@ -266,6 +265,5 @@ private:
   mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
 
   /// increased every time an ezWindow is created, to be able to get a free window index easily
-  static ezUInt32 s_uiNextUnusedWindowNumber;
+  static ezUInt8 s_uiNextUnusedWindowNumber;
 };
-

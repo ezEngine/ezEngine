@@ -7,7 +7,7 @@
 #include <QMessageBox>
 
 ezQtEnginePluginConfigDlg::ezQtEnginePluginConfigDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
@@ -26,6 +26,13 @@ void ezQtEnginePluginConfigDlg::FillPluginList()
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
 
     ezStringBuilder sText = it.Key();
+
+    if (sText.FindSubString_NoCase("EnginePlugin") != nullptr)
+    {
+      // hide engine plugins from the list, these are indirectly loaded by editor plugin dependencies
+      // the user is not supposed to configure them
+      continue;
+    }
 
     if (it.Value().m_bLoadCopy)
     {
@@ -56,8 +63,6 @@ void ezQtEnginePluginConfigDlg::on_ButtonOK_clicked()
 {
   ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
 
-  bool bChange = false;
-
   for (int i = 0; i < ListPlugins->count(); ++i)
   {
     QListWidgetItem* pItem = ListPlugins->item(i);
@@ -66,17 +71,10 @@ void ezQtEnginePluginConfigDlg::on_ButtonOK_clicked()
 
     bool& ToBeLoaded = Plugins.m_Plugins[pItem->data(Qt::UserRole + 1).toString().toUtf8().data()].m_bToBeLoaded;
 
-    if (ToBeLoaded != bLoad)
-    {
-      ToBeLoaded = bLoad;
-      bChange = true;
-    }
+    ToBeLoaded = bLoad;
   }
 
-  if (bChange)
-  {
-    ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
-  }
+  ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
 
   accept();
 }

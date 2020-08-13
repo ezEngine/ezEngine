@@ -14,7 +14,7 @@ public:
   ezQtCurve1DAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtCurve1DAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const { return "Curve1DAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "Curve1DAsset"; }
 
 private Q_SLOTS:
   void onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Declarations.h>
 #include <Foundation/Strings/String.h>
+#include <RendererCore/Declarations.h>
 
 namespace ezShaderHelper
 {
@@ -17,7 +17,6 @@ namespace ezShaderHelper
     ezStringView GetSectionContent(ezUInt32 uiSection, ezUInt32& out_uiFirstLine) const;
 
   private:
-
     struct ezTextSection
     {
       ezTextSection(const char* szName)
@@ -65,5 +64,4 @@ namespace ezShaderHelper
   void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections);
 
   ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars);
-}
-
+} // namespace ezShaderHelper

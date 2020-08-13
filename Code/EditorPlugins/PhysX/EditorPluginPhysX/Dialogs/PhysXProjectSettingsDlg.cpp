@@ -238,8 +238,7 @@ void ezQtPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
 void ezQtPhysxProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
 {
   if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?",
-        QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
-        QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
+        QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
     return;
 
   const auto sel = FilterTable->selectionModel()->selectedRows();

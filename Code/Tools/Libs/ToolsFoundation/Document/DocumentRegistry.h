@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 struct EZ_TOOLSFOUNDATION_DLL ezActiveDocumentChange
 {
@@ -33,8 +33,8 @@ private:
   static void Shutdown();
 
 public:
-  //static ezEvent<ezDocumentChange&> m_DocumentAddedEvent;
-  //static ezEvent<ezDocumentChange&> m_DocumentRemovedEvent;
+  // static ezEvent<ezDocumentChange&> m_DocumentAddedEvent;
+  // static ezEvent<ezDocumentChange&> m_DocumentRemovedEvent;
   static ezEvent<ezActiveDocumentChange&> m_ActiveDocumentChanged;
 
 private:

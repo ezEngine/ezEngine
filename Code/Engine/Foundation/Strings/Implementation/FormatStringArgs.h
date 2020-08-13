@@ -6,6 +6,7 @@
 class ezStringBuilder;
 class ezVariant;
 class ezAngle;
+class ezRational;
 struct ezTime;
 
 struct ezArgI
@@ -142,7 +143,34 @@ struct ezArgErrorCode
   ezUInt32 m_ErrorCode;
 };
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg);
+
 #endif
+
+/// \brief Wraps a string that may contain sensitive information, such as user file paths.
+///
+/// The application can specify a function to scramble this type of information. By default not such function is set.
+/// A general purpose function is provided with 'BuildString_SensitiveUserData_Hash()'
+///
+/// \param sSensitiveInfo The information that may need to be scrambled.
+/// \param szContext A custom string to identify the 'context', ie. what type of sensitive data is being scrambled.
+///        This may be passed through unmodified, or can guide the scrambling function to choose how to output the sensitive data.
+struct ezArgSensitive
+{
+  inline explicit ezArgSensitive(const ezStringView& sSensitiveInfo, const char* szContext = nullptr)
+    : m_sSensitiveInfo(sSensitiveInfo)
+    , m_szContext(szContext)
+  {
+  }
+
+  const ezStringView m_sSensitiveInfo;
+  const char* m_szContext;
+
+  using BuildStringCallback = ezStringView (*)(char*, ezUInt32, const ezArgSensitive&);
+  EZ_FOUNDATION_DLL static BuildStringCallback s_BuildStringCB;
+
+  /// \brief Set s_BuildStringCB to this function to enable scrambling of sensitive data.
+  EZ_FOUNDATION_DLL static ezStringView BuildString_SensitiveUserData_Hash(char* tmp, ezUInt32 uiLength, const ezArgSensitive& arg);
+};
 
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt64 arg);
@@ -162,8 +190,10 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezAngle& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezRational& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgSensitive& arg);
 
 
 #if EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)

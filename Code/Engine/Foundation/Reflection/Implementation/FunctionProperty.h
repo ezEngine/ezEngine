@@ -37,8 +37,8 @@ public:
   ezBitflags<ezPropertyFlags> GetParameterFlagsImpl(ezUInt32 uiParamIndex, std::index_sequence<I...>) const
   {
     // There is a dummy entry at the end to support zero parameter functions (can't have zero-size arrays).
-    static ezBitflags<ezPropertyFlags> params[] = {ezPropertyFlags::GetParameterFlags<typename getArgument<I, Args...>::Type>()...,
-      ezPropertyFlags::Void};
+    static ezBitflags<ezPropertyFlags> params[] = {
+      ezPropertyFlags::GetParameterFlags<typename getArgument<I, Args...>::Type>()..., ezPropertyFlags::Void};
     return params[uiParamIndex];
   }
 
@@ -53,44 +53,46 @@ class ezFunctionProperty
 {
 };
 
-#define ezFunctionPropertyCode(CONSTNESS)                                                                                                                \
-  template <class CLASS, class R, class... Args>                                                                                                         \
-  class ezFunctionProperty<R (CLASS::*)(Args...) CONSTNESS> : public ezTypedFunctionProperty<R, Args...>                                                 \
-  {                                                                                                                                                      \
-  public:                                                                                                                                                \
-    typedef R (CLASS::*TargetFunction)(Args...) CONSTNESS;                                                                                               \
-                                                                                                                                                         \
-    ezFunctionProperty(const char* szPropertyName, TargetFunction func)                                                                                  \
-      : ezTypedFunctionProperty<R, Args...>(szPropertyName)                                                                                              \
-    {                                                                                                                                                    \
-      m_Function = func;                                                                                                                                 \
-    }                                                                                                                                                    \
-                                                                                                                                                         \
-    virtual ezFunctionType::Enum GetFunctionType() const override { return ezFunctionType::Member; }                                                     \
-                                                                                                                                                         \
-    template <std::size_t... I>                                                                                                                          \
-    void ExecuteImpl(ezTraitInt<1>, CONSTNESS void* pInstance, ezVariant& returnValue, ezArrayPtr<ezVariant> arguments, std::index_sequence<I...>) const \
-    {                                                                                                                                                    \
-      CONSTNESS CLASS* pTargetInstance = (CONSTNESS CLASS*)pInstance;                                                                                    \
-      (pTargetInstance->*m_Function)(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);                                         \
-      returnValue = ezVariant();                                                                                                                         \
-    }                                                                                                                                                    \
-                                                                                                                                                         \
-    template <std::size_t... I>                                                                                                                          \
-    void ExecuteImpl(ezTraitInt<0>, CONSTNESS void* pInstance, ezVariant& returnValue, ezArrayPtr<ezVariant> arguments, std::index_sequence<I...>) const \
-    {                                                                                                                                                    \
-      CONSTNESS CLASS* pTargetInstance = (CONSTNESS CLASS*)pInstance;                                                                                    \
-      ezVariantAssignmentAdapter<R> returnWrapper(returnValue);                                                                                          \
-      returnWrapper = (pTargetInstance->*m_Function)(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);                         \
-    }                                                                                                                                                    \
-                                                                                                                                                         \
-    virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue) const override                                        \
-    {                                                                                                                                                    \
-      ExecuteImpl(ezTraitInt<std::is_same<R, void>::value>(), pInstance, returnValue, arguments, std::make_index_sequence<sizeof...(Args)>{});           \
-    }                                                                                                                                                    \
-                                                                                                                                                         \
-  private:                                                                                                                                               \
-    TargetFunction m_Function;                                                                                                                           \
+#define ezFunctionPropertyCode(CONSTNESS)                                                                                                            \
+  template <class CLASS, class R, class... Args>                                                                                                     \
+  class ezFunctionProperty<R (CLASS::*)(Args...) CONSTNESS> : public ezTypedFunctionProperty<R, Args...>                                             \
+  {                                                                                                                                                  \
+  public:                                                                                                                                            \
+    typedef R (CLASS::*TargetFunction)(Args...) CONSTNESS;                                                                                           \
+                                                                                                                                                     \
+    ezFunctionProperty(const char* szPropertyName, TargetFunction func)                                                                              \
+      : ezTypedFunctionProperty<R, Args...>(szPropertyName)                                                                                          \
+    {                                                                                                                                                \
+      m_Function = func;                                                                                                                             \
+    }                                                                                                                                                \
+                                                                                                                                                     \
+    virtual ezFunctionType::Enum GetFunctionType() const override { return ezFunctionType::Member; }                                                 \
+                                                                                                                                                     \
+    template <std::size_t... I>                                                                                                                      \
+    void ExecuteImpl(                                                                                                                                \
+      ezTraitInt<1>, CONSTNESS void* pInstance, ezVariant& returnValue, ezArrayPtr<ezVariant> arguments, std::index_sequence<I...>) const            \
+    {                                                                                                                                                \
+      CONSTNESS CLASS* pTargetInstance = (CONSTNESS CLASS*)pInstance;                                                                                \
+      (pTargetInstance->*m_Function)(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);                                     \
+      returnValue = ezVariant();                                                                                                                     \
+    }                                                                                                                                                \
+                                                                                                                                                     \
+    template <std::size_t... I>                                                                                                                      \
+    void ExecuteImpl(                                                                                                                                \
+      ezTraitInt<0>, CONSTNESS void* pInstance, ezVariant& returnValue, ezArrayPtr<ezVariant> arguments, std::index_sequence<I...>) const            \
+    {                                                                                                                                                \
+      CONSTNESS CLASS* pTargetInstance = (CONSTNESS CLASS*)pInstance;                                                                                \
+      ezVariantAssignmentAdapter<R> returnWrapper(returnValue);                                                                                      \
+      returnWrapper = (pTargetInstance->*m_Function)(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);                     \
+    }                                                                                                                                                \
+                                                                                                                                                     \
+    virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue) const override                                    \
+    {                                                                                                                                                \
+      ExecuteImpl(ezTraitInt<std::is_same<R, void>::value>(), pInstance, returnValue, arguments, std::make_index_sequence<sizeof...(Args)>{});       \
+    }                                                                                                                                                \
+                                                                                                                                                     \
+  private:                                                                                                                                           \
+    TargetFunction m_Function;                                                                                                                       \
   }
 
 // just need an empty token to call ezFunctionPropertyCode

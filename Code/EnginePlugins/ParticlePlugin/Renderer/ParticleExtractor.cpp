@@ -10,13 +10,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleExtractor, 1, ezRTTIDefaultAllocator<e
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleExtractor::ezParticleExtractor(const char* szName)
-    : ezExtractor(szName)
+  : ezExtractor(szName)
 {
   m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
 }
 
-void ezParticleExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-                                  ezExtractedRenderData& extractedRenderData)
+void ezParticleExtractor::Extract(
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 

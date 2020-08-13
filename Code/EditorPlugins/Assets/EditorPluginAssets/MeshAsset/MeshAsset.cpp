@@ -30,8 +30,8 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -90,8 +90,8 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::HalfSphere)
   {
-    geom.AddHalfSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(1, pProp->m_uiDetail2),
-      pProp->m_bCap, ezColor::White, mTrans);
+    geom.AddHalfSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(1, pProp->m_uiDetail2), pProp->m_bCap,
+      ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Pyramid)
   {
@@ -179,8 +179,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   {
     GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
 
-    ezMeshImportUtils::UpdateMaterialSlots(GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials,
-      pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
+    ezMeshImportUtils::UpdateMaterialSlots(
+      GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials, pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
 
     ApplyNativePropertyChangesToObjectManager();
     GetObjectAccessor()->FinishTransaction();

@@ -42,7 +42,8 @@ struct EZ_FOUNDATION_DLL ezMiniDumpUtils
   /// \brief Windows-specific implementation for writing a mini-dump of the running process.
   ///
   /// \note On Windows: If the command line option '-fullcrashdumps' is specified, a crash-dump with a full memory capture is made.
-  static ezStatus WriteProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo);
+  static ezStatus WriteProcessMiniDump(
+    const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo);
 
 #endif
 };

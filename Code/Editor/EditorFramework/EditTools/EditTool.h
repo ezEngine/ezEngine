@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 
 class ezGameObjectDocument;
 class ezQtGameObjectDocumentWindow;
@@ -55,4 +55,3 @@ private:
   ezQtGameObjectDocumentWindow* m_pWindow = nullptr;
   ezGameObjectGizmoInterface* m_pInterface = nullptr;
 };
-

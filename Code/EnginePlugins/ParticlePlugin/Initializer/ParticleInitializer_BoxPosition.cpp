@@ -22,7 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezR
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxVisualizerAttribute("Size", nullptr, ezColor::MediumVioletRed, "PositionOffset")
+    new ezBoxVisualizerAttribute("Size", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }
@@ -58,7 +58,6 @@ void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParti
 
   pInitializer->m_vPositionOffset = m_vPositionOffset;
   pInitializer->m_vSize = vSize;
-
 }
 
 float ezParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const

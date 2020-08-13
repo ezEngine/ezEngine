@@ -79,7 +79,7 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
     {
       UpdateNodeData(it.GetStats().m_sName);
     } while (it.Next().Succeeded());
-    }
+  }
 }
 
 
@@ -254,7 +254,8 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
   return ezVariant();
 }
 
-void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4>& pinArray, bool bOutput)
+void ezVisualShaderTypeRegistry::ExtractNodePins(
+  const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4>& pinArray, bool bOutput)
 {
   for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {

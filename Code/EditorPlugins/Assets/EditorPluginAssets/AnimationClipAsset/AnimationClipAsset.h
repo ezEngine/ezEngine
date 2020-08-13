@@ -50,7 +50,7 @@ public:
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                          const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
@@ -68,10 +68,9 @@ public:
   ezAnimationClipAssetDocumentGenerator();
   ~ezAnimationClipAssetDocumentGenerator();
 
-  virtual void GetImportModes(const char* szParentDirRelativePath,
-                              ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                            ezDocument*& out_pGeneratedDocument) override;
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
+  virtual ezStatus Generate(
+    const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
   virtual const char* GetDocumentExtension() const override { return "ezAnimationClipAsset"; }
   virtual const char* GetGeneratorGroup() const override { return "AnimationClipGroup"; }
 };

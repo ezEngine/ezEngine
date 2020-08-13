@@ -50,6 +50,7 @@ void ezScaleGizmo::OnTransformationChanged(const ezTransform& transform)
   ezTransform t;
   t.SetIdentity();
 
+  t.m_vScale.Set(2.0f);
   m_AxisX.SetTransformation(transform * t);
 
   t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
@@ -199,7 +200,8 @@ ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (!e->modifiers().testFlag(Qt::AltModifier))
     ezSnapProvider::SnapScale(m_vScalingResult);
 
-  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Scale: {}, {}, {}", ezArgF(m_vScalingResult.x, 2), ezArgF(m_vScalingResult.y, 2), ezArgF(m_vScalingResult.z, 2)));
+  GetOwnerWindow()->SetPermanentStatusBarMsg(
+    ezFmt("Scale: {}, {}, {}", ezArgF(m_vScalingResult.x, 2), ezArgF(m_vScalingResult.y, 2), ezArgF(m_vScalingResult.z, 2)));
 
   ezGizmoEvent ev;
   ev.m_pGizmo = this;

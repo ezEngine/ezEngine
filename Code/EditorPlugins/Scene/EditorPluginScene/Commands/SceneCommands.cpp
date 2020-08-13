@@ -221,8 +221,8 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 
 
 void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::PasteInfo, 16>& Duplicates, ezUInt32 uiNumDuplicate,
-                                                      ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ,
-                                                      ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ)
+  ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY,
+  ezRandomGauss& rngTransZ)
 {
   ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
 
@@ -278,8 +278,7 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
 
   ezQuat qRot;
   qRot.SetFromEulerAngles(ezAngle::Degree(fStep * m_vAccumulativeRotation.x + vRandR.x),
-                          ezAngle::Degree(fStep * m_vAccumulativeRotation.y + vRandR.y),
-                          ezAngle::Degree(fStep * m_vAccumulativeRotation.z + vRandR.z));
+    ezAngle::Degree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::Degree(fStep * m_vAccumulativeRotation.z + vRandR.z));
 
   for (const auto& pi : Duplicates)
   {

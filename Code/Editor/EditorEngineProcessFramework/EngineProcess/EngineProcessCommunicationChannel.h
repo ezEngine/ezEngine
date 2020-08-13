@@ -12,4 +12,3 @@ public:
 private:
   ezInt64 m_iHostPID = 0;
 };
-

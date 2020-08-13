@@ -3,7 +3,7 @@
 #include <Foundation/IO/DirectoryWatcher.h>
 
 ezDirectoryWatcher::ezDirectoryWatcher()
-    : m_pImpl(nullptr)
+  : m_pImpl(nullptr)
 {
 }
 
@@ -12,16 +12,11 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
   return EZ_FAILURE;
 }
 
-void ezDirectoryWatcher::CloseDirectory()
-{
-}
+void ezDirectoryWatcher::CloseDirectory() {}
 
 ezDirectoryWatcher::~ezDirectoryWatcher()
 {
   CloseDirectory();
 }
 
-void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
-{
-}
-
+void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func) {}

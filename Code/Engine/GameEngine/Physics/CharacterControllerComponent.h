@@ -44,14 +44,29 @@ public:
 public:
   ezCharacterControllerComponent();
 
-  /// \brief Instructs the CC to move in certain directions. An implementation can queue the request for later processing.
-  /// It can also add further functionality, such as adding gravity, stair stepping, etc.
-  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) = 0; // [ msg handler ]
-
   /// \brief Attempts to move the character into the given direction.
   ///
   /// Implements the specific constraints, such as colliding with geometry and sliding along walls.
   /// Should NOT add further functionality, such as gravity. This function applies the result immediately
   /// and moves the owner object to the final location.
-  virtual void RawMove(const ezVec3& vMove) = 0; // [ scriptable ]
+  virtual void RawMove(const ezVec3& vMoveDeltaGlobal) = 0; // [ scriptable ]
+
+  /// \brief Instructs the CC to move in certain directions. An implementation can queue the request for later processing.
+  ///
+  /// It can also add further functionality, such as adding gravity, stair stepping, etc.
+  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) = 0; // [ msg handler ]
+
+  /// \brief Teleports the CC to the desired global position. Ignores obstacles on the path.
+  ///
+  /// Careful, the CC may get stuck in the new location, if it is inside static geometry.
+  /// If it teleports into dynamic geometry, the result may also be undesirable.
+  virtual void TeleportCharacter(const ezVec3& vGlobalFootPos) = 0; // [ scriptable ]
+
+  /// \brief Checks whether the CC can be teleported to the target position without getting stuck.
+  ///
+  /// This can be used to check before using TeleportCharacter(). It can also be used to check whether a character
+  /// can stand up from a crouching position, by passing a non-zero character height.
+  ///
+  /// If a character height of 0 is passed in, the current height is used.
+  virtual bool IsDestinationUnobstructed(const ezVec3& vGlobalFootPos, float fCharacterHeight) = 0; // [ scriptable ]
 };

@@ -120,7 +120,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
   return res;
 }
 
-const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
+const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(
+  const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
 {
   while (true)
   {
@@ -165,9 +166,8 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceRe
   return nullptr;
 }
 
-bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition,
-  const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
-  const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
+bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal,
+  const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
 {
   float fImpulseParam = 0;
   const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr, fImpulseParam);
@@ -292,7 +292,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   }
 
   ezHybridArray<ezGameObject*, 8> rootObjects;
-  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID, nullptr, false);
+  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID, &pIA->m_Parameters, false);
 
   {
     ezMsgSetFloatParameter msgSetFloat;
@@ -301,7 +301,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msgSetFloat, ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msgSetFloat, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
     }
   }
 
@@ -312,7 +312,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msg, ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
     }
   }
 

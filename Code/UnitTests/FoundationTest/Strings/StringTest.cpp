@@ -205,7 +205,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ezMemoryStreamReader MemoryReader(&StreamStorage);
 
     const char* szText =
-        "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
+      "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
 
     MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText));
 

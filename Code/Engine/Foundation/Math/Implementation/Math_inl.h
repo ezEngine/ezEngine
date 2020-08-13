@@ -96,15 +96,9 @@ namespace ezMath
 #endif
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 bitmask)
-  {
-    return (bitmask == 0) ? 32 : FirstBitLow(bitmask);
-  }
+  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : FirstBitLow(bitmask); }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 bitmask)
-  {
-    return (bitmask == 0) ? 32 : (31u - FirstBitHigh(bitmask));
-  }
+  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : (31u - FirstBitHigh(bitmask)); }
 
 
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
@@ -156,6 +150,8 @@ namespace ezMath
   }
 
   constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value) { return (value < 1) ? false : ((value & (value - 1)) == 0); }
+
+  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezUInt32 value) { return (value < 1) ? false : ((value & (value - 1)) == 0); }
 
   template <typename Type>
   constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon)

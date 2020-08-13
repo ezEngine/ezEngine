@@ -10,6 +10,7 @@
 #include <QTabBar>
 #include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ads/DockAreaWidget.h>
 #include <ads/DockManager.h>
 #include <ads/DockWidgetTab.h>
 #include <ads/FloatingDockContainer.h>
@@ -68,11 +69,9 @@ ezQtContainerWindow::ezQtContainerWindow()
   UpdateWindowTitle();
 
   m_DockManager = new ads::CDockManager(this);
-  m_DockManager->setConfigFlags(static_cast<ads::CDockManager::ConfigFlags>(
-    ads::CDockManager::DockAreaHasCloseButton |
-    ads::CDockManager::DockAreaCloseButtonClosesTab |
-    ads::CDockManager::OpaqueSplitterResize |
-    ads::CDockManager::AllTabsHaveCloseButton));
+  m_DockManager->setConfigFlags(
+    static_cast<ads::CDockManager::ConfigFlags>(ads::CDockManager::DockAreaHasCloseButton | ads::CDockManager::DockAreaCloseButtonClosesTab |
+                                                ads::CDockManager::OpaqueSplitterResize | ads::CDockManager::AllTabsHaveCloseButton));
 
   connect(m_DockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
 }
@@ -244,6 +243,17 @@ void ezQtContainerWindow::SlotFloatingWidgetOpened(ads::CFloatingDockContainer* 
   FloatingWidget->installEventFilter(this);
 }
 
+void ezQtContainerWindow::SlotDockWidgetFloatingChanged(bool bFloating)
+{
+  if (!bFloating)
+    return;
+
+  for (auto pDoc : m_DocumentWindows)
+  {
+    UpdateWindowDecoration(pDoc);
+  }
+}
+
 void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 {
   const ezUInt32 uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
@@ -256,9 +266,17 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
   dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
   dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
 
-  if (dock->dockContainer()->floatingWidget())
+  if (pDocWindow->GetDisplayNameShort().IsEmpty())
+  {
+    dock->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+  }
+
+  if (dock->isFloating())
   {
     dock->dockContainer()->floatingWidget()->setWindowTitle(dock->windowTitle());
+    dock->dockContainer()->floatingWidget()->setWindowIcon(dock->icon());
   }
 }
 
@@ -269,6 +287,14 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
     return;
 
   ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
+
+  int iCurIdx = -1;
+
+  const bool bIsTabbed = dock->isTabbed();
+  ads::CDockAreaWidget* pDockArea = dock->dockAreaWidget();
+
+  iCurIdx = pDockArea->currentIndex();
+
   m_DockManager->removeDockWidget(dock);
 
   m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
@@ -278,6 +304,20 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
   dock->hide();
   dock->deleteLater();
   pDocWindow->m_pContainerWindow = nullptr;
+
+  if (bIsTabbed)
+  {
+    iCurIdx = ezMath::Min(iCurIdx, pDockArea->openDockWidgetsCount() - 1);
+    pDockArea->setCurrentIndex(iCurIdx);
+  }
+
+  if (pDockArea && pDockArea->openDockWidgetsCount() == 1)
+  {
+    for (auto pDocWindow2 : m_DocumentWindows)
+    {
+      UpdateWindowDecoration(pDocWindow);
+    }
+  }
 }
 
 void ezQtContainerWindow::RemoveApplicationPanel(ezQtApplicationPanel* pPanel)
@@ -302,6 +342,12 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   EZ_ASSERT_DEV(pDocWindow->m_pContainerWindow == nullptr, "Implementation error");
 
+  // NOTE: This function is called by the ezQtDocumentWindow constructor
+  // that means any derived classes are not yet constructed!
+  // therefore calling virtual functions here, like GetDisplayNameShort() will still call
+  // the base class implementation, NOT the derived one !
+  // therefore, we do some stuff in ezQtContainerWindow::UpdateWindowDecoration() instead
+
   m_DocumentWindows.PushBack(pDocWindow);
   ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
   dock->setObjectName(pDocWindow->GetUniqueName());
@@ -322,7 +368,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   m_DocumentDocks.PushBack(dock);
   connect(dock, &ads::CDockWidget::closed, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
   connect(dock->tabWidget(), &QWidget::customContextMenuRequested, this, &ezQtContainerWindow::SlotTabsContextMenuRequested);
-
+  connect(dock, &ads::CDockWidget::topLevelChanged, this, &ezQtContainerWindow::SlotDockWidgetFloatingChanged);
 
 
   pDocWindow->m_pContainerWindow = this;
@@ -449,7 +495,7 @@ void ezQtContainerWindow::SlotDocumentTabCloseRequested()
 
   if (!pDocWindow->CanCloseWindow())
   {
-    //TODO: There is no CloseRequested event so we just reopen on a timer.
+    // TODO: There is no CloseRequested event so we just reopen on a timer.
     QTimer::singleShot(1, [dock]() { dock->toggleView(); });
     return;
   }

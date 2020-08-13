@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Types/Variant.h>
+#include <Foundation/Utilities/EnumerableClass.h>
+#include <GameEngine/GameEngineDLL.h>
 
 /// \brief Base class for all types of ezConsoleFunction, represents functions to be exposed to ezConsole.
 ///
@@ -37,7 +37,6 @@ class EZ_GAMEENGINE_DLL ezConsoleFunctionBase : public ezEnumerable<ezConsoleFun
   EZ_DECLARE_ENUMERABLE_CLASS(ezConsoleFunctionBase);
 
 public:
-
   /// \brief The constructor takes the function name and description as it should appear in the console.
   ezConsoleFunctionBase(const char* szFunctionName, const char* szDescription)
   {
@@ -69,8 +68,9 @@ private:
 };
 
 
-/// \brief Implements the functionality of ezConsoleFunctionBase for functions with different parameter types. See ezConsoleFunctionBase for more details.
-template<typename R>
+/// \brief Implements the functionality of ezConsoleFunctionBase for functions with different parameter types. See ezConsoleFunctionBase for more
+/// details.
+template <typename R>
 class ezConsoleFunction : public ezConsoleFunctionBase
 {
 };
@@ -103,4 +103,3 @@ class ezConsoleFunction : public ezConsoleFunctionBase
 #define ARG_COUNT 6
 #include <GameEngine/Console/Implementation/ConsoleFunctionHelper_inl.h>
 #undef ARG_COUNT
-

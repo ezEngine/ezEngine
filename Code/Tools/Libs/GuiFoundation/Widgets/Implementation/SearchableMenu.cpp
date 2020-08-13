@@ -106,8 +106,8 @@ bool ezQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
       if (m_pFilterModel->data(child, Qt::UserRole + 1).isValid())
       {
         // set this one item as the new selection
-        m_pTreeView->selectionModel()->setCurrentIndex(child, QItemSelectionModel::ClearAndSelect |
-                                                                QItemSelectionModel::SelectionFlag::SelectCurrent);
+        m_pTreeView->selectionModel()->setCurrentIndex(
+          child, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectionFlag::SelectCurrent);
         m_pTreeView->scrollTo(child, QAbstractItemView::EnsureVisible);
         return true;
       }

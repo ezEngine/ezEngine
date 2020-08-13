@@ -1,15 +1,15 @@
 #pragma once
 
-#include <Foundation/Threading/TaskSystem.h>
-#include <Foundation/Types/Status.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/Document.h>
 
 class ezSaveDocumentTask final : public ezTask
 {
 public:
-  ezSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished);
+  ezSaveDocumentTask();
   ~ezSaveDocumentTask();
 
   ezDeferredFileWriter file;
@@ -24,7 +24,7 @@ public:
 class ezAfterSaveDocumentTask final : public ezTask
 {
 public:
-  ezAfterSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished);
+  ezAfterSaveDocumentTask();
   ~ezAfterSaveDocumentTask();
 
   ezDocument* m_document = nullptr;

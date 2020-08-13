@@ -11,7 +11,7 @@ namespace
     // Comparision via operator. Sorting algorithm should prefer Less operator
     bool operator()(ezInt32 a, ezInt32 b) const { return a < b; }
   };
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Algorithm, Sorting)
 {

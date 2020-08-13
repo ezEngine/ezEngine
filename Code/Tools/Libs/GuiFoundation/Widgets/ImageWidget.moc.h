@@ -38,10 +38,8 @@ private Q_SLOTS:
   void on_ButtonResetZoom_clicked();
 
 private:
-
   void ImageApplyScale();
 
   ezQtImageScene* m_pScene;
   float m_fCurrentScale;
-
 };

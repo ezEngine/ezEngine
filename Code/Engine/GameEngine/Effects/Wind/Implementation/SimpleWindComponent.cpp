@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::DodgerBlue),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DodgerBlue),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -70,7 +70,7 @@ void ezSimpleWindComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSimpleWindComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_fWindStrengthMin;
@@ -116,8 +116,8 @@ void ezSimpleWindComponent::ComputeNextState()
   float fStrengthChange = fStrengthDiff * 0.2f;
 
   m_NextChange = m_LastChange + ezTime::Seconds(rng.DoubleMinMax(2.0f, 5.0f));
-  m_fNextStrength = ezMath::Clamp<float>(
-    m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), m_fWindStrengthMin, m_fWindStrengthMax);
+  m_fNextStrength =
+    ezMath::Clamp<float>(m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), m_fWindStrengthMin, m_fWindStrengthMax);
 
   const ezVec3 vMainDir = GetOwner()->GetGlobalDirForwards();
 

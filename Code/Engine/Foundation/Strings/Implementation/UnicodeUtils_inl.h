@@ -11,8 +11,7 @@ this sequence (110... means two bytes, 1110... means three bytes, etc).
 EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8StartByte(char uiByte)
 {
   // valid utf8 start bytes are 0x0-------, 0x110-----, 0x1110----, 0x11110---, etc
-  return ((uiByte & 0x80) == 0) || ((uiByte & 0xE0) == 0xC0) || ((uiByte & 0xF0) == 0xE0) || ((uiByte & 0xF8) == 0xF0) ||
-         ((uiByte & 0xFC) == 0xF8);
+  return ((uiByte & 0x80) == 0) || ((uiByte & 0xE0) == 0xC0) || ((uiByte & 0xF0) == 0xE0) || ((uiByte & 0xF8) == 0xF0) || ((uiByte & 0xFC) == 0xF8);
 }
 
 EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8ContinuationByte(char uiByte)
@@ -93,7 +92,7 @@ void ezUnicodeUtils::EncodeUtf32ToUtf16(ezUInt32 uiUtf32, UInt16Iterator& szUtf1
 {
   if (uiUtf32 > 0xffff)
   {
-    //make a surrogate pair
+    // make a surrogate pair
     *szUtf16Output++ = static_cast<uint16_t>((uiUtf32 >> 10) + utf8::internal::LEAD_OFFSET);
     *szUtf16Output++ = static_cast<uint16_t>((uiUtf32 & 0x3ff) + utf8::internal::TRAIL_SURROGATE_MIN);
   }
@@ -110,7 +109,7 @@ void ezUnicodeUtils::EncodeUtf32ToWChar(ezUInt32 uiUtf32, WCharIterator& szWChar
   }
   else
   {
-    *szWCharOutput = uiUtf32;
+    *szWCharOutput = static_cast<wchar_t>(uiUtf32);
     ++szWCharOutput;
   }
 }

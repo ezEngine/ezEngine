@@ -5,11 +5,11 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
-#include <QGraphicsView>
 #include <Inspector/ui_MemoryWidget.h>
-#include <ads/DockWidget.h>
 #include <QAction>
+#include <QGraphicsView>
 #include <QPointer>
+#include <ads/DockWidget.h>
 
 class QTreeWidgetItem;
 
@@ -63,7 +63,7 @@ private:
     bool m_bStillInUse = true;
     bool m_bReceivedData = false;
     bool m_bDisplay = true;
-    ezInt8 m_iColor = -1;
+    ezUInt8 m_uiColor = 0xFF;
     ezUInt32 m_uiParentId = ezInvalidIndex;
     ezUInt64 m_uiAllocs = 0;
     ezUInt64 m_uiDeallocs = 0;

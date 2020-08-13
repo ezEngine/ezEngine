@@ -34,10 +34,8 @@ ezDirectoryWatcher* ezQtMaterialAssetDocumentWindow::s_pNodeConfigWatcher = null
 ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
 
   pDocument->m_VisualShaderEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
@@ -135,8 +133,11 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
     m_bVisualShaderEnabled = false;
     m_pVsePanel->setWidget(pSplitter);
+    m_pVsePanel->setVisible(false);
 
     addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pVsePanel);
+
+    m_pVsePanel->setVisible(false);
   }
 
   pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
@@ -150,18 +151,16 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 {
-  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
+  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
   RestoreResource();
 
-  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
     ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() ==
-                       ezMaterialShaderMode::Custom;
+  const bool bCustom =
+    GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
   if (bCustom)
   {
@@ -214,11 +213,19 @@ void ezQtMaterialAssetDocumentWindow::InternalRedraw()
 }
 
 
+void ezQtMaterialAssetDocumentWindow::showEvent(QShowEvent* event)
+{
+  ezQtEngineDocumentWindow::showEvent(event);
+
+  m_pVsePanel->setVisible(m_bVisualShaderEnabled);
+}
+
 void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 {
   ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)GetMaterialDocument()->GetDocumentManager();
 
-  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(), GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(),
+    GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   if (ezOSFile::ExistsFile(sAutoGenShader))
   {
@@ -310,12 +317,14 @@ void ezQtMaterialAssetDocumentWindow::RestoreResource()
 
 void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() ==
-                       ezMaterialShaderMode::Custom;
+  const bool bCustom =
+    GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+
+  m_pVsePanel->setVisible(bCustom);
 
   // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
   // by delaying it a bit, we have the last word
-  QTimer::singleShot(10, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
+  QTimer::singleShot(100, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
 
   if (m_bVisualShaderEnabled != bCustom)
   {

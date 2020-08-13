@@ -1,4 +1,4 @@
-﻿#include <FoundationTestPCH.h>
+#include <FoundationTestPCH.h>
 
 // NOTE: always save as Unicode UTF-8 with signature
 
@@ -224,8 +224,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector3:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec3 ({0}, {1}, {2})", ezArgF(var.Get<ezVec3>().x, 4), ezArgF(var.Get<ezVec3>().y, 4),
-                     ezArgF(var.Get<ezVec3>().z, 4));
+        sTemp.Format("vec3 ({0}, {1}, {2})", ezArgF(var.Get<ezVec3>().x, 4), ezArgF(var.Get<ezVec3>().y, 4), ezArgF(var.Get<ezVec3>().z, 4));
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }
@@ -234,8 +233,8 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector4:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec4 ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezVec4>().x, 4), ezArgF(var.Get<ezVec4>().y, 4),
-                     ezArgF(var.Get<ezVec4>().z, 4), ezArgF(var.Get<ezVec4>().w, 4));
+        sTemp.Format("vec4 ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezVec4>().x, 4), ezArgF(var.Get<ezVec4>().y, 4), ezArgF(var.Get<ezVec4>().z, 4),
+          ezArgF(var.Get<ezVec4>().w, 4));
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }
@@ -262,8 +261,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector4I:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec4i ({0}, {1}, {2}, {3})", var.Get<ezVec4I32>().x, var.Get<ezVec4I32>().y, var.Get<ezVec4I32>().z,
-                     var.Get<ezVec4I32>().w);
+        sTemp.Format("vec4i ({0}, {1}, {2}, {3})", var.Get<ezVec4I32>().x, var.Get<ezVec4I32>().y, var.Get<ezVec4I32>().z, var.Get<ezVec4I32>().w);
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }
@@ -272,8 +270,8 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Color:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("color ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezColor>().r, 4), ezArgF(var.Get<ezColor>().g, 4),
-                     ezArgF(var.Get<ezColor>().b, 4), ezArgF(var.Get<ezColor>().a, 4));
+        sTemp.Format("color ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezColor>().r, 4), ezArgF(var.Get<ezColor>().g, 4), ezArgF(var.Get<ezColor>().b, 4),
+          ezArgF(var.Get<ezColor>().a, 4));
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }
@@ -294,7 +292,7 @@ namespace JSONReaderTestDetail
       {
         ezStringBuilder sTemp;
         sTemp.Format("quat ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezQuat>().v.x, 4), ezArgF(var.Get<ezQuat>().v.y, 4),
-                     ezArgF(var.Get<ezQuat>().v.z, 4), ezArgF(var.Get<ezQuat>().w, 4));
+          ezArgF(var.Get<ezQuat>().v.z, 4), ezArgF(var.Get<ezQuat>().w, 4));
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }
@@ -306,9 +304,8 @@ namespace JSONReaderTestDetail
 
         ezStringBuilder sTemp;
         sTemp.Format("mat3 ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8})", ezArgF(m.m_fElementsCM[0], 4), ezArgF(m.m_fElementsCM[1], 4),
-                     ezArgF(m.m_fElementsCM[2], 4), ezArgF(m.m_fElementsCM[3], 4), ezArgF(m.m_fElementsCM[4], 4),
-                     ezArgF(m.m_fElementsCM[5], 4), ezArgF(m.m_fElementsCM[6], 4), ezArgF(m.m_fElementsCM[7], 4),
-                     ezArgF(m.m_fElementsCM[8], 4));
+          ezArgF(m.m_fElementsCM[2], 4), ezArgF(m.m_fElementsCM[3], 4), ezArgF(m.m_fElementsCM[4], 4), ezArgF(m.m_fElementsCM[5], 4),
+          ezArgF(m.m_fElementsCM[6], 4), ezArgF(m.m_fElementsCM[7], 4), ezArgF(m.m_fElementsCM[8], 4));
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }
@@ -319,10 +316,10 @@ namespace JSONReaderTestDetail
         ezMat4 m = var.Get<ezMat4>();
 
         ezStringBuilder sTemp;
-        sTemp.Printf("mat4 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)",
-                     m.m_fElementsCM[0], m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5],
-                     m.m_fElementsCM[6], m.m_fElementsCM[7], m.m_fElementsCM[8], m.m_fElementsCM[9], m.m_fElementsCM[10],
-                     m.m_fElementsCM[11], m.m_fElementsCM[12], m.m_fElementsCM[13], m.m_fElementsCM[14], m.m_fElementsCM[15]);
+        sTemp.Printf("mat4 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)", m.m_fElementsCM[0],
+          m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5], m.m_fElementsCM[6], m.m_fElementsCM[7],
+          m.m_fElementsCM[8], m.m_fElementsCM[9], m.m_fElementsCM[10], m.m_fElementsCM[11], m.m_fElementsCM[12], m.m_fElementsCM[13],
+          m.m_fElementsCM[14], m.m_fElementsCM[15]);
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }
@@ -344,7 +341,7 @@ namespace JSONReaderTestDetail
         break;
     }
   }
-}
+} // namespace JSONReaderTestDetail
 
 EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 {
@@ -395,8 +392,8 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
     sCompare.PushBack("bool");
     sCompare.PushBack("bool true");
 
-    sCompare.PushBack("int");
-    sCompare.PushBack("double 23.0000");
+    sCompare.PushBack(ezStringUtf8(L"MyNüll").GetData()); // unicode literal
+    sCompare.PushBack("null");
 
     sCompare.PushBack("myarray");
     sCompare.PushBack("<array>");
@@ -407,14 +404,35 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
     sCompare.PushBack("ende");
     sCompare.PushBack("</array>");
 
+    sCompare.PushBack("double");
+    sCompare.PushBack("double 43.5600");
+
+    sCompare.PushBack("int");
+    sCompare.PushBack("double 23.0000");
+
+    sCompare.PushBack("test");
+    sCompare.PushBack("text");
+
+    sCompare.PushBack("String");
+    sCompare.PushBack(ezStringUtf8(L"testvälue").GetData()); // unicode literal
+
+    sCompare.PushBack("float");
+    sCompare.PushBack("double 64.7200");
+
+    sCompare.PushBack("myarray2");
+    sCompare.PushBack("<array>");
+    sCompare.PushBack("");
+    sCompare.PushBack("double 2.2000");
+    sCompare.PushBack("</array>");
+
     sCompare.PushBack("object");
     sCompare.PushBack("<object>");
 
-    sCompare.PushBack("variable in object");
-    sCompare.PushBack("bla\\\"/"); // escaped backslash, quotation mark, slash
-
     sCompare.PushBack("Subobject");
     sCompare.PushBack("<object>");
+
+    sCompare.PushBack("variable in subobject");
+    sCompare.PushBack("blub\r\f\n\b\t"); // escaped special characters
 
     sCompare.PushBack("array in sub");
     sCompare.PushBack("<array>");
@@ -435,33 +453,12 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 
     sCompare.PushBack("</array>");
 
-    sCompare.PushBack("variable in subobject");
-    sCompare.PushBack("blub\r\f\n\b\t"); // escaped special characters
-
     sCompare.PushBack("</object>");
 
+    sCompare.PushBack("variable in object");
+    sCompare.PushBack("bla\\\"/"); // escaped backslash, quotation mark, slash
+
     sCompare.PushBack("</object>");
-
-    sCompare.PushBack("test");
-    sCompare.PushBack("text");
-
-    sCompare.PushBack("String");
-    sCompare.PushBack(ezStringUtf8(L"testvälue").GetData()); // unicode literal
-
-    sCompare.PushBack("float");
-    sCompare.PushBack("double 64.7200");
-
-    sCompare.PushBack(ezStringUtf8(L"MyNüll").GetData()); // unicode literal
-    sCompare.PushBack("null");
-
-    sCompare.PushBack("double");
-    sCompare.PushBack("double 43.5600");
-
-    sCompare.PushBack("myarray2");
-    sCompare.PushBack("<array>");
-    sCompare.PushBack("");
-    sCompare.PushBack("double 2.2000");
-    sCompare.PushBack("</array>");
 
     sCompare.PushBack("</object>");
 

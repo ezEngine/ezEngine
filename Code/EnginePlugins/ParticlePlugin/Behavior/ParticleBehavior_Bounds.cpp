@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Bounds, 1, ezRTTIDefau
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxVisualizerAttribute("BoxExtents", nullptr, ezColor::LightGreen, "PositionOffset")
+    new ezBoxVisualizerAttribute("BoxExtents", ezColor::LightGreen, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }
@@ -153,8 +153,7 @@ void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
       const ezSimdVec4f globalPosCur = itPosition.Current();
       const ezSimdVec4f localPosCur = invTrans.TransformPosition(globalPosCur) - boxCenter;
 
-      if ((localPosCur > halfExtPos).AnySet() ||
-          (localPosCur < halfExtNeg).AnySet())
+      if ((localPosCur > halfExtPos).AnySet() || (localPosCur < halfExtNeg).AnySet())
       {
         m_pStreamGroup->RemoveElement(idx);
       }

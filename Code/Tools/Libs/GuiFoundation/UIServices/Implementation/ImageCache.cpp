@@ -1,7 +1,7 @@
 #include <GuiFoundationPCH.h>
 
-#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QtConcurrent/qtconcurrentrun.h>
@@ -12,7 +12,7 @@ EZ_IMPLEMENT_SINGLETON(ezQtImageCache);
 
 
 ezQtImageCache::ezQtImageCache()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_bCacheEnabled = true;
   m_bTaskRunning = false;
@@ -52,8 +52,8 @@ void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
   Q_EMIT g_ImageCacheSingleton.ImageInvalidated(sPath, id);
 }
 
-const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2,
-                                           ezUInt32* out_pImageID)
+const QPixmap* ezQtImageCache::QueryPixmap(
+  const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
 {
   if (out_pImageID)
     *out_pImageID = 0;
@@ -104,8 +104,7 @@ const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelInd
 
 
 const QPixmap* ezQtImageCache::QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index /*= QModelIndex()*/,
-                                                  QVariant UserData1 /*= QVariant()*/, QVariant UserData2 /*= QVariant()*/,
-                                                  ezUInt32* out_pImageID /*= nullptr*/)
+  QVariant UserData1 /*= QVariant()*/, QVariant UserData2 /*= QVariant()*/, ezUInt32* out_pImageID /*= nullptr*/)
 {
   const QPixmap* pTypeImage = QueryTypeImage(szType);
 

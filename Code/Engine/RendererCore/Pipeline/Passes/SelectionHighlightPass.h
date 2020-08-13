@@ -1,8 +1,8 @@
 #pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
+#include <RendererCore/Shader/ShaderResource.h>
 
 class EZ_RENDERERCORE_DLL ezSelectionHighlightPass : public ezRenderPipelinePass
 {
@@ -27,4 +27,3 @@ protected:
   ezColor m_HighlightColor;
   float m_fOverlayOpacity;
 };
-

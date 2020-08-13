@@ -6,9 +6,11 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_LONG_PATHS)
-#define LongPath "AVeryLongSubFolderPathNameThatShouldExceedThePathLengthLimitOnPlatformsLikeWindowsWhereOnly260CharactersAreAllowedOhNoesIStillNeedMoreThisIsNotLongEnoughAaaaaaaaaaaaaaahhhhStillTooShortAaaaaaaaaaaaaaaaaaaaaahImBoredNow"
+#  define LongPath                                                                                                                                   \
+    "AVeryLongSubFolderPathNameThatShouldExceedThePathLengthLimitOnPlatformsLikeWindowsWhereOnly260CharactersAreAllowedOhNoesIStillNeedMoreThisIsNo" \
+    "tLongEnoughAaaaaaaaaaaaaaahhhhStillTooShortAaaaaaaaaaaaaaaaaaaaaahImBoredNow"
 #else
-#define LongPath "AShortPathBecaueThisPlatformDoesntSupportLongOnes"
+#  define LongPath "AShortPathBecaueThisPlatformDoesntSupportLongOnes"
 #endif
 
 EZ_CREATE_SIMPLE_TEST(IO, FileSystem)

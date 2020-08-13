@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Threading/Implementation/Task.h>
 #include <Foundation/Threading/Implementation/TaskGroup.h>
 #include <Foundation/Threading/Lock.h>
 
@@ -47,4 +48,3 @@ void ezTaskGroup::DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskGroup);
-

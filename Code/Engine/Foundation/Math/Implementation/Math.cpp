@@ -59,10 +59,14 @@ ezUInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 npot)
     npot >>= 1;
 
     if (npot == 1)
-      return (npot << (i + 1));
+    {
+      // note: left shift by 32 bits is undefined behavior and typically just returns the left operand unchanged
+      // so for npot values larger than 1^31 we do run into this code path, but instead of returning 0, as one may expect, it will usually return 1
+      return npot << (i + 1u);
+    }
   }
 
-  return (1U);
+  return (1u);
 }
 
 
@@ -140,7 +144,7 @@ ezResult ezMath::TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezU
     return EZ_SUCCESS;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && EZ_ENABLED(EZ_PLATFORM_64BIT) && EZ_ENABLED(EZ_COMPILER_MSVC)
 
   ezUInt64 uiHighBits = 0;
 

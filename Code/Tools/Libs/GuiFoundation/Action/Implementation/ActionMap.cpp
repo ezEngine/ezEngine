@@ -67,7 +67,7 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
     if (pDesc->m_hAction.GetDescriptor()->m_Type == ezActionType::Action)
     {
       ezLog::Error("Can't map descriptor '{0}' as its parent is an action itself and thus can't have any children.",
-                   desc.m_hAction.GetDescriptor()->m_sActionName);
+        desc.m_hAction.GetDescriptor()->m_sActionName);
       return ezUuid();
     }
   }
@@ -145,8 +145,8 @@ const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezTreeNode<ezActio
   return &pObject->m_Data;
 }
 
-const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject,
-                                                                     const ezStringView& sName) const
+const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(
+  const ezTreeNode<ezActionMapDescriptor>* pObject, const ezStringView& sName) const
 {
   for (const ezTreeNode<ezActionMapDescriptor>* pChild : pObject->GetChildren())
   {

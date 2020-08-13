@@ -1,14 +1,15 @@
 #pragma once
 
+#include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <QAbstractItemModel>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 
 class ezSkeletonAssetDocument;
 
 class ezQtJointAdapter : public ezQtNamedAdapter
 {
   Q_OBJECT;
+
 public:
   ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument);
   ~ezQtJointAdapter();

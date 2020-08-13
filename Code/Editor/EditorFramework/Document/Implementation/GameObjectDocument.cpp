@@ -30,10 +30,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
 
-ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+ezGameObjectDocument::ezGameObjectDocument(
+  const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
   : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
 {
-  EZ_ASSERT_DEV(engineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring, "ezGameObjectDocument only supports full mirroring engine connection types. The parameter only exists for interface compatibility.");
+  EZ_ASSERT_DEV(engineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring,
+    "ezGameObjectDocument only supports full mirroring engine connection types. The parameter only exists for interface compatibility.");
 
   m_CurrentMode.m_bRenderSelectionOverlay = true;
   m_CurrentMode.m_bRenderShapeIcons = true;
@@ -187,8 +189,8 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   ShowDocumentStatus(ezFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result,
-  QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::DetermineNodeName(
+  const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
 
@@ -288,8 +290,8 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 }
 
 
-void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid,
-  QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::QueryCachedNodeName(
+  const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
 {
   auto pMetaScene = m_GameObjectMetaData.BeginReadMetaData(pObject->GetGuid());
   auto pMetaDoc = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
@@ -431,8 +433,7 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   InvalidateGlobalTransformValue(pObject);
 }
 
-void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t,
-  ezUInt8 transformationChanges) const
+void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
 {
   ezHybridArray<ezTransform, 16> childTransforms;
   const auto& children = pObject->GetChildren();
@@ -649,8 +650,7 @@ void ezGameObjectDocument::MoveCameraHere()
 
     // however, in perspective modes, don't move, if we haven't picked any real object
     // this happens for example when one picks the sky -> you would end up far away
-    if (!ctxt.m_pLastPickingResult->m_PickedComponent.IsValid() &&
-        !ctxt.m_pLastPickingResult->m_PickedOther.IsValid())
+    if (!ctxt.m_pLastPickingResult->m_PickedComponent.IsValid() && !ctxt.m_pLastPickingResult->m_PickedOther.IsValid())
       return;
   }
 
@@ -831,6 +831,9 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
         SetGlobalTransform(e.m_pObject, t, TransformationChanges::All);
       }
       break;
+
+      default:
+        break;
     }
   }
   else
@@ -856,6 +859,9 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
             m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
           }
         }
+        break;
+
+      default:
         break;
     }
   }
@@ -884,6 +890,9 @@ void ezGameObjectDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -943,8 +952,7 @@ ezSimdTransform ezGameObjectDocument::QueryLocalTransformSimd(const ezDocumentOb
   const ezQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
   const float fScaling = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
-  return ezSimdTransform(ezSimdConversion::ToVec3(vTranslation), ezSimdConversion::ToQuat(qRotation),
-    ezSimdConversion::ToVec3(vScaling * fScaling));
+  return ezSimdTransform(ezSimdConversion::ToVec3(vTranslation), ezSimdConversion::ToQuat(qRotation), ezSimdConversion::ToVec3(vScaling * fScaling));
 }
 
 

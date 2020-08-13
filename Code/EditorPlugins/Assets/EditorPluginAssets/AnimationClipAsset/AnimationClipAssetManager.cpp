@@ -44,15 +44,20 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezAnimationClipAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezAnimationClipAssetDocument(szPath);
 }
 
-void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(
+  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

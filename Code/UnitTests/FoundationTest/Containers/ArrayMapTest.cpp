@@ -7,6 +7,127 @@
 
 EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 {
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator")
+  {
+    ezArrayMap<ezUInt32, ezUInt32> m;
+    for (ezUInt32 i = 0; i < 1000; ++i)
+      m[i] = i + 1;
+
+    // element with the given key (and such, value "key + 1")
+    auto findable = m.Find(499u);
+
+    // non-const
+    {
+      // findable
+      auto itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      EZ_TEST_BOOL(findable == itfound->key);
+
+      // unfindable
+      itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      EZ_TEST_BOOL(end(m) == itfound);
+    }
+
+    // const
+    {
+      // findable
+      auto itfound = std::find_if(cbegin(m), cend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      EZ_TEST_BOOL(findable == itfound->key);
+
+      // unfindable
+      itfound = std::find_if(cbegin(m), cend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      EZ_TEST_BOOL(cend(m) == itfound);
+    }
+
+    // non-const reverse
+    {
+      // findable
+      auto itfound = std::find_if(rbegin(m), rend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      EZ_TEST_BOOL(findable == itfound->key);
+
+      // unfindable
+      itfound = std::find_if(rbegin(m), rend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      EZ_TEST_BOOL(rend(m) == itfound);
+    }
+
+    // const reverse
+    {
+      // findable
+      auto itfound = std::find_if(crbegin(m), crend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      EZ_TEST_BOOL(findable == itfound->key);
+
+      // unfindable
+      itfound = std::find_if(crbegin(m), crend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      EZ_TEST_BOOL(crend(m) == itfound);
+    }
+
+    // forward
+    ezUInt32 prev = begin(m)->key;
+    for (const auto& elem : m)
+    {
+      EZ_TEST_BOOL(elem.value == prev + 1);
+      prev = elem.value;
+    }
+
+    EZ_TEST_BOOL(prev == 1000);
+
+    // backward
+    prev = (rbegin(m))->value + 1;
+    for (auto it = rbegin(m); it < rend(m); ++it)
+    {
+      EZ_TEST_BOOL(it->value == prev - 1);
+      prev = it->value;
+    }
+
+    EZ_TEST_BOOL(prev == 1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetData with Iterators")
+  {
+    ezArrayMap<ezUInt32, ezUInt32> m;
+    for (ezUInt32 i = 0; i < 1000; ++i)
+      m[i] = i + 1;
+
+    // element with the given key (and such, value "key + 1")
+    auto findable = m.Find(499u);
+
+    // check if modification of the keys via direct data access
+    // keeps iterability and access via keys intact
+
+    // modify
+    auto& data = m.GetData();
+    for (auto& p : data)
+    {
+      p.key += 1000;
+    }
+
+    // ...and test with new key
+    EZ_TEST_BOOL(m[findable + 1000] == 500);
+
+    // and index...
+    EZ_TEST_BOOL(m.GetValue(499u) == 500);
+
+    // and old key.
+    EZ_TEST_BOOL(m.Find(499u) == ezInvalidIndex);
+
+    // findable
+    auto itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+    EZ_TEST_BOOL((findable + 1000) == itfound->key);
+
+    // unfindable
+    itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+    EZ_TEST_BOOL(end(m) == itfound);
+
+    // forward
+    ezUInt32 prev = 0;
+    for (const auto& elem : m)
+    {
+      EZ_TEST_BOOL(elem.value == prev + 1);
+      prev = elem.value;
+    }
+
+    EZ_TEST_BOOL(prev == 1000);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Find / Reserve / Clear / IsEmpty / Compact / GetCount")
   {
     ezArrayMap<ezString, ezInt32> sa;

@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/StringView.h>
-#include <Foundation/Algorithm/HashingUtils.h>
 
 class ezStringBuilder;
 class ezStreamReader;
@@ -83,7 +83,7 @@ public:
   ezStringView GetView() const;
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
+  EZ_ALWAYS_INLINE operator const char *() const { return GetData(); }
 
   /// \brief Resets this string to an empty string.
   ///
@@ -166,17 +166,17 @@ public:
   void operator=(ezHybridStringBase<Size>&& rhs);
 };
 
-typedef ezHybridString<1> ezDynamicString;
+using ezDynamicString = ezHybridString<1>;
 /// \brief String that uses the static allocator to prevent leak reports in RTTI attributes.
-typedef ezHybridString<32, ezStaticAllocatorWrapper> ezUntrackedString;
-typedef ezHybridString<32> ezString;
-typedef ezHybridString<16> ezString16;
-typedef ezHybridString<24> ezString24;
-typedef ezHybridString<32> ezString32;
-typedef ezHybridString<48> ezString48;
-typedef ezHybridString<64> ezString64;
-typedef ezHybridString<128> ezString128;
-typedef ezHybridString<256> ezString256;
+using ezUntrackedString = ezHybridString<32, ezStaticAllocatorWrapper>;
+using ezString = ezHybridString<32>;
+using ezString16 = ezHybridString<16>;
+using ezString24 = ezHybridString<24>;
+using ezString32 = ezHybridString<32>;
+using ezString48 = ezHybridString<48>;
+using ezString64 = ezHybridString<64>;
+using ezString128 = ezHybridString<128>;
+using ezString256 = ezHybridString<256>;
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezString>::value == 2, "string is not memory relocatable");
 
@@ -225,8 +225,7 @@ struct ezCompareString_NoCase
   template <typename DerivedLhs, typename DerivedRhs>
   EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
-    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) <
-           0;
+    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
   }
 
   template <typename DerivedRhs>
@@ -274,4 +273,3 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezUntrackedString& arg);
 
 #include <Foundation/Strings/Implementation/String_inl.h>
-

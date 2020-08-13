@@ -145,7 +145,7 @@ void ezQtMemoryWidget::UpdateStats()
       pItem->setData(0, Qt::UserRole, it.Key());
 
       pItem->setText(0, it.Value().m_sName.GetData());
-      pItem->setForeground(0, MemoryWidgetDetail::s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+      pItem->setForeground(0, MemoryWidgetDetail::s_Colors[it.Value().m_uiColor % s_uiMaxColors]);
 
       it.Value().m_pTreeItem = pItem;
     }
@@ -234,7 +234,7 @@ void ezQtMemoryWidget::UpdateStats()
   ezUInt64 uiLiveAllocs = 0;
   ezUInt64 uiAllocs = 0;
   ezUInt64 uiDeallocs = 0;
-  ezUInt64 uiMinUsedMemory = 0xFFFFFFFF;
+  ezUInt64 uiMinUsedMemory = 0xFFFFFFFFFFFFFFFFull;
   ezUInt64 uiMaxUsedMemory = 0;
 
   {
@@ -254,10 +254,11 @@ void ezQtMemoryWidget::UpdateStats()
     if (it.Value().m_UsedMemory.IsEmpty() || !it.Value().m_bDisplay)
       continue;
 
-    ezUInt64 uiMinUsedMemoryThis = 0xFFFFFFFF;
+    ezUInt64 uiMinUsedMemoryThis = 0xFFFFFFFFFFFFFFFFull;
     ezUInt64 uiMaxUsedMemoryThis = 0;
 
-    const ezUInt32 uiColorPath = it.Value().m_iColor % s_uiMaxColors;
+    const ezUInt32 uiColorPath = it.Value().m_uiColor % s_uiMaxColors;
+    EZ_ASSERT_DEV(uiColorPath < s_uiMaxColors, "Invalid color index: {}", uiColorPath);
 
     uiUsedMemory += it.Value().m_UsedMemory.PeekBack();
     uiLiveAllocs += it.Value().m_uiLiveAllocs;
@@ -338,17 +339,15 @@ void ezQtMemoryWidget::UpdateStats()
     FormatSize(s, "Min: ", uiMinUsedMemory);
     LabelMinMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Recent Minimum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-      ezArgF(uiMinUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiMinUsedMemory / 1024.0 / 1024.0, 2),
-      ezArgF(uiMinUsedMemory / 1024.0, 2), uiMinUsedMemory);
+    s.Format("<p>Recent Minimum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>", ezArgF(uiMinUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
+      ezArgF(uiMinUsedMemory / 1024.0 / 1024.0, 2), ezArgF(uiMinUsedMemory / 1024.0, 2), uiMinUsedMemory);
     LabelMinMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     FormatSize(s, "Max: ", uiMaxUsedMemory);
     LabelMaxMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Recent Maximum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-      ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0, 2),
-      ezArgF(uiMaxUsedMemory / 1024.0, 2), uiMaxUsedMemory);
+    s.Format("<p>Recent Maximum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>", ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
+      ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0, 2), ezArgF(uiMaxUsedMemory / 1024.0, 2), uiMaxUsedMemory);
     LabelMaxMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     const ezUInt64 uiCurUsedMemory = uiUsedMemory;
@@ -356,9 +355,8 @@ void ezQtMemoryWidget::UpdateStats()
     FormatSize(s, "Sum: ", uiCurUsedMemory);
     LabelCurMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Current Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-      ezArgF(uiCurUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiCurUsedMemory / 1024.0 / 1024.0, 2),
-      ezArgF(uiCurUsedMemory / 1024.0, 2), uiCurUsedMemory);
+    s.Format("<p>Current Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>", ezArgF(uiCurUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
+      ezArgF(uiCurUsedMemory / 1024.0 / 1024.0, 2), ezArgF(uiCurUsedMemory / 1024.0, 2), uiCurUsedMemory);
     LabelCurMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     s.Format("Allocs: {0}", uiLiveAllocs);
@@ -440,9 +438,9 @@ void ezQtMemoryWidget::ProcessTelemetry(void* pUnuseed)
       ad.m_sName = sAllocatorName;
       ad.m_uiParentId = uiParentId;
 
-      if (ad.m_iColor < 0)
+      if (ad.m_uiColor == 0xFF)
       {
-        ad.m_iColor = s_pWidget->m_uiColorsUsed;
+        ad.m_uiColor = s_pWidget->m_uiColorsUsed;
         ++s_pWidget->m_uiColorsUsed;
         s_pWidget->m_bAllocatorsChanged = true;
       }
@@ -469,15 +467,14 @@ void ezQtMemoryWidget::on_ListAllocators_itemChanged(QTreeWidgetItem* item)
 
 void ezQtMemoryWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  const ezUInt32 uiSeconds[] =
-    {
-      10,
-      30,
-      60 * 1,
-      60 * 2,
-      60 * 5,
-      60 * 10,
-    };
+  const ezUInt32 uiSeconds[] = {
+    10,
+    30,
+    60 * 1,
+    60 * 2,
+    60 * 5,
+    60 * 10,
+  };
 
   m_uiDisplaySamples = 5 * uiSeconds[index]; // 5 samples per second
 }

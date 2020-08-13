@@ -54,9 +54,10 @@ ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode)
 
     case ezParticleTypeRenderMode::BlendAdd:
       return ezParticleTypeSortingKey::BlendAdd;
-  }
 
-  return 0;
+    default:
+      return 0;
+  }
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_ParticleType);

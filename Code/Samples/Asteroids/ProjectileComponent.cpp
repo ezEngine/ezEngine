@@ -5,7 +5,7 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <XboxControllerPlugin/InputDeviceXBox.h>
+#include <XBoxControllerPlugin/InputDeviceXBox.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1, ezComponentMode::Dynamic);

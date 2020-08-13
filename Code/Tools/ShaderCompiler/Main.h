@@ -31,5 +31,3 @@ private:
   ezString m_sShaderFiles;
   ezMap<ezString, ezHybridArray<ezString, 4>> m_FixedPermVars;
 };
-
-

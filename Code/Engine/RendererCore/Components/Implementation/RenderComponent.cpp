@@ -45,7 +45,8 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
   if (GetLocalBounds(bounds, bAlwaysVisible).Succeeded())
   {
-    ezSpatialData::Category category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
+    ezSpatialData::Category category =
+      GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
 
     if (bounds.IsValid())
     {
@@ -59,6 +60,14 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   }
 }
 
+void ezRenderComponent::InvalidateCachedRenderData()
+{
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
+}
+
 void ezRenderComponent::TriggerLocalBoundsUpdate()
 {
   if (IsActiveAndInitialized())
@@ -68,8 +77,7 @@ void ezRenderComponent::TriggerLocalBoundsUpdate()
 }
 
 // static
-ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex /*= 0*/,
-  ezUInt32 uiInnerIndexShift /*= 24*/)
+ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex /*= 0*/, ezUInt32 uiInnerIndexShift /*= 24*/)
 {
   ezUInt32 uniqueId = pComponent->GetUniqueID();
   if (uniqueId == ezInvalidIndex)

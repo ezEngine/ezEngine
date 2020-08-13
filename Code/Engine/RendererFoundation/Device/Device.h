@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
-#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Strings/HashedString.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezColor;
 
@@ -18,7 +18,6 @@ class ezColor;
 class EZ_RENDERERFOUNDATION_DLL ezGALDevice
 {
 public:
-
   ezEvent<const ezGALDeviceEvent&> m_Events;
 
   //
@@ -56,20 +55,25 @@ public:
 
   void DestroyShader(ezGALShaderHandle hShader);
 
-  ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
+  ezGALBufferHandle CreateBuffer(
+    const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
 
   void DestroyBuffer(ezGALBufferHandle hBuffer);
 
 
   // Helper functions for buffers (for common, simple use cases)
-  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
+  ezGALBufferHandle CreateVertexBuffer(
+    ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
 
-  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
+  ezGALBufferHandle CreateIndexBuffer(
+    ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
 
   ezGALBufferHandle CreateConstantBuffer(ezUInt32 uiBufferSize);
 
 
-  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());
+  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description,
+    ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());
+  ezResult ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, void* pExisitingNativeObject);
   void DestroyTexture(ezGALTextureHandle hTexture);
 
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
@@ -138,7 +142,7 @@ public:
 
   ezGALContext* GetPrimaryContext() const;
 
-  template<typename T>
+  template <typename T>
   T* GetPrimaryContext() const;
 
   const ezGALDeviceCreationDescription* GetDescription() const;
@@ -175,12 +179,11 @@ private:
   static ezGALDevice* s_pDefaultDevice;
 
 protected:
-
   ezGALDevice(const ezGALDeviceCreationDescription& Description);
 
   virtual ~ezGALDevice();
 
-  template<typename IdTableType, typename ReturnType>
+  template <typename IdTableType, typename ReturnType>
   ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
 
   void DestroyViews(ezGALResourceBase* pResource);
@@ -284,9 +287,8 @@ protected:
   // Deactivate Doxygen document generation for the following block. (API abstraction only)
   /// \cond
 
-// These functions need to be implemented by a render API abstraction
+  // These functions need to be implemented by a render API abstraction
 protected:
-
   friend class ezMemoryUtils;
 
   // Init & shutdown functions
@@ -325,7 +327,8 @@ protected:
 
   virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) = 0;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
+  virtual ezGALTexture* CreateTexturePlatform(
+    const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
 
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) = 0;
 
@@ -333,11 +336,13 @@ protected:
 
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) = 0;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) = 0;
+  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(
+    ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) = 0;
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;
 
-  virtual ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) = 0;
+  virtual ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(
+    ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) = 0;
 
   virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pRenderTargetView) = 0;
 
@@ -383,8 +388,6 @@ protected:
 
 private:
   bool m_bFrameBeginCalled;
-
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>
-

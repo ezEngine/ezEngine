@@ -112,6 +112,21 @@ function(ez_detect_platform)
 	  message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' is not supported! Please extend ez_detect_platform().")
 	  
 	endif ()
+	
+	get_property(EZ_CMAKE_PLATFORM_WINDOWS GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS)
+	if(EZ_CMAKE_PLATFORM_WINDOWS)
+		if(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
+			set(EZ_CMAKE_WINDOWS_SDK_VERSION ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
+		else()
+			set(EZ_CMAKE_WINDOWS_SDK_VERSION ${CMAKE_SYSTEM_VERSION})
+			string(REGEX MATCHALL "\\." NUMBER_OF_DOTS "${EZ_CMAKE_WINDOWS_SDK_VERSION}")
+			list(LENGTH NUMBER_OF_DOTS NUMBER_OF_DOTS)
+			if(NUMBER_OF_DOTS EQUAL 2)
+				set(EZ_CMAKE_WINDOWS_SDK_VERSION "${EZ_CMAKE_WINDOWS_SDK_VERSION}.0")
+			endif()
+		endif()
+		set_property(GLOBAL PROPERTY EZ_CMAKE_WINDOWS_SDK_VERSION ${EZ_CMAKE_WINDOWS_SDK_VERSION})
+	endif()
 
 endfunction()
 
@@ -132,6 +147,10 @@ macro(ez_pull_platform_vars)
 	get_property(EZ_CMAKE_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
 	get_property(EZ_CMAKE_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
 	get_property(EZ_CMAKE_PLATFORM_ANDROID GLOBAL PROPERTY EZ_CMAKE_PLATFORM_ANDROID)
+	
+	if(EZ_CMAKE_PLATFORM_WINDOWS)
+		get_property(EZ_CMAKE_WINDOWS_SDK_VERSION GLOBAL PROPERTY EZ_CMAKE_WINDOWS_SDK_VERSION)
+	endif()
 
 endmacro()
 
@@ -180,7 +199,12 @@ function(ez_detect_generator)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
-		
+	  elseif(CMAKE_GENERATOR STREQUAL "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
+			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+			
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 	  else ()
 			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend ez_detect_generator()")
 	  endif ()
@@ -257,10 +281,10 @@ macro(ez_pull_generator_vars)
 endmacro()
 
 ######################################
-### ez_detect_compiler()
+### ez_detect_compiler_and_architecture()
 ######################################
 
-function(ez_detect_compiler)
+function(ez_detect_compiler_and_architecture)
 
 	get_property(PREFIX GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX)
 	
@@ -279,91 +303,84 @@ function(ez_detect_compiler)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140 OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141 OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_142 OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC OFF)
-
 	
-	if (GENERATOR_MSVC) # Visual Studio Compiler
-	  
-	  message (STATUS "Compiler is MSVC (EZ_CMAKE_COMPILER_MSVC) version ${MSVC_VERSION}")
-
+	set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+	try_compile(COMPILE_RESULT
+		${CMAKE_CURRENT_BINARY_DIR}
+		${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/ProbingSrc/ArchitectureDetect.c
+		OUTPUT_VARIABLE COMPILE_OUTPUT
+	)
+	if(NOT COMPILE_RESULT)
+		message(FATAL_ERROR "Failed to detect compiler / target architecture. Compiler output: ${COMPILE_OUTPUT}")
+	endif()
+	
+	if(${COMPILE_OUTPUT} MATCHES "ARCH:'([^']*)'")
+		set(EZ_DETECTED_ARCH ${CMAKE_MATCH_1})
+	else()
+		message(FATAL_ERROR "The compile test did not output the architecture. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+	endif()
+	
+	if(${COMPILE_OUTPUT} MATCHES "COMPILER:'([^']*)'")
+		set(EZ_DETECTED_COMPILER ${CMAKE_MATCH_1})
+	else()
+		message(FATAL_ERROR "The compile test did not output the compiler. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+	endif()
+	
+	if(EZ_DETECTED_COMPILER STREQUAL "msvc")
+		if(${COMPILE_OUTPUT} MATCHES "MSC_VER:'([^']*)'")
+			set(EZ_DETECTED_MSVC_VER ${CMAKE_MATCH_1})
+		else()
+			message(FATAL_ERROR "The compile test did not output the MSC_VER. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+		endif()
+	endif()
+	
+	if(EZ_DETECTED_COMPILER STREQUAL "msvc") # Visual Studio Compiler
+	  message (STATUS "Compiler is MSVC (EZ_CMAKE_COMPILER_MSVC) version ${EZ_DETECTED_MSVC_VER}")
+		
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC ON)
 
-	  if(MSVC_VERSION GREATER_EQUAL 1910)
+      if(EZ_DETECTED_MSVC_VER GREATER_EQUAL 1920)
 	  
-			message (STATUS "Compiler is Visual Studio 2017 (EZ_CMAKE_COMPILER_MSVC_141)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141 ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2017")
+		message (STATUS "Compiler is Visual Studio 2019 (EZ_CMAKE_COMPILER_MSVC_142)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_142 ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2019")
+	  
+	  elseif(EZ_DETECTED_MSVC_VER GREATER_EQUAL 1910)
+	  
+		message (STATUS "Compiler is Visual Studio 2017 (EZ_CMAKE_COMPILER_MSVC_141)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141 ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2017")
 		
 	  elseif (MSVC_VERSION GREATER_EQUAL 1900)
 	  
-			message (STATUS "Compiler is Visual Studio 2015 (EZ_CMAKE_COMPILER_MSVC_140)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140 ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2015")
+		message (STATUS "Compiler is Visual Studio 2015 (EZ_CMAKE_COMPILER_MSVC_140)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140 ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2015")
 		
 	  else ()
 	  
-			message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend ez_detect_compiler()")
-		
+		message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend ez_detect_compiler()")
 	  endif ()
-
-	elseif (EZ_CMAKE_PLATFORM_OSX)
+	  
+	elseif(EZ_DETECTED_COMPILER STREQUAL "clang")
 	
-	  # Currently all are clang by default.
-	  # We should probably make this more idiot-proof in case someone actually changes the compiler to gcc.
-	  message (STATUS "Compiler is clang (EZ_CMAKE_COMPILER_CLANG)")
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG ON)
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Clang")
-
-	elseif (EZ_CMAKE_PLATFORM_LINUX)
-	
-	  # Currently all are gcc by default. See OSX comment.
-	  message (STATUS "Compiler is gcc (EZ_CMAKE_COMPILER_GCC)")
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC ON)
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Gcc")
-
-	elseif (EZ_CMAKE_PLATFORM_ANDROID)
-	
-	  # Android uses clang
 	  message (STATUS "Compiler is clang (EZ_CMAKE_COMPILER_CLANG)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Clang")
 	  
-	else ()
-	  message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on '${CMAKE_SYSTEM_NAME}'. Please extend ez_detect_compiler()")
-	endif ()
+	elseif(EZ_DETECTED_COMPILER STREQUAL "gcc")
 	
-endfunction()
-
-######################################
-### ez_pull_compiler_vars()
-######################################
-
-macro(ez_pull_compiler_vars)
-
-	ez_detect_compiler()
-
-	get_property(EZ_CMAKE_COMPILER_POSTFIX GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX)
-	get_property(EZ_CMAKE_COMPILER_MSVC GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC)
-	get_property(EZ_CMAKE_COMPILER_MSVC_140 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140)
-	get_property(EZ_CMAKE_COMPILER_MSVC_141 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141)
-	get_property(EZ_CMAKE_COMPILER_CLANG GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG)
-	get_property(EZ_CMAKE_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
-
-endmacro()
-
-######################################
-### ez_detect_architecture()
-######################################
-
-function(ez_detect_architecture)
-
-	get_property(PREFIX GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX)
+	  message (STATUS "Compiler is gcc (EZ_CMAKE_COMPILER_GCC)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC ON)
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Gcc")
+	  
+	else()
 	
-	if (PREFIX)
-		# has already run before and EZ_CMAKE_ARCHITECTURE_POSTFIX is already set
-		#message (STATUS "Redundant call to ez_detect_architecture()")
-		return()
+	  message(FATAL_ERROR "Unhandled compiler ${EZ_DETECTED_COMPILER}")
+	  
 	endif()
 
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "")
@@ -371,131 +388,78 @@ function(ez_detect_architecture)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM OFF)
-
-	ez_pull_platform_vars()
-	ez_pull_compiler_vars()
-
-
-
-	if (EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_MSVC)
-	  
-	  if (${CMAKE_GENERATOR_PLATFORM} MATCHES "ARM")
-			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
-			# Detect 64-bit builds for MSVC.
-			if (CMAKE_CL_64)
-	  
-				message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
-				
-			else ()
-			
-				message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm32")
-				
-			endif ()
-	  else()
-			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
-			# Detect 64-bit builds for MSVC.
-			if (CMAKE_CL_64)
-	  
-				message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
-				
-			else ()
-			
-				message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
-				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
-				
-			endif ()
-	  endif()
-
-	elseif (EZ_CMAKE_PLATFORM_OSX AND EZ_CMAKE_COMPILER_CLANG)
+	
+	if(EZ_DETECTED_ARCH STREQUAL "x86")
 	
 	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+	  
+	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+	  
+	elseif(EZ_DETECTED_ARCH STREQUAL "x64")
 	
-	  # OS X always has 32/64 bit support in the project files and the user switches on demand.
-	  # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
-	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-	  
-			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
-		
-	  else ()
-			message (FATAL_ERROR "32-Bit is not supported on OS X!")
-	  endif ()
-
-	elseif (EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_COMPILER_GCC)
-	  
 	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
 	  
-	  # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
-	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 	  
-			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
-		
-	  else ()
-	  
-			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
-		
-	  endif ()
-	elseif(EZ_CMAKE_PLATFORM_ANDROID AND EZ_CMAKE_COMPILER_CLANG)
+	elseif(EZ_DETECTED_ARCH STREQUAL "arm32")
 	
-		if(ANDROID_ABI STREQUAL armeabi-v7a)
-			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
-			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+	  message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+      set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+	  
+	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+	  
+	elseif(EZ_DETECTED_ARCH STREQUAL "arm64")
+	
+	  message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+      set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+	  
+	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+	  
+	else()
+	  message(FATAL_ERROR "Unhandled target architecture ${EZ_DETECTED_ARCH}")
+	endif ()
+	
+	get_property(EZ_CMAKE_ARCHITECTURE_32BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT)
+	get_property(EZ_CMAKE_ARCHITECTURE_ARM GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM)
+	
+	if(EZ_CMAKE_ARCHITECTURE_ARM)
+		if(EZ_CMAKE_ARCHITECTURE_32BIT)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm32")
-		elseif(ANDROID_ABI STREQUAL arm64-v8a)
-			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
-			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
-		elseif(ANDROID_ABI STREQUAL x86)
-			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
-			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
-		elseif(ANDROID_ABI STREQUAL x86_64)
-			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
-			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
 		else()
-			message(FATAL_ERROR "Invalid Android ABI: ${ANDROID_ABI}.")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
 		endif()
- 
-	else ()
-	  message (FATAL_ERROR "Architecture could not be determined. Please extend ez_detect_architecture()")
-	endif ()	
-
+	else()
+		if(EZ_CMAKE_ARCHITECTURE_32BIT)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
+		else()
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
+		endif()
+	endif()
+	
 endfunction()
 
-
 ######################################
-### ez_pull_architecture_vars()
+### ez_pull_compiler_vars()
 ######################################
 
-macro(ez_pull_architecture_vars)
+macro(ez_pull_compiler_and_architecture_vars)
 
-	ez_detect_architecture()
+	ez_detect_compiler_and_architecture()
 
+	get_property(EZ_CMAKE_COMPILER_POSTFIX GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX)
+	get_property(EZ_CMAKE_COMPILER_MSVC GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC)
+	get_property(EZ_CMAKE_COMPILER_MSVC_140 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140)
+	get_property(EZ_CMAKE_COMPILER_MSVC_141 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141)
+	get_property(EZ_CMAKE_COMPILER_MSVC_142 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_142)
+	get_property(EZ_CMAKE_COMPILER_CLANG GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG)
+	get_property(EZ_CMAKE_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
+	
 	get_property(EZ_CMAKE_ARCHITECTURE_POSTFIX GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX)
 	get_property(EZ_CMAKE_ARCHITECTURE_32BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT)
 	get_property(EZ_CMAKE_ARCHITECTURE_64BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT)
@@ -504,18 +468,16 @@ macro(ez_pull_architecture_vars)
 
 endmacro()
 
-
 ######################################
 ### ez_pull_all_vars()
 ######################################
 
 macro(ez_pull_all_vars)
 
-	ez_pull_architecture_vars()
-	ez_pull_compiler_vars()
+	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+
+	ez_pull_compiler_and_architecture_vars()
 	ez_pull_generator_vars()
 	ez_pull_platform_vars()
-	
-	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
 endmacro()

@@ -26,8 +26,7 @@ struct GatherObjectsTraverser
   }
 };
 
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world0, ExtractionMode mode,
-                                                    ezTagSet* pExcludeTags /*= nullptr*/)
+void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world0, ExtractionMode mode, ezTagSet* pExcludeTags /*= nullptr*/)
 {
   // we don't modify the world, but the traverser is a non-const function
   ezWorld& world = const_cast<ezWorld&>(world0);
@@ -42,8 +41,8 @@ void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld
   ExtractWorldGeometry(geo, world, mode, traverser.m_Selection);
 }
 
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode,
-                                                    const ezDeque<ezGameObjectHandle>& selection)
+void ezWorldGeoExtractionUtil::ExtractWorldGeometry(
+  Geometry& geo, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection)
 {
   EZ_LOCK(world.GetReadMarker());
 
@@ -176,4 +175,3 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
 
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_WorldGeoExtractionUtil);
-

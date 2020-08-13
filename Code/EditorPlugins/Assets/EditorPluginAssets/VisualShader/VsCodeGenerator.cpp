@@ -207,7 +207,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
 
   ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sPixelSamplersCode, sVsBodyCode, sGsBodyCode, sMaterialCB, sPermutations,
-      sRenderStates, sPixelDefines, sPixelIncludes;
+    sRenderStates, sPixelDefines, sPixelIncludes;
 
   sConstantsCode = pDesc->m_sShaderCodePixelConstants;
   sPsBodyCode = pDesc->m_sShaderCodePixelBody;
@@ -319,8 +319,8 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 
 
 
-ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode,
-                                                             const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode)
+ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
+  const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode)
 {
   const ezArrayPtr<ezPin* const> inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
 
@@ -440,17 +440,16 @@ ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject
 
       if (!ezStringUtils::IsValidIdentifierName(sPropValue))
       {
-        return ezStatus(
-            ezFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.",
-                  pDesc->m_sName, props[p].m_sName, sPropValue));
+        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.",
+          pDesc->m_sName, props[p].m_sName, sPropValue));
       }
 
       auto& set = m_UsedUniqueValues[iUniqueValueGroup];
 
       if (set.Contains(sPropValue))
       {
-        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that has the same value ('{2}') as another parameter.", pDesc->m_sName,
-                              props[p].m_sName, sPropValue));
+        return ezStatus(ezFmt(
+          "A '{0}' node has a '{1}' property that has the same value ('{2}') as another parameter.", pDesc->m_sName, props[p].m_sName, sPropValue));
       }
 
       set.Insert(sPropValue);
@@ -460,8 +459,8 @@ ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc,
-                                                           ezStringBuilder& sString)
+ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(
+  const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString)
 {
   const auto& TypeAccess = pNode->GetTypeAccessor();
 

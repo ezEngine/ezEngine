@@ -305,7 +305,11 @@ void ezTypeScriptBinding::SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
     const ezVariant value = ezTypeScriptBinding::GetVariantProperty(pDuk, pProp->GetPropertyName(), iObjIdx, pMember->GetSpecificType());
-    ezReflectionUtils::SetMemberPropertyValue(pMember, pObject, value);
+
+    if (value.IsValid())
+    {
+      ezReflectionUtils::SetMemberPropertyValue(pMember, pObject, value);
+    }
   }
 }
 

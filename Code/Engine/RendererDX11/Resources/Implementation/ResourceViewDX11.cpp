@@ -13,8 +13,8 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALReso
 }
 
 ezGALResourceViewDX11::ezGALResourceViewDX11(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
-    : ezGALResourceView(pResource, Description)
-    , m_pDXResourceView(nullptr)
+  : ezGALResourceView(pResource, Description)
+  , m_pDXResourceView(nullptr)
 {
 }
 

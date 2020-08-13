@@ -66,7 +66,7 @@ void ezWorldWriter::WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGame
 
 ezResult ezWorldWriter::WriteToStream()
 {
-  const ezUInt8 uiVersion = 8;
+  const ezUInt8 uiVersion = 9;
   *m_pStream << uiVersion;
 
   // version 8: use string dedup instead of handle writer
@@ -74,9 +74,6 @@ ezResult ezWorldWriter::WriteToStream()
   m_pStream = &stringDedupWriteContext.Begin();
 
   IncludeAllComponentBaseTypes();
-
-  // write the current tag registry
-  ezTagRegistry::GetGlobalRegistry().Save(*m_pStream);
 
   ezUInt32 uiNumRootObjects = m_AllRootObjects.GetCount();
   ezUInt32 uiNumChildObjects = m_AllChildObjects.GetCount();
@@ -139,7 +136,9 @@ void ezWorldWriter::AssignGameObjectIndices()
 
 void ezWorldWriter::AssignComponentHandleIndices()
 {
-  ezUInt32 uiTypeIndex = 0;
+  ezUInt16 uiTypeIndex = 0;
+
+  EZ_ASSERT_DEV(m_AllComponents.GetCount() <= ezMath::MaxValue<ezUInt16>(), "Too many types for world writer");
 
   // assign the component handle indices in the order in which the components are written
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)

@@ -42,10 +42,14 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezRenderPipelineAssetManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezRenderPipelineAssetDocument(szPath);
 }

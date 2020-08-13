@@ -145,9 +145,9 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
           break;
       }
 
-      if (mapping == ezTexture2DChannelMappingEnum::R1 ||
-          mapping == ezTexture2DChannelMappingEnum::RGBA1 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 ||
-          mapping == ezTexture2DChannelMappingEnum::RGB1_A2 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
+      if (mapping == ezTexture2DChannelMappingEnum::R1 || mapping == ezTexture2DChannelMappingEnum::RGBA1 ||
+          mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 || mapping == ezTexture2DChannelMappingEnum::RGB1_A2 ||
+          mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
       {
         if (mapping != ezTexture2DChannelMappingEnum::R1)
         {
@@ -317,8 +317,7 @@ public:
       {
         pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Color);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Height" ||
-               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Mask" ||
+      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Height" || pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Mask" ||
                pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::LookupTable" ||
                pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Other_Linear" ||
                pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::EmissiveMask")

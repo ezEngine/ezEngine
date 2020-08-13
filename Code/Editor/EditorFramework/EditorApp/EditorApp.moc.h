@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
+#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
-#include <EditorFramework/EditorApp/WhatsNew.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
@@ -54,7 +54,8 @@ public:
     {
       Headless = EZ_BIT(0), ///< The app does not do any rendering.
       SafeMode = EZ_BIT(1), ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
-      NoRecent = EZ_BIT(2), ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
+      NoRecent =
+        EZ_BIT(2), ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
       Debug = EZ_BIT(3),    ///< '-debug' : Tell the engine process to wait for a debugger to attach.
       UnitTest = EZ_BIT(4), ///< Specified when the process is running as a unit test
       Default = 0,
@@ -92,8 +93,8 @@ public:
   ///
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
-  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout,
-    ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
+  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr,
+    ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
 
   /// \brief Creates the string with which to run Fileserve for the currently open project.
   ezString BuildFileserveCommandLine() const;
@@ -155,16 +156,15 @@ public:
   void ShowSettingsDocument();
   void CloseSettingsDocument();
 
-  const ezWhatsNewText& GetWhatsNew() const { return m_WhatsNew; }
-
   void CloseProject();
-  void OpenProject(const char* szProject);
+  ezResult OpenProject(const char* szProject, bool bImmediate = false);
 
   void GuiCreateDocument();
   void GuiOpenDocument();
 
-  void GuiCreateProject();
-  void GuiOpenProject();
+  void GuiOpenDashboard();
+  bool GuiCreateProject(bool bImmediate = false);
+  bool GuiOpenProject(bool bImmediate = false);
 
   void OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
@@ -208,16 +208,19 @@ Q_SIGNALS:
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
 
+  void InternalGuiOpenDashboard();
   void GuiCreateOrOpenDocument(bool bCreate);
-  void GuiCreateOrOpenProject(bool bCreate);
+  bool GuiCreateOrOpenProject(bool bCreate);
 
 private Q_SLOTS:
   void SlotTimedUpdate();
   void SlotQueuedCloseProject();
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
+  void SlotQueuedGuiOpenDashboard();
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
   void SlotSaveSettings();
+  void SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced);
 
 private:
   void UpdateGlobalStatusBarMessage();
@@ -229,6 +232,7 @@ private:
   void ProjectRequestHandler(ezToolsProjectRequest& r);
   void ProjectEventHandler(const ezToolsProjectEvent& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
+  void UiServicesEvents(const ezQtUiServices::Event& e);
 
   void LoadEditorPreferences();
   void LoadProjectPreferences();
@@ -295,8 +299,7 @@ private:
   ezSet<ezString> m_DynamicEnumStringsToClear;
   void OnDemandDynamicStringEnumLoad(const char* szEnum, ezDynamicStringEnum& e);
 
-
-  ezWhatsNewText m_WhatsNew;
+  ezQtVersionChecker m_VersionChecker;
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezQtEditorApp::StartupFlags);

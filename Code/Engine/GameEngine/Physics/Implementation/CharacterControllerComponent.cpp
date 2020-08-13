@@ -42,7 +42,9 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(RawMove, In, "move"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(RawMove, In, "moveDeltaGlobal"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -59,17 +61,16 @@ ezCharacterControllerComponent::ezCharacterControllerComponent() {}
 void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  //auto& s = stream.GetStream();
+  // auto& s = stream.GetStream();
 }
 
 void ezCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  //auto& s = stream.GetStream();
+  // auto& s = stream.GetStream();
 }
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_CharacterControllerComponent);
-

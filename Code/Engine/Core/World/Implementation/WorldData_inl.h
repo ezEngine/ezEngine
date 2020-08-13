@@ -31,13 +31,16 @@ namespace ezInternal
 
   // static
   template <typename VISITOR>
-  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
+  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevelMultiThreaded(
+    Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
     ezParallelForParams parallelForParams;
     parallelForParams.uiBinSize = 100;
     parallelForParams.uiMaxTasksPerThread = 2;
+    parallelForParams.pTaskAllocator = m_StackAllocator.GetCurrentAllocator();
 
-    ezTaskSystem::ParallelFor(blocks.GetArrayPtr(),
+    ezTaskSystem::ParallelFor(
+      blocks.GetArrayPtr(),
       [pUserData](ezArrayPtr<WorldData::Hierarchy::DataBlock> blocksSlice) {
         for (WorldData::Hierarchy::DataBlock& block : blocksSlice)
         {
@@ -73,8 +76,8 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds,
-    ezSpatialSystem& spatialSystem)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(
+    ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
   {
     pData->UpdateGlobalTransform();
     pData->UpdateVelocity(fInvDeltaSeconds);
@@ -82,7 +85,8 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(
+    ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
   {
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateVelocity(fInvDeltaSeconds);
@@ -91,20 +95,11 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_ALWAYS_INLINE const ezGameObject& WorldData::ConstObjectIterator::operator*() const
-  {
-    return *m_Iterator;
-  }
+  EZ_ALWAYS_INLINE const ezGameObject& WorldData::ConstObjectIterator::operator*() const { return *m_Iterator; }
 
-  EZ_ALWAYS_INLINE const ezGameObject* WorldData::ConstObjectIterator::operator->() const
-  {
-    return m_Iterator;
-  }
+  EZ_ALWAYS_INLINE const ezGameObject* WorldData::ConstObjectIterator::operator->() const { return m_Iterator; }
 
-  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::operator const ezGameObject*() const
-  {
-    return m_Iterator;
-  }
+  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::operator const ezGameObject *() const { return m_Iterator; }
 
   EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::Next()
   {
@@ -116,15 +111,9 @@ namespace ezInternal
     }
   }
 
-  EZ_ALWAYS_INLINE bool WorldData::ConstObjectIterator::IsValid() const
-  {
-    return m_Iterator.IsValid();
-  }
+  EZ_ALWAYS_INLINE bool WorldData::ConstObjectIterator::IsValid() const { return m_Iterator.IsValid(); }
 
-  EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::operator++()
-  {
-    Next();
-  }
+  EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::operator++() { Next(); }
 
   EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::ConstObjectIterator(ObjectStorage::ConstIterator iterator)
     : m_Iterator(iterator)
@@ -137,20 +126,11 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_ALWAYS_INLINE ezGameObject& WorldData::ObjectIterator::operator*()
-  {
-    return *m_Iterator;
-  }
+  EZ_ALWAYS_INLINE ezGameObject& WorldData::ObjectIterator::operator*() { return *m_Iterator; }
 
-  EZ_ALWAYS_INLINE ezGameObject* WorldData::ObjectIterator::operator->()
-  {
-    return m_Iterator;
-  }
+  EZ_ALWAYS_INLINE ezGameObject* WorldData::ObjectIterator::operator->() { return m_Iterator; }
 
-  EZ_ALWAYS_INLINE WorldData::ObjectIterator::operator ezGameObject*()
-  {
-    return m_Iterator;
-  }
+  EZ_ALWAYS_INLINE WorldData::ObjectIterator::operator ezGameObject*() { return m_Iterator; }
 
   EZ_ALWAYS_INLINE void WorldData::ObjectIterator::Next()
   {
@@ -162,15 +142,9 @@ namespace ezInternal
     }
   }
 
-  EZ_ALWAYS_INLINE bool WorldData::ObjectIterator::IsValid() const
-  {
-    return m_Iterator.IsValid();
-  }
+  EZ_ALWAYS_INLINE bool WorldData::ObjectIterator::IsValid() const { return m_Iterator.IsValid(); }
 
-  EZ_ALWAYS_INLINE void WorldData::ObjectIterator::operator++()
-  {
-    Next();
-  }
+  EZ_ALWAYS_INLINE void WorldData::ObjectIterator::operator++() { Next(); }
 
   EZ_ALWAYS_INLINE WorldData::ObjectIterator::ObjectIterator(ObjectStorage::Iterator iterator)
     : m_Iterator(iterator)
@@ -210,8 +184,7 @@ namespace ezInternal
 
     // sort by function name to ensure determinism
     ezInt32 iNameComp = ezStringUtils::Compare(m_sFunctionName, other.m_sFunctionName);
-    EZ_ASSERT_DEV(iNameComp != 0,
-      "An update function with the same name and same priority is already registered. This breaks determinism.");
+    EZ_ASSERT_DEV(iNameComp != 0, "An update function with the same name and same priority is already registered. This breaks determinism.");
     return iNameComp < 0;
   }
 
@@ -243,8 +216,7 @@ namespace ezInternal
     // already locked by this thread?
     if (m_Data.m_WriteThreadID != ezThreadUtils::GetCurrentThreadID())
     {
-      EZ_ASSERT_DEV(m_Data.m_iReadCounter == 0, "World '{0}' cannot be marked for writing because it is already marked for reading.",
-        m_Data.m_sName);
+      EZ_ASSERT_DEV(m_Data.m_iReadCounter == 0, "World '{0}' cannot be marked for writing because it is already marked for reading.", m_Data.m_sName);
       EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0,
         "World '{0}' cannot be marked for writing because it is already marked for writing by another thread.", m_Data.m_sName);
 

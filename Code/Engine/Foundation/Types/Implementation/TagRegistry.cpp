@@ -62,6 +62,21 @@ const ezTag* ezTagRegistry::GetTagByName(const ezTempHashedString& TagString) co
   return nullptr;
 }
 
+const ezTag* ezTagRegistry::GetTagByMurmurHash(ezUInt32 uiMurmurHash) const
+{
+  EZ_LOCK(m_TagRegistryMutex);
+
+  for (ezTag* pTag : m_TagsByIndex)
+  {
+    if (ezHashingUtils::MurmurHash32String(pTag->GetTagString().GetData()) == uiMurmurHash)
+    {
+      return pTag;
+    }
+  }
+
+  return nullptr;
+}
+
 const ezTag* ezTagRegistry::GetTagByIndex(ezUInt32 uiIndex) const
 {
   EZ_LOCK(m_TagRegistryMutex);
@@ -72,22 +87,6 @@ ezUInt32 ezTagRegistry::GetNumTags() const
 {
   EZ_LOCK(m_TagRegistryMutex);
   return m_TagsByIndex.GetCount();
-}
-
-void ezTagRegistry::Save(ezStreamWriter& stream) const
-{
-  EZ_LOCK(m_TagRegistryMutex);
-
-  const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
-
-  stream << m_TagsByIndex.GetCount();
-
-  // simply write out all tag strings
-  for (const ezTag* pTag : m_TagsByIndex)
-  {
-    stream << pTag->GetTagString();
-  }
 }
 
 ezResult ezTagRegistry::Load(ezStreamReader& stream)
@@ -124,4 +123,3 @@ ezResult ezTagRegistry::Load(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_TagRegistry);
-

@@ -92,9 +92,9 @@ ezColor PlacementTile::GetDebugColor() const
       return ezColor::Yellow;
     case State::Finished:
       return ezColor::Green;
+    default:
+      return ezColor::DarkRed;
   }
-
-  return ezColor::DarkRed;
 }
 
 void PlacementTile::PreparePlacementData(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
@@ -138,7 +138,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
       // Set the color
       ezMsgSetColor msg;
       msg.m_Color = objectTransform.m_Color;
-      pRootObject->PostMessageRecursive(msg, ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 
       m_PlacedObjects.PushBack(pRootObject->GetHandle());
     }

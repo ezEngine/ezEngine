@@ -8,11 +8,10 @@ namespace ezApplicationDetails
 {
   void SetConsoleCtrlHandler(ezMinWindows::BOOL(EZ_WINDOWS_WINAPI* consoleHandler)(ezMinWindows::DWORD dwCtrlType))
   {
-      ::SetConsoleCtrlHandler(consoleHandler, TRUE);
+    ::SetConsoleCtrlHandler(consoleHandler, TRUE);
   }
 } // namespace ezApplicationDetails
 #endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_Win_ApplicationEntryPoint_win);
-

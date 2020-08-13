@@ -3,16 +3,18 @@
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <GameEngine/Prefabs/SpawnComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
     EZ_ACCESSOR_PROPERTY("AttachAsChild", GetAttachAsChild, SetAttachAsChild),
     EZ_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
     EZ_ACCESSOR_PROPERTY("SpawnContinuously", GetSpawnContinuously, SetSpawnContinuously),
@@ -25,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::YellowGreen),
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Deviation", 0.5f, nullptr, nullptr, ezColor::GreenYellow),
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Deviation", 0.5f, nullptr, ezColor::GreenYellow),
     new ezConeAngleManipulatorAttribute("Deviation", 0.5f),
   }
   EZ_END_ATTRIBUTES;
@@ -50,14 +52,21 @@ ezSpawnComponent::~ezSpawnComponent() = default;
 
 void ezSpawnComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnAtStart))
   {
-    m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnAtStart);
-
     ScheduleSpawn();
   }
 }
 
+
+void ezSpawnComponent::OnDeactivated()
+{
+  m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
+
+  SUPER::OnDeactivated();
+}
 
 bool ezSpawnComponent::SpawnOnce(const ezVec3& vLocalOffset)
 {
@@ -72,10 +81,8 @@ bool ezSpawnComponent::SpawnOnce(const ezVec3& vLocalOffset)
       const ezVec3 vTiltAxis = ezVec3(0, 1, 0);
       const ezVec3 vTurnAxis = ezVec3(1, 0, 0);
 
-      const ezAngle tiltAngle =
-        ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
-      const ezAngle turnAngle =
-        ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
+      const ezAngle tiltAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
+      const ezAngle turnAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
 
       ezQuat qTilt, qTurn, qDeviate;
       qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);
@@ -100,14 +107,14 @@ void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
 
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
   {
-    pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
+    pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters, false);
   }
   else
   {
     ezTransform tGlobalSpawn;
     tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
 
-    pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
+    pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters, false);
   }
 }
 
@@ -123,10 +130,9 @@ void ezSpawnComponent::ScheduleSpawn()
 
   ezWorld* pWorld = GetWorld();
 
-  const ezTime tKill =
-    ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+  const ezTime tKill = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
-  PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
+  PostMessage(msg, tKill);
 }
 
 void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -141,12 +147,14 @@ void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_DelayRange;
   s << m_MaxDeviation;
   s << m_LastManualSpawn;
+
+  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), stream, m_Parameters);
 }
 
 void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -160,6 +168,11 @@ void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_DelayRange;
   s >> m_MaxDeviation;
   s >> m_LastManualSpawn;
+
+  if (uiVersion >= 3)
+  {
+    ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, stream);
+  }
 }
 
 bool ezSpawnComponent::CanTriggerManualSpawn() const
@@ -253,6 +266,40 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     TriggerManualSpawn();
   }
+}
+
+const ezRangeView<const char*, ezUInt32> ezSpawnComponent::GetParameters() const
+{
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+}
+
+void ezSpawnComponent::SetParameter(const char* szKey, const ezVariant& value)
+{
+  ezHashedString hs;
+  hs.Assign(szKey);
+
+  auto it = m_Parameters.Find(hs);
+  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+    return;
+
+  m_Parameters[hs] = value;
+}
+
+void ezSpawnComponent::RemoveParameter(const char* szKey)
+{
+  m_Parameters.RemoveAndCopy(ezTempHashedString(szKey));
+}
+
+bool ezSpawnComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+{
+  ezUInt32 it = m_Parameters.Find(szKey);
+
+  if (it == ezInvalidIndex)
+    return false;
+
+  out_value = m_Parameters.GetValue(it);
+  return true;
 }
 
 //////////////////////////////////////////////////////////////////////////

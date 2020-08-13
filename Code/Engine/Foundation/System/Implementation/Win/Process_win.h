@@ -252,21 +252,21 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   // We pass nullptr as lpApplicationName as setting it would prevent OpenProcess to run system apps or apps in PATH.
   // Instead, the module name is pre-pended to lpCommandLine in BuildFullCommandLineString.
   if (!CreateProcessWithExplicitHandles(nullptr, const_cast<wchar_t*>(ezStringWChar(sCmdLine).GetData()),
-        nullptr,                              // lpProcessAttributes
-        nullptr,                              // lpThreadAttributes
+        nullptr,                                  // lpProcessAttributes
+        nullptr,                                  // lpThreadAttributes
         uiNumHandlesToInherit > 0 ? TRUE : FALSE, // bInheritHandles
         dwCreationFlags,
-        nullptr,           // lpEnvironment
-        nullptr,           // lpCurrentDirectory
-        &si,               // lpStartupInfo
-        &pi,               // lpProcessInformation
+        nullptr, // lpEnvironment
+        opt.m_sWorkingDirectory.IsEmpty() ? nullptr : ezStringWChar(opt.m_sWorkingDirectory).GetData(),
+        &si,                   // lpStartupInfo
+        &pi,                   // lpProcessInformation
         uiNumHandlesToInherit, // cHandlesToInherit
-        HandlesToInherit   // rgHandlesToInherit
+        HandlesToInherit       // rgHandlesToInherit
         ))
   {
     m_impl->m_pipeStdOut.Close();
     m_impl->m_pipeStdErr.Close();
-    ezLog::Error("Failed to launch '{} {}' - {}", sProcess, sCmdLine, ezArgErrorCode(GetLastError()));
+    ezLog::Error("Failed to launch '{} {}' - {}", sProcess, ezArgSensitive(sCmdLine, "CommandLine"), ezArgErrorCode(GetLastError()));
     return EZ_FAILURE;
   }
   m_impl->m_pipeStdOut.StartRead(m_onStdOut);

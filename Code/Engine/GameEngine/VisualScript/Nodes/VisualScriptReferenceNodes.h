@@ -1,14 +1,15 @@
 #pragma once
 
+#include <Core/World/Declarations.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <Core/World/Declarations.h>
 
 //////////////////////////////////////////////////////////////////////////
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetScriptOwner : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetScriptOwner, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_GetScriptOwner();
   ~ezVisualScriptNode_GetScriptOwner();
@@ -22,6 +23,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetComponentOwner : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetComponentOwner, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_GetComponentOwner();
   ~ezVisualScriptNode_GetComponentOwner();
@@ -38,6 +40,7 @@ private:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_FindChildObject : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FindChildObject, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_FindChildObject();
   ~ezVisualScriptNode_FindChildObject();
@@ -55,6 +58,7 @@ private:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_FindComponent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FindComponent, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_FindComponent();
   ~ezVisualScriptNode_FindComponent();
@@ -72,6 +76,7 @@ private:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_QueryGlobalObject : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_QueryGlobalObject, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_QueryGlobalObject();
   ~ezVisualScriptNode_QueryGlobalObject();
@@ -88,6 +93,7 @@ private:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_FindParent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FindParent, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_FindParent();
   ~ezVisualScriptNode_FindParent();
@@ -101,5 +107,3 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
-
-

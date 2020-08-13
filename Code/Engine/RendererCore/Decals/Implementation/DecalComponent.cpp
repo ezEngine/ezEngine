@@ -519,7 +519,7 @@ void ezDecalComponent::UpdateApplyTo()
 
   if (uiPrevId != m_uiApplyOnlyToId && GetOwner()->IsStatic())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    InvalidateCachedRenderData();
   }
 }
 
@@ -551,7 +551,7 @@ void ezDecalComponent::OnSimulationStarted()
 
       const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
 
-      PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
+      PostMessage(msg, tKill);
     }
   }
 

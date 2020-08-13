@@ -82,23 +82,30 @@ ezUInt32 ezParallelForParams::DetermineItemsPerInvocation(ezUInt32 uiNumTaskItem
   return uiItemsPerInvocation;
 }
 
-void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback, const char* taskName, const ezParallelForParams& params)
+void ezTaskSystem::ParallelForIndexed(
+  ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback, const char* taskName, const ezParallelForParams& params)
 {
   const ezUInt32 uiMultiplicity = params.DetermineMultiplicity(uiNumItems);
   const ezUInt32 uiItemsPerInvocation = params.DetermineItemsPerInvocation(uiNumItems, uiMultiplicity);
 
-  IndexedTask indexedTask(uiStartIndex, uiNumItems, std::move(taskCallback), uiItemsPerInvocation);
-  indexedTask.ConfigureTask(taskName ? taskName : "Generic Indexed Task", ezTaskNesting::Never);
 
   if (uiMultiplicity == 0)
   {
+    IndexedTask indexedTask(uiStartIndex, uiNumItems, std::move(taskCallback), uiItemsPerInvocation);
+    indexedTask.ConfigureTask(taskName ? taskName : "Generic Indexed Task", ezTaskNesting::Never);
+
     EZ_PROFILE_SCOPE(indexedTask.m_sTaskName);
     indexedTask.Execute();
   }
   else
   {
-    indexedTask.SetMultiplicity(uiMultiplicity);
-    ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(&indexedTask, ezTaskPriority::EarlyThisFrame);
+    ezAllocatorBase* pAllocator = (params.pTaskAllocator != nullptr) ? params.pTaskAllocator : ezFoundation::GetDefaultAllocator();
+
+    ezSharedPtr<IndexedTask> pIndexedTask = EZ_NEW(pAllocator, IndexedTask, uiStartIndex, uiNumItems, std::move(taskCallback), uiItemsPerInvocation);
+    pIndexedTask->ConfigureTask(taskName ? taskName : "Generic Indexed Task", ezTaskNesting::Never);
+
+    pIndexedTask->SetMultiplicity(uiMultiplicity);
+    ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(pIndexedTask, ezTaskPriority::EarlyThisFrame);
     ezTaskSystem::WaitForGroup(taskGroupId);
   }
 }

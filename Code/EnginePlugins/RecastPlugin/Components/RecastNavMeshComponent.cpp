@@ -194,9 +194,9 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
 
       auto& triangle = triangles.ExpandAndGetRef();
 
-      triangle.m_p0 = GetNavMeshVertex(pMesh, polyVtxIndices[0], vMeshOrigin, fCellSize, fCellHeight);
-      triangle.m_p2 = GetNavMeshVertex(pMesh, polyVtxIndices[j - 1], vMeshOrigin, fCellSize, fCellHeight);
-      triangle.m_p1 = GetNavMeshVertex(pMesh, polyVtxIndices[j], vMeshOrigin, fCellSize, fCellHeight);
+      triangle.m_position[0] = GetNavMeshVertex(pMesh, polyVtxIndices[0], vMeshOrigin, fCellSize, fCellHeight);
+      triangle.m_position[2] = GetNavMeshVertex(pMesh, polyVtxIndices[j - 1], vMeshOrigin, fCellSize, fCellHeight);
+      triangle.m_position[1] = GetNavMeshVertex(pMesh, polyVtxIndices[j], vMeshOrigin, fCellSize, fCellHeight);
     }
   }
 

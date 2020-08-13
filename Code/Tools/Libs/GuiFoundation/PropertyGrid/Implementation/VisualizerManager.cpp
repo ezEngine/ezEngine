@@ -26,7 +26,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezVisualizerManager::ezVisualizerManager()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::DocumentManagerEventHandler, this));
 }
@@ -101,7 +101,7 @@ void ezVisualizerManager::StructureEventHandler(const ezDocumentObjectStructureE
 
   if (!event.m_pDocument->GetSelectionManager()->IsSelectionEmpty() &&
       (event.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded ||
-       event.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved))
+        event.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved))
   {
     SendEventToRecreateVisualizers(event.m_pDocument);
   }

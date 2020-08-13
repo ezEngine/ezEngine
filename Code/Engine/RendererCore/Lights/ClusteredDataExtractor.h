@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Extractor.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/Pipeline/Extractor.h>
 
 struct ezPerLightData;
 struct ezPerDecalData;
@@ -10,8 +10,8 @@ struct ezPerClusterData;
 class ezClusteredDataCPU : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataCPU, ezRenderData);
-public:
 
+public:
   ezClusteredDataCPU();
   ~ezClusteredDataCPU();
 
@@ -39,12 +39,13 @@ public:
 class EZ_RENDERERCORE_DLL ezClusteredDataExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataExtractor, ezExtractor);
+
 public:
   ezClusteredDataExtractor(const char* szName = "ClusteredDataExtractor");
   ~ezClusteredDataExtractor();
 
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData& extractedRenderData) override;
+  virtual void PostSortAndBatch(
+    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 
 private:
   void FillItemListAndClusterData(ezClusteredDataCPU* pData);
@@ -65,4 +66,3 @@ private:
 
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;
 };
-

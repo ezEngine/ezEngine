@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
+#include <Foundation/Basics.h>
 
 class ezViewMarqueePickingResultMsgToEditor;
 class ezQtGameObjectDocumentWindow;
@@ -30,5 +30,3 @@ protected:
   ezUInt32 m_uiLastMarqueeActionID = 0;
   ezDeque<ezUuid> m_MarqueeBaseSelection;
 };
-
-

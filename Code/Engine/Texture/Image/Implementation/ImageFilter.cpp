@@ -8,12 +8,12 @@ ezSimdFloat ezImageFilter::GetWidth() const
 }
 
 ezImageFilter::ezImageFilter(float width)
-    : m_width(width)
+  : m_width(width)
 {
 }
 
 ezImageFilterBox::ezImageFilterBox(float width)
-    : ezImageFilter(width)
+  : ezImageFilter(width)
 {
 }
 
@@ -32,7 +32,7 @@ ezSimdFloat ezImageFilterBox::SamplePoint(const ezSimdFloat& x) const
 }
 
 ezImageFilterTriangle::ezImageFilterTriangle(float width)
-    : ezImageFilter(width)
+  : ezImageFilter(width)
 {
 }
 
@@ -89,9 +89,9 @@ static ezSimdFloat modifiedBessel0(const ezSimdFloat& x)
 }
 
 ezImageFilterSincWithKaiserWindow::ezImageFilterSincWithKaiserWindow(float width, float beta)
-    : ezImageFilter(width)
-    , m_beta(beta)
-    , m_invBesselBeta(1.0f / modifiedBessel0(m_beta))
+  : ezImageFilter(width)
+  , m_beta(beta)
+  , m_invBesselBeta(1.0f / modifiedBessel0(m_beta))
 {
 }
 
@@ -188,4 +188,3 @@ ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 dstSampleIndex, ezUInt32 we
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFilter);
-

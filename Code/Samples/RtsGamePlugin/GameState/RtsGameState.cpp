@@ -304,7 +304,10 @@ ezResult RtsGameState::ComputePickingRay()
 
   const auto& vp = pView->GetViewport();
 
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(pView->GetInverseViewProjectionMatrix(ezCameraEye::Left), (ezUInt32)vp.x, (ezUInt32)vp.y, (ezUInt32)vp.width, (ezUInt32)vp.height, ezVec3((float)m_MouseInputState.m_MousePos.x, (float)m_MouseInputState.m_MousePos.y, 0), m_vCurrentPickingRayStart, &m_vCurrentPickingRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(pView->GetInverseViewProjectionMatrix(ezCameraEye::Left), (ezUInt32)vp.x, (ezUInt32)vp.y,
+        (ezUInt32)vp.width, (ezUInt32)vp.height, ezVec3((float)m_MouseInputState.m_MousePos.x, (float)m_MouseInputState.m_MousePos.y, 0),
+        m_vCurrentPickingRayStart, &m_vCurrentPickingRayDir)
+        .Failed())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;
@@ -353,13 +356,14 @@ ezGameObject* RtsGameState::PickSelectableObject() const
   return pl.pBestObject;
 }
 
-
+// BEGIN-DOCS-CODE-SNIPPET: spatial-query
 void RtsGameState::InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const
 {
   ezBoundingSphere sphere(position.GetAsVec3(0), radius);
   ezUInt32 uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
   m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, uiCategoryBitmask, callback, nullptr);
 }
+// END-DOCS-CODE-SNIPPET
 
 ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)
 {

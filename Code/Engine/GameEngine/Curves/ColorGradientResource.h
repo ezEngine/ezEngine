@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Tracks/ColorGradient.h>
+#include <GameEngine/GameEngineDLL.h>
 
 struct EZ_GAMEENGINE_DLL ezColorGradientResourceDescriptor
 {
@@ -41,5 +41,3 @@ private:
 
   ezColorGradientResourceDescriptor m_Descriptor;
 };
-
-

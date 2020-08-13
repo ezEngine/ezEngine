@@ -95,8 +95,7 @@ void ezAnimatedMeshComponent::OnSimulationStarted()
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
     m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-      BufferDesc,
-      ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
+      BufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
   }
 
   m_AnimationClipSampler.RestartAnimation();
@@ -212,7 +211,7 @@ void ezAnimatedMeshComponent::CreatePhysicsShapes(const ezSkeletonResourceDescri
   if (pPhysicsInterface == nullptr)
     return;
 
-  //m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
+  // m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
 }
 
 //////////////////////////////////////////////////////////////////////////

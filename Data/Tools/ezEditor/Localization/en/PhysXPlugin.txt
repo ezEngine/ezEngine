@@ -2,30 +2,28 @@ PhysX.Settings.Project;PhysX Project Settings...
 Physics;Physics
 Joints;Joints
 Shapes;Shapes
-ezPxCenterOfMassComponent;Center of Mass
-ezPxCharacterControllerComponent;Character Controller
-ezPxCharacterProxyComponent;Character Proxy
-ezPxDynamicActorComponent;Dynamic Actor
-ezPxStaticActorComponent;Static Actor
-ezPx6DOFJointComponent;6DOF Joint
-ezPxDistanceJointComponent;Distance Joint
-ezPxFixedJointComponent;Fixed Joint
-ezPxShapeBoxComponent;Box Shape
-ezPxShapeSphereComponent;Sphere Shape
-ezPxShapeCapsuleComponent;Capsule Shape
-ezPxShapeConvexComponent;Convex Mesh Shape
+ezPxCenterOfMassComponent;PhysX Center of Mass
+ezPxCharacterControllerComponent;PhysX Character Controller
+ezPxDynamicActorComponent;PhysX Dynamic Actor
+ezPxStaticActorComponent;PhysX Static Actor
+ezPx6DOFJointComponent;PhysX 6DOF Joint
+ezPxDistanceJointComponent;PhysX Distance Joint
+ezPxFixedJointComponent;PhysX Fixed Joint
+ezPxShapeBoxComponent;PhysX Box Shape
+ezPxShapeSphereComponent;PhysX Sphere Shape
+ezPxShapeCapsuleComponent;PhysX Capsule Shape
+ezPxShapeConvexComponent;PhysX Convex Mesh Shape
 ezPxSettingsComponent;PhysX Settings
 ezPhysXComponent;PhysX Component
 ezPxActorComponent;PhysX Actor
 ezPxSteppingMode::Variable;Variable
 ezPxSteppingMode::Fixed;Fixed
 ezPxSteppingMode::SemiFixed;SemiFixed
-ezPxTriggerComponent;Trigger
-ezPxRaycastInteractComponent;Raycast Interaction
-ezPxVisColMeshComponent;Collision Mesh Visualization
+ezPxTriggerComponent;PhysX Trigger
+ezPxVisColMeshComponent;PhysX Collision Mesh Visualization
 CollisionMeshImport.TriangleMesh;Triangle Collision Mesh
 CollisionMeshImport.ConvexMesh;Convex Collision Mesh
-ezBreakableSheetComponent;Breakable Sheet
+ezBreakableSheetComponent;PhysX Breakable Sheet
 ezPxAxis::X;X
 ezPxAxis::Y;Y
 ezPxAxis::Z;Z
@@ -37,6 +35,14 @@ ezOnPhysXContact::SlideReactions;Slide Reactions
 ezOnPhysXContact::RollXReactions;Roll X Reactions
 ezOnPhysXContact::RollYReactions;Roll Y Reactions
 ezOnPhysXContact::RollZReactions;Roll Z Reactions
-ezPxPrismaticJointComponent;Prismatic Joint
-ezPxRevoluteJointComponent;Revolute Joint
-ezPxSphericalJointComponent;Spherical Joint
+ezPxPrismaticJointComponent;PhysX Prismatic Joint
+ezPxRevoluteJointComponent;PhysX Revolute Joint
+ezPxSphericalJointComponent;PhysX Spherical Joint
+ezPxJointLimitMode::NoLimit; No Limit
+ezPxJointLimitMode::HardLimit; Hard Limit
+ezPxJointLimitMode::SoftLimit; Soft Limit
+ezPxJointDriveMode::NoDrive;No Drive
+ezPxJointDriveMode::DriveAndSpin; Drive and Spin
+ezPxJointDriveMode::DriveAndBrake; Drive and Brake
+ezPxGrabObjectComponent;PhysX Grab Object
+ezPxCharacterCapsuleShapeComponent;PhysX Character Capsule Shape

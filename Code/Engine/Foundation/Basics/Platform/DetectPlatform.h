@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) || defined(_WIN32)
 #  undef EZ_PLATFORM_WINDOWS
 #  define EZ_PLATFORM_WINDOWS EZ_ON
 
@@ -19,8 +19,8 @@
 
 #elif defined(ANDROID)
 
-#undef EZ_PLATFORM_ANDROID
-#define EZ_PLATFORM_ANDROID EZ_ON
+#  undef EZ_PLATFORM_ANDROID
+#  define EZ_PLATFORM_ANDROID EZ_ON
 
 #elif defined(__linux)
 
@@ -33,4 +33,3 @@
 #else
 #  error "Unknown Platform."
 #endif
-

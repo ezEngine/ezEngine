@@ -11,6 +11,11 @@ ezString ezQtSettingsTab::GetWindowIcon() const
   return ":/GuiFoundation/Icons/ezEditor16.png";
 }
 
+ezString ezQtSettingsTab::GetDisplayNameShort() const
+{
+  return "";
+}
+
 void ezQtEditorApp::ShowSettingsDocument()
 {
   ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
@@ -34,8 +39,8 @@ void ezQtEditorApp::CloseSettingsDocument()
 }
 
 ezQtSettingsTab::ezQtSettingsTab()
-    : ezQtDocumentWindow("Settings")
-    , m_SingletonRegistrar(this)
+  : ezQtDocumentWindow("Settings")
+  , m_SingletonRegistrar(this)
 {
   setCentralWidget(new QWidget());
   EZ_ASSERT_DEV(centralWidget() != nullptr, "");
@@ -50,8 +55,6 @@ ezQtSettingsTab::ezQtSettingsTab()
   pMenuBar->SetActionContext(context);
 
   FinishWindowCreation();
-
-  WhatsNewText->setText(ezQtEditorApp::GetSingleton()->GetWhatsNew().GetText().GetData());
 }
 
 ezQtSettingsTab::~ezQtSettingsTab() = default;
@@ -67,4 +70,3 @@ void ezQtSettingsTab::InternalCloseDocumentWindow()
   // make sure this instance isn't used anymore
   UnregisterSingleton();
 }
-

@@ -2,8 +2,8 @@
 
 #include <EditorPluginFileserve/EditorPluginFileserveDLL.h>
 #include <EditorPluginFileserve/ui_FileserveWidget.h>
-#include <Foundation/Time/Time.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Time/Time.h>
 #include <QWidget>
 
 struct ezFileserverEvent;
@@ -19,7 +19,7 @@ class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveWidget : public QWidget, public 
   Q_OBJECT
 
 public:
-  ezQtFileserveWidget(QWidget *parent = nullptr);
+  ezQtFileserveWidget(QWidget* parent = nullptr);
 
   void FindOwnIP(ezStringBuilder& out_Display, ezHybridArray<ezStringBuilder, 4>* out_AllIPs = nullptr);
 
@@ -70,4 +70,3 @@ private:
   void UpdateClientList();
   void ConfigureSpecialDirectories();
 };
-

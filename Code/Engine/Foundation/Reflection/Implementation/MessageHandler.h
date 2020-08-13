@@ -24,10 +24,11 @@ public:
   EZ_ALWAYS_INLINE bool IsConst() const { return m_bIsConst; }
 
 protected:
-  typedef void (*DispatchFunc)(void*, ezMessage&);
-  typedef void (*ConstDispatchFunc)(const void*, ezMessage&);
+  using DispatchFunc = void (*)(void*, ezMessage&);
+  using ConstDispatchFunc = void (*)(const void*, ezMessage&);
 
-  union {
+  union
+  {
     DispatchFunc m_DispatchFunc;
     ConstDispatchFunc m_ConstDispatchFunc;
   };
@@ -94,8 +95,7 @@ namespace ezInternal
       }
     };
   };
-}
+} // namespace ezInternal
 
-#define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method)                                                                            \
+#define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method)                                                                                      \
   (sizeof(ezInternal::MessageHandlerTraits<Class, MessageType>::IsConst(Method)) == sizeof(ezCompileTimeTrueType))
-

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QDialog>
 #include <EditorFramework/ui_WindowCfgDlg.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
+#include <QDialog>
 #include <System/Window/Window.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtWindowCfgDlg : public QDialog, public Ui_ezQtWindowCfgDlg
@@ -15,7 +15,7 @@ public:
   ezQtWindowCfgDlg(QWidget* parent);
 
 private Q_SLOTS:
-  void on_m_ButtonBox_clicked(QAbstractButton * button);
+  void on_m_ButtonBox_clicked(QAbstractButton* button);
   void on_m_ComboWnd_currentIndexChanged(int index);
   void on_m_CheckOverrideDefault_stateChanged(int state);
 
@@ -30,5 +30,3 @@ private:
   ezWindowCreationDesc m_Descs[2];
   bool m_bOverrideProjectDefault[2];
 };
-
-

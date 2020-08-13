@@ -35,4 +35,4 @@ namespace ezProcGenInternal
 
     ezExpressionVM m_VM;
   };
-} // namespace ezPPInternal
+} // namespace ezProcGenInternal

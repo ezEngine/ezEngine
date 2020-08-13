@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Reflection/PropertyPath.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 
 /// \brief An object change starts at the heap object m_Root (because we can only safely store pointers to those).
@@ -14,18 +14,18 @@
 class EZ_TOOLSFOUNDATION_DLL ezObjectChange
 {
 public:
-  ezObjectChange(){}
-  ezObjectChange(const ezObjectChange &);
-  ezObjectChange(ezObjectChange && rhs );
+  ezObjectChange() {}
+  ezObjectChange(const ezObjectChange&);
+  ezObjectChange(ezObjectChange&& rhs);
   void operator=(ezObjectChange&& rhs);
   void operator=(ezObjectChange& rhs);
   void GetGraph(ezAbstractObjectGraph& graph) const;
   void SetGraph(ezAbstractObjectGraph& graph);
 
-  ezUuid m_Root; //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
+  ezUuid m_Root;                                //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
   ezHybridArray<ezPropertyPathStep, 2> m_Steps; //< Path from root to target of change.
-  ezDiffOperation m_Change; //< Change at the target.
-  ezDataBuffer m_GraphData; //< In case of ObjectAdded, this holds the binary serialized object graph.
+  ezDiffOperation m_Change;                     //< Change at the target.
+  ezDataBuffer m_GraphData;                     //< In case of ObjectAdded, this holds the binary serialized object graph.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChange);
 

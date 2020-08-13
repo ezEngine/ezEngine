@@ -49,7 +49,7 @@ public:
   float GetWidth() const;      // [ property ]
 
   void SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit); // [ property ]
-  float GetUVUnitsPerWorldUnit() const;          // [ property ]
+  float GetUVUnitsPerWorldUnit() const;                    // [ property ]
 
   void SetMaterialFile(const char* szFile); // [ property ]
   const char* GetMaterialFile() const;      // [ property ]
@@ -61,12 +61,11 @@ public:
   ezColor m_Color; // [ property ]
 
 protected:
-
   void Update();
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  float m_fWidth = 0.1f; // [ property ]
+  float m_fWidth = 0.1f;               // [ property ]
   float m_fUVUnitsPerWorldUnit = 1.0f; // [ property ]
 
   ezMaterialResourceHandle m_hMaterial; // [ property ]

@@ -8,13 +8,11 @@ struct ID3D11Resource;
 class ezGALTextureDX11 : public ezGALTexture
 {
 public:
-
   EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
 
   EZ_ALWAYS_INLINE ID3D11Resource* GetDXStagingTexture() const;
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
@@ -24,6 +22,7 @@ protected:
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual ezResult ReplaceExisitingNativeObject(void* pExisitingNativeObject) override;
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
@@ -33,6 +32,7 @@ protected:
 
   ID3D11Resource* m_pDXStagingTexture;
 
+  void* m_pExisitingNativeObject = nullptr;
 };
 
 #include <RendererDX11/Resources/Implementation/TextureDX11_inl.h>

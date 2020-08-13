@@ -15,8 +15,8 @@ class ezLogInterface;
 /// - Binary mathematical operators: * / - +
 /// - Unary mathematical operators: - +
 /// - Parenthesis: ( )
-/// - Variables consisting of an arbitrary chain of: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 (s_szValidVariableCharacters) but mustn't start with a number.
-/// Hard-coded to double.
+/// - Variables consisting of an arbitrary chain of: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 (s_szValidVariableCharacters) but
+/// mustn't start with a number. Hard-coded to double.
 class EZ_FOUNDATION_DLL ezMathExpression
 {
 public:

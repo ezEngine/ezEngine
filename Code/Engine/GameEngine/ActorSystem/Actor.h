@@ -2,8 +2,8 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-#include <GameEngine/ActorSystem/ActorPlugin.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/ActorSystem/ActorPlugin.h>
 
 struct ezActorImpl;
 
@@ -45,7 +45,7 @@ public:
 protected:
   void UpdateAllPlugins();
 
- 
+
 protected: // directly touched by ezActorManager
   friend class ezActorManager;
 
@@ -58,7 +58,6 @@ protected: // directly touched by ezActorManager
   virtual void Update();
 
 private: // directly touched by ezActorManager
-
   enum class State
   {
     New,

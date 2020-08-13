@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextActions
 {
@@ -24,7 +24,6 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectContextAction, ezButtonAction);
 
 public:
-
   enum class ActionType
   {
     PickContextScene,
@@ -42,9 +41,4 @@ private:
   void Update();
 
   ActionType m_Type;
-
 };
-
-
-
-

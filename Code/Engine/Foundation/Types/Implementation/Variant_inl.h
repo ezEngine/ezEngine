@@ -1,9 +1,14 @@
 
+#define EZ_MSVC_WARNING_NUMBER 4702 // Unreachable code for some reason
+#include <Foundation/Basics/Compiler/DisableWarning.h>
+
 EZ_ALWAYS_INLINE ezVariant::ezVariant()
 {
   m_Type = Type::Invalid;
   m_bIsShared = false;
 }
+
+#include <Foundation/Basics/Compiler/RestoreWarning.h>
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
 {
@@ -535,8 +540,7 @@ EZ_FORCE_INLINE T& ezVariant::Cast()
   const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
   EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
 
-  return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ? *static_cast<T*>(m_Data.shared->m_Ptr)
-                                                                      : *reinterpret_cast<T*>(&m_Data);
+  return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ? *static_cast<T*>(m_Data.shared->m_Ptr) : *reinterpret_cast<T*>(&m_Data);
 }
 
 template <typename T>
@@ -558,6 +562,21 @@ EZ_ALWAYS_INLINE bool ezVariant::IsNumberStatic(ezUInt32 type)
 EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPointStatic(ezUInt32 type)
 {
   return type == Type::Float || type == Type::Double;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsVector2Static(ezUInt32 type)
+{
+  return type == Type::Vector2 || type == Type::Vector2I || type == Type::Vector2U;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsVector3Static(ezUInt32 type)
+{
+  return type == Type::Vector3 || type == Type::Vector3I || type == Type::Vector3U;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsVector4Static(ezUInt32 type)
+{
+  return type == Type::Vector4 || type == Type::Vector4I || type == Type::Vector4U;
 }
 
 template <typename T>

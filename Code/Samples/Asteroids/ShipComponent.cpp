@@ -1,11 +1,11 @@
-#include "Level.h"
 #include "ShipComponent.h"
-#include "ProjectileComponent.h"
 #include "CollidableComponent.h"
-#include <XboxControllerPlugin/InputDeviceXBox.h>
+#include "Level.h"
+#include "ProjectileComponent.h"
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <Foundation/Configuration/CVar.h>
+#include <XBoxControllerPlugin/InputDeviceXBox.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1, ezComponentMode::Dynamic);
@@ -40,8 +40,8 @@ void ShipComponent::SetVelocity(const ezVec3& vVel)
 
 void ShipComponent::SetIsShooting(bool b)
 {
-  //ezInputDeviceXBox360::GetDevice()->SetVibrationStrength(m_iPlayerIndex, 0, b ? 1.0f : 0.0f);
-  //ezInputDeviceXBox360::GetDevice()->SetVibrationStrength(m_iPlayerIndex, 1, b ? 1.0f : 0.0f);
+  // ezInputDeviceXBox360::GetDevice()->SetVibrationStrength(m_iPlayerIndex, 0, b ? 1.0f : 0.0f);
+  // ezInputDeviceXBox360::GetDevice()->SetVibrationStrength(m_iPlayerIndex, 1, b ? 1.0f : 0.0f);
 
   m_bIsShooting = b;
 
@@ -133,11 +133,7 @@ void ShipComponent::Update()
 
     m_fAmmunition -= CVar_ProjectileAmmoPerShot;
 
-    float ShootTrack[20] =
-    {
-      1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
-    };
+    float ShootTrack[20] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
     ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(m_iPlayerIndex, ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
   }

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
-#include <QModelIndex>
-#include <QLineEdit>
 #include <EditorFramework/PropertyGrid/QtAssetLineEdit.moc.h>
+#include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
+#include <QLineEdit>
+#include <QModelIndex>
 
 
 /// *** Asset Browser ***
@@ -26,13 +26,13 @@ protected slots:
   void on_TextChanged_triggered(const QString& value);
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
   void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
-  void on_customContextMenuRequested(const QPoint& pt);
   void OnOpenAssetDocument();
   void OnSelectInAssetBrowser();
   void OnOpenExplorer();
   void OnCopyAssetGuid();
   void OnCreateNewAsset();
   void OnClearReference();
+  void OnShowMenu();
 
 protected:
   virtual void OnInit() override;

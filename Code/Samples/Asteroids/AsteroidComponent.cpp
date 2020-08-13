@@ -1,19 +1,17 @@
-#include "Level.h"
 #include "AsteroidComponent.h"
+#include "Level.h"
 #include "ShipComponent.h"
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Time/Clock.h>
 
-EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1, ezComponentMode::Dynamic)
+  ;
 EZ_END_COMPONENT_TYPE
 
 ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "The radius at which an asteroid pushes ships away.");
 ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "The strength with which an asteroid pushes a ship away.");
 
-AsteroidComponent::AsteroidComponent()
-{
-
-}
+AsteroidComponent::AsteroidComponent() {}
 
 void AsteroidComponent::OnSimulationStarted()
 {
@@ -49,7 +47,6 @@ void AsteroidComponent::Update()
     const float fScaledFactor = ezMath::Pow(fFactor, 2.0f);
     const ezVec3 vPull = vDir * fScaledFactor;
 
-    Ship.SetVelocity(vPull * (float) CVar_AsteroidPush);
-
+    Ship.SetVelocity(vPull * (float)CVar_AsteroidPush);
   }
 }

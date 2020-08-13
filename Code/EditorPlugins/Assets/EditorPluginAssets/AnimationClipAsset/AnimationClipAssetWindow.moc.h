@@ -15,7 +15,7 @@ public:
   ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument);
 
   ezAnimationClipAssetDocument* GetAnimationClipDocument();
-  virtual const char* GetWindowLayoutGroupName() const { return "AnimationClipAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "AnimationClipAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

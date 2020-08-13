@@ -10,6 +10,11 @@
 /// analysis happy.
 #define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
+/// \brief Use this helper macro to easily mute all logging in a scope.
+#define EZ_LOG_BLOCK_MUTE()                                                                                                                          \
+  ezMuteLog EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE);                                                                                               \
+  ezLogSystemScope EZ_CONCAT(_logscope_, EZ_SOURCE_LINE)(&EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE))
+
 // Forward declaration, class is at the end of this file
 class ezLogBlock;
 
@@ -17,7 +22,7 @@ class ezLogBlock;
 /// \brief Describes the types of events that ezLog sends.
 struct EZ_FOUNDATION_DLL ezLogMsgType
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum : ezInt8
   {
@@ -60,7 +65,7 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
 #endif
 };
 
-typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
+using ezLoggingEvent = ezEvent<const ezLoggingEventData&, ezMutex>;
 
 /// \brief Base class for all logging classes.
 ///
@@ -87,6 +92,16 @@ private:
   ezUInt32 m_uiLoggedMsgsSinceFlush = 0;
   ezTime m_LastFlushTime;
 };
+
+
+/// \brief Used to ignore all log messages.
+/// \sa EZ_LOG_BLOCK_MUTE
+class ezMuteLog : public ezLogInterface
+{
+public:
+  virtual void HandleLogMessage(const ezLoggingEventData&) override {}
+};
+
 
 /// \brief This is the standard log system that ezLog sends all messages to.
 ///
@@ -130,7 +145,7 @@ private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGlobalLog);
 
   friend class ezLog; // only ezLog may create instances of this class
-  ezGlobalLog() {}
+  ezGlobalLog() = default;
 };
 
 /// \brief Static class that allows to write out logging information.
@@ -301,7 +316,8 @@ public:
   /// However, a flush is always ignored if not a single message was logged in between.
   ///
   /// \return Returns true if the flush is executed.
-  static bool Flush(ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::Seconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
+  static bool Flush(
+    ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::Seconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
 
   /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
   /// pInterface must be != nullptr.
@@ -314,7 +330,7 @@ public:
   /// This function flushes the output immediately, to ensure output is never lost during a crash. Consequently it has a high performance
   /// overhead.
   static void Print(const char* szText);
-  
+
   /// \brief Calls low-level OS functionality to print a string to the typical outputs. Forwards to Print.
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
   /// \sa ezLog::Print

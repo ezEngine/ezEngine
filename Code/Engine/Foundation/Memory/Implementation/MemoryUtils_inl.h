@@ -1,6 +1,6 @@
 
-#define EZ_CHECK_CLASS(T)                                                                                                                  \
-  EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value,                                                                                  \
+#define EZ_CHECK_CLASS(T)                                                                                                                            \
+  EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value,                                                                                            \
     "POD type is treated as class. Use EZ_DECLARE_POD_TYPE(YourClass) or EZ_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.")
 
 // public methods: redirect to implementation
@@ -98,8 +98,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(
-    pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
   RelocateConstruct(pDestination, pSource, uiCount, ezGetTypeClass<T>());
 }
 
@@ -123,8 +122,8 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::RawByteCopy(void* pDestination, const void*
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination,
-    "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
+  EZ_ASSERT_DEV(
+    pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
   Copy(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 

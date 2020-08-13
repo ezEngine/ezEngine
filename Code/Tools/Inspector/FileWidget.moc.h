@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Inspector/ui_FileWidget.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
+#include <Inspector/ui_FileWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtFileWidget : public ads::CDockWidget, public Ui_FileWidget
@@ -80,5 +80,3 @@ private:
   bool m_bUpdateTable;
   ezHashTable<ezUInt32, FileOpData> m_FileOps;
 };
-
-

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/EditTools/EditTool.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Gizmos/DrawBoxGizmo.h>
 
 struct ezGameObjectEvent;
@@ -15,7 +15,7 @@ public:
   ezGreyBoxEditTool();
   ~ezGreyBoxEditTool();
 
-  virtual ezEditorInputContext* GetEditorInputContextOverride();
+  virtual ezEditorInputContext* GetEditorInputContextOverride() override;
   virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override;
   virtual bool GetSupportsMoveParentOnly() const override;
   virtual void GetGridSettings(ezGridSettingsMsgToEngine& outGridSettings) override;
@@ -32,4 +32,3 @@ private:
 
   ezDrawBoxGizmo m_DrawBoxGizmo;
 };
-

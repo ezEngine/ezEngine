@@ -7,7 +7,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezDecalViewContext::ezDecalViewContext(ezDecalContext* pDecalContext)
-    : ezEngineProcessViewContext(pDecalContext)
+  : ezEngineProcessViewContext(pDecalContext)
 {
   m_pDecalContext = pDecalContext;
 }

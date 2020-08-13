@@ -2,10 +2,10 @@
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
-#include <WindowsMixedReality/Basics.h>
-#include <Core/Input/DeviceTypes/Controller.h>
-#include <Foundation/Configuration/Singleton.h>
-#include <Foundation/Types/UniquePtr.h>
+#  include <Core/Input/DeviceTypes/Controller.h>
+#  include <Foundation/Configuration/Singleton.h>
+#  include <Foundation/Types/UniquePtr.h>
+#  include <WindowsMixedReality/Basics.h>
 
 class ezCamera;
 struct ezGameApplicationEvent;
@@ -34,14 +34,15 @@ public:
   ///
   /// The holographic space requires a window but also determines the DXGI adapter from which we need to create our DX11 device.
   /// Historically we first create a device and *then* the window.
-  /// However, since in a VR/AR application we have only a single window anyway and UWP does always have a main window, we can just query that one and don't need to fiddle with our init order.
-  /// (as of writing our UWP window implementation actually doesn't support more than this one preexisting window
+  /// However, since in a VR/AR application we have only a single window anyway and UWP does always have a main window, we can just query that one and
+  /// don't need to fiddle with our init order. (as of writing our UWP window implementation actually doesn't support more than this one preexisting
+  /// window
   ezResult InitForMainCoreWindow();
 
   /// whether VR/MR headsets are supported at all.
   ///
-  /// True for all x64 Windows beyond Creator's Update if the headset was setup already. 
-  //bool IsSupported() const;
+  /// True for all x64 Windows beyond Creator's Update if the headset was setup already.
+  // bool IsSupported() const;
 
   /// \brief whether a headset is ready for rendering.
   ///
@@ -73,7 +74,6 @@ public:
 
   // Cameras
 public:
-
   /// \brief Gets list of all cameras.
   ezArrayPtr<ezWindowsMixedRealityCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
 
@@ -89,7 +89,6 @@ public:
 
   // Internal
 public:
-
   /// \brief Called by holographic device.
   ///
   /// Applies deferred camera add/remove and updates camera poses.
@@ -99,7 +98,6 @@ public:
   ABI::Windows::Graphics::Holographic::IHolographicSpace* GetInternalHolographicSpace() { return m_pHolographicSpace.Get(); }
 
 private:
-
   //
   // Initialization
   //
@@ -125,8 +123,10 @@ private:
   ezResult UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame);
 
   // Callbacks for camera add/remove
-  HRESULT OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args);
-  HRESULT OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args);
+  HRESULT OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace,
+    ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args);
+  HRESULT OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace,
+    ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args);
 
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;

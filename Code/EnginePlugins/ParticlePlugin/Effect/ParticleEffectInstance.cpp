@@ -16,10 +16,11 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
-  : m_Task(this)
 {
+  m_pTask = EZ_DEFAULT_NEW(ezParticleEffectUpdateTask, this);
+  m_pTask->ConfigureTask("Particle Effect Update", ezTaskNesting::Maybe);
+
   m_pOwnerModule = nullptr;
-  m_Task.ConfigureTask("Particle Effect Update", ezTaskNesting::Maybe);
 
   Destruct();
 }
@@ -29,9 +30,8 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
   Destruct();
 }
 
-void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource,
-  ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
-  ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
+  ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
   ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_hEffectHandle = hEffectHandle;
@@ -244,7 +244,8 @@ bool ezParticleEffectInstance::IsVisible() const
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void ezParticleEffectInstance::Reconfigure(
+  bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   if (!m_hResource.IsValid())
   {
@@ -341,8 +342,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
       const ezTime tLifetime = systems[i]->GetAvgLifetime();
 
-      const ezUInt32 uiMaxParticles =
-        ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
+      const ezUInt32 uiMaxParticles = ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
 
       float fMultiplier = 1.0f;
 
@@ -709,13 +709,13 @@ void ezParticleEffectInstance::ProcessEventQueues()
   m_EventQueue.Clear();
 }
 
-ezParticleffectUpdateTask::ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect)
+ezParticleEffectUpdateTask::ezParticleEffectUpdateTask(ezParticleEffectInstance* pEffect)
 {
   m_pEffect = pEffect;
   m_UpdateDiff.SetZero();
 }
 
-void ezParticleffectUpdateTask::Execute()
+void ezParticleEffectUpdateTask::Execute()
 {
   if (HasBeenCanceled())
     return;
@@ -787,7 +787,7 @@ ezInt32 ezParticleEffectInstance::FindFloatParameter(const ezTempHashedString& n
 
 float ezParticleEffectInstance::GetFloatParameter(const ezTempHashedString& name, float defaultValue) const
 {
-  if (name.GetHash() == 0)
+  if (name.IsEmpty())
     return defaultValue;
 
   for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
@@ -812,7 +812,7 @@ ezInt32 ezParticleEffectInstance::FindColorParameter(const ezTempHashedString& n
 
 const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedString& name, const ezColor& defaultValue) const
 {
-  if (name.GetHash() == 0)
+  if (name.IsEmpty())
     return defaultValue;
 
   for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)

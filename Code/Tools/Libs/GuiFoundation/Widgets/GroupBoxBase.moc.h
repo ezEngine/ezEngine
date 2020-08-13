@@ -1,8 +1,8 @@
 #pragma once
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <QWidget>
 #include <QIcon>
+#include <QWidget>
 
 class QMimeData;
 
@@ -59,5 +59,3 @@ protected:
   QString m_sTitle;
   QIcon m_Icon;
 };
-
-

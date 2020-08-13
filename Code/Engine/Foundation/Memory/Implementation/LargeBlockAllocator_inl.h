@@ -43,8 +43,7 @@ EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) con
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <ezUInt32 BlockSize>
-ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent,
-  ezBitflags<ezMemoryTrackingFlags> flags)
+ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags)
   : m_TrackingFlags(flags)
   , m_superBlocks(pParent)
   , m_freeBlocks(pParent)
@@ -84,8 +83,8 @@ EZ_FORCE_INLINE ezDataBlock<T, BlockSize> ezLargeBlockAllocator<BlockSize>::Allo
     };
   };
 
-  EZ_CHECK_AT_COMPILETIME_MSG(Helper::BLOCK_CAPACITY >= 1,
-    "Type is too big for block allocation. Consider using regular heap allocation instead or increase the block size.");
+  EZ_CHECK_AT_COMPILETIME_MSG(
+    Helper::BLOCK_CAPACITY >= 1, "Type is too big for block allocation. Consider using regular heap allocation instead or increase the block size.");
 
   ezDataBlock<T, BlockSize> block(static_cast<T*>(Allocate(EZ_ALIGNMENT_OF(T))), 0);
   return block;
@@ -229,4 +228,3 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
     m_freeBlocks.PushBack(uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + uiInnerBlockIndex);
   }
 }
-

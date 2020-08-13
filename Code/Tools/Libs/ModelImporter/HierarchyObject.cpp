@@ -11,4 +11,4 @@ namespace ezModelImporter
   }
 
   bool ObjectHandle::operator==(const ObjectHandle& rhs) const { return m_Type == rhs.m_Type && m_Id == rhs.m_Id; }
-}
+} // namespace ezModelImporter

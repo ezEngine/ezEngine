@@ -12,14 +12,14 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 #define ezCVarValueRestart ezCVarValue::Restart
 
 // Interestingly using 'ezCVarValue::Default' directly inside a macro does not work. (?!)
-#define CHECK_CVAR(var, Current, Default, Stored, Restart)                                                                                 \
-  EZ_TEST_BOOL(var != nullptr);                                                                                                            \
-  if (var != nullptr)                                                                                                                      \
-  {                                                                                                                                        \
-    EZ_TEST_BOOL(var->GetValue() == Current);                                                                                              \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default);                                                                            \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);                                                                              \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart);                                                                            \
+#define CHECK_CVAR(var, Current, Default, Stored, Restart)                                                                                           \
+  EZ_TEST_BOOL(var != nullptr);                                                                                                                      \
+  if (var != nullptr)                                                                                                                                \
+  {                                                                                                                                                  \
+    EZ_TEST_BOOL(var->GetValue() == Current);                                                                                                        \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default);                                                                                      \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);                                                                                        \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart);                                                                                      \
   }
 
 static ezInt32 iChangedValue = 0;
@@ -36,6 +36,8 @@ static void ChangedCVar(const ezCVarEvent& e)
       break;
     case ezCVarEvent::RestartValueChanged:
       ++iChangedRestart;
+      break;
+    default:
       break;
   }
 }

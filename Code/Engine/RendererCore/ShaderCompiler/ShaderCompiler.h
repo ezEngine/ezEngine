@@ -64,8 +64,8 @@ public:
 class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
-  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars,
-                                                ezLogInterface* pLog, const char* szPlatform = "ALL");
+  ezResult CompileShaderPermutationForPlatforms(
+    const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, const char* szPlatform = "ALL");
 
 private:
   ezResult RunShaderCompiler(const char* szFile, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog);
@@ -92,4 +92,3 @@ private:
 
   ezSet<ezString> m_IncludeFiles;
 };
-

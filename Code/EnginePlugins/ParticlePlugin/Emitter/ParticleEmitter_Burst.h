@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Burst final : public ezParticleEmitterFactory
 {
@@ -32,8 +32,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Burst final : public ezParticleEmi
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Burst, ezParticleEmitter);
 
 public:
-
-  ezTime m_Duration; // overall duration in which the emitter is considered active, 0 for single frame
+  ezTime m_Duration;   // overall duration in which the emitter is considered active, 0 for single frame
   ezTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
 
   ezUInt32 m_uiSpawnCountMin;

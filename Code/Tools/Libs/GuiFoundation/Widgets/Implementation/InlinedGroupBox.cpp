@@ -7,7 +7,7 @@
 #include <QStyleOptionToolButton>
 
 ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent)
-    : ezQtGroupBoxBase(pParent, false)
+  : ezQtGroupBoxBase(pParent, false)
 {
   QHBoxLayout* pRootLayout = new QHBoxLayout(this);
   pRootLayout->setContentsMargins(0, 1, 0, 1);

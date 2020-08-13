@@ -1,17 +1,17 @@
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Strings/PathUtils.h>
-#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Logging/Log.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
-#include <Foundation/Application/Application.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Strings/PathUtils.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 /* When statically linking libraries into an application the linker will only pull in all the functions and variables that are inside
 translation units (CPP files) that somehow get referenced.
@@ -57,10 +57,7 @@ private:
 
   struct FileContent
   {
-    FileContent()
-    {
-      m_bFileHasChanged = false;
-    }
+    FileContent() { m_bFileHasChanged = false; }
 
     bool m_bFileHasChanged;
     ezString m_sFileContent;
@@ -90,22 +87,22 @@ public:
   /// Makes sure the apps return value reflects whether there were any errors or warnings
   static void LogInspector(const ezLoggingEventData& eventData)
   {
-    ezStaticLinkerApp* app = (ezStaticLinkerApp*) ezApplication::GetApplicationInstance();
+    ezStaticLinkerApp* app = (ezStaticLinkerApp*)ezApplication::GetApplicationInstance();
 
     switch (eventData.m_EventType)
     {
-    case ezLogMsgType::ErrorMsg:
-      app->m_bHadErrors = true;
-      break;
-    case ezLogMsgType::SeriousWarningMsg:
-      app->m_bHadSeriousWarnings = true;
-      break;
-    case ezLogMsgType::WarningMsg:
-      app->m_bHadWarnings = true;
-      break;
+      case ezLogMsgType::ErrorMsg:
+        app->m_bHadErrors = true;
+        break;
+      case ezLogMsgType::SeriousWarningMsg:
+        app->m_bHadSeriousWarnings = true;
+        break;
+      case ezLogMsgType::WarningMsg:
+        app->m_bHadWarnings = true;
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -138,7 +135,8 @@ public:
   virtual void BeforeCoreSystemsShutdown() override
   {
     if ((m_bHadSeriousWarnings || m_bHadErrors) && m_bModifiedFiles)
-      ezLog::SeriousWarning("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
+      ezLog::SeriousWarning(
+        "There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
     else if (m_bHadWarnings || m_bHadSeriousWarnings || m_bHadErrors)
     {
       ezLog::Warning("There have been errors or warnings, see log for details.");
@@ -147,20 +145,20 @@ public:
     if (m_bModifiedFiles)
     {
       if (m_bHadErrors || m_bHadSeriousWarnings)
-        SetReturnCode(3);     // Errors or Serious Warnings, yet files modified, this is unusual, requires reverting the source from outside.
+        SetReturnCode(3); // Errors or Serious Warnings, yet files modified, this is unusual, requires reverting the source from outside.
       else if (m_bHadWarnings)
-        SetReturnCode(2);     // Warnings, files still modified. (normal operation)
+        SetReturnCode(2); // Warnings, files still modified. (normal operation)
       else
-        SetReturnCode(1);     // No issues, files modified. (normal operation)
+        SetReturnCode(1); // No issues, files modified. (normal operation)
     }
     else
     {
       if (m_bHadErrors || m_bHadSeriousWarnings)
-        SetReturnCode(-3);    // Errors or serious warnings, no files modified (but might need to be), user needs to look at it.
+        SetReturnCode(-3); // Errors or serious warnings, no files modified (but might need to be), user needs to look at it.
       else if (m_bHadWarnings)
-        SetReturnCode(-2);    // Warnings, but no files were modified anyway, user should look at it though. (normal operation)
+        SetReturnCode(-2); // Warnings, but no files were modified anyway, user should look at it though. (normal operation)
       else
-        SetReturnCode(-1);     // No issues, no file modifications, everything is up to date apparently. (normal operation)
+        SetReturnCode(-1); // No issues, no file modifications, everything is up to date apparently. (normal operation)
     }
 
     // Return Codes:
@@ -218,20 +216,22 @@ public:
 
     while (uiRead > 0)
     {
-      FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32) uiRead));
+      FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
 
       uiRead = File.ReadBytes(Temp, 1024);
     }
 
     FileContent.PushBack(0);
 
-    if (!ezUnicodeUtils::IsValidUtf8((const char*) &FileContent[0]))
+    if (!ezUnicodeUtils::IsValidUtf8((const char*)&FileContent[0]))
     {
-      ezLog::Error("The file \"{0}\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor that does not save the file in Utf8 encoding.", szFile);
+      ezLog::Error("The file \"{0}\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor "
+                   "that does not save the file in Utf8 encoding.",
+        szFile);
       return EZ_FAILURE;
     }
 
-    sOut = (const char*) &FileContent[0];
+    sOut = (const char*)&FileContent[0];
 
     m_ModifiedFiles[szFile].m_sFileContent = sOut;
 
@@ -646,8 +646,7 @@ public:
           InsertRefPoint(b.GetData());
           continue;
         }
-      }
-      while (it.Next() == EZ_SUCCESS);
+      } while (it.Next() == EZ_SUCCESS);
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
@@ -684,7 +683,8 @@ public:
       ezLog::Warning("No EZ_STATICLINK_LIBRARY found in any cpp file, inserting it into the PCH.cpp file.");
     }
     else
-      ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
+      ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one "
+                   "file, otherwise the generated code will not compile.");
   }
 
   void GatherInformation()
@@ -725,13 +725,14 @@ public:
             ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '{0}'.", &sFile[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
-              ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile);
+              ezLog::Error(
+                "The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!",
+                m_sRefPointGroupFile);
             else
               m_sRefPointGroupFile = sFile;
           }
         }
-      }
-      while (it.Next() == EZ_SUCCESS);
+      } while (it.Next() == EZ_SUCCESS);
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
@@ -753,7 +754,7 @@ public:
 
     UpdateStaticLinkLibraryBlock();
 
-    //RewritePrecompiledHeaderIncludes();
+    // RewritePrecompiledHeaderIncludes();
 
     OverwriteModifiedFiles();
 

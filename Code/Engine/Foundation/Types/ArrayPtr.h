@@ -6,6 +6,7 @@
 
 // This #include is quite vital, do not remove it!
 #include <Foundation/Strings/FormatString.h>
+
 #include <Foundation/Math/Math.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
@@ -18,13 +19,13 @@ namespace ezArrayPtrDetail
   template <typename U>
   struct ByteTypeHelper
   {
-    typedef ezUInt8 type;
+    using type = ezUInt8;
   };
 
   template <typename U>
   struct ByteTypeHelper<const U>
   {
-    typedef const ezUInt8 type;
+    using type = const ezUInt8;
   };
 } // namespace ezArrayPtrDetail
 
@@ -146,7 +147,8 @@ public:
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
+    // the first check is necessary to also detect errors when uiStart+uiCount would overflow
+    EZ_ASSERT_DEV(uiStart <= GetCount() && uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
       uiStart + uiCount, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
@@ -166,10 +168,7 @@ public:
   }
 
   /// \brief Reinterprets this array as a byte array.
-  EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray()
-  {
-    return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
-  }
+  EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray() { return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T)); }
 
 
   /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
@@ -223,8 +222,8 @@ public:
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {
-    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(),
-      other.GetCount());
+    EZ_ASSERT_DEV(
+      GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
 
     ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
@@ -235,10 +234,10 @@ public:
     ::ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
-  typedef const T* const_iterator;
-  typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
-  typedef T* iterator;
-  typedef reverse_pointer_iterator<T> reverse_iterator;
+  using const_iterator = const T*;
+  using const_reverse_iterator = const_reverse_pointer_iterator<T>;
+  using iterator = T*;
+  using reverse_iterator = reverse_pointer_iterator<T>;
 
 private:
   PointerType m_ptr;

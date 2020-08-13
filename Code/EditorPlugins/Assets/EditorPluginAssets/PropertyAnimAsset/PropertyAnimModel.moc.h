@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QAbstractItemModel>
 #include <Foundation/Containers/Deque.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/String.h>
+#include <QAbstractItemModel>
 #include <QIcon>
 
 class ezPropertyAnimAssetDocument;
@@ -26,13 +26,10 @@ struct ezQtPropertyAnimModelTreeEntry
   bool operator==(const ezQtPropertyAnimModelTreeEntry& rhs) const
   {
     return (m_iParent == rhs.m_iParent) && (m_uiOwnRowIndex == rhs.m_uiOwnRowIndex) && (m_pTrack == rhs.m_pTrack) &&
-      (m_iTrackIdx == rhs.m_iTrackIdx) && (m_sDisplay == rhs.m_sDisplay) && (m_Children == rhs.m_Children);
+           (m_iTrackIdx == rhs.m_iTrackIdx) && (m_sDisplay == rhs.m_sDisplay) && (m_Children == rhs.m_Children);
   }
 
-  bool operator!=(const ezQtPropertyAnimModelTreeEntry& rhs) const
-  {
-    return !(*this == rhs);
-  }
+  bool operator!=(const ezQtPropertyAnimModelTreeEntry& rhs) const { return !(*this == rhs); }
 };
 
 class ezQtPropertyAnimModel : public QAbstractItemModel
@@ -55,7 +52,7 @@ public:
 private Q_SLOTS:
   void onBuildMappingTriggered();
 
-public: //QAbstractItemModel interface
+public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
   virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
   virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -64,13 +61,13 @@ public: //QAbstractItemModel interface
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
 private:
-
   void DocumentStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void DocumentPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void TriggerBuildMapping();
   void BuildMapping();
   void BuildMapping(ezInt32 iToUse);
-  void BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack, ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry, const char* szPath);
+  void BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack, ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry,
+    const char* szPath);
 
   bool m_bBuildMappingQueued = false;
   ezInt32 m_iInUse = 0;

@@ -29,8 +29,7 @@ ezRotorComponent::~ezRotorComponent() = default;
 
 void ezRotorComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::Running) &&
-      m_fAnimationSpeed > 0.0f)
+  if (m_Flags.IsAnySet(ezTransformComponentFlags::Running) && m_fAnimationSpeed > 0.0f)
   {
     if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
       m_AnimationTime -= GetWorld()->GetClock().GetTimeDiff();
@@ -87,7 +86,7 @@ void ezRotorComponent::Update()
       /// \todo This will probably give precision issues pretty quickly
 
       ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(m_fAnimationSpeed * GetWorld()->GetClock().GetTimeDiff().GetSeconds()));
+      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(m_fAnimationSpeed * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds()));
 
       GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * qRotation);
     }

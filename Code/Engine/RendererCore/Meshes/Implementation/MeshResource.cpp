@@ -74,8 +74,7 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
 
 void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU =
-    sizeof(ezMeshResource) + (ezUInt32)m_SubMeshes.GetHeapMemoryUsage() + (ezUInt32)m_Materials.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshResource) + (ezUInt32)m_SubMeshes.GetHeapMemoryUsage() + (ezUInt32)m_Materials.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 

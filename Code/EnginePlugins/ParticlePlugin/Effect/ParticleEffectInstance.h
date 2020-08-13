@@ -3,15 +3,16 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 class ezParticleEffectInstance;
 
-class ezParticleffectUpdateTask final : public ezTask
+class ezParticleEffectUpdateTask final : public ezTask
 {
 public:
-  ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect);
+  ezParticleEffectUpdateTask(ezParticleEffectInstance* pEffect);
 
   ezTime m_UpdateDiff;
 
@@ -24,7 +25,7 @@ private:
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
 {
   friend class ezParticleWorldModule;
-  friend class ezParticleffectUpdateTask;
+  friend class ezParticleEffectUpdateTask;
 
 public:
   struct SharedInstance
@@ -37,7 +38,9 @@ public:
   ezParticleEffectInstance();
   ~ezParticleEffectInstance();
 
-  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
+    ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+    ezArrayPtr<ezParticleEffectColorParam> colorParams);
   void Destruct();
 
   void Interrupt();
@@ -107,9 +110,9 @@ private: // friend ezParticleWorldModule
   bool ShouldBeUpdated() const;
 
   /// \brief Returns the task that is used to update the effect
-  ezParticleffectUpdateTask* GetUpdateTask() { return &m_Task; }
+  const ezSharedPtr<ezTask>& GetUpdateTask() { return m_pTask; }
 
-private: // friend ezParticleffectUpdateTask
+private: // friend ezParticleEffectUpdateTask
   friend class ezParticleEffectController;
   /// \brief If the effect wants to skip all the initial behavior, this simulates it multiple times before it is shown the first time.
   void PreSimulate();
@@ -237,7 +240,7 @@ private:
   ezHybridArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
   ezHybridArray<ezParticleEventReaction*, 4> m_EventReactions;
 
-  ezParticleffectUpdateTask m_Task;
+  ezSharedPtr<ezTask> m_pTask;
 
   ezStaticArray<ezParticleEvent, 16> m_EventQueue;
 };

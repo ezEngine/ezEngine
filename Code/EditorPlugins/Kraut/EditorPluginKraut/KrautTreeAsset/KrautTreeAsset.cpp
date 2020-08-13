@@ -37,9 +37,8 @@ enum ezKrautImportLodType : ezUInt8
   ImpostorBillboard = 3,
 };
 
-ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-  ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -432,8 +431,8 @@ ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
 
 ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
 
-void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezKrautTreeAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezKrautTreeAsset");
@@ -447,8 +446,8 @@ void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRe
   }
 }
 
-ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-  ezDocument*& out_pGeneratedDocument)
+ezStatus ezKrautTreeAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

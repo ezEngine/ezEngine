@@ -81,7 +81,8 @@ bool ezDependencyFile::HasAnyFileChanged()
 
     if (time > m_iMaxTimeStampStored)
     {
-      ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", sFile, ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
+      ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", ezArgSensitive(sFile, "File"),
+        ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
       return true;
     }
 
@@ -155,7 +156,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
     ezFileStats stats;
     if (ezFileSystem::GetFileStats(szFile, stats).Failed())
     {
-      ezLog::Error("Could not query the file stats for '{0}'", szFile);
+      ezLog::Error("Could not query the file stats for '{0}'", ezArgSensitive(szFile, "File"));
       return EZ_FAILURE;
     }
 
@@ -167,7 +168,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
 #else
 
   out_Result.SetInt64(0, ezSIUnitOfTime::Second);
-  ezLog::Warning("Trying to retrieve a file time stamp on a platform that does not support it (file: '{0}')", szFile);
+  ezLog::Warning("Trying to retrieve a file time stamp on a platform that does not support it (file: '{0}')", ezArgSensitive(szFile, "File"));
 
 #endif
 
@@ -199,4 +200,3 @@ ezResult ezDependencyFile::ReadDependencyFile(const char* szFile)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_DependencyFile);
-

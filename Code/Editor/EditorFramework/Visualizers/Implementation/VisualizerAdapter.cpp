@@ -54,7 +54,6 @@ void ezVisualizerAdapter::SetVisualizer(const ezVisualizerAttribute* pAttribute,
 
 
 
-
 void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertySet)
@@ -73,8 +72,7 @@ void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObj
 
 void ezVisualizerAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
 {
-  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw &&
-      e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
+  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
   {
     UpdateGizmoTransform();
   }

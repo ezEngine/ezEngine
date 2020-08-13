@@ -4,10 +4,10 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Types/ScopeExit.h>
-#include <enet/enet.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Threading/ThreadUtils.h>
+#  include <Foundation/Types/ScopeExit.h>
+#  include <enet/enet.h>
 
 class ezRemoteInterfaceEnetImpl : public ezRemoteInterfaceEnet
 {
@@ -132,7 +132,7 @@ void ezRemoteInterfaceEnetImpl::InternalShutdownConnection()
     m_pEnetHost = nullptr;
   }
 
-  //enet_deinitialize();
+  // enet_deinitialize();
   m_pEnetConnectionToServer = nullptr;
 }
 
@@ -185,9 +185,9 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
           enet_peer_disconnect(NetworkEvent.peer, 0);
           break;
         }
-        
+
         // Uncomment this to allow stepping through enet code without loosing the connection.
-        //enet_peer_timeout(NetworkEvent.peer, 0xFFFFFF, 32000, 0xFFFFFF);
+        // enet_peer_timeout(NetworkEvent.peer, 0xFFFFFF, 32000, 0xFFFFFF);
 
 
         if (GetRemoteMode() == ezRemoteMode::Client)
@@ -195,20 +195,21 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
           // Querying host IP and name can take a lot of time
           // Do not do this in the other case, as it may result in timeouts while establishing the connection.
           char szHostIP[64] = "<unknown>";
-          //char szHostName[64] = "<unknown>";
+          // char szHostName[64] = "<unknown>";
 
           enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
-          //enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
+          // enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
           m_ServerInfoIP = szHostIP;
-          //m_ServerInfoName = szHostName;
+          // m_ServerInfoName = szHostName;
 
           // now we are waiting for the server to send its ID
         }
         else
         {
           const ezUInt32 uiAppID = GetApplicationID();
-          Send(ezRemoteTransmitMode::Reliable, GetConnectionToken(), 'EZID', ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&uiAppID), sizeof(ezUInt32)));
+          Send(ezRemoteTransmitMode::Reliable, GetConnectionToken(), 'EZID',
+            ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&uiAppID), sizeof(ezUInt32)));
 
           // then wait for its acknowledgment message
         }
@@ -288,4 +289,3 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteInterfaceEnet);
-

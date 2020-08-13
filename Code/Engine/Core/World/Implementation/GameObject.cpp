@@ -223,7 +223,7 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
   {
     m_pTransformationData->UpdateGlobalBounds();
   }
-  
+
   if (IsStatic() && m_Flags.IsSet(ezObjectFlags::StaticTransformChangesNotifications) && oldGlobalTransform != GetGlobalTransformSimd())
   {
     ezMsgTransformChanged msg;
@@ -270,8 +270,8 @@ void ezGameObject::operator=(const ezGameObject& other)
   {
     if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
     {
-      pSpatialSystem->UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this,
-        m_pTransformationData->m_uiSpatialDataCategoryBitmask);
+      pSpatialSystem->UpdateSpatialData(
+        m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this, m_pTransformationData->m_uiSpatialDataCategoryBitmask);
     }
   }
 
@@ -444,9 +444,9 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
   ezUInt32 uiNameHash = 0;
 
   if (szSep == nullptr)
-    uiNameHash = ezHashingUtils::MurmurHash32String(path);
+    uiNameHash = ezHashingUtils::xxHash32String(path);
   else
-    uiNameHash = ezHashingUtils::MurmurHash32(path, szSep - path);
+    uiNameHash = ezHashingUtils::xxHash32(path, szSep - path);
 
   ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash), false);
 
@@ -481,12 +481,12 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
   if (szSep == nullptr)
   {
     const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, len);
+    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, len);
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, szSep - szObjectSequence);
     szNextSequence = szSep + 1;
   }
 
@@ -521,8 +521,8 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
 }
 
 
-void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
-  ezHybridArray<ezGameObject*, 8>& out_Objects)
+void ezGameObject::SearchForChildrenByNameSequence(
+  const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects)
 {
   /// \test Needs a unit test
 
@@ -547,12 +547,12 @@ void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence,
   if (szSep == nullptr)
   {
     const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, len);
+    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, len);
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, szSep - szObjectSequence);
     szNextSequence = szSep + 1;
   }
 
@@ -770,8 +770,7 @@ bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.",
-      msg.GetId());
+    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
   }
 #endif
 
@@ -794,8 +793,7 @@ bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.",
-      msg.GetId());
+    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
   }
 #endif
 
@@ -862,14 +860,14 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   return bSentToAny;
 }
 
-void ezGameObject::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezGameObject::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
+  GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
 }
 
-void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  GetWorld()->PostMessageRecursive(GetHandle(), msg, queueType, delay);
+  GetWorld()->PostMessageRecursive(GetHandle(), msg, delay, queueType);
 }
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
@@ -900,7 +898,8 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
   }
 }
 
-void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay /*= ezTime()*/) const
+void ezGameObject::PostEventMessage(
+  ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
   {
@@ -910,7 +909,7 @@ void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSen
       msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
     }
 
-    pReceiver->PostMessage(msg, queueType, delay);
+    pReceiver->PostMessage(msg, delay, queueType);
   }
 }
 

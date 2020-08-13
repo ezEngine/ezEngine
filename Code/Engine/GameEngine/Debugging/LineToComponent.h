@@ -5,9 +5,17 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 
-typedef ezComponentManagerSimple<class ezLineToComponent,
-  ezComponentUpdateType::Always /*, ezBlockStorageType::Compact -> does not compile */>
-  ezLineToComponentManager;
+class ezLineToComponentManager : public ezComponentManager<class ezLineToComponent, ezBlockStorageType::FreeList>
+{
+  using SUPER = ezComponentManager<class ezLineToComponent, ezBlockStorageType::FreeList>;
+
+public:
+  ezLineToComponentManager(ezWorld* pWorld);
+
+protected:
+  void Initialize() override;
+  void Update(const ezWorldModule::UpdateContext& context);
+};
 
 /// \brief Draws a line from its own position to the target object position
 class EZ_GAMEENGINE_DLL ezLineToComponent : public ezComponent

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14525557976052393641,5395822087457718604}}
-		u4 %Hash{1301255694885744620}
+		u4 %Hash{3069258258502067230}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12675088828524786237,7528991678657620864}}
@@ -20,6 +20,7 @@ o
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+			s{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
 			s{"{ 93d0dd70-9925-4066-ad2b-82de724eb4b5 }"}
 			s{"{ a14fde66-a586-4ab3-96fa-18612f2d744d }"}
 		}
@@ -38,20 +39,6 @@ o
 }
 Objects
 {
-o
-{
-	Uuid %id{u4{7050612666443434132,4772003720659761352}}
-	s %t{"ezProjectileSurfaceInteraction"}
-	u3 %v{3}
-	p
-	{
-		f %Damage{0x0000A040}
-		f %Impulse{0x0000C842}
-		s %Interaction{"BulletImpact"}
-		s %Reaction{"ezProjectileReaction::Absorb"}
-		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
-	}
-}
 o
 {
 	Uuid %id{u4{7913312135095674292,5200884820511990112}}
@@ -122,7 +109,7 @@ o
 		f %GravityMultiplier{0}
 		VarArray %Interactions
 		{
-			Uuid{u4{7050612666443434132,4772003720659761352}}
+			Uuid{u4{350875111938553753,5646886264298668778}}
 		}
 		Time %MaxLifetime{d{0x0000000000000040}}
 		s %OnTimeoutSpawn{""}
@@ -153,6 +140,20 @@ o
 			s{"{ a14fde66-a586-4ab3-96fa-18612f2d744d }"}
 		}
 		s %Mesh{"{ 93d0dd70-9925-4066-ad2b-82de724eb4b5 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{350875111938553753,5646886264298668778}}
+	s %t{"ezProjectileSurfaceInteraction"}
+	u3 %v{3}
+	p
+	{
+		f %Damage{0x0000A040}
+		f %Impulse{0x00002041}
+		s %Interaction{"BulletImpact"}
+		s %Reaction{"ezProjectileReaction::Absorb"}
+		s %Surface{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
 	}
 }
 o

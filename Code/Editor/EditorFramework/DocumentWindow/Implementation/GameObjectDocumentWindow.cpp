@@ -8,12 +8,12 @@
 #include <Gizmos/SnapProvider.h>
 #include <Gizmos/TranslateGizmo.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
+#include <Manipulators/ManipulatorAdapterRegistry.h>
 #include <Preferences/EditorPreferences.h>
 #include <Preferences/ScenePreferences.h>
-#include <Manipulators/ManipulatorAdapterRegistry.h>
 
 ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument* pDocument)
-    : ezQtEngineDocumentWindow(pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
   ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
@@ -21,8 +21,7 @@ ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument*
 
 ezQtGameObjectDocumentWindow::~ezQtGameObjectDocumentWindow()
 {
-  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
+  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
   ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
 }
 
@@ -109,6 +108,9 @@ void ezQtGameObjectDocumentWindow::GameObjectEventHandler(const ezGameObjectEven
     case ezGameObjectEvent::Type::TriggerFocusOnSelection_All:
       FocusOnSelectionAllViews();
       break;
+
+    default:
+      break;
   }
 }
 
@@ -146,8 +148,7 @@ void ezQtGameObjectDocumentWindow::FocusOnSelectionHoveredView()
   msg.m_iPurpose = 0;
   GetDocument()->SendMessageToEngine(&msg);
 }
-void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg,
-                                                          ezQtGameObjectViewWidget* pSceneView)
+void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView)
 {
   const ezVec3 vPivotPoint = pMsg->m_vCenter;
 

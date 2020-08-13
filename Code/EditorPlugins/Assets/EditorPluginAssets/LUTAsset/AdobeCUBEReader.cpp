@@ -17,13 +17,11 @@ namespace
       return false;
     }
 
-    if (
-      (line[skip + 0]->m_iType != ezTokenType::Float && line[skip + 0]->m_iType != ezTokenType::Integer) ||
-      line[skip + 1]->m_iType != ezTokenType::Whitespace ||
-      (line[skip + 2]->m_iType != ezTokenType::Float && line[skip + 2]->m_iType != ezTokenType::Integer) ||
-      line[skip + 3]->m_iType != ezTokenType::Whitespace ||
-      (line[skip + 4]->m_iType != ezTokenType::Float && line[skip + 4]->m_iType != ezTokenType::Integer)
-      )
+    if ((line[skip + 0]->m_iType != ezTokenType::Float && line[skip + 0]->m_iType != ezTokenType::Integer) ||
+        line[skip + 1]->m_iType != ezTokenType::Whitespace ||
+        (line[skip + 2]->m_iType != ezTokenType::Float && line[skip + 2]->m_iType != ezTokenType::Integer) ||
+        line[skip + 3]->m_iType != ezTokenType::Whitespace ||
+        (line[skip + 4]->m_iType != ezTokenType::Float && line[skip + 4]->m_iType != ezTokenType::Integer))
     {
       return false;
     }
@@ -51,7 +49,7 @@ namespace
 
     return true;
   }
-}
+} // namespace
 
 ezAdobeCUBEReader::ezAdobeCUBEReader() = default;
 ezAdobeCUBEReader::~ezAdobeCUBEReader() = default;
@@ -64,7 +62,8 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
   ezTokenizer tokenizer;
   tokenizer.SetTreatHashSignAsLineComment(true);
 
-  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)sContent.GetData(), sContent.GetElementCount()), pLog ? pLog : ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(
+    ezArrayPtr<const ezUInt8>((const ezUInt8*)sContent.GetData(), sContent.GetElementCount()), pLog ? pLog : ezLog::GetThreadLocalLogSystem());
 
 
   auto tokens = tokenizer.GetTokens();
@@ -74,7 +73,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
 
   while (tokenizer.GetNextLine(firstToken, line).Succeeded())
   {
-    if(line[0]->m_iType == ezTokenType::LineComment || line[0]->m_iType == ezTokenType::Newline)
+    if (line[0]->m_iType == ezTokenType::LineComment || line[0]->m_iType == ezTokenType::Newline)
       continue;
 
     if (line[0]->m_DataView == "TITLE")
@@ -172,7 +171,8 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
 
   if (m_LUTValues.GetCount() != (m_uiLUTSize * m_uiLUTSize * m_uiLUTSize))
   {
-    return ezStatus(ezFmt("LUT data incomplete, read {0} values but expected {1} values given a LUT size of {2}.", m_LUTValues.GetCount(), (m_uiLUTSize * m_uiLUTSize * m_uiLUTSize), m_uiLUTSize));
+    return ezStatus(ezFmt("LUT data incomplete, read {0} values but expected {1} values given a LUT size of {2}.", m_LUTValues.GetCount(),
+      (m_uiLUTSize * m_uiLUTSize * m_uiLUTSize), m_uiLUTSize));
   }
 
   return ezStatus(EZ_SUCCESS);

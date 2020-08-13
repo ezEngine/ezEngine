@@ -131,7 +131,8 @@ void RtsUnitComponent::OnUnitDestroyed()
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hOnDestroyedPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
+    pPrefab->InstantiatePrefab(
+      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
@@ -229,7 +230,7 @@ const char* RtsUnitComponent::GetOnDestroyedPrefab() const
 //////////////////////////////////////////////////////////////////////////
 
 RtsUnitComponentManager::RtsUnitComponentManager(ezWorld* pWorld)
-    : ezComponentManager<class RtsUnitComponent, ezBlockStorageType::FreeList>(pWorld)
+  : ezComponentManager<class RtsUnitComponent, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 
@@ -240,7 +241,7 @@ void RtsUnitComponentManager::Initialize()
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(RtsUnitComponentManager::UnitUpdate, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
   desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
-  //desc.m_uiGranularity = 8;
+  // desc.m_uiGranularity = 8;
 
   RegisterUpdateFunction(desc);
 }
@@ -275,7 +276,6 @@ ezGameObject* RtsUnitComponent::FindClosestEnemy(float fMaxRadius) const
   pl.m_uiOwnTeamID = GetOwner()->GetTeamID();
 
   ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) -> ezVisitorExecution::Enum {
-
     if (pObject->GetTeamID() == pl.m_uiOwnTeamID)
       return ezVisitorExecution::Skip;
 
@@ -310,9 +310,10 @@ void RtsUnitComponent::FireAt(ezGameObjectHandle hUnit)
     RtsMsgSetTarget msg;
     msg.m_hObject = hUnit;
 
-    ezGameObject* pSpawned = RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
+    ezGameObject* pSpawned =
+      RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
 
-    pSpawned->PostMessage(msg, ezObjectMsgQueueType::AfterInitialized);
+    pSpawned->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
   }
 }
 

@@ -20,36 +20,36 @@ ezActionDescriptorHandle ezParticleActions::s_hRenderVisualizers;
 void ezParticleActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("ParticleCategory");
-  s_hPauseEffect = EZ_REGISTER_ACTION_1("PFX.Pause", ezActionScope::Document, "Particles", "Pause", ezParticleAction,
-    ezParticleAction::ActionType::PauseEffect);
-  s_hRestartEffect = EZ_REGISTER_ACTION_1("PFX.Restart", ezActionScope::Document, "Particles", "F5", ezParticleAction,
-    ezParticleAction::ActionType::RestartEffect);
-  s_hAutoRestart = EZ_REGISTER_ACTION_1("PFX.AutoRestart", ezActionScope::Document, "Particles", "", ezParticleAction,
-    ezParticleAction::ActionType::AutoRestart);
+  s_hPauseEffect =
+    EZ_REGISTER_ACTION_1("PFX.Pause", ezActionScope::Document, "Particles", "Pause", ezParticleAction, ezParticleAction::ActionType::PauseEffect);
+  s_hRestartEffect =
+    EZ_REGISTER_ACTION_1("PFX.Restart", ezActionScope::Document, "Particles", "F5", ezParticleAction, ezParticleAction::ActionType::RestartEffect);
+  s_hAutoRestart =
+    EZ_REGISTER_ACTION_1("PFX.AutoRestart", ezActionScope::Document, "Particles", "", ezParticleAction, ezParticleAction::ActionType::AutoRestart);
 
   s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("PFX.Speed.Menu", ":/EditorPluginParticle/Icons/Speed16.png");
-  s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2("PFX.Speed.01", ezActionScope::Document, "Particles", "Ctrl+1", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 0.1f);
-  s_hSimulationSpeed[1] = EZ_REGISTER_ACTION_2("PFX.Speed.025", ezActionScope::Document, "Particles", "Ctrl+2", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 0.25f);
-  s_hSimulationSpeed[2] = EZ_REGISTER_ACTION_2("PFX.Speed.05", ezActionScope::Document, "Particles", "Ctrl+3", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 0.5f);
-  s_hSimulationSpeed[3] = EZ_REGISTER_ACTION_2("PFX.Speed.1", ezActionScope::Document, "Particles", "Ctrl+4", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 1.0f);
-  s_hSimulationSpeed[4] = EZ_REGISTER_ACTION_2("PFX.Speed.15", ezActionScope::Document, "Particles", "Ctrl+5", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 1.5f);
-  s_hSimulationSpeed[5] = EZ_REGISTER_ACTION_2("PFX.Speed.2", ezActionScope::Document, "Particles", "Ctrl+6", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 2.0f);
-  s_hSimulationSpeed[6] = EZ_REGISTER_ACTION_2("PFX.Speed.3", ezActionScope::Document, "Particles", "Ctrl+7", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 3.0f);
-  s_hSimulationSpeed[7] = EZ_REGISTER_ACTION_2("PFX.Speed.4", ezActionScope::Document, "Particles", "Ctrl+8", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 4.0f);
-  s_hSimulationSpeed[8] = EZ_REGISTER_ACTION_2("PFX.Speed.5", ezActionScope::Document, "Particles", "Ctrl+9", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 5.0f);
-  s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("PFX.Speed.10", ezActionScope::Document, "Particles", "Ctrl+0", ezParticleAction,
-    ezParticleAction::ActionType::SimulationSpeed, 10.0f);
-  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("PFX.Render.Visualizers", ezActionScope::Document, "Particles", "V", ezParticleAction,
-    ezParticleAction::ActionType::RenderVisualizers);
+  s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.01", ezActionScope::Document, "Particles", "Ctrl+1", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 0.1f);
+  s_hSimulationSpeed[1] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.025", ezActionScope::Document, "Particles", "Ctrl+2", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 0.25f);
+  s_hSimulationSpeed[2] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.05", ezActionScope::Document, "Particles", "Ctrl+3", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 0.5f);
+  s_hSimulationSpeed[3] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.1", ezActionScope::Document, "Particles", "Ctrl+4", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 1.0f);
+  s_hSimulationSpeed[4] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.15", ezActionScope::Document, "Particles", "Ctrl+5", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 1.5f);
+  s_hSimulationSpeed[5] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.2", ezActionScope::Document, "Particles", "Ctrl+6", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 2.0f);
+  s_hSimulationSpeed[6] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.3", ezActionScope::Document, "Particles", "Ctrl+7", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 3.0f);
+  s_hSimulationSpeed[7] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.4", ezActionScope::Document, "Particles", "Ctrl+8", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 4.0f);
+  s_hSimulationSpeed[8] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.5", ezActionScope::Document, "Particles", "Ctrl+9", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 5.0f);
+  s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2(
+    "PFX.Speed.10", ezActionScope::Document, "Particles", "Ctrl+0", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 10.0f);
+  s_hRenderVisualizers = EZ_REGISTER_ACTION_1(
+    "PFX.Render.Visualizers", ezActionScope::Document, "Particles", "V", ezParticleAction, ezParticleAction::ActionType::RenderVisualizers);
 }
 
 void ezParticleActions::UnregisterActions()
@@ -115,6 +115,9 @@ ezParticleAction::ezParticleAction(const ezActionContext& context, const char* s
       SetCheckable(true);
       SetIconPath(":/EditorFramework/Icons/Visualizers16.png");
       SetChecked(m_pEffectDocument->GetRenderVisualizers());
+      break;
+
+    default:
       break;
   }
 

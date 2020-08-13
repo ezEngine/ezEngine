@@ -73,6 +73,9 @@ void ezVisualizeSkeletonComponent::Render()
 
     switch (geo.m_Type)
     {
+      case ezSkeletonJointGeometryType::None:
+        break;
+
       case ezSkeletonJointGeometryType::Box:
       {
         ezBoundingBox box;
@@ -296,6 +299,9 @@ void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResource
 
     switch (jointGeo.m_Type)
     {
+      case ezSkeletonJointGeometryType::None:
+        break;
+
       case ezSkeletonJointGeometryType::Box:
       {
         geo.AddBox(jointGeo.m_Transform.m_vScale, ezColor::White, jointTransform.GetAsMat4(), jointGeo.m_uiAttachedToJoint);

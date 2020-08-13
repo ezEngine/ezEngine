@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Logging/LogEntry.h>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Logging/LogEntry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QAbstractItemModel>
 
 /// \brief The Qt model that represents log output for a view
@@ -12,7 +12,6 @@ class EZ_GUIFOUNDATION_DLL ezQtLogModel : public QAbstractItemModel
   Q_OBJECT
 
 public:
-
   ezQtLogModel(QObject* parent);
   void Clear();
   void SetLogLevel(ezLogMsgType::Enum LogLevel);
@@ -25,7 +24,7 @@ public:
   ezUInt32 GetNumSeriousWarnings() const { return m_uiNumSeriousWarnings; }
   ezUInt32 GetNumWarnings() const { return m_uiNumWarnings; }
 
-public: //QAbstractItemModel interface
+public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
   virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;

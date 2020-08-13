@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
 class ezPhysicsWorldModuleInterface;
 
@@ -21,6 +21,7 @@ public:
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Volume final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Volume, ezParticleFinalizer);
+
 public:
   ezParticleFinalizer_Volume();
   ~ezParticleFinalizer_Volume();

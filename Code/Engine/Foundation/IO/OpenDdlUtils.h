@@ -140,10 +140,12 @@ namespace ezOpenDdlUtils
   //////////////////////////////////////////////////////////////////////////
 
   /// \brief Writes an ezColor to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreColor(ezOpenDdlWriter& writer, const ezColor& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreColor(
+    ezOpenDdlWriter& writer, const ezColor& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezColorGammaUB to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreColorGamma(ezOpenDdlWriter& writer, const ezColorGammaUB& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreColorGamma(
+    ezOpenDdlWriter& writer, const ezColorGammaUB& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezTime to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreTime(ezOpenDdlWriter& writer, const ezTime& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
@@ -158,22 +160,28 @@ namespace ezOpenDdlUtils
   EZ_FOUNDATION_DLL void StoreVec4(ezOpenDdlWriter& writer, const ezVec4& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVec2 to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreVec2I(ezOpenDdlWriter& writer, const ezVec2I32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreVec2I(
+    ezOpenDdlWriter& writer, const ezVec2I32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVec3 to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreVec3I(ezOpenDdlWriter& writer, const ezVec3I32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreVec3I(
+    ezOpenDdlWriter& writer, const ezVec3I32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVec4 to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreVec4I(ezOpenDdlWriter& writer, const ezVec4I32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreVec4I(
+    ezOpenDdlWriter& writer, const ezVec4I32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVec2 to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreVec2U(ezOpenDdlWriter& writer, const ezVec2U32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreVec2U(
+    ezOpenDdlWriter& writer, const ezVec2U32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVec3 to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreVec3U(ezOpenDdlWriter& writer, const ezVec3U32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreVec3U(
+    ezOpenDdlWriter& writer, const ezVec3U32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVec4 to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreVec4U(ezOpenDdlWriter& writer, const ezVec4U32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreVec4U(
+    ezOpenDdlWriter& writer, const ezVec4U32& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezMat3 to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreMat3(ezOpenDdlWriter& writer, const ezMat3& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
@@ -182,7 +190,8 @@ namespace ezOpenDdlUtils
   EZ_FOUNDATION_DLL void StoreMat4(ezOpenDdlWriter& writer, const ezMat4& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezTransform to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreTransform(ezOpenDdlWriter& writer, const ezTransform& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreTransform(
+    ezOpenDdlWriter& writer, const ezTransform& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezQuat to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreQuat(ezOpenDdlWriter& writer, const ezQuat& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
@@ -191,13 +200,16 @@ namespace ezOpenDdlUtils
   EZ_FOUNDATION_DLL void StoreUuid(ezOpenDdlWriter& writer, const ezUuid& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezAngle to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreAngle(ezOpenDdlWriter& writer, const ezAngle& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreAngle(
+    ezOpenDdlWriter& writer, const ezAngle& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVariant to DDL such that the type can be reconstructed.
-  EZ_FOUNDATION_DLL void StoreVariant(ezOpenDdlWriter& writer, const ezVariant& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreVariant(
+    ezOpenDdlWriter& writer, const ezVariant& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes a primitives list with a single string and an optional name.
-  EZ_FOUNDATION_DLL void StoreString(ezOpenDdlWriter& writer, const ezStringView& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  EZ_FOUNDATION_DLL void StoreString(
+    ezOpenDdlWriter& writer, const ezStringView& value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Writes a primitives list with a single value and an optional name.
   EZ_FOUNDATION_DLL void StoreBool(ezOpenDdlWriter& writer, bool value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
@@ -231,5 +243,4 @@ namespace ezOpenDdlUtils
 
   /// \brief Writes a primitives list with a single value and an optional name.
   EZ_FOUNDATION_DLL void StoreUInt64(ezOpenDdlWriter& writer, ezUInt64 value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
-}
-
+} // namespace ezOpenDdlUtils

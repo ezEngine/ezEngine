@@ -212,7 +212,8 @@ struct ezCVarValue
     Current, ///< The value that should be used.
     Default, ///< The 'default' value of the CVar. Can be used to reset a variable to its default state.
     Stored,  ///< The value that was read from disk (or the default). Can be used to reset a CVar to the 'saved' state, if desired.
-    Restart, ///< The state that will be saved to disk. This is identical to 'Current' unless the 'RequiresRestart' flag is set (in which case the 'Current' value never changes).
+    Restart, ///< The state that will be saved to disk. This is identical to 'Current' unless the 'RequiresRestart' flag is set (in which case the
+             ///< 'Current' value never changes).
     ENUM_COUNT
   };
 };
@@ -225,7 +226,7 @@ public:
   ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
 
   /// \brief Returns the 'current' value of the CVar. Same as 'GetValue(ezCVarValue::Current)'
-  operator const Type&() const; // [tested]
+  operator const Type &() const; // [tested]
 
   /// \brief Returns the internal values of the CVar.
   const Type& GetValue(ezCVarValue::Enum val = ezCVarValue::Current) const; // [tested]

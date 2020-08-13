@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/World.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 
@@ -10,8 +11,7 @@ struct ezMsgExtractRenderData;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PROCGENPLUGIN_DLL ezProcPlacementComponentManager
-  : public ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>
+class EZ_PROCGENPLUGIN_DLL ezProcPlacementComponentManager : public ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>
 {
 public:
   ezProcPlacementComponentManager(ezWorld* pWorld);
@@ -71,8 +71,8 @@ private:
 
     ezUInt64 m_uiScheduledFrame;
     ezUniquePtr<ezProcGenInternal::PlacementData> m_pData;
-    ezUniquePtr<ezProcGenInternal::PreparePlacementTask> m_pPrepareTask;
-    ezUniquePtr<ezProcGenInternal::PlacementTask> m_pPlacementTask;
+    ezSharedPtr<ezProcGenInternal::PreparePlacementTask> m_pPrepareTask;
+    ezSharedPtr<ezProcGenInternal::PlacementTask> m_pPlacementTask;
     ezTaskGroupID m_PlacementTaskGroupID;
     ezUInt32 m_uiTileIndex;
   };
@@ -171,7 +171,7 @@ private:
 
     ezHashTable<ezUInt64, TileIndexAndAge> m_TileIndices;
 
-    ezUniquePtr<ezProcGenInternal::FindPlacementTilesTask> m_pUpdateTilesTask;
+    ezSharedPtr<ezProcGenInternal::FindPlacementTilesTask> m_pUpdateTilesTask;
   };
 
   ezDynamicArray<OutputContext> m_OutputContexts;

@@ -154,7 +154,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
     }
 
     // due to the wait timeout in the thread, testing this exact value here would be unreliable
-    //EZ_TEST_INT(iCounter, (ezInt32)uiNumThreads);
+    // EZ_TEST_INT(iCounter, (ezInt32)uiNumThreads);
 
     // just wait for the rest
     {

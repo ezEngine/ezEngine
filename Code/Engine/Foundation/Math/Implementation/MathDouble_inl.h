@@ -64,4 +64,3 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE double Mod(double f, double div) { return fmod(f, div); }
 } // namespace ezMath
-

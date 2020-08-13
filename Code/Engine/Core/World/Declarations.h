@@ -39,15 +39,16 @@ struct ezGameObjectId
 
   EZ_DECLARE_ID_TYPE(ezGameObjectId, 32, 8);
 
-  EZ_FORCE_INLINE ezGameObjectId(ezUInt32 instanceIndex, ezUInt8 generation, ezUInt8 worldIndex = 0)
+  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, ezUInt8 generation, ezUInt8 worldIndex = 0)
   {
     m_Data = 0;
-    m_InstanceIndex = instanceIndex;
+    m_InstanceIndex = static_cast<ezUInt32>(instanceIndex);
     m_Generation = generation;
     m_WorldIndex = worldIndex;
   }
 
-  union {
+  union
+  {
     StorageType m_Data;
     struct
     {
@@ -72,11 +73,11 @@ struct ezGameObjectHandle
   friend class ezGameObject;
 };
 
-/// \brief HashHelper implementation so game object handles can be used as key in a hashtable.
+/// \brief HashHelper implementation so game object handles can be used as key in a hash table.
 template <>
 struct ezHashHelper<ezGameObjectHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value) { return ezHashHelper<ezUInt32>::Hash(value.GetInternalID().m_Data); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value) { return ezHashHelper<ezUInt64>::Hash(value.GetInternalID().m_Data); }
 
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
@@ -88,16 +89,17 @@ struct ezComponentId
 
   EZ_DECLARE_ID_TYPE(ezComponentId, 32, 8);
 
-  EZ_ALWAYS_INLINE ezComponentId(ezUInt32 instanceIndex, ezUInt8 generation, ezUInt16 typeId = 0, ezUInt8 worldIndex = 0)
+  EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, ezUInt8 generation, ezUInt16 typeId = 0, ezUInt8 worldIndex = 0)
   {
     m_Data = 0;
-    m_InstanceIndex = instanceIndex;
+    m_InstanceIndex = static_cast<ezUInt32>(instanceIndex);
     m_Generation = generation;
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
   }
 
-  union {
+  union
+  {
     StorageType m_Data;
     struct
     {

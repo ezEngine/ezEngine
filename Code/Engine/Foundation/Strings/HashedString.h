@@ -130,7 +130,7 @@ public:
   EZ_ALWAYS_INLINE ezStringView GetView() const { return GetString().GetView(); }
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
+  EZ_ALWAYS_INLINE operator const char *() const { return GetData(); }
 
 private:
   static void InitHashedString();
@@ -154,7 +154,7 @@ class EZ_FOUNDATION_DLL ezTempHashedString
   friend class ezHashedString;
 
 public:
-  ezTempHashedString() { m_uiHash = 0; }
+  ezTempHashedString(); // [tested]
 
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
@@ -198,6 +198,12 @@ public:
   /// \brief This operator allows soring objects by hash value, not by alphabetical order.
   bool operator<(const ezTempHashedString& rhs) const; // [tested]
 
+  /// \brief Checks whether the ezTempHashedString represents the empty string.
+  bool IsEmpty() const; // [tested]
+
+  /// \brief Resets the string to the empty string.
+  void Clear(); // [tested]
+
   /// \brief Returns the hash of the stored string.
   ezUInt32 GetHash() const; // [tested]
 
@@ -215,4 +221,3 @@ private:
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezHashedString& arg);
 
 #include <Foundation/Strings/Implementation/HashedString_inl.h>
-

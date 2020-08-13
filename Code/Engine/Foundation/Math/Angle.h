@@ -4,7 +4,8 @@
 
 /// \brief Float wrapper struct for a safe usage and conversions of angles.
 ///
-/// Uses radian internally. Will <b>not</b> automatically keep its range between 0 degree - 360 degree (0 - 2PI) but you can call NormalizeRange to do so.
+/// Uses radian internally. Will <b>not</b> automatically keep its range between 0 degree - 360 degree (0 - 2PI) but you can call NormalizeRange to do
+/// so.
 class EZ_FOUNDATION_DLL ezAngle
 {
 public:
@@ -36,7 +37,7 @@ public:
 
   /// \brief Standard constructor, initializing with 0.
   constexpr ezAngle()
-      : m_fRadian(0.0f)
+    : m_fRadian(0.0f)
   {
   } // [tested]
 
@@ -58,7 +59,8 @@ public:
   ezAngle GetNormalizedRange() const; // [tested]
 
   /// \brief Computes the smallest angle between the two given angles. The angle will always be a positive value.
-  /// \note The two angles must be in the same range. E.g. they should be either normalized or at least the absolute angle between them should not be more than 180 degree.
+  /// \note The two angles must be in the same range. E.g. they should be either normalized or at least the absolute angle between them should not be
+  /// more than 180 degree.
   constexpr static ezAngle AngleBetween(ezAngle a, ezAngle b); // [tested]
 
   /// \brief Equality check with epsilon. Simple check without normalization. 360 degree will equal 0 degree, but 720 will not.
@@ -93,7 +95,7 @@ public:
 private:
   /// \brief For internal use only.
   constexpr explicit ezAngle(float fRadian)
-      : m_fRadian(fRadian)
+    : m_fRadian(fRadian)
   {
   }
 
@@ -118,4 +120,3 @@ constexpr ezAngle operator/(ezAngle a, float f); // [tested]
 constexpr ezAngle operator/(float f, ezAngle a); // [tested]
 
 #include <Foundation/Math/Implementation/Angle_inl.h>
-

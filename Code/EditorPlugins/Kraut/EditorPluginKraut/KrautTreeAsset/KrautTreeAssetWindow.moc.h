@@ -14,7 +14,7 @@ class ezQtKrautTreeAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtKrautTreeAssetDocumentWindow(ezAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const { return "KrautTreeAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "KrautTreeAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
+#include <Foundation/Basics.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <QTreeView>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtPropertyAnimModel;
 class QItemSelection;
@@ -42,7 +42,7 @@ protected slots:
 
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
-  virtual void contextMenuEvent(QContextMenuEvent *event) override;
+  virtual void contextMenuEvent(QContextMenuEvent* event) override;
   void storeExpandState(const QModelIndex& parent);
   void restoreExpandState(const QModelIndex& parent, QModelIndexList& newSelection);
 
@@ -58,7 +58,7 @@ public:
   ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument);
   ~ezQtPropertyAnimAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const { return "PropertyAnimAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "PropertyAnimAsset"; }
 
 public Q_SLOTS:
   void ToggleViews(QWidget* pView);
@@ -122,7 +122,7 @@ private Q_SLOTS:
   void onGradientIntensityCpChanged(ezInt32 idx, float intensity);
   void onGradientBeginOperation();
   void onGradientEndOperation(bool commit);
-  //void onGradientNormalizeRange();
+  // void onGradientNormalizeRange();
 
   //////////////////////////////////////////////////////////////////////////
   // Event track editor events
@@ -138,7 +138,7 @@ private Q_SLOTS:
 
 private:
   ezPropertyAnimAssetDocument* GetPropertyAnimDocument();
-  //void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  // void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);

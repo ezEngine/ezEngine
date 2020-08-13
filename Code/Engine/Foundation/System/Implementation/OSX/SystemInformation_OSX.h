@@ -1,12 +1,12 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <assert.h>
+#include <stdbool.h>
 #include <sys/sysctl.h>
 #include <sys/types.h>
 #include <sys/vmmeter.h>
 #include <unistd.h>
-#include <assert.h>
-#include <stdbool.h>
 
 // https://developer.apple.com/library/archive/qa/qa1361/_index.html
 // Returns true if the current process is being debugged (either
@@ -65,7 +65,7 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_b64BitOS = true;
 #else
   s_SystemInformation.m_b64BitOS = false;
-#error "32 Bit builds are not supported on OSX"
+#  error "32 Bit builds are not supported on OSX"
 #endif
 
   s_SystemInformation.m_szPlatformName = "OSX";

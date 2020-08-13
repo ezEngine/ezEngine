@@ -9,8 +9,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectConverterWriter
 {
 public:
   typedef ezDelegate<bool(const ezAbstractProperty*)> FilterFunction;
-  ezDocumentObjectConverterWriter(ezAbstractObjectGraph* pGraph, const ezDocumentObjectManager* pManager,
-    FilterFunction filter = FilterFunction())
+  ezDocumentObjectConverterWriter(ezAbstractObjectGraph* pGraph, const ezDocumentObjectManager* pManager, FilterFunction filter = FilterFunction())
   {
     m_pGraph = pGraph;
     m_pManager = pManager;
@@ -53,7 +52,8 @@ public:
 private:
   void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
   void ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource);
-  static void ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp, ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff);
+  static void ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp,
+    ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff);
 
   Mode m_Mode;
   ezDocumentObjectManager* m_pManager;
@@ -61,4 +61,3 @@ private:
   ezSet<ezString> m_UnknownTypes;
   ezUInt32 m_uiUnknownTypeInstances;
 };
-

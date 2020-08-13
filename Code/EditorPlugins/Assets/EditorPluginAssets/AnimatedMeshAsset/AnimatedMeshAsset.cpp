@@ -25,8 +25,8 @@ ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(const char* szDocumentP
 {
 }
 
-ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -72,8 +72,8 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   {
     GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
 
-    ezMeshImportUtils::UpdateMaterialSlots(GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials,
-      pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
+    ezMeshImportUtils::UpdateMaterialSlots(
+      GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials, pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
 
     ApplyNativePropertyChangesToObjectManager();
     GetObjectAccessor()->FinishTransaction();

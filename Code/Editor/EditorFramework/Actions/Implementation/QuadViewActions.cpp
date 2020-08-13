@@ -12,10 +12,10 @@ ezActionDescriptorHandle ezQuadViewActions::s_hSpawnView;
 
 void ezQuadViewActions::RegisterActions()
 {
-  s_hToggleViews = EZ_REGISTER_ACTION_1("Scene.View.Toggle", ezActionScope::Window, "Scene", "", ezQuadViewAction,
-    ezQuadViewAction::ButtonType::ToggleViews);
-  s_hSpawnView = EZ_REGISTER_ACTION_1("Scene.View.Span", ezActionScope::Window, "Scene", "", ezQuadViewAction,
-    ezQuadViewAction::ButtonType::SpawnView);
+  s_hToggleViews =
+    EZ_REGISTER_ACTION_1("Scene.View.Toggle", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::ToggleViews);
+  s_hSpawnView =
+    EZ_REGISTER_ACTION_1("Scene.View.Span", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::SpawnView);
 }
 
 void ezQuadViewActions::UnregisterActions()

@@ -1,5 +1,5 @@
 #ifdef EZ_THREADUTILS_POSIX_INL_H_INCLUDED
-#error "This file must not be included twice."
+#  error "This file must not be included twice."
 #endif
 
 #define EZ_THREADUTILS_POSIX_INL_H_INCLUDED
@@ -23,7 +23,7 @@ void ezThreadUtils::YieldTimeSlice()
 
 void ezThreadUtils::YieldHardwareThread()
 {
-  // No equivalent to mm_pause on linux 
+  // No equivalent to mm_pause on linux
 }
 
 void ezThreadUtils::Sleep(const ezTime& duration)
@@ -48,4 +48,3 @@ bool ezThreadUtils::IsMainThread()
 {
   return pthread_self() == g_MainThread;
 }
-

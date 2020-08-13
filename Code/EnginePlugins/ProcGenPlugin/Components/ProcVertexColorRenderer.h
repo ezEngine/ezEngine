@@ -2,7 +2,7 @@
 
 #include <RendererCore/Meshes/MeshRenderer.h>
 
-/// \brief Implements rendering of skinned meshes
+/// \brief Implements rendering of meshes with procedural generated vertex colors
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorRenderer : public ezMeshRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcVertexColorRenderer, ezMeshRenderer);
@@ -17,6 +17,6 @@ public:
 
 protected:
   virtual void SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const override;
-  virtual void FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex,
-    ezUInt32& out_uiFilteredCount) const override;
+  virtual void FillPerInstanceData(
+    ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const override;
 };

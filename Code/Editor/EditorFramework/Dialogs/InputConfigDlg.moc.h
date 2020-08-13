@@ -1,11 +1,11 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QDialog>
 #include <EditorFramework/ui_InputConfigDlg.h>
-#include <GameEngine/Configuration/InputConfig.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <GameEngine/Configuration/InputConfig.h>
+#include <QDialog>
 
 class QTreeWidgetItem;
 
@@ -38,5 +38,3 @@ private:
   ezHybridArray<ezGameAppInputConfig, 32> m_Actions;
   ezDynamicArray<ezString> m_AllInputSlots;
 };
-
-

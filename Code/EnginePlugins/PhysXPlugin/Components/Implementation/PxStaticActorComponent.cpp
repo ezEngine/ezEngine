@@ -116,7 +116,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   {
     m_uiShapeId = pModule->CreateShapeId();
 
-    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
     ezHybridArray<PxMaterial*, 32> pxMaterials;
 
@@ -128,7 +128,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
       {
         if (surfaces[i].IsValid())
         {
-          ezResourceLock<ezSurfaceResource> pSurface(surfaces[i], ezResourceAcquireMode::AllowLoadingFallback);
+          ezResourceLock<ezSurfaceResource> pSurface(surfaces[i], ezResourceAcquireMode::BlockTillLoaded);
           if (pSurface)
           {
             pxMaterials[i] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
@@ -150,11 +150,13 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      pShape = PxRigidActorExt::createExclusiveShape(*m_pActor, PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape = PxRigidActorExt::createExclusiveShape(
+        *m_pActor, PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
-      pShape = PxRigidActorExt::createExclusiveShape(*m_pActor, PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape = PxRigidActorExt::createExclusiveShape(
+        *m_pActor, PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else
     {

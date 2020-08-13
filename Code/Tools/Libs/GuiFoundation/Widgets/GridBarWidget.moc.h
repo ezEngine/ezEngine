@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Types/Delegate.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QWidget>
 
 class QPaintEvent;
@@ -13,7 +13,7 @@ class EZ_GUIFOUNDATION_DLL ezQGridBarWidget : public QWidget
 public:
   ezQGridBarWidget(QWidget* parent);
 
-  void SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint (const QPointF&)> mapFromSceneFunc);
+  void SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc);
 
 protected:
   virtual void paintEvent(QPaintEvent* event) override;

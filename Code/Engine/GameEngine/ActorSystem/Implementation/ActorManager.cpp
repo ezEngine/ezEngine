@@ -53,7 +53,7 @@ struct ezActorManagerImpl
 
 EZ_IMPLEMENT_SINGLETON(ezActorManager);
 
-ezEvent<const ezActorEvent&> ezActorManager::s_ActorEvents;
+ezCopyOnBroadcastEvent<const ezActorEvent&> ezActorManager::s_ActorEvents;
 
 ezActorManager::ezActorManager()
   : m_SingletonRegistrar(this)
@@ -80,6 +80,7 @@ void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
+  EZ_ASSERT_DEV(pActor != nullptr, "Actor must exist to be added.");
   m_pImpl->m_AllActors.PushBack(std::move(pActor));
 
   ezActorEvent e;
@@ -331,4 +332,3 @@ void ezActorManager::Update()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorManager);
-

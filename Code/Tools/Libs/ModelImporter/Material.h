@@ -9,24 +9,24 @@ namespace ezModelImporter
   struct EZ_MODELIMPORTER_DLL TextureReference
   {
     TextureReference()
-        : m_SemanticHint(SemanticHint::UNKNOWN)
-        , m_Semantic("")
-        , m_FileName()
-        , m_UVSetIndex(0)
+      : m_SemanticHint(SemanticHint::UNKNOWN)
+      , m_Semantic("")
+      , m_FileName()
+      , m_UVSetIndex(0)
     {
     }
     TextureReference(SemanticHint::Enum semanticHint, const char* semantic, const char* filename)
-        : m_SemanticHint(semanticHint)
-        , m_Semantic(semantic)
-        , m_FileName(filename)
-        , m_UVSetIndex(0)
+      : m_SemanticHint(semanticHint)
+      , m_Semantic(semantic)
+      , m_FileName(filename)
+      , m_UVSetIndex(0)
     {
     }
     TextureReference(const char* semantic, const char* filename)
-        : m_SemanticHint(SemanticHint::UNKNOWN)
-        , m_Semantic(semantic)
-        , m_FileName(filename)
-        , m_UVSetIndex(0)
+      : m_SemanticHint(SemanticHint::UNKNOWN)
+      , m_Semantic(semantic)
+      , m_FileName(filename)
+      , m_UVSetIndex(0)
     {
     }
 
@@ -41,21 +41,21 @@ namespace ezModelImporter
   struct EZ_MODELIMPORTER_DLL Property
   {
     Property()
-        : m_SemanticHint(SemanticHint::UNKNOWN)
-        , m_Semantic("")
-        , m_Value()
+      : m_SemanticHint(SemanticHint::UNKNOWN)
+      , m_Semantic("")
+      , m_Value()
     {
     }
     Property(SemanticHint::Enum semanticHint, const char* semantic, const ezVariant& value)
-        : m_SemanticHint(semanticHint)
-        , m_Semantic(semantic)
-        , m_Value(value)
+      : m_SemanticHint(semanticHint)
+      , m_Semantic(semantic)
+      , m_Value(value)
     {
     }
     Property(const char* semantic, const ezVariant& value)
-        : m_SemanticHint(SemanticHint::UNKNOWN)
-        , m_Semantic(semantic)
-        , m_Value(value)
+      : m_SemanticHint(SemanticHint::UNKNOWN)
+      , m_Semantic(semantic)
+      , m_Value(value)
     {
     }
 
@@ -77,5 +77,4 @@ namespace ezModelImporter
     ezHybridArray<TextureReference, 4> m_Textures;
     ezHybridArray<Property, 16> m_Properties;
   };
-}
-
+} // namespace ezModelImporter

@@ -32,5 +32,3 @@ private:
   ezTime m_CurShootCooldown;
   float m_fAmmunition;
 };
-
-

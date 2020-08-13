@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Foundation/Containers/Set.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 class ezReflectedTypeStorageAccessor;
 class ezDocumentObject;
@@ -21,9 +21,17 @@ private:
   {
     struct StorageInfo
     {
-      StorageInfo() : m_uiIndex(0), m_Type(ezVariant::Type::Invalid) {}
+      StorageInfo()
+        : m_uiIndex(0)
+        , m_Type(ezVariant::Type::Invalid)
+      {
+      }
       StorageInfo(ezUInt16 uiIndex, ezVariant::Type::Enum type, const ezVariant& defaultValue)
-        : m_uiIndex(uiIndex), m_Type(type), m_DefaultValue(defaultValue) {}
+        : m_uiIndex(uiIndex)
+        , m_Type(type)
+        , m_DefaultValue(defaultValue)
+      {
+      }
 
       ezUInt16 m_uiIndex;
       ezEnum<ezVariant::Type> m_Type;
@@ -61,4 +69,3 @@ private:
 private:
   static ezMap<const ezRTTI*, ReflectedTypeStorageMapping*> m_ReflectedTypeToStorageMapping;
 };
-

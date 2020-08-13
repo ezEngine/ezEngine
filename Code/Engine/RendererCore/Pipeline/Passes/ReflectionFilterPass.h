@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
@@ -23,7 +23,6 @@ public:
   void SetInputCubemap(ezUInt32 uiCubemapHandle);
 
 protected:
-
   void UpdateIrradianceConstantBuffer();
 
   ezOutputNodePin m_PinFilteredSpecular;
@@ -39,4 +38,3 @@ protected:
   ezConstantBufferStorageHandle m_hIrradianceConstantBuffer;
   ezShaderResourceHandle m_hIrradianceShader;
 };
-

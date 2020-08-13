@@ -20,11 +20,10 @@ namespace ezMemoryPolicies
   };
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Memory/Policies/Win/AlignedHeapAllocation_win.h>
+#  include <Foundation/Memory/Policies/Win/AlignedHeapAllocation_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#include <Foundation/Memory/Policies/Posix/AlignedHeapAllocation_posix.h>
+#  include <Foundation/Memory/Policies/Posix/AlignedHeapAllocation_posix.h>
 #else
-#error "ezAlignedHeapAllocation is not implemented on current platform"
+#  error "ezAlignedHeapAllocation is not implemented on current platform"
 #endif
-}
-
+} // namespace ezMemoryPolicies

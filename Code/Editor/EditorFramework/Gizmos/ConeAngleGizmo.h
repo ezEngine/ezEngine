@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <QPoint>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezConeAngleGizmo : public ezGizmo
 {

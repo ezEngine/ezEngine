@@ -79,4 +79,3 @@ void ezMsgSetColor::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Messages_Implementation_SetColorMessage);
-

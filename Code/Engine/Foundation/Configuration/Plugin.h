@@ -15,7 +15,8 @@ struct ezPluginEvent
   enum Type
   {
     BeforeLoading,          ///< Sent shortly before a new plugin is loaded
-    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins)
+    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of
+                            ///< other plugins)
     AfterLoading,           ///< Sent after a new plugin has been loaded and initialized
     BeforeUnloading,        ///< Sent before a plugin is going to be unloaded
     StartupShutdown,        ///< Used by the startup system for automatic shutdown
@@ -41,11 +42,13 @@ class EZ_FOUNDATION_DLL ezPlugin : public ezEnumerable<ezPlugin>
   EZ_DECLARE_ENUMERABLE_CLASS(ezPlugin);
 
 public:
-  /// \brief Callback type for when a plugin has just been loaded (not yet initialized). bReloading is true, if the plugin is currently being reloaded.
-  typedef void (*OnPluginLoadedFunction)(bool bReloading); // [tested]
+  /// \brief Callback type for when a plugin has just been loaded (not yet initialized). bReloading is true, if the plugin is currently being
+  /// reloaded.
+  using OnPluginLoadedFunction = void (*)(bool bReloading); // [tested]
 
-  /// \brief Callback type for when a plugin will be unloaded (after all deinitializations). bReloading is true, if the plugin is currently being reloaded.
-  typedef void (*OnPluginUnloadedFunction)(bool bReloading); // [tested]
+  /// \brief Callback type for when a plugin will be unloaded (after all deinitializations). bReloading is true, if the plugin is currently being
+  /// reloaded.
+  using OnPluginUnloadedFunction = void (*)(bool bReloading); // [tested]
 
   /// \brief Call this before loading / unloading several plugins in a row, to prevent unnecessary re-initializations.
   static void BeginPluginChanges();
@@ -64,7 +67,8 @@ public:
   /// \param szPluginDependency1
   ///   Allows to specify other modules that this plugin depends on. These will be automatically loaded and unloaded together with this plugin.
   ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = nullptr, OnPluginUnloadedFunction OnUnloadPlugin = nullptr,
-    const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr, const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
+    const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr,
+    const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
 
   /// \brief Returns the name that was used to load the plugin from disk.
   const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); } // [tested]

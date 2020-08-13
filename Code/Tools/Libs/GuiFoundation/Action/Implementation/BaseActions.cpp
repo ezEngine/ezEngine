@@ -131,8 +131,8 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item
         }
         else if (m_pEnumerationType->IsDerivedFrom<ezBitflagsBase>())
         {
-          item.m_CheckState = ((iCurrentValue & iValue) != 0) ? ezDynamicMenuAction::Item::CheckMark::Checked
-                                                              : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+          item.m_CheckState =
+            ((iCurrentValue & iValue) != 0) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
         }
       }
     }

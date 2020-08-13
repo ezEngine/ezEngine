@@ -148,8 +148,7 @@ void ezApplicationFileSystemConfig::Apply()
     // if (ezFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
     {
       ezFileSystem::AddDataDirectory(var.m_sDataDirSpecialPath, "AppFileSystemConfig", var.m_sRootName,
-                                     (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites
-                                                                                     : ezFileSystem::DataDirUsage::ReadOnly);
+        (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
     }
   }
 }
@@ -192,4 +191,3 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_FileSystemConfig);
-

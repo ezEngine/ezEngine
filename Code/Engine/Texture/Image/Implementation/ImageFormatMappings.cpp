@@ -4,7 +4,8 @@
 
 #define MAKE_FOURCC(a, b, c, d) (a) | ((b) << 8) | ((c) << 16) | ((d) << 24)
 
-typedef enum DXGI_FORMAT {
+typedef enum DXGI_FORMAT
+{
   DXGI_FORMAT_UNKNOWN = 0,
   DXGI_FORMAT_R32G32B32A32_TYPELESS = 1,
   DXGI_FORMAT_R32G32B32A32_FLOAT = 2,
@@ -127,8 +128,8 @@ typedef enum DXGI_FORMAT {
 ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
 {
 
-#define CASE_EZ2DXGI(ez)  \
-  case ezImageFormat::ez: \
+#define CASE_EZ2DXGI(ez)                                                                                                                             \
+  case ezImageFormat::ez:                                                                                                                            \
     return DXGI_FORMAT_##ez
   switch (format)
   {
@@ -208,8 +209,8 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
 
 ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
 {
-#define CASE_DXGI2EZ(ez) \
-  case DXGI_FORMAT_##ez: \
+#define CASE_DXGI2EZ(ez)                                                                                                                             \
+  case DXGI_FORMAT_##ez:                                                                                                                             \
     return ezImageFormat::ez
   switch (uiDxgiFormat)
   {
@@ -338,7 +339,7 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
     case 116: // D3DFMT_A32B32G32R32F
       return ezImageFormat::R32G32B32A32_FLOAT;
 
-    case 115: //D3DFMT_G32R32F
+    case 115: // D3DFMT_G32R32F
       return ezImageFormat::R32G32_FLOAT;
 
     case 114: // D3DFMT_R32F
@@ -353,10 +354,10 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
     case 111: // D3DFMT_R16F
       return ezImageFormat::R16_FLOAT;
 
-    case 110: //D3DFMT_Q16W16V16U16
+    case 110: // D3DFMT_Q16W16V16U16
       return ezImageFormat::R16G16B16A16_SNORM;
 
-    case 36: //D3DFMT_A16B16G16R16
+    case 36: // D3DFMT_A16B16G16R16
       return ezImageFormat::R16G16B16A16_UNORM;
 
     default:
@@ -367,4 +368,3 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFormatMappings);
-

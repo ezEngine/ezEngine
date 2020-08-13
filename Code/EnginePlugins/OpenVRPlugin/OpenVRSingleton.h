@@ -31,8 +31,8 @@ public:
   virtual const ezVRDeviceState& GetDeviceState(ezVRDeviceID uiDeviceID) const override;
   virtual ezEvent<const ezVRDeviceEvent&>& DeviceEvents() override;
 
-  virtual ezViewHandle CreateVRView(const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera,
-                                    ezGALMSAASampleCount::Enum msaaCount) override;
+  virtual ezViewHandle CreateVRView(
+    const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera, ezGALMSAASampleCount::Enum msaaCount) override;
   virtual ezViewHandle GetVRView() const override;
   virtual bool DestroyVRView() override;
   virtual bool SupportsCompanionView() override;
@@ -56,8 +56,8 @@ private:
 
   ezMat4 GetHMDProjectionEye(vr::Hmd_Eye nEye, float fNear, float fFar) const;
   ezMat4 GetHMDEyePose(vr::Hmd_Eye nEye) const;
-  ezString GetTrackedDeviceString(vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop,
-                                  vr::TrackedPropertyError* peError = nullptr) const;
+  ezString GetTrackedDeviceString(
+    vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = nullptr) const;
 
   static ezMat4 ConvertSteamVRMatrix(const vr::HmdMatrix34_t& matPose);
   static ezVec3 ConvertSteamVRVector(const vr::HmdVector3_t& vector);

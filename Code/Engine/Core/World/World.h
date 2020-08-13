@@ -16,9 +16,9 @@ class ezEventMessageHandlerComponent;
 ///   Thus it is not allowed to access any data other than the components own data during that phase.
 /// * Post-async phase: Another synchronous phase like the pre-async phase.
 /// * Actual deletion of dead objects and components are done now.
-/// * Transform update: The world transformation of all dynamic objects is updated.
+/// * Transform update: The global transformation of dynamic objects is updated.
 /// * Post-transform phase: Another synchronous phase like the pre-async phase after the transformation has been updated.
-class EZ_CORE_DLL ezWorld
+class EZ_CORE_DLL ezWorld final
 {
 public:
   /// \brief Creates a new world with the given name.
@@ -32,7 +32,7 @@ public:
   const char* GetName() const;
 
   /// \brief Returns the index of this world.
-  ezUInt16 GetIndex() const;
+  ezUInt8 GetIndex() const;
 
   /// \name Object Functions
   ///@{
@@ -188,6 +188,10 @@ public:
   /// and their OnSimulationStarted function was called.
   bool IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& batch, double* pCompletionFactor = nullptr);
 
+  /// \brief Cancel the init batch if it is still active. This might leave outstanding components in an inconsistent state,
+  /// so this function has be used with care.
+  void CancelComponentInitBatch(const ezComponentInitBatchHandle& batch);
+
   ///@}
   /// \name Message Functions
   ///@{
@@ -199,17 +203,20 @@ public:
   void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay,
+    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerComponent.
   ///
@@ -233,7 +240,7 @@ public:
   void Update();
 
   /// \brief Returns a task implementation that calls Update on this world.
-  ezTask* GetUpdateTask();
+  const ezSharedPtr<ezTask>& GetUpdateTask();
 
 
   /// \brief Returns the spatial system that is associated with this world.
@@ -336,14 +343,16 @@ private:
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
 
-  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
+  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent,
+    ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
 
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
+  void PostMessage(
+    const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
@@ -372,7 +381,7 @@ private:
 
   bool ReportErrorWhenStaticObjectMoves() const;
 
-  ezDelegateTask<void> m_UpdateTask;
+  ezSharedPtr<ezTask> m_pUpdateTask;
 
   ezInternal::WorldData m_Data;
 

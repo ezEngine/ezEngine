@@ -8,7 +8,7 @@
 #include <qevent.h>
 
 ezQtGraphicsView::ezQtGraphicsView(QWidget* parent /*= nullptr*/)
-    : QGraphicsView(parent)
+  : QGraphicsView(parent)
 {
   m_fZoom = 50.0f;
   m_fMinZoom = 10.0f;

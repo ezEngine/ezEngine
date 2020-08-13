@@ -96,4 +96,3 @@ inline void ezClock::SetSpeed(double fFactor)
 
   m_Speed = fFactor;
 }
-

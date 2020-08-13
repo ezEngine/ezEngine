@@ -163,7 +163,7 @@ export abstract class TypescriptComponent extends Component {
     }
 
     /**
-     * Broadcasts and event message up the graph (ie. to parent nodes) and to the next mvent message handler.
+     * Broadcasts and event message up the graph (ie. to parent nodes) and to the next event message handler.
      */
     protected BroadcastEvent<TYPE extends EventMessage>(msg: TYPE): void { // [tested]
 

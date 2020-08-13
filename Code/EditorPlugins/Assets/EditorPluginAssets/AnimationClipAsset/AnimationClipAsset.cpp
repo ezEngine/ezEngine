@@ -259,9 +259,8 @@ void ezAnimationClipAssetDocument::ExtractRootMotionFromFeet(ezAnimationClipReso
     const ezUInt16 nextFrame = (thisFrame + 1) % numFrames;
     const ezUInt16 nextFrame2 = (thisFrame + 2) % numFrames;
 
-    const ezVec3 smoothedTranslation = (translations[prevFrame2] + translations[prevFrame] + translations[thisFrame] +
-                                         translations[nextFrame] + translations[nextFrame2]) *
-                                       0.2f;
+    const ezVec3 smoothedTranslation =
+      (translations[prevFrame2] + translations[prevFrame] + translations[thisFrame] + translations[nextFrame] + translations[nextFrame2]) * 0.2f;
 
     pRootTransforms[thisFrame].m_vPosition = smoothedTranslation;
   }
@@ -306,8 +305,8 @@ ezAnimationClipAssetDocumentGenerator::ezAnimationClipAssetDocumentGenerator()
 
 ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator() {}
 
-void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezAnimationClipAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -321,8 +320,8 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentD
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-  ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimationClipAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

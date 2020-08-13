@@ -262,8 +262,7 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_Result);
 
   /// \brief Converts a ezVariantArray to a string
-  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value,
-    ezStringBuilder& out_Result);
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value, ezStringBuilder& out_Result);
 
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>

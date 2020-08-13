@@ -40,9 +40,9 @@ public:
   };
 
   struct Sphere : public Shape
-  {    
+  {
     float m_fFadeOutScale;
-    float m_fFadeOutBias;    
+    float m_fFadeOutBias;
   };
 
   struct Box : public Shape
@@ -60,11 +60,11 @@ public:
   static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
     const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
 
-  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
-    float fValue, float fFadeOutStart);
+  void AddSphere(
+    const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart);
 
-  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
-    float fValue, const ezVec3& vFadeOutStart);
+  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue,
+    const ezVec3& vFadeOutStart);
 
 private:
   ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;

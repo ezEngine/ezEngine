@@ -19,7 +19,8 @@ struct TestId
     m_SystemIndex = systemIndex;
   }
 
-  union {
+  union
+  {
     StorageType m_Data;
     struct
     {

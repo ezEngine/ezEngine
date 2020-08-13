@@ -96,7 +96,6 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestTypeDerived::Method, &test)));
     EZ_TEST_BOOL(d.IsComparable());
     EZ_TEST_INT(d(4), 8);
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method With Many Params")
@@ -110,8 +109,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     many = TestDelegateMany(&TestType::MethodWithManyParams, &test);
     EZ_TEST_BOOL(many.IsEqualIfComparable(TestDelegateMany(&TestType::MethodWithManyParams, &test)));
     EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(many(1,10,100,1000,10000,100000), 1111111);
-
+    EZ_TEST_INT(many(1, 10, 100, 1000, 10000, 100000), 1111111);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Class")
@@ -167,10 +165,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value")
   {
     ezInt32 c = 20;
-    d = [c](ezInt32)
-    {
-      return c;
-    };
+    d = [c](ezInt32) { return c; };
     EZ_TEST_BOOL(!d.IsComparable());
     EZ_TEST_INT(d(3), 20);
     c = 10;
@@ -228,7 +223,6 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
       EZ_TEST_INT(shared->GetRefCount(), 2);
     }
     EZ_TEST_INT(shared->GetRefCount(), 1);
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture lots of things")
@@ -267,7 +261,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     }
 
     // Move delegate
-    ezConstructionCounter::Reset();    
+    ezConstructionCounter::Reset();
     d.Invalidate();
     {
       ezConstructionCounter value;
@@ -276,7 +270,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
       EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 0);
       TestDelegate d2 = [value](ezInt32 i) -> ezInt32 { return value.m_iData; };
       EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
-      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1); // Move of lambda
+      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);  // Move of lambda
       d = std::move(d2);
       // Moving a construction counter also counts as construction
       EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 4);

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
-#include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
+#include <EditorFramework/Gizmos/TranslateGizmo.h>
+#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
 struct ezGizmoEvent;
 

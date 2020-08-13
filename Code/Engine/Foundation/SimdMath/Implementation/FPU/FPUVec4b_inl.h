@@ -125,4 +125,3 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet() const
 {
   return !AnySet<N>();
 }
-

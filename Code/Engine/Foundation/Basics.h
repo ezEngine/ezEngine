@@ -4,6 +4,7 @@
 
 #include <Foundation/Basics/AllDefinesOff.h>
 
+#include <Foundation/Basics/Platform/DetectArchitecture.h>
 #include <Foundation/Basics/Platform/DetectPlatform.h>
 
 #include <Foundation/UserConfig.h>
@@ -38,8 +39,7 @@
 
 #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
 #  if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#    error \
-      "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
+#    error "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
 #  endif
 #  if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 #    error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"

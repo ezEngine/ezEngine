@@ -121,8 +121,8 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
   DWORD sizeHigh = static_cast<DWORD>((uiSize >> 32) & 0xFFFFFFFFu);
   DWORD sizeLow = static_cast<DWORD>(uiSize & 0xFFFFFFFFu);
 
-  m_Impl->m_hMapping = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, m_Impl->m_Mode == Mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, sizeHigh, sizeLow,
-    ezStringWChar(szSharedName).GetData());
+  m_Impl->m_hMapping = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, m_Impl->m_Mode == Mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, sizeHigh,
+    sizeLow, ezStringWChar(szSharedName).GetData());
 
   if (m_Impl->m_hMapping == nullptr || m_Impl->m_hMapping == INVALID_HANDLE_VALUE)
   {

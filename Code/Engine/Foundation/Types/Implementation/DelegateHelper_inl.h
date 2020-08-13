@@ -76,7 +76,7 @@ template <typename R, class... Args, ezUInt32 DataSize>
 struct ezDelegate<R(Args...), DataSize> : public ezDelegateBase
 {
 private:
-  typedef ezDelegate<R(Args...), DataSize> SelfType;
+  using SelfType = ezDelegate<R(Args...), DataSize>;
   constexpr const void* HeapLambda() const { return reinterpret_cast<const void*>((size_t)-1); }
   constexpr const void* InplaceLambda() const { return reinterpret_cast<const void*>((size_t)-2); }
 
@@ -151,10 +151,7 @@ public:
     }
   }
 
-  EZ_ALWAYS_INLINE ~ezDelegate()
-  {
-    Invalidate();
-  }
+  EZ_ALWAYS_INLINE ~ezDelegate() { Invalidate(); }
 
   /// \brief Copies the data from another delegate.
   EZ_FORCE_INLINE void operator=(const SelfType& other)
@@ -203,10 +200,7 @@ public:
   }
 
   /// \brief Resets a delegate to an invalid state.
-  EZ_FORCE_INLINE void operator=(std::nullptr_t)
-  {
-    Invalidate();
-  }
+  EZ_FORCE_INLINE void operator=(std::nullptr_t) { Invalidate(); }
 
   /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
   EZ_FORCE_INLINE R operator()(Args... params) const
@@ -260,12 +254,11 @@ public:
   EZ_ALWAYS_INLINE bool IsComparable() const { return m_pInstance.m_ConstPtr < InplaceLambda(); } // [tested]
 
 private:
-
   template <typename Function>
   EZ_FORCE_INLINE void CopyFunctionToInplaceStorage(Function function)
   {
-    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected {0} bytes alignment",
-      EZ_ALIGNMENT_OF(Function));
+    EZ_ASSERT_DEBUG(
+      ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected {0} bytes alignment", EZ_ALIGNMENT_OF(Function));
 
     memcpy(m_Data, &function, sizeof(Function));
     memset(m_Data + sizeof(Function), 0, DataSize - sizeof(Function));
@@ -325,7 +318,7 @@ private:
     return reinterpret_cast<ezLambdaDelegateStorage<Function>*>(&self.m_Data)->m_func(params...);
   }
 
-  typedef R (*DispatchFunction)(const SelfType& self, Args...);
+  using DispatchFunction = R (*)(const SelfType&, Args...);
   DispatchFunction m_pDispatchFunction;
 
   union
@@ -347,11 +340,11 @@ struct ezMakeDelegateHelper
 template <typename Class, typename R, typename... Args>
 struct ezMakeDelegateHelper<R (Class::*)(Args...)>
 {
-  typedef ezDelegate<R(Args...)> DelegateType;
+  using DelegateType = ezDelegate<R(Args...)>;
 };
 
 template <typename Class, typename R, typename... Args>
 struct ezMakeDelegateHelper<R (Class::*)(Args...) const>
 {
-  typedef ezDelegate<R(Args...)> DelegateType;
+  using DelegateType = ezDelegate<R(Args...)>;
 };

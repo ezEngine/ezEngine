@@ -1,9 +1,9 @@
 
 #pragma once
 
+#include <Foundation/Types/Bitflags.h>
 #include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/Device/Device.h>
-#include <Foundation/Types/Bitflags.h>
 
 // TODO: This should not be included in a header, it exposes Windows.h to the outside
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
@@ -19,7 +19,6 @@ struct IDXGIDevice1;
 struct ID3D11Resource;
 struct ID3D11Query;
 struct IDXGIAdapter;
-enum D3D_FEATURE_LEVEL : int;
 
 typedef ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0> ezGALFormatLookupEntryDX11;
 typedef ezGALFormatLookupTable<ezGALFormatLookupEntryDX11> ezGALFormatLookupTableDX11;
@@ -31,14 +30,12 @@ class EZ_RENDERERDX11_DLL ezGALDeviceDX11 : public ezGALDevice
 
   /// \todo This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
 public:
-
   ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description);
 
   virtual ~ezGALDeviceDX11();
 
 
 public:
-
   ID3D11Device* GetDXDevice() const;
   ID3D11Device3* GetDXDevice3() const;
 
@@ -50,7 +47,6 @@ public:
 
   // These functions need to be implemented by a render API abstraction
 protected:
-
   // Init & shutdown functions
 
   /// \brief Internal version of device init that allows to modify device creation flags and graphics adapter.
@@ -93,19 +89,23 @@ protected:
 
   virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) override;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
+  virtual ezGALTexture* CreateTexturePlatform(
+    const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
 
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
+  virtual ezGALResourceView* CreateResourceViewPlatform(
+    ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
 
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) override;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
+  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(
+    ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
 
-  ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) override;
+  ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(
+    ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) override;
 
   virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pResource) override;
 
@@ -150,7 +150,6 @@ protected:
   /// \endcond
 
 private:
-
   friend class ezGALContextDX11;
 
   struct TempResourceType
@@ -185,7 +184,7 @@ private:
 
   ezGALFormatLookupTableDX11 m_FormatLookupTable;
 
-  D3D_FEATURE_LEVEL m_FeatureLevel;
+  ezUInt32 m_FeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
 
   struct PerFrameData
   {
@@ -210,7 +209,8 @@ private:
     ezUInt32 m_uiHash;
   };
 
-  ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
+  ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper>
+    m_FreeTempResources[TempResourceType::ENUM_COUNT];
   ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
 
   ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Timestamps;

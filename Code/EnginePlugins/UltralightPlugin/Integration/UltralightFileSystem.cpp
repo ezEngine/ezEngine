@@ -3,8 +3,8 @@
 
 #include <UltralightPlugin/Integration/UltralightFileSystem.h>
 
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
 ezUltralightFileSystem::ezUltralightFileSystem() = default;
@@ -184,7 +184,8 @@ int32_t ezUltralightFileSystem::GetVolumeId(const ultralight::String16& path)
   return 0;
 }
 
-ultralight::Ref<ultralight::String16Vector> ezUltralightFileSystem::ListDirectory(const ultralight::String16& path, const ultralight::String16& filter)
+ultralight::Ref<ultralight::String16Vector> ezUltralightFileSystem::ListDirectory(
+  const ultralight::String16& path, const ultralight::String16& filter)
 {
   ultralight::Ref<ultralight::String16Vector> entries = ultralight::String16Vector::Create();
 

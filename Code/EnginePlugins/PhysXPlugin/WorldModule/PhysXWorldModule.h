@@ -1,12 +1,18 @@
 #pragma once
 
+#include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/PhysXInterface.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
 
 class ezPxSimulationEventCallback;
-class ezPxUserData;
+
+namespace physx
+{
+  class PxConstraint;
+}
 
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
@@ -30,7 +36,8 @@ public:
   void DeleteShapeId(ezUInt32& uiShapeId);
 
   ezUInt32 AllocateUserData(ezPxUserData*& out_pUserData);
-  void DeallocateUserData(ezUInt32& uiUserDataIndex);
+  void DeallocateUserData(ezUInt32& uiUserDataId);
+  ezPxUserData& GetUserData(ezUInt32 uiUserDataId);
 
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
   virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
@@ -40,28 +47,40 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezPhysicsWorldModuleInterface
 
-  virtual bool Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const override;
+  virtual bool RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params) const override;
 
-  virtual bool SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform,
+    const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params,
+    ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
-  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+  virtual bool OverlapTestCapsule(
+    float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
+  virtual void QueryShapesInSphere(
+    ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
 
   virtual void* CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& transform, const ezAnimationPose& initPose) override;
 
+  ezMap<physx::PxConstraint*, ezComponentHandle> m_BreakableJoints;
+  ezDeque<ezComponentHandle> m_RequireUpdate;
+
 private:
-  bool SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
+  bool SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir,
+    float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
   bool OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezPhysicsQueryParameters& params) const;
 
   void FreeUserDataAfterSimulationStep();
@@ -69,8 +88,13 @@ private:
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
+  void HandleBrokenConstraints();
+  void HandleTriggerEvents();
+
   void Simulate();
   void SimulateStep(ezTime deltaTime);
+
+  void UpdateJoints();
 
   physx::PxScene* m_pPxScene;
   physx::PxControllerManager* m_pCharacterManager;
@@ -87,9 +111,10 @@ private:
 
   ezTime m_AccumulatedTimeSinceUpdate;
 
+
   ezPxSettings m_Settings;
 
-  ezDelegateTask<void> m_SimulateTask;
+  ezSharedPtr<ezTask> m_pSimulateTask;
   ezTaskGroupID m_SimulateTaskGroupId;
   bool m_bSimulationStepExecuted = false;
 

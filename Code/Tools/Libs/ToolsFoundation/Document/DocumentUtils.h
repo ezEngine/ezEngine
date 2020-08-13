@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezDocumentObject;
 struct ezDocumentTypeDescriptor;

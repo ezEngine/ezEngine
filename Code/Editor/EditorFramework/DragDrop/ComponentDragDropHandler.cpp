@@ -81,7 +81,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
   }
 }
 
-void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
+void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition, const ezQuat& qRotation)
 {
   auto history = m_pDocument->GetCommandHistory();
 
@@ -91,11 +91,18 @@ void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const 
   cmd2.m_sProperty = "LocalPosition";
   cmd2.m_NewValue = vPosition;
   history->AddCommand(cmd2);
+
+  if (qRotation.IsValid())
+  {
+    cmd2.m_sProperty = "LocalRotation";
+    cmd2.m_NewValue = qRotation;
+    history->AddCommand(cmd2);
+  }
 }
 
-void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, bool bAllowSnap)
+void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, bool bAllowSnap, const ezVec3& normal)
 {
-  if (m_DraggedObjects.IsEmpty() || vPosition.IsNaN())
+  if (m_DraggedObjects.IsEmpty() || !vPosition.IsValid())
     return;
 
   if (bAllowSnap)
@@ -107,9 +114,17 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
 
   history->StartTransaction("Move to Position");
 
+  ezQuat rot;
+  rot.SetIdentity();
+
+  if (normal.IsValid() && !m_vAlignAxisWithNormal.IsZero(0.01f))
+  {
+    rot.SetShortestRotation(m_vAlignAxisWithNormal, normal);
+  }
+
   for (const auto& guid : m_DraggedObjects)
   {
-    MoveObjectToPosition(guid, vPosition);
+    MoveObjectToPosition(guid, vPosition, rot);
   }
 
   history->FinishTransaction();
@@ -161,7 +176,7 @@ void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   if (vPos.IsNaN() || !pInfo->m_TargetObject.IsValid())
     vPos.SetZero();
 
-  MoveDraggedObjectsToPosition(vPos, !pInfo->m_bCtrlKeyDown);
+  MoveDraggedObjectsToPosition(vPos, !pInfo->m_bCtrlKeyDown, pInfo->m_vDropNormal);
 }
 
 void ezComponentDragDropHandler::OnDragCancel()

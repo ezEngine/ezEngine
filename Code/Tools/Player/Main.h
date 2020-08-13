@@ -22,5 +22,3 @@ private:
   ezString m_sSceneFile;
   ezUniquePtr<ezWorld> m_pWorld;
 };
-
-

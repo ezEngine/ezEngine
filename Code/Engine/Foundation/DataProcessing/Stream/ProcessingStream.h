@@ -26,14 +26,14 @@ public:
 
     Matrix4x4,
 
-    //Byte, -> memory corruptions?
-    //Byte2,
+    // Byte, -> memory corruptions?
+    // Byte2,
     /*Byte3 - bad alignment*/
-    //Byte4,
+    // Byte4,
 
-    //Short,
+    // Short,
     Short2,
-    //Short3,
+    // Short3,
     Short4,
 
     Int,
@@ -104,4 +104,3 @@ protected:
 
   ezHashedString m_Name;
 };
-

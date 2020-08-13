@@ -1,13 +1,13 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <Foundation/Types/Variant.h>
-#include <Foundation/Types/Enum.h>
-#include <Foundation/Types/Bitflags.h>
-#include <Foundation/Types/Id.h>
-#include <Foundation/Strings/HashedString.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Enum.h>
+#include <Foundation/Types/Id.h>
+#include <Foundation/Types/Variant.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezRTTI;
 class ezPhantomRttiManager;
@@ -43,9 +43,11 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor : public ezAttribute
 {
   ezReflectedPropertyDescriptor() {}
   ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags);
-  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
+  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags,
+    const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
   /// \brief Initialize to a constant.
-  ezReflectedPropertyDescriptor(const char* szName, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
+  ezReflectedPropertyDescriptor(
+    const char* szName, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
   ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs);
   ~ezReflectedPropertyDescriptor();
 
@@ -73,7 +75,8 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezFunctionArgumentDescriptor
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedFunctionDescriptor : public ezAttributeHolder
 {
   ezReflectedFunctionDescriptor();
-  ezReflectedFunctionDescriptor(const char* szName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, const ezArrayPtr<ezPropertyAttribute* const> attributes);
+  ezReflectedFunctionDescriptor(
+    const char* szName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, const ezArrayPtr<ezPropertyAttribute* const> attributes);
 
   ezReflectedFunctionDescriptor(const ezReflectedFunctionDescriptor& rhs);
   ~ezReflectedFunctionDescriptor();
@@ -105,6 +108,3 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor : public ezAttributeHold
   ezUInt32 m_uiTypeVersion;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedTypeDescriptor);
-
-
-

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ads/DockManager.h>
 #include <Foundation/Basics.h>
 #include <Inspector/StatVisWidget.moc.h>
 #include <Inspector/ui_MainWindow.h>
 #include <QMainWindow>
+#include <ads/DockManager.h>
 
 class ezQtMainWindow : public QMainWindow, public Ui_MainWindow
 {

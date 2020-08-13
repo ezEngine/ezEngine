@@ -52,6 +52,5 @@ class EZ_SHAREDPLUGINSCENE_DLL ezPushObjectStateMsgToEditor : public ezEditorEng
   EZ_ADD_DYNAMIC_REFLECTION(ezPushObjectStateMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-
   ezDynamicArray<ezPushObjectStateData> m_ObjectStates;
 };

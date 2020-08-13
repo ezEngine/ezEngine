@@ -8,7 +8,7 @@ class TestSingleton
 
 public:
   TestSingleton()
-      : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
   {
   }
 
@@ -29,7 +29,7 @@ class TestSingletonOfInterface : public SingletonInterface
 
 public:
   TestSingletonOfInterface()
-      : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
   {
   }
 

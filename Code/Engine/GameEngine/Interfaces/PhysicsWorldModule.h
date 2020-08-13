@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
@@ -49,7 +50,8 @@ EZ_DECLARE_FLAGS(ezUInt32, ezPhysicsShapeType, Static, Dynamic);
 struct ezPhysicsQueryParameters
 {
   ezPhysicsQueryParameters() = default;
-  explicit ezPhysicsQueryParameters(ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreShapeId = ezInvalidIndex)
+  explicit ezPhysicsQueryParameters(ezUInt32 uiCollisionLayer,
+    ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreShapeId = ezInvalidIndex)
     : m_uiCollisionLayer(uiCollisionLayer)
     , m_ShapeTypes(shapeTypes)
     , m_uiIgnoreShapeId(uiIgnoreShapeId)
@@ -59,6 +61,7 @@ struct ezPhysicsQueryParameters
   ezUInt32 m_uiCollisionLayer = 0;
   ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
   ezUInt32 m_uiIgnoreShapeId = ezInvalidIndex;
+  bool m_bIgnoreInitialOverlap = false;
 };
 
 enum class ezPhysicsHitCollection
@@ -119,6 +122,14 @@ struct EZ_GAMEENGINE_DLL ezMsgPhysicsAddForce : public ezMessage
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vForce;
 };
+
+struct EZ_GAMEENGINE_DLL ezMsgPhysicsJointBroke : public ezEventMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezEventMessage);
+
+  ezGameObjectHandle m_hJointObject;
+};
+
 
 //////////////////////////////////////////////////////////////////////////
 

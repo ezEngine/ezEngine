@@ -26,7 +26,8 @@ namespace ezMemoryPolicies
 
     EZ_FORCE_INLINE ~ezStackAllocation()
     {
-      EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && (m_Buckets.IsEmpty() || m_Buckets[m_uiCurrentBucketIndex].GetPtr() == m_pNextAllocation), "There is still something allocated!");
+      EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && (m_Buckets.IsEmpty() || m_Buckets[m_uiCurrentBucketIndex].GetPtr() == m_pNextAllocation),
+        "There is still something allocated!");
       for (auto& bucket : m_Buckets)
       {
         m_pParent->Deallocate(bucket.GetPtr());
@@ -73,9 +74,7 @@ namespace ezMemoryPolicies
         m_uiNextBucketSize *= 2;
       }
 
-      auto& currentBucket = m_Buckets[m_uiCurrentBucketIndex];
-
-      EZ_ASSERT_DEBUG(m_pNextAllocation + uiSize <= currentBucket.GetEndPtr(), "");
+      EZ_ASSERT_DEBUG(m_pNextAllocation + uiSize <= m_Buckets[m_uiCurrentBucketIndex].GetEndPtr(), "");
 
       ezUInt8* ptr = m_pNextAllocation;
       m_pNextAllocation += uiSize;

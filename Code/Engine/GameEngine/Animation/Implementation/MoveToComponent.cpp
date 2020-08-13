@@ -121,20 +121,20 @@ void ezMoveToComponent::Update()
     pOwner->SetGlobalPosition(m_vTargetPosition);
 
     ezMsgAnimationReachedEnd msg;
-    m_ReachedEndMsgSender.SendMessage(msg, this, GetOwner());
+    m_ReachedEndMsgSender.SendEventMessage(msg, this, GetOwner());
 
     return;
   }
 
   const ezVec3 vDir = vDiff / fRemainingLength;
 
-  m_fCurTranslationSpeed = CalculateNewSpeed(fRemainingLength, m_fCurTranslationSpeed, m_fMaxTranslationSpeed, m_fTranslationAcceleration, m_fTranslationDeceleration, GetWorld()->GetClock().GetTimeDiff().GetSeconds());
+  m_fCurTranslationSpeed = CalculateNewSpeed(fRemainingLength, m_fCurTranslationSpeed, m_fMaxTranslationSpeed, m_fTranslationAcceleration,
+    m_fTranslationDeceleration, GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds());
 
-  const float fTravelDist = ezMath::Min<float>(fRemainingLength, m_fCurTranslationSpeed * GetWorld()->GetClock().GetTimeDiff().GetSeconds());
+  const float fTravelDist = ezMath::Min<float>(fRemainingLength, m_fCurTranslationSpeed * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds());
 
   pOwner->SetGlobalPosition(vCurPos + vDir * fTravelDist);
 }
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_MoveToComponent);
-

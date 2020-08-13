@@ -50,7 +50,7 @@ export namespace Physics {
      * Casts a ray in the physics world. Returns a HitResult for the closest object that was hit, or null if no object was hit.
      * 
      * @param start The start position of the ray in global space.
-     * @param dir The normalized direction into which to cast the ray.
+     * @param dir The direction into which to cast the ray. Does not need to be normalized.
      * @param distance The length of the ray. Objects farther away than this cannot be hit.
      * @param collisionLayer The index of the collision layer to use, thus describing which objects can be hit by the raycast at all.
      * @param shapeTypes Wether to raycast against static or dynamic shapes, or both.

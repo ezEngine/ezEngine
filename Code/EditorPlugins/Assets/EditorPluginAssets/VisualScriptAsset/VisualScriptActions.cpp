@@ -15,8 +15,8 @@ ezActionDescriptorHandle ezVisualScriptActions::s_hPickDebugTarget;
 void ezVisualScriptActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("VisualScriptCategory");
-  s_hPickDebugTarget = EZ_REGISTER_ACTION_1("VisScript.PickDebugTarget", ezActionScope::Window, "Visual Script", "", ezVisualScriptAction,
-    ezVisualScriptAction::ActionType::PickDebugTarget);
+  s_hPickDebugTarget = EZ_REGISTER_ACTION_1(
+    "VisScript.PickDebugTarget", ezActionScope::Window, "Visual Script", "", ezVisualScriptAction, ezVisualScriptAction::ActionType::PickDebugTarget);
 }
 
 void ezVisualScriptActions::UnregisterActions()

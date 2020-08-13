@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{1515248734872589840}
+		u4 %Hash{12559708306653611829}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -77,11 +77,12 @@ o
 {
 	Uuid %id{u4{13007502657956981877,466100377528254623}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -89,17 +90,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{11031200826755857987,862860702557712938}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -107,6 +110,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -182,11 +186,12 @@ o
 {
 	Uuid %id{u4{6587394144458389559,1434735526537773477}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -194,6 +199,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -227,11 +233,12 @@ o
 {
 	Uuid %id{u4{14334417920729438367,1633719149130302757}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -239,6 +246,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -362,11 +370,12 @@ o
 {
 	Uuid %id{u4{10927569106979770773,2011860585445469596}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -374,6 +383,7 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -593,11 +603,12 @@ o
 {
 	Uuid %id{u4{12789997817154686811,2338477836891579307}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -605,6 +616,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -640,11 +652,12 @@ o
 {
 	Uuid %id{u4{9818351862703951946,2397966043873728410}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -652,6 +665,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -685,11 +699,12 @@ o
 {
 	Uuid %id{u4{8894271374804557691,2529297247092431504}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -697,6 +712,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -784,11 +800,12 @@ o
 {
 	Uuid %id{u4{9595970961187516242,2713748916914854303}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -796,6 +813,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -933,11 +951,12 @@ o
 {
 	Uuid %id{u4{10864840796264583942,3267863267259675628}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -945,6 +964,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -1059,11 +1079,12 @@ o
 {
 	Uuid %id{u4{7959340064472831657,3965277843574713261}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x0000000000000040}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -1071,6 +1092,7 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -1131,11 +1153,12 @@ o
 {
 	Uuid %id{u4{8741154852630916998,4660516589553992680}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -1143,17 +1166,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{3850456821406453145,4668675779954458959}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ b692dd6a-56a1-45cb-b22c-f3496380aeff }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -1161,6 +1186,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -1265,6 +1291,34 @@ o
 }
 o
 {
+	Uuid %id{u4{16976572865042245281,4742829752690116655}}
+	s %t{"ezCameraComponent"}
+	u3 %v{9}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		s %CameraRenderPipeline{""}
+		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{1}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0x0000803E}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
+		b %ShowStats{0}
+		Time %ShutterTime{d{0x000000000000F03F}}
+		s %UsageHint{"ezCameraUsageHint::Thumbnail"}
+	}
+}
+o
+{
 	Uuid %id{u4{14939608202465262768,4744203143995727721}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1304,6 +1358,7 @@ o
 			Uuid{u4{14636725684677561022,4950644262662634008}}
 			Uuid{u4{7762657555460290455,5152181436861837777}}
 			Uuid{u4{4184379643003521440,5345747637243799799}}
+			Uuid{u4{8253829191535739539,5417210495468666200}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -1324,11 +1379,12 @@ o
 {
 	Uuid %id{u4{16154726807582810002,4804719315698969707}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -1336,6 +1392,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -1369,10 +1426,11 @@ o
 {
 	Uuid %id{u4{4846661665434067641,4868684072221497670}}
 	s %t{"ezPlayerStartPointComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		VarDict %Parameters{}
 		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 	}
 }
@@ -1428,11 +1486,12 @@ o
 {
 	Uuid %id{u4{351308001296778121,4918700357571917199}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -1440,17 +1499,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{1255854533838167169,4946367492221265150}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -1458,6 +1519,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -1623,11 +1685,12 @@ o
 {
 	Uuid %id{u4{9367824311617450417,5035029907764235997}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -1635,6 +1698,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -1773,11 +1837,12 @@ o
 {
 	Uuid %id{u4{13817172770489997497,5115555010005930851}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -1785,17 +1850,19 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{1522054360313319048,5134836021302756971}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 6647c90c-1552-4217-8ba8-f010b656d931 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -1803,17 +1870,19 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{6269933889294442652,5144030153231156450}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 17298929-c856-4d66-b654-44388e471fb3 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -1821,17 +1890,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{7220941824395363485,5144072521044078531}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -1839,6 +1910,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -2040,11 +2112,12 @@ o
 {
 	Uuid %id{u4{11418657655872386990,5314011076736678659}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 61cf41fb-176e-41e1-bcd6-fcbe5f853339 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters
@@ -2055,6 +2128,7 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -2107,11 +2181,12 @@ o
 {
 	Uuid %id{u4{18001070750118309078,5361617880501598945}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -2119,6 +2194,7 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -2228,6 +2304,33 @@ o
 }
 o
 {
+	Uuid %id{u4{8253829191535739539,5417210495468666200}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16976572865042245281,4742829752690116655}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD60AC5C0,0xAC26F0C1,0x6C02DE40}}
+		Quat %LocalRotation{f{0x026D0ABE,0x84E5313E,0x3B5B193F,0x9D15453F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{14729553452419622821,5420889389530422785}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -2242,7 +2345,7 @@ o
 {
 	Uuid %id{u4{2901593163521734279,5439343820954740542}}
 	s %t{"ezSpawnComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2250,6 +2353,7 @@ o
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0xC2B8B23E}}
 		Time %MinDelay{d{0x000000000000E03F}}
+		VarDict %Parameters{}
 		s %Prefab{"{ 565b85bf-e479-442a-86fa-332dde4d3d70 }"}
 		b %SpawnAtStart{1}
 		b %SpawnContinuously{1}
@@ -2286,11 +2390,12 @@ o
 {
 	Uuid %id{u4{13782366178532704917,5473178271096073552}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 053ad11f-9453-43dc-8928-1716ff04533a }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -2298,6 +2403,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -2490,11 +2596,12 @@ o
 {
 	Uuid %id{u4{13893016421197945895,5628709545935704030}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -2502,6 +2609,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -2609,11 +2717,12 @@ o
 {
 	Uuid %id{u4{17972543535416852919,5672829424296907334}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x0000000000000040}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -2621,17 +2730,19 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{13414695547272454073,5676803278580562319}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 64477407-277f-4867-84b1-2a7e89095f27 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters
@@ -2643,6 +2754,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -2690,11 +2802,12 @@ o
 {
 	Uuid %id{u4{17704938858383917742,5706981142011849643}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ baf34fd7-9f42-4d8d-a95e-e94afd972d1d }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -2702,17 +2815,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{12712100943539592639,5719397100629093122}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ dd849390-ce22-4f58-a898-b7d828e9356c }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -2720,6 +2835,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -2928,11 +3044,12 @@ o
 {
 	Uuid %id{u4{2666750137935999181,6557235485969958588}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -2940,17 +3057,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{4168819084945837541,6641488536293558921}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -2958,6 +3077,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3045,11 +3165,12 @@ o
 {
 	Uuid %id{u4{4590263505683158837,6956586144599938028}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3057,6 +3178,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3269,11 +3391,12 @@ o
 {
 	Uuid %id{u4{15068531626230868510,7567394282906729308}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -3281,6 +3404,7 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3314,11 +3438,12 @@ o
 {
 	Uuid %id{u4{12731357572556569087,7653299275716750973}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3326,17 +3451,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{11109311335046259729,7698016029315670209}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -3344,6 +3471,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3404,11 +3532,12 @@ o
 {
 	Uuid %id{u4{1128864261470828029,7849073467573315121}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3416,6 +3545,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3608,11 +3738,12 @@ o
 {
 	Uuid %id{u4{8077836588468991774,9369626300181694111}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ b692dd6a-56a1-45cb-b22c-f3496380aeff }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3620,6 +3751,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3668,11 +3800,12 @@ o
 {
 	Uuid %id{u4{10959235131342533709,9670724325652916193}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x0000000000000040}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -3680,17 +3813,19 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{6329005193030816294,9676584502700065908}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3698,17 +3833,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{17856431330300655467,9738308552893982343}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3716,6 +3853,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3804,11 +3942,12 @@ o
 {
 	Uuid %id{u4{10022211712527109955,9965048092105210328}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -3816,17 +3955,19 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{766484114472592209,9998402527532835270}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 61cf41fb-176e-41e1-bcd6-fcbe5f853339 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters
@@ -3838,17 +3979,19 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{14858387519669942595,10006337935689591376}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3856,6 +3999,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -3889,11 +4033,12 @@ o
 {
 	Uuid %id{u4{18443779157606178595,10057192729631226975}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -3901,6 +4046,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -4120,11 +4266,12 @@ o
 {
 	Uuid %id{u4{15661951326438955023,10329907711783660348}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 6647c90c-1552-4217-8ba8-f010b656d931 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -4132,17 +4279,19 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{5408660747912174604,10371887445160459720}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -4150,6 +4299,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -4339,11 +4489,12 @@ o
 {
 	Uuid %id{u4{16763072419439260719,10576061931546388431}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -4351,6 +4502,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -4405,11 +4557,12 @@ o
 {
 	Uuid %id{u4{17097825891365787146,10680903013008379563}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -4417,17 +4570,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{12470735958149749575,10689704845055465858}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 61cf41fb-176e-41e1-bcd6-fcbe5f853339 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters
@@ -4438,17 +4593,19 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{5062256885990081041,10696014299672070801}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 6647c90c-1552-4217-8ba8-f010b656d931 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -4456,6 +4613,7 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -4626,11 +4784,12 @@ o
 {
 	Uuid %id{u4{8470413515088513365,11125572097263847539}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x0000000000000040}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -4638,6 +4797,7 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -4725,11 +4885,12 @@ o
 {
 	Uuid %id{u4{8457685267975337577,11544446105877083282}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -4737,6 +4898,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -4785,11 +4947,12 @@ o
 {
 	Uuid %id{u4{1442545483325528040,11683049270422478824}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -4797,17 +4960,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{6007311564896345439,11725098061298649960}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -4815,6 +4980,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5107,11 +5273,12 @@ o
 {
 	Uuid %id{u4{17561474961541342143,13154441023997391969}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -5119,17 +5286,19 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{5444425007816330424,13171742028256518908}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -5137,6 +5306,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5170,11 +5340,12 @@ o
 {
 	Uuid %id{u4{3845479884665922731,13569597971208907178}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -5182,6 +5353,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5242,11 +5414,12 @@ o
 {
 	Uuid %id{u4{17402758007446736617,14373444373227123867}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x0000000000000040}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -5254,6 +5427,7 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5287,11 +5461,12 @@ o
 {
 	Uuid %id{u4{17143543744511656195,14923806679577461799}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -5299,6 +5474,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5401,11 +5577,12 @@ o
 {
 	Uuid %id{u4{1787801353831358113,15198766823026576676}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -5413,6 +5590,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5497,11 +5675,12 @@ o
 {
 	Uuid %id{u4{8333768003296007352,15424058658046301432}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -5509,17 +5688,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{13310960553587621549,15430936912534914880}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -5527,6 +5708,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5614,11 +5796,12 @@ o
 {
 	Uuid %id{u4{15667772545526484471,15547829115494972087}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -5626,6 +5809,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5761,11 +5945,12 @@ o
 {
 	Uuid %id{u4{15480530319772864688,15638754718878869517}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 1510f7a0-bdb4-3d36-e6de-7dd53306f03f }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -5773,6 +5958,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5808,11 +5994,12 @@ o
 {
 	Uuid %id{u4{18347285305303197639,15644664144511036763}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -5820,17 +6007,19 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
 {
 	Uuid %id{u4{9150529789550330346,15645231953944839546}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -5838,6 +6027,7 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -5898,11 +6088,12 @@ o
 {
 	Uuid %id{u4{5428263529133532119,15702472687878219732}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 61cf41fb-176e-41e1-bcd6-fcbe5f853339 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters
@@ -5913,6 +6104,7 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -6048,11 +6240,12 @@ o
 {
 	Uuid %id{u4{9326276997996624785,16007408227443596974}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 6647c90c-1552-4217-8ba8-f010b656d931 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -6060,6 +6253,7 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -6176,11 +6370,12 @@ o
 {
 	Uuid %id{u4{5750466724918991999,16307714967520600900}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 02f73b91-87a3-4a73-89dc-c495bca90c85 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -6188,6 +6383,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -6302,11 +6498,12 @@ o
 {
 	Uuid %id{u4{16837406078494696950,16720086426049958105}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x0000000000000040}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -6314,6 +6511,7 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -6428,11 +6626,12 @@ o
 {
 	Uuid %id{u4{17559281781112466767,18069794610570366978}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x000000000000F03F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -6440,6 +6639,7 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -6573,6 +6773,24 @@ o
 }
 o
 {
+	Uuid %id{u4{15272284220582915620,3290797833852729302}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13894603276136100658,3300807776711650119}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -6585,8 +6803,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPlayerStartPointComponent"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -6657,8 +6875,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpawnComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -6802,7 +7020,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
 		u3 %TypeSize{328}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -6839,6 +7057,24 @@ o
 		s %TypeName{"ezObjectMode"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16508388108942581257,9601460247128054931}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraComponent"}
+		u3 %TypeSize{552}
+		u3 %TypeVersion{9}
 	}
 }
 o
@@ -7017,6 +7253,24 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17965579125706971693,17079293274319994058}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraUsageHint"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

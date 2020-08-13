@@ -27,7 +27,7 @@ ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, cons
   {
     EZ_REPORT_FAILURE("Index type must be ezUInt32 or ezString.");
   }
-  //ezLog::Warning("{0},{1},{2} -> {3}", parentGuid, pProp->GetPropertyName(), index, guid);
+  // ezLog::Warning("{0},{1},{2} -> {3}", parentGuid, pProp->GetPropertyName(), index, guid);
   return guid;
 }
 
@@ -159,8 +159,7 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
   return pNode;
 }
 
-ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid,
-                                                                 const char* szNodeName)
+ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid, const char* szNodeName)
 {
   ezAbstractObjectNode* pNode = m_pGraph->AddNode(guid, pRtti->GetTypeName(), pRtti->GetTypeVersion(), szNodeName);
   AddProperties(pNode, pRtti, pObject);
@@ -421,4 +420,3 @@ void ezRttiConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezR
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_RttiConverterWriter);
-

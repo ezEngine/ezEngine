@@ -15,14 +15,12 @@ class EZ_FOUNDATION_DLL ezJSONReader : public ezJSONParser
 public:
   ezJSONReader();
 
-  /// \brief Reads the entire stream and creates the internal data structure that represents the JSON document. Returns EZ_FAILURE if any parsing error occurred.
+  /// \brief Reads the entire stream and creates the internal data structure that represents the JSON document. Returns EZ_FAILURE if any parsing
+  /// error occurred.
   ezResult Parse(ezStreamReader& pInput, ezUInt32 uiFirstLineOffset = 0);
 
   /// \brief Returns the top-level object of the JSON document.
-  const ezVariantDictionary& GetTopLevelObject() const
-  {
-    return m_Stack.PeekBack().m_Dictionary;
-  }
+  const ezVariantDictionary& GetTopLevelObject() const { return m_Stack.PeekBack().m_Dictionary; }
 
 private:
   /// \brief This function can be overridden to skip certain variables, however the overriding function must still call this.
@@ -74,4 +72,3 @@ protected:
   bool m_bParsingError;
   ezString m_sLastName;
 };
-

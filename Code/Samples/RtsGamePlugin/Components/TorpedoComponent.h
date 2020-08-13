@@ -23,14 +23,12 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
-
   float m_fSpeed = 10.0f;
   ezInt16 m_iDamage = 10;
 
   //////////////////////////////////////////////////////////////////////////
   //
 public:
-
   void OnMsgSetTarget(RtsMsgSetTarget& msg);
 
 protected:
@@ -39,4 +37,3 @@ protected:
   ezGameObjectHandle m_hTargetObject;
   ezVec2 m_vTargetPosition;
 };
-

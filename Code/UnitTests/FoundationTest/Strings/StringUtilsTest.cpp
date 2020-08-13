@@ -718,15 +718,12 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "def", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "mompfh", ezStringUtils::IsWordDelimiter_English) ==
-                 &s.GetData()[0]); // ü is not english
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "mompfh", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[0]); // ü is not english
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) ==
-                 &s.GetData()[34]);
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 30) ==
-                 s.GetData() + 27);
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 30) == s.GetData() + 27);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord_NoCase")
@@ -738,10 +735,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "momPFH", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[0]);
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) ==
-                 &s.GetData()[34]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) ==
-                 nullptr);
+    EZ_TEST_BOOL(
+      ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindUIntAtTheEnd")
@@ -839,7 +835,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_BOOL(ezStringUtils::IsHexDigit('a'));
     EZ_TEST_BOOL(ezStringUtils::IsHexDigit('f'));
     EZ_TEST_BOOL(!ezStringUtils::IsHexDigit('g'));
-    EZ_TEST_BOOL(!ezStringUtils::IsHexDigit('/'));    
+    EZ_TEST_BOOL(!ezStringUtils::IsHexDigit('/'));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsWordDelimiter_English / IsIdentifierDelimiter_C_Code")

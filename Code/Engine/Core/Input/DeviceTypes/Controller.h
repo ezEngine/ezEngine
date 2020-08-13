@@ -18,8 +18,7 @@ public:
     MaxControllers = 4,
     VibrationSamplesPerSecond = 16,
     VibrationTrackSeconds = 2,
-    MaxVibrationSamples =
-        VibrationSamplesPerSecond * VibrationTrackSeconds, // With constant power-of-two samples some code should get more efficient
+    MaxVibrationSamples = VibrationSamplesPerSecond * VibrationTrackSeconds, // With constant power-of-two samples some code should get more efficient
   };
 
   /// \brief Describes which vibration motor to configure.
@@ -89,8 +88,7 @@ public:
   /// \param fVibrationTrackValue An array of at least \a uiSamples float values, each between 0 and 1.
   /// \param uiSamples How many samples \a fVibrationTrackValue contains. A maximum of MaxVibrationSamples samples is used.
   /// \param fScalingFactor Additional scaling factor to apply to all values in \a fVibrationTrackValue.
-  void AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum eMotor, float* fVibrationTrackValue, ezUInt32 uiSamples,
-                         float fScalingFactor = 1.0f);
+  void AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum eMotor, float* fVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor = 1.0f);
 
 protected:
   /// \brief Combines the constant vibration and vibration tracks and applies them on each controller.
@@ -113,4 +111,3 @@ private:
   ezInt8 m_iControllerMapping[MaxControllers];
   float m_fVibrationStrength[MaxControllers][Motor::ENUM_COUNT];
 };
-

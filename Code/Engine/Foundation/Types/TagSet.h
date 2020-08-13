@@ -87,17 +87,11 @@ public:
   /// \brief Returns an iterator to list all tags in this set
   Iterator GetIterator() const { return Iterator(this); }
 
-  /// \brief Writes the tag set state to a stream.
-  ///
-  /// \note This only stores the tag hashes. The ezTagRegistry must be stored as well, to be able to restore the tags.
+  /// \brief Writes the tag set state to a stream. Tags itself are serialized as strings.
   void Save(ezStreamWriter& stream) const;
 
-  /// \brief Reads the tag set state from a stream.
-  ///
-  /// \note This will restore all tags that could be found in the given registry.
-  ///       The registry must be serialized separately.
-  ///       Tags that are not found in the registry will be ignored.
-  void Load(ezStreamReader& stream, const ezTagRegistry& registry);
+  /// \brief Reads the tag set state from a stream and registers the tags with the given registry.
+  void Load(ezStreamReader& stream, ezTagRegistry& registry);
 
 private:
   friend class Iterator;
@@ -142,4 +136,3 @@ typename ezTagSetTemplate<BlockStorageAllocator>::Iterator end(const ezTagSetTem
 }
 
 #include <Foundation/Types/Implementation/TagSet_inl.h>
-

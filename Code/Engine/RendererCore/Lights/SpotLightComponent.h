@@ -83,7 +83,8 @@ class EZ_RENDERERCORE_DLL ezSpotLightVisualizerAttribute : public ezVisualizerAt
 
 public:
   ezSpotLightVisualizerAttribute();
-  ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
+  ezSpotLightVisualizerAttribute(
+    const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
 
   const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRangeProperty() const { return m_sProperty2; }

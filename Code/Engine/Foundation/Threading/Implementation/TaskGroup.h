@@ -3,6 +3,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Types/SharedPtr.h>
 
 /// \internal Represents the state of a group of tasks that can be waited on
 class ezTaskGroup
@@ -30,7 +31,7 @@ private:
   bool m_bStartedByUser = false;
   ezUInt16 m_uiTaskGroupIndex = 0xFFFF; // only there as a debugging aid
   ezUInt32 m_uiGroupCounter = 1;
-  ezHybridArray<ezTask*, 16> m_Tasks;
+  ezHybridArray<ezSharedPtr<ezTask>, 16> m_Tasks;
   ezHybridArray<ezTaskGroupID, 4> m_DependsOnGroups;
   ezHybridArray<ezTaskGroupID, 8> m_OthersDependingOnMe;
   ezAtomicInteger32 m_iNumActiveDependencies;

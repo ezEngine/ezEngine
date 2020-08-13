@@ -15,7 +15,7 @@ EZ_ALWAYS_INLINE const ezGameObject* ezGameObject::ConstChildIterator::operator-
   return m_pObject;
 }
 
-EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject*() const
+EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject *() const
 {
   return m_pObject;
 }
@@ -125,8 +125,7 @@ EZ_ALWAYS_INLINE void ezGameObject::DisableChildChangesNotifications()
   m_Flags.Remove(ezObjectFlags::ChildChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-  ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -134,8 +133,7 @@ EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObj
   }
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-  ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -372,6 +370,10 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& tr
 {
   m_pTransformationData->m_globalTransform = transform;
 
+  // ezTransformTemplate<Type>::SetLocalTransform will produce NaNs in w components
+  // of pos and scale if scale.w is not set to 1 here. This only affects builds that
+  // use EZ_SIMD_IMPLEMENTATION_FPU, e.g. arm atm.
+  m_pTransformationData->m_globalTransform.m_Scale.SetW(1.0f);
   m_pTransformationData->UpdateLocalTransform();
 
   if (IsStatic())
@@ -562,8 +564,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpat
 
   ///\todo find a better place for this
   // Can't use ezSimdBBoxSphere::operator != because we want to include the w component of m_BoxHalfExtents
-  if ((m_globalBounds.m_CenterAndRadius != oldGlobalBounds.m_CenterAndRadius ||
-        m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
+  if ((m_globalBounds.m_CenterAndRadius != oldGlobalBounds.m_CenterAndRadius || m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
         .AnySet<4>())
   {
     bool bWasAlwaysVisible = oldGlobalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();

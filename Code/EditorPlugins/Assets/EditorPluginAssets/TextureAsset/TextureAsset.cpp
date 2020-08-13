@@ -47,10 +47,10 @@ static const char* ToWrapMode(ezImageAddressMode::Enum mode)
       return "ClampBorder";
     case ezImageAddressMode::Mirror:
       return "Mirror";
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return "";
   }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return "";
 }
 
 const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
@@ -219,7 +219,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   if (pProp->m_bDilateColor)
   {
     arguments << "-dilate";
-    //arguments << "8"; // default value
+    // arguments << "8"; // default value
   }
 
   if (pProp->m_bFlipHorizontal)
@@ -390,7 +390,8 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
@@ -644,6 +645,11 @@ void ezTextureAssetDocumentGenerator::GetImportModes(
     {
       info.m_sName = "TextureImport.Linear";
       info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      break;
+    }
+
+    case TextureType::Unknown:
+    {
       break;
     }
   }

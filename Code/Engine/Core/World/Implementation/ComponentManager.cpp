@@ -8,8 +8,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
-    : ezWorldModule(pWorld)
-    , m_Components(pWorld->GetAllocator())
+  : ezWorldModule(pWorld)
+  , m_Components(pWorld->GetAllocator())
 {
 }
 
@@ -45,14 +45,14 @@ void ezComponentManagerBase::DeleteComponent(ezComponent* pComponent)
   GetWorld()->m_Data.m_DeadComponents.Insert(pComponent);
 }
 
-void ezComponentManagerBase::DeinitializeInternal()
+void ezComponentManagerBase::Deinitialize()
 {
   for (auto it = m_Components.GetIterator(); it.IsValid(); ++it)
   {
     DeinitializeComponent(it.Value());
   }
 
-  SUPER::DeinitializeInternal();
+  SUPER::Deinitialize();
 }
 
 ezComponentHandle ezComponentManagerBase::CreateComponentNoInit(ezGameObject* pOwnerObject, ezComponent*& out_pComponent)
@@ -113,4 +113,3 @@ void ezComponentManagerBase::PatchIdTable(ezComponent* pComponent)
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);
-

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Foundation/Threading/TaskSystem.h>
-#include <Foundation/Threading/AtomicInteger.h>
+#include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/LogEntry.h>
-#include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
+#include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 struct ezAssetCuratorEvent;
 class ezTask;
@@ -57,7 +57,7 @@ private:
   friend class ezProcessTask;
   friend class ezAssetCurator;
 
-  void OnProcessTaskFinished(ezTask* pTask);
+  void OnProcessTaskFinished(const ezSharedPtr<ezTask>& pTask);
   void RunNextProcessTask();
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
 
@@ -68,7 +68,7 @@ private:
 
   struct TaskAndGroup
   {
-    ezProcessTask* m_pTask = nullptr;
+    ezSharedPtr<ezProcessTask> m_pTask;
     ezTaskGroupID m_GroupID;
   };
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ModelImporter/Node.h>
-#include <ModelImporter/VertexIndex.h>
-#include <ModelImporter/VertexData.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
 #include <Foundation/Containers/HashTable.h>
+#include <ModelImporter/Node.h>
+#include <ModelImporter/VertexData.h>
+#include <ModelImporter/VertexIndex.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 namespace ezModelImporter
 {
@@ -30,7 +30,6 @@ namespace ezModelImporter
     EZ_DISALLOW_COPY_AND_ASSIGN(Mesh);
 
   public:
-
     Mesh();
     Mesh(Mesh&& mesh);
 
@@ -38,12 +37,11 @@ namespace ezModelImporter
 
     // Triangles
   public:
-
     struct Triangle
     {
       EZ_DECLARE_POD_TYPE();
 
-      void operator = (const Triangle& rhs);
+      void operator=(const Triangle& rhs);
       VertexIndex m_Vertices[3];
     };
 
@@ -52,16 +50,16 @@ namespace ezModelImporter
     void AddTriangles(ezUInt32 num);
     ezUInt32 GetNumTriangles() const { return m_Triangles.GetCount(); }
     ezArrayPtr<const Triangle> GetTriangles() const { return ezMakeArrayPtr(m_Triangles); }
-    ezArrayPtr<Triangle> GetTriangles()             { return ezMakeArrayPtr(m_Triangles); }
+    ezArrayPtr<Triangle> GetTriangles() { return ezMakeArrayPtr(m_Triangles); }
 
     // Data Streams
   public:
-
     /// Adds a new data stream with the given semantic.
     ///
-    /// If a data stream already exists it will be returned, unless the existing data stream has a different element type or element count per vertex attribute.
-    /// In this case nullptr will be returned.
-    VertexDataStream* AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexElementType elementType = VertexElementType::FLOAT);
+    /// If a data stream already exists it will be returned, unless the existing data stream has a different element type or element count per vertex
+    /// attribute. In this case nullptr will be returned.
+    VertexDataStream* AddDataStream(
+      ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexElementType elementType = VertexElementType::FLOAT);
 
     /// Removes a data stream from the mesh.
     void RemoveDataStream(ezGALVertexAttributeSemantic::Enum semantic);
@@ -72,7 +70,6 @@ namespace ezModelImporter
 
     // Submeshes
   public:
-
     ezUInt32 GetNumSubMeshes() const;
     const SubMesh& GetSubMesh(ezUInt32 idx) const;
     SubMesh& GetSubMesh(ezUInt32 idx);
@@ -80,12 +77,10 @@ namespace ezModelImporter
 
     // Skeleton
   public:
-
-    //ezUniquePtr<ezSkeleton> m_pSkeleton;
+    // ezUniquePtr<ezSkeleton> m_pSkeleton;
 
     // Processing
   public:
-
     /// \brief Applies a transform to all directional and positional vertex data.
     void ApplyTransform(const ezTransform& transform);
 
@@ -114,14 +109,14 @@ namespace ezModelImporter
 
     /// \brief A bundle of several vertex data indices.
     /// \see GenerateInterleavedVertexMapping
-    template<int NumStreams>
+    template <int NumStreams>
     struct DataIndexBundle
     {
       EZ_DECLARE_POD_TYPE();
 
-      bool operator == (const DataIndexBundle& dataIndex) const;
-      const ezModelImporter::VertexDataIndex operator [] (int i) const;
-      ezModelImporter::VertexDataIndex& operator [] (int i);
+      bool operator==(const DataIndexBundle& dataIndex) const;
+      const ezModelImporter::VertexDataIndex operator[](int i) const;
+      ezModelImporter::VertexDataIndex& operator[](int i);
 
     private:
       ezModelImporter::VertexDataIndex m_indices[NumStreams];
@@ -132,16 +127,17 @@ namespace ezModelImporter
     ///
     /// Use this method to generate classic vertex + index buffer.
     /// If the mesh does not have a given semantic, the method fails.
-    template<int NumStreams>
+    template <int NumStreams>
     ezResult GenerateInterleavedVertexMapping(const ezGALVertexAttributeSemantic::Enum (&dataStreamSemantics)[NumStreams],
-      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices) const;
+      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices,
+      ezDynamicArray<ezUInt32>& outTriangleVertexIndices) const;
 
-    template<int NumStreams>
+    template <int NumStreams>
     static void GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams],
-      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices);
+      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices,
+      ezDynamicArray<ezUInt32>& outTriangleVertexIndices);
 
   private:
-
     ezDynamicArray<Triangle> m_Triangles;
     ezUInt32 m_uiNextUnusedVertexIndex;
 
@@ -150,6 +146,6 @@ namespace ezModelImporter
     /// List of submeshes. There should be always at least one submesh.
     ezDynamicArray<SubMesh> m_SubMeshes;
   };
-}
+} // namespace ezModelImporter
 
 #include <ModelImporter/Mesh.inl>

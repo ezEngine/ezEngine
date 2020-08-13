@@ -12,6 +12,5 @@ public:
   ezQtCollectionAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtCollectionAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const { return "CollectionAsset"; }
-
+  virtual const char* GetWindowLayoutGroupName() const override { return "CollectionAsset"; }
 };

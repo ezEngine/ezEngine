@@ -26,8 +26,7 @@ struct ezOutputToHTML
     static std::string sDuration;
     static std::ostringstream details;
 
-    auto FlushDetails = [&]()
-    {
+    auto FlushDetails = [&]() {
       if (bDetails)
       {
         bDetails = false;
@@ -52,17 +51,17 @@ struct ezOutputToHTML
         const char* szTestName = ezTestFramework::GetInstance()->GetTestName();
 
         const char* szStyle = "body { margin: 0; padding: 20px; font-size: 12px; font-family: Arial, Sans-Serif; background-color: #fff; "
-          "text-align: center; }"
-          "#container { margin: 20px auto; width: 900px; text-align: left; }"
-          "table { border-collapse: collapse; width: 100%; }"
-          "table, td { font-size: 12px; border: solid #000 1px; padding: 5px; }"
-          "td { background-color: #66ff66; }"
-          "td.category { background-color: #ccc; font-weight: bold; }"
-          "td.title { background-color: #fff; }"
-          "td.error { background-color: #ff6666; }"
-          "td.details { background-color: #ffff00; }"
-          "p.success { background-color: #66ff66; }"
-          "p.error { background-color: #ff6666; };";
+                              "text-align: center; }"
+                              "#container { margin: 20px auto; width: 900px; text-align: left; }"
+                              "table { border-collapse: collapse; width: 100%; }"
+                              "table, td { font-size: 12px; border: solid #000 1px; padding: 5px; }"
+                              "td { background-color: #66ff66; }"
+                              "td.category { background-color: #ccc; font-weight: bold; }"
+                              "td.title { background-color: #fff; }"
+                              "td.error { background-color: #ff6666; }"
+                              "td.details { background-color: #ffff00; }"
+                              "p.success { background-color: #66ff66; }"
+                              "p.error { background-color: #ff6666; };";
 
         htmlFile.open(sOutputFile.c_str());
         if (htmlFile.is_open())
@@ -193,4 +192,3 @@ struct ezOutputToHTML
 };
 
 std::ofstream ezOutputToHTML::htmlFile;
-

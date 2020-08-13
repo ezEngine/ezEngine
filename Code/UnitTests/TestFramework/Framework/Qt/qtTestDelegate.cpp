@@ -2,17 +2,17 @@
 
 #ifdef EZ_USE_QT
 
-#include <QApplication>
-#include <QPainter>
-#include <TestFramework/Framework/Qt/qtTestDelegate.h>
-#include <TestFramework/Framework/Qt/qtTestModel.h>
+#  include <QApplication>
+#  include <QPainter>
+#  include <TestFramework/Framework/Qt/qtTestDelegate.h>
+#  include <TestFramework/Framework/Qt/qtTestModel.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestDelegate public functions
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestDelegate::ezQtTestDelegate(QObject* pParent)
-    : QStyledItemDelegate(pParent)
+  : QStyledItemDelegate(pParent)
 {
 }
 

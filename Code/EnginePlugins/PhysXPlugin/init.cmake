@@ -36,9 +36,9 @@ function(ez_link_target_physx TARGET_NAME)
         target_link_libraries(${TARGET_NAME} PRIVATE ezPhysX::PVD)
         target_link_libraries(${TARGET_NAME} PRIVATE ezPhysX::Character)
 
-        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::Foundation>)
-        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::Common>)
-        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::PhysX>)
+        ez_uwp_add_import_to_sources(${TARGET_NAME} ezPhysX::Foundation)
+        ez_uwp_add_import_to_sources(${TARGET_NAME} ezPhysX::Common)
+        ez_uwp_add_import_to_sources(${TARGET_NAME} ezPhysX::PhysX)
 
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Foundation> $<TARGET_FILE_DIR:${TARGET_NAME}>

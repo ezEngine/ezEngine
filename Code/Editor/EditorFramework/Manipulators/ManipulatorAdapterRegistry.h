@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
 struct ezManipulatorManagerEvent;
 class ezDocument;
@@ -27,9 +27,7 @@ private:
   struct Data
   {
     ezHybridArray<ezManipulatorAdapter*, 8> m_Adapters;
-
   };
 
   ezMap<const ezDocument*, Data> m_DocumentAdapters;
-
 };

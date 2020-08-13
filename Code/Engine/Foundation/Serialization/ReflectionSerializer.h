@@ -19,7 +19,7 @@ public:
   ///
   /// Read-only properties are not written out, as they cannot be restored anyway.
   static void WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode = true,
-                               ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
+    ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
 
   /// \brief Overload of WriteObjectToDDL that takes an existing DDL writer to output to.
   static void WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject, ezUuid guid = ezUuid()); // [tested]
@@ -75,4 +75,3 @@ public:
     return static_cast<T*>(Clone(pObject, ezGetStaticRTTI<T>()));
   }
 };
-

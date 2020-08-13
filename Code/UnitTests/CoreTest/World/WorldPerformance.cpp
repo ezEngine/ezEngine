@@ -17,7 +17,7 @@ namespace
   {
   public:
     ezTestComponentManager(ezWorld* pWorld)
-        : ezComponentManager<ezTestComponent, ezBlockStorageType::FreeList>(pWorld)
+      : ezComponentManager<ezTestComponent, ezBlockStorageType::FreeList>(pWorld)
     {
       m_qRotation.SetIdentity();
     }
@@ -56,8 +56,8 @@ namespace
   EZ_END_COMPONENT_TYPE;
   // clang-format on
 
-  void AddObjectsToWorld(ezWorld& world, bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth, ezInt32 iAttachCompsDepth,
-                       ezGameObjectHandle hParent = ezGameObjectHandle())
+  void AddObjectsToWorld(ezWorld& world, bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth,
+    ezInt32 iAttachCompsDepth, ezGameObjectHandle hParent = ezGameObjectHandle())
   {
     if (uiTreeDepth == 0)
       return;
@@ -85,12 +85,13 @@ namespace
         pMan->CreateComponent(pObj, comp);
       }
 
-      AddObjectsToWorld(world, bDynamic, ezMath::Max(uiNumObjects / uiTreeLevelNumNodeDiv, 1U), uiTreeLevelNumNodeDiv, uiTreeDepth - 1, iAttachCompsDepth - 1, hObj);
+      AddObjectsToWorld(
+        world, bDynamic, ezMath::Max(uiNumObjects / uiTreeLevelNumNodeDiv, 1U), uiTreeLevelNumNodeDiv, uiTreeDepth - 1, iAttachCompsDepth - 1, hObj);
     }
   }
 
-  void MeasureCreationTime(bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth, ezInt32 iAttachCompsDepth,
-                           ezWorld* pWorld = nullptr)
+  void MeasureCreationTime(
+    bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth, ezInt32 iAttachCompsDepth, ezWorld* pWorld = nullptr)
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -110,7 +111,7 @@ namespace
       const ezTime tDiff = sw.Checkpoint();
 
       ezTestFramework::Output(ezTestOutput::Duration, "Creating %u %s objects (depth: %u): %.2fms", pWorld->GetObjectCount(),
-                              bDynamic ? "dynamic" : "static", uiTreeDepth, tDiff.GetMilliseconds());
+        bDynamic ? "dynamic" : "static", uiTreeDepth, tDiff.GetMilliseconds());
     }
   }
 
@@ -157,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Deletion)
     ezUInt32 uiNumObjects = world.GetObjectCount();
 
     world.Clear();
-    world.Update();    
+    world.Update();
 
     const ezTime tDiff = sw.Checkpoint();
     ezTestFramework::Output(ezTestOutput::Duration, "Deleting %u objects: %.2fms", uiNumObjects, tDiff.GetMilliseconds());

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Foundation/Math/Vec3.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <Utilities/DataStructures/DynamicOctree.h>
 
-template<typename POINTTYPE>
+template <typename POINTTYPE>
 class ezPointOfInterestGraph
 {
 public:
@@ -23,4 +23,3 @@ private:
 };
 
 #include <GameEngine/AI/Implementation/PointOfInterestGraph_inl.h>
-

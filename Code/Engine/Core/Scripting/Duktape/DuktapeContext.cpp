@@ -113,4 +113,3 @@ void ezDuktapeContext::DukFree(void* pUserData, void* pPointer)
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_Duktape_DuktapeContext);
-

@@ -6,7 +6,7 @@ class ezComponent;
 class ezPxDynamicActorComponent;
 class ezPxStaticActorComponent;
 class ezPxTriggerComponent;
-class ezPxCharacterProxyComponent;
+class ezPxCharacterShapeComponent;
 class ezPxShapeComponent;
 class ezSurfaceResource;
 class ezBreakableSheetComponent;
@@ -37,9 +37,9 @@ public:
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezPxCharacterProxyComponent* pObject)
+  EZ_ALWAYS_INLINE void Init(ezPxCharacterShapeComponent* pObject)
   {
-    m_Type = CharacterProxyComponent;
+    m_Type = CharacterShapeComponent;
     m_pObject = pObject;
   }
 
@@ -101,12 +101,12 @@ public:
     return nullptr;
   }
 
-  EZ_FORCE_INLINE static ezPxCharacterProxyComponent* GetCharacterProxyComponent(void* pUserData)
+  EZ_FORCE_INLINE static ezPxCharacterShapeComponent* GetCharacterShapeComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == CharacterProxyComponent)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == CharacterShapeComponent)
     {
-      return static_cast<ezPxCharacterProxyComponent*>(pPxUserData->m_pObject);
+      return static_cast<ezPxCharacterShapeComponent*>(pPxUserData->m_pObject);
     }
 
     return nullptr;
@@ -138,12 +138,8 @@ public:
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
     if (pPxUserData != nullptr &&
-        (pPxUserData->m_Type == DynamicActorComponent ||
-          pPxUserData->m_Type == StaticActorComponent ||
-          pPxUserData->m_Type == TriggerComponent ||
-          pPxUserData->m_Type == CharacterProxyComponent ||
-          pPxUserData->m_Type == ShapeComponent ||
-          pPxUserData->m_Type == BreakableSheetComponent))
+        (pPxUserData->m_Type == DynamicActorComponent || pPxUserData->m_Type == StaticActorComponent || pPxUserData->m_Type == TriggerComponent ||
+          pPxUserData->m_Type == CharacterShapeComponent || pPxUserData->m_Type == ShapeComponent || pPxUserData->m_Type == BreakableSheetComponent))
     {
       return static_cast<ezComponent*>(pPxUserData->m_pObject);
     }
@@ -168,10 +164,7 @@ public:
     return pPxUserData->m_pAdditionalUserData;
   }
 
-  EZ_FORCE_INLINE void SetAdditionalUserData(void* pAdditionalUserData)
-  {
-    m_pAdditionalUserData = pAdditionalUserData;
-  }
+  EZ_FORCE_INLINE void SetAdditionalUserData(void* pAdditionalUserData) { m_pAdditionalUserData = pAdditionalUserData; }
 
 
 private:
@@ -181,7 +174,7 @@ private:
     DynamicActorComponent,
     StaticActorComponent,
     TriggerComponent,
-    CharacterProxyComponent,
+    CharacterShapeComponent,
     ShapeComponent,
     BreakableSheetComponent,
     SurfaceResource

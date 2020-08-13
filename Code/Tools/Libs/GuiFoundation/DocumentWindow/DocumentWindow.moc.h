@@ -83,6 +83,9 @@ public:
   /// \brief For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
   virtual void CreateImageCapture(const char* szOutputPath);
 
+  /// \brief In 'safe' mode we want to prevent the documents from using the stored window layout state
+  static bool s_bAllowRestoreWindowLayout;
+
 protected:
   virtual void showEvent(QShowEvent* event) override;
   virtual void hideEvent(QHideEvent* event) override;

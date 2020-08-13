@@ -31,8 +31,8 @@ void ezCollisionMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* 
       m_DraggedObjects.PushBack(pInfo->m_TargetObject);
     }
     else
-      CreateDropObject(pInfo->m_vDropPosition, "ezPxStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo),
-                       pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+      CreateDropObject(pInfo->m_vDropPosition, "ezPxStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+        pInfo->m_iTargetObjectInsertChildIndex);
   }
 
   SelectCreatedObjects();

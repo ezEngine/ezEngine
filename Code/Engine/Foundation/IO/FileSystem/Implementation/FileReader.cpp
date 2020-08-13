@@ -2,7 +2,8 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize /*= 1024 * 64*/, ezFileShareMode::Enum FileShareMode /*= ezFileShareMode::SharedReads*/, bool bAllowFileEvents /*= true*/)
+ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize /*= 1024 * 64*/,
+  ezFileShareMode::Enum FileShareMode /*= ezFileShareMode::SharedReads*/, bool bAllowFileEvents /*= true*/)
 {
   EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", szFile);
 
@@ -37,7 +38,7 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
   if (m_bEOF)
     return 0;
 
-  ezUInt64 uiBufferPosition = 0; //how much was read, yet
+  ezUInt64 uiBufferPosition = 0; // how much was read, yet
   ezUInt8* pBuffer = (ezUInt8*)pReadBuffer;
 
   while (uiBytesToRead > 0)
@@ -85,4 +86,3 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileReader);
-

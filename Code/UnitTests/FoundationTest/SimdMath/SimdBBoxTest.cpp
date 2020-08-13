@@ -71,8 +71,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
     ezSimdVec4f p[6] = {
-        ezSimdVec4f(-4, 0, 0), ezSimdVec4f(5, 0, 0),  ezSimdVec4f(0, -6, 0),
-        ezSimdVec4f(0, 7, 0),  ezSimdVec4f(0, 0, -8), ezSimdVec4f(0, 0, 9),
+      ezSimdVec4f(-4, 0, 0),
+      ezSimdVec4f(5, 0, 0),
+      ezSimdVec4f(0, -6, 0),
+      ezSimdVec4f(0, 7, 0),
+      ezSimdVec4f(0, 0, -8),
+      ezSimdVec4f(0, 0, 9),
     };
 
     ezSimdBBox b;

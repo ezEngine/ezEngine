@@ -6,7 +6,7 @@
 #include <RendererCore/Messages/SetColorMessage.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -97,6 +97,4 @@ void ezColorAnimationComponent::Update()
 
 
 
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_ColorAnimationComponent);
-

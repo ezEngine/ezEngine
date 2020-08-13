@@ -16,4 +16,3 @@ protected:
 
   ezTextureCubeContext* m_pTextureContext;
 };
-

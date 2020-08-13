@@ -1,7 +1,7 @@
 #include <RendererDX11PCH.h>
 
-#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererDX11/State/StateDX11.h>
 
 #include <d3d11.h>
@@ -14,8 +14,8 @@
 // Blend state
 
 ezGALBlendStateDX11::ezGALBlendStateDX11(const ezGALBlendStateCreationDescription& Description)
-    : ezGALBlendState(Description)
-    , m_pDXBlendState(nullptr)
+  : ezGALBlendState(Description)
+  , m_pDXBlendState(nullptr)
 {
 }
 
@@ -120,8 +120,8 @@ ezResult ezGALBlendStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 // Depth Stencil state
 
 ezGALDepthStencilStateDX11::ezGALDepthStencilStateDX11(const ezGALDepthStencilStateCreationDescription& Description)
-    : ezGALDepthStencilState(Description)
-    , m_pDXDepthStencilState(nullptr)
+  : ezGALDepthStencilState(Description)
+  , m_pDXDepthStencilState(nullptr)
 {
 }
 
@@ -143,7 +143,7 @@ ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
   DXDesc.FrontFace.StencilFunc = GALCompareFuncToDX11[m_Description.m_FrontFaceStencilOp.m_StencilFunc];
 
   const ezGALStencilOpDescription& backFaceStencilOp =
-      m_Description.m_bSeparateFrontAndBack ? m_Description.m_BackFaceStencilOp : m_Description.m_FrontFaceStencilOp;
+    m_Description.m_bSeparateFrontAndBack ? m_Description.m_BackFaceStencilOp : m_Description.m_FrontFaceStencilOp;
   DXDesc.BackFace.StencilFailOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_FailOp];
   DXDesc.BackFace.StencilDepthFailOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_DepthFailOp];
   DXDesc.BackFace.StencilPassOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_PassOp];
@@ -170,8 +170,8 @@ ezResult ezGALDepthStencilStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 // Rasterizer state
 
 ezGALRasterizerStateDX11::ezGALRasterizerStateDX11(const ezGALRasterizerStateCreationDescription& Description)
-    : ezGALRasterizerState(Description)
-    , m_pDXRasterizerState(nullptr)
+  : ezGALRasterizerState(Description)
+  , m_pDXRasterizerState(nullptr)
 {
 }
 
@@ -196,7 +196,8 @@ ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
     DXDesc2.AntialiasedLineEnable = TRUE;
     DXDesc2.ScissorEnable = m_Description.m_bScissorTest;
     DXDesc2.SlopeScaledDepthBias = m_Description.m_fSlopeScaledDepthBias;
-    DXDesc2.ConservativeRaster = m_Description.m_bConservativeRasterization ? D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+    DXDesc2.ConservativeRaster =
+      m_Description.m_bConservativeRasterization ? D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF;
     DXDesc2.ForcedSampleCount = 0;
 
     if (!pDevice->GetCapabilities().m_bConservativeRasterization && m_Description.m_bConservativeRasterization)
@@ -216,7 +217,6 @@ ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
       m_pDXRasterizerState = pDXRasterizerState2;
       return EZ_SUCCESS;
     }
-
   }
   else
   {
@@ -254,8 +254,8 @@ ezResult ezGALRasterizerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 // Sampler state
 
 ezGALSamplerStateDX11::ezGALSamplerStateDX11(const ezGALSamplerStateCreationDescription& Description)
-    : ezGALSamplerState(Description)
-    , m_pDXSamplerState(nullptr)
+  : ezGALSamplerState(Description)
+  , m_pDXSamplerState(nullptr)
 {
 }
 
@@ -276,8 +276,8 @@ ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
   DXDesc.BorderColor[3] = m_Description.m_BorderColor.a;
   DXDesc.ComparisonFunc = GALCompareFuncToDX11[m_Description.m_SampleCompareFunc];
 
-  if (m_Description.m_MagFilter == ezGALTextureFilterMode::Anisotropic ||
-      m_Description.m_MinFilter == ezGALTextureFilterMode::Anisotropic || m_Description.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
+  if (m_Description.m_MagFilter == ezGALTextureFilterMode::Anisotropic || m_Description.m_MinFilter == ezGALTextureFilterMode::Anisotropic ||
+      m_Description.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
   {
     if (m_Description.m_SampleCompareFunc == ezGALCompareFunc::Never)
       DXDesc.Filter = D3D11_FILTER_ANISOTROPIC;

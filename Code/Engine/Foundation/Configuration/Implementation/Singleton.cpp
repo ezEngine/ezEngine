@@ -10,4 +10,3 @@ const ezMap<size_t, ezSingletonRegistry::SingletonEntry>& ezSingletonRegistry::G
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_Singleton);
-

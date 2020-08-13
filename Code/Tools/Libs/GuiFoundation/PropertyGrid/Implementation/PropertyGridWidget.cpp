@@ -11,16 +11,16 @@
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <QLayout>
 #include <QScrollArea>
-#include <Foundation/Profiling/Profiling.h>
 
 ezRttiMappedObjectFactory<ezQtPropertyWidget> ezQtPropertyGridWidget::s_Factory;
 
 static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
 {
-  EZ_ASSERT_DEV(pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType),
-                "This function is only valid for StandardType properties, regardless of category");
+  EZ_ASSERT_DEV(
+    pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "This function is only valid for StandardType properties, regardless of category");
 
   if (pRtti == ezGetStaticRTTI<ezVariant>())
   {
@@ -48,28 +48,46 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
     case ezVariant::Type::Vector4:
       return new ezQtPropertyEditorDoubleSpinboxWidget(4);
 
+    case ezVariant::Type::Vector2I:
+      return new ezQtPropertyEditorIntSpinboxWidget(2, -2147483645, 2147483645);
+
+    case ezVariant::Type::Vector3I:
+      return new ezQtPropertyEditorIntSpinboxWidget(3, -2147483645, 2147483645);
+
+    case ezVariant::Type::Vector4I:
+      return new ezQtPropertyEditorIntSpinboxWidget(4, -2147483645, 2147483645);
+
+    case ezVariant::Type::Vector2U:
+      return new ezQtPropertyEditorIntSpinboxWidget(2, 0, 2147483645);
+
+    case ezVariant::Type::Vector3U:
+      return new ezQtPropertyEditorIntSpinboxWidget(3, 0, 2147483645);
+
+    case ezVariant::Type::Vector4U:
+      return new ezQtPropertyEditorIntSpinboxWidget(4, 0, 2147483645);
+
     case ezVariant::Type::Quaternion:
       return new ezQtPropertyEditorQuaternionWidget();
 
     case ezVariant::Type::Int8:
-      return new ezQtPropertyEditorIntSpinboxWidget(-127, 127);
+      return new ezQtPropertyEditorIntSpinboxWidget(1, -127, 127);
 
     case ezVariant::Type::UInt8:
-      return new ezQtPropertyEditorIntSpinboxWidget(0, 255);
+      return new ezQtPropertyEditorIntSpinboxWidget(1, 0, 255);
 
     case ezVariant::Type::Int16:
-      return new ezQtPropertyEditorIntSpinboxWidget(-32767, 32767);
+      return new ezQtPropertyEditorIntSpinboxWidget(1, -32767, 32767);
 
     case ezVariant::Type::UInt16:
-      return new ezQtPropertyEditorIntSpinboxWidget(0, 65535);
+      return new ezQtPropertyEditorIntSpinboxWidget(1, 0, 65535);
 
     case ezVariant::Type::Int32:
     case ezVariant::Type::Int64:
-      return new ezQtPropertyEditorIntSpinboxWidget(-2147483645, 2147483645);
+      return new ezQtPropertyEditorIntSpinboxWidget(1, -2147483645, 2147483645);
 
     case ezVariant::Type::UInt32:
     case ezVariant::Type::UInt64:
-      return new ezQtPropertyEditorIntSpinboxWidget(0, 2147483645);
+      return new ezQtPropertyEditorIntSpinboxWidget(1, 0, 2147483645);
 
     case ezVariant::Type::String:
       return new ezQtPropertyEditorLineEditWidget();
@@ -125,6 +143,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2I32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3I32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4I32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2U32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3U32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4U32>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezQuat>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt8>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt8>(), StandardTypeCreator);
@@ -164,7 +188,7 @@ ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezQtPropertyGridWidget::GetFactor
 }
 
 ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument, bool bBindToSelectionManager)
-    : QWidget(pParent)
+  : QWidget(pParent)
 {
   m_pDocument = nullptr;
 
@@ -206,8 +230,7 @@ ezQtPropertyGridWidget::~ezQtPropertyGridWidget()
 
   if (m_pDocument)
   {
-    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(
-        ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
+    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
@@ -218,8 +241,7 @@ void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument, bool bBindToSele
   m_bBindToSelectionManager = bBindToSelectionManager;
   if (m_pDocument)
   {
-    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(
-        ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
+    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 
@@ -227,8 +249,7 @@ void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument, bool bBindToSele
 
   if (m_pDocument)
   {
-    m_pDocument->m_ObjectAccessorChangeEvents.AddEventHandler(
-        ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
+    m_pDocument->m_ObjectAccessorChangeEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
@@ -249,7 +270,8 @@ void ezQtPropertyGridWidget::ClearSelection()
   m_Selection.Clear();
 }
 
-void ezQtPropertyGridWidget::SetSelectionIncludeExcludeProperties(const char* szIncludeProperties /*= nullptr*/, const char* szExcludeProperties /*= nullptr*/)
+void ezQtPropertyGridWidget::SetSelectionIncludeExcludeProperties(
+  const char* szIncludeProperties /*= nullptr*/, const char* szExcludeProperties /*= nullptr*/)
 {
   m_sSelectionIncludeProperties = szIncludeProperties;
   m_sSelectionExcludeProperties = szExcludeProperties;
@@ -279,7 +301,8 @@ void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>
     }
 
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(Items);
-    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, GetObjectAccessor(), pCommonType, m_sSelectionIncludeProperties, m_sSelectionExcludeProperties);
+    m_pTypeWidget =
+      new ezQtTypeWidget(m_pContent, this, GetObjectAccessor(), pCommonType, m_sSelectionIncludeProperties, m_sSelectionExcludeProperties);
     m_pTypeWidget->SetSelection(Items);
 
     m_pContentLayout->insertWidget(0, m_pTypeWidget, 0);
@@ -384,8 +407,7 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       {
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
-          return new ezQtUnsupportedPropertyWidget(
-              "Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezContainerWidgetAttribute");
+          return new ezQtUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezContainerWidgetAttribute");
         }
 
         return new ezQtPropertyTypeContainerWidget();
@@ -444,8 +466,7 @@ void GetDefaultValues(const ezRTTI* pType, const ezDocument* pDocument, ezProper
       {
         if (!pProp->GetFlags().IsSet(ezPropertyFlags::Class))
         {
-          (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue =
-              pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
+          (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
         }
       }
       break;

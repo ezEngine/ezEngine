@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 
 constexpr EZ_ALWAYS_INLINE ezTime::ezTime(double fTime)
-    : m_fTime(fTime)
+  : m_fTime(fTime)
 {
 }
 
@@ -91,4 +91,3 @@ constexpr EZ_ALWAYS_INLINE ezTime operator/(double f, ezTime t)
 {
   return ezTime::Seconds(t.GetSeconds() / f);
 }
-

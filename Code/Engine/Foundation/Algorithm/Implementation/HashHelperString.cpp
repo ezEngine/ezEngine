@@ -2,7 +2,7 @@
 
 #include <Foundation/Algorithm/HashHelperString.h>
 
-//static
+// static
 ezUInt32 ezHashHelperString_NoCase::Hash(const char* szValue)
 {
   ezHybridArray<char, 256> temp;
@@ -10,8 +10,7 @@ ezUInt32 ezHashHelperString_NoCase::Hash(const char* szValue)
   temp.SetCountUninitialized(uiElemCount);
   ezMemoryUtils::Copy(temp.GetData(), szValue, uiElemCount);
   uiElemCount = ezStringUtils::ToLowerString(temp.GetData(), temp.GetData() + uiElemCount);
-  return ezHashingUtils::MurmurHash32((void*)temp.GetData(), uiElemCount);
+  return ezHashingUtils::xxHash32((void*)temp.GetData(), uiElemCount);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Algorithm_Implementation_HashHelperString);
-

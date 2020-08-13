@@ -93,4 +93,3 @@ private:
 };
 
 #include <Foundation/Configuration/StaticSubSystem.h>
-

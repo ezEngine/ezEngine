@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
+#include <Foundation/Basics.h>
 
 class ezQtSceneViewWidget : public ezQtGameObjectViewWidget
 {

@@ -9,10 +9,10 @@ struct const_iterator_base
 {
 public:
   typedef std::random_access_iterator_tag iterator_category;
-  typedef T value_type;
-  typedef ptrdiff_t difference_type;
-  typedef T const* pointer;
-  typedef T const& reference;
+  using value_type = T;
+  using difference_type = ptrdiff_t;
+  using pointer = const T*;
+  using reference = const T&;
 
   const_iterator_base()
   {
@@ -90,8 +90,8 @@ template <class ARRAY, class T, bool reverse = false>
 struct iterator_base : public const_iterator_base<ARRAY, T, reverse>
 {
 public:
-  typedef T* pointer;
-  typedef T& reference;
+  using pointer = T*;
+  using reference = T&;
 
   iterator_base() {}
   iterator_base(ARRAY& deque, size_t index)
@@ -153,11 +153,11 @@ template <class T>
 struct const_reverse_pointer_iterator
 {
 public:
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef T value_type;
-  typedef ptrdiff_t difference_type;
-  typedef T* pointer;
-  typedef T& reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = T;
+  using difference_type = ptrdiff_t;
+  using pointer = T*;
+  using reference = T&;
 
   const_reverse_pointer_iterator() { m_ptr = nullptr; }
   const_reverse_pointer_iterator(T const* ptr)
@@ -206,10 +206,7 @@ public:
   EZ_ALWAYS_INLINE bool operator<=(const const_reverse_pointer_iterator& rhs) const { return m_ptr >= rhs.m_ptr; }
   EZ_ALWAYS_INLINE bool operator>=(const const_reverse_pointer_iterator& rhs) const { return m_ptr <= rhs.m_ptr; }
 
-  EZ_ALWAYS_INLINE const T& operator[](ptrdiff_t index) const
-  {
-    return *(m_ptr - index);
-  }
+  EZ_ALWAYS_INLINE const T& operator[](ptrdiff_t index) const { return *(m_ptr - index); }
 
 protected:
   T* m_ptr;
@@ -220,8 +217,8 @@ template <class T>
 struct reverse_pointer_iterator : public const_reverse_pointer_iterator<T>
 {
 public:
-  typedef T* pointer;
-  typedef T& reference;
+  using pointer = T*;
+  using reference = T&;
 
   reverse_pointer_iterator() {}
   reverse_pointer_iterator(T* ptr)
@@ -263,8 +260,5 @@ public:
   EZ_ALWAYS_INLINE T* operator->() { return this->m_ptr; }
 
   using const_reverse_pointer_iterator<T>::operator[];
-  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t index)
-  {
-    return *(this->m_ptr - index);
-  }
+  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t index) { return *(this->m_ptr - index); }
 };

@@ -77,7 +77,7 @@ public:
   /// mounted in different ways. For example a simple folder could be mounted on the local system, or via a HTTP server
   /// over a network (lets call it a 'FileServer'). Thus depending on which type of factories are registered, the file system
   /// can provide data from very different sources.
-  typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
+  using ezDataDirFactory = ezDataDirectoryType* (*)(const char*, const char*, const char*, ezFileSystem::DataDirUsage);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
   static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]
@@ -92,12 +92,13 @@ public:
   /// szGroup defines to what 'group' of data directories this data dir belongs. This is only used in calls to RemoveDataDirectoryGroup,
   /// to remove all data directories of the same group.
   /// You could use groups such as 'Base', 'Project', 'Settings', 'Level', 'Temp' to distinguish between different sets of data directories.
-  /// You can also specify the exact same string as szDataDirectory for szGroup, and thus uniquely identify the data dir, to be able to remove just that one.
-  /// szRootName is optional for read-only data dirs, but mandatory for writable ones.
-  /// It has to be unique to clearly identify a file within that data directory. It must be used when writing to a file in this directory.
-  /// For instance, if a data dir root name is "mydata", then the path ":mydata/SomeFile.txt" can be used to write to the top level
-  /// folder of this data directory. The same can be used for reading exactly that file and ignoring the other data dirs.
-  static ezResult AddDataDirectory(const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", ezFileSystem::DataDirUsage Usage = ReadOnly); // [tested]
+  /// You can also specify the exact same string as szDataDirectory for szGroup, and thus uniquely identify the data dir, to be able to remove just
+  /// that one. szRootName is optional for read-only data dirs, but mandatory for writable ones. It has to be unique to clearly identify a file within
+  /// that data directory. It must be used when writing to a file in this directory. For instance, if a data dir root name is "mydata", then the path
+  /// ":mydata/SomeFile.txt" can be used to write to the top level folder of this data directory. The same can be used for reading exactly that file
+  /// and ignoring the other data dirs.
+  static ezResult AddDataDirectory(
+    const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", ezFileSystem::DataDirUsage Usage = ReadOnly); // [tested]
 
   /// \brief Searches for a data directory with the given root name and removes it
   ///
@@ -180,7 +181,8 @@ public:
   /// \name Misc
   ///@{
 
-  /// \brief Returns the (recursive) mutex that is used internally by the file system which can be used to guard bundled operations on the file system.
+  /// \brief Returns the (recursive) mutex that is used internally by the file system which can be used to guard bundled operations on the file
+  /// system.
   static ezMutex& GetMutex();
 
   ///@}
@@ -213,13 +215,13 @@ public:
   /// data directories. The path to the file that is found will be returned.
   ///
   /// \param out_sAbsolutePath will contain the absolute path to the file. Might be nullptr.
-  /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be nullptr.
-  /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data directory
-  /// that would handle it.
-  /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
+  /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be
+  /// nullptr. \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data
+  /// directory that would handle it. \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
   ///
   /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir = nullptr); // [tested]
+  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath,
+    ezDataDirectoryType** out_ppDataDir = nullptr); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   /// Returns EZ_FAILURE if nothing is found. Otherwise \a result is the absolute path to the existing folder that has a given sub-folder.
@@ -318,8 +320,9 @@ struct ezFileSystem::FileEventType
     CloseFile,                 ///< A file was closed.
     AddDataDirectorySucceeded, ///< A data directory was successfully added.
     AddDataDirectoryFailed,    ///< Adding a data directory failed. No factory could handle it (or there were none).
-    RemoveDataDirectory,       ///< A data directory was removed. IMPORTANT: This is where ResourceManagers should check if some loaded resources need to be purged.
-    DeleteFile                 ///< A file is about to be deleted.
+    RemoveDataDirectory, ///< A data directory was removed. IMPORTANT: This is where ResourceManagers should check if some loaded resources need to be
+                         ///< purged.
+    DeleteFile           ///< A file is about to be deleted.
   };
 };
 

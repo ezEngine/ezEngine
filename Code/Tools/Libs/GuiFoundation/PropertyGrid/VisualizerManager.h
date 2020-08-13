@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 struct ezSelectionManagerEvent;
@@ -20,7 +20,6 @@ class EZ_GUIFOUNDATION_DLL ezVisualizerManager
   EZ_DECLARE_SINGLETON(ezVisualizerManager);
 
 public:
-
   ezVisualizerManager();
   ~ezVisualizerManager();
 
@@ -29,7 +28,6 @@ public:
   ezEvent<const ezVisualizerManagerEvent&> m_Events;
 
 private:
-
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
@@ -39,12 +37,8 @@ private:
   {
     bool m_bActivated;
 
-    DocData()
-    {
-      m_bActivated = true;
-    }
+    DocData() { m_bActivated = true; }
   };
 
   ezMap<const ezDocument*, DocData> m_DocsSubscribed;
 };
-

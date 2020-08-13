@@ -52,7 +52,7 @@ EZ_MSVC_ANALYSIS_WARNING_PUSH
 
 // Disable warning for incorrect operator (compiler complains about the TrackingFlags bitwise and in the case that flags = None)
 // even with the added guard of a check that it can't be 0.
-EZ_MSVC_ANALYSIS_WARNING_DISABLE(6313) 
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(6313)
 
 template <ezUInt32 TrackingFlags>
 void ezStackAllocator<TrackingFlags>::Reset()

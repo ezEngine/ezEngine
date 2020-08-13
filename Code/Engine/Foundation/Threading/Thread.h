@@ -65,9 +65,8 @@ public:
   /// \brief These events inform about threads starting and finishing.
   ///
   /// The events are raised on the executing thread! That means thread-specific code may be executed during the event callback,
-  /// e.g. to set up thread-local functionality. To not introduce unnecessary bottlenecks, the events are raised without a mutex,
-  /// so ensure make the called code thread-safe.
-  static ezEvent<const ezThreadEvent&, ezNoMutex> s_ThreadEvents;
+  /// e.g. to set up thread-local functionality.
+  static ezEvent<const ezThreadEvent&, ezMutex> s_ThreadEvents;
 
 private:
   /// \brief The run function can be used to implement a long running task in a thread in a platform independent way

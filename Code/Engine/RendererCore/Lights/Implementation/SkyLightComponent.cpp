@@ -5,9 +5,9 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/SkyLightComponent.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Dynamic)
@@ -81,8 +81,7 @@ void ezSkyLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 void ezSkyLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't trigger reflection rendering in shadow or other reflection views.
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow ||
-      msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
   if (m_ReflectionProbeData.m_fIntensity <= 0.0f)
@@ -111,4 +110,3 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SkyLightComponent);
-

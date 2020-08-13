@@ -52,4 +52,3 @@ ezSpatialData::Category ezDefaultSpatialDataCategories::RenderDynamic = ezSpatia
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialData);
-

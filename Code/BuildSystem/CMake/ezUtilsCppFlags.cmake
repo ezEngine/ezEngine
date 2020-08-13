@@ -109,6 +109,23 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 		target_compile_options(${TARGET_NAME} PRIVATE "/analyze")
 	endif()
 	
+	# Ignore various warnings we are not interrested in
+	# 4251 = class 'type' needs to have dll-interface to be used by clients of class 'type2' -> dll export / import issues (mostly with templates)
+	# 4345 = behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
+	# 4201 = nonstandard extension used: nameless struct/union
+	# 4324 = structure was padded due to alignment specifier
+	# 4100 = unreferenced formal parameter
+	# 4189 = local variable is initialized but not referenced
+	# 4127 = conditional expression is constant
+	# 4244 = conversion from 'int 32' to 'int 16', possible loss of data
+	# 4245 = signed/unsigned mismatch
+	# 4389 = signed/unsigned mismatch
+	# 4310 = cast truncates constant value
+	target_compile_options(${TARGET_NAME} PRIVATE /wd4251 /wd4345 /wd4201 /wd4324 /wd4100 /wd4189 /wd4127 /wd4244 /wd4245 /wd4389 /wd4310)
+	
+	# Set Warnings as Errors: Too few/many parameters given for Macro
+	target_compile_options(${TARGET_NAME} PRIVATE /we4002 /we4003)
+	
 endfunction()
 
 ######################################
@@ -124,7 +141,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	#set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON)
 	#endif ()
 	
-	if(NOT EZ_CMAKE_PLATFORM_ANDROID)
+	if(NOT EZ_CMAKE_PLATFORM_ANDROID AND NOT EZ_CMAKE_PLATFORM_WINDOWS)
 		target_compile_options(${TARGET_NAME} PRIVATE "-stdlib=libc++")
 	endif()
 	
@@ -134,6 +151,30 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	
 	# Disable warning: multi-character character constant
 	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
+	
+	if(EZ_CMAKE_PLATFORM_WINDOWS)
+		# Disable the warning that clang doesn't support pragma optimize.
+		target_compile_options(${TARGET_NAME} PRIVATE -Wno-ignored-pragma-optimize -Wno-pragma-pack)
+	endif()
+	
+	if(NOT (CMAKE_CURRENT_SOURCE_DIR MATCHES "Code/ThirdParty"))
+		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch -Werror=uninitialized)
+	else()
+		# Ignore all warnings in third party code.
+		target_compile_options(${TARGET_NAME} PRIVATE -Wno-everything)
+	endif()
+	
+	if(EZ_ENABLE_QT_SUPPORT)
+		# Ignore any warnings caused by Qt headers
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${EZ_QT_DIR}\"")
+	endif()
+	
+	# Ignore any warnings caused by headers inside the ThirdParty directory.
+	if(EZ_SUBMODULE_PREFIX_PATH)
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty\"")
+	else()
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/Code/ThirdParty\"")
+	endif()
 
 endfunction()
 
@@ -164,7 +205,7 @@ endfunction()
 
 function(ez_set_build_flags TARGET_NAME)
 
-	ez_pull_compiler_vars()
+	ez_pull_compiler_and_architecture_vars()
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 	

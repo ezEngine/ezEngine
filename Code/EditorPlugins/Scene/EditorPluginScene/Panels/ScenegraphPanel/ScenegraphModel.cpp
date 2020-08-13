@@ -8,7 +8,7 @@
 #include <Foundation/Strings/TranslationLookup.h>
 
 ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument)
-    : ezQtGameObjectModel(pDocument)
+  : ezQtGameObjectModel(pDocument)
 {
   m_pSceneDocument = pDocument;
 }

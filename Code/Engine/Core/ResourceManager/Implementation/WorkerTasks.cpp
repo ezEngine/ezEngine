@@ -53,7 +53,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
   // we need this info later to do some work in a lock, all the directly following code is outside the lock
   const bool bResourceIsLoadedOnMainThread = pResourceToLoad->GetBaseResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread);
 
-  ezResourceManagerWorkerUpdateContent* pUpdateContentTask = nullptr;
+  ezSharedPtr<ezResourceManagerWorkerUpdateContent> pUpdateContentTask;
   ezTaskGroupID* pUpdateContentGroup = nullptr;
 
   EZ_LOCK(ezResourceManager::s_ResourceMutex);
@@ -65,7 +65,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
 
     if (ezTaskSystem::IsTaskGroupFinished(td.m_GroupId))
     {
-      pUpdateContentTask = td.m_pTask.Borrow();
+      pUpdateContentTask = td.m_pTask;
       pUpdateContentGroup = &td.m_GroupId;
       break;
     }
@@ -81,9 +81,12 @@ void ezResourceManagerWorkerDataLoad::Execute()
     td.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
     td.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
 
-    pUpdateContentTask = td.m_pTask.Borrow();
+    pUpdateContentTask = td.m_pTask;
     pUpdateContentGroup = &td.m_GroupId;
   }
+
+  // always updated together with pUpdateContentTask
+  EZ_MSVC_ANALYSIS_ASSUME(pUpdateContentGroup != nullptr);
 
   // set up the data load task and launch it
   {
@@ -93,7 +96,8 @@ void ezResourceManagerWorkerDataLoad::Execute()
     pUpdateContentTask->m_pResourceToLoad = pResourceToLoad;
 
     // schedule the task to run, either on the main thread or on some other thread
-    *pUpdateContentGroup = ezTaskSystem::StartSingleTask(pUpdateContentTask, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
+    *pUpdateContentGroup = ezTaskSystem::StartSingleTask(
+      pUpdateContentTask, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
 
     // restart the next loading task (this one is about to finish)
     ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
@@ -135,8 +139,10 @@ void ezResourceManagerWorkerUpdateContent::Execute()
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     m_pResourceToLoad->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID());
+    EZ_ASSERT_DEV(
+      MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID());
+    EZ_ASSERT_DEV(
+      MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID());
 
     m_pResourceToLoad->m_MemoryUsage = MemUsage;
   }

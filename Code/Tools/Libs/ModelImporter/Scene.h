@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ModelImporter/HierarchyObject.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
-#include <Foundation/Containers/Deque.h>
 
 namespace ezModelImporter
 {
@@ -100,4 +100,4 @@ namespace ezModelImporter
     ezIdTable<ObjectId, ezUniquePtr<Mesh>> m_Meshes;
     ezIdTable<MaterialId, ezUniquePtr<Material>> m_Materials;
   };
-}
+} // namespace ezModelImporter

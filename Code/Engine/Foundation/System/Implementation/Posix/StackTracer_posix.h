@@ -1,5 +1,5 @@
 #ifdef EZ_STACKTRACER_POSIX_INL_H_INCLUDED
-#error "This file must not be included twice."
+#  error "This file must not be included twice."
 #endif
 
 #define EZ_STACKTRACER_POSIX_INL_H_INCLUDED
@@ -36,10 +36,9 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       szBuffer[iLen] = '\n';
       szBuffer[iLen + 1] = '\0';
 
-      (*printFunc)(szBuffer);
+      printFunc(szBuffer);
     }
 
     free(ppSymbols);
   }
 }
-

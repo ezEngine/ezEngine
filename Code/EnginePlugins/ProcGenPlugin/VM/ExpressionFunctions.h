@@ -6,7 +6,8 @@
 namespace ezExpression
 {
   typedef ezArrayPtr<ezSimdVec4f> Output;
-  typedef ezArrayPtr<ezArrayPtr<const ezSimdVec4f>> Inputs; // Inputs are in SOA form, means inner array contains all values for one input parameter, one for each instance.
+  typedef ezArrayPtr<ezArrayPtr<const ezSimdVec4f>>
+    Inputs; // Inputs are in SOA form, means inner array contains all values for one input parameter, one for each instance.
   typedef ezHashTable<ezHashedString, ezVariant> GlobalData;
 } // namespace ezExpression
 

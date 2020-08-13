@@ -1,8 +1,13 @@
 #pragma once
 
 #include <GameEngine/GameEngineDLL.h>
+
 #include <Core/ResourceManager/Resource.h>
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/RangeView.h>
+#include <Foundation/Types/Variant.h>
 
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
@@ -40,19 +45,22 @@ struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
   ezAngle m_Deviation;
   float m_fImpulseThreshold = 0.0f;
   float m_fImpulseScale = 1.0f;
+
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ] (exposed parameter)
+  void SetParameter(const char* szKey, const ezVariant& value);     // [ property ] (exposed parameter)
+  void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
+  bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
+
+  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 };
-
-
-
-
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezSurfaceInteraction);
 
 struct EZ_GAMEENGINE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResourceDescriptor, ezReflectedClass);
-public:
 
+public:
   void Load(ezStreamReader& stream);
   void Save(ezStreamWriter& stream) const;
 
@@ -70,4 +78,3 @@ public:
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };
-

@@ -29,7 +29,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezUltralightHTMLAssetDocument::ezUltralightHTMLAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezUltralightHTMLAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezUltralightHTMLAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -47,8 +47,8 @@ void ezUltralightHTMLAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
   }
 }
 
-ezStatus ezUltralightHTMLAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezUltralightHTMLAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezUltralightHTMLAssetProperties* pProp = GetProperties();
 

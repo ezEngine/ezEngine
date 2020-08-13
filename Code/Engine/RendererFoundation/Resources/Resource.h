@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALResourceBase : public ezRefCounted
 {
@@ -47,7 +47,7 @@ protected:
 };
 
 /// \brief Base class for GAL resources, stores a creation description of the object and also allows for reference counting.
-template<typename CreationDescription>
+template <typename CreationDescription>
 class ezGALResource : public ezGALResourceBase
 {
 public:
@@ -56,12 +56,8 @@ public:
   {
   }
 
-  EZ_ALWAYS_INLINE const CreationDescription& GetDescription() const
-  {
-    return m_Description;
-  }
+  EZ_ALWAYS_INLINE const CreationDescription& GetDescription() const { return m_Description; }
 
 protected:
   const CreationDescription m_Description;
 };
-

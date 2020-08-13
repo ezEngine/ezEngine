@@ -1,11 +1,13 @@
 
 template <typename MetaDataType>
-ezMessageQueueBase<MetaDataType>::ezMessageQueueBase(ezAllocatorBase* pAllocator) : m_Queue(pAllocator)
+ezMessageQueueBase<MetaDataType>::ezMessageQueueBase(ezAllocatorBase* pAllocator)
+  : m_Queue(pAllocator)
 {
 }
 
 template <typename MetaDataType>
-ezMessageQueueBase<MetaDataType>::ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pAllocator) : m_Queue(pAllocator)
+ezMessageQueueBase<MetaDataType>::ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pAllocator)
+  : m_Queue(pAllocator)
 {
   m_Queue = rhs.m_Queue;
 }
@@ -146,22 +148,26 @@ void ezMessageQueueBase<MetaDataType>::Unlock()
 
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue() : ezMessageQueueBase<MD>(A::GetAllocator())
+ezMessageQueue<MD, A>::ezMessageQueue()
+  : ezMessageQueueBase<MD>(A::GetAllocator())
 {
 }
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue(ezAllocatorBase* pQueueAllocator) : ezMessageQueueBase<MD>(pQueueAllocator)
+ezMessageQueue<MD, A>::ezMessageQueue(ezAllocatorBase* pQueueAllocator)
+  : ezMessageQueueBase<MD>(pQueueAllocator)
 {
 }
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue(const ezMessageQueue<MD, A>& rhs) : ezMessageQueueBase<MD>(rhs, A::GetAllocator())
+ezMessageQueue<MD, A>::ezMessageQueue(const ezMessageQueue<MD, A>& rhs)
+  : ezMessageQueueBase<MD>(rhs, A::GetAllocator())
 {
 }
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue(const ezMessageQueueBase<MD>& rhs) : ezMessageQueueBase<MD>(rhs, A::GetAllocator())
+ezMessageQueue<MD, A>::ezMessageQueue(const ezMessageQueueBase<MD>& rhs)
+  : ezMessageQueueBase<MD>(rhs, A::GetAllocator())
 {
 }
 
@@ -176,4 +182,3 @@ void ezMessageQueue<MD, A>::operator=(const ezMessageQueueBase<MD>& rhs)
 {
   ezMessageQueueBase<MD>::operator=(rhs);
 }
-

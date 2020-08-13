@@ -2,8 +2,8 @@
 
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/ui_CollapsibleGroupBox.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
+#include <GuiFoundation/ui_CollapsibleGroupBox.h>
 
 class EZ_GUIFOUNDATION_DLL ezQtCollapsibleGroupBox : public ezQtGroupBoxBase, protected Ui_CollapsibleGroupBox
 {
@@ -28,5 +28,3 @@ protected:
 protected:
   bool m_bCollapsed;
 };
-
-

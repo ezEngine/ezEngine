@@ -1,12 +1,12 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Enum.h>
+#include <RendererCore/RendererCoreDLL.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 class EZ_RENDERERCORE_DLL ezShaderConstantBufferLayout : public ezRefCounted
 {
@@ -104,7 +104,7 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
     RWStructuredBufferWithCounter,
 
     ConstantBuffer,
-    GenericBuffer,   ///< A read only (structured) buffer
+    GenericBuffer, ///< A read only (structured) buffer
     Sampler
   };
 
@@ -165,4 +165,3 @@ private:
 
   static ezMap<ezUInt32, ezShaderStageBinary> s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 };
-

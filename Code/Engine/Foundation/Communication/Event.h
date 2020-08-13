@@ -43,7 +43,7 @@ protected:
 
 public:
   /// \brief Notification callback type for events.
-  typedef ezDelegate<void(EventData)> Handler;
+  using Handler = ezDelegate<void(EventData)>;
 
   /// \brief An object that can be passed to ezEvent::AddEventHandler to store the subscription information
   /// and automatically remove the event handler upon destruction.
@@ -163,7 +163,8 @@ private:
 };
 
 /// \brief \see ezEventBase
-template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper, ezEventType EventType = ezEventType::Default>
+template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper,
+  ezEventType EventType = ezEventType::Default>
 class ezEvent : public ezEventBase<EventData, MutexType, EventType>
 {
 public:

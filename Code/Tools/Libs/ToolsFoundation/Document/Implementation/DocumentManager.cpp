@@ -186,9 +186,8 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
   s_Events.Broadcast(e);
 }
 
-ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath,
-  ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags,
-  const ezDocumentObject* pOpenContext /*= nullptr*/)
+ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
+  ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   ezFileStats fs;
   ezStringBuilder sPath = szPath;
@@ -319,8 +318,8 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
   return status;
 }
 
-ezStatus ezDocumentManager::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
-  ezBitflags<ezDocumentFlags> flags)
+ezStatus ezDocumentManager::CreateDocument(
+  const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags)
 {
   return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, flags);
 }

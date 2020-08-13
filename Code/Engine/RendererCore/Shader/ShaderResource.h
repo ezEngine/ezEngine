@@ -32,4 +32,3 @@ private:
   ezHybridArray<ezHashedString, 16> m_PermutationVarsUsed;
   bool m_bShaderResourceIsValid;
 };
-

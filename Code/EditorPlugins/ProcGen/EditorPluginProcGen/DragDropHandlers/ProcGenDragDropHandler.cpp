@@ -28,8 +28,7 @@ void ezProcPlacementComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* 
     iTargetInsertChildIndex = pInfo->m_iTargetObjectInsertChildIndex;
   }
 
-  CreateDropObject(
-    pInfo->m_vDropPosition, "ezProcPlacementComponent", "Resource", GetAssetGuidString(pInfo), targetObject, iTargetInsertChildIndex);
+  CreateDropObject(pInfo->m_vDropPosition, "ezProcPlacementComponent", "Resource", GetAssetGuidString(pInfo), targetObject, iTargetInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

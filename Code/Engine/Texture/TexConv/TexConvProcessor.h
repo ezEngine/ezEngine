@@ -23,7 +23,6 @@ public:
   ezMemoryStreamStorage m_TextureAtlas;
 
 private:
-
   //////////////////////////////////////////////////////////////////////////
   // Modifying the Descriptor
 
@@ -39,8 +38,15 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Reading from the descriptor
 
+  enum class MipmapChannelMode
+  {
+    AllChannels,
+    SingleChannel
+  };
+
   ezResult ChooseOutputFormat(ezEnum<ezImageFormat>& out_Format, ezEnum<ezTexConvUsage> usage, ezUInt32 uiNumChannels) const;
-  ezResult DetermineTargetResolution(const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const;
+  ezResult DetermineTargetResolution(
+    const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const;
   ezResult Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const;
   ezResult AssembleCubemap(ezImage& dst) const;
   ezResult Assemble3DTexture(ezImage& dst) const;
@@ -48,14 +54,7 @@ private:
   ezResult PremultiplyAlpha(ezImage& image) const;
   ezResult DilateColor2D(ezImage& img) const;
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
-
-  enum class MipmapChannelMode
-  {
-    AllChannels,
-    SingleChannel
-  };
-
-  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips /*= 0*/, MipmapChannelMode channelMode = MipmapChannelMode::AllChannels) const;
+  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips /* =0 */, MipmapChannelMode channelMode = MipmapChannelMode::AllChannels) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
@@ -81,7 +80,8 @@ private:
   };
 
   ezResult LoadAtlasInputs(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& items) const;
-  ezResult CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg);
+  ezResult CreateAtlasLayerTexture(
+    const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg);
 
   static ezResult WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& atlasItems, ezUInt32 uiNumLayers, ezStreamWriter& stream);
   static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
@@ -93,7 +93,4 @@ private:
   // Texture Atlas
 
   ezResult GenerateTextureAtlas(ezMemoryStreamWriter& stream);
-
 };
-
-

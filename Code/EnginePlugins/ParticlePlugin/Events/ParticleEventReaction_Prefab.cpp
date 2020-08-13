@@ -278,12 +278,14 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
     case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
       vAlignDir = -e.m_vDirection.GetReflectedVector(e.m_vNormal);
       break;
+
+    case ezSurfaceInteractionAlignment::SurfaceNormal:
+      break;
   }
 
   // rotate the prefab randomly along its main axis (the X axis)
   ezQuat qRot;
-  qRot.SetFromAxisAndAngle(
-    ezVec3(1, 0, 0), ezAngle::Radian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
+  qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Radian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
 
   vAlignDir.NormalizeIfNotZero(ezVec3::UnitXAxis());
 

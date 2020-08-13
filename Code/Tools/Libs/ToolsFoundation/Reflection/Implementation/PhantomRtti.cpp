@@ -4,11 +4,11 @@
 #include <ToolsFoundation/Reflection/PhantomProperty.h>
 #include <ToolsFoundation/Reflection/PhantomRtti.h>
 
-ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion,
-  ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName)
-  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr,
-      ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezPropertyAttribute*>(),
-      ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
+ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+  ezBitflags<ezTypeFlags> flags, const char* szPluginName)
+  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<ezAbstractProperty*>(),
+      ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(),
+      ezArrayPtr<ezMessageSenderInfo>(), nullptr)
 {
   m_sTypeNameStorage = szName;
   m_sPluginNameStorage = szPluginName;
@@ -78,6 +78,8 @@ void ezPhantomRTTI::SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>&
         m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMapProperty, &properties[i]));
       }
       break;
+      case ezPropertyCategory::Function:
+        break; // Handled in SetFunctions
     }
   }
 
@@ -118,8 +120,7 @@ void ezPhantomRTTI::SetAttributes(ezHybridArray<ezPropertyAttribute*, 2>& attrib
 
 void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
 {
-  ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), desc.m_uiTypeSize, desc.m_uiTypeVersion, ezVariantType::Invalid,
-    desc.m_Flags);
+  ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), desc.m_uiTypeSize, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags);
 
   m_sPluginNameStorage = desc.m_sPluginName;
   m_szPluginName = m_sPluginNameStorage.GetData();
@@ -198,6 +199,8 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
           return false;
       }
       break;
+      case ezPropertyCategory::Function:
+        break; // Functions handled below
     }
 
     if (desc.m_Functions.GetCount() != GetFunctions().GetCount())
@@ -208,8 +211,7 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
       const ezAbstractFunctionProperty* pProp = GetFunctions()[j];
       if (desc.m_Functions[j].m_sName != pProp->GetPropertyName())
         return false;
-      if ((desc.m_Functions[j].m_Flags.GetValue() & ~ezPropertyFlags::Phantom) !=
-          (pProp->GetFlags().GetValue() & ~ezPropertyFlags::Phantom))
+      if ((desc.m_Functions[j].m_Flags.GetValue() & ~ezPropertyFlags::Phantom) != (pProp->GetFlags().GetValue() & ~ezPropertyFlags::Phantom))
         return false;
       if (desc.m_Functions[j].m_Type != pProp->GetFunctionType())
         return false;

@@ -9,7 +9,6 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
-#include <Texture/Image/ImageConversion.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
@@ -17,9 +16,10 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
+#include <Texture/Image/ImageConversion.h>
 
 ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAssetDocument* pDocument)
-    : ezQtEngineDocumentWindow(pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
@@ -128,12 +128,11 @@ void ezQtSkeletonAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorE
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 &&
-        pMessage->m_vHalfExtents.y >= 0 && pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 &&
+        pMessage->m_vHalfExtents.z >= 0)
     {
       m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f,
-                                                      pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f,
-                                                      pMessage->m_iPurpose == 0);
+        pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }
     else if (pMessage->m_iPurpose == 0)
     {

@@ -44,8 +44,8 @@ void ezCylinderVisualizerAdapter::Update()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, pProp, value);
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(),
-                    "Invalid property '{0}' bound to ezCylinderVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCylinderVisualizerAttribute 'radius'",
+      pAttr->GetRadiusProperty());
     m_fRadius = value.ConvertTo<float>();
   }
 
@@ -64,10 +64,10 @@ void ezCylinderVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCylinderVisualizerAttribute 'color'");
-    m_Cylinder.SetColor(value.ConvertTo<ezColor>());
+    m_Cylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 
-  m_vPositionOffset = pAttr->m_vOffset;
+  m_vPositionOffset = pAttr->m_vOffsetOrScale;
 
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
@@ -75,19 +75,42 @@ void ezCylinderVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezCylinderVisualizerAttribute 'offset'");
-    m_vPositionOffset += value.ConvertTo<ezVec3>();
+
+    if (m_vPositionOffset.IsZero())
+      m_vPositionOffset = value.ConvertTo<ezVec3>();
+    else
+      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
   }
+
+  m_Anchor = pAttr->m_Anchor;
 }
 
 void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
 {
-  const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
+  const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, pAttr->m_Axis);
 
-  ezTransform tCylinder;
-  tCylinder.m_qRotation = axisRotation;
-  tCylinder.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fHeight);
-  tCylinder.m_vPosition = m_vPositionOffset;
+  ezTransform t;
+  t.m_qRotation = axisRotation;
+  t.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fHeight);
+  t.m_vPosition = m_vPositionOffset;
 
-  m_Cylinder.SetTransformation(GetObjectTransform() * tCylinder);
+  ezVec3 vOffset = ezVec3::ZeroVector();
+
+  if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
+    vOffset.x -= t.m_vScale.x;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::NegX))
+    vOffset.x += t.m_vScale.x;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::PosY))
+    vOffset.y -= t.m_vScale.y;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::NegY))
+    vOffset.y += t.m_vScale.y;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::PosZ))
+    vOffset.z -= t.m_vScale.z * 0.5f;
+  if (m_Anchor.IsSet(ezVisualizerAnchor::NegZ))
+    vOffset.z += t.m_vScale.z * 0.5f;
+
+  t.m_vPosition += vOffset;
+
+  m_Cylinder.SetTransformation(GetObjectTransform() * t);
 }

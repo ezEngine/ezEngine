@@ -304,11 +304,13 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
         {
           if (!sSystemsFound.Find(pSub->GetDependency(iDep)).IsValid())
           {
-            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' is unknown.", pSub->GetGroupName(), pSub->GetSubSystemName(), pSub->GetDependency(iDep));
+            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' is unknown.", pSub->GetGroupName(),
+              pSub->GetSubSystemName(), pSub->GetDependency(iDep));
           }
           else
           {
-            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' has not been initialized.", pSub->GetGroupName(), pSub->GetSubSystemName(), pSub->GetDependency(iDep));
+            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' has not been initialized.", pSub->GetGroupName(),
+              pSub->GetSubSystemName(), pSub->GetDependency(iDep));
           }
 
           ++iDep;
@@ -462,7 +464,8 @@ void ezStartup::UnloadPluginSubSystems(const char* szPluginName)
   {
     if (Order[i]->m_bStartupDone[ezStartupStage::HighLevelSystems] && HasDependencyOnPlugin(Order[i], szPluginName))
     {
-      ezLog::Info("Engine shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), szPluginName);
+      ezLog::Info("Engine shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(),
+        Order[i]->GetSubSystemName(), szPluginName);
       Order[i]->OnHighLevelSystemsShutdown();
       Order[i]->m_bStartupDone[ezStartupStage::HighLevelSystems] = false;
     }
@@ -472,7 +475,8 @@ void ezStartup::UnloadPluginSubSystems(const char* szPluginName)
   {
     if (Order[i]->m_bStartupDone[ezStartupStage::CoreSystems] && HasDependencyOnPlugin(Order[i], szPluginName))
     {
-      ezLog::Info("Core shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), szPluginName);
+      ezLog::Info("Core shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(),
+        Order[i]->GetSubSystemName(), szPluginName);
       Order[i]->OnCoreSystemsShutdown();
       Order[i]->m_bStartupDone[ezStartupStage::CoreSystems] = false;
     }
@@ -491,4 +495,3 @@ void ezStartup::ReinitToCurrentState()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_Startup);
-

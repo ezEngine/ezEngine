@@ -4,9 +4,9 @@ EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
   return m_Data.m_sName.GetData();
 }
 
-EZ_ALWAYS_INLINE ezUInt16 ezWorld::GetIndex() const
+EZ_ALWAYS_INLINE ezUInt8 ezWorld::GetIndex() const
 {
-  return m_uiIndex;
+  return static_cast<ezUInt8>(m_uiIndex);
 }
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
@@ -19,7 +19,7 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-                "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   return m_Data.m_Objects.Contains(object);
 }
@@ -28,7 +28,7 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-                "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   return m_Data.m_Objects.TryGetValue(object, out_pObject);
 }
@@ -37,7 +37,7 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, con
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-                "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   ezGameObject* pObject = nullptr;
   bool bResult = m_Data.m_Objects.TryGetValue(object, pObject);
@@ -75,7 +75,7 @@ EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 {
   CheckForReadAccess();
   // Subtract one to exclude dummy object with instance index 0
-  return m_Data.m_Objects.GetCount() - 1;
+  return static_cast<ezUInt32>(m_Data.m_Objects.GetCount() - 1);
 }
 
 EZ_FORCE_INLINE ezInternal::WorldData::ObjectIterator ezWorld::GetObjects()
@@ -150,7 +150,7 @@ ManagerType* ezWorld::GetOrCreateComponentManager()
   if (pModule == nullptr)
   {
     pModule = EZ_NEW(&m_Data.m_Allocator, ManagerType, this);
-    pModule->InitializeInternal();
+    static_cast<ezWorldModule*>(pModule)->Initialize();
 
     m_Data.m_Modules[uiTypeId] = pModule;
     m_Data.m_ModulesToStartSimulation.PushBack(pModule);
@@ -180,7 +180,7 @@ void ezWorld::DeleteComponentManager()
     {
       m_Data.m_Modules[uiTypeId] = nullptr;
 
-      pModule->DeinitializeInternal();
+      static_cast<ezWorldModule*>(pModule)->Deinitialize();
       DeregisterUpdateFunctions(pModule);
       EZ_DELETE(&m_Data.m_Allocator, pModule);
     }
@@ -333,15 +333,15 @@ EZ_FORCE_INLINE void ezWorld::SendMessageRecursive(const ezGameObjectHandle& rec
   }
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg,
-                                           ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessage(
+  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, false);
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg,
-                                                    ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(
+  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, true);
@@ -377,9 +377,9 @@ EZ_ALWAYS_INLINE bool ezWorld::GetWorldSimulationEnabled() const
   return m_Data.m_bSimulateWorld;
 }
 
-EZ_ALWAYS_INLINE ezTask* ezWorld::GetUpdateTask()
+EZ_ALWAYS_INLINE const ezSharedPtr<ezTask>& ezWorld::GetUpdateTask()
 {
-  return &m_UpdateTask;
+  return m_pUpdateTask;
 }
 
 EZ_FORCE_INLINE ezSpatialSystem* ezWorld::GetSpatialSystem()
@@ -526,8 +526,8 @@ EZ_ALWAYS_INLINE void ezWorld::CheckForReadAccess() const
 
 EZ_ALWAYS_INLINE void ezWorld::CheckForWriteAccess() const
 {
-  EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
-                "Trying to write to World '{0}', but it is not marked for writing.", GetName());
+  EZ_ASSERT_DEV(
+    m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(), "Trying to write to World '{0}', but it is not marked for writing.", GetName());
 }
 
 EZ_ALWAYS_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
@@ -539,4 +539,3 @@ EZ_ALWAYS_INLINE bool ezWorld::ReportErrorWhenStaticObjectMoves() const
 {
   return m_Data.m_bReportErrorWhenStaticObjectMoves;
 }
-

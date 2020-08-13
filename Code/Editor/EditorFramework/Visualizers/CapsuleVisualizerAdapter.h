@@ -1,8 +1,8 @@
-#pragma once 
+#pragma once
 
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 
 struct ezGizmoEvent;
 
@@ -18,8 +18,9 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  float m_fRadius;
-  float m_fHeight;
+  float m_fRadius = 0.0f;
+  float m_fHeight = 0.0f;
+  ezBitflags<ezVisualizerAnchor> m_Anchor;
 
   ezEngineGizmoHandle m_SphereTop;
   ezEngineGizmoHandle m_SphereBottom;

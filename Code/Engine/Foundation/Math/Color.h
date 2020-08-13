@@ -3,7 +3,8 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec4.h>
 
-/// \brief ezColor represents and RGBA color in linear color space. Values are stored as float, allowing HDR values and full precision color modifications.
+/// \brief ezColor represents and RGBA color in linear color space. Values are stored as float, allowing HDR values and full precision color
+/// modifications.
 ///
 /// ezColor is the central class to handle colors throughout the engine. With floating point precision it can handle any value, including HDR colors.
 /// Since it is stored in linear space, doing color transformations (e.g. adding colors or multiplying them) work as expected.
@@ -240,7 +241,8 @@ public:
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
+                               "all code-paths properly initialize this object.");
   }
 #endif
 
@@ -354,7 +356,8 @@ public:
   /// \brief Divides all components of this color by f.
   void operator/=(float f); // [tested]
 
-  /// \brief Transforms the RGB components by the matrix. Alpha has no influence on the computation and will stay unmodified. The fourth row of the matrix is ignored.
+  /// \brief Transforms the RGB components by the matrix. Alpha has no influence on the computation and will stay unmodified. The fourth row of the
+  /// matrix is ignored.
   ///
   /// This operation can be used to do basic color correction.
   void operator*=(const ezMat4& rhs); // [tested]
@@ -395,7 +398,8 @@ const ezColor operator*(const ezColor& c, float f); // [tested]
 /// \brief Returns a scaled color. Will scale all components.
 const ezColor operator/(const ezColor& c, float f); // [tested]
 
-/// \brief Transforms the RGB components by the matrix. Alpha has no influence on the computation and will stay unmodified. The fourth row of the matrix is ignored.
+/// \brief Transforms the RGB components by the matrix. Alpha has no influence on the computation and will stay unmodified. The fourth row of the
+/// matrix is ignored.
 ///
 /// This operation can be used to do basic color correction.
 const ezColor operator*(const ezMat4& lhs, const ezColor& rhs); // [tested]
@@ -412,4 +416,3 @@ bool operator<(const ezColor& c1, const ezColor& c2); // [tested]
 EZ_CHECK_AT_COMPILETIME(sizeof(ezColor) == 16);
 
 #include <Foundation/Math/Implementation/Color_inl.h>
-

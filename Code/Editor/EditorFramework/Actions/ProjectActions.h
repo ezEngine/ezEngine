@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 ///
 class EZ_EDITORFRAMEWORK_DLL ezProjectActions
@@ -21,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hRecentDocuments;
 
   static ezActionDescriptorHandle s_hProjectCategory;
+  static ezActionDescriptorHandle s_hOpenDashboard;
   static ezActionDescriptorHandle s_hCreateProject;
   static ezActionDescriptorHandle s_hOpenProject;
   static ezActionDescriptorHandle s_hRecentProjects;
@@ -54,8 +55,12 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezRecentDocumentsMenuAction : public ezDynamicMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRecentDocumentsMenuAction, ezDynamicMenuAction);
+
 public:
-  ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath) {}
+  ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+    : ezDynamicMenuAction(context, szName, szIconPath)
+  {
+  }
   virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
@@ -64,8 +69,12 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezRecentProjectsMenuAction : public ezDynamicMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRecentProjectsMenuAction, ezDynamicMenuAction);
+
 public:
-  ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath) {}
+  ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+    : ezDynamicMenuAction(context, szName, szIconPath)
+  {
+  }
   virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
@@ -74,11 +83,13 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezProjectAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProjectAction, ezButtonAction);
+
 public:
   enum class ButtonType
   {
     CreateDocument,
     OpenDocument,
+    OpenDashboard,
     CreateProject,
     OpenProject,
     CloseProject,

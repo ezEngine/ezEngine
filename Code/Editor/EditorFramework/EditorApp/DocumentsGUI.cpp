@@ -1,7 +1,15 @@
 #include <EditorFrameworkPCH.h>
 
+#include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QFileDialog>
+
+void ezQtEditorApp::InternalGuiOpenDashboard()
+{
+  ezQtDashboardDlg dlg(nullptr);
+
+  dlg.exec();
+}
 
 void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 {
@@ -20,14 +28,14 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 
   if (bCreate)
     sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"), sDir,
-                                         QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
-                .toUtf8()
-                .data();
+      QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
+              .toUtf8()
+              .data();
   else
-    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir,
-                                         QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
-                .toUtf8()
-                .data();
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir, QString::fromUtf8(sAllFilters.GetData()),
+      &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
+              .toUtf8()
+              .data();
 
   if (sFile.IsEmpty())
     return;
@@ -101,5 +109,8 @@ void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
       }
     }
     break;
+
+    default:
+      break;
   }
 }

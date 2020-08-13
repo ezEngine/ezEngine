@@ -8,8 +8,8 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
 ezInstanceData::ezInstanceData(ezUInt32 uiMaxInstanceCount /*= 1024*/)
-    : m_uiBufferSize(0)
-    , m_uiBufferOffset(0)
+  : m_uiBufferSize(0)
+  , m_uiBufferOffset(0)
 {
   CreateBuffer(uiMaxInstanceCount);
 
@@ -21,6 +21,8 @@ ezInstanceData::~ezInstanceData()
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   pDevice->DestroyBuffer(m_hInstanceDataBuffer);
+
+  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
 void ezInstanceData::BindResources(ezRenderContext* pRenderContext)
@@ -87,7 +89,9 @@ void ezInstanceData::Reset()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceDataProvider, 1, ezRTTIDefaultAllocator<ezInstanceDataProvider>) {}
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceDataProvider, 1, ezRTTIDefaultAllocator<ezInstanceDataProvider>)
+  {
+  }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezInstanceDataProvider::ezInstanceDataProvider() {}
@@ -104,4 +108,3 @@ void* ezInstanceDataProvider::UpdateData(const ezRenderViewContext& renderViewCo
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_InstanceDataProvider);
-

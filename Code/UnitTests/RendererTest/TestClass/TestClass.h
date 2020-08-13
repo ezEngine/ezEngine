@@ -1,13 +1,13 @@
 #pragma once
 
-#include <TestFramework/Framework/TestBaseClass.h>
+#include <Core/Graphics/Geometry.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererFoundation/Device/Device.h>
 #include <System/Window/Window.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <Core/Graphics/Geometry.h>
-#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/RenderContext/RenderContext.h>
+#include <TestFramework/Framework/TestBaseClass.h>
 
 class ezImage;
 
@@ -25,7 +25,7 @@ public:
   virtual ezResult GetImage(ezImage& img) override;
 
 protected:
-  virtual void SetupSubTests() override { }
+  virtual void SetupSubTests() override {}
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override { return ezTestAppRun::Quit; }
 
   virtual ezResult InitializeTest() override { return EZ_SUCCESS; }
@@ -48,7 +48,8 @@ protected:
   ezMeshBufferResourceHandle CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius);
   ezMeshBufferResourceHandle CreateBox(float fWidth, float fHeight, float fDepth);
   ezMeshBufferResourceHandle CreateLineBox(float fWidth, float fHeight, float fDepth);
-  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
+  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color,
+    ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
 
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;
@@ -57,5 +58,3 @@ protected:
   ezShaderResourceHandle m_hShader;
   ezGALTextureHandle m_hDepthStencilTexture;
 };
-
-

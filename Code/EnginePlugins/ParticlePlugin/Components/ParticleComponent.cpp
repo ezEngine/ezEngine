@@ -23,7 +23,8 @@ ezParticleComponentManager::ezParticleComponentManager(ezWorld* pWorld)
 void ezParticleComponentManager::Initialize()
 {
   {
-    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::Update, this), "ezParticleComponentManager::Update");
+    auto desc = ezWorldModule::UpdateFunctionDesc(
+      ezWorldModule::UpdateFunction(&ezParticleComponentManager::Update, this), "ezParticleComponentManager::Update");
     desc.m_bOnlyUpdateWhenSimulating = true;
     RegisterUpdateFunction(desc);
   }
@@ -31,7 +32,8 @@ void ezParticleComponentManager::Initialize()
   // it is necessary to do a late transform update pass, so that particle effects appear exactly at their parent's location
   // especially for effects that are 'simulated in local space' and should appear absolutely glued to their parent
   {
-    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::UpdateTransforms, this), "ezParticleComponentManager::UpdateTransforms");
+    auto desc = ezWorldModule::UpdateFunctionDesc(
+      ezWorldModule::UpdateFunction(&ezParticleComponentManager::UpdateTransforms, this), "ezParticleComponentManager::UpdateTransforms");
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
     RegisterUpdateFunction(desc);
@@ -376,7 +378,8 @@ void ezParticleComponent::Update()
 
     if (m_RestartTime == ezTime())
     {
-      const ezTime tDiff = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
+      const ezTime tDiff =
+        ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }
@@ -441,8 +444,7 @@ void ezParticleComponent::CheckBVolumeUpdate()
 const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
-    [this](ezUInt32& it) { ++it; },
+    [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); }, [this](ezUInt32& it) { ++it; },
     [this](const ezUInt32& it) -> const char* {
       if (it < m_FloatParams.GetCount())
         return m_FloatParams[it].m_sName.GetData();

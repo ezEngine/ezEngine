@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Types/Delegate.h>
 
 /// \brief Helper class to capture the current stack and print a captured stack
 class EZ_FOUNDATION_DLL ezStackTracer
@@ -15,7 +16,7 @@ public:
   static ezUInt32 GetStackTrace(ezArrayPtr<void*>& trace, void* pContext = nullptr);
 
   /// \brief Callback-function to print a text somewhere
-  using PrintFunc = void(const char* szText);
+  using PrintFunc = ezDelegate<void(const char* szText)>;
 
   /// \brief Print a stack trace
   static void ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc);
@@ -25,4 +26,3 @@ private:
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, StackTracer);
 };
-

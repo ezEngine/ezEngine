@@ -76,4 +76,3 @@ void ezTexFormat::ReadHeader(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(Texture, Texture_ezTexFormat_ezTexFormat);
-

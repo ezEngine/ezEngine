@@ -15,7 +15,10 @@
 # DirectX11_LIBRARY
 # DirectX11_ROOT_DIR
 
-if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
+ez_pull_platform_vars()
+
+if(EZ_CMAKE_PLATFORM_WINDOWS) # The only platform it makes sense to check for DirectX11 SDK
+
 	include(FindPkgMacros)
 	findpkg_begin(DirectX11)
 
@@ -41,8 +44,8 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 
 	# Windows 8 SDK has custom layout
 	set(DirectX11_INC_SEARCH_PATH
-	"C:/Program Files (x86)/Windows Kits/10/Include/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/shared"
-	"C:/Program Files (x86)/Windows Kits/10/Include/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/um"
+	"C:/Program Files (x86)/Windows Kits/10/Include/${EZ_CMAKE_WINDOWS_SDK_VERSION}/shared"
+	"C:/Program Files (x86)/Windows Kits/10/Include/${EZ_CMAKE_WINDOWS_SDK_VERSION}/um"
 	"C:/Program Files (x86)/Windows Kits/8.1/Include/shared"
 	"C:/Program Files (x86)/Windows Kits/8.1/Include/um"
 	"C:/Program Files (x86)/Windows Kits/8.0/Include/shared"
@@ -50,7 +53,7 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 
 	)
 	set(DirectX11_LIB_SEARCH_PATH
-  "C:/Program Files (x86)/Windows Kits/10/Lib/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/um"
+  "C:/Program Files (x86)/Windows Kits/10/Lib/${EZ_CMAKE_WINDOWS_SDK_VERSION}/um"
 	"C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um"
 	"C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um"
 	)
@@ -68,13 +71,13 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 	# dlls are in DirectX11_ROOT_DIR/Developer Runtime/x64|x86
 	# lib files are in DirectX11_ROOT_DIR/Lib/x64|x86
 	if (EZ_CMAKE_ARCHITECTURE_ARM)
-		if(CMAKE_CL_64)
+		if(EZ_CMAKE_ARCHITECTURE_64BIT)
 			set(DirectX11_LIBPATH_SUFFIX "arm64")
 		else()
 			set(DirectX11_LIBPATH_SUFFIX "arm")
 		endif()
 	else()
-		if (CMAKE_CL_64)
+		if (EZ_CMAKE_ARCHITECTURE_64BIT)
 			set (DirectX11_LIBPATH_SUFFIX "x64")
 		else ()
 			set (DirectX11_LIBPATH_SUFFIX "x86")
@@ -134,4 +137,4 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 					 DirectX11_DXGUID_LIBRARY
 					 DirectX11_DXGI_LIBRARY 
 					 DirectX11_D3DCOMPILER_LIBRARY)	
-endif(WIN32)
+endif(EZ_CMAKE_PLATFORM_WINDOWS)

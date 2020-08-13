@@ -27,7 +27,7 @@ void ezPxDynamicActorComponentManager::UpdateKinematicActors()
 
   for (auto pKinematicActorComponent : m_KinematicActorComponents)
   {
-    if (PxRigidDynamic* pActor = pKinematicActorComponent->GetActor())
+    if (PxRigidDynamic* pActor = pKinematicActorComponent->GetPxActor())
     {
       ezGameObject* pObject = pKinematicActorComponent->GetOwner();
 
@@ -83,7 +83,7 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    physx::PxRigidDynamic* pActor = it->GetActor();
+    physx::PxRigidDynamic* pActor = it->GetPxActor();
 
     if (pActor != nullptr)
     {
@@ -103,9 +103,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
       EZ_ACCESSOR_PROPERTY("Mass", GetMass, SetMass)->AddAttributes(new ezSuffixAttribute(" kg")),
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
-      EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.1f)),
-      EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
-      EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)->AddAttributes(new ezDefaultValueAttribute(1000000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+      EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
+      EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+      EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)->AddAttributes(new ezDefaultValueAttribute(100000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_ACCESSOR_PROPERTY("ContinuousCollisionDetection", GetContinuousCollisionDetection, SetContinuousCollisionDetection)
   }
   EZ_END_PROPERTIES;
@@ -242,6 +242,7 @@ void ezPxDynamicActorComponent::SetMass(float fMass)
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
     m_pActor->setMass(m_fMass);
+    m_pActor->wakeUp();
   }
 }
 
@@ -301,6 +302,8 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   else if (m_fDensity > 0.0f)
   {
     PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity, &pxCoM);
+
+    m_fMass = m_pActor->getMass();
   }
   else
   {
@@ -420,8 +423,8 @@ void ezPxDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
   {
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
-    PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition),
-      PxForceMode::eFORCE);
+    PxRigidBodyExt::addForceAtPos(
+      *m_pActor, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
   }
 }
 
@@ -431,8 +434,8 @@ void ezPxDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
   {
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
-    PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse),
-      ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+    PxRigidBodyExt::addForceAtPos(
+      *m_pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
   }
 }
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Uuid.h>
+#include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezDocumentObjectManager;
 
@@ -15,7 +15,7 @@ public:
     , m_pParent(nullptr)
   {
   }
-  virtual ~ezDocumentObject() { }
+  virtual ~ezDocumentObject() {}
 
   // Accessors
   const ezUuid& GetGuid() const { return m_Guid; }
@@ -68,7 +68,7 @@ public:
   {
   }
 
-  virtual ~ezDocumentStorageObject() { }
+  virtual ~ezDocumentStorageObject() {}
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_ObjectPropertiesAccessor; }
 

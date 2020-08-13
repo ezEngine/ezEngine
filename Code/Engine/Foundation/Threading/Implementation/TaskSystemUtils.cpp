@@ -20,10 +20,11 @@ const char* ezWorkerThreadType::GetThreadTypeName(ezWorkerThreadType::Enum Threa
 
     case ezWorkerThreadType::FileAccess:
       return "File Access";
-  }
 
-  EZ_REPORT_FAILURE("Invalid Thread Type");
-  return "unknown";
+    default:
+      EZ_REPORT_FAILURE("Invalid Thread Type");
+      return "unknown";
+  }
 }
 
 void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
@@ -145,8 +146,7 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
     const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
     sPath.AppendFormat("{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-      ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
-      ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+      ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 
     sPath.ChangeFileExtension("dgml");
   }

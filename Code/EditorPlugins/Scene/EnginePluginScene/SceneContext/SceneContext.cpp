@@ -539,8 +539,7 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 {
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()),
-    pMsg->m_Objects.GetCount() / sizeof(ezUuid));
+  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()), pMsg->m_Objects.GetCount() / sizeof(ezUuid));
 
   for (auto guid : guids)
   {
@@ -708,7 +707,13 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sExposeName.Assign(esp.m_sName.GetData());
     paramdesc.m_uiWorldReaderChildObject = (iFoundObjChild >= 0) ? 1 : 0;
     paramdesc.m_uiWorldReaderObjectIndex = (iFoundObjChild >= 0) ? iFoundObjChild : iFoundObjRoot;
-    paramdesc.m_uiComponentTypeHash = pComponenType ? pComponenType->GetTypeNameHash() : 0;
+    paramdesc.m_sComponentType.Clear();
+
+    if (pComponenType)
+    {
+      paramdesc.m_sComponentType.Assign(pComponenType->GetTypeName());
+    }
+
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 

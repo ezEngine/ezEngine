@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Core/Input/InputManager.h>
 #include <Foundation/Basics.h>
-#include <Inspector/ui_InputWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Core/Input/InputManager.h>
+#include <Inspector/ui_InputWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtInputWidget : public ads::CDockWidget, public Ui_InputWidget
@@ -74,5 +74,3 @@ private:
 
   ezMap<ezString, ActionData> m_InputActions;
 };
-
-

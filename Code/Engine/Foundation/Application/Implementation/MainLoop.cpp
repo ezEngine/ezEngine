@@ -68,4 +68,3 @@ void ezRun(ezApplication* pApplicationInstance)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_MainLoop);
-

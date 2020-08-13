@@ -51,14 +51,14 @@ void ezUltralightHTMLAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
   }
 }
 
-void ezUltralightHTMLAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                 bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezUltralightHTMLAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezUltralightHTMLAssetDocument(szPath);
 }
 
 void ezUltralightHTMLAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

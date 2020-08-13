@@ -242,8 +242,7 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(Type f)
 }
 
 template <typename Type>
-ezResult ezVec3Template<Type>::CalculateNormal(
-  const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
 {
   *this = (v3 - v2).CrossRH(v1 - v2);
   return NormalizeIfNotZero();
@@ -252,8 +251,8 @@ ezResult ezVec3Template<Type>::CalculateNormal(
 template <typename Type>
 void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
-  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}",
-    ezArgF(vNormal.GetLength(), 3));
+  EZ_ASSERT_DEBUG(
+    vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
 
   ezVec3Template<Type> vOrtho = vNormal.CrossRH(*this);
   *this = vOrtho.CrossRH(vNormal);
@@ -453,8 +452,7 @@ EZ_FORCE_INLINE bool operator<(const ezVec3Template<Type>& v1, const ezVec3Templ
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(
-  const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
+const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 

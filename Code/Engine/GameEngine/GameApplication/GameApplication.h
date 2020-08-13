@@ -88,7 +88,7 @@ protected:
   void RenderConsole();
 
   void UpdateWorldsAndExtractViews();
-  ezDelegateTask<void> m_UpdateTask;
+  ezSharedPtr<ezDelegateTask<void>> m_pUpdateTask;
 
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
@@ -99,4 +99,3 @@ protected:
   ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;
 #endif
 };
-

@@ -19,11 +19,13 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetElements(const ezVec3Templa
   m_vMin = vMin;
   m_vMax = vMax;
 
-  EZ_ASSERT_DEBUG(IsValid(), "The given values did not create a valid bounding box ({0} | {1} | {2} - {3} | {4} | {5})", ezArgF(vMin.x, 2), ezArgF(vMin.y, 2), ezArgF(vMin.z, 2), ezArgF(vMax.x, 2), ezArgF(vMax.y, 2), ezArgF(vMax.z, 2));
+  EZ_ASSERT_DEBUG(IsValid(), "The given values did not create a valid bounding box ({0} | {1} | {2} - {3} | {4} | {5})", ezArgF(vMin.x, 2),
+    ezArgF(vMin.y, 2), ezArgF(vMin.z, 2), ezArgF(vMax.x, 2), ezArgF(vMax.y, 2), ezArgF(vMax.z, 2));
 }
 
 template <typename Type>
-void ezBoundingBoxTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */)
+void ezBoundingBoxTemplate<Type>::SetFromPoints(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */)
 {
   SetInvalid();
   ExpandToInclude(pPoints, uiNumPoints, uiStride);
@@ -148,8 +150,7 @@ EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&vPoint);
 
-  return (ezMath::IsInRange(vPoint.x, m_vMin.x, m_vMax.x) &&
-          ezMath::IsInRange(vPoint.y, m_vMin.y, m_vMax.y) &&
+  return (ezMath::IsInRange(vPoint.x, m_vMin.x, m_vMax.x) && ezMath::IsInRange(vPoint.y, m_vMin.y, m_vMax.y) &&
           ezMath::IsInRange(vPoint.z, m_vMin.z, m_vMax.z));
 }
 
@@ -160,7 +161,8 @@ EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezBoundingBoxTe
 }
 
 template <typename Type>
-bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
+bool ezBoundingBoxTemplate<Type>::Contains(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "Array must not be NuLL.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
@@ -202,7 +204,8 @@ bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>& rh
 }
 
 template <typename Type>
-bool ezBoundingBoxTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
+bool ezBoundingBoxTemplate<Type>::Overlaps(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "Array must not be NuLL.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
@@ -374,7 +377,8 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingBoxTemplate<Type
 }
 
 template <typename Type>
-bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
+bool ezBoundingBoxTemplate<Type>::GetRayIntersection(
+  const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
 {
   // This code was taken from: http://people.csail.mit.edu/amy/papers/box-jgt.pdf
   // "An Efficient and Robust Ray-Box Intersection Algorithm"
@@ -467,7 +471,8 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
 }
 
 template <typename Type>
-bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_fLineFraction, ezVec3Template<Type>* out_vIntersection) const
+bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(
+  const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_fLineFraction, ezVec3Template<Type>* out_vIntersection) const
 {
   const ezVec3Template<Type> vRayDir = vEndPos - vStartPos;
 
@@ -484,4 +489,3 @@ bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(const ezVec3Templat
 
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
-

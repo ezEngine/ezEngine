@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/Declarations.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <System/Window/Window.h>
 
 /// \brief A window class that expands a little on ezWindow. Default type used by ezGameState to create a window.
@@ -19,4 +19,3 @@ private:
 
   ezDelegate<void()> m_OnClickClose;
 };
-

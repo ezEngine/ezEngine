@@ -1,10 +1,10 @@
 #pragma once
 
-#include <PhysXPlugin/PhysXPluginDLL.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Core/Messages/TriggerMessage.h>
-#include <Foundation/Strings/HashedString.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Strings/HashedString.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 
 struct ezMsgTriggerTriggered;
 class ezVisualScriptInstance;
@@ -14,6 +14,7 @@ class ezVisualScriptInstance;
 class EZ_PHYSXPLUGIN_DLL ezVisualScriptNode_PxTriggerEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_PxTriggerEvent, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_PxTriggerEvent();
   ~ezVisualScriptNode_PxTriggerEvent();
@@ -33,4 +34,3 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
-

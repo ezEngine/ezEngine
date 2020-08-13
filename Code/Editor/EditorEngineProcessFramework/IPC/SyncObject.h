@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Utilities/EnumerableClass.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezWorld;
 

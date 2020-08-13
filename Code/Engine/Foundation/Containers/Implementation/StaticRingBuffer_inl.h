@@ -172,4 +172,3 @@ EZ_ALWAYS_INLINE T* ezStaticRingBuffer<T, C>::GetStaticArray()
 {
   return reinterpret_cast<T*>(m_Data);
 }
-

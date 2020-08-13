@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <RendererCore/Declarations.h>
 
 class EZ_ENGINEPLUGINASSETS_DLL ezAnimationClipContext : public ezEngineProcessDocumentContext
@@ -24,7 +24,5 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
 
   ezGameObject* m_pGameObject = nullptr;
-  //ezAnimationClipResourceHandle m_hMesh;
+  // ezAnimationClipResourceHandle m_hMesh;
 };
-
-

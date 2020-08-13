@@ -8,9 +8,9 @@
 
 /// \brief Implementation of a message queue on top of a deque.
 ///
-/// Enqueue and TryDequeue/TryPeek methods are thread safe all the others are not. To ensure 
+/// Enqueue and TryDequeue/TryPeek methods are thread safe all the others are not. To ensure
 /// thread safety for all methods the queue can be locked using ezLock like a mutex.
-/// Every entry consists of a pointer to a message and some meta data. 
+/// Every entry consists of a pointer to a message and some meta data.
 /// Lifetime of the enqueued messages needs to be managed by the user.
 /// \see ezMessage
 template <typename MetaDataType>
@@ -27,7 +27,6 @@ public:
   };
 
 protected:
-
   /// \brief No memory is allocated during construction.
   ezMessageQueueBase(ezAllocatorBase* pAllocator); // [tested]
 
@@ -108,4 +107,3 @@ public:
 };
 
 #include <Foundation/Communication/Implementation/MessageQueue_inl.h>
-

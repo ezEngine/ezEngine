@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 {
@@ -120,7 +120,6 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
   static bool IsSrgb(ezGALResourceFormat::Enum format);
 
 private:
-
   static const ezUInt8 s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT];
 
   static const ezUInt8 s_ChannelCount[ezGALResourceFormat::ENUM_COUNT];
@@ -129,10 +128,10 @@ private:
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALResourceFormat);
 
 
-template<typename NativeFormatType, NativeFormatType InvalidFormat> class ezGALFormatLookupEntry
+template <typename NativeFormatType, NativeFormatType InvalidFormat>
+class ezGALFormatLookupEntry
 {
 public:
-
   inline ezGALFormatLookupEntry();
 
   inline ezGALFormatLookupEntry(NativeFormatType Storage);
@@ -156,14 +155,13 @@ public:
   NativeFormatType m_eDepthStencilType;
   NativeFormatType m_eVertexAttributeType;
   NativeFormatType m_eResourceViewType;
-
 };
 
 // Reusable table class to store lookup information (from ezGALResourceFormat to the various formats for texture/buffer storage, views)
-template<typename FormatClass> class ezGALFormatLookupTable
+template <typename FormatClass>
+class ezGALFormatLookupTable
 {
 public:
-
   ezGALFormatLookupTable();
 
   EZ_ALWAYS_INLINE const FormatClass& GetFormatInfo(ezGALResourceFormat::Enum eFormat) const;
@@ -171,9 +169,7 @@ public:
   EZ_ALWAYS_INLINE void SetFormatInfo(ezGALResourceFormat::Enum eFormat, const FormatClass& NewFormatInfo);
 
 private:
-
   FormatClass m_Formats[ezGALResourceFormat::ENUM_COUNT];
 };
 
 #include <RendererFoundation/Resources/Implementation/ResourceFormats_inl.h>
-

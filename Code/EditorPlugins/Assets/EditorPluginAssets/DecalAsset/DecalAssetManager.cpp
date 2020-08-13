@@ -78,10 +78,14 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezDecalAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezDecalAssetDocument(szPath);
 }

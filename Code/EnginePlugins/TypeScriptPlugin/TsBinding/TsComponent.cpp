@@ -83,7 +83,8 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
 
   // store C++ side component handle in obj as property
   {
-    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __CompModule object buffer ]
+    ezComponentHandle* pBuffer =
+      reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __CompModule object buffer ]
     *pBuffer = handle;
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
   }
@@ -269,7 +270,7 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
     const ezTime delay = ezTime::Seconds(duk.GetNumberValue(3));
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
-    pComponent->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+    pComponent->PostMessage(*pMsg, delay);
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);

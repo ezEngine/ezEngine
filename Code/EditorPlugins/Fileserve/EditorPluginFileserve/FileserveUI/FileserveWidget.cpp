@@ -79,12 +79,12 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget* parent /*= nullptr*/)
   SpecialDirRemoveButton->setVisible(false);
 
   SpecialDirList->setToolTip(
-      "Special directories allow to redirect mount requests from the client to a specific folder on the server.\n\n"
-      "Some special directories are built in (e.g. 'sdk', 'user' and 'appdir') but you can add custom ones, if your app needs one.\n"
-      "To add special directories, run Fileserve with the command line argument '-specialdirs' followed by the name and the path to a "
-      "directory.\n\n"
-      "For instance:\n"
-      "-specialdirs project \"C:\\path\\to\\project\" secondDir \"d:\\another\\path\"");
+    "Special directories allow to redirect mount requests from the client to a specific folder on the server.\n\n"
+    "Some special directories are built in (e.g. 'sdk', 'user' and 'appdir') but you can add custom ones, if your app needs one.\n"
+    "To add special directories, run Fileserve with the command line argument '-specialdirs' followed by the name and the path to a "
+    "directory.\n\n"
+    "For instance:\n"
+    "-specialdirs project \"C:\\path\\to\\project\" secondDir \"d:\\another\\path\"");
 
   ConfigureSpecialDirectories();
 
@@ -156,8 +156,7 @@ void ezQtFileserveWidget::on_StartServerButton_clicked()
   {
     if (ezFileserver::GetSingleton()->IsServerRunning())
     {
-      if (QMessageBox::question(this, "Stop Server?", "Stop Server?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) ==
-          QMessageBox::No)
+      if (QMessageBox::question(this, "Stop Server?", "Stop Server?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
         return;
 
       ezFileserver::GetSingleton()->StopServer();
@@ -239,6 +238,10 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
 {
   switch (e.m_Type)
   {
+    case ezFileserverEvent::Type::None:
+      EZ_ASSERT_DEV(false, "None event should never be fired");
+      break;
+
     case ezFileserverEvent::Type::ServerStarted:
     {
       LogActivity("", ezFileserveActivityType::StartServer);

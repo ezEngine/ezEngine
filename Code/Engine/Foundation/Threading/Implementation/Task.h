@@ -2,14 +2,14 @@
 
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Types/RefCounted.h>
 
 /// \brief Base class for custom tasks.
-class EZ_FOUNDATION_DLL ezTask
+class EZ_FOUNDATION_DLL ezTask : public ezRefCounted
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTask);
 
 public:
-
   ezTask();
   virtual ~ezTask();
 

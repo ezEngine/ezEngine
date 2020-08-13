@@ -8,9 +8,9 @@
 /// \brief A template interface, that turns any array class into a bitfield.
 ///
 /// This class provides an interface to work with single bits, to store true/false values.
-/// The underlying container is configurable, though it must support random access and a 'SetCount' function and it must use elements of type ezUInt32.
-/// In most cases a dynamic array should be used. For this case the ezDynamicBitfield typedef is already available.
-/// There is also an ezHybridBitfield typedef.
+/// The underlying container is configurable, though it must support random access and a 'SetCount' function and it must use elements of type
+/// ezUInt32. In most cases a dynamic array should be used. For this case the ezDynamicBitfield typedef is already available. There is also an
+/// ezHybridBitfield typedef.
 template <class Container>
 class ezBitfield
 {
@@ -69,7 +69,7 @@ private:
 };
 
 /// \brief This should be the main type of bitfield to use, although other internal container types are possible.
-using ezDynamicBitfield = ezBitfield<ezDynamicArray<ezUInt32>> ;
+using ezDynamicBitfield = ezBitfield<ezDynamicArray<ezUInt32>>;
 
 /// \brief An ezBitfield that uses a hybrid array as internal container.
 template <ezUInt32 Size>
@@ -125,16 +125,10 @@ public:
   void SetValue(T value); // [tested]
 
   /// \brief Modifies \a this to also contain the bits from \a rhs.
-  EZ_ALWAYS_INLINE void operator|=(const ezStaticBitfield<T>& rhs)
-  {
-    m_Storage |= rhs.m_Storage;
-  }
+  EZ_ALWAYS_INLINE void operator|=(const ezStaticBitfield<T>& rhs) { m_Storage |= rhs.m_Storage; }
 
   /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
-  EZ_ALWAYS_INLINE void operator&=(const ezStaticBitfield<T>& rhs)
-  {
-    m_Storage &= rhs.m_Storage;
-  }
+  EZ_ALWAYS_INLINE void operator&=(const ezStaticBitfield<T>& rhs) { m_Storage &= rhs.m_Storage; }
 
   ezResult Serialize(ezStreamWriter& writer) const
   {

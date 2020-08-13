@@ -9,7 +9,7 @@ endif()
 set (EZ_PHYSX_SDK "EZ_PHYSX_SDK-NOTFOUND" CACHE PATH "Directory of PhysX installation")
 mark_as_advanced(FORCE EZ_PHYSX_SDK)
 
-ez_pull_architecture_vars()
+ez_pull_compiler_and_architecture_vars()
 
 if ((EZ_PHYSX_SDK STREQUAL "EZ_PHYSX_SDK-NOTFOUND") OR (EZ_PHYSX_SDK STREQUAL ""))
 

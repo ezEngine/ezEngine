@@ -12,15 +12,10 @@ EZ_STATICLINK_LIBRARY(UltralightPlugin)
   EZ_STATICLINK_REFERENCE(UltralightPlugin_UltralightStartup);
   EZ_STATICLINK_REFERENCE(UltralightPlugin_Resources_UltralightHTMLResource);
   EZ_STATICLINK_REFERENCE(UltralightPlugin_Resources_UltralightHTMLResourceLoader);
-
 }
 
-void OnLoadPlugin(bool bReloading)
-{
-}
+void OnLoadPlugin(bool bReloading) {}
 
-void OnUnloadPlugin(bool bReloading)
-{
-}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

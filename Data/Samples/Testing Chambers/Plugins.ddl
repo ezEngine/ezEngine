@@ -30,6 +30,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezEnginePluginRmlUi"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginRmlUi"}
+}
+Plugin
+{
 	string %Path{"ezEnginePluginScene"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginScene"}
@@ -72,7 +78,19 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezRmlUiPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginRmlUi"}
+}
+Plugin
+{
 	string %Path{"ezTypeScriptPlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>","EditorPluginTypeScript"}
+}
+Plugin
+{
+	string %Path{"ezXBoxControllerPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>"}
 }

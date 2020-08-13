@@ -6,6 +6,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/InputContexts/OrthoGizmoContext.h>
+#include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
@@ -20,14 +21,13 @@
 #include <QVBoxLayout>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <EditorPluginScene/Actions/SceneActions.h>
 
 
 
 bool ezQtSceneViewWidget::s_bContextMenuInitialized = false;
 
 ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-    : ezQtGameObjectViewWidget(pParent, pOwnerWindow, pViewConfig)
+  : ezQtGameObjectViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 

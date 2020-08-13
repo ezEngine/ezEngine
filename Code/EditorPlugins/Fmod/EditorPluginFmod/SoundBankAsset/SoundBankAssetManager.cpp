@@ -81,8 +81,7 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
   m_Fmod.Clear();
 }
 
-void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo,
-                                                          ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
+void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
 {
   ezHashedString sAssetsDocumentTypeName;
   sAssetsDocumentTypeName.Assign("Sound Event");
@@ -189,8 +188,8 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
   }
 }
 
-ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                                      const ezPlatformProfile* pAssetProfile) const
+ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(
+  const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
   // instead we reference the source fmod sound bank file
@@ -199,7 +198,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   /// \todo For final release we should reference the transformed file, as it's the one that gets packaged etc.
   /// Maybe we should add another platform target for that ?
 
-  //if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
+  // if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
   {
     for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_AssetTransformDependencies)
     {
@@ -211,7 +210,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
       }
     }
   }
-  //else
+  // else
   //{
   //  SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
   //}
@@ -219,8 +218,8 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   return ezString();
 }
 
-ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                             const ezPlatformProfile* pAssetProfile) const
+ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(
+  const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   if (pSubAsset->m_bMainAsset)
   {
@@ -254,7 +253,8 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezSoundBankAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundBankAssetDocument(szPath);
 }

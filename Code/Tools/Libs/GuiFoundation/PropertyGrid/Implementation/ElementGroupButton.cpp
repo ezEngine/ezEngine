@@ -2,9 +2,8 @@
 
 #include <GuiFoundation/PropertyGrid/Implementation/ElementGroupButton.moc.h>
 
-ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGroupButton::ElementAction action,
-                                               ezQtPropertyWidget* pGroupWidget)
-    : QToolButton(pParent)
+ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGroupButton::ElementAction action, ezQtPropertyWidget* pGroupWidget)
+  : QToolButton(pParent)
 {
   m_Action = action;
   m_pGroupWidget = pGroupWidget;

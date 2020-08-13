@@ -122,7 +122,7 @@ class ezCollisionMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
 {
 public:
   ezCollisionMeshAssetPropertiesPatch_1_2()
-      : ezGraphPatch("ezCollisionMeshAssetProperties", 2)
+    : ezGraphPatch("ezCollisionMeshAssetProperties", 2)
   {
   }
 
@@ -134,18 +134,18 @@ public:
     {
       if (pMeshType->m_Value.Get<ezString>() == "ezCollisionMeshType::TriangleMesh")
       {
-          pNode->AddProperty("IsConvexMesh", false);
-          pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::ConvexHull);
+        pNode->AddProperty("IsConvexMesh", false);
+        pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::ConvexHull);
       }
       else if (pMeshType->m_Value.Get<ezString>() == "ezCollisionMeshType::ConvexHull")
       {
-          pNode->AddProperty("IsConvexMesh", true);
-          pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::ConvexHull);
+        pNode->AddProperty("IsConvexMesh", true);
+        pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::ConvexHull);
       }
       else if (pMeshType->m_Value.Get<ezString>() == "ezCollisionMeshType::Cylinder")
       {
-          pNode->AddProperty("IsConvexMesh", true);
-          pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::Cylinder);
+        pNode->AddProperty("IsConvexMesh", true);
+        pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::Cylinder);
       }
       else
       {

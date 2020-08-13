@@ -1,15 +1,15 @@
 #include <RendererDX11PCH.h>
 
-#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererDX11/Resources/BufferDX11.h>
 
 #include <d3d11.h>
 
 ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Description)
-    : ezGALBuffer(Description)
-    , m_pDXBuffer(nullptr)
-    , m_IndexFormat(DXGI_FORMAT_UNKNOWN)
+  : ezGALBuffer(Description)
+  , m_pDXBuffer(nullptr)
+  , m_IndexFormat(DXGI_FORMAT_UNKNOWN)
 {
 }
 

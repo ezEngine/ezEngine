@@ -1,10 +1,10 @@
 #pragma once
 
-#include <RendererCore/Declarations.h>
 #include <Foundation/Containers/HashSet.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/HashedString.h>
+#include <RendererCore/Declarations.h>
 
 /// \brief A helper class to iterate over all possible permutations.
 ///
@@ -14,7 +14,6 @@
 class EZ_RENDERERCORE_DLL ezPermutationGenerator
 {
 public:
-
   /// \brief Resets everything.
   void Clear();
 
@@ -28,11 +27,8 @@ public:
   ezUInt32 GetPermutationCount() const;
 
   /// \brief Returns the n-th permutation.
-  void GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPermutationVar, 16>& out_PermVars) const; 
+  void GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPermutationVar, 16>& out_PermVars) const;
 
 private:
-
-  ezMap<ezHashedString, ezHashSet<ezHashedString> > m_Permutations;
+  ezMap<ezHashedString, ezHashSet<ezHashedString>> m_Permutations;
 };
-
-

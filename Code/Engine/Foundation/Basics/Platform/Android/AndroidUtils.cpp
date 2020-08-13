@@ -1,4 +1,4 @@
-#  include <FoundationPCH.h>
+#include <FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
@@ -20,4 +20,3 @@ android_app* ezAndroidUtils::GetAndroidApp()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Android_AndroidUtils);
-

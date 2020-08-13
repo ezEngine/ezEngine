@@ -17,7 +17,7 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_uiVersion = 0;
   stream >> m_uiVersion;
 
-  if (m_uiVersion < 8 || m_uiVersion > 8)
+  if (m_uiVersion < 8 || m_uiVersion > 9)
   {
     ezLog::Error("Invalid world version (got {}).", m_uiVersion);
     return EZ_FAILURE;
@@ -27,8 +27,11 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_pStringDedupReadContext = nullptr;
   m_pStringDedupReadContext = EZ_DEFAULT_NEW(ezStringDeduplicationReadContext, stream);
 
-  // add tags from the stream
-  EZ_SUCCEED_OR_RETURN(ezTagRegistry::GetGlobalRegistry().Load(stream));
+  if (m_uiVersion == 8)
+  {
+    // add tags from the stream
+    EZ_SUCCEED_OR_RETURN(ezTagRegistry::GetGlobalRegistry().Load(stream));
+  }
 
   ezUInt32 uiNumRootObjects = 0;
   stream >> uiNumRootObjects;
@@ -41,7 +44,8 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
   if (uiNumComponentTypes > ezMath::MaxValue<ezUInt16>())
   {
-    ezLog::Error("World description has too many component types, got {0} - maximum allowed are {1}", uiNumComponentTypes, ezMath::MaxValue<ezUInt16>());
+    ezLog::Error(
+      "World description has too many component types, got {0} - maximum allowed are {1}", uiNumComponentTypes, ezMath::MaxValue<ezUInt16>());
     return EZ_FAILURE;
   }
 
@@ -74,19 +78,18 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID, ezTime maxStepTime,
-  ezProgress* pProgress)
+ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiateWorld(
+  ezWorld& world, const ezUInt16* pOverrideTeamID, ezTime maxStepTime, ezProgress* pProgress)
 {
-  return Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, nullptr, pOverrideTeamID, false,
-    maxStepTime, pProgress);
+  return Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, nullptr, pOverrideTeamID, false, maxStepTime, pProgress);
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-  ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
+ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform,
+  ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
   const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress)
 {
-  return Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic,
-    maxStepTime, pProgress);
+  return Instantiate(
+    world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic, maxStepTime, pProgress);
 }
 
 ezGameObjectHandle ezWorldReader::ReadGameObjectHandle()
@@ -151,10 +154,9 @@ void ezWorldReader::ClearAndCompact()
 
 ezUInt64 ezWorldReader::GetHeapMemoryUsage() const
 {
-  return m_IndexToGameObjectHandle.GetHeapMemoryUsage() +
-         m_RootObjectsToCreate.GetHeapMemoryUsage() + m_ChildObjectsToCreate.GetHeapMemoryUsage() +
-         m_ComponentTypes.GetHeapMemoryUsage() + m_ComponentTypeVersions.GetHeapMemoryUsage() +
-         m_ComponentCreationStream.GetHeapMemoryUsage() + m_ComponentDataStream.GetHeapMemoryUsage();
+  return m_IndexToGameObjectHandle.GetHeapMemoryUsage() + m_RootObjectsToCreate.GetHeapMemoryUsage() + m_ChildObjectsToCreate.GetHeapMemoryUsage() +
+         m_ComponentTypes.GetHeapMemoryUsage() + m_ComponentTypeVersions.GetHeapMemoryUsage() + m_ComponentCreationStream.GetHeapMemoryUsage() +
+         m_ComponentDataStream.GetHeapMemoryUsage();
 }
 
 ezUInt32 ezWorldReader::GetRootObjectCount() const
@@ -178,7 +180,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
 
   *m_pStream >> sGlobalKey;
   godesc.m_sGlobalKey = sGlobalKey;
-  
+
   *m_pStream >> desc.m_LocalPosition;
   *m_pStream >> desc.m_LocalRotation;
   *m_pStream >> desc.m_LocalScaling;
@@ -190,7 +192,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   desc.m_Tags.Load(*m_pStream, ezTagRegistry::GetGlobalRegistry());
 
   *m_pStream >> desc.m_uiTeamID;
-  
+
   desc.m_sName.Assign(sName.GetData());
 }
 
@@ -284,9 +286,8 @@ void ezWorldReader::ClearHandles()
   }
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform,
-  const ezTransform& rootTransform, ezGameObjectHandle hParent,
-  ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
+ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform,
+  ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
   const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress)
 {
   m_pWorld = &world;
@@ -302,8 +303,8 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(
     return nullptr;
   }
 
-  ezUniquePtr<InstantiationContext> pContext = EZ_DEFAULT_NEW(InstantiationContext, *this, bUseTransform, rootTransform,
-    hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic, maxStepTime, pProgress);
+  ezUniquePtr<InstantiationContext> pContext = EZ_DEFAULT_NEW(InstantiationContext, *this, bUseTransform, rootTransform, hParent,
+    out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic, maxStepTime, pProgress);
 
   return std::move(pContext);
 }
@@ -457,9 +458,21 @@ bool ezWorldReader::InstantiationContext::Step()
   return true;
 }
 
+void ezWorldReader::InstantiationContext::Cancel()
+{
+  if (!m_hComponentInitBatch.IsInvalidated())
+  {
+    m_WorldReader.m_pWorld->CancelComponentInitBatch(m_hComponentInitBatch);
+  }
+
+  m_Phase = Phase::Invalid;
+  m_pSubProgressRange = nullptr;
+  m_pOverallProgressRange = nullptr;
+}
+
 template <bool UseTransform>
-bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
-  ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime)
+bool ezWorldReader::InstantiationContext::CreateGameObjects(
+  const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime)
 {
   EZ_PROFILE_SCOPE("ezWorldReader::CreateGameObjects");
 

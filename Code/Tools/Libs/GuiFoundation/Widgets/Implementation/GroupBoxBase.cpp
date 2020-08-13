@@ -10,7 +10,7 @@
 #include <QStyleOptionToolButton>
 
 ezQtGroupBoxBase::ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible)
-    : QWidget(pParent)
+  : QWidget(pParent)
 {
   m_bCollapsible = bCollapsible;
 }

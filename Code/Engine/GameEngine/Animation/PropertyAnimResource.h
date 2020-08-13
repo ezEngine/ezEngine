@@ -1,11 +1,11 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Core/ResourceManager/Resource.h>
-#include <Foundation/Types/SharedPtr.h>
-#include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Tracks/ColorGradient.h>
+#include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Tracks/EventTrack.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <GameEngine/GameEngineDLL.h>
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 {
@@ -52,7 +52,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimMode);
 struct EZ_GAMEENGINE_DLL ezPropertyAnimEntry
 {
   ezString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
-  ezString m_sComponentType; ///< Empty to reference the game object properties (position etc.)
+  ezString m_sComponentType;        ///< Empty to reference the game object properties (position etc.)
   ezString m_sPropertyPath;
   ezEnum<ezPropertyAnimTarget> m_Target;
   const ezRTTI* m_pComponentRtti = nullptr;
@@ -105,5 +105,3 @@ private:
 
   ezSharedPtr<ezPropertyAnimResourceDescriptor> m_pDescriptor;
 };
-
-

@@ -1,16 +1,16 @@
 #include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <MainWindow.moc.h>
 #include <qlistwidget.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 
 ezQtGlobalEventsWidget* ezQtGlobalEventsWidget::s_pWidget = nullptr;
 
 ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(QWidget* parent)
-    : ads::CDockWidget("Global Events", parent)
+  : ads::CDockWidget("Global Events", parent)
 {
   s_pWidget = this;
 

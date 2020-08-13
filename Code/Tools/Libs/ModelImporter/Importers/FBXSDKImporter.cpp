@@ -16,8 +16,8 @@
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 #if defined(BUILDSYSTEM_BUILD_WITH_OFFICIAL_FBX_SDK)
-#include <fbxsdk.h>
-#include <fbxsdk/utils/fbxgeometryconverter.h>
+#  include <fbxsdk.h>
+#  include <fbxsdk/utils/fbxgeometryconverter.h>
 using namespace fbxsdk;
 #endif
 
@@ -38,31 +38,27 @@ namespace ezModelImporter
 
   ezVec3 ConvertFromFBX(const FbxDouble3& fbxDouble3)
   {
-    return ezVec3(static_cast<float>(fbxDouble3.mData[0]), static_cast<float>(fbxDouble3.mData[1]),
-                  static_cast<float>(fbxDouble3.mData[2]));
+    return ezVec3(static_cast<float>(fbxDouble3.mData[0]), static_cast<float>(fbxDouble3.mData[1]), static_cast<float>(fbxDouble3.mData[2]));
   }
 
   ezVec4 ConvertFromFBX(const FbxVector4& fbxVec4)
   {
     return ezVec4(static_cast<float>(fbxVec4.mData[0]), static_cast<float>(fbxVec4.mData[1]), static_cast<float>(fbxVec4.mData[2]),
-                  static_cast<float>(fbxVec4.mData[3]));
+      static_cast<float>(fbxVec4.mData[3]));
   }
 
   ezVec4 ConvertFromFBX(const FbxColor& fbxColor)
   {
     return ezVec4(static_cast<float>(fbxColor.mRed), static_cast<float>(fbxColor.mGreen), static_cast<float>(fbxColor.mBlue),
-                  static_cast<float>(fbxColor.mAlpha));
+      static_cast<float>(fbxColor.mAlpha));
   }
 
-  ezVec2 ConvertFromFBX(const FbxVector2& fbxVec2)
-  {
-    return ezVec2(static_cast<float>(fbxVec2.mData[0]), static_cast<float>(fbxVec2.mData[1]));
-  }
+  ezVec2 ConvertFromFBX(const FbxVector2& fbxVec2) { return ezVec2(static_cast<float>(fbxVec2.mData[0]), static_cast<float>(fbxVec2.mData[1])); }
 
   ezQuat ConvertFromFBX(const FbxQuaternion& fbxQuat)
   {
     return ezQuat(static_cast<float>(fbxQuat.mData[0]), static_cast<float>(fbxQuat.mData[1]), static_cast<float>(fbxQuat.mData[2]),
-                  static_cast<float>(fbxQuat.mData[3]));
+      static_cast<float>(fbxQuat.mData[3]));
   }
 
   ezMat4 ConvertFromFBX(const FbxAMatrix& fbxMatrix)
@@ -84,15 +80,15 @@ namespace ezModelImporter
     EZ_DECLARE_POD_TYPE();
 
     FBXVertex()
-        : pos(ezVec3::ZeroVector())
-        , normal(ezVec3::ZeroVector())
-        , tangent(ezVec3::ZeroVector())
-        , binormal(ezVec3::ZeroVector())
-        , uv0(ezVec2::ZeroVector())
-        , uv1(ezVec2::ZeroVector())
-        , color(1, 1, 1, 1)
-        , boneIndices(ezInvalidIndex, ezInvalidIndex, ezInvalidIndex, ezInvalidIndex)
-        , boneWeights(ezVec4::ZeroVector())
+      : pos(ezVec3::ZeroVector())
+      , normal(ezVec3::ZeroVector())
+      , tangent(ezVec3::ZeroVector())
+      , binormal(ezVec3::ZeroVector())
+      , uv0(ezVec2::ZeroVector())
+      , uv1(ezVec2::ZeroVector())
+      , color(1, 1, 1, 1)
+      , boneIndices(ezInvalidIndex, ezInvalidIndex, ezInvalidIndex, ezInvalidIndex)
+      , boneWeights(ezVec4::ZeroVector())
     {
     }
 
@@ -114,14 +110,14 @@ namespace ezModelImporter
     EZ_DECLARE_POD_TYPE();
 
     BlendWeightAndBone()
-        : pBone(nullptr)
-        , fBlendWeight(0)
+      : pBone(nullptr)
+      , fBlendWeight(0)
     {
     }
 
     BlendWeightAndBone(FbxNode* pBone, float fBlendWeight)
-        : pBone(pBone)
-        , fBlendWeight(fBlendWeight)
+      : pBone(pBone)
+      , fBlendWeight(fBlendWeight)
     {
     }
 
@@ -129,8 +125,8 @@ namespace ezModelImporter
     float fBlendWeight;
   };
 
-  void TryAddTextureReference(fbxsdk::FbxSurfaceMaterial* pMaterial, const char* szFBXName, SemanticHint::Enum semanticHint,
-                              const char* szSemantic, ezModelImporter::Material* pMat)
+  void TryAddTextureReference(fbxsdk::FbxSurfaceMaterial* pMaterial, const char* szFBXName, SemanticHint::Enum semanticHint, const char* szSemantic,
+    ezModelImporter::Material* pMat)
   {
     FbxProperty pProperty = pMaterial->FindProperty(szFBXName);
     if (int iNumTextures = pProperty.GetSrcObjectCount<FbxTexture>())
@@ -275,8 +271,7 @@ namespace ezModelImporter
 
           if (!ImportContext.fbxMaterialsToEz.Contains(pMaterial))
           {
-            ezLog::Warning(
-                "FBX material mapping type is set to eAllSame but the referenced material wasn't imported. Assigning default material.");
+            ezLog::Warning("FBX material mapping type is set to eAllSame but the referenced material wasn't imported. Assigning default material.");
           }
 
           AllSameMaterial = *ImportContext.fbxMaterialsToEz.GetValue(pMaterial);
@@ -604,8 +599,7 @@ namespace ezModelImporter
                   }
                   else
                   {
-                    ezLog::Error("Couldn't find bone '{0}' in skeleton, aborting import.",
-                                 blendWeightsForVertex[iSubBone].pBone->GetName());
+                    ezLog::Error("Couldn't find bone '{0}' in skeleton, aborting import.", blendWeightsForVertex[iSubBone].pBone->GetName());
                     return ObjectHandle();
                   }
                 }
@@ -879,8 +873,7 @@ namespace ezModelImporter
     return ImportContext.pOutScene->AddNode(std::move(node));
   }
 
-  ezResult ImportSkeletonRecursive(FbxNode* pNode, ezSkeletonBuilder& SkeletonBuilder, ezUInt32 uiParentBoneIndex,
-                                   FBXImportContext& ImportContext)
+  ezResult ImportSkeletonRecursive(FbxNode* pNode, ezSkeletonBuilder& SkeletonBuilder, ezUInt32 uiParentBoneIndex, FBXImportContext& ImportContext)
   {
     ezUInt32 uiBoneIndex = uiParentBoneIndex;
 
@@ -1083,4 +1076,4 @@ namespace ezModelImporter
   ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags) { return nullptr; }
 
 #endif
-}
+} // namespace ezModelImporter

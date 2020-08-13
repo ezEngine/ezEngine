@@ -26,9 +26,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.75f, "LightColor"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::White, "LightColor"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -47,6 +47,8 @@ ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
 void ezDirectionalLightComponent::SetNumCascades(ezUInt32 uiNumCascades)
 {
   m_uiNumCascades = ezMath::Clamp(uiNumCascades, 1u, 4u);
+
+  InvalidateCachedRenderData();
 }
 
 ezUInt32 ezDirectionalLightComponent::GetNumCascades() const
@@ -57,6 +59,8 @@ ezUInt32 ezDirectionalLightComponent::GetNumCascades() const
 void ezDirectionalLightComponent::SetMinShadowRange(float fMinShadowRange)
 {
   m_fMinShadowRange = ezMath::Max(fMinShadowRange, 0.0f);
+
+  InvalidateCachedRenderData();
 }
 
 float ezDirectionalLightComponent::GetMinShadowRange() const
@@ -67,6 +71,8 @@ float ezDirectionalLightComponent::GetMinShadowRange() const
 void ezDirectionalLightComponent::SetFadeOutStart(float fFadeOutStart)
 {
   m_fFadeOutStart = ezMath::Clamp(fFadeOutStart, 0.0f, 1.0f);
+
+  InvalidateCachedRenderData();
 }
 
 float ezDirectionalLightComponent::GetFadeOutStart() const
@@ -77,6 +83,8 @@ float ezDirectionalLightComponent::GetFadeOutStart() const
 void ezDirectionalLightComponent::SetSplitModeWeight(float fSplitModeWeight)
 {
   m_fSplitModeWeight = ezMath::Clamp(fSplitModeWeight, 0.0f, 1.0f);
+
+  InvalidateCachedRenderData();
 }
 
 float ezDirectionalLightComponent::GetSplitModeWeight() const
@@ -87,6 +95,8 @@ float ezDirectionalLightComponent::GetSplitModeWeight() const
 void ezDirectionalLightComponent::SetNearPlaneOffset(float fNearPlaneOffset)
 {
   m_fNearPlaneOffset = ezMath::Max(fNearPlaneOffset, 0.0f);
+
+  InvalidateCachedRenderData();
 }
 
 float ezDirectionalLightComponent::GetNearPlaneOffset() const
@@ -144,9 +154,9 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -155,7 +165,7 @@ class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezDirectionalLightComponentPatch_1_2()
-      : ezGraphPatch("ezDirectionalLightComponent", 2)
+    : ezGraphPatch("ezDirectionalLightComponent", 2)
   {
   }
 
@@ -170,4 +180,3 @@ ezDirectionalLightComponentPatch_1_2 g_ezDirectionalLightComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_DirectionalLightComponent);
-

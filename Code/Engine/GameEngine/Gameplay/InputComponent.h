@@ -20,7 +20,7 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
     PressAndRelease,     ///< Key pressed and key released events are sent
     PressReleaseAndDown, ///< Key pressed and released events are sent, and while a key is down, another message is sent every frame as well
 
-    Default = PressReleaseAndDown
+    Default = PressOnly
   };
 };
 
@@ -41,7 +41,8 @@ struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
   float m_fKeyPressValue;
 };
 
-/// \brief This component polls all input events from the given input set every frame and broadcasts the information to components on the same game object.
+/// \brief This component polls all input events from the given input set every frame and broadcasts the information to components on the same game
+/// object.
 ///
 /// To deactivate input handling, just deactivate the entire component.
 /// To use the input data, add a message handler on another component and handle messages of type ezTriggerMessage.

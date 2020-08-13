@@ -26,7 +26,8 @@ ezResult ezTexConv::ParseCommandLine()
     ezLog::Info("    -rgb in0 -a in1.r -> Output has 4 channels, RGB taken from input image 0 (RGB) Alpha taken from input 1 (Red).");
     ezLog::Info("    -rgb in0.bgr -> Output has 3 channels, taken from image 0 and swapped blue and red.");
     ezLog::Info("    -r in0.r -g in1.r -b in2.r -a in3.r -> Output has 4 channels, each one taken from another input image (Red).");
-    ezLog::Info("    -rgb0 in0 -rgb1 in1 -rgb2 in2 -rgb3 in3 -rgb4 in4 -rgb5 in5 -> Output has 3 channels and six faces (-type Cubemap), built from 6 images.");
+    ezLog::Info(
+      "    -rgb0 in0 -rgb1 in1 -rgb2 in2 -rgb3 in3 -rgb4 in4 -rgb5 in5 -> Output has 3 channels and six faces (-type Cubemap), built from 6 images.");
 
     ezLog::Info("");
     ezLog::Info("  -thumbnailOut \"File.ext\"");
@@ -337,8 +338,7 @@ ezResult ezTexConv::ParseCompressionMode()
 ezResult ezTexConv::ParseWrapModes()
 {
   // cubemaps do not require any wrap mode settings
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap ||
-      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas ||
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap || m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas ||
       m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
 
@@ -392,8 +392,7 @@ ezResult ezTexConv::ParseResolutionModifiers()
 
 ezResult ezTexConv::ParseMiscOptions()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D ||
-      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D || m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
   {
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flip_horz", m_Processor.m_Descriptor.m_bFlipHorizontal));
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premulalpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));

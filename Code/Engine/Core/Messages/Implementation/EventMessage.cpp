@@ -14,7 +14,7 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 8);
 
 namespace ezInternal
 {
-  void EventMessageSenderHelper::SendMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg)
+  void EventMessageSenderHelper::SendEventMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg)
   {
     ezWorld* pWorld = pSenderComponent->GetWorld();
     ezComponent* pReceiverComponent = nullptr;
@@ -30,7 +30,7 @@ namespace ezInternal
 #endif
   }
 
-  void EventMessageSenderHelper::SendMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg)
+  void EventMessageSenderHelper::SendEventMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg)
   {
     const ezWorld* pWorld = pSenderComponent->GetWorld();
     const ezComponent* pReceiverComponent = nullptr;
@@ -46,27 +46,13 @@ namespace ezInternal
 #endif
   }
 
-  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType)
+  void EventMessageSenderHelper::PostEventMessage(
+    const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType)
   {
     if (!hReceiver.IsInvalidated())
     {
       const ezWorld* pWorld = pSenderComponent->GetWorld();
-      pWorld->PostMessage(hReceiver, msg, queueType);
-    }
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    else if (msg.GetDebugMessageRouting())
-    {
-      ezLog::Warning("ezEventMessageSender::PostMessage: No event message handler found for message of type {0}.", msg.GetId());
-    }
-#endif
-  }
-
-  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay)
-  {
-    if (!hReceiver.IsInvalidated())
-    {
-      const ezWorld* pWorld = pSenderComponent->GetWorld();
-      pWorld->PostMessage(hReceiver, msg, queueType, delay);
+      pWorld->PostMessage(hReceiver, msg, delay, queueType);
     }
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     else if (msg.GetDebugMessageRouting())

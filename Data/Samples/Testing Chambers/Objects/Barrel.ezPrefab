@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10343536139760208028,4918522812857774060}}
-		u4 %Hash{5639177064435172295}
+		u4 %Hash{10508650190928242031}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{969519408616889768,7780583395582206609}}
@@ -47,6 +47,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -86,6 +87,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -134,7 +136,7 @@ o
 {
 	Uuid %id{u4{16562644321202315681,5390301789803891935}}
 	s %t{"ezSpawnComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -142,6 +144,7 @@ o
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0}}
 		Time %MinDelay{d{0x000000000000F03F}}
+		VarDict %Parameters{}
 		s %Prefab{"{ 9bd6d5f2-c682-451b-91a0-8b719e3e29c1 }"}
 		b %SpawnAtStart{0}
 		b %SpawnContinuously{0}
@@ -171,14 +174,14 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0xCDCC4C3D}
+		f %AngularDamping{0xCDCC4C3E}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000F041}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0xCDCCCC3D}
+		f %LinearDamping{0xCDCC4C3E}
 		f %Mass{0}
-		f %MaxContactImpulse{0x00247449}
+		f %MaxContactImpulse{0x0050C347}
 	}
 }
 o
@@ -198,6 +201,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{16383321419442611609,5325862529905933639}}
@@ -327,8 +331,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpawnComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -345,7 +349,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{5}
 	}
 }
@@ -417,7 +421,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeConvexComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -507,7 +511,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{3}
 	}
 }

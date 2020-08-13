@@ -14,7 +14,7 @@ ezWorldModule::ezWorldModule(ezWorld* pWorld)
 
 ezWorldModule::~ezWorldModule() {}
 
-ezUInt32 ezWorldModule::GetWorldIndex() const
+ezUInt8 ezWorldModule::GetWorldIndex() const
 {
   return GetWorld()->GetIndex();
 }
@@ -44,16 +44,6 @@ ezInternal::WorldLargeBlockAllocator* ezWorldModule::GetBlockAllocator()
 bool ezWorldModule::GetWorldSimulationEnabled() const
 {
   return m_pWorld->GetWorldSimulationEnabled();
-}
-
-void ezWorldModule::InitializeInternal()
-{
-  Initialize();
-}
-
-void ezWorldModule::DeinitializeInternal()
-{
-  Deinitialize();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,7 +129,8 @@ void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfa
 ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc)
 {
   EZ_ASSERT_DEV(pRtti != ezGetStaticRTTI<ezWorldModule>(), "Trying to register a world module that is not reflected!");
-  EZ_ASSERT_DEV(m_TypeToId.GetCount() < ezWorld::GetMaxNumWorldModules(), "Max number of world modules reached: {}", ezWorld::GetMaxNumWorldModules());
+  EZ_ASSERT_DEV(
+    m_TypeToId.GetCount() < ezWorld::GetMaxNumWorldModules(), "Max number of world modules reached: {}", ezWorld::GetMaxNumWorldModules());
 
   ezWorldModuleTypeId uiTypeId = s_InvalidWorldModuleTypeId;
   if (m_TypeToId.TryGetValue(pRtti, uiTypeId))
@@ -234,7 +225,8 @@ void ezWorldModuleFactory::FillBaseTypeIds()
       {
         if (*pParentTypeId != uiTypeId)
         {
-          ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation() or WorldModules.dll config file.",
+          ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via "
+                       "RegisterInterfaceImplementation() or WorldModules.dll config file.",
             pParentRtti->GetTypeName(), m_CreatorFuncs[*pParentTypeId].m_pRtti->GetTypeName());
         }
       }

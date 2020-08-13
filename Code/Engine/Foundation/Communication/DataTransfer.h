@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Strings/String.h>
 
 class EZ_FOUNDATION_DLL ezDataTransfer;
 
@@ -74,13 +74,12 @@ private:
 class EZ_FOUNDATION_DLL ezDataTransfer
 {
 public:
-
   /// \brief By default the data transfer is deactivated.
   ezDataTransfer();
 
   /// \brief Deactivates the data transfer (sends this info via ezTelemetry).
   virtual ~ezDataTransfer();
-  
+
   /// \brief Disables the data transfer. It will not show up in ezInspector anymore and calling Transfer() on it will be ignored.
   void DisableDataTransfer();
 
@@ -97,7 +96,7 @@ public:
   bool IsTransferRequested(bool bReset = true);
 
 private:
-  virtual void OnTransferRequest() { }
+  virtual void OnTransferRequest() {}
 
   void SendStatus();
 
@@ -119,4 +118,3 @@ private:
   ezString m_sDataName;
   static ezSet<ezDataTransfer*> s_AllTransfers;
 };
-

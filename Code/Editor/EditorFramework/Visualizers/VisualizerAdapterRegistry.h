@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/Visualizers/VisualizerAdapter.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
 struct ezVisualizerManagerEvent;
 class ezDocument;
@@ -26,11 +26,7 @@ private:
   struct Data
   {
     ezHybridArray<ezVisualizerAdapter*, 8> m_Adapters;
-
   };
 
   ezMap<const ezDocument*, Data> m_DocumentAdapters;
-
 };
-
-

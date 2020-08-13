@@ -1,14 +1,15 @@
 // NO #pragma once in this file !
 
 template <typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename P, ARG_COUNT)>
-class ezConsoleFunction<R (EZ_LIST(P, ARG_COUNT))> : public ezConsoleFunctionBase
+class ezConsoleFunction<R(EZ_LIST(P, ARG_COUNT))> : public ezConsoleFunctionBase
 {
 public:
-  typedef ezDelegate<R (EZ_LIST(P, ARG_COUNT))> FUNC;
+  typedef ezDelegate<R(EZ_LIST(P, ARG_COUNT))> FUNC;
 
   FUNC m_Func;
 
-  ezConsoleFunction(const char* szFunctionName, const char* szDescription, FUNC f) : ezConsoleFunctionBase(szFunctionName, szDescription)
+  ezConsoleFunction(const char* szFunctionName, const char* szDescription, FUNC f)
+    : ezConsoleFunctionBase(szFunctionName, szDescription)
   {
     m_Func = f;
   }
@@ -23,29 +24,29 @@ public:
 
     switch (uiParam)
     {
-    case 0:
-      return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P0>::value);
+      case 0:
+        return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P0>::value);
 
-#if (ARG_COUNT > 1)
-    case 1:
-      return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P1>::value);
-#endif
-#if (ARG_COUNT > 2)
-    case 2:
-      return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P2>::value);
-#endif
-#if (ARG_COUNT > 3)
-    case 3:
-      return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P3>::value);
-#endif
-#if (ARG_COUNT > 4)
-    case 4:
-      return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P4>::value);
-#endif
-#if (ARG_COUNT > 5)
-    case 5:
-      return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P5>::value);
-#endif
+#  if (ARG_COUNT > 1)
+      case 1:
+        return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P1>::value);
+#  endif
+#  if (ARG_COUNT > 2)
+      case 2:
+        return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P2>::value);
+#  endif
+#  if (ARG_COUNT > 3)
+      case 3:
+        return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P3>::value);
+#  endif
+#  if (ARG_COUNT > 4)
+      case 4:
+        return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P4>::value);
+#  endif
+#  if (ARG_COUNT > 5)
+      case 5:
+        return static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<P5>::value);
+#  endif
     }
 
 #endif
@@ -103,5 +104,3 @@ public:
     return EZ_SUCCESS;
   }
 };
-
-

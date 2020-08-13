@@ -8,6 +8,7 @@
 			"cstring",
 			"cwchar",
 			"cwctype",
+			"cstdint",
 			"new",
 			"type_traits",
 			"TargetConditionals.h",

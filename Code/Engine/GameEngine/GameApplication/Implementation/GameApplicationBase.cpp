@@ -38,8 +38,7 @@ void AppendCurrentTimestamp(ezStringBuilder& out_String)
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
   out_String.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
-    ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
 void ezGameApplicationBase::TakeProfilingCapture()
@@ -72,9 +71,9 @@ void ezGameApplicationBase::TakeProfilingCapture()
     }
   };
 
-  WriteProfilingDataTask* pWriteProfilingDataTask = EZ_DEFAULT_NEW(WriteProfilingDataTask);
-  pWriteProfilingDataTask->ConfigureTask("Write Profiling Data", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
-  pWriteProfilingDataTask->m_profilingData = ezProfilingSystem::Capture();
+  ezSharedPtr<WriteProfilingDataTask> pWriteProfilingDataTask = EZ_DEFAULT_NEW(WriteProfilingDataTask);
+  pWriteProfilingDataTask->ConfigureTask("Write Profiling Data", ezTaskNesting::Never);
+  ezProfilingSystem::Capture(pWriteProfilingDataTask->m_profilingData);
 
   ezTaskSystem::StartSingleTask(pWriteProfilingDataTask, ezTaskPriority::LongRunning);
 }
@@ -110,8 +109,8 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
     }
   };
 
-  WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+  ezSharedPtr<WriteFileTask> pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
+  pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never);
   pWriteTask->m_Image.ResetAndMove(std::move(image));
 
   pWriteTask->m_sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());
@@ -500,9 +499,7 @@ void ezGameApplicationBase::Run_UpdatePlugins()
   }
 }
 
-void ezGameApplicationBase::Run_Present()
-{
-}
+void ezGameApplicationBase::Run_Present() {}
 
 void ezGameApplicationBase::Run_FinishFrame()
 {

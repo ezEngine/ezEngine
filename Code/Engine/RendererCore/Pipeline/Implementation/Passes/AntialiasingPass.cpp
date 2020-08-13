@@ -21,7 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezAntialiasingPass::ezAntialiasingPass()
-    : ezRenderPipelinePass("AntialiasingPass")
+  : ezRenderPipelinePass("AntialiasingPass")
 {
   {
     // Load shader.
@@ -32,8 +32,8 @@ ezAntialiasingPass::ezAntialiasingPass()
 
 ezAntialiasingPass::~ezAntialiasingPass() {}
 
-bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                                     ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezAntialiasingPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   if (pInput != nullptr)
@@ -70,9 +70,8 @@ bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const e
   return true;
 }
 
-void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext,
-                                 const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                 const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -93,8 +92,7 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext,
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MSAA_SAMPLES", m_sMsaaSampleCount);
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
-                                                     1);
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
@@ -103,4 +101,3 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext,
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_AntialiasingPass);
-

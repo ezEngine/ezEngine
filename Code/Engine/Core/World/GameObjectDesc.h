@@ -11,17 +11,16 @@ struct EZ_CORE_DLL ezGameObjectDesc
 {
   EZ_DECLARE_POD_TYPE();
 
-  bool m_bActiveFlag = true;
-  bool m_bDynamic = false;
-  ezUInt16 m_uiTeamID = 0;
+  bool m_bActiveFlag = true; ///< Whether the object should have the 'active flag' set. See ezGameObject::SetActiveFlag().
+  bool m_bDynamic = false;   ///< Whether the object should start out as 'dynamic'. See ezGameObject::MakeDynamic().
+  ezUInt16 m_uiTeamID = 0;   ///< See ezGameObject::GetTeamID().
 
-  ezHashedString m_sName;
+  ezHashedString m_sName;       ///< See ezGameObject::SetName().
+  ezGameObjectHandle m_hParent; ///< An optional parent object to attach this object to as a child.
 
-  ezGameObjectHandle m_hParent;
-
-  ezVec3 m_LocalPosition = ezVec3::ZeroVector();
-  ezQuat m_LocalRotation = ezQuat::IdentityQuaternion();
-  ezVec3 m_LocalScaling = ezVec3(1, 1, 1);
-  float m_LocalUniformScaling = 1.0f;
-  ezTagSet m_Tags;
+  ezVec3 m_LocalPosition = ezVec3::ZeroVector();         ///< The local position relative to the parent (or the world)
+  ezQuat m_LocalRotation = ezQuat::IdentityQuaternion(); ///< The local rotation relative to the parent (or the world)
+  ezVec3 m_LocalScaling = ezVec3(1, 1, 1);               ///< The local scaling relative to the parent (or the world)
+  float m_LocalUniformScaling = 1.0f;                    ///< An additional local uniform scaling relative to the parent (or the world)
+  ezTagSet m_Tags;                                       ///< See ezGameObject::GetTags()
 };

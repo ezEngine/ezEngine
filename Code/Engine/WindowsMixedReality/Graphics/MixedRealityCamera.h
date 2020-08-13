@@ -1,9 +1,9 @@
 ﻿
 #pragma once
 
-#include <WindowsMixedReality/Basics.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
+#include <WindowsMixedReality/Basics.h>
 
 namespace ABI
 {
@@ -16,10 +16,10 @@ namespace ABI
         struct IHolographicCamera;
         struct IHolographicCameraPose;
         struct IHolographicCameraRenderingParameters;
-      }
-    }
-  }
-}
+      } // namespace Holographic
+    }   // namespace Graphics
+  }     // namespace Windows
+} // namespace ABI
 
 class ezWindowsSpatialReferenceFrame;
 
@@ -47,7 +47,6 @@ public:
 
   // Pose information
 public:
-
   /// \brief Gets project matrix for the left eye for the active frame.
   ///
   /// If this is not a stereoscopic camera, left and right projection matrices are identical.
@@ -68,15 +67,13 @@ public:
 
   // Internal
 public:
-
   /// \brief Updates camera pose and swapchain if necessary.
   HRESULT UpdatePose(ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pPose,
-                     ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pRenderingParameters);
+    ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pRenderingParameters);
 
   ABI::Windows::Graphics::Holographic::IHolographicCamera* GetInternalMixedRealityCamera() const { return m_pMixedRealityCamera.Get(); }
 
 private:
-
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> m_pMixedRealityCamera;
   ezGALSwapChainHandle m_associatedSwapChain;
 

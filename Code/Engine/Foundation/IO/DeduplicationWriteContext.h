@@ -2,11 +2,11 @@
 #pragma once
 
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/IO/SerializationContext.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Containers/Set.h>
-#include <Foundation/Containers/Map.h>
 
 class ezStreamWriter;
 
@@ -15,6 +15,7 @@ class ezStreamWriter;
 class EZ_FOUNDATION_DLL ezDeduplicationWriteContext : public ezSerializationContext<ezDeduplicationWriteContext>
 {
   EZ_DECLARE_SERIALIZATION_CONTEXT(ezDeduplicationWriteContext);
+
 public:
   ezDeduplicationWriteContext();
   ~ezDeduplicationWriteContext();
@@ -58,4 +59,3 @@ private:
 };
 
 #include <Foundation/IO/Implementation/DeduplicationWriteContext_inl.h>
-

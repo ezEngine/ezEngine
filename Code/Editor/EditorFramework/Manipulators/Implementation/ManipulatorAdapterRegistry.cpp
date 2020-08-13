@@ -28,14 +28,15 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezManipulatorAdapterRegistry::ezManipulatorAdapterRegistry()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
 }
 
 ezManipulatorAdapterRegistry::~ezManipulatorAdapterRegistry()
 {
-  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
+  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(
+    ezMakeDelegate(&ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
 
   for (auto it = m_DocumentAdapters.GetIterator(); it.IsValid(); ++it)
   {

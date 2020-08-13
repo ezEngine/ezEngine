@@ -72,7 +72,8 @@ public:
 
   // helper functions
 
-  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezOnPhysXContact> flags = ezOnPhysXContact::None);
+  static PxFilterData CreateFilterData(
+    ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezOnPhysXContact> flags = ezOnPhysXContact::None);
 
 private:
   void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);

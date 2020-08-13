@@ -17,4 +17,3 @@ protected:
 
   ezParticleContext* m_pParticleContext;
 };
-

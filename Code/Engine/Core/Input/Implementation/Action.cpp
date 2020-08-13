@@ -50,8 +50,8 @@ void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInp
   }
 }
 
-void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config,
-                                          bool bClearPreviousInputMappings)
+void ezInputManager::SetInputActionConfig(
+  const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings)
 {
   EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szInputSet), "The InputSet name must not be empty.");
   EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szAction), "No input action to map to was given.");
@@ -124,8 +124,7 @@ ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, con
   return ItAction.Value().m_State;
 }
 
-ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap& Actions, const ezString& sSlot,
-                                                                    const ezActionMap::Iterator& itFirst)
+ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap& Actions, const ezString& sSlot, const ezActionMap::Iterator& itFirst)
 {
   // this function determines which input action should be triggered by the given input slot
   // it will prefer actions with higher priority
@@ -349,4 +348,3 @@ void ezInputManager::GetAllInputActions(const char* szInputSetName, ezHybridArra
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_Action);
-

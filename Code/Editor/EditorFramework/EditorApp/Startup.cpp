@@ -204,8 +204,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
+  ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
 
   ezStartup::StartupCoreSystems();
+
+  // prevent restoration of window layouts when in safe mode
+  ezQtDocumentWindow::s_bAllowRestoreWindowLayout = !IsInSafeMode();
 
   {
     EZ_PROFILE_SCOPE("Filesystem");
@@ -256,13 +260,16 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   {
     ezActionManager::LoadShortcutAssignment();
 
-    m_WhatsNew.Load(":app/WhatsNew.htm");
-
     LoadRecentFiles();
 
     CreatePanels();
 
     ShowSettingsDocument();
+
+    connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted);
+
+    m_VersionChecker.Initialize();
+    m_VersionChecker.Check(false);
   }
 
   LoadEditorPlugins();
@@ -278,14 +285,14 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     CreateOrOpenProject(false, pCmd->GetAbsolutePathOption("-project"));
   }
-  else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
+  else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup)
   {
     if (!s_RecentProjects.GetFileList().IsEmpty())
     {
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
     }
   }
-  else if (!IsInHeadlessMode())
+  else if (!IsInHeadlessMode() && !IsInSafeMode())
   {
     if (ezQtContainerWindow::GetContainerWindow())
     {
@@ -295,17 +302,17 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
+
+  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest) && !ezToolsProject::GetSingleton()->IsProjectOpen())
+  {
+    GuiOpenDashboard();
+  }
 }
 
 void ezQtEditorApp::ShutdownEditor()
 {
   m_pTimer->stop();
   ezToolsProject::CloseProject();
-
-  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest))
-  {
-    m_WhatsNew.StoreLastRead();
-  }
 
   SaveSettings();
 
@@ -320,6 +327,7 @@ void ezQtEditorApp::ShutdownEditor()
   ezDocumentManager::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
+  ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
 
   ezQtUiServices::GetSingleton()->SaveState();
 

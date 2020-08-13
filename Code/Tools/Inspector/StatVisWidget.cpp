@@ -85,21 +85,18 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
 }
 
 
-ezQtStatVisWidget::~ezQtStatVisWidget()
-{
-}
+ezQtStatVisWidget::~ezQtStatVisWidget() {}
 
 void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  const ezUInt32 uiSeconds[] =
-    {
-      10,
-      30,
-      60 * 1,
-      60 * 2,
-      60 * 5,
-      60 * 10,
-    };
+  const ezUInt32 uiSeconds[] = {
+    10,
+    30,
+    60 * 1,
+    60 * 2,
+    60 * 5,
+    60 * 10,
+  };
 
   m_DisplayInterval = ezTime::Seconds(uiSeconds[index]);
 }

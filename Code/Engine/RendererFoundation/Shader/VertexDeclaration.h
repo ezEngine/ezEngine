@@ -1,13 +1,12 @@
 
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclaration : public ezGALObject<ezGALVertexDeclarationCreationDescription>
 {
 public:
-
 protected:
   friend class ezGALDevice;
 
@@ -19,4 +18,3 @@ protected:
 
   virtual ~ezGALVertexDeclaration();
 };
-

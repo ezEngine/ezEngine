@@ -23,17 +23,17 @@ struct ezHashHelper<ezVec3>
 namespace ezModelImporter
 {
   Mesh::Mesh()
-      : HierarchyObject(ObjectHandle::MESH)
-      , m_uiNextUnusedVertexIndex(0)
+    : HierarchyObject(ObjectHandle::MESH)
+    , m_uiNextUnusedVertexIndex(0)
   {
   }
 
   Mesh::Mesh(Mesh&& mesh)
-      : HierarchyObject(ObjectHandle::MESH)
-      , m_Triangles(std::move(mesh.m_Triangles))
-      , m_uiNextUnusedVertexIndex(mesh.m_uiNextUnusedVertexIndex)
-      , m_VertexDataStreams(std::move(mesh.m_VertexDataStreams))
-      , m_SubMeshes(std::move(m_SubMeshes))
+    : HierarchyObject(ObjectHandle::MESH)
+    , m_Triangles(std::move(mesh.m_Triangles))
+    , m_uiNextUnusedVertexIndex(mesh.m_uiNextUnusedVertexIndex)
+    , m_VertexDataStreams(std::move(mesh.m_VertexDataStreams))
+    , m_SubMeshes(std::move(mesh.m_SubMeshes))
   {
   }
 
@@ -45,8 +45,7 @@ namespace ezModelImporter
     }
   }
 
-  VertexDataStream* Mesh::AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex,
-                                        VertexElementType elementType)
+  VertexDataStream* Mesh::AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexElementType elementType)
   {
     // A few checks for meaningful element count.
     // These are necessary to keep the implementation of preprocessing functions like
@@ -55,19 +54,19 @@ namespace ezModelImporter
     {
       case ezGALVertexAttributeSemantic::Position:
         EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT,
-                        "Position vertex streams should always have exactly 3 float elements.");
+          "Position vertex streams should always have exactly 3 float elements.");
         break;
       case ezGALVertexAttributeSemantic::Normal:
         EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT,
-                        "Normal vertex streams should always have exactly 3 float elements.");
+          "Normal vertex streams should always have exactly 3 float elements.");
         break;
       case ezGALVertexAttributeSemantic::Tangent:
         EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT,
-                        "Tangent vertex streams should always have exactly 3 float elements.");
+          "Tangent vertex streams should always have exactly 3 float elements.");
         break;
       case ezGALVertexAttributeSemantic::BiTangent:
         EZ_ASSERT_DEBUG((uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1) && elementType == VertexElementType::FLOAT,
-                        "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
+          "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
         break;
 
       case ezGALVertexAttributeSemantic::BoneIndices0:
@@ -75,7 +74,10 @@ namespace ezModelImporter
       case ezGALVertexAttributeSemantic::BoneWeights0:
       case ezGALVertexAttributeSemantic::BoneWeights1:
         EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 4 || uiNumElementsPerVertex == 1,
-                        "Bone weights and index streams should have 1 or 4 elements (single bone / standard skinning).");
+          "Bone weights and index streams should have 1 or 4 elements (single bone / standard skinning).");
+        break;
+
+      default:
         break;
     }
 
@@ -196,13 +198,13 @@ namespace ezModelImporter
     for (auto it = mesh.m_VertexDataStreams.GetIterator(); it.IsValid(); ++it)
     {
       const VertexDataStream* sourceStream = it.Value();
-      VertexDataStream* targetStream = AddDataStream(static_cast<ezGALVertexAttributeSemantic::Enum>(it.Key()),
-                                                     sourceStream->GetNumElementsPerVertex(), sourceStream->GetElementType());
+      VertexDataStream* targetStream = AddDataStream(
+        static_cast<ezGALVertexAttributeSemantic::Enum>(it.Key()), sourceStream->GetNumElementsPerVertex(), sourceStream->GetElementType());
       if (!targetStream)
       {
         ezLog::SeriousWarning("Cannot merge mesh {0} properly since it has a vertex data stream with semantic {1} that uses {2} elements "
                               "instead of 'unkown' which is used by the merge target. Skipping this data stream.",
-                              mesh.m_Name, it.Key(), sourceStream->GetNumElementsPerVertex());
+          mesh.m_Name, it.Key(), sourceStream->GetNumElementsPerVertex());
         continue;
       }
 
@@ -337,10 +339,9 @@ namespace ezModelImporter
     if (m_Triangles.GetCount() > trianglesNew.GetCount())
       ezLog::Warning("There were some triangles in submeshes of the mesh '{0}' that were not referenced by any submesh. These triangles "
                      "were discarded while merging submeshes.",
-                     m_Name);
+        m_Name);
     else if (m_Triangles.GetCount() < trianglesNew.GetCount())
-      ezLog::Warning("There are submeshes in '{0}' with overlapping triangle use. These triangles were duplicated while merging submeshes.",
-                     m_Name);
+      ezLog::Warning("There are submeshes in '{0}' with overlapping triangle use. These triangles were duplicated while merging submeshes.", m_Name);
 
     m_Triangles = std::move(trianglesNew);
     m_SubMeshes = std::move(subMeshesNew);
@@ -384,8 +385,8 @@ namespace ezModelImporter
       const ezVec3 d02 = p2 - p0;
 
       const ezVec3 triNormal = d01.CrossRH(d02);
-      normalStream.SetValue(v0, normalStream.GetValue(v0) +
-                                    triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
+      normalStream.SetValue(
+        v0, normalStream.GetValue(v0) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
       normalStream.SetValue(v1, normalStream.GetValue(v1) + triNormal);
       normalStream.SetValue(v2, normalStream.GetValue(v2) + triNormal);
     }
@@ -405,15 +406,15 @@ namespace ezModelImporter
     struct MikkInterfaceImpl
     {
       MikkInterfaceImpl(Mesh& mesh, const VertexDataStream& position, const VertexDataStream& normal, const VertexDataStream& tex)
-          : triangles(mesh.m_Triangles)
-          , positionStream(position)
-          , normalStream(normal)
-          , texStream(tex)
-          , tangentStream(*mesh.AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3)) // Make sure tangent stream exists.
-          , bitangentStream(*mesh.AddDataStream(ezGALVertexAttributeSemantic::BiTangent, 1))
+        : triangles(mesh.m_Triangles)
+        , positionStream(position)
+        , normalStream(normal)
+        , texStream(tex)
+        , tangentStream(*mesh.AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3)) // Make sure tangent stream exists.
+        , bitangentStream(*mesh.AddDataStream(ezGALVertexAttributeSemantic::BiTangent, 1))
 
-          , bitangentIndexNegative(0)
-          , bitangentIndexPositive(sizeof(float))
+        , bitangentIndexNegative(0)
+        , bitangentIndexPositive(sizeof(float))
       {
         float biTangentSignValues[] = {-1.0f, 1.0f};
         bitangentStream.AddValues(ezMakeArrayPtr(biTangentSignValues));
@@ -512,9 +513,8 @@ namespace ezModelImporter
     SMikkTSpaceInterface functions;
     context.m_pUserData = &mikkInterface;
     context.m_pInterface = &functions;
-    functions.m_getNumFaces = [](const SMikkTSpaceContext* pContext) {
-      return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumFaces();
-    };
+    functions.m_getNumFaces = [](
+                                const SMikkTSpaceContext* pContext) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumFaces(); };
     functions.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace) {
       return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumVerticesOfFace(iFace);
     };
@@ -527,8 +527,8 @@ namespace ezModelImporter
     functions.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) {
       return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetTexCoord(fvPosOut, iFace, iVert);
     };
-    functions.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace,
-                                    const int iVert) {
+    functions.m_setTSpaceBasic = [](
+                                   const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert) {
       return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->SetTSpaceBasic(fvTangent, fSign, iFace, iVert);
     };
     functions.m_setTSpace = nullptr;
@@ -542,4 +542,4 @@ namespace ezModelImporter
     ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name, ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
     return EZ_SUCCESS;
   }
-}
+} // namespace ezModelImporter

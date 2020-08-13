@@ -124,7 +124,7 @@ void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateConte
 
       if (outputContext.m_pUpdateTilesTask->IsTaskFinished())
       {
-        ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask.Borrow());
+        ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask);
       }
     }
   }
@@ -216,7 +216,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
           auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
           activeTile.PreparePlacementData(pPhysicsModule, *processingTask.m_pData);
 
-          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask.Borrow());
+          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
         }
 
         ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
@@ -233,7 +233,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
 
           processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
           processingTask.m_PlacementTaskGroupID =
-            ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
+            ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
         }
       }
     }
@@ -413,8 +413,7 @@ ezUInt32 ezProcPlacementComponentManager::GetNumAllocatedProcessingTasks() const
   return m_ProcessingTasks.GetCount() - m_FreeProcessingTasks.GetCount();
 }
 
-void ezProcPlacementComponentManager::RemoveTilesForComponent(
-  ezProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved /*= nullptr*/)
+void ezProcPlacementComponentManager::RemoveTilesForComponent(ezProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved /*= nullptr*/)
 {
   ezComponentHandle hComponent = pComponent->GetHandle();
 
@@ -514,7 +513,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAl
   EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents", "Offset", "Rotation"),
-    new ezBoxVisualizerAttribute("Extents", "Offset", "Rotation", nullptr, ezColor::CornflowerBlue),
+    new ezBoxVisualizerAttribute("Extents", ezColor::CornflowerBlue, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "Offset", "Rotation"),
     new ezTransformManipulatorAttribute("Offset", "Rotation"),
   }
   EZ_END_ATTRIBUTES;
@@ -627,8 +626,7 @@ void ezProcPlacementComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView ||
-      msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
   {
     const ezCamera* pCamera = msg.m_pView->GetCullingCamera();
 

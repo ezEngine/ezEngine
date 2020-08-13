@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorPluginParticle/EditorPluginParticleDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezParticleEffectAssetDocument;
 struct ezParticleEffectAssetEvent;
@@ -29,7 +29,6 @@ class ezParticleAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleAction, ezButtonAction);
 
 public:
-
   enum class ActionType
   {
     PauseEffect,
@@ -52,7 +51,3 @@ private:
   ActionType m_Type;
   float m_fSimSpeed;
 };
-
-
-
-

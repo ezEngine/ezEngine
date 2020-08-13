@@ -9,15 +9,35 @@
 #include <QKeyEvent>
 
 static const float s_fMoveSpeed[25] = {
-    0.5f,   0.75f,  1.0f,    1.5f,    2.0f,
+  0.5f,
+  0.75f,
+  1.0f,
+  1.5f,
+  2.0f,
 
-    3.0f,   4.0f,   6.0f,    8.0f,    12.0f,
+  3.0f,
+  4.0f,
+  6.0f,
+  8.0f,
+  12.0f,
 
-    16.0f,  24.0f,  32.0f,   48.0f,   64.0f,
+  16.0f,
+  24.0f,
+  32.0f,
+  48.0f,
+  64.0f,
 
-    96.0f,  128.0f, 192.0f,  256.0f,  384.0f,
+  96.0f,
+  128.0f,
+  192.0f,
+  256.0f,
+  384.0f,
 
-    512.0f, 768.0f, 1024.0f, 1536.0f, 2048.0f,
+  512.0f,
+  768.0f,
+  1024.0f,
+  1536.0f,
+  2048.0f,
 };
 
 ezCameraMoveContext::ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -146,9 +166,8 @@ void ezCameraMoveContext::UpdateContext()
 
 void ezCameraMoveContext::DeactivateIfLast()
 {
-  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bSlideForwards || m_bPanOrbitPoint ||
-      m_bMoveForwards || m_bMoveBackwards || m_bMoveRight || m_bMoveLeft || m_bMoveUp || m_bMoveDown || m_bMoveForwardsInPlane ||
-      m_bMoveBackwardsInPlane)
+  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bSlideForwards || m_bPanOrbitPoint || m_bMoveForwards ||
+      m_bMoveBackwards || m_bMoveRight || m_bMoveLeft || m_bMoveUp || m_bMoveDown || m_bMoveForwardsInPlane || m_bMoveBackwardsInPlane)
     return;
 
   FocusLost(false);
@@ -629,9 +648,8 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       ezMat4 mvp = projectionMatrix * viewMatrix;
 
       ezVec3 vScreenPos(0);
-      if (ezGraphicsUtils::ConvertWorldPosToScreenPos(mvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), m_vOrbitPoint,
-                                                      vScreenPos)
-              .Succeeded())
+      if (ezGraphicsUtils::ConvertWorldPosToScreenPos(mvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), m_vOrbitPoint, vScreenPos)
+            .Succeeded())
       {
         ezMat4 invMvp = mvp.GetInverse();
 
@@ -639,9 +657,8 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
         vScreenPos.y += diff.y;
 
         ezVec3 vNewPoint(0);
-        if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos,
-                                                        vNewPoint)
-                .Succeeded())
+        if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos, vNewPoint)
+              .Succeeded())
         {
           const ezVec3 vDiff = vNewPoint - m_vOrbitPoint;
 

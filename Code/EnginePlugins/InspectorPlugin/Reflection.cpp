@@ -128,7 +128,7 @@ namespace ReflectionDetail
         break;
     }
   }
-}
+} // namespace ReflectionDetail
 
 void AddReflectionEventHandler()
 {

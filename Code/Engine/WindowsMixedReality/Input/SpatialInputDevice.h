@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include <WindowsMixedReality/Basics.h>
 #include <Core/Input/InputDevice.h>
+#include <WindowsMixedReality/Basics.h>
 #include <windows.ui.input.spatial.h>
 #include <wrl/client.h>
 
@@ -29,8 +29,8 @@ private:
       Ignored,
       Hand0,
       Hand1,
-      //Controller0,
-      //Controller1,
+      // Controller0,
+      // Controller1,
       // Voice
     };
 
@@ -51,15 +51,20 @@ private:
   void SetTrackingStatus(ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args, bool bTracked);
   void SetSlotValues(const SourceDetails& details, const SourceInfo& sourceInfo);
 
-  HRESULT OnSourceDetected(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
+  HRESULT OnSourceDetected(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager,
+    ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
 
-  HRESULT OnSourceLost(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
+  HRESULT OnSourceLost(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager,
+    ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
 
-  HRESULT OnSourcePressed(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
+  HRESULT OnSourcePressed(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager,
+    ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
 
-  HRESULT OnSourceReleased(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
+  HRESULT OnSourceReleased(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager,
+    ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
 
-  HRESULT OnSourceUpdated(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
+  HRESULT OnSourceUpdated(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager,
+    ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
 
   EventRegistrationToken m_OnSourceDetectedToken;
   EventRegistrationToken m_OnSourceLostToken;
@@ -71,4 +76,3 @@ private:
 
   ezMap<ezUInt32, SourceInfo> m_InputSources;
 };
-

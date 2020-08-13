@@ -155,8 +155,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ////////////////////////////////////////////////////////////////////////
 
 ezAddObjectCommand::ezAddObjectCommand()
-    : m_pType(nullptr)
-    , m_pObject(nullptr)
+  : m_pType(nullptr)
+  , m_pObject(nullptr)
 {
 }
 
@@ -551,8 +551,8 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
 ////////////////////////////////////////////////////////////////////////
 
 ezRemoveObjectCommand::ezRemoveObjectCommand()
-    : m_pParent(nullptr)
-    , m_pObject(nullptr)
+  : m_pParent(nullptr)
+  , m_pObject(nullptr)
 {
 }
 
@@ -588,8 +588,7 @@ ezStatus ezRemoveObjectCommand::UndoInternal(bool bFireEvents)
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocument* pDocument = GetDocument();
-  EZ_SUCCEED_OR_RETURN(
-      pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index));
+  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index));
 
   pDocument->GetObjectManager()->AddObject(m_pObject, m_pParent, m_sParentProperty, m_Index);
   return ezStatus(EZ_SUCCESS);
@@ -887,8 +886,8 @@ ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
     if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
     {
-      return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(),
-                            m_sProperty));
+      return ezStatus(
+        ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
     }
   }
   return ezStatus(EZ_SUCCESS);

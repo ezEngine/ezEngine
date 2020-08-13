@@ -1,8 +1,8 @@
-#pragma once 
+#pragma once
 
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 
 struct ezGizmoEvent;
 
@@ -21,5 +21,6 @@ protected:
   ezVec3 m_Scale;
   ezVec3 m_vPositionOffset;
   ezQuat m_Rotation;
+  ezBitflags<ezVisualizerAnchor> m_Anchor;
   ezEngineGizmoHandle m_Gizmo;
 };

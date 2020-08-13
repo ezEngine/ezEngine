@@ -24,13 +24,9 @@ void ezLogWriter::ETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndent
 
 #else
 
-void ezLogWriter::ETW::LogMessageHandler(const ezLoggingEventData& eventData)
-{
-}
+void ezLogWriter::ETW::LogMessageHandler(const ezLoggingEventData& eventData) {}
 
-void ezLogWriter::ETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText)
-{
-}
+void ezLogWriter::ETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText) {}
 
 #endif
 

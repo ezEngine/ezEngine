@@ -14,7 +14,7 @@ namespace ezProcGenInternal
     ~PlacementData();
 
     void Clear();
-    
+
     const ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
 
     ezSharedPtr<const PlacementOutput> m_pOutput;

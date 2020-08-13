@@ -23,6 +23,8 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   m_LongOpWorkerManager.Startup(&m_IPC);
 }
 
+ezEngineProcessGameApplication::~ezEngineProcessGameApplication() = default;
+
 ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 {
   m_pApp = CreateEngineProcessApp();
@@ -130,8 +132,7 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
   m_IPC.SendMessage(&msg);
 }
 
-static bool EmptyAssertHandler(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   return false;
 }
@@ -539,6 +540,8 @@ void ezEngineProcessGameApplication::TransmitCVar(const ezCVar* pCVar)
     case ezCVarType::String:
       msg.m_Value = ((ezCVarString*)pCVar)->GetValue();
       break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED
   }
 
   m_IPC.SendMessage(&msg);

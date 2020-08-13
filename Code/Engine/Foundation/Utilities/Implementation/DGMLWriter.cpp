@@ -1,8 +1,8 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Utilities/DGMLWriter.h>
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 
 ezDGMLGraph::ezDGMLGraph(ezDGMLGraph::Direction GraphDirection /*= LeftToRight*/, ezDGMLGraph::Layout GraphLayout /*= Tree*/)
   : m_Direction(GraphDirection)
@@ -159,8 +159,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
 
       ColorValue = "#FF";
       ezColorGammaUB RGBA(node.m_Desc.m_Color);
-      ColorValue.AppendFormat(
-        "{0}{1}{2}", ezArgU(RGBA.r, 2, true, 16, true), ezArgU(RGBA.g, 2, true, 16, true), ezArgU(RGBA.b, 2, true, 16, true));
+      ColorValue.AppendFormat("{0}{1}{2}", ezArgU(RGBA.r, 2, true, 16, true), ezArgU(RGBA.g, 2, true, 16, true), ezArgU(RGBA.b, 2, true, 16, true));
 
       ezStringBuilder StyleString;
       switch (node.m_Desc.m_Shape)
@@ -202,8 +201,8 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
         PropertiesString.AppendFormat(" {0}=\"{1}\"", Graph.m_PropertyTypes[prop.m_PropertyId].m_Name, prop.m_sValue);
       }
 
-      StringBuilder.AppendFormat(
-        "\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3}{4}{5}/>\n", i, SanitizedName, ColorValue, StyleString, szGroupString, PropertiesString);
+      StringBuilder.AppendFormat("\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3}{4}{5}/>\n", i, SanitizedName, ColorValue, StyleString,
+        szGroupString, PropertiesString);
     }
     StringBuilder.Append("\t</Nodes>\n");
   }

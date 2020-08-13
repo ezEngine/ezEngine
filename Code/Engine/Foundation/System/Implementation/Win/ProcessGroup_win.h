@@ -88,8 +88,7 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
 
   if (process.ResumeSuspended().Failed())
   {
-    ezLog::Error(
-      "Failed to resume the given process. Processes must be launched in a suspended state before adding them to process groups.");
+    ezLog::Error("Failed to resume the given process. Processes must be launched in a suspended state before adding them to process groups.");
     return EZ_FAILURE;
   }
 

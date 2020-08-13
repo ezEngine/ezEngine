@@ -14,4 +14,3 @@ struct ezSimdMath
 };
 
 #include <Foundation/SimdMath/Implementation/SimdMath_inl.h>
-

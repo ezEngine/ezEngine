@@ -11,7 +11,7 @@ struct ezVariant::TypeDeduction<bool>
     hasReflectedMembers = false
   };
 
-  typedef bool StorageType;
+  using StorageType = bool;
 };
 
 template <>
@@ -24,7 +24,7 @@ struct ezVariant::TypeDeduction<ezInt8>
     hasReflectedMembers = false
   };
 
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 };
 
 template <>
@@ -37,7 +37,7 @@ struct ezVariant::TypeDeduction<ezUInt8>
     hasReflectedMembers = false
   };
 
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 };
 
 template <>
@@ -50,7 +50,7 @@ struct ezVariant::TypeDeduction<ezInt16>
     hasReflectedMembers = false
   };
 
-  typedef ezInt16 StorageType;
+  using StorageType = ezInt16;
 };
 
 template <>
@@ -63,7 +63,7 @@ struct ezVariant::TypeDeduction<ezUInt16>
     hasReflectedMembers = false
   };
 
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 };
 
 template <>
@@ -76,7 +76,7 @@ struct ezVariant::TypeDeduction<ezInt32>
     hasReflectedMembers = false
   };
 
-  typedef ezInt32 StorageType;
+  using StorageType = ezInt32;
 };
 
 template <>
@@ -89,7 +89,7 @@ struct ezVariant::TypeDeduction<ezUInt32>
     hasReflectedMembers = false
   };
 
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 };
 
 template <>
@@ -102,7 +102,7 @@ struct ezVariant::TypeDeduction<ezInt64>
     hasReflectedMembers = false
   };
 
-  typedef ezInt64 StorageType;
+  using StorageType = ezInt64;
 };
 
 template <>
@@ -115,7 +115,7 @@ struct ezVariant::TypeDeduction<ezUInt64>
     hasReflectedMembers = false
   };
 
-  typedef ezUInt64 StorageType;
+  using StorageType = ezUInt64;
 };
 
 template <>
@@ -128,7 +128,7 @@ struct ezVariant::TypeDeduction<float>
     hasReflectedMembers = false
   };
 
-  typedef float StorageType;
+  using StorageType = float;
 };
 
 template <>
@@ -141,7 +141,7 @@ struct ezVariant::TypeDeduction<double>
     hasReflectedMembers = false
   };
 
-  typedef double StorageType;
+  using StorageType = double;
 };
 
 template <>
@@ -154,7 +154,7 @@ struct ezVariant::TypeDeduction<ezColor>
     hasReflectedMembers = true
   };
 
-  typedef ezColor StorageType;
+  using StorageType = ezColor;
 };
 
 template <>
@@ -167,7 +167,7 @@ struct ezVariant::TypeDeduction<ezColorGammaUB>
     hasReflectedMembers = true
   };
 
-  typedef ezColorGammaUB StorageType;
+  using StorageType = ezColorGammaUB;
 };
 
 template <>
@@ -180,7 +180,7 @@ struct ezVariant::TypeDeduction<ezVec2>
     hasReflectedMembers = true
   };
 
-  typedef ezVec2 StorageType;
+  using StorageType = ezVec2;
 };
 
 template <>
@@ -193,7 +193,7 @@ struct ezVariant::TypeDeduction<ezVec3>
     hasReflectedMembers = true
   };
 
-  typedef ezVec3 StorageType;
+  using StorageType = ezVec3;
 };
 
 template <>
@@ -206,7 +206,7 @@ struct ezVariant::TypeDeduction<ezVec4>
     hasReflectedMembers = true
   };
 
-  typedef ezVec4 StorageType;
+  using StorageType = ezVec4;
 };
 
 template <>
@@ -219,7 +219,7 @@ struct ezVariant::TypeDeduction<ezVec2I32>
     hasReflectedMembers = true
   };
 
-  typedef ezVec2I32 StorageType;
+  using StorageType = ezVec2I32;
 };
 
 template <>
@@ -232,7 +232,7 @@ struct ezVariant::TypeDeduction<ezVec3I32>
     hasReflectedMembers = true
   };
 
-  typedef ezVec3I32 StorageType;
+  using StorageType = ezVec3I32;
 };
 
 template <>
@@ -245,7 +245,7 @@ struct ezVariant::TypeDeduction<ezVec4I32>
     hasReflectedMembers = true
   };
 
-  typedef ezVec4I32 StorageType;
+  using StorageType = ezVec4I32;
 };
 
 template <>
@@ -258,7 +258,7 @@ struct ezVariant::TypeDeduction<ezVec2U32>
     hasReflectedMembers = true
   };
 
-  typedef ezVec2U32 StorageType;
+  using StorageType = ezVec2U32;
 };
 
 template <>
@@ -271,7 +271,7 @@ struct ezVariant::TypeDeduction<ezVec3U32>
     hasReflectedMembers = true
   };
 
-  typedef ezVec3U32 StorageType;
+  using StorageType = ezVec3U32;
 };
 
 template <>
@@ -284,7 +284,7 @@ struct ezVariant::TypeDeduction<ezVec4U32>
     hasReflectedMembers = true
   };
 
-  typedef ezVec4U32 StorageType;
+  using StorageType = ezVec4U32;
 };
 
 template <>
@@ -297,7 +297,7 @@ struct ezVariant::TypeDeduction<ezQuat>
     hasReflectedMembers = true
   };
 
-  typedef ezQuat StorageType;
+  using StorageType = ezQuat;
 };
 
 template <>
@@ -310,7 +310,7 @@ struct ezVariant::TypeDeduction<ezMat3>
     hasReflectedMembers = false
   };
 
-  typedef ezMat3 StorageType;
+  using StorageType = ezMat3;
 };
 
 template <>
@@ -323,7 +323,7 @@ struct ezVariant::TypeDeduction<ezMat4>
     hasReflectedMembers = false
   };
 
-  typedef ezMat4 StorageType;
+  using StorageType = ezMat4;
 };
 
 template <>
@@ -336,7 +336,7 @@ struct ezVariant::TypeDeduction<ezTransform>
     hasReflectedMembers = false
   };
 
-  typedef ezTransform StorageType;
+  using StorageType = ezTransform;
 };
 
 template <>
@@ -349,7 +349,7 @@ struct ezVariant::TypeDeduction<ezString>
     hasReflectedMembers = false
   };
 
-  typedef ezString StorageType;
+  using StorageType = ezString;
 };
 
 template <>
@@ -362,7 +362,7 @@ struct ezVariant::TypeDeduction<ezUntrackedString>
     hasReflectedMembers = false
   };
 
-  typedef ezString StorageType;
+  using StorageType = ezString;
 };
 
 template <>
@@ -375,7 +375,7 @@ struct ezVariant::TypeDeduction<ezStringView>
     hasReflectedMembers = false
   };
 
-  typedef ezStringView StorageType;
+  using StorageType = ezStringView;
 };
 
 template <>
@@ -388,7 +388,7 @@ struct ezVariant::TypeDeduction<ezDataBuffer>
     hasReflectedMembers = false
   };
 
-  typedef ezDataBuffer StorageType;
+  using StorageType = ezDataBuffer;
 };
 
 template <>
@@ -401,7 +401,7 @@ struct ezVariant::TypeDeduction<char*>
     hasReflectedMembers = false
   };
 
-  typedef ezString StorageType;
+  using StorageType = ezString;
 };
 
 template <>
@@ -414,7 +414,7 @@ struct ezVariant::TypeDeduction<const char*>
     hasReflectedMembers = false
   };
 
-  typedef ezString StorageType;
+  using StorageType = ezString;
 };
 
 template <size_t N>
@@ -427,7 +427,7 @@ struct ezVariant::TypeDeduction<char[N]>
     hasReflectedMembers = false
   };
 
-  typedef ezString StorageType;
+  using StorageType = ezString;
 };
 
 template <size_t N>
@@ -440,7 +440,7 @@ struct ezVariant::TypeDeduction<const char[N]>
     hasReflectedMembers = false
   };
 
-  typedef ezString StorageType;
+  using StorageType = ezString;
 };
 
 template <>
@@ -453,7 +453,7 @@ struct ezVariant::TypeDeduction<ezTime>
     hasReflectedMembers = false
   };
 
-  typedef ezTime StorageType;
+  using StorageType = ezTime;
 };
 
 template <>
@@ -466,7 +466,7 @@ struct ezVariant::TypeDeduction<ezUuid>
     hasReflectedMembers = false
   };
 
-  typedef ezUuid StorageType;
+  using StorageType = ezUuid;
 };
 
 template <>
@@ -479,7 +479,7 @@ struct ezVariant::TypeDeduction<ezAngle>
     hasReflectedMembers = false
   };
 
-  typedef ezAngle StorageType;
+  using StorageType = ezAngle;
 };
 
 template <>
@@ -492,7 +492,7 @@ struct ezVariant::TypeDeduction<ezVariantArray>
     hasReflectedMembers = false
   };
 
-  typedef ezVariantArray StorageType;
+  using StorageType = ezVariantArray;
 };
 
 template <>
@@ -505,7 +505,7 @@ struct ezVariant::TypeDeduction<ezArrayPtr<ezVariant>>
     hasReflectedMembers = false
   };
 
-  typedef ezVariantArray StorageType;
+  using StorageType = ezVariantArray;
 };
 
 
@@ -519,7 +519,7 @@ struct ezVariant::TypeDeduction<ezVariantDictionary>
     hasReflectedMembers = false
   };
 
-  typedef ezVariantDictionary StorageType;
+  using StorageType = ezVariantDictionary;
 };
 
 namespace ezInternal
@@ -532,15 +532,15 @@ namespace ezInternal
   template <>
   struct PointerDeductionHelper<0>
   {
-    typedef void* StorageType;
+    using StorageType = void*;
   };
 
   template <>
   struct PointerDeductionHelper<1>
   {
-    typedef ezReflectedClass* StorageType;
+    using StorageType = ezReflectedClass*;
   };
-}
+} // namespace ezInternal
 
 template <typename T>
 struct ezVariant::TypeDeduction<T*>
@@ -552,8 +552,7 @@ struct ezVariant::TypeDeduction<T*>
     hasReflectedMembers = false
   };
 
-  typedef typename ezInternal::PointerDeductionHelper<EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T)>::StorageType StorageType;
+  using StorageType = typename ezInternal::PointerDeductionHelper<EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T)>::StorageType;
 };
 
 /// \endcond
-

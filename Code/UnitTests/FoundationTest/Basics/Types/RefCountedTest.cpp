@@ -5,7 +5,6 @@
 class RefCountedTestClass : public ezRefCounted
 {
 public:
-
   ezUInt32 m_uiDummyMember = 0x42u;
 };
 

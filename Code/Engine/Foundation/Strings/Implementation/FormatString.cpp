@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Math/Rational.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
@@ -55,8 +56,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt32 arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgU& arg)
 {
   ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedUInt(
-    tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase, arg.m_bUpperCase);
+  ezStringUtils::OutputFormattedUInt(tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase, arg.m_bUpperCase);
   tmp[writepos] = '\0';
   return ezStringView(tmp, tmp + writepos);
 }
@@ -77,8 +77,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezUInt32 arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgF& arg)
 {
   ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedFloat(
-    tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_iPrecision, arg.m_bScientific);
+  ezStringUtils::OutputFormattedFloat(tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_iPrecision, arg.m_bScientific);
   tmp[writepos] = '\0';
   return ezStringView(tmp, tmp + writepos);
 }
@@ -195,6 +194,24 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezAngle& arg)
   return ezStringView(tmp, tmp + writepos + 2);
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezRational& arg)
+{
+  ezUInt32 writepos = 0;
+
+  if (arg.IsIntegral())
+  {
+    ezStringUtils::OutputFormattedInt(tmp, uiLength, writepos, arg.GetIntegralResult(), 1, false, 10);
+
+    return ezStringView(tmp, tmp + writepos);
+  }
+  else
+  {
+    ezStringUtils::snprintf(tmp, uiLength, "%i/%i", arg.GetNumerator(), arg.GetDenominator());
+
+    return ezStringView(tmp);
+  }
+}
+
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
 {
   ezUInt32 writepos = 0;
@@ -204,7 +221,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   if (fAbsSec < 0.000001)
   {
     ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetNanoseconds(), 1, false, 1, false, true);
-    //tmp[writepos++] = ' ';
+    // tmp[writepos++] = ' ';
     tmp[writepos++] = 'n';
     tmp[writepos++] = 's';
   }
@@ -212,7 +229,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   {
     ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetMicroseconds(), 1, false, 1, false, true);
 
-    //tmp[writepos++] = ' ';
+    // tmp[writepos++] = ' ';
     // Utf-8 representation of the microsecond (us) sign
     tmp[writepos++] = (char)0xC2;
     tmp[writepos++] = (char)0xB5;
@@ -222,7 +239,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   {
     ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetMilliseconds(), 1, false, 1, false, true);
 
-    //tmp[writepos++] = ' ';
+    // tmp[writepos++] = ' ';
     tmp[writepos++] = 'm';
     tmp[writepos++] = 's';
   }
@@ -230,7 +247,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   {
     ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetSeconds(), 1, false, 1, false, true);
 
-    //tmp[writepos++] = ' ';
+    // tmp[writepos++] = ' ';
     tmp[writepos++] = 's';
     tmp[writepos++] = 'e';
     tmp[writepos++] = 'c';
@@ -239,9 +256,9 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   {
     double tRem = fAbsSec;
 
-    ezInt32 iMin = ezMath::Trunc(tRem / 60.0);
+    ezInt32 iMin = static_cast<ezInt32>(ezMath::Trunc(tRem / 60.0));
     tRem -= iMin * 60;
-    iMin *= ezMath::Sign(arg.GetSeconds());
+    iMin *= ezMath::Sign(static_cast<ezInt32>(arg.GetSeconds()));
 
     const double fSec = tRem;
 
@@ -251,11 +268,11 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   {
     double tRem = fAbsSec;
 
-    ezInt32 iHrs = ezMath::Trunc(tRem / (60.0 * 60.0));
+    ezInt32 iHrs = static_cast<ezInt32>(ezMath::Trunc(tRem / (60.0 * 60.0)));
     tRem -= iHrs * 60 * 60;
-    iHrs *= ezMath::Sign(arg.GetSeconds());
+    iHrs *= ezMath::Sign(static_cast<ezInt32>(arg.GetSeconds()));
 
-    const ezInt32 iMin = ezMath::Trunc(tRem / 60.0);
+    const ezInt32 iMin = static_cast<ezInt32>(ezMath::Trunc(tRem / 60.0));
     tRem -= iMin * 60;
 
     const double fSec = tRem;
@@ -292,6 +309,38 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable&
   return ezStringView(tmp);
 }
 
+ezArgSensitive::BuildStringCallback ezArgSensitive::s_BuildStringCB = nullptr;
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgSensitive& arg)
+{
+  if (ezArgSensitive::s_BuildStringCB)
+  {
+    return ezArgSensitive::s_BuildStringCB(tmp, uiLength, arg);
+  }
+
+  return arg.m_sSensitiveInfo;
+}
+
+ezStringView ezArgSensitive::BuildString_SensitiveUserData_Hash(char* tmp, ezUInt32 uiLength, const ezArgSensitive& arg)
+{
+  const ezUInt32 len = arg.m_sSensitiveInfo.GetElementCount();
+
+  if (len == 0)
+    return ezStringView();
+
+  if (!ezStringUtils::IsNullOrEmpty(arg.m_szContext))
+  {
+    ezStringUtils::snprintf(
+      tmp, uiLength, "sud:%s#%08x($%u)", arg.m_szContext, ezHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
+  }
+  else
+  {
+    ezStringUtils::snprintf(tmp, uiLength, "sud:#%08x($%u)", ezHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
+  }
+
+  return tmp;
+}
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
@@ -316,8 +365,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg
   // we need a bigger boat
   static thread_local char FullMessage[256];
 
-  ezStringUtils::snprintf(
-    FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
+  ezStringUtils::snprintf(FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
   LocalFree(lpMsgBuf);
   return ezStringView(FullMessage);
 }

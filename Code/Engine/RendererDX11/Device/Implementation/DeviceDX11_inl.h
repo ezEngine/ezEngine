@@ -28,4 +28,3 @@ inline ID3D11Query* ezGALDeviceDX11::GetTimestamp(ezGALTimestampHandle hTimestam
 
   return nullptr;
 }
-

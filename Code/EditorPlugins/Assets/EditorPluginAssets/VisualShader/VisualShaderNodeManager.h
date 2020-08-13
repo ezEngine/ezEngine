@@ -1,15 +1,15 @@
 #pragma once
 
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 struct ezVisualShaderPinDescriptor;
 
 class ezVisualShaderPin : public ezPin
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderPin, ezPin);
-public:
 
+public:
   ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
 
   const ezRTTI* GetDataType() const;
@@ -23,9 +23,8 @@ private:
 class ezVisualShaderConnection : public ezConnection
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderConnection, ezConnection);
+
 public:
-
-
 };
 
 class ezVisualShaderNodeManager : public ezDocumentNodeManager
@@ -40,10 +39,12 @@ public:
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
 
 private:
-  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) { return EZ_DEFAULT_NEW(ezVisualShaderConnection); }
-  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
+  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) override
+  {
+    return EZ_DEFAULT_NEW(ezVisualShaderConnection);
+  }
+  virtual ezStatus InternalCanAdd(
+    const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
 
   ezUInt32 CountNodesOfType(ezVisualShaderNodeType::Enum type) const;
-
-
 };

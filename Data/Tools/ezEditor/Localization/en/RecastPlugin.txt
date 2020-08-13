@@ -2,7 +2,7 @@ AI;AI
 ezRcAgentComponent;Recast Agent
 ezRcNavMeshComponent;Recast Navmesh
 NavMeshConfig;Navmesh Config
-ezRcMarkPoiVisibleComponent;Mark POI Visible
+ezRcMarkPoiVisibleComponent;Recast Mark POI Visible
 ezSoldierComponent;Soldier
 Menu.Recast;Recast
 NavMesh.Generate;Generate NavMesh

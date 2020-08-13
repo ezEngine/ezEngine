@@ -1,13 +1,13 @@
 #pragma once
 
+#include <Foundation/Containers/HybridArray.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <Foundation/Containers/HybridArray.h>
 #include <QGraphicsWidget>
 
 // Avoid conflicts with windows.
 #ifdef GetObject
-#undef GetObject
+#  undef GetObject
 #endif
 
 class ezQtPin;
@@ -70,7 +70,7 @@ public:
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
-  virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+  virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
   QColor m_HeaderColor;
   QGraphicsTextItem* m_pLabel;

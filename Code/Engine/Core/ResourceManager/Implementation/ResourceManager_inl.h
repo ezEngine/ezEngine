@@ -17,8 +17,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* 
 }
 
 template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(
-  const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback)
+ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback)
 {
   ezTypedResourceHandle<ResourceType> hResource;
   {
@@ -27,7 +26,8 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(
     hResource = ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
   }
 
-  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
+  ResourceType* pResource =
+    ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
 
   if (hLoadingFallback.IsValid())
   {
@@ -72,8 +72,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(
   pResource->SetResourceDescription(szResourceDescription);
   pResource->m_Flags.Add(ezResourceFlags::IsCreatedResource);
 
-  EZ_ASSERT_DEV(
-    pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
+  EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
 
   // If this does not compile, you either passed in the wrong descriptor type for the given resource type
   // or you forgot to std::move the descriptor when calling CreateResource
@@ -100,18 +99,21 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   const ezResource* pCurrentlyUpdatingContent = ezResource::GetCurrentlyUpdatingContent();
   if (pCurrentlyUpdatingContent != nullptr)
   {
-    EZ_ASSERT_ALWAYS(IsResourceTypeAcquireDuringUpdateContentAllowed(pCurrentlyUpdatingContent->GetDynamicRTTI(), ezGetStaticRTTI<ResourceType>()),
-      "Trying to acquire a resource of type '{0}' during '{1}::UpdateContent()'. This is has to be enabled by calling ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<{1}, {0}>(); at engine startup, for example in ezGameApplication::Init_SetupDefaultResources().",
+    EZ_LOCK(s_ResourceMutex);
+    EZ_ASSERT_DEV(IsResourceTypeAcquireDuringUpdateContentAllowed(pCurrentlyUpdatingContent->GetDynamicRTTI(), ezGetStaticRTTI<ResourceType>()),
+      "Trying to acquire a resource of type '{0}' during '{1}::UpdateContent()'. This is has to be enabled by calling "
+      "ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<{1}, {0}>(); at engine startup, for example in "
+      "ezGameApplication::Init_SetupDefaultResources().",
       ezGetStaticRTTI<ResourceType>()->GetTypeName(), pCurrentlyUpdatingContent->GetDynamicRTTI()->GetTypeName());
   }
 #endif
 
   ResourceType* pResource = (ResourceType*)hResource.m_Typeless.m_pResource;
 
-  //EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
+  // EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
   EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->IsDerivedFrom<ResourceType>(),
-    "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
-    pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
+    "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').", pResource->GetDynamicRTTI()->GetTypeName(),
+    ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
   if (mode == ezResourceAcquireMode::AllowLoadingFallback && GetForceNoFallbackAcquisition() > 0)
   {
@@ -138,8 +140,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       // if BlockTillLoaded is specified, it will prepended to the preload array, thus will be loaded immediately
       InternalPreloadResource(pResource, mode >= ezResourceAcquireMode::BlockTillLoaded);
 
-      if (mode == ezResourceAcquireMode::AllowLoadingFallback && (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() ||
-                                                                   GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
+      if (mode == ezResourceAcquireMode::AllowLoadingFallback &&
+          (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() || GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
       {
         // return the fallback resource for now, if there is one
         if (out_AcquireResult)
@@ -155,8 +157,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
         else if (hFallbackResource.IsValid())
           return (ResourceType*)BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::BlockTillLoaded);
         else
-          return (ResourceType*)BeginAcquireResource(
-            GetResourceTypeLoadingFallback<ResourceType>(), ezResourceAcquireMode::BlockTillLoaded);
+          return (ResourceType*)BeginAcquireResource(GetResourceTypeLoadingFallback<ResourceType>(), ezResourceAcquireMode::BlockTillLoaded);
       }
 
       EnsureResourceLoadingState(pResource, ezResourceState::Loaded);

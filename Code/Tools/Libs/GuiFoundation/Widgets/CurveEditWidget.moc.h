@@ -1,14 +1,14 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Tracks/Curve1D.h>
-#include <Foundation/Math/Vec2.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Vec2.h>
+#include <Foundation/Tracks/Curve1D.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
 
-#include <QWidget>
-#include <QPen>
 #include <QBrush>
+#include <QPen>
+#include <QWidget>
 
 class ezQGridBarWidget;
 class QRubberBand;
@@ -64,10 +64,35 @@ protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 
 private:
-  enum class ClickTarget { Nothing, SelectedPoint, TangentHandle };
-  enum class EditState {
-    None, DraggingPoints, DraggingPointsHorz, DraggingPointsVert, DraggingTangents, MultiSelect, RightClick, Panning, ScaleLeftRight, ScaleUpDown, DraggingCurve };
-  enum class SelectArea { None, Center, Top, Bottom, Left, Right };
+  enum class ClickTarget
+  {
+    Nothing,
+    SelectedPoint,
+    TangentHandle
+  };
+  enum class EditState
+  {
+    None,
+    DraggingPoints,
+    DraggingPointsHorz,
+    DraggingPointsVert,
+    DraggingTangents,
+    MultiSelect,
+    RightClick,
+    Panning,
+    ScaleLeftRight,
+    ScaleUpDown,
+    DraggingCurve
+  };
+  enum class SelectArea
+  {
+    None,
+    Center,
+    Top,
+    Bottom,
+    Left,
+    Right
+  };
 
   void PaintCurveSegments(QPainter* painter, float fOffsetX, ezUInt8 alpha) const;
   void PaintOutsideAreaOverlay(QPainter* painter) const;

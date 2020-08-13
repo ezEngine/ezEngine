@@ -4,6 +4,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
@@ -13,6 +14,9 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
 ezActionDescriptorHandle ezStandardMenus::s_hOpenDocumentation;
+ezActionDescriptorHandle ezStandardMenus::s_hOpenReleaseNotes;
+ezActionDescriptorHandle ezStandardMenus::s_hCheckForUpdates;
+ezActionDescriptorHandle ezStandardMenus::s_hReportProblem;
 
 void ezStandardMenus::RegisterActions()
 {
@@ -23,7 +27,14 @@ void ezStandardMenus::RegisterActions()
   s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
   s_hMenuView = EZ_REGISTER_MENU("Menu.View");
   s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
-  s_hOpenDocumentation = EZ_REGISTER_ACTION_1("Help.OpenDocumentation", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenDocumentation);
+  s_hOpenDocumentation =
+    EZ_REGISTER_ACTION_1("Help.OpenDocumentation", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenDocumentation);
+  s_hOpenReleaseNotes =
+    EZ_REGISTER_ACTION_1("Help.OpenReleaseNotes", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenReleaseNotes);
+  s_hCheckForUpdates =
+    EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
+  s_hReportProblem =
+    EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -36,6 +47,9 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuView);
   ezActionManager::UnregisterAction(s_hMenuHelp);
   ezActionManager::UnregisterAction(s_hOpenDocumentation);
+  ezActionManager::UnregisterAction(s_hOpenReleaseNotes);
+  ezActionManager::UnregisterAction(s_hCheckForUpdates);
+  ezActionManager::UnregisterAction(s_hReportProblem);
 }
 
 void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& Menus)
@@ -67,6 +81,9 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   {
     pMap->MapAction(s_hMenuHelp, "", 7.0f);
     pMap->MapAction(s_hOpenDocumentation, "Menu.Help", 1.0f);
+    pMap->MapAction(s_hOpenReleaseNotes, "Menu.Help", 2.0f);
+    pMap->MapAction(s_hReportProblem, "Menu.Help", 3.0f);
+    pMap->MapAction(s_hCheckForUpdates, "Menu.Help", 4.0f);
   }
 }
 
@@ -82,10 +99,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 struct ezComparePanels
 {
   /// \brief Returns true if a is less than b
-  EZ_ALWAYS_INLINE bool Less(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
-  {
-    return p1.m_sDisplay < p2.m_sDisplay;
-  }
+  EZ_ALWAYS_INLINE bool Less(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const { return p1.m_sDisplay < p2.m_sDisplay; }
 
   /// \brief Returns true if a is equal to b
   EZ_ALWAYS_INLINE bool Equal(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
@@ -105,8 +119,7 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
     item.m_UserValue = pPanel;
     item.m_Icon = pPanel->icon();
-    item.m_CheckState =
-      pPanel->isClosed() ? ezDynamicMenuAction::Item::CheckMark::Unchecked : ezDynamicMenuAction::Item::CheckMark::Checked;
+    item.m_CheckState = pPanel->isClosed() ? ezDynamicMenuAction::Item::CheckMark::Unchecked : ezDynamicMenuAction::Item::CheckMark::Checked;
 
     out_Entries.PushBack(item);
   }
@@ -149,6 +162,18 @@ void ezHelpActions::Execute(const ezVariant& value)
 {
   if (m_ButtonType == ButtonType::OpenDocumentation)
   {
-    QDesktopServices::openUrl(QUrl("https://ezengine.github.io/docs"));
+    QDesktopServices::openUrl(QUrl("http://ezengine.net"));
+  }
+  if (m_ButtonType == ButtonType::OpenReleaseNotes)
+  {
+    QDesktopServices::openUrl(QUrl("http://ezengine.net/releases/release-notes.html"));
+  }
+  if (m_ButtonType == ButtonType::ReportProblem)
+  {
+    QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/issues"));
+  }
+  if (m_ButtonType == ButtonType::CheckForUpdates)
+  {
+    ezQtUiServices::CheckForUpdates();
   }
 }

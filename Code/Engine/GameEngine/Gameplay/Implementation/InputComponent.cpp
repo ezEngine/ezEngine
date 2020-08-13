@@ -98,7 +98,7 @@ void ezInputComponent::Update()
     msg.m_uiInputActionHash = ezTempHashedString::ComputeHash(actionName.GetData());
     msg.m_fKeyPressValue = fValue;
 
-    m_InputEventSender.SendMessage(msg, this, GetOwner());
+    m_InputEventSender.SendEventMessage(msg, this, GetOwner());
   }
 }
 

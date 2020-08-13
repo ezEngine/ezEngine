@@ -7,8 +7,8 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QMainWindow>
-#include <ToolsFoundation/Project/ToolsProject.h>
 #include <QSet>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezDocumentManager;
 class ezDocument;
@@ -21,7 +21,7 @@ namespace ads
   class CDockManager;
   class CFloatingDockContainer;
   class CDockWidget;
-}
+} // namespace ads
 
 /// \brief Container window that hosts documents and applications panels.
 class EZ_GUIFOUNDATION_DLL ezQtContainerWindow : public QMainWindow
@@ -70,6 +70,7 @@ private Q_SLOTS:
   void SlotTabsContextMenuRequested(const QPoint& pos);
   void SlotUpdateWindowDecoration(void* pDocWindow);
   void SlotFloatingWidgetOpened(ads::CFloatingDockContainer* FloatingWidget);
+  void SlotDockWidgetFloatingChanged(bool bFloating);
 
 private:
   void UpdateWindowTitle();
@@ -83,7 +84,7 @@ private:
   void ProjectEventHandler(const ezToolsProjectEvent& e);
   void UIServicesEventHandler(const ezQtUiServices::Event& e);
 
-  void closeEvent(QCloseEvent* e);
+  virtual void closeEvent(QCloseEvent* e) override;
 
 private:
   ads::CDockManager* m_DockManager = nullptr;

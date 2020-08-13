@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <GameEngine/Curves/Curve1DResource.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_SizeCurve final : public ezParticleBehaviorFactory
 {
@@ -34,7 +34,6 @@ public:
   virtual void CreateRequiredStreams() override;
 
 protected:
-
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
 

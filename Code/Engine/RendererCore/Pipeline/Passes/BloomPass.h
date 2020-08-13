@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
@@ -22,7 +22,6 @@ public:
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-
   void UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColor);
 
   ezInputNodePin m_PinInput;
@@ -37,4 +36,3 @@ protected:
   ezConstantBufferStorageHandle m_hConstantBuffer;
   ezShaderResourceHandle m_hShader;
 };
-

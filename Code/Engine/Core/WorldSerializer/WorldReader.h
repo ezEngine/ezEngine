@@ -26,7 +26,12 @@ public:
   {
   public:
     virtual ~InstantiationContextBase() {}
-    virtual bool Step() = 0; // returns true if instantiation is done
+
+    /// \Brief Advance the instantiation by one step and return true if instantiation is done.
+    virtual bool Step() = 0;
+
+    /// \Brief Cancel the instantiation. This might lead to inconsistent states and must be used with care.
+    virtual void Cancel() = 0;
   };
 
   ezWorldReader();
@@ -54,8 +59,8 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID = nullptr,
-    ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
+  ezUniquePtr<InstantiationContextBase> InstantiateWorld(
+    ezWorld& world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -123,8 +128,8 @@ private:
   void ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentDataToMemStream();
   void ClearHandles();
-  ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform,
-    ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
+  ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+    ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
     const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress);
 
   ezStreamReader* m_pStream = nullptr;
@@ -154,15 +159,17 @@ private:
   class InstantiationContext : public InstantiationContextBase
   {
   public:
-    InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform,
-      ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
+    InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+      ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
       const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress);
     ~InstantiationContext();
 
-    virtual bool Step();
+    virtual bool Step() override;
+    virtual void Cancel() override;
 
     template <bool UseTransform>
-    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime);
+    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
+      ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime);
 
     bool CreateComponents(ezTime endTime);
     bool DeserializeComponents(ezTime endTime);

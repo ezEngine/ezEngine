@@ -16,8 +16,7 @@ namespace ezModelImporter
   namespace PbrtCommandLookup
   {
     // Reads a readily parsed object into the scene.
-    typedef void (*ReadObjectFunc)(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context,
-                                   ezModelImporter::Scene& outScene);
+    typedef void (*ReadObjectFunc)(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene);
     // Scopes have some effect on the context, but don't have any additional data.
     typedef void (*ReadScopeFunc)(ParseContext& context);
     // Transform applies itself to the top element in the transform stack.
@@ -28,7 +27,7 @@ namespace ezModelImporter
     ezHashTable<ezString, ReadScopeFunc> s_scopes;
     ezHashTable<ezString, ParseTransformFunc> s_transforms;
     ezHashTable<ezString, ReadObjectFunc> s_objects;
-  }
+  } // namespace PbrtCommandLookup
 
 
   PbrtImporter::PbrtImporter()
@@ -159,8 +158,7 @@ namespace ezModelImporter
             if (paramType == ParamType::INVALID)
             {
               ezString paramTypeStringInst = paramTypeString;
-              ezLog::Error("Unknown parameter type '{0}' in pbrt file '{1}' for an object '{2}'.", paramTypeStringInst, commandName,
-                           szFileName);
+              ezLog::Error("Unknown parameter type '{0}' in pbrt file '{1}' for an object '{2}'.", paramTypeStringInst, commandName, szFileName);
               break;
             }
 
@@ -220,4 +218,4 @@ namespace ezModelImporter
 
     return std::move(outScene);
   }
-}
+} // namespace ezModelImporter

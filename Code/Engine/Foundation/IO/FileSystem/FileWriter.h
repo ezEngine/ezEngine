@@ -14,7 +14,7 @@ class EZ_FOUNDATION_DLL ezFileWriter : public ezFileWriterBase
 
 public:
   /// \brief Constructor, does nothing.
-  ezFileWriter() {}
+  ezFileWriter() = default;
 
   /// \brief Destructor, closes the file, if it is still open (RAII).
   ~ezFileWriter() { Close(); }
@@ -23,7 +23,8 @@ public:
   ///
   /// You should typically not disable bAllowFileEvents, unless you need to prevent recursive file events,
   /// which is only the case, if you are doing file accesses from within a File Event Handler.
-  ezResult Open(const char* szFile, ezUInt32 uiCacheSize = 1024 * 1024, ezFileShareMode::Enum FileShareMode = ezFileShareMode::Default, bool bAllowFileEvents = true);
+  ezResult Open(const char* szFile, ezUInt32 uiCacheSize = 1024 * 1024, ezFileShareMode::Enum FileShareMode = ezFileShareMode::Default,
+    bool bAllowFileEvents = true);
 
   /// \brief Closes the file, if it is open.
   void Close();

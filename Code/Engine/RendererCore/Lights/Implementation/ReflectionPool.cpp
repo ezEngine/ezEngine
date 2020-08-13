@@ -213,8 +213,7 @@ static void CreateViews(
       renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
 
       pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
-      pView->SetViewport(
-        ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
+      pView->SetViewport(ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
 
       pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
 
@@ -304,8 +303,7 @@ struct ezReflectionPool::Data
       auto pUpdateInfo = sortedUpdateInfo.m_pUpdateInfo;
 
       auto& updateSteps = pUpdateInfo->m_UpdateSteps;
-      UpdateStep::Enum nextStep =
-        UpdateStep::NextStep(updateSteps.IsEmpty() ? pUpdateInfo->m_LastUpdateStep : updateSteps.PeekBack().m_UpdateStep);
+      UpdateStep::Enum nextStep = UpdateStep::NextStep(updateSteps.IsEmpty() ? pUpdateInfo->m_LastUpdateStep : updateSteps.PeekBack().m_UpdateStep);
 
       bool bNextProbe = false;
 
@@ -433,8 +431,7 @@ struct ezReflectionPool::Data
     }
   }
 
-  void AddViewToRender(
-    const ProbeUpdateInfo::Step& step, const ezReflectionProbeData& data, ProbeUpdateInfo& updateInfo, const ezVec3& vPosition)
+  void AddViewToRender(const ProbeUpdateInfo::Step& step, const ezReflectionProbeData& data, ProbeUpdateInfo& updateInfo, const ezVec3& vPosition)
   {
     ezVec3 vForward[6] = {
       ezVec3(1.0f, 0.0f, 0.0f),

@@ -24,7 +24,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
 
   if (atlasDesc.Load(m_Descriptor.m_sTextureAtlasDescFile).Failed())
   {
-    ezLog::Error("Failed to load texture atlas description '{0}'", m_Descriptor.m_sTextureAtlasDescFile);
+    ezLog::Error("Failed to load texture atlas description '{0}'", ezArgSensitive(m_Descriptor.m_sTextureAtlasDescFile, "File"));
     return EZ_FAILURE;
   }
 
@@ -83,7 +83,7 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
       {
         if (item.m_InputImage[layer].LoadFrom(srcItem.m_sLayerInput[layer]).Failed())
         {
-          ezLog::Error("Failed to load texture atlas texture '{0}'", srcItem.m_sLayerInput[layer]);
+          ezLog::Error("Failed to load texture atlas texture '{0}'", ezArgSensitive(srcItem.m_sLayerInput[layer], "File"));
           return EZ_FAILURE;
         }
 
@@ -232,7 +232,8 @@ ezResult ezTexConvProcessor::SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>
   return EZ_FAILURE;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
+ezResult ezTexConvProcessor::CreateAtlasTexture(
+  ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
 {
   ezImageHeader imgHeader;
   imgHeader.SetWidth(uiResX);
@@ -319,7 +320,8 @@ ezResult ezTexConvProcessor::FillAtlasBorders(ezDynamicArray<TextureAtlasItem>& 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
+ezResult ezTexConvProcessor::CreateAtlasLayerTexture(
+  const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
 {
   ezUInt32 uiTexWidth, uiTexHeight;
   EZ_SUCCEED_OR_RETURN(SortItemsIntoAtlas(atlasItems, uiTexWidth, uiTexHeight, layer));

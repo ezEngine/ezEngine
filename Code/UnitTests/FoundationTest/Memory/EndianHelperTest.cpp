@@ -15,12 +15,13 @@ namespace
 
   struct FloatAndInt
   {
-    union {
+    union
+    {
       float fVal;
       ezUInt32 uiVal;
     };
   };
-}
+} // namespace
 
 
 EZ_CREATE_SIMPLE_TEST(Memory, Endian)

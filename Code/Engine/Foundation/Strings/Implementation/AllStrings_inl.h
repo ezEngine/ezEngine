@@ -6,27 +6,27 @@
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(ezStringBuilder&& rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   *this = std::move(rhs);
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringBuilder& rhs)
-    : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezStringBuilder&& rhs)
-    : ezHybridStringBase<Size>(std::move(rhs), A::GetAllocator())
+  : ezHybridStringBase<Size>(std::move(rhs), A::GetAllocator())
 {
 }
 
@@ -78,4 +78,3 @@ void ezHybridStringBase<Size>::ReadAll(ezStreamReader& Stream)
 
   *this = (const char*)&Bytes[0];
 }
-

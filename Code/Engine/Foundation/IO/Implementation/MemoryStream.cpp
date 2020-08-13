@@ -16,8 +16,7 @@ ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRe
 {
   EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
-  const ezUInt32 uiBytes =
-    ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
+  const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
 
   if (uiBytes == 0)
     return 0;
@@ -34,8 +33,7 @@ ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
 {
   EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
-  const ezUInt32 uiBytes =
-    ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
+  const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
 
   m_uiReadPosition += uiBytes;
 
@@ -44,7 +42,7 @@ ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
 
 void ezMemoryStreamReader::SetReadPosition(ezUInt32 uiReadPosition)
 {
-  EZ_ASSERT_RELEASE(uiReadPosition < GetByteCount(), "Read position must be between 0 and GetByteCount()!");
+  EZ_ASSERT_RELEASE(uiReadPosition <= GetByteCount(), "Read position must be between 0 and GetByteCount()!");
   m_uiReadPosition = uiReadPosition;
 }
 
@@ -251,4 +249,3 @@ void ezRawMemoryStreamWriter::SetDebugSourceInformation(const char* szDebugSourc
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);
-

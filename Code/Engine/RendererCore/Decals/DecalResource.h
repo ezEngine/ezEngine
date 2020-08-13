@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
 
@@ -28,10 +28,12 @@ private:
 class EZ_RENDERERCORE_DLL ezDecalResourceLoader : public ezResourceTypeLoader
 {
 public:
-
   struct LoadedData
   {
-    LoadedData() : m_Reader(&m_Storage) { }
+    LoadedData()
+      : m_Reader(&m_Storage)
+    {
+    }
 
     ezMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
@@ -41,4 +43,3 @@ public:
   virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };
-

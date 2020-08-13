@@ -1,5 +1,5 @@
 #ifdef EZ_ATOMICUTLS_WIN_INL_H_INCLUDED
-#error "This file must not be included twice."
+#  error "This file must not be included twice."
 #endif
 
 #define EZ_ATOMICUTLS_WIN_INL_H_INCLUDED
@@ -15,7 +15,7 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& src)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
-  do 
+  do
   {
     old = src;
   } while (_InterlockedCompareExchange64(const_cast<volatile ezInt64*>(&src), old, old) != old);

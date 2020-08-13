@@ -98,9 +98,8 @@ static void WriteGraph(ezOpenDdlWriter& writer, const ezAbstractObjectGraph* pGr
   writer.EndObject();
 }
 
-void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph,
-                                         const ezAbstractObjectGraph* pTypesGraph, bool bCompactMmode,
-                                         ezOpenDdlWriter::TypeStringMode typeMode)
+void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph,
+  bool bCompactMmode, ezOpenDdlWriter::TypeStringMode typeMode)
 {
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&stream);
@@ -115,8 +114,8 @@ void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstrac
 }
 
 
-void ezAbstractGraphDdlSerializer::Write(ezOpenDdlWriter& writer, const ezAbstractObjectGraph* pGraph,
-                                         const ezAbstractObjectGraph* pTypesGraph /*= nullptr*/)
+void ezAbstractGraphDdlSerializer::Write(
+  ezOpenDdlWriter& writer, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph /*= nullptr*/)
 {
   WriteGraph(writer, pGraph, "Objects");
   if (pTypesGraph)
@@ -179,8 +178,8 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
   }
 }
 
-ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph,
-                                            bool bApplyPatches)
+ezResult ezAbstractGraphDdlSerializer::Read(
+  ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
   ezOpenDdlReader reader;
   if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
@@ -194,7 +193,7 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
 
 
 ezResult ezAbstractGraphDdlSerializer::Read(const ezOpenDdlReaderElement* pRootElement, ezAbstractObjectGraph* pGraph,
-                                            ezAbstractObjectGraph* pTypesGraph /*= nullptr*/, bool bApplyPatches /*= true*/)
+  ezAbstractObjectGraph* pTypesGraph /*= nullptr*/, bool bApplyPatches /*= true*/)
 {
   const ezOpenDdlReaderElement* pObjects = pRootElement->FindChildOfType("Objects");
   if (pObjects != nullptr)
@@ -251,9 +250,8 @@ ezResult ezAbstractGraphDdlSerializer::ReadBlocks(ezStreamReader& stream, ezHybr
 
 #define EZ_DOCUMENT_VERSION 2
 
-void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& stream, const ezAbstractObjectGraph* pHeader,
-                                                 const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypes,
-                                                 bool bCompactMode, ezOpenDdlWriter::TypeStringMode typeMode)
+void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& stream, const ezAbstractObjectGraph* pHeader, const ezAbstractObjectGraph* pGraph,
+  const ezAbstractObjectGraph* pTypes, bool bCompactMode, ezOpenDdlWriter::TypeStringMode typeMode)
 {
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&stream);
@@ -272,8 +270,7 @@ void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& stream, const e
 }
 
 ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUniquePtr<ezAbstractObjectGraph>& pHeader,
-                                                    ezUniquePtr<ezAbstractObjectGraph>& pGraph, ezUniquePtr<ezAbstractObjectGraph>& pTypes,
-                                                    bool bApplyPatches)
+  ezUniquePtr<ezAbstractObjectGraph>& pGraph, ezUniquePtr<ezAbstractObjectGraph>& pTypes, bool bApplyPatches)
 {
   ezHybridArray<ezSerializedBlock, 3> blocks;
   if (ReadBlocks(stream, blocks).Failed())
@@ -307,7 +304,7 @@ ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUn
     ezAbstractObjectGraph& graph = *pOB->m_Graph.Borrow();
     auto* pHeaderNode = graph.GetNodeByName("Header");
     ezAbstractObjectGraph& headerGraph = *pHB->m_Graph.Borrow();
-    /*auto* pNewHeaderNode =*/ headerGraph.CopyNodeIntoGraph(pHeaderNode);
+    /*auto* pNewHeaderNode =*/headerGraph.CopyNodeIntoGraph(pHeaderNode);
     // pNewHeaderNode->AddProperty("DocVersion", iVersion);
     graph.RemoveNode(pHeaderNode->GetGuid());
   }
@@ -455,4 +452,3 @@ ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& stream, ezAbst
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_DdlSerializer);
-

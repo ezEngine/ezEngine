@@ -47,8 +47,8 @@ void ezQtLogMessageDock::currentTestSelectionChanged(const ezTestResultData* pTe
 ////////////////////////////////////////////////////////////////////////
 
 ezQtLogMessageModel::ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult)
-    : QAbstractItemModel(pParent)
-    , m_pTestResult(pResult)
+  : QAbstractItemModel(pParent)
+  , m_pTestResult(pResult)
 {
 }
 
@@ -129,11 +129,10 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
       if (pError != nullptr)
       {
         QString sBlockStart = QLatin1String("\n") % QString((uiIndention + 1) * 3, ' ');
-        QString sBlockName = pError->m_sBlock.empty() ? QLatin1String("")
-                                                      : (sBlockStart % QLatin1String("Block: ") + QLatin1String(pError->m_sBlock.c_str()));
-        QString sMessage = pError->m_sMessage.empty()
-                               ? QLatin1String("")
-                               : (sBlockStart % QLatin1String("Message: ") + QLatin1String(pError->m_sMessage.c_str()));
+        QString sBlockName =
+          pError->m_sBlock.empty() ? QLatin1String("") : (sBlockStart % QLatin1String("Block: ") + QLatin1String(pError->m_sBlock.c_str()));
+        QString sMessage =
+          pError->m_sMessage.empty() ? QLatin1String("") : (sBlockStart % QLatin1String("Message: ") + QLatin1String(pError->m_sMessage.c_str()));
         QString sErrorMessage = QString(uiIndention * 3, ' ') % QString(Message.m_sMessage.c_str()) % sBlockName % sBlockStart %
                                 QLatin1String("File: ") % QLatin1String(pError->m_sFile.c_str()) % sBlockStart % QLatin1String("Line: ") %
                                 QString::number(pError->m_iLine) % sBlockStart % QLatin1String("Function: ") %
@@ -265,4 +264,3 @@ void ezQtLogMessageModel::UpdateVisibleEntries()
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtLogMessageDock);
-

@@ -28,7 +28,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezVisualizerAdapterRegistry::ezVisualizerAdapterRegistry()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   ezVisualizerManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapterRegistry::VisualizerManagerEventHandler, this));
 }

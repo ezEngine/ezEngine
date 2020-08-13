@@ -70,8 +70,8 @@ struct EZ_CORE_DLL ezInputActionConfig
   {
     ActivateImmediately, ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots
                          ///< are already pressed for some time.
-    RequireKeyUp, ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots
-                  ///< that are used for filtering are actually within valid ranges.
+    RequireKeyUp,        ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots
+                         ///< that are used for filtering are actually within valid ranges.
   };
 
   OnLeaveArea m_OnLeaveArea; ///< =LoseFocus
@@ -176,7 +176,7 @@ public:
   ///   For most actions this should be set to true. However, if you have several actions that can be triggered by the same slot
   ///   (for example touch input) but only in different areas of the screen, this should be set to false.
   static void SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config,
-                                   bool bClearPreviousInputMappings); // [tested]
+    bool bClearPreviousInputMappings); // [tested]
 
   /// \brief Returns the configuration for the given input action in the given input set. Returns a default configuration, if the action
   /// does not exist.
@@ -192,7 +192,7 @@ public:
   /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which game-play
   /// functions to execute. You can (and should) use the /a pValue to scale game play features (e.g. how fast to drive).
   static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = nullptr,
-                                              ezInt8* iTriggeredSlot = nullptr); // [tested]
+    ezInt8* iTriggeredSlot = nullptr); // [tested]
 
   /// \brief Sets the display name for the given action.
   static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
@@ -208,7 +208,7 @@ public:
 
   /// \brief This can be used to pass input exclusively to this input set and no others.
   ///
-  /// Querying input from other input sets will always return 'key up.
+  /// Querying input from other input sets will always return 'key up'.
   static void SetExclusiveInputSet(const char* szExclusiveSet) { s_sExclusiveInputSet = szExclusiveSet; }
 
   /// \brief Returns whether any input set gets input exclusively.
@@ -361,4 +361,3 @@ private:
 
   static InternalData* s_pData;
 };
-

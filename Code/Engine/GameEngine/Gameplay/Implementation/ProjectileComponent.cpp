@@ -23,7 +23,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
   {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
-    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction),
+    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
     EZ_MEMBER_PROPERTY("Damage", m_fDamage),
   }
@@ -52,7 +52,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::OrangeRed),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.4f, ezColor::OrangeRed),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -115,8 +115,11 @@ void ezProjectileComponent::Update()
     if (!vCurDirection.IsZero())
       fDistance = vCurDirection.GetLengthAndNormalize();
 
+    ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
+    queryParams.m_bIgnoreInitialOverlap = true;
+
     ezPhysicsCastResult castResult;
-    if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, ezPhysicsQueryParameters(m_uiCollisionLayer)))
+    if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, queryParams))
     {
       const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
 
@@ -133,7 +136,8 @@ void ezProjectileComponent::Update()
 
         if (!interaction.m_sInteraction.IsEmpty())
         {
-          TriggerSurfaceInteraction(hSurface, castResult.m_hActorObject, castResult.m_vPosition, castResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
+          TriggerSurfaceInteraction(
+            hSurface, castResult.m_hActorObject, castResult.m_vPosition, castResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
         }
 
         // if we hit some valid object
@@ -323,12 +327,11 @@ ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHan
 }
 
 
-void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject,
-  const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
+void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos,
+  const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
 {
   ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
-  pSurface->InteractWithSurface(
-    GetWorld(), hObject, vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
+  pSurface->InteractWithSurface(GetWorld(), hObject, vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
 }
 
 
@@ -339,7 +342,7 @@ void ezProjectileComponent::OnSimulationStarted()
     ezMsgComponentInternalTrigger msg;
     msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
 
-    PostMessage(msg, ezObjectMsgQueueType::NextFrame, m_MaxLifetime);
+    PostMessage(msg, m_MaxLifetime);
 
     // make sure the prefab is available when the projectile dies
     if (m_hTimeoutPrefab.IsValid())

@@ -24,7 +24,7 @@ export class Color {
     a: number;
 
     /**
-     * Constrcuts a custom color or default initializes it to black (alpha = 1)
+     * Constructs a custom color or default initializes it to black (alpha = 1)
      * 
      * @param r Red in [0; 1] linear range.
      * @param g Green in [0; 1] linear range.
@@ -70,7 +70,7 @@ export class Color {
     }
 
     /**
-     * Converts a color value from Linear space to Gamme space.
+     * Converts a color value from Linear space to Gamma space.
      * 
      * @param linear A color value (red, green or blue) in Linear space.
      * @returns The converted value in Gamma space.
@@ -112,7 +112,7 @@ export class Color {
     /**
      * Sets RGB and Alpha values in Linear space, [0; 1] range.
      */
-    SetLinearRGBA(r: number, g: number, b: number, a: number): void { // [tested]
+    SetLinearRGBA(r: number, g: number, b: number, a: number = 1.0): void { // [tested]
         this.r = r;
         this.g = g;
         this.b = b;

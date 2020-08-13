@@ -55,11 +55,13 @@ struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
   static ezResult EncodeTexCoord(const ezVec2& texCoord, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
 
   static ezResult DecodeNormal(ezArrayPtr<const ezUInt8> source, ezVec3& destNormal, ezMeshNormalPrecision::Enum normalPrecision);
-  static ezResult DecodeTangent(ezArrayPtr<const ezUInt8> source, ezVec3& destTangent, float& destBiTangentSign, ezMeshNormalPrecision::Enum tangentPrecision);
+  static ezResult DecodeTangent(
+    ezArrayPtr<const ezUInt8> source, ezVec3& destTangent, float& destBiTangentSign, ezMeshNormalPrecision::Enum tangentPrecision);
   static ezResult DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezVec2& destTexCoord, ezMeshTexCoordPrecision::Enum texCoordPrecision);
 
   static ezResult DecodeNormal(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destNormal);
-  static ezResult DecodeTangent(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destTangent, float& destBiTangentSign);
+  static ezResult DecodeTangent(
+    ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destTangent, float& destBiTangentSign);
   static ezResult DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& destTexCoord);
 
   // low level conversion functions

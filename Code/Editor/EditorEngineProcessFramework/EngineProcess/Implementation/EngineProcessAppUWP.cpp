@@ -9,12 +9,12 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-#include <GameEngine/MixedReality/MixedRealityFramework.h>
-#include <WindowsMixedReality/HolographicSpace.h>
-#include <WindowsMixedReality/SpatialAnchor.h>
-#include <WindowsMixedReality/SpatialLocationService.h>
-#include <WindowsMixedReality/SpatialReferenceFrame.h>
-#include <windows.perception.spatial.h>
+#  include <GameEngine/MixedReality/MixedRealityFramework.h>
+#  include <WindowsMixedReality/HolographicSpace.h>
+#  include <WindowsMixedReality/SpatialAnchor.h>
+#  include <WindowsMixedReality/SpatialLocationService.h>
+#  include <WindowsMixedReality/SpatialReferenceFrame.h>
+#  include <windows.perception.spatial.h>
 #endif
 
 ezEditorEngineProcessAppUWP::ezEditorEngineProcessAppUWP() {}

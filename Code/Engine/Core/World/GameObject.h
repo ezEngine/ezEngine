@@ -30,7 +30,7 @@ struct ezEventMessage;
 /// \see ezWorld
 /// \see ezComponent
 /// \see ezGameObjectHandle
-class EZ_CORE_DLL ezGameObject
+class EZ_CORE_DLL ezGameObject final
 {
 private:
   enum
@@ -60,7 +60,7 @@ public:
     const ezGameObject& operator*() const;
     const ezGameObject* operator->() const;
 
-    operator const ezGameObject*() const;
+    operator const ezGameObject *() const;
 
     /// \brief Advances the iterator to the next child object. The iterator will not be valid anymore, if the last child is reached.
     void Next();
@@ -122,7 +122,8 @@ public:
   /// \sa IsActive(), ezComponent::SetActiveFlag()
   void SetActiveFlag(bool bEnabled);
 
-  /// \brief Checks whether the 'active flag' is set on this game object. Note that this does not mean that the game object is also in an 'active state'.
+  /// \brief Checks whether the 'active flag' is set on this game object. Note that this does not mean that the game object is also in an 'active
+  /// state'.
   ///
   /// \sa IsActive(), SetActiveFlag()
   bool GetActiveFlag() const;
@@ -147,7 +148,8 @@ public:
   void SetGlobalKey(const ezHashedString& sGlobalKey);
   const char* GetGlobalKey() const;
 
-  /// \brief Enables or disabled notification message when children are added or removed. The notification message is sent to this object and all its parent objects.
+  /// \brief Enables or disabled notification message when children are added or removed. The notification message is sent to this object and all its
+  /// parent objects.
   void EnableChildChangesNotifications();
   void DisableChildChangesNotifications();
 
@@ -171,15 +173,15 @@ public:
   void AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects.
-  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-    ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChildren(
+    const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
-  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-    ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChildren(
+    const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -212,8 +214,7 @@ public:
   ezGameObject* SearchForChildByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
-  void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
-    ezHybridArray<ezGameObject*, 8>& out_Objects);
+  void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
@@ -328,7 +329,8 @@ public:
   /// \brief Returns a handle to the internal spatial data.
   ezSpatialDataHandle GetSpatialData() const;
 
-  /// \brief Enables or disabled notification message when components are added or removed. The notification message is sent to this object and all its parent objects.
+  /// \brief Enables or disabled notification message when components are added or removed. The notification message is sent to this object and all
+  /// its parent objects.
   void EnableComponentChangesNotifications();
   void DisableComponentChangesNotifications();
 
@@ -381,10 +383,10 @@ public:
 
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerComponent.
   ///
@@ -418,7 +420,9 @@ public:
   ///
   /// \param queueType In which update phase to deliver the message.
   /// \param delay An optional delay before delivering the message.
-  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay,
+    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+
 
   /// \brief Returns the tag set associated with this object.
   ezTagSet& GetTags();
@@ -530,7 +534,7 @@ private:
   ezUInt32 m_ParentIndex = 0;
   ezUInt32 m_FirstChildIndex = 0;
   ezUInt32 m_LastChildIndex = 0;
-  
+
   ezUInt32 m_NextSiblingIndex = 0;
   ezUInt32 m_PrevSiblingIndex = 0;
   ezUInt32 m_ChildCount = 0;
@@ -539,7 +543,7 @@ private:
 
   /// An int that will be passed on to objects spawned from this one, which allows to identify which team or player it belongs to.
   ezUInt16 m_uiTeamID = 0;
-  
+
   TransformationData* m_pTransformationData = nullptr;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)

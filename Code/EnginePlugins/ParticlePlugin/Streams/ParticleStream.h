@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ParticlePlugin/ParticlePluginDLL.h>
-#include <ParticlePlugin/Declarations.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <ParticlePlugin/Declarations.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 class ezParticleStream;
 class ezParticleSystemInstance;

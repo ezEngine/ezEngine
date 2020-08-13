@@ -1,5 +1,5 @@
-
 #include <FoundationPCH.h>
+
 #include <Foundation/IO/StringDeduplicationContext.h>
 
 static const ezTypeVersion s_uiStringDeduplicationVersion = 1;
@@ -38,7 +38,7 @@ ezResult ezStringDeduplicationWriteContext::End()
 
   // Build a new map from index to string so we can use a plain
   // array for serialization and lookup purposes
-  for(const auto& it : m_DeduplicatedStrings)
+  for (const auto& it : m_DeduplicatedStrings)
   {
     StringsSortedByIndex.Insert(it.Value(), std::move(it.Key()));
   }
@@ -60,7 +60,7 @@ void ezStringDeduplicationWriteContext::SerializeString(const ezStringView& Stri
   bool bAlreadDeduplicated = false;
   auto it = m_DeduplicatedStrings.FindOrAdd(String, &bAlreadDeduplicated);
 
-  if(!bAlreadDeduplicated)
+  if (!bAlreadDeduplicated)
   {
     it.Value() = m_DeduplicatedStrings.GetCount() - 1;
   }
@@ -83,12 +83,12 @@ ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReade
   SetContext(nullptr);
 
   // Read the string table first
-  /*auto version =*/ Stream.ReadVersion(s_uiStringDeduplicationVersion);
+  /*auto version =*/Stream.ReadVersion(s_uiStringDeduplicationVersion);
 
   ezUInt64 uiNumEntries = 0;
   Stream >> uiNumEntries;
 
-  for(ezUInt64 i = 0; i < uiNumEntries; ++i)
+  for (ezUInt64 i = 0; i < uiNumEntries; ++i)
   {
     ezStringBuilder Builder;
     Stream >> Builder;
@@ -111,4 +111,3 @@ ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader&
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StringDeduplicationContext);
-

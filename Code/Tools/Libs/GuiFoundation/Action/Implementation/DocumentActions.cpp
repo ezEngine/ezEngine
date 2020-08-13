@@ -35,17 +35,17 @@ ezActionDescriptorHandle ezDocumentActions::s_hDocumentCategory;
 void ezDocumentActions::RegisterActions()
 {
   s_hSaveCategory = EZ_REGISTER_CATEGORY("SaveCategory");
-  s_hSave = EZ_REGISTER_ACTION_1(
-    "Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
+  s_hSave =
+    EZ_REGISTER_ACTION_1("Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
   s_hSaveAll = EZ_REGISTER_ACTION_1(
     "Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
-  s_hSaveAs = EZ_REGISTER_ACTION_1(
-    "Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
+  s_hSaveAs =
+    EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
   s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
-  s_hClose = EZ_REGISTER_ACTION_1(
-    "Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
-  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction,
-    ezDocumentAction::ButtonType::OpenContainingFolder);
+  s_hClose =
+    EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
+  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1(
+    "Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
   s_hCopyAssetGuid = EZ_REGISTER_ACTION_1(
     "Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("Tools.DocumentCategory");
@@ -204,8 +204,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
         sAllFilters.Append(desc->m_sDocumentTypeName, " (*.", desc->m_sFileExtension, ")");
         QString sSelectedExt;
         ezString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"),
-          m_Context.m_pDocument->GetDocumentPath(), QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt,
-          QFileDialog::Option::DontResolveSymlinks)
+          m_Context.m_pDocument->GetDocumentPath(), QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
                            .toUtf8()
                            .data();
 
@@ -213,8 +212,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
         {
           ezUuid newDoc;
           newDoc.CreateNewUuid();
-          ezStatus res =
-            m_Context.m_pDocument->GetDocumentManager()->CloneDocument(m_Context.m_pDocument->GetDocumentPath(), sFile, newDoc);
+          ezStatus res = m_Context.m_pDocument->GetDocumentManager()->CloneDocument(m_Context.m_pDocument->GetDocumentPath(), sFile, newDoc);
 
           if (res.Failed())
           {

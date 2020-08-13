@@ -2,7 +2,10 @@
 ALL
 
 [PERMUTATIONS]
+
 PRE_TRANSFORMED_VERTICES
+CAMERA_MODE
+TOPOLOGY
 
 [RENDERSTATE]
 
@@ -26,6 +29,10 @@ DepthTest = true
 
 VS_OUT main(VS_IN Input)
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.InstanceID % 2;
+#endif
+
   VS_OUT RetVal;
 
   #if PRE_TRANSFORMED_VERTICES
@@ -36,17 +43,24 @@ VS_OUT main(VS_IN Input)
   #endif
 
   RetVal.Color0 = Input.Color0;
-  RetVal.InstanceID = 0;
+  RetVal.InstanceID = Input.InstanceID;
 
   return RetVal;
 }
 
+[GEOMETRYSHADER]
+
+#define USE_COLOR0
+
+#include <Shaders/Materials/StereoGeometryShader.h>
 
 [PIXELSHADER]
 
 #define USE_COLOR0
 
+
 #include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Common/GlobalConstants.h>
 
 float4 main(PS_IN Input) : SV_Target
 {

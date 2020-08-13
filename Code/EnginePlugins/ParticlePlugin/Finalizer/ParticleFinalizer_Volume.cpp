@@ -5,9 +5,9 @@
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <ParticlePlugin/Finalizer/ParticleFinalizer_Volume.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_Volume.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off

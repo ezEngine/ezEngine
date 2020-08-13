@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <QDialog>
-#include <GuiFoundation/ui_PickDocumentObjectDlg.h>
 #include <Foundation/Strings/String.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
+#include <GuiFoundation/ui_PickDocumentObjectDlg.h>
+#include <QDialog>
 
 class ezDocumentObject;
 
@@ -32,4 +32,3 @@ private:
   ezArrayPtr<Element> m_Objects;
   ezUuid m_CurrentObject;
 };
-

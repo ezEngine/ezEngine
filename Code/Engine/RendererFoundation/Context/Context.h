@@ -1,18 +1,17 @@
 
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererFoundation/Context/ContextState.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <RendererFoundation/Context/ContextState.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezGALDevice;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALContext
 {
 public:
-
   // Draw functions
 
   /// \brief Clears active rendertargets.
@@ -20,7 +19,7 @@ public:
   /// \param uiRenderTargetClearMask
   ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
   void Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true,
-              float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
+    float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
 
   /// Clears an unordered access view with a float value.
   void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues);
@@ -114,15 +113,19 @@ public:
 
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
 
-  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::Discard);
+  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
+    ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::Discard);
 
   void CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource);
 
-  void CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box);
+  void CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint,
+    ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box);
 
-  void UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData);
+  void UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox,
+    const ezGALSystemMemoryDescription& pSourceData);
 
-  void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource);
+  void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource,
+    const ezGALTextureSubresource& SourceSubResource);
 
   void ReadbackTexture(ezGALTextureHandle hTexture);
 
@@ -147,7 +150,6 @@ public:
   ezGALDevice* GetDevice() const;
 
 protected:
-
   friend class ezGALDevice;
 
   ezGALContext(ezGALDevice* pDevice);
@@ -157,7 +159,8 @@ protected:
 
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
+  virtual void ClearPlatform(
+    const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
 
   virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) = 0;
 
@@ -206,7 +209,8 @@ protected:
 
   virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) = 0;
 
-  virtual void SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRenderTargetView*> pRenderTargetViews, const ezGALRenderTargetView* pDepthStencilView) = 0;
+  virtual void SetRenderTargetSetupPlatform(
+    ezArrayPtr<const ezGALRenderTargetView*> pRenderTargetViews, const ezGALRenderTargetView* pDepthStencilView) = 0;
 
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
 
@@ -244,17 +248,23 @@ protected:
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) = 0;
 
-  virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
+  virtual void CopyBufferRegionPlatform(
+    const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
 
-  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode) = 0;
+  virtual void UpdateBufferPlatform(
+    const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode) = 0;
 
   virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) = 0;
 
-  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box) = 0;
+  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+    const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource,
+    const ezBoundingBoxu32& Box) = 0;
 
-  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) = 0;
+  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+    const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) = 0;
 
-  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) = 0;
+  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+    const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) = 0;
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) = 0;
 
@@ -284,7 +294,6 @@ protected:
   bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
 
 private:
-
   friend class ezMemoryUtils;
 
   void CountDrawCall();
@@ -314,4 +323,3 @@ private:
 };
 
 #include <RendererFoundation/Context/Implementation/Context_inl.h>
-

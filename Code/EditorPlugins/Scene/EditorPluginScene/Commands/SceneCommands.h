@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Command/Command.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezRandomGauss;
 
@@ -38,7 +38,8 @@ private:
   void DeserializeGraph(ezAbstractObjectGraph& graph);
 
   void CreateOneDuplicate(ezAbstractObjectGraph& graph, ezHybridArray<ezDocument::PasteInfo, 16>& ToBePasted);
-  void AdjustObjectPositions(ezHybridArray<ezDocument::PasteInfo, 16>& Duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ);
+  void AdjustObjectPositions(ezHybridArray<ezDocument::PasteInfo, 16>& Duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX,
+    ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ);
 
   virtual ezStatus UndoInternal(bool bFireEvents) override;
   virtual void CleanupInternal(CommandState state) override;
@@ -55,4 +56,3 @@ private:
   ezDeque<const ezDocumentObject*> m_OriginalSelection;
   ezHybridArray<DuplicatedObject, 4> m_DuplicatedObjects;
 };
-

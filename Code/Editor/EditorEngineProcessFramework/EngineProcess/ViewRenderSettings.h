@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Core/Graphics/Camera.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <RendererCore/Pipeline/ViewRenderMode.h>
 
@@ -18,7 +18,6 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewPerspective
 
     Default = Perspective
   };
-
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORENGINEPROCESSFRAMEWORK_DLL, ezSceneViewPerspective);
 
@@ -42,7 +41,3 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewConfig
 
   void ApplyPerspectiveSetting(float fov = 0.0f, float nearPlane = 0.1f, float farPlane = 1000.0f);
 };
-
-
-
-

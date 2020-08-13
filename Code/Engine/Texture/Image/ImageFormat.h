@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Texture/TextureDLL.h>
-#include <Texture/Image/ImageEnums.h>
 #include <Foundation/Types/Types.h>
+#include <Texture/Image/ImageEnums.h>
+#include <Texture/TextureDLL.h>
 
 /// \brief Enum describing the type of an image format.
 struct EZ_TEXTURE_DLL ezImageFormatType
@@ -299,8 +299,8 @@ struct EZ_TEXTURE_DLL ezImageFormat
   static ezImageFormatType::Enum GetType(Enum format);
 
   /// \brief Finds a format matching the given component masks.
-  static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask,
-                                           ezUInt32 uiBitsPerPixel);
+  static ezImageFormat::Enum FromPixelMask(
+    ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel);
 
   /// \brief Returns true if the data formats are compatible, i.e. can be copied into one another
   static bool IsCompatible(Enum left, Enum right);

@@ -24,7 +24,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezEditorPreferencesUser::ezEditorPreferencesUser()
-    : ezPreferences(Domain::Application, "General")
+  : ezPreferences(Domain::Application, "General")
 {
 }
 

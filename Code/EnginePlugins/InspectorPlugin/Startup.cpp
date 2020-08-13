@@ -8,7 +8,7 @@ namespace StartupDetail
 {
   static void SendSubsystemTelemetry();
   static ezInt32 s_iSendSubSystemTelemetry = 0;
-}
+} // namespace StartupDetail
 
 EZ_ON_GLOBAL_EVENT(ezStartup_StartupCoreSystems_End)
 {
@@ -82,7 +82,7 @@ namespace StartupDetail
         break;
     }
   }
-}
+} // namespace StartupDetail
 
 void AddStartupEventHandler()
 {

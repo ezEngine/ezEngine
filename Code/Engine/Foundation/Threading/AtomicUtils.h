@@ -85,19 +85,24 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
   /// \brief Sets dest to value as an atomic operation and returns the original value of dest.
   static ezInt64 Set(volatile ezInt64& dest, ezInt64 value); // [tested]
 
-  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the function returns false.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
+  /// function returns false.
   static bool TestAndSet(volatile ezInt32& dest, ezInt32 expected, ezInt32 value); // [tested]
 
-  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the function returns false.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
+  /// function returns false.
   static bool TestAndSet(volatile ezInt64& dest, ezInt64 expected, ezInt64 value); // [tested]
 
-  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the function returns false.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
+  /// function returns false.
   static bool TestAndSet(void** volatile dest, void* expected, void* value); // [tested]
 
-  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value of *dest* before the modification.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value
+  /// of *dest* before the modification.
   static ezInt32 CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value); // [tested]
 
-  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value of *dest* before the modification.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value
+  /// of *dest* before the modification.
   static ezInt64 CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value); // [tested]
 };
 

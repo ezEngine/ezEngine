@@ -21,7 +21,7 @@ public:
   // Means this object can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
   // *** Data ***
 public:
@@ -38,7 +38,8 @@ public:
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
+                               "all code-paths properly initialize this object.");
   }
 #endif
 
@@ -50,7 +51,8 @@ public:
   /// \brief Sets the Quaternion to the identity.
   void SetIdentity(); // [tested]
 
-  /// \brief Sets the individual elements of the quaternion directly. Note that x,y,z do NOT represent a rotation axis, and w does NOT represent an angle.
+  /// \brief Sets the individual elements of the quaternion directly. Note that x,y,z do NOT represent a rotation axis, and w does NOT represent an
+  /// angle.
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
   void SetElements(Type X, Type Y, Type Z, Type W); // [tested]
@@ -99,6 +101,11 @@ public:
   /// \brief Returns a Quaternion that represents the negative / inverted rotation.
   const ezQuatTemplate operator-() const; // [tested]
 
+  // *** Common Quaternion operations ***
+public:
+  /// \brief Returns the dot-product of the two quaternions (commutative, order does not matter).
+  Type Dot(const ezQuatTemplate& rhs) const; // [tested]
+
   // *** Euler Angle Conversions ***
 public:
   /// \brief Converts the quaternion to Euler angles
@@ -123,4 +130,3 @@ template <typename Type>
 bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2); // [tested]
 
 #include <Foundation/Math/Implementation/Quat_inl.h>
-

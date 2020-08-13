@@ -77,9 +77,7 @@ public:
     AllFlags = 0xFFFFFFFF
   };
 
-  ezGameObjectMetaData()
-  {
-  }
+  ezGameObjectMetaData() {}
 
   ezString m_CachedNodeName;
   QIcon m_Icon;
@@ -98,7 +96,8 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
 
 public:
-  ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
+  ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager,
+    ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
 
   virtual ezEditorInputContext* GetEditorInputContextOverride() override;
@@ -115,7 +114,8 @@ public:
   /// \brief Checks whether an edit tool of the given type, or nullptr for none, is active.
   bool IsActiveEditTool(const ezRTTI* pEditToolType) const;
 
-  /// \brief Needs to be called by some higher level code (usually the DocumentWindow) to react to newly created edit tools to configure them (call ezGameObjectEditTool::ConfigureTool()).
+  /// \brief Needs to be called by some higher level code (usually the DocumentWindow) to react to newly created edit tools to configure them (call
+  /// ezGameObjectEditTool::ConfigureTool()).
   void SetEditToolConfigDelegate(ezDelegate<void(ezGameObjectEditTool*)> configDelegate);
 
   void SetGizmoWorldSpace(bool bWorldSpace);
@@ -189,7 +189,8 @@ public:
   ///@{
 
   /// \brief Sets the new global transformation of the given object.
-  /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus some work can be spared.
+  /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus
+  /// some work can be spared.
   void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
 
   /// \brief Same as SetGlobalTransform, except that all children will keep their current global transform (thus their local transforms are adjusted)
@@ -216,8 +217,10 @@ public:
   /// \brief Generates a good name for pObject. Queries the "Name" property, child components and asset properties, if necessary.
   void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon = nullptr) const;
 
-  /// \brief Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give an outdated result.
-  void QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
+  /// \brief Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give an
+  /// outdated result.
+  void QueryCachedNodeName(
+    const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
 
   /// \brief Creates a full "path" to a scene object for display in UIs. No guarantee for uniqueness.
   void GenerateFullDisplayName(const ezDocumentObject* pRoot, ezStringBuilder& out_sFullPath) const;
@@ -232,7 +235,8 @@ public:
 
 protected:
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;
-  /// \brief Sends the current state of the scene to the engine process. This is typically done after scene load or when the world might have deviated on the engine side (after play the game etc.)
+  /// \brief Sends the current state of the scene to the engine process. This is typically done after scene load or when the world might have deviated
+  /// on the engine side (after play the game etc.)
   void SendGameWorldToEngine();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;

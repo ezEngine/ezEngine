@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Math/Color.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QWidget>
 
 class EZ_GUIFOUNDATION_DLL ezQtColorAreaWidget : public QWidget
@@ -23,9 +23,9 @@ Q_SIGNALS:
   void valueChanged(double x, double y);
 
 protected:
-  virtual void paintEvent(QPaintEvent *) override;
-  virtual void mouseMoveEvent(QMouseEvent *) override;
-  virtual void mousePressEvent(QMouseEvent *) override;
+  virtual void paintEvent(QPaintEvent*) override;
+  virtual void mouseMoveEvent(QMouseEvent*) override;
+  virtual void mousePressEvent(QMouseEvent*) override;
 
   void UpdateImage();
 
@@ -48,9 +48,9 @@ Q_SIGNALS:
   void valueChanged(double x);
 
 protected:
-  virtual void paintEvent(QPaintEvent *) override;
-  virtual void mouseMoveEvent(QMouseEvent *) override;
-  virtual void mousePressEvent(QMouseEvent *) override;
+  virtual void paintEvent(QPaintEvent*) override;
+  virtual void mouseMoveEvent(QMouseEvent*) override;
+  virtual void mousePressEvent(QMouseEvent*) override;
 
   void UpdateImage();
 
@@ -68,7 +68,7 @@ public:
   void SetInitialColor(const ezColor& color);
 
 protected:
-  virtual void paintEvent(QPaintEvent *) override;
+  virtual void paintEvent(QPaintEvent*) override;
 
   ezColor m_InitialColor;
   ezColor m_NewColor;

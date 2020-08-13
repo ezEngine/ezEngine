@@ -8,8 +8,8 @@
 #include <ToolsFoundation/Document/Document.h>
 
 ezQtNode::ezQtNode()
-    : m_pManager(nullptr)
-    , m_pObject(nullptr)
+  : m_pManager(nullptr)
+  , m_pObject(nullptr)
 {
   auto palette = QApplication::palette();
 

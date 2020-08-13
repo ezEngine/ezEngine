@@ -4,7 +4,7 @@
 #include <Foundation/Threading/ThreadUtils.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-#include <enet/enet.h>
+#  include <enet/enet.h>
 #endif
 
 class ezTelemetryThread;
@@ -75,7 +75,7 @@ void ezTelemetry::UpdateNetwork()
         if (s_ConnectionMode == Client)
         {
           char szHostIP[64] = "<unknown>";
-          //char szHostName[64] = "<unknown>";
+          // char szHostName[64] = "<unknown>";
 
           enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
 
@@ -195,8 +195,7 @@ void ezTelemetry::UpdateNetwork()
 
             Msg.SetMessageID(uiSystemID, uiMsgID);
 
-            EZ_ASSERT_DEV(
-              (ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
+            EZ_ASSERT_DEV((ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
 
             Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8);
           }

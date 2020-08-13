@@ -506,4 +506,3 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CopySign(const ezSimdVec4f& magnitude,
 
   return result;
 }
-

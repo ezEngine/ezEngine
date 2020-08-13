@@ -94,7 +94,8 @@ void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezB
     auto& includeTags = pGraphSharedData->GetTagSet(tagSetIndex);
 
     auto& volumeCollection = volumeCollections.ExpandAndGetRef();
-    ezVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, includeTags, volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
+    ezVolumeCollection::ExtractVolumesInBox(
+      world, box, s_ProcVolumeCategory, includeTags, volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
 
     volumes.EnsureCount(tagSetIndex + 1);
     volumes[tagSetIndex] = ezVariant(&volumeCollection);

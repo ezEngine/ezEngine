@@ -44,10 +44,8 @@ void ezVolumeCollection::Shape::SetGlobalToLocalTransform(const ezSimdMat4f& t)
 ezSimdMat4f ezVolumeCollection::Shape::GetGlobalToLocalTransform() const
 {
   ezSimdMat4f m;
-  m.SetRows(ezSimdConversion::ToVec4(m_GlobalToLocalTransform0),
-    ezSimdConversion::ToVec4(m_GlobalToLocalTransform1),
-    ezSimdConversion::ToVec4(m_GlobalToLocalTransform2),
-    ezSimdVec4f(0, 0, 0, 1));
+  m.SetRows(ezSimdConversion::ToVec4(m_GlobalToLocalTransform0), ezSimdConversion::ToVec4(m_GlobalToLocalTransform1),
+    ezSimdConversion::ToVec4(m_GlobalToLocalTransform2), ezSimdVec4f(0, 0, 0, 1));
 
   return m;
 }
@@ -57,7 +55,7 @@ ezSimdMat4f ezVolumeCollection::Shape::GetGlobalToLocalTransform() const
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVolumeCollection, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-//static
+// static
 ezUInt32 ezVolumeCollection::ComputeSortingKey(float fSortOrder, float fMaxScale)
 {
   ezUInt32 uiSortingKey = (ezUInt32)(ezMath::Min(fSortOrder * 512.0f, 32767.0f) + 32768.0f);
@@ -102,7 +100,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
   return fValue;
 }
 
-//static
+// static
 void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
   const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType)
 {
@@ -167,8 +165,8 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
   }
 }
 
-void ezVolumeCollection::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
-  float fValue, float fFadeOutStart)
+void ezVolumeCollection::AddSphere(
+  const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale *= fRadius;
@@ -183,8 +181,8 @@ void ezVolumeCollection::AddSphere(const ezSimdTransform& transform, float fRadi
   sphere.m_fFadeOutBias = -sphere.m_fFadeOutScale;
 }
 
-void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode,
-  float fSortOrder, float fValue, const ezVec3& vFadeOutStart)
+void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
+  float fValue, const ezVec3& vFadeOutStart)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;

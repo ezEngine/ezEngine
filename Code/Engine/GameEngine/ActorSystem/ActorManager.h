@@ -32,7 +32,7 @@ public:
   ezActorManager();
   ~ezActorManager();
 
-  static ezEvent<const ezActorEvent&> s_ActorEvents;
+  static ezCopyOnBroadcastEvent<const ezActorEvent&> s_ActorEvents;
 
   /// \brief Updates all Actors and ActorApiServices, deletes actors that are queued for destruction
   void Update();

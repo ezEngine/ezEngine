@@ -5,12 +5,12 @@
 class EZ_RENDERERCORE_DLL ezFrameDataProviderBase : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFrameDataProviderBase, ezReflectedClass);
-protected:
 
+protected:
   ezFrameDataProviderBase();
 
   virtual void* UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData) = 0;
-  
+
   void* GetData(const ezRenderViewContext& renderViewContext);
 
 private:
@@ -25,10 +25,5 @@ template <typename T>
 class ezFrameDataProvider : public ezFrameDataProviderBase
 {
 public:
-
-  T* GetData(const ezRenderViewContext& renderViewContext)
-  {
-    return static_cast<T*>(ezFrameDataProviderBase::GetData(renderViewContext));
-  }
+  T* GetData(const ezRenderViewContext& renderViewContext) { return static_cast<T*>(ezFrameDataProviderBase::GetData(renderViewContext)); }
 };
-

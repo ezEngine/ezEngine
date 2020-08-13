@@ -22,7 +22,8 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength /*= 0*/)
+void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezTime effectLifeTime,
+  ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength /*= 0*/)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.TextureAtlasVariationFramesX = uiNumVariationsX;
@@ -54,8 +55,7 @@ void ezParticleRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRender
   categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
 }
 
-void ezParticleRenderer::CreateParticleDataBuffer(
-  ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
+void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
 {
   if (inout_hBuffer.IsInvalidated())
   {

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Threading/TaskSystem.h>
 #include <ProcGenPlugin/Declarations.h>
 #include <ProcGenPlugin/VM/ExpressionVM.h>
-#include <Foundation/Threading/TaskSystem.h>
 
 namespace ezProcGenInternal
 {
@@ -21,4 +21,4 @@ namespace ezProcGenInternal
 
     virtual void Execute() override;
   };
-}
+} // namespace ezProcGenInternal

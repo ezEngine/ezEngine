@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ParticlePlugin/ParticlePluginDLL.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 class ezParticleSystemInstance;
 class ezProcessingStream;
@@ -29,7 +29,8 @@ enum class ezParticleEmitterState
 {
   Active,
   Finished,
-  OnlyReacting, //< Doesn't do anything, unless there are events that trigger it. That means it is considered finished, when all other emitters are finished.
+  OnlyReacting, //< Doesn't do anything, unless there are events that trigger it. That means it is considered finished, when all other emitters are
+                //finished.
 };
 
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's

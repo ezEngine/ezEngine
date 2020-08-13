@@ -8,12 +8,10 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
-#include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
+#include <PhysXPlugin/Components/PxCharacterShapeComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-
-
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -32,8 +30,6 @@ void ezPxCharacterControllerComponentManager::Initialize()
   this->RegisterUpdateFunction(desc);
 }
 
-void ezPxCharacterControllerComponentManager::Deinitialize() {}
-
 void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
@@ -49,22 +45,24 @@ void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::Update
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 6, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 50.0f)),
+    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
     EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(15.0f), new ezClampValueAttribute(0.01f, 20.0f)),
-    EZ_MEMBER_PROPERTY("CrouchSpeed", m_fCrouchSpeed)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("CrouchHeight", m_fCrouchHeight)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("CrouchSpeed", m_fCrouchSpeed)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 50.0f)),
     EZ_MEMBER_PROPERTY("PushingForce", m_fPushingForce)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDefaultValueAttribute(ezStringView("Footstep"))),
+    EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum"), new ezDefaultValueAttribute(ezStringView("Footstep"))),
     EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
     EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_ACCESSOR_PROPERTY("HeadObject", DummyGetter, SetHeadObjectReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -72,6 +70,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dy
     EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Physics/Special"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -102,6 +105,10 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
 
   // Version 5
   s << m_fCrouchSpeed;
+
+  // Version 6
+  s << m_fCrouchHeight;
+  stream.WriteGameObjectHandle(m_hHeadObject);
 }
 
 void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
@@ -155,20 +162,33 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   {
     s >> m_fCrouchSpeed;
   }
+
+  if (uiVersion >= 6)
+  {
+    s >> m_fCrouchHeight;
+    m_hHeadObject = stream.ReadGameObjectHandle();
+  }
 }
 
 void ezPxCharacterControllerComponent::Update()
 {
-  ezPxCharacterProxyComponent* pProxy = nullptr;
-  if (!GetWorld()->TryGetComponent(m_hProxy, pProxy))
+  ezPxCharacterShapeComponent* pShape = nullptr;
+  if (!GetWorld()->TryGetComponent(m_hCharacterShape, pShape))
     return;
+
+  if (m_bWantsTeleport)
+  {
+    m_bWantsTeleport = false;
+    pShape->TeleportShape(m_vTeleportTo);
+    return;
+  }
 
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  auto collisionFlags = pProxy->GetCollisionFlags();
-  const bool isOnGround = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Below);
-  const bool touchesCeiling = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Above);
+  auto collisionFlags = pShape->GetCollisionFlags();
+  const bool isOnGround = collisionFlags.IsSet(ezPxCharacterShapeCollisionFlags::Below);
+  const bool touchesCeiling = collisionFlags.IsSet(ezPxCharacterShapeCollisionFlags::Above);
   const bool canJump = isOnGround && !touchesCeiling;
   const bool wantsJump = (m_InputStateBits & InputStateBits::Jump) != 0;
   m_bWantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
@@ -177,7 +197,12 @@ void ezPxCharacterControllerComponent::Update()
   const float fJumpFactor = 1.0f; // 0.01f;
   const float fGravity = pModule->GetCharacterGravity().z * fGravityFactor * tDiff;
 
-  if (touchesCeiling || isOnGround)
+  if (touchesCeiling)
+  {
+    m_fVelocityUp = ezMath::Min(m_fVelocityUp, 0.0f);
+  }
+
+  if (isOnGround)
   {
     m_fVelocityUp = 0.0f;
   }
@@ -193,7 +218,7 @@ void ezPxCharacterControllerComponent::Update()
   {
     fIntendedSpeed = (m_InputStateBits & InputStateBits::Run) ? m_fRunSpeed : m_fWalkSpeed;
 
-    if (pProxy->IsCrouching())
+    if (m_bWantsCrouch)
       fIntendedSpeed = m_fCrouchSpeed;
   }
 
@@ -207,7 +232,7 @@ void ezPxCharacterControllerComponent::Update()
   }
   // somehow this messes up the standing/falling state
   // and the CC seems to oscillate between crouching and standing (but you only see that in the physx visual debugger)
-  // else if (isOnGround && !pProxy->IsCrouching())
+  // else if (isOnGround && !pShape->IsCrouching())
   //{
   //  // auto-crouch functionality
 
@@ -216,15 +241,15 @@ void ezPxCharacterControllerComponent::Update()
 
   //  ezTransform tDestination;
   //  tDestination.m_Rotation.SetIdentity();
-  //  tDestination.m_vPosition = posBefore + vWalkDir * pProxy->m_fCapsuleRadius;
+  //  tDestination.m_vPosition = posBefore + vWalkDir * pShape->m_fCapsuleRadius;
 
   //  // if the destination is blocked (standing upright)
-  //  if (pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, tDestination, pProxy->m_uiCollisionLayer,
-  //  pProxy->GetShapeId()))
+  //  if (pModule->OverlapTestCapsule(pShape->m_fCapsuleRadius, pShape->m_fCapsuleHeight, tDestination, pShape->m_uiCollisionLayer,
+  //  pShape->GetShapeId()))
   //  {
   //    // but it is not blocked when crouched
-  //    if (!pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleCrouchHeight, tDestination, pProxy->m_uiCollisionLayer,
-  //    pProxy->GetShapeId()))
+  //    if (!pModule->OverlapTestCapsule(pShape->m_fCapsuleRadius, pShape->m_fCapsuleCrouchHeight, tDestination, pShape->m_uiCollisionLayer,
+  //    pShape->GetShapeId()))
   //    {
   //      m_bWantsCrouch = true;
   //    }
@@ -261,13 +286,8 @@ void ezPxCharacterControllerComponent::Update()
   {
     m_fAccumulatedWalkDistance += ezMath::Min(fAddWalkDistance, (posAfter - posBefore).GetLength());
 
-    ezTransform t;
-    t.SetIdentity();
-    t.m_vPosition = posAfter;
-
     ezPhysicsCastResult castResult;
-    if (pModule->SweepTestCapsule(castResult, pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight,
-          ezPhysicsQueryParameters(pProxy->m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, pProxy->GetShapeId())))
+    if (pShape->TestShapeSweep(castResult, ezVec3(0, 0, -1), pShape->m_fMaxStepHeight))
     {
       RawMove(ezVec3(0, 0, -castResult.m_fDistance));
 
@@ -283,8 +303,7 @@ void ezPxCharacterControllerComponent::Update()
         if (hSurface.IsValid())
         {
           const bool bRun = (m_InputStateBits & InputStateBits::Run) != 0;
-          if (!bRun && m_fAccumulatedWalkDistance >= m_fWalkInteractionDistance ||
-              bRun && m_fAccumulatedWalkDistance >= m_fRunInteractionDistance)
+          if (!bRun && m_fAccumulatedWalkDistance >= m_fWalkInteractionDistance || bRun && m_fAccumulatedWalkDistance >= m_fRunInteractionDistance)
           {
             m_fAccumulatedWalkDistance = 0.0f;
 
@@ -332,8 +351,27 @@ void ezPxCharacterControllerComponent::Update()
     }
   }
 
+  if (m_bIsCrouching != m_bWantsCrouch)
+  {
+    if (m_bWantsCrouch)
+    {
+      m_fStandingHeight = pShape->GetCurrentHeightValue();
 
-  GetOwner()->SetGlobalPosition(ezVec3((float)posAfter.x, (float)posAfter.y, (float)posAfter.z));
+      if (pShape->TryResize(m_fCrouchHeight))
+      {
+        m_bIsCrouching = true;
+        m_fHeadTargetHeight = m_fHeadHeightOffset - (m_fStandingHeight - m_fCrouchHeight);
+      }
+    }
+    else
+    {
+      if (pShape->TryResize(m_fStandingHeight))
+      {
+        m_bIsCrouching = false;
+        m_fHeadTargetHeight = m_fHeadHeightOffset;
+      }
+    }
+  }
 
   if (m_RotateZ.GetRadian() != 0.0f)
   {
@@ -348,6 +386,19 @@ void ezPxCharacterControllerComponent::Update()
   // reset all, expect new input
   m_vRelativeMoveDirection.SetZero();
   m_InputStateBits = 0;
+
+  ezGameObject* pHeadObject;
+  if (!m_hHeadObject.IsInvalidated() && GetWorld()->TryGetObject(m_hHeadObject, pHeadObject))
+  {
+    ezVec3 pos = pHeadObject->GetLocalPosition();
+
+    float fTimeDiff = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
+    fTimeDiff = ezMath::Max(fTimeDiff, 0.005f); // prevent stuff from breaking at high frame rates
+    float fFactor = 1.0f - ezMath::Pow(0.001f, fTimeDiff);
+    pos.z = ezMath::Lerp(pos.z, m_fHeadTargetHeight, fFactor);
+
+    pHeadObject->SetLocalPosition(pos);
+  }
 }
 
 void ezPxCharacterControllerComponent::OnSimulationStarted()
@@ -357,10 +408,17 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
 
-  ezPxCharacterProxyComponent* pProxy = nullptr;
-  if (GetOwner()->TryGetComponentOfBaseType(pProxy))
+  ezPxCharacterShapeComponent* pShape = nullptr;
+  if (GetOwner()->TryGetComponentOfBaseType(pShape))
   {
-    m_hProxy = pProxy->GetHandle();
+    m_hCharacterShape = pShape->GetHandle();
+  }
+
+  ezGameObject* pHeadObject;
+  if (!m_hHeadObject.IsInvalidated() && GetWorld()->TryGetObject(m_hHeadObject, pHeadObject))
+  {
+    m_fHeadHeightOffset = pHeadObject->GetLocalPosition().z;
+    m_fHeadTargetHeight = m_fHeadHeightOffset;
   }
 }
 
@@ -383,13 +441,22 @@ const char* ezPxCharacterControllerComponent::GetFallbackWalkSurfaceFile() const
   return m_hFallbackWalkSurface.GetResourceID();
 }
 
+void ezPxCharacterControllerComponent::SetHeadObjectReference(const char* szReference)
+{
+  auto resolver = GetWorld()->GetGameObjectReferenceResolver();
+
+  if (!resolver.IsValid())
+    return;
+
+  m_hHeadObject = resolver(szReference, GetHandle(), "HeadObject");
+}
+
 void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterController& msg)
 {
-  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)),
-    ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
+  const float fDistanceToMove =
+    ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
 
-  m_vRelativeMoveDirection +=
-    ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
+  m_vRelativeMoveDirection += ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
   m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector());
   m_vRelativeMoveDirection *= fDistanceToMove;
 
@@ -411,14 +478,35 @@ void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterControlle
   }
 }
 
-
-void ezPxCharacterControllerComponent::RawMove(const ezVec3& vMove)
+void ezPxCharacterControllerComponent::TeleportCharacter(const ezVec3& vGlobalFootPos)
 {
-  ezPxCharacterProxyComponent* pProxy = nullptr;
-  if (!GetWorld()->TryGetComponent(m_hProxy, pProxy))
+  ezPxCharacterShapeComponent* pShape = nullptr;
+  if (!GetWorld()->TryGetComponent(m_hCharacterShape, pShape))
     return;
 
-  pProxy->Move(vMove, m_bWantsCrouch);
+  m_vTeleportTo = vGlobalFootPos;
+  m_bWantsTeleport = true;
+}
+
+bool ezPxCharacterControllerComponent::IsDestinationUnobstructed(const ezVec3& vGlobalFootPos, float fCharacterHeight)
+{
+  ezPxCharacterShapeComponent* pShape = nullptr;
+  if (!GetWorld()->TryGetComponent(m_hCharacterShape, pShape))
+    return false;
+
+  if (fCharacterHeight < 0.01f)
+    fCharacterHeight = pShape->GetCurrentHeightValue();
+
+  return !pShape->TestShapeOverlap(vGlobalFootPos, fCharacterHeight);
+}
+
+void ezPxCharacterControllerComponent::RawMove(const ezVec3& vMoveDeltaGlobal)
+{
+  ezPxCharacterShapeComponent* pShape = nullptr;
+  if (!GetWorld()->TryGetComponent(m_hCharacterShape, pShape))
+    return;
+
+  pShape->MoveShape(vMoveDeltaGlobal);
 }
 
 void ezPxCharacterControllerComponent::OnCollision(ezMsgCollision& msg)

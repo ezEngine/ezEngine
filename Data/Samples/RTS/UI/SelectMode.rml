@@ -1,0 +1,20 @@
+<rml>
+<head>
+  <link type="text/css" href="UI.rcss"/>
+  <title>Select Mode</title>
+</head>
+<body class="window">
+<div class="title">
+  Game Mode
+</div>
+<div class="content">
+  <form>
+  <input type="radio" name="gamemode" onclick="switchMode" id="battle"/> Battle<br/>
+  <input type="radio" name="gamemode" onclick="switchMode" id="edit" checked/> Edit<br/>
+  <input type="radio" name="gamemode" onclick="switchMode" id="mainmenu"/> Main Menu<br/>
+  </form>
+  <br/>
+  <button onclick="switchToImGui">Switch to ImGui</button>
+</div>
+</body>
+</rml>

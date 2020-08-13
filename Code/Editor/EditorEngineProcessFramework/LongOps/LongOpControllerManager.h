@@ -38,13 +38,13 @@ public:
   struct ProxyOpInfo
   {
     ezUniquePtr<ezLongOpProxy> m_pProxyOp;
-    ezUuid m_OperationGuid;   ///< Identifies the operation itself.
-    ezUuid m_DocumentGuid;    ///< To which document the long op belongs. When the document is closed, all running long ops belonging to it
-                              ///< will be canceled.
-    ezUuid m_ComponentGuid;   ///< To which component in the scene document the long op is linked. If the component is deleted, the long op
-                              ///< disappears as well.
-    ezTime m_StartOrDuration; ///< While m_bIsRunning is true, this is the time the long op started, once m_bIsRunning it holds the last
-                              ///< duration of the long op execution.
+    ezUuid m_OperationGuid;     ///< Identifies the operation itself.
+    ezUuid m_DocumentGuid;      ///< To which document the long op belongs. When the document is closed, all running long ops belonging to it
+                                ///< will be canceled.
+    ezUuid m_ComponentGuid;     ///< To which component in the scene document the long op is linked. If the component is deleted, the long op
+                                ///< disappears as well.
+    ezTime m_StartOrDuration;   ///< While m_bIsRunning is true, this is the time the long op started, once m_bIsRunning it holds the last
+                                ///< duration of the long op execution.
     float m_fCompletion = 0.0f; ///< [0; 1] range for the progress.
     bool m_bIsRunning = false;  ///< Whether the long op is currently being executed.
   };

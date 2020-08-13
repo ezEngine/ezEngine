@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9619871107370611331,5240437655261466261}}
-		u4 %Hash{15267787818083921625}
+		u4 %Hash{5749862597119528625}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -19,8 +19,10 @@ o
 			s{"{ 04e4bc2b-20b1-4909-a98a-b2de0d9a86d7 }"}
 			s{"{ 4e4e4c34-8bf0-473e-a1ff-a179328e4a7b }"}
 			s{"{ 5a8a3951-adf5-41fb-841d-cd998d883132 }"}
+			s{"{ 5c9dacbb-e862-4b7d-b43e-7ad5c08d9397 }"}
 			s{"{ 6c0ea18c-489d-4375-b949-3da2ec5fcdde }"}
 			s{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+			s{"{ b718f666-139b-4ebb-8b5b-5b19e5321d12 }"}
 		}
 	}
 }
@@ -34,6 +36,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -60,6 +63,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -83,7 +87,7 @@ o
 {
 	Uuid %id{u4{7063355344494387785,2751774841553989125}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -95,7 +99,7 @@ o
 {
 	Uuid %id{u4{17070286875759496512,2905325246443730644}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -126,6 +130,44 @@ o
 }
 o
 {
+	Uuid %id{u4{7293175959485453971,4829438311764547551}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9055208520684024498,4843744205851761460}}
+		}
+		s %GlobalKey{"EditUI"}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"EditUI"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{9055208520684024498,4843744205851761460}}
+	s %t{"ezRmlUiCanvas2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec2 %AnchorPoint{f{0x0000803F,0}}
+		Vec2i %Offset{i3{10,10}}
+		b %PassInput{1}
+		s %RmlFile{"{ 5c9dacbb-e862-4b7d-b43e-7ad5c08d9397 }"}
+		Vec2u %Size{u3{200,200}}
+	}
+}
+o
+{
 	Uuid %id{u4{12395792110627696549,4931489385025110831}}
 	s %t{"ezSceneDocumentSettings"}
 	u3 %v{1}
@@ -138,7 +180,7 @@ o
 {
 	Uuid %id{u4{14052830942546332566,5011227346324986469}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -150,7 +192,7 @@ o
 {
 	Uuid %id{u4{855104055861290163,5148200272601427363}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -178,6 +220,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -204,6 +247,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -225,11 +269,35 @@ o
 }
 o
 {
+	Uuid %id{u4{6382272415044446599,5355585275346804828}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7229683353374316169,5677765923182134215}}
+		}
+		s %GlobalKey{"SelectModeUI"}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"SelectModeUI"}
+		VarArray %Tags{}
+	}
+}
+o
+{
 	Uuid %id{u4{6427756122634482069,5427539011168787059}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -258,6 +326,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -281,7 +350,7 @@ o
 {
 	Uuid %id{u4{4895951463177096080,5475360020082632075}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -296,6 +365,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -319,7 +389,7 @@ o
 {
 	Uuid %id{u4{14790434073431923602,5559272993174471297}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -334,6 +404,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -357,18 +428,18 @@ o
 {
 	Uuid %id{u4{13412177908375721092,5651773650620452245}}
 	s %t{"ezRotorComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		f %Acceleration{0}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
+		Angle %AxisDeviation{f{0}}
 		f %Deceleration{0}
 		i3 %DegreesToRotate{0}
 		b %ReverseAtEnd{0}
 		b %ReverseAtStart{0}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -385,6 +456,21 @@ o
 		b %InverseTonemap{0}
 		b %UseFog{1}
 		f %VirtualDistance{0x00007A44}
+	}
+}
+o
+{
+	Uuid %id{u4{7229683353374316169,5677765923182134215}}
+	s %t{"ezRmlUiCanvas2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec2 %AnchorPoint{f{0,0}}
+		Vec2i %Offset{i3{10,10}}
+		b %PassInput{1}
+		s %RmlFile{"{ b718f666-139b-4ebb-8b5b-5b19e5321d12 }"}
+		Vec2u %Size{u3{140,130}}
 	}
 }
 o
@@ -413,6 +499,8 @@ o
 			Uuid{u4{2693043281307044131,8143924256959791598}}
 			Uuid{u4{17171131790596593599,12892584997883065107}}
 			Uuid{u4{1269060923509772659,17719187312888884762}}
+			Uuid{u4{6382272415044446599,5355585275346804828}}
+			Uuid{u4{7293175959485453971,4829438311764547551}}
 		}
 		Uuid %Settings{u4{12395792110627696549,4931489385025110831}}
 	}
@@ -424,6 +512,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -447,7 +536,7 @@ o
 {
 	Uuid %id{u4{17991595842177020161,8254763857891021973}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -462,6 +551,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -485,7 +575,7 @@ o
 {
 	Uuid %id{u4{17292026292433201687,10220894674568480057}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -500,6 +590,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -523,7 +614,7 @@ o
 {
 	Uuid %id{u4{12576736089780042015,10425702845064947798}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -535,7 +626,7 @@ o
 {
 	Uuid %id{u4{5924938450757287955,10528165762499686234}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -550,6 +641,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -576,6 +668,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -599,7 +692,7 @@ o
 {
 	Uuid %id{u4{14022940277757018013,13003424598814295482}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -614,6 +707,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -637,7 +731,7 @@ o
 {
 	Uuid %id{u4{7997290115652699325,15927839615233610185}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -652,6 +746,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -675,7 +770,7 @@ o
 {
 	Uuid %id{u4{5765456308602199217,16128162059001865195}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -690,6 +785,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -713,7 +809,7 @@ o
 {
 	Uuid %id{u4{16567613484379748689,17830026913820115137}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -762,6 +858,24 @@ o
 }
 o
 {
+	Uuid %id{u4{5944471609892995972,3373323694501583966}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiCanvas2DComponent"}
+		u3 %TypeSize{120}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{1168477127324465164,3417260966341483024}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -775,7 +889,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{96}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -955,7 +1069,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTransformComponent"}
 		u3 %TypeSize{64}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1026,8 +1140,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRotorComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{112}
+		u3 %TypeVersion{3}
 	}
 }
 o

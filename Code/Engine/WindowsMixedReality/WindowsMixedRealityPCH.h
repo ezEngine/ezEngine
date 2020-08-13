@@ -9,4 +9,3 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
-

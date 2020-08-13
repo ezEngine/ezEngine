@@ -125,9 +125,8 @@ ezResult ezGALDevice::Init()
   // Fill the capabilities
   FillCapabilitiesPlatform();
 
-  ezLog::Info("Adapter: '{}' - {} VRAM, {} Sys RAM, {} Shared RAM", m_Capabilities.m_sAdapterName,
-    ezArgFileSize(m_Capabilities.m_uiDedicatedVRAM), ezArgFileSize(m_Capabilities.m_uiDedicatedSystemRAM),
-    ezArgFileSize(m_Capabilities.m_uiSharedSystemRAM));
+  ezLog::Info("Adapter: '{}' - {} VRAM, {} Sys RAM, {} Shared RAM", m_Capabilities.m_sAdapterName, ezArgFileSize(m_Capabilities.m_uiDedicatedVRAM),
+    ezArgFileSize(m_Capabilities.m_uiDedicatedSystemRAM), ezArgFileSize(m_Capabilities.m_uiSharedSystemRAM));
 
   if (!m_Capabilities.m_bHardwareAccelerated)
   {
@@ -219,10 +218,11 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   }
 
   ezGALBlendState* pBlendState = CreateBlendStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pBlendState->GetDescription().CalculateHash() == uiHash, "BlendState hash doesn't match");
 
   if (pBlendState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pBlendState->GetDescription().CalculateHash() == uiHash, "BlendState hash doesn't match");
+
     pBlendState->AddRef();
 
     ezGALBlendStateHandle hBlendState(m_BlendStates.Insert(pBlendState));
@@ -278,10 +278,11 @@ ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDep
   }
 
   ezGALDepthStencilState* pDepthStencilState = CreateDepthStencilStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pDepthStencilState->GetDescription().CalculateHash() == uiHash, "DepthStencilState hash doesn't match");
 
   if (pDepthStencilState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pDepthStencilState->GetDescription().CalculateHash() == uiHash, "DepthStencilState hash doesn't match");
+
     pDepthStencilState->AddRef();
 
     ezGALDepthStencilStateHandle hDepthStencilState(m_DepthStencilStates.Insert(pDepthStencilState));
@@ -337,10 +338,11 @@ ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasteri
   }
 
   ezGALRasterizerState* pRasterizerState = CreateRasterizerStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pRasterizerState->GetDescription().CalculateHash() == uiHash, "RasterizerState hash doesn't match");
 
   if (pRasterizerState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pRasterizerState->GetDescription().CalculateHash() == uiHash, "RasterizerState hash doesn't match");
+
     pRasterizerState->AddRef();
 
     ezGALRasterizerStateHandle hRasterizerState(m_RasterizerStates.Insert(pRasterizerState));
@@ -398,10 +400,11 @@ ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateC
   }
 
   ezGALSamplerState* pSamplerState = CreateSamplerStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pSamplerState->GetDescription().CalculateHash() == uiHash, "SamplerState hash doesn't match");
 
   if (pSamplerState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pSamplerState->GetDescription().CalculateHash() == uiHash, "SamplerState hash doesn't match");
+
     pSamplerState->AddRef();
 
     ezGALSamplerStateHandle hSamplerState(m_SamplerStates.Insert(pSamplerState));
@@ -566,8 +569,7 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
   return CreateBuffer(desc, pInitialData);
 }
 
-ezGALBufferHandle ezGALDevice::CreateIndexBuffer(
-  ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
+ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
@@ -590,8 +592,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 }
 
 
-ezGALTextureHandle ezGALDevice::CreateTexture(
-  const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
@@ -640,6 +641,84 @@ ezGALTextureHandle ezGALDevice::CreateTexture(
   }
 
   return ezGALTextureHandle();
+}
+
+ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, void* pExisitingNativeObject)
+{
+  ezGALTexture* pTexture = nullptr;
+  if (m_Textures.TryGetValue(hTexture, pTexture))
+  {
+    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALResourceView* pResourceView = nullptr;
+
+      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
+      {
+        EZ_VERIFY(pResourceView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
+    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALRenderTargetView* pRenderTargetView = nullptr;
+
+      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
+      {
+        EZ_VERIFY(pRenderTargetView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
+    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
+
+      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
+      {
+        EZ_VERIFY(pUnorderedAccessView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
+
+    EZ_VERIFY(pTexture->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+    EZ_VERIFY(
+      pTexture->ReplaceExisitingNativeObject(pExisitingNativeObject).Succeeded(), "Failed to replace native texture, make sure the input is valid.");
+    EZ_VERIFY(pTexture->InitPlatform(this, {}).Succeeded(),
+      "InitPlatform failed on a texture the previously succeded in the same call, is the new native object valid?");
+
+    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALResourceView* pResourceView = nullptr;
+
+      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
+      {
+        EZ_VERIFY(pResourceView->InitPlatform(this).Succeeded(),
+          "InitPlatform failed on a resource view that previously succeded in the same call, is the new native object valid?");
+      }
+    }
+    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALRenderTargetView* pRenderTargetView = nullptr;
+
+      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
+      {
+        EZ_VERIFY(pRenderTargetView->InitPlatform(this).Succeeded(),
+          "InitPlatform failed on a render target view that previously succeded in the same call, is the new native object valid?");
+      }
+    }
+    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
+
+      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
+      {
+        EZ_VERIFY(pUnorderedAccessView->InitPlatform(this).Succeeded(),
+          "InitPlatform failed on a unordered access view that previously succeded in the same call, is the new native object valid?");
+      }
+    }
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    ezLog::Warning("ReplaceExisitingNativeObject called on invalid handle");
+    return EZ_FAILURE;
+  }
 }
 
 void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
@@ -1350,7 +1429,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALDepthStencilState* pDepthStencilState = nullptr;
 
         EZ_VERIFY(m_DepthStencilStates.Remove(hDepthStencilState, &pDepthStencilState), "DepthStencilState not found in idTable");
-        EZ_VERIFY(m_DepthStencilStateTable.Remove(pDepthStencilState->GetDescription().CalculateHash()), "DepthStencilState not found in de-duplication table");
+        EZ_VERIFY(m_DepthStencilStateTable.Remove(pDepthStencilState->GetDescription().CalculateHash()),
+          "DepthStencilState not found in de-duplication table");
 
         DestroyDepthStencilStatePlatform(pDepthStencilState);
 
@@ -1362,7 +1442,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALRasterizerState* pRasterizerState = nullptr;
 
         EZ_VERIFY(m_RasterizerStates.Remove(hRasterizerState, &pRasterizerState), "RasterizerState not found in idTable");
-        EZ_VERIFY(m_RasterizerStateTable.Remove(pRasterizerState->GetDescription().CalculateHash()), "RasterizerState not found in de-duplication table");
+        EZ_VERIFY(
+          m_RasterizerStateTable.Remove(pRasterizerState->GetDescription().CalculateHash()), "RasterizerState not found in de-duplication table");
 
         DestroyRasterizerStatePlatform(pRasterizerState);
 

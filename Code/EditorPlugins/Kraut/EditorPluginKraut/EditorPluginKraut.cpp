@@ -28,8 +28,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar");
       ezProjectActions::MapActions("KrautTreeAssetMenuBar");
-      ezStandardMenus::MapActions("KrautTreeAssetMenuBar",
-        ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions(
+        "KrautTreeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("KrautTreeAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("KrautTreeAssetMenuBar", "Menu.Edit");
     }

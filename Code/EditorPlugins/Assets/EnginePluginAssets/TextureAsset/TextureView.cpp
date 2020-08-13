@@ -10,7 +10,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
-    : ezEngineProcessViewContext(pContext)
+  : ezEngineProcessViewContext(pContext)
 {
   m_pTextureContext = pContext;
 }
@@ -64,7 +64,7 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     sText.PrependFormat("{0}x{1} - ", uiWidth, uiHeight);
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16,
-      ezDebugRenderer::HorizontalAlignment::Left, ezDebugRenderer::VerticalAlignment::Bottom);
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugRenderer::HorizontalAlignment::Left,
+      ezDebugRenderer::VerticalAlignment::Bottom);
   }
 }

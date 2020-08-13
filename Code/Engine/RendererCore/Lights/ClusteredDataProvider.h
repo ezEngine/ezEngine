@@ -7,8 +7,8 @@
 struct EZ_RENDERERCORE_DLL ezClusteredDataGPU
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezClusteredDataGPU);
-public:
 
+public:
   ezClusteredDataGPU();
   ~ezClusteredDataGPU();
 
@@ -36,9 +36,7 @@ public:
   ~ezClusteredDataProvider();
 
 private:
-
   virtual void* UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData) override;
 
   ezClusteredDataGPU m_Data;
 };
-

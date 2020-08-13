@@ -25,7 +25,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     EZ_TEST_STRING(cmdLine, "-bla \"blub blub\" \"di dub\" -test \"-hmpf 27\" -a b -c d -e \"f g h\"");
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
   static const char* g_szTestMsg = "Tell me more!";
 
@@ -174,8 +174,8 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     EZ_TEST_BOOL_MSG(err.IsEmpty(), "Error stream should be empty.");
   }
 
-#else
+#  else
   ezLog::Warning("ezProcess functions are not implemented on this platform.");
-#endif
+#  endif
 }
 #endif

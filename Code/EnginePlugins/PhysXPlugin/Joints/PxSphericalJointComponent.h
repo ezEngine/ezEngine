@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Joints/PxJointComponent.h>
 
-typedef ezComponentManager<class ezPxSphericalJointComponent, ezBlockStorageType::Compact> ezPxSphericalJointComponentManager;
+using ezPxSphericalJointComponentManager = ezComponentManager<class ezPxSphericalJointComponent, ezBlockStorageType::Compact>;
 
 class EZ_PHYSXPLUGIN_DLL ezPxSphericalJointComponent : public ezPxJointComponent
 {
@@ -21,7 +21,8 @@ public:
   // ezPxJointComponent
 
 protected:
-  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+  virtual void CreateJointType(
+    physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -31,8 +32,8 @@ public:
   ezPxSphericalJointComponent();
   ~ezPxSphericalJointComponent();
 
-  bool GetLimitRotation() const { return m_bLimitRotation; } // [ property ]
-  void SetLimitRotation(bool b);                             // [ property ]
+  void SetLimitMode(ezPxJointLimitMode::Enum mode);                     // [ property ]
+  ezPxJointLimitMode::Enum GetLimitMode() const { return m_LimitMode; } // [ property ]
 
   ezAngle GetConeLimitY() const { return m_ConeLimitY; } // [ property ]
   void SetConeLimitY(ezAngle v);                         // [ property ]
@@ -40,10 +41,18 @@ public:
   ezAngle GetConeLimitZ() const { return m_ConeLimitZ; } // [ property ]
   void SetConeLimitZ(ezAngle v);                         // [ property ]
 
+  void SetSpringStiffness(float f);                               // [ property ]
+  float GetSpringStiffness() const { return m_fSpringStiffness; } // [ property ]
+
+  void SetSpringDamping(float f);                             // [ property ]
+  float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
+
+  virtual void ApplySettings() final override;
+
 protected:
-  bool m_bLimitRotation = false;
+  ezEnum<ezPxJointLimitMode> m_LimitMode;
   ezAngle m_ConeLimitY;
   ezAngle m_ConeLimitZ;
-
-  void ApplyConeLimit(physx::PxJoint* pJoint0);
+  float m_fSpringStiffness = 0;
+  float m_fSpringDamping = 0;
 };

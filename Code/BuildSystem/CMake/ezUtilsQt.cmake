@@ -27,7 +27,7 @@ function(ez_prepare_find_qt)
     ######################
     ## Download Qt package
 
-    ez_pull_architecture_vars()
+    ez_pull_compiler_and_architecture_vars()
     ez_pull_platform_vars()
 
     # Currently only implemented for x64

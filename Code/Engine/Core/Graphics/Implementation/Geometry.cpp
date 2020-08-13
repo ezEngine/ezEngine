@@ -85,8 +85,7 @@ void ezGeometry::Clear()
   m_Lines.Clear();
 }
 
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color,
-                               ezInt32 iCustomIndex)
+ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex)
 {
   Vertex v;
   v.m_vPosition = vPos;
@@ -100,11 +99,10 @@ ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const 
   return m_Vertices.GetCount() - 1;
 }
 
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color,
-                               ezInt32 iCustomIndex, const ezMat4& mTransform)
+ezUInt32 ezGeometry::AddVertex(
+  const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex, const ezMat4& mTransform)
 {
-  return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color,
-                   iCustomIndex);
+  return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, iCustomIndex);
 }
 
 void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWinding)
@@ -113,8 +111,8 @@ void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWind
 
   for (ezUInt32 v = 0; v < Vertices.GetCount(); ++v)
   {
-    EZ_ASSERT_DEV(Vertices[v] < m_Vertices.GetCount(), "Invalid vertex index {0}, geometry only has {1} vertices", Vertices[v],
-                  m_Vertices.GetCount());
+    EZ_ASSERT_DEV(
+      Vertices[v] < m_Vertices.GetCount(), "Invalid vertex index {0}, geometry only has {1} vertices", Vertices[v], m_Vertices.GetCount());
   }
 
   m_Polygons.ExpandAndGetRef().m_Vertices = Vertices;
@@ -127,10 +125,9 @@ void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWind
 
 void ezGeometry::AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex)
 {
-  EZ_ASSERT_DEV(uiStartVertex < m_Vertices.GetCount(), "Invalid vertex index {0}, geometry only has {1} vertices", uiStartVertex,
-                m_Vertices.GetCount());
-  EZ_ASSERT_DEV(uiEndVertex < m_Vertices.GetCount(), "Invalid vertex index {0}, geometry only has {1} vertices", uiEndVertex,
-                m_Vertices.GetCount());
+  EZ_ASSERT_DEV(
+    uiStartVertex < m_Vertices.GetCount(), "Invalid vertex index {0}, geometry only has {1} vertices", uiStartVertex, m_Vertices.GetCount());
+  EZ_ASSERT_DEV(uiEndVertex < m_Vertices.GetCount(), "Invalid vertex index {0}, geometry only has {1} vertices", uiEndVertex, m_Vertices.GetCount());
 
   Line l;
   l.m_uiStartVertex = uiStartVertex;
@@ -212,7 +209,7 @@ void ezGeometry::ComputeSmoothVertexNormals()
 struct TangentContext
 {
   TangentContext(ezGeometry* pGeom)
-      : m_pGeom(pGeom)
+    : m_pGeom(pGeom)
   {
     m_Polygons = m_pGeom->GetPolygons();
   }
@@ -253,8 +250,7 @@ struct TangentContext
     fvTexcOut[0] = tex.x;
     fvTexcOut[1] = tex.y;
   }
-  static void setTSpaceBasic(const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace,
-                             const int iVert)
+  static void setTSpaceBasic(const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
   {
     TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
     ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
@@ -263,7 +259,7 @@ struct TangentContext
     v.m_vTangent.y = fvTangent[1];
     v.m_vTangent.z = fvTangent[2];
     v.m_fBiTangentSign = fSign;
-    
+
     bool existed = false;
     auto it = context.m_VertMap.FindOrAdd(v, &existed);
     if (!existed)
@@ -275,8 +271,8 @@ struct TangentContext
     context.m_Polygons[iFace].m_Vertices[iVert] = iNewVertexIndex;
   }
 
-  static void setTSpace(const SMikkTSpaceContext* pContext, const float fvTangent[], const float fvBiTangent[], const float fMagS,
-                        const float fMagT, const tbool bIsOrientationPreserving, const int iFace, const int iVert)
+  static void setTSpace(const SMikkTSpaceContext* pContext, const float fvTangent[], const float fvBiTangent[], const float fMagS, const float fMagT,
+    const tbool bIsOrientationPreserving, const int iFace, const int iVert)
   {
     int i = 0;
     (void)i;
@@ -324,8 +320,8 @@ void ezGeometry::ValidateTangents(float epsilon)
   {
     // checking for orthogonality to the normal and for squared unit length (standard case) or 3 (magic number for binormal inversion)
     if (!ezMath::IsEqual(vertex.m_vNormal.GetLengthSquared(), 1.f, epsilon) ||
-      !ezMath::IsEqual(vertex.m_vNormal.Dot(vertex.m_vTangent), 0.f, epsilon) ||
-      !(ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 1.f, epsilon) || ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 3.f, epsilon)))
+        !ezMath::IsEqual(vertex.m_vNormal.Dot(vertex.m_vTangent), 0.f, epsilon) ||
+        !(ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 1.f, epsilon) || ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 3.f, epsilon)))
     {
       vertex.m_vTangent.SetZero();
     }
@@ -436,7 +432,7 @@ void ezGeometry::AddRectXY(const ezVec2& size, const ezColor& color, const ezMat
 
 
 void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY,
-                                     const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+  const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(uiTesselationX >= 1, "TesselationX must be larger than zero.");
   EZ_ASSERT_DEV(uiTesselationY >= 1, "TesselationY must be larger than zero.");
@@ -452,8 +448,8 @@ void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, e
     {
       const ezVec2 tc((float)vx / (float)uiTesselationX, (float)vy / (float)uiTesselationY);
 
-      AddVertex(ezVec3(-halfSize.x + vx * sizeFraction.x, -halfSize.y + vy * sizeFraction.y, 0), ezVec3(0, 0, 1), tc, color, iCustomIndex,
-                mTransform);
+      AddVertex(
+        ezVec3(-halfSize.x + vx * sizeFraction.x, -halfSize.y + vy * sizeFraction.y, 0), ezVec3(0, 0, 1), tc, color, iCustomIndex, mTransform);
     }
   }
 
@@ -535,8 +531,8 @@ void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& 
   AddPolygon(poly, bFlipWinding);
 }
 
-void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/,
-                            ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddLineBox(
+  const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   const ezVec3 halfSize = size * 0.5f;
 
@@ -568,7 +564,7 @@ void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMa
 
 
 void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const ezColor& color,
-                                   const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+  const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(fCornerFraction >= 0.0f && fCornerFraction <= 1.0f, "A fraction value of {0} is invalid", ezArgF(fCornerFraction, 2));
 
@@ -593,12 +589,12 @@ void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, co
     const ezVec3 op2 = ezVec3(op.x, -ezMath::Sign(op.y) * ezMath::Abs(op.y), op.z);
     const ezVec3 op3 = ezVec3(-ezMath::Sign(op.x) * ezMath::Abs(op.x), op.y, op.z);
 
-    const ezUInt32 ix1 = AddVertex(ezMath::Lerp(op, op1, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color,
-                                   iCustomIndex, mTransform);
-    const ezUInt32 ix2 = AddVertex(ezMath::Lerp(op, op2, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color,
-                                   iCustomIndex, mTransform);
-    const ezUInt32 ix3 = AddVertex(ezMath::Lerp(op, op3, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color,
-                                   iCustomIndex, mTransform);
+    const ezUInt32 ix1 =
+      AddVertex(ezMath::Lerp(op, op1, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
+    const ezUInt32 ix2 =
+      AddVertex(ezMath::Lerp(op, op2, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
+    const ezUInt32 ix3 =
+      AddVertex(ezMath::Lerp(op, op3, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
 
     AddLine(c, ix1);
     AddLine(c, ix2);
@@ -702,8 +698,7 @@ void ezGeometry::AddPyramid(const ezVec3& size, bool bCap, const ezColor& color,
   AddPolygon(tri, bFlipWinding);
 }
 
-void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform,
-                                   ezInt32 iCustomIndex)
+void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
   struct Triangle
@@ -837,8 +832,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
           uiNewVert[i] = NewVertices[Edges[i]];
         else
         {
-          const ezVec3 vCenter =
-              (m_Vertices[Edges[i].m_uiVertex[0]].m_vPosition + m_Vertices[Edges[i].m_uiVertex[1]].m_vPosition).GetNormalized();
+          const ezVec3 vCenter = (m_Vertices[Edges[i].m_uiVertex[0]].m_vPosition + m_Vertices[Edges[i].m_uiVertex[1]].m_vPosition).GetNormalized();
           uiNewVert[i] = AddVertex(vCenter * fRadius, vCenter, ezVec2::ZeroVector(), color, iCustomIndex);
 
           NewVertices[Edges[i]] = uiNewVert[i];
@@ -864,9 +858,8 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   TransformVertices(mTransform, uiFirstVertex);
 }
 
-void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop,
-                             bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex,
-                             ezAngle fraction)
+void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom,
+  ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
   EZ_ASSERT_DEV(fraction.GetDegree() >= -0.01f, "A cylinder cannot be built with more less than 0 degree");
@@ -982,8 +975,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
         const ezVec3 vDir(fX, fY, 0);
 
-        VertsBottom.PushBack(
-            AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform));
+        VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform));
       }
 
       AddPolygon(VertsBottom, bFlipWinding);
@@ -1040,9 +1032,8 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
   }
 }
 
-void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength,
-                                     ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/,
-                                     ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments,
+  const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
 
@@ -1088,8 +1079,8 @@ void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, floa
   }
 }
 
-void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform,
-                         ezInt32 iCustomIndex)
+void ezGeometry::AddCone(
+  float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cone with only {0} segments", uiSegments);
 
@@ -1130,8 +1121,8 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
   }
 }
 
-void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform,
-                           ezInt32 iCustomIndex)
+void ezGeometry::AddSphere(
+  float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 2, "Sphere must have at least 2 stacks");
@@ -1216,8 +1207,8 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
   }
 }
 
-void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor& color,
-                               const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddHalfSphere(
+  float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 1, "Sphere must have at least 1 stacks");
@@ -1301,8 +1292,8 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
   }
 }
 
-void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color,
-                            const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddCapsule(
+  float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Capsule must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 1, "Capsule must have at least 1 stacks");
@@ -1364,8 +1355,7 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   }
 
   ezUInt32 uiTopVertex = AddVertex(ezVec3(0, 0, fRadius + fHeight * 0.5f), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  ezUInt32 uiBottomVertex =
-      AddVertex(ezVec3(0, 0, -fRadius - fHeight * 0.5f), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, 0, -fRadius - fHeight * 0.5f), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
 
   ezUInt32 tri[3];
   ezUInt32 quad[4];
@@ -1412,7 +1402,7 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
 }
 
 void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color,
-                          const ezMat4& mTransform, ezInt32 iCustomIndex)
+  const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(fInnerRadius < fOuterRadius, "Inner radius must be smaller than outer radius. Doh!");
   EZ_ASSERT_DEV(uiSegments >= 3, "Invalid number of segments.");
@@ -1474,8 +1464,8 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   }
 }
 
-void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/,
-                                 ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddTexturedRamp(
+  const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   const ezVec3 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
@@ -1523,7 +1513,7 @@ void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const
 }
 
 void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const ezColor& color,
-                           const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+  const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   const bool bFlipWinding = false; // TODO
 
@@ -1658,8 +1648,7 @@ void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curv
 
 
 void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom,
-                         bool bSmoothTop, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/,
-                         ezInt32 iCustomIndex /*= 0*/)
+  bool bSmoothTop, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   // sanitize input values
   {
@@ -1838,4 +1827,3 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 }
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Geometry);
-

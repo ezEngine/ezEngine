@@ -16,4 +16,3 @@ DWORD __stdcall ezThreadClassEntryPoint(LPVOID lpThreadParameter)
 
 
 /// \endcond
-

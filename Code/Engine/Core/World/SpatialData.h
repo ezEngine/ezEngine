@@ -26,7 +26,13 @@ struct EZ_ALIGN_16(ezSpatialData)
     EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return m_uiValue != ezInvalidIndex ? EZ_BIT(m_uiValue) : 0; }
   };
 
+  /// \brief Registers a spatial data category under the given name.
+  ///
+  /// If the same category was already registered before, it returns that instead.
+  /// Asserts that there are no more than 32 unique categories.
   static EZ_CORE_DLL Category RegisterCategory(const char* szCategoryName);
+
+  /// \brief Returns either an existing category with the given name or ezInvalidSpatialDataCategory.
   static EZ_CORE_DLL Category FindCategory(const char* szCategoryName);
 
   struct Flags

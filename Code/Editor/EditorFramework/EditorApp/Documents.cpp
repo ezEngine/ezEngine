@@ -7,8 +7,8 @@
 
 void ezQtEditorApp::OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument),
-    Q_ARG(void*, (void*)pOpenContext));
+  QMetaObject::invokeMethod(
+    this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument), Q_ARG(void*, (void*)pOpenContext));
 }
 
 ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
@@ -112,7 +112,8 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
 
 void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject, void* pOpenContext)
 {
-  OpenDocument(sProject.toUtf8().data(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList, static_cast<const ezDocumentObject*>(pOpenContext));
+  OpenDocument(sProject.toUtf8().data(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList,
+    static_cast<const ezDocumentObject*>(pOpenContext));
 }
 
 void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
@@ -124,6 +125,9 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
       ezPreferences::SaveDocumentPreferences(e.m_pDocument);
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -163,6 +167,9 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

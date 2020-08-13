@@ -6,7 +6,6 @@
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
-#include <Texture/Image/ImageConversion.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -14,23 +13,18 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
+#include <Texture/Image/ImageConversion.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezLUTAssetActions
 //////////////////////////////////////////////////////////////////////////
 
 
-void ezLUTAssetActions::RegisterActions()
-{
-}
+void ezLUTAssetActions::RegisterActions() {}
 
-void ezLUTAssetActions::UnregisterActions()
-{
-}
+void ezLUTAssetActions::UnregisterActions() {}
 
-void ezLUTAssetActions::MapActions(const char* szMapping, const char* szPath)
-{
-}
+void ezLUTAssetActions::MapActions(const char* szMapping, const char* szPath) {}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,7 +32,7 @@ void ezLUTAssetActions::MapActions(const char* szMapping, const char* szPath)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocument)
-    : ezQtEngineDocumentWindow(pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
@@ -64,20 +58,20 @@ ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocu
 
   // 3D View
   {
-/*
-    TODO: Add live 3D preview of the LUT with a slider for the strength etc.
+    /*
+        TODO: Add live 3D preview of the LUT with a slider for the strength etc.
 
-    SetTargetFramerate(10);
+        SetTargetFramerate(10);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
-    m_ViewConfig.ApplyPerspectiveSetting(90);
+        m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+        m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
-    AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
+        m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
+        m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
+        AddViewWidget(m_pViewWidget);
+        ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
 
-    setCentralWidget(pContainer);*/
+        setCentralWidget(pContainer);*/
   }
 
   {

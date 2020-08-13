@@ -1,7 +1,7 @@
 
 /// \brief Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
-#define EZ_GALDEVICE_LOCK_AND_CHECK() \
-  EZ_LOCK(m_Mutex); \
+#define EZ_GALDEVICE_LOCK_AND_CHECK()                                                                                                                \
+  EZ_LOCK(m_Mutex);                                                                                                                                  \
   VerifyMultithreadedAccess()
 
 EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescription() const
@@ -29,14 +29,14 @@ EZ_ALWAYS_INLINE ezGALContext* ezGALDevice::GetPrimaryContext() const
   return m_pPrimaryContext;
 }
 
-template<typename T>
+template <typename T>
 EZ_ALWAYS_INLINE T* ezGALDevice::GetPrimaryContext() const
 {
   return static_cast<T*>(m_pPrimaryContext);
 }
 
 
-template<typename IdTableType, typename ReturnType>
+template <typename IdTableType, typename ReturnType>
 EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
@@ -167,4 +167,3 @@ EZ_ALWAYS_INLINE void ezGALDevice::VerifyMultithreadedAccess() const
     "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
 #endif
 }
-

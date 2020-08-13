@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_ColorGradient final : public ezParticleBehaviorFactory
 {

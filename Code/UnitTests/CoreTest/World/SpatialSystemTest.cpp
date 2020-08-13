@@ -145,7 +145,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));        
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
       }
     }
   }
@@ -215,7 +215,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     ezFileWriter fileWriter;
     if (fileWriter.Open(":output/profiling.json") == EZ_SUCCESS)
     {
-      ezProfilingSystem::ProfilingData profilingData = ezProfilingSystem::Capture();
+      ezProfilingSystem::ProfilingData profilingData;
+      ezProfilingSystem::Capture(profilingData);
       profilingData.Write(fileWriter);
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }

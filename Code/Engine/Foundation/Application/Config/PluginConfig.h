@@ -44,8 +44,7 @@ private:
 };
 
 
-typedef ezApplicationPluginConfig::PluginConfig ezApplicationPluginConfig_PluginConfig;
+using ezApplicationPluginConfig_PluginConfig = ezApplicationPluginConfig::PluginConfig;
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationPluginConfig);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationPluginConfig_PluginConfig);
-

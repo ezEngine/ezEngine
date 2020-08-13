@@ -167,8 +167,8 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
   return true;
 }
 
-void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
-                                               const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeMesh::ExtractTypeRenderData(
+  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   if (!m_bRenderDataCached)
   {

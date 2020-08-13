@@ -1,2 +1,3 @@
+GrabObjectMarker
 NPC
 Player

@@ -3,15 +3,40 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QFileDialog>
 
-
-void ezQtEditorApp::GuiCreateProject()
+void ezQtEditorApp::GuiOpenDashboard()
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
+  QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDashboard", Qt::ConnectionType::QueuedConnection);
 }
 
-void ezQtEditorApp::GuiOpenProject()
+bool ezQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
+  if (bImmediate)
+  {
+    return GuiCreateOrOpenProject(true);
+  }
+  else
+  {
+    QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
+    return true;
+  }
+}
+
+bool ezQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
+{
+  if (bImmediate)
+  {
+    return GuiCreateOrOpenProject(false);
+  }
+  else
+  {
+    QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
+    return true;
+  }
+}
+
+void ezQtEditorApp::SlotQueuedGuiOpenDashboard()
+{
+  InternalGuiOpenDashboard();
 }
 
 void ezQtEditorApp::SlotQueuedGuiCreateOrOpenProject(bool bCreate)
@@ -19,7 +44,7 @@ void ezQtEditorApp::SlotQueuedGuiCreateOrOpenProject(bool bCreate)
   GuiCreateOrOpenProject(bCreate);
 }
 
-void ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
+bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
 {
   const QString sDir = QString::fromUtf8(m_sLastProjectFolder.GetData());
   ezStringBuilder sFile;
@@ -27,23 +52,23 @@ void ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
   const char* szFilter = "ezProject (ezProject)";
 
   if (bCreate)
-    sFile = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder for New Project"), sDir,
-                                              QFileDialog::Option::DontResolveSymlinks)
-                .toUtf8()
-                .data();
+    sFile = QFileDialog::getExistingDirectory(
+      QApplication::activeWindow(), QLatin1String("Choose Folder for New Project"), sDir, QFileDialog::Option::DontResolveSymlinks)
+              .toUtf8()
+              .data();
   else
-    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter),
-                                         nullptr, QFileDialog::Option::DontResolveSymlinks)
-                .toUtf8()
-                .data();
+    sFile = QFileDialog::getOpenFileName(
+      QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks)
+              .toUtf8()
+              .data();
 
   if (sFile.IsEmpty())
-    return;
+    return false;
 
   if (bCreate)
     sFile.AppendPath("ezProject");
 
   m_sLastProjectFolder = ezPathUtils::GetFileDirectory(sFile);
 
-  CreateOrOpenProject(bCreate, sFile);
+  return CreateOrOpenProject(bCreate, sFile).Succeeded();
 }

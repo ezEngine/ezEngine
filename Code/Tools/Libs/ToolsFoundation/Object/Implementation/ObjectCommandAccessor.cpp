@@ -6,8 +6,8 @@
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 ezObjectCommandAccessor::ezObjectCommandAccessor(ezCommandHistory* pHistory)
-    : ezObjectDirectAccessor(const_cast<ezDocumentObjectManager*>(pHistory->GetDocument()->GetObjectManager()))
-    , m_pHistory(pHistory)
+  : ezObjectDirectAccessor(const_cast<ezDocumentObjectManager*>(pHistory->GetDocument()->GetObjectManager()))
+  , m_pHistory(pHistory)
 {
 }
 
@@ -41,8 +41,8 @@ void ezObjectCommandAccessor::FinishTemporaryCommands()
   m_pHistory->FinishTemporaryCommands();
 }
 
-ezStatus ezObjectCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue,
-                                           ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectCommandAccessor::SetValue(
+  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   ezSetObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
@@ -52,8 +52,8 @@ ezStatus ezObjectCommandAccessor::SetValue(const ezDocumentObject* pObject, cons
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue,
-                                              ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectCommandAccessor::InsertValue(
+  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   ezInsertObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
@@ -63,8 +63,7 @@ ezStatus ezObjectCommandAccessor::InsertValue(const ezDocumentObject* pObject, c
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
-                                              ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
 {
   ezRemoveObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
@@ -73,8 +72,8 @@ ezStatus ezObjectCommandAccessor::RemoveValue(const ezDocumentObject* pObject, c
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex,
-                                            const ezVariant& newIndex)
+ezStatus ezObjectCommandAccessor::MoveValue(
+  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
 {
   ezMoveObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
@@ -84,8 +83,8 @@ ezStatus ezObjectCommandAccessor::MoveValue(const ezDocumentObject* pObject, con
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index,
-                                            const ezRTTI* pType, ezUuid& inout_objectGuid)
+ezStatus ezObjectCommandAccessor::AddObject(
+  const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
   ezAddObjectCommand cmd;
   cmd.m_Parent = pParent ? pParent->GetGuid() : ezUuid();
@@ -106,8 +105,8 @@ ezStatus ezObjectCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent,
-                                             const ezAbstractProperty* pParentProp, const ezVariant& index)
+ezStatus ezObjectCommandAccessor::MoveObject(
+  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index)
 {
   ezMoveObjectCommand cmd;
   cmd.m_NewParent = pNewParent ? pNewParent->GetGuid() : ezUuid();

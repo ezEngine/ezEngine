@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
-#include <ToolsFoundation/Selection/SelectionManager.h>
-#include <QTreeView>
-#include <memory>
 #include <QSortFilterProxyModel>
+#include <QTreeView>
+#include <ToolsFoundation/Selection/SelectionManager.h>
+#include <memory>
 
 class ezQtTreeSearchFilterModel;
 
@@ -13,7 +13,6 @@ class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeView : public QTreeView
   Q_OBJECT
 
 public:
-
   ezQtDocumentTreeView(QWidget* pParent);
   ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
   ~ezQtDocumentTreeView();
@@ -43,4 +42,3 @@ private:
   bool m_bBlockSelectionSignal = false;
   bool m_bAllowDeleteObjects = false;
 };
-

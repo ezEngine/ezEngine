@@ -33,8 +33,7 @@ EZ_CREATE_SIMPLE_TEST(World, Camera)
     EZ_TEST_VEC3(camera.GetDirRight(), ezVec3(-1, 0, 0), ezMath::DefaultEpsilon<float>());
     EZ_TEST_VEC3(camera.GetDirUp(), ezVec3(0, 1, 0), ezMath::DefaultEpsilon<float>());
 
-    const ezMat4 mLookAt =
-      ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3(2, 3, 4), ezVec3(3, 3, 4), ezVec3(0, 0, 1), ezHandedness::LeftHanded);
+    const ezMat4 mLookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3(2, 3, 4), ezVec3(3, 3, 4), ezVec3(0, 0, 1), ezHandedness::LeftHanded);
     camera.SetViewMatrix(mLookAt);
 
     EZ_TEST_VEC3(camera.GetPosition(), ezVec3(2, 3, 4), ezMath::DefaultEpsilon<float>());

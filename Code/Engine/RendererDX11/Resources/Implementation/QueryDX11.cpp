@@ -6,8 +6,8 @@
 #include <d3d11.h>
 
 ezGALQueryDX11::ezGALQueryDX11(const ezGALQueryCreationDescription& Description)
-    : ezGALQuery(Description)
-    , m_pDXQuery(nullptr)
+  : ezGALQuery(Description)
+  , m_pDXQuery(nullptr)
 {
 }
 

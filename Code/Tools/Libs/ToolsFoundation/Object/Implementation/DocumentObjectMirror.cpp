@@ -213,8 +213,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
     {
       if (IsHeapAllocated(e.m_pPreviousParent, e.m_sParentProperty))
       {
-        EZ_ASSERT_DEBUG(IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty),
-                        "Old and new parent must have the same heap allocation state!");
+        EZ_ASSERT_DEBUG(IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty), "Old and new parent must have the same heap allocation state!");
         if (e.m_pPreviousParent == nullptr || e.m_pPreviousParent == m_pManager->GetRootObject())
         {
           // Object is currently a root object, nothing to do to detach it from its parent.
@@ -411,8 +410,7 @@ ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent,
   }
 }
 
-void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path,
-                                          ezHybridArray<ezPropertyPathStep, 2>& out_steps)
+void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezPropertyPathStep, 2>& out_steps)
 {
   ezUInt32 uiCount = path.GetCount();
   EZ_ASSERT_DEV(uiCount > 0, "Path must not be empty!");
@@ -446,10 +444,8 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     ezLog::Error("Failed to init property path on object of type '{0}'.", object.m_pType->GetTypeName());
     return;
   }
-  propPath.WriteToLeafObject(object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& pType)
-  {
-    ApplyOp(ezRttiConverterObject(&pType, pLeaf), change);
-  });
+  propPath.WriteToLeafObject(
+    object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& pType) { ApplyOp(ezRttiConverterObject(&pType, pLeaf), change); });
 }
 
 void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjectChange& change)
@@ -592,8 +588,8 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::SetArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(),
-                                                 change.m_Change.m_Value);
+        ezReflectionUtils::SetArrayPropertyValue(
+          pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), change.m_Change.m_Value);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
@@ -603,8 +599,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
         auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
-        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(),
-                                               change.m_Change.m_Value);
+        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), change.m_Change.m_Value);
       }
     }
     break;

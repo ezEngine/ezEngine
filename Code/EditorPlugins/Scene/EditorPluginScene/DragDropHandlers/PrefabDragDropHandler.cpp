@@ -35,15 +35,14 @@ void ezPrefabComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
       CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), ezUuid(), -1);
     else
       CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
-                       pInfo->m_iTargetObjectInsertChildIndex);
+        pInfo->m_iTargetObjectInsertChildIndex);
   }
 
   SelectCreatedObjects();
   BeginTemporaryCommands();
 }
 
-void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid, ezUuid parent,
-                                                    ezInt32 iInsertChildIndex)
+void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid, ezUuid parent, ezInt32 iInsertChildIndex)
 {
   ezVec3 vPos = vPosition;
 
@@ -67,7 +66,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
 
   if (PasteCmd.m_CreatedRootObject.IsValid())
   {
-    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos);
+    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos, ezQuat::IdentityQuaternion());
 
     m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
   }

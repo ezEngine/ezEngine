@@ -130,9 +130,9 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
       return "Mat4";
 
       // TODO: implement these types
-      //case ezVariant::Type::Vector4:
-      //case ezVariant::Type::Vector4I:
-      //case ezVariant::Type::Vector4U:
+      // case ezVariant::Type::Vector4:
+      // case ezVariant::Type::Vector4I:
+      // case ezVariant::Type::Vector4U:
 
     default:
       return nullptr;

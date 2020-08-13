@@ -26,11 +26,11 @@ public:
   struct Info
   {
     ezAssetDocumentGenerator* m_pGenerator = nullptr; ///< automatically set by ezAssetDocumentGenerator
-    ezAssetDocGeneratorPriority m_Priority; ///< has to be specified by generator
-    ezString m_sOutputFileParentRelative; ///< has to be specified by generator
-    ezString m_sOutputFileAbsolute; ///< automatically generated from m_sOutputFileParentRelative
-    ezString m_sName; ///< has to be specified by generator, used to know which action to take by Generate()
-    ezString m_sIcon; ///< has to be specified by generator
+    ezAssetDocGeneratorPriority m_Priority;           ///< has to be specified by generator
+    ezString m_sOutputFileParentRelative;             ///< has to be specified by generator
+    ezString m_sOutputFileAbsolute;                   ///< automatically generated from m_sOutputFileParentRelative
+    ezString m_sName;                                 ///< has to be specified by generator, used to know which action to take by Generate()
+    ezString m_sIcon;                                 ///< has to be specified by generator
   };
 
   struct ImportData
@@ -67,8 +67,8 @@ private:
   static void DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
   static ezResult DetermineInputAndOutputFiles(ImportData& data, Info& option);
   static void SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
-  static void CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportData> &allImports, const ezHybridArray<ezAssetDocumentGenerator *, 16>& generators);
+  static void CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport,
+    ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
 
   ezHybridArray<ezString, 16> m_SupportedFileTypes;
 };
-

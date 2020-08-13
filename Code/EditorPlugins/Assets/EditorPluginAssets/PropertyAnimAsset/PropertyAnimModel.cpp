@@ -8,23 +8,19 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezQtPropertyAnimModel::ezQtPropertyAnimModel(ezPropertyAnimAssetDocument* pDocument, QObject* pParent)
-    : QAbstractItemModel(pParent)
-    , m_pAssetDoc(pDocument)
+  : QAbstractItemModel(pParent)
+  , m_pAssetDoc(pDocument)
 {
-  m_pAssetDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
 
   TriggerBuildMapping();
 }
 
 ezQtPropertyAnimModel::~ezQtPropertyAnimModel()
 {
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
-  m_pAssetDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
 }
 
 QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
@@ -96,8 +92,7 @@ QModelIndex ezQtPropertyAnimModel::parent(const QModelIndex& index) const
   if (pItem->m_iParent < 0)
     return QModelIndex();
 
-  return createIndex(m_AllEntries[m_iInUse][pItem->m_iParent].m_uiOwnRowIndex, index.column(),
-                     (void*)&m_AllEntries[m_iInUse][pItem->m_iParent]);
+  return createIndex(m_AllEntries[m_iInUse][pItem->m_iParent].m_uiOwnRowIndex, index.column(), (void*)&m_AllEntries[m_iInUse][pItem->m_iParent]);
 }
 
 int ezQtPropertyAnimModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
@@ -122,6 +117,9 @@ void ezQtPropertyAnimModel::DocumentStructureEventHandler(const ezDocumentObject
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       TriggerBuildMapping();
+      break;
+
+    default:
       break;
   }
 }
@@ -191,8 +189,8 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse)
   }
 }
 
-void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack,
-                                         ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry, const char* szPath)
+void ezQtPropertyAnimModel::BuildMapping(
+  ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack, ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry, const char* szPath)
 {
   const char* szSubPath = ezStringUtils::FindSubString(szPath, "/");
 

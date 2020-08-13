@@ -43,10 +43,14 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezPropertyAnimAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezPropertyAnimAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezPropertyAnimAssetDocument(szPath);
 }

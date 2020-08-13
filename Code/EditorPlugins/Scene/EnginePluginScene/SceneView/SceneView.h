@@ -1,8 +1,8 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
 class ezView;
 class ezViewRedrawMsgToEngine;
@@ -44,4 +44,3 @@ private:
 
   ezCamera m_CullingCamera;
 };
-

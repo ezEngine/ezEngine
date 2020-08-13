@@ -42,7 +42,8 @@ void ezParticleBehaviorFactory_Gravity::CopyBehaviorProperties(ezParticleBehavio
 
   pBehavior->m_fGravityFactor = m_fGravityFactor;
 
-  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(
+    ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 }
 
 void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& stream) const

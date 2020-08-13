@@ -132,7 +132,7 @@ namespace
     b.NormalizeIfNotZero<4>(eps);
     EZ_TEST_BOOL(b.IsZero<4>());
   }
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 {
@@ -166,9 +166,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     EZ_TEST_BOOL(vInit4F.x() == 1.0f && vInit4F.y() == 2.0f && vInit4F.z() == 3.0f && vInit4F.w() == 4.0f);
 
     // Make sure all components have the correct values
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_TEST_BOOL(vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f && vInit4F.m_v.m128_f32[2] == 3.0f &&
-                 vInit4F.m_v.m128_f32[3] == 4.0f);
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+    EZ_TEST_BOOL(
+      vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f && vInit4F.m_v.m128_f32[2] == 3.0f && vInit4F.m_v.m128_f32[3] == 4.0f);
 #endif
 
     ezSimdVec4f vCopy(vInit4F);
@@ -229,9 +229,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       EZ_TEST_BOOL(xyzw.GetComponent(4) == 4.0f);
 
       // Make sure all components have the correct values
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f && xyzw.m_v.m128_f32[2] == 3.0f &&
-                   xyzw.m_v.m128_f32[3] == 4.0f);
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f && xyzw.m_v.m128_f32[2] == 3.0f && xyzw.m_v.m128_f32[3] == 4.0f);
 #endif
     }
 
@@ -239,22 +238,22 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       float testBlock[4] = {7, 7, 7, 7};
       float mem[4] = {};
 
-      ezSimdVec4f b(1, 2, 3, 4);
+      ezSimdVec4f b2(1, 2, 3, 4);
 
       memcpy(mem, testBlock, 16);
-      b.Store<1>(mem);
+      b2.Store<1>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 7.0f && mem[2] == 7.0f && mem[3] == 7.0f);
 
       memcpy(mem, testBlock, 16);
-      b.Store<2>(mem);
+      b2.Store<2>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 2.0f && mem[2] == 7.0f && mem[3] == 7.0f);
 
       memcpy(mem, testBlock, 16);
-      b.Store<3>(mem);
+      b2.Store<3>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 2.0f && mem[2] == 3.0f && mem[3] == 7.0f);
 
       memcpy(mem, testBlock, 16);
-      b.Store<4>(mem);
+      b2.Store<4>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 2.0f && mem[2] == 3.0f && mem[3] == 4.0f);
     }
   }

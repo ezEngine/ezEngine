@@ -34,8 +34,8 @@ void ezTypeScriptComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pIn
     }
     else
     {
-      CreateDropObject(pInfo->m_vDropPosition, "ezTypeScriptComponent", "Script", GetAssetGuidString(pInfo),
-                       pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+      CreateDropObject(pInfo->m_vDropPosition, "ezTypeScriptComponent", "Script", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+        pInfo->m_iTargetObjectInsertChildIndex);
     }
   }
 

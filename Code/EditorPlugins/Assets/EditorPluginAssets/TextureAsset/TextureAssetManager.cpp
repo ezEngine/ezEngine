@@ -76,10 +76,14 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
-void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTextureAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
   out_pDocument = pDoc;

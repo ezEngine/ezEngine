@@ -6,7 +6,7 @@
 ezDynamicArray<ezQtDocumentPanel*> ezQtDocumentPanel::s_AllDocumentPanels;
 
 ezQtDocumentPanel::ezQtDocumentPanel(QWidget* parent)
-    : QDockWidget(parent)
+  : QDockWidget(parent)
 {
   s_AllDocumentPanels.PushBack(this);
 

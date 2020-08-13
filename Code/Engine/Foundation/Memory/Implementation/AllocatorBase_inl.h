@@ -1,7 +1,7 @@
 
-EZ_ALWAYS_INLINE ezAllocatorBase::ezAllocatorBase() {}
+EZ_ALWAYS_INLINE ezAllocatorBase::ezAllocatorBase() = default;
 
-EZ_ALWAYS_INLINE ezAllocatorBase::~ezAllocatorBase() {}
+EZ_ALWAYS_INLINE ezAllocatorBase::~ezAllocatorBase() = default;
 
 namespace ezInternal
 {

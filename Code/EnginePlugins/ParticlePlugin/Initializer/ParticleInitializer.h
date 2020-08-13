@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ParticlePlugin/ParticlePluginDLL.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 class ezParticleSystemInstance;
 class ezProcessingStream;
@@ -41,5 +41,4 @@ protected:
   ezParticleInitializer();
 
   virtual void Process(ezUInt64 uiNumElements) final override {}
-
 };

@@ -101,4 +101,3 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream, bool& out_bOldV
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderPermutationBinary);
-

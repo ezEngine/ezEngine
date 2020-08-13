@@ -7,10 +7,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorApiService, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
- ezActorApiService::ezActorApiService() = default;
- ezActorApiService::~ezActorApiService() = default;
+ezActorApiService::ezActorApiService() = default;
+ezActorApiService::~ezActorApiService() = default;
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorApiService);
-

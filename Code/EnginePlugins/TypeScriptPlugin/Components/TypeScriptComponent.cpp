@@ -127,14 +127,14 @@ void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& msg)
   {
     if (sender.m_pMsgType == pType)
     {
-      sender.m_Sender.SendMessage(msg, this, GetOwner()->GetParent());
+      sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
       return;
     }
   }
 
   auto& sender = m_EventSenders.ExpandAndGetRef();
   sender.m_pMsgType = pType;
-  sender.m_Sender.SendMessage(msg, this, GetOwner()->GetParent());
+  sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
 }
 
 bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
@@ -256,6 +256,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   if (binding.LoadComponent(m_TypeScriptComponentGuid, m_ComponentTypeInfo).Failed())
   {
     SetUserFlag(UserFlag::ScriptFailure, true);
+    ezLog::Error("Failed to load TS component type.");
     return;
   }
 
@@ -263,6 +264,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   if (binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx, false).Failed())
   {
     SetUserFlag(UserFlag::ScriptFailure, true);
+    ezLog::Error("Failed to register TS component type '{}'. Class may not exist under that name.", m_ComponentTypeInfo.Value().m_sComponentTypeName);
     return;
   }
 
@@ -373,14 +375,14 @@ void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& val
 
   m_Parameters[hs] = value;
 
-  //GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
+  // GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
 }
 
 void ezTypeScriptComponent::RemoveParameter(const char* szKey)
 {
   if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
   {
-    //GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
+    // GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
   }
 }
 

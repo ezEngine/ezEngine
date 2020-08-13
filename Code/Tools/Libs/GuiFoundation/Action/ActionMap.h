@@ -1,25 +1,33 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/Action.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezDocument;
 
 struct EZ_GUIFOUNDATION_DLL ezActionMapDescriptor
 {
-  ezActionDescriptorHandle m_hAction;  ///< Action to be mapped
-  ezString m_sPath; ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
+  ezActionDescriptorHandle m_hAction; ///< Action to be mapped
+  ezString
+    m_sPath; ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
   float m_fOrder; ///< Ordering key to sort actions in the mapping path.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezActionMapDescriptor);
 
-template<typename T>
+template <typename T>
 class ezTreeNode
 {
 public:
-  ezTreeNode() : m_pParent(nullptr) {}
-  ezTreeNode(const T& data) : m_Data(data), m_pParent(nullptr) {}
+  ezTreeNode()
+    : m_pParent(nullptr)
+  {
+  }
+  ezTreeNode(const T& data)
+    : m_Data(data)
+    , m_pParent(nullptr)
+  {
+  }
   ~ezTreeNode()
   {
     while (!m_Children.IsEmpty())
@@ -33,7 +41,7 @@ public:
   ezTreeNode<T>* GetParent() { return m_pParent; }
   const ezHybridArray<ezTreeNode<T>*, 8>& GetChildren() const { return m_Children; }
   ezHybridArray<ezTreeNode<T>*, 8>& GetChildren() { return m_Children; }
-  
+
   ezTreeNode<T>* InsertChild(const T& data, ezUInt32 iIndex)
   {
     ezTreeNode<T>* pNode = EZ_DEFAULT_NEW(ezTreeNode<T>, data);
@@ -88,7 +96,7 @@ public:
   const TreeNode* GetRootObject() const { return &m_Root; }
   const ezActionMapDescriptor* GetDescriptor(const ezUuid& guid) const;
   const ezActionMapDescriptor* GetDescriptor(const ezTreeNode<ezActionMapDescriptor>* pObject) const;
-  
+
 private:
   bool FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) const;
   const ezTreeNode<ezActionMapDescriptor>* GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, const ezStringView& sName) const;
@@ -97,4 +105,3 @@ private:
   TreeNode m_Root;
   ezMap<ezUuid, ezTreeNode<ezActionMapDescriptor>*> m_Descriptors;
 };
-
