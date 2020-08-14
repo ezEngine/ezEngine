@@ -37,7 +37,7 @@ bool ezTextureAtlasLayout::AddElement(ezTextureAtlasElement& element)
 void ezTextureAtlasLayout::Clear()
 {
   if (m_RootNode)
-    m_RootNode.Release();
+    m_RootNode.Clear();
 
   m_RootNode = EZ_DEFAULT_NEW(ezTextureAtlasNode, 0, 0, m_Width, m_Height);
 
@@ -126,7 +126,7 @@ ezDynamicArray<ezTextureAtlasPage> ezTextureAtlasUtility::CreateTextureAtlasLayo
 
   while (remainingCount > 0)
   {
-    //layouts.PushBack(ezTextureAtlasLayout(width, height, maxWidth, maxHeight, powerOfTwo));
+    layouts.PushBack(ezTextureAtlasLayout(width, height, maxWidth, maxHeight, powerOfTwo));
 
     ezTextureAtlasLayout& currentLayout = layouts.PeekBack();
 

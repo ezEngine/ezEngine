@@ -9,7 +9,8 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Types/Types.h>
-#include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Types/RefCounted.h>
 
 struct ezTextureAtlasElement
 {
@@ -36,14 +37,14 @@ struct ezTextureAtlasElement
 
 class ezTextureAtlasLayout
 {
-  struct ezTextureAtlasNode
+  struct ezTextureAtlasNode :public ezRefCounted
   {
     ezUInt32 x;
     ezUInt32 y;
     ezUInt32 Width;
     ezUInt32 Height;
-    ezUniquePtr<ezTextureAtlasNode> Left;
-    ezUniquePtr<ezTextureAtlasNode> Right;
+    ezSharedPtr<ezTextureAtlasNode> Left;
+    ezSharedPtr<ezTextureAtlasNode> Right;
     bool Full;
 
     ezTextureAtlasNode()
@@ -113,7 +114,7 @@ private:
   ezUInt32 m_Height;
   bool m_PowerOfTwo;
 
-  ezUniquePtr<ezTextureAtlasNode> m_RootNode;
+  ezSharedPtr<ezTextureAtlasNode> m_RootNode;
 };
 
 struct ezTextureAtlasPage

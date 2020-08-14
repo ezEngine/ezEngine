@@ -16,8 +16,6 @@ void ezFontImporter::Startup()
 
 ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOptions& importOptions, ezRawFont& outFont)
 {
-  ezRawFont rawFont;
-
   ezFileReader fileReader;
   if (fileReader.Open(inputFile).Failed())
   {
@@ -32,9 +30,11 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
 
   ezFileSystem::GetFileStats(fontAbsPath, fontFileInfo);
 
-  ezStringBuilder fontFileName(fontFileInfo.m_sName);
+  //ezStringBuilder fontFileName(fontFileInfo.m_sName);
+  ezStringBuilder fontFileName;
+  fontFileName.Format("{0}", ezPathUtils::GetFileName(fontAbsPath));
 
-  rawFont.m_Name = fontFileInfo.m_sName;
+  outFont.m_Name = fontFileName;
 
   fileReader.Close();
 
@@ -53,7 +53,7 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
     return EZ_FAILURE;
   }
 
-  rawFont.m_FamilyName = face->family_name;
+  outFont.m_FamilyName = face->family_name;
 
   error = FT_Select_Charmap(face, ft_encoding_unicode);
   if (error)
@@ -329,6 +329,31 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
       auto pixelData = outImg.GetBlobPtr<ezUInt8>();
       ezMemoryUtils::ZeroFill(pixelData.GetPtr(), pixelData.GetCount());
       ezMemoryUtils::Copy(pixelData.GetPtr(), pixelBuffer, bufferSize);
+
+      //{
+      //  ezStringBuilder fontPageName;
+      //  fontPageName.Format("{0}_{1}_{2}", fontFileName, fontSize, pageIndex);
+
+      //  ezStringBuilder fontPagePath(inputFile);
+      //  fontPagePath.Append(fontPageName.GetData());
+      //  ezStringBuilder fontImagePath(fontPagePath);
+      //  fontImagePath.Append(".png");
+
+      //  ezStringBuilder fontImageAbsPath;
+
+      //  ezResult resolved = ezFileSystem::ResolvePath(fontImagePath, &fontImageAbsPath, nullptr);
+
+      //  ezFileWriter file;
+
+      //  file.Open(fontImageAbsPath);
+
+      //  auto ezResult = ezImageFileFormat::GetWriterFormat("png")->WriteImage(file, outImg, ezLog::GetThreadLocalLogSystem(), "png");
+
+      //  EZ_ASSERT_ALWAYS(ezResult == EZ_SUCCESS, "Failed to write file.");
+
+      //  file.Close();
+      //}
+
       pageIndex++;
     }
 
@@ -346,7 +371,7 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
 
     rawFontBitmap.m_SpaceWidth = face->glyph->advance.x >> 6;
 
-    rawFont.m_BitmapPerSize.Insert(rawFontBitmap.m_Size, std::move(rawFontBitmap));
+    outFont.m_BitmapPerSize.Insert(rawFontBitmap.m_Size, std::move(rawFontBitmap));
   }
 
   return EZ_SUCCESS;
