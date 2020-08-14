@@ -28,6 +28,7 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #  include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #endif
 #include <RendererCore/Decals/DecalAtlasResource.h>
+//#include <RendererCore/Font/FontResource.h>
 
 void ezGameApplication::Init_ConfigureAssetManagement()
 {
@@ -222,6 +223,11 @@ void ezGameApplication::Init_SetupDefaultResources()
   // Decal Atlas
   {
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezDecalAtlasResource, ezTexture2DResource>();
+  }
+
+  // Font
+  {
+    //ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezFontResource, ezTexture2DResource>();
   }
 }
 
