@@ -18,7 +18,6 @@ ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
 ezSurfaceResource::ezSurfaceResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
 {
-  m_pPhysicsMaterial = nullptr;
 }
 
 ezSurfaceResource::~ezSurfaceResource()

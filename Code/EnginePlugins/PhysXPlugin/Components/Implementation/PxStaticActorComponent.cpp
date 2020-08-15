@@ -7,6 +7,7 @@
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <RendererCore/Meshes/MeshComponent.h>
 #include <extensions/PxRigidActorExt.h>
 
 // clang-format off
@@ -17,6 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh;Collision Mesh (Convex)")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -83,6 +85,8 @@ void ezPxStaticActorComponent::OnDeactivated()
     pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
+  m_UsedSurfaces.Clear();
+
   SUPER::OnDeactivated();
 }
 
@@ -146,22 +150,24 @@ void ezPxStaticActorComponent::OnSimulationStarted()
       pxMaterials.PushBack(ezPhysX::GetSingleton()->GetDefaultMaterial());
     }
 
+    if (m_bPullSurfacesFromGraphicsMesh)
+    {
+      PullSurfacesFromGraphicsMesh(pxMaterials);
+    }
+
     PxMeshScale scale = ezPxConversionUtils::ToScale(globalTransform);
 
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      pShape = PxRigidActorExt::createExclusiveShape(
-        *m_pActor, PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape = PxRigidActorExt::createExclusiveShape(*m_pActor, PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
-      pShape = PxRigidActorExt::createExclusiveShape(
-        *m_pActor, PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape = PxRigidActorExt::createExclusiveShape(*m_pActor, PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else
     {
-      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('{0}' - '{1}')",
-        pMesh->GetResourceID(), pMesh->GetResourceDescription());
+      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('{0}' - '{1}')", pMesh->GetResourceID(), pMesh->GetResourceDescription());
     }
   }
 
@@ -184,6 +190,62 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   {
     EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
     pModule->GetPxScene()->addActor(*m_pActor);
+  }
+}
+
+void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<PxMaterial*, 32>& pxMaterials)
+{
+  // the materials don't hold a handle to the surfaces, so they don't keep them alive
+  // therefore, we need to keep them alive by storing a handle
+  m_UsedSurfaces.Clear();
+
+  ezMeshComponent* pMeshComp;
+  if (!GetOwner()->TryGetComponentOfBaseType(pMeshComp))
+    return;
+
+  auto hMeshRes = pMeshComp->GetMesh();
+  if (!hMeshRes.IsValid())
+    return;
+
+  ezResourceLock<ezMeshResource> pMeshRes(hMeshRes, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pMeshRes.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  if (pMeshRes->GetMaterials().GetCount() != pxMaterials.GetCount())
+    return;
+
+  const ezUInt32 uiNumMats = pxMaterials.GetCount();
+  m_UsedSurfaces.SetCount(uiNumMats);
+
+  for (ezUInt32 s = 0; s < uiNumMats; ++s)
+  {
+    // first check whether the component has a material override
+    auto hMat = pMeshComp->GetMaterial(s);
+
+    if (!hMat.IsValid())
+    {
+      // otherwise ask the mesh resource about the material
+      hMat = pMeshRes->GetMaterials()[s];
+    }
+
+    if (!hMat.IsValid())
+      continue;
+
+    ezResourceLock<ezMaterialResource> pMat(hMat, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pMat.GetAcquireResult() != ezResourceAcquireResult::Final)
+      continue;
+
+    if (pMat->GetSurface().IsEmpty())
+      continue;
+
+    m_UsedSurfaces[s] = ezResourceManager::LoadResource<ezSurfaceResource>(pMat->GetSurface().GetString());
+
+    ezResourceLock<ezSurfaceResource> pSurface(m_UsedSurfaces[s], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pSurface.GetAcquireResult() != ezResourceAcquireResult::Final)
+      continue;
+
+    EZ_ASSERT_DEV(pSurface->m_pPhysicsMaterial != nullptr, "Invalid PhysX material pointer on surface");
+    pxMaterials[s] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
   }
 }
 

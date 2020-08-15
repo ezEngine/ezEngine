@@ -37,12 +37,11 @@ public:
 
   static ezEvent<const Event&, ezMutex> s_Events;
 
-  void* m_pPhysicsMaterial;
+  void* m_pPhysicsMaterial = nullptr;
 
   /// \brief Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
   /// Returns false, if the interaction type was not defined in this surface or any of its base surfaces
-  bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal,
-    const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr = 0.0f);
+  bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr = 0.0f);
 
   bool IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) const;
 
@@ -54,8 +53,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  static const ezSurfaceInteraction* FindInteraction(
-    const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue);
+  static const ezSurfaceInteraction* FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue);
 
   ezSurfaceResourceDescriptor m_Descriptor;
 

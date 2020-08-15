@@ -21,6 +21,8 @@ public:
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
+  void PullSurfacesFromGraphicsMesh(ezHybridArray<PxMaterial*, 32>& pxMaterials);
+
   //////////////////////////////////////////////////////////////////////////
   // ezPxStaticActorComponent
 
@@ -38,6 +40,7 @@ public:
 
   ezUInt8 m_uiCollisionLayer = 0;  // [ property ]
   bool m_bIncludeInNavmesh = true; // [ property ]
+  bool m_bPullSurfacesFromGraphicsMesh = true; // [ property ]
 
 protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
@@ -47,4 +50,7 @@ protected:
   ezPxMeshResourceHandle m_hCollisionMesh;
 
   physx::PxRigidStatic* m_pActor = nullptr;
+
+  // array to keep surfaces alive, in case they are pulled from the materials of the render mesh
+  ezDynamicArray<ezSurfaceResourceHandle> m_UsedSurfaces;
 };
