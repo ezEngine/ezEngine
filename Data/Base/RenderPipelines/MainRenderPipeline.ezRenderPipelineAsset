@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{10044995473148637150}
+		u4 %Hash{2208674568573079115}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -26,7 +26,7 @@ Objects
 o
 {
 	Uuid %id{u4{14128119733835974060,197568313923478682}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -38,7 +38,7 @@ o
 o
 {
 	Uuid %id{u4{11294238266529976522,382130926426167006}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -64,7 +64,7 @@ o
 o
 {
 	Uuid %id{u4{3163596115887693552,1854170765256263771}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -83,7 +83,7 @@ o
 o
 {
 	Uuid %id{u4{15089182188073574948,2584087693578659518}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -102,7 +102,7 @@ o
 o
 {
 	Uuid %id{u4{11453152178619763955,2848560846842348971}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -114,7 +114,7 @@ o
 o
 {
 	Uuid %id{u4{9400293960526415718,3626807622184776773}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -126,7 +126,7 @@ o
 o
 {
 	Uuid %id{u4{14002218876291960624,4101008208666614714}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -138,7 +138,7 @@ o
 o
 {
 	Uuid %id{u4{2048854553253134529,4184774760099034950}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -239,6 +239,10 @@ o
 		Uuid %Bloom{u4{4547201397525156440,17176398231224436355}}
 		Uuid %Color{u4{16632054522268894656,6207933693596627728}}
 		f %Contrast{0}
+		s %LUT1{""}
+		f %LUT1Strength{0}
+		s %LUT2{""}
+		f %LUT2Strength{0}
 		Color %MoodColor{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 		f %MoodStrength{0}
 		s %Name{"TonemapPass"}
@@ -246,7 +250,7 @@ o
 		{
 			Uuid{u4{11453152178619763955,2848560846842348971}}
 		}
-		Vec2 %Node::Pos{f{0x56C60743,0xCA39C4C3}}
+		Vec2 %Node::Pos{f{0xD5C70843,0xCA39C4C3}}
 		Uuid %Output{u4{10739766490606447756,5342130824349431209}}
 		f %Saturation{0x0000803F}
 		s %VignettingTexture{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
@@ -462,7 +466,7 @@ o
 			Uuid{u4{5064312080891635809,9998042430096560476}}
 			Uuid{u4{1514105261775523742,14060874000112313265}}
 		}
-		Vec2 %Node::Pos{f{0x750089C4,0xC0EB7FC3}}
+		Vec2 %Node::Pos{f{0x358189C4,0x1C7E85C3}}
 		Uuid %SSAO{u4{3819605327869598113,11524678961001285143}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 		b %WriteDepth{0}
@@ -579,7 +583,7 @@ o
 o
 {
 	Uuid %id{u4{14090574505314322122,8517415002032464871}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -605,7 +609,7 @@ o
 o
 {
 	Uuid %id{u4{4529851268356012118,9709759020654224139}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -617,7 +621,7 @@ o
 o
 {
 	Uuid %id{u4{5064312080891635809,9998042430096560476}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -629,7 +633,7 @@ o
 o
 {
 	Uuid %id{u4{2109649553735474624,10068359503686591039}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -676,7 +680,7 @@ o
 o
 {
 	Uuid %id{u4{15927176432988605372,11749333713023115191}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -688,7 +692,7 @@ o
 o
 {
 	Uuid %id{u4{1882725276896333402,11962921664937049994}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -714,7 +718,7 @@ o
 o
 {
 	Uuid %id{u4{14087780810845222544,13772523811420944661}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -747,7 +751,7 @@ o
 o
 {
 	Uuid %id{u4{1514105261775523742,14060874000112313265}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -759,7 +763,7 @@ o
 o
 {
 	Uuid %id{u4{17187617781113521262,14686135957824988849}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -785,7 +789,7 @@ o
 o
 {
 	Uuid %id{u4{18178812671938301710,16435899946365392913}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -990,7 +994,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTonemapPass"}
-		u3 %TypeSize{216}
+		u3 %TypeSize{240}
 		u3 %TypeVersion{1}
 	}
 }

@@ -23,7 +23,7 @@ Objects
 o
 {
 	Uuid %id{u4{7353198259405798851,39487329320491593}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -96,7 +96,7 @@ o
 		Uuid %DepthStencil{u4{14952335550809254984,12829539749875895330}}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x16051B44,0x30957043}}
+		Vec2 %Node::Pos{f{0xD6851B44,0x30957043}}
 	}
 }
 o
@@ -188,7 +188,7 @@ o
 o
 {
 	Uuid %id{u4{13371694063486489051,17459386005747668061}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{

@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{4717653016472063679}
+		u4 %Hash{6866229520004830311}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -23,7 +23,7 @@ Objects
 o
 {
 	Uuid %id{u4{15261312847763839036,652025498685030223}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -35,7 +35,7 @@ o
 o
 {
 	Uuid %id{u4{10919281897112055793,1307921977122466182}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -140,7 +140,7 @@ o
 		{
 			Uuid{u4{15261312847763839036,652025498685030223}}
 		}
-		Vec2 %Node::Pos{f{0xBB487944,0x6999E343}}
+		Vec2 %Node::Pos{f{0x1B897944,0xA81BE543}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
 }
@@ -190,6 +190,10 @@ o
 		Uuid %Bloom{u4{1496801259720670516,12221049048469735748}}
 		Uuid %Color{u4{10123742144462876612,13791156729610205017}}
 		f %Contrast{0}
+		s %LUT1{""}
+		f %LUT1Strength{0}
+		s %LUT2{""}
+		f %LUT2Strength{0}
 		Color %MoodColor{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 		f %MoodStrength{0}
 		s %Name{"TonemapPass"}
@@ -297,7 +301,7 @@ o
 o
 {
 	Uuid %id{u4{6630276317876339765,6600990733036221299}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -323,7 +327,7 @@ o
 o
 {
 	Uuid %id{u4{5876457966274309286,8729207033382307774}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -349,7 +353,7 @@ o
 o
 {
 	Uuid %id{u4{764346319544532917,9373171072130357731}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -389,7 +393,7 @@ o
 o
 {
 	Uuid %id{u4{7454331646408329172,12441954611528944990}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -415,7 +419,7 @@ o
 o
 {
 	Uuid %id{u4{5073523151258603439,14599937085343786438}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -509,7 +513,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTonemapPass"}
-		u3 %TypeSize{216}
+		u3 %TypeSize{240}
 		u3 %TypeVersion{1}
 	}
 }

@@ -37,7 +37,7 @@ o
 o
 {
 	Uuid %id{u4{10664611001387976886,1992749983681091257}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -70,7 +70,7 @@ o
 o
 {
 	Uuid %id{u4{15782713861233203346,3398601076824103606}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -89,7 +89,7 @@ o
 o
 {
 	Uuid %id{u4{4261499106640345793,4341579768377919816}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -164,7 +164,7 @@ o
 			Uuid{u4{12321167046213589368,13757540492610412291}}
 			Uuid{u4{4944270853096801429,7507451448114355947}}
 		}
-		Vec2 %Node::Pos{f{0x25666FC4,0xBDE1ADC3}}
+		Vec2 %Node::Pos{f{0x46246EC4,0x805CAAC3}}
 		Uuid %ResolvedDepth{u4{12288030095937851519,10597437949001964740}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Simplified"}
 	}
@@ -290,7 +290,7 @@ o
 o
 {
 	Uuid %id{u4{4944270853096801429,7507451448114355947}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -302,7 +302,7 @@ o
 o
 {
 	Uuid %id{u4{3979026559259545303,7578757460984205823}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -362,7 +362,7 @@ o
 o
 {
 	Uuid %id{u4{12239357584562417555,11394570248101169272}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -381,7 +381,7 @@ o
 o
 {
 	Uuid %id{u4{12321167046213589368,13757540492610412291}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -414,7 +414,7 @@ o
 o
 {
 	Uuid %id{u4{14497112787608354469,17709161289785337190}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{

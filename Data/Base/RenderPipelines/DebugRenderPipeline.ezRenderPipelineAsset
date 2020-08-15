@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{2929266636164522108}
+		u4 %Hash{15130121621062345048}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -30,7 +30,7 @@ o
 o
 {
 	Uuid %id{u4{2310023081481583217,411500182924790629}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -56,7 +56,7 @@ o
 o
 {
 	Uuid %id{u4{3718661009187945765,1393906335014485456}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -68,7 +68,7 @@ o
 o
 {
 	Uuid %id{u4{4355146897831064751,1540001699796877676}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -94,7 +94,7 @@ o
 o
 {
 	Uuid %id{u4{9292523289628931985,2636011269575974404}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -106,7 +106,7 @@ o
 o
 {
 	Uuid %id{u4{778685229638459559,2735563112584295687}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -132,7 +132,7 @@ o
 o
 {
 	Uuid %id{u4{12537469188334594978,3703776374766440906}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -263,6 +263,7 @@ o
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x5A369DC3,0x3157B7C3}}
 		b %PickSelected{0}
+		b %PickTransparent{0}
 		Vec2 %PickingPosition{f{0,0}}
 	}
 }
@@ -345,7 +346,7 @@ o
 o
 {
 	Uuid %id{u4{1295307140860018845,5202976202168942759}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -391,7 +392,7 @@ o
 			Uuid{u4{16164622460128969661,8702376805346856925}}
 			Uuid{u4{11776841765925632921,17880848782181007406}}
 		}
-		Vec2 %Node::Pos{f{0xD81E86C4,0x320B16C4}}
+		Vec2 %Node::Pos{f{0x29FD84C4,0xD2CA15C4}}
 		Uuid %SSAO{u4{1687059502135556263,9115484863453342950}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 		b %WriteDepth{1}
@@ -610,7 +611,7 @@ o
 o
 {
 	Uuid %id{u4{2287038623071487255,6819298473132105498}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -622,7 +623,7 @@ o
 o
 {
 	Uuid %id{u4{15963360478098408578,7663285164062759233}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -634,7 +635,7 @@ o
 o
 {
 	Uuid %id{u4{16164622460128969661,8702376805346856925}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -660,7 +661,7 @@ o
 o
 {
 	Uuid %id{u4{3306512737483845291,9529311055707217915}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -714,7 +715,7 @@ o
 o
 {
 	Uuid %id{u4{10461488281413873755,11913594607456771108}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -726,7 +727,7 @@ o
 o
 {
 	Uuid %id{u4{12169740238903941488,11989396104336646469}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -745,7 +746,7 @@ o
 o
 {
 	Uuid %id{u4{2796435842990491649,12418381148241771909}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -778,7 +779,7 @@ o
 o
 {
 	Uuid %id{u4{12453757396004825397,15181973579508457022}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -797,7 +798,7 @@ o
 o
 {
 	Uuid %id{u4{18175878940806250846,16427037694836142047}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -830,7 +831,7 @@ o
 o
 {
 	Uuid %id{u4{11776841765925632921,17880848782181007406}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -856,7 +857,7 @@ o
 o
 {
 	Uuid %id{u4{7050326701652390023,18152629010509589666}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -1039,7 +1040,7 @@ o
 			Uuid{u4{16631111678292622734,8500933737344926134}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1464}
+		u3 %TypeSize{1664}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1238,7 +1239,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		s %ConstantValue{"Scene;Prefab;PropertyAnim Asset"}
+		s %ConstantValue{"Scene;Prefab;PropertyAnim"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"DocumentType"}
 		s %Type{"ezString"}
@@ -1645,7 +1646,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1120}
+		u3 %TypeSize{1336}
 		u3 %TypeVersion{1}
 	}
 }
