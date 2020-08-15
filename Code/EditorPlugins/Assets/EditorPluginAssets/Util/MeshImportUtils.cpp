@@ -12,8 +12,8 @@
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Scene.h>
-#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 namespace ezMeshImportUtils
 {
@@ -245,8 +245,7 @@ namespace ezMeshImportUtils
     pAccessor->FinishTransaction();
   }
 
-  void ImportMeshMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh,
-    ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const char* szImportSourceFolder, const char* szImportTargetFolder)
+  void ImportMeshMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const char* szImportSourceFolder, const char* szImportTargetFolder)
   {
     EZ_PROFILE_SCOPE("ImportMeshMaterials");
     ezStringBuilder materialName, tmp;
@@ -256,13 +255,14 @@ namespace ezMeshImportUtils
     ezProgressRange range("Importing Materials", mesh.GetNumSubMeshes(), false);
 
     ezHashTable<const ezModelImporter::Material*, ezString> importMatToMaterialGuid;
-    ezDynamicArray<ezTaskGroupID> pendingSaveTasks;
-    pendingSaveTasks.Reserve(mesh.GetNumSubMeshes());
+
+    ezHybridArray<ezDocument*, 32> pendingSaveTasks;
+
     auto WaitForPendingTasks = [&pendingSaveTasks]() {
       EZ_PROFILE_SCOPE("WaitForPendingTasks");
-      for (ezTaskGroupID& id : pendingSaveTasks)
+      for (ezDocument* pDoc : pendingSaveTasks)
       {
-        ezTaskSystem::WaitForGroup(id);
+        pDoc->GetDocumentManager()->CloseDocument(pDoc);
       }
       pendingSaveTasks.Clear();
     };
@@ -321,15 +321,14 @@ namespace ezMeshImportUtils
         }
 
         ezMeshImportUtils::ImportMaterial(materialDocument, material, szImportSourceFolder, szImportTargetFolder);
-        // ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
         inout_MaterialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid(), tmp);
 
-        ezTaskGroupID id = materialDocument->SaveDocumentAsync([](ezDocument* doc, ezStatus res) { doc->GetDocumentManager()->CloseDocument(doc); });
-        pendingSaveTasks.PushBack(id);
+        materialDocument->SaveDocumentAsync({});
+        pendingSaveTasks.PushBack(materialDocument);
 
         // TODO: We have to flush because Materials create worlds in the engine process and there
         // is a world limit of 64. So at half of that we flush.
-        if ((subMeshIdx % 32) == 0)
+        if (pendingSaveTasks.GetCount() >= 32)
           WaitForPendingTasks();
       }
 
