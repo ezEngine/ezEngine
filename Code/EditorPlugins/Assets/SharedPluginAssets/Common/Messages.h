@@ -17,3 +17,11 @@ class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineLoopAnimationMsg : public ezEditor
 public:
   bool m_bLoop;
 };
+
+class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineSetMaterialsMsg : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSetMaterialsMsg, ezEditorEngineDocumentMsg);
+
+public:
+  ezHybridArray<ezString, 16> m_Materials;
+};

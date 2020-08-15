@@ -14,6 +14,7 @@ class ezQtMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 
 public:
   ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument);
+  ~ezQtMeshAssetDocumentWindow();
 
   ezMeshAssetDocument* GetMeshDocument();
   virtual const char* GetWindowLayoutGroupName() const override { return "MeshAsset"; }
@@ -25,6 +26,8 @@ protected:
 private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose);
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void UpdatePreview();
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;

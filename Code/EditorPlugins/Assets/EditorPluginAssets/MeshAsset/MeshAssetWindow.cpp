@@ -16,10 +16,13 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
+#include <SharedPluginAssets/Common/Messages.h>
 
 ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMeshAssetDocumentWindow::PropertyEventHandler, this));
+
   // Menu Bar
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
@@ -77,6 +80,11 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
   QueryObjectBBox(0);
 }
 
+ezQtMeshAssetDocumentWindow::~ezQtMeshAssetDocumentWindow()
+{
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMeshAssetDocumentWindow::PropertyEventHandler, this));
+}
+
 ezMeshAssetDocument* ezQtMeshAssetDocumentWindow::GetMeshDocument()
 {
   return static_cast<ezMeshAssetDocument*>(GetDocument());
@@ -104,6 +112,32 @@ void ezQtMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
+}
+
+void ezQtMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (e.m_sProperty == "Resource") // any material change
+  {
+    UpdatePreview();
+  }
+}
+
+void ezQtMeshAssetDocumentWindow::UpdatePreview()
+{
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return;
+
+  const auto& materials = GetMeshDocument()->GetProperties()->m_Slots;
+
+  ezEditorEngineSetMaterialsMsg msg;
+  msg.m_Materials.SetCount(materials.GetCount());
+
+  for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+  {
+    msg.m_Materials[i] = materials[i].m_sResource;
+  }
+
+  GetEditorEngineConnection()->SendMessage(&msg);
 }
 
 void ezQtMeshAssetDocumentWindow::InternalRedraw()

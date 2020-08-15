@@ -40,15 +40,36 @@ ezMeshContext::ezMeshContext()
   m_pMeshObject = nullptr;
 }
 
-void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto* pMsg = ezDynamicCast<const ezEditorEngineSetMaterialsMsg*>(pDocMsg))
+  {
+    ezMeshComponent* pMesh;
+    if (m_pMeshObject && m_pMeshObject->TryGetComponentOfBaseType(pMesh))
+    {
+      for (ezUInt32 i = 0; i < pMsg->m_Materials.GetCount(); ++i)
+      {
+        ezMaterialResourceHandle hMat;
+
+        if (!pMsg->m_Materials[i].IsEmpty())
+        {
+          hMat = ezResourceManager::LoadResource<ezMaterialResource>(pMsg->m_Materials[i]);
+        }
+
+        pMesh->SetMaterial(i, hMat);
+      }
+    }
+
+    return;
+  }
+
+  if (auto* pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
 void ezMeshContext::OnInitialize()
