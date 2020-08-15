@@ -6,12 +6,16 @@
 #include <RendererCore/Messages/SetColorMessage.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Gradient", GetColorGradientFile, SetColorGradientFile)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
     EZ_MEMBER_PROPERTY("Duration", m_Duration),
+    EZ_ENUM_MEMBER_PROPERTY("SetColorMode", ezSetColorMode, m_SetColorMode),
+    EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
+    EZ_ACCESSOR_PROPERTY("RandomStartOffset", GetRandomStartOffset, SetRandomStartOffset)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("ApplyToChildren", GetApplyRecursive, SetApplyRecursive),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -23,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezColorAnimationComponent::ezColorAnimationComponent() {}
+ezColorAnimationComponent::ezColorAnimationComponent() = default;
 
 void ezColorAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -32,16 +36,43 @@ void ezColorAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hGradient;
   s << m_Duration;
+
+  // version 2
+  s << m_SetColorMode;
+  s << m_AnimationMode;
+  s << GetRandomStartOffset();
+  s << GetApplyRecursive();
 }
 
 void ezColorAnimationComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hGradient;
   s >> m_Duration;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_SetColorMode;
+    s >> m_AnimationMode;
+    bool b;
+    s >> b;
+    SetRandomStartOffset(b);
+    s >> b;
+    SetApplyRecursive(b);
+  }
+}
+
+void ezColorAnimationComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  if (GetRandomStartOffset())
+  {
+    m_CurAnimTime = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_Duration.GetSeconds()));
+  }
 }
 
 void ezColorAnimationComponent::SetColorGradientFile(const char* szFile)
@@ -69,6 +100,26 @@ void ezColorAnimationComponent::SetColorGradient(const ezColorGradientResourceHa
   m_hGradient = hResource;
 }
 
+bool ezColorAnimationComponent::GetApplyRecursive() const
+{
+  return GetUserFlag(0);
+}
+
+void ezColorAnimationComponent::SetApplyRecursive(bool value)
+{
+  SetUserFlag(0, value);
+}
+
+bool ezColorAnimationComponent::GetRandomStartOffset() const
+{
+  return GetUserFlag(1);
+}
+
+void ezColorAnimationComponent::SetRandomStartOffset(bool value)
+{
+  SetUserFlag(1, value);
+}
+
 void ezColorAnimationComponent::Update()
 {
   if (!m_hGradient.IsValid() || m_Duration <= ezTime::Zero())
@@ -76,11 +127,49 @@ void ezColorAnimationComponent::Update()
 
   ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
-  m_CurAnimTime += tDiff;
+  const bool bReverse = GetUserFlag(0);
 
-  // currently just loop the animation
-  if (m_CurAnimTime >= m_Duration)
-    m_CurAnimTime -= m_Duration;
+  if (bReverse)
+    m_CurAnimTime -= tDiff;
+  else
+    m_CurAnimTime += tDiff;
+
+  switch (m_AnimationMode)
+  {
+    case ezPropertyAnimMode::Once:
+    {
+      m_CurAnimTime = ezMath::Min(m_CurAnimTime, m_Duration);
+      break;
+    }
+
+    case ezPropertyAnimMode::Loop:
+    {
+      if (m_CurAnimTime >= m_Duration)
+        m_CurAnimTime -= m_Duration;
+
+      break;
+    }
+
+    case ezPropertyAnimMode::BackAndForth:
+    {
+      if (m_CurAnimTime > m_Duration)
+      {
+        SetUserFlag(0, !bReverse);
+
+        const ezTime tOver = m_Duration - m_CurAnimTime;
+
+        m_CurAnimTime = m_Duration - tOver;
+      }
+      else if (m_CurAnimTime < ezTime::Zero())
+      {
+        SetUserFlag(0, !bReverse);
+
+        m_CurAnimTime = -m_CurAnimTime;
+      }
+
+      break;
+    }
+  }
 
   ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::AllowLoadingFallback);
 
@@ -89,12 +178,12 @@ void ezColorAnimationComponent::Update()
 
   ezMsgSetColor msg;
   msg.m_Color = pGradient->Evaluate(m_CurAnimTime.GetSeconds() / m_Duration.GetSeconds());
-  msg.m_Mode = ezSetColorMode::SetRGBA; // could be a parameter
+  msg.m_Mode = m_SetColorMode;
 
-  // not recursive (could be a parameter)
-  GetOwner()->SendMessage(msg);
+  if (GetApplyRecursive())
+    GetOwner()->SendMessageRecursive(msg);
+  else
+    GetOwner()->SendMessage(msg);
 }
-
-
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_ColorAnimationComponent);
