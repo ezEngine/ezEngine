@@ -26,6 +26,11 @@ Only concrete and clocks.\n\
   sOutputFile2.AppendPath("IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
+  ezStringBuilder sOutputFile3 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile3.MakeCleanPath();
+  sOutputFile3.AppendPath("IO", "SubFolder2", "SubSubFolder");
+  sOutputFile3.AppendPath("RandomFile.txt");
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
   {
     ezOSFile f;
@@ -284,4 +289,23 @@ Only concrete and clocks.\n\
     const char* szAppDir = ezOSFile::GetApplicationDirectory();
     EZ_IGNORE_UNUSED(szAppDir);
   }
+
+#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeleteFolder")
+  {
+    {
+      ezOSFile f;
+      EZ_TEST_BOOL(f.Open(sOutputFile3.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
+    }
+
+    ezStringBuilder SubFolder2 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    SubFolder2.MakeCleanPath();
+    SubFolder2.AppendPath("IO", "SubFolder2");
+
+    EZ_TEST_BOOL(ezOSFile::DeleteFolder(SubFolder2).Succeeded());
+    EZ_TEST_BOOL(!ezOSFile::ExistsDirectory(SubFolder2));
+  }
+
+#endif
 }

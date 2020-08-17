@@ -358,6 +358,7 @@ private:
   static bool InternalExistsFile(const char* szFile);
   static bool InternalExistsDirectory(const char* szDirectory);
   static ezResult InternalDeleteFile(const char* szFile);
+  static ezResult InternalDeleteDirectory(const char* szDirectory);
   static ezResult InternalCreateDirectory(const char* szFile);
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)

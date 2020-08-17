@@ -575,21 +575,22 @@ ezResult ezOSFile::DeleteFolder(const char* szFolder)
       return EZ_FAILURE;
   }
 
-  // not worth the effort at the moment to implement all the details,
-  // it is likely that this implementation will use std::filesystem soon
+  for (ezUInt32 i = items.GetCount(); i > 0; --i)
+  {
+    const auto& item = items[i - 1];
 
-  // for (ezUInt32 i = items.GetCount(); i > 0; --i)
-  //{
-  //  const auto& item = items[i - 1];
+    if (!item.m_bIsDirectory)
+      continue;
 
-  //  if (!item.m_bIsDirectory)
-  //    continue;
+    fullPath = item.m_sParentPath;
+    fullPath.AppendPath(item.m_sName);
 
-  //  fullPath = item.m_sParentPath;
-  //  fullPath.AppendPath(item.m_sName);
+    if (ezOSFile::InternalDeleteDirectory(fullPath).Failed())
+      return EZ_FAILURE;
+  }
 
-  //  // TODO: delete empty folders now
-  //}
+  if (ezOSFile::InternalDeleteDirectory(szFolder).Failed())
+    return EZ_FAILURE;
 
   return EZ_SUCCESS;
 }

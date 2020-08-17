@@ -240,6 +240,19 @@ ezResult ezOSFile::InternalDeleteFile(const char* szFile)
   return EZ_SUCCESS;
 }
 
+ezResult ezOSFile::InternalDeleteDirectory(const char* szDirectory)
+{
+  if (RemoveDirectoryW(ezDosDevicePath(szDirectory)) == FALSE)
+  {
+    if (GetLastError() == ERROR_FILE_NOT_FOUND)
+      return EZ_SUCCESS;
+
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
 {
   // handle drive letters as always successful
