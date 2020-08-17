@@ -597,4 +597,71 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unicode escape sequence")
+  {
+    const char* szTestData = "{\"a\":\"\\u0061\",\"b\":\"\\u03f6\",\"c\":\"a\\u2AD7z\",\"d\":\"\\ud83e\\uDD86\\uD83D\\uDC96\"}";
+
+    StringStream stream(szTestData);
+
+    TestReader reader;
+
+    reader.Add(ParseResult(BeginObject));
+
+    //ASCII a character. (1 utf16 code point, 1 utf8 code points).
+    reader.Add(ParseResult(Variable, "a"));
+    reader.Add(ParseResult("a"));
+
+    //Greek Reversed Lunate Epsilon Symbol (1 utf16 code point, 2 utf8 code points).
+    reader.Add(ParseResult(Variable, "b"));
+    reader.Add(ParseResult("\xCF\xB6")); 
+
+    // Superset Beside Subset (1 utf16 code point, 3 utf8 code points).
+    reader.Add(ParseResult(Variable, "c"));
+    reader.Add(ParseResult("a\xE2\xAB\x97z")); 
+
+    // Duck+Sparkling Heart (2 utf16 code point, 4 utf8 code points each).
+    reader.Add(ParseResult(Variable, "d"));
+    reader.Add(ParseResult("\xF0\x9F\xA6\x86\xF0\x9F\x92\x96")); 
+
+    reader.Add(ParseResult(EndObject));
+
+    reader.ParseStream(stream);
+
+    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unicode escape sequence parsing errors")
+  {
+    const char* szTestData = "{\"a\":\"\\u006G\",\"b\":\"\\u03f\",\"c\":\"a\\ud83ez\",\"d\":\"\\ud83e\t\"}";
+
+    StringStream stream(szTestData);
+
+    TestReader reader;
+
+    reader.Add(ParseResult(BeginObject));
+
+    //Invalid character in literal
+    reader.Add(ParseResult(Variable, "a"));
+    reader.Add(ParseResult("G"));
+
+    //Too few characters in literal
+    reader.Add(ParseResult(Variable, "b"));
+    reader.Add(ParseResult(""));
+
+    // Surrogate not in pair.
+    reader.Add(ParseResult(Variable, "c"));
+    reader.Add(ParseResult("az"));
+
+    // Surrogate not in pair and followed by a different escape sequence.
+    reader.Add(ParseResult(Variable, "d"));
+    reader.Add(ParseResult("\t"));
+
+    reader.Add(ParseResult(EndObject));
+
+    reader.m_iExpectedParsingErrors = 4;
+    reader.ParseStream(stream);
+
+    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+  }
 }
