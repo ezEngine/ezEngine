@@ -31,6 +31,8 @@
 
 #  include <Foundation/Basics/Platform/Win/MinWindows.h>
 
+#  include <Foundation/Basics/Platform/Win/HResultUtils.h>
+
 namespace ezMinWindows
 {
   template <>

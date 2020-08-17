@@ -150,7 +150,7 @@ public:
   /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
   static void InitializeGPUData();
 
-  /// \brief Adds a Gpu profiling scope in the internal event ringbuffer.
+  /// \brief Adds a GPU profiling scope in the internal event ringbuffer.
   static void AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime);
 };
 

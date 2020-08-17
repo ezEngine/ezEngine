@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Foundation/Types/ArrayPtr.h>
+#include <Foundation/Basics.h>
 
 /// \brief This class encapsulates a blob's storage and it's size. It is recommended to use this class instead of directly working on the void* of the
 /// blob.

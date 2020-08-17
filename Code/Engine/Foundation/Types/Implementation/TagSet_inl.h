@@ -360,7 +360,7 @@ static ezTypeVersion s_TagSetVersion = 1;
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
 {
-  const ezUInt16 uiNumTags = GetNumTagsSet();
+  const ezUInt16 uiNumTags = static_cast<ezUInt16>(GetNumTagsSet());
   stream << uiNumTags;
 
   stream.WriteVersion(s_TagSetVersion);

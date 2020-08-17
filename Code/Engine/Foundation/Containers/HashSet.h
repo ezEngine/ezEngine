@@ -3,7 +3,6 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
-#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Implementation of a hashset.
 ///

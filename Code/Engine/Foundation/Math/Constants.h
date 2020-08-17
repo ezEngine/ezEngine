@@ -35,8 +35,7 @@ namespace ezMath
   template <typename TYPE>
   constexpr TYPE MaxValue();
 
-  /// \brief Returns the smallest possible value (that is not -infinity). Usually zero or -MaxValue(). For signed integers this will be -MaxValue() -
-  /// 1
+  /// \brief Returns the smallest possible value (that is not -infinity). Usually zero or -MaxValue(). For signed integers this will be -MaxValue() - 1
   template <typename TYPE>
   constexpr TYPE MinValue();
 
