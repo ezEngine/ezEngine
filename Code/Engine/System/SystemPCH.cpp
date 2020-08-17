@@ -8,3 +8,4 @@ EZ_STATICLINK_LIBRARY(System)
   EZ_STATICLINK_REFERENCE(System_Screen_Implementation_Screen);
   EZ_STATICLINK_REFERENCE(System_Window_Implementation_Window);
 }
+

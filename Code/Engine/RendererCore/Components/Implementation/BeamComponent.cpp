@@ -361,3 +361,7 @@ void ezBeamComponent::Cleanup()
 {
   m_hMesh.Invalidate();
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_BeamComponent);
+

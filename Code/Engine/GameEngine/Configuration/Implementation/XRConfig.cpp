@@ -66,4 +66,4 @@ public:
 
 ezVRConfig_1_2 g_ezVRConfig_1_2;
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_XRConfigs);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_XRConfig);

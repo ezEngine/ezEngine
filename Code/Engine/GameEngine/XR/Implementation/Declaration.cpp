@@ -25,3 +25,7 @@ ezXRDeviceState::ezXRDeviceState()
   m_vAimPosition.SetZero();
   m_qAimRotation.SetIdentity();
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_Declaration);
+
