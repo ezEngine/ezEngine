@@ -227,3 +227,40 @@ struct ezHashHelper<ezTypedResourceHandle<T>>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezTypedResourceHandle<T>& a, const ezTypedResourceHandle<T>& b) { return a == b; }
 };
+
+// Stream operations
+class ezResource;
+
+class EZ_CORE_DLL ezResourceHandleStreamOperations
+{
+public:
+  template <typename ResourceType>
+  static void WriteHandle(ezStreamWriter& Stream, const ezTypedResourceHandle<ResourceType>& hResource)
+  {
+    WriteHandle(Stream, hResource.m_Typeless.m_pResource);
+  }
+
+  template <typename ResourceType>
+  static void ReadHandle(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& ResourceHandle)
+  {
+    ReadHandle(Stream, ResourceHandle.m_Typeless);
+  }
+
+private:
+  static void WriteHandle(ezStreamWriter& Stream, const ezResource* pResource);
+  static void ReadHandle(ezStreamReader& Stream, ezTypelessResourceHandle& ResourceHandle);
+};
+
+/// \brief Operator to serialize resource handles
+template <typename ResourceType>
+void operator<<(ezStreamWriter& Stream, const ezTypedResourceHandle<ResourceType>& Value)
+{
+  ezResourceHandleStreamOperations::WriteHandle(Stream, Value);
+}
+
+/// \brief Operator to deserialize resource handles
+template <typename ResourceType>
+void operator>>(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Value)
+{
+  ezResourceHandleStreamOperations::ReadHandle(Stream, Value);
+}

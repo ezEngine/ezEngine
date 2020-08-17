@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/UniquePtr.h>

@@ -1,7 +1,6 @@
 #include <RendererCorePCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/IO/Stream.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
