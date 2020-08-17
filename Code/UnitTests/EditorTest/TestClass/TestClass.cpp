@@ -261,19 +261,21 @@ void ezEditorTest::ExecuteDocumentAction(const char* szActionName, ezDocument* p
 
 ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szImageName)
 {
-  ezStringBuilder sImgPath;
-  // TODO: fix this
-  sImgPath.Format("D:/{}.tga", szImageName);
+  ezStringBuilder sImgPath = ezOSFile::GetUserDataFolder("EditorTests");
+  sImgPath.AppendFormat("/{}.tga", szImageName);
 
   ezOSFile::DeleteFile(sImgPath);
 
   pWindow->CreateImageCapture(sImgPath);
 
-  // TODO: fix this
   for (int i = 0; i < 10; ++i)
   {
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
     ProcessEvents();
+
+    if (ezOSFile::ExistsFile(sImgPath))
+      break;
+
+    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
   }
 
   if (!ezOSFile::ExistsFile(sImgPath))
