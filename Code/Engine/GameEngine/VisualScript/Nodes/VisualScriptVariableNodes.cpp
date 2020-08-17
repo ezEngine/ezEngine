@@ -264,7 +264,7 @@ ezVisualScriptNode_Number::~ezVisualScriptNode_Number() {}
 
 void ezVisualScriptNode_Number::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
+  if (m_VarName.IsEmpty())
   {
     m_VarName = m_sVariable.GetData();
   }
@@ -301,7 +301,7 @@ ezVisualScriptNode_StoreNumber::~ezVisualScriptNode_StoreNumber() {}
 
 void ezVisualScriptNode_StoreNumber::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
+  if (m_VarName.IsEmpty())
   {
     m_VarName = m_sVariable.GetData();
   }
@@ -341,7 +341,7 @@ ezVisualScriptNode_Bool::~ezVisualScriptNode_Bool() {}
 
 void ezVisualScriptNode_Bool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
+  if (m_VarName.IsEmpty())
   {
     m_VarName = m_sVariable.GetData();
   }
@@ -378,7 +378,7 @@ ezVisualScriptNode_StoreBool::~ezVisualScriptNode_StoreBool() {}
 
 void ezVisualScriptNode_StoreBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
+  if (m_VarName.IsEmpty())
   {
     m_VarName = m_sVariable.GetData();
   }
@@ -421,7 +421,7 @@ ezVisualScriptNode_ToggleBool::~ezVisualScriptNode_ToggleBool() {}
 
 void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
+  if (m_VarName.IsEmpty())
   {
     m_VarName = m_sVariable.GetData();
   }

@@ -3,7 +3,6 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
-#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Implementation of a hashtable which stores key/value pairs.
 ///
@@ -147,15 +146,15 @@ public:
   /// \brief Cannot remove an element with just a ConstIterator
   void Remove(const ConstIterator& pos) = delete;
 
-  /// \brief Returns if an entry with the given key was found and if found writes out the corresponding value to out_value.
+  /// \brief Returns whether an entry with the given key was found and if found writes out the corresponding value to out_value.
   template <typename CompatibleKeyType>
   bool TryGetValue(const CompatibleKeyType& key, ValueType& out_value) const; // [tested]
 
-  /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
   bool TryGetValue(const CompatibleKeyType& key, const ValueType*& out_pValue) const; // [tested]
 
-  /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
   bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue); // [tested]
 

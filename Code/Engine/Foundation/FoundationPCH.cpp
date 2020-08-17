@@ -6,6 +6,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
     return;
 
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashHelperString);
+  EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashStream);
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashingUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_FileSystemConfig);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_PluginConfig);
@@ -176,8 +177,10 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Compression);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ConversionUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_DGMLWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_EnvironmentVariableUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_GraphicsUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Node);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Progress);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
+

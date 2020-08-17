@@ -1,5 +1,6 @@
 #include <TexturePCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Texture/Image/ImageFormat.h>
 
@@ -393,6 +394,21 @@ static const EZ_ALWAYS_INLINE ezImageFormatMetaData& GetImageFormatMetaData(ezIm
 
   return s_formatMetaData[format];
 }
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Image, ImageFormats)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    SetupImageFormatTable();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezUInt32 ezImageFormat::GetBitsPerPixel(Enum format)
 {

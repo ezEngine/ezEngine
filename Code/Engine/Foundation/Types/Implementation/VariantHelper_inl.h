@@ -30,6 +30,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, bool& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt32>() != 0;
     else if (value.GetType() == ezVariant::Type::String)
@@ -74,6 +76,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezInt32& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt32>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -90,6 +94,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezUInt32& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezUInt32>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -109,6 +115,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezInt64& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt64>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -125,6 +133,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezUInt64& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezUInt64>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -144,6 +154,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, float& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<float>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -163,6 +175,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, double& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<double>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -179,6 +193,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezString& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     ToStringFunc toStringFunc;
     toStringFunc.m_pThis = &value;
     toStringFunc.m_pResult = &result;
@@ -189,6 +205,7 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, void*& result, bool& bSuccessful)
   {
+    bSuccessful = true;
     EZ_ASSERT_DEBUG(
       value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer, "Only ptr can be converted to void*!");
     result = value.GetType() == ezVariant::Type::VoidPointer ? value.Get<void*>() : value.Get<ezReflectedClass*>();
@@ -197,6 +214,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezColor& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() == ezVariant::Type::ColorGamma)
       result = value.Get<ezColorGammaUB>();
     else
@@ -205,6 +224,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezColorGammaUB& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() == ezVariant::Type::Color)
       result = value.Get<ezColor>();
     else
@@ -214,6 +235,8 @@ class ezVariantHelper
   template <typename T, typename V1, typename V2>
   static void ToVec2X(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
@@ -240,6 +263,8 @@ class ezVariantHelper
   template <typename T, typename V1, typename V2>
   static void ToVec3X(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
@@ -268,6 +293,8 @@ class ezVariantHelper
   template <typename T, typename V1, typename V2>
   static void ToVec4X(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();

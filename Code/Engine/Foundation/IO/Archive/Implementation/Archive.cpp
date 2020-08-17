@@ -71,10 +71,12 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_AllPathStrings));
 
-  if (version == 1)
+  if (version == 1 || version == 2)
   {
     // version 1 stores an older way for the path/hash -> entry lookup table, which is prone to hash collisions
     // in this case, rebuild the new hash table on the fly
+    //
+    // version 2 used MurmurHash, version 3 switched to xxHash, so recompute the hash for version 2 archives
 
     const ezUInt32 uiNumEntries = m_Entries.GetCount();
     m_PathToEntryIndex.Reserve(uiNumEntries);

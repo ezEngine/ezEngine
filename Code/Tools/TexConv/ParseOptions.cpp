@@ -429,7 +429,7 @@ ezResult ezTexConv::ParseAssetHeader()
 
   ezUInt32 tmp = m_Processor.m_Descriptor.m_uiAssetVersion;
   EZ_SUCCEED_OR_RETURN(ParseUIntOption("-assetVersion", 1, 0xFFFF, tmp));
-  m_Processor.m_Descriptor.m_uiAssetVersion = tmp;
+  m_Processor.m_Descriptor.m_uiAssetVersion = (ezUInt16)tmp;
 
   const ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashLow"));
   const ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashHigh"));

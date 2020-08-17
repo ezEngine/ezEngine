@@ -96,3 +96,7 @@ void ezGrabbableItemComponent::DeserializeComponent(ezWorldReader& stream)
     s >> gb.m_qLocalRotation;
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GrabbableItemComponent);
+

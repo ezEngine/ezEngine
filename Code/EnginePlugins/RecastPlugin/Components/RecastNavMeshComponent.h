@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>

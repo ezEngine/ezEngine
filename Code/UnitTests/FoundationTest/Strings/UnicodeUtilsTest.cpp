@@ -266,4 +266,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomBE(pString) == false);
     EZ_TEST_BOOL(pString == szNoBom);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf16Surrogate")
+  {
+    ezUInt16 szNoSurrogate[] = { 0x2AD7 };
+    ezUInt16 szSurrogate[] = { 0xd83e };
+
+    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf16Surrogate(szNoSurrogate) == false);
+    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf16Surrogate(szSurrogate) == true);
+
+  }
 }

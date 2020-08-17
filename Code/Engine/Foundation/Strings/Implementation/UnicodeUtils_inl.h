@@ -54,6 +54,13 @@ ezUInt32 ezUnicodeUtils::DecodeUtf8ToUtf32(ByteIterator& szUtf8Iterator)
 }
 
 template <typename UInt16Iterator>
+bool ezUnicodeUtils::IsUtf16Surrogate(UInt16Iterator& szUtf16Iterator)
+{
+  uint32_t cp = utf8::internal::mask16(*szUtf16Iterator);
+  return utf8::internal::is_lead_surrogate(cp);
+}
+
+template <typename UInt16Iterator>
 ezUInt32 ezUnicodeUtils::DecodeUtf16ToUtf32(UInt16Iterator& szUtf16Iterator)
 {
   uint32_t cp = utf8::internal::mask16(*szUtf16Iterator++);

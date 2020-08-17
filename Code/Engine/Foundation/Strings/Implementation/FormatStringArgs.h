@@ -148,7 +148,7 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 
 /// \brief Wraps a string that may contain sensitive information, such as user file paths.
 ///
-/// The application can specify a function to scramble this type of information. By default not such function is set.
+/// The application can specify a function to scramble this type of information. By default no such function is set.
 /// A general purpose function is provided with 'BuildString_SensitiveUserData_Hash()'
 ///
 /// \param sSensitiveInfo The information that may need to be scrambled.

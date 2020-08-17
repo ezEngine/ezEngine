@@ -26,7 +26,7 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_InputConfig);
   EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_PlatformProfile);
   EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_RendererProfileConfigs);
-  EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_XRConfigs);
+  EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_XRConfig);
   EZ_STATICLINK_REFERENCE(GameEngine_Console_Implementation_Autocomplete);
   EZ_STATICLINK_REFERENCE(GameEngine_Console_Implementation_Commands);
   EZ_STATICLINK_REFERENCE(GameEngine_Console_Implementation_Console);
@@ -50,6 +50,7 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_GameState_Implementation_GameStateWindow);
   EZ_STATICLINK_REFERENCE(GameEngine_GameState_Implementation_StateMap);
   EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_AreaDamageComponent);
+  EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_GrabbableItemComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_GreyBoxComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_HeadBoneComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_InputComponent);
@@ -62,6 +63,8 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_Interfaces_WindWorldModule);
   EZ_STATICLINK_REFERENCE(GameEngine_Messages_Implementation_DamageMessage);
   EZ_STATICLINK_REFERENCE(GameEngine_Messages_Implementation_TriggerTriggeredMessage);
+  EZ_STATICLINK_REFERENCE(GameEngine_MixedReality_Implementation_MixedRealityFramework);
+  EZ_STATICLINK_REFERENCE(GameEngine_MixedReality_Implementation_SrmRenderComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Physics_Implementation_CharacterControllerComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Physics_Implementation_CollisionFilter);
   EZ_STATICLINK_REFERENCE(GameEngine_Physics_Implementation_SurfaceResource);
@@ -80,6 +83,7 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Nodes_VisualScriptObjectNodes);
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Nodes_VisualScriptReferenceNodes);
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Nodes_VisualScriptVariableNodes);
+  EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_Declaration);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_DeviceTrackingComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_SpatialAnchorComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_StageSpaceComponent);
@@ -88,3 +92,4 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRInterface);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRWindow);
 }
+

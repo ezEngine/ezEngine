@@ -40,3 +40,7 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
     pContext->BindBuffer("skinningMatrices", pDevice->GetDefaultResourceView(pSkinnedRenderData->m_hSkinningMatrices));
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_SkinnedMeshRenderer);
+

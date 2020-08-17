@@ -1,7 +1,6 @@
 #include <ParticlePluginPCH.h>
 
 #include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
