@@ -203,6 +203,18 @@ public:
   template <typename CompatibleKeyType>
   ValueType& operator[](const CompatibleKeyType& key); // [tested]
 
+  /// \brief Returns whether an entry with the given key was found and if found writes out the corresponding value to out_value.
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, ValueType& out_value) const; // [tested]
+
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, const ValueType*& out_pValue) const; // [tested]
+
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue); // [tested]
+
   /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
   template <typename CompatibleKeyType>
   const ValueType* GetValue(const CompatibleKeyType& key) const; // [tested]
