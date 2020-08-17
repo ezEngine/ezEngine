@@ -127,6 +127,9 @@ void ezQtMeshAssetDocumentWindow::UpdatePreview()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
+  if (GetMeshDocument()->GetProperties() == nullptr)
+    return;
+
   const auto& materials = GetMeshDocument()->GetProperties()->m_Slots;
 
   ezEditorEngineSetMaterialsMsg msg;

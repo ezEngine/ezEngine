@@ -21,7 +21,7 @@ public:
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
-  void PullSurfacesFromGraphicsMesh(ezHybridArray<PxMaterial*, 32>& pxMaterials);
+  void PullSurfacesFromGraphicsMesh(ezHybridArray<physx::PxMaterial*, 32>& pxMaterials);
 
   //////////////////////////////////////////////////////////////////////////
   // ezPxStaticActorComponent
@@ -38,8 +38,8 @@ public:
 
   ezUInt32 GetShapeId() const { return m_uiShapeId; } // [ scriptable ]
 
-  ezUInt8 m_uiCollisionLayer = 0;  // [ property ]
-  bool m_bIncludeInNavmesh = true; // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;              // [ property ]
+  bool m_bIncludeInNavmesh = true;             // [ property ]
   bool m_bPullSurfacesFromGraphicsMesh = true; // [ property ]
 
 protected:

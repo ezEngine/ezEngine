@@ -23,7 +23,7 @@ Objects
 o
 {
 	Uuid %id{u4{15089182188073574948,2584087693578659518}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -42,7 +42,7 @@ o
 o
 {
 	Uuid %id{u4{9400293960526415718,3626807622184776773}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -54,7 +54,7 @@ o
 o
 {
 	Uuid %id{u4{14002218876291960624,4101008208666614714}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -79,7 +79,7 @@ o
 			Uuid{u4{14087780810845222544,13772523811420944661}}
 			Uuid{u4{14090574505314322122,8517415002032464871}}
 		}
-		Vec2 %Node::Pos{f{0xDCF04BC4,0xE3AF7FC3}}
+		Vec2 %Node::Pos{f{0x5DEF4AC4,0x64AE7EC3}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
 }
@@ -352,7 +352,7 @@ o
 o
 {
 	Uuid %id{u4{14090574505314322122,8517415002032464871}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -378,7 +378,7 @@ o
 o
 {
 	Uuid %id{u4{4529851268356012118,9709759020654224139}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -390,7 +390,7 @@ o
 o
 {
 	Uuid %id{u4{5064312080891635809,9998042430096560476}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -402,7 +402,7 @@ o
 o
 {
 	Uuid %id{u4{2109649553735474624,10068359503686591039}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -442,7 +442,7 @@ o
 o
 {
 	Uuid %id{u4{1882725276896333402,11962921664937049994}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -468,7 +468,7 @@ o
 o
 {
 	Uuid %id{u4{14087780810845222544,13772523811420944661}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -501,7 +501,7 @@ o
 o
 {
 	Uuid %id{u4{1514105261775523742,14060874000112313265}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -527,7 +527,7 @@ o
 o
 {
 	Uuid %id{u4{18178812671938301710,16435899946365392913}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{

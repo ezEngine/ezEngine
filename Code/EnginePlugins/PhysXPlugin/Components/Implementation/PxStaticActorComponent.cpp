@@ -193,7 +193,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   }
 }
 
-void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<PxMaterial*, 32>& pxMaterials)
+void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx::PxMaterial*, 32>& pxMaterials)
 {
   // the materials don't hold a handle to the surfaces, so they don't keep them alive
   // therefore, we need to keep them alive by storing a handle
