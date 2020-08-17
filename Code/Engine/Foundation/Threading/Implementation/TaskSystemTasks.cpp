@@ -270,12 +270,9 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   }
 }
 
-void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, ezTime smoothFrameTime)
+void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
 {
-  if (uiSomeFrameTasks == 0)
-    return;
-
-  EZ_PROFILE_SCOPE("SomeFrameMainThreadTasks");
+  EZ_PROFILE_SCOPE("ExecuteSomeFrameTasks");
 
   // 'SomeFrameMainThread' tasks are usually used to upload resources that have been loaded in the background
   // they do not need to be executed right away, but the earlier, the better
@@ -288,58 +285,63 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, ezTime smoot
   // time that guarantees some progress, even if the frame rate is constantly low
 
   static ezTime s_FrameTimeThreshold = smoothFrameTime;
-
-  static ezTime s_LastFrame; // initializes to zero -> very large frame time difference at first
+  static ezTime s_LastExecution; // initializes to zero -> very large frame time difference at first
 
   ezTime CurTime = ezTime::Now();
-  ezTime LastTime = s_LastFrame;
-  s_LastFrame = CurTime;
+  ezTime LastTime = s_LastExecution;
+  s_LastExecution = CurTime;
 
   // as long as we have a smooth frame rate, execute as many of these tasks, as possible
-  while ((uiSomeFrameTasks > 0) && (CurTime - LastTime < smoothFrameTime))
+  while (CurTime - LastTime < smoothFrameTime)
   {
-    // we execute one of these tasks, so reset the frame time threshold
-    s_FrameTimeThreshold = smoothFrameTime;
-
     if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr))
-      return; // nothing left to do
+  {
+      // nothing left to do, reset the threshold
+    s_FrameTimeThreshold = smoothFrameTime;
+      return;
+    }
 
     CurTime = ezTime::Now();
-    --uiSomeFrameTasks;
   }
 
-  // nothing left to do
-  if (uiSomeFrameTasks == 0)
+  ezUInt32 uiNumTasksTodo = 0;
+
+  {
+    EZ_LOCK(s_TaskSystemMutex);
+    uiNumTasksTodo = s_State->m_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();
+  }
+
+  if (uiNumTasksTodo == 0)
     return;
 
-  if (CurTime - LastTime < s_FrameTimeThreshold)
+  if (CurTime - LastTime < s_FrameTimeThreshold) // the accumulating threshold has caught up with us
   {
-    // we execute one of these tasks, so reset the frame time threshold
-    s_FrameTimeThreshold = smoothFrameTime;
+    // don't reset the threshold, from now on we execute at least one task per frame
 
     ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
   }
   else
   {
-    // increase the threshold by 5 ms
+    // increase the threshold slightly every time we skip the work
     // this means that when the frame rate is too low, we can ignore these tasks for a few frames
     // and thus prevent decreasing the frame rate even further
     // however we increase the time threshold, at which we skip this, further and further
-    // therefore at some point we will execute at least one such task, no matter how low the frame rate is
-    // this guarantees at least some progress with these tasks
-    s_FrameTimeThreshold += ezTime::Milliseconds(5.0);
+    // therefore at some point we will start executing these tasks, no matter how low the frame rate is
+    //
+    // this gives us some buffer to smooth out performance drops
+    s_FrameTimeThreshold += ezTime::Milliseconds(0.2);
+  }
 
-    //  25 ms -> 40 FPS
-    //  30 ms -> 33 FPS
-    //  35 ms -> 28 FPS
-    //  40 ms -> 25 FPS
-    //  45 ms -> 22 FPS
-    //  50 ms -> 20 FPS
-    //  55 ms -> 18 FPS
-    //  60 ms -> 16 FPS
-    //  65 ms -> 15 FPS
-    //  70 ms -> 14 FPS
-    //  75 ms -> 13 FPS
+  // if the queue is really full, we have to guarantee more progress
+  {
+    if (uiNumTasksTodo > 100)
+      ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
+
+    if (uiNumTasksTodo > 75)
+      ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
+
+    if (uiNumTasksTodo > 50)
+      ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
   }
 }
 
@@ -368,20 +370,15 @@ void ezTaskSystem::FinishFrameTasks()
     }
   }
 
-  ezUInt32 uiSomeFrameTasks = 0;
-
   // all the important tasks for this frame should be finished or worked on by now
   // so we can now re-prioritize the tasks for the next frame
   {
     EZ_LOCK(s_TaskSystemMutex);
 
-    // get this info once, it won't shrink (but might grow) while we are outside the lock
-    uiSomeFrameTasks = s_State->m_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();
-
     ReprioritizeFrameTasks();
   }
 
-  ExecuteSomeFrameTasks(uiSomeFrameTasks, s_State->m_TargetFrameTime);
+  ExecuteSomeFrameTasks(s_State->m_TargetFrameTime);
 
   // Update the thread utilization
   {
