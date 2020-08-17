@@ -23,12 +23,16 @@ protected:
   virtual void InternalRedraw() override;
   virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
 
+  protected Q_SLOTS:
+  void HighlightTimer();
+
 private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void UpdatePreview();
+  bool UpdatePreview();
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
+  ezUInt32 m_uiHighlightSlots = 0;
 };

@@ -78,6 +78,10 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
   FinishWindowCreation();
 
   QueryObjectBBox(0);
+
+  UpdatePreview();
+
+  QTimer::singleShot(500, this, &ezQtMeshAssetDocumentWindow::HighlightTimer);
 }
 
 ezQtMeshAssetDocumentWindow::~ezQtMeshAssetDocumentWindow()
@@ -116,31 +120,47 @@ void ezQtMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
 
 void ezQtMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_sProperty == "Resource") // any material change
+  //if (e.m_sProperty == "Resource") // any material change
   {
     UpdatePreview();
   }
 }
 
-void ezQtMeshAssetDocumentWindow::UpdatePreview()
+bool ezQtMeshAssetDocumentWindow::UpdatePreview()
 {
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
-    return;
+    return false;
 
   if (GetMeshDocument()->GetProperties() == nullptr)
-    return;
+    return false;
 
   const auto& materials = GetMeshDocument()->GetProperties()->m_Slots;
 
   ezEditorEngineSetMaterialsMsg msg;
   msg.m_Materials.SetCount(materials.GetCount());
 
+  ezUInt32 uiSlot = 0;
+  bool bHighlighted = false;
+
   for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
   {
     msg.m_Materials[i] = materials[i].m_sResource;
+
+    if (materials[i].m_bHighlight)
+    {
+      if (uiSlot == m_uiHighlightSlots)
+      {
+        bHighlighted = true;
+        msg.m_Materials[i] = "Materials/Editor/HighlightMesh.ezMaterial";
+      }
+
+      ++uiSlot;
+    }
   }
 
   GetEditorEngineConnection()->SendMessage(&msg);
+
+  return bHighlighted;
 }
 
 void ezQtMeshAssetDocumentWindow::InternalRedraw()
@@ -172,4 +192,30 @@ void ezQtMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngin
   }
 
   ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+}
+
+void ezQtMeshAssetDocumentWindow::HighlightTimer()
+{
+  if (m_uiHighlightSlots & EZ_BIT(31))
+    m_uiHighlightSlots &= ~EZ_BIT(31);
+  else
+    m_uiHighlightSlots |= EZ_BIT(31);
+
+  if (m_uiHighlightSlots & EZ_BIT(31))
+  {
+    UpdatePreview();
+  }
+  else
+  {
+    if (UpdatePreview())
+    {
+      ++m_uiHighlightSlots;
+    }
+    else
+    {
+      m_uiHighlightSlots = EZ_BIT(31);
+    }
+  }
+
+  QTimer::singleShot(500, this, &ezQtMeshAssetDocumentWindow::HighlightTimer);
 }
