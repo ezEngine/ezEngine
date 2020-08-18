@@ -10,6 +10,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorPreferencesUser : public ezPreferences
 
 public:
   ezEditorPreferencesUser();
+  ~ezEditorPreferencesUser();
 
   float m_fPerspectiveFieldOfView = 70.0f;
   float m_fGizmoScale = 1.0f;
@@ -17,4 +18,5 @@ public:
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = false;
+  bool m_bAssetFilterCombobox = true;
 };

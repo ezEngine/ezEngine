@@ -17,6 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("GizmoScale", m_fGizmoScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.2f, 5.0f)),
     EZ_MEMBER_PROPERTY("UsePrecompiledTools", m_bUsePrecompiledTools)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ExpandSceneTreeOnSelection", m_bExpandSceneTreeOnSelection)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("AssetFilterCombobox", m_bAssetFilterCombobox)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
 }
@@ -27,6 +28,8 @@ ezEditorPreferencesUser::ezEditorPreferencesUser()
   : ezPreferences(Domain::Application, "General")
 {
 }
+
+ezEditorPreferencesUser::~ezEditorPreferencesUser() = default;
 
 void ezQtEditorApp::LoadEditorPreferences()
 {

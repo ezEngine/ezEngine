@@ -5,6 +5,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QClipboard>
@@ -24,6 +25,11 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
 
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
+
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+  ListTypeFilter->setVisible(!pPreferences->m_bAssetFilterCombobox);
+  TypeFilter->setVisible(pPreferences->m_bAssetFilterCombobox);
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
@@ -104,6 +110,20 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
       pItem->setCheckState(Qt::CheckState::Unchecked);
 
       ListTypeFilter->addItem(pItem);
+    }
+  }
+
+  {
+    ezQtScopedBlockSignals block(TypeFilter);
+
+    TypeFilter->clear();
+
+    // 'All' Filter
+    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
+
+    for (const auto& it : assetTypes)
+    {
+      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key()));
     }
   }
 
@@ -294,21 +314,49 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
   ezStringBuilder sTemp;
   const ezStringBuilder sFilter(";", m_pFilter->GetTypeFilter(), ";");
 
-  bool bAnyChecked = false;
 
-  for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
   {
-    sTemp.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+    ezQtScopedBlockSignals _(ListTypeFilter);
 
-    const bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
+    bool bNoneChecked = true;
 
-    ListTypeFilter->item(i)->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
+    for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+    {
+      sTemp.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
 
-    if (bChecked)
-      bAnyChecked = true;
+      const bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
+
+      ListTypeFilter->item(i)->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
+
+      if (bChecked)
+        bNoneChecked = false;
+    }
+
+    ListTypeFilter->item(0)->setCheckState(bNoneChecked ? Qt::Checked : Qt::Unchecked);
   }
 
-  ListTypeFilter->item(0)->setCheckState(bAnyChecked ? Qt::Unchecked : Qt::Checked);
+  {
+    ezQtScopedBlockSignals _(TypeFilter);
+
+    ezInt32 iCheckedFilter = 0;
+    ezInt32 iNumChecked = 0;
+
+    for (ezInt32 i = 1; i < TypeFilter->count(); ++i)
+    {
+      sTemp.Set(";", TypeFilter->itemText(i).toUtf8().data(), ";");
+
+      if (sFilter.FindSubString(sTemp) != nullptr)
+      {
+        ++iNumChecked;
+        iCheckedFilter = i;
+      }
+    }
+
+    if (iNumChecked == 1)
+      TypeFilter->setCurrentIndex(iCheckedFilter);
+    else
+      TypeFilter->setCurrentIndex(0);
+  }
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
@@ -542,6 +590,26 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
   AddAssetCreatorMenu(&m, false);
 
   m.exec(TreeFolderFilter->viewport()->mapToGlobal(pt));
+}
+
+void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
+{
+  ezQtScopedBlockSignals block(TypeFilter);
+
+  ezStringBuilder sFilter;
+
+  if (index > 0)
+  {
+    sFilter.Set(";", TypeFilter->itemText(index).toUtf8().data(), ";");
+  }
+  else
+  {
+    // all filters enabled
+    // might be different for dialogs
+    sFilter = m_sAllTypesFilter;
+  }
+
+  m_pFilter->SetTypeFilter(sFilter);
 }
 
 void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
@@ -844,20 +912,39 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 
   if (!ezStringUtils::IsNullOrEmpty(szFilters))
   {
-    ezQtScopedBlockSignals block(ListTypeFilter);
-
     ezStringBuilder sFilter;
     const ezStringBuilder sAllFilters(";", szFilters, ";");
 
     m_sAllTypesFilter = sAllFilters;
 
-    for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
     {
-      sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+      ezQtScopedBlockSignals block(ListTypeFilter);
 
-      if (sAllFilters.FindSubString(sFilter) == nullptr)
-        ListTypeFilter->item(i)->setHidden(true);
-      // ListTypeFilter->item(i)->setFlags(Qt::ItemFlag::ItemIsUserCheckable);
+      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+      {
+        sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+
+        if (sAllFilters.FindSubString(sFilter) == nullptr)
+        {
+          ListTypeFilter->item(i)->setHidden(true);
+        }
+      }
+    }
+
+    {
+      ezQtScopedBlockSignals block(TypeFilter);
+
+      for (ezInt32 i = TypeFilter->count(); i > 1; --i)
+      {
+        const ezInt32 idx = i - 1;
+
+        sFilter.Set(";", TypeFilter->itemText(idx).toUtf8().data(), ";");
+
+        if (sAllFilters.FindSubString(sFilter) == nullptr)
+        {
+          TypeFilter->removeItem(idx);
+        }
+      }
     }
   }
 

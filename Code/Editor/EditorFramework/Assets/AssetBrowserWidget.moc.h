@@ -48,6 +48,7 @@ private Q_SLOTS:
   void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
   void on_TreeFolderFilter_itemSelectionChanged();
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
+  void on_TypeFilter_currentIndexChanged(int index);
   void OnScrollToItem(ezUuid preselectedAsset);
   void OnTreeOpenExplorer();
   void OnShowSubFolderItemsToggled();
