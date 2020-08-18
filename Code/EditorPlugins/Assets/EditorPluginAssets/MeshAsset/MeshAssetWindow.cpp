@@ -81,7 +81,10 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
 
   UpdatePreview();
 
-  QTimer::singleShot(500, this, &ezQtMeshAssetDocumentWindow::HighlightTimer);
+  m_HighlightTimer = new QTimer();
+  connect(m_HighlightTimer, &QTimer::timeout, this, &ezQtMeshAssetDocumentWindow::HighlightTimer);
+  m_HighlightTimer->setInterval(500);
+  m_HighlightTimer->start();
 }
 
 ezQtMeshAssetDocumentWindow::~ezQtMeshAssetDocumentWindow()
@@ -215,6 +218,4 @@ void ezQtMeshAssetDocumentWindow::HighlightTimer()
       m_uiHighlightSlots = EZ_BIT(31);
     }
   }
-
-  QTimer::singleShot(500, this, &ezQtMeshAssetDocumentWindow::HighlightTimer);
 }
