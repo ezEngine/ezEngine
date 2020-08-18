@@ -169,8 +169,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   ezSharedPtr<ezModelImporter::Scene> pScene;
   ezModelImporter::Mesh* pMesh = nullptr;
-  EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, pProp->m_sSubMeshName, mTransformation,
-    pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, pProp->m_NormalPrecision, pProp->m_TexCoordPrecision, range, desc, false));
+  EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, pProp->m_sSubMeshName, mTransformation, pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, pProp->m_NormalPrecision, pProp->m_TexCoordPrecision, range, desc, false));
 
   range.BeginNextStep("Importing Materials");
 
@@ -179,8 +178,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   {
     GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
 
-    ezMeshImportUtils::UpdateMaterialSlots(
-      GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials, pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
+    ezMeshImportUtils::UpdateMaterialSlots(GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials, pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
 
     ApplyNativePropertyChangesToObjectManager();
     GetObjectAccessor()->FinishTransaction();

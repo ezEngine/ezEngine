@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <Foundation/Algorithm/HashStream.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Asset Hashing and Status Updates
@@ -603,23 +604,25 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
 
 ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream)
 {
+  ezHashStreamWriter64 hsw;
+
   CURATOR_PROFILE("HashFile");
-  ezUInt8 uiCache[1024 * 10];
-  ezUInt64 uiHash = 0;
+  ezUInt8 cachedBytes[1024 * 10];
+
   while (true)
   {
-    ezUInt64 uiRead = InputStream.ReadBytes(uiCache, EZ_ARRAY_SIZE(uiCache));
+    const ezUInt64 uiRead = InputStream.ReadBytes(cachedBytes, EZ_ARRAY_SIZE(cachedBytes));
 
     if (uiRead == 0)
       break;
 
-    uiHash = ezHashingUtils::xxHash64(uiCache, (size_t)uiRead, uiHash);
+    hsw.WriteBytes(cachedBytes, uiRead);
 
     if (pPassThroughStream != nullptr)
-      pPassThroughStream->WriteBytes(uiCache, uiRead);
+      pPassThroughStream->WriteBytes(cachedBytes, uiRead);
   }
 
-  return uiHash;
+  return hsw.GetHashValue();
 }
 
 void ezAssetCurator::RemoveAssetTransformState(const ezUuid& assetGuid)
