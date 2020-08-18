@@ -715,6 +715,13 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     {
       return ezStatus(ezFmt("Set Property: The property '{0}' is a PointerOwner, use ezAddObjectCommand instead", m_sProperty));
     }
+
+    if (pProp->GetAttributeByType<ezTemporaryAttribute>())
+    {
+      // if we modify a 'temporary' property, ie. one that is not serialized,
+      // don't mark the document as modified
+      m_bModifiedDocument = false;
+    }
   }
 
   return pDocument->GetObjectManager()->SetValue(m_pObject, m_sProperty, m_NewValue, m_Index);

@@ -17,9 +17,11 @@ class EZ_TOOLSFOUNDATION_DLL ezCommand : public ezReflectedClass
 
 public:
   ezCommand();
+  ~ezCommand();
 
   bool IsUndoable() const { return m_bUndoable; };
   bool HasChildActions() const { return !m_ChildActions.IsEmpty(); }
+  bool HasModifiedDocument() const;
 
   enum class CommandState
   {
@@ -45,8 +47,9 @@ protected:
   friend class ezCommandHistory;
   friend class ezCommandTransaction;
 
-  ezString m_sDescription; // TODO
-  bool m_bUndoable;        // TODO
+  ezString m_sDescription;
+  bool m_bUndoable = true;
+  bool m_bModifiedDocument = true;
   ezHybridArray<ezCommand*, 8> m_ChildActions;
-  ezDocument* m_pDocument;
+  ezDocument* m_pDocument = nullptr;
 };

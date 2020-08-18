@@ -10,6 +10,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // ezCommandTransaction
 ////////////////////////////////////////////////////////////////////////
 
+ezCommandTransaction::ezCommandTransaction()
+{
+  // doesn't do anything on its own
+  m_bModifiedDocument = false;
+}
+
 ezCommandTransaction::~ezCommandTransaction()
 {
   EZ_ASSERT_DEV(m_ChildActions.IsEmpty(), "The list should be cleared in 'Cleanup'");
@@ -314,13 +320,13 @@ void ezCommandHistory::EndTransaction(bool bCancel)
     }
     else
     {
-      const bool bDidAnything = m_TransactionStack.PeekBack()->HasChildActions();
+      const bool bDidModifyDoc = m_TransactionStack.PeekBack()->HasModifiedDocument();
       m_UndoHistory.PushBack(m_TransactionStack.PeekBack());
       m_TransactionStack.PopBack();
       m_ActiveCommandStack.PopBack();
       ClearRedoHistory();
 
-      if (bDidAnything)
+      if (bDidModifyDoc)
       {
         m_pDocument->SetModified(true);
       }

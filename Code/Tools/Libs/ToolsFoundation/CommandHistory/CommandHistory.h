@@ -10,7 +10,7 @@ class EZ_TOOLSFOUNDATION_DLL ezCommandTransaction : public ezCommand
   EZ_ADD_DYNAMIC_REFLECTION(ezCommandTransaction, ezCommand);
 
 public:
-  ezCommandTransaction() {}
+  ezCommandTransaction();
   ~ezCommandTransaction();
 
   ezString m_sDisplayString;
