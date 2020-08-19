@@ -35,7 +35,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
     "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
-  m_pButton->setText(QStringLiteral("..."));
+  m_pButton->setText(QStringLiteral("... "));
   m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
   m_pButton->setPopupMode(QToolButton::InstantPopup);
 
@@ -47,13 +47,10 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
 
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(
-    connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr,
-    "signal/slot connection failed");
+    connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
 }
-
 
 bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) const
 {

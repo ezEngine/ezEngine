@@ -17,7 +17,6 @@ private Q_SLOTS:
 protected slots:
   void on_TextFinished_triggered();
   void on_TextChanged_triggered(const QString& value);
-  void on_customContextMenuRequested(const QPoint& pt);
   void OnOpenExplorer();
   void OnOpenFile();
 

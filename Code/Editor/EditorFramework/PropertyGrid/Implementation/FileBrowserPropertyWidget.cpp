@@ -22,21 +22,26 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
   m_pWidget = new QLineEdit(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-  // m_pWidget->m_pOwner = this;
   setFocusProxy(m_pWidget);
 
   EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr, "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
-  m_pButton->setText(QStringLiteral("..."));
-  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonIconOnly);
-  m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+  m_pButton->setText(QStringLiteral("... "));
+  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
+  m_pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
+  m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::NoContextMenu);
 
-  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtFilePropertyWidget::on_customContextMenuRequested) != nullptr,
-    "signal/slot connection failed");
+  {
+    QMenu* pMenu = new QMenu();
+
+    pMenu->setDefaultAction(pMenu->addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
+    pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open File"), this, SLOT(OnOpenFile()))->setEnabled(!m_pWidget->text().isEmpty());
+    pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
+
+    m_pButton->setMenu(pMenu);
+  }
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
@@ -73,23 +78,10 @@ void ezQtFilePropertyWidget::on_TextFinished_triggered()
   BroadcastValueChanged(sText.GetData());
 }
 
-
 void ezQtFilePropertyWidget::on_TextChanged_triggered(const QString& value)
 {
   if (!hasFocus())
     on_TextFinished_triggered();
-}
-
-void ezQtFilePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
-{
-  QMenu m;
-
-  m.setDefaultAction(m.addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open File"), this, SLOT(OnOpenFile()))
-    ->setEnabled(!m_pWidget->text().isEmpty());
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
-
-  m.exec(m_pButton->mapToGlobal(pt));
 }
 
 void ezQtFilePropertyWidget::OnOpenExplorer()
@@ -100,7 +92,6 @@ void ezQtFilePropertyWidget::OnOpenExplorer()
 
   ezQtUiServices::OpenInExplorer(sPath, true);
 }
-
 
 void ezQtFilePropertyWidget::OnOpenFile()
 {
