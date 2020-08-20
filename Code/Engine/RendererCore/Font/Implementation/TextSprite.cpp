@@ -1,38 +1,6 @@
 #include <RendererCore/Font/TextSprite.h>
 #include <RendererCorePCH.h>
 
-// clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextSpriteBlendMode, 1)
-  EZ_ENUM_CONSTANTS(ezTextSpriteBlendMode::Masked, ezTextSpriteBlendMode::Transparent, ezTextSpriteBlendMode::Additive)
-EZ_END_STATIC_REFLECTED_ENUM;
-// clang-format on
-
-// static
-ezTempHashedString ezTextSpriteBlendMode::GetPermutationValue(Enum blendMode)
-{
-  switch (blendMode)
-  {
-    case ezTextSpriteBlendMode::Masked:
-      return "BLEND_MODE_MASKED";
-    case ezTextSpriteBlendMode::Transparent:
-      return "BLEND_MODE_TRANSPARENT";
-    case ezTextSpriteBlendMode::Additive:
-      return "BLEND_MODE_ADDITIVE";
-  }
-
-  return "";
-}
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextSpriteRenderData, 1, ezRTTIDefaultAllocator<ezTextSpriteRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-
-void ezTextSpriteRenderData::FillBatchIdAndSortingKey()
-{
-}
-
 void ezTextSprite::Update(const ezTextSpriteDescriptor& desc)
 {
   const ezString32 text(desc.Text);
@@ -71,7 +39,17 @@ void ezTextSprite::Update(const ezTextSpriteDescriptor& desc)
 
 ezRectI32 ezTextSprite::GetBounds(const ezVec2I32& offset, const ezRectI32& clipRect) const
 {
-  return ezRectI32();
+  ezRectI32 bounds = m_Bounds;
+
+  if (clipRect.width > 0 && clipRect.height > 0)
+  {
+    //bounds.Clip(clipRect);
+  }
+
+  bounds.x += offset.x;
+  bounds.y += offset.y;
+
+  return bounds;
 }
 
 ezUInt32 ezTextSprite::FillBuffer(ezDynamicArray<ezUInt8> vertices,
