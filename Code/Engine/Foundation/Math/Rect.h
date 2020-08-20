@@ -51,6 +51,19 @@ public:
 
   /// \brief Returns true if the area of the rectangle is non zero
   bool HasNonZeroArea() const;
+
+  /// \brief Returns true if the rectangle contains the provided point
+  bool Contains(const ezVec2Template<Type>& point) const;
+
+  /// \brief Returns true if the rectangle overlaps the provided rectangle.
+  /// Also returns true if the rectangles are contained within each other completely(no intersecting edges).
+  bool Overlaps(const ezRectTemplate<Type>& other) const;
+
+  /// \brief Extends this rectangle so that the provided rectangle is completely contained within it.
+  void Encapsulate(const ezRectTemplate<Type>& other);
+
+  /// \brief Clips current rectangle so that it does not overlap the provided rectangle.
+  bool Clip(const ezRectTemplate<Type>& clipRect);
 };
 
 #include <Foundation/Math/Implementation/Rect_inl.h>
