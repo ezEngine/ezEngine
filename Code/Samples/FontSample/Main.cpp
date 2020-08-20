@@ -48,9 +48,6 @@ ezApplication::ApplicationExecution ezFontRenderingApp::Run()
     // Before starting to render in a frame call this function
     m_pDevice->BeginFrame();
 
-
-    RenderText();
-
     // The ezGALContext class is the main interaction point for draw / compute operations
     ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
@@ -78,6 +75,19 @@ ezApplication::ApplicationExecution ezFontRenderingApp::Run()
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
 
+
+    //RenderText();
+
+    ezTextSprite textSprite;
+    textSprite.Update(m_TextSpriteDesc);
+
+    ezUInt32 numRenderElements = textSprite.GetNumRenderElements();
+
+    for (ezUInt32 i = 0; i < numRenderElements; i++)
+    {
+      const ezTextSpriteRenderElementData& renderData = textSprite.GetRenderElementData(i);
+    }
+
     m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
 
     m_pDevice->EndFrame();
@@ -101,7 +111,7 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   m_camera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
 
-  ezStringBuilder sProjectDir = ">sdk/Data/Samples/FontRenderingApp";
+  ezStringBuilder sProjectDir = ">sdk/Data/Samples/FontSample";
   ezStringBuilder sProjectDirResolved;
   ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved);
 
@@ -196,7 +206,19 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
 
   ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezFontResource, ezTexture2DResource>();
 
-  m_Font = ezResourceManager::LoadResource<ezFontResource>(":/Fonts/Roboto-Black.ttf.ezFont");
+  m_Font = ezResourceManager::LoadResource<ezFontResource>(":/Fonts/Roboto-Black.ezFont");
+
+  m_TextSpriteDesc.Anchor = ezTextSpriteAnchor::TopLeft;
+  m_TextSpriteDesc.HorizontalAlignment = ezTextHorizontalAlignment::Left;
+  m_TextSpriteDesc.VerticalAlignment = ezTextVerticalAlignment::Center;
+  m_TextSpriteDesc.Font = m_Font;
+  m_TextSpriteDesc.FontSize = 30;
+  m_TextSpriteDesc.Width = 100;
+  m_TextSpriteDesc.Height = 100;
+  m_TextSpriteDesc.Color = ezColor::Red;
+  m_TextSpriteDesc.Text = "Hello World";
+  m_TextSpriteDesc.WrapText = true;
+  m_TextSpriteDesc.BreakTextWhenWrapped = true;
 }
 
 void ezFontRenderingApp::BeforeHighLevelSystemsShutdown()
@@ -261,31 +283,43 @@ void ezFontRenderingApp::CreateScreenQuad()
 
 void ezFontRenderingApp::RenderText()
 {
-  if (m_Font.IsValid())
+  ezTextSprite textSprite;
+  textSprite.Update(m_TextSpriteDesc);
+
+  ezUInt32 numRenderElements = textSprite.GetNumRenderElements();
+
+  for (ezUInt32 i = 0; i < numRenderElements; i++)
   {
-    ezTextData textData("Hello World\nWhat is going on?\nTesting 13", m_Font, 30);
-
-    ezUInt32 numPages = textData.GetNumPages();
-
-    ezUInt32 texturePage = 0;
-
-    for (ezUInt32 i = 0; i < numPages; i++)
-    {
-      ezUInt32 numQuads = textData.GetNumQuadsForPage(texturePage);
-      const ezTexture2DResourceHandle& texture = textData.GetTextureForPage(texturePage);
-    }
-
-    ezLog::Info("TextInfo - Width:{0} Height:{1} Line Height:{2} Num Lines:{3} Num Pages:{4}", textData.GetWidth(), textData.GetHeight(), textData.GetLineHeight(), textData.GetNumLines(), textData.GetNumPages());
-
-    for (ezUInt32 lineNum = 0; lineNum < textData.GetNumLines(); lineNum++)
-    {
-      const ezTextData::ezTextLine& line = textData.GetLine(lineNum);
-
-      ezLog::Info("Line Info - Width:{0} Height:{1} YOffset:{2} HasNLC:{3}", line.GetWidth(), line.GetHeight(), line.GetYOffset(), line.HasNewlineCharacter());
-    }
-
-    //ezLog::Info("{} {}", font->GetName(), font->GetFamilyName());
+    const ezTextSpriteRenderElementData& renderData = textSprite.GetRenderElementData(i);
   }
+
+  //if (m_Font.IsValid())
+  //{
+  //  ezTextSpriteDescriptor desc;
+
+  //  ezTextData textData("Hello World\nWhat is going on?\nTesting 13", m_Font, 30);
+
+  //  ezUInt32 numPages = textData.GetNumPages();
+
+  //  ezUInt32 texturePage = 0;
+
+  //  for (ezUInt32 i = 0; i < numPages; i++)
+  //  {
+  //    ezUInt32 numQuads = textData.GetNumQuadsForPage(texturePage);
+  //    const ezTexture2DResourceHandle& texture = textData.GetTextureForPage(texturePage);
+  //  }
+
+  //  ezLog::Info("TextInfo - Width:{0} Height:{1} Line Height:{2} Num Lines:{3} Num Pages:{4}", textData.GetWidth(), textData.GetHeight(), textData.GetLineHeight(), textData.GetNumLines(), textData.GetNumPages());
+
+  //  for (ezUInt32 lineNum = 0; lineNum < textData.GetNumLines(); lineNum++)
+  //  {
+  //    const ezTextData::ezTextLine& line = textData.GetLine(lineNum);
+
+  //    ezLog::Info("Line Info - Width:{0} Height:{1} YOffset:{2} HasNLC:{3}", line.GetWidth(), line.GetHeight(), line.GetYOffset(), line.HasNewlineCharacter());
+  //  }
+
+  //  //ezLog::Info("{} {}", font->GetName(), font->GetFamilyName());
+  //}
 }
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezFontRenderingApp);

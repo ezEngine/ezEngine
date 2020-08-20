@@ -123,7 +123,7 @@ bool ezFontImporterApp::ParseFile(const char* szOption, ezString& result) const
 
 ezResult ezFontImporterApp::WriteFontFile(ezStreamWriter& stream, const ezRawFont& font)
 {
-  if (font.Write(stream).Failed())
+  if (font.Serialize(stream).Failed())
   {
     ezLog::Error("Failed to write data to the font file.");
     return EZ_FAILURE;

@@ -16,40 +16,40 @@ void ezFontImporter::Startup()
 
 ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOptions& importOptions, ezRawFont& outFont)
 {
-  ezFileReader fileReader;
-  if (fileReader.Open(inputFile).Failed())
+  ezOSFile file;
+  if (file.Open(inputFile, ezFileOpenMode::Read).Failed())
   {
     ezLog::Error("No file found at path: {}", inputFile);
 
     return EZ_FAILURE;
   }
 
-  ezStringBuilder fontAbsPath = fileReader.GetFilePathAbsolute();
+  ezDynamicArray<ezUInt8> fileBuffer;
+
+  const ezUInt64 fileSize = file.ReadAll(fileBuffer);
 
   ezFileStats fontFileInfo;
 
-  ezFileSystem::GetFileStats(fontAbsPath, fontFileInfo);
+  ezFileSystem::GetFileStats(inputFile, fontFileInfo);
 
-  //ezStringBuilder fontFileName(fontFileInfo.m_sName);
-  ezStringBuilder fontFileName;
-  fontFileName.Format("{0}", ezPathUtils::GetFileName(fontAbsPath));
+  ezStringBuilder fontFileName(ezPathUtils::GetFileName(inputFile));
 
   outFont.m_Name = fontFileName;
 
-  fileReader.Close();
+  file.Close();
 
   FT_Face face;
 
-  FT_Error error = FT_New_Face(m_Library, fontAbsPath, 0, &face);
+  FT_Error error = FT_New_Memory_Face(m_Library, fileBuffer.GetData(), fileSize, 0, &face);
 
   if (error == FT_Err_Unknown_File_Format)
   {
-    ezLog::Error("Failed to load font file: {}. Unsupported file format.", fontAbsPath);
+    ezLog::Error("Failed to load font file: {}. Unsupported file format.", inputFile);
     return EZ_FAILURE;
   }
   else if (error)
   {
-    ezLog::Error("Failed to load font file: {}. Unknown error.", fontAbsPath);
+    ezLog::Error("Failed to load font file: {}. Unknown error.", inputFile);
     return EZ_FAILURE;
   }
 
@@ -161,8 +161,7 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
     ezUInt32 pageIndex = 0;
 
     // Create an optimal layout for character bitmaps
-    ezDynamicArray<ezTextureAtlasPage> pages = ezTextureAtlasUtility::CreateTextureAtlasLayout(atlasElements, 64, 64, 512, 512, true);
-
+    ezDynamicArray<ezTextureAtlasPage> pages = ezTextureAtlasUtility::CreateTextureAtlasLayout(atlasElements, 64, 64, sMaximumTextureSize, sMaximumTextureSize, true);
 
     // Create char bitmap atlas textures and load character information
     for (ezTextureAtlasPage& page : pages)
@@ -330,29 +329,29 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
       ezMemoryUtils::ZeroFill(pixelData.GetPtr(), pixelData.GetCount());
       ezMemoryUtils::Copy(pixelData.GetPtr(), pixelBuffer, bufferSize);
 
-      //{
-      //  ezStringBuilder fontPageName;
-      //  fontPageName.Format("{0}_{1}_{2}", fontFileName, fontSize, pageIndex);
+      {
+        ezStringBuilder fontPageName;
+        fontPageName.Format("{0}_{1}_{2}", fontFileName, fontSize, pageIndex);
 
-      //  ezStringBuilder fontPagePath(inputFile);
-      //  fontPagePath.Append(fontPageName.GetData());
-      //  ezStringBuilder fontImagePath(fontPagePath);
-      //  fontImagePath.Append(".png");
+        ezStringBuilder fontPagePath(inputFile);
+        fontPagePath.Append(fontPageName.GetData());
+        ezStringBuilder fontImagePath(fontPagePath);
+        fontImagePath.Append(".png");
 
-      //  ezStringBuilder fontImageAbsPath;
+        ezStringBuilder fontImageAbsPath;
 
-      //  ezResult resolved = ezFileSystem::ResolvePath(fontImagePath, &fontImageAbsPath, nullptr);
+        ezResult resolved = ezFileSystem::ResolvePath(fontImagePath, &fontImageAbsPath, nullptr);
 
-      //  ezFileWriter file;
+        ezFileWriter file;
 
-      //  file.Open(fontImageAbsPath);
+        file.Open(fontImageAbsPath);
 
-      //  auto ezResult = ezImageFileFormat::GetWriterFormat("png")->WriteImage(file, outImg, ezLog::GetThreadLocalLogSystem(), "png");
+        auto ezResult = ezImageFileFormat::GetWriterFormat("png")->WriteImage(file, outImg, ezLog::GetThreadLocalLogSystem(), "png");
 
-      //  EZ_ASSERT_ALWAYS(ezResult == EZ_SUCCESS, "Failed to write file.");
+        EZ_ASSERT_ALWAYS(ezResult == EZ_SUCCESS, "Failed to write file.");
 
-      //  file.Close();
-      //}
+        file.Close();
+      }
 
       pageIndex++;
     }

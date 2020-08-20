@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Containers/ArrayMap.h>
 #include <RendererCore/Font/FontGlyph.h>
 #include <RendererCore/Font/FontBitmap.h>
 #include <RendererCore/RendererCoreDLL.h>
@@ -18,8 +19,8 @@ struct EZ_RENDERERCORE_DLL ezRawFont
 
   ezRawFont() = default;
 
-  ezResult Write(ezStreamWriter& stream) const;
-  ezResult Read(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 
   ezString m_Name;
   ezString m_FamilyName;
@@ -75,7 +76,7 @@ private:
 private:
   ezString m_Name;
   ezString m_FamilyName;
-  ezMap<ezUInt32, ezFontBitmap> m_FontDataPerSize;
+  ezArrayMap<ezUInt32, ezFontBitmap> m_FontDataPerSize;
   ezUInt32 m_GPUMemory = 0;
 };
 

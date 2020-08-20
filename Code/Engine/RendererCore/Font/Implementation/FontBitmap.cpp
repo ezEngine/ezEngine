@@ -1,5 +1,6 @@
 #include <RendererCorePCH.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/TgaFileFormat.h>
 #include <RendererCore/Font/FontBitmap.h>
 
 const ezFontGlyph& ezFontBitmap::GetFontGlyph(ezUInt32 characterId) const
@@ -25,11 +26,11 @@ ezResult ezRawFontBitmap::Serialize(ezStreamWriter& stream) const
 
   stream << texturesCount;
 
-  ezDdsFileFormat ddsFileFormat;
+  ezTgaFileFormat fileFormat;
 
   for (ezUInt32 i = 0; i < texturesCount; i++)
   {
-    if (ddsFileFormat.WriteImage(stream, m_Textures[i], ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+    if (fileFormat.WriteImage(stream, m_Textures[i], ezLog::GetThreadLocalLogSystem(), "tga").Failed())
     {
       ezLog::Error("Failed to write DDS image chunk to ezFont file.");
       return EZ_FAILURE;
@@ -55,11 +56,11 @@ ezResult ezRawFontBitmap::Deserialize(ezStreamReader& stream)
   m_Textures.Clear();
   m_Textures.Reserve(texturesCount);
 
-  ezDdsFileFormat ddsFileFormat;
+  ezTgaFileFormat fileFormat;
   for (ezUInt32 i = 0; i < texturesCount; i++)
   {
     ezImage& img = m_Textures.ExpandAndGetRef();
-    if(ddsFileFormat.ReadImage(stream, img, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+    if(fileFormat.ReadImage(stream, img, ezLog::GetThreadLocalLogSystem(), "tga").Failed())
     {
       ezLog::Error("Failed to read DDS image chunk from ezFont file.");
       return EZ_FAILURE;

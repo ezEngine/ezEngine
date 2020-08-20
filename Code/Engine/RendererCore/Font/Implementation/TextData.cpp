@@ -1,5 +1,5 @@
-#include <RendererCorePCH.h>
 #include <RendererCore/Font/TextData.h>
+#include <RendererCorePCH.h>
 
 const int EZ_SPACE_CHAR = 32;
 const int EZ_TAB_CHAR = 9;
@@ -213,6 +213,136 @@ ezUInt32 ezTextData::ezTextLine::FillBuffer(ezUInt32 page, ezVec2* vertices, ezV
   return numQuads;
 }
 
+ezUInt32 ezTextData::ezTextLine::FillBuffer(ezUInt32 page, ezDynamicArray<ezVec2>& vertices, ezDynamicArray<ezVec2>& uvs, ezDynamicArray<ezUInt32>& indexes, ezUInt32 offset, ezUInt32 size) const
+{
+
+  ezUInt32 numQuads = 0;
+
+  if (m_IsEmpty)
+    return numQuads;
+
+  ezUInt32 penX = 0;
+  ezUInt32 penNegativeXOffset = 0;
+
+  for (ezUInt32 i = m_WordsStart; i <= m_WordsEnd; i++)
+  {
+    const ezTextWord& word = m_TextData->GetWord(i);
+
+    if (word.IsSpacer())
+    {
+      // We store invisible space quads in the first page. Even though they aren't needed
+      // for rendering and we could just leave an empty space, they are needed for intersection tests
+      // for things like determining caret placement and selection areas
+      if (page == 0)
+      {
+        ezInt32 curX = penX;
+        ezInt32 curY = 0;
+
+        ezUInt32 curVert = offset * 4;
+        ezUInt32 curIndex = offset * 6;
+
+        vertices[curVert + 0] = ezVec2((float)curX, (float)curY);
+        vertices[curVert + 1] = ezVec2((float)(curX + word.GetWidth()), (float)curY);
+        vertices[curVert + 2] = ezVec2((float)curX, (float)curY + (float)m_TextData->GetLineHeight());
+        vertices[curVert + 3] = ezVec2((float)(curX + word.GetWidth()), (float)curY + (float)m_TextData->GetLineHeight());
+
+        if (uvs.GetCount() != 0)
+        {
+          uvs[curVert + 0] = ezVec2::ZeroVector();
+          uvs[curVert + 1] = ezVec2::ZeroVector();
+          uvs[curVert + 2] = ezVec2::ZeroVector();
+          uvs[curVert + 3] = ezVec2::ZeroVector();
+        }
+
+        // Triangles are back-facing which makes them invisible
+        if (indexes.GetCount() != 0)
+        {
+          indexes[curIndex + 0] = curVert + 0;
+          indexes[curIndex + 1] = curVert + 2;
+          indexes[curIndex + 2] = curVert + 1;
+          indexes[curIndex + 3] = curVert + 1;
+          indexes[curIndex + 4] = curVert + 2;
+          indexes[curIndex + 5] = curVert + 3;
+        }
+
+        offset++;
+        numQuads++;
+
+        if (offset > size)
+          EZ_REPORT_FAILURE("Out of buffer bounds. Buffer size: {0}", size);
+
+      }
+
+      penX += word.GetWidth();
+    }
+    else
+    {
+      ezUInt32 kerning = 0;
+      for (ezUInt32 j = word.GetCharsStart(); j <= word.GetCharsEnd(); j++)
+      {
+        const ezFontGlyph& curChar = m_TextData->GetCharacter(j);
+
+        ezInt32 curX = penX + curChar.m_XOffset;
+        ezInt32 curY = (m_TextData->GetBaselineOffset() - curChar.m_YOffset);
+
+        curX += penNegativeXOffset;
+        penX += curChar.m_XAdvance + kerning;
+
+        kerning = 0;
+        if ((j + 1) <= word.GetCharsEnd())
+        {
+          const ezFontGlyph& nextChar = m_TextData->GetCharacter(j + 1);
+          for (ezUInt32 j = 0; j < curChar.m_KerningPairs.GetCount(); j++)
+          {
+            if (curChar.m_KerningPairs[j].m_OtherCharacterId == nextChar.m_CharacterId)
+            {
+              kerning = curChar.m_KerningPairs[j].m_Amount;
+              break;
+            }
+          }
+        }
+
+        if (curChar.m_Page != page)
+          continue;
+
+        ezUInt32 curVert = offset * 4;
+        ezUInt32 curIndex = offset * 6;
+
+        vertices[curVert + 0] = ezVec2((float)curX, (float)curY);
+        vertices[curVert + 1] = ezVec2((float)(curX + curChar.m_Width), (float)curY);
+        vertices[curVert + 2] = ezVec2((float)curX, (float)curY + (float)curChar.m_Height);
+        vertices[curVert + 3] = ezVec2((float)(curX + curChar.m_Width), (float)curY + (float)curChar.m_Height);
+
+        if (uvs.GetCount() != 0)
+        {
+          uvs[curVert + 0] = ezVec2(curChar.m_UVX, curChar.m_UVY);
+          uvs[curVert + 1] = ezVec2(curChar.m_UVX + curChar.m_UVWidth, curChar.m_UVY);
+          uvs[curVert + 2] = ezVec2(curChar.m_UVX, curChar.m_UVY + curChar.m_UVHeight);
+          uvs[curVert + 3] = ezVec2(curChar.m_UVX + curChar.m_UVWidth, curChar.m_UVY + curChar.m_UVHeight);
+        }
+
+        if (indexes.GetCount() != 0)
+        {
+          indexes[curIndex + 0] = curVert + 0;
+          indexes[curIndex + 1] = curVert + 1;
+          indexes[curIndex + 2] = curVert + 2;
+          indexes[curIndex + 3] = curVert + 1;
+          indexes[curIndex + 4] = curVert + 3;
+          indexes[curIndex + 5] = curVert + 2;
+        }
+
+        offset++;
+        numQuads++;
+
+        if (offset > size)
+          EZ_REPORT_FAILURE("Out of buffer bounds. Buffer size: {0}", size);
+      }
+    }
+  }
+
+  return numQuads;
+}
+
 bool ezTextData::ezTextLine::IsAtWordBoundary() const
 {
   return m_IsEmpty || MemBuffer->WordBuffer[m_WordsEnd].IsSpacer();
@@ -231,7 +361,7 @@ ezUInt32 ezTextData::ezTextLine::GetNumCharacters() const
     if (word.IsSpacer())
       numChars++;
     else
-      numChars += (ezUInt32)word.GetNumCharacters();
+      numChars += word.GetNumCharacters();
   }
 
   return numChars;

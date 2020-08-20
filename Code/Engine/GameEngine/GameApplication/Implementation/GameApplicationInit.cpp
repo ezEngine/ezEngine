@@ -28,7 +28,7 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #  include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #endif
 #include <RendererCore/Decals/DecalAtlasResource.h>
-//#include <RendererCore/Font/FontResource.h>
+#include <RendererCore/Font/FontResource.h>
 
 void ezGameApplication::Init_ConfigureAssetManagement()
 {
@@ -227,7 +227,7 @@ void ezGameApplication::Init_SetupDefaultResources()
 
   // Font
   {
-    //ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezFontResource, ezTexture2DResource>();
+    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezFontResource, ezTexture2DResource>();
   }
 }
 

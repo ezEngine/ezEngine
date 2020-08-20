@@ -8,6 +8,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <System/Window/Window.h>
 #include <RendererCore/Font/FontResource.h>
+#include <RendererCore/Font/TextSprite.h>
 
 
 class ezCamera;
@@ -62,6 +63,7 @@ private:
 
   bool m_stuffChanged;
   ezFontResourceHandle m_Font;
+  ezTextSpriteDescriptor m_TextSpriteDesc;
 
   void RenderText();
 };

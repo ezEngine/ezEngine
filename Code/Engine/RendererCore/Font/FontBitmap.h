@@ -38,8 +38,6 @@ struct ezFontBitmapBase
 /**	Contains textures and data about every character for a bitmap font of a specific size. */
 struct EZ_RENDERERCORE_DLL ezFontBitmap : public ezFontBitmapBase
 {
-  ezFontBitmap() = default;
-
   /** Textures in which the character's pixels are stored. */
   ezDynamicArray<ezTexture2DResourceHandle> m_TexturePages;
 
@@ -50,8 +48,6 @@ struct EZ_RENDERERCORE_DLL ezFontBitmap : public ezFontBitmapBase
 /**	Contains textures and data about every character for a bitmap font of a specific size. */
 struct ezRawFontBitmap : public ezFontBitmapBase
 {
-  ezRawFontBitmap() = default;
-
   /** Images in which the character's pixels are stored. */
   ezDynamicArray<ezImage> m_Textures;
 

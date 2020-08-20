@@ -18,18 +18,18 @@ struct ezTextureAtlasElement
 
   struct ezTextureAtlasElementInput
   {
-    ezUInt32 Width = 0;
-    ezUInt32 Height = 0;
+    ezUInt32 Width;
+    ezUInt32 Height;
   };
 
   ezTextureAtlasElementInput Input;
 
   struct ezTextureAtlasElementOutput
   {
-    ezUInt32 x = 0;
-    ezUInt32 y = 0;
-    ezUInt32 Index = 0;
-    ezInt32 Page = 0;
+    ezUInt32 x;
+    ezUInt32 y;
+    ezUInt32 Index;
+    ezInt32 Page;
   };
 
   ezTextureAtlasElementOutput Output;
@@ -75,6 +75,8 @@ public:
     , m_InitialHeight(0)
     , m_Width(0)
     , m_Height(0)
+    , m_MaxWidth(0)
+    , m_MaxHeight(0)
     , m_PowerOfTwo(false)
     , m_RootNode(nullptr)
   {
@@ -85,6 +87,8 @@ public:
     , m_InitialHeight(height)
     , m_Width(width)
     , m_Height(height)
+    , m_MaxWidth(maxWidth)
+    , m_MaxHeight(maxHeight)
     , m_PowerOfTwo(powerOfTwo)
   {
     m_RootNode = EZ_DEFAULT_NEW(ezTextureAtlasNode, 0, 0, maxWidth, maxHeight);
@@ -112,6 +116,8 @@ private:
   ezUInt32 m_InitialHeight;
   ezUInt32 m_Width;
   ezUInt32 m_Height;
+  ezUInt32 m_MaxWidth;
+  ezUInt32 m_MaxHeight;
   bool m_PowerOfTwo;
 
   ezSharedPtr<ezTextureAtlasNode> m_RootNode;

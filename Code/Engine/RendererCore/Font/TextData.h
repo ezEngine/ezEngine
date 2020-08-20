@@ -158,6 +158,7 @@ public:
 			 * @return					Number of quads that were written.
 			 */
     ezUInt32 FillBuffer(ezUInt32 page, ezVec2* vertices, ezVec2* uvs, ezUInt32* indexes, ezUInt32 offset, ezUInt32 size) const;
+    ezUInt32 FillBuffer(ezUInt32 page, ezDynamicArray<ezVec2>& vertices, ezDynamicArray<ezVec2>& uvs, ezDynamicArray<ezUInt32>& indexes, ezUInt32 offset, ezUInt32 size) const;
 
     /**	Checks are we at a word boundary (meaning the next added character will start a new word). */
     bool IsAtWordBoundary() const;

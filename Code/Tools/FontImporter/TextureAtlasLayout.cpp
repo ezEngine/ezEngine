@@ -49,11 +49,6 @@ bool ezTextureAtlasLayout::AddToNode(ezTextureAtlasNode* node, ezTextureAtlasEle
 {
   float aspect = node->Width / (float)node->Height;
 
-  if (node->Full)
-  {
-    return false;
-  }
-
   if (node->Left && node->Right)
   {
     if (AddToNode(node->Left.Borrow(), element, allowGrowth))
@@ -65,8 +60,15 @@ bool ezTextureAtlasLayout::AddToNode(ezTextureAtlasNode* node, ezTextureAtlasEle
   }
   else
   {
-    if (element.Input.Width > node->Width || element.Input.Height > node->Height)
+    if (node->Full)
+    {
       return false;
+    }
+
+    if (element.Input.Width > node->Width || element.Input.Height > node->Height)
+    {
+      return false;
+    }
 
     if (!allowGrowth)
     {

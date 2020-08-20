@@ -2,7 +2,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/Font/FontResource.h>
 
-ezResult ezRawFont::Write(ezStreamWriter& stream) const
+ezResult ezRawFont::Serialize(ezStreamWriter& stream) const
 {
   ezAssetFileHeader asset;
   asset.Write(stream);
@@ -14,7 +14,7 @@ ezResult ezRawFont::Write(ezStreamWriter& stream) const
   return EZ_SUCCESS;
 }
 
-ezResult ezRawFont::Read(ezStreamReader& stream)
+ezResult ezRawFont::Deserialize(ezStreamReader& stream)
 {
   ezAssetFileHeader asset;
 
@@ -74,7 +74,7 @@ ezResourceLoadDesc ezFontResource::UpdateContent(ezStreamReader* Stream)
   // load and create font
   ezRawFont rawFont;
 
-  if (rawFont.Read(*Stream).Failed())
+  if (rawFont.Deserialize(*Stream).Failed())
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
@@ -154,9 +154,12 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezFontResource, ezFontResourceDescriptor)
 
 const ezFontBitmap& ezFontResource::GetBitmap(ezUInt32 size) const
 {
-  auto iterFind = m_FontDataPerSize.Find(size);
+  //if (!m_FontDataPerSize.Contains(size))
+  //  EZ_REPORT_FAILURE("Invalid font size requested.");
 
-  return iterFind.Value();
+  auto& bitmap = m_FontDataPerSize.GetValue(size);
+
+  return bitmap;
 }
 
 ezInt32 ezFontResource::GetClosestSize(ezUInt32 size) const
@@ -164,28 +167,28 @@ ezInt32 ezFontResource::GetClosestSize(ezUInt32 size) const
   ezInt32 minDiff = ezMath::MaxValue<ezInt32>();
   ezInt32 bestSize = size;
 
-  for (auto iter = m_FontDataPerSize.GetIterator(); iter.IsValid(); ++iter)
+  for (auto& pair : m_FontDataPerSize)
   {
-    if (iter.Key() == size)
+    if (pair.key == size)
     {
       return size;
     }
-    else if (iter.Key() > size)
+    else if (pair.key > size)
     {
-      ezInt32 diff = iter.Key() - size;
+      ezInt32 diff = pair.key - size;
       if (diff < minDiff)
       {
         minDiff = diff;
-        bestSize = iter.Key();
+        bestSize = pair.key;
       }
     }
     else
     {
-      ezInt32 diff = size - iter.Key();
+      ezInt32 diff = size - pair.key;
       if (diff < minDiff)
       {
         minDiff = diff;
-        bestSize = iter.Key();
+        bestSize = pair.key;
       }
     }
   }

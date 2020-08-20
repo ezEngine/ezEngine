@@ -37,7 +37,7 @@ struct ezFontImportOptions
   ezFontImportOptions()
   {
     m_FontSizes.PushBack(30);
-    m_charIndexRanges.PushBack(ezCharacterRange(33, 166));
+    m_charIndexRanges.PushBack(ezCharacterRange(0, 166));
   }
 
   /**	Determines font sizes that are to be imported. Sizes are in points. */
