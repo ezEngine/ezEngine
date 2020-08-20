@@ -204,8 +204,6 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
     CreateScreenQuad();
   }
 
-  ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezFontResource, ezTexture2DResource>();
-
   m_Font = ezResourceManager::LoadResource<ezFontResource>(":/Fonts/Roboto-Black.ezFont");
 
   m_TextSpriteDesc.Anchor = ezTextSpriteAnchor::TopLeft;

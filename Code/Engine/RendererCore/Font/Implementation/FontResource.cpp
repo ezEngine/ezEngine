@@ -1,6 +1,7 @@
-#include <RendererCorePCH.h>
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Configuration/Startup.h>
 #include <RendererCore/Font/FontResource.h>
+#include <RendererCorePCH.h>
 
 ezResult ezRawFont::Serialize(ezStreamWriter& stream) const
 {
@@ -26,6 +27,37 @@ ezResult ezRawFont::Deserialize(ezStreamReader& stream)
 
   return EZ_SUCCESS;
 }
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, FontResource)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Foundation",
+  "Core",
+  "TextureResource"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezFontResource, ezTexture2DResource>();
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+  }
+
+  ON_HIGHLEVELSYSTEMS_STARTUP
+  {
+  }
+
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
+
+//////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFontResource, 1, ezRTTIDefaultAllocator<ezFontResource>);
@@ -137,9 +169,8 @@ ezResourceLoadDesc ezFontResource::UpdateContent(ezStreamReader* Stream)
 void ezFontResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezFontResource) + (ezUInt32)m_FontDataPerSize.GetHeapMemoryUsage();
-  
-  out_NewMemoryUsage.m_uiMemoryGPU = m_GPUMemory;
 
+  out_NewMemoryUsage.m_uiMemoryGPU = m_GPUMemory;
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezFontResource, ezFontResourceDescriptor)
