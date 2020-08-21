@@ -67,6 +67,12 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
     {
       EZ_TEST_INT(ptr[i], i + 1);
     }
+
+    // try to map it a second time
+    ezMemoryMappedFile memFile2;
+
+    if (EZ_TEST_BOOL_MSG(memFile2.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file twice failed").Failed())
+      return;
   }
 
   ezOSFile::DeleteFile(sOutputFile);

@@ -165,6 +165,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     };
 
     PPTestSettings TestSettings[] = {
+      PPTestSettings("IncludeMacro"),
       PPTestSettings("PragmaOnce"),
       PPTestSettings("LinePragmaPassThrough", true, true),
       PPTestSettings("Undef"),

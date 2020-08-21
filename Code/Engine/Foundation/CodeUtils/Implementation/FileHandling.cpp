@@ -204,15 +204,20 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
 }
 
 
-ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput)
+ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens0, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput)
 {
   EZ_ASSERT_DEV(m_FileLocatorCallback.IsValid(), "File locator callback has not been set");
+
+  TokenStream Tokens;
+  if (Expand(Tokens0, Tokens).Failed())
+    return EZ_FAILURE;
 
   SkipWhitespace(Tokens, uiCurToken);
 
   ezStringBuilder sPath;
 
   IncludeType IncType = IncludeType::GlobalInclude;
+
 
   ezUInt32 uiAccepted;
   if (Accept(Tokens, uiCurToken, ezTokenType::String1, &uiAccepted))

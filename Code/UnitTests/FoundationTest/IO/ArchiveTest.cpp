@@ -147,6 +147,10 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
       EZ_TEST_FILES(sFileSrc, sFileDst, "Unpacked file should be identical");
     }
+
+    // mount a second time
+    if (EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive2", ezFileSystem::ReadOnly) == EZ_SUCCESS).Failed())
+      return;
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("Clear");
