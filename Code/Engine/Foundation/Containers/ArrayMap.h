@@ -46,8 +46,9 @@ public:
   void Clear(); // [tested]
 
   /// \brief Always inserts a new value under the given key. Duplicates are allowed.
+  /// Returns the index of the newly added element.
   template <typename CompatibleKeyType, typename CompatibleValueType>
-  void Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
+  ezUInt32 Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// \brief Ensures the internal data structure is sorted. This is done automatically every time a lookup needs to be made.
   void Sort() const; // [tested]
