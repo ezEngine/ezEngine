@@ -53,8 +53,9 @@ ezRectI32 ezTextSprite::GetBounds(const ezVec2I32& offset, const ezRectI32& clip
 }
 
 ezUInt32 ezTextSprite::FillBuffer(ezDynamicArray<ezUInt8> vertices,
-  ezDynamicArray<ezUInt32> uvs,
-  ezDynamicArray<ezUInt32> indices,
+  ezDynamicArray<ezUInt8> uvs,
+  ezDynamicArray<ezUInt8> indices,
+  ezUInt32 vertexOffset,
   ezUInt32 indexOffset,
   ezUInt32 maxNumVerts,
   ezUInt32 maxNumIndices,
@@ -65,7 +66,42 @@ ezUInt32 ezTextSprite::FillBuffer(ezDynamicArray<ezUInt8> vertices,
   ezRectI32 clipRect,
   bool clip)
 {
-  return ezUInt32();
+  const auto& renderElem = m_CachedRenderElements[renderElementIndex];
+
+  ezUInt32 startVert = vertexOffset;
+  ezUInt32 startIndex = indexOffset;
+
+  ezUInt32 maxVertIdx = maxNumVerts;
+  ezUInt32 maxIndexIdx = maxNumIndices;
+
+  ezUInt32 numVertices = renderElem.m_NumQuads * 4;
+  ezUInt32 numIndices = renderElem.m_NumQuads * 6;
+
+  EZ_ASSERT_ALWAYS((startVert + numVertices) <= maxVertIdx,"");
+  EZ_ASSERT_ALWAYS((startIndex + numIndices) <= maxIndexIdx, "");
+
+  ezUInt8* vertDst = vertices.GetData() + startVert * vertexStride;
+  ezUInt8* uvDst = uvs.GetData() + startVert * vertexStride;
+
+  ezVec2 vecOffset((float)offset.x, (float)offset.y);
+
+  if (clip)
+  {
+    for (ezUInt32 i = 0; i < renderElem.m_NumQuads; i++)
+    {
+      ezUInt8* vecStart = vertDst;
+      ezUInt8* uvStart = uvDst;
+      ezUInt32 vertIndex = i * 4;
+    }
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < renderElem.m_NumQuads; i++)
+    {
+    }
+  }
+
+  return renderElem.m_NumQuads;
 }
 
 // This will only properly clip an array of quads
@@ -78,9 +114,70 @@ void ezTextSprite::ClipQuadsToRect(ezDynamicArray<ezUInt8>& inoutVertices, ezDyn
   float top = clipRect.Top();
   float bottom = clipRect.Bottom();
 
+  ezUInt8* verticesPtr = inoutVertices.GetData();
+  ezUInt8* uvsPtr = inoutUVs.GetData();
+
   for (ezUInt32 i = 0; i < numQuads; i++)
   {
+    ezVec2* vecA = (ezVec2*)(verticesPtr);
+    ezVec2* vecB = (ezVec2*)(verticesPtr + vertexStride);
+    ezVec2* vecC = (ezVec2*)(verticesPtr + vertexStride * 2);
+    ezVec2* vecD = (ezVec2*)(verticesPtr + vertexStride * 3);
 
+    ezVec2* uvA = (ezVec2*)(uvsPtr);
+    ezVec2* uvB = (ezVec2*)(uvsPtr + vertexStride);
+    ezVec2* uvC = (ezVec2*)(uvsPtr + vertexStride * 2);
+    ezVec2* uvD = (ezVec2*)(uvsPtr + vertexStride * 3);
+
+    // Attempt to skip those that are definitely not clipped
+    if (vecA->x >= left && vecB->x <= right && vecA->y >= top && vecC->y <= bottom)
+      continue;
+
+    float du = (uvB->x - uvA->x) / (vecB->x - vecA->x);
+    float dv = (uvA->y - uvC->y) / (vecA->y - vecD->y);
+
+    if (right < left)
+      std::swap(left, right);
+
+    if (bottom < top)
+      std::swap(bottom, top);
+
+    // Clip left
+    float newLeft = ezMath::Clamp(vecA->x, left, right);
+    float uvLeftOffset = (newLeft - vecA->x) * du;
+
+    // Clip right
+    float newRight = ezMath::Clamp(vecB->x, left, right);
+    float uvRightOffset = (vecB->x - newRight) * du;
+
+    // Clip top
+    float newTop = ezMath::Clamp(vecA->y, top, bottom);
+    float uvTopOffset = (newTop - vecA->y) * dv;
+
+    // Clip bottom
+    float newBottom = ezMath::Clamp(vecC->y, top, bottom);
+    float uvBottomOffset = (vecC->y - newBottom) * dv;
+
+    vecA->x = newLeft;
+    vecC->x = newLeft;
+    vecB->x = newRight;
+    vecD->x = newRight;
+    vecA->y = newTop;
+    vecB->y = newTop;
+    vecC->y = newBottom;
+    vecD->y = newBottom;
+
+    uvA->x += uvLeftOffset;
+    uvC->x += uvLeftOffset;
+    uvB->x -= uvRightOffset;
+    uvD->x -= uvRightOffset;
+    uvA->y += uvTopOffset;
+    uvB->y += uvTopOffset;
+    uvC->y -= uvBottomOffset;
+    uvD->y -= uvBottomOffset;
+
+    verticesPtr += vertexStride * 4;
+    uvsPtr += vertexStride * 4;
   }
 }
 

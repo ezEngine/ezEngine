@@ -94,10 +94,13 @@ public:
   ezTextSprite() = default;
   ~ezTextSprite() = default;
   void Update(const ezTextSpriteDescriptor& desc);
+
   ezRectI32 GetBounds(const ezVec2I32& offset, const ezRectI32& clipRect) const;
+
   ezUInt32 FillBuffer(ezDynamicArray<ezUInt8> vertices,
-    ezDynamicArray<ezUInt32> uvs,
-    ezDynamicArray<ezUInt32> indices,
+    ezDynamicArray<ezUInt8> uvs,
+    ezDynamicArray<ezUInt8> indices,
+    ezUInt32 vertexOffset,
     ezUInt32 indexOffset,
     ezUInt32 maxNumVerts,
     ezUInt32 maxNumIndices,
