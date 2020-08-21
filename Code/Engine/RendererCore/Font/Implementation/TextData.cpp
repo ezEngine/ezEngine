@@ -1,5 +1,6 @@
-#include <RendererCore/Font/TextData.h>
 #include <RendererCorePCH.h>
+
+#include <RendererCore/Font/TextData.h>
 
 const int EZ_SPACE_CHAR = 32;
 const int EZ_TAB_CHAR = 9;

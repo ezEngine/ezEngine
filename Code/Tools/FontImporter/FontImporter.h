@@ -10,10 +10,10 @@ class ezFontImporter
 {
 public:
   void Startup();
-  ezResult Import(const ezString& inputFile, const ezFontImportOptions& importOptions, ezRawFont& outFont);
+  ezResult Import(const ezString& inputFile, const ezFontImportOptions& importOptions, ezRawFont& outFont, bool saveFontAtlas = false);
   void Shutdown();
 
 private:
   FT_Library m_Library;
-  const static int sMaximumTextureSize = 2048;
+  const static int sMaximumTextureSize = 8192;
 };

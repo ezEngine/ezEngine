@@ -20,6 +20,7 @@ public:
 
   ezResult ParseCommandLine();
   ezResult ParseInputFile();
+  ezResult ParseFlags();
   ezResult ParseOutputFile();
 
   bool ParseFile(const char* szOption, ezString& result) const;
@@ -30,6 +31,7 @@ public:
 private:
   ezString m_sInputFile;
   ezString m_sOutputFile;
+  bool m_SaveFontAtlas;
   ezString m_sOutputThumbnailFile;
   ezFontImporter m_FontImporter;
 };

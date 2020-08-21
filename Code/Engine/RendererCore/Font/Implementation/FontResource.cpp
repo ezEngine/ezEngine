@@ -1,7 +1,8 @@
+#include <RendererCorePCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/Startup.h>
 #include <RendererCore/Font/FontResource.h>
-#include <RendererCorePCH.h>
 
 ezResult ezRawFont::Serialize(ezStreamWriter& stream) const
 {
@@ -78,6 +79,18 @@ ezResourceLoadDesc ezFontResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
+
+  for (auto& pair : m_FontDataPerSize)
+  {
+    ezFontBitmap& bitmap = pair.value;
+
+    for (ezTexture2DResourceHandle& textureHandle : bitmap.m_TexturePages)
+    {
+      textureHandle.Invalidate();
+    }
+  }
+  m_FontDataPerSize.Clear();
+  m_GPUMemory = 0;
 
   return res;
 }
@@ -185,8 +198,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezFontResource, ezFontResourceDescriptor)
 
 const ezFontBitmap& ezFontResource::GetBitmap(ezUInt32 size) const
 {
-  //if (!m_FontDataPerSize.Contains(size))
-  //  EZ_REPORT_FAILURE("Invalid font size requested.");
+  if (!m_FontDataPerSize.Contains(size))
+    EZ_REPORT_FAILURE("Invalid font size requested.");
 
   auto& bitmap = m_FontDataPerSize.GetValue(size);
 

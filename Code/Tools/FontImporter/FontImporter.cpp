@@ -1,4 +1,5 @@
 #include <FontImporterPCH.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -14,7 +15,7 @@ void ezFontImporter::Startup()
   EZ_ASSERT_ALWAYS(!error, "Error occurred during FreeType library initialization.");
 }
 
-ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOptions& importOptions, ezRawFont& outFont)
+ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOptions& importOptions, ezRawFont& outFont, bool saveFontAtlas)
 {
   ezOSFile file;
   if (file.Open(inputFile, ezFileOpenMode::Read).Failed())
@@ -161,7 +162,8 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
     ezUInt32 pageIndex = 0;
 
     // Create an optimal layout for character bitmaps
-    ezDynamicArray<ezTextureAtlasPage> pages = ezTextureAtlasUtility::CreateTextureAtlasLayout(atlasElements, 64, 64, sMaximumTextureSize, sMaximumTextureSize, true);
+    ezDynamicArray<ezTextureAtlasPage> pages;
+    ezTextureAtlasUtility::CreateTextureAtlasLayout(atlasElements, pages, 64, 64, sMaximumTextureSize, sMaximumTextureSize, true);
 
     // Create char bitmap atlas textures and load character information
     for (ezTextureAtlasPage& page : pages)
@@ -329,6 +331,8 @@ ezResult ezFontImporter::Import(const ezString& inputFile, const ezFontImportOpt
       ezMemoryUtils::ZeroFill(pixelData.GetPtr(), pixelData.GetCount());
       ezMemoryUtils::Copy(pixelData.GetPtr(), pixelBuffer, bufferSize);
 
+      // This is for visually inspecting generated image only
+      if (saveFontAtlas)
       {
         ezStringBuilder fontPageName;
         fontPageName.Format("{0}_{1}_{2}", fontFileName, fontSize, pageIndex);

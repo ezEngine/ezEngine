@@ -8,9 +8,9 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Rect.h>
-#include <Foundation/Types/Types.h>
-#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Types/Types.h>
 
 struct ezTextureAtlasElement
 {
@@ -37,14 +37,14 @@ struct ezTextureAtlasElement
 
 class ezTextureAtlasLayout
 {
-  struct ezTextureAtlasNode :public ezRefCounted
+  struct ezTextureAtlasNode
   {
     ezUInt32 x;
     ezUInt32 y;
     ezUInt32 Width;
     ezUInt32 Height;
-    ezSharedPtr<ezTextureAtlasNode> Left;
-    ezSharedPtr<ezTextureAtlasNode> Right;
+    ezUniquePtr<ezTextureAtlasNode> Left;
+    ezUniquePtr<ezTextureAtlasNode> Right;
     bool Full;
 
     ezTextureAtlasNode()
@@ -70,6 +70,18 @@ class ezTextureAtlasLayout
   };
 
 public:
+  ezTextureAtlasLayout(ezTextureAtlasLayout&& other) noexcept
+    : m_InitialWidth(other.m_InitialWidth)
+    , m_InitialHeight(other.m_InitialHeight)
+    , m_Width(other.m_Width)
+    , m_Height(other.m_Height)
+    , m_MaxWidth(other.m_MaxWidth)
+    , m_MaxHeight(other.m_MaxHeight)
+    , m_PowerOfTwo(other.m_PowerOfTwo)
+    , m_RootNode(std::move(other.m_RootNode))
+  {
+  }
+
   ezTextureAtlasLayout()
     : m_InitialWidth(0)
     , m_InitialHeight(0)
@@ -96,9 +108,9 @@ public:
 
   ~ezTextureAtlasLayout()
   {
-    //EZ_DEFAULT_DELETE(m_RootNode);
     if (m_RootNode != nullptr)
       m_RootNode.Clear();
+    //EZ_DEFAULT_DELETE(m_RootNode);
   }
 
   bool AddElement(ezTextureAtlasElement& element);
@@ -120,7 +132,7 @@ private:
   ezUInt32 m_MaxHeight;
   bool m_PowerOfTwo;
 
-  ezSharedPtr<ezTextureAtlasNode> m_RootNode;
+  ezUniquePtr<ezTextureAtlasNode> m_RootNode;
 };
 
 struct ezTextureAtlasPage
@@ -136,5 +148,5 @@ struct ezTextureAtlasPage
 class ezTextureAtlasUtility
 {
 public:
-  static ezDynamicArray<ezTextureAtlasPage> CreateTextureAtlasLayout(ezDynamicArray<ezTextureAtlasElement>& elements, ezUInt32 width, ezUInt32 height, ezUInt32 maxWidth, ezUInt32 maxHeight, bool powerOfTwo = false);
+  static void CreateTextureAtlasLayout(ezDynamicArray<ezTextureAtlasElement>& elements, ezDynamicArray<ezTextureAtlasPage>& outPages, ezUInt32 width, ezUInt32 height, ezUInt32 maxWidth, ezUInt32 maxHeight, bool powerOfTwo = false);
 };

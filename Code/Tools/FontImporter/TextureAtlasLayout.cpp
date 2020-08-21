@@ -1,4 +1,5 @@
 #include <FontImporterPCH.h>
+
 #include <TextureAtlasLayout.h>
 
 
@@ -36,8 +37,7 @@ bool ezTextureAtlasLayout::AddElement(ezTextureAtlasElement& element)
 
 void ezTextureAtlasLayout::Clear()
 {
-  if (m_RootNode)
-    m_RootNode.Clear();
+  m_RootNode.Clear();
 
   m_RootNode = EZ_DEFAULT_NEW(ezTextureAtlasNode, 0, 0, m_Width, m_Height);
 
@@ -88,29 +88,22 @@ bool ezTextureAtlasLayout::AddToNode(ezTextureAtlasNode* node, ezTextureAtlasEle
     float dw = (float)(node->Width - element.Input.Width);
     float dh = (node->Height - element.Input.Height) * aspect;
 
-    ezUniquePtr<ezTextureAtlasNode> left;
-    ezUniquePtr<ezTextureAtlasNode> right;
-
     if (dw > dh)
     {
-      left = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x, node->y, element.Input.Width, node->Height);
-      right = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x + element.Input.Width, node->y, node->Width - element.Input.Width, node->Height);
+      node->Left = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x, node->y, element.Input.Width, node->Height);
+      node->Right = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x + element.Input.Width, node->y, node->Width - element.Input.Width, node->Height);
     }
     else
     {
-      left = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x, node->y, node->Width, element.Input.Height);
-      right = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x, node->y + element.Input.Height, node->Width, node->Height - element.Input.Height);
+      node->Left = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x, node->y, node->Width, element.Input.Height);
+      node->Right = EZ_DEFAULT_NEW(ezTextureAtlasNode, node->x, node->y + element.Input.Height, node->Width, node->Height - element.Input.Height);
     }
-
-    node->Left = std::move(left);
-
-    node->Right = std::move(right);
 
     return AddToNode(node->Left.Borrow(), element, allowGrowth);
   }
 }
 
-ezDynamicArray<ezTextureAtlasPage> ezTextureAtlasUtility::CreateTextureAtlasLayout(ezDynamicArray<ezTextureAtlasElement>& elements, ezUInt32 width, ezUInt32 height, ezUInt32 maxWidth, ezUInt32 maxHeight, bool powerOfTwo)
+void ezTextureAtlasUtility::CreateTextureAtlasLayout(ezDynamicArray<ezTextureAtlasElement>& elements, ezDynamicArray<ezTextureAtlasPage>& outPages, ezUInt32 width, ezUInt32 height, ezUInt32 maxWidth, ezUInt32 maxHeight, bool powerOfTwo)
 {
   // Preserve original index before sorting
   for (ezUInt32 i = 0; i < elements.GetCount(); i++)
@@ -124,11 +117,12 @@ ezDynamicArray<ezTextureAtlasPage> ezTextureAtlasUtility::CreateTextureAtlasLayo
   });
 
   ezDynamicArray<ezTextureAtlasLayout> layouts;
+
   ezUInt32 remainingCount = elements.GetCount();
 
   while (remainingCount > 0)
   {
-    layouts.PushBack(ezTextureAtlasLayout(width, height, maxWidth, maxHeight, powerOfTwo));
+    layouts.PushBack(std::move(ezTextureAtlasLayout(width, height, maxWidth, maxHeight, powerOfTwo)));
 
     ezTextureAtlasLayout& currentLayout = layouts.PeekBack();
 
@@ -167,7 +161,8 @@ ezDynamicArray<ezTextureAtlasPage> ezTextureAtlasUtility::CreateTextureAtlasLayo
       {
         ezLog::Warning("Some of the provided elements don't fit in an atlas of provided size. Returning empty array of pages.");
 
-        return ezDynamicArray<ezTextureAtlasPage>();
+        outPages.Clear();
+        return;
       }
 
       if (currentLayout.AddElement(element))
@@ -182,14 +177,10 @@ ezDynamicArray<ezTextureAtlasPage> ezTextureAtlasUtility::CreateTextureAtlasLayo
     }
   }
 
-  ezDynamicArray<ezTextureAtlasPage> pages;
-
-  pages.Reserve(layouts.GetCount());
+  outPages.Reserve(layouts.GetCount());
 
   for (auto& layout : layouts)
   {
-    pages.PushBack({layout.GetWidth(), layout.GetHeight()});
+    outPages.PushBack({layout.GetWidth(), layout.GetHeight()});
   }
-
-  return pages;
 }

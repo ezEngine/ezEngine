@@ -1,4 +1,5 @@
 #include <FontImporterPCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <FontImporterApp.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -10,9 +11,6 @@ ezFontImporterApp::ezFontImporterApp()
 
 ezResult ezFontImporterApp::BeforeCoreSystemsStartup()
 {
-  ezStartup::AddApplicationTag("tool");
-  ezStartup::AddApplicationTag("fontimporter");
-
   return SUPER::BeforeCoreSystemsStartup();
 }
 
@@ -46,9 +44,10 @@ ezApplication::ApplicationExecution ezFontImporterApp::Run()
   ezFontImportOptions importOptions;
   ezRawFont font;
 
-  if (m_FontImporter.Import(m_sInputFile, importOptions, font).Failed())
+  if (m_FontImporter.Import(m_sInputFile, importOptions, font, m_SaveFontAtlas).Failed())
   {
-    ezLog::Error("Failed to import font file: {0}.");
+    ezLog::Error("Failed to import font file: {0}.", m_sInputFile);
+    return ezApplication::ApplicationExecution::Quit;
   }
 
   if (WriteOutputFile(m_sOutputFile, font).Failed())
@@ -78,29 +77,38 @@ ezResult ezFontImporterApp::ParseCommandLine()
     ezLog::Info("");
     ezLog::Info("  -in \"File\"");
     ezLog::Info("    Specifies input font file.");
+    ezLog::Info("");
+    ezLog::Info("  -save-atlas");
+    ezLog::Info("    Whether or not to save the generates texture atlas to a png file.");
 
     return EZ_FAILURE;
   }
 
   EZ_SUCCEED_OR_RETURN(ParseInputFile());
   EZ_SUCCEED_OR_RETURN(ParseOutputFile());
+  EZ_SUCCEED_OR_RETURN(ParseFlags());
 
   return EZ_SUCCESS;
 }
 
 ezResult ezFontImporterApp::ParseInputFile()
 {
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
   ParseFile("-in", m_sInputFile);
   return EZ_SUCCESS;
 }
 
 ezResult ezFontImporterApp::ParseOutputFile()
 {
+  ParseFile("-out", m_sOutputFile);
+  return EZ_SUCCESS;
+}
+
+ezResult ezFontImporterApp::ParseFlags()
+{
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
-  ParseFile("-out", m_sOutputFile);
+  m_SaveFontAtlas = pCmd->GetBoolOption("-save-atlas");
+
   return EZ_SUCCESS;
 }
 

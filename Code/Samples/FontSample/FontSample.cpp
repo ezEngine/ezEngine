@@ -9,7 +9,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Time/Clock.h>
-#include <Main.h>
+#include <FontSample.h>
 #include <RendererCore/Font/TextData.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>

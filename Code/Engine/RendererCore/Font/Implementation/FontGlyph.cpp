@@ -1,4 +1,5 @@
 #include <RendererCorePCH.h>
+
 #include <RendererCore/Font/FontGlyph.h>
 
 ezResult ezKerningPair::Serialize(ezStreamWriter& stream) const

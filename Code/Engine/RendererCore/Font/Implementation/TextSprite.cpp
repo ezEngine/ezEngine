@@ -1,5 +1,6 @@
-#include <RendererCore/Font/TextSprite.h>
 #include <RendererCorePCH.h>
+
+#include <RendererCore/Font/TextSprite.h>
 
 void ezTextSprite::Update(const ezTextSpriteDescriptor& desc)
 {
