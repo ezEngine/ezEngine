@@ -5,7 +5,7 @@ trigger: none
 jobs:
 - job: ClangFormatVerification
   pool:
-    name: windows-latest
+    vmImage: 'windows-latest'
   steps:
   - task: UsePythonVersion@0
     inputs:
