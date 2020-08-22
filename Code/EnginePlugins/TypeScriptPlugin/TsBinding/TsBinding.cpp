@@ -19,18 +19,18 @@ static int __CPP_Time_Get(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0:
-      return duk.ReturnFloat(ezTime::Now().GetSeconds());
+      return duk.ReturnFloat(ezTime::Now().AsFloatInSeconds());
 
     case 1:
     {
       ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
-      return duk.ReturnFloat(pWorld->GetClock().GetAccumulatedTime().GetSeconds());
+      return duk.ReturnFloat(pWorld->GetClock().GetAccumulatedTime().AsFloatInSeconds());
     }
 
     case 2:
     {
       ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
-      return duk.ReturnFloat(pWorld->GetClock().GetTimeDiff().GetSeconds());
+      return duk.ReturnFloat(pWorld->GetClock().GetTimeDiff().AsFloatInSeconds());
     }
   }
 
