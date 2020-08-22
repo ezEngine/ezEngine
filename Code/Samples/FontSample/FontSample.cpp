@@ -36,7 +36,7 @@ ezFontRenderingApp::ezFontRenderingApp()
   m_TextSpriteDesc.HorizontalAlignment = ezTextHorizontalAlignment::Left;
   m_TextSpriteDesc.VerticalAlignment = ezTextVerticalAlignment::Top;
   m_TextSpriteDesc.FontSize = 30;
-  m_TextSpriteDesc.Width = 100;
+  m_TextSpriteDesc.Width = 200;
   m_TextSpriteDesc.Height = 480;
   m_TextSpriteDesc.Color = ezColor::Red;
   m_TextSpriteDesc.Text = "Hello World. This is a test";
@@ -190,7 +190,7 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   {
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bFrontCounterClockwise = false;
     m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
     EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
   }
@@ -308,8 +308,8 @@ void ezFontRenderingApp::RenderText()
   ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
 
   ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f,
-    m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f,
-    m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+    m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f,
+    m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
   ezMat4 mTransform;
   mTransform.SetIdentity();
