@@ -98,7 +98,7 @@ void ezRmlUiCanvas2DComponent::Update()
     fScale = viewSize.y / m_ReferenceResolution.y;
   }
 
-  ezVec2 size = ezVec2(m_Size.x, m_Size.y) * fScale;
+  ezVec2 size = ezVec2(static_cast<float>(m_Size.x), static_cast<float>(m_Size.y)) * fScale;
   if (size.x <= 0.0f)
   {
     size.x = viewSize.x;
@@ -109,7 +109,7 @@ void ezRmlUiCanvas2DComponent::Update()
   }
   m_pContext->SetSize(ezVec2U32(static_cast<ezUInt32>(size.x), static_cast<ezUInt32>(size.y)));
 
-  ezVec2 offset = ezVec2(m_Offset.x, m_Offset.y) * fScale;
+  ezVec2 offset = ezVec2(static_cast<float>(m_Offset.x), static_cast<float>(m_Offset.y)) * fScale;
   offset = (viewSize - size).CompMul(m_AnchorPoint) - offset.CompMul(m_AnchorPoint * 2.0f - ezVec2(1.0f));
   m_pContext->SetOffset(ezVec2I32(static_cast<int>(offset.x), static_cast<int>(offset.y)));
 

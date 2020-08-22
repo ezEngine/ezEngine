@@ -17,7 +17,7 @@ namespace
     else
     {
       float fMaxValue = ((1 << Bits) - 1);
-      return ezMath::Saturate(value) * fMaxValue + 0.5f;
+      return static_cast<ezUInt32>(ezMath::Saturate(value) * fMaxValue + 0.5f);
     }
   }
 
