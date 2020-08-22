@@ -9,11 +9,22 @@
 #include <System/Window/Window.h>
 #include <RendererCore/Font/FontResource.h>
 #include <RendererCore/Font/TextSprite.h>
+#include <Foundation/Containers/ArrayMap.h>
 
 
 class ezCamera;
 class ezGALDevice;
 class ezDirectoryWatcher;
+
+struct TestMapElement
+{
+  ezUInt32 m_Size = 0;
+  TestMapElement() { m_Size = 0; }
+  TestMapElement(ezUInt32 size)
+  {
+    m_Size = size;
+  }
+};
 
 class ezFontRenderingWindow : public ezWindow
 {
@@ -60,6 +71,10 @@ private:
 
   ezUniquePtr<ezCamera> m_camera;
   ezUniquePtr<ezDirectoryWatcher> m_directoryWatcher;
+
+  ezArrayMap<ezUInt32, TestMapElement> m_TestMap;
+  void TestMap();
+  ezInt32 GetClosestSize(ezUInt32 size);
 
   bool m_stuffChanged;
   ezFontResourceHandle m_Font;

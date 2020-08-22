@@ -271,7 +271,6 @@ ezUInt32 ezTextData::ezTextLine::FillBuffer(ezUInt32 page, ezDynamicArray<ezVec2
 
         if (offset > size)
           EZ_REPORT_FAILURE("Out of buffer bounds. Buffer size: {0}", size);
-
       }
 
       penX += word.GetWidth();
@@ -486,7 +485,10 @@ ezTextData::ezTextData(const ezString32& text, const ezFontResourceHandle& font,
     ezResourceLock<ezFontResource> fontResource(font, ezResourceAcquireMode::BlockTillLoaded);
     ezUInt32 closestSize = fontResource->GetClosestSize(fontSize);
 
-    m_FontBitmap = &fontResource->GetBitmap(closestSize);
+    if (closestSize != 0)
+      m_FontBitmap = &fontResource->GetBitmap(closestSize);
+    else
+      ezLog::Warning("No bitmap was found for font size '{0}'.", fontSize);
   }
 
   if (m_FontBitmap == nullptr || m_FontBitmap->m_TexturePages.GetCount() == 0)

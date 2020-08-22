@@ -143,8 +143,10 @@ ezResourceLoadDesc ezFontResource::UpdateContent(ezStreamReader* Stream)
   for (auto pair : rawFont.m_BitmapPerSize)
   {
     ezRawFontBitmap& rawFontBitmap = pair.Value();
+    m_FontDataPerSize.Insert(rawFontBitmap.m_Size, std::move(ezFontBitmap()));
+    ezUInt32 fontIndex = m_FontDataPerSize.Find(rawFontBitmap.m_Size);
+    ezFontBitmap& fontBitmap = m_FontDataPerSize.GetValue(fontIndex);
 
-    ezFontBitmap fontBitmap;
     fontBitmap.m_TexturePages.Reserve(rawFontBitmap.m_Textures.GetCount());
 
     fontBitmap.m_Size = rawFontBitmap.m_Size;
@@ -183,8 +185,6 @@ ezResourceLoadDesc ezFontResource::UpdateContent(ezStreamReader* Stream)
 
       fontBitmap.m_TexturePages[texturePageIndex] = textureHandle;
     }
-
-    m_FontDataPerSize.Insert(rawFontBitmap.m_Size, std::move(fontBitmap));
   }
 
   return CreateResource(std::move(desc));
@@ -212,42 +212,33 @@ const ezFontBitmap& ezFontResource::GetBitmap(ezUInt32 size) const
   if (!m_FontDataPerSize.Contains(size))
     EZ_REPORT_FAILURE("Invalid font size requested.");
 
-  auto& bitmap = m_FontDataPerSize.GetValue(size);
+  ezUInt32 index = m_FontDataPerSize.Find(size);
+
+  const ezFontBitmap& bitmap = m_FontDataPerSize.GetValue(index);
 
   return bitmap;
 }
 
 ezInt32 ezFontResource::GetClosestSize(ezUInt32 size) const
 {
-  ezInt32 minDiff = ezMath::MaxValue<ezInt32>();
-  ezInt32 bestSize = size;
+  ezUInt32 lowerBoundIndex = m_FontDataPerSize.LowerBound(size);
 
-  for (auto& pair : m_FontDataPerSize)
+  if (lowerBoundIndex == ezInvalidIndex)
+    return 0;
+
+  ezUInt32 lowerBoundSize = m_FontDataPerSize.GetValue(lowerBoundIndex).m_Size;
+
+  if (lowerBoundSize == size || lowerBoundIndex == 0)
+    return lowerBoundSize;
+
+  ezUInt32 previousSize = m_FontDataPerSize.GetValue(lowerBoundIndex - 1).m_Size;
+
+  if (size - previousSize < lowerBoundSize - size)
   {
-    if (pair.key == size)
-    {
-      return size;
-    }
-    else if (pair.key > size)
-    {
-      ezInt32 diff = pair.key - size;
-      if (diff < minDiff)
-      {
-        minDiff = diff;
-        bestSize = pair.key;
-      }
-    }
-    else
-    {
-      ezInt32 diff = size - pair.key;
-      if (diff < minDiff)
-      {
-        minDiff = diff;
-        bestSize = pair.key;
-      }
-    }
+    return previousSize;
   }
-  return bestSize;
+
+  return lowerBoundSize;
 }
 
 bool ezFontResourceLoader::IsResourceOutdated(const ezResource* pResource) const

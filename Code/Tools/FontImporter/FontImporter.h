@@ -15,5 +15,5 @@ public:
 
 private:
   FT_Library m_Library;
-  const static int sMaximumTextureSize = 8192;
+  const static int sMaximumTextureSize = 2048;
 };

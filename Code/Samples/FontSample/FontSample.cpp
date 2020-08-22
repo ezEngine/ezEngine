@@ -77,6 +77,7 @@ ezApplication::ApplicationExecution ezFontRenderingApp::Run()
 
 
     //RenderText();
+    TestMap();
 
     ezTextSprite textSprite;
     textSprite.Update(m_TextSpriteDesc);
@@ -277,6 +278,48 @@ void ezFontRenderingApp::CreateScreenQuad()
 
   if (!m_hQuadMeshBuffer.IsValid())
     m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
+}
+
+void ezFontRenderingApp::TestMap()
+{
+  m_TestMap.Insert(1, std::move(TestMapElement(1)));
+  m_TestMap.Insert(5, std::move(TestMapElement(5)));
+  m_TestMap.Insert(9, std::move(TestMapElement(9)));
+  m_TestMap.Insert(12, std::move(TestMapElement(12)));
+  m_TestMap.Insert(14, std::move(TestMapElement(14)));
+  m_TestMap.Insert(20, std::move(TestMapElement(20)));
+  m_TestMap.Insert(30, std::move(TestMapElement(30)));
+
+  EZ_ASSERT_ALWAYS(GetClosestSize(0) == 1, "Fail");
+  EZ_ASSERT_ALWAYS(GetClosestSize(1) == 1, "Fail");
+  EZ_ASSERT_ALWAYS(GetClosestSize(2) == 1, "Fail");
+  EZ_ASSERT_ALWAYS(GetClosestSize(3) == 5, "Fail");
+  EZ_ASSERT_ALWAYS(GetClosestSize(10) == 9, "Fail");
+  EZ_ASSERT_ALWAYS(GetClosestSize(11) == 12, "Fail");
+  EZ_ASSERT_ALWAYS(GetClosestSize(25) == 30, "Fail");
+  EZ_ASSERT_ALWAYS(GetClosestSize(40) == 0, "Fail");
+}
+
+ezInt32 ezFontRenderingApp::GetClosestSize(ezUInt32 size)
+{
+  ezUInt32 lowerBoundIndex = m_TestMap.LowerBound(size);
+
+  if (lowerBoundIndex == ezInvalidIndex)
+    return 0;
+
+  ezUInt32 lowerBoundSize = m_TestMap.GetValue(lowerBoundIndex).m_Size;
+
+  if (lowerBoundSize == size || lowerBoundIndex == 0)
+    return lowerBoundSize;
+
+  ezUInt32 previousSize = m_TestMap.GetValue(lowerBoundIndex - 1).m_Size;
+
+  if (size - previousSize < lowerBoundSize - size)
+  {
+    return previousSize;
+  }
+
+  return lowerBoundSize;
 }
 
 void ezFontRenderingApp::RenderText()
