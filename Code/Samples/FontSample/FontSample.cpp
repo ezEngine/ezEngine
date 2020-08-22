@@ -34,12 +34,12 @@ ezFontRenderingApp::ezFontRenderingApp()
 
   m_TextSpriteDesc.Anchor = ezTextSpriteAnchor::TopLeft;
   m_TextSpriteDesc.HorizontalAlignment = ezTextHorizontalAlignment::Left;
-  m_TextSpriteDesc.VerticalAlignment = ezTextVerticalAlignment::Center;
+  m_TextSpriteDesc.VerticalAlignment = ezTextVerticalAlignment::Top;
   m_TextSpriteDesc.FontSize = 30;
-  m_TextSpriteDesc.Width = 100;
-  m_TextSpriteDesc.Height = 100;
+  m_TextSpriteDesc.Width = 640;
+  m_TextSpriteDesc.Height = 480;
   m_TextSpriteDesc.Color = ezColor::Red;
-  m_TextSpriteDesc.Text = "Hello World";
+  m_TextSpriteDesc.Text = "Hello World. This is a test";
   m_TextSpriteDesc.WrapText = true;
   m_TextSpriteDesc.BreakTextWhenWrapped = true;
 }
@@ -190,7 +190,7 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   {
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-    RasterStateDesc.m_bFrontCounterClockwise = false;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
     m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
     EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
   }
@@ -199,14 +199,14 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   {
     ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
     DepthStencilStateDesc.m_bDepthTest = false;
-    DepthStencilStateDesc.m_bDepthWrite = true;
+    DepthStencilStateDesc.m_bDepthWrite = false;
     m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
     EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
   }
 
   // Setup Shaders and Materials
   {
-    ezShaderManager::Configure("DX11_SM40", true);
+    ezShaderManager::Configure("DX11_SM50", true);
 
     m_hFontShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Font.ezShader");
   }
@@ -216,7 +216,46 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   }
 
   m_Font = ezResourceManager::LoadResource<ezFontResource>(":/Fonts/Roboto-Black.ezFont");
+
   m_TextSpriteDesc.Font = m_Font;
+
+  // Create the vertex buffer
+  {
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(Vertex);
+    desc.m_uiTotalSize = VertexBufferSize * desc.m_uiStructSize;
+    desc.m_BufferType = ezGALBufferType::VertexBuffer;
+    desc.m_ResourceAccess.m_bImmutable = false;
+
+    m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+  }
+
+  // Create the index buffer
+  {
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(ezUInt32);
+    desc.m_uiTotalSize = IndexBufferSize * desc.m_uiStructSize;
+    desc.m_BufferType = ezGALBufferType::IndexBuffer;
+    desc.m_ResourceAccess.m_bImmutable = false;
+
+    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+  }
+
+  {
+    ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+    si.m_Semantic = ezGALVertexAttributeSemantic::Position;
+    si.m_Format = ezGALResourceFormat::XYZFloat;
+    si.m_uiOffset = 0;
+    si.m_uiElementSize = 12;
+  }
+
+  {
+    ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+    si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
+    si.m_Format = ezGALResourceFormat::UVFloat;
+    si.m_uiOffset = 12;
+    si.m_uiElementSize = 8;
+  }
 }
 
 void ezFontRenderingApp::BeforeCoreSystemsShutdown()
@@ -227,13 +266,23 @@ void ezFontRenderingApp::BeforeCoreSystemsShutdown()
   ezRenderContext::DeleteConstantBufferStorage(m_hSampleConstants);
   m_hSampleConstants.Invalidate();
 
+  if (!m_hVertexBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
+    m_hVertexBuffer.Invalidate();
+  }
+
+  if (!m_hIndexBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
+    m_hIndexBuffer.Invalidate();
+  }
+
   m_hFontShader.Invalidate();
   m_Font.Invalidate();
 
   m_pDevice->DestroyTexture(m_hDepthStencilTexture);
   m_hDepthStencilTexture.Invalidate();
-
-  m_hTextMeshBuffer.Invalidate();
 
   // tell the engine that we are about to destroy window and graphics device,
   // and that it therefore needs to cleanup anything that depends on that
@@ -269,77 +318,37 @@ void ezFontRenderingApp::RenderText()
   textSprite.Update(m_TextSpriteDesc);
   ezUInt32 numRenderElements = textSprite.GetNumRenderElements();
 
-  ezDynamicArray<ezVec2> vertices;
-  ezDynamicArray<ezVec2> uvs;
-
   ezRenderContext::GetDefaultInstance()->BindShader(m_hFontShader);
 
   for (ezUInt32 i = 0; i < numRenderElements; i++)
   {
     const ezTextSpriteRenderElementData& renderData = textSprite.GetRenderElementData(i);
 
-    vertices.SetCount(renderData.m_NumQuads * 4);
-    uvs.SetCount(renderData.m_NumQuads * 4);
-    ezGeometry geom;
+    ezArrayPtr<Vertex> vertices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), Vertex, renderData.m_Vertices.GetCount());
+    ezArrayPtr<ezUInt32> indices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, renderData.m_Indices.GetCount());
 
     for (ezUInt32 vertexIndex = 0; vertexIndex < renderData.m_Vertices.GetCount(); vertexIndex++)
     {
       auto& vertex = renderData.m_Vertices[vertexIndex];
       auto& uv = renderData.m_UVs[vertexIndex];
 
-      vertices[vertexIndex] = {vertex.x, vertex.y};
-      uvs[vertexIndex] = {uv.x, uv.y};
-      geom.AddRectXY(ezVec2(vertex.x, vertex.y), ezColor::White);
+      vertices[vertexIndex] = {{vertex.x, vertex.y, 1.0f}, {uv.x, uv.y}};
     };
 
-    ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
-
-    desc.AllocateStreams(vertices.GetCount(), ezGALPrimitiveTopology::Triangles, vertices.GetCount() * 2);
-    for (ezUInt32 v = 0; v < vertices.GetCount(); ++v)
-    {
-      desc.SetVertexData<ezVec3>(0, v, ezVec3(vertices[v].x, vertices[v].y, 1.0f));
-      desc.SetVertexData<ezVec2>(1, v, ezVec2(uvs[v].x, uvs[v].y));
-    }
-
-    //for (ezUInt32 k = 0; k < renderData.m_Indices.GetCount(); k+=3)
-    //{
-    //  desc.SetTriangleIndices(k, renderData.m_Indices[k + 0], renderData.m_Indices[k + 1], renderData.m_Indices[k + 2]);
-    //}
-
-    ezUInt32 t = 0;
-    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-    {
-      for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-      {
-        desc.SetTriangleIndices(
-          t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
-
-        ++t;
-      }
-    }
+    indices.CopyFrom(renderData.m_Indices.GetArrayPtr());
 
     ezFontSampleConstants& cb = m_pSampleConstantBuffer->GetDataForWriting();
 
     cb.ModelMatrix = mTransform;
     cb.ViewProjectionMatrix = Proj;
 
-
-    ezStringBuilder meshId("{E692442B-9E15-46C5-8A00-1B07C02BF8F8}_");
-    meshId.Append(i);
-
-    ezMeshBufferResourceHandle mesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(meshId);
-    if (!mesh.IsValid())
-      mesh = ezResourceManager::CreateResource<ezMeshBufferResource>(meshId, std::move(desc));
-
-    //ezResourceLock<ezTexture2DResource> l(renderData.m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
-
     ezRenderContext::GetDefaultInstance()->BindTexture2D("FontAtlasTexture", renderData.m_hTexture);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(mesh);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
 
-    mesh.Invalidate();
+    ezRenderContext::GetDefaultInstance()->GetGALContext()->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(vertices.GetPtr(), vertices.GetCount()).ToByteArray());
+    ezRenderContext::GetDefaultInstance()->GetGALContext()->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(indices.GetPtr(), indices.GetCount()).ToByteArray());
+
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, indices.GetCount() / 3);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
   }
 }
 
