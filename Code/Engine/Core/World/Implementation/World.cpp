@@ -11,8 +11,6 @@
 
 ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
 
-const ezUInt16 c_InvalidWorldIndex = 0xFFFFu;
-
 static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, const char* szProperty)
 {
   const char* szRef = reinterpret_cast<const char*>(pData);
@@ -46,11 +44,11 @@ ezWorld::ezWorld(ezWorldDesc& desc)
   sb.Append(".Update");
   m_pUpdateTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 
-  m_uiIndex = c_InvalidWorldIndex;
+  m_uiIndex = ezInvalidIndex;
 
   // find a free world slot
-  const ezUInt16 uiWorldCount = static_cast<ezUInt16>(s_Worlds.GetCount());
-  for (ezUInt16 i = 0; i < uiWorldCount; i++)
+  const ezUInt32 uiWorldCount = s_Worlds.GetCount();
+  for (ezUInt32 i = 0; i < uiWorldCount; i++)
   {
     if (s_Worlds[i] == nullptr)
     {
@@ -60,9 +58,9 @@ ezWorld::ezWorld(ezWorldDesc& desc)
     }
   }
 
-  if (m_uiIndex == c_InvalidWorldIndex)
+  if (m_uiIndex == ezInvalidIndex)
   {
-    m_uiIndex = static_cast<ezUInt16>(s_Worlds.GetCount());
+    m_uiIndex = s_Worlds.GetCount();
     EZ_ASSERT_DEV(m_uiIndex < GetMaxNumWorlds(), "Max world index reached: {}", GetMaxNumWorlds());
     static_assert((GetMaxNumWorlds() - 1) <= ezMath::MaxValue<ezUInt8>()); // World index is stored in ezUInt8 in game objects
 
@@ -104,7 +102,7 @@ ezWorld::~ezWorld()
   m_Data.m_Modules.Clear();
 
   s_Worlds[m_uiIndex] = nullptr;
-  m_uiIndex = c_InvalidWorldIndex;
+  m_uiIndex = ezInvalidIndex;
 }
 
 
@@ -725,7 +723,7 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
     return;
   }
 
-  const ezUInt64 uiId = pObject->m_InternalId.m_Data;
+  const ezUInt32 uiId = pObject->m_InternalId.m_InstanceIndex;
 
   // Remove existing entry first.
   ezHashedString* pOldGlobalKey;
@@ -750,7 +748,7 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
 
 const char* ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
 {
-  const ezUInt64 uiId = pObject->m_InternalId.m_Data;
+  const ezUInt32 uiId = pObject->m_InternalId.m_InstanceIndex;
 
   const ezHashedString* pGlobalKey;
   if (m_Data.m_IdToGlobalKeyTable.TryGetValue(uiId, pGlobalKey))

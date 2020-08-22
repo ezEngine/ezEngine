@@ -387,7 +387,7 @@ private:
 
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
 
-  ezUInt16 m_uiIndex;
+  ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 256> s_Worlds;
 };
 
