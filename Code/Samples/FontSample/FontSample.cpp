@@ -2,6 +2,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <FontSample.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -9,7 +10,6 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Time/Clock.h>
-#include <FontSample.h>
 #include <RendererCore/Font/TextData.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -21,6 +21,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 static ezUInt32 g_uiWindowWidth = 640;
 static ezUInt32 g_uiWindowHeight = 480;
@@ -28,6 +29,7 @@ static ezUInt32 g_uiWindowHeight = 480;
 ezFontRenderingApp::ezFontRenderingApp()
   : ezApplication("Font Rendering")
 {
+  m_vCameraPosition.SetZero();
 }
 
 ezApplication::ApplicationExecution ezFontRenderingApp::Run()
@@ -69,25 +71,11 @@ ezApplication::ApplicationExecution ezFontRenderingApp::Run()
 
     pContext->SetRenderTargetSetup(RTS);
     pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight), 0.0f, 1.0f);
-    pContext->Clear(ezColor::Black);
+    pContext->Clear(ezColor::Blue);
 
-    ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
+    ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
 
-
-    //RenderText();
-    TestMap();
-
-    ezTextSprite textSprite;
-    textSprite.Update(m_TextSpriteDesc);
-
-    ezUInt32 numRenderElements = textSprite.GetNumRenderElements();
-
-    for (ezUInt32 i = 0; i < numRenderElements; i++)
-    {
-      const ezTextSpriteRenderElementData& renderData = textSprite.GetRenderElementData(i);
-    }
+    RenderText();
 
     m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
 
@@ -199,10 +187,11 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   {
     ezShaderManager::Configure("DX11_SM40", true);
 
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/screen.ezMaterial");
+    m_hFontShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Font.ezShader");
+  }
 
-    // Create the mesh that we use for rendering
-    CreateScreenQuad();
+  {
+    m_hSampleConstants = ezRenderContext::CreateConstantBufferStorage(m_pSampleConstantBuffer);
   }
 
   m_Font = ezResourceManager::LoadResource<ezFontResource>(":/Fonts/Roboto-Black.ezFont");
@@ -222,13 +211,17 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
 
 void ezFontRenderingApp::BeforeHighLevelSystemsShutdown()
 {
+
+  ezRenderContext::DeleteConstantBufferStorage(m_hSampleConstants);
+  m_hSampleConstants.Invalidate();
+
   m_directoryWatcher->CloseDirectory();
 
   m_pDevice->DestroyTexture(m_hDepthStencilTexture);
   m_hDepthStencilTexture.Invalidate();
 
-  m_hMaterial.Invalidate();
-  m_hQuadMeshBuffer.Invalidate();
+  m_hFontShader.Invalidate();
+  m_hTextMeshBuffer.Invalidate();
 
   // tell the engine that we are about to destroy window and graphics device,
   // and that it therefore needs to cleanup anything that depends on that
@@ -247,120 +240,85 @@ void ezFontRenderingApp::BeforeHighLevelSystemsShutdown()
   m_directoryWatcher.Clear();
 }
 
-void ezFontRenderingApp::CreateScreenQuad()
-{
-  ezGeometry geom;
-  geom.AddRectXY(ezVec2(2, 2), ezColor::Black);
-
-  ezMeshBufferResourceDescriptor desc;
-  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-
-  desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
-
-  for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-  {
-    desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-  }
-
-  ezUInt32 t = 0;
-  for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-  {
-    for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-    {
-      desc.SetTriangleIndices(
-        t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
-
-      ++t;
-    }
-  }
-
-  m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
-
-  if (!m_hQuadMeshBuffer.IsValid())
-    m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
-}
-
-void ezFontRenderingApp::TestMap()
-{
-  m_TestMap.Insert(1, std::move(TestMapElement(1)));
-  m_TestMap.Insert(5, std::move(TestMapElement(5)));
-  m_TestMap.Insert(9, std::move(TestMapElement(9)));
-  m_TestMap.Insert(12, std::move(TestMapElement(12)));
-  m_TestMap.Insert(14, std::move(TestMapElement(14)));
-  m_TestMap.Insert(20, std::move(TestMapElement(20)));
-  m_TestMap.Insert(30, std::move(TestMapElement(30)));
-
-  EZ_ASSERT_ALWAYS(GetClosestSize(0) == 1, "Fail");
-  EZ_ASSERT_ALWAYS(GetClosestSize(1) == 1, "Fail");
-  EZ_ASSERT_ALWAYS(GetClosestSize(2) == 1, "Fail");
-  EZ_ASSERT_ALWAYS(GetClosestSize(3) == 5, "Fail");
-  EZ_ASSERT_ALWAYS(GetClosestSize(10) == 9, "Fail");
-  EZ_ASSERT_ALWAYS(GetClosestSize(11) == 12, "Fail");
-  EZ_ASSERT_ALWAYS(GetClosestSize(25) == 30, "Fail");
-  EZ_ASSERT_ALWAYS(GetClosestSize(40) == 0, "Fail");
-}
-
-ezInt32 ezFontRenderingApp::GetClosestSize(ezUInt32 size)
-{
-  ezUInt32 lowerBoundIndex = m_TestMap.LowerBound(size);
-
-  if (lowerBoundIndex == ezInvalidIndex)
-    return 0;
-
-  ezUInt32 lowerBoundSize = m_TestMap.GetValue(lowerBoundIndex).m_Size;
-
-  if (lowerBoundSize == size || lowerBoundIndex == 0)
-    return lowerBoundSize;
-
-  ezUInt32 previousSize = m_TestMap.GetValue(lowerBoundIndex - 1).m_Size;
-
-  if (size - previousSize < lowerBoundSize - size)
-  {
-    return previousSize;
-  }
-
-  return lowerBoundSize;
-}
-
 void ezFontRenderingApp::RenderText()
 {
   ezTextSprite textSprite;
   textSprite.Update(m_TextSpriteDesc);
-
   ezUInt32 numRenderElements = textSprite.GetNumRenderElements();
+
+  struct Vertex
+  {
+    ezVec2 Position;
+    ezVec2 TexCoord0;
+  };
+
+  ezDynamicArray<ezVec2> vertices;
+  ezDynamicArray<ezVec2> uvs;
+
+  ezRenderContext::GetDefaultInstance()->BindShader(m_hFontShader);
 
   for (ezUInt32 i = 0; i < numRenderElements; i++)
   {
     const ezTextSpriteRenderElementData& renderData = textSprite.GetRenderElementData(i);
+
+    vertices.SetCount(renderData.m_NumQuads * 4);
+    uvs.SetCount(renderData.m_NumQuads * 4);
+    ezGeometry geom;
+
+    for (ezUInt32 vertexIndex = 0; vertexIndex < renderData.m_Vertices.GetCount(); vertexIndex++)
+    {
+      auto& vertex = renderData.m_Vertices[vertexIndex];
+      auto& uv = renderData.m_UVs[vertexIndex];
+
+      vertices[vertexIndex] = {vertex.x, vertex.y};
+      uvs[vertexIndex] = {uv.x, uv.y};
+      geom.AddRectXY(ezVec2(vertex.x, vertex.y), ezColor::Red);
+    };
+
+    ezMeshBufferResourceDescriptor desc;
+    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+
+    desc.AllocateStreams(vertices.GetCount(), ezGALPrimitiveTopology::Triangles, vertices.GetCount() * 2);
+    for (ezUInt32 v = 0; v < vertices.GetCount(); ++v)
+    {
+      desc.SetVertexData<ezVec3>(0, v, ezVec3(vertices[v].x, vertices[v].y, 1.0f));
+      desc.SetVertexData<ezVec2>(1, v, ezVec2(uvs[v].x, uvs[v].y));
+    }
+
+    //ezUInt32 t = 0;
+    //for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+    //{
+    //  for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
+    //  {
+    //    desc.SetTriangleIndices(
+    //      t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
+
+    //    ++t;
+    //  }
+    //}
+
+    ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f,
+      m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f,
+      m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+
+    ezFontSampleConstants& cb = m_pSampleConstantBuffer->GetDataForWriting();
+
+    cb.ModelMatrix = ezMat4::IdentityMatrix();
+    cb.ViewProjectionMatrix = Proj;
+
+
+    ezStringBuilder meshId("{E692442B-9E15-46C5-8A00-1B07C02BF8F8}_");
+    meshId.Append(i);
+
+    ezMeshBufferResourceHandle mesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(meshId);
+    if (!mesh.IsValid())
+      mesh = ezResourceManager::CreateResource<ezMeshBufferResource>(meshId, std::move(desc));
+
+    ezRenderContext::GetDefaultInstance()->BindTexture2D("FontAtlasTexture", renderData.m_hTexture);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(mesh);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
   }
-
-  //if (m_Font.IsValid())
-  //{
-  //  ezTextSpriteDescriptor desc;
-
-  //  ezTextData textData("Hello World\nWhat is going on?\nTesting 13", m_Font, 30);
-
-  //  ezUInt32 numPages = textData.GetNumPages();
-
-  //  ezUInt32 texturePage = 0;
-
-  //  for (ezUInt32 i = 0; i < numPages; i++)
-  //  {
-  //    ezUInt32 numQuads = textData.GetNumQuadsForPage(texturePage);
-  //    const ezTexture2DResourceHandle& texture = textData.GetTextureForPage(texturePage);
-  //  }
-
-  //  ezLog::Info("TextInfo - Width:{0} Height:{1} Line Height:{2} Num Lines:{3} Num Pages:{4}", textData.GetWidth(), textData.GetHeight(), textData.GetLineHeight(), textData.GetNumLines(), textData.GetNumPages());
-
-  //  for (ezUInt32 lineNum = 0; lineNum < textData.GetNumLines(); lineNum++)
-  //  {
-  //    const ezTextData::ezTextLine& line = textData.GetLine(lineNum);
-
-  //    ezLog::Info("Line Info - Width:{0} Height:{1} YOffset:{2} HasNLC:{3}", line.GetWidth(), line.GetHeight(), line.GetYOffset(), line.HasNewlineCharacter());
-  //  }
-
-  //  //ezLog::Info("{} {}", font->GetName(), font->GetFamilyName());
-  //}
 }
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezFontRenderingApp);

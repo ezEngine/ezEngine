@@ -1,21 +1,20 @@
-#include <Shaders/Common/GlobalConstants.h>
+#pragma once
 
-CONSTANT_BUFFER(ezMaterialConstants, 0)
-{
-  MAT4(ViewMatrix);
-};
+#include <Shaders/Common/GlobalConstants.h>
+#include "SampleConstantBuffer.h"
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 struct VS_IN
 {
   float3 Position : POSITION;
+  float2 TexCoord0 : TEXCOORD0;
 };
 
 struct VS_OUT
 {
   float4 Position : SV_Position;
-  float2 FragCoord : TEXCOORD0;
+  float2 TexCoord0 : TEXCOORD0;
 };
 
 typedef VS_OUT PS_IN;

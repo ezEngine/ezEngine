@@ -11,6 +11,11 @@
 #include <RendererCore/Font/TextSprite.h>
 #include <Foundation/Containers/ArrayMap.h>
 
+struct ezFontSampleConstants
+{
+  ezMat4 ModelMatrix;
+  ezMat4 ViewProjectionMatrix;
+};
 
 class ezCamera;
 class ezGALDevice;
@@ -56,9 +61,6 @@ public:
   virtual void BeforeHighLevelSystemsShutdown() override;
 
 private:
-  void CreateScreenQuad();
-  void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
-
   ezFontRenderingWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
 
@@ -66,19 +68,21 @@ private:
   ezGALRenderTargetViewHandle m_hBBDSV;
   ezGALTextureHandle m_hDepthStencilTexture;
 
-  ezMaterialResourceHandle m_hMaterial;
-  ezMeshBufferResourceHandle m_hQuadMeshBuffer;
+  ezMeshBufferResourceHandle m_hTextMeshBuffer;
 
   ezUniquePtr<ezCamera> m_camera;
   ezUniquePtr<ezDirectoryWatcher> m_directoryWatcher;
 
   ezArrayMap<ezUInt32, TestMapElement> m_TestMap;
-  void TestMap();
-  ezInt32 GetClosestSize(ezUInt32 size);
 
   bool m_stuffChanged;
   ezFontResourceHandle m_Font;
+  ezShaderResourceHandle m_hFontShader;
   ezTextSpriteDescriptor m_TextSpriteDesc;
+
+  ezConstantBufferStorageHandle m_hSampleConstants;
+  ezConstantBufferStorage<ezFontSampleConstants>* m_pSampleConstantBuffer;
+  ezVec2 m_vCameraPosition;
 
   void RenderText();
 };

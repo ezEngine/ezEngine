@@ -91,15 +91,24 @@ struct ezTextSpriteDescriptor
 class EZ_RENDERERCORE_DLL ezTextSprite
 {
 public:
+  struct Quad
+  {
+    ezVec2 TopLeft;
+    ezVec2 TopRight;
+    ezVec2 BottomLeft;
+    ezVec2 BottomRight;
+  };
+
+public:
   ezTextSprite() = default;
   ~ezTextSprite() = default;
   void Update(const ezTextSpriteDescriptor& desc);
 
   ezRectI32 GetBounds(const ezVec2I32& offset, const ezRectI32& clipRect) const;
 
-  ezUInt32 FillBuffer(ezDynamicArray<ezUInt8> vertices,
-    ezDynamicArray<ezUInt8> uvs,
-    ezDynamicArray<ezUInt8> indices,
+  ezUInt32 FillBuffer(ezDynamicArray<ezVec2>& vertices,
+    ezDynamicArray<ezVec2>& uvs,
+    ezDynamicArray<ezUInt32>& indices,
     ezUInt32 vertexOffset,
     ezUInt32 indexOffset,
     ezUInt32 maxNumVerts,
@@ -107,20 +116,27 @@ public:
     ezUInt32 vertexStride,
     ezUInt32 indexStride,
     ezUInt32 renderElementIndex,
-    const ezVec2I32 offset,
-    ezRectI32 clipRect,
+    const ezVec2I32& offset,
+    const ezRectI32& clipRect,
+    bool clip = true);
+
+  ezUInt32 FillBuffer(ezDynamicArray<ezVec2>& vertices,
+    ezDynamicArray<ezVec2>& uvs,
+    ezUInt32 vertexOffset,
+    ezUInt32 indexOffset,
+    ezUInt32 maxNumVerts,
+    ezUInt32 maxNumIndices,
+    ezUInt32 vertexStride,
+    ezUInt32 indexStride,
+    ezUInt32 renderElementIndex,
+    const ezVec2I32& offset,
+    const ezRectI32& clipRect,
     bool clip = true);
 
   static ezVec2I32 GetAnchorOffset(ezEnum<ezTextSpriteAnchor> anchor, ezUInt32 width, ezUInt32 height);
 
   static void ClipQuadsToRect(ezDynamicArray<ezUInt8>& inoutVertices, ezDynamicArray<ezUInt8>& inoutUVs, ezUInt32 numQuads, ezUInt32 vertexStride, const ezRectI32& clipRect);
-
-  static void ClipTrianglesToRect(ezDynamicArray<ezUInt8>& inoutVertices,
-    ezDynamicArray<ezUInt8>& inoutUVs,
-    ezUInt32 numTriangles,
-    ezUInt32 vertexStride,
-    const ezRectI32& clipRect,
-    const ezDelegate<void(ezDynamicArray<ezVec2>&, ezDynamicArray<ezVec2>&, ezUInt32)>& writeCallback);
+  static void ClipQuadsToRect(ezDynamicArray<ezVec2>& inoutVertices, ezDynamicArray<ezVec2>& inoutUVs, ezUInt32 numQuads, ezUInt32 vertexStride, const ezRectI32& clipRect);
 
   ezUInt32 GetNumRenderElements() const { return m_CachedRenderElements.GetCount(); }
 
