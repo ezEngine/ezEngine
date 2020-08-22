@@ -87,12 +87,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
       for (int rot = 0; rot < 360; rot += 45)
       {
         ezVec3 vLookDir;
-        vLookDir.Set(ezMath::Sin(ezAngle::Degree(rot)), 0, -ezMath::Cos(ezAngle::Degree(rot)));
+        vLookDir.Set(ezMath::Sin(ezAngle::Degree((float)rot)), 0, -ezMath::Cos(ezAngle::Degree((float)rot)));
 
         ezVec3 vRightDir;
-        vRightDir.Set(ezMath::Sin(ezAngle::Degree(rot + 90)), 0, -ezMath::Cos(ezAngle::Degree(rot + 90)));
+        vRightDir.Set(ezMath::Sin(ezAngle::Degree(rot + 90.0f)), 0, -ezMath::Cos(ezAngle::Degree(rot + 90.0f)));
 
-        const ezVec3 vCamPos(rot, rot * 0.5f, rot * -0.3f);
+        const ezVec3 vCamPos(rot * 1.0f, rot * 0.5f, rot * -0.3f);
 
         // const ezMat4 mViewLH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, -vRightDir, ezVec3(0, 1, 0), ezHandedness::LeftHanded);
         // const ezMat4 mViewRH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, vRightDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);

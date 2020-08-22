@@ -147,9 +147,9 @@ namespace
     virtual ezUInt32 Run()
     {
       g_PostIncValues32[g_iPostIncVariable32.PostIncrement()].Increment();
-      g_PostIncValues64[g_iPostIncVariable64.PostIncrement()].Increment();
+      g_PostIncValues64[static_cast<ezInt32>(g_iPostIncVariable64.PostIncrement())].Increment();
       g_PostDecValues32[g_iPostDecVariable32.PostDecrement()].Increment();
-      g_PostDecValues64[g_iPostDecVariable64.PostDecrement()].Increment();
+      g_PostDecValues64[static_cast<ezInt32>(g_iPostDecVariable64.PostDecrement())].Increment();
       return 0;
     }
 
