@@ -109,10 +109,6 @@ public:
   ezUInt32 FillBuffer(ezDynamicArray<ezVec2>& vertices,
     ezDynamicArray<ezVec2>& uvs,
     ezDynamicArray<ezUInt32>& indices,
-    ezUInt32 vertexOffset,
-    ezUInt32 indexOffset,
-    ezUInt32 maxNumVerts,
-    ezUInt32 maxNumIndices,
     ezUInt32 vertexStride,
     ezUInt32 indexStride,
     ezUInt32 renderElementIndex,
@@ -122,12 +118,7 @@ public:
 
   ezUInt32 FillBuffer(ezDynamicArray<ezVec2>& vertices,
     ezDynamicArray<ezVec2>& uvs,
-    ezUInt32 vertexOffset,
-    ezUInt32 indexOffset,
-    ezUInt32 maxNumVerts,
-    ezUInt32 maxNumIndices,
     ezUInt32 vertexStride,
-    ezUInt32 indexStride,
     ezUInt32 renderElementIndex,
     const ezVec2I32& offset,
     const ezRectI32& clipRect,
@@ -135,8 +126,15 @@ public:
 
   static ezVec2I32 GetAnchorOffset(ezEnum<ezTextSpriteAnchor> anchor, ezUInt32 width, ezUInt32 height);
 
-  static void ClipQuadsToRect(ezDynamicArray<ezUInt8>& inoutVertices, ezDynamicArray<ezUInt8>& inoutUVs, ezUInt32 numQuads, ezUInt32 vertexStride, const ezRectI32& clipRect);
-  static void ClipQuadsToRect(ezDynamicArray<ezVec2>& inoutVertices, ezDynamicArray<ezVec2>& inoutUVs, ezUInt32 numQuads, ezUInt32 vertexStride, const ezRectI32& clipRect);
+  static void ClipQuadToRect(ezVec2& topLeft,
+    ezVec2& topRight,
+    ezVec2& bottomLeft,
+    ezVec2& bottomRight,
+    ezVec2& topLeftUV,
+    ezVec2& topRightUV,
+    ezVec2& bottomLeftUV,
+    ezVec2& bottomRightUV,
+    const ezRectI32& clipRect);
 
   ezUInt32 GetNumRenderElements() const { return m_CachedRenderElements.GetCount(); }
 

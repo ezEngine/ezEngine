@@ -24,8 +24,8 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-static ezUInt32 g_uiWindowWidth = 640;
-static ezUInt32 g_uiWindowHeight = 480;
+static ezUInt32 g_uiWindowWidth = 1280;
+static ezUInt32 g_uiWindowHeight = 720;
 
 ezFontRenderingApp::ezFontRenderingApp()
   : ezApplication("Font Rendering")
@@ -36,7 +36,7 @@ ezFontRenderingApp::ezFontRenderingApp()
   m_TextSpriteDesc.HorizontalAlignment = ezTextHorizontalAlignment::Left;
   m_TextSpriteDesc.VerticalAlignment = ezTextVerticalAlignment::Top;
   m_TextSpriteDesc.FontSize = 30;
-  m_TextSpriteDesc.Width = 640;
+  m_TextSpriteDesc.Width = 100;
   m_TextSpriteDesc.Height = 480;
   m_TextSpriteDesc.Color = ezColor::Red;
   m_TextSpriteDesc.Text = "Hello World. This is a test";
@@ -320,22 +320,32 @@ void ezFontRenderingApp::RenderText()
 
   ezRenderContext::GetDefaultInstance()->BindShader(m_hFontShader);
 
+  ezDynamicArray<ezVec2> vertexData;
+  ezDynamicArray<ezVec2> uvData;
+  ezDynamicArray<ezUInt32> indexData;
+
   for (ezUInt32 i = 0; i < numRenderElements; i++)
   {
     const ezTextSpriteRenderElementData& renderData = textSprite.GetRenderElementData(i);
 
-    ezArrayPtr<Vertex> vertices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), Vertex, renderData.m_Vertices.GetCount());
-    ezArrayPtr<ezUInt32> indices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, renderData.m_Indices.GetCount());
+    vertexData.SetCount(renderData.m_Vertices.GetCount());
+    uvData.SetCount(renderData.m_UVs.GetCount());
+    indexData.SetCount(renderData.m_Indices.GetCount());
 
-    for (ezUInt32 vertexIndex = 0; vertexIndex < renderData.m_Vertices.GetCount(); vertexIndex++)
+    textSprite.FillBuffer(vertexData, uvData, indexData, 4, 6, i, ezVec2I32(-30,-25), ezRectI32(), false);
+
+    ezArrayPtr<Vertex> vertices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), Vertex, vertexData.GetCount());
+    ezArrayPtr<ezUInt32> indices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, indexData.GetCount());
+
+    for (ezUInt32 vertexIndex = 0; vertexIndex < vertexData.GetCount(); vertexIndex++)
     {
-      auto& vertex = renderData.m_Vertices[vertexIndex];
-      auto& uv = renderData.m_UVs[vertexIndex];
+      auto& vertex = vertexData[vertexIndex];
+      auto& uv = uvData[vertexIndex];
 
       vertices[vertexIndex] = {{vertex.x, vertex.y, 1.0f}, {uv.x, uv.y}};
     };
 
-    indices.CopyFrom(renderData.m_Indices.GetArrayPtr());
+    indices.CopyFrom(indexData.GetArrayPtr());
 
     ezFontSampleConstants& cb = m_pSampleConstantBuffer->GetDataForWriting();
 

@@ -1,5 +1,6 @@
 #include <RendererCorePCH.h>
 
+#include "..\TextSprite.h"
 #include <RendererCore/Font/TextSprite.h>
 
 void ezTextSprite::Update(const ezTextSpriteDescriptor& desc)
@@ -44,7 +45,7 @@ ezRectI32 ezTextSprite::GetBounds(const ezVec2I32& offset, const ezRectI32& clip
 
   if (clipRect.width > 0 && clipRect.height > 0)
   {
-    //bounds.Clip(clipRect);
+    bounds.Clip(clipRect);
   }
 
   bounds.x += offset.x;
@@ -53,90 +54,9 @@ ezRectI32 ezTextSprite::GetBounds(const ezVec2I32& offset, const ezRectI32& clip
   return bounds;
 }
 
-// This will only properly clip an array of quads
-// Vertices in the quad must be in a specific order: top left, top right, bottom left, bottom right
-// (0, 0) represents top left of the screen
-void ezTextSprite::ClipQuadsToRect(ezDynamicArray<ezUInt8>& inoutVertices, ezDynamicArray<ezUInt8>& inoutUVs, ezUInt32 numQuads, ezUInt32 vertexStride, const ezRectI32& clipRect)
-{
-  float left = clipRect.Left();
-  float right = clipRect.Right();
-  float top = clipRect.Top();
-  float bottom = clipRect.Bottom();
-
-  ezUInt8* verticesPtr = inoutVertices.GetData();
-  ezUInt8* uvsPtr = inoutUVs.GetData();
-
-  for (ezUInt32 i = 0; i < numQuads; i++)
-  {
-    ezVec2* vecA = (ezVec2*)(verticesPtr);
-    ezVec2* vecB = (ezVec2*)(verticesPtr + vertexStride);
-    ezVec2* vecC = (ezVec2*)(verticesPtr + vertexStride * 2);
-    ezVec2* vecD = (ezVec2*)(verticesPtr + vertexStride * 3);
-
-    ezVec2* uvA = (ezVec2*)(uvsPtr);
-    ezVec2* uvB = (ezVec2*)(uvsPtr + vertexStride);
-    ezVec2* uvC = (ezVec2*)(uvsPtr + vertexStride * 2);
-    ezVec2* uvD = (ezVec2*)(uvsPtr + vertexStride * 3);
-
-    // Attempt to skip those that are definitely not clipped
-    if (vecA->x >= left && vecB->x <= right && vecA->y >= top && vecC->y <= bottom)
-      continue;
-
-    float du = (uvB->x - uvA->x) / (vecB->x - vecA->x);
-    float dv = (uvA->y - uvC->y) / (vecA->y - vecD->y);
-
-    if (right < left)
-      std::swap(left, right);
-
-    if (bottom < top)
-      std::swap(bottom, top);
-
-    // Clip left
-    float newLeft = ezMath::Clamp(vecA->x, left, right);
-    float uvLeftOffset = (newLeft - vecA->x) * du;
-
-    // Clip right
-    float newRight = ezMath::Clamp(vecB->x, left, right);
-    float uvRightOffset = (vecB->x - newRight) * du;
-
-    // Clip top
-    float newTop = ezMath::Clamp(vecA->y, top, bottom);
-    float uvTopOffset = (newTop - vecA->y) * dv;
-
-    // Clip bottom
-    float newBottom = ezMath::Clamp(vecC->y, top, bottom);
-    float uvBottomOffset = (vecC->y - newBottom) * dv;
-
-    vecA->x = newLeft;
-    vecC->x = newLeft;
-    vecB->x = newRight;
-    vecD->x = newRight;
-    vecA->y = newTop;
-    vecB->y = newTop;
-    vecC->y = newBottom;
-    vecD->y = newBottom;
-
-    uvA->x += uvLeftOffset;
-    uvC->x += uvLeftOffset;
-    uvB->x -= uvRightOffset;
-    uvD->x -= uvRightOffset;
-    uvA->y += uvTopOffset;
-    uvB->y += uvTopOffset;
-    uvC->y -= uvBottomOffset;
-    uvD->y -= uvBottomOffset;
-
-    verticesPtr += vertexStride * 4;
-    uvsPtr += vertexStride * 4;
-  }
-}
-
 ezUInt32 ezTextSprite::FillBuffer(ezDynamicArray<ezVec2>& vertices,
   ezDynamicArray<ezVec2>& uvs,
   ezDynamicArray<ezUInt32>& indices,
-  ezUInt32 vertexOffset,
-  ezUInt32 indexOffset,
-  ezUInt32 maxNumVerts,
-  ezUInt32 maxNumIndices,
   ezUInt32 vertexStride,
   ezUInt32 indexStride,
   ezUInt32 renderElementIndex,
@@ -144,181 +64,156 @@ ezUInt32 ezTextSprite::FillBuffer(ezDynamicArray<ezVec2>& vertices,
   const ezRectI32& clipRect,
   bool clip)
 {
-  ezUInt32 numQuads = FillBuffer(vertices, uvs, vertexOffset, indexOffset, maxNumVerts, maxNumIndices, vertexStride, indexStride, renderElementIndex, offset, clipRect, clip);
+  ezUInt32 numQuads = FillBuffer(vertices, uvs, vertexStride, renderElementIndex, offset, clipRect, clip);
 
   const auto& renderElem = m_CachedRenderElements[renderElementIndex];
 
-  //indices.Reserve(renderElem.m_Indices.GetCount());
-
-  ezUInt32 startIndex = indexOffset;
-  ezUInt32 numIndices = renderElem.m_NumQuads * 6;
-
-  ezMemoryUtils::Copy(&indices.GetData()[startIndex], renderElem.m_Indices.GetData(), numIndices);
+  indices.GetArrayPtr().CopyFrom(renderElem.m_Indices);
 
   return numQuads;
 }
 
-ezUInt32 ezTextSprite::FillBuffer(ezDynamicArray<ezVec2>& vertices, ezDynamicArray<ezVec2>& uvs, ezUInt32 vertexOffset, ezUInt32 indexOffset, ezUInt32 maxNumVerts, ezUInt32 maxNumIndices, ezUInt32 vertexStride, ezUInt32 indexStride, ezUInt32 renderElementIndex, const ezVec2I32& offset, const ezRectI32& clipRect, bool clip)
+ezUInt32 ezTextSprite::FillBuffer(ezDynamicArray<ezVec2>& vertices, ezDynamicArray<ezVec2>& uvs, ezUInt32 vertexStride, ezUInt32 renderElementIndex, const ezVec2I32& offset, const ezRectI32& clipRect, bool clip)
 {
   const auto& renderElem = m_CachedRenderElements[renderElementIndex];
 
-  ezUInt32 startVertex = vertexOffset;
-  ezUInt32 startIndex = indexOffset;
-
-  ezUInt32 maxVerticesIndex = maxNumVerts;
-  ezUInt32 maxIndicesIndex = maxNumIndices;
-
-  ezUInt32 numVertices = renderElem.m_NumQuads * 4;
-  ezUInt32 numIndices = renderElem.m_NumQuads * 6;
-
-  EZ_ASSERT_ALWAYS((startVertex + numVertices) <= maxVerticesIndex, "");
-  EZ_ASSERT_ALWAYS((startIndex + numIndices) <= maxIndicesIndex, "");
-
-  ezUInt32 startVerticesIndex = startVertex * vertexStride;
-  ezUInt32 startIndicesIndex = startIndex * vertexStride;
-
   ezVec2 vecOffset((float)offset.x, (float)offset.y);
+
   if (clip)
   {
     for (ezUInt32 i = 0; i < renderElem.m_NumQuads; i++)
     {
-      ezUInt32 vertexIndex = i * 4;
+      ezUInt32 vertexIndex = i * vertexStride;
 
-      ezVec2& vecA = vertices[startVerticesIndex + i * vertexStride + 0];
-      ezVec2& uvA = uvs[startVerticesIndex + i * vertexStride + 0];
-      ezMemoryUtils::Copy(&vecA, &renderElem.m_Vertices[vertexIndex + 0], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvA, &renderElem.m_UVs[vertexIndex + 0], sizeof(ezVec2));
+      ezVec2& topLeft = vertices[vertexIndex + 0];
+      ezVec2& topLeftUV = uvs[vertexIndex + 0];
+      topLeft = renderElem.m_Vertices[vertexIndex + 0];
+      topLeftUV = renderElem.m_UVs[vertexIndex + 0];
 
-      ezVec2& vecB = vertices[startVerticesIndex + i * vertexStride + 1];
-      ezVec2& uvB = uvs[startVerticesIndex + i * vertexStride + 1];
-      ezMemoryUtils::Copy(&vecB, &renderElem.m_Vertices[vertexIndex + 1], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvB, &renderElem.m_UVs[vertexIndex + 1], sizeof(ezVec2));
+      ezVec2& topRight = vertices[vertexIndex + 1];
+      ezVec2& topRightUV = uvs[vertexIndex + 1];
+      topRight = renderElem.m_Vertices[vertexIndex + 1];
+      topRightUV = renderElem.m_UVs[vertexIndex + 1];
 
-      ezVec2& vecC = vertices[startVerticesIndex + i * vertexStride + 2];
-      ezVec2& uvC = uvs[startVerticesIndex + i * vertexStride + 2];
-      ezMemoryUtils::Copy(&vecC, &renderElem.m_Vertices[vertexIndex + 2], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvC, &renderElem.m_UVs[vertexIndex + 2], sizeof(ezVec2));
+      ezVec2& bottomLeft = vertices[vertexIndex + 2];
+      ezVec2& bottomLeftUV = uvs[vertexIndex + 2];
+      bottomLeft = renderElem.m_Vertices[vertexIndex + 2];
+      bottomLeftUV = renderElem.m_UVs[vertexIndex + 2];
 
-      ezVec2& vecD = vertices[startVerticesIndex + i * vertexStride + 3];
-      ezVec2& uvD = uvs[startVerticesIndex + i * vertexStride + 3];
-      ezMemoryUtils::Copy(&vecD, &renderElem.m_Vertices[vertexIndex + 3], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvD, &renderElem.m_UVs[vertexIndex + 3], sizeof(ezVec2));
+      ezVec2& bottomRight = vertices[vertexIndex + 3];
+      ezVec2& bottomRightUV = uvs[vertexIndex + 3];
+      bottomRight = renderElem.m_Vertices[vertexIndex + 3];
+      bottomRightUV = renderElem.m_UVs[vertexIndex + 3];
 
-      //ClipQuadsToRect();
+      ClipQuadToRect(topLeft, topRight, bottomLeft, bottomRight, topLeftUV, topRightUV, bottomLeftUV, bottomRightUV, clipRect);
 
-      vecA += vecOffset;
-      vecB += vecOffset;
-      vecC += vecOffset;
-      vecD += vecOffset;
+      topLeft += vecOffset;
+      topRight += vecOffset;
+      bottomLeft += vecOffset;
+      bottomRight += vecOffset;
     }
   }
   else
   {
     for (ezUInt32 i = 0; i < renderElem.m_NumQuads; i++)
     {
-      ezUInt32 vertexIndex = i * 4;
+      ezUInt32 vertexIndex = i * vertexStride;
 
-      ezVec2& vecA = vertices[startVerticesIndex + i * vertexStride + 0];
-      ezVec2& uvA = uvs[startVerticesIndex + i * vertexStride + 0];
-      ezMemoryUtils::Copy(&vecA, &renderElem.m_Vertices[vertexIndex + 0], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvA, &renderElem.m_UVs[vertexIndex + 0], sizeof(ezVec2));
+      ezVec2& topLeft = vertices[vertexIndex + 0];
+      ezVec2& topLeftUV = uvs[vertexIndex + 0];
+      topLeft = renderElem.m_Vertices[vertexIndex + 0];
+      topLeftUV = renderElem.m_UVs[vertexIndex + 0];
 
-      ezVec2& vecB = vertices[startVerticesIndex + i * vertexStride + 1];
-      ezVec2& uvB = uvs[startVerticesIndex + i * vertexStride + 1];
-      ezMemoryUtils::Copy(&vecB, &renderElem.m_Vertices[vertexIndex + 1], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvB, &renderElem.m_UVs[vertexIndex + 1], sizeof(ezVec2));
+      ezVec2& topRight = vertices[vertexIndex + 1];
+      ezVec2& topRightUV = uvs[vertexIndex + 1];
+      topRight = renderElem.m_Vertices[vertexIndex + 1];
+      topRightUV = renderElem.m_UVs[vertexIndex + 1];
 
-      ezVec2& vecC = vertices[startVerticesIndex + i * vertexStride + 2];
-      ezVec2& uvC = uvs[startVerticesIndex + i * vertexStride + 2];
-      ezMemoryUtils::Copy(&vecC, &renderElem.m_Vertices[vertexIndex + 2], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvC, &renderElem.m_UVs[vertexIndex + 2], sizeof(ezVec2));
+      ezVec2& bottomLeft = vertices[vertexIndex + 2];
+      ezVec2& bottomLeftUV = uvs[vertexIndex + 2];
+      bottomLeft = renderElem.m_Vertices[vertexIndex + 2];
+      bottomLeftUV = renderElem.m_UVs[vertexIndex + 2];
 
-      ezVec2& vecD = vertices[startVerticesIndex + i * vertexStride + 3];
-      ezVec2& uvD = uvs[startVerticesIndex + i * vertexStride + 3];
-      ezMemoryUtils::Copy(&vecD, &renderElem.m_Vertices[vertexIndex + 3], sizeof(ezVec2));
-      ezMemoryUtils::Copy(&uvD, &renderElem.m_UVs[vertexIndex + 3], sizeof(ezVec2));
+      ezVec2& bottomRight = vertices[vertexIndex + 3];
+      ezVec2& bottomRightUV = uvs[vertexIndex + 3];
+      bottomRight = renderElem.m_Vertices[vertexIndex + 3];
+      bottomRightUV = renderElem.m_UVs[vertexIndex + 3];
 
-      vecA += vecOffset;
-      vecB += vecOffset;
-      vecC += vecOffset;
-      vecD += vecOffset;
+      
+  //// flip quad
+  //    ezMath::Swap(topLeftUV.x, bottomLeftUV.x);
+  //    ezMath::Swap(topLeftUV.y, bottomLeftUV.y);
+
+  //    ezMath::Swap(topRightUV.x, bottomRightUV.x);
+  //    ezMath::Swap(topRightUV.y, bottomRightUV.y);
+
+      topLeft += vecOffset;
+      topRight += vecOffset;
+      bottomLeft += vecOffset;
+      bottomRight += vecOffset;
     }
   }
 
   return renderElem.m_NumQuads;
 }
 
-// This will only properly clip an array of quads
 // Vertices in the quad must be in a specific order: top left, top right, bottom left, bottom right
 // (0, 0) represents top left of the screen
-void ezTextSprite::ClipQuadsToRect(ezDynamicArray<ezVec2>& inoutVertices, ezDynamicArray<ezVec2>& inoutUVs, ezUInt32 numQuads, ezUInt32 vertexStride, const ezRectI32& clipRect)
+void ezTextSprite::ClipQuadToRect(ezVec2& topLeft, ezVec2& topRight, ezVec2& bottomLeft, ezVec2& bottomRight, ezVec2& topLeftUV, ezVec2& topRightUV, ezVec2& bottomLeftUV, ezVec2& bottomRightUV, const ezRectI32& clipRect)
 {
   float left = (float)clipRect.Left();
   float right = (float)clipRect.Right();
   float top = (float)clipRect.Top();
   float bottom = (float)clipRect.Bottom();
 
-  for (ezUInt32 i = 0; i < numQuads; i++)
-  {
-    ezVec2& vecA = inoutVertices[i * vertexStride + 0];
-    ezVec2& vecB = inoutVertices[i * vertexStride + 1];
-    ezVec2& vecC = inoutVertices[i * vertexStride + 2];
-    ezVec2& vecD = inoutVertices[i * vertexStride + 3];
+  // Attempt to skip those that are definitely not clipped
+  if (topLeft.x >= left && topRight.x <= right && topLeft.y >= top && bottomLeft.y <= bottom)
+    return;
 
-    ezVec2& uvA = inoutUVs[i * vertexStride + 0];
-    ezVec2& uvB = inoutUVs[i * vertexStride + 1];
-    ezVec2& uvC = inoutUVs[i * vertexStride + 2];
-    ezVec2& uvD = inoutUVs[i * vertexStride + 3];
+  // TODO - Skip those that are 100% clipped as well
 
-    // Attempt to skip those that are definitely not clipped
-    if (vecA.x >= left && vecB.x <= right && vecA.y >= top && vecC.y <= bottom)
-      continue;
+  float du = (topRightUV.x - topLeftUV.x) / (topRight.x - topLeft.x);
+  float dv = (topLeftUV.y - bottomLeftUV.y) / (topLeft.y - bottomRight.y);
 
-    // TODO - Skip those that are 100% clipped as well
+  if (right < left)
+    ezMath::Swap(left, right);
 
-    float du = (uvB.x - uvA.x) / (vecB.x - vecA.x);
-    float dv = (uvA.y - uvC.y) / (vecA.y - vecD.y);
+  if (bottom < top)
+    ezMath::Swap(bottom, top);
 
-    if (right < left)
-      ezMath::Swap(left, right);
+  // Clip left
+  float newLeft = ezMath::Clamp(topLeft.x, left, right);
+  float uvLeftOffset = (newLeft - topLeft.x) * du;
 
-    if (bottom < top)
-      ezMath::Swap(bottom, top);
+  // Clip right
+  float newRight = ezMath::Clamp(topRight.x, left, right);
+  float uvRightOffset = (topRight.x - newRight) * du;
 
-    // Clip left
-    float newLeft = ezMath::Clamp(vecA.x, left, right);
-    float uvLeftOffset = (newLeft - vecA.x) * du;
+  // Clip top
+  float newTop = ezMath::Clamp(topLeft.y, top, bottom);
+  float uvTopOffset = (newTop - topLeft.y) * dv;
 
-    // Clip right
-    float newRight = ezMath::Clamp(vecB.x, left, right);
-    float uvRightOffset = (vecB.x - newRight) * du;
+  // Clip bottom
+  float newBottom = ezMath::Clamp(bottomLeft.y, top, bottom);
+  float uvBottomOffset = (bottomLeft.y - newBottom) * dv;
 
-    // Clip top
-    float newTop = ezMath::Clamp(vecA.y, top, bottom);
-    float uvTopOffset = (newTop - vecA.y) * dv;
+  topLeft.x = newLeft;
+  bottomLeft.x = newLeft;
+  topRight.x = newRight;
+  bottomRight.x = newRight;
+  topLeft.y = newTop;
+  topRight.y = newTop;
+  bottomLeft.y = newBottom;
+  bottomRight.y = newBottom;
 
-    // Clip bottom
-    float newBottom = ezMath::Clamp(vecC.y, top, bottom);
-    float uvBottomOffset = (vecC.y - newBottom) * dv;
-
-    vecA.x = newLeft;
-    vecC.x = newLeft;
-    vecB.x = newRight;
-    vecD.x = newRight;
-    vecA.y = newTop;
-    vecB.y = newTop;
-    vecC.y = newBottom;
-    vecD.y = newBottom;
-
-    uvA.x += uvLeftOffset;
-    uvC.x += uvLeftOffset;
-    uvB.x -= uvRightOffset;
-    uvD.x -= uvRightOffset;
-    uvA.y += uvTopOffset;
-    uvB.y += uvTopOffset;
-    uvC.y -= uvBottomOffset;
-    uvD.y -= uvBottomOffset;
-  }
+  topLeftUV.x += uvLeftOffset;
+  bottomLeftUV.x += uvLeftOffset;
+  topRightUV.x -= uvRightOffset;
+  bottomLeftUV.x -= uvRightOffset;
+  topLeftUV.y += uvTopOffset;
+  topRightUV.y += uvTopOffset;
+  bottomLeftUV.y -= uvBottomOffset;
+  bottomLeftUV.y -= uvBottomOffset;
 }
 
 void ezTextSprite::GetAlignmentOffsets(const ezTextData& textData, ezUInt32 width, ezUInt32 height, ezEnum<ezTextHorizontalAlignment> hAlignment, ezEnum<ezTextVerticalAlignment> vAlignment, ezDynamicArray<ezVec2I32>& output)
@@ -495,7 +390,7 @@ ezUInt32 ezTextSprite::GenerateTextureQuads(ezUInt32 page,
 
     for (ezUInt32 i = 0; i < numVertices; i++)
     {
-      ezVec2 vertex = vertices.GetData()[quadOffset * 4 + i];
+      ezVec2& vertex = vertices[quadOffset * 4 + i];
       vertex.x += (float)position.x;
       vertex.y += (float)position.y;
     }

@@ -33,7 +33,7 @@ SamplerState FontAtlasTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return FontAtlasTexture.Sample(FontAtlasTexture_AutoSampler, Input.TexCoord0);
+  return FontAtlasTexture.Sample(FontAtlasTexture_AutoSampler, Input.TexCoord0).r * 1.0f;
 }
 
 #endif
