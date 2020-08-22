@@ -2,8 +2,6 @@ name: ezEngine_ClangFormatVerification_$(Date:yyyyMMdd)$(Rev:.r)
 
 trigger: none
 
-checkout:
-
 jobs:
 - job: ClangFormatVerification
   pool:
