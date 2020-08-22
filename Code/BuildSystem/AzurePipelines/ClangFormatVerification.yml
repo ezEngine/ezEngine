@@ -7,8 +7,11 @@ jobs:
   pool:
     name: windows-latest
   steps:
-  - task: stevedower.python.InstallPython.InstallPython@1
-    displayName: 'Install Python'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+      architecture: 'x64'
   - task: PowerShell@2
     displayName: 'PowerShell Script'
     inputs:
