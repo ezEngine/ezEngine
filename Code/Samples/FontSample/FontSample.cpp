@@ -3,6 +3,7 @@
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <FontSample.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -10,6 +11,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Font/TextData.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -21,7 +23,6 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 
 static ezUInt32 g_uiWindowWidth = 640;
 static ezUInt32 g_uiWindowHeight = 480;
@@ -30,6 +31,17 @@ ezFontRenderingApp::ezFontRenderingApp()
   : ezApplication("Font Rendering")
 {
   m_vCameraPosition.SetZero();
+
+  m_TextSpriteDesc.Anchor = ezTextSpriteAnchor::TopLeft;
+  m_TextSpriteDesc.HorizontalAlignment = ezTextHorizontalAlignment::Left;
+  m_TextSpriteDesc.VerticalAlignment = ezTextVerticalAlignment::Center;
+  m_TextSpriteDesc.FontSize = 30;
+  m_TextSpriteDesc.Width = 100;
+  m_TextSpriteDesc.Height = 100;
+  m_TextSpriteDesc.Color = ezColor::Red;
+  m_TextSpriteDesc.Text = "Hello World";
+  m_TextSpriteDesc.WrapText = true;
+  m_TextSpriteDesc.BreakTextWhenWrapped = true;
 }
 
 ezApplication::ApplicationExecution ezFontRenderingApp::Run()
@@ -45,6 +57,9 @@ ezApplication::ApplicationExecution ezFontRenderingApp::Run()
   // update all input state
   ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
 
+  // make sure telemetry is sent out regularly
+  ezTelemetry::PerFrameUpdate();
+
   // do the rendering
   {
     // Before starting to render in a frame call this function
@@ -53,34 +68,22 @@ ezApplication::ApplicationExecution ezFontRenderingApp::Run()
     // The ezGALContext class is the main interaction point for draw / compute operations
     ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
-    auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
-    ezMemoryUtils::ZeroFill(&gc, 1);
-
-    gc.WorldToCameraMatrix[0] = m_camera->GetViewMatrix(ezCameraEye::Left);
-    gc.WorldToCameraMatrix[1] = m_camera->GetViewMatrix(ezCameraEye::Right);
-    gc.CameraToWorldMatrix[0] = gc.WorldToCameraMatrix[0].GetInverse();
-    gc.CameraToWorldMatrix[1] = gc.WorldToCameraMatrix[1].GetInverse();
-    gc.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
-    // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
-    gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
-    gc.WorldTime = gc.GlobalTime;
-
 
     ezGALRenderTargetSetup RTS;
     RTS.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
 
     pContext->SetRenderTargetSetup(RTS);
     pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight), 0.0f, 1.0f);
-    pContext->Clear(ezColor::Blue);
+    pContext->Clear(ezColor::Black);
 
-    ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
+    pContext->SetRasterizerState(m_hRasterizerState);
+    pContext->SetDepthStencilState(m_hDepthStencilState);
 
     RenderText();
 
     m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
 
     m_pDevice->EndFrame();
-    ezRenderContext::GetDefaultInstance()->ResetContextState();
   }
 
   // needs to be called once per frame
@@ -96,31 +99,34 @@ ezApplication::ApplicationExecution ezFontRenderingApp::Run()
 
 void ezFontRenderingApp::AfterCoreSystemsStartup()
 {
-  m_camera = EZ_DEFAULT_NEW(ezCamera);
-  m_camera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
-  m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-
   ezStringBuilder sProjectDir = ">sdk/Data/Samples/FontSample";
   ezStringBuilder sProjectDirResolved;
   ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved);
 
   ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
-  EZ_VERIFY(
-    m_directoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(),
-    "Failed to watch project directory");
+  // setup the 'asset management system'
+  {
+    // which redirection table to search
+    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
+    // which platform assets to use
+    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
+  }
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);                                     // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites);                        // for shader files
-  ezFileSystem::AddDataDirectory(">user/ezEngine Project/FontRenderingApp", "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
+  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);              // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+  ezFileSystem::AddDataDirectory(">user/ezEngine Project/FontSample", "AppData", "appdata",
+    ezFileSystem::AllowWrites); // app user data
 
   ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");
+  ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared");
   ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites);
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
+  ezTelemetry::CreateServer();
   ezPlugin::LoadPlugin("ezInspectorPlugin");
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
@@ -139,10 +145,6 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_Resolution.width = g_uiWindowWidth;
     WindowCreationDesc.m_Resolution.height = g_uiWindowHeight;
-    WindowCreationDesc.m_Title = "Font Rendering";
-    WindowCreationDesc.m_bShowMouseCursor = true;
-    WindowCreationDesc.m_bClipMouseCursor = false;
-    WindowCreationDesc.m_WindowMode = ezWindowMode::WindowResizable;
     m_pWindow = EZ_DEFAULT_NEW(ezFontRenderingWindow);
     m_pWindow->Initialize(WindowCreationDesc);
   }
@@ -151,7 +153,7 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bCreatePrimarySwapChain = true;
-    DeviceInit.m_bDebugDevice = false; // On Windows 10 this makes device creation fail :-(
+    DeviceInit.m_bDebugDevice = true;
     DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
     DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
     DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
@@ -164,6 +166,7 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
 
   // now that we have a window and device, tell the engine to initialize the rendering infrastructure
   ezStartup::StartupHighLevelSystems();
+
 
   // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation
   // explicitly)
@@ -183,6 +186,24 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
     m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
   }
 
+  // Create Rasterizer State
+  {
+    ezGALRasterizerStateCreationDescription RasterStateDesc;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bFrontCounterClockwise = false;
+    m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
+    EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
+  }
+
+  // Create Depth Stencil state
+  {
+    ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
+    DepthStencilStateDesc.m_bDepthTest = false;
+    DepthStencilStateDesc.m_bDepthWrite = true;
+    m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
+    EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
+  }
+
   // Setup Shaders and Materials
   {
     ezShaderManager::Configure("DX11_SM40", true);
@@ -195,37 +216,33 @@ void ezFontRenderingApp::AfterCoreSystemsStartup()
   }
 
   m_Font = ezResourceManager::LoadResource<ezFontResource>(":/Fonts/Roboto-Black.ezFont");
-
-  m_TextSpriteDesc.Anchor = ezTextSpriteAnchor::TopLeft;
-  m_TextSpriteDesc.HorizontalAlignment = ezTextHorizontalAlignment::Left;
-  m_TextSpriteDesc.VerticalAlignment = ezTextVerticalAlignment::Center;
   m_TextSpriteDesc.Font = m_Font;
-  m_TextSpriteDesc.FontSize = 30;
-  m_TextSpriteDesc.Width = 100;
-  m_TextSpriteDesc.Height = 100;
-  m_TextSpriteDesc.Color = ezColor::Red;
-  m_TextSpriteDesc.Text = "Hello World";
-  m_TextSpriteDesc.WrapText = true;
-  m_TextSpriteDesc.BreakTextWhenWrapped = true;
 }
 
-void ezFontRenderingApp::BeforeHighLevelSystemsShutdown()
+void ezFontRenderingApp::BeforeCoreSystemsShutdown()
 {
+  // make sure that no textures are continue to be streamed in while the engine shuts down
+  ezResourceManager::EngineAboutToShutdown();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hSampleConstants);
   m_hSampleConstants.Invalidate();
 
-  m_directoryWatcher->CloseDirectory();
+  m_hFontShader.Invalidate();
+  m_Font.Invalidate();
 
   m_pDevice->DestroyTexture(m_hDepthStencilTexture);
   m_hDepthStencilTexture.Invalidate();
 
-  m_hFontShader.Invalidate();
   m_hTextMeshBuffer.Invalidate();
 
   // tell the engine that we are about to destroy window and graphics device,
   // and that it therefore needs to cleanup anything that depends on that
   ezStartup::ShutdownHighLevelSystems();
+
+  ezResourceManager::FreeAllUnusedResources();
+
+  m_pDevice->DestroyRasterizerState(m_hRasterizerState);
+  m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
 
   // now we can destroy the graphics device
   m_pDevice->Shutdown();
@@ -235,22 +252,22 @@ void ezFontRenderingApp::BeforeHighLevelSystemsShutdown()
   // finally destroy the window
   m_pWindow->Destroy();
   EZ_DEFAULT_DELETE(m_pWindow);
-
-  m_camera.Clear();
-  m_directoryWatcher.Clear();
 }
 
 void ezFontRenderingApp::RenderText()
 {
+  ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
+
+  ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f,
+    m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f,
+    m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+
+  ezMat4 mTransform;
+  mTransform.SetIdentity();
+
   ezTextSprite textSprite;
   textSprite.Update(m_TextSpriteDesc);
   ezUInt32 numRenderElements = textSprite.GetNumRenderElements();
-
-  struct Vertex
-  {
-    ezVec2 Position;
-    ezVec2 TexCoord0;
-  };
 
   ezDynamicArray<ezVec2> vertices;
   ezDynamicArray<ezVec2> uvs;
@@ -272,7 +289,7 @@ void ezFontRenderingApp::RenderText()
 
       vertices[vertexIndex] = {vertex.x, vertex.y};
       uvs[vertexIndex] = {uv.x, uv.y};
-      geom.AddRectXY(ezVec2(vertex.x, vertex.y), ezColor::Red);
+      geom.AddRectXY(ezVec2(vertex.x, vertex.y), ezColor::White);
     };
 
     ezMeshBufferResourceDescriptor desc;
@@ -286,25 +303,26 @@ void ezFontRenderingApp::RenderText()
       desc.SetVertexData<ezVec2>(1, v, ezVec2(uvs[v].x, uvs[v].y));
     }
 
-    //ezUInt32 t = 0;
-    //for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+    //for (ezUInt32 k = 0; k < renderData.m_Indices.GetCount(); k+=3)
     //{
-    //  for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-    //  {
-    //    desc.SetTriangleIndices(
-    //      t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
-
-    //    ++t;
-    //  }
+    //  desc.SetTriangleIndices(k, renderData.m_Indices[k + 0], renderData.m_Indices[k + 1], renderData.m_Indices[k + 2]);
     //}
 
-    ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f,
-      m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f,
-      m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+    ezUInt32 t = 0;
+    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+    {
+      for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
+      {
+        desc.SetTriangleIndices(
+          t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
+
+        ++t;
+      }
+    }
 
     ezFontSampleConstants& cb = m_pSampleConstantBuffer->GetDataForWriting();
 
-    cb.ModelMatrix = ezMat4::IdentityMatrix();
+    cb.ModelMatrix = mTransform;
     cb.ViewProjectionMatrix = Proj;
 
 
@@ -315,9 +333,13 @@ void ezFontRenderingApp::RenderText()
     if (!mesh.IsValid())
       mesh = ezResourceManager::CreateResource<ezMeshBufferResource>(meshId, std::move(desc));
 
+    //ezResourceLock<ezTexture2DResource> l(renderData.m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
+
     ezRenderContext::GetDefaultInstance()->BindTexture2D("FontAtlasTexture", renderData.m_hTexture);
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(mesh);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
+
+    mesh.Invalidate();
   }
 }
 
