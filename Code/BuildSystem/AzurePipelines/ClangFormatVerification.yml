@@ -1,0 +1,28 @@
+name: ezEngine_ClangFormatVerification_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger: none
+
+jobs:
+- job: ClangFormatVerification
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+  - checkout: self
+    submodules: recursive
+    lfs: true
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+      architecture: 'x64'
+  - task: PowerShell@2
+    displayName: 'PowerShell Script'
+    inputs:
+      targetType: filePath
+      filePath: './Utilities/ClangFormatCheck.ps1'
+      arguments: '"$(system.pullRequest.targetBranch)" $(Build.ArtifactStagingDirectory) "Code/*"'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Suggested Changes'
+    inputs:
+      ArtifactName: 'Suggested Changes'
+    condition: failed()
