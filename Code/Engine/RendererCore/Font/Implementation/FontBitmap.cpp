@@ -17,9 +17,6 @@ const ezFontGlyph& ezFontBitmap::GetFontGlyph(ezUInt32 characterId) const
 
 ezResult ezRawFontBitmap::Serialize(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 1;
-  stream << uiVersion;
-
   stream << m_Size;
   stream << m_BaselineOffset;
   stream << m_LineHeight;
@@ -48,15 +45,6 @@ ezResult ezRawFontBitmap::Serialize(ezStreamWriter& stream) const
 
 ezResult ezRawFontBitmap::Deserialize(ezStreamReader& stream)
 {
-  ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
-
-  if (uiVersion != 1)
-  {
-    ezLog::Error("Unrecognied version of ezFont file.");
-    return EZ_FAILURE;
-  }
-
   stream >> m_Size;
   stream >> m_BaselineOffset;
   stream >> m_LineHeight;

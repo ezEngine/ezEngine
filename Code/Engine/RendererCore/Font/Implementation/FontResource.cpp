@@ -9,6 +9,9 @@ ezResult ezRawFont::Serialize(ezStreamWriter& stream) const
   ezAssetFileHeader asset;
   asset.Write(stream);
 
+  ezUInt8 uiVersion = 1;
+  stream << uiVersion;
+
   stream << m_Name;
   stream << m_FamilyName;
   stream.WriteMap(m_BitmapPerSize);
@@ -19,8 +22,16 @@ ezResult ezRawFont::Serialize(ezStreamWriter& stream) const
 ezResult ezRawFont::Deserialize(ezStreamReader& stream)
 {
   ezAssetFileHeader asset;
-
   asset.Read(stream);
+
+  ezUInt8 uiVersion = 0;
+  stream >> uiVersion;
+
+  if (uiVersion != 1)
+  {
+    ezLog::Error("Unrecognied version of ezFont file.");
+    return EZ_FAILURE;
+  }
 
   stream >> m_Name;
   stream >> m_FamilyName;
