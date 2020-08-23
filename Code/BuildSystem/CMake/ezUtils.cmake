@@ -322,7 +322,7 @@ endfunction()
 
 function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 
-  file(GLOB_RECURSE CPP_FILES "${ROOT_DIR}/*.cpp")
+  file(GLOB_RECURSE CPP_FILES "${ROOT_DIR}/*.cpp" "${ROOT_DIR}/*.cc")
   file(GLOB_RECURSE H_FILES "${ROOT_DIR}/*.h" "${ROOT_DIR}/*.hpp" "${ROOT_DIR}/*.inl")
   file(GLOB_RECURSE C_FILES "${ROOT_DIR}/*.c")
   file(GLOB_RECURSE CS_FILES "${ROOT_DIR}/*.cs")
