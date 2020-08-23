@@ -8,10 +8,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonResource, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezSkeletonResource);
-// clang-format off
+// clang-format on
 
 ezSkeletonResource::ezSkeletonResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -120,7 +120,4 @@ void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
   }
 }
 
-
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonResource);
-

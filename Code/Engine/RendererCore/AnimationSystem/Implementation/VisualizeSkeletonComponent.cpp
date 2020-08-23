@@ -380,7 +380,10 @@ void ezVisualizeSkeletonComponentManager::Update(const ezWorldModule::UpdateCont
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
+    if (it->IsActiveAndInitialized())
+  {
     it->Render();
+  }
   }
 
   // for (const auto& hComp : m_RequireUpdate)

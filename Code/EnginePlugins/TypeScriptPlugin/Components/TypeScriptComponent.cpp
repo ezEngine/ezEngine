@@ -216,9 +216,6 @@ void ezTypeScriptComponent::Deinitialize()
   }
 
   SetUserFlag(UserFlag::InitializedTS, false);
-
-  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
-  binding.DeleteTsComponent(GetHandle());
 }
 
 void ezTypeScriptComponent::OnActivated()
