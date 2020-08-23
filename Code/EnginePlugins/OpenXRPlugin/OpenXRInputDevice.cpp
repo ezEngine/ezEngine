@@ -492,7 +492,7 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       getInfo.action = action.m_Action;
       getInfo.subactionPath = m_subActionPath[uiSide];
       XR_SUCCEED_OR_RETURN_LOG(xrGetActionStateBoolean(m_session, &getInfo, &state));
-      m_InputSlotValues[action.m_sKey[uiSide]] = state.currentState;
+      m_InputSlotValues[action.m_sKey[uiSide]] = state.currentState ? 1.0f : 0.0f;
       m_SupportedFeatures[uiControllerId].AddOrRemove(action.m_Feature, state.isActive);
     }
 
