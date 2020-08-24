@@ -343,3 +343,33 @@ constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
   return static_cast<ezInt64>(value);
 }
 #endif
+
+EZ_ALWAYS_INLINE ezResult ezMath::TryConvertToSizeT(size_t& out_Result, ezUInt64 uiValue)
+{
+  if constexpr (sizeof(size_t) != sizeof(ezUInt64))
+  {
+    if (uiValue <= MaxValue<size_t>())
+    {
+      out_Result = static_cast<size_t>(uiValue);
+      return EZ_SUCCESS;
+    }
+
+    return EZ_FAILURE;
+  }
+
+  out_Result = static_cast<size_t>(uiValue);
+  return EZ_SUCCESS;
+}
+
+EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
+{
+  size_t result = 0;
+  if (TryConvertToSizeT(result, uiValue).Succeeded())
+  {
+    return result;
+  }
+
+  EZ_REPORT_FAILURE("Given value ({}) can't be converted to size_t because it is too big.", uiValue);
+  std::terminate();
+  return 0;
+}

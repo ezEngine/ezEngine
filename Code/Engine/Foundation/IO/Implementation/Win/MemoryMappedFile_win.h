@@ -164,11 +164,11 @@ const void* ezMemoryMappedFile::GetReadPointer(ezUInt64 uiOffset /*= 0*/, Offset
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, static_cast<ptrdiff_t>(uiOffset));
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, m_Impl->m_uiFileSize - uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, static_cast<ptrdiff_t>(m_Impl->m_uiFileSize - uiOffset));
   }
 }
 
@@ -179,11 +179,11 @@ void* ezMemoryMappedFile::GetWritePointer(ezUInt64 uiOffset /*= 0*/, OffsetBase 
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, static_cast<ptrdiff_t>(uiOffset));
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, m_Impl->m_uiFileSize - uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, static_cast<ptrdiff_t>(m_Impl->m_uiFileSize - uiOffset));
   }
 }
 

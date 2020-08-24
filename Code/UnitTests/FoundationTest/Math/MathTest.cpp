@@ -847,4 +847,23 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     res = 0;
     EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0xFFFFFFFF, 0xFFFFFFFF, 2).Failed());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TryConvertToSizeT")
+  {
+    ezUInt64 x = ezMath::MaxValue<ezUInt32>();
+    ezUInt64 y = x + 1;
+
+    size_t res = 0;
+
+    EZ_TEST_BOOL(ezMath::TryConvertToSizeT(res, x).Succeeded());
+    EZ_TEST_BOOL(res == x);
+
+    res = 0;
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    EZ_TEST_BOOL(ezMath::TryConvertToSizeT(res, y).Failed());
+#else
+    EZ_TEST_BOOL(ezMath::TryConvertToSizeT(res, y).Succeeded());
+    EZ_TEST_BOOL(res == y);
+#endif
+  }
 }

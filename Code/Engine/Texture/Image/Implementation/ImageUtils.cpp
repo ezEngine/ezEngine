@@ -1088,7 +1088,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
       auto sourceView = source.GetSubImageView(0, face, arrayIndex).GetByteBlobPtr();
       auto targetView = target.GetSubImageView(0, face, arrayIndex).GetByteBlobPtr();
 
-      memcpy(targetView.GetPtr(), sourceView.GetPtr(), targetView.GetCount());
+      memcpy(targetView.GetPtr(), sourceView.GetPtr(), static_cast<size_t>(targetView.GetCount()));
 
       float targetCoverage = 0.0f;
       if (mipMapOptions.m_preserveCoverage)

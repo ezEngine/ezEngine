@@ -331,6 +331,12 @@ namespace ezMath
   /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
   EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1);
 
+  /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't EZ_FAILURE is returned.
+  ezResult TryConvertToSizeT(size_t& out_Result, ezUInt64 uiValue); // [tested]
+
+  /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't the program is terminated.
+  size_t SafeConvertToSizeT(ezUInt64 uiValue);
+
 } // namespace ezMath
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>

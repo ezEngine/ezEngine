@@ -9,7 +9,7 @@
 
 static voidpf zLibAlloc OF((voidpf opaque, uInt items, uInt size))
 {
-  return EZ_DEFAULT_NEW_RAW_BUFFER(ezUInt8, ezMath::SafeMultiply64(items, size));
+  return EZ_DEFAULT_NEW_RAW_BUFFER(ezUInt8, ezMath::SafeConvertToSizeT(ezMath::SafeMultiply64(items, size)));
 }
 
 static void zLibFree OF((voidpf opaque, voidpf address))
