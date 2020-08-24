@@ -361,15 +361,9 @@ EZ_ALWAYS_INLINE ezResult ezMath::TryConvertToSizeT(size_t& out_Result, ezUInt64
   return EZ_SUCCESS;
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
 EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
 {
-  size_t result = 0;
-  if (TryConvertToSizeT(result, uiValue).Succeeded())
-  {
-    return result;
-  }
-
-  EZ_REPORT_FAILURE("Given value ({}) can't be converted to size_t because it is too big.", uiValue);
-  std::terminate();
-  return 0;
+  return uiValue;
 }
+#endif
