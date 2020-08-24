@@ -335,7 +335,7 @@ namespace ezMath
   ezResult TryConvertToSizeT(size_t& out_Result, ezUInt64 uiValue); // [tested]
 
   /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't the program is terminated.
-  size_t SafeConvertToSizeT(ezUInt64 uiValue);
+  EZ_FOUNDATION_DLL size_t SafeConvertToSizeT(ezUInt64 uiValue);
 
 } // namespace ezMath
 
