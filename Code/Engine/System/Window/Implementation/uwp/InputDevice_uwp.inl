@@ -120,7 +120,7 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
     return S_OK;
   }
 
-  const char* szInputSlotName = ezInputManager::ConvertScanCodeToEngineName(keyStatus.ScanCode, keyStatus.IsExtendedKey == TRUE);
+  const char* szInputSlotName = ezInputManager::ConvertScanCodeToEngineName(static_cast<ezUInt8>(keyStatus.ScanCode), keyStatus.IsExtendedKey == TRUE);
   if (!szInputSlotName)
     return S_OK;
 
