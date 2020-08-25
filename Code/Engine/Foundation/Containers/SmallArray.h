@@ -17,11 +17,15 @@ public:
   // Only if the stored type is either POD or relocatable the hybrid array itself is also relocatable.
   EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
 
-  ezSmallArrayBase();  // [tested]
-  ~ezSmallArrayBase(); // [tested]
+  ezSmallArrayBase();                                                                    // [tested]
+  ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocatorBase* pAllocator); // [tested]
+  ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator);       // [tested]
+  ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator);      // [tested]
 
-  /// \brief Copies the data from some other contiguous array into this one.
-  void operator=(const ezArrayPtr<const T>& rhs); // [tested]
+  void operator=(const ezSmallArrayBase<T, Size>& rhs) = delete;
+  void operator=(ezSmallArrayBase<T, Size>&& rhs) = delete;
+
+  ~ezSmallArrayBase(); // [tested]
 
   /// \brief Conversion to const ezArrayPtr.
   operator ezArrayPtr<const T>() const; // [tested]
@@ -42,18 +46,18 @@ public:
   T& operator[](ezUInt16 uiIndex); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
-  void SetCount(ezUInt16 uiCount); // [tested]
+  void SetCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Constructs all new elements by copying the FillValue.
-  void SetCount(ezUInt16 uiCount, const T& FillValue); // [tested]
+  void SetCount(ezUInt16 uiCount, const T& FillValue, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
-  template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
-  void SetCountUninitialized(ezUInt32 uiCount); // [tested]
+  template <typename = void>                                                 // Template is used to only conditionally compile this function in when it is actually used.
+  void SetCountUninitialized(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
   /// otherwise.
-  void EnsureCount(ezUInt32 uiCount); // [tested]
+  void EnsureCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Returns the number of active elements in the array.
   ezUInt32 GetCount() const; // [tested]
@@ -68,10 +72,10 @@ public:
   bool Contains(const T& value) const; // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(const T& value, ezUInt32 uiIndex); // [tested]
+  void Insert(const T& value, ezUInt16 uiIndex, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(T&& value, ezUInt32 uiIndex); // [tested]
+  void Insert(T&& value, ezUInt16 uiIndex, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool RemoveAndCopy(const T& value); // [tested]
@@ -80,10 +84,10 @@ public:
   bool RemoveAndSwap(const T& value); // [tested]
 
   /// \brief Removes the element at index and fills the gap by shifting all following elements
-  void RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
+  void RemoveAtAndCopy(ezUInt16 uiIndex, ezUInt16 uiNumElements = 1); // [tested]
 
   /// \brief Removes the element at index and fills the gap by swapping in the last element
-  void RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
+  void RemoveAtAndSwap(ezUInt16 uiIndex, ezUInt16 uiNumElements = 1); // [tested]
 
   /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
   ezUInt32 IndexOf(const T& value, ezUInt16 uiStartIndex = 0) const; // [tested]
@@ -92,13 +96,13 @@ public:
   ezUInt32 LastIndexOf(const T& value, ezUInt16 uiStartIndex = ezSmallInvalidIndex) const; // [tested]
 
   /// \brief Grows the array by one element and returns a reference to the newly created element.
-  T& ExpandAndGetRef(); // [tested]
+  T& ExpandAndGetRef(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Pushes value at the end of the array.
-  void PushBack(const T& value); // [tested]
+  void PushBack(const T& value, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Pushes value at the end of the array.
-  void PushBack(T&& value); // [tested]
+  void PushBack(T&& value, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
   void PushBackUnchecked(const T& value); // [tested]
@@ -107,7 +111,7 @@ public:
   void PushBackUnchecked(T&& value); // [tested]
 
   /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
-  void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
+  void PushBackRange(const ezArrayPtr<const T>& range, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Removes count elements from the end of the array.
   void PopBack(ezUInt32 uiCountToRemove = 1); // [tested]
@@ -144,10 +148,17 @@ public:
   ezArrayPtr<typename ezArrayPtr<const T>::ByteType> GetByteArrayPtr() const; // [tested]
 
   /// \brief Expands the array so it can at least store the given capacity.
-  void Reserve(ezUInt16 uiCapacity); // [tested]
+  void Reserve(ezUInt16 uiCapacity, ezAllocatorBase* pAllocator); // [tested]
+
+  /// \brief Tries to compact the array to avoid wasting memory. The resulting capacity is at least 'GetCount' (no elements get removed). Will
+  /// deallocate all data, if the array is empty.
+  void Compact(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }
+
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
   using const_iterator = const T*;
   using const_reverse_iterator = const_reverse_pointer_iterator<T>;
@@ -155,6 +166,13 @@ public:
   using reverse_iterator = reverse_pointer_iterator<T>;
 
 protected:
+  enum
+  {
+    CAPACITY_ALIGNMENT = 4
+  };
+
+  void SetCapacity(ezUInt16 uiCapacity, ezAllocatorBase* pAllocator);
+
   T* GetElementsPtr();
   const T* GetElementsPtr() const;
 
@@ -163,8 +181,7 @@ protected:
   ezUInt16 m_uiCount = 0;
   ezUInt16 m_uiCapacity = Size;
 
-  union
-  {
+  union {
     struct : ezAligned<EZ_ALIGNMENT_OF(T)>
     {
       ezUInt8 m_StaticData[Size * sizeof(T)];
@@ -174,83 +191,14 @@ protected:
   };
 };
 
-/*
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::iterator begin(ezArrayBase<T, Derived>& container)
-{
-  return container.GetData();
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator begin(const ezArrayBase<T, Derived>& container)
-{
-  return container.GetData();
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator cbegin(const ezArrayBase<T, Derived>& container)
-{
-  return container.GetData();
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rbegin(ezArrayBase<T, Derived>& container)
-{
-  return typename ezArrayBase<T, Derived>::reverse_iterator(container.GetData() + container.GetCount() - 1);
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator rbegin(const ezArrayBase<T, Derived>& container)
-{
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1);
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crbegin(const ezArrayBase<T, Derived>& container)
-{
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1);
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::iterator end(ezArrayBase<T, Derived>& container)
-{
-  return container.GetData() + container.GetCount();
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator end(const ezArrayBase<T, Derived>& container)
-{
-  return container.GetData() + container.GetCount();
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator cend(const ezArrayBase<T, Derived>& container)
-{
-  return container.GetData() + container.GetCount();
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rend(ezArrayBase<T, Derived>& container)
-{
-  return typename ezArrayBase<T, Derived>::reverse_iterator(container.GetData() - 1);
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator rend(const ezArrayBase<T, Derived>& container)
-{
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1);
-}
-
-template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase<T, Derived>& container)
-{
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1);
-}*/
+//////////////////////////////////////////////////////////////////////////
 
 /// \brief \see ezSmallArrayBase
 template <typename T, ezUInt16 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezSmallArray : public ezSmallArrayBase<T, Size>
 {
+  using SUPER = ezSmallArrayBase<T, Size>;
+
 public:
   // Only if the stored type is either POD or relocatable the hybrid array itself is also relocatable.
   EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
@@ -258,18 +206,34 @@ public:
   ezSmallArray();
 
   ezSmallArray(const ezSmallArray<T, Size, AllocatorWrapper>& other);
-  ezSmallArray(const ezSmallArrayBase<T, Size>& other);
   ezSmallArray(const ezArrayPtr<const T>& other);
 
   ezSmallArray(ezSmallArray<T, Size, AllocatorWrapper>&& other);
-  ezSmallArray(ezSmallArrayBase<T, Size>&& other);
+
+  ~ezSmallArray();
 
   void operator=(const ezSmallArray<T, Size, AllocatorWrapper>& rhs);
-  void operator=(const ezSmallArrayBase<T, Size>& rhs);
   void operator=(const ezArrayPtr<const T>& rhs);
 
   void operator=(ezSmallArray<T, Size, AllocatorWrapper>&& rhs) noexcept;
-  void operator=(ezSmallArrayBase<T, Size>&& rhs) noexcept;
+
+  void SetCount(ezUInt16 uiCount);                     // [tested]
+  void SetCount(ezUInt16 uiCount, const T& FillValue); // [tested]
+  void EnsureCount(ezUInt16 uiCount);                  // [tested]
+
+  template <typename = void>
+  void SetCountUninitialized(ezUInt16 uiCount); // [tested]
+
+  void Insert(const T& value, ezUInt32 uiIndex); // [tested]
+  void Insert(T&& value, ezUInt32 uiIndex);      // [tested]
+
+  T& ExpandAndGetRef();                                 // [tested]
+  void PushBack(const T& value);                        // [tested]
+  void PushBack(T&& value);                             // [tested]
+  void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
+
+  void Reserve(ezUInt16 uiCapacity);
+  void Compact();
 };
 
 #include <Foundation/Containers/Implementation/SmallArray_inl.h>
