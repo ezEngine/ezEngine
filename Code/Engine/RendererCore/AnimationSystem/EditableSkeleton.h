@@ -57,7 +57,7 @@ public:
   ezEnum<ezBasisAxis> m_ForwardDir;
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
-  float m_fUniformScaling;
+  //float m_fUniformScaling;
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };

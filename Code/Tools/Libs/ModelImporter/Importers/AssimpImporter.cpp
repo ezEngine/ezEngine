@@ -22,9 +22,9 @@ namespace ezModelImporter
   struct JointInfo
   {
     ezString m_sJointName;
-    ezUInt32 m_uiFinalOwnIndex = 0xFFFFFFFFu;
-    ezUInt32 m_uiParentJointIndex = 0xFFFFFFFFu;
-    ezTransform m_MeshOffset;
+    ezUInt32 m_uiFinalOwnIndex = ezInvalidIndex;
+    ezUInt32 m_uiParentJointIndex = ezInvalidIndex;
+    ezTransform m_GlobalInverseBindPoseMatrix;
     bool m_bIsValidJoint = false;
   };
 
@@ -175,8 +175,7 @@ namespace ezModelImporter
     }
   }
 
-  void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName, Scene& outScene,
-    ezDynamicArray<ObjectHandle>& outMeshHandles, const ezDynamicArray<JointInfo>& allMeshJoints)
+  void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName, Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles, const ezDynamicArray<JointInfo>& allMeshJoints)
   {
     outMeshHandles.Reserve(assimpMeshes.GetCount());
 
@@ -309,10 +308,8 @@ namespace ezModelImporter
           }
         }
 
-        jointWeightStream->AddValues(
-          ezArrayPtr<char>(reinterpret_cast<char*>(jointWeightData.GetData()), jointWeightData.GetCount() * 4 * sizeof(float)));
-        jointIndicesStream->AddValues(
-          ezArrayPtr<char>(reinterpret_cast<char*>(jointIndexData.GetData()), jointIndexData.GetCount() * 4 * sizeof(ezUInt32)));
+        jointWeightStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(jointWeightData.GetData()), jointWeightData.GetCount() * 4 * sizeof(float)));
+        jointIndicesStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(jointIndexData.GetData()), jointIndexData.GetCount() * 4 * sizeof(ezUInt32)));
       }
 
       // Triangles/Indices
@@ -438,7 +435,7 @@ namespace ezModelImporter
     auto& jointInfo = inout_allMeshJoints.ExpandAndGetRef();
 
     jointInfo.m_sJointName = assimpNode->mName.C_Str();
-    jointInfo.m_MeshOffset.SetIdentity();
+    jointInfo.m_GlobalInverseBindPoseMatrix.SetIdentity();
     jointInfo.m_uiParentJointIndex = uiParentJointIdx;
     // jointInfo.m_bIsValidJoint = assimpNode->mNumMeshes > 0; // very simplistic assumption
 
@@ -450,7 +447,7 @@ namespace ezModelImporter
 
   void ImportSkeleton(const aiScene* assimpScene, ezDynamicArray<JointInfo>& allMeshJoints)
   {
-    ImportSkeletonRecursive(assimpScene->mRootNode, allMeshJoints, 0xFFFFFFFFu);
+    ImportSkeletonRecursive(assimpScene->mRootNode, allMeshJoints, ezInvalidIndex);
 
     // mark the affected nodes/joints as useful
     for (unsigned int meshIdx = 0; meshIdx < assimpScene->mNumMeshes; ++meshIdx)
@@ -466,12 +463,12 @@ namespace ezModelImporter
         {
           if (joint.m_sJointName == pJoint->mName.C_Str())
           {
-            joint.m_MeshOffset.SetFromMat4(ConvertAssimpType(pJoint->mOffsetMatrix));
+            joint.m_GlobalInverseBindPoseMatrix.SetFromMat4(ConvertAssimpType(pJoint->mOffsetMatrix));
             joint.m_bIsValidJoint = true;
 
             // mark all parent joints as useful
             ezUInt32 uiParentIdx = joint.m_uiParentJointIndex;
-            while (uiParentIdx != 0xFFFFFFFFu && !allMeshJoints[uiParentIdx].m_bIsValidJoint)
+            while (uiParentIdx != ezInvalidIndex && !allMeshJoints[uiParentIdx].m_bIsValidJoint)
             {
               allMeshJoints[uiParentIdx].m_bIsValidJoint = true;
               uiParentIdx = allMeshJoints[uiParentIdx].m_uiParentJointIndex;
@@ -484,7 +481,7 @@ namespace ezModelImporter
     }
   }
 
-  void GenerateSkeleton(ezDynamicArray<JointInfo>& allMeshJoints, Scene& outScene)
+  void GenerateSkeleton(ezDynamicArray<JointInfo>& allMeshJoints, Scene& outScene, double fUnitScale)
   {
     ezSkeletonBuilder sb;
 
@@ -493,16 +490,22 @@ namespace ezModelImporter
       if (!joint.m_bIsValidJoint)
         continue;
 
-      ezTransform localTransform = joint.m_MeshOffset.GetInverse();
+      // TODO: this code and AddJoint do a lot of unnecessary matrix inversion
+
+      const ezTransform globalBindPose = joint.m_GlobalInverseBindPoseMatrix.GetInverse();
+      ezTransform localBindPose = globalBindPose;
 
       ezUInt32 uiParentNodeIdx = joint.m_uiParentJointIndex;
-      if (uiParentNodeIdx != 0xFFFFFFFFu)
+      if (uiParentNodeIdx != ezInvalidIndex)
       {
-        localTransform = allMeshJoints[uiParentNodeIdx].m_MeshOffset * localTransform;
+        localBindPose = allMeshJoints[uiParentNodeIdx].m_GlobalInverseBindPoseMatrix * localBindPose;
         uiParentNodeIdx = allMeshJoints[uiParentNodeIdx].m_uiFinalOwnIndex;
       }
 
-      joint.m_uiFinalOwnIndex = sb.AddJoint(joint.m_sJointName, localTransform, uiParentNodeIdx);
+      // apply the scene's unit scale (meter to cm etc) to the bone position
+      localBindPose.m_vPosition *= (float)fUnitScale;
+
+      joint.m_uiFinalOwnIndex = sb.AddJoint(joint.m_sJointName, localBindPose, uiParentNodeIdx);
     }
 
     sb.BuildSkeleton(outScene.m_Skeleton);
@@ -576,8 +579,7 @@ namespace ezModelImporter
     ezUInt32 uiAssimpFlags = 0;
     if (importFlags.IsSet(ImportFlags::Meshes))
     {
-      uiAssimpFlags |=
-        aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
+      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
     }
 
     const aiScene* assimpScene = importer.ReadFile(szFileName, uiAssimpFlags);
@@ -587,14 +589,15 @@ namespace ezModelImporter
       return nullptr;
     }
 
+    double fUnitScale = 1.0;
+
     if (assimpScene->mMetaData != nullptr)
     {
-      double fUnitScale = 1.0;
       if (assimpScene->mMetaData->Get("UnitScaleFactor", fUnitScale))
       {
         if (aiNode* node = assimpScene->mRootNode)
         {
-          // Only fbx files have this unit scale factor and the default unit for fbx is cm. We want meters.
+          // Only FBX files have this unit scale factor and the default unit for FBX is cm. We want meters.
           fUnitScale = fUnitScale / 100.0f;
           node->mTransformation.a1 *= static_cast<float>(fUnitScale);
           node->mTransformation.b2 *= static_cast<float>(fUnitScale);
@@ -615,15 +618,14 @@ namespace ezModelImporter
     {
       ImportSkeleton(assimpScene, allMeshJoints);
 
-      GenerateSkeleton(allMeshJoints, *outScene);
+      GenerateSkeleton(allMeshJoints, *outScene, fUnitScale);
     }
 
     // Import meshes.
     ezDynamicArray<ObjectHandle> meshHandles;
     if (importFlags.IsAnySet(ImportFlags::Meshes))
     {
-      ImportMeshes(
-        ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles, allMeshJoints);
+      ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles, allMeshJoints);
     }
 
     if (importFlags.IsSet(ImportFlags::Animations) && assimpScene->HasAnimations())
