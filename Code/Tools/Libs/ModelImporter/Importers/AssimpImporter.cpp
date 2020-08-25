@@ -503,7 +503,7 @@ namespace ezModelImporter
       }
 
       // apply the scene's unit scale (meter to cm etc) to the bone position
-      localBindPose.m_vPosition *= fUnitScale;
+      localBindPose.m_vPosition *= (float)fUnitScale;
 
       joint.m_uiFinalOwnIndex = sb.AddJoint(joint.m_sJointName, localBindPose, uiParentNodeIdx);
     }
