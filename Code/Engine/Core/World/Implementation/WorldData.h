@@ -142,7 +142,7 @@ namespace ezInternal
 
     // game object lookups
     ezHashTable<ezUInt32, ezGameObjectId, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
-    ezHashTable<ezUInt64, ezHashedString, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
+    ezHashTable<ezUInt32, ezHashedString, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
 
     // modules
     ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_Modules;

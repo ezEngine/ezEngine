@@ -39,8 +39,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       {
         for (ezUInt32 x = 0; x < uiSize / 4; ++x)
         {
-          ezSimdVec4f sX = (ezSimdVec4f(x * 4) + xOffset) / scale;
-          ezSimdVec4f sY = ezSimdVec4f(y) / scale;
+          ezSimdVec4f sX = (ezSimdVec4f(x * 4.0f) + xOffset) / scale;
+          ezSimdVec4f sY = ezSimdVec4f(y * 1.0f) / scale;
 
           ezSimdVec4f noise = perlin.NoiseZeroToOne(sX, sY, ezSimdVec4f::ZeroVector(), uiNumOctaves);
           float p[4];

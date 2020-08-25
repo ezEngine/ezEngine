@@ -91,8 +91,8 @@ void ezRmlUiContext::HideDocument()
 
 void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 {
-  float width = GetDimensions().x;
-  float height = GetDimensions().y;
+  float width = static_cast<float>(GetDimensions().x);
+  float height = static_cast<float>(GetDimensions().y);
 
   m_bWantsInput = mousePos.x >= 0.0f && mousePos.x <= width && mousePos.y >= 0.0f && mousePos.y <= height;
 
@@ -110,7 +110,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 
   // Mouse
   {
-    ProcessMouseMove(mousePos.x, mousePos.y, modifierState);
+    ProcessMouseMove(static_cast<int>(mousePos.x), static_cast<int>(mousePos.y), modifierState);
 
     static const char* szMouseButtons[] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(szMouseButtons); ++i)

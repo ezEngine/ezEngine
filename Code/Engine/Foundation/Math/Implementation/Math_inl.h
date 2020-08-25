@@ -343,3 +343,26 @@ constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
   return static_cast<ezInt64>(value);
 }
 #endif
+
+EZ_ALWAYS_INLINE ezResult ezMath::TryConvertToSizeT(size_t& out_Result, ezUInt64 uiValue)
+{
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  if (uiValue <= MaxValue<size_t>())
+  {
+    out_Result = static_cast<size_t>(uiValue);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+#else
+  out_Result = static_cast<size_t>(uiValue);
+  return EZ_SUCCESS;
+#endif
+}
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
+{
+  return uiValue;
+}
+#endif

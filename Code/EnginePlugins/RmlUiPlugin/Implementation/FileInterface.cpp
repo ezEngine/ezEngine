@@ -31,7 +31,7 @@ namespace ezRmlUiInternal
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
-    return pOpenFile->m_Reader.ReadBytes(buffer, size);
+    return static_cast<size_t>(pOpenFile->m_Reader.ReadBytes(buffer, size));
   }
 
   bool FileInterface::Seek(Rml::Core::FileHandle file, long offset, int origin)

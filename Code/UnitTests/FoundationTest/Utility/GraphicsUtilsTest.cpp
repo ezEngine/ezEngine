@@ -136,7 +136,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       {
         ezMat4 mProj;
         mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(
-          ezAngle::Degree(angle), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+          ezAngle::Degree((float)angle), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
         ezAngle fovx, fovy;
         ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fovx, fovy);
@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       {
         ezMat4 mProj;
         mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-          ezAngle::Degree(angle), 1.0f / 3.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+          ezAngle::Degree((float)angle), 1.0f / 3.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
         ezAngle fovx, fovy;
         ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fovx, fovy);
@@ -211,7 +211,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
         ezGraphicsUtils::FrustumPlaneInterpolation::NearToFar, i * 0.1f, mProj, ezClipSpaceDepthRange::ZeroToOne);
 
       // Generate clip space point at intersection of the 3 planes and project to worldspace
-      ezVec4 clipSpacePoint = ezVec4(0.1 * i * 2 - 1, 0.1 * i * 2 - 1, 0.1 * i, 1);
+      ezVec4 clipSpacePoint = ezVec4(0.1f * i * 2 - 1, 0.1f * i * 2 - 1, 0.1f * i, 1);
 
       ezVec4 worldSpacePoint = mProj.GetInverse() * clipSpacePoint;
       worldSpacePoint /= worldSpacePoint.w;

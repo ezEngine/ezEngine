@@ -205,6 +205,21 @@ ezUInt64 ezMath::SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
   return 0;
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
+{
+  size_t result = 0;
+  if (TryConvertToSizeT(result, uiValue).Succeeded())
+  {
+    return result;
+  }
+
+  EZ_REPORT_FAILURE("Given value ({}) can't be converted to size_t because it is too big.", uiValue);
+  std::terminate();
+  return 0;
+}
+#endif
+
 void ezAngle::NormalizeRange()
 {
   const float fTwoPi = 2.0f * Pi<float>();

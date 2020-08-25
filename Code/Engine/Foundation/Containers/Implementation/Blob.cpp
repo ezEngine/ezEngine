@@ -34,7 +34,7 @@ ezBlob::~ezBlob()
 void ezBlob::SetFrom(void* pSource, ezUInt64 uiSize)
 {
   SetCountUninitialized(uiSize);
-  ezMemoryUtils::Copy(static_cast<ezUInt8*>(m_pStorage), static_cast<ezUInt8*>(pSource), uiSize);
+  ezMemoryUtils::Copy(static_cast<ezUInt8*>(m_pStorage), static_cast<ezUInt8*>(pSource), static_cast<size_t>(uiSize));
 }
 
 void ezBlob::Clear()
@@ -53,7 +53,7 @@ void ezBlob::SetCountUninitialized(ezUInt64 uiCount)
   {
     Clear();
 
-    m_pStorage = ezFoundation::GetAlignedAllocator()->Allocate(uiCount, 64);
+    m_pStorage = ezFoundation::GetAlignedAllocator()->Allocate(ezMath::SafeConvertToSizeT(uiCount), 64u);
     m_uiSize = uiCount;
   }
 }

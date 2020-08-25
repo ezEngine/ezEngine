@@ -155,7 +155,7 @@ static int __CPP_Debug_Draw2DText(duk_context* pDuk)
   const float fSize = duk.GetFloatValue(3, 16.0f);
   ezDebugRenderer::HorizontalAlignment::Enum halign = (ezDebugRenderer::HorizontalAlignment::Enum)duk.GetIntValue(4);
 
-  ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, fSize, halign, ezDebugRenderer::VerticalAlignment::Top);
+  ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, (ezUInt32)fSize, halign, ezDebugRenderer::VerticalAlignment::Top);
 
   return duk.ReturnVoid();
 }
@@ -170,8 +170,7 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk)
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
   const float fSize = duk.GetFloatValue(3, 16.0f);
 
-  ezDebugRenderer::Draw3DText(
-    pWorld, szText, vPos, color, fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
+  ezDebugRenderer::Draw3DText(pWorld, szText, vPos, color, (ezUInt32)fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
 
   return duk.ReturnVoid();
 }

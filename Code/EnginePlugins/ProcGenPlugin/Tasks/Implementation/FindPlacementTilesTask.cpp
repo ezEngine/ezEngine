@@ -36,7 +36,7 @@ void FindPlacementTilesTask::Execute()
   const float fPatternSize = outputContext.m_pOutput->m_pPattern->m_fSize;
   const float fCullDistance = outputContext.m_pOutput->m_fCullDistance * CVarCullDistanceScale;
 
-  float fRadius = ezMath::Min<float>(ezMath::Ceil(fCullDistance / fTileSize + 1.0f), CVarMaxCullRadius);
+  float fRadius = ezMath::Min(ezMath::Ceil(fCullDistance / fTileSize + 1.0f), static_cast<float>(CVarMaxCullRadius));
   ezInt32 iRadius = static_cast<ezInt32>(fRadius);
   ezInt32 iRadiusSqr = iRadius * iRadius;
 

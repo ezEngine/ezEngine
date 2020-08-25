@@ -137,7 +137,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           if (destRowPitch == sourceImage->rowPitch)
           {
             // Fast path: Just copy the entire thing
-            ezMemoryUtils::Copy(destPixels, sourceImage->pixels, imageHeader.GetHeight() * destRowPitch);
+            ezMemoryUtils::Copy(destPixels, sourceImage->pixels, static_cast<size_t>(imageHeader.GetHeight() * destRowPitch));
           }
           else
           {
@@ -217,8 +217,8 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
         currentImage.width = image.GetWidth();
         currentImage.height = image.GetHeight();
         currentImage.format = imageFormat;
-        currentImage.rowPitch = image.GetRowPitch();
-        currentImage.slicePitch = image.GetDepthPitch();
+        currentImage.rowPitch = static_cast<size_t>(image.GetRowPitch());
+        currentImage.slicePitch = static_cast<size_t>(image.GetDepthPitch());
         currentImage.pixels = const_cast<uint8_t*>(image.GetPixelPointer<uint8_t>(0, faceIdx, arrayIdx, 0, 0, sliceIdx));
       }
     }

@@ -107,7 +107,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
     vert.m_vNormal = normalTransform.TransformDirection(vNormal).GetNormalized();
     vert.m_Color = pColors != nullptr ? ezColor(*pColors) : ezColor::ZeroColor();
-    vert.m_fIndex = i;
+    vert.m_fIndex = static_cast<float>(i);
 
     pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
     pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);

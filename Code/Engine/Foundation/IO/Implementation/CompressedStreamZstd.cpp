@@ -69,7 +69,7 @@ ezUInt64 ezCompressedStreamReaderZstd::ReadBytes(void* pReadBuffer, ezUInt64 uiB
   ZSTD_outBuffer outBuffer;
   outBuffer.dst = pReadBuffer;
   outBuffer.pos = 0;
-  outBuffer.size = uiBytesToRead;
+  outBuffer.size = ezMath::SafeConvertToSizeT(uiBytesToRead);
 
   while (outBuffer.pos < outBuffer.size)
   {

@@ -117,11 +117,10 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# 4100 = unreferenced formal parameter
 	# 4189 = local variable is initialized but not referenced
 	# 4127 = conditional expression is constant
-	# 4244 = conversion from 'int 32' to 'int 16', possible loss of data
 	# 4245 = signed/unsigned mismatch
 	# 4389 = signed/unsigned mismatch
 	# 4310 = cast truncates constant value
-	target_compile_options(${TARGET_NAME} PRIVATE /wd4251 /wd4345 /wd4201 /wd4324 /wd4100 /wd4189 /wd4127 /wd4244 /wd4245 /wd4389 /wd4310)
+	target_compile_options(${TARGET_NAME} PRIVATE /wd4251 /wd4345 /wd4201 /wd4324 /wd4100 /wd4189 /wd4127 /wd4245 /wd4389 /wd4310)
 	
 	# Set Warnings as Errors: Too few/many parameters given for Macro
 	target_compile_options(${TARGET_NAME} PRIVATE /we4002 /we4003)

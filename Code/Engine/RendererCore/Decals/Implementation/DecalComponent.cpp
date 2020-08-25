@@ -208,7 +208,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
     if (decalIdx != ezInvalidIndex)
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
-      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
     }
   }
 
@@ -428,7 +428,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
       ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
 
-      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
     }
   }
 

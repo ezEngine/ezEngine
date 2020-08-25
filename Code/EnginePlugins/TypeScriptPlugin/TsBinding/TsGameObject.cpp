@@ -357,7 +357,7 @@ static int __CPP_GameObject_GetX_Float(duk_context* pDuk)
       break;
 
     case GameObject_X::ChildCount:
-      value = pGameObject->GetChildCount();
+      value = static_cast<float>(pGameObject->GetChildCount());
       break;
 
     default:

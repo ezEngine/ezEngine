@@ -152,10 +152,10 @@ void ezRmlUiRenderer::SetScissorRect(const ezRenderViewContext& renderViewContex
     scissorRect = renderViewContext.m_pViewData->m_ViewPortRect;
   }
 
-  ezUInt32 x = ezMath::Max(scissorRect.x, 0.0f);
-  ezUInt32 y = ezMath::Max(scissorRect.y, 0.0f);
-  ezUInt32 width = ezMath::Max(scissorRect.width, 0.0f);
-  ezUInt32 height = ezMath::Max(scissorRect.height, 0.0f);
+  ezUInt32 x = static_cast<ezUInt32>(ezMath::Max(scissorRect.x, 0.0f));
+  ezUInt32 y = static_cast<ezUInt32>(ezMath::Max(scissorRect.y, 0.0f));
+  ezUInt32 width = static_cast<ezUInt32>(ezMath::Max(scissorRect.width, 0.0f));
+  ezUInt32 height = static_cast<ezUInt32>(ezMath::Max(scissorRect.height, 0.0f));
 
   pGALContext->SetScissorRect(ezRectU32(x, y, width, height));
 }

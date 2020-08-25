@@ -114,9 +114,15 @@ namespace ezRmlUiInternal
     m_ReleasedCompiledGeometry.PushBack({ezRenderWorld::GetFrameCounter(), GeometryId::FromRml(geometry_handle)});
   }
 
-  void Extractor::EnableScissorRegion(bool enable) { m_bEnableScissorRect = enable; }
+  void Extractor::EnableScissorRegion(bool enable)
+  {
+    m_bEnableScissorRect = enable;
+  }
 
-  void Extractor::SetScissorRegion(int x, int y, int width, int height) { m_ScissorRect = ezRectFloat(x, y, width, height); }
+  void Extractor::SetScissorRegion(int x, int y, int width, int height)
+  {
+    m_ScissorRect = ezRectFloat(static_cast<float>(x), static_cast<float>(y), static_cast<float>(width), static_cast<float>(height));
+  }
 
   bool Extractor::LoadTexture(Rml::Core::TextureHandle& texture_handle, Rml::Core::Vector2i& texture_dimensions, const Rml::Core::String& source)
   {
@@ -189,7 +195,7 @@ namespace ezRmlUiInternal
 
   void Extractor::BeginExtraction(const ezVec2I32& offset)
   {
-    m_Offset = ezVec2(offset.x, offset.y);
+    m_Offset = ezVec2(static_cast<float>(offset.x), static_cast<float>(offset.y));
     m_Transform = ezMat4::IdentityMatrix();
 
     m_Batches.Clear();
