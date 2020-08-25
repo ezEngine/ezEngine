@@ -16,7 +16,7 @@ public:
   /// \brief Adds a joint to the skeleton
   /// Since the only way to add a joint with a parent is through this method the order of joints in the array is guaranteed
   /// so that child joints always come after their parent joints
-  ezUInt32 AddJoint(const char* szName, const ezTransform& LocalTransform, ezUInt32 uiParentIndex = 0xFFFFFFFFu);
+  ezUInt32 AddJoint(const char* szName, const ezTransform& localBindPose, ezUInt32 uiParentIndex = ezInvalidIndex);
 
   /// \brief Creates a skeleton from the accumulated data.
   void BuildSkeleton(ezSkeleton& skeleton) const;

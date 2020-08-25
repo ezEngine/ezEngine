@@ -889,6 +889,7 @@ void* ezPhysXWorldModule::CreateRagdoll(
     //  pRootLink->setName("Ragdoll");
     //}
 
+#if 0
     for (const ezSkeletonResourceGeometry& geom : skeleton.m_Geometry)
     {
       const ezSkeletonJoint& joint = skeleton.m_Skeleton.GetJointByIndex(geom.m_uiAttachedToJoint);
@@ -997,6 +998,7 @@ void* ezPhysXWorldModule::CreateRagdoll(
         pShape->setQueryFilterData(filter);
       }
     }
+#endif
   }
 
   EZ_PX_WRITE_LOCK(*m_pPxScene);

@@ -4,7 +4,7 @@
 
 // Reader implementation
 
-ezMemoryStreamReader::ezMemoryStreamReader(ezMemoryStreamStorageInterface* pStreamStorage)
+ezMemoryStreamReader::ezMemoryStreamReader(const ezMemoryStreamStorageInterface* pStreamStorage)
   : m_pStreamStorage(pStreamStorage)
   , m_uiReadPosition(0)
 {
@@ -119,18 +119,22 @@ ezMemoryStreamStorageInterface::~ezMemoryStreamStorageInterface()
   EZ_ASSERT_RELEASE(!IsReferenced(), "Memory stream storage destroyed while there are still references by reader / writer object(s)!");
 }
 
-void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& Stream)
+void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& Stream, ezUInt64 uiMaxBytes /*= 0xFFFFFFFFFFFFFFFFllu*/)
 {
   Clear();
   ezMemoryStreamWriter w(this);
 
-  ezUInt8 uiTemp[1024];
+  ezUInt8 uiTemp[1024 * 8];
 
-  while (true)
+  while (uiMaxBytes > 0)
   {
-    const ezUInt64 uiRead = Stream.ReadBytes(uiTemp, 1024);
+    const ezUInt64 uiToRead = ezMath::Min<ezUInt64>(uiMaxBytes, EZ_ARRAY_SIZE(uiTemp));
+
+    const ezUInt64 uiRead = Stream.ReadBytes(uiTemp, uiToRead);
+    uiMaxBytes -= uiRead;
+
     w.WriteBytes(uiTemp, uiRead);
-    if (uiRead < 1024)
+    if (uiRead < uiToRead)
       break;
   }
 }
@@ -163,7 +167,7 @@ ezUInt64 ezRawMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesT
 
   if (pReadBuffer)
   {
-    ezMemoryUtils::Copy(static_cast<ezUInt8*>(pReadBuffer), &m_pRawMemory[m_uiReadPosition], static_cast<size_t>(uiBytes));
+    ezMemoryUtils::Copy(static_cast<ezUInt8*>(pReadBuffer), &m_pRawMemory[m_uiReadPosition], uiBytes);
   }
 
   m_uiReadPosition += uiBytes;
@@ -221,7 +225,7 @@ ezResult ezRawMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 
 {
   const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToWrite, m_uiChunkSize - m_uiWritePosition);
 
-  ezMemoryUtils::Copy(&m_pRawMemory[m_uiWritePosition], static_cast<const ezUInt8*>(pWriteBuffer), static_cast<size_t>(uiBytes));
+  ezMemoryUtils::Copy(&m_pRawMemory[m_uiWritePosition], static_cast<const ezUInt8*>(pWriteBuffer), uiBytes);
 
   m_uiWritePosition += uiBytes;
 
