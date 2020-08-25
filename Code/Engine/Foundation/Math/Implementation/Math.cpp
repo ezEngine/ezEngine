@@ -206,7 +206,7 @@ ezUInt64 ezMath::SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
+size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
 {
   size_t result = 0;
   if (TryConvertToSizeT(result, uiValue).Succeeded())
