@@ -25,17 +25,39 @@
 //                                                                            //
 //----------------------------------------------------------------------------//
 
-#ifndef OZZ_OZZ_BASE_CONTAINERS_STRING_H_
-#define OZZ_OZZ_BASE_CONTAINERS_STRING_H_
+#ifndef OZZ_OZZ_BASE_CONTAINERS_ARRAY_ARCHIVE_H_
+#define OZZ_OZZ_BASE_CONTAINERS_ARRAY_ARCHIVE_H_
 
-#include <string>
-
-#include "ozz/base/containers/std_allocator.h"
+#include "ozz/base/containers/array.h"
+#include "ozz/base/io/archive.h"
 
 namespace ozz {
-// Redirects std::basic_string to ozz::string in order to replace std default
-// allocator by ozz::StdAllocator.
-using string =
-    std::basic_string<char, std::char_traits<char>, ozz::StdAllocator<char>>;
+namespace io {
+
+OZZ_IO_TYPE_NOT_VERSIONABLE_T2(class _Ty, size_t _N, std::array<_Ty, _N>)
+
+template <class _Ty, size_t _N>
+struct Extern<std::array<_Ty, _N>> {
+  inline static void Save(OArchive& _archive,
+                          const std::array<_Ty, _N>* _values, size_t _count) {
+    if (void(0), _N != 0) {
+      for (size_t i = 0; i < _count; i++) {
+        const std::array<_Ty, _N>& array = _values[i];
+        _archive << ozz::io::MakeArray(array.data(), _N);
+      }
+    }
+  }
+  inline static void Load(IArchive& _archive, std::array<_Ty, _N>* _values,
+                          size_t _count, uint32_t _version) {
+    (void)_version;
+    if (void(0), _N != 0) {
+      for (size_t i = 0; i < _count; i++) {
+        std::array<_Ty, _N>& array = _values[i];
+        _archive >> ozz::io::MakeArray(array.data(), _N);
+      }
+    }
+  }
+};
+}  // namespace io
 }  // namespace ozz
-#endif  // OZZ_OZZ_BASE_CONTAINERS_STRING_H_
+#endif  // OZZ_OZZ_BASE_CONTAINERS_ARRAY_ARCHIVE_H_

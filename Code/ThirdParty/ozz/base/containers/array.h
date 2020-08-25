@@ -25,17 +25,47 @@
 //                                                                            //
 //----------------------------------------------------------------------------//
 
-#ifndef OZZ_OZZ_BASE_CONTAINERS_STRING_H_
-#define OZZ_OZZ_BASE_CONTAINERS_STRING_H_
+#ifndef OZZ_OZZ_BASE_CONTAINERS_ARRAY_H_
+#define OZZ_OZZ_BASE_CONTAINERS_ARRAY_H_
 
-#include <string>
-
-#include "ozz/base/containers/std_allocator.h"
+#include <array>
 
 namespace ozz {
-// Redirects std::basic_string to ozz::string in order to replace std default
-// allocator by ozz::StdAllocator.
-using string =
-    std::basic_string<char, std::char_traits<char>, ozz::StdAllocator<char>>;
+// Redirects std::array to ozz::array .
+template <class _Ty, size_t _N>
+using array = std::array<_Ty, _N>;
+
+// Extends std::array with two functions that gives access to the begin and the
+// end of its array of elements.
+
+// Returns the mutable begin of the array of elements, or nullptr if
+// array's empty.
+template <class _Ty, size_t _N>
+inline _Ty* array_begin(std::array<_Ty, _N>& _array) {
+  return _array.data();
+}
+
+// Returns the non-mutable begin of the array of elements, or nullptr if
+// array's empty.
+template <class _Ty, size_t _N>
+inline const _Ty* array_begin(const std::array<_Ty, _N>& _array) {
+  return _array.data();
+}
+
+// Returns the mutable end of the array of elements, or nullptr if
+// array's empty. Array end is one element past the last element of the
+// array, it cannot be dereferenced.
+template <class _Ty, size_t _N>
+inline _Ty* array_end(std::array<_Ty, _N>& _array) {
+  return _array.data() + _N;
+}
+
+// Returns the non-mutable end of the array of elements, or nullptr if
+// array's empty. Array end is one element past the last element of the
+// array, it cannot be dereferenced.
+template <class _Ty, size_t _N>
+inline const _Ty* array_end(const std::array<_Ty, _N>& _array) {
+  return _array.data() + _N;
+}
 }  // namespace ozz
-#endif  // OZZ_OZZ_BASE_CONTAINERS_STRING_H_
+#endif  // OZZ_OZZ_BASE_CONTAINERS_ARRAY_H_
