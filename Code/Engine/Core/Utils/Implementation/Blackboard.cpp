@@ -1,8 +1,8 @@
-#include <FoundationPCH.h>
+#include <CorePCH.h>
 
+#include <Core/Utils/Blackboard.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Utilities/Blackboard.h>
 
 ezBlackboard::ezBlackboard() = default;
 ezBlackboard::~ezBlackboard() = default;

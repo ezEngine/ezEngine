@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/CoreDLL.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Variant.h>
@@ -8,7 +9,7 @@ class ezStreamReader;
 class ezStreamWriter;
 
 /// \brief Flags for entries in ezBlackboard.
-struct EZ_FOUNDATION_DLL ezBlackboardEntryFlags
+struct EZ_CORE_DLL ezBlackboardEntryFlags
 {
   using StorageType = ezUInt16;
 
@@ -59,7 +60,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezBlackboardEntryFlags);
 ///
 /// For example this is commonly used in game AI, where some system gathers interesting pieces of data about the environment,
 /// and then NPCs might use that information to make decisions.
-class EZ_FOUNDATION_DLL ezBlackboard
+class EZ_CORE_DLL ezBlackboard
 {
 public:
   ezBlackboard();
