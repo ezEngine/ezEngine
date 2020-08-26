@@ -244,32 +244,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
 
     EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
     ezConstructionCounterRelocatable::Reset();
-
-    {
-      // move constructor with different allocators
-      {
-        ezSmallArray<ezConstructionCounterRelocatable, 16, ezAlignedAllocatorWrapper> a1;
-
-        a1 = SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(8, 70);
-        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(8, 0));
-        //EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
-
-        EZ_TEST_INT(a1.GetCount(), 8);
-        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-          EZ_TEST_INT(a1[i].m_iData, 70 + i);
-
-        a1 = SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(32, 100);
-        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(32, 8));
-        //EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
-
-        EZ_TEST_INT(a1.GetCount(), 32);
-        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-          EZ_TEST_INT(a1[i].m_iData, 100 + i);
-      }
-
-      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
-      ezConstructionCounterRelocatable::Reset();
-    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")

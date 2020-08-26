@@ -216,14 +216,12 @@ public:
 
   ezSmallArray(const ezSmallArray<T, Size, AllocatorWrapper>& other);
   ezSmallArray(const ezArrayPtr<const T>& other);
-
   ezSmallArray(ezSmallArray<T, Size, AllocatorWrapper>&& other);
 
   ~ezSmallArray();
 
   void operator=(const ezSmallArray<T, Size, AllocatorWrapper>& rhs);
   void operator=(const ezArrayPtr<const T>& rhs);
-
   void operator=(ezSmallArray<T, Size, AllocatorWrapper>&& rhs) noexcept;
 
   void SetCount(ezUInt16 uiCount);                     // [tested]

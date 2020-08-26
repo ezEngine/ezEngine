@@ -106,7 +106,7 @@ EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::operator ezArrayPtr<T>()
 template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator==(const ezSmallArrayBase<T, Size>& rhs) const
 {
-  *this == rhs.GetArrayPtr();
+  return *this == rhs.GetArrayPtr();
 }
 
 template <typename T, ezUInt16 Size>
@@ -600,8 +600,8 @@ EZ_ALWAYS_INLINE ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(const ezA
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(ezSmallArray<T, Size, AllocatorWrapper>&& other)
+  : SUPER(static_cast<SUPER&&>(other), AllocatorWrapper::GetAllocator())
 {
-  SUPER::MoveFrom(std::move(other), AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
