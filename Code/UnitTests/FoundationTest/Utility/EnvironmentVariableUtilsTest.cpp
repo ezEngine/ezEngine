@@ -1,6 +1,6 @@
 #include <FoundationTestPCH.h>
 
-#include <Foundation/Utilities/EnvironmentVariableUtils.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
