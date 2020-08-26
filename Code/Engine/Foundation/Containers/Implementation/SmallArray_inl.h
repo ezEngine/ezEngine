@@ -30,6 +30,8 @@ EZ_FORCE_INLINE ezSmallArrayBase<T, Size>::~ezSmallArrayBase()
 template <typename T, ezUInt16 Size>
 void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
 {
+  EZ_ASSERT_DEV(other.GetCount() <= ezSmallInvalidIndex, "Can't copy {} elements to small array. Maximum count is {}", other.GetCount(), ezSmallInvalidIndex);
+
   if (GetData() == other.GetPtr())
   {
     if (m_uiCount == other.GetCount())
@@ -38,7 +40,7 @@ void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAll
     EZ_ASSERT_DEV(m_uiCount > other.GetCount(), "Dangling array pointer. The given array pointer points to invalid memory.");
     T* pElements = GetElementsPtr();
     ezMemoryUtils::Destruct(pElements + other.GetCount(), m_uiCount - other.GetCount());
-    m_uiCount = other.GetCount();
+    m_uiCount = static_cast<ezUInt16>(other.GetCount());
     return;
   }
 
@@ -47,7 +49,7 @@ void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAll
 
   if (uiNewCount > uiOldCount)
   {
-    Reserve(uiNewCount, pAllocator);
+    Reserve(static_cast<ezUInt16>(uiNewCount), pAllocator);
     T* pElements = GetElementsPtr();
     ezMemoryUtils::Copy(pElements, other.GetPtr(), uiOldCount);
     ezMemoryUtils::CopyConstructArray(pElements + uiOldCount, other.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
@@ -59,7 +61,7 @@ void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAll
     ezMemoryUtils::Destruct(pElements + uiNewCount, uiOldCount - uiNewCount);
   }
 
-  m_uiCount = uiNewCount;
+  m_uiCount = static_cast<ezUInt16>(uiNewCount);
 }
 
 template <typename T, ezUInt16 Size>
@@ -152,7 +154,7 @@ void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, ezAllocatorBase* pAll
 
   if (uiNewCount > uiOldCount)
   {
-    Reserve(uiNewCount, pAllocator);
+    Reserve(static_cast<ezUInt16>(uiNewCount), pAllocator);
     ezMemoryUtils::DefaultConstruct(GetElementsPtr() + uiOldCount, uiNewCount - uiOldCount);
   }
   else if (uiNewCount < uiOldCount)
@@ -520,9 +522,11 @@ void ezSmallArrayBase<T, Size>::Compact(ezAllocatorBase* pAllocator)
   }
   else if (m_uiCapacity > Size)
   {
-    const ezUInt32 uiNewCapacity = ezMemoryUtils::AlignSize<ezUInt32>(m_uiCount, CAPACITY_ALIGNMENT);
+    ezUInt32 uiNewCapacity = ezMemoryUtils::AlignSize<ezUInt32>(m_uiCount, CAPACITY_ALIGNMENT);
+    uiNewCapacity = ezMath::Min<ezUInt32>(uiNewCapacity, 0xFFFFu);
+
     if (m_uiCapacity != uiNewCapacity)
-      SetCapacity(uiNewCapacity, pAllocator);
+      SetCapacity(static_cast<ezUInt16>(uiNewCapacity), pAllocator);
   }
 }
 
@@ -530,6 +534,22 @@ template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE ezUInt64 ezSmallArrayBase<T, Size>::GetHeapMemoryUsage() const
 {
   return m_uiCapacity <= Size ? 0 : m_uiCapacity * sizeof(T);
+}
+
+template <typename T, ezUInt16 Size>
+template <typename U>
+EZ_ALWAYS_INLINE const U& ezSmallArrayBase<T, Size>::GetUserData() const
+{
+  static_assert(sizeof(U) <= sizeof(ezUInt32));
+  return reinterpret_cast<const U&>(m_uiUserData);
+}
+
+template <typename T, ezUInt16 Size>
+template <typename U>
+EZ_ALWAYS_INLINE U& ezSmallArrayBase<T, Size>::GetUserData()
+{
+  static_assert(sizeof(U) <= sizeof(ezUInt32));
+  return reinterpret_cast<U&>(m_uiUserData);
 }
 
 template <typename T, ezUInt16 Size>
@@ -560,7 +580,7 @@ void ezSmallArrayBase<T, Size>::SetCapacity(ezUInt16 uiCapacity, ezAllocatorBase
     {
       // Re-use inplace storage
       ezMemoryUtils::RelocateConstruct(GetElementsPtr(), pOldElements, m_uiCount);
-    }    
+    }
 
     if (uiOldCapacity > Size)
     {

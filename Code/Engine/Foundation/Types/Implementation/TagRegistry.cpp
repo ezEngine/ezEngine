@@ -37,7 +37,6 @@ const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& TagString)
   ezTag TempTag;
   TempTag.m_uiBlockIndex = uiNextTagIndex / (sizeof(ezTagSetBlockStorage) * 8);
   TempTag.m_uiBitIndex = uiNextTagIndex - (TempTag.m_uiBlockIndex * sizeof(ezTagSetBlockStorage) * 8);
-  TempTag.m_uiPreshiftedBit = (static_cast<ezTagSetBlockStorage>(1) << static_cast<ezTagSetBlockStorage>(TempTag.m_uiBitIndex));
   TempTag.m_TagString = TagString;
 
   // Store the tag

@@ -174,6 +174,12 @@ public:
   using iterator = T*;
   using reverse_iterator = reverse_pointer_iterator<T>;
 
+  template <typename U>
+  const U& GetUserData() const;
+
+  template <typename U>
+  U& GetUserData();
+
 protected:
   enum
   {

@@ -38,9 +38,6 @@ private:
 
   ezUInt32 m_uiBitIndex;
   ezUInt32 m_uiBlockIndex;
-
-  /// Stores a pre-shifted version of 1u << uiBitIndex
-  ezTagSetBlockStorage m_uiPreshiftedBit;
 };
 
 #include <Foundation/Types/TagSet.h>

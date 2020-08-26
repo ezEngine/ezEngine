@@ -85,9 +85,9 @@ ezTagSetTemplate<BlockStorageAllocator>::Iterator::Iterator(const ezTagSetTempla
 {
   if (!bEnd)
   {
-    m_uiIndex = pSet->m_uiTagBlockStart * (sizeof(ezTagSetBlockStorage) * 8);
+    m_uiIndex = m_pTagSet->GetTagBlockStart() * (sizeof(ezTagSetBlockStorage) * 8);
 
-    if (pSet->IsEmpty())
+    if (m_pTagSet->IsEmpty())
       m_uiIndex = 0xFFFFFFFF;
     else
     {
@@ -105,7 +105,6 @@ bool ezTagSetTemplate<BlockStorageAllocator>::Iterator::IsBitSet() const
   ezTag TempTag;
   TempTag.m_uiBlockIndex = m_uiIndex / (sizeof(ezTagSetBlockStorage) * 8);
   TempTag.m_uiBitIndex = m_uiIndex - (TempTag.m_uiBlockIndex * sizeof(ezTagSetBlockStorage) * 8);
-  TempTag.m_uiPreshiftedBit = (static_cast<ezTagSetBlockStorage>(1) << static_cast<ezTagSetBlockStorage>(TempTag.m_uiBitIndex));
 
   return m_pTagSet->IsSet(TempTag);
 }
@@ -113,7 +112,7 @@ bool ezTagSetTemplate<BlockStorageAllocator>::Iterator::IsBitSet() const
 template <typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator++()
 {
-  const ezUInt32 uiMax = (m_pTagSet->m_uiTagBlockStart + m_pTagSet->m_TagBlocks.GetCount()) * (sizeof(ezTagSetBlockStorage) * 8);
+  const ezUInt32 uiMax = m_pTagSet->GetTagBlockEnd() * (sizeof(ezTagSetBlockStorage) * 8);
 
   do
   {
@@ -138,14 +137,15 @@ const ezTag* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator->() con
 
 template <typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::ezTagSetTemplate()
-  : m_uiTagBlockStart(0xFFFFFFFFu)
 {
+  SetTagBlockStart(ezSmallInvalidIndex);
+  SetTagCount(0);
 }
 
 template <typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::operator==(const ezTagSetTemplate& other) const
 {
-  return m_TagBlocks == other.m_TagBlocks && m_uiTagBlockStart == m_uiTagBlockStart;
+  return m_TagBlocks == other.m_TagBlocks && m_TagBlocks.GetUserData<ezUInt32>() == other.m_TagBlocks.GetUserData<ezUInt32>();
 }
 
 template <typename BlockStorageAllocator>
@@ -161,13 +161,15 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 
   if (!IsTagInAllocatedRange(Tag))
   {
-    const ezUInt32 uiNewBlockStart = (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Min(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
-    const ezUInt32 uiNewBlockIndex = (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Max(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
+    const ezUInt32 uiTagBlockStart = GetTagBlockStart();
+    const ezUInt32 uiNewBlockStart = (uiTagBlockStart != ezSmallInvalidIndex) ? ezMath::Min(Tag.m_uiBlockIndex, uiTagBlockStart) : Tag.m_uiBlockIndex;
+    const ezUInt32 uiNewBlockIndex = (uiTagBlockStart != ezSmallInvalidIndex) ? ezMath::Max(Tag.m_uiBlockIndex, uiTagBlockStart) : Tag.m_uiBlockIndex;
 
     Reallocate(uiNewBlockStart, uiNewBlockIndex);
   }
 
-  m_TagBlocks[Tag.m_uiBlockIndex - m_uiTagBlockStart] |= Tag.m_uiPreshiftedBit;
+  m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())] |= EZ_BIT(Tag.m_uiBitIndex);
+  IncreaseTagCount();
 }
 
 template <typename BlockStorageAllocator>
@@ -177,7 +179,8 @@ void ezTagSetTemplate<BlockStorageAllocator>::Remove(const ezTag& Tag)
 
   if (IsTagInAllocatedRange(Tag))
   {
-    m_TagBlocks[Tag.m_uiBlockIndex - m_uiTagBlockStart] &= (~Tag.m_uiPreshiftedBit);
+    m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())] &= (~EZ_BIT(Tag.m_uiBitIndex));
+    DecreaseTagCount();
   }
 }
 
@@ -188,7 +191,7 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsSet(const ezTag& Tag) const
 
   if (IsTagInAllocatedRange(Tag))
   {
-    return (m_TagBlocks[Tag.m_uiBlockIndex - m_uiTagBlockStart] & Tag.m_uiPreshiftedBit) != 0;
+    return (m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())] & EZ_BIT(Tag.m_uiBitIndex)) != 0;
   }
   else
   {
@@ -200,21 +203,20 @@ template <typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& OtherSet) const
 {
   // If any of the sets is empty nothing can match
-  if (m_uiTagBlockStart == 0xFFFFFFFFu || OtherSet.m_uiTagBlockStart == 0xFFFFFFFFu)
+  if (IsEmpty() || OtherSet.IsEmpty())
     return false;
 
   // Calculate range to compare
-  const ezUInt32 uiMaxBlockStart = ezMath::Max(m_uiTagBlockStart, OtherSet.m_uiTagBlockStart);
-  const ezUInt32 uiMinBlockEnd =
-    ezMath::Min(m_uiTagBlockStart + m_TagBlocks.GetCount(), OtherSet.m_uiTagBlockStart + OtherSet.m_TagBlocks.GetCount());
+  const ezUInt32 uiMaxBlockStart = ezMath::Max(GetTagBlockStart(), OtherSet.GetTagBlockStart());
+  const ezUInt32 uiMinBlockEnd = ezMath::Min(GetTagBlockEnd(), OtherSet.GetTagBlockEnd());
 
   if (uiMaxBlockStart > uiMinBlockEnd)
     return false;
 
   for (ezUInt32 i = uiMaxBlockStart; i < uiMinBlockEnd; ++i)
   {
-    const ezUInt32 uiThisBlockStorageIndex = i - m_uiTagBlockStart;
-    const ezUInt32 uiOtherBlockStorageIndex = i - OtherSet.m_uiTagBlockStart;
+    const ezUInt16 uiThisBlockStorageIndex = static_cast<ezUInt16>(i - GetTagBlockStart());
+    const ezUInt16 uiOtherBlockStorageIndex = static_cast<ezUInt16>(i - OtherSet.GetTagBlockStart());
 
     if ((m_TagBlocks[uiThisBlockStorageIndex] & OtherSet.m_TagBlocks[uiOtherBlockStorageIndex]) != 0)
     {
@@ -225,72 +227,24 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& O
   return false;
 }
 
-
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
-ezUInt32 ezTagSetTemplate<BlockStorageAllocator>::GetNumTagsSet() const
+EZ_ALWAYS_INLINE ezUInt32 ezTagSetTemplate<BlockStorageAllocator>::GetNumTagsSet() const
 {
-  // early out, if it is completely cleared
-  if (m_uiTagBlockStart == 0xFFFFFFFFu)
-    return 0;
-
-  ezUInt32 count = 0;
-
-  for (ezUInt32 i = 0; i < m_TagBlocks.GetCount(); ++i)
-  {
-    const ezUInt64 value = m_TagBlocks[i];
-
-    for (ezUInt32 bit = 0; bit < 64; ++bit)
-    {
-      const ezUInt64 pattern = value >> bit;
-
-      if ((pattern & 1U) != 0) // lowest bit is set ?
-      {
-        ++count;
-      }
-    }
-  }
-
-  if (count == 0)
-  {
-    // make sure we don't need to do the full check next time again
-    m_uiTagBlockStart = 0xFFFFFFFFu;
-  }
-
-  return count;
+  return GetTagCount();
 }
 
 template <typename BlockStorageAllocator>
-bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
 {
-  // early out, if it is completely cleared
-  if (m_uiTagBlockStart == 0xFFFFFFFFu)
-    return true;
-
-  for (ezUInt32 i = 0; i < m_TagBlocks.GetCount(); ++i)
-  {
-    const ezUInt64 value = m_TagBlocks[i];
-
-    for (ezUInt32 bit = 0; bit < 64; ++bit)
-    {
-      const ezUInt64 pattern = value >> bit;
-
-      if ((pattern & 1U) != 0) // lowest bit is set ?
-      {
-        return false;
-      }
-    }
-  }
-
-  // make sure we don't need to do the full check next time again
-  m_uiTagBlockStart = 0xFFFFFFFFu;
-  return true;
+  return GetTagCount() == 0;
 }
 
 template <typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::Clear()
 {
   m_TagBlocks.Clear();
-  m_uiTagBlockStart = 0xFFFFFFFFu;
+  SetTagBlockStart(ezSmallInvalidIndex);
+  SetTagCount(0);
 }
 
 template <typename BlockStorageAllocator>
@@ -321,38 +275,80 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(const char* szTag) con
 }
 
 template <typename BlockStorageAllocator>
-bool ezTagSetTemplate<BlockStorageAllocator>::IsTagInAllocatedRange(const ezTag& Tag) const
+EZ_ALWAYS_INLINE bool ezTagSetTemplate<BlockStorageAllocator>::IsTagInAllocatedRange(const ezTag& Tag) const
 {
-  return Tag.m_uiBlockIndex >= m_uiTagBlockStart && Tag.m_uiBlockIndex < (m_uiTagBlockStart + m_TagBlocks.GetCount());
+  return Tag.m_uiBlockIndex >= GetTagBlockStart() && Tag.m_uiBlockIndex < GetTagBlockEnd();
 }
 
 template <typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockStart, ezUInt32 uiNewMaxBlockIndex)
 {
-  const ezUInt32 uiNewBlockArraySize = (uiNewMaxBlockIndex - uiNewTagBlockStart) + 1;
+  EZ_ASSERT_DEV(uiNewTagBlockStart < ezSmallInvalidIndex, "Tag block start is too big");
+  const ezUInt16 uiNewBlockArraySize = static_cast<ezUInt16>((uiNewMaxBlockIndex - uiNewTagBlockStart) + 1);
 
   // Early out for non-filled tag sets
-  if (m_uiTagBlockStart == 0xFFFFFFFFu)
+  if (IsEmpty())
   {
-    m_uiTagBlockStart = uiNewTagBlockStart;
     m_TagBlocks.SetCount(uiNewBlockArraySize);
+    SetTagBlockStart(static_cast<ezUInt16>(uiNewTagBlockStart));
 
     return;
   }
 
-  EZ_ASSERT_DEBUG(uiNewTagBlockStart <= m_uiTagBlockStart, "New block start must be smaller or equal to current block start!");
+  EZ_ASSERT_DEBUG(uiNewTagBlockStart <= GetTagBlockStart(), "New block start must be smaller or equal to current block start!");
 
-  ezHybridArray<ezUInt64, 32, BlockStorageAllocator> helperArray;
-
+  ezSmallArray<ezUInt64, 32, BlockStorageAllocator> helperArray;
   helperArray.SetCount(uiNewBlockArraySize);
 
-  const ezUInt32 uiOldBlockStartOffset = m_uiTagBlockStart - uiNewTagBlockStart;
+  const ezUInt32 uiOldBlockStartOffset = GetTagBlockStart() - uiNewTagBlockStart;
 
   // Copy old data to the new array
   ezMemoryUtils::Copy(helperArray.GetData() + uiOldBlockStartOffset, m_TagBlocks.GetData(), m_TagBlocks.GetCount());
 
-  m_uiTagBlockStart = uiNewTagBlockStart;
   m_TagBlocks = helperArray;
+  SetTagBlockStart(static_cast<ezUInt16>(uiNewTagBlockStart));
+}
+
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagBlockStart() const
+{
+  return m_TagBlocks.GetUserData<UserData>().m_uiTagBlockStart;
+}
+
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagBlockEnd() const
+{
+  return static_cast<ezUInt16>(GetTagBlockStart() + m_TagBlocks.GetCount());
+}
+
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::SetTagBlockStart(ezUInt16 uiTagBlockStart)
+{
+  m_TagBlocks.GetUserData<UserData>().m_uiTagBlockStart = uiTagBlockStart;
+}
+
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagCount() const
+{
+  return m_TagBlocks.GetUserData<UserData>().m_uiTagCount;
+}
+
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::SetTagCount(ezUInt16 uiTagCount)
+{
+  m_TagBlocks.GetUserData<UserData>().m_uiTagCount = uiTagCount;
+}
+
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::IncreaseTagCount()
+{
+  m_TagBlocks.GetUserData<UserData>().m_uiTagCount++;
+}
+
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::DecreaseTagCount()
+{
+  m_TagBlocks.GetUserData<UserData>().m_uiTagCount--;
 }
 
 static ezTypeVersion s_TagSetVersion = 1;
