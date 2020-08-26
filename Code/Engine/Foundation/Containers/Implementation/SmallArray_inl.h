@@ -4,26 +4,77 @@ ezSmallArrayBase<T, Size>::ezSmallArrayBase() = default;
 
 template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocatorBase* pAllocator)
-  : ezSmallArrayBase<T, Size>((ezArrayPtr<const T>)other, pAllocator) // redirect this to the ezArrayPtr version
 {
+  CopyFrom((ezArrayPtr<const T>)other, pAllocator);
 }
 
 template <typename T, ezUInt16 Size>
-ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
 {
-  Reserve(other.GetCount(), pAllocator);
-
-  T* pElements = GetElementsPtr();
-  ezMemoryUtils::CopyConstructArray(pElements, other.GetPtr(), other.GetCount());
-
-  m_uiCount = other.GetCount();
+  CopyFrom(other, pAllocator);
 }
 
 template <typename T, ezUInt16 Size>
-ezSmallArrayBase<T, Size>::ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator)
 {
+  MoveFrom(std::move(other), pAllocator);
+}
+
+template <typename T, ezUInt16 Size>
+EZ_FORCE_INLINE ezSmallArrayBase<T, Size>::~ezSmallArrayBase()
+{
+  EZ_ASSERT_DEBUG(m_uiCount == 0, "The derived class did not destruct all objects. Count is {0}.", m_uiCount);
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "The derived class did not free its memory.");
+}
+
+template <typename T, ezUInt16 Size>
+void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
+{
+  if (GetData() == other.GetPtr())
+  {
+    if (m_uiCount == other.GetCount())
+      return;
+
+    EZ_ASSERT_DEV(m_uiCount > other.GetCount(), "Dangling array pointer. The given array pointer points to invalid memory.");
+    T* pElements = GetElementsPtr();
+    ezMemoryUtils::Destruct(pElements + other.GetCount(), m_uiCount - other.GetCount());
+    m_uiCount = other.GetCount();
+    return;
+  }
+
+  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiNewCount = other.GetCount();
+
+  if (uiNewCount > uiOldCount)
+  {
+    Reserve(uiNewCount, pAllocator);
+    T* pElements = GetElementsPtr();
+    ezMemoryUtils::Copy(pElements, other.GetPtr(), uiOldCount);
+    ezMemoryUtils::CopyConstructArray(pElements + uiOldCount, other.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
+  }
+  else
+  {
+    T* pElements = GetElementsPtr();
+    ezMemoryUtils::Copy(pElements, other.GetPtr(), uiNewCount);
+    ezMemoryUtils::Destruct(pElements + uiNewCount, uiOldCount - uiNewCount);
+  }
+
+  m_uiCount = uiNewCount;
+}
+
+template <typename T, ezUInt16 Size>
+void ezSmallArrayBase<T, Size>::MoveFrom(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator)
+{
+  Clear();
+
   if (other.m_uiCapacity > Size)
   {
+    if (m_uiCapacity > Size)
+    {
+      // only delete our own external storage
+      EZ_DELETE_RAW_BUFFER(pAllocator, m_pElements);
+    }
+
     m_uiCapacity = other.m_uiCapacity;
     m_pElements = other.m_pElements;
   }
@@ -41,57 +92,6 @@ ezSmallArrayBase<T, Size>::ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, e
 }
 
 template <typename T, ezUInt16 Size>
-EZ_FORCE_INLINE ezSmallArrayBase<T, Size>::~ezSmallArrayBase()
-{
-  EZ_ASSERT_DEBUG(m_uiCount == 0, "The derived class did not destruct all objects. Count is {0}.", m_uiCount);
-  EZ_ASSERT_DEBUG(m_pElements == nullptr, "The derived class did not free its memory.");
-}
-
-#if 0
-template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::operator=(ezSmallArrayBase<T, Size>&& rhs)
-{
-  // Clear any existing data (calls destructors if necessary)
-  Clear();
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-
-  if (this->m_pAllocator == rhs.m_pAllocator && rhs.m_pAllocator.GetFlags() == Storage::Owned) // only move the storage of rhs, if it owns it
-  {
-    if (this->m_pAllocator.GetFlags() == Storage::Owned)
-    {
-      // only delete our storage, if we own it
-      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
-    }
-
-    // we now own this storage
-    this->m_pAllocator.SetFlags(Storage::Owned);
-
-    // move the data over from the other array
-    this->m_uiCount = rhs.m_uiCount;
-    this->m_uiCapacity = rhs.m_uiCapacity;
-    this->m_pElements = rhs.m_pElements;
-
-    // reset the other array to not reference the data anymore
-    rhs.m_pElements = nullptr;
-    rhs.m_uiCount = 0;
-    rhs.m_uiCapacity = 0;
-  }
-  else
-  {
-    // Ensure we have enough data.
-    this->Reserve(rhs.m_uiCount);
-    this->m_uiCount = rhs.m_uiCount;
-
-    ezMemoryUtils::RelocateConstruct(
-      this->GetElementsPtr(), rhs.GetElementsPtr() /* vital to remap rhs.m_pElements to absolute ptr */, rhs.m_uiCount);
-
-    rhs.m_uiCount = 0;
-  }
-}
-#endif
-
-template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::operator ezArrayPtr<const T>() const
 {
   return ezArrayPtr<const T>(GetElementsPtr(), m_uiCount);
@@ -104,12 +104,24 @@ EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::operator ezArrayPtr<T>()
 }
 
 template <typename T, ezUInt16 Size>
+EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator==(const ezSmallArrayBase<T, Size>& rhs) const
+{
+  *this == rhs.GetArrayPtr();
+}
+
+template <typename T, ezUInt16 Size>
 bool ezSmallArrayBase<T, Size>::operator==(const ezArrayPtr<const T>& rhs) const
 {
   if (m_uiCount != rhs.GetCount())
     return false;
 
   return ezMemoryUtils::IsEqual(GetElementsPtr(), rhs.GetPtr(), m_uiCount);
+}
+
+template <typename T, ezUInt16 Size>
+EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator!=(const ezSmallArrayBase<T, Size>& rhs) const
+{
+  return !(*this == rhs);
 }
 
 template <typename T, ezUInt16 Size>
@@ -419,7 +431,7 @@ void ezSmallArrayBase<T, Size>::Sort(const Comparer& comparer)
 {
   if (m_uiCount > 1)
   {
-    ezArrayPtr<T> ar = *this;
+    ezArrayPtr<T> ar = GetArrayPtr();
     ezSorting::QuickSort(ar, comparer);
   }
 }
@@ -429,7 +441,7 @@ void ezSmallArrayBase<T, Size>::Sort()
 {
   if (m_uiCount > 1)
   {
-    ezArrayPtr<T> ar = *this;
+    ezArrayPtr<T> ar = GetArrayPtr();
     ezSorting::QuickSort(ar, ezCompareHelper<T>());
   }
 }
@@ -483,9 +495,11 @@ void ezSmallArrayBase<T, Size>::Reserve(ezUInt16 uiCapacity, ezAllocatorBase* pA
     return;
 
   const ezUInt32 uiCurCap = static_cast<ezUInt32>(m_uiCapacity);
-  ezUInt32 uiNewCapacity = ezMemoryUtils::AlignSize<ezUInt32>(uiCurCap + (uiCurCap / 2), CAPACITY_ALIGNMENT);
+  ezUInt32 uiNewCapacity = uiCurCap + (uiCurCap / 2);
 
-  uiNewCapacity = ezMath::Clamp<ezUInt32>(uiNewCapacity, uiCapacity, 0xFFFF);
+  uiNewCapacity = ezMath::Max<ezUInt32>(uiNewCapacity, uiCapacity);
+  uiNewCapacity = ezMemoryUtils::AlignSize<ezUInt32>(uiNewCapacity, CAPACITY_ALIGNMENT);
+  uiNewCapacity = ezMath::Min<ezUInt32>(uiNewCapacity, 0xFFFFu);
 
   SetCapacity(static_cast<ezUInt16>(uiNewCapacity), pAllocator);
 }
@@ -521,20 +535,38 @@ EZ_ALWAYS_INLINE ezUInt64 ezSmallArrayBase<T, Size>::GetHeapMemoryUsage() const
 template <typename T, ezUInt16 Size>
 void ezSmallArrayBase<T, Size>::SetCapacity(ezUInt16 uiCapacity, ezAllocatorBase* pAllocator)
 {
-  if (m_uiCapacity <= Size)
+  if (m_uiCapacity > Size && uiCapacity > m_uiCapacity)
   {
-    // special case when migrating from in-place to external storage
-    T* pNewElements = EZ_NEW_RAW_BUFFER(pAllocator, T, uiCapacity);
-
-    ezMemoryUtils::RelocateConstruct(pNewElements, GetElementsPtr(), m_uiCount);
-    m_pElements = pNewElements;
+    m_pElements = EZ_EXTEND_RAW_BUFFER(pAllocator, m_pElements, m_uiCount, uiCapacity);
+    m_uiCapacity = uiCapacity;
   }
   else
   {
-    m_pElements = EZ_EXTEND_RAW_BUFFER(pAllocator, m_pElements, m_uiCount, uiCapacity);
-  }
+    // special case when migrating from in-place to external storage or shrinking
+    T* pOldElements = GetElementsPtr();
 
-  m_uiCapacity = uiCapacity;
+    const ezUInt32 uiOldCapacity = m_uiCapacity;
+    const ezUInt32 uiNewCapacity = uiCapacity;
+    m_uiCapacity = ezMath::Max(uiCapacity, Size);
+
+    if (uiNewCapacity > Size)
+    {
+      // new external storage
+      T* pNewElements = EZ_NEW_RAW_BUFFER(pAllocator, T, uiCapacity);
+      ezMemoryUtils::RelocateConstruct(pNewElements, pOldElements, m_uiCount);
+      m_pElements = pNewElements;
+    }
+    else
+    {
+      // Re-use inplace storage
+      ezMemoryUtils::RelocateConstruct(GetElementsPtr(), pOldElements, m_uiCount);
+    }    
+
+    if (uiOldCapacity > Size)
+    {
+      EZ_DELETE_RAW_BUFFER(pAllocator, pOldElements);
+    }
+  }
 }
 
 template <typename T, ezUInt16 Size>
@@ -555,21 +587,21 @@ template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllo
 ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray() = default;
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(const ezSmallArray<T, Size, AllocatorWrapper>& other)
+EZ_ALWAYS_INLINE ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(const ezSmallArray<T, Size, AllocatorWrapper>& other)
   : SUPER(other, AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(const ezArrayPtr<const T>& other)
+EZ_ALWAYS_INLINE ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(const ezArrayPtr<const T>& other)
   : SUPER(other, AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(ezSmallArray<T, Size, AllocatorWrapper>&& other)
-  : SUPER(std::move(other), AllocatorWrapper::GetAllocator())
+EZ_ALWAYS_INLINE ezSmallArray<T, Size, AllocatorWrapper>::ezSmallArray(ezSmallArray<T, Size, AllocatorWrapper>&& other)
 {
+  SUPER::MoveFrom(std::move(other), AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
@@ -580,22 +612,21 @@ ezSmallArray<T, Size, AllocatorWrapper>::~ezSmallArray()
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-void ezSmallArray<T, Size, AllocatorWrapper>::operator=(const ezSmallArray<T, Size, AllocatorWrapper>& rhs)
+EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::operator=(const ezSmallArray<T, Size, AllocatorWrapper>& rhs)
 {
   *this = ((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-void ezSmallArray<T, Size, AllocatorWrapper>::operator=(const ezArrayPtr<const T>& rhs)
+EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::operator=(const ezArrayPtr<const T>& rhs)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  SUPER::CopyFrom(rhs, AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-void ezSmallArray<T, Size, AllocatorWrapper>::operator=(ezSmallArray<T, Size, AllocatorWrapper>&& rhs) noexcept
+EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::operator=(ezSmallArray<T, Size, AllocatorWrapper>&& rhs) noexcept
 {
-  //SUPER::operator=(std::move(rhs));
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  SUPER::MoveFrom(std::move(rhs), AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>

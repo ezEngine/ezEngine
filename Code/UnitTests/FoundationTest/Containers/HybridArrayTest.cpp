@@ -654,7 +654,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
   {
     ezHybridArray<ezInt32, 16> a;
 
-    for (ezInt32 i = 0; i < 1000; ++i)
+    for (ezInt32 i = 0; i < 1008; ++i)
     {
       a.PushBack(i);
       EZ_TEST_INT(a.GetCount(), i + 1);
@@ -664,7 +664,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a.Compact();
     EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
 
-    for (ezInt32 i = 0; i < 1000; ++i)
+    for (ezInt32 i = 0; i < 1008; ++i)
       EZ_TEST_INT(a[i], i);
 
     // this tests whether the static array is reused properly (not the case anymore with new implementation that derives from ezDynamicArray)

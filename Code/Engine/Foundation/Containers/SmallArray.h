@@ -22,10 +22,17 @@ public:
   ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator);       // [tested]
   ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator);      // [tested]
 
+  ~ezSmallArrayBase(); // [tested]
+
+  // Can't use regular assignment operators since we need to pass an allocator. Use CopyFrom or MoveFrom methods instead.
   void operator=(const ezSmallArrayBase<T, Size>& rhs) = delete;
   void operator=(ezSmallArrayBase<T, Size>&& rhs) = delete;
 
-  ~ezSmallArrayBase(); // [tested]
+  /// \brief Copies the data from some other array into this one.
+  void CopyFrom(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator); // [tested]
+
+  /// \brief Moves the data from some other array into this one.
+  void MoveFrom(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Conversion to const ezArrayPtr.
   operator ezArrayPtr<const T>() const; // [tested]
@@ -34,9 +41,11 @@ public:
   operator ezArrayPtr<T>(); // [tested]
 
   /// \brief Compares this array to another contiguous array type.
+  bool operator==(const ezSmallArrayBase<T, Size>& rhs) const; // [tested]
   bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
 
   /// \brief Compares this array to another contiguous array type.
+  bool operator!=(const ezSmallArrayBase<T, Size>& rhs) const; // [tested]
   bool operator!=(const ezArrayPtr<const T>& rhs) const; // [tested]
 
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
