@@ -145,5 +145,3 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& stream)
 
   return EZ_SUCCESS;
 }
-
-EZ_STATICLINK_FILE(AryonGamePlugin, AryonGamePlugin_Utilities_ezBlackboard);
