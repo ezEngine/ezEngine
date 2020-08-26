@@ -2,9 +2,9 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/Utilities/EnvironmentVariableUtils.h>
 
 // The POSIX functions are not thread safe by definition.
 static ezMutex s_EnvVarMutex;
@@ -65,11 +65,11 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(const char* szName)
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win.h>
+#  include <Foundation/System/Implementation/Win/EnvironmentVariableUtils_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win_uwp.h>
+#  include <Foundation/System/Implementation/Win/EnvironmentVariableUtils_win_uwp.h>
 #else
-#  include <Foundation/Utilities/Implementation/Posix/EnvironmentVariableUtils_posix.h>
+#  include <Foundation/System/Implementation/Posix/EnvironmentVariableUtils_posix.h>
 #endif
 
 

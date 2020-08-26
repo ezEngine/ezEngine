@@ -4,9 +4,9 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/Utilities/EnvironmentVariableUtils.h>
 
 #include <cstdio>
 #include <cstdlib>
