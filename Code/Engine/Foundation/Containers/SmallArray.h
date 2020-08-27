@@ -9,7 +9,11 @@
 #  define ezSmallInvalidIndex 0xFFFF
 #endif
 
-/// \brief TODO
+/// \brief Implementation a dynamically growing array with in place storage and small memory overhead.
+///
+/// Best-case performance for the PushBack operation is in O(1) if the ezHybridArray does not need to be expanded.
+/// In the worst case, PushBack is in O(n).
+/// Look-up is guaranteed to always be in O(1).
 template <typename T, ezUInt16 Size>
 class ezSmallArrayBase
 {
@@ -49,10 +53,10 @@ public:
   bool operator!=(const ezArrayPtr<const T>& rhs) const;       // [tested]
 
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
-  const T& operator[](ezUInt16 uiIndex) const; // [tested]
+  const T& operator[](ezUInt32 uiIndex) const; // [tested]
 
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
-  T& operator[](ezUInt16 uiIndex); // [tested]
+  T& operator[](ezUInt32 uiIndex); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
   void SetCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
@@ -81,10 +85,10 @@ public:
   bool Contains(const T& value) const; // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(const T& value, ezUInt16 uiIndex, ezAllocatorBase* pAllocator); // [tested]
+  void Insert(const T& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(T&& value, ezUInt16 uiIndex, ezAllocatorBase* pAllocator); // [tested]
+  void Insert(T&& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool RemoveAndCopy(const T& value); // [tested]
@@ -93,16 +97,16 @@ public:
   bool RemoveAndSwap(const T& value); // [tested]
 
   /// \brief Removes the element at index and fills the gap by shifting all following elements
-  void RemoveAtAndCopy(ezUInt16 uiIndex, ezUInt16 uiNumElements = 1); // [tested]
+  void RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
 
   /// \brief Removes the element at index and fills the gap by swapping in the last element
-  void RemoveAtAndSwap(ezUInt16 uiIndex, ezUInt16 uiNumElements = 1); // [tested]
+  void RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
 
   /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
-  ezUInt32 IndexOf(const T& value, ezUInt16 uiStartIndex = 0) const; // [tested]
+  ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
 
   /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
-  ezUInt32 LastIndexOf(const T& value, ezUInt16 uiStartIndex = ezSmallInvalidIndex) const; // [tested]
+  ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezSmallInvalidIndex) const; // [tested]
 
   /// \brief Grows the array by one element and returns a reference to the newly created element.
   T& ExpandAndGetRef(ezAllocatorBase* pAllocator); // [tested]

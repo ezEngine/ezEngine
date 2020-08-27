@@ -168,7 +168,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
     Reallocate(uiNewBlockStart, uiNewBlockIndex);
   }
 
-  ezUInt64& tagBlock = m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())];
+  ezUInt64& tagBlock = m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()];
 
   const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);  
   const bool bBitWasSet = ((tagBlock & bitMask) != 0);
@@ -188,7 +188,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Remove(const ezTag& Tag)
 
   if (IsTagInAllocatedRange(Tag))
   {
-    ezUInt64& tagBlock = m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())];
+    ezUInt64& tagBlock = m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()];
 
     const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);
     const bool bBitWasSet = ((tagBlock & bitMask) != 0);
@@ -209,7 +209,7 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsSet(const ezTag& Tag) const
 
   if (IsTagInAllocatedRange(Tag))
   {
-    return (m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())] & EZ_BIT(Tag.m_uiBitIndex)) != 0;
+    return (m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()] & EZ_BIT(Tag.m_uiBitIndex)) != 0;
   }
   else
   {
@@ -233,8 +233,8 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& O
 
   for (ezUInt32 i = uiMaxBlockStart; i < uiMinBlockEnd; ++i)
   {
-    const ezUInt16 uiThisBlockStorageIndex = static_cast<ezUInt16>(i - GetTagBlockStart());
-    const ezUInt16 uiOtherBlockStorageIndex = static_cast<ezUInt16>(i - OtherSet.GetTagBlockStart());
+    const ezUInt32 uiThisBlockStorageIndex = i - GetTagBlockStart();
+    const ezUInt32 uiOtherBlockStorageIndex = i - OtherSet.GetTagBlockStart();
 
     if ((m_TagBlocks[uiThisBlockStorageIndex] & OtherSet.m_TagBlocks[uiOtherBlockStorageIndex]) != 0)
     {

@@ -135,14 +135,14 @@ EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator!=(const ezArrayPtr<con
 }
 
 template <typename T, ezUInt16 Size>
-EZ_ALWAYS_INLINE const T& ezSmallArrayBase<T, Size>::operator[](const ezUInt16 uiIndex) const
+EZ_ALWAYS_INLINE const T& ezSmallArrayBase<T, Size>::operator[](const ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return GetElementsPtr()[uiIndex];
 }
 
 template <typename T, ezUInt16 Size>
-EZ_ALWAYS_INLINE T& ezSmallArrayBase<T, Size>::operator[](const ezUInt16 uiIndex)
+EZ_ALWAYS_INLINE T& ezSmallArrayBase<T, Size>::operator[](const ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return GetElementsPtr()[uiIndex];
@@ -242,7 +242,7 @@ bool ezSmallArrayBase<T, Size>::Contains(const T& value) const
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::Insert(const T& value, ezUInt16 uiIndex, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::Insert(const T& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator)
 {
   EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has {0} elements, trying to insert element at index {1}.", m_uiCount, uiIndex);
 
@@ -253,7 +253,7 @@ void ezSmallArrayBase<T, Size>::Insert(const T& value, ezUInt16 uiIndex, ezAlloc
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::Insert(T&& value, ezUInt16 uiIndex, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::Insert(T&& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator)
 {
   EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has {0} elements, trying to insert element at index {1}.", m_uiCount, uiIndex);
 
@@ -288,7 +288,7 @@ bool ezSmallArrayBase<T, Size>::RemoveAndSwap(const T& value)
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::RemoveAtAndCopy(ezUInt16 uiIndex, ezUInt16 uiNumElements /*= 1*/)
+void ezSmallArrayBase<T, Size>::RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
 {
   EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex + uiNumElements - 1);
 
@@ -299,7 +299,7 @@ void ezSmallArrayBase<T, Size>::RemoveAtAndCopy(ezUInt16 uiIndex, ezUInt16 uiNum
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::RemoveAtAndSwap(ezUInt16 uiIndex, ezUInt16 uiNumElements /*= 1*/)
+void ezSmallArrayBase<T, Size>::RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
 {
   EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex + uiNumElements - 1);
 
@@ -319,7 +319,7 @@ void ezSmallArrayBase<T, Size>::RemoveAtAndSwap(ezUInt16 uiIndex, ezUInt16 uiNum
 }
 
 template <typename T, ezUInt16 Size>
-ezUInt32 ezSmallArrayBase<T, Size>::IndexOf(const T& value, ezUInt16 uiStartIndex) const
+ezUInt32 ezSmallArrayBase<T, Size>::IndexOf(const T& value, ezUInt32 uiStartIndex) const
 {
   const T* pElements = GetElementsPtr();
 
@@ -332,7 +332,7 @@ ezUInt32 ezSmallArrayBase<T, Size>::IndexOf(const T& value, ezUInt16 uiStartInde
 }
 
 template <typename T, ezUInt16 Size>
-ezUInt32 ezSmallArrayBase<T, Size>::LastIndexOf(const T& value, ezUInt16 uiStartIndex) const
+ezUInt32 ezSmallArrayBase<T, Size>::LastIndexOf(const T& value, ezUInt32 uiStartIndex) const
 {
   const T* pElements = GetElementsPtr();
 
