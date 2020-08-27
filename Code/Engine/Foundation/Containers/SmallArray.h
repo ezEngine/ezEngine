@@ -5,11 +5,9 @@
 #include <Foundation/Memory/AllocatorWrapper.h>
 #include <Foundation/Types/ArrayPtr.h>
 
-#ifndef ezSmallInvalidIndex
-#  define ezSmallInvalidIndex 0xFFFF
-#endif
+constexpr ezUInt32 ezSmallInvalidIndex = 0xFFFF;
 
-/// \brief Implementation a dynamically growing array with in place storage and small memory overhead.
+/// \brief Implementation of a dynamically growing array with in-place storage and small memory overhead.
 ///
 /// Best-case performance for the PushBack operation is in O(1) if the ezHybridArray does not need to be expanded.
 /// In the worst case, PushBack is in O(n).

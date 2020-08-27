@@ -246,6 +246,7 @@ void ezGameObject::ConstChildIterator::Next()
 
 ezGameObject::~ezGameObject()
 {
+  // Since we are using the small array base class for components we have to cleanup ourself with the correct allocator.
   m_Components.Clear();
   m_Components.Compact(GetWorld()->GetAllocator());
 }

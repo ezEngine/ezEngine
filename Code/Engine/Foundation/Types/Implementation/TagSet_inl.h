@@ -145,7 +145,7 @@ ezTagSetTemplate<BlockStorageAllocator>::ezTagSetTemplate()
 template <typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::operator==(const ezTagSetTemplate& other) const
 {
-  return m_TagBlocks == other.m_TagBlocks && m_TagBlocks.GetUserData<ezUInt32>() == other.m_TagBlocks.GetUserData<ezUInt32>();
+  return m_TagBlocks == other.m_TagBlocks && m_TagBlocks.template GetUserData<ezUInt32>() == other.m_TagBlocks.template GetUserData<ezUInt32>();
 }
 
 template <typename BlockStorageAllocator>
@@ -331,7 +331,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagBlockStart() const
 {
-  return m_TagBlocks.GetUserData<UserData>().m_uiTagBlockStart;
+  return m_TagBlocks.template GetUserData<UserData>().m_uiTagBlockStart;
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
@@ -343,31 +343,31 @@ EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagBlockEn
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::SetTagBlockStart(ezUInt16 uiTagBlockStart)
 {
-  m_TagBlocks.GetUserData<UserData>().m_uiTagBlockStart = uiTagBlockStart;
+  m_TagBlocks.template GetUserData<UserData>().m_uiTagBlockStart = uiTagBlockStart;
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagCount() const
 {
-  return m_TagBlocks.GetUserData<UserData>().m_uiTagCount;
+  return m_TagBlocks.template GetUserData<UserData>().m_uiTagCount;
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::SetTagCount(ezUInt16 uiTagCount)
 {
-  m_TagBlocks.GetUserData<UserData>().m_uiTagCount = uiTagCount;
+  m_TagBlocks.template GetUserData<UserData>().m_uiTagCount = uiTagCount;
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::IncreaseTagCount()
 {
-  m_TagBlocks.GetUserData<UserData>().m_uiTagCount++;
+  m_TagBlocks.template GetUserData<UserData>().m_uiTagCount++;
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::DecreaseTagCount()
 {
-  m_TagBlocks.GetUserData<UserData>().m_uiTagCount--;
+  m_TagBlocks.template GetUserData<UserData>().m_uiTagCount--;
 }
 
 static ezTypeVersion s_TagSetVersion = 1;
