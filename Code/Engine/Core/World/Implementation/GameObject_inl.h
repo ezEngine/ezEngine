@@ -499,6 +499,11 @@ EZ_ALWAYS_INLINE ezArrayPtr<const ezComponent* const> ezGameObject::GetComponent
   return ezMakeArrayPtr(const_cast<const ezComponent* const*>(m_Components.GetData()), m_Components.GetCount());
 }
 
+EZ_ALWAYS_INLINE ezUInt16 ezGameObject::GetComponentVersion() const
+{
+  return m_Components.GetUserData<ComponentUserData>().m_uiVersion;
+}
+
 EZ_ALWAYS_INLINE ezTagSet& ezGameObject::GetTags()
 {
   return m_Tags;
