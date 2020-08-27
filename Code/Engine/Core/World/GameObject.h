@@ -3,6 +3,7 @@
 /// \file
 
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/TagSet.h>
@@ -36,7 +37,7 @@ private:
   enum
   {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    NUM_INPLACE_COMPONENTS = 14
+    NUM_INPLACE_COMPONENTS = 12
 #else
     NUM_INPLACE_COMPONENTS = 6
 #endif
@@ -455,7 +456,7 @@ private:
   ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
   void Reflection_AddComponent(ezComponent* pComponent);
   void Reflection_RemoveComponent(ezComponent* pComponent);
-  const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const;
+  ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> Reflection_GetComponents() const;
 
   ezObjectMode::Enum Reflection_GetMode() const;
   void Reflection_SetMode(ezObjectMode::Enum mode);
@@ -550,14 +551,8 @@ private:
   ezUInt32 m_uiPadding = 0;
 #endif
 
-  /// \todo small array class to reduce memory overhead
-  ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
+  ezSmallArrayBase<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-  ezUInt64 m_uiPadding2 = 0;
-#endif
-
-  /// \todo somehow make this more compact
   ezTagSet m_Tags;
 };
 

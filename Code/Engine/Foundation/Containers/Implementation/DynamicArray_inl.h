@@ -154,22 +154,28 @@ void ezDynamicArrayBase<T>::SetCapacity(ezUInt32 uiCapacity)
 {
   // do NOT early out here, it is vital that this function does its thing even if the old capacity would be sufficient
 
-  this->m_uiCapacity = uiCapacity;
-
-  if (this->m_pAllocator.GetFlags() == Storage::Owned)
+  if (this->m_pAllocator.GetFlags() == Storage::Owned && uiCapacity > this->m_uiCapacity)
   {
-    this->m_pElements = EZ_EXTEND_RAW_BUFFER(this->m_pAllocator, this->m_pElements, this->m_uiCount, this->m_uiCapacity);
+    this->m_pElements = EZ_EXTEND_RAW_BUFFER(this->m_pAllocator, this->m_pElements, this->m_uiCount, uiCapacity);
   }
   else
   {
-    T* pPrevStorage = GetElementsPtr();
+    T* pOldElements = GetElementsPtr();
+
+    T* pNewElements = EZ_NEW_RAW_BUFFER(this->m_pAllocator, T, uiCapacity);
+    ezMemoryUtils::RelocateConstruct(pNewElements, pOldElements, this->m_uiCount);
+
+    if (this->m_pAllocator.GetFlags() == Storage::Owned)
+    {
+      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, pOldElements);
+    }
 
     // after any resize, we definitely own the storage
     this->m_pAllocator.SetFlags(Storage::Owned);
-    this->m_pElements = EZ_NEW_RAW_BUFFER(this->m_pAllocator, T, this->m_uiCapacity);
-
-    ezMemoryUtils::RelocateConstruct(this->m_pElements, pPrevStorage, this->m_uiCount);
+    this->m_pElements = pNewElements;
   }
+
+  this->m_uiCapacity = uiCapacity;
 }
 
 template <typename T>

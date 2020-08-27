@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/TagRegistry.h>
 
@@ -96,14 +96,26 @@ public:
 private:
   friend class Iterator;
 
-  EZ_ALWAYS_INLINE bool IsTagInAllocatedRange(const ezTag& Tag) const;
+  bool IsTagInAllocatedRange(const ezTag& Tag) const;
 
   void Reallocate(ezUInt32 uiNewTagBlockStart, ezUInt32 uiNewMaxBlockIndex);
 
-  ezHybridArray<ezTagSetBlockStorage, 1, BlockStorageAllocator> m_TagBlocks;
+  ezSmallArray<ezTagSetBlockStorage, 1, BlockStorageAllocator> m_TagBlocks;
 
-  // mutable so IsEmpty and GetNumTagsSet can reset it to 'empty' to prevent reevaluation next time
-  mutable ezUInt32 m_uiTagBlockStart;
+  struct UserData
+  {
+    ezUInt16 m_uiTagBlockStart;
+    ezUInt16 m_uiTagCount;
+  };
+
+  ezUInt16 GetTagBlockStart() const;
+  ezUInt16 GetTagBlockEnd() const;
+  void SetTagBlockStart(ezUInt16 uiTagBlockStart);
+
+  ezUInt16 GetTagCount() const;
+  void SetTagCount(ezUInt16 uiTagCount);
+  void IncreaseTagCount();
+  void DecreaseTagCount();
 };
 
 /// Default tag set, uses ezDefaultAllocatorWrapper for allocations.

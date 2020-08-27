@@ -768,7 +768,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       list.PushBack(DynamicArrayTestDetail::Dummy(rand()));
     }
     list.SetCount(32);
-    list.SetCount(4);
+    list.SetCount(16);
 
     list.Compact();
   }
