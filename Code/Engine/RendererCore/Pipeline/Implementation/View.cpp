@@ -66,7 +66,7 @@ void ezView::SetWorld(ezWorld* pWorld)
     m_pWorld = pWorld;
 
     ezRenderWorld::ResetRenderDataCache(*this);
-  }  
+  }
 }
 
 void ezView::SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup)
