@@ -170,7 +170,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 
   ezUInt64& tagBlock = m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()];
 
-  const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);  
+  const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);
   const bool bBitWasSet = ((tagBlock & bitMask) != 0);
 
   tagBlock |= bitMask;
@@ -348,7 +348,7 @@ EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::SetTagBlockStart(
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagCount() const
-      {
+{
   return m_TagBlocks.GetUserData<UserData>().m_uiTagCount;
 }
 

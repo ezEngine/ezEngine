@@ -336,7 +336,7 @@ ezUInt32 ezSmallArrayBase<T, Size>::LastIndexOf(const T& value, ezUInt32 uiStart
 {
   const T* pElements = GetElementsPtr();
 
-  for (ezUInt32 i = ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
+  for (ezUInt32 i = ezMath::Min<ezUInt32>(uiStartIndex, m_uiCount); i-- > 0;)
   {
     if (ezMemoryUtils::IsEqual(pElements + i, &value))
       return i;
