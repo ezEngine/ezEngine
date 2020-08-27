@@ -168,8 +168,17 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
     Reallocate(uiNewBlockStart, uiNewBlockIndex);
   }
 
-  m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())] |= EZ_BIT(Tag.m_uiBitIndex);
-  IncreaseTagCount();
+  ezUInt64& tagBlock = m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())];
+
+  const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);  
+  const bool bBitWasSet = ((tagBlock & bitMask) != 0);
+
+  tagBlock |= bitMask;
+
+  if (!bBitWasSet)
+  {
+    IncreaseTagCount();
+  }
 }
 
 template <typename BlockStorageAllocator>
@@ -179,8 +188,17 @@ void ezTagSetTemplate<BlockStorageAllocator>::Remove(const ezTag& Tag)
 
   if (IsTagInAllocatedRange(Tag))
   {
-    m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())] &= (~EZ_BIT(Tag.m_uiBitIndex));
-    DecreaseTagCount();
+    ezUInt64& tagBlock = m_TagBlocks[static_cast<ezUInt16>(Tag.m_uiBlockIndex - GetTagBlockStart())];
+
+    const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);
+    const bool bBitWasSet = ((tagBlock & bitMask) != 0);
+
+    tagBlock &= ~bitMask;
+
+    if (bBitWasSet)
+    {
+      DecreaseTagCount();
+    }
   }
 }
 
@@ -305,7 +323,8 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
   // Copy old data to the new array
   ezMemoryUtils::Copy(helperArray.GetData() + uiOldBlockStartOffset, m_TagBlocks.GetData(), m_TagBlocks.GetCount());
 
-  m_TagBlocks = helperArray;
+  // Use array ptr copy assignment so it doesn't modify the user data in m_TagBlocks
+  m_TagBlocks = helperArray.GetArrayPtr();
   SetTagBlockStart(static_cast<ezUInt16>(uiNewTagBlockStart));
 }
 
@@ -329,7 +348,7 @@ EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::SetTagBlockStart(
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE ezUInt16 ezTagSetTemplate<BlockStorageAllocator>::GetTagCount() const
-{
+      {
   return m_TagBlocks.GetUserData<UserData>().m_uiTagCount;
 }
 

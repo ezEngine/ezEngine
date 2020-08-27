@@ -637,6 +637,7 @@ template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllo
 EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::operator=(const ezSmallArray<T, Size, AllocatorWrapper>& rhs)
 {
   *this = ((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
+  this->m_uiUserData = rhs.m_uiUserData;
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>

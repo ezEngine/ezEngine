@@ -758,15 +758,18 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     {
       list.PushBack(SmallArrayTestDetail::Dummy(rand()));
     }
+    list.GetUserData<ezUInt32>() = 11;
 
     ezSmallArray<SmallArrayTestDetail::Dummy, 16> list2;
     for (int i = 0; i < 8; i++)
     {
       list2.PushBack(SmallArrayTestDetail::Dummy(rand()));
     }
+    list2.GetUserData<ezUInt32>() = 22;
 
     list = list2;
-    EZ_TEST_BOOL(list.GetCount() == list2.GetCount());
+    EZ_TEST_INT(list.GetCount(), list2.GetCount());
+    EZ_TEST_INT(list.GetUserData<ezUInt32>(), list2.GetUserData<ezUInt32>());
 
     list2.Clear();
     EZ_TEST_BOOL(list2.GetCount() == 0);
