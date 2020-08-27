@@ -9,11 +9,15 @@
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameEngine/Animation/RotorComponent.h>
+#include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
+#include <GameEngine/Animation/Skeletal/SimpleAnimationControllerComponent.h>
 #include <GameEngine/Animation/SliderComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Gameplay/InputComponent.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
 #include <GameEngine/Prefabs/SpawnComponent.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
@@ -36,15 +40,36 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimationClipContext::ezAnimationClipContext() {}
 
-void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg0))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pMsg0))
+  {
+    if (pMsg->m_sWhatToDo == "PreviewMesh" && m_sAnimatedMeshToUse != pMsg->m_sPayload)
+    {
+      m_sAnimatedMeshToUse = pMsg->m_sPayload;
+
+      auto pWorld = m_pWorld.Borrow();
+      EZ_LOCK(pWorld->GetWriteMarker());
+
+      ezAnimatedMeshComponent* pAnimMesh;
+      if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
+      {
+        pAnimMesh->DeleteComponent();
+      }
+
+      m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+      pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
+    }
+    return;
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pMsg0);
 }
 
 void ezAnimationClipContext::OnInitialize()
@@ -53,21 +78,31 @@ void ezAnimationClipContext::OnInitialize()
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
-  ezMeshComponent* pMesh;
 
-  // Preview Mesh
+  // Preview
   {
-    obj.m_sName.Assign("MeshPreview");
+    obj.m_bDynamic = true;
+    obj.m_sName.Assign("SkeletonPreview");
     pWorld->CreateObject(obj, m_pGameObject);
 
-    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pGameObject->GetTags().Set(tagCastShadows);
+    ezStringBuilder sAnimClipGuid;
+    ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
 
-    ezMeshComponent::CreateComponent(m_pGameObject, pMesh);
-    ezStringBuilder sAnimationClipGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sAnimationClipGuid);
-    // ezAnimationClipResourceHandle hAnimationClip = ezResourceManager::LoadResource<ezAnimationClipResource>(sAnimationClipGuid);
-    // pMesh->SetMesh(hAnimationClip);
+    // TODO: remove hardcoded skeleton reference
+    ezSkeletonResourceHandle hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>("{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }");
+
+    ezVisualizeSkeletonComponent* pVisSkeleton;
+    m_hSkeletonComponent = ezVisualizeSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
+    pVisSkeleton->SetSkeleton(hSkeleton);
+
+    ezSimpleAnimationControllerComponent* pAnimController;
+    ezSimpleAnimationControllerComponent::CreateComponent(m_pGameObject, pAnimController);
+    pAnimController->SetSkeleton(hSkeleton);
+    pAnimController->SetAnimationClipFile(sAnimClipGuid);
+
+    ezAnimatedMeshComponent* pAnimMesh;
+    m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+    pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
   }
 
   // Lights

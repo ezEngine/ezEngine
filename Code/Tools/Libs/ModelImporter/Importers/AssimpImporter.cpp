@@ -511,7 +511,7 @@ namespace ezModelImporter
     sb.BuildSkeleton(outScene.m_Skeleton);
   }
 
-  void ImportAnimations(const aiScene* assimpScene, Scene& outScene)
+  void ImportAnimations(const aiScene* assimpScene, Scene& outScene, double fUnitScale)
   {
     for (ezUInt32 animIdx = 0; animIdx < assimpScene->mNumAnimations; ++animIdx)
     {
@@ -548,6 +548,9 @@ namespace ezModelImporter
           keyframe.m_vPosition = ConvertAssimpType(channel->mPositionKeys[uiPosFrame].mValue);
           keyframe.m_qRotation = ConvertAssimpType(channel->mRotationKeys[uiRotFrame].mValue);
           keyframe.m_vScale = ConvertAssimpType(channel->mScalingKeys[uiScaFrame].mValue);
+
+          // apply the scene's unit scale (meter to cm etc) to the keyframe position
+          keyframe.m_vPosition *= (float)fUnitScale;
 
           jointAnim.m_Keyframes[keyframeIdx] = keyframe;
         }
@@ -630,7 +633,7 @@ namespace ezModelImporter
 
     if (importFlags.IsSet(ImportFlags::Animations) && assimpScene->HasAnimations())
     {
-      ImportAnimations(assimpScene, *outScene);
+      ImportAnimations(assimpScene, *outScene, fUnitScale);
     }
 
     // Import nodes.

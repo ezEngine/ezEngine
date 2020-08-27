@@ -131,6 +131,15 @@ public:
   ezUuid m_DocumentGuid;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleDocumentConfigMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezString m_sWhatToDo;
+  ezString m_sPayload;
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezEditorEngineDocumentMsg);

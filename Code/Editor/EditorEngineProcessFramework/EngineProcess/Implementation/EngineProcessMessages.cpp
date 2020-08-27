@@ -273,6 +273,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEngine, 1, ezRTTIDefaultAllocator<ezSimpleDocumentConfigMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    EZ_MEMBER_PROPERTY("Payload", m_sPayload),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEngine, 1, ezRTTIDefaultAllocator<ezExportDocumentMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES

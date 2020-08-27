@@ -1,10 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
-#include <Foundation/Math/Random.h>
-#include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ModelImporter/Mesh.h>
@@ -15,7 +12,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
@@ -25,15 +22,13 @@ ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
 
 ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 
-
 void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
   if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonJoint>())
   {
     auto& props = *e.m_pPropertyStates;
 
-    const ezSkeletonJointGeometryType::Enum geomType =
-      (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
+    const ezSkeletonJointGeometryType::Enum geomType = (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
 
     props["Length"].m_Visibility = ezPropertyUiState::Invisible;
     props["Width"].m_Visibility = ezPropertyUiState::Invisible;
@@ -85,42 +80,37 @@ static ezStatus ImportSkeleton(const char* filename, ezSharedPtr<ezModelImporter
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezProgressRange range("Transforming Asset", 2, false);
-
-  range.SetStepWeighting(0, 0.9);
-  range.BeginNextStep("Importing Skeleton");
+  ezProgressRange range("Transforming Asset", 4, false);
 
   ezEditableSkeleton* pProp = GetProperties();
 
-  // const float fScale = 1.0f;
-  // ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
-  // ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
-  // ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
-
-  // mTransformation.SetIdentity();
-  // mTransformRotations.SetIdentity();
+  range.BeginNextStep("Importing Source File");
 
   ezSharedPtr<Scene> scene;
   EZ_SUCCEED_OR_RETURN(ImportSkeleton(pProp->m_sAnimationFile, scene));
 
+  range.BeginNextStep("Importing Skeleton Data");
+
   ezEditableSkeleton newSkeleton;
-  ezModelImporter::Importer::ImportSkeleton(newSkeleton, scene);
+  EZ_SUCCEED_OR_RETURN(ezModelImporter::Importer::ImportSkeleton(newSkeleton, scene));
 
   // synchronize the old data (collision geometry etc.) with the new hierarchy
   MergeWithNewSkeleton(newSkeleton);
 
   // merge the new data with the actual asset document
   ApplyNativePropertyChangesToObjectManager(true);
+  pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
+
+  range.BeginNextStep("Processing Skeleton Data");
+
+  ezSkeletonResourceDescriptor desc;
+  pProp->FillResourceDescriptor(desc);
 
   range.BeginNextStep("Writing Result");
 
-  ezSkeletonResourceDescriptor desc;
-  GetProperties()->FillResourceDescriptor(desc);
-
-  desc.Save(stream);
+  desc.Serialize(stream);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -210,8 +200,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezSkeletonAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

@@ -1,7 +1,10 @@
 #include <RendererCorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <ozz/animation/runtime/skeleton.h>
+#include <ozz/base/io/archive.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonResource, 1, ezRTTIDefaultAllocator<ezSkeletonResource>)
@@ -19,7 +22,7 @@ ezSkeletonResource::~ezSkeletonResource() = default;
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSkeletonResource, ezSkeletonResourceDescriptor)
 {
-  m_Descriptor = descriptor;
+  m_Descriptor = std::move(descriptor);
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -63,7 +66,7 @@ ezResourceLoadDesc ezSkeletonResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  m_Descriptor.Load(*Stream);
+  m_Descriptor.Deserialize(*Stream);
 
   res.m_State = ezResourceState::Loaded;
   return res;
@@ -75,10 +78,22 @@ void ezSkeletonResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezSkeletonResource); // TODO
 }
 
-void ezSkeletonResourceDescriptor::Save(ezStreamWriter& stream) const
+ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor() = default;
+ezSkeletonResourceDescriptor::~ezSkeletonResourceDescriptor() = default;
+ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor(ezSkeletonResourceDescriptor&& rhs)
 {
-  const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  *this = std::move(rhs);
+}
+
+void ezSkeletonResourceDescriptor::operator=(ezSkeletonResourceDescriptor&& rhs)
+{
+  m_Skeleton = std::move(rhs.m_Skeleton);
+  m_Geometry = std::move(rhs.m_Geometry);
+}
+
+ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
 
   m_Skeleton.Save(stream);
 
@@ -93,16 +108,15 @@ void ezSkeletonResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << geo.m_Type;
     stream << geo.m_Transform;
   }
+
+  return EZ_SUCCESS;
 }
 
-void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
+ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
+  stream.ReadVersion(1);
+
   m_Geometry.Clear();
-
-  ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
-
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid skeleton descriptor version {0}", uiVersion);
 
   m_Skeleton.Load(stream);
 
@@ -118,6 +132,8 @@ void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
     stream >> geo.m_Type;
     stream >> geo.m_Transform;
   }
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonResource);

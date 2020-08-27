@@ -88,6 +88,13 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewMesh";
+    msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewMesh;
+    GetDocument()->SendMessageToEngine(&msg);
+  }
+
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(false);

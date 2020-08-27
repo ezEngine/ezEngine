@@ -1,32 +1,11 @@
 #pragma once
 
+#include <Foundation/Math/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
-class EZ_RENDERERCORE_DLL ezVisualizeSkeletonComponentManager
-  : public ezComponentManager<class ezVisualizeSkeletonComponent, ezBlockStorageType::Compact>
-{
-public:
-  typedef ezComponentManager<ezVisualizeSkeletonComponent, ezBlockStorageType::Compact> SUPER;
-
-  ezVisualizeSkeletonComponentManager(ezWorld* pWorld);
-
-  void Update(const ezWorldModule::UpdateContext& context);
-  void EnqueueUpdate(ezComponentHandle hComponent);
-
-private:
-  void ResourceEventHandler(const ezResourceEvent& e);
-
-  mutable ezMutex m_Mutex;
-  ezDeque<ezComponentHandle> m_RequireUpdate;
-
-protected:
-  virtual void Initialize() override;
-  virtual void Deinitialize() override;
-};
+using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezVisualizeSkeletonComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezVisualizeSkeletonComponent : public ezRenderComponent
 {
@@ -49,7 +28,6 @@ protected:
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezVisualizeSkeletonComponent
 
@@ -60,17 +38,15 @@ public:
   void SetSkeletonFile(const char* szFile); // [ property ]
   const char* GetSkeletonFile() const;      // [ property ]
 
-  void SetSkeleton(const ezSkeletonResourceHandle& hMesh);
-  EZ_ALWAYS_INLINE const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
+  void SetSkeleton(const ezSkeletonResourceHandle& hResource);
+  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
 
 protected:
-  void Render();
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-
-  void CreateRenderMesh();
-  void CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo);
-  void CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry& geo);
+  void Update();
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+  void UpdateSkeletonVis();
 
   ezSkeletonResourceHandle m_hSkeleton;
-  mutable ezMeshResourceHandle m_hMesh;
+  ezBoundingBoxSphere m_LocalBounds;
+  ezDynamicArray<ezDebugRenderer::Line> m_LinesSkeleton;
 };

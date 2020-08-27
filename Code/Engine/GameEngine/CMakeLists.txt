@@ -16,6 +16,9 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   System
   RendererCore
+
+  PRIVATE
+  ozz
 )
 
 if (EZ_3RDPARTY_IMGUI_SUPPORT)

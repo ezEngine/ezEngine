@@ -67,47 +67,36 @@ public:
   };
 
 
-  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color);
+  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
   static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color);
 
-  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color,
-    const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
-  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color,
-    const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
-  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color,
-    const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
-  static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color,
-    const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
-  static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color,
-    const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
   static void DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals = false);
 
-  static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color,
-    const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
   static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color);
 
-  static void DrawTexturedTriangles(
-    const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
+  static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
 
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color,
-    const ezTexture2DResourceHandle& hTexture);
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
 
-  static void Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel, const ezColor& color,
-    ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left,
+  static void Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left,
     VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);
 
-  static void Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color,
-    ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left,
-    VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);
+  static void Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);
 
 private:
   friend class ezSimpleRenderPass;

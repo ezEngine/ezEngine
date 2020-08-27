@@ -130,8 +130,7 @@ namespace ezModelImporter
     return supportedFormats;
   }
 
-  ezStatus Importer::ImportMesh(
-    const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
+  ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
   {
     ezBitflags<ImportFlags> importFlags = ImportFlags::Meshes;
 

@@ -24,5 +24,7 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
 
   ezGameObject* m_pGameObject = nullptr;
-  // ezAnimationClipResourceHandle m_hMesh;
+  ezString m_sAnimatedMeshToUse;
+  ezComponentHandle m_hSkeletonComponent;
+  ezComponentHandle m_hAnimMeshComponent;
 };
