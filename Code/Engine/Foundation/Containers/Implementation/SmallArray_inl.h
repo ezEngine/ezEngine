@@ -6,6 +6,7 @@ template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocatorBase* pAllocator)
 {
   CopyFrom((ezArrayPtr<const T>)other, pAllocator);
+  m_uiUserData = other.m_uiUserData;
 }
 
 template <typename T, ezUInt16 Size>
@@ -86,6 +87,7 @@ void ezSmallArrayBase<T, Size>::MoveFrom(ezSmallArrayBase<T, Size>&& other, ezAl
   }
 
   m_uiCount = other.m_uiCount;
+  m_uiUserData = other.m_uiUserData;
 
   // reset the other array to not reference the data anymore
   other.m_pElements = nullptr;

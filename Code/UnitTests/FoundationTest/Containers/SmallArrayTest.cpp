@@ -66,13 +66,17 @@ namespace SmallArrayTestDetail
   };
 
   template <typename T>
-  static ezSmallArray<T, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+  static ezSmallArray<T, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset, ezUInt32 uiUserData)
   {
     ezSmallArray<T, 16> a;
     a.SetCount(uiSize);
 
     for (ezUInt32 i = 0; i < uiSize; ++i)
+    {
       a[i] = T(uiOffset + i);
+    }
+
+    a.GetUserData<ezUInt32>() = uiUserData;
 
     return a;
   }
@@ -144,12 +148,17 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
       }
     }
 
+    a1.GetUserData<ezUInt32>() = 11;
+
     ezSmallArray<ezInt32, 16> a2 = a1;
     ezSmallArray<ezInt32, 16> a3(a1);
 
     EZ_TEST_BOOL(a1 == a2);
     EZ_TEST_BOOL(a1 == a3);
     EZ_TEST_BOOL(a2 == a3);
+
+    EZ_TEST_INT(a2.GetUserData<ezUInt32>(), 11);
+    EZ_TEST_INT(a3.GetUserData<ezUInt32>(), 11);
 
     ezInt32 test[] = {1, 2, 3, 4};
     ezArrayPtr<ezInt32> aptr(test);
@@ -165,18 +174,22 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
 
     {
       // move constructor external storage
-      ezSmallArray<ezConstructionCounter, 16> a1(SmallArrayTestDetail::CreateArray<ezConstructionCounter>(100, 20));
+      ezSmallArray<ezConstructionCounter, 16> a1(SmallArrayTestDetail::CreateArray<ezConstructionCounter>(100, 20, 11));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 20 + i);
 
+      EZ_TEST_INT(a1.GetUserData<ezUInt32>(), 11);
+
       // move operator external storage
-      a1 = SmallArrayTestDetail::CreateArray<ezConstructionCounter>(200, 50);
+      a1 = SmallArrayTestDetail::CreateArray<ezConstructionCounter>(200, 50, 22);
 
       EZ_TEST_INT(a1.GetCount(), 200);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 50 + i);
+
+      EZ_TEST_INT(a1.GetUserData<ezUInt32>(), 22);
     }
 
     EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
@@ -184,18 +197,22 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
 
     {
       // move constructor internal storage
-      ezSmallArray<ezConstructionCounter, 16> a2(SmallArrayTestDetail::CreateArray<ezConstructionCounter>(10, 30));
+      ezSmallArray<ezConstructionCounter, 16> a2(SmallArrayTestDetail::CreateArray<ezConstructionCounter>(10, 30, 11));
 
       EZ_TEST_INT(a2.GetCount(), 10);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
         EZ_TEST_INT(a2[i].m_iData, 30 + i);
 
+      EZ_TEST_INT(a2.GetUserData<ezUInt32>(), 11);
+
       // move operator internal storage
-      a2 = SmallArrayTestDetail::CreateArray<ezConstructionCounter>(8, 70);
+      a2 = SmallArrayTestDetail::CreateArray<ezConstructionCounter>(8, 70, 22);
 
       EZ_TEST_INT(a2.GetCount(), 8);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
         EZ_TEST_INT(a2[i].m_iData, 70 + i);
+
+      EZ_TEST_INT(a2.GetUserData<ezUInt32>(), 22);
     }
 
     EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
@@ -204,7 +221,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     ezConstructionCounterRelocatable::Reset();
     {
       // move constructor external storage relocatable
-      ezSmallArray<ezConstructionCounterRelocatable, 16> a1(SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(100, 20));
+      ezSmallArray<ezConstructionCounterRelocatable, 16> a1(SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(100, 20, 11));
 
       EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(100, 0));
 
@@ -212,13 +229,17 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 20 + i);
 
+      EZ_TEST_INT(a1.GetUserData<ezUInt32>(), 11);
+
       // move operator external storage
-      a1 = SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(200, 50);
+      a1 = SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(200, 50, 22);
       EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(200, 100));
 
       EZ_TEST_INT(a1.GetCount(), 200);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 50 + i);
+
+      EZ_TEST_INT(a1.GetUserData<ezUInt32>(), 22);
     }
 
     EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
@@ -226,20 +247,24 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
 
     {
       // move constructor internal storage relocatable
-      ezSmallArray<ezConstructionCounterRelocatable, 16> a2(SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(10, 30));
+      ezSmallArray<ezConstructionCounterRelocatable, 16> a2(SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(10, 30, 11));
       EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(10, 0));
 
       EZ_TEST_INT(a2.GetCount(), 10);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
         EZ_TEST_INT(a2[i].m_iData, 30 + i);
 
+      EZ_TEST_INT(a2.GetUserData<ezUInt32>(), 11);
+
       // move operator internal storage
-      a2 = SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(8, 70);
+      a2 = SmallArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(8, 70, 22);
       EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(8, 10));
 
       EZ_TEST_INT(a2.GetCount(), 8);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
         EZ_TEST_INT(a2[i].m_iData, 70 + i);
+
+      EZ_TEST_INT(a2.GetUserData<ezUInt32>(), 22);
     }
 
     EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());

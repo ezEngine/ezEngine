@@ -42,11 +42,11 @@ public:
 
   /// \brief Compares this array to another contiguous array type.
   bool operator==(const ezSmallArrayBase<T, Size>& rhs) const; // [tested]
-  bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
+  bool operator==(const ezArrayPtr<const T>& rhs) const;       // [tested]
 
   /// \brief Compares this array to another contiguous array type.
   bool operator!=(const ezSmallArrayBase<T, Size>& rhs) const; // [tested]
-  bool operator!=(const ezArrayPtr<const T>& rhs) const; // [tested]
+  bool operator!=(const ezArrayPtr<const T>& rhs) const;       // [tested]
 
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt16 uiIndex) const; // [tested]
@@ -175,10 +175,10 @@ public:
   using reverse_iterator = reverse_pointer_iterator<T>;
 
   template <typename U>
-  const U& GetUserData() const;
+  const U& GetUserData() const; // [tested]
 
   template <typename U>
-  U& GetUserData();
+  U& GetUserData(); // [tested]
 
 protected:
   enum
@@ -191,10 +191,10 @@ protected:
   T* GetElementsPtr();
   const T* GetElementsPtr() const;
 
-  ezUInt32 m_uiUserData = 0;
-
   ezUInt16 m_uiCount = 0;
   ezUInt16 m_uiCapacity = Size;
+
+  ezUInt32 m_uiUserData = 0;
 
   union {
     struct : ezAligned<EZ_ALIGNMENT_OF(T)>

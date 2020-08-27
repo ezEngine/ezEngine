@@ -70,25 +70,33 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
 
     EZ_TEST_BOOL(TestTag2.IsValid());
 
-    ezTagSet TagSet;
+    ezTagSet tagSet;
 
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == false);
 
-    TagSet.Set(TestTag2);
+    tagSet.Set(TestTag2);
 
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == true);
+    EZ_TEST_INT(tagSet.GetNumTagsSet(), 1);
 
-    TagSet.Set(*TestTag1);
+    tagSet.Set(*TestTag1);
 
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == true);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == true);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == true);
+    EZ_TEST_INT(tagSet.GetNumTagsSet(), 2);
 
-    TagSet.Remove(*TestTag1);
+    tagSet.Remove(*TestTag1);
 
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == true);
+    EZ_TEST_INT(tagSet.GetNumTagsSet(), 1);
+
+    ezTagSet tagSet2 = tagSet;
+    EZ_TEST_BOOL(tagSet2.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet2.IsSet(TestTag2) == true);
+    EZ_TEST_INT(tagSet2.GetNumTagsSet(), 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Many Tags")
@@ -159,6 +167,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     EZ_TEST_BOOL(Non0BlockStartSet.IsSet(RegisteredTags[100]));
     EZ_TEST_BOOL(!Non0BlockStartSet.IsSet(RegisteredTags[0]));
 
+    ezTagSet Non0BlockStartSet2 = Non0BlockStartSet;
+    EZ_TEST_BOOL(Non0BlockStartSet2.IsSet(RegisteredTags[100]));
+    EZ_TEST_INT(Non0BlockStartSet2.GetNumTagsSet(), Non0BlockStartSet.GetNumTagsSet());
+
     // Also test allocating a tag in an earlier block than the first tag allocated in the set
     Non0BlockStartSet.Set(RegisteredTags[0]);
     EZ_TEST_BOOL(Non0BlockStartSet.IsSet(RegisteredTags[100]));
@@ -176,6 +188,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     {
       EZ_TEST_BOOL(!SecondTagSet.IsSet(RegisteredTags[i]));
     }
+
+    EZ_TEST_INT(SecondTagSet.GetNumTagsSet(), BigTagSet.GetNumTagsSet());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAnySet")
@@ -261,55 +275,55 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
 
     EZ_TEST_BOOL(TestTag2.IsValid());
 
-    ezTagSet TagSet;
+    ezTagSet tagSet;
 
-    EZ_TEST_BOOL(TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+    EZ_TEST_BOOL(tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == false);
 
-    TagSet.Clear();
+    tagSet.Clear();
 
-    EZ_TEST_BOOL(TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+    EZ_TEST_BOOL(tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == false);
 
-    TagSet.Set(TestTag2);
+    tagSet.Set(TestTag2);
 
-    EZ_TEST_BOOL(!TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+    EZ_TEST_BOOL(!tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == true);
 
-    TagSet.Remove(TestTag2);
+    tagSet.Remove(TestTag2);
 
-    EZ_TEST_BOOL(TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+    EZ_TEST_BOOL(tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == false);
 
-    TagSet.Set(*TestTag1);
-    TagSet.Set(TestTag2);
+    tagSet.Set(*TestTag1);
+    tagSet.Set(TestTag2);
 
-    EZ_TEST_BOOL(!TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == true);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+    EZ_TEST_BOOL(!tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == true);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == true);
 
-    TagSet.Remove(*TestTag1);
-    TagSet.Remove(TestTag2);
+    tagSet.Remove(*TestTag1);
+    tagSet.Remove(TestTag2);
 
-    EZ_TEST_BOOL(TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+    EZ_TEST_BOOL(tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == false);
 
-    TagSet.Set(*TestTag1);
-    TagSet.Set(TestTag2);
+    tagSet.Set(*TestTag1);
+    tagSet.Set(TestTag2);
 
-    EZ_TEST_BOOL(!TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == true);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+    EZ_TEST_BOOL(!tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == true);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == true);
 
-    TagSet.Clear();
+    tagSet.Clear();
 
-    EZ_TEST_BOOL(TagSet.IsEmpty());
-    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
-    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+    EZ_TEST_BOOL(tagSet.IsEmpty());
+    EZ_TEST_BOOL(tagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(tagSet.IsSet(TestTag2) == false);
   }
 }
