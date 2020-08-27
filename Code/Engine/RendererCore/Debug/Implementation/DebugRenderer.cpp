@@ -341,7 +341,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 // static
-void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
+void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   if (lines.IsEmpty())
     return;
@@ -357,7 +357,7 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
     for (ezUInt32 i = 0; i < 2; ++i)
     {
       auto& vertex = data.m_lineVertices.ExpandAndGetRef();
-      vertex.m_position = pPositions[i];
+      vertex.m_position = transform.TransformPosition(pPositions[i]);
       vertex.m_color = color;
     }
   }
