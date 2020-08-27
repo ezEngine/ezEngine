@@ -11,6 +11,11 @@ struct ezAnimationClipResourceDescriptor;
 
 #define ezInvalidJointIndex 0xFFFFu
 
+namespace ozz::animation
+{
+  class Skeleton;
+}
+
 struct ezSkeletonJointGeometryType
 {
   typedef ezUInt8 StorageType;
@@ -36,5 +41,7 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseUpdated, ezMessage);
 
   const ezSkeleton* m_pSkeleton = nullptr;
-  const ezAnimationPose* m_pPose = nullptr;
+  //const ezAnimationPose* m_pPose = nullptr;
+
+  ezArrayPtr<const ezMat4> m_ModelTransforms;
 };

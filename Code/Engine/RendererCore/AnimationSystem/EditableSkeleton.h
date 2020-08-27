@@ -9,6 +9,16 @@
 class ezSkeletonBuilder;
 class ezSkeleton;
 
+namespace ozz::animation
+{
+  class Skeleton;
+
+  namespace offline
+  {
+    struct RawSkeleton;
+  }
+} // namespace ozz::animation
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointGeometryType);
 
 class EZ_RENDERERCORE_DLL ezEditableSkeletonJoint : public ezReflectedClass
@@ -51,13 +61,14 @@ public:
   void GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc = nullptr) const;
   void GenerateSkeleton(ezSkeleton& skeleton, ezSkeletonResourceDescriptor* pDesc = nullptr) const;
   void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
+  void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const;
+  void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;
 
   ezString m_sAnimationFile;
 
   ezEnum<ezBasisAxis> m_ForwardDir;
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
-  //float m_fUniformScaling;
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };

@@ -15,11 +15,18 @@ struct ezSkeletonResourceGeometry
 
 struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 {
+  ezSkeletonResourceDescriptor();
+  ~ezSkeletonResourceDescriptor();
+  ezSkeletonResourceDescriptor(const ezSkeletonResourceDescriptor& rhs) = delete;
+  ezSkeletonResourceDescriptor(ezSkeletonResourceDescriptor&& rhs);
+  void operator=(ezSkeletonResourceDescriptor&& rhs);
+  void operator=(const ezSkeletonResourceDescriptor& rhs) = delete;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
+
   ezSkeleton m_Skeleton;
   ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
-
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
 };
 
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;

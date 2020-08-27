@@ -14,6 +14,11 @@ class ezAnimationPose;
 class ezSkeletonBuilder;
 class ezSkeleton;
 
+namespace ozz::animation
+{
+  class Skeleton;
+}
+
 /// \brief Describes a single joint.
 /// The transforms of the joints are in their local space and thus need to be correctly multiplied with their parent transforms to get the
 /// final transform.
@@ -42,9 +47,14 @@ protected:
 /// \brief The skeleton class encapsulates the information about the joint structure for a model.
 class EZ_RENDERERCORE_DLL ezSkeleton
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezSkeleton);
+
 public:
   ezSkeleton();
+  ezSkeleton(ezSkeleton&& rhs);
   ~ezSkeleton();
+
+  void operator=(ezSkeleton&& rhs);
 
   /// \brief Returns the number of joints in the skeleton.
   ezUInt16 GetJointCount() const { return m_Joints.GetCount(); }
@@ -69,8 +79,11 @@ public:
   /// \brief Applies a global transform to the skeleton (used by the importer to correct scale and up-axis)
   // void ApplyGlobalTransform(const ezMat3& transform);
 
+  const ozz::animation::Skeleton& GetOzzSkeleton() const;
+
 protected:
   friend ezSkeletonBuilder;
 
   ezDynamicArray<ezSkeletonJoint> m_Joints;
+  mutable ezUniquePtr<ozz::animation::Skeleton> m_pOzzSkeleton;
 };

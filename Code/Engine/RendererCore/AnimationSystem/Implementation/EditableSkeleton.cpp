@@ -1,8 +1,11 @@
 #include <RendererCorePCH.h>
 
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
+#include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <ozz/animation/offline/raw_skeleton.h>
+#include <ozz/animation/offline/skeleton_builder.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointGeometryType, 1)
@@ -105,6 +108,49 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& de
 {
   desc.m_Geometry.Clear();
   GenerateSkeleton(desc.m_Skeleton, &desc);
+}
+
+static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::animation::offline::RawSkeleton::Joint& dstJoint)
+{
+  dstJoint.name = srcJoint.m_sName.GetString();
+  dstJoint.transform.translation.x = srcJoint.m_Transform.m_vPosition.x;
+  dstJoint.transform.translation.y = srcJoint.m_Transform.m_vPosition.y;
+  dstJoint.transform.translation.z = srcJoint.m_Transform.m_vPosition.z;
+  dstJoint.transform.rotation.x = srcJoint.m_Transform.m_qRotation.v.x;
+  dstJoint.transform.rotation.y = srcJoint.m_Transform.m_qRotation.v.y;
+  dstJoint.transform.rotation.z = srcJoint.m_Transform.m_qRotation.v.z;
+  dstJoint.transform.rotation.w = srcJoint.m_Transform.m_qRotation.w;
+  dstJoint.transform.scale.x = srcJoint.m_Transform.m_vScale.x;
+  dstJoint.transform.scale.y = srcJoint.m_Transform.m_vScale.y;
+  dstJoint.transform.scale.z = srcJoint.m_Transform.m_vScale.z;
+
+  dstJoint.children.resize((size_t)srcJoint.m_Children.GetCount());
+
+  for (ezUInt32 b = 0; b < srcJoint.m_Children.GetCount(); ++b)
+  {
+    BuildOzzRawSkeleton(*srcJoint.m_Children[b], dstJoint.children[b]);
+  }
+}
+
+void ezEditableSkeleton::GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const
+{
+  out_Skeleton.roots.resize((size_t)m_Children.GetCount());
+
+  for (ezUInt32 b = 0; b < m_Children.GetCount(); ++b)
+  {
+    BuildOzzRawSkeleton(*m_Children[b], out_Skeleton.roots[b]);
+  }
+}
+
+void ezEditableSkeleton::GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const
+{
+  ozz::animation::offline::RawSkeleton rawSkeleton;
+  GenerateRawOzzSkeleton(rawSkeleton);
+
+  ozz::animation::offline::SkeletonBuilder skeletonBuilder;
+  auto pNewOzzSkeleton = skeletonBuilder(rawSkeleton);
+
+  ezOzzUtils::CopySkeleton(&out_Skeleton, pNewOzzSkeleton.get());
 }
 
 ezEditableSkeletonJoint::ezEditableSkeletonJoint()
