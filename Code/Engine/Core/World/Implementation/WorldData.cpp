@@ -73,7 +73,7 @@ namespace ezInternal
     EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
 #endif
 
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 144); /// \todo get game object size back to 128
+    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
     EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
 
     EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObjectId::m_WorldIndex) == sizeof(ezComponentId::m_WorldIndex));

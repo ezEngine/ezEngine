@@ -109,9 +109,9 @@ void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
   }
 }
 
-const ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS>& ezGameObject::Reflection_GetComponents() const
+ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS> ezGameObject::Reflection_GetComponents() const
 {
-  return m_Components;
+  return ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS>(m_Components);
 }
 
 ezObjectMode::Enum ezGameObject::Reflection_GetMode() const
@@ -244,6 +244,12 @@ void ezGameObject::ConstChildIterator::Next()
   m_pObject = m_pWorld->GetObjectUnchecked(m_pObject->m_NextSiblingIndex);
 }
 
+ezGameObject::~ezGameObject()
+{
+  m_Components.Clear();
+  m_Components.Compact(GetWorld()->GetAllocator());
+}
+
 void ezGameObject::operator=(const ezGameObject& other)
 {
   EZ_ASSERT_DEV(m_InternalId.m_WorldIndex == other.m_InternalId.m_WorldIndex, "Cannot copy between worlds.");
@@ -275,10 +281,9 @@ void ezGameObject::operator=(const ezGameObject& other)
     }
   }
 
-  m_Components = other.m_Components;
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  m_Components.CopyFrom(other.m_Components, GetWorld()->GetAllocator());
+  for (ezComponent* pComponent : m_Components)
   {
-    ezComponent* pComponent = m_Components[i];
     EZ_ASSERT_DEV(pComponent->m_pOwner == &other, "");
     pComponent->m_pOwner = this;
   }
@@ -720,7 +725,7 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
   EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(), "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
-  m_Components.PushBack(pComponent);
+  m_Components.PushBack(pComponent, GetWorld()->GetAllocator());
 
   pComponent->UpdateActiveState(IsActive());
 

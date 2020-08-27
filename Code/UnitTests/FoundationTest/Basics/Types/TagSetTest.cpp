@@ -5,11 +5,11 @@
 #include <Foundation/Types/TagRegistry.h>
 #include <Foundation/Types/TagSet.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezTagSet) == 16);
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezTag) == 16);
 #else
-static_assert(sizeof(ezTagSet) == 12);
 static_assert(sizeof(ezTag) == 12);
 #endif
 

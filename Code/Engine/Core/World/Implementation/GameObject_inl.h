@@ -61,8 +61,6 @@ EZ_ALWAYS_INLINE ezGameObject::ezGameObject(const ezGameObject& other)
   *this = other;
 }
 
-EZ_ALWAYS_INLINE ezGameObject::~ezGameObject() {}
-
 EZ_ALWAYS_INLINE ezGameObjectHandle ezGameObject::GetHandle() const
 {
   return ezGameObjectHandle(m_InternalId);
