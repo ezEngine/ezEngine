@@ -76,7 +76,7 @@ namespace SmallArrayTestDetail
       a[i] = T(uiOffset + i);
     }
 
-    a.GetUserData<ezUInt32>() = uiUserData;
+    a.template GetUserData<ezUInt32>() = uiUserData;
 
     return a;
   }

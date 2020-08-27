@@ -198,7 +198,8 @@ protected:
 
   ezUInt32 m_uiUserData = 0;
 
-  union {
+  union
+  {
     struct : ezAligned<EZ_ALIGNMENT_OF(T)>
     {
       ezUInt8 m_StaticData[Size * sizeof(T)];
