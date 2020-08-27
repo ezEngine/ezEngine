@@ -12,4 +12,7 @@ target_link_libraries(${PROJECT_NAME}
   Core
   RendererFoundation
   Texture
+
+  PRIVATE
+  ozz
 )
