@@ -9,7 +9,7 @@ namespace ozz::animation
 {
   class Skeleton;
   class Animation;
-};
+}; // namespace ozz::animation
 
 /// \brief Stores or gather the data for an ozz file, for random access operations (seek / tell).
 ///
@@ -82,4 +82,4 @@ namespace ezOzzUtils
 {
   EZ_RENDERERCORE_DLL void CopyAnimation(ozz::animation::Animation* pDst, const ozz::animation::Animation* pSrc);
   EZ_RENDERERCORE_DLL void CopySkeleton(ozz::animation::Skeleton* pDst, const ozz::animation::Skeleton* pSrc);
-}
+} // namespace ezOzzUtils

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Core/World/Component.h>
-#include <GameEngine/GameEngineDLL.h>
 #include <Core/World/ComponentManager.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class EZ_GAMEENGINE_DLL ezAnimationControllerComponent : public ezComponent
 {

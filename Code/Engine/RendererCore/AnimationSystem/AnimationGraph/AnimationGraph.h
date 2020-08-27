@@ -9,7 +9,4 @@ class EZ_RENDERERCORE_DLL ezAnimationGraph
 public:
   ezAnimationGraph();
   ~ezAnimationGraph();
-
-
-
 };

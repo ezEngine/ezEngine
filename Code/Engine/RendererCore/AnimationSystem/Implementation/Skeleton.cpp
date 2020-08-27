@@ -1,6 +1,11 @@
 #include <RendererCorePCH.h>
 
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Strings/HashedString.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <ozz/animation/offline/raw_skeleton.h>
+#include <ozz/animation/offline/skeleton_builder.h>
+#include <ozz/animation/runtime/skeleton.h>
 
 ezSkeleton::ezSkeleton() = default;
 

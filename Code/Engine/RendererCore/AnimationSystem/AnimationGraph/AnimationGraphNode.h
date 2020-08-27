@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Foundation/Time/Time.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 class EZ_RENDERERCORE_DLL ezAnimationGraphNode
 {
