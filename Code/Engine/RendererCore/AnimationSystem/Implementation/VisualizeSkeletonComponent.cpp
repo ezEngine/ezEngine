@@ -7,6 +7,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton_utils.h>
+#include <ozz/base/containers/vector.h>
 #include <ozz/base/maths/simd_math.h>
 
 // clang-format off

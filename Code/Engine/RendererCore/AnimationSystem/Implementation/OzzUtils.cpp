@@ -2,6 +2,8 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
+#include <ozz/animation/runtime/animation.h>
+#include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/io/archive.h>
 
 ezOzzArchiveData::ezOzzArchiveData() = default;

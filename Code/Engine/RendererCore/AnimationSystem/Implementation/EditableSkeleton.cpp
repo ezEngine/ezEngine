@@ -6,6 +6,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/offline/raw_skeleton.h>
 #include <ozz/animation/offline/skeleton_builder.h>
+#include <ozz/animation/runtime/skeleton.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointGeometryType, 1)
