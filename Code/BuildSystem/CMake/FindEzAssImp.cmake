@@ -25,8 +25,8 @@ find_package_handle_standard_args(EzAssImp DEFAULT_MSG EZ_ASSIMP_DIR)
 if (EZASSIMP_FOUND)
 
 	add_library(EzAssImp::EzAssImp SHARED IMPORTED)
-	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_LOCATION "${ASSIMP_LIB_PATH}/assimp-vc140-mt.dll")
-	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_IMPLIB "${ASSIMP_LIB_PATH}/assimp-vc140-mt.lib")
+	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_LOCATION "${ASSIMP_LIB_PATH}/assimp-vc141-mt.dll")
+	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_IMPLIB "${ASSIMP_LIB_PATH}/assimp-vc141-mt.lib")
 	set_target_properties(EzAssImp::EzAssImp PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_ASSIMP_DIR}")
 
 endif()
