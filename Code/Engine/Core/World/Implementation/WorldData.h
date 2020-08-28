@@ -40,6 +40,7 @@ namespace ezInternal
     ObjectStorage m_ObjectStorage;
 
     ezSet<ezGameObject*, ezCompareHelper<ezGameObject*>, ezLocalAllocatorWrapper> m_DeadObjects;
+    ezEvent<const ezGameObject*> m_ObjectDeletionEvent;
 
   public:
     class EZ_CORE_DLL ConstObjectIterator

@@ -43,6 +43,8 @@ ezProcVertexColorComponentManager::~ezProcVertexColorComponentManager() = defaul
 
 void ezProcVertexColorComponentManager::Initialize()
 {
+  SUPER::Initialize();
+
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezUInt32);
@@ -82,6 +84,8 @@ void ezProcVertexColorComponentManager::Deinitialize()
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
   ezProcVolumeComponent::GetAreaInvalidatedEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
+
+  SUPER::Deinitialize();
 }
 
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)

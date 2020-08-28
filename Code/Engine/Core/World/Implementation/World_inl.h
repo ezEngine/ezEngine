@@ -15,6 +15,11 @@ EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&
   return CreateObject(desc, pNewObject);
 }
 
+EZ_ALWAYS_INLINE const ezEvent<const ezGameObject*>& ezWorld::GetObjectDeletionEvent() const
+{
+  return m_Data.m_ObjectDeletionEvent;
+}
+
 EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) const
 {
   CheckForReadAccess();

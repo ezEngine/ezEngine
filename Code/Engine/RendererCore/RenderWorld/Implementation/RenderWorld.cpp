@@ -1,5 +1,6 @@
 #include <RendererCorePCH.h>
 
+#include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/CommonAllocators.h>
@@ -53,6 +54,8 @@ namespace
   static ezDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
 
   static ezProxyAllocator* s_pCacheAllocator;
+
+  static ezMutex s_CachedRenderDataMutex;
   typedef ezHybridArray<const ezRenderData*, 4> CachedRenderDataPerComponent;
   static ezHashTable<ezComponentHandle, CachedRenderDataPerComponent> s_CachedRenderData;
   static ezDynamicArray<const ezRenderData*> s_DeletedRenderData;
@@ -68,24 +71,41 @@ namespace ezInternal
   struct RenderDataCache
   {
     RenderDataCache(ezAllocatorBase* pAllocator)
-      : m_EntriesPerObject(pAllocator)
+      : m_PerObjectCaches(pAllocator)
     {
-      m_NewEntriesPerComponent.SetCount(m_NewEntriesPerComponent.GetCapacity());
-      for (auto& newEntry : m_NewEntriesPerComponent)
+      for (ezUInt32 i = 0; i < MaxNumNewCacheEntries; ++i)
       {
-        newEntry.m_CacheEntries = CacheEntriesPerObject(pAllocator);
+        m_NewEntriesPerComponent.PushBack(NewEntryPerComponent(pAllocator));
       }
     }
 
-    typedef ezHybridArray<RenderDataCacheEntry, 4> CacheEntriesPerObject;
+    struct PerObjectCache
+    {
+      PerObjectCache()
+      {
+      }
 
-    ezDynamicArray<CacheEntriesPerObject> m_EntriesPerObject;
+      PerObjectCache(ezAllocatorBase* pAllocator)
+        : m_Entries(pAllocator)
+      {
+      }
+
+      ezHybridArray<RenderDataCacheEntry, 4> m_Entries;
+      ezUInt16 m_uiVersion = 0;
+    };
+
+    ezDynamicArray<PerObjectCache> m_PerObjectCaches;
 
     struct NewEntryPerComponent
     {
+      NewEntryPerComponent(ezAllocatorBase* pAllocator)
+        : m_Cache(pAllocator)
+      {
+      }
+
       ezGameObjectHandle m_hOwnerObject;
       ezComponentHandle m_hOwnerComponent;
-      CacheEntriesPerObject m_CacheEntries;
+      PerObjectCache m_Cache;
     };
 
     ezStaticArray<NewEntryPerComponent, MaxNumNewCacheEntries> m_NewEntriesPerComponent;
@@ -231,8 +251,7 @@ ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
   return s_MainViews;
 }
 
-void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
-  ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
+void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
 {
   if (CVarCacheRenderData)
   {
@@ -248,7 +267,8 @@ void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle
       auto& newEntry = view.m_pRenderDataCache->m_NewEntriesPerComponent[uiNewEntriesCount - 1];
       newEntry.m_hOwnerObject = hOwnerObject;
       newEntry.m_hOwnerComponent = hOwnerComponent;
-      newEntry.m_CacheEntries = cacheEntries;
+      newEntry.m_Cache.m_Entries = cacheEntries;
+      newEntry.m_Cache.m_uiVersion = uiComponentVersion;
     }
   }
 }
@@ -263,20 +283,24 @@ void ezRenderWorld::DeleteAllCachedRenderData()
     for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
     {
       ezView* pView = it.Value();
-      pView->m_pRenderDataCache->m_EntriesPerObject.Clear();
+      pView->m_pRenderDataCache->m_PerObjectCaches.Clear();
     }
   }
 
-  for (auto it = s_CachedRenderData.GetIterator(); it.IsValid(); ++it)
   {
-    auto& cachedRenderDataPerComponent = it.Value();
+    EZ_LOCK(s_CachedRenderDataMutex);
 
-    for (auto pCachedRenderData : cachedRenderDataPerComponent)
+    for (auto it = s_CachedRenderData.GetIterator(); it.IsValid(); ++it)
     {
-      s_DeletedRenderData.PushBack(pCachedRenderData);
-    }
+      auto& cachedRenderDataPerComponent = it.Value();
 
-    cachedRenderDataPerComponent.Clear();
+      for (auto pCachedRenderData : cachedRenderDataPerComponent)
+      {
+        s_DeletedRenderData.PushBack(pCachedRenderData);
+      }
+
+      cachedRenderDataPerComponent.Clear();
+    }
   }
 }
 
@@ -284,18 +308,9 @@ void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObjec
 {
   EZ_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
 
-  ezUInt32 uiCacheIndex = hOwnerObject.GetInternalID().m_InstanceIndex;
+  DeleteCachedRenderDataInternal(hOwnerObject);
 
-  for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
-  {
-    ezView* pView = it.Value();
-    auto& entriesPerObject = pView->m_pRenderDataCache->m_EntriesPerObject;
-
-    if (uiCacheIndex < entriesPerObject.GetCount())
-    {
-      entriesPerObject[uiCacheIndex].Clear();
-    }
-  }
+  EZ_LOCK(s_CachedRenderDataMutex);
 
   CachedRenderDataPerComponent* pCachedRenderDataPerComponent = nullptr;
   if (s_CachedRenderData.TryGetValue(hOwnerComponent, pCachedRenderDataPerComponent))
@@ -309,39 +324,73 @@ void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObjec
   }
 }
 
-void ezRenderWorld::DeleteCachedRenderData(ezView& view)
+void ezRenderWorld::ResetRenderDataCache(ezView& view)
 {
-  view.m_pRenderDataCache->m_EntriesPerObject.Clear();
+  view.m_pRenderDataCache->m_PerObjectCaches.Clear();
   view.m_pRenderDataCache->m_NewEntriesCount = 0;
+
+  if (view.GetWorld() != nullptr)
+  {
+    if (view.GetWorld()->GetObjectDeletionEvent().HasEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject) == false)
+    {
+      view.GetWorld()->GetObjectDeletionEvent().AddEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject);
+    }
+  }
 }
 
-void ezRenderWorld::DeleteCachedRenderDataRecursive(const ezGameObject* pOwnerObject)
+void ezRenderWorld::DeleteCachedRenderDataForObject(const ezGameObject* pOwnerObject)
 {
+  EZ_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
+
+  DeleteCachedRenderDataInternal(pOwnerObject->GetHandle());
+
+  EZ_LOCK(s_CachedRenderDataMutex);
+
   auto components = pOwnerObject->GetComponents();
   for (auto pComponent : components)
   {
-    DeleteCachedRenderData(pOwnerObject->GetHandle(), pComponent->GetHandle());
-  }
+    ezComponentHandle hComponent = pComponent->GetHandle();
 
-  for (auto it = pOwnerObject->GetChildren(); it.IsValid(); ++it)
-  {
-    DeleteCachedRenderDataRecursive(it);
+    CachedRenderDataPerComponent* pCachedRenderDataPerComponent = nullptr;
+    if (s_CachedRenderData.TryGetValue(hComponent, pCachedRenderDataPerComponent))
+    {
+      for (auto pCachedRenderData : *pCachedRenderDataPerComponent)
+      {
+        s_DeletedRenderData.PushBack(pCachedRenderData);
+      }
+
+      s_CachedRenderData.Remove(hComponent);
+    }
   }
 }
 
-ezArrayPtr<ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner)
+void ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(const ezGameObject* pOwnerObject)
+{
+  DeleteCachedRenderDataForObject(pOwnerObject);
+
+  for (auto it = pOwnerObject->GetChildren(); it.IsValid(); ++it)
+  {
+    DeleteCachedRenderDataForObjectRecursive(it);
+  }
+}
+
+ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion)
 {
   if (CVarCacheRenderData)
   {
-    auto& entriesPerObject = view.m_pRenderDataCache->m_EntriesPerObject;
+    const auto& perObjectCaches = view.m_pRenderDataCache->m_PerObjectCaches;
     ezUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
-    if (uiCacheIndex < entriesPerObject.GetCount())
+    if (uiCacheIndex < perObjectCaches.GetCount())
     {
-      return entriesPerObject[uiCacheIndex];
+      auto& perObjectCache = perObjectCaches[uiCacheIndex];
+      if (perObjectCache.m_uiVersion == uiComponentVersion)
+      {
+        return perObjectCache.m_Entries;
+      }
     }
   }
 
-  return ezArrayPtr<ezInternal::RenderDataCacheEntry>();
+  return ezArrayPtr<const ezInternal::RenderDataCacheEntry>();
 }
 
 void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
@@ -559,6 +608,29 @@ bool ezRenderWorld::IsRenderingThread()
   return s_RenderingThreadID == ezThreadUtils::GetCurrentThreadID();
 }
 
+void ezRenderWorld::DeleteCachedRenderDataInternal(const ezGameObjectHandle& hOwnerObject)
+{
+  ezUInt32 uiCacheIndex = hOwnerObject.GetInternalID().m_InstanceIndex;
+  ezUInt8 uiWorldIndex = hOwnerObject.GetInternalID().m_WorldIndex;
+
+  EZ_LOCK(s_ViewsMutex);
+
+  for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
+  {
+    ezView* pView = it.Value();
+    if (pView->GetWorld() != nullptr && pView->GetWorld()->GetIndex() == uiWorldIndex)
+    {
+      auto& perObjectCaches = pView->m_pRenderDataCache->m_PerObjectCaches;
+
+      if (uiCacheIndex < perObjectCaches.GetCount())
+      {
+        perObjectCaches[uiCacheIndex].m_Entries.Clear();
+        perObjectCaches[uiCacheIndex].m_uiVersion = 0;
+      }
+    }
+  }
+}
+
 void ezRenderWorld::ClearRenderDataCache()
 {
   EZ_PROFILE_SCOPE("Clear Render Data Cache");
@@ -582,7 +654,7 @@ void ezRenderWorld::UpdateRenderDataCache()
     ezUInt32 uiNumNewEntries = ezMath::Min<ezInt32>(pView->m_pRenderDataCache->m_NewEntriesCount, MaxNumNewCacheEntries);
     pView->m_pRenderDataCache->m_NewEntriesCount = 0;
 
-    auto& entriesPerObject = pView->m_pRenderDataCache->m_EntriesPerObject;
+    auto& perObjectCaches = pView->m_pRenderDataCache->m_PerObjectCaches;
 
     for (ezUInt32 uiNewEntryIndex = 0; uiNewEntryIndex < uiNumNewEntries; ++uiNewEntryIndex)
     {
@@ -599,7 +671,7 @@ void ezRenderWorld::UpdateRenderDataCache()
       }
 
       ezUInt32 uiCachedRenderDataIndex = 0;
-      for (auto& newEntry : newEntries.m_CacheEntries)
+      for (auto& newEntry : newEntries.m_Cache.m_Entries)
       {
         if (newEntry.m_pRenderData != nullptr)
         {
@@ -622,17 +694,25 @@ void ezRenderWorld::UpdateRenderDataCache()
 
       // add entry for this view
       const ezUInt32 uiCacheIndex = newEntries.m_hOwnerObject.GetInternalID().m_InstanceIndex;
-      entriesPerObject.EnsureCount(uiCacheIndex + 1);
+      perObjectCaches.EnsureCount(uiCacheIndex + 1);
 
-      auto& cacheEntries = entriesPerObject[uiCacheIndex];
-
-      for (auto& newEntry : newEntries.m_CacheEntries)
+      auto& perObjectCache = perObjectCaches[uiCacheIndex];
+      if (perObjectCache.m_uiVersion != newEntries.m_Cache.m_uiVersion)
       {
-        if (!cacheEntries.Contains(newEntry))
+        perObjectCache.m_Entries.Clear();
+        perObjectCache.m_uiVersion = newEntries.m_Cache.m_uiVersion;
+      }
+
+      for (auto& newEntry : newEntries.m_Cache.m_Entries)
+      {
+        if (!perObjectCache.m_Entries.Contains(newEntry))
         {
-          cacheEntries.PushBack(newEntry);
+          perObjectCache.m_Entries.PushBack(newEntry);
         }
       }
+
+      // keep entries sorted, otherwise the logic ezExtractor::ExtractRenderData doesn't work
+      perObjectCache.m_Entries.Sort();
     }
   }
 }
@@ -683,6 +763,17 @@ void ezRenderWorld::OnEngineStartup()
 
 void ezRenderWorld::OnEngineShutdown()
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  for (auto it : s_CachedRenderData)
+  {
+    auto& cachedRenderDataPerComponent = it.Value();
+    if (cachedRenderDataPerComponent.IsEmpty() == false)
+    {
+      EZ_REPORT_FAILURE("Leaked cached render data of type '{}'", cachedRenderDataPerComponent[0]->GetDynamicRTTI()->GetTypeName());
+    }
+  }
+#endif
+
   ClearRenderDataCache();
 
   EZ_DEFAULT_DELETE(s_pCacheAllocator);

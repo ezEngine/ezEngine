@@ -32,6 +32,8 @@ ezProcPlacementComponentManager::~ezProcPlacementComponentManager() {}
 
 void ezProcPlacementComponentManager::Initialize()
 {
+  SUPER::Initialize();
+
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::FindTiles, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
@@ -66,6 +68,8 @@ void ezProcPlacementComponentManager::Deinitialize()
     activeTile.Deinitialize(*GetWorld());
   }
   m_ActiveTiles.Clear();
+
+  SUPER::Deinitialize();
 }
 
 void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateContext& context)

@@ -177,7 +177,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
       ezGameObject* pObject = static_cast<ezGameObject*>(target.m_pObject);
       if (pObject != nullptr && pObject->IsStatic())
       {
-        ezRenderWorld::DeleteCachedRenderDataRecursive(pObject);
+        ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(pObject);
       }
     }
     else if (target.m_pType->IsDerivedFrom<ezComponent>())

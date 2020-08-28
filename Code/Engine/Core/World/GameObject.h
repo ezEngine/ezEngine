@@ -369,6 +369,10 @@ public:
   /// \brief Returns a list of all components attached to this object.
   ezArrayPtr<const ezComponent* const> GetComponents() const;
 
+  /// \brief Returns the current version of components attached to this object.
+  /// This version is increased whenever components are added or removed and can be used for cache validation.
+  ezUInt16 GetComponentVersion() const;
+
 
   /// \brief Sends a message to all components of this object.
   bool SendMessage(ezMessage& msg);
@@ -552,6 +556,12 @@ private:
 #endif
 
   ezSmallArrayBase<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
+
+  struct ComponentUserData
+  {
+    ezUInt16 m_uiVersion;
+    ezUInt16 m_uiUnused;
+  };
 
   ezTagSet m_Tags;
 };

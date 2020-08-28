@@ -727,6 +727,7 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent, GetWorld()->GetAllocator());
+  m_Components.GetUserData<ComponentUserData>().m_uiVersion++;
 
   pComponent->UpdateActiveState(IsActive());
 
@@ -748,6 +749,7 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
 
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtAndSwap(uiIndex);
+  m_Components.GetUserData<ComponentUserData>().m_uiVersion++;
 
   if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
   {

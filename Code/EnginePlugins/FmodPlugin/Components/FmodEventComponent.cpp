@@ -88,6 +88,8 @@ ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
 
 void ezFmodEventComponentManager::Initialize()
 {
+  SUPER::Initialize();
+
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateOcclusion, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
@@ -110,6 +112,8 @@ void ezFmodEventComponentManager::Initialize()
 void ezFmodEventComponentManager::Deinitialize()
 {
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+
+  SUPER::Deinitialize();
 }
 
 ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius)
