@@ -181,6 +181,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 {
   AddSupportedFileType("fbx");
+  AddSupportedFileType("gltf");
+  AddSupportedFileType("glb");
 }
 
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;

@@ -151,7 +151,7 @@ void ezSimpleAnimationControllerComponent::Update()
   if (m_ozzSamplingCache.max_tracks() != uiNumAnimatedJoints)
   {
     m_ozzSamplingCache.Resize(uiNumAnimatedJoints);
-    m_ozzLocalTransforms.resize(uiNumAnimatedJoints);
+    m_ozzLocalTransforms.resize(pOzzSkeleton->num_soa_joints());
     m_ozzModelTransforms.resize(uiNumSkeletonJoints);
   }
 

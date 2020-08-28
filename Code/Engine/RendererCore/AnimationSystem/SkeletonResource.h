@@ -29,7 +29,7 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
   ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
 };
 
-typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
+using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
 class EZ_RENDERERCORE_DLL ezSkeletonResource : public ezResource
 {
