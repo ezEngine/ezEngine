@@ -26,6 +26,9 @@ public:
 
     ezVec3 m_start;
     ezVec3 m_end;
+
+    ezColor m_startColor = ezColor::White;
+    ezColor m_endColor = ezColor::White;
   };
 
   struct Triangle

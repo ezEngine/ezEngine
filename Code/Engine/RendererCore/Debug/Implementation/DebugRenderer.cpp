@@ -353,12 +353,13 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
   for (auto& line : lines)
   {
     ezVec3* pPositions = &line.m_start;
+    ezColor* pColors = &line.m_startColor;
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
       auto& vertex = data.m_lineVertices.ExpandAndGetRef();
       vertex.m_position = transform.TransformPosition(pPositions[i]);
-      vertex.m_color = color;
+      vertex.m_color = pColors[i] * color;
     }
   }
 }
