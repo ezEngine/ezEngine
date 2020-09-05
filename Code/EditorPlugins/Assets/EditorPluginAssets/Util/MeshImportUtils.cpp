@@ -4,8 +4,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
-#include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <EditorPluginAssets/Util/AssetUtils.h>
+#include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ModelImporter2/Importer/Importer.h>
 #include <RendererCore/Material/MaterialResource.h>
