@@ -6,11 +6,19 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererFoundation/Device/Device.h>
 
+#include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <ozz/animation/runtime/skeleton.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ?
 {
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("VisualizeBindPose", m_bVisualizeBindPose)
+  } 
+  EZ_END_PROPERTIES;
+
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
@@ -19,7 +27,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); 
 
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated)
+    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
+    EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -51,72 +60,110 @@ void ezAnimatedMeshComponent::OnSimulationStarted()
   // make sure the skinning buffer is deleted
   EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
 
-  if (m_hMesh.IsValid())
+  if (!m_hMesh.IsValid())
+    return;
+
+  ezMsgQueryAnimationSkeleton msg;
+  GetOwner()->SendMessage(msg);
+
+  m_hSkeleton = msg.m_hSkeleton;
+
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+
+  if (!m_hSkeleton.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-    m_hSkeleton = pMesh->GetSkeleton();
+    // if we didn't get a skeleton from another component, via the message, try to get one from the mesh
+    m_hSkeleton = pMesh->m_hDefaultSkeleton;
   }
 
-  if (m_hSkeleton.IsValid())
+  if (!m_hSkeleton.IsValid())
+    return;
+
+  m_AnimTransforms.SetCountUninitialized(pMesh->m_Bones.GetCount());
+
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+
+  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
+  ezAnimationPose m_AnimationPose;
+  m_AnimationPose.Configure(skeleton);
+  m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+
+  m_Lines.Clear();
+
+  for (auto itBone : pMesh->m_Bones)
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+    const ezUInt16 uiJointIdx = skeleton.FindJointByName(ezTempHashedString(itBone.Key().GetData()));
+    const ezMat4 modelSpaceTransform = m_AnimationPose.GetTransform(uiJointIdx);
 
-    const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-    m_AnimationPose.Configure(skeleton);
-    m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+    m_AnimTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransform * itBone.Value().m_GlobalInverseBindPoseMatrix;
 
-    m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
+    ezUInt16 uiParentJointIdx = skeleton.GetJointByIndex(uiJointIdx).GetParentIndex();
+    while (uiParentJointIdx != ezInvalidJointIndex)
+    {
+      auto parentName = skeleton.GetJointByIndex(uiParentJointIdx).GetName();
 
+      auto itParent = pMesh->m_Bones.Find(parentName);
 
-    // Create the buffer for the skinning matrices
-    ezGALBufferCreationDescription BufferDesc;
-    BufferDesc.m_uiStructSize = sizeof(ezMat4);
-    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_AnimationPose.GetTransformCount();
-    BufferDesc.m_bUseAsStructuredBuffer = true;
-    BufferDesc.m_bAllowShaderResourceView = true;
-    BufferDesc.m_ResourceAccess.m_bImmutable = false;
+      if (itParent.IsValid())
+      {
+        auto& l = m_Lines.ExpandAndGetRef();
+        l.m_start = itBone.Value().m_GlobalInverseBindPoseMatrix.GetInverse().GetTranslationVector();
+        l.m_end = itParent.Value().m_GlobalInverseBindPoseMatrix.GetInverse().GetTranslationVector();
+        break;
+      }
 
-    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
+      uiParentJointIdx = skeleton.GetJointByIndex(uiParentJointIdx).GetParentIndex();
+    }
   }
+
+  // m_AnimTransforms.Clear();
+  // m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
+
+  // Create the buffer for the skinning matrices
+  CreateSkinningTransformBuffer(m_AnimTransforms);
 }
 
 ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
 {
   // this copy is necessary for the multi-threaded renderer to not access m_AnimationPose while we update it
-  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimationPose.GetTransformCount());
-  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
+  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimTransforms.GetCount());
+  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimTransforms.GetData(), m_AnimTransforms.GetCount());
 
   m_SkinningMatrices = pRenderMatrices;
 
+  if (m_bVisualizeBindPose && !m_Lines.IsEmpty())
+  {
+    ezDebugRenderer::DrawLines(GetWorld(), m_Lines, ezColor::GreenYellow, GetOwner()->GetGlobalTransform());
+  }
 
   return SUPER::CreateRenderData();
 }
 
 void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
-  if (!m_hSkeleton.IsValid())
+  if (!m_hSkeleton.IsValid() || !m_hMesh.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-  if (&pSkeleton->GetDescriptor().m_Skeleton != msg.m_pSkeleton)
+  for (auto itBone : pMesh->m_Bones)
   {
-    // TODO: allow compatible skeletons?
-    return;
+    const ezUInt16 uiJointIdx = msg.m_pSkeleton->FindJointByName(itBone.Key());
+
+    if (uiJointIdx == ezInvalidJointIndex)
+      continue;
+
+    m_AnimTransforms[itBone.Value().m_uiBoneIndex] = msg.m_ModelTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
   }
-
-  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-
-  for (ezUInt32 b = 0; b < skeleton.GetJointCount(); ++b)
-  {
-    m_AnimationPose.SetTransform(b, msg.m_ModelTransforms[b]);
-  }
-
-  m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
-  m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
 }
 
+void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
+{
+  if (!msg.m_hSkeleton.IsValid())
+  {
+    // only overwrite, if no one else had a better skeleton (e.g. the ezSkeletonComponent)
+    msg.m_hSkeleton = m_hSkeleton;
+  }
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);

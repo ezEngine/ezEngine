@@ -2,7 +2,7 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Animation/Skeletal/SimpleAnimationControllerComponent.h>
+#include <GameEngine/Animation/Skeletal/SimpleAnimationComponent.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/animation.h>
@@ -15,12 +15,11 @@ using namespace ozz::animation;
 using namespace ozz::math;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationControllerComponent, 1, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 1, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
@@ -35,10 +34,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationControllerComponent, 1, ezComponentMode
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezSimpleAnimationControllerComponent::ezSimpleAnimationControllerComponent() = default;
-ezSimpleAnimationControllerComponent::~ezSimpleAnimationControllerComponent() = default;
+ezSimpleAnimationComponent::ezSimpleAnimationComponent() = default;
+ezSimpleAnimationComponent::~ezSimpleAnimationComponent() = default;
 
-void ezSimpleAnimationControllerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
@@ -46,10 +45,9 @@ void ezSimpleAnimationControllerComponent::SerializeComponent(ezWorldWriter& str
   s << m_AnimationMode;
   s << m_fSpeed;
   s << m_hAnimationClip;
-  s << m_hSkeleton;
 }
 
-void ezSimpleAnimationControllerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
@@ -58,20 +56,30 @@ void ezSimpleAnimationControllerComponent::DeserializeComponent(ezWorldReader& s
   s >> m_AnimationMode;
   s >> m_fSpeed;
   s >> m_hAnimationClip;
-  s >> m_hSkeleton;
 }
 
-void ezSimpleAnimationControllerComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
+void ezSimpleAnimationComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  ezMsgQueryAnimationSkeleton msg;
+  GetOwner()->SendMessage(msg);
+
+  m_hSkeleton = msg.m_hSkeleton;
+}
+
+
+void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
 {
   m_hAnimationClip = hResource;
 }
 
-const ezAnimationClipResourceHandle& ezSimpleAnimationControllerComponent::GetAnimationClip() const
+const ezAnimationClipResourceHandle& ezSimpleAnimationComponent::GetAnimationClip() const
 {
   return m_hAnimationClip;
 }
 
-void ezSimpleAnimationControllerComponent::SetAnimationClipFile(const char* szFile)
+void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
 {
   ezAnimationClipResourceHandle hResource;
 
@@ -83,7 +91,7 @@ void ezSimpleAnimationControllerComponent::SetAnimationClipFile(const char* szFi
   SetAnimationClip(hResource);
 }
 
-const char* ezSimpleAnimationControllerComponent::GetAnimationClipFile() const
+const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
 {
   if (!m_hAnimationClip.IsValid())
     return "";
@@ -91,39 +99,9 @@ const char* ezSimpleAnimationControllerComponent::GetAnimationClipFile() const
   return m_hAnimationClip.GetResourceID();
 }
 
-void ezSimpleAnimationControllerComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
+void ezSimpleAnimationComponent::Update()
 {
-  m_hSkeleton = hResource;
-}
-
-const ezSkeletonResourceHandle& ezSimpleAnimationControllerComponent::GetSkeleton() const
-{
-  return m_hSkeleton;
-}
-
-void ezSimpleAnimationControllerComponent::SetSkeletonFile(const char* szFile)
-{
-  ezSkeletonResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezSkeletonResource>(szFile);
-  }
-
-  SetSkeleton(hResource);
-}
-
-const char* ezSimpleAnimationControllerComponent::GetSkeletonFile() const
-{
-  if (!m_hSkeleton.IsValid())
-    return "";
-
-  return m_hSkeleton.GetResourceID();
-}
-
-void ezSimpleAnimationControllerComponent::Update()
-{
-  if (!m_hSkeleton.IsValid() || !m_hAnimationClip.IsValid() && m_fSpeed == 0.0f)
+  if (!m_hSkeleton.IsValid() || !m_hAnimationClip.IsValid() || m_fSpeed == 0.0f)
     return;
 
   ezResourceLock<ezAnimationClipResource> pAnimation(m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
@@ -182,7 +160,7 @@ void ezSimpleAnimationControllerComponent::Update()
   }
 }
 
-bool ezSimpleAnimationControllerComponent::UpdatePlaybackTime(ezTime tDiff, ezTime duration)
+bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, ezTime duration)
 {
   if (tDiff.IsZero() || m_fSpeed == 0.0f)
     return false;

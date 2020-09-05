@@ -3,19 +3,10 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
-#include <ModelImporter/Declarations.h>
 
 class ezMeshResourceDescriptor;
 class ezGeometry;
 class ezMaterialAssetDocument;
-
-namespace ezModelImporter
-{
-  struct Material;
-  class Mesh;
-  class Scene;
-  struct TextureReference;
-} // namespace ezModelImporter
 
 class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties>
 {

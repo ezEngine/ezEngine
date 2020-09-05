@@ -19,7 +19,6 @@ void ezMeshResourceDescriptor::Clear()
 {
   m_Bounds.SetInvalid();
   m_hMeshBuffer.Invalidate();
-  m_hSkeleton.Invalidate();
   m_Materials.Clear();
   m_MeshBufferDescriptor.Clear();
   m_SubMeshes.Clear();
@@ -58,16 +57,6 @@ ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> ezMeshResourceDescriptor::Ge
 const ezBoundingBoxSphere& ezMeshResourceDescriptor::GetBounds() const
 {
   return m_Bounds;
-}
-
-void ezMeshResourceDescriptor::SetSkeleton(const ezSkeletonResourceHandle& hSkeleton)
-{
-  m_hSkeleton = hSkeleton;
-}
-
-const ezSkeletonResourceHandle& ezMeshResourceDescriptor::GetSkeleton() const
-{
-  return m_hSkeleton;
 }
 
 void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiMaterialIndex)
@@ -222,11 +211,20 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     chunk.EndChunk();
   }
 
-  if (m_hSkeleton.IsValid())
+  if (!m_Bones.IsEmpty())
   {
-    chunk.BeginChunk("Animation", 2);
+    chunk.BeginChunk("BindPose", 1);
 
-    chunk << m_hSkeleton.GetResourceID();
+    chunk.WriteHashTable(m_Bones);
+
+    chunk.EndChunk();
+  }
+
+  if (m_hDefaultSkeleton.IsValid())
+  {
+    chunk.BeginChunk("Skeleton", 1);
+
+    chunk << m_hDefaultSkeleton;
 
     chunk.EndChunk();
   }
@@ -236,9 +234,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   compressor.FinishCompressedStream();
 
-  ezLog::Dev("Compressed mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1),
-    ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1),
-    ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
+  ezLog::Dev("Compressed mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
 #endif
 }
 
@@ -464,14 +460,14 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
         chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
     }
 
-    if (ci.m_sChunkName == "Animation")
+    if (ci.m_sChunkName == "BindPose")
     {
-      if (ci.m_uiChunkVersion == 2)
-      {
-        ezStringBuilder skeleton;
-        chunk >> skeleton;
-        m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(skeleton);
-      }
+      chunk.ReadHashTable(m_Bones);
+    }
+
+    if (ci.m_sChunkName == "Skeleton")
+    {
+      chunk >> m_hDefaultSkeleton;
     }
 
     chunk.NextChunk();
@@ -484,8 +480,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     ComputeBounds();
 
     auto b = m_Bounds;
-    ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2), ezArgF(b.m_vCenter.z, 2),
-      ezArgF(b.m_vBoxHalfExtends.x, 2), ezArgF(b.m_vBoxHalfExtends.y, 2), ezArgF(b.m_vBoxHalfExtends.z, 2));
+    ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2), ezArgF(b.m_vCenter.z, 2), ezArgF(b.m_vBoxHalfExtends.x, 2), ezArgF(b.m_vBoxHalfExtends.y, 2), ezArgF(b.m_vBoxHalfExtends.z, 2));
   }
 
   return EZ_SUCCESS;
@@ -504,6 +499,20 @@ void ezMeshResourceDescriptor::ComputeBounds()
   }
 }
 
+ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& stream) const
+{
+  stream << m_GlobalInverseBindPoseMatrix;
+  stream << m_uiBoneIndex;
 
+  return EZ_SUCCESS;
+}
+
+ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& stream)
+{
+  stream >> m_GlobalInverseBindPoseMatrix;
+  stream >> m_uiBoneIndex;
+
+  return EZ_SUCCESS;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshResourceDescriptor);

@@ -16,7 +16,7 @@ target_link_libraries(${PROJECT_NAME}
   EditorFramework
   GameEngine
   PhysXCooking
-  ModelImporter
+  ModelImporter2
 )
 
 add_dependencies(${PROJECT_NAME}

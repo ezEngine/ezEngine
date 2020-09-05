@@ -10,14 +10,14 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameEngine/Animation/RotorComponent.h>
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
-#include <GameEngine/Animation/Skeletal/SimpleAnimationControllerComponent.h>
+#include <GameEngine/Animation/Skeletal/SimpleAnimationComponent.h>
 #include <GameEngine/Animation/SliderComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Gameplay/InputComponent.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
 #include <GameEngine/Prefabs/SpawnComponent.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
-#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
+#include <RendererCore/AnimationSystem/SkeletonComponent.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
@@ -57,14 +57,28 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
       auto pWorld = m_pWorld.Borrow();
       EZ_LOCK(pWorld->GetWriteMarker());
 
+      ezStringBuilder sAnimClipGuid;
+      ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
+
       ezAnimatedMeshComponent* pAnimMesh;
+      ezSimpleAnimationComponent* pAnimController;
+      ezSkeletonComponent* pVisSkeleton;
+
       if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
-      {
         pAnimMesh->DeleteComponent();
-      }
+
+      if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+        pAnimController->DeleteComponent();
+
+      if (pWorld->TryGetComponent(m_hSkeletonVisComponent, pVisSkeleton))
+        pVisSkeleton->DeleteComponent();
 
       m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+      m_hAnimControllerComponent = ezSimpleAnimationComponent::CreateComponent(m_pGameObject, pAnimController);
+      m_hSkeletonVisComponent = ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
+
       pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
+      pAnimController->SetAnimationClipFile(sAnimClipGuid);
     }
     return;
   }
@@ -84,25 +98,6 @@ void ezAnimationClipContext::OnInitialize()
     obj.m_bDynamic = true;
     obj.m_sName.Assign("SkeletonPreview");
     pWorld->CreateObject(obj, m_pGameObject);
-
-    ezStringBuilder sAnimClipGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
-
-    // TODO: remove hardcoded skeleton reference
-    ezSkeletonResourceHandle hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>("{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }");
-
-    ezVisualizeSkeletonComponent* pVisSkeleton;
-    m_hSkeletonComponent = ezVisualizeSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
-    pVisSkeleton->SetSkeleton(hSkeleton);
-
-    ezSimpleAnimationControllerComponent* pAnimController;
-    ezSimpleAnimationControllerComponent::CreateComponent(m_pGameObject, pAnimController);
-    pAnimController->SetSkeleton(hSkeleton);
-    pAnimController->SetAnimationClipFile(sAnimClipGuid);
-
-    ezAnimatedMeshComponent* pAnimMesh;
-    m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
-    pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
   }
 
   // Lights

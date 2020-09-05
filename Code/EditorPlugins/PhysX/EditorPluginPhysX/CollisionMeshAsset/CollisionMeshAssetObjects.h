@@ -50,30 +50,27 @@ class ezCollisionMeshAssetProperties : public ezReflectedClass
 
 public:
   ezCollisionMeshAssetProperties();
+  ~ezCollisionMeshAssetProperties();
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
-  ezString m_sSubMeshName;
-  float m_fUniformScaling;
-  ezVec3 m_vNonUniformScaling;
+  float m_fUniformScaling = 1.0f;
 
-  ezEnum<ezBasisAxis> m_ForwardDir;
-  ezEnum<ezBasisAxis> m_RightDir;
-  ezEnum<ezBasisAxis> m_UpDir;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
+  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
+  bool m_bFlipForwardDir = false;
   bool m_bIsConvexMesh = false;
   ezEnum<ezConvexCollisionMeshType> m_ConvexMeshType;
 
   // Cylinder
-  float m_fRadius;
-  float m_fRadius2;
-  float m_fHeight;
-  ezUInt8 m_uiDetail;
+  float m_fRadius = 0.5f;
+  float m_fRadius2 = 0.5f;
+  float m_fHeight = 1.0f;
+  ezUInt8 m_uiDetail = 1;
 
   ezHybridArray<ezSurfaceResourceSlot, 8> m_Slots;
 
-  ezUInt32 m_uiVertices;
-  ezUInt32 m_uiTriangles;
-
-private:
+  ezUInt32 m_uiVertices = 0;
+  ezUInt32 m_uiTriangles = 0;
 };

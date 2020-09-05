@@ -25,6 +25,7 @@ private:
 
   ezGameObject* m_pGameObject = nullptr;
   ezString m_sAnimatedMeshToUse;
-  ezComponentHandle m_hSkeletonComponent;
   ezComponentHandle m_hAnimMeshComponent;
+  ezComponentHandle m_hAnimControllerComponent;
+  ezComponentHandle m_hSkeletonVisComponent;
 };

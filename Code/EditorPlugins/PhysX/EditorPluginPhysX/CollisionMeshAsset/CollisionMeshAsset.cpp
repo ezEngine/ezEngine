@@ -11,10 +11,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ModelImporter/Material.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/ModelImporter.h>
-#include <ModelImporter/VertexData.h>
+#include <ModelImporter2/ModelImporter.h>
 #include <PhysXCooking/PhysXCooking.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
@@ -22,20 +19,20 @@
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 static ezMat3 CalculateTransformationMatrix(const ezCollisionMeshAssetProperties* pProp)
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
-  const float sx = ezMath::Clamp(pProp->m_vNonUniformScaling.x, 0.0001f, 10000.0f);
-  const float sy = ezMath::Clamp(pProp->m_vNonUniformScaling.y, 0.0001f, 10000.0f);
-  const float sz = ezMath::Clamp(pProp->m_vNonUniformScaling.z, 0.0001f, 10000.0f);
 
-  return ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, us, sx, sy, sz);
+  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, pProp->m_bFlipForwardDir);
+
+  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
 }
 
 ezCollisionMeshAssetDocument::ezCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh)
@@ -66,15 +63,11 @@ void ezCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCreatio
 //////////////////////////////////////////////////////////////////////////
 
 
-ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
   ezCollisionMeshAssetProperties* pProp = GetProperties();
-
-  const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
-  const bool bFlipTriangles = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
 
   const ezUInt8 uiVersion = 2;
   stream << uiVersion;
@@ -98,22 +91,23 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
     ezPhysXCookingMesh xMesh;
 
-    // TODO verify
-    xMesh.m_bFlipNormals = (mTransformation.GetColumn(0).CrossRH(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
-
     if (!m_bIsConvexMesh || pProp->m_ConvexMeshType == ezConvexCollisionMeshType::ConvexHull)
     {
-      EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(mTransformation, xMesh));
+      EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(xMesh));
     }
     else
     {
+      const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
+
+      // TODO verify
+      xMesh.m_bFlipNormals = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
+
       ezGeometry geom;
       const ezMat4 mTrans(mTransformation, ezVec3::ZeroVector());
 
       if (pProp->m_ConvexMeshType == ezConvexCollisionMeshType::Cylinder)
       {
-        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f,
-          ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
+        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
       }
 
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));
@@ -128,91 +122,106 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   compressor.FinishCompressedStream();
 
-  ezLog::Dev("Compressed collision mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1),
-    ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1),
-    ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
+  ezLog::Dev("Compressed collision mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
 
 #endif
 
   return ezStatus(EZ_SUCCESS);
 }
 
-static ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ezSharedPtr<ezModelImporter::Scene>& outScene,
-  ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
+ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezPhysXCookingMesh& outMesh)
 {
-  ezStopwatch timer;
-
-  outMeshFileAbs = filename;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
-  {
-    return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs));
-  }
-
-  EZ_SUCCEED_OR_RETURN(ezModelImporter::Importer::GetSingleton()->ImportMesh(outMeshFileAbs, subMeshFilename, false, outScene, outMesh));
-
-  ezLog::Debug("Mesh Import time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
-
-  return ezStatus(EZ_SUCCESS);
-}
-
-ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezMat3& mTransformation, ezPhysXCookingMesh& outMesh)
-{
-  using namespace ezModelImporter;
-
   ezCollisionMeshAssetProperties* pProp = GetProperties();
 
-  ezSharedPtr<Scene> scene;
-  Mesh* mesh = nullptr;
-  ezString sMeshFileAbs;
-  EZ_SUCCEED_OR_RETURN(ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs));
+  ezStringBuilder sAbsFilename = pProp->m_sMeshFile;
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+  {
+    return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+  }
 
-  const ezModelImporter::TypedVertexDataStreamView<ezVec3> positionStream(*mesh->GetDataStream(ezGALVertexAttributeSemantic::Position));
+  ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+  if (pImporter == nullptr)
+    return ezStatus("No known importer for this file type.");
 
-  const ezArrayPtr<Mesh::Triangle> triangles = mesh->GetTriangles();
+  ezMeshResourceDescriptor meshDesc;
 
-  outMesh.m_PolygonSurfaceID.SetCountUninitialized(triangles.GetCount());
-  outMesh.m_VerticesInPolygon.SetCountUninitialized(triangles.GetCount());
-  for (ezUInt32 uiTriangle = 0; uiTriangle < triangles.GetCount(); ++uiTriangle)
+  ezModelImporter2::ImportOptions opt;
+  opt.m_sSourceFile = sAbsFilename;
+  opt.m_pMeshOutput = &meshDesc;
+  opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+
+  if (pImporter->Import(opt).Failed())
+    return ezStatus("Model importer was unable to read this asset.");
+
+  const auto& meshBuffer = meshDesc.MeshBufferDesc();
+
+  const ezUInt32 uiNumTriangles = meshBuffer.GetPrimitiveCount();
+  const ezUInt32 uiNumVertices = meshBuffer.GetVertexCount();
+
+  outMesh.m_PolygonSurfaceID.SetCountUninitialized(uiNumTriangles);
+  outMesh.m_VerticesInPolygon.SetCountUninitialized(uiNumTriangles);
+
+  for (ezUInt32 uiTriangle = 0; uiTriangle < uiNumTriangles; ++uiTriangle)
   {
     outMesh.m_PolygonSurfaceID[uiTriangle] = 0;  // default value, will be updated below when extracting materials.
     outMesh.m_VerticesInPolygon[uiTriangle] = 3; // Triangles!
   }
 
-  // Extract vertices and indices
+  // Extract vertices
   {
-    const ezGALVertexAttributeSemantic::Enum streamSemantics[] = {ezGALVertexAttributeSemantic::Position};
-    ezHashTable<Mesh::DataIndexBundle<1>, ezUInt32> dataIndicesToVertexIndices;
-    mesh->GenerateInterleavedVertexMapping(streamSemantics, dataIndicesToVertexIndices, outMesh.m_PolygonIndices);
+    const ezUInt8* pVertexData = meshDesc.MeshBufferDesc().GetVertexData(0, 0).GetPtr();
+    const ezUInt32 uiVertexSize = meshBuffer.GetVertexDataSize();
 
-    // outMesh.m_PolygonIndices is now ready and we have a mapping from mesh data index to vertex index. Remains only to copy over the
-    // vertices to their correct places.
-
-    outMesh.m_Vertices.SetCountUninitialized(dataIndicesToVertexIndices.GetCount());
-    for (auto it = dataIndicesToVertexIndices.GetIterator(); it.IsValid(); ++it)
+    outMesh.m_Vertices.SetCountUninitialized(uiNumVertices);
+    for (ezUInt32 v = 0; v < uiNumVertices; ++v)
     {
-      ezVec3 vPosition = positionStream.GetValue(it.Key()[0]);
-      outMesh.m_Vertices[it.Value()] = mTransformation.TransformDirection(vPosition);
+      outMesh.m_Vertices[v] = *reinterpret_cast<const ezVec3*>(pVertexData + v * uiVertexSize);
+    }
+  }
+
+  // Extract indices
+  {
+    outMesh.m_PolygonIndices.SetCountUninitialized(uiNumTriangles * 3);
+
+    if (meshBuffer.Uses32BitIndices())
+    {
+      const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(meshBuffer.GetIndexBufferData().GetData());
+
+      for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)
+      {
+        outMesh.m_PolygonIndices[tri] = pIndices[tri];
+      }
+    }
+    else
+    {
+      const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(meshBuffer.GetIndexBufferData().GetData());
+
+      for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)
+      {
+        outMesh.m_PolygonIndices[tri] = pIndices[tri];
+      }
     }
   }
 
   // Extract Material Information
   {
-    ezStringBuilder sMatName;
+    pProp->m_Slots.SetCount(meshDesc.GetSubMeshes().GetCount());
 
-    pProp->m_Slots.SetCount(mesh->GetNumSubMeshes());
-
-    for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
+    for (ezUInt32 matIdx = 0; matIdx < pImporter->m_OutputMaterials.GetCount(); ++matIdx)
     {
-      const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
-      const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
+      const ezInt32 subMeshIdx = pImporter->m_OutputMaterials[matIdx].m_iReferencedByMesh;
+      if (subMeshIdx < 0)
+        continue;
+
+      pProp->m_Slots[subMeshIdx].m_sLabel = pImporter->m_OutputMaterials[matIdx].m_sName;
+
+      const auto subMeshInfo = meshDesc.GetSubMeshes()[subMeshIdx];
 
       // update the triangle material information
-      for (ezUInt32 tri = 0; tri < subMesh.m_uiTriangleCount; ++tri)
+      for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
       {
-        outMesh.m_PolygonSurfaceID[subMesh.m_uiFirstTriangle + tri] = subMeshIdx;
+        outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = subMeshIdx;
       }
-
-      pProp->m_Slots[subMeshIdx].m_sLabel = material->m_Name;
     }
 
     ApplyNativePropertyChangesToObjectManager();
@@ -275,8 +284,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezPh
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCollisionMeshAssetDocument::WriteToStream(
-  ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp)
+ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp)
 {
   ezHybridArray<ezString, 32> surfaces;
 
@@ -315,15 +323,13 @@ ezCollisionMeshAssetDocumentGenerator::ezCollisionMeshAssetDocumentGenerator()
 {
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
-  AddSupportedFileType("blend");
   AddSupportedFileType("gltf");
   AddSupportedFileType("glb");
 }
 
 ezCollisionMeshAssetDocumentGenerator::~ezCollisionMeshAssetDocumentGenerator() = default;
 
-void ezCollisionMeshAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezCollisionMeshAsset");
@@ -337,8 +343,7 @@ void ezCollisionMeshAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -366,15 +371,13 @@ ezConvexCollisionMeshAssetDocumentGenerator::ezConvexCollisionMeshAssetDocumentG
 {
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
-  AddSupportedFileType("blend");
   AddSupportedFileType("gltf");
   AddSupportedFileType("glb");
 }
 
 ezConvexCollisionMeshAssetDocumentGenerator::~ezConvexCollisionMeshAssetDocumentGenerator() = default;
 
-void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezConvexCollisionMeshAsset");
@@ -388,8 +391,7 @@ void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezConvexCollisionMeshAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezConvexCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

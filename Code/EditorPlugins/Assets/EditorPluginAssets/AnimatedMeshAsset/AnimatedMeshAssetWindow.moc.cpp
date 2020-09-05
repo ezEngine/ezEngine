@@ -89,6 +89,8 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
 
 ezQtAnimatedMeshAssetDocumentWindow::~ezQtAnimatedMeshAssetDocumentWindow()
 {
+  m_HighlightTimer->stop();
+
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
 }
 

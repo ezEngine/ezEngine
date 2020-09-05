@@ -5,8 +5,7 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ModelImporter/ModelImporter.h>
-#include <ModelImporter/Scene.h>
+#include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
@@ -37,7 +36,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefault
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -47,27 +46,6 @@ ezAnimationClipAssetProperties::~ezAnimationClipAssetProperties() = default;
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
-}
-
-using namespace ezModelImporter;
-
-static ezStatus ImportAnimation(const char* filename, ezSharedPtr<ezModelImporter::Scene>& outScene)
-{
-  ezStringBuilder sAbsFilename = filename;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
-  {
-    return ezStatus(ezFmt("Could not make path absolute: '{0};", sAbsFilename));
-  }
-
-  outScene = Importer::GetSingleton()->ImportScene(sAbsFilename, ImportFlags::Skeleton | ImportFlags::Animations);
-
-  if (outScene == nullptr)
-    return ezStatus(ezFmt("Input file '{0}' could not be imported", filename));
-
-  if (outScene->m_AnimationClips.IsEmpty())
-    return ezStatus("File does not contain any animations");
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
@@ -80,45 +58,30 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   range.BeginNextStep("Importing Animations");
 
+  ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
   {
-    ezSharedPtr<Scene> scene;
-    EZ_SUCCEED_OR_RETURN(ImportAnimation(pProp->m_sSourceFile, scene));
+    return ezStatus(ezFmt("Could not make path absolute: '{0};", sAbsFilename));
+  }
 
-    ezUInt32 uiAnimationToUse = 0;
+  ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+  if (pImporter == nullptr)
+    return ezStatus("No known importer for this file type.");
 
-    pProp->m_AvailableClips.SetCount(scene->m_AnimationClips.GetCount());
-    for (ezUInt32 clip = 0; clip < scene->m_AnimationClips.GetCount(); ++clip)
-    {
-      pProp->m_AvailableClips[clip] = scene->m_AnimationClips[clip].m_sClipName;
+  ezModelImporter2::ImportOptions opt;
+  opt.m_sSourceFile = sAbsFilename;
+  opt.m_pAnimationOutput = &desc;
+  opt.m_sAnimationToImport = pProp->m_sAnimationClipToExtract;
+  opt.m_uiFirstAnimKeyframe = pProp->m_uiFirstFrame;
+  opt.m_uiNumAnimKeyframes = pProp->m_uiNumFrames;
 
-      if (pProp->m_AvailableClips[clip] == pProp->m_sAnimationClipToExtract)
-        uiAnimationToUse = clip;
-    }
+  if (pImporter->Import(opt).Failed())
+    return ezStatus("Model importer was unable to read this asset.");
 
-    const auto& animClip = scene->m_AnimationClips[uiAnimationToUse];
-
-    // first and last frame are inclusive and may be equal to pick only a single frame
-    const ezUInt32 uiFirstKeyframe = ezMath::Min(pProp->m_uiFirstFrame, animClip.m_uiNumKeyframes - 1);
-    const ezUInt32 uiMaxKeyframes = animClip.m_uiNumKeyframes - uiFirstKeyframe;
-    const ezUInt32 uiNumKeyframes = ezMath::Min((pProp->m_uiNumFrames == 0) ? uiMaxKeyframes : pProp->m_uiNumFrames, uiMaxKeyframes);
-
-    const double fStepTime = 1.0 / animClip.m_uiFramesPerSecond;
-    const ezTime tDuration = ezTime::Seconds(fStepTime) * (uiNumKeyframes - 1);
-    const ezUInt32 uiNumJoints = animClip.m_JointAnimations.GetCount();
-
-    desc.Configure(uiNumJoints, uiNumKeyframes, tDuration /*, bHasRootMotion*/);
-
-    for (ezUInt32 j = 0; j < uiNumJoints; ++j)
-    {
-      const auto& srcTrack = animClip.m_JointAnimations[j];
-
-      ezHashedString hs;
-      hs.Assign(srcTrack.m_sJointName.GetData());
-      EZ_VERIFY(desc.AddJointName(hs) == j, "Joint indices don't match");
-
-      ezArrayPtr<ezTransform> keyframes = desc.GetJointKeyframes(j);
-      keyframes.CopyFrom(srcTrack.m_Keyframes.GetArrayPtr().GetSubArray(uiFirstKeyframe, uiNumKeyframes));
-    }
+  pProp->m_AvailableClips.SetCount(pImporter->m_OutputAnimationNames.GetCount());
+  for (ezUInt32 clip = 0; clip < pImporter->m_OutputAnimationNames.GetCount(); ++clip)
+  {
+    pProp->m_AvailableClips[clip] = pImporter->m_OutputAnimationNames[clip];
   }
 
   range.BeginNextStep("Writing Result");
@@ -137,7 +100,7 @@ ezStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const ThumbnailIn
   return status;
 }
 
-//void ezAnimationClipAssetDocument::ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const
+// void ezAnimationClipAssetDocument::ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const
 //{
 //  const ezAnimationClipAssetProperties* pProp = GetProperties();
 //  const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
@@ -152,7 +115,7 @@ ezStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const ThumbnailIn
 //  }
 //}
 //
-//void ezAnimationClipAssetDocument::ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const
+// void ezAnimationClipAssetDocument::ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const
 //{
 //  const ezAnimationClipAssetProperties* pProp = GetProperties();
 //  const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
@@ -266,7 +229,7 @@ ezStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const ThumbnailIn
 //  //}
 //}
 //
-//void ezAnimationClipAssetDocument::MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const
+// void ezAnimationClipAssetDocument::MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const
 //{
 //  const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
 //  ezArrayPtr<ezTransform> pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);

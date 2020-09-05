@@ -24,7 +24,7 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
-  ezStatus CreateMeshFromFile(const ezMat3& mTransformation, ezPhysXCookingMesh& outMesh);
+  ezStatus CreateMeshFromFile(ezPhysXCookingMesh& outMesh);
   ezStatus CreateMeshFromGeom(ezGeometry& geom, ezPhysXCookingMesh& outMesh);
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 

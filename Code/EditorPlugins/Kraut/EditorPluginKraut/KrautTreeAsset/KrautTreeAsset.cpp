@@ -11,6 +11,7 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/Progress.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
+#include <ModelImporter2/Importer/Importer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -37,8 +38,7 @@ enum ezKrautImportLodType : ezUInt8
   ImpostorBillboard = 3,
 };
 
-ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -119,8 +119,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       krautFile >> mat.m_VariationColor;
 
-      mat.m_sDiffuseTexture = ImportTexture(sDiffuseTexture, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, bClampTextureLookup);
-      mat.m_sNormalMapTexture = ImportTexture(sNormalMapTexture, ezModelImporter::SemanticHint::NORMAL, bClampTextureLookup);
+      mat.m_sDiffuseTexture = ImportTexture(sDiffuseTexture, ezModelImporter2::TextureSemantic::DiffuseAlphaMap, bClampTextureLookup);
+      mat.m_sNormalMapTexture = ImportTexture(sNormalMapTexture, ezModelImporter2::TextureSemantic::NormalMap, bClampTextureLookup);
     }
   }
 
@@ -318,13 +318,13 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     if (uiVersion == 1)
       sFile.Append("_D.tga");
 
-    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
+    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::DiffuseAlphaMap, true);
 
     sFile = pProp->m_sKrautFile;
     sFile.RemoveFileExtension();
 
     sFile.Append("_N.tga");
-    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::NORMAL, true);
+    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::NormalMap, true);
   }
 
   if (uiBillboardImpostorMaterialIndex != 0xFFFFFFFF)
@@ -338,13 +338,13 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     if (uiVersion == 1)
       sFile.Append("_D.tga");
 
-    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
+    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::DiffuseAlphaMap, true);
 
     sFile = pProp->m_sKrautFile;
     sFile.RemoveFileExtension();
 
     sFile.Append("_N.tga");
-    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::NORMAL, true);
+    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::NormalMap, true);
   }
 
   desc.m_Details.m_sSurfaceResource = pProp->m_sSurface;
@@ -367,8 +367,7 @@ void ezKrautTreeAssetDocument::SyncBackAssetProperties(ezKrautTreeAssetPropertie
 
   for (ezUInt32 m = 0; m < pProp->m_Materials.GetCount(); ++m)
   {
-    if (pProp->m_Materials[m].m_sDiffuseTexture != desc.m_Materials[m].m_sDiffuseTexture ||
-        pProp->m_Materials[m].m_sNormalMapTexture != desc.m_Materials[m].m_sNormalMapTexture)
+    if (pProp->m_Materials[m].m_sDiffuseTexture != desc.m_Materials[m].m_sDiffuseTexture || pProp->m_Materials[m].m_sNormalMapTexture != desc.m_Materials[m].m_sNormalMapTexture)
     {
       bModified = true;
 
@@ -394,7 +393,7 @@ ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& 
   return status;
 }
 
-ezString ezKrautTreeAssetDocument::ImportTexture(const char* szFilename, ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
+ezString ezKrautTreeAssetDocument::ImportTexture(const char* szFilename, ezModelImporter2::TextureSemantic hint, bool bTextureClamp)
 {
   ezStringBuilder sRelativePathToTexture = szFilename;
   sRelativePathToTexture.MakeCleanPath();
@@ -431,8 +430,7 @@ ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
 
 ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
 
-void ezKrautTreeAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezKrautTreeAsset");
@@ -446,8 +444,7 @@ void ezKrautTreeAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezKrautTreeAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
