@@ -16,7 +16,6 @@ target_link_libraries(${PROJECT_NAME}
   EditorFramework
   GameEngine
   KrautPlugin
-  ModelImporter
   EditorPluginAssets
 )
 

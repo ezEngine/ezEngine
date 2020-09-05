@@ -5,11 +5,13 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezVisualizeSkeletonComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+struct ezMsgQueryAnimationSkeleton;
 
-class EZ_RENDERERCORE_DLL ezVisualizeSkeletonComponent : public ezRenderComponent
+using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezSkeletonComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+
+class EZ_RENDERERCORE_DLL ezSkeletonComponent : public ezRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezVisualizeSkeletonComponent, ezRenderComponent, ezVisualizeSkeletonComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezSkeletonComponent, ezRenderComponent, ezVisualizeSkeletonComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
@@ -29,11 +31,11 @@ public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezVisualizeSkeletonComponent
+  // ezSkeletonComponent
 
 public:
-  ezVisualizeSkeletonComponent();
-  ~ezVisualizeSkeletonComponent();
+  ezSkeletonComponent();
+  ~ezSkeletonComponent();
 
   void SetSkeletonFile(const char* szFile); // [ property ]
   const char* GetSkeletonFile() const;      // [ property ]
@@ -41,9 +43,12 @@ public:
   void SetSkeleton(const ezSkeletonResourceHandle& hResource);
   const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
 
+  bool m_bVisualizeSkeleton = false; // [ property ]
+
 protected:
   void Update();
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+  void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);
   void UpdateSkeletonVis();
 
   ezSkeletonResourceHandle m_hSkeleton;

@@ -2,6 +2,7 @@
 
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
@@ -36,9 +37,14 @@ public:
   ezAnimatedMeshComponent();
   ~ezAnimatedMeshComponent();
 
-protected:
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+  bool m_bVisualizeBindPose = false;
 
-  ezAnimationPose m_AnimationPose;
+protected:
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]
+  void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg); // [ msg handler ]
+
+  // ezAnimationPose m_AnimationPose;
+  ezDynamicArray<ezMat4> m_AnimTransforms;
   ezSkeletonResourceHandle m_hSkeleton;
+  ezDynamicArray<ezDebugRenderer::Line> m_Lines;
 };

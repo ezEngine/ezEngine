@@ -4,12 +4,12 @@
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/ModelImporter.h>
+#include <ModelImporter2/Importer/Importer.h>
+#include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -17,7 +17,9 @@ static ezMat3 CalculateTransformationMatrix(const ezAnimatedMeshAssetProperties*
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  return ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
+  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, pProp->m_bFlipForwardDir);
+
+  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
 }
 
 ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(const char* szDocumentPath)
@@ -25,15 +27,11 @@ ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(const char* szDocumentP
 {
 }
 
-ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
   ezAnimatedMeshAssetProperties* pProp = GetProperties();
-
-  if (pProp->m_sSkeletonFile.IsEmpty())
-    return ezStatus("No skeleton was specified for animated mesh asset");
 
   ezMeshResourceDescriptor desc;
 
@@ -44,8 +42,14 @@ ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
   // the properties object can get invalidated by the CreateMeshFromFile() call
   pProp = GetProperties();
+
   range.BeginNextStep("Writing Result");
-  desc.SetSkeleton(ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
+
+  if (!pProp->m_sDefaultSkeleton.IsEmpty())
+  {
+    desc.m_hDefaultSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sDefaultSkeleton);
+  }
+
   desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
@@ -53,27 +57,47 @@ ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
 ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc)
 {
-  ezProgressRange range("Mesh Import", 6, false);
+  ezProgressRange range("Mesh Import", 5, false);
 
   range.SetStepWeighting(0, 0.7f);
   range.BeginNextStep("Importing Mesh Data");
 
-  const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
+  ezStringBuilder sAbsFilename = pProp->m_sMeshFile;
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+  {
+    return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+  }
 
-  ezSharedPtr<ezModelImporter::Scene> pScene;
-  ezModelImporter::Mesh* pMesh = nullptr;
-  EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, "", mTransformation, pProp->m_bRecalculateNormals,
-    pProp->m_bInvertNormals, pProp->m_NormalPrecision, pProp->m_TexCoordPrecision, range, desc, true));
+  ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+  if (pImporter == nullptr)
+    return ezStatus("No known importer for this file type.");
+
+  ezModelImporter2::ImportOptions opt;
+  opt.m_sSourceFile = sAbsFilename;
+  opt.m_bImportSkinningData = true;
+  opt.m_bRecomputeNormals = pProp->m_bRecalculateNormals;
+  opt.m_bRecomputeTangents = pProp->m_bRecalculateTrangents;
+  opt.m_pMeshOutput = &desc;
+  opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
+  opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
+  opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+
+  if (pImporter->Import(opt).Failed())
+    return ezStatus("Model importer was unable to read this asset.");
 
   range.BeginNextStep("Importing Materials");
 
-  // Option material slot count correction & material import.
-  if (pProp->m_bImportMaterials || pProp->m_Slots.GetCount() != pMesh->GetNumSubMeshes())
+  // correct the number of material slots
+  if (pProp->m_bImportMaterials || pProp->m_Slots.GetCount() != desc.GetSubMeshes().GetCount())
   {
-    GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
+    GetObjectAccessor()->StartTransaction("Update Mesh Materials");
 
-    ezMeshImportUtils::UpdateMaterialSlots(
-      GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials, pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
+    ezMeshImportUtils::SetMeshAssetMaterialSlots(pProp->m_Slots, pImporter.Borrow());
+
+    if (pProp->m_bImportMaterials)
+    {
+      ezMeshImportUtils::ImportMeshAssetMaterials(pProp->m_Slots, GetDocumentPath(), pImporter.Borrow());
+    }
 
     ApplyNativePropertyChangesToObjectManager();
     GetObjectAccessor()->FinishTransaction();
@@ -82,9 +106,7 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
     pProp = GetProperties();
   }
 
-  range.BeginNextStep("Setting Materials");
-
-  ezMeshImportUtils::AddMeshToDescriptor(desc, *pScene, *pMesh, pProp->m_Slots);
+  ezMeshImportUtils::CopyMeshAssetMaterialSlotToResource(desc, pProp->m_Slots);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -110,8 +132,7 @@ ezAnimatedMeshAssetDocumentGenerator::ezAnimatedMeshAssetDocumentGenerator()
 
 ezAnimatedMeshAssetDocumentGenerator::~ezAnimatedMeshAssetDocumentGenerator() {}
 
-void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -133,8 +154,7 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

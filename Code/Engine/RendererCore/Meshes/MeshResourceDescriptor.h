@@ -53,15 +53,22 @@ public:
   void ComputeBounds();
   const ezBoundingBoxSphere& GetBounds() const;
 
-  void SetSkeleton(const ezSkeletonResourceHandle& hSkeleton);
-  const ezSkeletonResourceHandle& GetSkeleton() const;
+  struct BoneData
+  {
+    ezMat4 m_GlobalInverseBindPoseMatrix;
+    ezUInt16 m_uiBoneIndex = ezInvalidJointIndex;
+
+    ezResult Serialize(ezStreamWriter& stream) const;
+    ezResult Deserialize(ezStreamReader& stream);
+  };
+
+  ezSkeletonResourceHandle m_hDefaultSkeleton;
+  ezHashTable<ezHashedString, BoneData> m_Bones;
 
 private:
   ezHybridArray<Material, 8> m_Materials;
   ezHybridArray<SubMesh, 8> m_SubMeshes;
   ezMeshBufferResourceDescriptor m_MeshBufferDescriptor;
   ezMeshBufferResourceHandle m_hMeshBuffer;
-  ezSkeletonResourceHandle m_hSkeleton;
-
   ezBoundingBoxSphere m_Bounds;
 };

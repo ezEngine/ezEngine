@@ -3,7 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
+#include <RendererCore/AnimationSystem/SkeletonComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton_utils.h>
@@ -11,16 +11,18 @@
 #include <ozz/base/maths/simd_math.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVisualizeSkeletonComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
+    EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated)
+    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
+    EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton)
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -32,44 +34,44 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualizeSkeletonComponent, 1, ezComponentMode::Static
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualizeSkeletonComponent::ezVisualizeSkeletonComponent() = default;
-ezVisualizeSkeletonComponent::~ezVisualizeSkeletonComponent() = default;
+ezSkeletonComponent::ezSkeletonComponent() = default;
+ezSkeletonComponent::~ezSkeletonComponent() = default;
 
-ezResult ezVisualizeSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   bounds = m_LocalBounds;
   return EZ_SUCCESS;
 }
 
-void ezVisualizeSkeletonComponent::Update()
+void ezSkeletonComponent::Update()
 {
-  if (!m_LinesSkeleton.IsEmpty())
+  if (m_bVisualizeSkeleton && !m_LinesSkeleton.IsEmpty())
   {
     ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::DeepPink, GetOwner()->GetGlobalTransform());
   }
 
-  //if (!m_hSkeleton.IsValid())
+  // if (!m_hSkeleton.IsValid())
   //  return;
 
-  //ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+  // ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
-  //if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  // if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
   //  return;
 
-  //const ezSkeletonResourceDescriptor& desc = pSkeleton->GetDescriptor();
-  //const ezSkeleton& skeleton = desc.m_Skeleton;
+  // const ezSkeletonResourceDescriptor& desc = pSkeleton->GetDescriptor();
+  // const ezSkeleton& skeleton = desc.m_Skeleton;
 
-  //ezAnimationPose pose;
-  //pose.Configure(skeleton);
-  //pose.SetToBindPoseInLocalSpace(skeleton);
-  //pose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+  // ezAnimationPose pose;
+  // pose.Configure(skeleton);
+  // pose.SetToBindPoseInLocalSpace(skeleton);
+  // pose.ConvertFromLocalSpaceToObjectSpace(skeleton);
 
-  //pose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), 0);
+  // pose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), 0);
 
-  //ezQuat qRotCapsule;
-  //qRotCapsule.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+  // ezQuat qRotCapsule;
+  // qRotCapsule.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
 
-  //for (const auto& geo : desc.m_Geometry)
+  // for (const auto& geo : desc.m_Geometry)
   //{
   //  const ezVec3 scale = geo.m_Transform.m_vScale;
 
@@ -107,33 +109,35 @@ void ezVisualizeSkeletonComponent::Update()
   //}
 }
 
-void ezVisualizeSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
   auto& s = stream.GetStream();
 
   s << m_hSkeleton;
+  s << m_bVisualizeSkeleton;
 }
 
-void ezVisualizeSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
   s >> m_hSkeleton;
+  s >> m_bVisualizeSkeleton;
 }
 
-void ezVisualizeSkeletonComponent::OnSimulationStarted()
+void ezSkeletonComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   UpdateSkeletonVis();
 }
 
-void ezVisualizeSkeletonComponent::SetSkeletonFile(const char* szFile)
+void ezSkeletonComponent::SetSkeletonFile(const char* szFile)
 {
   ezSkeletonResourceHandle hResource;
 
@@ -145,7 +149,7 @@ void ezVisualizeSkeletonComponent::SetSkeletonFile(const char* szFile)
   SetSkeleton(hResource);
 }
 
-const char* ezVisualizeSkeletonComponent::GetSkeletonFile() const
+const char* ezSkeletonComponent::GetSkeletonFile() const
 {
   if (!m_hSkeleton.IsValid())
     return "";
@@ -154,7 +158,7 @@ const char* ezVisualizeSkeletonComponent::GetSkeletonFile() const
 }
 
 
-void ezVisualizeSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
+void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
 {
   if (m_hSkeleton != hResource)
   {
@@ -163,7 +167,7 @@ void ezVisualizeSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& h
   }
 }
 
-void ezVisualizeSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
+void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
   m_LinesSkeleton.Clear();
 
@@ -195,7 +199,7 @@ void ezVisualizeSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpda
   }
 }
 
-void ezVisualizeSkeletonComponent::UpdateSkeletonVis()
+void ezSkeletonComponent::UpdateSkeletonVis()
 {
   m_LinesSkeleton.Clear();
   m_LocalBounds.SetInvalid();
@@ -227,7 +231,16 @@ void ezVisualizeSkeletonComponent::UpdateSkeletonVis()
   TriggerLocalBoundsUpdate();
 }
 
-//void ezVisualizeSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo)
+void ezSkeletonComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
+{
+  // if we have a skeleton, always overwrite it any incoming message with that
+  if (m_hSkeleton.IsValid())
+  {
+    msg.m_hSkeleton = m_hSkeleton;
+  }
+}
+
+// void ezSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo)
 //{
 //  const ezUInt32 uiNumJoints = pSkeletonData->GetJointCount();
 //

@@ -14,7 +14,7 @@
 #include <GameEngine/Gameplay/InputComponent.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
 #include <GameEngine/Prefabs/SpawnComponent.h>
-#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
+#include <RendererCore/AnimationSystem/SkeletonComponent.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
@@ -54,18 +54,19 @@ void ezSkeletonContext::OnInitialize()
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
-  ezVisualizeSkeletonComponent* pVisSkeleton;
+  ezSkeletonComponent* pVisSkeleton;
 
   // Preview Mesh
   {
     obj.m_sName.Assign("SkeletonPreview");
     pWorld->CreateObject(obj, m_pGameObject);
 
-    ezVisualizeSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
+    ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
     ezStringBuilder sSkeletonGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
     ezSkeletonResourceHandle hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
     pVisSkeleton->SetSkeleton(hSkeleton);
+    pVisSkeleton->m_bVisualizeSkeleton = true;
   }
 
   // Lights

@@ -9,7 +9,6 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/Actions/EditorPluginAssetsActions.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
@@ -34,6 +33,28 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <SkeletonAsset/SkeletonAsset.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+
+static void ConfigureAnimationControllerAsset()
+{
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("AnimationControllerAssetMenuBar");
+
+    ezProjectActions::MapActions("AnimationControllerAssetMenuBar");
+    ezStandardMenus::MapActions("AnimationControllerAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezDocumentActions::MapActions("AnimationControllerAssetMenuBar", "Menu.File", false);
+    ezCommandHistoryActions::MapActions("AnimationControllerAssetMenuBar", "Menu.Edit");
+    ezEditActions::MapActions("AnimationControllerAssetMenuBar", "Menu.Edit", false, false);
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("AnimationControllerAssetToolBar");
+    ezDocumentActions::MapActions("AnimationControllerAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("AnimationControllerAssetToolBar", "");
+    ezAssetActions::MapActions("AnimationControllerAssetToolBar", true);
+  }
+}
 
 static void ConfigureTexture2DAsset()
 {
@@ -455,6 +476,7 @@ void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
 
+  ConfigureAnimationControllerAsset();
   ConfigureTexture2DAsset();
   ConfigureTextureCubeAsset();
   ConfigureLUTAsset();
@@ -471,12 +493,6 @@ void OnLoadPlugin(bool bReloading)
   ConfigureAnimationClipAsset();
   ConfigureSkeletonAsset();
   ConfigureAnimatedMeshAsset();
-
-  // General editor plugin actions
-  {
-    ezAssetPluginActions::RegisterActions();
-    ezAssetPluginActions::MapActions("SettingsTabMenuBar");
-  }
 }
 
 void OnUnloadPlugin(bool bReloading)
@@ -485,7 +501,6 @@ void OnUnloadPlugin(bool bReloading)
   ezTextureCubeAssetActions::UnregisterActions();
   ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
-  ezAssetPluginActions::UnregisterActions();
   ezVisualScriptActions::UnregisterActions();
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);

@@ -4,16 +4,25 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/ModelImporter.h>
-#include <ModelImporter/Scene.h>
+#include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 2, ezRTTINoAllocator)
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+static ezMat3 CalculateTransformationMatrix(const ezEditableSkeleton* pProp)
+{
+  const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+
+  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, pProp->m_bFlipForwardDir);
+
+  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
+}
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple)
@@ -59,45 +68,40 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
   }
 }
 
-using namespace ezModelImporter;
-
-static ezStatus ImportSkeleton(const char* filename, ezSharedPtr<ezModelImporter::Scene>& outScene)
-{
-  ezStringBuilder sAbsFilename = filename;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
-  {
-    return ezStatus(ezFmt("Could not make path absolute: '{0};", sAbsFilename));
-  }
-
-  outScene = Importer::GetSingleton()->ImportScene(sAbsFilename, ImportFlags::Skeleton);
-
-  if (outScene == nullptr)
-    return ezStatus(ezFmt("Input file '{0}' could not be imported", filename));
-
-  if (outScene->m_Skeleton.GetJointCount() == 0)
-    return ezStatus("Mesh does not contain skeleton information");
-
-  return ezStatus(EZ_SUCCESS);
-}
-
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 4, false);
 
   ezEditableSkeleton* pProp = GetProperties();
 
-  range.BeginNextStep("Importing Source File");
+  {
+    ezStringBuilder sAbsFilename = pProp->m_sAnimationFile;
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+    {
+      return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+    }
 
-  ezSharedPtr<Scene> scene;
-  EZ_SUCCEED_OR_RETURN(ImportSkeleton(pProp->m_sAnimationFile, scene));
+    ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+    if (pImporter == nullptr)
+      return ezStatus("No known importer for this file type.");
 
-  range.BeginNextStep("Importing Skeleton Data");
+    range.BeginNextStep("Importing Source File");
 
-  ezEditableSkeleton newSkeleton;
-  EZ_SUCCEED_OR_RETURN(ezModelImporter::Importer::ImportSkeleton(newSkeleton, scene));
+    ezEditableSkeleton newSkeleton;
 
-  // synchronize the old data (collision geometry etc.) with the new hierarchy
-  MergeWithNewSkeleton(newSkeleton);
+    ezModelImporter2::ImportOptions opt;
+    opt.m_sSourceFile = sAbsFilename;
+    opt.m_pSkeletonOutput = &newSkeleton;
+    opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+
+    if (pImporter->Import(opt).Failed())
+      return ezStatus("Model importer was unable to read this asset.");
+
+    range.BeginNextStep("Importing Skeleton Data");
+
+    // synchronize the old data (collision geometry etc.) with the new hierarchy
+    MergeWithNewSkeleton(newSkeleton);
+  }
 
   // merge the new data with the actual asset document
   ApplyNativePropertyChangesToObjectManager(true);
@@ -187,8 +191,7 @@ ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
-void ezSkeletonAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
