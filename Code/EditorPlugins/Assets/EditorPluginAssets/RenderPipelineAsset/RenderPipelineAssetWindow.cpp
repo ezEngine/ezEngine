@@ -48,7 +48,7 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("RenderPipelineAssetDockWidget");
-    pPropertyPanel->setWindowTitle("Render Pipeline Properties");
+    pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);

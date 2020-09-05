@@ -19,20 +19,14 @@ struct EZ_FOUNDATION_DLL ezSerializedBlock
 class EZ_FOUNDATION_DLL ezAbstractGraphDdlSerializer
 {
 public:
-  static void Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph = nullptr,
-    bool bCompactMmode = true, ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest);
-  static ezResult Read(
-    ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr, bool bApplyPatches = true);
+  static void Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph = nullptr, bool bCompactMmode = true, ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest);
+  static ezResult Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr, bool bApplyPatches = true);
 
   static void Write(ezOpenDdlWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph = nullptr);
-  static ezResult Read(const ezOpenDdlReaderElement* pRootElement, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr,
-    bool bApplyPatches = true);
+  static ezResult Read(const ezOpenDdlReaderElement* pRootElement, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr, bool bApplyPatches = true);
 
-  static void WriteDocument(ezStreamWriter& stream, const ezAbstractObjectGraph* pHeader, const ezAbstractObjectGraph* pGraph,
-    const ezAbstractObjectGraph* pTypes, bool bCompactMode = true,
-    ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest);
-  static ezResult ReadDocument(ezStreamReader& stream, ezUniquePtr<ezAbstractObjectGraph>& pHeader, ezUniquePtr<ezAbstractObjectGraph>& pGraph,
-    ezUniquePtr<ezAbstractObjectGraph>& pTypes, bool bApplyPatches = true);
+  static void WriteDocument(ezStreamWriter& stream, const ezAbstractObjectGraph* pHeader, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypes, bool bCompactMode = true, ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest);
+  static ezResult ReadDocument(ezStreamReader& stream, ezUniquePtr<ezAbstractObjectGraph>& pHeader, ezUniquePtr<ezAbstractObjectGraph>& pGraph, ezUniquePtr<ezAbstractObjectGraph>& pTypes, bool bApplyPatches = true);
 
   static ezResult ReadHeader(ezStreamReader& stream, ezAbstractObjectGraph* pGraph);
 

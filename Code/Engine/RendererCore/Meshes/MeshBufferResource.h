@@ -43,8 +43,7 @@ public:
 
   /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
   /// use indexed rendering.
-  void AllocateStreams(
-    ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0);
+  void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0, bool bZeroFill = false);
 
   /// \brief Creates streams and fills them with data from the ezGeometry. Only the geometry matching the given topology is used.
   ///  Streams that do not match any of the data inside the ezGeometry directly are skipped.
@@ -77,10 +76,7 @@ public:
   ///
   /// uiStream is the index of the data stream to write to.
   /// uiVertexIndex is the index of the vertex for which to write the data.
-  ezArrayPtr<ezUInt8> GetVertexData(ezUInt32 uiStream, ezUInt32 uiVertexIndex)
-  {
-    return m_VertexStreamData.GetArrayPtr().GetSubArray(m_uiVertexSize * uiVertexIndex + m_VertexDeclaration.m_VertexStreams[uiStream].m_uiOffset);
-  }
+  ezArrayPtr<ezUInt8> GetVertexData(ezUInt32 uiStream, ezUInt32 uiVertexIndex) { return m_VertexStreamData.GetArrayPtr().GetSubArray(m_uiVertexSize * uiVertexIndex + m_VertexDeclaration.m_VertexStreams[uiStream].m_uiOffset); }
 
   /// \brief Writes the vertex index for the given point into the index buffer.
   void SetPointIndices(ezUInt32 uiPoint, ezUInt32 uiVertex0);
@@ -114,6 +110,8 @@ public:
 
   /// \brief Returns the primitive topology
   ezGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
+
+  ezResult RecomputeNormals();
 
 private:
   ezGALPrimitiveTopology::Enum m_Topology;

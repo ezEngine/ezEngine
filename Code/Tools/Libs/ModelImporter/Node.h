@@ -19,14 +19,5 @@ namespace ezModelImporter
 
     /// Children. ImporterImplementations are responsible to avoid cycles.
     ezDynamicArray<ObjectHandle> m_Children;
-
-    struct Metadata
-    {
-      ezString m_Key;
-      ezVariant m_Data;
-    };
-
-    /// Meta data. May contain information that otherwise do not map into ezModelImporter's data structure.
-    ezDynamicArray<Metadata> m_Metadata;
   };
 } // namespace ezModelImporter

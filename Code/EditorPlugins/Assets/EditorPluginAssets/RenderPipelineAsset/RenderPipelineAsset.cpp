@@ -117,8 +117,6 @@ ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& s
   stream << uiVersion;
 
   ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
   ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager());
 
   auto& children = GetObjectManager()->GetRootObject()->GetChildren();

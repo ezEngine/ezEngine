@@ -55,6 +55,9 @@ ezResult ezMeshBufferUtils::EncodeFromFloat(const float source, ezArrayPtr<ezUIn
     case ezGALResourceFormat::RFloat:
       *reinterpret_cast<float*>(dest.GetPtr()) = source;
       return EZ_SUCCESS;
+    case ezGALResourceFormat::RHalf:
+      *reinterpret_cast<ezFloat16*>(dest.GetPtr()) = source;
+      return EZ_SUCCESS;
     default:
       return EZ_FAILURE;
   }
@@ -194,6 +197,9 @@ ezResult ezMeshBufferUtils::DecodeToFloat(ezArrayPtr<const ezUInt8> source, ezGA
     case ezGALResourceFormat::RFloat:
       dest = *reinterpret_cast<const float*>(source.GetPtr());
       return EZ_SUCCESS;
+    case ezGALResourceFormat::RHalf:
+      dest = *reinterpret_cast<const ezFloat16*>(source.GetPtr());
+      return EZ_SUCCESS;
     default:
       return EZ_FAILURE;
   }
@@ -209,7 +215,9 @@ ezResult ezMeshBufferUtils::DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGAL
     case ezGALResourceFormat::RGFloat:
       dest = *reinterpret_cast<const ezVec2*>(source.GetPtr());
       return EZ_SUCCESS;
-
+    case ezGALResourceFormat::RGHalf:
+      dest = *reinterpret_cast<const ezFloat16Vec2*>(source.GetPtr());
+      return EZ_SUCCESS;
     default:
       return EZ_FAILURE;
   }

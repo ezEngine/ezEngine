@@ -16,10 +16,13 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
+#include <SharedPluginAssets/Common/Messages.h>
 
 ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnimatedMeshAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
+
   // Menu Bar
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
@@ -75,6 +78,18 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
   FinishWindowCreation();
 
   QueryObjectBBox(0);
+
+  UpdatePreview();
+
+  m_HighlightTimer = new QTimer();
+  connect(m_HighlightTimer, &QTimer::timeout, this, &ezQtAnimatedMeshAssetDocumentWindow::HighlightTimer);
+  m_HighlightTimer->setInterval(500);
+  m_HighlightTimer->start();
+}
+
+ezQtAnimatedMeshAssetDocumentWindow::~ezQtAnimatedMeshAssetDocumentWindow()
+{
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 ezAnimatedMeshAssetDocument* ezQtAnimatedMeshAssetDocumentWindow::GetMeshDocument()
@@ -106,6 +121,53 @@ void ezQtAnimatedMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   GetDocument()->SendMessageToEngine(&msg);
 }
 
+
+void ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  // if (e.m_sProperty == "Resource") // any material change
+  {
+    UpdatePreview();
+  }
+}
+
+
+bool ezQtAnimatedMeshAssetDocumentWindow::UpdatePreview()
+{
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return false;
+
+  if (GetMeshDocument()->GetProperties() == nullptr)
+    return false;
+
+  const auto& materials = GetMeshDocument()->GetProperties()->m_Slots;
+
+  ezEditorEngineSetMaterialsMsg msg;
+  msg.m_Materials.SetCount(materials.GetCount());
+
+  ezUInt32 uiSlot = 0;
+  bool bHighlighted = false;
+
+  for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+  {
+    msg.m_Materials[i] = materials[i].m_sResource;
+
+    if (materials[i].m_bHighlight)
+    {
+      if (uiSlot == m_uiHighlightSlots)
+      {
+        bHighlighted = true;
+        msg.m_Materials[i] = "Materials/Editor/HighlightMesh.ezMaterial";
+      }
+
+      ++uiSlot;
+    }
+  }
+
+  GetEditorEngineConnection()->SendMessage(&msg);
+
+  return bHighlighted;
+}
+
 void ezQtAnimatedMeshAssetDocumentWindow::InternalRedraw()
 {
   ezEditorInputContext::UpdateActiveInputContext();
@@ -119,8 +181,7 @@ void ezQtAnimatedMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEdi
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 &&
-        pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 && pMessage->m_vHalfExtents.z >= 0)
     {
       m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }
@@ -134,4 +195,28 @@ void ezQtAnimatedMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEdi
   }
 
   ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+}
+
+void ezQtAnimatedMeshAssetDocumentWindow::HighlightTimer()
+{
+  if (m_uiHighlightSlots & EZ_BIT(31))
+    m_uiHighlightSlots &= ~EZ_BIT(31);
+  else
+    m_uiHighlightSlots |= EZ_BIT(31);
+
+  if (m_uiHighlightSlots & EZ_BIT(31))
+  {
+    UpdatePreview();
+  }
+  else
+  {
+    if (UpdatePreview())
+    {
+      ++m_uiHighlightSlots;
+    }
+    else
+    {
+      m_uiHighlightSlots = EZ_BIT(31);
+    }
+  }
 }

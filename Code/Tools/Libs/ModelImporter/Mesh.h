@@ -58,8 +58,7 @@ namespace ezModelImporter
     ///
     /// If a data stream already exists it will be returned, unless the existing data stream has a different element type or element count per vertex
     /// attribute. In this case nullptr will be returned.
-    VertexDataStream* AddDataStream(
-      ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexElementType elementType = VertexElementType::FLOAT);
+    VertexDataStream* AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexElementType elementType = VertexElementType::FLOAT);
 
     /// Removes a data stream from the mesh.
     void RemoveDataStream(ezGALVertexAttributeSemantic::Enum semantic);
@@ -128,14 +127,10 @@ namespace ezModelImporter
     /// Use this method to generate classic vertex + index buffer.
     /// If the mesh does not have a given semantic, the method fails.
     template <int NumStreams>
-    ezResult GenerateInterleavedVertexMapping(const ezGALVertexAttributeSemantic::Enum (&dataStreamSemantics)[NumStreams],
-      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices,
-      ezDynamicArray<ezUInt32>& outTriangleVertexIndices) const;
+    ezResult GenerateInterleavedVertexMapping(const ezGALVertexAttributeSemantic::Enum (&dataStreamSemantics)[NumStreams], ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices) const;
 
     template <int NumStreams>
-    static void GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams],
-      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices,
-      ezDynamicArray<ezUInt32>& outTriangleVertexIndices);
+    static void GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams], ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices);
 
   private:
     ezDynamicArray<Triangle> m_Triangles;

@@ -1,6 +1,6 @@
 namespace ezModelImporter
 {
-  inline void Mesh::Triangle::operator = (const Mesh::Triangle& rhs)
+  inline void Mesh::Triangle::operator=(const Mesh::Triangle& rhs)
   {
     m_Vertices[0] = rhs.m_Vertices[0];
     m_Vertices[1] = rhs.m_Vertices[1];
@@ -8,8 +8,8 @@ namespace ezModelImporter
   }
 
 
-  template<int NumStreams>
-  inline bool Mesh::DataIndexBundle<NumStreams>::operator == (const DataIndexBundle& dataIndex) const
+  template <int NumStreams>
+  inline bool Mesh::DataIndexBundle<NumStreams>::operator==(const DataIndexBundle& dataIndex) const
   {
     for (int i = 0; i < NumStreams; ++i)
     {
@@ -19,21 +19,20 @@ namespace ezModelImporter
     return true;
   }
 
-  template<int NumStreams>
-  inline const ezModelImporter::VertexDataIndex Mesh::DataIndexBundle<NumStreams>::operator [] (int i) const
+  template <int NumStreams>
+  inline const ezModelImporter::VertexDataIndex Mesh::DataIndexBundle<NumStreams>::operator[](int i) const
   {
     return m_indices[i];
   }
 
-  template<int NumStreams>
-  inline ezModelImporter::VertexDataIndex& Mesh::DataIndexBundle<NumStreams>::operator [] (int i)
+  template <int NumStreams>
+  inline ezModelImporter::VertexDataIndex& Mesh::DataIndexBundle<NumStreams>::operator[](int i)
   {
     return m_indices[i];
   }
 
-  template<int NumStreams>
-  inline ezResult Mesh::GenerateInterleavedVertexMapping(const ezGALVertexAttributeSemantic::Enum (&dataStreamSemantics)[NumStreams],
-                                                         ezHashTable<Mesh::DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices) const
+  template <int NumStreams>
+  inline ezResult Mesh::GenerateInterleavedVertexMapping(const ezGALVertexAttributeSemantic::Enum (&dataStreamSemantics)[NumStreams], ezHashTable<Mesh::DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices) const
   {
     const VertexDataStream* dataStreams[NumStreams];
     for (int i = 0; i < NumStreams; ++i)
@@ -46,9 +45,8 @@ namespace ezModelImporter
     return EZ_SUCCESS;
   }
 
-  template<int NumStreams>
-  inline void Mesh::GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams],
-                                                     ezHashTable<Mesh::DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices)
+  template <int NumStreams>
+  inline void Mesh::GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams], ezHashTable<Mesh::DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices)
   {
     outTriangleVertexIndices.SetCountUninitialized(triangles.GetCount() * 3);
 
@@ -74,20 +72,14 @@ namespace ezModelImporter
       }
     }
   }
-}
+} // namespace ezModelImporter
 
 template <int NumStreams>
 struct ezHashHelper<typename ezModelImporter::Mesh::DataIndexBundle<NumStreams>>
 {
   typedef ezModelImporter::Mesh::DataIndexBundle<NumStreams> ValueType;
 
-  static ezUInt32 Hash(const ValueType& value)
-  {
-    return ezHashingUtils::xxHash32(&value, sizeof(ValueType));
-  }
+  static ezUInt32 Hash(const ValueType& value) { return ezHashingUtils::xxHash32(&value, sizeof(ValueType)); }
 
-  static bool Equal(const ValueType& a, const ValueType& b)
-  {
-    return a == b;
-  }
+  static bool Equal(const ValueType& a, const ValueType& b) { return a == b; }
 };
