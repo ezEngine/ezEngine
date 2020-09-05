@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2020, assimp team
 
 
 All rights reserved.
@@ -39,14 +39,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------
 */
+#pragma once
 #ifndef INCLUDED_AI_STRINGUTILS_H
 #define INCLUDED_AI_STRINGUTILS_H
+
+#ifdef __GNUC__
+#   pragma GCC system_header
+#endif
 
 #include <assimp/defs.h>
 
 #include <sstream>
 #include <stdarg.h>
 #include <cstdlib>
+
+#ifdef _MSC_VER
+#   define AI_SIZEFMT "%Iu"
+#else
+#   define AI_SIZEFMT "%zu"
+#endif
 
 ///	@fn		ai_snprintf
 ///	@brief	The portable version of the function snprintf ( C99 standard ), which works on visual studio compilers 2013 and earlier.
@@ -82,6 +93,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		return count;
 	}
 
+#elif defined(__MINGW32__)
+#   define ai_snprintf __mingw_snprintf
 #else
 #   define ai_snprintf snprintf
 #endif
@@ -134,10 +147,27 @@ std::string DecimalToHexa( T toConvert ) {
     ss >> result;
 
     for ( size_t i = 0; i < result.size(); ++i ) {
-        result[ i ] = toupper( result[ i ] );
+        result[ i ] = (char) toupper( result[ i ] );
     }
 
     return result;
+}
+
+///	@brief	translate RGBA to String
+///	@param	r   aiColor.r
+///	@param	g   aiColor.g
+///	@param	b   aiColor.b
+///	@param	a   aiColor.a
+///	@param	with_head   #
+///	@return	The hexadecimal string, is empty in case of an error.
+AI_FORCE_INLINE std::string Rgba2Hex(int r, int g, int b, int a, bool with_head) {
+	std::stringstream ss;
+	if (with_head) {
+		ss << "#";
+    }
+	ss << std::hex << (r << 24 | g << 16 | b << 8 | a);
+
+    return ss.str();
 }
 
 #endif // INCLUDED_AI_STRINGUTILS_H
