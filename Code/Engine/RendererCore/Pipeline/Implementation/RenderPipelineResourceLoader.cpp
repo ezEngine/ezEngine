@@ -212,8 +212,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
 }
 
 // static
-void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(
-  const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc)
+void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc)
 {
   ezRenderPipelineRttiConverterContext context;
 
@@ -272,8 +271,7 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(
       {
         const ezUuid targetGuid = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
         EZ_ASSERT_DEBUG(targetGuid.IsValid(), "Connection target was not serialized in previous step!");
-        data.m_Connections.PushBack(RenderPipelineResourceLoaderConnectionInternal(
-          pSource->GetPinName(pPinSource).GetData(), targetGuid, pPinTarget->m_pParent->GetPinName(pPinTarget).GetData()));
+        data.m_Connections.PushBack(RenderPipelineResourceLoaderConnectionInternal(pSource->GetPinName(pPinSource).GetData(), targetGuid, pPinTarget->m_pParent->GetPinName(pPinTarget).GetData()));
       }
     }
 

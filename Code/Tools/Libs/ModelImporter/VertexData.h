@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ModelImporter/VertexIndex.h>
 
@@ -68,7 +68,7 @@ namespace ezModelImporter
 
     /// Adds float values directly to the data array. Number of values needs to be a multiple of GetAttributeSize().
     /// Note that unless SetDataIndex is called, no vertex will point to this new data.
-    void AddValues(const ezArrayPtr<char>& values);
+    void AddValues(const ezArrayPtr<ezUInt8>& values);
 
 
     /// Number of elements per vertex attribute.
@@ -105,7 +105,7 @@ namespace ezModelImporter
     ezDynamicArray<VertexDataIndex> m_IndexToData;
 
     /// First m_uiNumElementsPerVertex * GetElementTypeSize() elements are always zero, so that new vertices are simply default initialized.
-    ezDynamicArray<char> m_Data;
+    ezDynamicArray<ezUInt8> m_Data;
 
     ezUInt32 m_uiNumElementsPerVertex;
     VertexElementType m_ElementType;

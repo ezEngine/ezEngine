@@ -49,10 +49,9 @@ namespace ezModelImporter
     /// \brief Utility function that imports the given scene. If szSubMesh is set, only the sub-mesh with that name is extracted.
     ///
     /// If szSubMesh is empty, the entire scene is merged into one big mesh and returned.
-    ezStatus ImportMesh(const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh, ezSharedPtr<ezModelImporter::Scene>& outScene,
-      ezModelImporter::Mesh*& outMesh);
+    ezStatus ImportMesh(const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh);
 
-    static ezStatus ImportSkeleton(ezEditableSkeleton& out_Skeleton, const ezSharedPtr<Scene>& scene);
+    static ezStatus ImportSkeleton(ezEditableSkeleton& out_Skeleton, const ezSharedPtr<Scene>& scene, float fScale = 1.0f, const ezMat3& mTransformation = ezMat3::IdentityMatrix());
 
   private:
     ezHybridArray<ezUniquePtr<ImporterImplementation>, 4> m_ImporterImplementations;

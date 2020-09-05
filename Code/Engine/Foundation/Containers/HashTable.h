@@ -156,7 +156,7 @@ public:
 
   /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
-  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue); // [tested]
+  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue) const; // [tested]
 
   /// \brief Searches for key, returns a ConstIterator to it or an invalid iterator, if no such key is found. O(1) operation.
   template <typename CompatibleKeyType>

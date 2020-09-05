@@ -66,9 +66,11 @@ public:
 
   ezString m_sAnimationFile;
 
-  ezEnum<ezBasisAxis> m_ForwardDir;
+  float m_fUniformScaling = 1.0f;
+
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
+  bool m_bFlipForwardDir = false;
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };

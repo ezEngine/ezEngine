@@ -466,7 +466,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
 
 template <typename K, typename V, typename H>
 template <typename CompatibleKeyType>
-inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, V*& out_pValue)
+inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, V*& out_pValue) const
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)

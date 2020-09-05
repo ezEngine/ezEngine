@@ -688,9 +688,9 @@ namespace SourceBSP
 
     for (auto& vertex : vertices)
     {
-      positionDataStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(&vertex.x), 3 * sizeof(float)));
-      normalDataStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(&vertex.nx), 3 * sizeof(float)));
-      texCoordDataStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(&vertex.u), 2 * sizeof(float)));
+      positionDataStream->AddValues(ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&vertex.x), 3 * sizeof(float)));
+      normalDataStream->AddValues(ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&vertex.nx), 3 * sizeof(float)));
+      texCoordDataStream->AddValues(ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&vertex.u), 2 * sizeof(float)));
     }
 
     pMesh->AddTriangles(indices.GetCount() / 3);

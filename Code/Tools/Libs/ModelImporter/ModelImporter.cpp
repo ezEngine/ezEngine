@@ -82,8 +82,7 @@ namespace ezModelImporter
     for (int i = m_ImporterImplementations.GetCount() - 1; i >= 0; --i)
     {
       auto supportedFormats = m_ImporterImplementations[i]->GetSupportedFileFormats();
-      if (std::any_of(cbegin(supportedFormats), cend(supportedFormats),
-            [fileExtension](const char* ext) { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
+      if (std::any_of(cbegin(supportedFormats), cend(supportedFormats), [fileExtension](const char* ext) { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
       {
         ezStopwatch timer;
         scene = m_ImporterImplementations[i]->ImportScene(szFileName, importFlags);
@@ -137,7 +136,7 @@ namespace ezModelImporter
     if (bSkinnedMesh)
       importFlags |= ImportFlags::Skeleton;
 
-    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(szSceneFile, importFlags);
+    outScene = ImportScene(szSceneFile, importFlags);
     if (!outScene)
     {
       return ezStatus(ezFmt("Input file '{0}' could not be imported", szSceneFile));
@@ -173,12 +172,8 @@ namespace ezModelImporter
     return ezStatus(EZ_SUCCESS);
   }
 
-  ezStatus Importer::ImportSkeleton(ezEditableSkeleton& out_Skeleton, const ezSharedPtr<Scene>& scene)
+  ezStatus Importer::ImportSkeleton(ezEditableSkeleton& out_Skeleton, const ezSharedPtr<Scene>& scene, float fScale /*= 1.0f*/, const ezMat3& mTransformRotations /*= ezMat3::IdentityMatrix()*/)
   {
-    const float fScale = 1.0f;
-    const ezMat3 mTransformation = ezMat3::IdentityMatrix();
-    const ezMat3 mTransformRotations = ezMat3::IdentityMatrix();
-
     const ezUInt32 numJoints = scene->m_Skeleton.GetJointCount();
 
     ezDynamicArray<ezEditableSkeletonJoint*> allJoints;
@@ -212,7 +207,7 @@ namespace ezModelImporter
 
       if (scene->m_Skeleton.GetJointByIndex(b).IsRootJoint())
       {
-        allJoints[b]->m_Transform.m_vPosition = mTransformation * allJoints[b]->m_Transform.m_vPosition;
+        allJoints[b]->m_Transform.m_vPosition = fScale * mTransformRotations * allJoints[b]->m_Transform.m_vPosition;
         allJoints[b]->m_Transform.m_qRotation.SetFromMat3(mTransformRotations * allJoints[b]->m_Transform.m_qRotation.GetAsMat3());
 
         out_Skeleton.m_Children.PushBack(allJoints[b]);

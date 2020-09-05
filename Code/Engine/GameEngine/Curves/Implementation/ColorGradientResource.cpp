@@ -53,7 +53,7 @@ ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 

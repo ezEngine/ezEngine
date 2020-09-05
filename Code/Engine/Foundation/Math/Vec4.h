@@ -99,8 +99,7 @@ public:
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
   /// fallback value.
-  ezResult NormalizeIfNotZero(
-    const ezVec4Template<Type>& vFallback = ezVec4Template<Type>(1, 0, 0, 0), Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
+  ezResult NormalizeIfNotZero(const ezVec4Template<Type>& vFallback = ezVec4Template<Type>(1, 0, 0, 0), Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0, 0, 0).
   bool IsZero() const; // [tested]

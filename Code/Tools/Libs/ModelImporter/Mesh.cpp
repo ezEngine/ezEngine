@@ -53,28 +53,23 @@ namespace ezModelImporter
     switch (semantic)
     {
       case ezGALVertexAttributeSemantic::Position:
-        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT,
-          "Position vertex streams should always have exactly 3 float elements.");
+        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT, "Position vertex streams should always have exactly 3 float elements.");
         break;
       case ezGALVertexAttributeSemantic::Normal:
-        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT,
-          "Normal vertex streams should always have exactly 3 float elements.");
+        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT, "Normal vertex streams should always have exactly 3 float elements.");
         break;
       case ezGALVertexAttributeSemantic::Tangent:
-        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT,
-          "Tangent vertex streams should always have exactly 3 float elements.");
+        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT, "Tangent vertex streams should always have exactly 3 float elements.");
         break;
       case ezGALVertexAttributeSemantic::BiTangent:
-        EZ_ASSERT_DEBUG((uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1) && elementType == VertexElementType::FLOAT,
-          "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
+        EZ_ASSERT_DEBUG((uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1) && elementType == VertexElementType::FLOAT, "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
         break;
 
       case ezGALVertexAttributeSemantic::BoneIndices0:
       case ezGALVertexAttributeSemantic::BoneIndices1:
       case ezGALVertexAttributeSemantic::BoneWeights0:
       case ezGALVertexAttributeSemantic::BoneWeights1:
-        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 4 || uiNumElementsPerVertex == 1,
-          "Bone weights and index streams should have 1 or 4 elements (single bone / standard skinning).");
+        EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 4 || uiNumElementsPerVertex == 1, "Bone weights and index streams should have 1 or 4 elements (single bone / standard skinning).");
         break;
 
       default:
@@ -170,8 +165,7 @@ namespace ezModelImporter
       }
 
       // Directions
-      else if (it.Key() == ezGALVertexAttributeSemantic::Normal || it.Key() == ezGALVertexAttributeSemantic::Tangent ||
-               it.Key() == ezGALVertexAttributeSemantic::BiTangent)
+      else if (it.Key() == ezGALVertexAttributeSemantic::Normal || it.Key() == ezGALVertexAttributeSemantic::Tangent || it.Key() == ezGALVertexAttributeSemantic::BiTangent)
       {
         for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += attributeSize)
         {
@@ -198,8 +192,7 @@ namespace ezModelImporter
     for (auto it = mesh.m_VertexDataStreams.GetIterator(); it.IsValid(); ++it)
     {
       const VertexDataStream* sourceStream = it.Value();
-      VertexDataStream* targetStream = AddDataStream(
-        static_cast<ezGALVertexAttributeSemantic::Enum>(it.Key()), sourceStream->GetNumElementsPerVertex(), sourceStream->GetElementType());
+      VertexDataStream* targetStream = AddDataStream(static_cast<ezGALVertexAttributeSemantic::Enum>(it.Key()), sourceStream->GetNumElementsPerVertex(), sourceStream->GetElementType());
       if (!targetStream)
       {
         ezLog::SeriousWarning("Cannot merge mesh {0} properly since it has a vertex data stream with semantic {1} that uses {2} elements "
@@ -227,8 +220,7 @@ namespace ezModelImporter
           }
         }
         // Directions
-        else if (it.Key() == ezGALVertexAttributeSemantic::Normal || it.Key() == ezGALVertexAttributeSemantic::Tangent ||
-                 it.Key() == ezGALVertexAttributeSemantic::BiTangent)
+        else if (it.Key() == ezGALVertexAttributeSemantic::Normal || it.Key() == ezGALVertexAttributeSemantic::Tangent || it.Key() == ezGALVertexAttributeSemantic::BiTangent)
         {
           for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += attributeSize)
           {
@@ -366,7 +358,7 @@ namespace ezModelImporter
     normalStream->m_IndexToData = positionStreamRaw->m_IndexToData;
     // Reset all normals to zero.
     normalStream->m_Data.SetCountUninitialized(positionStreamRaw->m_Data.GetCount());
-    ezMemoryUtils::ZeroFill<char>(normalStream->m_Data.GetData(), normalStream->m_Data.GetCount());
+    ezMemoryUtils::ZeroFill<ezUInt8>(normalStream->m_Data.GetData(), normalStream->m_Data.GetCount());
 
 
     // Compute unnormalized triangle normals and add them to all vertices.
@@ -385,8 +377,7 @@ namespace ezModelImporter
       const ezVec3 d02 = p2 - p0;
 
       const ezVec3 triNormal = d01.CrossRH(d02);
-      normalStream.SetValue(
-        v0, normalStream.GetValue(v0) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
+      normalStream.SetValue(v0, normalStream.GetValue(v0) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
       normalStream.SetValue(v1, normalStream.GetValue(v1) + triNormal);
       normalStream.SetValue(v2, normalStream.GetValue(v2) + triNormal);
     }
@@ -513,24 +504,12 @@ namespace ezModelImporter
     SMikkTSpaceInterface functions;
     context.m_pUserData = &mikkInterface;
     context.m_pInterface = &functions;
-    functions.m_getNumFaces = [](
-                                const SMikkTSpaceContext* pContext) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumFaces(); };
-    functions.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace) {
-      return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumVerticesOfFace(iFace);
-    };
-    functions.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) {
-      return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetPosition(fvPosOut, iFace, iVert);
-    };
-    functions.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) {
-      return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNormal(fvPosOut, iFace, iVert);
-    };
-    functions.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) {
-      return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetTexCoord(fvPosOut, iFace, iVert);
-    };
-    functions.m_setTSpaceBasic = [](
-                                   const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert) {
-      return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->SetTSpaceBasic(fvTangent, fSign, iFace, iVert);
-    };
+    functions.m_getNumFaces = [](const SMikkTSpaceContext* pContext) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumFaces(); };
+    functions.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumVerticesOfFace(iFace); };
+    functions.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetPosition(fvPosOut, iFace, iVert); };
+    functions.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNormal(fvPosOut, iFace, iVert); };
+    functions.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetTexCoord(fvPosOut, iFace, iVert); };
+    functions.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->SetTSpaceBasic(fvTangent, fSign, iFace, iVert); };
     functions.m_setTSpace = nullptr;
 
     if (!genTangSpaceDefault(&context))

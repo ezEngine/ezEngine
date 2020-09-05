@@ -4,9 +4,15 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseUpdated);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseUpdated>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgQueryAnimationSkeleton);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgQueryAnimationSkeleton, 1, ezRTTIDefaultAllocator<ezMsgQueryAnimationSkeleton>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezAnimationPose::ezAnimationPose() = default;
 ezAnimationPose::~ezAnimationPose() = default;
