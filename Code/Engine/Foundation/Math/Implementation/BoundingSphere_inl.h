@@ -37,7 +37,7 @@ template <typename Type>
 void ezBoundingSphereTemplate<Type>::SetInvalid()
 {
   m_vCenter.SetZero();
-  m_fRadius = -1.0f;
+  m_fRadius = -ezMath::DefaultEpsilon<Type>();
 }
 
 template <typename Type>
@@ -66,7 +66,7 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>&
 {
   const Type fDistSQR = (vPoint - m_vCenter).GetLengthSquared();
 
-  if (ezMath::Square(m_fRadius) < fDistSQR)
+  if (ezMath::Sign(m_fRadius) * ezMath::Square(m_fRadius) < fDistSQR)
     m_fRadius = ezMath::Sqrt(fDistSQR);
 }
 
