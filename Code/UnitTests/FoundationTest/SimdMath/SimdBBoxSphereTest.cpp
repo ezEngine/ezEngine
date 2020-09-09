@@ -124,6 +124,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
     EZ_TEST_BOOL((b1.m_BoxHalfExtents == ezSimdVec4f(2, 2, 2)).AllSet<3>());
     EZ_TEST_FLOAT(b1.m_CenterAndRadius.w(), ezMath::Sqrt(3.0f) * 2.0f, 0.00001f);
     EZ_TEST_BOOL(b1.m_CenterAndRadius.w() <= b1.m_BoxHalfExtents.GetLength<3>());
+
+    b1.SetInvalid();
+    b2 = ezSimdBBox(ezSimdVec4f(0.25, 0.25, 0.25), ezSimdVec4f(0.5, 0.5, 0.5));
+
+    b1.ExpandToInclude(b2);
+    EZ_TEST_BOOL(b1 == b2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform")
