@@ -37,7 +37,7 @@ template <typename Type>
 void ezBoundingSphereTemplate<Type>::SetInvalid()
 {
   m_vCenter.SetZero();
-  m_fRadius = -ezMath::DefaultEpsilon<Type>();
+  m_fRadius = -ezMath::SmallEpsilon<Type>();
 }
 
 template <typename Type>

@@ -10,7 +10,7 @@ EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere(const ezSimdVec4f& vCenter, const 
 
 EZ_ALWAYS_INLINE void ezSimdBSphere::SetInvalid()
 {
-  m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -1.0f);
+  m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -ezMath::SmallEpsilon<float>());
 }
 
 EZ_ALWAYS_INLINE bool ezSimdBSphere::IsValid() const
