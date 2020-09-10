@@ -71,6 +71,13 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
     EZ_TEST_BOOL(s.m_vCenter == ezVec3T(0, 0, 0));
     EZ_TEST_BOOL(s.m_fRadius == 3);
+
+    s.SetInvalid();
+
+    s.ExpandToInclude(ezVec3T(0.25, 0.0, 0.0));
+
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(0, 0, 0));
+    EZ_TEST_BOOL(s.m_fRadius == 0.25);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(array)")
