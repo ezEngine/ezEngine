@@ -5,7 +5,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
 #include <PhysXPlugin/Components/PxCharacterShapeComponent.h>
-#include <PhysXPlugin/Components/PxObjectGrabComponent.h>
+#include <PhysXPlugin/Components/PxGrabObjectComponent.h>
 #include <PhysXPlugin/Joints/Px6DOFJointComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -96,9 +96,9 @@ bool ezPxGrabObjectComponent::FindNearbyObject(ezPxDynamicActorComponent*& out_p
   return true;
 }
 
-bool ezPxGrabObjectComponent::GrabNearbyObject()
+bool ezPxGrabObjectComponent::GrabObject(ezPxDynamicActorComponent* pActorToGrab, const ezTransform& localGrabPoint)
 {
-  if (!m_hJoint.IsInvalidated())
+  if (!m_hJoint.IsInvalidated() || pActorToGrab == nullptr)
     return false;
 
   const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
@@ -114,9 +114,7 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
     return false;
   }
 
-  ezPxDynamicActorComponent* pActorToGrab = nullptr;
-  if (!FindNearbyObject(pActorToGrab, m_ChildAnchorLocal))
-    return false;
+  m_ChildAnchorLocal = localGrabPoint;
 
   EZ_PX_WRITE_LOCK(*(pActorToGrab->GetPxActor()->getScene()));
 
@@ -127,6 +125,16 @@ bool ezPxGrabObjectComponent::GrabNearbyObject()
   m_LastValidTime = curTime;
 
   return true;
+}
+
+bool ezPxGrabObjectComponent::GrabNearbyObject()
+{
+  ezPxDynamicActorComponent* pActorToGrab = nullptr;
+  ezTransform localGrabPoint;
+  if (!FindNearbyObject(pActorToGrab, localGrabPoint))
+    return false;
+
+  return GrabObject(pActorToGrab, localGrabPoint);
 }
 
 bool ezPxGrabObjectComponent::HasObjectGrabbed() const
@@ -208,7 +216,7 @@ ezPxDynamicActorComponent* ezPxGrabObjectComponent::FindGrabbableActor() const
   ezPhysicsQueryParameters queryParam;
   queryParam.m_bIgnoreInitialOverlap = true;
   queryParam.m_uiCollisionLayer = m_uiCollisionLayer;
-  queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+  queryParam.m_ShapeTypes = ezPhysicsShapeType::Dynamic;
 
   if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
     return nullptr;
@@ -227,10 +235,10 @@ ezPxDynamicActorComponent* ezPxGrabObjectComponent::FindGrabbableActor() const
   return const_cast<ezPxDynamicActorComponent*>(pActorComp);
 }
 
-ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor() const
+ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor()
 {
-  const ezPxDynamicActorComponent* pActor = nullptr;
-  const ezGameObject* pObject = nullptr;
+  ezPxDynamicActorComponent* pActor = nullptr;
+  ezGameObject* pObject = nullptr;
 
   if (!GetWorld()->TryGetObject(m_hAttachTo, pObject))
     return nullptr;
@@ -241,17 +249,20 @@ ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor() const
   if (!pActor->GetKinematic())
     return nullptr;
 
-  return const_cast<ezPxDynamicActorComponent*>(pActor);
+  return pActor;
 }
 
 ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* pActorComp, ezTransform& out_LocalGrabPoint) const
 {
   out_LocalGrabPoint.SetIdentity();
 
-  const auto pOwner = GetOwner();
-  const auto vOwnerPos = pOwner->GetGlobalPosition();
-  const auto vOwnerDir = pOwner->GetGlobalDirForwards();
-  const auto vOwnerUp = pOwner->GetGlobalDirUp();
+  const ezGameObject* pAttachToObject = nullptr;
+  if (!GetWorld()->TryGetObject(m_hAttachTo, pAttachToObject))
+    return EZ_FAILURE;
+
+  const auto vAttachToPos = pAttachToObject->GetGlobalPosition();
+  const auto vOwnerDir = GetOwner()->GetGlobalDirForwards();
+  const auto vOwnerUp = GetOwner()->GetGlobalDirUp();
   const auto pActorObj = pActorComp->GetOwner();
 
   const ezTransform& actorTransform = pActorObj->GetGlobalTransform();
@@ -269,7 +280,7 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
 
     if (ext.x <= m_fAllowGrabAnyObjectWithSize && ext.y <= m_fAllowGrabAnyObjectWithSize && ext.z <= m_fAllowGrabAnyObjectWithSize)
     {
-      const ezVec3 halfExt = box.GetHalfExtents().CompMul(pActorComp->GetOwner()->GetGlobalScaling());
+      const ezVec3 halfExt = box.GetHalfExtents().CompMul(pActorComp->GetOwner()->GetGlobalScaling()) * 0.5f;
       const ezVec3& center = box.GetCenter();
 
       grabPoints.SetCount(4);
@@ -298,7 +309,7 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
 
   const float fMaxDistSqr = ezMath::Square(m_fMaxGrabPointDistance);
 
-  ezUInt32 uiBestPointIndex = 0xFFFFFFFF;
+  ezUInt32 uiBestPointIndex = ezInvalidIndex;
   float fBestScore = -1000.0f;
 
   for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
@@ -308,7 +319,7 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* 
     const ezVec3 vGrabPointDir = qGrabPointRot * ezVec3(1, 0, 0);
     const ezVec3 vGrabPointUp = qGrabPointRot * ezVec3(0, 0, 1);
 
-    const float fLenSqr = (vGrabPointPos - vOwnerPos).GetLengthSquared();
+    const float fLenSqr = (vGrabPointPos - vAttachToPos).GetLengthSquared();
 
     if (fLenSqr >= fMaxDistSqr)
       continue;
@@ -350,7 +361,7 @@ void ezPxGrabObjectComponent::AdjustGrabbedActor(ezPxDynamicActorComponent* pAct
 void ezPxGrabObjectComponent::CreateJoint(ezPxDynamicActorComponent* pParent, ezPxDynamicActorComponent* pChild)
 {
   ezPx6DOFJointComponent* pJoint = nullptr;
-  m_hJoint = GetWorld()->GetOrCreateComponentManager<ezPx6DOFJointComponentManager>()->CreateComponent(pParent->GetOwner(), pJoint);
+  m_hJoint = ezPx6DOFJointComponent::CreateComponent(pParent->GetOwner(), pJoint);
 
   pJoint->SetFreeAngularAxis(ezPxAxis::All);
   pJoint->SetFreeLinearAxis(ezPxAxis::All);

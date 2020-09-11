@@ -38,6 +38,9 @@ public:
   /// \brief Checks whether there is a object that could be picked up.
   bool FindNearbyObject(ezPxDynamicActorComponent*& out_pActorToGrab, ezTransform& out_LocalGrabPoint) const;
 
+  /// \brief Grabs the given object at the given grab point.
+  bool GrabObject(ezPxDynamicActorComponent* pActorToGrab, const ezTransform& localGrabPoint);
+
   /// \brief Tries to find an object to pick up and do so.
   bool GrabNearbyObject(); // [ scriptable ]
 
@@ -85,7 +88,7 @@ protected:
   void ReleaseGrabbedObject();
 
   ezPxDynamicActorComponent* FindGrabbableActor() const;
-  ezPxDynamicActorComponent* GetAttachToActor() const;
+  ezPxDynamicActorComponent* GetAttachToActor();
   ezResult DetermineGrabPoint(ezPxDynamicActorComponent* pActor, ezTransform& out_LocalGrabPoint) const;
   void AdjustGrabbedActor(ezPxDynamicActorComponent* pActor);
   void CreateJoint(ezPxDynamicActorComponent* pParent, ezPxDynamicActorComponent* pChild);
