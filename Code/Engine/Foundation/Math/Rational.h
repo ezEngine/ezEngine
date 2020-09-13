@@ -14,6 +14,9 @@ class ezRational
 public:
   EZ_DECLARE_POD_TYPE();
 
+  /// \brief Default constructor, initializes to 0/1.
+  ezRational();
+
   /// \brief Constructor to initialize a rational
   ezRational(ezUInt32 uiNumerator, ezUInt32 uiDenominator);
 
