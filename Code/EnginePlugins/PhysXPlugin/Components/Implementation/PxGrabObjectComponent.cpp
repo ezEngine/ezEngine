@@ -80,25 +80,49 @@ void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
   m_hAttachTo = stream.ReadGameObjectHandle();
 }
 
-bool ezPxGrabObjectComponent::FindNearbyObject(ezPxDynamicActorComponent*& out_pActorToGrab, ezTransform& out_LocalGrabPoint) const
+bool ezPxGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_LocalGrabPoint) const
 {
-  out_pActorToGrab = FindGrabbableActor();
+  const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
 
-  if (out_pActorToGrab == nullptr)
+  if (pPhysicsModule == nullptr)
     return false;
 
-  if (IsCharacterStandingOnObject(out_pActorToGrab->GetOwner()->GetHandle()))
+  auto pOwner = GetOwner();
+
+  ezPhysicsCastResult hit;
+  ezPhysicsQueryParameters queryParam;
+  queryParam.m_bIgnoreInitialOverlap = true;
+  queryParam.m_uiCollisionLayer = m_uiCollisionLayer;
+  queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+
+  if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
     return false;
 
-  if (DetermineGrabPoint(out_pActorToGrab, out_LocalGrabPoint).Failed())
+  const ezGameObject* pActorObj = nullptr;
+  if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
     return false;
 
+  const ezPxDynamicActorComponent* pActorComp = nullptr;
+  if (pActorObj->TryGetComponentOfBaseType(pActorComp) && !pActorComp->GetKinematic())
+  {
+    if (DetermineGrabPoint(pActorComp, out_LocalGrabPoint).Failed())
+      return false;
+  }
+  else
+  {
+    if (hit.m_fDistance > m_fMaxGrabPointDistance)
+      return false;
+
+    out_LocalGrabPoint = ezTransform::IdentityTransform();
+  }
+
+  out_pObject = const_cast<ezGameObject*>(pActorObj);
   return true;
 }
 
-bool ezPxGrabObjectComponent::GrabObject(ezPxDynamicActorComponent* pActorToGrab, const ezTransform& localGrabPoint)
+bool ezPxGrabObjectComponent::GrabObject(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint)
 {
-  if (!m_hJoint.IsInvalidated() || pActorToGrab == nullptr)
+  if (!m_hJoint.IsInvalidated() || pObjectToGrab == nullptr)
     return false;
 
   const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
@@ -113,6 +137,16 @@ bool ezPxGrabObjectComponent::GrabObject(ezPxDynamicActorComponent* pActorToGrab
     ezLog::Error("Can't grab object, no target actor to attach it to is set.");
     return false;
   }
+
+  ezPxDynamicActorComponent* pActorToGrab = nullptr;
+  if (!pObjectToGrab->TryGetComponentOfBaseType(pActorToGrab))
+    return false;
+
+  if (pActorToGrab->GetKinematic())
+    return false;
+
+  if (IsCharacterStandingOnObject(pObjectToGrab->GetHandle()))
+    return false;
 
   m_ChildAnchorLocal = localGrabPoint;
 
@@ -129,7 +163,7 @@ bool ezPxGrabObjectComponent::GrabObject(ezPxDynamicActorComponent* pActorToGrab
 
 bool ezPxGrabObjectComponent::GrabNearbyObject()
 {
-  ezPxDynamicActorComponent* pActorToGrab = nullptr;
+  ezGameObject* pActorToGrab = nullptr;
   ezTransform localGrabPoint;
   if (!FindNearbyObject(pActorToGrab, localGrabPoint))
     return false;
@@ -203,38 +237,6 @@ void ezPxGrabObjectComponent::ReleaseGrabbedObject()
   m_hGrabbedActor.Invalidate();
 }
 
-ezPxDynamicActorComponent* ezPxGrabObjectComponent::FindGrabbableActor() const
-{
-  const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
-
-  if (pPhysicsModule == nullptr)
-    return nullptr;
-
-  auto pOwner = GetOwner();
-
-  ezPhysicsCastResult hit;
-  ezPhysicsQueryParameters queryParam;
-  queryParam.m_bIgnoreInitialOverlap = true;
-  queryParam.m_uiCollisionLayer = m_uiCollisionLayer;
-  queryParam.m_ShapeTypes = ezPhysicsShapeType::Dynamic;
-
-  if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
-    return nullptr;
-
-  const ezGameObject* pActorObj;
-  if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
-    return nullptr;
-
-  const ezPxDynamicActorComponent* pActorComp = nullptr;
-  if (!pActorObj->TryGetComponentOfBaseType(pActorComp))
-    return nullptr;
-
-  if (pActorComp->GetKinematic())
-    return nullptr;
-
-  return const_cast<ezPxDynamicActorComponent*>(pActorComp);
-}
-
 ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor()
 {
   ezPxDynamicActorComponent* pActor = nullptr;
@@ -252,7 +254,7 @@ ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor()
   return pActor;
 }
 
-ezResult ezPxGrabObjectComponent::DetermineGrabPoint(ezPxDynamicActorComponent* pActorComp, ezTransform& out_LocalGrabPoint) const
+ezResult ezPxGrabObjectComponent::DetermineGrabPoint(const ezPxDynamicActorComponent* pActorComp, ezTransform& out_LocalGrabPoint) const
 {
   out_LocalGrabPoint.SetIdentity();
 

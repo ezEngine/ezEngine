@@ -35,11 +35,12 @@ public:
   ezPxGrabObjectComponent();
   ~ezPxGrabObjectComponent();
 
-  /// \brief Checks whether there is a object that could be picked up.
-  bool FindNearbyObject(ezPxDynamicActorComponent*& out_pActorToGrab, ezTransform& out_LocalGrabPoint) const;
+  /// \brief Checks whether there is an object nearby. Note that this function reports static and dynamic objects that are within reach.
+  /// Whether these objects are interact able or not is up to the caller.
+  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_LocalGrabPoint) const;
 
-  /// \brief Grabs the given object at the given grab point.
-  bool GrabObject(ezPxDynamicActorComponent* pActorToGrab, const ezTransform& localGrabPoint);
+  /// \brief Grabs the given object at the given grab point if possible.
+  bool GrabObject(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint);
 
   /// \brief Tries to find an object to pick up and do so.
   bool GrabNearbyObject(); // [ scriptable ]
@@ -87,9 +88,8 @@ protected:
   void Update();
   void ReleaseGrabbedObject();
 
-  ezPxDynamicActorComponent* FindGrabbableActor() const;
   ezPxDynamicActorComponent* GetAttachToActor();
-  ezResult DetermineGrabPoint(ezPxDynamicActorComponent* pActor, ezTransform& out_LocalGrabPoint) const;
+  ezResult DetermineGrabPoint(const ezPxDynamicActorComponent* pActor, ezTransform& out_LocalGrabPoint) const;
   void AdjustGrabbedActor(ezPxDynamicActorComponent* pActor);
   void CreateJoint(ezPxDynamicActorComponent* pParent, ezPxDynamicActorComponent* pChild);
   void DetectDistanceViolation(ezPxDynamicActorComponent* pGrabbedActor, ezPx6DOFJointComponent* pJoint);
