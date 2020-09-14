@@ -21,3 +21,7 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 
 ezAnimationControllerComponent::ezAnimationControllerComponent() = default;
 ezAnimationControllerComponent::~ezAnimationControllerComponent() = default;
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimationControllerComponent);
+

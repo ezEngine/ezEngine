@@ -201,4 +201,4 @@ void ezSkeletonComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& 
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_VisualizeSkeletonComponent);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonComponent);

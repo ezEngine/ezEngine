@@ -207,3 +207,7 @@ EZ_RENDERERCORE_DLL void ezOzzUtils::CopySkeleton(ozz::animation::Skeleton* pDst
     ozzArchive >> *pDst;
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_OzzUtils);
+
