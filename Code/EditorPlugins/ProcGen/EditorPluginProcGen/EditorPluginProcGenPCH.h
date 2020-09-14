@@ -12,8 +12,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
-#include <Foundation/Utilities/Node.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
+#include <RendererCore/Pipeline/RenderPipelineNode.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 #include <QLabel>

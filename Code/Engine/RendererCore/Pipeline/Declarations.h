@@ -18,7 +18,7 @@ class ezGALContext;
 class ezRenderContext;
 class ezDebugRendererContext;
 
-struct ezNodePin;
+struct ezRenderPipelineNodePin;
 struct ezRenderPipelinePassConnection;
 struct ezViewData;
 
@@ -35,11 +35,7 @@ namespace ezInternal
     ezUInt16 m_uiComponentIndex = 0;
     ezUInt16 m_uiPartIndex = 0;
 
-    EZ_ALWAYS_INLINE bool operator==(const RenderDataCacheEntry& other) const
-    {
-      return m_pRenderData == other.m_pRenderData && m_uiCategory == other.m_uiCategory &&
-             m_uiComponentIndex == other.m_uiComponentIndex && m_uiPartIndex == other.m_uiPartIndex;
-    }
+    EZ_ALWAYS_INLINE bool operator==(const RenderDataCacheEntry& other) const { return m_pRenderData == other.m_pRenderData && m_uiCategory == other.m_uiCategory && m_uiComponentIndex == other.m_uiComponentIndex && m_uiPartIndex == other.m_uiPartIndex; }
 
     // Cache entries need to be sorted by component index and then by part index
     EZ_ALWAYS_INLINE bool operator<(const RenderDataCacheEntry& other) const

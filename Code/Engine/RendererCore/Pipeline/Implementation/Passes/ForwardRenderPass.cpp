@@ -37,8 +37,7 @@ ezForwardRenderPass::ezForwardRenderPass(const char* szName)
 
 ezForwardRenderPass::~ezForwardRenderPass() {}
 
-bool ezForwardRenderPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
@@ -65,8 +64,7 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   SetupResources(renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
@@ -75,8 +73,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   RenderObjects(renderViewContext);
 }
 
-void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 

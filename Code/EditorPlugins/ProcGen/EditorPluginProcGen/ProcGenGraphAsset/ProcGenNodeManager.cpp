@@ -4,7 +4,7 @@
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Utilities/Node.h>
+#include <RendererCore/Pipeline/RenderPipelineNode.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 
 // clang-format off
@@ -54,7 +54,7 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
       continue;
 
     const ezRTTI* pPropType = pProp->GetSpecificType();
-    if (!pPropType->IsDerivedFrom<ezNodePin>())
+    if (!pPropType->IsDerivedFrom<ezRenderPipelineNodePin>())
       continue;
 
     ezColor pinColor = ezColor::Grey;
@@ -63,12 +63,12 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
       pinColor = pAttr->GetColor();
     }
 
-    if (pPropType->IsDerivedFrom<ezInputNodePin>())
+    if (pPropType->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
       ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
-    else if (pPropType->IsDerivedFrom<ezOutputNodePin>())
+    else if (pPropType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
       ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);

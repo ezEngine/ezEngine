@@ -261,13 +261,13 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
     data.m_Connections.Clear();
 
     auto outputs = pSource->GetOutputPins();
-    for (const ezNodePin* pPinSource : outputs)
+    for (const ezRenderPipelineNodePin* pPinSource : outputs)
     {
       const ezRenderPipelinePassConnection* pConnection = pPipeline->GetOutputConnection(pSource, pSource->GetPinName(pPinSource));
       if (!pConnection)
         continue;
 
-      for (const ezNodePin* pPinTarget : pConnection->m_Inputs)
+      for (const ezRenderPipelineNodePin* pPinTarget : pConnection->m_Inputs)
       {
         const ezUuid targetGuid = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
         EZ_ASSERT_DEBUG(targetGuid.IsValid(), "Connection target was not serialized in previous step!");

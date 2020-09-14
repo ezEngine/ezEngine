@@ -36,7 +36,7 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    if (!pProp->GetSpecificType()->IsDerivedFrom<ezNodePin>())
+    if (!pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePin>())
       continue;
 
     ezColor pinColor = ezColor::Grey;
@@ -45,17 +45,17 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
       pinColor = pAttr->GetColor();
     }
 
-    if (pProp->GetSpecificType()->IsDerivedFrom<ezInputNodePin>())
+    if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
       ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezOutputNodePin>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
       ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezPassThroughNodePin>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePassThrougPin>())
     {
       ezPin* pPinIn = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPinIn);
@@ -110,8 +110,7 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 {
 }
 
-ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
@@ -211,8 +210,7 @@ bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
   return true;
 }
 
-bool ezRenderPipelineAssetDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

@@ -4,8 +4,8 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/TagSet.h>
-#include <Foundation/Utilities/Node.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/RenderPipelineNode.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
@@ -16,9 +16,9 @@ class ezRenderPipeline;
 
 /// \brief Encapsulates a view on the given world through the given camera
 /// and rendered with the specified RenderPipeline into the given render target setup.
-class EZ_RENDERERCORE_DLL ezView : public ezNode
+class EZ_RENDERERCORE_DLL ezView : public ezRenderPipelineNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezRenderPipelineNode);
 
 private:
   /// \brief Use ezRenderLoop::CreateView to create a view.
@@ -137,11 +137,11 @@ private:
   ezCamera* m_pCullingCamera;
 
 private:
-  ezInputNodePin m_PinRenderTarget0;
-  ezInputNodePin m_PinRenderTarget1;
-  ezInputNodePin m_PinRenderTarget2;
-  ezInputNodePin m_PinRenderTarget3;
-  ezInputNodePin m_PinDepthStencil;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget0;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget1;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget2;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget3;
+  ezRenderPipelineNodeInputPin m_PinDepthStencil;
 
 private:
   void UpdateCachedMatrices() const;

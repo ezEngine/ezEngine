@@ -48,20 +48,13 @@ const char* ezRenderPipelinePass::GetName() const
   return m_sName.GetData();
 }
 
-void ezRenderPipelinePass::InitRenderPipelinePass(
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-}
+void ezRenderPipelinePass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
 
-void ezRenderPipelinePass::ExecuteInactive(const ezRenderViewContext& renderViewContext,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-}
+void ezRenderPipelinePass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
 
 void ezRenderPipelinePass::ReadBackProperties(ezView* pView) {}
 
-void ezRenderPipelinePass::RenderDataWithCategory(
-  const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
+void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), ezRenderData::GetCategoryName(category));
 
