@@ -20,10 +20,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocat
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_MEMBER_PROPERTY("Transform", m_Transform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::IdentityTransform())),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
-    EZ_MEMBER_PROPERTY("Length", m_fLength),
-    EZ_MEMBER_PROPERTY("Width", m_fWidth),
-    EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
+    //EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
+    //EZ_MEMBER_PROPERTY("Length", m_fLength),
+    //EZ_MEMBER_PROPERTY("Width", m_fWidth),
+    //EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
   }
   EZ_END_PROPERTIES;
 }
@@ -64,20 +64,20 @@ void ezEditableSkeleton::ClearJoints()
 
 static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx)
 {
-  if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
-  {
-    auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
-    geo.m_Type = pJoint->m_Geometry;
-    geo.m_uiAttachedToJoint = uiJointIdx;
-    geo.m_Transform.SetIdentity();
-    geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
+  //if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
+  //{
+  //  auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
+  //  geo.m_Type = pJoint->m_Geometry;
+  //  geo.m_uiAttachedToJoint = uiJointIdx;
+  //  geo.m_Transform.SetIdentity();
+  //  geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
 
-    if (pParentJoint)
-    {
-      const float fBoneLength = (pParentJoint->m_Transform.m_vPosition - pJoint->m_Transform.m_vPosition).GetLength();
-      // geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
-    }
-  }
+  //  if (pParentJoint)
+  //  {
+  //    const float fBoneLength = (pParentJoint->m_Transform.m_vPosition - pJoint->m_Transform.m_vPosition).GetLength();
+  //    geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
+  //  }
+  //}
 
   for (const auto* pChildJoint : pJoint->m_Children)
   {
@@ -87,27 +87,18 @@ static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* 
   }
 }
 
-void ezEditableSkeleton::GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc) const
+void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const
 {
+  // desc.m_Geometry.Clear();
+
+  ezSkeletonBuilder sb;
   for (const auto* pJoint : m_Children)
   {
     const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
 
-    AddChildJoints(sb, pDesc, nullptr, pJoint, idx);
+    AddChildJoints(sb, &desc, nullptr, pJoint, idx);
   }
-}
-
-void ezEditableSkeleton::GenerateSkeleton(ezSkeleton& skeleton, ezSkeletonResourceDescriptor* pDesc) const
-{
-  ezSkeletonBuilder sb;
-  GenerateSkeleton(sb, pDesc);
-  sb.BuildSkeleton(skeleton);
-}
-
-void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const
-{
-  desc.m_Geometry.Clear();
-  GenerateSkeleton(desc.m_Skeleton, &desc);
+  sb.BuildSkeleton(desc.m_Skeleton);
 }
 
 static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::animation::offline::RawSkeleton::Joint& dstJoint)
@@ -153,10 +144,7 @@ void ezEditableSkeleton::GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skele
   ezOzzUtils::CopySkeleton(&out_Skeleton, pNewOzzSkeleton.get());
 }
 
-ezEditableSkeletonJoint::ezEditableSkeletonJoint()
-{
-  m_Transform.SetIdentity();
-}
+ezEditableSkeletonJoint::ezEditableSkeletonJoint() = default;
 
 ezEditableSkeletonJoint::~ezEditableSkeletonJoint()
 {
@@ -190,10 +178,10 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   //  transform
   //  children
 
-  m_Geometry = pJoint->m_Geometry;
-  m_fLength = pJoint->m_fLength;
-  m_fWidth = pJoint->m_fWidth;
-  m_fThickness = pJoint->m_fThickness;
+  // m_Geometry = pJoint->m_Geometry;
+  // m_fLength = pJoint->m_fLength;
+  // m_fWidth = pJoint->m_fWidth;
+  // m_fThickness = pJoint->m_fThickness;
 }
 
 

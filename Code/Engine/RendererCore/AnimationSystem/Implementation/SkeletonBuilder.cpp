@@ -40,7 +40,6 @@ void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& skeleton) const
     skeleton.m_Joints[i].m_sName = m_Joints[i].m_sName;
     skeleton.m_Joints[i].m_uiParentIndex = m_Joints[i].m_uiParentIndex;
     skeleton.m_Joints[i].m_BindPoseLocal = m_Joints[i].m_BindPoseLocal;
-    skeleton.m_Joints[i].m_InverseBindPoseGlobal = m_Joints[i].m_InverseBindPoseGlobal;
   }
 }
 

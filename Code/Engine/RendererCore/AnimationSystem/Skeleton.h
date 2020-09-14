@@ -10,7 +10,6 @@
 
 class ezStreamWriter;
 class ezStreamReader;
-class ezAnimationPose;
 class ezSkeletonBuilder;
 class ezSkeleton;
 
@@ -26,7 +25,6 @@ class EZ_RENDERERCORE_DLL ezSkeletonJoint
 {
 public:
   const ezTransform& GetBindPoseLocalTransform() const { return m_BindPoseLocal; }
-  const ezTransform& GetInverseBindPoseGlobalTransform() const { return m_InverseBindPoseGlobal; }
 
   /// \brief Returns ezInvalidJointIndex if no parent
   ezUInt16 GetParentIndex() const { return m_uiParentIndex; }
@@ -39,7 +37,6 @@ protected:
   friend ezSkeletonBuilder;
 
   ezTransform m_BindPoseLocal;
-  ezTransform m_InverseBindPoseGlobal;
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 };
@@ -76,10 +73,9 @@ public:
 
   bool IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const;
 
-  /// \brief Applies a global transform to the skeleton (used by the importer to correct scale and up-axis)
-  // void ApplyGlobalTransform(const ezMat3& transform);
-
   const ozz::animation::Skeleton& GetOzzSkeleton() const;
+
+  ezUInt64 GetHeapMemoryUsage() const;
 
 protected:
   friend ezSkeletonBuilder;

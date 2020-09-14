@@ -7,7 +7,7 @@
 
 struct ezMsgQueryAnimationSkeleton;
 
-using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezSkeletonComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezSkeletonComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezSkeletonComponent : public ezRenderComponent
 {
@@ -21,7 +21,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual void OnSimulationStarted() override;
+  virtual void OnActivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ public:
   void SetSkeleton(const ezSkeletonResourceHandle& hResource);
   const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
 
-  bool m_bVisualizeSkeleton = false; // [ property ]
+  bool m_bVisualizeSkeleton = true; // [ property ]
 
 protected:
   void Update();
@@ -52,6 +52,8 @@ protected:
   void UpdateSkeletonVis();
 
   ezSkeletonResourceHandle m_hSkeleton;
+  ezUInt32 m_uiSkeletonChangeCounter = 0;
+
   ezBoundingBoxSphere m_LocalBounds;
   ezDynamicArray<ezDebugRenderer::Line> m_LinesSkeleton;
 };

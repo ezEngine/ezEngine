@@ -5,13 +5,13 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-struct ezSkeletonResourceGeometry
-{
-  // scale is used to resize a unit sphere / box / capsule
-  ezTransform m_Transform;
-  ezUInt16 m_uiAttachedToJoint = 0;
-  ezEnum<ezSkeletonJointGeometryType> m_Type;
-};
+// struct ezSkeletonResourceGeometry
+//{
+//  // scale is used to resize a unit sphere / box / capsule
+//  ezTransform m_Transform;
+//  ezUInt16 m_uiAttachedToJoint = 0;
+//  ezEnum<ezSkeletonJointGeometryType> m_Type;
+//};
 
 struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 {
@@ -25,8 +25,10 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
 
+  ezUInt64 GetHeapMemoryUsage() const;
+
   ezSkeleton m_Skeleton;
-  ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
+  // ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
 };
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
@@ -41,12 +43,12 @@ public:
   ezSkeletonResource();
   ~ezSkeletonResource();
 
-  const ezSkeletonResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
+  const ezSkeletonResourceDescriptor& GetDescriptor() const { return *m_pDescriptor; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezSkeletonResourceDescriptor m_Descriptor;
+  ezUniquePtr<ezSkeletonResourceDescriptor> m_pDescriptor;
 };

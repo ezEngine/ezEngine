@@ -126,11 +126,12 @@ void ezSimpleAnimationComponent::Update()
   if (uiNumSkeletonJoints != uiNumAnimatedJoints)
     return;
 
+  ezArrayPtr<ezMat4> pPoseMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, uiNumSkeletonJoints);
+
   if (m_ozzSamplingCache.max_tracks() != uiNumAnimatedJoints)
   {
     m_ozzSamplingCache.Resize(uiNumAnimatedJoints);
     m_ozzLocalTransforms.resize(pOzzSkeleton->num_soa_joints());
-    m_ozzModelTransforms.resize(uiNumSkeletonJoints);
   }
 
   {
@@ -145,7 +146,7 @@ void ezSimpleAnimationComponent::Update()
   {
     ozz::animation::LocalToModelJob job;
     job.input = make_span(m_ozzLocalTransforms);
-    job.output = make_span(m_ozzModelTransforms);
+    job.output = span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
     job.skeleton = pOzzSkeleton;
     job.Run();
   }
@@ -154,7 +155,7 @@ void ezSimpleAnimationComponent::Update()
   {
     ezMsgAnimationPoseUpdated msg;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = ezMakeArrayPtr<const ezMat4>((const ezMat4*)&m_ozzModelTransforms[0], (ezUInt32)m_ozzModelTransforms.size());
+    msg.m_ModelTransforms = pPoseMatrices;
 
     GetOwner()->SendMessageRecursive(msg);
   }

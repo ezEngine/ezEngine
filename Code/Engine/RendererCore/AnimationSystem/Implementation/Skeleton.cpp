@@ -9,13 +9,12 @@
 #include <ozz/animation/runtime/skeleton.h>
 
 ezSkeleton::ezSkeleton() = default;
+ezSkeleton::~ezSkeleton() = default;
 
 ezSkeleton::ezSkeleton(ezSkeleton&& rhs)
 {
   *this = std::move(rhs);
 }
-
-ezSkeleton::~ezSkeleton() = default;
 
 void ezSkeleton::operator=(ezSkeleton&& rhs)
 {
@@ -58,20 +57,9 @@ bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
   return true;
 }
 
-enum ezSkeletonVersion : ezUInt32
-{
-  Version1 = 1,
-  Version2,
-
-  ENUM_COUNT,
-  Version_Current = ENUM_COUNT - 1
-};
-
-const ezUInt32 uiCurrentSkeletonVersion = 2;
-
 void ezSkeleton::Save(ezStreamWriter& stream) const
 {
-  stream << (ezUInt32)ezSkeletonVersion::Version_Current;
+  stream.WriteVersion(3);
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
   stream << uiNumJoints;
@@ -82,49 +70,29 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
     stream << m_Joints[i].m_sName;
     stream << m_Joints[i].m_uiParentIndex;
     stream << m_Joints[i].m_BindPoseLocal;
-    stream << m_Joints[i].m_InverseBindPoseGlobal;
   }
 }
 
 void ezSkeleton::Load(ezStreamReader& stream)
 {
+  const ezTypeVersion version = stream.ReadVersion(3);
+  if (version < 3)
+    return;
+
   m_Joints.Clear();
-
-  ezUInt32 uiVersion = 0;
-  stream >> uiVersion;
-
-  EZ_ASSERT_DEV(uiVersion <= ezSkeletonVersion::Version_Current, "Skeleton versioning corrupt!");
 
   ezUInt32 uiNumJoints = 0;
   stream >> uiNumJoints;
 
   m_Joints.Reserve(uiNumJoints);
 
-  if (uiVersion == 1)
+  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
   {
-    for (ezUInt32 i = 0; i < uiNumJoints; ++i)
-    {
-      ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
+    ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
 
-      ezUInt32 dummy;
-      stream >> joint.m_sName;
-      stream >> dummy;
-      joint.m_uiParentIndex = dummy;
-      stream >> joint.m_BindPoseLocal;
-      stream >> joint.m_InverseBindPoseGlobal;
-    }
-  }
-  else
-  {
-    for (ezUInt32 i = 0; i < uiNumJoints; ++i)
-    {
-      ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
-
-      stream >> joint.m_sName;
-      stream >> joint.m_uiParentIndex;
-      stream >> joint.m_BindPoseLocal;
-      stream >> joint.m_InverseBindPoseGlobal;
-    }
+    stream >> joint.m_sName;
+    stream >> joint.m_uiParentIndex;
+    stream >> joint.m_BindPoseLocal;
   }
 }
 
@@ -199,23 +167,10 @@ const ozz::animation::Skeleton& ezSkeleton::GetOzzSkeleton() const
   return *m_pOzzSkeleton.Borrow();
 }
 
-// void ezSkeleton::ApplyGlobalTransform(const ezMat3& transform)
-//{
-//  ezMat4 totalTransform(transform, ezVec3::ZeroVector());
-//
-//  const ezUInt32 uiNumJoints = m_Joints.GetCount();
-//
-//  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
-//  {
-//    Joint& joint = m_Joints[i];
-//
-//    if (!joint.IsRootJoint())
-//      continue;
-//
-//    joint.m_JointTransform = totalTransform * joint.m_JointTransform;
-//  }
-//}
-
+ezUInt64 ezSkeleton::GetHeapMemoryUsage() const
+{
+  return m_Joints.GetHeapMemoryUsage(); // TODO: + ozz skeleton
+}
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);
