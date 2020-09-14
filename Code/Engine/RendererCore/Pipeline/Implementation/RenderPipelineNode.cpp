@@ -103,4 +103,3 @@ const ezRenderPipelineNodePin* ezRenderPipelineNode::GetPinByName(ezHashedString
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineNode);
-

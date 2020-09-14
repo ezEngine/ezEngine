@@ -56,5 +56,3 @@ EZ_STATICLINK_LIBRARY(Texture)
   EZ_STATICLINK_REFERENCE(Texture_Utils_Implementation_TexturePacker);
   EZ_STATICLINK_REFERENCE(Texture_ezTexFormat_ezTexFormat);
 }
-
-

@@ -13,4 +13,3 @@ EZ_STATICLINK_LIBRARY(Utilities)
   EZ_STATICLINK_REFERENCE(Utilities_GridAlgorithms_Implementation_Rasterization);
   EZ_STATICLINK_REFERENCE(Utilities_PathFinding_Implementation_GridNavmesh);
 }
-

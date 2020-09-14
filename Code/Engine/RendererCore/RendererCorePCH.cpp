@@ -108,4 +108,3 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureLoader);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureUtils);
 }
-

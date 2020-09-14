@@ -223,4 +223,3 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, ezTime duratio
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_SimpleAnimationComponent);
-

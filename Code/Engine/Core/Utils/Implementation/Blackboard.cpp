@@ -148,4 +148,3 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_Blackboard);
-
