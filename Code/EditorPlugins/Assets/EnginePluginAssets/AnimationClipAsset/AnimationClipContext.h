@@ -27,5 +27,4 @@ private:
   ezString m_sAnimatedMeshToUse;
   ezComponentHandle m_hAnimMeshComponent;
   ezComponentHandle m_hAnimControllerComponent;
-  ezComponentHandle m_hSkeletonVisComponent;
 };

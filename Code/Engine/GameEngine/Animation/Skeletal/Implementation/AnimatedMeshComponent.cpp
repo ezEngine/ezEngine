@@ -8,17 +8,16 @@
 
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
+#include <ozz/base/containers/vector.h>
+#include <ozz/base/maths/simd_math.h>
+#include <ozz/base/maths/soa_transform.h>
+#include <ozz/base/span.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ?
 {
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("VisualizeBindPose", m_bVisualizeBindPose)
-  } 
-  EZ_END_PROPERTIES;
-
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
@@ -53,87 +52,103 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
   EZ_ASSERT_DEV(uiVersion >= 13, "Unsupported version, delete the file and reexport it");
 }
 
-void ezAnimatedMeshComponent::OnSimulationStarted()
+void ezAnimatedMeshComponent::OnActivated()
 {
-  SUPER::OnSimulationStarted();
+  SUPER::OnActivated();
 
   // make sure the skinning buffer is deleted
   EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
 
+  InitializeAnimationPose();
+}
+
+void ezAnimatedMeshComponent::OnDeactivated()
+{
+  m_SkinningSpacePose.Clear();
+
+  SUPER::OnDeactivated();
+}
+
+void ezAnimatedMeshComponent::InitializeAnimationPose()
+{
   if (!m_hMesh.IsValid())
     return;
 
-  ezMsgQueryAnimationSkeleton msg;
-  GetOwner()->SendMessage(msg);
-
-  m_hSkeleton = msg.m_hSkeleton;
-
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
 
-  if (!m_hSkeleton.IsValid())
-  {
-    // if we didn't get a skeleton from another component, via the message, try to get one from the mesh
-    m_hSkeleton = pMesh->m_hDefaultSkeleton;
-  }
+  m_hSkeleton = pMesh->m_hDefaultSkeleton;
 
   if (!m_hSkeleton.IsValid())
     return;
 
-  m_AnimTransforms.SetCountUninitialized(pMesh->m_Bones.GetCount());
-
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
 
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-  ezAnimationPose m_AnimationPose;
-  m_AnimationPose.Configure(skeleton);
-  m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
 
-  m_Lines.Clear();
-
-  for (auto itBone : pMesh->m_Bones)
   {
-    const ezUInt16 uiJointIdx = skeleton.FindJointByName(ezTempHashedString(itBone.Key().GetData()));
-    const ezMat4 modelSpaceTransform = m_AnimationPose.GetTransform(uiJointIdx);
+    const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+    const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
 
-    m_AnimTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransform * itBone.Value().m_GlobalInverseBindPoseMatrix;
+    ezArrayPtr<ezMat4> pPoseMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, uiNumSkeletonJoints);
 
-    ezUInt16 uiParentJointIdx = skeleton.GetJointByIndex(uiJointIdx).GetParentIndex();
-    while (uiParentJointIdx != ezInvalidJointIndex)
     {
-      auto parentName = skeleton.GetJointByIndex(uiParentJointIdx).GetName();
-
-      auto itParent = pMesh->m_Bones.Find(parentName);
-
-      if (itParent.IsValid())
-      {
-        auto& l = m_Lines.ExpandAndGetRef();
-        l.m_start = itBone.Value().m_GlobalInverseBindPoseMatrix.GetInverse().GetTranslationVector();
-        l.m_end = itParent.Value().m_GlobalInverseBindPoseMatrix.GetInverse().GetTranslationVector();
-        break;
-      }
-
-      uiParentJointIdx = skeleton.GetJointByIndex(uiParentJointIdx).GetParentIndex();
+      ozz::animation::LocalToModelJob job;
+      job.input = pOzzSkeleton->joint_bind_poses();
+      job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
+      job.skeleton = pOzzSkeleton;
+      job.Run();
     }
+
+    ezMsgAnimationPoseUpdated msg;
+    msg.m_ModelTransforms = pPoseMatrices;
+    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+
+    OnAnimationPoseUpdated(msg);
   }
 
-  // m_AnimTransforms.Clear();
-  // m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
+  // for (auto itBone : pMesh->m_Bones)
+  //{
+  //  const ezUInt16 uiJointIdx = skeleton.FindJointByName(ezTempHashedString(itBone.Key().GetData()));
+  //  const ezMat4 modelSpaceTransform = m_SkinningSpacePose.m_Transforms[uiJointIdx];
+
+  //  m_SkinningSpacePose.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransform * itBone.Value().m_GlobalInverseBindPoseMatrix;
+
+  //  ezUInt16 uiParentJointIdx = skeleton.GetJointByIndex(uiJointIdx).GetParentIndex();
+  //  while (uiParentJointIdx != ezInvalidJointIndex)
+  //  {
+  //    auto parentName = skeleton.GetJointByIndex(uiParentJointIdx).GetName();
+
+  //    auto itParent = pMesh->m_Bones.Find(parentName);
+
+  //    if (itParent.IsValid())
+  //    {
+  //      auto& l = m_Lines.ExpandAndGetRef();
+  //      l.m_start = itBone.Value().m_GlobalInverseBindPoseMatrix.GetInverse().GetTranslationVector();
+  //      l.m_end = itParent.Value().m_GlobalInverseBindPoseMatrix.GetInverse().GetTranslationVector();
+  //      break;
+  //    }
+
+  //    uiParentJointIdx = skeleton.GetJointByIndex(uiParentJointIdx).GetParentIndex();
+  //  }
+  //}
 
   // Create the buffer for the skinning matrices
-  CreateSkinningTransformBuffer(m_AnimTransforms);
+  CreateSkinningTransformBuffer(m_SkinningSpacePose.m_Transforms);
 }
 
 ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
 {
-  // this copy is necessary for the multi-threaded renderer to not access m_AnimationPose while we update it
-  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimTransforms.GetCount());
-  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimTransforms.GetData(), m_AnimTransforms.GetCount());
-
-  m_SkinningMatrices = pRenderMatrices;
-
-  if (m_bVisualizeBindPose && !m_Lines.IsEmpty())
+  if (!m_SkinningSpacePose.IsEmpty())
   {
-    ezDebugRenderer::DrawLines(GetWorld(), m_Lines, ezColor::GreenYellow, GetOwner()->GetGlobalTransform());
+    // this copy is necessary for the multi-threaded renderer to not access m_SkinningSpacePose while we update it
+    ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_SkinningSpacePose.GetTransformCount());
+    pRenderMatrices.CopyFrom(m_SkinningSpacePose.m_Transforms);
+
+    m_SkinningMatrices = pRenderMatrices;
   }
 
   return SUPER::CreateRenderData();
@@ -146,15 +161,7 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-  for (auto itBone : pMesh->m_Bones)
-  {
-    const ezUInt16 uiJointIdx = msg.m_pSkeleton->FindJointByName(itBone.Key());
-
-    if (uiJointIdx == ezInvalidJointIndex)
-      continue;
-
-    m_AnimTransforms[itBone.Value().m_uiBoneIndex] = msg.m_ModelTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
-  }
+  m_SkinningSpacePose.MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms);
 }
 
 void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)

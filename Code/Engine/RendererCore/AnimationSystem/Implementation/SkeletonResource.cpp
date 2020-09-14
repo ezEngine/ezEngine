@@ -22,7 +22,8 @@ ezSkeletonResource::~ezSkeletonResource() = default;
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSkeletonResource, ezSkeletonResourceDescriptor)
 {
-  m_Descriptor = std::move(descriptor);
+  m_pDescriptor = EZ_DEFAULT_NEW(ezSkeletonResourceDescriptor);
+  *m_pDescriptor = std::move(descriptor);
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -34,6 +35,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSkeletonResource, ezSkeletonResourceDescripto
 
 ezResourceLoadDesc ezSkeletonResource::UnloadData(Unload WhatToUnload)
 {
+  m_pDescriptor.Clear();
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
@@ -66,7 +69,8 @@ ezResourceLoadDesc ezSkeletonResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  m_Descriptor.Deserialize(*Stream);
+  m_pDescriptor = EZ_DEFAULT_NEW(ezSkeletonResourceDescriptor);
+  m_pDescriptor->Deserialize(*Stream);
 
   res.m_State = ezResourceState::Loaded;
   return res;
@@ -78,6 +82,10 @@ void ezSkeletonResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezSkeletonResource); // TODO
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor() = default;
 ezSkeletonResourceDescriptor::~ezSkeletonResourceDescriptor() = default;
 ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor(ezSkeletonResourceDescriptor&& rhs)
@@ -88,7 +96,12 @@ ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor(ezSkeletonResourceDes
 void ezSkeletonResourceDescriptor::operator=(ezSkeletonResourceDescriptor&& rhs)
 {
   m_Skeleton = std::move(rhs.m_Skeleton);
-  m_Geometry = std::move(rhs.m_Geometry);
+  //m_Geometry = std::move(rhs.m_Geometry);
+}
+
+ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
+{
+  return /*m_Geometry.GetHeapMemoryUsage() +*/ m_Skeleton.GetHeapMemoryUsage();
 }
 
 ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
@@ -97,17 +110,17 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
 
   m_Skeleton.Save(stream);
 
-  const ezUInt16 uiNumGeom = m_Geometry.GetCount();
-  stream << uiNumGeom;
+  //const ezUInt16 uiNumGeom = m_Geometry.GetCount();
+  //stream << uiNumGeom;
 
-  for (ezUInt32 i = 0; i < uiNumGeom; ++i)
-  {
-    const auto& geo = m_Geometry[i];
+  //for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  //{
+  //  const auto& geo = m_Geometry[i];
 
-    stream << geo.m_uiAttachedToJoint;
-    stream << geo.m_Type;
-    stream << geo.m_Transform;
-  }
+  //  stream << geo.m_uiAttachedToJoint;
+  //  stream << geo.m_Type;
+  //  stream << geo.m_Transform;
+  //}
 
   return EZ_SUCCESS;
 }
@@ -116,24 +129,25 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  m_Geometry.Clear();
-
   m_Skeleton.Load(stream);
 
-  ezUInt16 uiNumGeom = 0;
-  stream >> uiNumGeom;
-  m_Geometry.Reserve(uiNumGeom);
+  //m_Geometry.Clear();
 
-  for (ezUInt32 i = 0; i < uiNumGeom; ++i)
-  {
-    auto& geo = m_Geometry.ExpandAndGetRef();
+  //ezUInt16 uiNumGeom = 0;
+  //stream >> uiNumGeom;
+  //m_Geometry.Reserve(uiNumGeom);
 
-    stream >> geo.m_uiAttachedToJoint;
-    stream >> geo.m_Type;
-    stream >> geo.m_Transform;
-  }
+  //for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  //{
+  //  auto& geo = m_Geometry.ExpandAndGetRef();
+
+  //  stream >> geo.m_uiAttachedToJoint;
+  //  stream >> geo.m_Type;
+  //  stream >> geo.m_Transform;
+  //}
 
   return EZ_SUCCESS;
 }
+
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonResource);

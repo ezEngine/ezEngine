@@ -39,12 +39,12 @@ public:
   void CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint);
 
   ezHashedString m_sName;
-  ezTransform m_Transform;
-  ezEnum<ezSkeletonJointGeometryType> m_Geometry;
+  ezTransform m_Transform = ezTransform::IdentityTransform();
 
-  float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
-  float m_fWidth = 0;     // Box
-  float m_fThickness = 0; // Sphere radius, Capsule radius
+  //ezEnum<ezSkeletonJointGeometryType> m_Geometry;
+  //float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
+  //float m_fWidth = 0;     // Box
+  //float m_fThickness = 0; // Sphere radius, Capsule radius
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };
@@ -58,8 +58,6 @@ public:
   ~ezEditableSkeleton();
 
   void ClearJoints();
-  void GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc = nullptr) const;
-  void GenerateSkeleton(ezSkeleton& skeleton, ezSkeletonResourceDescriptor* pDesc = nullptr) const;
   void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
   void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const;
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;

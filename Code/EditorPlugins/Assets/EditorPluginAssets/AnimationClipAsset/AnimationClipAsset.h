@@ -3,22 +3,22 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-//struct ezRootMotionExtractionMode
-//{
-//  typedef ezUInt8 StorageType;
-//
-//  enum Enum
-//  {
-//    None,
-//    Custom,
-//    FromFeet,
-//    AvgFromFeet,
-//
-//    Default = None
-//  };
-//};
-//
-//EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionExtractionMode);
+struct ezRootMotionMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    None,
+    Constant,
+    // FromFeet,
+    // AvgFromFeet,
+
+    Default = None
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionMode);
 
 class ezAnimationClipAssetProperties : public ezReflectedClass
 {
@@ -34,10 +34,10 @@ public:
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
   ezString m_sPreviewMesh;
-  //ezEnum<ezRootMotionExtractionMode> m_RootMotionExtraction;
-  //ezVec3 m_vCustomRootMotion;
-  //ezString m_sJoint1;
-  //ezString m_sJoint2;
+  ezEnum<ezRootMotionMode> m_RootMotionMode;
+  ezVec3 m_vConstantRootMotion;
+  // ezString m_sJoint1;
+  // ezString m_sJoint2;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,9 +53,9 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  //void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
-  //void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
-  //void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
+  // void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
+  // void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
+  // void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
 };
 
 //////////////////////////////////////////////////////////////////////////

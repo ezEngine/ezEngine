@@ -11,19 +11,17 @@ public:
   ezOpaqueForwardRenderPass(const char* szName = "OpaqueForwardRenderPass");
   ~ezOpaqueForwardRenderPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
 protected:
-  virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 
-  ezInputNodePin m_PinSSAO;
-  // ezOutputNodePin m_PinNormal;
-  // ezOutputNodePin m_PinSpecularColorRoughness;
+  ezRenderPipelineNodeInputPin m_PinSSAO;
+  // ezRenderPipelineNodeOutputPin m_PinNormal;
+  // ezRenderPipelineNodeOutputPin m_PinSpecularColorRoughness;
 
   bool m_bWriteDepth;
 

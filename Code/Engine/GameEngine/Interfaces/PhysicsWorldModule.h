@@ -8,7 +8,6 @@
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
-class ezAnimationPose;
 
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
@@ -100,8 +99,6 @@ public:
   virtual ezVec3 GetGravity() const = 0;
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) {}
-
-  virtual void* CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& transform, const ezAnimationPose& initPose) = 0;
 };
 
 /// \brief Used to apply a physical impulse on the object

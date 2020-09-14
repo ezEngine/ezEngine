@@ -31,11 +31,6 @@ public:
   ezTime GetDuration() const;
   void SetDuration(ezTime duration);
 
-  // bool HasRootMotion() const;
-  // ezUInt16 GetRootMotionJoint() const;
-  // void SetPoseToKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe) const;
-  // void SetPoseToBlendedKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe0, float fBlendToKeyframe1) const;
-
   const ozz::animation::Animation& GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const;
 
   struct JointInfo
@@ -71,6 +66,8 @@ public:
   ezArrayPtr<const KeyframeVec3> GetPositionKeyframes(const JointInfo& jointInfo) const;
   ezArrayPtr<const KeyframeQuat> GetRotationKeyframes(const JointInfo& jointInfo) const;
   ezArrayPtr<const KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo) const;
+
+  ezVec3 m_vConstantRootMotion = ezVec3::ZeroVector();
 
 private:
   ezArrayMap<ezHashedString, JointInfo> m_JointInfos;

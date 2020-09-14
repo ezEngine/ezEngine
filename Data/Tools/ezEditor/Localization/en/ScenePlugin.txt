@@ -268,3 +268,5 @@ InstanceData;Instance Data
 Scene.Render.PickTransparent;Select Transparent
 ezGrabbableItemComponent;Grabbable Item
 ezVisualizeHandComponent;Visualize Hand
+ezSimpleAnimationComponent;Simple Animation
+ezAnimationControllerComponent;Animation Controller

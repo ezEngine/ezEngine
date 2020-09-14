@@ -97,7 +97,13 @@ void ezAnimationClipResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 struct ezAnimationClipResourceDescriptor::OzzImpl
 {
-  ezMap<const ezSkeletonResource*, ozz::unique_ptr<ozz::animation::Animation>> m_MappedOzzAnimations;
+  struct CachedAnim
+  {
+    ezUInt32 m_uiResourceChangeCounter = 0;
+    ozz::unique_ptr<ozz::animation::Animation> m_pAnim;
+  };
+
+  ezMap<const ezSkeletonResource*, CachedAnim> m_MappedOzzAnimations;
 };
 
 ezAnimationClipResourceDescriptor::ezAnimationClipResourceDescriptor()
@@ -126,7 +132,7 @@ void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescrip
 
 ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(6);
+  stream.WriteVersion(7);
 
   const ezUInt16 uiNumJoints = m_JointInfos.GetCount();
   stream << uiNumJoints;
@@ -150,12 +156,14 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) co
 
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Transforms));
 
+  stream << m_vConstantRootMotion;
+
   return EZ_SUCCESS;
 }
 
 ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
-  const ezTypeVersion uiVersion = stream.ReadVersion(6);
+  const ezTypeVersion uiVersion = stream.ReadVersion(7);
 
   if (uiVersion < 6)
     return EZ_FAILURE;
@@ -190,6 +198,11 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
   stream >> m_uiNumTotalScales;
 
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Transforms));
+
+  if (uiVersion >= 7)
+  {
+    stream >> m_vConstantRootMotion;
+  }
 
   return EZ_SUCCESS;
 }
@@ -233,7 +246,12 @@ const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzz
 {
   auto it = m_OzzImpl->m_MappedOzzAnimations.Find(&skeleton);
   if (it.IsValid())
-    return *it.Value().get();
+  {
+    if (it.Value().m_uiResourceChangeCounter == skeleton.GetCurrentResourceChangeCounter())
+    {
+      return *it.Value().m_pAnim.get();
+    }
+  }
 
   auto pOzzSkeleton = &skeleton.GetDescriptor().m_Skeleton.GetOzzSkeleton();
   const ezUInt32 uiNumJoints = pOzzSkeleton->num_joints();
@@ -322,22 +340,15 @@ const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzz
     }
   }
 
-  // TODO: optimize animation
-  {
-    // ozz::animation::offline::RawAnimation optAnim;
-
-    // ozz::animation::offline::AnimationOptimizer optimizer;
-    // if (!optimizer(rawAnim, *pOzzSkeleton, &optAnim))
-    //  return ezStatus("Failed to optimize animation");
-  }
-
   ozz::animation::offline::AnimationBuilder animBuilder;
 
   EZ_ASSERT_DEBUG(rawAnim.Validate(), "Invalid animation data");
 
-  m_OzzImpl->m_MappedOzzAnimations[&skeleton] = std::move(animBuilder(rawAnim));
+  auto& cached = m_OzzImpl->m_MappedOzzAnimations[&skeleton];
+  cached.m_pAnim = std::move(animBuilder(rawAnim));
+  cached.m_uiResourceChangeCounter = skeleton.GetCurrentResourceChangeCounter();
 
-  return *m_OzzImpl->m_MappedOzzAnimations[&skeleton].get();
+  return *cached.m_pAnim.get();
 }
 
 ezAnimationClipResourceDescriptor::JointInfo ezAnimationClipResourceDescriptor::CreateJoint(const ezHashedString& sJointName, ezUInt16 uiNumPositions, ezUInt16 uiNumRotations, ezUInt16 uiNumScales)
@@ -437,24 +448,6 @@ ezArrayPtr<const ezAnimationClipResourceDescriptor::KeyframeVec3> ezAnimationCli
   return ezArrayPtr<const KeyframeVec3>(reinterpret_cast<const KeyframeVec3*>(m_Transforms.GetData() + uiByteOffsetStart), jointInfo.m_uiScaleCount);
 }
 
-// ezUInt16 ezAnimationClipResourceDescriptor::GetFrameAt(ezTime time, double& out_fLerpToNext) const
-//{
-//  const double fFrameIdx = time.GetSeconds() * m_uiFramesPerSecond;
-//
-//  const ezUInt16 uiLowerFrame = static_cast<ezUInt16>(ezMath::Trunc(fFrameIdx));
-//
-//  if (uiLowerFrame + 1 >= m_uiNumFrames)
-//  {
-//    out_fLerpToNext = 1;
-//    return m_uiNumFrames - 2;
-//  }
-//
-//  out_fLerpToNext = ezMath::Fraction(fFrameIdx);
-//
-//  return uiLowerFrame;
-//}
-
-
 // bool ezAnimationClipResourceDescriptor::HasRootMotion() const
 //{
 //  return m_JointNameToIndex.Contains(ezTempHashedString("ezRootMotionTransform"));
@@ -474,48 +467,6 @@ ezArrayPtr<const ezAnimationClipResourceDescriptor::KeyframeVec3> ezAnimationCli
 //#endif
 //
 //  return jointIdx;
-//}
-//
-// void ezAnimationClipResourceDescriptor::SetPoseToKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe) const
-//{
-//  for (ezUInt32 b = 0; b < m_JointNameToIndex.GetCount(); ++b)
-//  {
-//    const ezHashedString& sJointName = m_JointNameToIndex.GetKey(b);
-//    const ezUInt32 uiAnimJointIdx = m_JointNameToIndex.GetValue(b);
-//
-//    const ezUInt16 uiSkeletonJointIdx = skeleton.FindJointByName(sJointName);
-//    if (uiSkeletonJointIdx != ezInvalidJointIndex)
-//    {
-//      ezArrayPtr<const ezTransform> pTransforms = GetJointKeyframes(uiAnimJointIdx);
-//
-//      pose.SetTransform(uiSkeletonJointIdx, pTransforms[uiKeyframe].GetAsMat4());
-//    }
-//  }
-//}
-//
-//
-// void ezAnimationClipResourceDescriptor::SetPoseToBlendedKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe0, float fBlendToKeyframe1) const
-//{
-//  for (ezUInt32 b = 0; b < m_JointNameToIndex.GetCount(); ++b)
-//  {
-//    const ezHashedString& sJointName = m_JointNameToIndex.GetKey(b);
-//    const ezUInt32 uiAnimJointIdx = m_JointNameToIndex.GetValue(b);
-//
-//    const ezUInt16 uiSkeletonJointIdx = skeleton.FindJointByName(sJointName);
-//    if (uiSkeletonJointIdx != ezInvalidJointIndex)
-//    {
-//      ezArrayPtr<const ezTransform> pTransforms = GetJointKeyframes(uiAnimJointIdx);
-//      const ezTransform jointTransform1 = pTransforms[uiKeyframe0];
-//      const ezTransform jointTransform2 = pTransforms[uiKeyframe0 + 1];
-//
-//      ezTransform res;
-//      res.m_vPosition = ezMath::Lerp(jointTransform1.m_vPosition, jointTransform2.m_vPosition, fBlendToKeyframe1);
-//      res.m_qRotation.SetSlerp(jointTransform1.m_qRotation, jointTransform2.m_qRotation, fBlendToKeyframe1);
-//      res.m_vScale = ezMath::Lerp(jointTransform1.m_vScale, jointTransform2.m_vScale, fBlendToKeyframe1);
-//
-//      pose.SetTransform(uiSkeletonJointIdx, res.GetAsMat4());
-//    }
-//  }
 //}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_AnimationClipResource);

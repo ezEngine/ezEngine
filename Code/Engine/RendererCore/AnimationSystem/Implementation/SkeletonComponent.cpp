@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
-    EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton),
+    EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -45,68 +45,19 @@ ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 
 void ezSkeletonComponent::Update()
 {
-  if (m_bVisualizeSkeleton && !m_LinesSkeleton.IsEmpty())
+  if (m_bVisualizeSkeleton)
   {
+    if (m_hSkeleton.IsValid())
+    {
+      ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::PointerOnly);
+      if (m_uiSkeletonChangeCounter != pSkeleton->GetCurrentResourceChangeCounter())
+      {
+        UpdateSkeletonVis();
+      }
+    }
+
     ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::DeepPink, GetOwner()->GetGlobalTransform());
   }
-
-  // if (!m_hSkeleton.IsValid())
-  //  return;
-
-  // ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-
-  // if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
-  //  return;
-
-  // const ezSkeletonResourceDescriptor& desc = pSkeleton->GetDescriptor();
-  // const ezSkeleton& skeleton = desc.m_Skeleton;
-
-  // ezAnimationPose pose;
-  // pose.Configure(skeleton);
-  // pose.SetToBindPoseInLocalSpace(skeleton);
-  // pose.ConvertFromLocalSpaceToObjectSpace(skeleton);
-
-  // pose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), 0);
-
-  // ezQuat qRotCapsule;
-  // qRotCapsule.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
-
-  // for (const auto& geo : desc.m_Geometry)
-  //{
-  //  const ezVec3 scale = geo.m_Transform.m_vScale;
-
-  //  ezTransform geoPose;
-  //  geoPose.SetFromMat4(pose.GetTransform(geo.m_uiAttachedToJoint));
-  //  geoPose = geoPose * ezTransform(geo.m_Transform.m_vPosition, geo.m_Transform.m_qRotation); // remove scale
-
-  //  switch (geo.m_Type)
-  //  {
-  //    case ezSkeletonJointGeometryType::None:
-  //      break;
-
-  //    case ezSkeletonJointGeometryType::Box:
-  //    {
-  //      ezBoundingBox box;
-  //      box.SetCenterAndHalfExtents(ezVec3::ZeroVector(), scale);
-  //      ezDebugRenderer::DrawLineBox(GetWorld(), box, ezColor::IndianRed, geoPose);
-  //      break;
-  //    }
-
-  //    case ezSkeletonJointGeometryType::Capsule:
-  //    {
-  //      geoPose.m_qRotation = geoPose.m_qRotation * qRotCapsule;
-  //      ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), scale.x, scale.z, ezColor::IndianRed, geoPose);
-  //      break;
-  //    }
-
-  //    case ezSkeletonJointGeometryType::Sphere:
-  //    {
-  //      ezBoundingSphere sphere(ezVec3::ZeroVector(), scale.z);
-  //      ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, ezColor::IndianRed, geoPose);
-  //      break;
-  //    }
-  //  }
-  //}
 }
 
 void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -130,9 +81,9 @@ void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bVisualizeSkeleton;
 }
 
-void ezSkeletonComponent::OnSimulationStarted()
+void ezSkeletonComponent::OnActivated()
 {
-  SUPER::OnSimulationStarted();
+  SUPER::OnActivated();
 
   UpdateSkeletonVis();
 }
@@ -163,6 +114,7 @@ void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
   if (m_hSkeleton != hResource)
   {
     m_hSkeleton = hResource;
+
     UpdateSkeletonVis();
   }
 }
@@ -201,30 +153,39 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 
 void ezSkeletonComponent::UpdateSkeletonVis()
 {
+  if (!IsActiveAndInitialized())
+    return;
+
   m_LinesSkeleton.Clear();
   m_LocalBounds.SetInvalid();
+  m_uiSkeletonChangeCounter = 0;
 
   if (m_hSkeleton.IsValid())
   {
     ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
     if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::Final)
     {
-      ozz::vector<ozz::math::Float4x4> modelTransforms;
-      modelTransforms.resize(pSkeleton->GetDescriptor().m_Skeleton.GetJointCount());
+      m_uiSkeletonChangeCounter = pSkeleton->GetCurrentResourceChangeCounter();
 
+      if (pSkeleton->GetDescriptor().m_Skeleton.GetJointCount() > 0)
       {
-        ozz::animation::LocalToModelJob job;
-        job.input = pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_bind_poses();
-        job.output = make_span(modelTransforms);
-        job.skeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-        job.Run();
+        ozz::vector<ozz::math::Float4x4> modelTransforms;
+        modelTransforms.resize(pSkeleton->GetDescriptor().m_Skeleton.GetJointCount());
+
+        {
+          ozz::animation::LocalToModelJob job;
+          job.input = pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_bind_poses();
+          job.output = make_span(modelTransforms);
+          job.skeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+          job.Run();
+        }
+
+        ezMsgAnimationPoseUpdated msg;
+        msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+        msg.m_ModelTransforms = ezArrayPtr<const ezMat4>(reinterpret_cast<const ezMat4*>(&modelTransforms[0]), (ezUInt32)modelTransforms.size());
+
+        OnAnimationPoseUpdated(msg);
       }
-
-      ezMsgAnimationPoseUpdated msg;
-      msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-      msg.m_ModelTransforms = ezArrayPtr<const ezMat4>(reinterpret_cast<const ezMat4*>(&modelTransforms[0]), (ezUInt32)modelTransforms.size());
-
-      OnAnimationPoseUpdated(msg);
     }
   }
 
@@ -240,46 +201,4 @@ void ezSkeletonComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& 
   }
 }
 
-// void ezSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo)
-//{
-//  const ezUInt32 uiNumJoints = pSkeletonData->GetJointCount();
-//
-//  for (ezUInt32 b = 0; b < uiNumJoints; ++b)
-//  {
-//    const auto& joint = pSkeletonData->GetJointByIndex(b);
-//
-//    const ezTransform mJoint = ComputeJointTransform(*pSkeletonData, joint);
-//
-//    geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mJoint.GetAsMat4(), b);
-//
-//    if (!joint.IsRootJoint())
-//    {
-//      const ezTransform mParentJoint = ComputeJointTransform(*pSkeletonData, pSkeletonData->GetJointByIndex(joint.GetParentIndex()));
-//
-//      const ezVec3 vTargetPos = mJoint.m_vPosition;
-//      const ezVec3 vSourcePos = mParentJoint.m_vPosition;
-//
-//      ezVec3 vJointDir = vTargetPos - vSourcePos;
-//      const float fJointLen = vJointDir.GetLength();
-//
-//      if (fJointLen <= 0.0f)
-//        continue;
-//
-//      vJointDir /= fJointLen;
-//
-//      ezMat4 mScale;
-//      mScale.SetScalingMatrix(ezVec3(1, 1, fJointLen));
-//
-//      ezQuat qRot;
-//      qRot.SetShortestRotation(ezVec3(0, 0, 1), vJointDir);
-//
-//      ezMat4 mTransform;
-//      mTransform = qRot.GetAsMat4() * mScale;
-//      mTransform.SetTranslationVector(vSourcePos);
-//
-//      geo.AddCone(0.02f, 1.0f, false, 4, ezColor::CornflowerBlue /* The Original! */, mTransform, b);
-//    }
-//  }
-//}
-
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_VisualizeSkeletonComponent);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonComponent);

@@ -21,8 +21,10 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_Animation_Implementation_SliderComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Animation_Implementation_TransformComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);
+  EZ_STATICLINK_REFERENCE(GameEngine_Animation_Skeletal_Implementation_AnimationControllerComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Animation_Skeletal_Implementation_JointAttachmentComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Animation_Skeletal_Implementation_MotionMatchingComponent);
+  EZ_STATICLINK_REFERENCE(GameEngine_Animation_Skeletal_Implementation_SimpleAnimationComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_InputConfig);
   EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_PlatformProfile);
   EZ_STATICLINK_REFERENCE(GameEngine_Configuration_Implementation_RendererProfileConfigs);
@@ -92,4 +94,3 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRInterface);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRWindow);
 }
-

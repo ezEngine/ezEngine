@@ -13,9 +13,9 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-//EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionExtractionMode, 1)
-//  EZ_ENUM_CONSTANTS(ezRootMotionExtractionMode::None, ezRootMotionExtractionMode::Custom, ezRootMotionExtractionMode::FromFeet, ezRootMotionExtractionMode::AvgFromFeet)
-//EZ_END_STATIC_REFLECTED_ENUM;
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionMode, 1)
+  EZ_ENUM_CONSTANTS(ezRootMotionMode::None, ezRootMotionMode::Constant)
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
 {
@@ -27,8 +27,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefault
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
     EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")), // TODO: need an attribute that something is 'UI only' (doesn't change the transform state, but is also not 'temporary'
-    //EZ_ENUM_MEMBER_PROPERTY("RootMotionExtraction", ezRootMotionExtractionMode, m_RootMotionExtraction),
-    //EZ_MEMBER_PROPERTY("RootMotionVelocity", m_vCustomRootMotion),
+    EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionMode, m_RootMotionMode),
+    EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     //EZ_MEMBER_PROPERTY("Joint1", m_sJoint1),
     //EZ_MEMBER_PROPERTY("Joint2", m_sJoint2),
   }
@@ -82,6 +82,11 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   for (ezUInt32 clip = 0; clip < pImporter->m_OutputAnimationNames.GetCount(); ++clip)
   {
     pProp->m_AvailableClips[clip] = pImporter->m_OutputAnimationNames[clip];
+  }
+
+  if (pProp->m_RootMotionMode == ezRootMotionMode::Constant)
+  {
+    desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
   }
 
   range.BeginNextStep("Writing Result");

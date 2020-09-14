@@ -44,8 +44,6 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseUpdated, ezMessage);
 
   const ezSkeleton* m_pSkeleton = nullptr;
-  // const ezAnimationPose* m_pPose = nullptr;
-
   ezArrayPtr<const ezMat4> m_ModelTransforms;
 };
 

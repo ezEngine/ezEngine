@@ -73,8 +73,6 @@ public:
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
 
-  virtual void* CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& transform, const ezAnimationPose& initPose) override;
-
   ezMap<physx::PxConstraint*, ezComponentHandle> m_BreakableJoints;
   ezDeque<ezComponentHandle> m_RequireUpdate;
 

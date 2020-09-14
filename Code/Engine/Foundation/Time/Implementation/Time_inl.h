@@ -89,5 +89,5 @@ constexpr EZ_ALWAYS_INLINE ezTime operator/(ezTime t, double f)
 
 constexpr EZ_ALWAYS_INLINE ezTime operator/(double f, ezTime t)
 {
-  return ezTime::Seconds(t.GetSeconds() / f);
+  return ezTime::Seconds(f / t.GetSeconds());
 }

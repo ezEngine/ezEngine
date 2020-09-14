@@ -33,6 +33,11 @@ ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
   ezAnimatedMeshAssetProperties* pProp = GetProperties();
 
+  if (pProp->m_sDefaultSkeleton.IsEmpty())
+  {
+    return ezStatus("Animated mesh doesn't have a default skeleton assigned.");
+  }
+
   ezMeshResourceDescriptor desc;
 
   range.SetStepWeighting(0, 0.9);

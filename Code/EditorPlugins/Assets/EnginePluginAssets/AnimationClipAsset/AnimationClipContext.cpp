@@ -62,7 +62,6 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
       ezAnimatedMeshComponent* pAnimMesh;
       ezSimpleAnimationComponent* pAnimController;
-      ezSkeletonComponent* pVisSkeleton;
 
       if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
         pAnimMesh->DeleteComponent();
@@ -70,12 +69,8 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
       if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
         pAnimController->DeleteComponent();
 
-      if (pWorld->TryGetComponent(m_hSkeletonVisComponent, pVisSkeleton))
-        pVisSkeleton->DeleteComponent();
-
       m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
       m_hAnimControllerComponent = ezSimpleAnimationComponent::CreateComponent(m_pGameObject, pAnimController);
-      m_hSkeletonVisComponent = ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
 
       pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
       pAnimController->SetAnimationClipFile(sAnimClipGuid);

@@ -32,7 +32,7 @@ ezTargetPass::ezTargetPass(const char* szName)
 
 ezTargetPass::~ezTargetPass() {}
 
-ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNodePin* pPin)
+ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezRenderPipelineNodePin* pPin)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTargetSetup& setup = view.GetRenderTargetSetup();
@@ -64,8 +64,7 @@ ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNo
   return ezGALTextureHandle();
 }
 
-bool ezTargetPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   const char* pinNames[] = {
     "Color0",
@@ -88,16 +87,13 @@ bool ezTargetPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-}
+void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
 
 bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, const char* szPinName)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  const ezNodePin* pPin = GetPinByName(szPinName);
+  const ezRenderPipelineNodePin* pPin = GetPinByName(szPinName);
   if (inputs[pPin->m_uiInputIndex])
   {
     const ezGALTexture* pTexture = pDevice->GetTexture(GetTextureHandle(view, pPin));

@@ -179,8 +179,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_DGMLWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_EnvironmentVariableUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_GraphicsUtils);
-  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Node);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Progress);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
-

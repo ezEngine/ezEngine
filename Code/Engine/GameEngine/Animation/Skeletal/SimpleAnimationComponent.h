@@ -55,5 +55,4 @@ protected:
 
   ozz::animation::SamplingCache m_ozzSamplingCache;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms; // TODO: could be frame allocated
-  ozz::vector<ozz::math::Float4x4> m_ozzModelTransforms;
 };

@@ -22,7 +22,8 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual void OnSimulationStarted() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezMeshComponentBase
@@ -37,14 +38,12 @@ public:
   ezAnimatedMeshComponent();
   ~ezAnimatedMeshComponent();
 
-  bool m_bVisualizeBindPose = false;
-
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg); // [ msg handler ]
 
-  // ezAnimationPose m_AnimationPose;
-  ezDynamicArray<ezMat4> m_AnimTransforms;
+  void InitializeAnimationPose();
+
   ezSkeletonResourceHandle m_hSkeleton;
-  ezDynamicArray<ezDebugRenderer::Line> m_Lines;
+  ezSkinningSpaceAnimationPose m_SkinningSpacePose;
 };
