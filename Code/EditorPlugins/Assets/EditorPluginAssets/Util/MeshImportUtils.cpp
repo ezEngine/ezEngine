@@ -975,6 +975,8 @@ namespace ezMeshImportUtils
       if (value > 1.0f)
         value /= 255.0f;
 
+      // for now no material should be metallic
+      value = 0.0f;
       pAccessor->SetValue(pMaterialProperties, "MetallicValue", value).LogFailure();
     }
 
@@ -987,6 +989,7 @@ namespace ezMeshImportUtils
       if (value > 1.0f)
         value /= 255.0f;
 
+      value = ezMath::Lerp(0.6f, 1.0f, value);
       pAccessor->SetValue(pMaterialProperties, "RoughnessValue", value).LogFailure();
     }
 
