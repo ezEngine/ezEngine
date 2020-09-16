@@ -8,6 +8,9 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPin, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -19,7 +22,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
   {
     const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); });
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezProcGenPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); });
     ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProcGenNode(); });
   }
 
@@ -65,12 +68,12 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
 
     if (pPropType->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      ezPin* pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
     else if (pPropType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      ezPin* pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);
     }
   }

@@ -90,16 +90,11 @@ export class SkinnedMeshComponent extends MeshComponentBase
 export class AnimatedMeshComponent extends SkinnedMeshComponent
 {
   public static GetTypeNameHash(): number { return 1354920640; }
-  get AnimationClip(): string { return __CPP_ComponentProperty_get(this, 1370598076); }
-  set AnimationClip(value: string) { __CPP_ComponentProperty_set(this, 1370598076, value); }
-  get Loop(): boolean { return __CPP_ComponentProperty_get(this, 1941506410); }
-  set Loop(value: boolean) { __CPP_ComponentProperty_set(this, 1941506410, value); }
-  get Speed(): number { return __CPP_ComponentProperty_get(this, 3166086532); }
-  set Speed(value: number) { __CPP_ComponentProperty_set(this, 3166086532, value); }
-  get ApplyRootMotion(): boolean { return __CPP_ComponentProperty_get(this, 1680768189); }
-  set ApplyRootMotion(value: boolean) { __CPP_ComponentProperty_set(this, 1680768189, value); }
-  get VisualizeSkeleton(): boolean { return __CPP_ComponentProperty_get(this, 1571306042); }
-  set VisualizeSkeleton(value: boolean) { __CPP_ComponentProperty_set(this, 1571306042, value); }
+}
+
+export class AnimationControllerComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 2010632600; }
 }
 
 export class AreaDamageComponent extends Component
@@ -496,11 +491,6 @@ export class MarkerComponent extends Component
   set Marker(value: string) { __CPP_ComponentProperty_set(this, 3679528792, value); }
   get Radius(): number { return __CPP_ComponentProperty_get(this, 169547257); }
   set Radius(value: number) { __CPP_ComponentProperty_set(this, 169547257, value); }
-}
-
-export class MotionMatchingComponent extends SkinnedMeshComponent
-{
-  public static GetTypeNameHash(): number { return 3085935728; }
 }
 
 export class MoveToComponent extends Component
@@ -1103,6 +1093,17 @@ export class ShapeIconComponent extends Component
   public static GetTypeNameHash(): number { return 2471278007; }
 }
 
+export class SimpleAnimationComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 1429380739; }
+  get AnimationClip(): string { return __CPP_ComponentProperty_get(this, 988413700); }
+  set AnimationClip(value: string) { __CPP_ComponentProperty_set(this, 988413700, value); }
+  get AnimationMode(): Enum.PropertyAnimMode { return __CPP_ComponentProperty_get(this, 3720309437); }
+  set AnimationMode(value: Enum.PropertyAnimMode) { __CPP_ComponentProperty_set(this, 3720309437, value); }
+  get Speed(): number { return __CPP_ComponentProperty_get(this, 2462592905); }
+  set Speed(value: number) { __CPP_ComponentProperty_set(this, 2462592905, value); }
+}
+
 export class SimpleWindComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3333981950; }
@@ -1112,6 +1113,15 @@ export class SimpleWindComponent extends Component
   set MaxStrength(value: number) { __CPP_ComponentProperty_set(this, 888413558, value); }
   get Deviation(): number { return __CPP_ComponentProperty_get(this, 3227694086); }
   set Deviation(value: number) { __CPP_ComponentProperty_set(this, 3227694086, value); }
+}
+
+export class SkeletonComponent extends RenderComponent
+{
+  public static GetTypeNameHash(): number { return 1542012656; }
+  get Skeleton(): string { return __CPP_ComponentProperty_get(this, 273592199); }
+  set Skeleton(value: string) { __CPP_ComponentProperty_set(this, 273592199, value); }
+  get VisualizeSkeleton(): boolean { return __CPP_ComponentProperty_get(this, 1615548791); }
+  set VisualizeSkeleton(value: boolean) { __CPP_ComponentProperty_set(this, 1615548791, value); }
 }
 
 export class SkyBoxComponent extends RenderComponent
@@ -1248,12 +1258,5 @@ export class VisualScriptComponent extends EventMessageHandlerComponent
 export class VisualizeHandComponent extends Component
 {
   public static GetTypeNameHash(): number { return 606529222; }
-}
-
-export class VisualizeSkeletonComponent extends RenderComponent
-{
-  public static GetTypeNameHash(): number { return 4224311822; }
-  get Skeleton(): string { return __CPP_ComponentProperty_get(this, 2496540722); }
-  set Skeleton(value: string) { __CPP_ComponentProperty_set(this, 2496540722, value); }
 }
 

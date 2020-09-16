@@ -6,6 +6,14 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
+class ezProcGenPin : public ezPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPin, ezPin);
+
+public:
+  using ezPin::ezPin;
+};
+
 class ezProcGenNodeManager : public ezDocumentNodeManager
 {
 public:
