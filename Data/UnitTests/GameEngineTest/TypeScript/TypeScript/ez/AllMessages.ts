@@ -182,6 +182,12 @@ export class MsgPhysicsJointBroke extends EventMessage
   constructor() { super(); this.TypeNameHash = 4089742341; }
 }
 
+export class MsgQueryAnimationSkeleton extends Message
+{
+  public static GetTypeNameHash(): number { return 1559971141; }
+  constructor() { super(); this.TypeNameHash = 1559971141; }
+}
+
 export class MsgRmlUiReload extends Message
 {
   public static GetTypeNameHash(): number { return 2540580649; }

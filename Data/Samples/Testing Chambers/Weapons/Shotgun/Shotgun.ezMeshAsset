@@ -41,7 +41,7 @@ o
 		b %Cap2{1}
 		u2 %Detail{1}
 		u2 %Detail2{1}
-		b %FlipForwardDir{1}
+		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %ImportMaterials{1}
 		VarArray %Materials
