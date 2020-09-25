@@ -6,6 +6,7 @@ ezProcessingStreamIterator<Type>::ezProcessingStreamIterator(const ezProcessingS
   , m_uiElementStride(0)
 {
   EZ_ASSERT_DEV(pStream != nullptr, "Stream pointer may not be null!");
+  EZ_ASSERT_DEV(pStream->GetElementSize() == sizeof(Type), "Data size missmatch");
 
   m_uiElementStride = pStream->GetElementStride();
 

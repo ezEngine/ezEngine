@@ -25,7 +25,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
   : ezWorldModule(pWorld)
 {
-  m_uiExtractedFrame = 0;
 }
 
 ezParticleWorldModule::~ezParticleWorldModule()
@@ -51,9 +50,6 @@ void ezParticleWorldModule::Initialize()
     finishDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
     finishDesc.m_bOnlyUpdateWhenSimulating = true;
     finishDesc.m_fPriority = -1000.0f; // sync with particle tasks as late as possible
-
-    // make sure this function is called AFTER the components have done their final transform update
-    finishDesc.m_DependsOn.PushBack(ezMakeHashedString("ezParticleComponentManager::UpdateTransforms"));
 
     RegisterUpdateFunction(finishDesc);
   }
@@ -102,41 +98,11 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
   }
 }
 
-void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData) const
+void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const
 {
-  EZ_ASSERT_RELEASE(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
+  EZ_ASSERT_DEBUG(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
 
   EZ_LOCK(m_Mutex);
-
-  // increase frame count to identify which system has been updated in this frame already
-  ++m_uiExtractedFrame;
-
-  for (auto it = m_ActiveEffects.GetIterator(); it.IsValid(); ++it)
-  {
-    ezParticleEffectInstance* pEffect = it.Value();
-
-    if (pEffect->IsSharedEffect())
-    {
-      const auto& shared = pEffect->GetAllSharedInstances();
-
-      for (ezUInt32 shi = 0; shi < shared.GetCount(); ++shi)
-      {
-        ExtractEffectRenderData(pEffect, view, extractedRenderData, pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner));
-      }
-    }
-    else
-    {
-      ExtractEffectRenderData(pEffect, view, extractedRenderData, pEffect->GetTransform(nullptr));
-    }
-  }
-}
-
-
-void ezParticleWorldModule::ExtractEffectRenderData(
-  const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& systemTransform) const
-{
-  if (!pEffect->IsVisible())
-    return;
 
   {
     // we know that at this point no one will modify the transform, as all threaded updates have been waited for
@@ -160,7 +126,7 @@ void ezParticleWorldModule::ExtractEffectRenderData(
     if (!pSystem->HasActiveParticles() || !pSystem->IsVisible())
       continue;
 
-    pSystem->ExtractSystemRenderData(view, extractedRenderData, systemTransform, m_uiExtractedFrame);
+    pSystem->ExtractSystemRenderData(msg, systemTransform);
   }
 }
 

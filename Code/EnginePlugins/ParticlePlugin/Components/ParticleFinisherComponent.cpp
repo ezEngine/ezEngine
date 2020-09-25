@@ -38,14 +38,8 @@ ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
 {
   if (m_EffectController.IsAlive())
   {
-    ezBoundingBoxSphere volume;
-    m_uiBVolumeUpdateCounter = m_EffectController.GetBoundingVolume(volume);
-
-    if (m_uiBVolumeUpdateCounter != 0)
-    {
-      bounds.ExpandToInclude(volume);
-      return EZ_SUCCESS;
-    }
+    m_EffectController.GetBoundingVolume(bounds);
+    return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
@@ -57,26 +51,17 @@ void ezParticleFinisherComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
-  m_EffectController.SetIsInView();
+  m_EffectController.ExtractRenderData(msg, GetOwner()->GetGlobalTransform());
 }
 
 void ezParticleFinisherComponent::Update()
 {
   if (m_EffectController.IsAlive())
   {
-    CheckBVolumeUpdate();
+    TriggerLocalBoundsUpdate();
   }
   else
   {
     GetOwner()->GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-  }
-}
-
-void ezParticleFinisherComponent::CheckBVolumeUpdate()
-{
-  ezBoundingBoxSphere bvol;
-  if (m_uiBVolumeUpdateCounter < m_EffectController.GetBoundingVolume(bvol))
-  {
-    TriggerLocalBoundsUpdate();
   }
 }

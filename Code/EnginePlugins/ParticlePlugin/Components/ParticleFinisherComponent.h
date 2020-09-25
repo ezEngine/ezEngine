@@ -41,6 +41,4 @@ protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   void Update();
-  void CheckBVolumeUpdate();
-  ezUInt32 m_uiBVolumeUpdateCounter = 0;
 };

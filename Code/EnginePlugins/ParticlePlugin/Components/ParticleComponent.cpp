@@ -23,19 +23,8 @@ ezParticleComponentManager::ezParticleComponentManager(ezWorld* pWorld)
 void ezParticleComponentManager::Initialize()
 {
   {
-    auto desc = ezWorldModule::UpdateFunctionDesc(
-      ezWorldModule::UpdateFunction(&ezParticleComponentManager::Update, this), "ezParticleComponentManager::Update");
+    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::Update, this), "ezParticleComponentManager::Update");
     desc.m_bOnlyUpdateWhenSimulating = true;
-    RegisterUpdateFunction(desc);
-  }
-
-  // it is necessary to do a late transform update pass, so that particle effects appear exactly at their parent's location
-  // especially for effects that are 'simulated in local space' and should appear absolutely glued to their parent
-  {
-    auto desc = ezWorldModule::UpdateFunctionDesc(
-      ezWorldModule::UpdateFunction(&ezParticleComponentManager::UpdateTransforms, this), "ezParticleComponentManager::UpdateTransforms");
-    desc.m_bOnlyUpdateWhenSimulating = true;
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
     RegisterUpdateFunction(desc);
   }
 }
@@ -48,18 +37,6 @@ void ezParticleComponentManager::Update(const ezWorldModule::UpdateContext& cont
     if (pComponent->IsActiveAndInitialized())
     {
       pComponent->Update();
-    }
-  }
-}
-
-void ezParticleComponentManager::UpdateTransforms(const ezWorldModule::UpdateContext& context)
-{
-  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
-  {
-    ComponentType* pComponent = it;
-    if (pComponent->IsActiveAndInitialized())
-    {
-      pComponent->UpdateTransform();
     }
   }
 }
@@ -312,22 +289,24 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
   if (m_EffectController.IsAlive())
   {
     ezBoundingBoxSphere volume;
-    m_uiBVolumeUpdateCounter = m_EffectController.GetBoundingVolume(volume);
+    volume.SetInvalid();
 
-    if (m_SpawnDirection != ezBasisAxis::PositiveZ)
-    {
-      const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
-      volume.Transform(qRot.GetAsMat4());
-    }
+    m_EffectController.GetBoundingVolume(volume);
 
-    if (m_bIgnoreOwnerRotation)
+    if (volume.IsValid())
     {
-      volume.Transform((-GetOwner()->GetGlobalRotation()).GetAsMat4());
-    }
+      if (m_SpawnDirection != ezBasisAxis::PositiveZ)
+      {
+        const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
+        volume.Transform(qRot.GetAsMat4());
+      }
 
-    if (m_uiBVolumeUpdateCounter != 0)
-    {
-      bounds.ExpandToInclude(volume);
+      if (m_bIgnoreOwnerRotation)
+      {
+        volume.Transform((-GetOwner()->GetGlobalRotation()).GetAsMat4());
+      }
+
+      bounds = volume;
       return EZ_SUCCESS;
     }
   }
@@ -342,7 +321,7 @@ void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
-  m_EffectController.SetIsInView();
+  m_EffectController.ExtractRenderData(msg, GetOwner()->GetGlobalTransform());
 }
 
 void ezParticleComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
@@ -378,8 +357,7 @@ void ezParticleComponent::Update()
 
     if (m_RestartTime == ezTime())
     {
-      const ezTime tDiff =
-        ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
+      const ezTime tDiff = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }
@@ -416,7 +394,7 @@ void ezParticleComponent::Update()
 
     SetPfxTransform();
 
-    CheckBVolumeUpdate();
+    TriggerLocalBoundsUpdate();
   }
   else
   {
@@ -424,27 +402,9 @@ void ezParticleComponent::Update()
   }
 }
 
-void ezParticleComponent::UpdateTransform()
-{
-  if (m_EffectController.IsAlive())
-  {
-    SetPfxTransform();
-  }
-}
-
-void ezParticleComponent::CheckBVolumeUpdate()
-{
-  ezBoundingBoxSphere bvol;
-  if (m_uiBVolumeUpdateCounter < m_EffectController.GetBoundingVolume(bvol))
-  {
-    TriggerLocalBoundsUpdate();
-  }
-}
-
 const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); }, [this](ezUInt32& it) { ++it; },
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); }, [this](ezUInt32& it) { ++it; },
     [this](const ezUInt32& it) -> const char* {
       if (it < m_FloatParams.GetCount())
         return m_FloatParams[it].m_sName.GetData();

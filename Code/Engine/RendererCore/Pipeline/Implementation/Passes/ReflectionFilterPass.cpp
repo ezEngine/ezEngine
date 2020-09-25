@@ -47,8 +47,7 @@ ezReflectionFilterPass::~ezReflectionFilterPass()
   m_hIrradianceConstantBuffer.Invalidate();
 }
 
-bool ezReflectionFilterPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezReflectionFilterPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   {
     ezGALTextureCreationDescription desc;
@@ -64,8 +63,7 @@ bool ezReflectionFilterPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -94,8 +92,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
         ezGALTextureSubresource destSubResource{uiMipMapIndex, m_uiOutputIndex * 6 + uiFaceIndex};
         ezGALTextureSubresource srcSubResource{uiMipMapIndex, uiFaceIndex};
 
-        pGALContext->CopyTextureRegion(
-          pFilteredSpecularOutput->m_TextureHandle, destSubResource, ezVec3U32(0), m_hInputCubemap, srcSubResource, srcBox);
+        pGALContext->CopyTextureRegion(pFilteredSpecularOutput->m_TextureHandle, destSubResource, ezVec3U32(0), m_hInputCubemap, srcSubResource, srcBox);
       }
 
       srcBox.m_vMax.x >>= 1;

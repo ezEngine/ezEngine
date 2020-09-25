@@ -152,10 +152,9 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 
       // TODO: pass through velocity
       pEffect->SetVisibleIf(GetOwnerEffect());
-      pEffect->SetTransform(t, ezVec3::ZeroVector(), nullptr);
+      pEffect->SetTransform(t, ezVec3::ZeroVector());
 
-      ezBoundingBoxSphere bounds;
-      pEffect->GetBoundingVolume(bounds);
+      const ezBoundingBoxSphere& bounds = pEffect->GetBoundingVolume();
 
       m_fMaxEffectRadius = ezMath::Max(m_fMaxEffectRadius, bounds.m_fSphereRadius);
     }

@@ -8,8 +8,7 @@
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezView;
-class ezExtractedRenderData;
+struct ezMsgExtractRenderData;
 
 /// \brief A particle system stores all data for one 'layer' of a running particle effect
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
@@ -53,16 +52,14 @@ public:
   ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
 
   /// \brief Returns the desired stream, if it already exists, creates it otherwise.
-  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding,
-    bool bExpectInitializedValue);
+  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue);
 
   void ProcessEventQueue(ezParticleEventQueue queue);
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
   ezParticleWorldModule* GetOwnerWorldModule() const;
 
-  void ExtractSystemRenderData(
-    const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const;
+  void ExtractSystemRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const;
 
   typedef ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler ParticleDeathHandler;
 
@@ -70,7 +67,7 @@ public:
   void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);
 
   void SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxParticleSize);
-  void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  const ezBoundingBoxSphere& GetBoundingVolume() const { return m_BoundingVolume; }
 
   bool IsContinuous() const;
 

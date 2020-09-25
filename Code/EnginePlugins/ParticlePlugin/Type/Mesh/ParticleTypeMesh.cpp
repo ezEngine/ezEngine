@@ -167,8 +167,7 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
   return true;
 }
 
-void ezParticleTypeMesh::ExtractTypeRenderData(
-  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
   if (!m_bRenderDataCached)
   {
@@ -195,8 +194,6 @@ void ezParticleTypeMesh::ExtractTypeRenderData(
 
   const ezTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
   const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
-
-  m_uiLastExtractedFrame = uiExtractedFrame;
 
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
@@ -231,7 +228,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(
         pRenderData->FillBatchIdAndSortingKey();
       }
 
-      extractedRenderData.AddRenderData(pRenderData, m_RenderCategory);
+      msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
     }
   }
 }

@@ -113,8 +113,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
     info.m_bInUse = false;
   }
 
-  const bool allProcessorsEqual = IsEmitterConfigEqual(pTemplate) && IsInitializerConfigEqual(pTemplate) && IsBehaviorConfigEqual(pTemplate) &&
-                                  IsTypeConfigEqual(pTemplate) && IsFinalizerConfigEqual(pTemplate);
+  const bool allProcessorsEqual = IsEmitterConfigEqual(pTemplate) && IsInitializerConfigEqual(pTemplate) && IsBehaviorConfigEqual(pTemplate) && IsTypeConfigEqual(pTemplate) && IsFinalizerConfigEqual(pTemplate);
 
   if (!allProcessorsEqual)
   {
@@ -341,8 +340,7 @@ ezParticleSystemInstance::ezParticleSystemInstance()
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
 }
 
-void ezParticleSystemInstance::Construct(
-  ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier)
+void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier)
 {
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
@@ -471,8 +469,7 @@ ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ez
   return m_StreamGroup.GetStreamByName(fullName);
 }
 
-void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream,
-  ezParticleStreamBinding& binding, bool bWillInitializeElements)
+void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
@@ -595,12 +592,13 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
   return m_pOwnerEffect->GetOwnerWorldModule();
 }
 
-void ezParticleSystemInstance::ExtractSystemRenderData(
-  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
+  ezUInt64 uiExtractedFrame = ezRenderWorld::GetFrameCounter();
+
   for (auto pType : m_Types)
   {
-    pType->ExtractTypeRenderData(view, extractedRenderData, instanceTransform, uiExtractedFrame);
+    pType->ExtractTypeRenderData(msg, instanceTransform);
   }
 }
 
@@ -627,12 +625,6 @@ void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volu
   m_BoundingVolume.m_vBoxHalfExtends += ezVec3(fExpand);
   m_BoundingVolume.m_fSphereRadius += fExpand;
 }
-
-void ezParticleSystemInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
-{
-  volume = m_BoundingVolume;
-}
-
 
 bool ezParticleSystemInstance::IsContinuous() const
 {

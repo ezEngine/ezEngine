@@ -28,19 +28,10 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
   friend class ezParticleEffectUpdateTask;
 
 public:
-  struct SharedInstance
-  {
-    const void* m_pSharedInstanceOwner = nullptr;
-    ezTransform m_Transform[2] = {ezTransform::IdentityTransform(), ezTransform::IdentityTransform()};
-  };
-
-public:
   ezParticleEffectInstance();
   ~ezParticleEffectInstance();
 
-  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
-    ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-    ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
   void Destruct();
 
   void Interrupt();
@@ -77,10 +68,10 @@ public:
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
   /// \brief Sets the transformation of the main or shared instance
-  void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity, const void* pSharedInstanceOwner = nullptr);
+  void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
 
   /// \brief Returns the transform of the main or shared instance
-  const ezTransform& GetTransform(const void* pSharedInstanceOwner = nullptr) const;
+  const ezTransform& GetTransform() const;
 
   /// \brief For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
@@ -136,10 +127,6 @@ private: // friend ezParticleWorldModule
   void AddSharedInstance(const void* pSharedInstanceOwner);
   void RemoveSharedInstance(const void* pSharedInstanceOwner);
 
-
-private: // friend ezParticleWorldModule
-  const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
-
 private:
   bool m_bIsSharedEffect = false;
 
@@ -156,21 +143,13 @@ public:
   /// \brief Whether the effect has been marked as visible recently.
   bool IsVisible() const;
 
-  /// \brief Returns true when the last bounding volume update was too long ago.
-  bool NeedsBoundingVolumeUpdate() const;
-
-  /// \brief Will enforce that the next update does a full bounding volume update
-  void ForceBoundingVolumeUpdate();
-
-  /// \brief Returns the bounding volume of the effect and the update counter.
+  /// \brief Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
-  ezUInt32 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  const ezBoundingBoxSphere& GetBoundingVolume() const { return m_BoundingVolume; }
 
 private:
   void CombineSystemBoundingVolumes();
 
-  ezTime m_UpdateBVolumeTime;
-  ezUInt32 m_uiBVolumeUpdateCounter = 0;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
   ezParticleEffectInstance* m_pVisibleIf = nullptr;
@@ -222,7 +201,7 @@ private:
   // for deterministic randomness
   ezRandom m_Random;
 
-  ezDynamicArray<SharedInstance> m_SharedInstances;
+  ezHashSet<const void*> m_SharedInstances;
   ezParticleEffectHandle m_hEffectHandle;
   bool m_bEmitterEnabled = true;
   bool m_bSimulateInLocalSpace = false;

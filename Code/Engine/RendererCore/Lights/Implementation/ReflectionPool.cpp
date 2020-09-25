@@ -321,7 +321,8 @@ struct ezReflectionPool::Data
       }
       else if (nextStep == UpdateStep::Filter)
       {
-        if (uiFilterViewIndex < m_FilterViews.GetCount())
+        // don't do render and filter in one frame
+        if (uiFilterViewIndex < m_FilterViews.GetCount() && updateSteps.IsEmpty())
         {
           updateSteps.PushBack({(ezUInt8)uiFilterViewIndex, nextStep});
           ++uiFilterViewIndex;
