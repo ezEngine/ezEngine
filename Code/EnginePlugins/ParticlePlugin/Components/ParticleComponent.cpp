@@ -48,7 +48,7 @@ void ezParticleComponentManager::UpdatePfxTransformsAndBounds()
     ComponentType* pComponent = it;
     if (pComponent->IsActiveAndInitialized())
     {
-      pComponent->SetPfxTransform();
+      pComponent->UpdatePfxTransform();
 
       pComponent->GetOwner()->UpdateLocalBounds();
       pComponent->GetOwner()->UpdateGlobalBounds();
@@ -228,7 +228,7 @@ bool ezParticleComponent::StartEffect()
 
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
-    SetPfxTransform();
+    UpdatePfxTransform();
 
     m_bFloatParamsChanged = false;
     m_bColorParamsChanged = false;
@@ -336,7 +336,7 @@ void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
-  m_EffectController.ExtractRenderData(msg, GetOwner()->GetGlobalTransform());
+  m_EffectController.ExtractRenderData(msg, GetPfxTransform());
 }
 
 void ezParticleComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
@@ -524,10 +524,9 @@ bool ezParticleComponent::GetParameter(const char* szKey, ezVariant& out_value) 
   return false;
 }
 
-void ezParticleComponent::SetPfxTransform()
+ezTransform ezParticleComponent::GetPfxTransform() const
 {
-  auto pOwner = GetOwner();
-  ezTransform transform = pOwner->GetGlobalTransform();
+  ezTransform transform = GetOwner()->GetGlobalTransform();
 
   const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
 
@@ -540,8 +539,12 @@ void ezParticleComponent::SetPfxTransform()
     transform.m_qRotation = transform.m_qRotation * qRot;
   }
 
+  return transform;
+}
 
-  m_EffectController.SetTransform(transform, pOwner->GetVelocity());
+void ezParticleComponent::UpdatePfxTransform()
+{
+  m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetVelocity());
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
