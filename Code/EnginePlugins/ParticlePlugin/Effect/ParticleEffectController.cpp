@@ -96,7 +96,7 @@ void ezParticleEffectController::Tick(const ezTime& tDiff) const
 
 void ezParticleEffectController::ExtractRenderData(ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const
 {
-  if (ezParticleEffectInstance* pEffect = GetInstance())
+  if (const ezParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->SetIsVisible();
 
