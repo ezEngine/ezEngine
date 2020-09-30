@@ -23,7 +23,7 @@ ezParticleComponentManager::ezParticleComponentManager(ezWorld* pWorld)
 void ezParticleComponentManager::Initialize()
 {
   {
-    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::Update, this), "ezParticleComponentManager::Update");
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleComponentManager::Update, this);
     desc.m_bOnlyUpdateWhenSimulating = true;
     RegisterUpdateFunction(desc);
   }
@@ -37,6 +37,21 @@ void ezParticleComponentManager::Update(const ezWorldModule::UpdateContext& cont
     if (pComponent->IsActiveAndInitialized())
     {
       pComponent->Update();
+    }
+  }
+}
+
+void ezParticleComponentManager::UpdatePfxTransformsAndBounds()
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->SetPfxTransform();
+
+      pComponent->GetOwner()->UpdateLocalBounds();
+      pComponent->GetOwner()->UpdateGlobalBounds();
     }
   }
 }
@@ -391,10 +406,6 @@ void ezParticleComponent::Update()
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
       }
     }
-
-    SetPfxTransform();
-
-    TriggerLocalBoundsUpdate();
   }
   else
   {

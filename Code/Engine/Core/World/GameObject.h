@@ -323,6 +323,10 @@ public:
   /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
   void UpdateLocalBounds();
 
+  /// \brief Updates the global bounds immediately. Usually this done during the world update after the "Post-async" phase.
+  /// Note that this function does not ensure that the global transform is up-to-date. Use UpdateGlobalTransformAndBounds if you want to update both.
+  void UpdateGlobalBounds();
+
   /// \brief Updates the global transform and bounds immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransformAndBounds();
 
@@ -518,7 +522,7 @@ private:
     void UpdateGlobalTransform();
     void UpdateGlobalTransformWithParent();
 
-    void ConditionalUpdateGlobalBounds(ezSpatialSystem* pSpatialSytem);
+    void UpdateGlobalBounds(ezSpatialSystem* pSpatialSytem);
     void UpdateGlobalBounds();
     void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSytem);
 

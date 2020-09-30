@@ -7,6 +7,27 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+ezParticleFinisherComponentManager::ezParticleFinisherComponentManager(ezWorld* pWorld)
+  : SUPER(pWorld)
+{
+}
+
+void ezParticleFinisherComponentManager::UpdateBounds()
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->UpdateBounds();
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
 {
@@ -54,14 +75,15 @@ void ezParticleFinisherComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   m_EffectController.ExtractRenderData(msg, GetOwner()->GetGlobalTransform());
 }
 
-void ezParticleFinisherComponent::Update()
+void ezParticleFinisherComponent::UpdateBounds()
 {
   if (m_EffectController.IsAlive())
   {
-    TriggerLocalBoundsUpdate();
+    GetOwner()->UpdateLocalBounds();
+    GetOwner()->UpdateGlobalBounds();
   }
   else
   {
-    GetOwner()->GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+    GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
   }
 }

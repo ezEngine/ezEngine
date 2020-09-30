@@ -34,8 +34,7 @@ public:
 
   ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
-  /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old
-  /// age.
+  /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
   void DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
 
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
@@ -62,8 +61,6 @@ public:
   /// \brief Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
   void CacheWorldModule(const ezRTTI* pRtti);
 
-  void CreateFinisherComponent(ezParticleEffectInstance* pEffect);
-
 private:
   virtual void WorldClear() override;
 
@@ -71,6 +68,7 @@ private:
   void EnsureUpdatesFinished(const ezWorldModule::UpdateContext& context);
 
   void DestroyFinishedEffects();
+  void CreateFinisherComponent(ezParticleEffectInstance* pEffect);
   void ResourceEventHandler(const ezResourceEvent& e);
   void ReconfigureEffects();
   ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);

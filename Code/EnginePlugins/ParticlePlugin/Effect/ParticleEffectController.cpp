@@ -117,7 +117,7 @@ void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) 
 {
   if (ezParticleEffectInstance* pEffect = GetInstance())
   {
-    volume = pEffect->GetBoundingVolume();
+    pEffect->GetBoundingVolume(volume);
   }
 }
 

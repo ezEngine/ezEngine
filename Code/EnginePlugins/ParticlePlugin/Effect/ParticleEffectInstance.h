@@ -70,8 +70,8 @@ public:
   /// \brief Sets the transformation of the main or shared instance
   void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
 
-  /// \brief Returns the transform of the main or shared instance
-  const ezTransform& GetTransform() const;
+  /// \brief Returns the transform of the main or shared instance.
+  const ezTransform& GetTransform() const { return m_Transform; }
 
   /// \brief For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
@@ -79,7 +79,7 @@ public:
 private:
   void PassTransformToSystems();
 
-  ezTransform m_Transform[2];
+  ezTransform m_Transform;
   ezVec3 m_vVelocity;
 
   /// @}
@@ -145,8 +145,8 @@ public:
 
   /// \brief Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
-  const ezBoundingBoxSphere& GetBoundingVolume() const { return m_BoundingVolume; }
-
+  void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  
 private:
   void CombineSystemBoundingVolumes();
 
@@ -208,8 +208,6 @@ private:
   bool m_bIsFinishing = false;
   ezUInt8 m_uiReviveTimeout = 3;
   ezInt8 m_iMinSimStepsToDo = 0;
-  ezUInt8 m_uiDoubleBufferReadIdx = 0;
-  ezUInt8 m_uiDoubleBufferWriteIdx = 1;
   float m_fApplyInstanceVelocity = 0;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;

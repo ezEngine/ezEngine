@@ -638,20 +638,19 @@ void ezGameObject::UpdateLocalBounds()
 
   if (IsStatic())
   {
-    if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
-    {
-      m_pTransformationData->UpdateGlobalBoundsAndSpatialData(*pSpatialSystem);
-    }
-    else
-    {
-      m_pTransformationData->UpdateGlobalBounds();
-    }
+    m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
   }
 }
 
 void ezGameObject::UpdateGlobalTransformAndBounds()
 {
-  m_pTransformationData->ConditionalUpdateGlobalBounds(GetWorld()->GetSpatialSystem());
+  m_pTransformationData->ConditionalUpdateGlobalTransform();
+  m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
+}
+
+void ezGameObject::UpdateGlobalBounds()
+{
+  m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
 bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent)
@@ -973,11 +972,8 @@ void ezGameObject::TransformationData::ConditionalUpdateGlobalTransform()
   }
 }
 
-void ezGameObject::TransformationData::ConditionalUpdateGlobalBounds(ezSpatialSystem* pSpatialSytem)
+void ezGameObject::TransformationData::UpdateGlobalBounds(ezSpatialSystem* pSpatialSytem)
 {
-  // Ensure that global transform is updated
-  ConditionalUpdateGlobalTransform();
-
   if (pSpatialSytem == nullptr)
   {
     UpdateGlobalBounds();

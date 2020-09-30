@@ -154,7 +154,8 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       pEffect->SetVisibleIf(GetOwnerEffect());
       pEffect->SetTransform(t, ezVec3::ZeroVector());
 
-      const ezBoundingBoxSphere& bounds = pEffect->GetBoundingVolume();
+      ezBoundingBoxSphere bounds;
+      pEffect->GetBoundingVolume(bounds);
 
       m_fMaxEffectRadius = ezMath::Max(m_fMaxEffectRadius, bounds.m_fSphereRadius);
     }

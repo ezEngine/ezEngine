@@ -28,6 +28,8 @@ public:
   virtual void Initialize() override;
 
   void Update(const ezWorldModule::UpdateContext& context);
+
+  void UpdatePfxTransformsAndBounds();
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleComponent final : public ezRenderComponent
