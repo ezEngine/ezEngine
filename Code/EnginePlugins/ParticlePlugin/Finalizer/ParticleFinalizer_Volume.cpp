@@ -70,9 +70,9 @@ void ezParticleFinalizer_Volume::Process(ezUInt64 uiNumElements)
     for (ezUInt64 i = 0; i < uiNumElements; i += uiElementsPerLoop)
     {
       const float x = pSize[i + 0];
-      const float y = pSize[i + 0];
-      const float z = pSize[i + 0];
-      const float w = pSize[i + 0];
+      const float y = pSize[i + 1];
+      const float z = pSize[i + 2];
+      const float w = pSize[i + 3];
 
       vMax = vMax.CompMax(ezSimdVec4f(x, y, z, w));
     }

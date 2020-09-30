@@ -146,7 +146,7 @@ public:
   /// \brief Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
-  
+
 private:
   void CombineSystemBoundingVolumes();
 
