@@ -4,22 +4,23 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
-void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, const char* szAssetTypeName, const char* szAbsPathToFolder,
-  const char* szFileExtension, const char* szStripPrefix, const char* szPrependPrefix)
+void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, const char* szAssetTypeName, const char* szAbsPathToFolder, const char* szFileExtension, const char* szStripPrefix, const char* szPrependPrefix)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
-  ezFileSystemIterator fsIt;
 
   const ezUInt32 uiStripPrefixLength = ezStringUtils::GetCharacterCount(szStripPrefix);
 
-  if (fsIt.StartSearch(szAbsPathToFolder, ezFileSystemIteratorFlags::ReportFilesRecursive).Failed())
+  ezFileSystemIterator fsIt;
+  fsIt.StartSearch(szAbsPathToFolder, ezFileSystemIteratorFlags::ReportFilesRecursive);
+
+  if (!fsIt.IsValid())
     return;
 
   ezStringBuilder sFullPath;
   ezHashedString sAssetTypeName;
   sAssetTypeName.Assign(szAssetTypeName);
 
-  do
+  for (; fsIt.IsValid(); fsIt.Next())
   {
     const auto& stats = fsIt.GetStats();
 
@@ -36,16 +37,15 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, con
       entry.m_sResourceID = sFullPath;
       entry.m_uiFileSize = stats.m_uiFileSize;
     }
+  }
 
-  } while (fsIt.Next().Succeeded());
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
 }
 
 
-EZ_CORE_DLL void ezCollectionUtils::MergeCollections(
-  ezCollectionResourceDescriptor& result, ezArrayPtr<const ezCollectionResourceDescriptor*> inputCollections)
+EZ_CORE_DLL void ezCollectionUtils::MergeCollections(ezCollectionResourceDescriptor& result, ezArrayPtr<const ezCollectionResourceDescriptor*> inputCollections)
 {
   ezMap<ezString, const ezCollectionEntry*> firstEntryOfID;
 
@@ -69,8 +69,7 @@ EZ_CORE_DLL void ezCollectionUtils::DeDuplicateEntries(ezCollectionResourceDescr
   MergeCollections(result, ezArrayPtr<const ezCollectionResourceDescriptor*>(&firstInput, 1));
 }
 
-void ezCollectionUtils::AddResourceHandle(
-  ezCollectionResourceDescriptor& collection, ezTypelessResourceHandle handle, const char* szAssetTypeName, const char* szAbsFolderpath)
+void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& collection, ezTypelessResourceHandle handle, const char* szAssetTypeName, const char* szAbsFolderpath)
 {
   if (!handle.IsValid())
     return;

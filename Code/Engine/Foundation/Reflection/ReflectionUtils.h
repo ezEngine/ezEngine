@@ -25,9 +25,8 @@ public:
   static void SetComponent(ezVariant& vector, ezUInt32 iComponent, double fValue); // [tested]
   static double GetComponent(const ezVariant& vector, ezUInt32 iComponent);
 
-  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation
-  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject,
-    const ezVariant& value); // [tested] via ToolsFoundation
+  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject);        // [tested] via ToolsFoundation
+  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
   static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
@@ -85,8 +84,7 @@ public:
 
   /// \brief Helper template to shorten the call for ezEnums
   template <typename T>
-  static bool EnumerationToString(
-    ezEnum<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
+  static bool EnumerationToString(ezEnum<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
   {
     return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
   }

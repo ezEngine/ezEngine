@@ -100,7 +100,7 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin* pSource, c
   out_Result = CanConnectResult::ConnectNto1;
 
   if (!pTarget->GetConnections().IsEmpty())
-    return ezStatus("Only one connection can be made to in input pin!");
+    return ezStatus("Only one connection can be made to an input pin!");
 
   return ezStatus(EZ_SUCCESS);
 }

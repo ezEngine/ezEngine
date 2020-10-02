@@ -135,8 +135,7 @@ public:
   virtual void BeforeCoreSystemsShutdown() override
   {
     if ((m_bHadSeriousWarnings || m_bHadErrors) && m_bModifiedFiles)
-      ezLog::SeriousWarning(
-        "There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
+      ezLog::SeriousWarning("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
     else if (m_bHadWarnings || m_bHadSeriousWarnings || m_bHadErrors)
     {
       ezLog::Warning("There have been errors or warnings, see log for details.");
@@ -184,6 +183,8 @@ public:
 
   void SanitizeSourceCode(ezStringBuilder& sInOut)
   {
+    sInOut.ReplaceAll("\r\n", "\n");
+
     if (!sInOut.EndsWith("\n"))
       sInOut.Append("\n");
 
@@ -617,12 +618,14 @@ public:
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive) == EZ_SUCCESS)
+    it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive);
+
+    if (it.IsValid())
     {
       ezStringBuilder b, sExt;
 
       // while there are additional files / folders
-      do
+      for (; it.IsValid(); it.Next())
       {
         // build the absolute path to the current file
         b = it.GetCurrentPath();
@@ -646,7 +649,7 @@ public:
           InsertRefPoint(b.GetData());
           continue;
         }
-      } while (it.Next() == EZ_SUCCESS);
+      }
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
@@ -697,12 +700,14 @@ public:
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive) == EZ_SUCCESS)
+    it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive);
+
+    if (it.IsValid())
     {
       ezStringBuilder sFile, sExt;
 
       // while there are additional files / folders
-      do
+      for (; it.IsValid(); it.Next())
       {
         // build the absolute path to the current file
         sFile = it.GetCurrentPath();
@@ -725,14 +730,12 @@ public:
             ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '{0}'.", &sFile[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
-              ezLog::Error(
-                "The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!",
-                m_sRefPointGroupFile);
+              ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile);
             else
               m_sRefPointGroupFile = sFile;
           }
         }
-      } while (it.Next() == EZ_SUCCESS);
+      }
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);

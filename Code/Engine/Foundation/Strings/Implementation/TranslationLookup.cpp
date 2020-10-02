@@ -80,16 +80,19 @@ void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
   ezStringBuilder fullpath;
 
   ezFileSystemIterator it;
-  if (it.StartSearch(startPath, ezFileSystemIteratorFlags::ReportFilesRecursive).Succeeded())
-  {
-    do
-    {
-      fullpath = it.GetCurrentPath();
-      fullpath.AppendPath(it.GetStats().m_sName);
+  it.StartSearch(startPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
 
-      LoadTranslationFile(fullpath);
-    } while (it.Next().Succeeded());
+
+  while (it.IsValid())
+  {
+    fullpath = it.GetCurrentPath();
+    fullpath.AppendPath(it.GetStats().m_sName);
+
+    LoadTranslationFile(fullpath);
+
+    it.Next();
   }
+
 #endif
 }
 

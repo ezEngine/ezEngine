@@ -108,7 +108,7 @@ public:
   /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
   /// the information about that file. To advance to the next file, use Next() or SkipFolder().
   /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), EZ_FAILURE is returned.
-  ezResult StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
+  void StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
 
   /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
   ///
@@ -119,14 +119,10 @@ public:
   const ezFileStats& GetStats() const { return m_CurFile; } // [tested]
 
   /// \brief Advances the iterator to the next file object. Might recurse into sub-folders.
-  ///
-  /// Returns false, if the search has reached its end.
-  ezResult Next(); // [tested]
+  void Next(); // [tested]
 
   /// \brief The same as 'Next' only that the current folder will not be recursed into.
-  ///
-  /// Returns false, if the search has reached its end.
-  ezResult SkipFolder(); // [tested]
+  void SkipFolder(); // [tested]
 
   /// \brief Returns true if the iterator currently points to a valid file entry.
   bool IsValid() const;
@@ -240,8 +236,7 @@ public:
 #if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)) || defined(EZ_DOCS)
 
   /// \brief Returns the ezFileStats for all files and folders in the given folder
-  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder,
-    ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 
   /// \brief Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
   static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder);

@@ -25,17 +25,10 @@ struct ezRenderPipelineNodePin
     };
   };
 
-  EZ_ALWAYS_INLINE ezRenderPipelineNodePin()
-  {
-    m_uiInputIndex = 0xFF;
-    m_uiOutputIndex = 0xFF;
-    m_pParent = nullptr;
-  }
-
   ezEnum<Type> m_Type;
-  ezUInt8 m_uiInputIndex;
-  ezUInt8 m_uiOutputIndex;
-  ezRenderPipelineNode* m_pParent;
+  ezUInt8 m_uiInputIndex = 0xFF;
+  ezUInt8 m_uiOutputIndex = 0xFF;
+  ezRenderPipelineNode* m_pParent = nullptr;
 };
 
 struct ezRenderPipelineNodeInputPin : public ezRenderPipelineNodePin

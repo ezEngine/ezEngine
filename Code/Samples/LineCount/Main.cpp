@@ -245,12 +245,14 @@ public:
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir) == EZ_SUCCESS)
+    it.StartSearch(m_sSearchDir);
+
+    if (it.IsValid())
     {
       ezStringBuilder b, sExt;
 
       // while there are additional files / folders
-      do
+      for (; it.IsValid(); it.Next())
       {
         // build the absolute path to the current file
         b = it.GetCurrentPath();
@@ -260,7 +262,9 @@ public:
         ezLog::Info("{0}: {1}", it.GetStats().m_bIsDirectory ? "Directory" : "File", b);
 
         if (it.GetStats().m_bIsDirectory)
+        {
           ++uiDirectories;
+        }
         else
         {
           // file extensions are always converted to lower-case actually
@@ -277,7 +281,7 @@ public:
             TypeStats += GetFileStats(b.GetData());
           }
         }
-      } while (it.Next() == EZ_SUCCESS);
+      }
 
       // now output some statistics
       ezLog::Info("Directories: {0}, Files: {1}, Avg. Files per Dir: {2}", uiDirectories, uiFiles, ezArgF(uiFiles / (float)uiDirectories, 1));
@@ -288,21 +292,19 @@ public:
       ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
       while (MapIt.IsValid())
       {
-        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(),
-          MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes,
-          MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
+        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
 
         AllTypes += MapIt.Value();
 
         ++MapIt;
       }
 
-      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all",
-        AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes,
-        AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
+      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
     else
+    {
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
+    }
 #else
     EZ_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
 #endif

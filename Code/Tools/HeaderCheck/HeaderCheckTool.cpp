@@ -327,12 +327,14 @@ public:
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive) == EZ_SUCCESS)
+    it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive);
+
+    if (it.IsValid())
     {
       ezStringBuilder currentFile, sExt;
 
       // while there are additional files / folders
-      do
+      for (; it.IsValid(); it.Next())
       {
         // build the absolute path to the current file
         currentFile = it.GetCurrentPath();
@@ -348,9 +350,8 @@ public:
           EZ_LOG_BLOCK("Header", &currentFile.GetData()[uiSearchDirLength]);
           CheckHeaderFile(currentFile);
           m_stackAllocator->Reset();
-          continue;
         }
-      } while (it.Next() == EZ_SUCCESS);
+      }
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
@@ -425,8 +426,7 @@ public:
 
     ezTokenizer tokenizer(m_stackAllocator.Borrow());
     auto dataView = fileContents.GetView();
-    tokenizer.Tokenize(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(dataView.GetStartPointer()), dataView.GetElementCount()),
-      ezLog::GetThreadLocalLogSystem());
+    tokenizer.Tokenize(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(dataView.GetStartPointer()), dataView.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
     ezStringView hash("#");
     ezStringView include("include");

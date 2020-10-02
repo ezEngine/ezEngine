@@ -25,10 +25,8 @@
 ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
 
 
   // Menu Bar
@@ -262,10 +260,8 @@ ezQtParticleEffectAssetDocumentWindow::~ezQtParticleEffectAssetDocumentWindow()
 
   RestoreResource();
 
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 const char* ezQtParticleEffectAssetDocumentWindow::GetWindowLayoutGroupName() const

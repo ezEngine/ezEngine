@@ -1,7 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <RendererCore/Material/MaterialResource.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
@@ -10,6 +9,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
@@ -299,8 +299,7 @@ void ezMaterialAssetProperties::LoadOldValues()
 ezString ezMaterialAssetProperties::GetAutoGenShaderPathAbs() const
 {
   ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(m_pDocument->GetDocumentManager());
-  ezString sAbsOutputPath = pManager->GetAbsoluteOutputFileName(
-    m_pDocument->GetAssetDocumentTypeDescriptor(), m_pDocument->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAbsOutputPath = pManager->GetAbsoluteOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), m_pDocument->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
   return sAbsOutputPath;
 }
 
@@ -334,12 +333,10 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
     auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
     if (pAsset)
     {
-      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->GetManager() == m_pDocument->GetDocumentManager(),
-        "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->GetManager() == m_pDocument->GetDocumentManager(), "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
 
       ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_sAbsolutePath);
-      ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(),
-        sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+      ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
       sResult.Prepend("AssetCache/");
       return sResult;
@@ -473,8 +470,7 @@ ezUuid ezMaterialAssetDocument::GetMaterialNodeGuid(const ezAbstractObjectGraph&
   return ezUuid();
 }
 
-void ezMaterialAssetDocument::UpdatePrefabObject(
-  ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
 {
   // Base
   ezAbstractObjectGraph baseGraph;
@@ -626,8 +622,7 @@ public:
   }
 };
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
@@ -718,8 +713,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
   }
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
@@ -895,8 +889,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
         else if (Permutation[p]->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
           ezStringBuilder s;
-          ezReflectionUtils::EnumerationToString(
-            Permutation[p]->GetSpecificType(), pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>(), s);
+          ezReflectionUtils::EnumerationToString(Permutation[p]->GetSpecificType(), pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>(), s);
 
           sValue = s.FindLastSubString("::") + 2;
         }
@@ -977,8 +970,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
           if (!asset.isValid())
             continue;
 
-          sValue = asset->m_pAssetInfo->GetManager()->GetAbsoluteOutputFileName(
-            asset->m_pAssetInfo->m_pDocumentTypeDescriptor, asset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
+          sValue = asset->m_pAssetInfo->GetManager()->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, asset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 
           sFilename = sValue.GetFileName();
           sFilename.Append("-lowres");
@@ -1006,8 +998,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     stream.FinishCompressedStream();
 
-    ezLog::Dev("Compressed material data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
-      ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+    ezLog::Dev("Compressed material data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
 #endif
   }
 
@@ -1020,8 +1011,7 @@ void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezPlatformProfile
     return;
 
   ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(GetDocumentManager());
-  ezString sAutoGenShader =
-    pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   ezStringBuilder all;
 
@@ -1054,8 +1044,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHead
   }
 
   ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(GetDocumentManager());
-  ezString sAutoGenShader =
-    pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   ezVisualShaderCodeGenerator codeGen;
 
@@ -1085,8 +1074,7 @@ void ezMaterialAssetDocument::InvalidateCachedShader()
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
-    sShader =
-      pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+    sShader = pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
   }
   else
   {
@@ -1255,8 +1243,7 @@ bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_obj
   return true;
 }
 
-bool ezMaterialAssetDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

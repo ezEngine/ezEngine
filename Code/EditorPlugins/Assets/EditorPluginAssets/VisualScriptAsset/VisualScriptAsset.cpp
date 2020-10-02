@@ -116,8 +116,7 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
   m_ActivityEvents.Broadcast(ae);
 }
 
-ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezVisualScriptResourceDescriptor desc;
   if (GenerateVisualScriptDescriptor(desc).Failed())
@@ -296,9 +295,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
       const ezDocumentObject* pObject = allNodes[i];
       const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
 
-      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_Number" ||
-          pDesc->m_sTypeName == "ezVisualScriptNode_StoreNumber" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" ||
-          pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
+      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_Number" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreNumber" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
       {
         const ezVariant varName = pObject->GetTypeAccessor().GetValue("Name");
         EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
@@ -311,8 +308,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 
         ValueType eValueType = ValueType::Number;
 
-        if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" ||
-            pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
+        if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
         {
           eValueType = ValueType::Bool;
         }
@@ -439,8 +435,7 @@ bool ezVisualScriptAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
   return true;
 }
 
-bool ezVisualScriptAssetDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

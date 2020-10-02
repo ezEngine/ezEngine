@@ -21,15 +21,12 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
     sSearch.AppendPath("ezEditorPlugin*.dll");
 
     ezFileSystemIterator fsit;
-    if (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles).Succeeded())
+    for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
     {
-      do
-      {
-        ezStringBuilder sPlugin = fsit.GetStats().m_sName;
-        sPlugin.RemoveFileExtension();
+      ezStringBuilder sPlugin = fsit.GetStats().m_sName;
+      sPlugin.RemoveFileExtension();
 
-        s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
-      } while (fsit.Next().Succeeded());
+      s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
     }
   }
 #else

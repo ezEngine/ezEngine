@@ -174,35 +174,34 @@ Only concrete and clocks.\n\
     ezUInt32 uiFolders = 0;
     ezUInt32 uiFiles = 0;
 
+    bool bSkipFolder = true;
+
     ezFileSystemIterator it;
-    if (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive) == EZ_SUCCESS)
+    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid(); )
     {
-      int SkipFolder = 0;
+      sFullPath = it.GetCurrentPath();
+      sFullPath.AppendPath(it.GetStats().m_sName.GetData());
 
-      do
+      it.GetStats();
+      it.GetCurrentPath();
+
+      if (it.GetStats().m_bIsDirectory)
       {
-        sFullPath = it.GetCurrentPath();
-        sFullPath.AppendPath(it.GetStats().m_sName.GetData());
+        ++uiFolders;
+        bSkipFolder = !bSkipFolder;
 
-        it.GetStats();
-        it.GetCurrentPath();
-
-        if (it.GetStats().m_bIsDirectory)
+        if (bSkipFolder)
         {
-          ++uiFolders;
-
-          SkipFolder++;
-
-          if ((SkipFolder % 2 == 0) && (it.SkipFolder() == EZ_FAILURE))
-            break;
+          it.SkipFolder(); // replaces the 'Next' call
+          continue;
         }
-        else
-        {
-          ++uiFiles;
-        }
+      }
+      else
+      {
+        ++uiFiles;
+      }
 
-        // printf("%s: '%s'\n", it.GetStats().m_bIsDirectory ? "[Dir] " : "[File]", sFullPath.GetData());
-      } while (it.Next() == EZ_SUCCESS);
+      it.Next();
     }
 
     EZ_TEST_BOOL(uiFolders > 0);

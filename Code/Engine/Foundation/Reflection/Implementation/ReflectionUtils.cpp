@@ -317,10 +317,7 @@ namespace
   template <typename T>
   struct SetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
-    {
-      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
-    }
+    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
   };
 
   template <typename T>
@@ -404,10 +401,7 @@ namespace
   template <typename T>
   struct GetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
-    {
-      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
-    }
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
   };
 
   template <typename T>
@@ -1049,8 +1043,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
   return true;
 }
 
-bool ezReflectionUtils::EnumerationToString(
-  const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode)
+bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode)
 {
   out_sOutput.Clear();
   if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
@@ -1062,9 +1055,7 @@ bool ezReflectionUtils::EnumerationToString(
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if (value.ConvertTo<ezInt64>() == iValue)
         {
-          out_sOutput = conversionMode == EnumConversionMode::FullyQualifiedName
-                          ? pProp->GetPropertyName()
-                          : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2;
+          out_sOutput = conversionMode == EnumConversionMode::FullyQualifiedName ? pProp->GetPropertyName() : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2;
           return true;
         }
       }
@@ -1080,10 +1071,7 @@ bool ezReflectionUtils::EnumerationToString(
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if ((value.ConvertTo<ezInt64>() & iValue) != 0)
         {
-          out_sOutput.Append(conversionMode == EnumConversionMode::FullyQualifiedName
-                               ? pProp->GetPropertyName()
-                               : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2,
-            "|");
+          out_sOutput.Append(conversionMode == EnumConversionMode::FullyQualifiedName ? pProp->GetPropertyName() : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2, "|");
         }
       }
     }
@@ -1108,8 +1096,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
       {
         // Testing fully qualified and short value name
         const char* valueNameOnly = ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr);
-        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue) ||
-            (valueNameOnly != nullptr && ezStringUtils::IsEqual(valueNameOnly + 2, szValue)))
+        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue) || (valueNameOnly != nullptr && ezStringUtils::IsEqual(valueNameOnly + 2, szValue)))
         {
           ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
           out_iValue = value.ConvertTo<ezInt64>();
@@ -1154,8 +1141,7 @@ ezInt64 ezReflectionUtils::DefaultEnumerationValue(const ezRTTI* pEnumerationRtt
   if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>() || pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
   {
     auto pProp = pEnumerationRtti->GetProperties()[0];
-    EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Constant && ezStringUtils::EndsWith(pProp->GetPropertyName(), "::Default"),
-      "First enumeration property must be the default value constant.");
+    EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Constant && ezStringUtils::EndsWith(pProp->GetPropertyName(), "::Default"), "First enumeration property must be the default value constant.");
     return static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
   }
   else
@@ -1361,8 +1347,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       if (uiCount != uiCount2)
         return false;
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
-          (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1412,8 +1397,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       if (uiCount != uiCount2)
         return false;
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
-          (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1429,8 +1413,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
         }
         return bEqual;
       }
-      else if ((!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)) &&
-               pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+      else if ((!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)) && pProp->GetFlags().IsSet(ezPropertyFlags::Class))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1470,8 +1453,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
             }
             else
             {
-              ezLog::Error(
-                "The property '{0}' can not be compared as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
+              ezLog::Error("The property '{0}' can not be compared as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
             }
           }
           if (!bEqual)

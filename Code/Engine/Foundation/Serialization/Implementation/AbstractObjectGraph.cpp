@@ -239,8 +239,7 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
 }
 
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(
-  ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot)
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot)
 {
   ezHashTable<ezUuid, ezUuid> guidMap;
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(root->GetType(), rhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
@@ -259,8 +258,7 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(
   }
 }
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(
-  ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
 {
   if (!ezStringUtils::IsEqual(lhs->GetType(), rhs->GetType()))
   {
@@ -572,8 +570,7 @@ void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Dif
 }
 
 
-void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs,
-  ezDeque<ezAbstractGraphDiffOperation>& out) const
+void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const
 {
   struct Prop
   {
@@ -787,8 +784,7 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezHashTable<ezU
   }
 }
 
-void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArray, const ezDynamicArray<ezVariant>& leftArray,
-  const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out) const
+void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArray, const ezDynamicArray<ezVariant>& leftArray, const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out) const
 {
   // Find element type.
   ezVariantType::Enum type = ezVariantType::Invalid;

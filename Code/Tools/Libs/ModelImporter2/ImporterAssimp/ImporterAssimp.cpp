@@ -141,7 +141,7 @@ namespace ezModelImporter2
   ezResult ImporterAssimp::TraverseAiNode(aiNode* pNode, const ezMat4& parentTransform, ezEditableSkeletonJoint* pCurJoint)
   {
     ezMat4 invTrans = parentTransform;
-    EZ_ASSERT_DEBUG(invTrans.Invert(0.0000001f).Succeeded(), "inversion failed");
+    EZ_ASSERT_DEBUG(invTrans.Invert(0.0f).Succeeded(), "inversion failed");
 
     const ezMat4 localTransform = ConvertAssimpType(pNode->mTransformation);
     const ezMat4 globalTransform = parentTransform * localTransform;
