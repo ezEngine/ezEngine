@@ -44,7 +44,9 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_EffectIsVisible.SetZero();
   m_iMinSimStepsToDo = 4;
   m_Transform.SetIdentity();
+  m_TransformForNextFrame.SetIdentity();
   m_vVelocity.SetZero();
+  m_vVelocityForNextFrame.SetZero();
   m_TotalEffectLifeTime.SetZero();
   m_pVisibleIf = nullptr;
   m_uiRandomSeed = uiRandomSeed;
@@ -65,6 +67,7 @@ void ezParticleEffectInstance::Destruct()
   m_hEffectHandle.Invalidate();
 
   m_Transform.SetIdentity();
+  m_TransformForNextFrame.SetIdentity();
   m_bIsSharedEffect = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
@@ -253,7 +256,9 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   const auto& systems = desc.GetParticleSystems();
 
   m_Transform.SetIdentity();
+  m_TransformForNextFrame.SetIdentity();
   m_vVelocity.SetZero();
+  m_vVelocityForNextFrame.SetZero();
   m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
@@ -517,7 +522,16 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
 void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
 {
   m_Transform = transform;
+  m_TransformForNextFrame = transform;
+
   m_vVelocity = vParticleStartVelocity;
+  m_vVelocityForNextFrame = vParticleStartVelocity;
+}
+
+void ezParticleEffectInstance::SetTransformForNextFrame(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
+{
+  m_TransformForNextFrame = transform;
+  m_vVelocityForNextFrame = vParticleStartVelocity;
 }
 
 void ezParticleEffectInstance::PassTransformToSystems()
@@ -598,6 +612,9 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
 
 void ezParticleEffectInstance::ProcessEventQueues()
 {
+  m_Transform = m_TransformForNextFrame;
+  m_vVelocity = m_vVelocityForNextFrame;
+
   if (m_EventQueue.IsEmpty())
     return;
 

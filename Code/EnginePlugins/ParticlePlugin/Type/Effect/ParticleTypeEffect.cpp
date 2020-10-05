@@ -176,7 +176,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 
       // TODO: pass through velocity
       pEffect->SetVisibleIf(GetOwnerEffect());
-      pEffect->SetTransform(t, ezVec3::ZeroVector());
+      pEffect->SetTransformForNextFrame(t, ezVec3::ZeroVector());
 
       ezBoundingBoxSphere bounds;
       pEffect->GetBoundingVolume(bounds);

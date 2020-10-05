@@ -67,8 +67,12 @@ public:
   /// \brief Whether the effect is simulated around the origin and thus not affected by instance position and rotation
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
-  /// \brief Sets the transformation of the main or shared instance
+  /// \brief Sets the transformation of this instance
   void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
+
+  /// \brief Sets the transformation of this instance that should be used next frame.
+  /// This function is typically used to set the transformation while the particle simulation is running to prevent race conditions.
+  void SetTransformForNextFrame(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
 
   /// \brief Returns the transform of the main or shared instance.
   const ezTransform& GetTransform() const { return m_Transform; }
@@ -80,7 +84,10 @@ private:
   void PassTransformToSystems();
 
   ezTransform m_Transform;
+  ezTransform m_TransformForNextFrame;
+
   ezVec3 m_vVelocity;
+  ezVec3 m_vVelocityForNextFrame;
 
   /// @}
   /// @name Updates
