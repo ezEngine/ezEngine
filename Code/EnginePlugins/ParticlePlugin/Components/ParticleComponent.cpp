@@ -50,6 +50,8 @@ void ezParticleComponentManager::UpdatePfxTransformsAndBounds()
     {
       pComponent->UpdatePfxTransform();
 
+      // This function is called in the post-transform phase so the global bounds and transform have already been calculated at this point.
+      // Therefore we need to manually update the global bounds again to ensure correct bounds for culling and rendering.
       pComponent->GetOwner()->UpdateLocalBounds();
       pComponent->GetOwner()->UpdateGlobalBounds();
     }
