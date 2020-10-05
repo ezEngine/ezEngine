@@ -26,15 +26,13 @@ public:
 
   void Tick(const ezTime& tDiff) const;
 
-  void SetIsInView() const;
-
-  void ForceBoundingVolumeUpdate();
+  void ExtractRenderData(ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const;
 
   void StopImmediate();
 
-  /// \brief Returns the bounding volume of the effect and the update counter.
+  /// \brief Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
-  ezUInt32 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
   /// \name Effect Parameters
   ///@{

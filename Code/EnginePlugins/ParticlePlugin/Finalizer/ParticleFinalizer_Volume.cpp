@@ -47,53 +47,43 @@ void ezParticleFinalizer_Volume::QueryOptionalStreams()
 
 void ezParticleFinalizer_Volume::Process(ezUInt64 uiNumElements)
 {
-  if (!GetOwnerEffect()->NeedsBoundingVolumeUpdate())
+  if (uiNumElements == 0)
     return;
 
   EZ_PROFILE_SCOPE("PFX: Volume");
 
   const ezSimdVec4f* pPosition = m_pStreamPosition->GetData<ezSimdVec4f>();
 
-  ezBoundingBoxSphere volume;
-  volume.SetFromPoints(reinterpret_cast<const ezVec3*>(pPosition), static_cast<ezUInt32>(uiNumElements), sizeof(ezVec4));
+  ezSimdBBoxSphere volume;
+  volume.SetFromPoints(pPosition, static_cast<ezUInt32>(uiNumElements));
 
-  float fMaxSize[8] = {0};
+  float fMaxSize = 0;
 
   if (m_pStreamSize != nullptr)
   {
     const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
 
-    ezUInt32 idx = 0;
+    ezSimdVec4f vMax;
+    vMax.SetZero();
 
-    for (ezUInt64 i = 0; i < uiNumElements / 8; ++i)
+    constexpr ezUInt32 uiElementsPerLoop = 4;
+    for (ezUInt64 i = 0; i < uiNumElements; i += uiElementsPerLoop)
     {
-      fMaxSize[0] = ezMath::Max(fMaxSize[0], (float)pSize[idx + 0]);
-      fMaxSize[1] = ezMath::Max(fMaxSize[1], (float)pSize[idx + 1]);
-      fMaxSize[2] = ezMath::Max(fMaxSize[2], (float)pSize[idx + 2]);
-      fMaxSize[3] = ezMath::Max(fMaxSize[3], (float)pSize[idx + 3]);
-      fMaxSize[4] = ezMath::Max(fMaxSize[4], (float)pSize[idx + 4]);
-      fMaxSize[5] = ezMath::Max(fMaxSize[5], (float)pSize[idx + 5]);
-      fMaxSize[6] = ezMath::Max(fMaxSize[6], (float)pSize[idx + 6]);
-      fMaxSize[7] = ezMath::Max(fMaxSize[7], (float)pSize[idx + 7]);
+      const float x = pSize[i + 0];
+      const float y = pSize[i + 1];
+      const float z = pSize[i + 2];
+      const float w = pSize[i + 3];
 
-      idx += 8;
+      vMax = vMax.CompMax(ezSimdVec4f(x, y, z, w));
     }
 
-    for (ezUInt64 i = (uiNumElements / 8) * 8; i < uiNumElements; ++i)
+    for (ezUInt64 i = (uiNumElements / uiElementsPerLoop) * uiElementsPerLoop; i < uiNumElements; ++i)
     {
-      fMaxSize[0] = ezMath::Max(fMaxSize[0], (float)pSize[i]);
+      fMaxSize = ezMath::Max(fMaxSize, (float)pSize[i]);
     }
+
+    fMaxSize = ezMath::Max(fMaxSize, (float)vMax.HorizontalMax<4>());
   }
 
-  const float fms01 = ezMath::Max(fMaxSize[0], fMaxSize[1]);
-  const float fms23 = ezMath::Max(fMaxSize[2], fMaxSize[3]);
-  const float fms45 = ezMath::Max(fMaxSize[4], fMaxSize[5]);
-  const float fms67 = ezMath::Max(fMaxSize[6], fMaxSize[7]);
-
-  const float fms0123 = ezMath::Max(fms01, fms23);
-  const float fms4567 = ezMath::Max(fms45, fms67);
-
-  const float fms = ezMath::Max(fms0123, fms4567);
-
-  GetOwnerSystem()->SetBoundingVolume(volume, fms);
+  GetOwnerSystem()->SetBoundingVolume(ezSimdConversion::ToBBoxSphere(volume), fMaxSize);
 }

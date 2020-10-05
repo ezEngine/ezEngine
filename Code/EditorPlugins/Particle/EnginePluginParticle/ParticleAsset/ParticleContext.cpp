@@ -249,8 +249,6 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
 
       for (ezUInt32 step = 0; step < 30; ++step)
       {
-        m_pComponent->m_EffectController.ForceBoundingVolumeUpdate();
-        m_pComponent->m_EffectController.SetIsInView();
         m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
 
         if (!m_pComponent->m_EffectController.IsAlive())
@@ -299,8 +297,6 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
 
       for (ezUInt32 step = 0; step <= uiSimStepsNeeded; ++step)
       {
-        m_pComponent->m_EffectController.ForceBoundingVolumeUpdate();
-        m_pComponent->m_EffectController.SetIsInView();
         m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
 
         if (m_pComponent->m_EffectController.IsAlive())

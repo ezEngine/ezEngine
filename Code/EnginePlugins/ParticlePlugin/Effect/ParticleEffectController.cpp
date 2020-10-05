@@ -77,9 +77,9 @@ void ezParticleEffectController::SetTransform(const ezTransform& t, const ezVec3
   ezParticleEffectInstance* pEffect = GetInstance();
 
   // shared effects are always simulated at the origin
-  if (pEffect)
+  if (pEffect && m_pSharedInstanceOwner == nullptr)
   {
-    pEffect->SetTransform(t, vParticleStartVelocity, m_pSharedInstanceOwner);
+    pEffect->SetTransform(t, vParticleStartVelocity);
   }
 }
 
@@ -94,23 +94,13 @@ void ezParticleEffectController::Tick(const ezTime& tDiff) const
   }
 }
 
-void ezParticleEffectController::SetIsInView() const
+void ezParticleEffectController::ExtractRenderData(ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const
 {
-  ezParticleEffectInstance* pEffect = GetInstance();
-
-  if (pEffect)
+  if (const ezParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->SetIsVisible();
-  }
-}
 
-void ezParticleEffectController::ForceBoundingVolumeUpdate()
-{
-  ezParticleEffectInstance* pEffect = GetInstance();
-
-  if (pEffect)
-  {
-    pEffect->ForceBoundingVolumeUpdate();
+    m_pModule->ExtractEffectRenderData(pEffect, msg, systemTransform);
   }
 }
 
@@ -125,16 +115,12 @@ void ezParticleEffectController::StopImmediate()
   }
 }
 
-ezUInt32 ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
-  ezParticleEffectInstance* pEffect = GetInstance();
-
-  if (pEffect)
+  if (ezParticleEffectInstance* pEffect = GetInstance())
   {
-    return pEffect->GetBoundingVolume(volume);
+    pEffect->GetBoundingVolume(volume);
   }
-
-  return 0;
 }
 
 void ezParticleEffectController::SetParameter(const ezTempHashedString& name, float value)

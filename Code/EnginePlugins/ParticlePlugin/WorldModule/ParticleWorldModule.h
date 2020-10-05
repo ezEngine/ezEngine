@@ -10,8 +10,6 @@
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 class ezParticleEffectInstance;
 struct ezResourceEvent;
-class ezView;
-class ezExtractedRenderData;
 class ezTaskGroupID;
 class ezParticleStream;
 class ezParticleStreamFactory;
@@ -34,21 +32,18 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed,
-    const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-    ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
-  /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old
-  /// age.
+  /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
   void DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
 
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
+  bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const;
 
-  /// \brief Extracts render data for all effects that are currently active.
-  void ExtractRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData) const;
+  /// \brief Extracts render data for the given effect.
+  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const;
 
-  ezParticleSystemInstance* CreateSystemInstance(
-    ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
+  ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
   void DestroySystemInstance(ezParticleSystemInstance* pInstance);
 
   ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;
@@ -67,8 +62,6 @@ public:
   /// \brief Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
   void CacheWorldModule(const ezRTTI* pRtti);
 
-  void CreateFinisherComponent(ezParticleEffectInstance* pEffect);
-
 private:
   virtual void WorldClear() override;
 
@@ -76,15 +69,11 @@ private:
   void EnsureUpdatesFinished(const ezWorldModule::UpdateContext& context);
 
   void DestroyFinishedEffects();
+  void CreateFinisherComponent(ezParticleEffectInstance* pEffect);
   void ResourceEventHandler(const ezResourceEvent& e);
   void ReconfigureEffects();
-  ezParticleEffectHandle InternalCreateSharedEffectInstance(
-    const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
-  ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared,
-    ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
-
-  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData& extractedRenderData,
-    const ezTransform& systemTransform) const;
+  ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
+  ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
   void ConfigureParticleStreamFactories();
   void ClearParticleStreamFactories();
@@ -97,7 +86,6 @@ private:
   ezDynamicArray<ezParticleEffectInstance*> m_ParticleEffectsFreeList;
   ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;
   ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
-  mutable ezUInt64 m_uiExtractedFrame; // Increased every frame, passed to modules such that instanced systems can prevent redundant work
   ezDeque<ezParticleSystemInstance> m_ParticleSystems;
   ezDynamicArray<ezParticleSystemInstance*> m_ParticleSystemFreeList;
   ezTaskGroupID m_EffectUpdateTaskGroup;

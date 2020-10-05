@@ -122,12 +122,16 @@ bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& h
   return m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), out_pEffect);
 }
 
+bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const
+{
+  ezParticleEffectInstance* pEffect = nullptr;
+  bool bResult = m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), pEffect);
+  out_pEffect = pEffect;
+  return bResult;
+}
+
 void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& context)
 {
-  // do this outside the lock to allow tasks to enter it
-  // this should actually never have to have any effect, as this is already done at the end of the previous frame
-  EnsureUpdatesFinished(context);
-
   EZ_LOCK(m_Mutex);
 
   DestroyFinishedEffects();

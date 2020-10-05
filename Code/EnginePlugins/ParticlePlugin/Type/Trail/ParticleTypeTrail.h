@@ -51,8 +51,7 @@ public:
   float m_fDistortionStrength = 0;
 
   virtual void CreateRequiredStreams() override;
-  virtual void ExtractTypeRenderData(
-    const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
+  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const override;
   /// \todo This is a hacky guess, one would actually need to inspect the trail positions
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return fParticleSize + m_uiMaxPoints * 0.05f; }
 

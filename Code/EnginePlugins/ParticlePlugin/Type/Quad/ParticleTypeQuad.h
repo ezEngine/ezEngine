@@ -78,8 +78,7 @@ public:
   float m_fDistortionStrength = 0;
   float m_fStretch = 1;
 
-  virtual void ExtractTypeRenderData(
-    const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
+  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const override;
 
   struct sod
   {
@@ -94,9 +93,8 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override {}
   void AllocateParticleData(const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData) const;
-  void AddParticleRenderData(ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform) const;
-  void CreateExtractedData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
-    ezUInt64 uiExtractedFrame, const ezHybridArray<sod, 64>* pSorted) const;
+  void AddParticleRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const;
+  void CreateExtractedData(const ezHybridArray<sod, 64>* pSorted) const;
 
   ezProcessingStream* m_pStreamLifeTime = nullptr;
   ezProcessingStream* m_pStreamPosition = nullptr;

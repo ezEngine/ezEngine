@@ -1,18 +1,10 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/World/GameObject.h>
-#include <Core/World/World.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
@@ -69,8 +61,7 @@ void ezParticleTypePoint::CreateRequiredStreams()
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
-void ezParticleTypePoint::ExtractTypeRenderData(
-  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypePoint::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
   EZ_PROFILE_SCOPE("PFX: Point");
 
@@ -80,9 +71,9 @@ void ezParticleTypePoint::ExtractTypeRenderData(
     return;
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
-  if (m_uiLastExtractedFrame != uiExtractedFrame)
+  if (m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
   {
-    m_uiLastExtractedFrame = uiExtractedFrame;
+    m_uiLastExtractedFrame = ezRenderWorld::GetFrameCounter();
 
     const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
     const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
@@ -106,7 +97,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(
   pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_BillboardParticleData = m_BillboardParticleData;
 
-  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
 }
 
 

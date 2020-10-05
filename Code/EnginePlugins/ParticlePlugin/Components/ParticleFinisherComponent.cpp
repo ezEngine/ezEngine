@@ -7,6 +7,27 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+ezParticleFinisherComponentManager::ezParticleFinisherComponentManager(ezWorld* pWorld)
+  : SUPER(pWorld)
+{
+}
+
+void ezParticleFinisherComponentManager::UpdateBounds()
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->UpdateBounds();
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
 {
@@ -38,14 +59,8 @@ ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
 {
   if (m_EffectController.IsAlive())
   {
-    ezBoundingBoxSphere volume;
-    m_uiBVolumeUpdateCounter = m_EffectController.GetBoundingVolume(volume);
-
-    if (m_uiBVolumeUpdateCounter != 0)
-    {
-      bounds.ExpandToInclude(volume);
-      return EZ_SUCCESS;
-    }
+    m_EffectController.GetBoundingVolume(bounds);
+    return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
@@ -57,26 +72,20 @@ void ezParticleFinisherComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
-  m_EffectController.SetIsInView();
+  m_EffectController.ExtractRenderData(msg, GetOwner()->GetGlobalTransform());
 }
 
-void ezParticleFinisherComponent::Update()
+void ezParticleFinisherComponent::UpdateBounds()
 {
   if (m_EffectController.IsAlive())
   {
-    CheckBVolumeUpdate();
+    // This function is called in the post-transform phase so the global bounds and transform have already been calculated at this point.
+    // Therefore we need to manually update the global bounds again to ensure correct bounds for culling and rendering.
+    GetOwner()->UpdateLocalBounds();
+    GetOwner()->UpdateGlobalBounds();
   }
   else
   {
-    GetOwner()->GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-  }
-}
-
-void ezParticleFinisherComponent::CheckBVolumeUpdate()
-{
-  ezBoundingBoxSphere bvol;
-  if (m_uiBVolumeUpdateCounter < m_EffectController.GetBoundingVolume(bvol))
-  {
-    TriggerLocalBoundsUpdate();
+    GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
   }
 }
