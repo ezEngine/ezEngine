@@ -49,6 +49,21 @@ typedef unsigned long long int32_t uint64_t;
 #include <stdio.h>
 #endif
 
+//////////////////////////////////////////////////////////////////////////
+// BEGIN EZ MODIFICATION 
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
+// END EZ MODIFICATION 
+//////////////////////////////////////////////////////////////////////////
+
+
 // Convex hull implementation based on Preparata and Hong
 // Ole Kniemeyer, MAXON Computer GmbH
 class btConvexHullInternal {

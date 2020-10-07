@@ -19,6 +19,19 @@
 #pragma warning(disable:4456 4706)
 #endif
 
+//////////////////////////////////////////////////////////////////////////
+// BEGIN EZ MODIFICATION 
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
+// END EZ MODIFICATION 
+//////////////////////////////////////////////////////////////////////////
 
 namespace VHACD {
 const double ICHull::sc_eps = 1.0e-15;
