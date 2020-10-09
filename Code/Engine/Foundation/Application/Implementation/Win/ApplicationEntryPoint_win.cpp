@@ -10,6 +10,14 @@ namespace ezApplicationDetails
   {
     ::SetConsoleCtrlHandler(consoleHandler, TRUE);
   }
+
+  static ezMutex s_shutdownMutex;
+
+  ezMutex& GetShutdownMutex()
+  {
+    return s_shutdownMutex;
+  }
+
 } // namespace ezApplicationDetails
 #endif
 
