@@ -328,7 +328,7 @@ static void SetupImageFormatTable()
   INIT_FORMAT_LINEAR(R10G10B10A2_UINT, UINT, 32, 10, 10, 10, 2, 4);
   INIT_FORMAT_LINEAR(R10G10B10A2_UNORM, UNORM, 32, 10, 10, 10, 2, 4);
 
-  // msdn.microsoft.com/en-us/library/windows/desktop/bb943991(v=vs.85).aspx documents R10G10B10A2 as having an alpha mask of 0
+  // msdn.microsoft.com/library/windows/desktop/bb943991(v=vs.85).aspx documents R10G10B10A2 as having an alpha mask of 0
   s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x000003FF;
   s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x000FFC00;
   s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x3FF00000;

@@ -213,7 +213,7 @@ namespace ezMath
   inline ezUInt8 ColorFloatToByte(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -227,7 +227,7 @@ namespace ezMath
   inline ezUInt16 ColorFloatToShort(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -241,7 +241,7 @@ namespace ezMath
   inline ezInt8 ColorFloatToSignedByte(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -264,7 +264,7 @@ namespace ezMath
   inline ezInt16 ColorFloatToSignedShort(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -287,28 +287,28 @@ namespace ezMath
   constexpr inline float ColorByteToFloat(ezUInt8 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return value * (1.0f / 255.0f);
   }
 
   constexpr inline float ColorShortToFloat(ezUInt16 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return value * (1.0f / 65535.0f);
   }
 
   constexpr inline float ColorSignedByteToFloat(ezInt8 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return (value == -128) ? -1.0f : value * (1.0f / 127.0f);
   }
 
   constexpr inline float ColorSignedShortToFloat(ezInt16 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return (value == -32768) ? -1.0f : value * (1.0f / 32767.0f);
   }
 
