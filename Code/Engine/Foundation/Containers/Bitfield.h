@@ -76,7 +76,7 @@ using ezDynamicBitfield = ezBitfield<ezDynamicArray<ezUInt32>>;
 
 /// \brief An ezBitfield that uses a hybrid array as internal container.
 template <ezUInt32 BITS>
-using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, (BITS+31)/32>>;
+using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, (BITS + 31) / 32>>;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

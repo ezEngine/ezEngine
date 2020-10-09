@@ -549,7 +549,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, ezFileSha
     if (s_Data->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
 
-    const char* szRelPath = GetDataDirRelativePath(szFile, i);
+    const char* szRelPath = GetDataDirRelativePath(sPath, i);
 
     if (bAllowFileEvents)
     {

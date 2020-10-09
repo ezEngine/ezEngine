@@ -145,6 +145,10 @@ void ezCVar::SaveCVars()
   if (s_StorageFolder.IsEmpty())
     return;
 
+  // this command line disables loading and saving CVars to and from files
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-no-file-cvars", false))
+    return;
+
   // first gather all the cvars by plugin
   ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
 
@@ -314,6 +318,10 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
 void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 {
   if (s_StorageFolder.IsEmpty())
+    return;
+
+  // this command line disables loading and saving CVars to and from files
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-no-file-cvars", false))
     return;
 
   ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;

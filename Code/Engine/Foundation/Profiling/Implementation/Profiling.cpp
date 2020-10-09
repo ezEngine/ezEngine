@@ -817,6 +817,8 @@ void ezProfilingSystem::InitializeGPUData() {}
 
 void ezProfilingSystem::AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime) {}
 
+void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs) {}
+
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_Profiling);

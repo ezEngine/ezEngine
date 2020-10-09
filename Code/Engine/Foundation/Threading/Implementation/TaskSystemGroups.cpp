@@ -54,8 +54,7 @@ void ezTaskSystem::AddTaskToGroup(ezTaskGroupID groupID, const ezSharedPtr<ezTas
 void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID groupID, ezTaskGroupID DependsOn)
 {
   EZ_ASSERT_DEBUG(DependsOn.IsValid(), "Invalid dependency");
-  EZ_ASSERT_DEBUG(
-    groupID.m_pTaskGroup != DependsOn.m_pTaskGroup || groupID.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
+  EZ_ASSERT_DEBUG(groupID.m_pTaskGroup != DependsOn.m_pTaskGroup || groupID.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
@@ -77,8 +76,7 @@ void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDepen
 
 void ezTaskSystem::StartTaskGroup(ezTaskGroupID groupID)
 {
-  if (s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].GetCount() == 0)
-    SetWorkerThreadCount(-1, -1); // set the default number of threads, if none are started yet
+  EZ_ASSERT_DEV(s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].GetCount() > 0, "No worker threads started.");
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 

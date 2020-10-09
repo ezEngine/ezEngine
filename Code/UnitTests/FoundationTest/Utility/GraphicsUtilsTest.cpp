@@ -169,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
         ezAngle::Degree(70.0f), 0.7f, fNearIn, fFarIn, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
       float fNearOut, fFarOut;
-      ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(fNearOut, fFarOut, mProj, ezClipSpaceDepthRange::ZeroToOne);
+      EZ_TEST_BOOL(ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(fNearOut, fFarOut, mProj, ezClipSpaceDepthRange::ZeroToOne).Succeeded());
 
       EZ_TEST_FLOAT(fNearIn, fNearOut, 0.1f);
       EZ_TEST_FLOAT(fFarIn, fFarOut, 0.1f);
@@ -185,10 +185,20 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
         ezAngle::Degree(10.0f), 1.7f, fNearIn, fFarIn, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
       float fNearOut, fFarOut;
-      ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(fNearOut, fFarOut, mProj, ezClipSpaceDepthRange::MinusOneToOne);
+      EZ_TEST_BOOL(ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(fNearOut, fFarOut, mProj, ezClipSpaceDepthRange::MinusOneToOne).Succeeded());
 
       EZ_TEST_FLOAT(fNearIn, fNearOut, 0.1f);
       EZ_TEST_FLOAT(fFarIn, fFarOut, 2.0f);
+    }
+
+    { // Test failure on broken projection matrix
+      float vals[] = {0.770734549, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 1.73205078, 0.000000000, 0.000000000, 0.000000000, 0.000000000, -1.00000000, -1.00000000, 0.000000000, 0.000000000, -0.100000001, 0.000000000};
+      ezMat4 mProj;
+      memcpy(mProj.m_fElementsCM, vals, 16 * sizeof(float));
+      float fNearOut = 0.f, fFarOut = 0.f;
+      EZ_TEST_BOOL(ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(fNearOut, fFarOut, mProj, ezClipSpaceDepthRange::MinusOneToOne).Failed());
+      EZ_TEST_BOOL(fNearOut == 0.0f);
+      EZ_TEST_BOOL(fFarOut == 0.0f);
     }
   }
 

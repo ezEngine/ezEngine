@@ -72,7 +72,7 @@ void ezApplicationFileSystemConfig::Load(const char* szPath /*= ":project/DataDi
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::Warning("Could not open file-system config file '{0}'", sPath);
+    ezLog::Dev("File-system config file '{0}' does not exist.", sPath);
     return;
   }
 
