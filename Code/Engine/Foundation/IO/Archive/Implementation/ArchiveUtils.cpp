@@ -37,9 +37,11 @@ ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
   const char* szTag = "EZARCHIVE";
   EZ_SUCCEED_OR_RETURN(stream.WriteBytes(szTag, 10));
 
-  const ezUInt8 uiArchiveVersion = 3;
+  const ezUInt8 uiArchiveVersion = 4;
+
   // Version 2: Added end-of-file marker for file corruption (cutoff) detection
   // Version 3: HashedStrings changed from MurmurHash to xxHash
+  // Version 4: use 64 Bit string hashes
   stream << uiArchiveVersion;
 
   const ezUInt8 uiPadding[5] = {0, 0, 0, 0, 0};
@@ -60,7 +62,7 @@ ezResult ezArchiveUtils::ReadHeader(ezStreamReader& stream, ezUInt8& out_uiVersi
   out_uiVersion = 0;
   stream >> out_uiVersion;
 
-  if (out_uiVersion != 1 && out_uiVersion != 2 && out_uiVersion != 3)
+  if (out_uiVersion != 1 && out_uiVersion != 2 && out_uiVersion != 3 && out_uiVersion != 4)
   {
     ezLog::Error("Unsupported archive version '{}'.", out_uiVersion);
     return EZ_FAILURE;
@@ -165,14 +167,11 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
   return EZ_SUCCESS;
 }
 
-ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* szAbsSourcePath, ezUInt32 uiPathStringOffset,
-  ezArchiveCompressionMode compression, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition,
-  FileWriteProgressCallback progress /*= FileWriteProgressCallback()*/)
+ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* szAbsSourcePath, ezUInt32 uiPathStringOffset, ezArchiveCompressionMode compression, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition, FileWriteProgressCallback progress /*= FileWriteProgressCallback()*/)
 {
   if (compression == ezArchiveCompressionMode::Uncompressed)
   {
-    return WriteEntry(
-      stream, szAbsSourcePath, uiPathStringOffset, ezArchiveCompressionMode::Uncompressed, tocEntry, inout_uiCurrentStreamPosition, progress);
+    return WriteEntry(stream, szAbsSourcePath, uiPathStringOffset, ezArchiveCompressionMode::Uncompressed, tocEntry, inout_uiCurrentStreamPosition, progress);
   }
   else
   {
@@ -185,8 +184,7 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
     if (tocEntry.m_uiStoredDataSize * 12 >= tocEntry.m_uiUncompressedDataSize * 10)
     {
       // less than 20% size saving -> go uncompressed
-      return WriteEntry(
-        stream, szAbsSourcePath, uiPathStringOffset, ezArchiveCompressionMode::Uncompressed, tocEntry, inout_uiCurrentStreamPosition, progress);
+      return WriteEntry(stream, szAbsSourcePath, uiPathStringOffset, ezArchiveCompressionMode::Uncompressed, tocEntry, inout_uiCurrentStreamPosition, progress);
     }
     else
     {
@@ -381,7 +379,7 @@ ezResult ezArchiveUtils::ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& t
   {
     ezRawMemoryStreamReader tocReader(pTocStart, uiTocSize);
 
-    if (toc.Deserialize(tocReader).Failed())
+    if (toc.Deserialize(tocReader, uiArchiveVersion).Failed())
     {
       ezLog::Error("Failed to deserialize ezArchive TOC");
       return EZ_FAILURE;
