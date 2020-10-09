@@ -36,6 +36,9 @@ public:
   /// \brief Returns true, if the bitfield is empty or all bits are set to zero.
   bool IsNoBitSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
 
+  /// \brief Returns true, if the bitfield is not empty and all bits are set to one.
+  bool AreAllBitsSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
+
   /// \brief Discards all bits and sets count to zero.
   void Clear(); // [tested]
 
@@ -72,8 +75,8 @@ private:
 using ezDynamicBitfield = ezBitfield<ezDynamicArray<ezUInt32>>;
 
 /// \brief An ezBitfield that uses a hybrid array as internal container.
-template <ezUInt32 Size>
-using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, Size>>;
+template <ezUInt32 BITS>
+using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, (BITS+31)/32>>;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -96,6 +99,9 @@ public:
 
   /// \brief Returns true, if the bitfield is all zero.
   bool IsNoBitSet() const; // [tested]
+
+  /// \brief Returns true, if the bitfield is not empty and all bits are set to one.
+  bool AreAllBitsSet() const; // [tested]
 
   /// \brief Sets the given bit to 1.
   void SetBit(ezUInt32 uiBit); // [tested]
