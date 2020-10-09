@@ -169,7 +169,7 @@ void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& Projecti
   out_fFovY = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
 }
 
-void ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(
+ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(
   float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
 {
   const ezVec4 row2 = ProjectionMatrix.GetRow(2);
@@ -182,10 +182,20 @@ void ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(
     nearPlane += row3;
   }
 
-  out_fNear = ezMath::Abs(nearPlane.w / nearPlane.GetAsVec3().GetLength());
-
   const ezVec4 farPlane = row3 - row2;
-  out_fFar = farPlane.w / farPlane.GetAsVec3().GetLength();
+
+  const float nearLength = nearPlane.GetAsVec3().GetLength();
+  const float farLength = farPlane.GetAsVec3().GetLength();
+
+  if (nearLength < ezMath::SmallEpsilon<float>() || farLength < ezMath::SmallEpsilon<float>())
+  {
+    return EZ_FAILURE;
+  }
+
+  out_fNear = ezMath::Abs(nearPlane.w / nearLength);
+  out_fFar = farPlane.w / farLength;
+
+  return EZ_SUCCESS;
 }
 
 ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
@@ -240,7 +250,9 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, floa
 ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ,
   ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
-  const float xm = fNearZ * ezMath::Tan(fieldOfViewX * 0.5f);
+  // Taking the minimum allows the function to be used to create
+  // inverse z matrices (fNearZ > fFarZ) as well.
+  const float xm = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewX * 0.5f);
   const float ym = xm / fAspectRatioWidthDivHeight;
 
   return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange, yRange, handedness);
@@ -249,7 +261,9 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldO
 ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ,
   ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
-  const float ym = fNearZ * ezMath::Tan(fieldOfViewY * 0.5);
+  // Taking the minimum allows the function to be used to create
+  // inverse z matrices (fNearZ > fFarZ) as well.
+  const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5);
   const float xm = ym * fAspectRatioWidthDivHeight;
 
   return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange, yRange, handedness);
@@ -293,8 +307,8 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fR
   }
   else
   {
-    // The Left-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixorthooffcenterlh
-    // The Right-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixorthooffcenterrh
+    // The Left-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixorthooffcenterlh
+    // The Right-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixorthooffcenterrh
 
     res.Element(2, 2) = -1.0f * fOneDivFarMinusNear;
     res.Element(3, 2) = -fNearZ * fOneDivFarMinusNear;
@@ -319,7 +333,13 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
     ezMath::Swap(fBottom, fTop);
   }
 
-  const float fTwoNearZ = fNearZ + fNearZ;
+  // Taking the minimum of the two plane values allows
+  // this function to also be used to create inverse-z
+  // matrices by specifying values of fNearZ > fFarZ.
+  // Otherwise the x and y scaling values will be wrong
+  // in the final matrix.
+  const float fMinPlane = ezMath::Min(fNearZ, fFarZ);
+  const float fTwoNearZ = fMinPlane + fMinPlane;
   const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
   const float fOneDivRightMinusLeft = 1.0f / (fRight - fLeft);
   const float fOneDivTopMinusBottom = 1.0f / (fTop - fBottom);
@@ -340,8 +360,8 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   }
   else
   {
-    // The Left-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
-    // The Right-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterrh
+    // The Left-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
+    // The Right-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterrh
     res.Element(2, 2) = fFarZ * fOneDivNearMinusFar;
     res.Element(3, 2) = fFarZ * fNearZ * fOneDivNearMinusFar;
   }

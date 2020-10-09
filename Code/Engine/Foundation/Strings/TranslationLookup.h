@@ -23,7 +23,7 @@ public:
   virtual ~ezTranslator();
 
   /// \brief The given string (with the given hash) shall be translated
-  virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) = 0;
+  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) = 0;
 
   /// \brief Called to reset internal state
   virtual void Reset();
@@ -42,7 +42,7 @@ private:
 class EZ_FOUNDATION_DLL ezTranslatorPassThrough : public ezTranslator
 {
 public:
-  virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override { return szString; }
+  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override { return szString; }
 };
 
 /// \brief Can store translated strings and all translation requests will come from that storage. Returns nullptr if the requested string is
@@ -51,10 +51,10 @@ class EZ_FOUNDATION_DLL ezTranslatorStorage : public ezTranslator
 {
 public:
   /// \brief Stores szString as the translation for the string with the given hash
-  virtual void StoreTranslation(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage);
+  virtual void StoreTranslation(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage);
 
   /// \brief Returns the translated string for uiStringHash, or nullptr, if not available
-  virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override;
+  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 
   /// \brief Clears all stored translation strings
   virtual void Reset() override;
@@ -63,7 +63,7 @@ public:
   virtual void Reload() override;
 
 protected:
-  ezMap<ezUInt32, ezString> m_Translations[(int)ezTranslationUsage::ENUM_COUNT];
+  ezMap<ezUInt64, ezString> m_Translations[(int)ezTranslationUsage::ENUM_COUNT];
 };
 
 /// \brief Outputs a 'Missing Translation' warning the first time a string translation is requested. Otherwise returns the input string as
@@ -74,7 +74,7 @@ public:
   /// Can be used from external code to (temporarily) deactivate error logging (a bit hacky)
   static bool s_bActive;
 
-  virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override;
+  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 };
 
 /// \brief Loads translations from files. Each translator can have different search paths, but the files to be loaded are the same for all
@@ -108,7 +108,7 @@ public:
 
   /// \brief Prefer to use the ezTranslate macro instead of calling this function directly. Will query all translators for a translation,
   /// until one is found.
-  static const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage);
+  static const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage);
 
   /// \brief Deletes all translators.
   static void Clear();
@@ -121,7 +121,7 @@ private:
 };
 
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
-#define ezTranslate(string) ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Default)
+#define ezTranslate(string) ezTranslationLookup::Translate(string, ezHashingUtils::xxHash32String(string), ezTranslationUsage::Default)
 
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
-#define ezTranslateTooltip(string) ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Tooltip)
+#define ezTranslateTooltip(string) ezTranslationLookup::Translate(string, ezHashingUtils::xxHash32String(string), ezTranslationUsage::Tooltip)

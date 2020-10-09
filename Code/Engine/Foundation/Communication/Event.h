@@ -80,6 +80,9 @@ public:
       Clear();
     }
 
+    /// \brief Checks whether this unsubscriber has a valid subscription.
+    bool IsSubscribed() const { return m_SubscriptionID != 0; }
+
     /// \brief Resets the unsubscriber. Use when the target ezEvent may have been destroyed and automatic unsubscription cannot be executed
     /// anymore.
     void Clear()
@@ -162,9 +165,13 @@ private:
   mutable ezDynamicArray<HandlerData> m_EventHandlers;
 };
 
+/// \brief Can be used when ezEvent is used without any additional data
+struct ezNoEventData
+{
+};
+
 /// \brief \see ezEventBase
-template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper,
-  ezEventType EventType = ezEventType::Default>
+template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper, ezEventType EventType = ezEventType::Default>
 class ezEvent : public ezEventBase<EventData, MutexType, EventType>
 {
 public:

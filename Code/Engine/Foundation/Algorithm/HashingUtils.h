@@ -8,16 +8,6 @@
 class EZ_FOUNDATION_DLL ezHashingUtils
 {
 public:
-  /// \brief helper struct to wrap a string pointer
-  struct StringWrapper
-  {
-    EZ_ALWAYS_INLINE StringWrapper(const char* str)
-      : m_str(str)
-    {
-    }
-    const char* m_str;
-  };
-
   /// \brief Calculates the CRC32 checksum of the given key.
   static ezUInt32 CRC32Hash(const void* pKey, size_t uiSizeInBytes); // [tested]
 
@@ -34,7 +24,7 @@ public:
   /// \brief Calculates the 32bit murmur hash of a string pointer during runtime. Encoding does not matter here.
   ///
   /// We cannot pass a string pointer directly since a string constant would be treated as pointer as well.
-  static ezUInt32 MurmurHash32String(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
+  static ezUInt32 MurmurHash32String(ezStringView str, ezUInt32 uiSeed = 0); // [tested]
 
   /// \brief Calculates the 32bit xxHash of the given key.
   static ezUInt32 xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed = 0); // [tested]
@@ -46,10 +36,19 @@ public:
   template <size_t N>
   constexpr static ezUInt32 xxHash32String(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
 
+  /// \brief Calculates the 64bit xxHash of the given string literal at compile time.
+  template <size_t N>
+  constexpr static ezUInt64 xxHash64String(const char (&str)[N], ezUInt64 uiSeed = 0); // [tested]
+
   /// \brief Calculates the 32bit xxHash of a string pointer during runtime.
   ///
   /// We cannot pass a string pointer directly since a string constant would be treated as pointer as well.
-  static ezUInt32 xxHash32String(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
+  static ezUInt32 xxHash32String(ezStringView str, ezUInt32 uiSeed = 0);
+
+  /// \brief Calculates the 64bit xxHash of a string pointer during runtime.
+  ///
+  /// We cannot pass a string pointer directly since a string constant would be treated as pointer as well.
+  static ezUInt64 xxHash64String(ezStringView str, ezUInt64 uiSeed = 0);
 };
 
 /// \brief Helper struct to calculate the Hash of different types.

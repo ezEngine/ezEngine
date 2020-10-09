@@ -86,9 +86,9 @@ void ezStandardInputDevice::InitializeDevice()
   // Mouse
   // The only thing that we get from the MouseDevice class is mouse moved which gives us unfiltered relative mouse position.
   // Everything else is done by WinRt's "Pointer"
-  // https://docs.microsoft.com/en-us/uwp/api/windows.devices.input.mousedevice
+  // https://docs.microsoft.com/uwp/api/windows.devices.input.mousedevice
   // Relevant article for mouse move:
-  // https://docs.microsoft.com/en-us/windows/uwp/gaming/relative-mouse-movement
+  // https://docs.microsoft.com/windows/uwp/gaming/relative-mouse-movement
   {
     ComPtr<ABI::Windows::Devices::Input::IMouseDeviceStatics> mouseDeviceStatics;
     if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Devices_Input_MouseDevice).Get(),

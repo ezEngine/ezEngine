@@ -113,5 +113,5 @@ public:
   const char* GetEntryPathString(ezUInt32 uiEntryIdx) const;
 
   ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVersion);
 };

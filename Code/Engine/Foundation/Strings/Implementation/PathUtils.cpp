@@ -221,7 +221,7 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
 {
   /// \test Not tested yet
 
-  // Windows: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+  // Windows: https://msdn.microsoft.com/library/windows/desktop/aa365247(v=vs.85).aspx
   // Unix: https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
   // Details can be more complicated (there might be reserved names depending on the filesystem), but in general all platforms behave like
   // this:

@@ -69,13 +69,13 @@ EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
 #endif
 }
 
-EZ_FORCE_INLINE void ezHashedString::Assign(ezHashingUtils::StringWrapper szString)
+EZ_FORCE_INLINE void ezHashedString::Assign(ezStringView szString)
 {
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   HashedType tmp = m_Data;
 #endif
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString.m_str, ezHashingUtils::xxHash32String(szString));
+  m_Data = AddHashedString(szString, ezHashingUtils::xxHash32String(szString));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();
@@ -148,7 +148,7 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&szString)[N
   m_uiHash = ezHashingUtils::xxHash32String<N>(szString);
 }
 
-EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezHashingUtils::StringWrapper szString)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezStringView szString)
 {
   m_uiHash = ezHashingUtils::xxHash32String(szString);
 }
@@ -174,7 +174,7 @@ EZ_ALWAYS_INLINE void ezTempHashedString::operator=(const char (&szString)[N])
   m_uiHash = ezHashingUtils::xxHash32String<N>(szString);
 }
 
-EZ_ALWAYS_INLINE void ezTempHashedString::operator=(ezHashingUtils::StringWrapper szString)
+EZ_ALWAYS_INLINE void ezTempHashedString::operator=(ezStringView szString)
 {
   m_uiHash = ezHashingUtils::xxHash32String(szString);
 }
@@ -225,9 +225,9 @@ EZ_ALWAYS_INLINE constexpr ezUInt32 ezTempHashedString::ComputeHash(const char (
   return ezHashingUtils::xxHash32String<N>(szString);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::ComputeHash(ezHashingUtils::StringWrapper szString)
+EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::ComputeHash(ezStringView szString)
 {
-  return ezHashingUtils::xxHash32String(szString.m_str);
+  return ezHashingUtils::xxHash32String(szString);
 }
 
 //////////////////////////////////////////////////////////////////////////

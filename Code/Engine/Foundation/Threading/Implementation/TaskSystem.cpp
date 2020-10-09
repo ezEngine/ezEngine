@@ -38,6 +38,9 @@ void ezTaskSystem::Startup()
 
   tl_TaskWorkerInfo.m_WorkerType = ezWorkerThreadType::MainThread;
   tl_TaskWorkerInfo.m_iWorkerIndex = 0;
+
+  // initialize with the default number of worker threads
+  SetWorkerThreadCount();
 }
 
 void ezTaskSystem::Shutdown()

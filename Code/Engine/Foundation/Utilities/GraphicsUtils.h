@@ -64,7 +64,9 @@ namespace ezGraphicsUtils
   EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovX, ezAngle& out_fFovY); // [tested]
 
   /// \brief Computes the distances of the near and far clip planes from the given perspective projection matrix.
-  EZ_FOUNDATION_DLL void ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix,
+  ///
+  /// Returns EZ_FAILURE when one of the values could not be computed, because it would result in a "division by zero".
+  EZ_FOUNDATION_DLL ezResult ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix,
     ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default); // [tested]
 
 

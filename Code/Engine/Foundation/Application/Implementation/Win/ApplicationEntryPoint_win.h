@@ -12,6 +12,7 @@
 namespace ezApplicationDetails
 {
   EZ_FOUNDATION_DLL void SetConsoleCtrlHandler(ezMinWindows::BOOL(EZ_WINDOWS_WINAPI* consoleHandler)(ezMinWindows::DWORD dwCtrlType));
+  EZ_FOUNDATION_DLL ezMutex& GetShutdownMutex();
 
   template <typename AppClass, typename... Args>
   int ConsoleEntry(int argc, const char** argv, Args&&... arguments)
@@ -25,22 +26,22 @@ namespace ezApplicationDetails
     // This mutex will prevent the console shutdown handler to return
     // as long as this entry point is not finished executing
     // (see consoleHandler below).
-    static ezMutex shutdownMutex;
-    EZ_LOCK(shutdownMutex);
+    EZ_LOCK(GetShutdownMutex());
+
+    static AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
+    pApp->SetCommandLineArguments((ezUInt32)argc, argv);
 
     // This handler overrides the default handler (which would
     // call ExitProcess which leads to unorderly engine shutdowns)
     const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
-      reinterpret_cast<AppClass*>(appBuffer)->RequestQuit();
-      EZ_LOCK(shutdownMutex);
+      pApp->RequestQuit();
+      EZ_LOCK(GetShutdownMutex());
       return 1;
     };
     SetConsoleCtrlHandler(consoleHandler);
 
-    AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
-    pApp->SetCommandLineArguments((ezUInt32)argc, argv);
     ezRun(pApp); // Life cycle & run method calling
 
     const int iReturnCode = pApp->GetReturnCode();
