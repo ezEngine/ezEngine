@@ -7,8 +7,14 @@
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Strings/StringConversion.h>
 
-#  include <windows.ui.core.h>
-#  include <wrl/event.h>
+#  include <winrt/Windows.ApplicationModel.Activation.h>
+#  include <winrt/Windows.ApplicationModel.Core.h>
+#  include <winrt/Windows.Foundation.Collections.h>
+#  include <winrt/Windows.Foundation.h>
+#  include <winrt/Windows.UI.Core.h>
+
+using namespace std::placeholders;
+using namespace winrt::Windows::ApplicationModel::Core;
 
 ezUwpApplication::ezUwpApplication(ezApplication* application)
   : m_application(application)
@@ -17,92 +23,60 @@ ezUwpApplication::ezUwpApplication(ezApplication* application)
 
 ezUwpApplication::~ezUwpApplication() {}
 
-HRESULT ezUwpApplication::CreateView(IFrameworkView** viewProvider)
+winrt::Windows::ApplicationModel::Core::IFrameworkView ezUwpApplication::CreateView()
 {
-  *viewProvider = this;
-  return S_OK;
+  return this->get_strong().try_as<winrt::Windows::ApplicationModel::Core::IFrameworkView>();
 }
 
-HRESULT ezUwpApplication::Initialize(ICoreApplicationView* applicationView)
+void ezUwpApplication::Initialize(winrt::Windows::ApplicationModel::Core::CoreApplicationView const& applicationView)
 {
-  using OnActivatedHandler = __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs;
-  EZ_SUCCEED_OR_RETURN(applicationView->add_Activated(Microsoft::WRL::Callback<OnActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
-
-  return S_OK;
+  applicationView.Activated({this, &ezUwpApplication::OnViewActivated});
 }
 
-HRESULT ezUwpApplication::SetWindow(ABI::Windows::UI::Core::ICoreWindow* window)
+void ezUwpApplication::SetWindow(winrt::Windows::UI::Core::CoreWindow const& window)
 {
-  // Certain things must be initialized before SetWindow is done, otherwise they won't work correctly.
-  // The concrete, as of writing only known example, is the holographic space. If initialized any later than that we won't go into exclusive
-  // mode (app remains slate window). Any earlier and there is no known window.
-  //
-  // Major drawback is that we don't have launch args yet which seem to be only available on OnActivated.
-  // Maybe we need to split the startup further up?
-  ezRun_Startup(m_application).IgnoreResult();
-  return S_OK;
 }
 
-HRESULT ezUwpApplication::Load(HSTRING entryPoint)
+void ezUwpApplication::Load(winrt::hstring const& entryPoint)
 {
-  return S_OK;
 }
 
-HRESULT ezUwpApplication::Run()
+void ezUwpApplication::Run()
 {
+  ezRun_Startup(m_application);
+
+  auto window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+  window.Activate();
+
   ezRun_MainLoop(m_application);
   ezRun_Shutdown(m_application);
-  return S_OK;
 }
 
-HRESULT ezUwpApplication::Uninitialize()
+void ezUwpApplication::Uninitialize()
 {
-  return S_OK;
 }
 
-HRESULT ezUwpApplication::OnActivated(ICoreApplicationView* view, IActivatedEventArgs* args)
+void ezUwpApplication::OnViewActivated(winrt::Windows::ApplicationModel::Core::CoreApplicationView const& sender, winrt::Windows::ApplicationModel::Activation::IActivatedEventArgs const& args)
 {
-  view->remove_Activated(m_activateRegistrationToken);
+  sender.Activated(m_activateRegistrationToken);
 
-  ActivationKind activationKind;
-  EZ_SUCCEED_OR_RETURN(args->get_Kind(&activationKind));
-
-  if (activationKind == ActivationKind_Launch)
+  if (args.Kind() == winrt::Windows::ApplicationModel::Activation::ActivationKind::Launch)
   {
-    ComPtr<ILaunchActivatedEventArgs> launchArgs;
-    EZ_SUCCEED_OR_RETURN(args->QueryInterface(launchArgs.GetAddressOf()));
-
-    HString argHString;
-    EZ_SUCCEED_OR_RETURN(launchArgs->get_Arguments(argHString.GetAddressOf()));
+    auto launchArgs = args.as<winrt::Windows::ApplicationModel::Activation::LaunchActivatedEventArgs>();
+    winrt::hstring argHString = launchArgs.Arguments();
 
     ezDynamicArray<const char*> argv;
-    ezCommandLineUtils::SplitCommandLineString(ezStringUtf8(argHString).GetData(), true, m_commandLineArgs, argv);
+    ezCommandLineUtils::SplitCommandLineString(ezStringUtf8(argHString.c_str()).GetData(), true, m_commandLineArgs, argv);
 
     m_application->SetCommandLineArguments(argv.GetCount(), argv.GetData());
   }
-
-  // Activate main window together with the application!
-  ComPtr<ABI::Windows::UI::Core::ICoreWindow> pCoreWindow;
-  EZ_SUCCEED_OR_RETURN(view->get_CoreWindow(pCoreWindow.GetAddressOf()));
-  EZ_SUCCEED_OR_RETURN(pCoreWindow->Activate());
-
-  return S_OK;
 }
 
 EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 {
-  ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplication> coreApplication;
-  HRESULT result = ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
-  if (FAILED(result))
   {
-    ezLog::Printf("Failed to create core application: %i\n", result);
-    return EZ_FAILURE;
-  }
-
-  {
-    ComPtr<ezUwpApplication> application = Make<ezUwpApplication>(pApp);
-    coreApplication->Run(application.Get());
-    application.Detach(); // Was already deleted by uwp.
+    auto application = winrt::make<ezUwpApplication>(pApp);
+    winrt::Windows::ApplicationModel::Core::CoreApplication::Run(application.as<winrt::Windows::ApplicationModel::Core::IFrameworkViewSource>());
   }
 
   return EZ_SUCCESS;

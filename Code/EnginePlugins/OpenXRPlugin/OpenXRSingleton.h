@@ -114,17 +114,15 @@ private:
     bool m_bHandInteraction = false;
 
     bool m_bHandTracking = false;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-    PFN_xrCreateHandTrackerMSFT pfn_xrCreateHandTrackerMSFT;
-    PFN_xrDestroyHandTrackerMSFT pfn_xrDestroyHandTrackerMSFT;
-    PFN_xrGetHandTrackerStateMSFT pfn_xrGetHandTrackerStateMSFT;
-    PFN_xrCreateHandJointSpaceMSFT pfn_xrCreateHandJointSpaceMSFT;
-#endif
+    PFN_xrCreateHandTrackerEXT pfn_xrCreateHandTrackerEXT;
+    PFN_xrDestroyHandTrackerEXT pfn_xrDestroyHandTrackerEXT;
+    PFN_xrLocateHandJointsEXT pfn_xrLocateHandJointsEXT;
+
     bool m_bHandTrackingMesh = false;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
     PFN_xrCreateHandMeshSpaceMSFT pfn_xrCreateHandMeshSpaceMSFT;
     PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT;
-#endif
+
+    bool m_bHolographicWindowAttachment = false;
   };
 
   // Instance

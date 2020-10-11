@@ -8,38 +8,38 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <Foundation/Basics.h>
 #  include <Foundation/Strings/String.h>
 
-#  include <Windows.ApplicationModel.core.h>
-#  include <Windows.Applicationmodel.h>
-
 #  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <winrt/base.h>
 
-using namespace ABI::Windows::ApplicationModel::Core;
-using namespace ABI::Windows::ApplicationModel::Activation;
+#  include <winrt/Windows.ApplicationModel.Activation.h>
+#  include <winrt/Windows.ApplicationModel.Core.h>
 
 class ezApplication;
 
 /// Minimal implementation of a uwp application.
-class ezUwpApplication : public RuntimeClass<IFrameworkViewSource, IFrameworkView>
+class ezUwpApplication : public winrt::implements<ezUwpApplication, winrt::Windows::ApplicationModel::Core::IFrameworkView, winrt::Windows::ApplicationModel::Core::IFrameworkViewSource>
 {
 public:
   ezUwpApplication(ezApplication* application);
   virtual ~ezUwpApplication();
 
   // Inherited via IFrameworkViewSource
-  virtual HRESULT __stdcall CreateView(IFrameworkView** viewProvider) override;
+  winrt::Windows::ApplicationModel::Core::IFrameworkView CreateView();
 
   // Inherited via IFrameworkView
-  virtual HRESULT __stdcall Initialize(ICoreApplicationView* applicationView) override;
-  virtual HRESULT __stdcall SetWindow(ABI::Windows::UI::Core::ICoreWindow* window) override;
-  virtual HRESULT __stdcall Load(HSTRING entryPoint) override;
-  virtual HRESULT __stdcall Run() override;
-  virtual HRESULT __stdcall Uninitialize() override;
+  void Initialize(winrt::Windows::ApplicationModel::Core::CoreApplicationView const& applicationView);
+  void SetWindow(winrt::Windows::UI::Core::CoreWindow const& window);
+  void Load(winrt::hstring const& entryPoint);
+  void Run();
+  void Uninitialize();
 
 private:
-  HRESULT OnActivated(ICoreApplicationView*, IActivatedEventArgs* args);
+  // Application lifecycle event handlers.
+  void OnViewActivated(winrt::Windows::ApplicationModel::Core::CoreApplicationView const& sender, winrt::Windows::ApplicationModel::Activation::IActivatedEventArgs const& args);
+
+  winrt::event_token m_activateRegistrationToken;
 
   ezApplication* m_application;
-  EventRegistrationToken m_activateRegistrationToken;
   ezDynamicArray<ezString> m_commandLineArgs;
 };
 

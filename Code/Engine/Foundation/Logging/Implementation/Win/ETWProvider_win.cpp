@@ -12,6 +12,10 @@
 #  undef _TlgPragmaUtf8End
 #  define _TlgPragmaUtf8Begin
 #  define _TlgPragmaUtf8End
+#  undef _tlgPragmaUtf8Begin
+#  undef _tlgPragmaUtf8End
+#  define _tlgPragmaUtf8Begin
+#  define _tlgPragmaUtf8End
 
 TRACELOGGING_DECLARE_PROVIDER(g_ezETWLogProvider);
 

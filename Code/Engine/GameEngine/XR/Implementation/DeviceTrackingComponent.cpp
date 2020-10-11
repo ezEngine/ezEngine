@@ -14,13 +14,15 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRPoseLocation, 1)
 EZ_BITFLAGS_CONSTANTS(ezXRPoseLocation::Grip, ezXRPoseLocation::Aim)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDeviceTrackingComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezDeviceTrackingComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("DeviceType", ezXRDeviceType, GetDeviceType, SetDeviceType),
     EZ_ENUM_ACCESSOR_PROPERTY("PoseLocation", ezXRPoseLocation, GetPoseLocation, SetPoseLocation),
-    EZ_ENUM_ACCESSOR_PROPERTY("TransformSpace", ezXRTransformSpace, GetTransformSpace, SetTransformSpace)
+    EZ_ENUM_ACCESSOR_PROPERTY("TransformSpace", ezXRTransformSpace, GetTransformSpace, SetTransformSpace),
+    EZ_MEMBER_PROPERTY("Rotation", m_bRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("Scale", m_bScale)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -73,6 +75,8 @@ void ezDeviceTrackingComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_deviceType;
   s << m_poseLocation;
   s << m_space;
+  s << m_bRotation;
+  s << m_bScale;
 }
 
 void ezDeviceTrackingComponent::DeserializeComponent(ezWorldReader& stream)
@@ -87,10 +91,18 @@ void ezDeviceTrackingComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_poseLocation;
   }
   s >> m_space;
+  if (uiVersion >= 3)
+  {
+    s >> m_bRotation;
+    s >> m_bScale;
+  }
 }
 
 void ezDeviceTrackingComponent::Update()
 {
+  if (!IsActiveAndSimulating())
+    return;
+
   if (ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>())
   {
     if (!pXRInterface->IsInitialized())
@@ -119,7 +131,8 @@ void ezDeviceTrackingComponent::Update()
       if (m_space == ezXRTransformSpace::Local)
       {
         GetOwner()->SetLocalPosition(vPosition);
-        GetOwner()->SetLocalRotation(qRotation);
+        if (m_bRotation)
+          GetOwner()->SetLocalRotation(qRotation);
       }
       else
       {
@@ -132,8 +145,22 @@ void ezDeviceTrackingComponent::Update()
             add = pStage->GetOwner()->GetGlobalTransform();
           }
         }
-        ezTransform local(vPosition, qRotation);
-        GetOwner()->SetGlobalTransform(add * local);
+
+        const ezTransform global(add * ezTransform(vPosition, qRotation));
+        ezTransform local;
+        if (GetOwner()->GetParent() != nullptr)
+        {
+          local.SetLocalTransform(GetOwner()->GetParent()->GetGlobalTransform(), global);
+        }
+        else
+        {
+          local = global;
+        }
+        GetOwner()->SetLocalPosition(local.m_vPosition);
+        if (m_bRotation)
+          GetOwner()->SetLocalRotation(local.m_qRotation);
+        if (m_bScale)
+          GetOwner()->SetLocalScaling(local.m_vScale);
       }
     }
   }
