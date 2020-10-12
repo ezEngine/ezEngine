@@ -1138,7 +1138,7 @@ void raycastFill(Volume* volume, RaycastMesh* raycastMesh)
             for (size_t k = 0; k < k0; ++k)
             {
                 const unsigned char& voxel = volume->GetVoxel(i, j, k);
-                if (voxel != VHACD::PRIMITIVE_ON_SURFACE)
+                if (voxel != PRIMITIVE_ON_SURFACE)
                 {
                     double start[3];
                     start[0] = float(i) * scale + bmin[0];
