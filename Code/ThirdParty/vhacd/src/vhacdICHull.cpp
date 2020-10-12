@@ -1,39 +1,37 @@
 /* Copyright (c) 2011 Khaled Mamou (kmamou at gmail dot com)
  All rights reserved.
- 
- 
- Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- 
- 3. The names of the contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ 
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ disclaimer in the documentation and/or other materials provided with the distribution.
+ 
+ 3. The names of the contributors may not be used to endorse or promote products derived from this software without
+ specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "vhacdICHull.h"
 #include <limits>
 
 #ifdef _MSC_VER
-#pragma warning(disable:4456 4706)
+#    pragma warning(disable : 4456 4706)
 #endif
 
-//////////////////////////////////////////////////////////////////////////
-// BEGIN EZ MODIFICATION 
 
-#ifdef min
-#undef min
-#endif
-
-#ifdef max
-#undef max
-#endif
-
-// END EZ MODIFICATION 
-//////////////////////////////////////////////////////////////////////////
-
-namespace VHACD {
+namespace VHACD
+{
 const double ICHull::sc_eps = 1.0e-15;
 const int32_t ICHull::sc_dummyIndex = std::numeric_limits<int32_t>::max();
 ICHull::ICHull()
@@ -42,11 +40,13 @@ ICHull::ICHull()
 }
 bool ICHull::AddPoints(const Vec3<double>* points, size_t nPoints)
 {
-    if (!points) {
+    if (!points)
+    {
         return false;
     }
     CircularListElement<TMMVertex>* vertex = NULL;
-    for (size_t i = 0; i < nPoints; i++) {
+    for (size_t i = 0; i < nPoints; i++)
+    {
         vertex = m_mesh.AddVertex();
         vertex->GetData().m_pos.X() = points[i].X();
         vertex->GetData().m_pos.Y() = points[i].Y();
@@ -57,7 +57,8 @@ bool ICHull::AddPoints(const Vec3<double>* points, size_t nPoints)
 }
 bool ICHull::AddPoint(const Vec3<double>& point, int32_t id)
 {
-    if (AddPoints(&point, 1)) {
+    if (AddPoints(&point, 1))
+    {
         m_mesh.m_vertices.GetData().m_name = id;
         return true;
     }
@@ -67,10 +68,12 @@ bool ICHull::AddPoint(const Vec3<double>& point, int32_t id)
 ICHullError ICHull::Process()
 {
     uint32_t addedPoints = 0;
-    if (m_mesh.GetNVertices() < 3) {
+    if (m_mesh.GetNVertices() < 3)
+    {
         return ICHullErrorNotEnoughPoints;
     }
-    if (m_mesh.GetNVertices() == 3) {
+    if (m_mesh.GetNVertices() == 3)
+    {
         m_isFlat = true;
         CircularListElement<TMMTriangle>* t1 = m_mesh.AddTriangle();
         CircularListElement<TMMTriangle>* t2 = m_mesh.AddTriangle();
@@ -91,7 +94,8 @@ ICHullError ICHull::Process()
         t2->GetData().m_vertices[2] = v2;
         return ICHullErrorOK;
     }
-    if (m_isFlat) {
+    if (m_isFlat)
+    {
         m_mesh.m_edges.Clear();
         m_mesh.m_triangles.Clear();
         m_isFlat = false;
@@ -99,30 +103,37 @@ ICHullError ICHull::Process()
     if (m_mesh.GetNTriangles() == 0) // we have to create the first polyhedron
     {
         ICHullError res = DoubleTriangle();
-        if (res != ICHullErrorOK) {
+        if (res != ICHullErrorOK)
+        {
             return res;
         }
-        else {
+        else
+        {
             addedPoints += 3;
         }
     }
     CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
     // go to the first added and not processed vertex
-    while (!(vertices.GetHead()->GetPrev()->GetData().m_tag)) {
+    while (!(vertices.GetHead()->GetPrev()->GetData().m_tag))
+    {
         vertices.Prev();
     }
     while (!vertices.GetData().m_tag) // not processed
     {
         vertices.GetData().m_tag = true;
-        if (ProcessPoint()) {
+        if (ProcessPoint())
+        {
             addedPoints++;
             CleanUp(addedPoints);
             vertices.Next();
-            if (!GetMesh().CheckConsistancy()) {
+            if (!GetMesh().CheckConsistancy())
+            {
                 size_t nV = m_mesh.GetNVertices();
                 CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
-                for (size_t v = 0; v < nV; ++v) {
-                    if (vertices.GetData().m_name == sc_dummyIndex) {
+                for (size_t v = 0; v < nV; ++v)
+                {
+                    if (vertices.GetData().m_name == sc_dummyIndex)
+                    {
                         vertices.Delete();
                         break;
                     }
@@ -132,42 +143,56 @@ ICHullError ICHull::Process()
             }
         }
     }
-    if (m_isFlat) {
+    if (m_isFlat)
+    {
         SArray<CircularListElement<TMMTriangle>*> trianglesToDuplicate;
         size_t nT = m_mesh.GetNTriangles();
-        for (size_t f = 0; f < nT; f++) {
+        for (size_t f = 0; f < nT; f++)
+        {
             TMMTriangle& currentTriangle = m_mesh.m_triangles.GetHead()->GetData();
-            if (currentTriangle.m_vertices[0]->GetData().m_name == sc_dummyIndex || currentTriangle.m_vertices[1]->GetData().m_name == sc_dummyIndex || currentTriangle.m_vertices[2]->GetData().m_name == sc_dummyIndex) {
+            if (currentTriangle.m_vertices[0]->GetData().m_name == sc_dummyIndex ||
+                currentTriangle.m_vertices[1]->GetData().m_name == sc_dummyIndex ||
+                currentTriangle.m_vertices[2]->GetData().m_name == sc_dummyIndex)
+            {
                 m_trianglesToDelete.PushBack(m_mesh.m_triangles.GetHead());
-                for (int32_t k = 0; k < 3; k++) {
-                    for (int32_t h = 0; h < 2; h++) {
-                        if (currentTriangle.m_edges[k]->GetData().m_triangles[h] == m_mesh.m_triangles.GetHead()) {
+                for (int32_t k = 0; k < 3; k++)
+                {
+                    for (int32_t h = 0; h < 2; h++)
+                    {
+                        if (currentTriangle.m_edges[k]->GetData().m_triangles[h] == m_mesh.m_triangles.GetHead())
+                        {
                             currentTriangle.m_edges[k]->GetData().m_triangles[h] = 0;
                             break;
                         }
                     }
                 }
             }
-            else {
+            else
+            {
                 trianglesToDuplicate.PushBack(m_mesh.m_triangles.GetHead());
             }
             m_mesh.m_triangles.Next();
         }
         size_t nE = m_mesh.GetNEdges();
-        for (size_t e = 0; e < nE; e++) {
+        for (size_t e = 0; e < nE; e++)
+        {
             TMMEdge& currentEdge = m_mesh.m_edges.GetHead()->GetData();
-            if (currentEdge.m_triangles[0] == 0 && currentEdge.m_triangles[1] == 0) {
+            if (currentEdge.m_triangles[0] == 0 && currentEdge.m_triangles[1] == 0)
+            {
                 m_edgesToDelete.PushBack(m_mesh.m_edges.GetHead());
             }
             m_mesh.m_edges.Next();
         }
         size_t nV = m_mesh.GetNVertices();
         CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
-        for (size_t v = 0; v < nV; ++v) {
-            if (vertices.GetData().m_name == sc_dummyIndex) {
+        for (size_t v = 0; v < nV; ++v)
+        {
+            if (vertices.GetData().m_name == sc_dummyIndex)
+            {
                 vertices.Delete();
             }
-            else {
+            else
+            {
                 vertices.GetData().m_tag = false;
                 vertices.Next();
             }
@@ -175,7 +200,8 @@ ICHullError ICHull::Process()
         CleanEdges();
         CleanTriangles();
         CircularListElement<TMMTriangle>* newTriangle;
-        for (size_t t = 0; t < trianglesToDuplicate.Size(); t++) {
+        for (size_t t = 0; t < trianglesToDuplicate.Size(); t++)
+        {
             newTriangle = m_mesh.AddTriangle();
             newTriangle->GetData().m_vertices[0] = trianglesToDuplicate[t]->GetData().m_vertices[1];
             newTriangle->GetData().m_vertices[1] = trianglesToDuplicate[t]->GetData().m_vertices[0];
@@ -184,14 +210,15 @@ ICHullError ICHull::Process()
     }
     return ICHullErrorOK;
 }
-ICHullError ICHull::Process(const uint32_t nPointsCH,
-    const double minVolume)
+ICHullError ICHull::Process(const uint32_t nPointsCH, const double minVolume)
 {
     uint32_t addedPoints = 0;
-    if (nPointsCH < 3 || m_mesh.GetNVertices() < 3) {
+    if (nPointsCH < 3 || m_mesh.GetNVertices() < 3)
+    {
         return ICHullErrorNotEnoughPoints;
     }
-    if (m_mesh.GetNVertices() == 3) {
+    if (m_mesh.GetNVertices() == 3)
+    {
         m_isFlat = true;
         CircularListElement<TMMTriangle>* t1 = m_mesh.AddTriangle();
         CircularListElement<TMMTriangle>* t2 = m_mesh.AddTriangle();
@@ -213,7 +240,8 @@ ICHullError ICHull::Process(const uint32_t nPointsCH,
         return ICHullErrorOK;
     }
 
-    if (m_isFlat) {
+    if (m_isFlat)
+    {
         m_mesh.m_triangles.Clear();
         m_mesh.m_edges.Clear();
         m_isFlat = false;
@@ -222,28 +250,35 @@ ICHullError ICHull::Process(const uint32_t nPointsCH,
     if (m_mesh.GetNTriangles() == 0) // we have to create the first polyhedron
     {
         ICHullError res = DoubleTriangle();
-        if (res != ICHullErrorOK) {
+        if (res != ICHullErrorOK)
+        {
             return res;
         }
-        else {
+        else
+        {
             addedPoints += 3;
         }
     }
     CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
     while (!vertices.GetData().m_tag && addedPoints < nPointsCH) // not processed
     {
-        if (!FindMaxVolumePoint((addedPoints > 4) ? minVolume : 0.0)) {
+        if (!FindMaxVolumePoint((addedPoints > 4) ? minVolume : 0.0))
+        {
             break;
         }
         vertices.GetData().m_tag = true;
-        if (ProcessPoint()) {
+        if (ProcessPoint())
+        {
             addedPoints++;
             CleanUp(addedPoints);
-            if (!GetMesh().CheckConsistancy()) {
+            if (!GetMesh().CheckConsistancy())
+            {
                 size_t nV = m_mesh.GetNVertices();
                 CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
-                for (size_t v = 0; v < nV; ++v) {
-                    if (vertices.GetData().m_name == sc_dummyIndex) {
+                for (size_t v = 0; v < nV; ++v)
+                {
+                    if (vertices.GetData().m_name == sc_dummyIndex)
+                    {
                         vertices.Delete();
                         break;
                     }
@@ -255,45 +290,60 @@ ICHullError ICHull::Process(const uint32_t nPointsCH,
         }
     }
     // delete remaining points
-    while (!vertices.GetData().m_tag) {
+    while (!vertices.GetData().m_tag)
+    {
         vertices.Delete();
     }
-    if (m_isFlat) {
+    if (m_isFlat)
+    {
         SArray<CircularListElement<TMMTriangle>*> trianglesToDuplicate;
         size_t nT = m_mesh.GetNTriangles();
-        for (size_t f = 0; f < nT; f++) {
+        for (size_t f = 0; f < nT; f++)
+        {
             TMMTriangle& currentTriangle = m_mesh.m_triangles.GetHead()->GetData();
-            if (currentTriangle.m_vertices[0]->GetData().m_name == sc_dummyIndex || currentTriangle.m_vertices[1]->GetData().m_name == sc_dummyIndex || currentTriangle.m_vertices[2]->GetData().m_name == sc_dummyIndex) {
+            if (currentTriangle.m_vertices[0]->GetData().m_name == sc_dummyIndex ||
+                currentTriangle.m_vertices[1]->GetData().m_name == sc_dummyIndex ||
+                currentTriangle.m_vertices[2]->GetData().m_name == sc_dummyIndex)
+            {
                 m_trianglesToDelete.PushBack(m_mesh.m_triangles.GetHead());
-                for (int32_t k = 0; k < 3; k++) {
-                    for (int32_t h = 0; h < 2; h++) {
-                        if (currentTriangle.m_edges[k]->GetData().m_triangles[h] == m_mesh.m_triangles.GetHead()) {
+                for (int32_t k = 0; k < 3; k++)
+                {
+                    for (int32_t h = 0; h < 2; h++)
+                    {
+                        if (currentTriangle.m_edges[k]->GetData().m_triangles[h] == m_mesh.m_triangles.GetHead())
+                        {
                             currentTriangle.m_edges[k]->GetData().m_triangles[h] = 0;
                             break;
                         }
                     }
                 }
             }
-            else {
+            else
+            {
                 trianglesToDuplicate.PushBack(m_mesh.m_triangles.GetHead());
             }
             m_mesh.m_triangles.Next();
         }
         size_t nE = m_mesh.GetNEdges();
-        for (size_t e = 0; e < nE; e++) {
+        for (size_t e = 0; e < nE; e++)
+        {
             TMMEdge& currentEdge = m_mesh.m_edges.GetHead()->GetData();
-            if (currentEdge.m_triangles[0] == 0 && currentEdge.m_triangles[1] == 0) {
+            if (currentEdge.m_triangles[0] == 0 && currentEdge.m_triangles[1] == 0)
+            {
                 m_edgesToDelete.PushBack(m_mesh.m_edges.GetHead());
             }
             m_mesh.m_edges.Next();
         }
         size_t nV = m_mesh.GetNVertices();
         CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
-        for (size_t v = 0; v < nV; ++v) {
-            if (vertices.GetData().m_name == sc_dummyIndex) {
+        for (size_t v = 0; v < nV; ++v)
+        {
+            if (vertices.GetData().m_name == sc_dummyIndex)
+            {
                 vertices.Delete();
             }
-            else {
+            else
+            {
                 vertices.GetData().m_tag = false;
                 vertices.Next();
             }
@@ -301,7 +351,8 @@ ICHullError ICHull::Process(const uint32_t nPointsCH,
         CleanEdges();
         CleanTriangles();
         CircularListElement<TMMTriangle>* newTriangle;
-        for (size_t t = 0; t < trianglesToDuplicate.Size(); t++) {
+        for (size_t t = 0; t < trianglesToDuplicate.Size(); t++)
+        {
             newTriangle = m_mesh.AddTriangle();
             newTriangle->GetData().m_vertices[0] = trianglesToDuplicate[t]->GetData().m_vertices[1];
             newTriangle->GetData().m_vertices[1] = trianglesToDuplicate[t]->GetData().m_vertices[0];
@@ -320,8 +371,10 @@ bool ICHull::FindMaxVolumePoint(const double minVolume)
     double volume = 0.0;
     while (!vertices.GetData().m_tag) // not processed
     {
-        if (ComputePointVolume(volume, false)) {
-            if (maxVolume < volume) {
+        if (ComputePointVolume(volume, false))
+        {
+            if (maxVolume < volume)
+            {
                 maxVolume = volume;
                 vMaxVolume = vertices.GetHead();
             }
@@ -330,10 +383,12 @@ bool ICHull::FindMaxVolumePoint(const double minVolume)
     }
     CircularListElement<TMMVertex>* vHead = vHeadPrev->GetNext();
     vertices.GetHead() = vHead;
-    if (!vMaxVolume) {
+    if (!vMaxVolume)
+    {
         return false;
     }
-    if (vMaxVolume != vHead) {
+    if (vMaxVolume != vHead)
+    {
         Vec3<double> pos = vHead->GetData().m_pos;
         int32_t id = vHead->GetData().m_name;
         vHead->GetData().m_pos = vMaxVolume->GetData().m_pos;
@@ -349,10 +404,10 @@ ICHullError ICHull::DoubleTriangle()
     m_isFlat = false;
     CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
     CircularListElement<TMMVertex>* v0 = vertices.GetHead();
-    while (Colinear(v0->GetData().m_pos,
-        v0->GetNext()->GetData().m_pos,
-        v0->GetNext()->GetNext()->GetData().m_pos)) {
-        if ((v0 = v0->GetNext()) == vertices.GetHead()) {
+    while (Colinear(v0->GetData().m_pos, v0->GetNext()->GetData().m_pos, v0->GetNext()->GetNext()->GetData().m_pos))
+    {
+        if ((v0 = v0->GetNext()) == vertices.GetHead())
+        {
             return ICHullErrorCoplanarPoints;
         }
     }
@@ -370,15 +425,18 @@ ICHullError ICHull::DoubleTriangle()
     vertices.GetHead() = v3;
 
     double vol = ComputeVolume4(v0->GetData().m_pos, v1->GetData().m_pos, v2->GetData().m_pos, v3->GetData().m_pos);
-    while (fabs(vol) < sc_eps && !v3->GetNext()->GetData().m_tag) {
+    while (fabs(vol) < sc_eps && !v3->GetNext()->GetData().m_tag)
+    {
         v3 = v3->GetNext();
         vol = ComputeVolume4(v0->GetData().m_pos, v1->GetData().m_pos, v2->GetData().m_pos, v3->GetData().m_pos);
     }
-    if (fabs(vol) < sc_eps) {
+    if (fabs(vol) < sc_eps)
+    {
         // compute the barycenter
         Vec3<double> bary(0.0, 0.0, 0.0);
         CircularListElement<TMMVertex>* vBary = v0;
-        do {
+        do
+        {
             bary += vBary->GetData().m_pos;
         } while ((vBary = vBary->GetNext()) != v0);
         bary /= static_cast<double>(vertices.GetSize());
@@ -396,7 +454,8 @@ ICHullError ICHull::DoubleTriangle()
         m_isFlat = true;
         return ICHullErrorOK;
     }
-    else if (v3 != vertices.GetHead()) {
+    else if (v3 != vertices.GetHead())
+    {
         TMMVertex temp;
         temp.m_name = v3->GetData().m_name;
         temp.m_pos = v3->GetData().m_pos;
@@ -408,9 +467,9 @@ ICHullError ICHull::DoubleTriangle()
     return ICHullErrorOK;
 }
 CircularListElement<TMMTriangle>* ICHull::MakeFace(CircularListElement<TMMVertex>* v0,
-    CircularListElement<TMMVertex>* v1,
-    CircularListElement<TMMVertex>* v2,
-    CircularListElement<TMMTriangle>* fold)
+                                                   CircularListElement<TMMVertex>* v1,
+                                                   CircularListElement<TMMVertex>* v2,
+                                                   CircularListElement<TMMTriangle>* fold)
 {
     CircularListElement<TMMEdge>* e0;
     CircularListElement<TMMEdge>* e1;
@@ -451,8 +510,10 @@ CircularListElement<TMMTriangle>* ICHull::MakeConeFace(CircularListElement<TMMEd
 {
     // create two new edges if they don't already exist
     CircularListElement<TMMEdge>* newEdges[2];
-    for (int32_t i = 0; i < 2; ++i) {
-        if (!(newEdges[i] = e->GetData().m_vertices[i]->GetData().m_duplicate)) { // if the edge doesn't exits add it and mark the vertex as duplicated
+    for (int32_t i = 0; i < 2; ++i)
+    {
+        if (!(newEdges[i] = e->GetData().m_vertices[i]->GetData().m_duplicate))
+        { // if the edge doesn't exits add it and mark the vertex as duplicated
             newEdges[i] = m_mesh.AddEdge();
             newEdges[i]->GetData().m_vertices[0] = e->GetData().m_vertices[i];
             newEdges[i]->GetData().m_vertices[1] = p;
@@ -465,9 +526,12 @@ CircularListElement<TMMTriangle>* ICHull::MakeConeFace(CircularListElement<TMMEd
     newFace->GetData().m_edges[1] = newEdges[0];
     newFace->GetData().m_edges[2] = newEdges[1];
     MakeCCW(newFace, e, p);
-    for (int32_t i = 0; i < 2; ++i) {
-        for (int32_t j = 0; j < 2; ++j) {
-            if (!newEdges[i]->GetData().m_triangles[j]) {
+    for (int32_t i = 0; i < 2; ++i)
+    {
+        for (int32_t j = 0; j < 2; ++j)
+        {
+            if (!newEdges[i]->GetData().m_triangles[j])
+            {
                 newEdges[i]->GetData().m_triangles[j] = newFace;
                 break;
             }
@@ -483,13 +547,13 @@ bool ICHull::ComputePointVolume(double& totalVolume, bool markVisibleFaces)
     CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
     CircularListElement<TMMVertex>* vertex0 = vertices.GetHead();
     bool visible = false;
-    Vec3<double> pos0 = Vec3<double>(vertex0->GetData().m_pos.X(),
-        vertex0->GetData().m_pos.Y(),
-        vertex0->GetData().m_pos.Z());
+    Vec3<double> pos0 =
+        Vec3<double>(vertex0->GetData().m_pos.X(), vertex0->GetData().m_pos.Y(), vertex0->GetData().m_pos.Z());
     double vol = 0.0;
     totalVolume = 0.0;
     Vec3<double> ver0, ver1, ver2;
-    do {
+    do
+    {
         ver0.X() = f->GetData().m_vertices[0]->GetData().m_pos.X();
         ver0.Y() = f->GetData().m_vertices[0]->GetData().m_pos.Y();
         ver0.Z() = f->GetData().m_vertices[0]->GetData().m_pos.Z();
@@ -500,10 +564,12 @@ bool ICHull::ComputePointVolume(double& totalVolume, bool markVisibleFaces)
         ver2.Y() = f->GetData().m_vertices[2]->GetData().m_pos.Y();
         ver2.Z() = f->GetData().m_vertices[2]->GetData().m_pos.Z();
         vol = ComputeVolume4(ver0, ver1, ver2, pos0);
-        if (vol < -sc_eps) {
+        if (vol < -sc_eps)
+        {
             vol = fabs(vol);
             totalVolume += vol;
-            if (markVisibleFaces) {
+            if (markVisibleFaces)
+            {
                 f->GetData().m_visible = true;
                 m_trianglesToDelete.PushBack(f);
             }
@@ -512,14 +578,17 @@ bool ICHull::ComputePointVolume(double& totalVolume, bool markVisibleFaces)
         f = f->GetNext();
     } while (f != fHead);
 
-    if (m_trianglesToDelete.Size() == m_mesh.m_triangles.GetSize()) {
-        for (size_t i = 0; i < m_trianglesToDelete.Size(); i++) {
+    if (m_trianglesToDelete.Size() == m_mesh.m_triangles.GetSize())
+    {
+        for (size_t i = 0; i < m_trianglesToDelete.Size(); i++)
+        {
             m_trianglesToDelete[i]->GetData().m_visible = false;
         }
         visible = false;
     }
     // if no faces visible from p then p is inside the hull
-    if (!visible && markVisibleFaces) {
+    if (!visible && markVisibleFaces)
+    {
         vertices.Delete();
         m_trianglesToDelete.Resize(0);
         return false;
@@ -529,7 +598,8 @@ bool ICHull::ComputePointVolume(double& totalVolume, bool markVisibleFaces)
 bool ICHull::ProcessPoint()
 {
     double totalVolume = 0.0;
-    if (!ComputePointVolume(totalVolume, true)) {
+    if (!ComputePointVolume(totalVolume, true))
+    {
         return false;
     }
     // Mark edges in interior of visible region for deletion.
@@ -541,18 +611,23 @@ bool ICHull::ProcessPoint()
     int32_t nvisible = 0;
     m_edgesToDelete.Resize(0);
     m_edgesToUpdate.Resize(0);
-    do {
+    do
+    {
         tmp = e->GetNext();
         nvisible = 0;
-        for (int32_t k = 0; k < 2; k++) {
-            if (e->GetData().m_triangles[k]->GetData().m_visible) {
+        for (int32_t k = 0; k < 2; k++)
+        {
+            if (e->GetData().m_triangles[k]->GetData().m_visible)
+            {
                 nvisible++;
             }
         }
-        if (nvisible == 2) {
+        if (nvisible == 2)
+        {
             m_edgesToDelete.PushBack(e);
         }
-        else if (nvisible == 1) {
+        else if (nvisible == 1)
+        {
             e->GetData().m_newFace = MakeConeFace(e, v0);
             m_edgesToUpdate.PushBack(e);
         }
@@ -561,15 +636,17 @@ bool ICHull::ProcessPoint()
     return true;
 }
 bool ICHull::MakeCCW(CircularListElement<TMMTriangle>* f,
-    CircularListElement<TMMEdge>* e,
-    CircularListElement<TMMVertex>* v)
+                     CircularListElement<TMMEdge>* e,
+                     CircularListElement<TMMVertex>* v)
 {
     // the visible face adjacent to e
     CircularListElement<TMMTriangle>* fv;
-    if (e->GetData().m_triangles[0]->GetData().m_visible) {
+    if (e->GetData().m_triangles[0]->GetData().m_visible)
+    {
         fv = e->GetData().m_triangles[0];
     }
-    else {
+    else
+    {
         fv = e->GetData().m_triangles[1];
     }
 
@@ -580,11 +657,13 @@ bool ICHull::MakeCCW(CircularListElement<TMMTriangle>* f,
     for (i = 0; fv->GetData().m_vertices[i] != v0; i++)
         ;
 
-    if (fv->GetData().m_vertices[(i + 1) % 3] != e->GetData().m_vertices[1]) {
+    if (fv->GetData().m_vertices[(i + 1) % 3] != e->GetData().m_vertices[1])
+    {
         f->GetData().m_vertices[0] = v1;
         f->GetData().m_vertices[1] = v0;
     }
-    else {
+    else
+    {
         f->GetData().m_vertices[0] = v0;
         f->GetData().m_vertices[1] = v1;
         // swap edges
@@ -607,13 +686,17 @@ bool ICHull::CleanEdges()
     // integrate the new faces into the data structure
     CircularListElement<TMMEdge>* e;
     const size_t ne_update = m_edgesToUpdate.Size();
-    for (size_t i = 0; i < ne_update; ++i) {
+    for (size_t i = 0; i < ne_update; ++i)
+    {
         e = m_edgesToUpdate[i];
-        if (e->GetData().m_newFace) {
-            if (e->GetData().m_triangles[0]->GetData().m_visible) {
+        if (e->GetData().m_newFace)
+        {
+            if (e->GetData().m_triangles[0]->GetData().m_visible)
+            {
                 e->GetData().m_triangles[0] = e->GetData().m_newFace;
             }
-            else {
+            else
+            {
                 e->GetData().m_triangles[1] = e->GetData().m_newFace;
             }
             e->GetData().m_newFace = 0;
@@ -622,7 +705,8 @@ bool ICHull::CleanEdges()
     // delete edges maked for deletion
     CircularList<TMMEdge>& edges = m_mesh.GetEdges();
     const size_t ne_delete = m_edgesToDelete.Size();
-    for (size_t i = 0; i < ne_delete; ++i) {
+    for (size_t i = 0; i < ne_delete; ++i)
+    {
         edges.Delete(m_edgesToDelete[i]);
     }
     m_edgesToDelete.Resize(0);
@@ -633,7 +717,8 @@ bool ICHull::CleanTriangles()
 {
     CircularList<TMMTriangle>& triangles = m_mesh.GetTriangles();
     const size_t nt_delete = m_trianglesToDelete.Size();
-    for (size_t i = 0; i < nt_delete; ++i) {
+    for (size_t i = 0; i < nt_delete; ++i)
+    {
         triangles.Delete(m_trianglesToDelete[i]);
     }
     m_trianglesToDelete.Resize(0);
@@ -645,7 +730,8 @@ bool ICHull::CleanVertices(uint32_t& addedPoints)
     CircularList<TMMEdge>& edges = m_mesh.GetEdges();
     CircularListElement<TMMEdge>* e = edges.GetHead();
     size_t nE = edges.GetSize();
-    for (size_t i = 0; i < nE; i++) {
+    for (size_t i = 0; i < nE; i++)
+    {
         e->GetData().m_vertices[0]->GetData().m_onHull = true;
         e->GetData().m_vertices[1]->GetData().m_onHull = true;
         e = e->GetNext();
@@ -655,14 +741,17 @@ bool ICHull::CleanVertices(uint32_t& addedPoints)
     CircularListElement<TMMVertex>* vHead = vertices.GetHead();
     CircularListElement<TMMVertex>* v = vHead;
     v = v->GetPrev();
-    do {
-        if (v->GetData().m_tag && !v->GetData().m_onHull) {
+    do
+    {
+        if (v->GetData().m_tag && !v->GetData().m_onHull)
+        {
             CircularListElement<TMMVertex>* tmp = v->GetPrev();
             vertices.Delete(v);
             v = tmp;
             addedPoints--;
         }
-        else {
+        else
+        {
             v->GetData().m_duplicate = 0;
             v->GetData().m_onHull = false;
             v = v->GetPrev();
@@ -680,7 +769,8 @@ void ICHull::Clear()
 }
 const ICHull& ICHull::operator=(ICHull& rhs)
 {
-    if (&rhs != this) {
+    if (&rhs != this)
+    {
         m_mesh.Copy(rhs.m_mesh);
         m_edgesToDelete = rhs.m_edgesToDelete;
         m_edgesToUpdate = rhs.m_edgesToUpdate;
@@ -692,11 +782,13 @@ const ICHull& ICHull::operator=(ICHull& rhs)
 bool ICHull::IsInside(const Vec3<double>& pt0, const double eps)
 {
     const Vec3<double> pt(pt0.X(), pt0.Y(), pt0.Z());
-    if (m_isFlat) {
+    if (m_isFlat)
+    {
         size_t nT = m_mesh.m_triangles.GetSize();
         Vec3<double> ver0, ver1, ver2, a, b, c;
         double u, v;
-        for (size_t t = 0; t < nT; t++) {
+        for (size_t t = 0; t < nT; t++)
+        {
             ver0.X() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[0]->GetData().m_pos.X();
             ver0.Y() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[0]->GetData().m_pos.Y();
             ver0.Z() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[0]->GetData().m_pos.Z();
@@ -711,18 +803,21 @@ bool ICHull::IsInside(const Vec3<double>& pt0, const double eps)
             c = pt - ver0;
             u = c * a;
             v = c * b;
-            if (u >= 0.0 && u <= 1.0 && v >= 0.0 && u + v <= 1.0) {
+            if (u >= 0.0 && u <= 1.0 && v >= 0.0 && u + v <= 1.0)
+            {
                 return true;
             }
             m_mesh.m_triangles.Next();
         }
         return false;
     }
-    else {
+    else
+    {
         size_t nT = m_mesh.m_triangles.GetSize();
         Vec3<double> ver0, ver1, ver2;
         double vol;
-        for (size_t t = 0; t < nT; t++) {
+        for (size_t t = 0; t < nT; t++)
+        {
             ver0.X() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[0]->GetData().m_pos.X();
             ver0.Y() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[0]->GetData().m_pos.Y();
             ver0.Z() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[0]->GetData().m_pos.Z();
@@ -733,7 +828,8 @@ bool ICHull::IsInside(const Vec3<double>& pt0, const double eps)
             ver2.Y() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[2]->GetData().m_pos.Y();
             ver2.Z() = m_mesh.m_triangles.GetHead()->GetData().m_vertices[2]->GetData().m_pos.Z();
             vol = ComputeVolume4(ver0, ver1, ver2, pt);
-            if (vol < eps) {
+            if (vol < eps)
+            {
                 return false;
             }
             m_mesh.m_triangles.Next();
@@ -741,4 +837,4 @@ bool ICHull::IsInside(const Vec3<double>& pt0, const double eps)
         return true;
     }
 }
-}
+} // namespace VHACD

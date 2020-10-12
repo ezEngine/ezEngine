@@ -1,0 +1,132 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System",
+          "commitHash": "c10ff7c688fb50fe9157bad3982164e0f955f9e4"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/assimp/assimp",
+          "commitHash": "b2ea762b027c6975f8a1398cdda988803326b253"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/svaarala/duktape",
+          "commitHash": "6001888049cb42656f8649db020e804bcdeca6a7"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/lsalzman/enet",
+          "commitHash": "0eaf48eeb0d94a18d079378d8b76d588832ce838"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/ocornut/imgui",
+          "commitHash": "71d20abbc34342ef6e6fc8c2824b25fa16743858"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "other",
+        "Other": {
+          "Name": "Lua",
+          "Version": "5.3.5",
+          "DownloadUrl": "http://www.lua.org/ftp/lua-5.3.5.tar.gz"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "other",
+        "Other": {
+          "Name": "Mikktspace",
+          "Version": "1.0",
+          "DownloadUrl": "http://www.metalliandy.com/mikktspace/downloads/mikktspace/mikktspace.h"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/guillaumeblanc/ozz-animation",
+          "commitHash": "5ec6b509492eee2f799322b4b4cc3879f5735003"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/recastnavigation/recastnavigation",
+          "commitHash": "f14896eb207b593e66ccc5762918eda0b4237516"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/mikke89/RmlUi",
+          "commitHash": "a220824bfc65332568516eb25709ea3a22605b21"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/nothings/stb",
+          "commitHash": "f67165c2bb2af3060ecae7d20d6f731173485ad0"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/kmammou/v-hacd",
+          "commitHash": "ea527fd5ced8b740c1e6a34cf9306ddfaff845ed"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/madler/zlib",
+          "commitHash": "cacf7f1d4e3d44d871b605da3b647f07d718623f"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/facebook/zstd",
+          "commitHash": "10f0e6993f9d2f682da6d04aa2385b7d53cbb4ee"
+        }
+      }
+    }
+  ]
+}
