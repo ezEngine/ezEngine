@@ -11,7 +11,7 @@ ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_VHACD_SUPPORT)
 
-target_include_directories(${PROJECT_NAME} PRIVATE inc)
+target_include_directories(${PROJECT_NAME} PRIVATE inc public)
 
 if (EZ_COMPILE_ENGINE_AS_DLL)
 

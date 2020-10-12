@@ -1,0 +1,13 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/baldurk/renderdoc",
+                    "commitHash": "04ca50ba63904edd280e7bdc9595edd8bf0bd3bd"
+                }
+            }
+        }
+    ]
+}
