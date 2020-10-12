@@ -60,21 +60,20 @@ const char* ezPxShapeConvexComponent::GetMeshFile() const
   return m_hCollisionMesh.GetResourceID();
 }
 
-PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
+void ezPxShapeConvexComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& out_Shapes, physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform)
 {
   if (!m_hCollisionMesh.IsValid())
   {
     ezLog::Warning("ezPxShapeConvexComponent '{0}' has no collision mesh set.", GetOwner()->GetName());
-    return nullptr;
+    return;
   }
 
   ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-  if (!pMesh->GetConvexMesh())
+  if (pMesh->GetConvexParts().IsEmpty())
   {
-    ezLog::Warning("ezPxShapeConvexComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}' ('{2}')",
-      GetOwner()->GetName(), pMesh->GetResourceID(), pMesh->GetResourceDescription());
-    return nullptr;
+    ezLog::Warning("ezPxShapeConvexComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}' ('{2}')", GetOwner()->GetName(), pMesh->GetResourceID(), pMesh->GetResourceDescription());
+    return;
   }
 
   PxMaterial* pMaterial = nullptr;
@@ -101,13 +100,15 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
 
   PxMeshScale scale = ezPxConversionUtils::ToScale(GetOwner()->GetGlobalTransformSimd());
 
-  return PxRigidActorExt::createExclusiveShape(*pActor, PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), *pMaterial);
+  for (auto pShape : pMesh->GetConvexParts())
+  {
+    out_Shapes.PushBack(PxRigidActorExt::createExclusiveShape(*pActor, PxConvexMeshGeometry(pShape, scale), *pMaterial));
+  }
 }
 
 void ezPxShapeConvexComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh &&
-      msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
     return;
 
   if (m_hCollisionMesh.IsValid())

@@ -12,6 +12,9 @@ ez_create_target(LIBRARY ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Core
+
+  PRIVATE
+  vhacd
 )
 
 ez_link_target_physx_cooking(${PROJECT_NAME})

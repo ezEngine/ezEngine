@@ -91,7 +91,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
     ezPhysXCookingMesh xMesh;
 
-    if (!m_bIsConvexMesh || pProp->m_ConvexMeshType == ezConvexCollisionMeshType::ConvexHull)
+    if (!m_bIsConvexMesh || pProp->m_ConvexMeshType == ezConvexCollisionMeshType::ConvexHull || pProp->m_ConvexMeshType == ezConvexCollisionMeshType::ConvexDecomposition)
     {
       EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(xMesh));
     }
@@ -293,7 +293,21 @@ ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream
     surfaces.PushBack(slot.m_sResource);
   }
 
-  return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, pProp->m_bIsConvexMesh);
+  ezPhysXCooking::MeshType meshType = ezPhysXCooking::MeshType::Triangle;
+
+  if (pProp->m_bIsConvexMesh)
+  {
+    if (pProp->m_ConvexMeshType == ezConvexCollisionMeshType::ConvexDecomposition)
+    {
+      meshType = ezPhysXCooking::MeshType::ConvexDecomposition;
+    }
+    else
+    {
+      meshType = ezPhysXCooking::MeshType::ConvexHull;
+    }
+  }
+
+  return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, meshType, pProp->m_uiMaxConvexPieces);
 }
 
 ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)

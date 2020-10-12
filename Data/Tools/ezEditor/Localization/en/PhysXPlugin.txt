@@ -29,6 +29,7 @@ ezPxAxis::Y;Y
 ezPxAxis::Z;Z
 ezConvexCollisionMeshType::ConvexHull;Convex Hull
 ezConvexCollisionMeshType::Cylinder;Cylinder
+ezConvexCollisionMeshType::ConvexDecomposition;Convex Decomposition
 ezOnPhysXContact::SendReportMsg;Send Contact Reports
 ezOnPhysXContact::ImpactReactions;Impact Reactions
 ezOnPhysXContact::SlideReactions;Slide Reactions

@@ -132,28 +132,33 @@ const char* ezPxShapeComponent::GetSurfaceFile() const
 void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform& parentTransform)
 {
   PxTransform shapeTransform(PxIdentity);
-  PxShape* pShape = CreateShape(pActor, shapeTransform);
-  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX shape creation failed");
+
+  ezHybridArray<physx::PxShape*, 4> shapes;
+  CreateShapes(shapes, pActor, shapeTransform);
+  EZ_ASSERT_DEBUG(!shapes.IsEmpty(), "PhysX shape creation failed");
 
   const ezSimdTransform& ownerTransform = GetOwner()->GetGlobalTransformSimd();
 
   ezSimdTransform localTransform;
   localTransform.SetLocalTransform(parentTransform, ownerTransform);
 
-  PxTransform t = ezPxConversionUtils::ToTransform(localTransform);
-  pShape->setLocalPose(t * shapeTransform);
+  for (auto pShape : shapes)
+  {
+    PxTransform t = ezPxConversionUtils::ToTransform(localTransform);
+    pShape->setLocalPose(t * shapeTransform);
 
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-  m_uiShapeId = pModule->CreateShapeId();
+    ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+    m_uiShapeId = pModule->CreateShapeId();
 
-  PxFilterData filter = CreateFilterData();
-  pShape->setSimulationFilterData(filter);
-  pShape->setQueryFilterData(filter);
+    PxFilterData filter = CreateFilterData();
+    pShape->setSimulationFilterData(filter);
+    pShape->setQueryFilterData(filter);
 
-  ezPxUserData* pUserData = nullptr;
-  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
-  pUserData->Init(this);
-  pShape->userData = pUserData;
+    ezPxUserData* pUserData = nullptr;
+    m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+    pUserData->Init(this);
+    pShape->userData = pUserData;
+  }
 }
 
 void ezPxShapeComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const {}
