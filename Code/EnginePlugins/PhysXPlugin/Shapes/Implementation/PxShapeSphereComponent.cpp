@@ -67,11 +67,11 @@ void ezPxShapeSphereComponent::SetRadius(float f)
   }
 }
 
-PxShape* ezPxShapeSphereComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
+void ezPxShapeSphereComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& out_Shapes, physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform)
 {
   const float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
 
-  return PxRigidActorExt::createExclusiveShape(*pActor, PxSphereGeometry(m_fRadius * fScale), *GetPxMaterial());
+  out_Shapes.PushBack(PxRigidActorExt::createExclusiveShape(*pActor, PxSphereGeometry(m_fRadius * fScale), *GetPxMaterial()));
 }
 
 

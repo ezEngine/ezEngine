@@ -27,8 +27,8 @@ public:
   /// \brief Returns the triangle collision mesh. If the mesh is a convex mesh, this will be a nullptr.
   physx::PxTriangleMesh* GetTriangleMesh() const { return m_pPxTriangleMesh; }
 
-  /// \brief Returns the convex collision mesh. If the mesh is a triangle mesh, this will be a nullptr.
-  physx::PxConvexMesh* GetConvexMesh() const { return m_pPxConvexMesh; }
+  /// \brief Returns the convex collision meshes. Can contain more than one part, for convex decomposition meshes. If the mesh is a triangle mesh, this will be empty.
+  const ezArrayPtr<physx::PxConvexMesh* const> GetConvexParts() const { return m_PxConvexParts.GetArrayPtr(); }
 
   /// \brief Returns the bounds of the collision mesh
   const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
@@ -53,6 +53,6 @@ private:
 private:
   ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
   physx::PxTriangleMesh* m_pPxTriangleMesh = nullptr;
-  physx::PxConvexMesh* m_pPxConvexMesh = nullptr;
   ezBoundingBoxSphere m_Bounds;
+  ezHybridArray<physx::PxConvexMesh*, 1> m_PxConvexParts;
 };

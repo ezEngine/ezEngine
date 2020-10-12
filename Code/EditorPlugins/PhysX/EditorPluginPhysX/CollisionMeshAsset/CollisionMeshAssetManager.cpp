@@ -52,8 +52,7 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   if (ezStringUtils::IsEqual(szDocumentTypeName, "Collision Mesh (Convex)"))
   {
@@ -65,8 +64,7 @@ void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(
   }
 }
 
-void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(
-  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);

@@ -20,8 +20,6 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPxMeshResource);
 ezPxMeshResource::ezPxMeshResource()
   : ezResource(DoUpdate::OnMainThread, 1)
 {
-  m_pPxTriangleMesh = nullptr;
-  m_pPxConvexMesh = nullptr;
   m_Bounds = ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3::ZeroVector(), 0);
 
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezPxMeshResource);
@@ -30,7 +28,6 @@ ezPxMeshResource::ezPxMeshResource()
 ezPxMeshResource::~ezPxMeshResource()
 {
   EZ_ASSERT_DEBUG(m_pPxTriangleMesh == nullptr, "Collision mesh was not unloaded correctly");
-  EZ_ASSERT_DEBUG(m_pPxConvexMesh == nullptr, "Collision mesh was not unloaded correctly");
 }
 
 ezResourceLoadDesc ezPxMeshResource::UnloadData(Unload WhatToUnload)
@@ -42,12 +39,15 @@ ezResourceLoadDesc ezPxMeshResource::UnloadData(Unload WhatToUnload)
     m_pPxTriangleMesh = nullptr;
   }
 
-  if (m_pPxConvexMesh)
+  for (auto pMesh : m_PxConvexParts)
   {
-    // since it is ref-counted, it may still be in use by the SDK, but we don't bother about that here
-    m_pPxConvexMesh->release();
-    m_pPxConvexMesh = nullptr;
+    if (pMesh != nullptr)
+    {
+      pMesh->release();
+    }
   }
+  m_PxConvexParts.Clear();
+
 
   // we cannot compute this in UpdateMemoryUsage(), so we only read the data there, therefore we need to update this information here
   /// \todo Compute memory usage
@@ -176,13 +176,29 @@ ezResourceLoadDesc ezPxMeshResource::UpdateContent(ezStreamReader* Stream)
       {
         ezPxInputStream PassThroughStream(&chunk);
 
-        m_pPxConvexMesh = ezPhysX::GetSingleton()->GetPhysXAPI()->createConvexMesh(PassThroughStream);
+        m_PxConvexParts.Clear();
+        m_PxConvexParts.PushBack(ezPhysX::GetSingleton()->GetPhysXAPI()->createConvexMesh(PassThroughStream));
+      }
+
+      if (chunk.GetCurrentChunk().m_sChunkName == "ConvexDecompositionMesh")
+      {
+        ezUInt16 uiNumParts = 0;
+        chunk >> uiNumParts;
+
+        m_PxConvexParts.SetCount(uiNumParts);
+
+        for (ezUInt32 i = 0; i < uiNumParts; ++i)
+        {
+          ezPxInputStream PassThroughStream(&chunk);
+
+          m_PxConvexParts[i] = ezPhysX::GetSingleton()->GetPhysXAPI()->createConvexMesh(PassThroughStream);
+        }
       }
 
       chunk.NextChunk();
     }
 
-    if (m_pPxTriangleMesh == nullptr && m_pPxConvexMesh == nullptr)
+    if (m_pPxTriangleMesh == nullptr && m_PxConvexParts.IsEmpty())
     {
       ezLog::Error("Could neither find a 'TriangleMesh' chunk, nor a 'ConvexMesh' chunk in the PhysXMesh file '{0}'", GetResourceID());
     }
@@ -215,36 +231,37 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPxMeshResource, ezPxMeshResourceDescriptor)
 
 void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh &&
-      msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
     return;
 
-  if (GetConvexMesh() != nullptr)
+  if (!m_PxConvexParts.IsEmpty())
   {
-    const auto pConvex = GetConvexMesh();
-    const ezUInt32 uiFirstVertexIdx = msg.m_pWorldGeometry->m_Vertices.GetCount();
-
-    for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
+    for (auto pConvex : m_PxConvexParts)
     {
-      auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
-      vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pConvex->getVertices()[v]);
-    }
+      const ezUInt32 uiFirstVertexIdx = msg.m_pWorldGeometry->m_Vertices.GetCount();
 
-    const auto pIndices = pConvex->getIndexBuffer();
-
-    for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
-    {
-      physx::PxHullPolygon poly;
-      pConvex->getPolygonData(p, poly);
-
-      const auto pLocalIdx = &pIndices[poly.mIndexBase];
-
-      for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
+      for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
       {
-        auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
-        triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pLocalIdx[0];
-        triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pLocalIdx[tri - 1];
-        triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pLocalIdx[tri];
+        auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
+        vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pConvex->getVertices()[v]);
+      }
+
+      const auto pIndices = pConvex->getIndexBuffer();
+
+      for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
+      {
+        physx::PxHullPolygon poly;
+        pConvex->getPolygonData(p, poly);
+
+        const auto pLocalIdx = &pIndices[poly.mIndexBase];
+
+        for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
+        {
+          auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
+          triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pLocalIdx[0];
+          triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pLocalIdx[tri - 1];
+          triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pLocalIdx[tri];
+        }
       }
     }
   }
@@ -288,9 +305,16 @@ void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtrac
 
 ezUInt32 ezPxMeshResource::GetNumPolygons() const
 {
-  if (const auto pConvexMesh = GetConvexMesh())
+  if (!m_PxConvexParts.IsEmpty())
   {
-    return pConvexMesh->getNbPolygons();
+    ezUInt32 num = 0;
+
+    for (auto pShape : m_PxConvexParts)
+    {
+      num += pShape->getNbPolygons();
+    }
+
+    return num;
   }
   else if (const auto pTriangleMesh = GetTriangleMesh())
   {
@@ -302,9 +326,16 @@ ezUInt32 ezPxMeshResource::GetNumPolygons() const
 
 ezUInt32 ezPxMeshResource::GetNumVertices() const
 {
-  if (const auto pConvexMesh = GetConvexMesh())
+  if (!m_PxConvexParts.IsEmpty())
   {
-    return pConvexMesh->getNbVertices();
+    ezUInt32 num = 0;
+
+    for (auto pShape : m_PxConvexParts)
+    {
+      num += pShape->getNbVertices();
+    }
+
+    return num;
   }
   else if (const auto pTriangleMesh = GetTriangleMesh())
   {

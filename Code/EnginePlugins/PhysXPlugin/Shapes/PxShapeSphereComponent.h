@@ -20,8 +20,7 @@ public:
   // ezPxShapeComponent
 
 protected:
-  virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
-
+  virtual void CreateShapes(ezDynamicArray<physx::PxShape*>& out_Shapes, physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezPxShapeSphereComponent

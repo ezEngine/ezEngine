@@ -35,6 +35,7 @@ struct ezConvexCollisionMeshType
   {
     ConvexHull,
     Cylinder,
+    ConvexDecomposition,
 
     Default = ConvexHull
   };
@@ -62,6 +63,7 @@ public:
   bool m_bFlipForwardDir = false;
   bool m_bIsConvexMesh = false;
   ezEnum<ezConvexCollisionMeshType> m_ConvexMeshType;
+  ezUInt16 m_uiMaxConvexPieces = 2;
 
   // Cylinder
   float m_fRadius = 0.5f;

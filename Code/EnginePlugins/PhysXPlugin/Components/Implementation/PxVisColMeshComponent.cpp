@@ -134,47 +134,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
   ezMeshResourceDescriptor md;
   auto& buffer = md.MeshBufferDesc();
 
-  if (pMesh->GetConvexMesh() != nullptr)
-  {
-    auto pConvex = pMesh->GetConvexMesh();
-
-    ezUInt32 uiNumTriangles = 0;
-    for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
-    {
-      physx::PxHullPolygon poly;
-      pConvex->getPolygonData(p, poly);
-
-      uiNumTriangles += poly.mNbVerts - 2;
-    }
-
-    const auto pIndices = pConvex->getIndexBuffer();
-
-    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    buffer.AllocateStreams(pConvex->getNbVertices(), ezGALPrimitiveTopology::Triangles, uiNumTriangles);
-
-    for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
-    {
-      buffer.SetVertexData<PxVec3>(0, v, pConvex->getVertices()[v]);
-    }
-
-    uiNumTriangles = 0;
-    for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
-    {
-      physx::PxHullPolygon poly;
-      pConvex->getPolygonData(p, poly);
-
-      const auto pLocalIdx = &pIndices[poly.mIndexBase];
-
-      for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
-      {
-        buffer.SetTriangleIndices(uiNumTriangles, pLocalIdx[0], pLocalIdx[tri - 1], pLocalIdx[tri]);
-        ++uiNumTriangles;
-      }
-    }
-
-    md.AddSubMesh(uiNumTriangles, 0, 0);
-  }
-  else if (pMesh->GetTriangleMesh() != nullptr)
+  if (pMesh->GetTriangleMesh() != nullptr)
   {
     auto pTriMesh = pMesh->GetTriangleMesh();
 
@@ -206,6 +166,69 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
     }
 
     md.AddSubMesh(pTriMesh->getNbTriangles(), 0, 0);
+  }
+  else if (!pMesh->GetConvexParts().IsEmpty())
+  {
+    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+
+    ezUInt32 uiNumTriangles = 0;
+    ezUInt32 uiNumVertices = 0;
+
+    for (auto pConvex : pMesh->GetConvexParts())
+    {
+      if (pConvex == nullptr)
+        continue;
+
+      for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
+      {
+        physx::PxHullPolygon poly;
+        pConvex->getPolygonData(p, poly);
+
+        uiNumTriangles += poly.mNbVerts - 2;
+      }
+
+      uiNumVertices += pConvex->getNbVertices();
+    }
+
+    if (uiNumVertices == 0 || uiNumTriangles == 0)
+      return;
+
+    buffer.AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
+
+    ezUInt32 uiTrianglesOffset = 0;
+    uiNumTriangles = 0;
+    uiNumVertices = 0;
+
+    for (auto pConvex : pMesh->GetConvexParts())
+    {
+      if (pConvex == nullptr)
+        continue;
+
+      const auto pIndices = pConvex->getIndexBuffer();
+
+      for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
+      {
+        buffer.SetVertexData<PxVec3>(0, uiNumVertices + v, pConvex->getVertices()[v]);
+      }
+
+      for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
+      {
+        physx::PxHullPolygon poly;
+        pConvex->getPolygonData(p, poly);
+
+        const auto pLocalIdx = &pIndices[poly.mIndexBase];
+
+        for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
+        {
+          buffer.SetTriangleIndices(uiNumTriangles, uiNumVertices + pLocalIdx[0], uiNumVertices + pLocalIdx[tri - 1], uiNumVertices + pLocalIdx[tri]);
+          ++uiNumTriangles;
+        }
+      }
+
+      uiNumVertices += pConvex->getNbVertices();
+      md.AddSubMesh(uiNumTriangles, uiTrianglesOffset, 0);
+      uiTrianglesOffset = uiNumTriangles;
+    }
   }
   else
   {
@@ -310,8 +333,7 @@ void ezPxVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 
 void ezPxVisColMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if ((e.m_Type == ezResourceEvent::Type::ResourceContentUnloading || e.m_Type == ezResourceEvent::Type::ResourceContentUpdated) &&
-      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPxMeshResource>())
+  if ((e.m_Type == ezResourceEvent::Type::ResourceContentUnloading || e.m_Type == ezResourceEvent::Type::ResourceContentUpdated) && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPxMeshResource>())
   {
     EZ_LOCK(m_Mutex);
 

@@ -25,6 +25,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezConvexCollisionMeshType, 1)
   EZ_ENUM_CONSTANT(ezConvexCollisionMeshType::ConvexHull),
   EZ_ENUM_CONSTANT(ezConvexCollisionMeshType::Cylinder),
+  EZ_ENUM_CONSTANT(ezConvexCollisionMeshType::ConvexDecomposition),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezCollisionMeshAssetProperties>)
@@ -37,6 +38,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 2, ezRTTIDefault
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("IsConvexMesh", m_bIsConvexMesh)->AddAttributes(new ezHiddenAttribute()),
     EZ_ENUM_MEMBER_PROPERTY("ConvexMeshType", ezConvexCollisionMeshType, m_ConvexMeshType),
+    EZ_MEMBER_PROPERTY("MaxConvexPieces", m_uiMaxConvexPieces)->AddAttributes(new ezDefaultValueAttribute(2)),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
@@ -67,13 +69,12 @@ void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
   props["Height"].m_Visibility = ezPropertyUiState::Invisible;
   props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
   props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
-  props["SubmeshName"].m_Visibility = ezPropertyUiState::Invisible;
   props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Invisible;
+  props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
 
   if (!isConvex)
   {
     props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-    props["SubmeshName"].m_Visibility = ezPropertyUiState::Default;
   }
   else
   {
@@ -81,9 +82,12 @@ void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
 
     switch (meshType)
     {
+      case ezConvexCollisionMeshType::ConvexDecomposition:
+        props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Default;
+        [[fallthrough]];
+
       case ezConvexCollisionMeshType::ConvexHull:
         props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-        props["SubmeshName"].m_Visibility = ezPropertyUiState::Default;
         break;
 
       case ezConvexCollisionMeshType::Cylinder:

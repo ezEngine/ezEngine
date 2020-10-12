@@ -81,7 +81,7 @@ void ezPxShapeCapsuleComponent::SetHeight(float value)
   }
 }
 
-PxShape* ezPxShapeCapsuleComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
+void ezPxShapeCapsuleComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& out_Shapes, physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform)
 {
   const float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
 
@@ -91,7 +91,7 @@ PxShape* ezPxShapeCapsuleComponent::CreateShape(PxRigidActor* pActor, PxTransfor
   capsule.radius = m_fRadius * fScale;
   capsule.halfHeight = m_fHeight * 0.5f * fScale;
 
-  return PxRigidActorExt::createExclusiveShape(*pActor, capsule, *GetPxMaterial());
+  out_Shapes.PushBack(PxRigidActorExt::createExclusiveShape(*pActor, capsule, *GetPxMaterial()));
 }
 
 
