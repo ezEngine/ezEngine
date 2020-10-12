@@ -1436,7 +1436,7 @@ void AABBTreeImpl::BuildRecursive(uint32_t nodeIndex, uint32_t* faces, uint32_t 
     // if we've run out of nodes allocate some more
     if (nodeIndex >= m_nodes.size())
     {
-        uint32_t s = std::max(uint32_t(1.5f * m_nodes.size()), 512U);
+        uint32_t s = max(uint32_t(1.5f * m_nodes.size()), 512U);
 
         // cout << "Resizing tree, current size: " << m_nodes.size()*sizeof(Node) << " new size: " << s*sizeof(Node) <<
         // endl;
