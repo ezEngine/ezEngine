@@ -488,9 +488,13 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
     return Bounds(Max(a.lower, b.lower), Min(a.upper, b.upper));
 }
 
-#define X 0
-#define Y 1
-#define Z 2
+//////////////////////////////////////////////////////////////////////////
+// EZ FIX: Had to rename X, Y, Z to not produce compile errors on Linux
+//////////////////////////////////////////////////////////////////////////
+
+#define X_AXIS_INDEX 0
+#define Y_AXIS_INDEX 1
+#define Z_AXIS_INDEX 2
 
 #define CROSS(dest, v1, v2)                                                                                            \
     dest[0] = v1[1] * v2[2] - v1[2] * v2[1];                                                                           \
@@ -519,8 +523,8 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
 /*======================== X-tests ========================*/
 
 #define AXISTEST_X01(a, b, fa, fb)                                                                                     \
-    p0 = a * v0[Y] - b * v0[Z];                                                                                        \
-    p2 = a * v2[Y] - b * v2[Z];                                                                                        \
+    p0 = a * v0[Y_AXIS_INDEX] - b * v0[Z_AXIS_INDEX];                                                                                        \
+    p2 = a * v2[Y_AXIS_INDEX] - b * v2[Z_AXIS_INDEX];                                                                                        \
     if (p0 < p2)                                                                                                       \
     {                                                                                                                  \
         min = p0;                                                                                                      \
@@ -531,13 +535,13 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
         min = p2;                                                                                                      \
         max = p0;                                                                                                      \
     }                                                                                                                  \
-    rad = fa * boxhalfsize[Y] + fb * boxhalfsize[Z];                                                                   \
+    rad = fa * boxhalfsize[Y_AXIS_INDEX] + fb * boxhalfsize[Z_AXIS_INDEX];                                                                   \
     if (min > rad || max < -rad)                                                                                       \
         return 0;
 
 #define AXISTEST_X2(a, b, fa, fb)                                                                                      \
-    p0 = a * v0[Y] - b * v0[Z];                                                                                        \
-    p1 = a * v1[Y] - b * v1[Z];                                                                                        \
+    p0 = a * v0[Y_AXIS_INDEX] - b * v0[Z_AXIS_INDEX];                                                                                        \
+    p1 = a * v1[Y_AXIS_INDEX] - b * v1[Z_AXIS_INDEX];                                                                                        \
     if (p0 < p1)                                                                                                       \
     {                                                                                                                  \
         min = p0;                                                                                                      \
@@ -548,15 +552,15 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
         min = p1;                                                                                                      \
         max = p0;                                                                                                      \
     }                                                                                                                  \
-    rad = fa * boxhalfsize[Y] + fb * boxhalfsize[Z];                                                                   \
+    rad = fa * boxhalfsize[Y_AXIS_INDEX] + fb * boxhalfsize[Z_AXIS_INDEX];                                                                   \
     if (min > rad || max < -rad)                                                                                       \
         return 0;
 
 /*======================== Y-tests ========================*/
 
 #define AXISTEST_Y02(a, b, fa, fb)                                                                                     \
-    p0 = -a * v0[X] + b * v0[Z];                                                                                       \
-    p2 = -a * v2[X] + b * v2[Z];                                                                                       \
+    p0 = -a * v0[X_AXIS_INDEX] + b * v0[Z_AXIS_INDEX];                                                                                       \
+    p2 = -a * v2[X_AXIS_INDEX] + b * v2[Z_AXIS_INDEX];                                                                                       \
     if (p0 < p2)                                                                                                       \
     {                                                                                                                  \
         min = p0;                                                                                                      \
@@ -567,13 +571,13 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
         min = p2;                                                                                                      \
         max = p0;                                                                                                      \
     }                                                                                                                  \
-    rad = fa * boxhalfsize[X] + fb * boxhalfsize[Z];                                                                   \
+    rad = fa * boxhalfsize[X_AXIS_INDEX] + fb * boxhalfsize[Z_AXIS_INDEX];                                                                   \
     if (min > rad || max < -rad)                                                                                       \
         return 0;
 
 #define AXISTEST_Y1(a, b, fa, fb)                                                                                      \
-    p0 = -a * v0[X] + b * v0[Z];                                                                                       \
-    p1 = -a * v1[X] + b * v1[Z];                                                                                       \
+    p0 = -a * v0[X_AXIS_INDEX] + b * v0[Z_AXIS_INDEX];                                                                                       \
+    p1 = -a * v1[X_AXIS_INDEX] + b * v1[Z_AXIS_INDEX];                                                                                       \
     if (p0 < p1)                                                                                                       \
     {                                                                                                                  \
         min = p0;                                                                                                      \
@@ -584,7 +588,7 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
         min = p1;                                                                                                      \
         max = p0;                                                                                                      \
     }                                                                                                                  \
-    rad = fa * boxhalfsize[X] + fb * boxhalfsize[Z];                                                                   \
+    rad = fa * boxhalfsize[X_AXIS_INDEX] + fb * boxhalfsize[Z_AXIS_INDEX];                                                                   \
     if (min > rad || max < -rad)                                                                                       \
         return 0;
 
@@ -592,8 +596,8 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
 
 
 #define AXISTEST_Z12(a, b, fa, fb)                                                                                     \
-    p1 = a * v1[X] - b * v1[Y];                                                                                        \
-    p2 = a * v2[X] - b * v2[Y];                                                                                        \
+    p1 = a * v1[X_AXIS_INDEX] - b * v1[Y_AXIS_INDEX];                                                                                        \
+    p2 = a * v2[X_AXIS_INDEX] - b * v2[Y_AXIS_INDEX];                                                                                        \
     if (p2 < p1)                                                                                                       \
     {                                                                                                                  \
         min = p2;                                                                                                      \
@@ -604,13 +608,13 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
         min = p1;                                                                                                      \
         max = p2;                                                                                                      \
     }                                                                                                                  \
-    rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y];                                                                   \
+    rad = fa * boxhalfsize[X_AXIS_INDEX] + fb * boxhalfsize[Y_AXIS_INDEX];                                                                   \
     if (min > rad || max < -rad)                                                                                       \
         return 0;
 
 #define AXISTEST_Z0(a, b, fa, fb)                                                                                      \
-    p0 = a * v0[X] - b * v0[Y];                                                                                        \
-    p1 = a * v1[X] - b * v1[Y];                                                                                        \
+    p0 = a * v0[X_AXIS_INDEX] - b * v0[Y_AXIS_INDEX];                                                                                        \
+    p1 = a * v1[X_AXIS_INDEX] - b * v1[Y_AXIS_INDEX];                                                                                        \
     if (p0 < p1)                                                                                                       \
     {                                                                                                                  \
         min = p0;                                                                                                      \
@@ -621,7 +625,7 @@ inline Bounds Intersection(const Bounds& a, const Bounds& b)
         min = p1;                                                                                                      \
         max = p0;                                                                                                      \
     }                                                                                                                  \
-    rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y];                                                                   \
+    rad = fa * boxhalfsize[X_AXIS_INDEX] + fb * boxhalfsize[Y_AXIS_INDEX];                                                                   \
     if (min > rad || max < -rad)                                                                                       \
         return 0;
 
@@ -632,7 +636,7 @@ int planeBoxOverlap(double normal[3], double vert[3], double maxbox[3]) // -NJMP
 
     double vmin[3], vmax[3], v;
 
-    for (q = X; q <= Z; q++)
+    for (q = X_AXIS_INDEX; q <= Z_AXIS_INDEX; q++)
     {
         v = vert[q]; // -NJMP-
 
@@ -702,43 +706,43 @@ int triBoxOverlap(double boxcenter[3], double boxhalfsize[3], double triverts[3]
 
     /*  test the 9 tests first (this was faster) */
 
-    fex = fabs(e0[X]);
+    fex = fabs(e0[X_AXIS_INDEX]);
 
-    fey = fabs(e0[Y]);
+    fey = fabs(e0[Y_AXIS_INDEX]);
 
-    fez = fabs(e0[Z]);
+    fez = fabs(e0[Z_AXIS_INDEX]);
 
-    AXISTEST_X01(e0[Z], e0[Y], fez, fey);
+    AXISTEST_X01(e0[Z_AXIS_INDEX], e0[Y_AXIS_INDEX], fez, fey);
 
-    AXISTEST_Y02(e0[Z], e0[X], fez, fex);
+    AXISTEST_Y02(e0[Z_AXIS_INDEX], e0[X_AXIS_INDEX], fez, fex);
 
-    AXISTEST_Z12(e0[Y], e0[X], fey, fex);
-
-
-    fex = fabs(e1[X]);
-
-    fey = fabs(e1[Y]);
-
-    fez = fabs(e1[Z]);
-
-    AXISTEST_X01(e1[Z], e1[Y], fez, fey);
-
-    AXISTEST_Y02(e1[Z], e1[X], fez, fex);
-
-    AXISTEST_Z0(e1[Y], e1[X], fey, fex);
+    AXISTEST_Z12(e0[Y_AXIS_INDEX], e0[X_AXIS_INDEX], fey, fex);
 
 
-    fex = fabs(e2[X]);
+    fex = fabs(e1[X_AXIS_INDEX]);
 
-    fey = fabs(e2[Y]);
+    fey = fabs(e1[Y_AXIS_INDEX]);
 
-    fez = fabs(e2[Z]);
+    fez = fabs(e1[Z_AXIS_INDEX]);
 
-    AXISTEST_X2(e2[Z], e2[Y], fez, fey);
+    AXISTEST_X01(e1[Z_AXIS_INDEX], e1[Y_AXIS_INDEX], fez, fey);
 
-    AXISTEST_Y1(e2[Z], e2[X], fez, fex);
+    AXISTEST_Y02(e1[Z_AXIS_INDEX], e1[X_AXIS_INDEX], fez, fex);
 
-    AXISTEST_Z12(e2[Y], e2[X], fey, fex);
+    AXISTEST_Z0(e1[Y_AXIS_INDEX], e1[X_AXIS_INDEX], fey, fex);
+
+
+    fex = fabs(e2[X_AXIS_INDEX]);
+
+    fey = fabs(e2[Y_AXIS_INDEX]);
+
+    fez = fabs(e2[Z_AXIS_INDEX]);
+
+    AXISTEST_X2(e2[Z_AXIS_INDEX], e2[Y_AXIS_INDEX], fez, fey);
+
+    AXISTEST_Y1(e2[Z_AXIS_INDEX], e2[X_AXIS_INDEX], fez, fex);
+
+    AXISTEST_Z12(e2[Y_AXIS_INDEX], e2[X_AXIS_INDEX], fey, fex);
 
 
     /* Bullet 1: */
@@ -754,25 +758,25 @@ int triBoxOverlap(double boxcenter[3], double boxhalfsize[3], double triverts[3]
 
     /* test in X-direction */
 
-    FINDMINMAX(v0[X], v1[X], v2[X], min, max);
+    FINDMINMAX(v0[X_AXIS_INDEX], v1[X_AXIS_INDEX], v2[X_AXIS_INDEX], min, max);
 
-    if (min > boxhalfsize[X] || max < -boxhalfsize[X])
+    if (min > boxhalfsize[X_AXIS_INDEX] || max < -boxhalfsize[X_AXIS_INDEX])
         return 0;
 
 
     /* test in Y-direction */
 
-    FINDMINMAX(v0[Y], v1[Y], v2[Y], min, max);
+    FINDMINMAX(v0[Y_AXIS_INDEX], v1[Y_AXIS_INDEX], v2[Y_AXIS_INDEX], min, max);
 
-    if (min > boxhalfsize[Y] || max < -boxhalfsize[Y])
+    if (min > boxhalfsize[Y_AXIS_INDEX] || max < -boxhalfsize[Y_AXIS_INDEX])
         return 0;
 
 
     /* test in Z-direction */
 
-    FINDMINMAX(v0[Z], v1[Z], v2[Z], min, max);
+    FINDMINMAX(v0[Z_AXIS_INDEX], v1[Z_AXIS_INDEX], v2[Z_AXIS_INDEX], min, max);
 
-    if (min > boxhalfsize[Z] || max < -boxhalfsize[Z])
+    if (min > boxhalfsize[Z_AXIS_INDEX] || max < -boxhalfsize[Z_AXIS_INDEX])
         return 0;
 
 
