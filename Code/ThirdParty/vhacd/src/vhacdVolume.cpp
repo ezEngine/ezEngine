@@ -1172,11 +1172,11 @@ void raycastFill(Volume* volume, RaycastMesh* raycastMesh)
 
                     if (outsideCount == 0 && insideCount >= 3)
                     {
-                        volume->SetVoxel(i, j, k, VHACD::PRIMITIVE_INSIDE_SURFACE);
+                        volume->SetVoxel(i, j, k, PRIMITIVE_INSIDE_SURFACE);
                     }
                     else
                     {
-                        volume->SetVoxel(i, j, k, VHACD::PRIMITIVE_OUTSIDE_SURFACE);
+                        volume->SetVoxel(i, j, k, PRIMITIVE_OUTSIDE_SURFACE);
                     }
                 }
             }
