@@ -34,9 +34,7 @@ void ezMathExpression::Reset(const char* szExpressionString)
     return;
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezMakeArrayPtr<ezUInt8>(const_cast<ezUInt8*>(reinterpret_cast<const ezUInt8*>(m_OriginalExpression.GetData())),
-                       m_OriginalExpression.GetElementCount()),
-    m_pLog);
+  tokenizer.Tokenize(ezMakeArrayPtr<ezUInt8>(const_cast<ezUInt8*>(reinterpret_cast<const ezUInt8*>(m_OriginalExpression.GetData())), m_OriginalExpression.GetElementCount()), m_pLog);
 
   ezUInt32 readTokens = 0;
   TokenStream tokenStream;
@@ -127,8 +125,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       // Push Constant.
       case InstructionType::PushConstant:
       {
-        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 1,
-          "ezMathExpression::InstructionType::PushConstant should always be followed by another integer in the instruction stream.");
+        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 1, "ezMathExpression::InstructionType::PushConstant should always be followed by another integer in the instruction stream.");
 
         ++instructionIdx;
         ezUInt32 constantIndex = m_InstructionStream[instructionIdx];
@@ -139,8 +136,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       // Push Variable.
       case InstructionType::PushVariable:
       {
-        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 2,
-          "ezMathExpression::InstructionType::PushVariable should always be followed by two more integers in the instruction stream.");
+        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 2, "ezMathExpression::InstructionType::PushVariable should always be followed by two more integers in the instruction stream.");
 
         ezUInt32 variableSubstringStart = m_InstructionStream[instructionIdx + 1];
         ezUInt32 variableSubstringEnd = m_InstructionStream[instructionIdx + 2];
@@ -310,13 +306,11 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
     {
       if (uiCurToken >= tokens.GetCount())
       {
-        ezLog::Error(
-          m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
+        ezLog::Error(m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
         return EZ_FAILURE;
       }
 
-      ezLog::Error(
-        m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
+      ezLog::Error(m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
       return EZ_FAILURE;
     }
     else
@@ -325,13 +319,11 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
   if (uiCurToken >= tokens.GetCount())
   {
-    ezLog::Error(m_pLog, "Syntax error, unexpected end of expression after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView,
-      tokens.PeekBack()->m_uiColumn);
+    ezLog::Error(m_pLog, "Syntax error, unexpected end of expression after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
     return EZ_FAILURE;
   }
 
-  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView,
-    tokens[uiCurToken]->m_uiColumn);
+  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
   return EZ_FAILURE;
 }
 
