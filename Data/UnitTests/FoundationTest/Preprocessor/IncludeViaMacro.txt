@@ -1,0 +1,9 @@
+#define INCLUDE_MACRO(file) <Includes/file.txt>
+#define INCLUDE_NAME <Includes/Fine.txt>
+
+#include <Includes/Fine.txt>
+===
+#include INCLUDE_MACRO(Fine)
+===
+#include INCLUDE_NAME
+===

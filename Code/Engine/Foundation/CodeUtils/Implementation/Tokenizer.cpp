@@ -21,8 +21,7 @@ namespace
 {
   // This allocator is used to get rid of some of the memory allocation tracking
   // that would otherwise occur for allocations made by the tokenizer.
-  thread_local ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> s_ClassAllocator(
-    "ezTokenizer", ezFoundation::GetDefaultAllocator());
+  thread_local ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> s_ClassAllocator("ezTokenizer", ezFoundation::GetDefaultAllocator());
 } // namespace
 
 
@@ -550,8 +549,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
         // for now we ignore this and assume there is a 'whitespace' between such identifiers
 
         // we could maybe at least output a warning, if we detect it
-        if (uiFirstToken > 0 && m_Tokens[uiFirstToken - 1].m_iType == ezTokenType::Identifier && uiFirstToken + 2 < uiMaxTokens &&
-            m_Tokens[uiFirstToken + 2].m_iType == ezTokenType::Identifier)
+        if (uiFirstToken > 0 && m_Tokens[uiFirstToken - 1].m_iType == ezTokenType::Identifier && uiFirstToken + 2 < uiMaxTokens && m_Tokens[uiFirstToken + 2].m_iType == ezTokenType::Identifier)
         {
           ezStringBuilder s1 = m_Tokens[uiFirstToken - 1].m_DataView;
           ezStringBuilder s2 = m_Tokens[uiFirstToken + 2].m_DataView;

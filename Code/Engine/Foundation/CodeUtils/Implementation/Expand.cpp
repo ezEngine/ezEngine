@@ -329,8 +329,7 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
       Output.PushBack(Tokens[i]);
     }
 
-    if (!bTokenIsHash && (Tokens[i]->m_iType != ezTokenType::BlockComment) && (Tokens[i]->m_iType != ezTokenType::LineComment) &&
-        (Tokens[i]->m_iType != ezTokenType::Whitespace))
+    if (!bTokenIsHash && (Tokens[i]->m_iType != ezTokenType::BlockComment) && (Tokens[i]->m_iType != ezTokenType::LineComment) && (Tokens[i]->m_iType != ezTokenType::Whitespace))
       iConsecutiveHashes = 0;
   }
 
@@ -401,8 +400,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
     return;
   }
 
-  if (pFirst == nullptr || pSecond == nullptr || (pFirst->m_iType != ezTokenType::Identifier && pFirst->m_iType != ezTokenType::Integer) ||
-      (pSecond->m_iType != ezTokenType::Identifier && pSecond->m_iType != ezTokenType::Integer))
+  if (pFirst == nullptr || pSecond == nullptr || (pFirst->m_iType != ezTokenType::Identifier && pFirst->m_iType != ezTokenType::Integer) || (pSecond->m_iType != ezTokenType::Identifier && pSecond->m_iType != ezTokenType::Integer))
   {
     if (pFirst != nullptr)
       Output.PushBack(pFirst);
@@ -432,8 +430,7 @@ ezResult ezPreprocessor::ConcatenateParameters(const TokenStream& Tokens, TokenS
     ezUInt32 uiConcatToken = uiCurToken;
 
     // do this extra check for whitespace here, because 'Accept' would just skip it, but we want the whitespace in our output
-    if (Tokens[uiCurToken]->m_iType != ezTokenType::Whitespace && Tokens[uiCurToken]->m_iType != ezTokenType::Newline &&
-        Accept(Tokens, uiCurToken, "#", "#", &uiConcatToken))
+    if (Tokens[uiCurToken]->m_iType != ezTokenType::Whitespace && Tokens[uiCurToken]->m_iType != ezTokenType::Newline && Accept(Tokens, uiCurToken, "#", "#", &uiConcatToken))
     {
       // we have already removed all single hashes during the stringification, so here we will only encounter double hashes
       // (and quadruple, etc.)
@@ -506,8 +503,7 @@ ezResult ezPreprocessor::InsertParameters(const TokenStream& Tokens, TokenStream
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ExpandFunctionMacro(
-  MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output, const ezToken* pMacroToken)
+ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output, const ezToken* pMacroToken)
 {
   // when the macro is already being expanded, just pass the macro name through, but flag it as not to be expanded further
   if (Macro.m_bCurrentlyExpanding)

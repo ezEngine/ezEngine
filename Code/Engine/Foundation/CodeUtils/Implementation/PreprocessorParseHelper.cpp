@@ -34,8 +34,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
     return EZ_SUCCESS;
 
   const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 1, uiCurToken);
-  PP_LOG(Error, "Expected token of type '{0}' got type '{1}' instead", Tokens[uiErrorToken], ezTokenType::EnumNames[Type],
-    ezTokenType::EnumNames[Tokens[uiErrorToken]->m_iType]);
+  PP_LOG(Error, "Expected token of type '{0}' got type '{1}' instead", Tokens[uiErrorToken], ezTokenType::EnumNames[Type], ezTokenType::EnumNames[Tokens[uiErrorToken]->m_iType]);
 
   return EZ_FAILURE;
 }
@@ -59,7 +58,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
   return EZ_FAILURE;
 }
 
-ezResult ezPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& uiCurToken)
+ezResult ezPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, ezUInt32 uiCurToken)
 {
   if (!IsEndOfLine(Tokens, uiCurToken, true))
   {

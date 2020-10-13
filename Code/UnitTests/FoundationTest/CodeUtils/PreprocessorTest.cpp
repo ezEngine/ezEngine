@@ -8,8 +8,7 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
 
-ezResult FileLocator(
-  const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
@@ -96,8 +95,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS,
-    "Failed to mount data dir '%s'", sWriteDir.GetData());
+  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
 
   ezTokenizedFileCache SharedCache;
 
@@ -149,8 +147,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   {
     struct PPTestSettings
     {
-      PPTestSettings(
-        const char* szFileName, bool bPassThroughLines = false, bool bPassThroughPragmas = false, bool bPassThroughUnknownCommands = false)
+      PPTestSettings(const char* szFileName, bool bPassThroughLines = false, bool bPassThroughPragmas = false, bool bPassThroughUnknownCommands = false)
         : m_szFileName(szFileName)
         , m_bPassThroughLines(bPassThroughLines)
         , m_bPassThroughPragmas(bPassThroughPragmas)
@@ -165,7 +162,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     };
 
     PPTestSettings TestSettings[] = {
-      //PPTestSettings("IncludeMacro"),
+      PPTestSettings("IncludeViaMacro"),
       PPTestSettings("PragmaOnce"),
       PPTestSettings("LinePragmaPassThrough", true, true),
       PPTestSettings("Undef"),
@@ -229,8 +226,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void(const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ");
         pp.AddCustomDefine("PP_FUNC(a) a");
-        pp.SetPassThroughUnknownCmdsCB(
-          [](const char* s) -> bool { return ezStringUtils::IsEqual(s, "version"); }); // TestSettings[i].m_bPassThroughUnknownCommands);
+        pp.SetPassThroughUnknownCmdsCB([](const char* s) -> bool { return ezStringUtils::IsEqual(s, "version"); }); // TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
           fileName.Format("Preprocessor/{0}.txt", TestSettings[i].m_szFileName);

@@ -18,11 +18,9 @@ bool ezPreprocessor::RemoveDefine(const char* szName)
 }
 
 
-ezResult ezPreprocessor::StoreDefine(
-  const ezToken* pMacroNameToken, const TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs)
+ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs)
 {
-  if ((pMacroNameToken->m_DataView.IsEqual("defined")) || (pMacroNameToken->m_DataView.IsEqual("__FILE__")) ||
-      (pMacroNameToken->m_DataView.IsEqual("__LINE__")))
+  if ((pMacroNameToken->m_DataView.IsEqual("defined")) || (pMacroNameToken->m_DataView.IsEqual("__FILE__")) || (pMacroNameToken->m_DataView.IsEqual("__LINE__")))
   {
     PP_LOG(Error, "Macro name '{0}' is reserved", pMacroNameToken, pMacroNameToken->m_DataView);
     return EZ_FAILURE;
@@ -111,8 +109,7 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
     {
       if (uiCurToken >= Tokens.GetCount())
       {
-        PP_LOG(
-          Error, "Could not extract macro parameter {0}, reached end of token stream first", Tokens[Tokens.GetCount() - 1], parameters.GetCount());
+        PP_LOG(Error, "Could not extract macro parameter {0}, reached end of token stream first", Tokens[Tokens.GetCount() - 1], parameters.GetCount());
         return EZ_FAILURE;
       }
 
