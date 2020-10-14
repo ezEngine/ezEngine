@@ -38,9 +38,12 @@ public:
 
   static ezResult CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
   static ezResult CookConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
-  static ezResult CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces);
   static ezResult ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhysXCookingMesh& outMesh);
   static ezStatus WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, MeshType meshType, ezUInt32 uiMaxConvexPieces = 1);
+
+#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
+  static ezResult CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces);
+#endif
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXCooking);

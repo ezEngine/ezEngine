@@ -367,6 +367,7 @@ ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, cons
   {
     if (meshType == MeshType::ConvexDecomposition)
     {
+#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
       stream.BeginChunk("ConvexDecompositionMesh", 1);
 
       ezStopwatch timer;
@@ -374,8 +375,13 @@ ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, cons
       ezLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
       stream.EndChunk();
+#else
+      meshType = MeshType::ConvexHull;
+      ezLog::SeriousWarning("Convex decomposition support is not available. Computing convex hull instead.");
+#endif
     }
-    else
+
+    if (meshType == MeshType::ConvexHull)
     {
       stream.BeginChunk("ConvexMesh", 1);
 
@@ -394,6 +400,7 @@ ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, cons
   return ezStatus(EZ_SUCCESS);
 }
 
+#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
 ezResult ezPhysXCooking::CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces)
 {
   EZ_LOG_BLOCK("Decomposing Mesh");
@@ -487,5 +494,7 @@ ezResult ezPhysXCooking::CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh
 
   return EZ_SUCCESS;
 }
+
+#endif
 
 EZ_STATICLINK_FILE(PhysXCooking, PhysXCooking_PhysXCooking);

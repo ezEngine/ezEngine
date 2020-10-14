@@ -10,11 +10,20 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 ez_create_target(LIBRARY ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
+
   PUBLIC
   Core
 
-  PRIVATE
-  vhacd
 )
+
+if (EZ_3RDPARTY_VHACD_SUPPORT)
+
+  target_link_libraries(${PROJECT_NAME}
+
+    PRIVATE
+    vhacd
+  )
+
+endif()
 
 ez_link_target_physx_cooking(${PROJECT_NAME})
