@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 EZ_IMPLEMENT_SINGLETON(ezApplicationServices);
 
@@ -36,11 +37,13 @@ ezString ezApplicationServices::GetApplicationUserDataFolder() const
 
 ezString ezApplicationServices::GetApplicationDataFolder() const
 {
-  ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("../../../Data/Tools", m_sApplicationName);
-  sAppDir.MakeCleanPath();
+  ezStringBuilder sAppDir(">sdk/Data/Tools/", m_sApplicationName);
 
-  return sAppDir;
+  ezStringBuilder result;
+  ezFileSystem::ResolveSpecialDirectory(sAppDir, result);
+  result.MakeCleanPath();
+
+  return result;
 }
 
 ezString ezApplicationServices::GetApplicationPreferencesFolder() const

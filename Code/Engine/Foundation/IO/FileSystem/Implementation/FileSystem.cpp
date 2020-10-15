@@ -702,16 +702,36 @@ ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const
   result = szStartDirectory;
   result.MakeCleanPath();
 
-  ezStringBuilder FullPath;
+  ezStringBuilder FullPath, sRedirection;
 
   while (!result.IsEmpty())
   {
     FullPath = sStartDirAbs;
+    FullPath.AppendPath("ezSdkRoot.txt");
+
+    ezOSFile f;
+    if (f.Open(FullPath, ezFileOpenMode::Read).Succeeded())
+    {
+      ezDataBuffer db;
+      f.ReadAll(db);
+      db.PushBack('\0');
+      sRedirection.Set((const char*)db.GetData());
+    }
+    else
+    {
+      sRedirection.Clear();
+    }
+
+    FullPath = sStartDirAbs;
+    FullPath.AppendPath(sRedirection);
     FullPath.AppendPath(szSubPath);
     FullPath.MakeCleanPath();
 
     if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
+    {
+      result.AppendPath(sRedirection);
       return EZ_SUCCESS;
+    }
 
     result.PathParentDirectory();
     sStartDirAbs.PathParentDirectory();
@@ -779,8 +799,7 @@ ezResult ezFileSystem::DetectSdkRootDirectory(const char* szExpectedSubFolder /*
 #else
   if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), szExpectedSubFolder, sdkRoot).Failed())
   {
-    ezLog::Error(
-      "Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
+    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
     return EZ_FAILURE;
   }
 #endif
