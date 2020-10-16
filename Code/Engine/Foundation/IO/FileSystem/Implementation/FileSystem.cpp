@@ -676,8 +676,7 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
   return EZ_SUCCESS;
 }
 
-
-ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath, ezStringBuilder& result)
+ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& result, const char* szStartDirectory, const char* szSubPath, const char* szRedirectionFileName /*= nullptr*/)
 {
   ezStringBuilder sStartDirAbs = szStartDirectory;
   sStartDirAbs.MakeCleanPath();
@@ -698,7 +697,6 @@ ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const
     sStartDirAbs = abs;
   }
 
-
   result = szStartDirectory;
   result.MakeCleanPath();
 
@@ -706,30 +704,46 @@ ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const
 
   while (!result.IsEmpty())
   {
-    FullPath = sStartDirAbs;
-    FullPath.AppendPath("ezSdkRoot.txt");
+    sRedirection.Clear();
 
-    ezOSFile f;
-    if (f.Open(FullPath, ezFileOpenMode::Read).Succeeded())
+    if (!ezStringUtils::IsNullOrEmpty(szRedirectionFileName))
     {
-      ezDataBuffer db;
-      f.ReadAll(db);
-      db.PushBack('\0');
-      sRedirection.Set((const char*)db.GetData());
-    }
-    else
-    {
-      sRedirection.Clear();
+      FullPath = sStartDirAbs;
+      FullPath.AppendPath(szRedirectionFileName);
+
+      ezOSFile f;
+      if (f.Open(FullPath, ezFileOpenMode::Read).Succeeded())
+      {
+        ezDataBuffer db;
+        f.ReadAll(db);
+        db.PushBack('\0');
+        sRedirection.Set((const char*)db.GetData());
+      }
     }
 
+    // first try with the redirection
+    if (!sRedirection.IsEmpty())
+    {
+      FullPath = sStartDirAbs;
+      FullPath.AppendPath(sRedirection);
+      FullPath.AppendPath(szSubPath);
+      FullPath.MakeCleanPath();
+
+      if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
+      {
+        result.AppendPath(sRedirection);
+        result.MakeCleanPath();
+        return EZ_SUCCESS;
+      }
+    }
+
+    // then try without the redirection
     FullPath = sStartDirAbs;
-    FullPath.AppendPath(sRedirection);
     FullPath.AppendPath(szSubPath);
     FullPath.MakeCleanPath();
 
     if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
     {
-      result.AppendPath(sRedirection);
       return EZ_SUCCESS;
     }
 
@@ -797,9 +811,9 @@ ezResult ezFileSystem::DetectSdkRootDirectory(const char* szExpectedSubFolder /*
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
   sdkRoot = ezOSFile::GetApplicationDirectory();
 #else
-  if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), szExpectedSubFolder, sdkRoot).Failed())
+  if (ezFileSystem::FindFolderWithSubPath(sdkRoot, ezOSFile::GetApplicationDirectory(), szExpectedSubFolder, "ezSdkRoot.txt").Failed())
   {
-    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
+    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with '{1}' sub-folder.", ezOSFile::GetApplicationDirectory(), szExpectedSubFolder);
     return EZ_FAILURE;
   }
 #endif

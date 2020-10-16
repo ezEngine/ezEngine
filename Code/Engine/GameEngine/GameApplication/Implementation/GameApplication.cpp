@@ -98,7 +98,7 @@ ezString ezGameApplication::FindProjectDirectory() const
   }
 
   ezStringBuilder result;
-  if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), m_sAppProjectPath, result).Failed())
+  if (ezFileSystem::FindFolderWithSubPath(result, ezOSFile::GetApplicationDirectory(), m_sAppProjectPath).Failed())
   {
     ezLog::Error("Could not find the project directory.");
   }

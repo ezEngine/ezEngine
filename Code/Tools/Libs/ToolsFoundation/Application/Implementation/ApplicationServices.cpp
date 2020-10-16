@@ -1,10 +1,10 @@
 #include <ToolsFoundationPCH.h>
 
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 
 EZ_IMPLEMENT_SINGLETON(ezApplicationServices);
 
