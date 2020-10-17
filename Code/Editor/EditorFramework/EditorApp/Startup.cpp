@@ -213,6 +213,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   {
     EZ_PROFILE_SCOPE("Filesystem");
+    ezFileSystem::DetectSdkRootDirectory();
+
     const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
     ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
     if (!ezStringUtils::IsNullOrEmpty(szUserDataFolder))

@@ -310,7 +310,7 @@ Only concrete and clocks.\n\
       StartPath.Set(sOutputFolder1Resolved, "/SubSub", "/Irrelevant");
       SubPath.Set("DoesNotExist");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Failed());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Failed());
     }
 
     {
@@ -318,7 +318,7 @@ Only concrete and clocks.\n\
       SubPath.Set("SubFolder2");
       expected.Set(sOutputFolderResolved, "/IO/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -327,7 +327,7 @@ Only concrete and clocks.\n\
       SubPath.Set("IO/SubFolder2");
       expected.Set(sOutputFolderResolved, "/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -336,7 +336,7 @@ Only concrete and clocks.\n\
       SubPath.Set("IO/SubFolder2");
       expected.Set(sOutputFolderResolved, "/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -345,7 +345,7 @@ Only concrete and clocks.\n\
       SubPath.Set("SubFolder2/FileSystemTest2.txt");
       expected.Set(sOutputFolderResolved, "/IO/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -354,7 +354,7 @@ Only concrete and clocks.\n\
       SubPath.Set("IO/SubFolder2");
       expected.Set(":toplevel/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
