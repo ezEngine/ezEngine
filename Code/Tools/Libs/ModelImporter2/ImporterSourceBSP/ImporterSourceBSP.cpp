@@ -1,12 +1,7 @@
 #include <ModelImporterPCH.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <ModelImporter/Importers/SourceBSPImporter.h>
-#include <ModelImporter/Material.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/Node.h>
-#include <ModelImporter/Scene.h>
-#include <ModelImporter/VertexData.h>
+#include <ModelImporter2/ImporterSourceBSP/ImporterSourceBSP.h>
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Logging/Log.h>
@@ -76,7 +71,7 @@ namespace SourceBSP
     LUMP_LEAFMINDISTTOWATER = 46,
     LUMP_FACE_MACRO_TEXTURE_INFO = 47,
     LUMP_DISP_TRIS = 48,
-    LUMP_PHYSCOLLIDESURFACE = 49, // deprecated.  We no longer use win32-specific havok compression on terrain
+    LUMP_PHYSCOLLIDESURFACE = 49, // deprecated.  We no longer use win32-specific Havok compression on terrain
     LUMP_WATEROVERLAYS = 50,
     LUMP_LEAF_AMBIENT_INDEX_HDR = 51, // index of LUMP_LEAF_AMBIENT_LIGHTING_HDR
     LUMP_LEAF_AMBIENT_INDEX = 52,     // index of LUMP_LEAF_AMBIENT_LIGHTING
@@ -284,55 +279,54 @@ namespace SourceBSP
   {
     File(ezArrayPtr<ezUInt8> memory);
 
-    Header_t* header;
+    Header_t* header = nullptr;
 
-    Vertex_t* vertices;
-    ezUInt32 numVertices;
+    Vertex_t* vertices = nullptr;
+    ezUInt32 numVertices = 0;
 
-    Plane_t* planes;
-    ezUInt32 numPlanes;
+    Plane_t* planes = nullptr;
+    ezUInt32 numPlanes = 0;
 
-    Edge_t* edges;
-    ezUInt32 numEdges;
+    Edge_t* edges = nullptr;
+    ezUInt32 numEdges = 0;
 
-    Face_t* faces;
-    ezUInt32 numFaces;
+    Face_t* faces = nullptr;
+    ezUInt32 numFaces = 0;
 
-    TexInfo_t* texInfos;
-    ezUInt32 numTexInfos;
+    TexInfo_t* texInfos = nullptr;
+    ezUInt32 numTexInfos = 0;
 
-    TexData_t* texDatas;
-    ezUInt32 numTexDatas;
+    TexData_t* texDatas = nullptr;
+    ezUInt32 numTexDatas = 0;
 
-    Brush_t* brushes;
-    ezUInt32 numBrushes;
+    Brush_t* brushes = nullptr;
+    ezUInt32 numBrushes = 0;
 
-    BrushSide_t* brushSides;
-    ezUInt32 numBrushSides;
+    BrushSide_t* brushSides = nullptr;
+    ezUInt32 numBrushSides = 0;
 
-    ezInt32* surfEdges;
-    ezUInt32 numSurfEdges;
+    ezInt32* surfEdges = nullptr;
+    ezUInt32 numSurfEdges = 0;
 
 
-    char* texDataStrings;
-    ezInt32* texDataStringOffsets;
-    ezUInt32 numTexDataStringOffsets;
+    char* texDataStrings = nullptr;
+    ezInt32* texDataStringOffsets = nullptr;
+    ezUInt32 numTexDataStringOffsets = 0;
 
-    char* entityData;
+    char* entityData = nullptr;
 
-    DispInfo_t* dispInfos;
-    ezUInt32 numDispInfos;
+    DispInfo_t* dispInfos = nullptr;
+    ezUInt32 numDispInfos = 0;
 
-    DispVertex_t* dispVertices;
-    ezUInt32 numDispVertices;
+    DispVertex_t* dispVertices = nullptr;
+    ezUInt32 numDispVertices = 0;
 
     const char* getTexDataString(ezUInt32 index) const;
 
-    bool m_valid;
+    bool m_valid = false;
   };
 
   File::File(ezArrayPtr<ezUInt8> fileContent)
-    : m_valid(false)
   {
     if (fileContent.GetCount() < static_cast<ezUInt32>(sizeof(Header_t)))
     {
@@ -428,6 +422,8 @@ namespace SourceBSP
 
   // 1 meter equals 64 units in Source (default player height is 96 units)
   constexpr float bspToMetricScale = 1.0f / 64.0f;
+
+#if 0
 
   ezResult ConvertBSPGeometryToMesh(SourceBSP::File& bspFile, ezModelImporter::Mesh* pMesh, ezModelImporter::Scene* pScene)
   {
@@ -709,18 +705,23 @@ namespace SourceBSP
 
     return EZ_SUCCESS;
   }
+
+#endif
 } // namespace SourceBSP
 
 
-namespace ezModelImporter
+namespace ezModelImporter2
 {
-  SourceBSPImporter::SourceBSPImporter() { m_supportedFileFormats.PushBack("bsp"); }
+  ImporterSourceBSP::ImporterSourceBSP() = default;
+  ImporterSourceBSP::~ImporterSourceBSP() = default;
 
-  ezArrayPtr<const ezString> SourceBSPImporter::GetSupportedFileFormats() const { return ezMakeArrayPtr(m_supportedFileFormats); }
-
-
-  ezSharedPtr<Scene> SourceBSPImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
+  ezResult ImporterSourceBSP::DoImport()
   {
+    const char* szFileName = m_Options.m_sSourceFile;
+
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return EZ_FAILURE;
+
     ezDynamicArray<ezUInt8> fileContent;
     fileContent.Reserve(1024 * 1024);
 
@@ -730,13 +731,13 @@ namespace ezModelImporter
 
       if (fileReader.Open(szFileName, 1024 * 1024).Failed())
       {
-        ezLog::Error("Couldn't open %s for BSP import.", szFileName);
-        return nullptr;
+        ezLog::Error("Couldn't open '{}' for BSP import.", szFileName);
+        return EZ_FAILURE;
       }
 
-      ezUInt8 Temp[16384];
+      ezUInt8 Temp[1024 * 4];
 
-      while (ezUInt64 uiRead = fileReader.ReadBytes(Temp, 16384))
+      while (ezUInt64 uiRead = fileReader.ReadBytes(Temp, EZ_ARRAY_SIZE(Temp)))
       {
         fileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
       }
@@ -746,10 +747,13 @@ namespace ezModelImporter
 
     if (!bspFile.m_valid)
     {
-      ezLog::Error("BSP header not valid for bsp file %s.", szFileName);
-      return nullptr;
+      ezLog::Error("BSP header not valid for file '{}'.", szFileName);
+      return EZ_FAILURE;
     }
 
+
+    // TODO: adapt BSP import code to new model importer
+#if 0
 
     // Import the complete BSP geometry as a single mesh
     ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
@@ -762,11 +766,11 @@ namespace ezModelImporter
 
     if (SourceBSP::ConvertBSPGeometryToMesh(bspFile, mesh.Borrow(), outScene.Borrow()).Failed())
     {
-      ezLog::Error("Couldn't convert BSP geometry to mesh for %s.", szFileName);
+      ezLog::Error("Couldn't convert BSP geometry to mesh for file '{}'.", szFileName);
       return nullptr;
     }
 
-    // Merge sub meshes with the same materials as the BSP splits would otherwise create enourmously
+    // Merge sub meshes with the same materials as the BSP splits would otherwise create enormously
     // many draw calls.
     mesh->MergeSubMeshesWithSameMaterials();
 
@@ -775,5 +779,8 @@ namespace ezModelImporter
     outScene->AddMesh(std::move(mesh));
 
     return outScene;
+#endif
+
+    return EZ_SUCCESS;
   }
-} // namespace ezModelImporter
+} // namespace ezModelImporter2
