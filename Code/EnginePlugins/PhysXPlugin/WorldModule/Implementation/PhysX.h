@@ -1,13 +1,13 @@
 #pragma once
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <PhysXPlugin/PhysXInterface.h>
-
 #include <GameEngine/Physics/CollisionFilter.h>
 #include <GameEngine/Physics/SurfaceResource.h>
+#include <PhysXPlugin/PhysXInterface.h>
+
 #include <PxPhysicsAPI.h>
 using namespace physx;
 
@@ -72,8 +72,7 @@ public:
 
   // helper functions
 
-  static PxFilterData CreateFilterData(
-    ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezOnPhysXContact> flags = ezOnPhysXContact::None);
+  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezOnPhysXContact> flags = ezOnPhysXContact::None);
 
 private:
   void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);

@@ -1,13 +1,15 @@
 #include <GameEngineTestPCH.h>
 
-#include "TypeScriptTest.h"
-#include <Core/Messages/CommonMessages.h>
-#include <Core/Messages/EventMessage.h>
-#include <Core/Scripting/DuktapeFunction.h>
-#include <Core/Scripting/DuktapeHelper.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
+#ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
+
+#  include "TypeScriptTest.h"
+#  include <Core/Messages/CommonMessages.h>
+#  include <Core/Messages/EventMessage.h>
+#  include <Core/Scripting/DuktapeFunction.h>
+#  include <Core/Scripting/DuktapeHelper.h>
+#  include <Core/WorldSerializer/WorldReader.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
+#  include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
 static ezGameEngineTestTypeScript s_GameEngineTestTypeScript;
 
@@ -111,3 +113,5 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(const char
 
   return ezTestAppRun::Quit;
 }
+
+#endif

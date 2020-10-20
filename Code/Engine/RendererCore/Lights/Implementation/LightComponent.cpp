@@ -1,10 +1,10 @@
 #include <RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/LightComponent.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
@@ -211,10 +211,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
-  {
-    pNode->RenameProperty("Light Color", "LightColor");
-  }
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Light Color", "LightColor"); }
 };
 
 ezLightComponentPatch_1_2 g_ezLightComponentPatch_1_2;

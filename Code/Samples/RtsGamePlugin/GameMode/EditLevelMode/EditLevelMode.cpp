@@ -1,6 +1,6 @@
 #include <RtsGamePluginPCH.h>
 
-#include <RendererCore/Messages/SetColorMessage.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
@@ -97,10 +97,8 @@ void RtsEditLevelMode::SetupEditUI()
     pElement->SetInnerRML(s.GetData());
   }
 
-  pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged",
-    [this](Rml::Core::Event& e) { m_uiTeam = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
-  pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged",
-    [this](Rml::Core::Event& e) { m_iShipType = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
+  pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Core::Event& e) { m_uiTeam = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
+  pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged", [this](Rml::Core::Event& e) { m_iShipType = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
 
   m_hEditUIComponent = pUiComponent->GetHandle();
 }
@@ -137,8 +135,7 @@ void RtsEditLevelMode::DisplayEditUI()
 
     ImGui::SetNextWindowPos(ImVec2((float)resolution.width - ww - 10, 10));
     ImGui::SetNextWindowSize(ImVec2(ww, 150));
-    ImGui::Begin(
-      "Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin("Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
     int iTeam = m_uiTeam;
     if (ImGui::Combo("Team", &iTeam, "Red\0Green\0Blue\0Yellow\0\0", 4))
@@ -184,8 +181,7 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     ezGameObject* pSpawned = nullptr;
 
-    pSpawned =
-      m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[m_iShipType], m_uiTeam);
+    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[m_iShipType], m_uiTeam);
 
     ezMsgSetColor msg;
     msg.m_Color = RtsGameMode::GetTeamColor(m_uiTeam);

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/System/Window.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <System/Window/Window.h>
 
 class ezActor;
 

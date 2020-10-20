@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/GameApplication/WindowOutputTargetBase.h>
+#include <Core/GameApplication/WindowOutputTargetBase.h>
 #include <GameEngine/GameEngineDLL.h>
 
 #include <RendererFoundation/RendererFoundationDLL.h>

@@ -1,26 +1,26 @@
 
 #include <GameEnginePCH.h>
 
-#include <ActorSystem/ActorPluginWindow.h>
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/ActorPluginWindow.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/System/Screen.h>
 #include <GameApplication/WindowOutputTarget.h>
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/Configuration/XRConfig.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <System/Screen/Screen.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator)
@@ -68,16 +68,6 @@ void ezGameState::ScheduleRendering()
 void ezGameState::CreateActors()
 {
   EZ_LOG_BLOCK("CreateActors");
-
-  // TODO: MR support
-  //#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  //  if (m_bMixedRealityMode)
-  //  {
-  //    m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc(), [this]() { RequestQuit(); });
-  //    GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
-  //    return;
-  //  }
-  //#endif
 
   // Init XR
   const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
@@ -157,8 +147,7 @@ void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU
   }
   else
   {
-    const auto* pConfig =
-      ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
+    const auto* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline);
     ezView* pView = CreateMainView(renderPipeline);
 

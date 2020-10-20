@@ -1,5 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
+#include <Core/Configuration/PlatformProfile.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -9,7 +10,6 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
 
 
 const ezPlatformProfile* ezAssetCurator::GetDevelopmentAssetProfile() const

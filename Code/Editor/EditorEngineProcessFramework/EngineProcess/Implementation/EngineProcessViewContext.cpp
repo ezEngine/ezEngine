@@ -1,5 +1,8 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -7,9 +10,6 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
-#include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Components/CameraComponent.h>

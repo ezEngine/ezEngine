@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 class ezSceneDocumentManager : public ezAssetDocumentManager
@@ -15,8 +15,7 @@ public:
   static ezSceneDocumentManager* s_pSingleton;
 
 private:
-  virtual void InternalCreateDocument(
-    const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }

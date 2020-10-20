@@ -1,6 +1,6 @@
 #include <ProcGenPluginPCH.h>
 
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PreparePlacementTask.h>
 #include <ProcGenPlugin/Tasks/Utils.h>

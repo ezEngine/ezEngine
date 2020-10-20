@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Core/System/Window.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_WindowCfgDlg.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <QDialog>
-#include <System/Window/Window.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtWindowCfgDlg : public QDialog, public Ui_ezQtWindowCfgDlg
 {

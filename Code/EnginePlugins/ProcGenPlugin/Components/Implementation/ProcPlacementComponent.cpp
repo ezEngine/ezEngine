@@ -1,11 +1,11 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
 #include <ProcGenPlugin/Components/ProcPlacementComponent.h>
 #include <ProcGenPlugin/Tasks/FindPlacementTilesTask.h>
@@ -236,8 +236,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
             continue;
 
           processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
-          processingTask.m_PlacementTaskGroupID =
-            ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
+          processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
         }
       }
     }
@@ -477,15 +476,13 @@ void ezProcPlacementComponentManager::OnResourceEvent(const ezResourceEvent& res
   }
 }
 
-void ezProcPlacementComponentManager::AddVisibleComponent(
-  const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const
+void ezProcPlacementComponentManager::AddVisibleComponent(const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const
 {
   EZ_LOCK(m_VisibleComponentsMutex);
 
   for (auto& visibleComponent : m_VisibleComponents)
   {
-    if (visibleComponent.m_hComponent == hComponent && visibleComponent.m_vCameraPosition == cameraPosition &&
-        visibleComponent.m_vCameraDirection == cameraDirection)
+    if (visibleComponent.m_hComponent == hComponent && visibleComponent.m_vCameraPosition == cameraPosition && visibleComponent.m_vCameraDirection == cameraDirection)
     {
       return;
     }

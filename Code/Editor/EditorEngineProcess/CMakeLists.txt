@@ -14,7 +14,6 @@ ez_link_target_dx11(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererDX11
-  GameEngine
   EditorEngineProcessFramework
 )
 

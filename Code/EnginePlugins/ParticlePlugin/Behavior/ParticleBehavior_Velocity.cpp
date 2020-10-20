@@ -1,12 +1,12 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/WindWorldModule.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <GameEngine/Interfaces/WindWorldModule.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Velocity.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
@@ -46,13 +46,11 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
   pBehavior->m_fWindInfluence = m_fWindInfluence;
 
 
-  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(
-    ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 
   if (m_fWindInfluence > 0)
   {
-    pBehavior->m_pWindModule = (ezWindWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(
-      ezGetStaticRTTI<ezWindWorldModuleInterface>());
+    pBehavior->m_pWindModule = (ezWindWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezWindWorldModuleInterface>());
   }
 }
 

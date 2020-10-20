@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_foundation()
+ez_build_filter_runtime()
 
 ez_requires(EZ_3RDPARTY_VHACD_SUPPORT)
 

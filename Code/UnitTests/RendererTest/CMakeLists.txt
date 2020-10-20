@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_everything()
+ez_build_filter_renderer()
 ez_requires_d3d()
 
 # Get the name of this folder as the project name
@@ -13,7 +13,6 @@ target_link_libraries(${PROJECT_NAME}
   TestFramework
   RendererCore
   RendererDX11
-  System
 )
 
 ez_link_target_dx11(${PROJECT_NAME})

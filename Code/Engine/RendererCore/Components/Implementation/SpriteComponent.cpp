@@ -1,9 +1,9 @@
 #include <RendererCorePCH.h>
 
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/SpriteComponent.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Textures/Texture2DResource.h>
@@ -246,10 +246,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
-  {
-    pNode->RenameProperty("Max Screen Size", "MaxScreenSize");
-  }
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Max Screen Size", "MaxScreenSize"); }
 };
 
 ezSpriteComponentPatch_1_2 g_ezSpriteComponentPatch_1_2;

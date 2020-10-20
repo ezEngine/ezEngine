@@ -1,8 +1,8 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/Console/ConsoleFunction.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/Console/ConsoleFunction.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>

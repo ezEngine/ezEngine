@@ -1,11 +1,11 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Core/Messages/SetColorMessage.h>
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <Core/World/World.h>
 #include <Foundation/SimdMath/SimdConversion.h>
-#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 
 using namespace ezProcGenInternal;
 

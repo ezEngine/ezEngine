@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Core/Graphics/Geometry.h>
+#include <Core/System/Window.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererFoundation/Device/Device.h>
-#include <System/Window/Window.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 
 class ezImage;
@@ -48,8 +48,7 @@ protected:
   ezMeshBufferResourceHandle CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius);
   ezMeshBufferResourceHandle CreateBox(float fWidth, float fHeight, float fDepth);
   ezMeshBufferResourceHandle CreateLineBox(float fWidth, float fHeight, float fDepth);
-  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color,
-    ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
+  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
 
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;

@@ -4,7 +4,7 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Utilities/Stats.h>
 
-#include <GameEngine/GameApplication/GameApplicationBase.h>
+#include <Core/GameApplication/GameApplicationBase.h>
 
 namespace MemoryDetail
 {

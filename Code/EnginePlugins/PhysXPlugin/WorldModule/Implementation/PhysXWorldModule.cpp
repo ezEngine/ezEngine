@@ -4,10 +4,10 @@
 #include <Components/PxTriggerComponent.h>
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <Joints/PxJointComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxSettingsComponent.h>

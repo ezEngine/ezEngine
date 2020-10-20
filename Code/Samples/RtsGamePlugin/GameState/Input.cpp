@@ -1,7 +1,7 @@
 #include <RtsGamePluginPCH.h>
 
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
 void RtsGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
@@ -85,10 +85,8 @@ void RtsGameState::UpdateMousePosition()
     m_MouseInputState.m_bRightMouseMoved = false;
   }
 
-  m_MouseInputState.m_bLeftMouseMoved =
-    m_MouseInputState.m_bLeftMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
-  m_MouseInputState.m_bRightMouseMoved =
-    m_MouseInputState.m_bRightMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
+  m_MouseInputState.m_bLeftMouseMoved = m_MouseInputState.m_bLeftMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
+  m_MouseInputState.m_bRightMouseMoved = m_MouseInputState.m_bRightMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
 
   ComputePickingRay();
 }

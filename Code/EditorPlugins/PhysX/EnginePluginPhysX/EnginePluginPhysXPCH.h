@@ -10,6 +10,7 @@
 
 
 #include <Core/Graphics/Geometry.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/Component.h>
 #include <Core/World/GameObject.h>
@@ -18,5 +19,4 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>

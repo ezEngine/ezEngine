@@ -1,12 +1,12 @@
 #include <GameEnginePCH.h>
 
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Curves/Curve1DResource.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <GameEngine/Animation/PropertyAnimComponent.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
-#include <GameEngine/Curves/Curve1DResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -20,8 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
       EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
       EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)
-        ->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
+      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
     } EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
@@ -192,8 +191,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
   }
 }
 
-void ezPropertyAnimComponent::CreateGameObjectBinding(
-  const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezGameObjectHandle& hGameObject)
+void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezGameObjectHandle& hGameObject)
 {
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::RotationZ)
     return;
@@ -267,8 +265,7 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(
   }
 }
 
-void ezPropertyAnimComponent::CreateFloatPropertyBinding(
-  const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
+void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
 {
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
     return;
@@ -285,10 +282,8 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(
 
   if (pAnim->m_Target == ezPropertyAnimTarget::Number)
   {
-    if (pPropRtti != ezGetStaticRTTI<float>() && pPropRtti != ezGetStaticRTTI<double>() && pPropRtti != ezGetStaticRTTI<bool>() &&
-        pPropRtti != ezGetStaticRTTI<ezInt64>() && pPropRtti != ezGetStaticRTTI<ezInt32>() && pPropRtti != ezGetStaticRTTI<ezInt16>() &&
-        pPropRtti != ezGetStaticRTTI<ezInt8>() && pPropRtti != ezGetStaticRTTI<ezUInt64>() && pPropRtti != ezGetStaticRTTI<ezUInt32>() &&
-        pPropRtti != ezGetStaticRTTI<ezUInt16>() && pPropRtti != ezGetStaticRTTI<ezUInt8>() && pPropRtti != ezGetStaticRTTI<ezAngle>() &&
+    if (pPropRtti != ezGetStaticRTTI<float>() && pPropRtti != ezGetStaticRTTI<double>() && pPropRtti != ezGetStaticRTTI<bool>() && pPropRtti != ezGetStaticRTTI<ezInt64>() && pPropRtti != ezGetStaticRTTI<ezInt32>() && pPropRtti != ezGetStaticRTTI<ezInt16>() &&
+        pPropRtti != ezGetStaticRTTI<ezInt8>() && pPropRtti != ezGetStaticRTTI<ezUInt64>() && pPropRtti != ezGetStaticRTTI<ezUInt32>() && pPropRtti != ezGetStaticRTTI<ezUInt16>() && pPropRtti != ezGetStaticRTTI<ezUInt8>() && pPropRtti != ezGetStaticRTTI<ezAngle>() &&
         pPropRtti != ezGetStaticRTTI<ezTime>())
       return;
   }
@@ -343,8 +338,7 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(
   }
 }
 
-void ezPropertyAnimComponent::CreateColorPropertyBinding(
-  const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
+void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
 {
   if (pAnim->m_Target != ezPropertyAnimTarget::Color)
     return;
@@ -592,8 +586,7 @@ void ezPropertyAnimComponent::StartPlayback()
   if (!m_RandomOffset.IsZero() && m_AnimDesc->m_AnimationDuration.IsPositive())
   {
     // should the random offset also be scaled by the speed factor? I guess not
-    m_AnimationTime +=
-      ezMath::Abs(m_fSpeed) * ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
+    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
 
     const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 

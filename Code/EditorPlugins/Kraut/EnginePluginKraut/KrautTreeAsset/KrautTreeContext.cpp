@@ -12,8 +12,8 @@
 #include <GameEngine/Animation/SliderComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Gameplay/InputComponent.h>
+#include <GameEngine/Gameplay/SpawnComponent.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Components/SkyBoxComponent.h>

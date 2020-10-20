@@ -1,11 +1,11 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <Module/ParticleModule.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>

@@ -1,7 +1,9 @@
 #include <RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -9,8 +11,6 @@
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalResource.h>
-#include <RendererCore/Messages/ApplyOnlyToMessage.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
@@ -466,9 +466,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   ezShaderUtils::Float4ToRGBA16F(normalAtlasScaleOffset, pRenderData->m_uiNormalAtlasScale, pRenderData->m_uiNormalAtlasOffset);
   ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);
 
-  ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
-                                          ? ezRenderData::Caching::Never
-                                          : ezRenderData::Caching::IfStatic;
+  ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, caching);
 }
 
@@ -540,8 +538,7 @@ void ezDecalComponent::OnSimulationStarted()
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
-    const ezTime tFadeOutDelay =
-      ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
+    const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
     m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
 
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)

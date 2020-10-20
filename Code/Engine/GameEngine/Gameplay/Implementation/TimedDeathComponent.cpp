@@ -1,12 +1,12 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
@@ -84,8 +84,7 @@ void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
-    pPrefab->InstantiatePrefab(
-      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

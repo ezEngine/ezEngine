@@ -1,10 +1,10 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
-#include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Pipeline/View.h>

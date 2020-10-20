@@ -2,9 +2,9 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/System/Window.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <System/Window/Window.h>
 
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;

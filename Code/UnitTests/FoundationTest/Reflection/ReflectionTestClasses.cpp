@@ -343,8 +343,7 @@ bool ezTestMaps::operator==(const ezTestMaps& rhs) const
     if (!bRes)
       return false;
   }
-  return m_MapMember == rhs.m_MapMember && m_MapAccessor == rhs.m_MapAccessor && m_HashTableMember == rhs.m_HashTableMember &&
-         m_HashTableAccessor == rhs.m_HashTableAccessor;
+  return m_MapMember == rhs.m_MapMember && m_MapAccessor == rhs.m_MapAccessor && m_HashTableMember == rhs.m_HashTableMember && m_HashTableAccessor == rhs.m_HashTableAccessor;
 }
 
 const ezMap<ezString, ezInt64>& ezTestMaps::GetContainer() const
@@ -380,8 +379,7 @@ void ezTestMaps::Remove2(const char* szKey)
 
 const ezRangeView<const char*, ezUInt32> ezTestMaps::GetKeys3() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Accessor3.GetCount(); },
-    [this](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Accessor3[it].m_Key; });
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Accessor3.GetCount(); }, [this](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Accessor3[it].m_Key; });
 }
 
 void ezTestMaps::Insert3(const char* szKey, const ezVariant& value)

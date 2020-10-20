@@ -1,12 +1,10 @@
 
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-
-#include <GameEngine/Messages/TriggerTriggeredMessage.h>
-
+#include <Core/Messages/TriggerMessage.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class ezPhysicsWorldModuleInterface;
 

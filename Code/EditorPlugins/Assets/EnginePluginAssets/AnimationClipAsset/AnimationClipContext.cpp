@@ -14,8 +14,8 @@
 #include <GameEngine/Animation/SliderComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Gameplay/InputComponent.h>
+#include <GameEngine/Gameplay/SpawnComponent.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonComponent.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>

@@ -1,11 +1,11 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
 #include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>

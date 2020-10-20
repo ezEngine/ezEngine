@@ -308,8 +308,7 @@ void ezPxCharacterControllerComponent::Update()
             m_fAccumulatedWalkDistance = 0.0f;
 
             ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::AllowLoadingFallback);
-            pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), castResult.m_vPosition, castResult.m_vNormal, ezVec3(0, 0, 1),
-              m_sWalkSurfaceInteraction, &GetOwner()->GetTeamID());
+            pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), castResult.m_vPosition, castResult.m_vNormal, ezVec3(0, 0, 1), m_sWalkSurfaceInteraction, &GetOwner()->GetTeamID());
           }
         }
       }
@@ -453,8 +452,7 @@ void ezPxCharacterControllerComponent::SetHeadObjectReference(const char* szRefe
 
 void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterController& msg)
 {
-  const float fDistanceToMove =
-    ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
+  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
 
   m_vRelativeMoveDirection += ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
   m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector());

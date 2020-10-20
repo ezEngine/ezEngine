@@ -11,9 +11,7 @@ ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
-  RendererCore
   ToolsFoundation
   GuiFoundation
-  GameEngine
   EditorEngineProcessFramework
 )

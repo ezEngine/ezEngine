@@ -1,6 +1,6 @@
 #include <FileservePCH.h>
 
-#include <Fileserve/Main.h>
+#include <Fileserve/Fileserve.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>

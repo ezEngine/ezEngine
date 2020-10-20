@@ -1,5 +1,9 @@
 #include <GameEnginePCH.h>
 
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/ActorPluginWindow.h>
+#include <Core/Console/Console.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
@@ -12,11 +16,7 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
-#include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/Configuration/InputConfig.h>
-#include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -61,20 +61,6 @@ void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(
 void ezGameApplication::ReinitializeInputConfig()
 {
   Init_ConfigureInput();
-}
-
-ezResult ezGameApplication::BeforeCoreSystemsStartup()
-{
-  SUPER::BeforeCoreSystemsStartup();
-
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  if (m_AppType == ezGameApplicationType::StandAloneMixedReality || m_AppType == ezGameApplicationType::EmbeddedInToolMixedReality)
-  {
-    m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
-  }
-#endif
-
-  return EZ_SUCCESS;
 }
 
 ezString ezGameApplication::FindProjectDirectory() const
@@ -302,10 +288,8 @@ void ezGameApplication::RenderConsole()
     ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
 
     ezColor foregroundColor(0.0f, 0.0f, 0.0f, 0.8f);
-    ezDebugRenderer::Draw2DRectangle(
-      hView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
-    ezDebugRenderer::Draw2DRectangle(hView,
-      ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
   }
 
   {
@@ -331,9 +315,7 @@ void ezGameApplication::RenderConsole()
     {
       float fCaretPosition = (float)m_pConsole->GetCaretPosition();
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
-      ezDebugRenderer::Draw2DRectangle(hView,
-        ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f,
-        caretColor);
+      ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
     }
   }
 }

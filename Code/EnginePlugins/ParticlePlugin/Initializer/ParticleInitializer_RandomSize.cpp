@@ -1,10 +1,10 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Curves/Curve1DResource.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GameEngine/Curves/Curve1DResource.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomSize.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 

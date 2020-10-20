@@ -1,9 +1,9 @@
 #include <PhysXPluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/Components/BreakableSheet.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
