@@ -30,4 +30,3 @@ ezRenderPipelineResourceHandle ezEditorEngineProcessAppUWP::CreateDefaultDebugRe
 {
   return CreateDefaultMainRenderPipeline();
 }
-
