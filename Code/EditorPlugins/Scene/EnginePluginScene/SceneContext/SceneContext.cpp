@@ -4,6 +4,8 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/Interfaces/SoundInterface.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -14,8 +16,6 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -717,9 +717,7 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool {
-    return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash();
-  });
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
 
@@ -851,11 +849,9 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
   excludeTags.SetByName("Editor");
 
   if (pMsg->m_bSelectionOnly)
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(
-      geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
   else
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(
-      geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
 
   ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, pMsg->m_Transform);
 }

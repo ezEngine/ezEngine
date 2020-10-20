@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_everything()
+ez_build_filter_renderer()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
@@ -12,7 +12,11 @@ target_link_libraries(${PROJECT_NAME}
   Core
   RendererFoundation
   Texture
-
-  PRIVATE
-  ozz
 )
+
+if (EZ_3RDPARTY_OZZ_SUPPORT)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    ozz
+  )
+endif()

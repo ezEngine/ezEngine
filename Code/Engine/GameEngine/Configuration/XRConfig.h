@@ -1,6 +1,7 @@
 #pragma once
 
-#include <GameEngine/Configuration/PlatformProfile.h>
+#include <Core/Configuration/PlatformProfile.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class EZ_GAMEENGINE_DLL ezXRConfig : public ezProfileConfigData
 {

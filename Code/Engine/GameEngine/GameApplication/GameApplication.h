@@ -1,13 +1,11 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/GameState/GameState.h>
 
+#include <Core/Console/ConsoleFunction.h>
+#include <Core/GameApplication/GameApplicationBase.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <GameEngine/Console/ConsoleFunction.h>
-
-#include <GameEngine/GameApplication/GameApplicationBase.h>
 
 class ezConsole;
 

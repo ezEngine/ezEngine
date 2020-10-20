@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
@@ -59,8 +59,7 @@ class EZ_GAMEENGINE_DLL ezActorPluginWindowXR : public ezActorPluginWindow
   EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowXR, ezActorPluginWindow);
 
 public:
-  ezActorPluginWindowXR(
-    ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput);
+  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput);
   ~ezActorPluginWindowXR();
   void Initialize();
 

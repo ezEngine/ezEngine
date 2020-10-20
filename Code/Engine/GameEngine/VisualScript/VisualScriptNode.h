@@ -6,7 +6,6 @@
 #include <GameEngine/GameEngineDLL.h>
 
 class ezVisualScriptInstance;
-struct ezMsgCollision;
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode : public ezReflectedClass
 {

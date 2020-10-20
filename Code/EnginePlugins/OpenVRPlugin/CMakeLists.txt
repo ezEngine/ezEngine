@@ -1,5 +1,6 @@
 ez_cmake_init()
 
+ez_build_filter_renderer()
 ez_requires(EZ_BUILD_OPENVR)
 
 ez_requires_windows()

@@ -55,8 +55,7 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   userDataDir.AppendPath("ezEngine Project", "EditorTest");
   userDataDir.MakeCleanPath();
 
-  ezQtEditorApp::GetSingleton()->StartupEditor(
-    ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
+  ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
   // Disable msg boxes.
   ezQtUiServices::SetHeadless(true);
   ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());

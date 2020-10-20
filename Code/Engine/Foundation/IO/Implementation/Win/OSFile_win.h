@@ -309,7 +309,9 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-ezFileSystemIterator::ezFileSystemIterator() {}
+ezFileSystemIterator::ezFileSystemIterator()
+{
+}
 
 ezFileSystemIterator::~ezFileSystemIterator()
 {

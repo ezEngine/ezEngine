@@ -1,9 +1,9 @@
 #include <GameEnginePCH.h>
 
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/ColorAnimationComponent.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 2, ezComponentMode::Static)

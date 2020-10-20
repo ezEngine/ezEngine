@@ -1,11 +1,11 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Gravity.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
@@ -42,8 +42,7 @@ void ezParticleBehaviorFactory_Gravity::CopyBehaviorProperties(ezParticleBehavio
 
   pBehavior->m_fGravityFactor = m_fGravityFactor;
 
-  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(
-    ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 }
 
 void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& stream) const

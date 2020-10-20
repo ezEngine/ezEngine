@@ -1,9 +1,9 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Curves/Curve1DResource.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
-#include <GameEngine/Curves/Curve1DResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimResource, 1, ezRTTIDefaultAllocator<ezPropertyAnimResource>)

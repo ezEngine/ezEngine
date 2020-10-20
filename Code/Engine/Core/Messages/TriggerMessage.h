@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 
@@ -28,4 +29,20 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
   /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some
   /// expected string. Use ezTempHashedString::ComputeHash() to assign and compare the value.
   ezUInt32 m_uiUsageStringHash = 0;
+};
+
+/// \brief Sent when something enters or leaves a trigger
+struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezEventMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerTriggered, ezEventMessage);
+
+  /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some expected string.
+  /// Use ezTempHashedString::GetHash() to assign and compare the value.
+  ezUInt32 m_uiMessageStringHash;
+
+  /// Messages are only sent for 'entered' ('Activated') and 'left' ('Deactivated')
+  ezEnum<ezTriggerState> m_TriggerState;
+
+  /// The object that entered the trigger volume.
+  ezGameObjectHandle m_hTriggeringObject;
 };

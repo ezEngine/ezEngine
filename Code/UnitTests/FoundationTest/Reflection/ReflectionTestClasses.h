@@ -79,11 +79,7 @@ public:
     m_vVec3I = ezVec3I32(1, 2, 3);
   }
 
-  bool operator==(const ezTestStruct& rhs) const
-  {
-    return m_fFloat1 == rhs.m_fFloat1 && m_UInt8 == rhs.m_UInt8 && m_variant == rhs.m_variant && m_iInt2 == rhs.m_iInt2 &&
-           m_vProperty3 == rhs.m_vProperty3 && m_Angle == rhs.m_Angle && m_DataBuffer == rhs.m_DataBuffer && m_vVec3I == rhs.m_vVec3I;
-  }
+  bool operator==(const ezTestStruct& rhs) const { return m_fFloat1 == rhs.m_fFloat1 && m_UInt8 == rhs.m_UInt8 && m_variant == rhs.m_variant && m_iInt2 == rhs.m_iInt2 && m_vProperty3 == rhs.m_vProperty3 && m_Angle == rhs.m_Angle && m_DataBuffer == rhs.m_DataBuffer && m_vVec3I == rhs.m_vVec3I; }
 
   float m_fFloat1;
   ezUInt8 m_UInt8;
@@ -178,11 +174,7 @@ class ezTestClass2 : public ezTestClass1
 public:
   ezTestClass2() { m_Text = "Legen"; }
 
-  bool operator==(const ezTestClass2& rhs) const
-  {
-    return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array &&
-           m_Variant == rhs.m_Variant && m_Text == rhs.m_Text;
-  }
+  bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_Text == rhs.m_Text; }
 
   const char* GetText() const { return m_Text.GetData(); }
   void SetText(const char* sz) { m_Text = sz; }
@@ -245,10 +237,7 @@ class ezTestArrays : public ezReflectedClass
 public:
   ezTestArrays() {}
 
-  bool operator==(const ezTestArrays& rhs) const
-  {
-    return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque && m_HybridChar == rhs.m_HybridChar;
-  }
+  bool operator==(const ezTestArrays& rhs) const { return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque && m_HybridChar == rhs.m_HybridChar; }
 
   bool operator!=(const ezTestArrays& rhs) const { return !(*this == rhs); }
 
@@ -290,10 +279,7 @@ class ezTestSets : public ezReflectedClass
 public:
   ezTestSets() {}
 
-  bool operator==(const ezTestSets& rhs) const
-  {
-    return m_SetMember == rhs.m_SetMember && m_SetAccessor == rhs.m_SetAccessor && m_Deque == rhs.m_Deque && m_Array == rhs.m_Array;
-  }
+  bool operator==(const ezTestSets& rhs) const { return m_SetMember == rhs.m_SetMember && m_SetAccessor == rhs.m_SetAccessor && m_Deque == rhs.m_Deque && m_Array == rhs.m_Array; }
 
   bool operator!=(const ezTestSets& rhs) const { return !(*this == rhs); }
 
@@ -442,10 +428,7 @@ public:
     m_enumClass2 = ezExampleEnum::Value1;
   }
 
-  bool operator==(const ezTestEnumStruct& rhs) const
-  {
-    return m_enum2 == rhs.m_enum2 && m_enum == rhs.m_enum && m_enumClass == rhs.m_enumClass && m_enumClass2 == rhs.m_enumClass2;
-  }
+  bool operator==(const ezTestEnumStruct& rhs) const { return m_enum2 == rhs.m_enum2 && m_enum == rhs.m_enum && m_enumClass == rhs.m_enumClass && m_enumClass2 == rhs.m_enumClass2; }
 
   ezExampleEnum::Enum m_enum;
   ezEnum<ezExampleEnum> m_enumClass;
@@ -474,10 +457,7 @@ public:
     m_bitflagsClass2 = ezExampleBitflags::Value1;
   }
 
-  bool operator==(const ezTestBitflagsStruct& rhs) const
-  {
-    return m_bitflagsClass == rhs.m_bitflagsClass && m_bitflagsClass2 == rhs.m_bitflagsClass2;
-  }
+  bool operator==(const ezTestBitflagsStruct& rhs) const { return m_bitflagsClass == rhs.m_bitflagsClass && m_bitflagsClass2 == rhs.m_bitflagsClass2; }
 
   ezBitflags<ezExampleBitflags> m_bitflagsClass;
 

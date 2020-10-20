@@ -23,14 +23,14 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 
-#include <System/Window/Window.h>
+#include <Core/System/Window.h>
 
+#include <Core/Interfaces/SoundInterface.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>
 #include <GameEngine/GameState/GameState.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/Declarations.h>

@@ -1,5 +1,6 @@
 #include <FmodPluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/ResourceManager/Resource.h>
@@ -10,7 +11,6 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>

@@ -1,9 +1,9 @@
 #include <RendererDX11PCH.h>
 
+#include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
-#include <System/Window/Window.h>
 
 #include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <d3d11.h>

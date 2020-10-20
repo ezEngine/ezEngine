@@ -1,8 +1,8 @@
 #include <InspectorPluginPCH.h>
 
+#include <Core/GameApplication/GameApplicationBase.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Utilities/Stats.h>
-#include <GameEngine/GameApplication/GameApplicationBase.h>
 
 static void StatsEventHandler(const ezStats::StatsEventData& e)
 {

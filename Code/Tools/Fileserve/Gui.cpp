@@ -1,6 +1,6 @@
 #include <FileservePCH.h>
 
-#include <Fileserve/Main.h>
+#include <Fileserve/Fileserve.h>
 
 #ifdef EZ_USE_QT
 

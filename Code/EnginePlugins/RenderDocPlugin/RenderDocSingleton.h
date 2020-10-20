@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Core/Interfaces/FrameCaptureInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
-#include <GameEngine/Interfaces/FrameCaptureInterface.h>
 #include <RenderDocPlugin/RenderDocPluginDLL.h>
 
 struct RENDERDOC_API_1_4_0;

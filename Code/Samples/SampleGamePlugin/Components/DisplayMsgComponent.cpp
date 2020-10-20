@@ -1,10 +1,10 @@
 #include <SampleGamePluginPCH.h>
 
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <SampleGamePlugin/Components/DisplayMsgComponent.h>
 #include <SampleGamePlugin/Messages/Messages.h>

@@ -2,11 +2,11 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 
 typedef ezComponentManagerSimple<class ezColorAnimationComponent, ezComponentUpdateType::WhenSimulating> ezColorAnimationComponentManager;
 

@@ -1,6 +1,6 @@
 #include <FileservePCH.h>
 
-#include <Fileserve/Main.h>
+#include <Fileserve/Fileserve.h>
 #include <Foundation/Logging/Log.h>
 
 void ezFileserverApp::FileserverEventHandlerConsole(const ezFileserverEvent& e)

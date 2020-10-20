@@ -73,4 +73,4 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(const char* szName)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_EnvironmentVariableUtils);
+EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_EnvironmentVariableUtils);

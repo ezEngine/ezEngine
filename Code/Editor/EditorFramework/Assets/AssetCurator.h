@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/Declarations.h>
@@ -17,7 +18,6 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <tuple>
 
@@ -257,8 +257,7 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
-    const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce = false);
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce = false);
   /// \brief Returns the number of assets in the system and how many are in what transform state
   void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count);
 
@@ -334,17 +333,15 @@ private:
   /// \name Asset Hashing and Status Updates (AssetUpdates.cpp)
   ///@{
 
-  ezAssetInfo::TransformState HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies,
-    const ezHybridArray<ezString, 16>& runtimeDependencies, ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences,
-    ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
+  ezAssetInfo::TransformState HashAsset(
+    ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies, ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
   bool AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
 
   ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
   ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
   void TrackDependencies(ezAssetInfo* pAssetInfo);
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
-  void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker,
-    ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
+  void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved);
   ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
   void UpdateSubAssets(ezAssetInfo& assetInfo);

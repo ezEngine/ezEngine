@@ -3,7 +3,7 @@
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 
-#include <GameEngine/GameApplication/GameApplicationBase.h>
+#include <Core/GameApplication/GameApplicationBase.h>
 
 static ezGlobalEvent::EventMap s_LastState;
 

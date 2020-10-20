@@ -1,11 +1,11 @@
 #include <KrautPluginPCH.h>
 
 #include <Core/Graphics/Geometry.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
 #include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
@@ -355,8 +355,7 @@ void ezKrautTreeComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 
 void ezKrautTreeComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if ((e.m_Type == ezResourceEvent::Type::ResourceContentUnloading || e.m_Type == ezResourceEvent::Type::ResourceContentUpdated) &&
-      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezKrautTreeResource>())
+  if ((e.m_Type == ezResourceEvent::Type::ResourceContentUnloading || e.m_Type == ezResourceEvent::Type::ResourceContentUpdated) && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezKrautTreeResource>())
   {
     EZ_LOCK(m_Mutex);
 

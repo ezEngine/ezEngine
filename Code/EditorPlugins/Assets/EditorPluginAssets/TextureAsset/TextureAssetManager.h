@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
 
 class ezTextureAssetProfileConfig : public ezProfileConfigData
 {
@@ -25,8 +25,7 @@ private:
 
   virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
-  virtual void InternalCreateDocument(
-    const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }

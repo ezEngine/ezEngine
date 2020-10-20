@@ -1,5 +1,6 @@
 ez_cmake_init()
 
+ez_build_filter_renderer()
 ez_requires_openxr()
 
 # Get the name of this folder as the project name

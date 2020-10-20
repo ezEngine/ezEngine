@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <PhysXPlugin/PhysXInterface.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>

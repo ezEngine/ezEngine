@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/GameState/StateMap.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -8,7 +9,6 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Types/Variant.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/GameState/StateMap.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
 class ezVisualScriptNode;

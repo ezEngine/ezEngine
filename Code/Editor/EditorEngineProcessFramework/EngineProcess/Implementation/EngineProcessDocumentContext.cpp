@@ -1,6 +1,7 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -20,7 +21,6 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Context/Context.h>
@@ -42,8 +42,7 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(
-  ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
@@ -454,8 +453,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         header.SetHeight(m_uiThumbnailHeight);
         ezImage image;
         image.ResetAndAlloc(header);
-        EZ_ASSERT_DEV(static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(),
-          "Thumbnail ezImage has different size than data buffer!");
+        EZ_ASSERT_DEV(static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
 
         MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
@@ -471,8 +469,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         }
 
 
-        ret.m_ThumbnailData.SetCountUninitialized(
-          (m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
+        ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
         ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
       }
 
@@ -533,8 +530,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
-  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT))
-    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
+  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
@@ -726,8 +722,7 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 ///     These are needed to fix up references during undo/redo when objects get deleted and recreated.
 ///     Ie. when an object that has references or is referenced gets deleted and then undo restores it, the references should appear as well.
 ///
-ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(
-  const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
+ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
 {
   const char* szTargetGuid = reinterpret_cast<const char*>(pData);
 
@@ -867,8 +862,7 @@ ref_to_is_updated:
 
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid &&
-            ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
         {
           referencedBy.RemoveAtAndSwap(i);
           break;
@@ -884,8 +878,7 @@ ref_to_is_updated:
       // this loop is currently only to validate that no bugs creeped in
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid &&
-            ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
         {
           EZ_REPORT_FAILURE("Go-reference was not updated correctly");
         }

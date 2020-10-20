@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_everything()
+ez_build_filter_runtime()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
@@ -14,7 +14,9 @@ target_link_libraries(${PROJECT_NAME}
   Texture
 )
 
-if(EZ_BUILD_TOOLS)
+ez_build_filter_get_index(BUILD_FILTER)
+
+if(EZ_BUILD_TOOLS AND ${BUILD_FILTER} GREATER_EQUAL ${BUILD_FILTER_INDEX_EVERYTHING})
   target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_TEXCONV_PRESENT)
   add_dependencies(${PROJECT_NAME}
     TexConv

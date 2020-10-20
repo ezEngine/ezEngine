@@ -139,6 +139,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTriggerTriggered)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerTriggered, 1, ezRTTIDefaultAllocator<ezMsgTriggerTriggered>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("MsgStringHash", m_uiMessageStringHash),
+    EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
+    //EZ_MEMBER_PROPERTY("GameObject", m_hTriggeringObject),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format on
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);

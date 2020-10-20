@@ -2,6 +2,7 @@
 
 #include <TypeScriptPlugin/TypeScriptPluginDLL.h>
 
+#include <Core/Console/ConsoleFunction.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Declarations.h>
@@ -10,7 +11,6 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Types/Uuid.h>
-#include <GameEngine/Console/ConsoleFunction.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 

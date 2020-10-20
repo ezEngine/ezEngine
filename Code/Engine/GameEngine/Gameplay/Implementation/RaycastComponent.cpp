@@ -1,11 +1,11 @@
 
 #include <GameEnginePCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/RaycastComponent.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
 ezRaycastComponentManager::ezRaycastComponentManager(ezWorld* pWorld)
@@ -21,8 +21,7 @@ void ezRaycastComponentManager::Initialize()
   // we DO NOT want to use post transform update, because when we move the target object
   // child objects of the target node should still get the full global transform update within this frame
 
-  auto desc =
-    ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezRaycastComponentManager::Update, this), "ezRaycastComponentManager::Update");
+  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezRaycastComponentManager::Update, this), "ezRaycastComponentManager::Update");
   desc.m_bOnlyUpdateWhenSimulating = true;
   desc.m_Phase = UpdateFunctionDesc::Phase::PostAsync;
   desc.m_fPriority = -1000;
@@ -236,8 +235,7 @@ void ezRaycastComponent::Update()
     ezPhysicsQueryParameters queryParams2(m_uiCollisionLayerTrigger);
     queryParams2.m_bIgnoreInitialOverlap = true;
 
-    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, queryParams2) &&
-        triggerHit.m_fDistance < fHitDistance)
+    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, queryParams2) && triggerHit.m_fDistance < fHitDistance)
     {
       // We have a hit, check the objects
       if (m_hLastTriggerObjectInRay != triggerHit.m_hActorObject)

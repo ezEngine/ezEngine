@@ -1,5 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
+#include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -8,7 +9,6 @@
 #include <EditorFramework/Preferences/ProjectPreferences.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
 #include <QInputDialog>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
@@ -153,8 +153,7 @@ ezUuid ezQtAssetProfilesDlg::NativeToObject(ezPlatformProfile* pProfile)
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
   m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", -1);
 
-  ezDocumentObjectConverterReader objectConverter(
-    &graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   objectConverter.ApplyPropertiesToObject(pNode, pObject);
 
   return pObject->GetGuid();
@@ -305,8 +304,7 @@ void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
   if (sel[0] == m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0])
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
-        ezFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(ezFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
     return;
 
   m_ProfileBindings[sel[0]->GetGuid()].m_State = Binding::State::Deleted;

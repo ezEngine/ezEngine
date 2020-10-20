@@ -1,9 +1,9 @@
 #include <RecastPluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Memory/FrameAllocator.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <RecastPlugin/Components/MarkPoiVisibleComponent.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 

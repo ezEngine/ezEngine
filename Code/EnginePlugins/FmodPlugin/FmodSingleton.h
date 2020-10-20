@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Core/Interfaces/SoundInterface.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <FmodPlugin/FmodPluginDLL.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
 
 struct ezGameApplicationExecutionEvent;
 class ezOpenDdlWriter;

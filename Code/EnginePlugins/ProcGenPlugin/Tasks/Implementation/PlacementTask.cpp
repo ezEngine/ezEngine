@@ -1,10 +1,10 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
