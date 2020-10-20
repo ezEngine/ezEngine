@@ -60,8 +60,6 @@ public:
   void ReinitializeInputConfig();
 
 protected:
-  virtual ezResult BeforeCoreSystemsStartup() override;
-
   virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;
   virtual void Init_LoadRequiredPlugins() override;
@@ -92,8 +90,4 @@ protected:
 
   bool m_bShowConsole = false;
   ezUniquePtr<ezConsole> m_pConsole;
-
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;
-#endif
 };

@@ -69,16 +69,6 @@ void ezGameState::CreateActors()
 {
   EZ_LOG_BLOCK("CreateActors");
 
-  // TODO: MR support
-  //#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  //  if (m_bMixedRealityMode)
-  //  {
-  //    m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc(), [this]() { RequestQuit(); });
-  //    GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
-  //    return;
-  //  }
-  //#endif
-
   // Init XR
   const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
   ezXRInterface* pXRInterface = nullptr;

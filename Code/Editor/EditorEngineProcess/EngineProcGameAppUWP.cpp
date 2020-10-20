@@ -31,39 +31,6 @@ void ezEngineProcessGameApplicationUWP::Init_ConfigureInput()
 
 bool ezEngineProcessGameApplicationUWP::Run_ProcessApplicationInput()
 {
-#  ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  m_pEngineProcessApp->LoadAnchor();
-#  endif
-
-#  ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  if (!HasAnyActiveGameState())
-  {
-    const bool bHandVisible = ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_Tracked) == ezKeyState::Down;
-
-    if (ezInputManager::GetInputActionState("RemoteProcess", "AirTap") == ezKeyState::Pressed)
-    {
-      m_HandPressTime = ezTime::Now();
-
-      ezVec3 posP(0), posN(0), pos(0);
-      ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_PositionPosX, &posP.x);
-      ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_PositionPosY, &posP.y);
-      ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_PositionPosZ, &posP.z);
-      ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_PositionNegX, &posN.x);
-      ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_PositionNegY, &posN.y);
-      ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_PositionNegZ, &posN.z);
-      m_vHandStartPosition = posP - posN;
-    }
-
-    if (bHandVisible && (ezInputManager::GetInputActionState("RemoteProcess", "AirTap") == ezKeyState::Released))
-    {
-      if (ezTime::Now() - m_HandPressTime < ezTime::Milliseconds(500))
-      {
-        m_pEngineProcessApp->SetAnchor(m_vHandStartPosition);
-      }
-    }
-  }
-#  endif
-
   return SUPER::Run_ProcessApplicationInput();
 }
 

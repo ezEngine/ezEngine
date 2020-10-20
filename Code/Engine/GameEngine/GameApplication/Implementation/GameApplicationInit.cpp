@@ -24,9 +24,6 @@
 typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
-#endif
 #include <RendererCore/Decals/DecalAtlasResource.h>
 
 void ezGameApplication::Init_ConfigureAssetManagement()

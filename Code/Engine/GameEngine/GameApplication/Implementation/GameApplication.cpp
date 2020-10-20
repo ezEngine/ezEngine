@@ -63,20 +63,6 @@ void ezGameApplication::ReinitializeInputConfig()
   Init_ConfigureInput();
 }
 
-ezResult ezGameApplication::BeforeCoreSystemsStartup()
-{
-  SUPER::BeforeCoreSystemsStartup();
-
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  if (m_AppType == ezGameApplicationType::StandAloneMixedReality || m_AppType == ezGameApplicationType::EmbeddedInToolMixedReality)
-  {
-    m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
-  }
-#endif
-
-  return EZ_SUCCESS;
-}
-
 ezString ezGameApplication::FindProjectDirectory() const
 {
   EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the "
