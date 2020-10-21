@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/kmammou/v-hacd",
+          "commitHash": "ea527fd5ced8b740c1e6a34cf9306ddfaff845ed"
+        }
+      }
+    }
+  ]
+}

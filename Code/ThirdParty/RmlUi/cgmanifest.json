@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/mikke89/RmlUi",
+          "commitHash": "a220824bfc65332568516eb25709ea3a22605b21"
+        }
+      }
+    }
+  ]
+}
