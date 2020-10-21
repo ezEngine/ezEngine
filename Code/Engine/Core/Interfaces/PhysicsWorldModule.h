@@ -4,7 +4,6 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
-#include <GameEngine/GameEngineDLL.h>
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;

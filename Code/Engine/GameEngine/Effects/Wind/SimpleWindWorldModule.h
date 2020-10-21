@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Interfaces/WindWorldModule.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class EZ_GAMEENGINE_DLL ezSimpleWindWorldModule : public ezWindWorldModuleInterface
 {

@@ -1,6 +1,6 @@
-#include <GameEnginePCH.h>
+#include <CorePCH.h>
 
-#include <GameEngine/GameState/GameStateWindow.h>
+#include <Core/GameState/GameStateWindow.h>
 
 ezGameStateWindow::ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezDelegate<void()> onClickClose)
   : m_OnClickClose(onClickClose)

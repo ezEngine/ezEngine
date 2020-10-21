@@ -2,7 +2,6 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Tracks/ColorGradient.h>
-#include <GameEngine/GameEngineDLL.h>
 
 struct EZ_CORE_DLL ezColorGradientResourceDescriptor
 {

@@ -1,11 +1,9 @@
 #pragma once
 
 #include <Core/System/Window.h>
-#include <GameEngine/Declarations.h>
-#include <GameEngine/GameEngineDLL.h>
 
 /// \brief A window class that expands a little on ezWindow. Default type used by ezGameState to create a window.
-class EZ_GAMEENGINE_DLL ezGameStateWindow : public ezWindow
+class EZ_CORE_DLL ezGameStateWindow : public ezWindow
 {
 public:
   ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezDelegate<void()> onClickClose = nullptr);
