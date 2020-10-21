@@ -33,7 +33,6 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_GameApplication_Implementation_WindowOutputTargetGAL);
   EZ_STATICLINK_REFERENCE(GameEngine_GameState_Implementation_FallbackGameState);
   EZ_STATICLINK_REFERENCE(GameEngine_GameState_Implementation_GameState);
-  EZ_STATICLINK_REFERENCE(GameEngine_GameState_Implementation_GameStateWindow);
   EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_AreaDamageComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_GrabbableItemComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Gameplay_Implementation_GreyBoxComponent);

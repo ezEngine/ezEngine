@@ -39,4 +39,4 @@ void ezGameStateWindow::OnResize(const ezSizeU32& newWindowSize)
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameStateWindow);
+EZ_STATICLINK_FILE(Core, Core_GameState_Implementation_GameStateWindow);

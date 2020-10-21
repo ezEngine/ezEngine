@@ -25,6 +25,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_GameApplication_Implementation_GameApplicationBase);
   EZ_STATICLINK_REFERENCE(Core_GameApplication_Implementation_GameApplicationBaseInit);
   EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_GameStateBase);
+  EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_GameStateWindow);
   EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_StateMap);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_AmbientCubeBasis);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Camera);
