@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-
 #include <Core/ActorSystem/ActorPlugin.h>
 #include <Foundation/Types/UniquePtr.h>
 

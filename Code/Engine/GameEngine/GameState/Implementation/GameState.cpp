@@ -4,6 +4,7 @@
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ActorSystem/ActorManager.h>
 #include <Core/ActorSystem/ActorPluginWindow.h>
+#include <Core/GameState/GameStateWindow.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -13,7 +14,6 @@
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/Configuration/XRConfig.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>

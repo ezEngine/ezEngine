@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System",
+          "commitHash": "c10ff7c688fb50fe9157bad3982164e0f955f9e4"
+        }
+      }
+    } 
+  ]
+}

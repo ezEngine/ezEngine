@@ -4,7 +4,6 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/PropertyPath.h>
-#include <GameEngine/GameEngineDLL.h>
 
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 

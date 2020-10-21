@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/lsalzman/enet",
+          "commitHash": "0eaf48eeb0d94a18d079378d8b76d588832ce838"
+        }
+      }
+    }
+   ]
+}
