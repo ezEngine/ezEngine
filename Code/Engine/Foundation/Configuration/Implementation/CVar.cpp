@@ -219,7 +219,7 @@ void ezCVar::SaveCVars()
         }
 
         // add the one line for that cvar to the config file
-        File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
+        File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
       }
     }
 

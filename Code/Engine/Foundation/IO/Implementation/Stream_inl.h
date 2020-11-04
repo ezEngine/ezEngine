@@ -142,8 +142,8 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 
 ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion uiExpectedMaxVersion)
 {
-  ezTypeVersion v;
-  ReadWordValue(&v);
+  ezTypeVersion v = 0;
+  ReadWordValue(&v).IgnoreResult();
 
   EZ_ASSERT_ALWAYS(v <= uiExpectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, uiExpectedMaxVersion);
   EZ_ASSERT_ALWAYS(v > 0, "Invalid version.");
@@ -155,7 +155,7 @@ void ezStreamWriter::WriteVersion(ezTypeVersion uiVersion)
 {
   EZ_ASSERT_ALWAYS(uiVersion > 0, "Version cannot be zero.");
 
-  WriteWordValue(&uiVersion);
+  WriteWordValue(&uiVersion).IgnoreResult();
 }
 
 
@@ -192,7 +192,7 @@ template <typename ArrayType, typename ValueType>
 ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Array)
 {
   const ezUInt64 uiCount = Array.GetCount();
-  WriteQWordValue(&uiCount);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiCount));
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
   {
@@ -249,7 +249,7 @@ template <typename KeyType, typename ValueType, typename Hasher>
 ezResult ezStreamWriter::WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& HashTable)
 {
   const ezUInt64 uiWriteSize = HashTable.GetCount();
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (auto It = HashTable.GetIterator(); It.IsValid(); ++It)
   {

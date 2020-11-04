@@ -36,10 +36,9 @@ void ezLogWriter::HTML::BeginLog(const char* szFile, const char* szAppTitle)
   }
 
   ezStringBuilder sText;
-  sText.Format(
-    "<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", szAppTitle);
+  sText.Format("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", szAppTitle);
 
-  m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount());
+  m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount()).IgnoreResult();
 }
 
 void ezLogWriter::HTML::EndLog()
@@ -56,7 +55,7 @@ void ezLogWriter::HTML::EndLog()
   ezStringBuilder sText;
   sText.Format("</BODY></HTML>");
 
-  m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount());
+  m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount()).IgnoreResult();
 
   m_File.Close();
 }
@@ -111,11 +110,9 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
 
     case ezLogMsgType::EndGroup:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      sText.Format(
-        "</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1} sec)>>> </b></font><br><br>\n", sOriginalText, ezArgF(eventData.m_fSeconds, 4));
+      sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1} sec)>>> </b></font><br><br>\n", sOriginalText, ezArgF(eventData.m_fSeconds, 4));
 #else
-      sText.Format(
-        "</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1})>>> </b></font><br><br>\n", sOriginalText, "timing info not available");
+      sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1})>>> </b></font><br><br>\n", sOriginalText, "timing info not available");
 #endif
       break;
 
@@ -157,10 +154,14 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   }
 
   if (!sText.IsEmpty())
-    m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount());
+  {
+    m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount()).IgnoreResult();
+  }
 
   if (bFlushWriteCache)
-    m_File.Flush();
+  {
+    m_File.Flush().IgnoreResult();
+  }
 }
 
 void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
@@ -168,7 +169,7 @@ void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
   ezStringBuilder sTemp;
   sTemp.Format("<font color=\"#{0}\">{1}</font>", ezArgU(uiColor, 1, false, 16, true), szString);
 
-  m_File.WriteBytes(sTemp.GetData(), sizeof(char) * sTemp.GetElementCount());
+  m_File.WriteBytes(sTemp.GetData(), sizeof(char) * sTemp.GetElementCount()).IgnoreResult();
 }
 
 

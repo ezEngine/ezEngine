@@ -101,8 +101,7 @@ ezUInt64 ezCompressedStreamReaderZip::ReadBytes(void* pReadBuffer, ezUInt64 uiBy
         return m_pZLibStream->total_out;
       }
 
-      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiReadAmount) == sizeof(ezUInt8) * uiReadAmount,
-        "Reading the compressed chunk of size {0} from the input stream failed.", uiReadAmount);
+      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiReadAmount) == sizeof(ezUInt8) * uiReadAmount, "Reading the compressed chunk of size {0} from the input stream failed.", uiReadAmount);
       m_pZLibStream->avail_in = static_cast<uInt>(uiReadAmount);
       m_pZLibStream->next_in = m_CompressedCache.GetData();
       m_uiRemainingInputSize -= uiReadAmount;
@@ -190,16 +189,14 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
     if (m_pZLibStream->avail_in == 0)
     {
       ezUInt16 uiCompressedSize = 0;
-      EZ_VERIFY(m_pInputStream->ReadBytes(&uiCompressedSize, sizeof(ezUInt16)) == sizeof(ezUInt16),
-        "Reading the compressed chunk size from the input stream failed.");
+      EZ_VERIFY(m_pInputStream->ReadBytes(&uiCompressedSize, sizeof(ezUInt16)) == sizeof(ezUInt16), "Reading the compressed chunk size from the input stream failed.");
 
       m_pZLibStream->avail_in = uiCompressedSize;
       m_pZLibStream->next_in = m_CompressedCache.GetData();
 
       if (uiCompressedSize > 0)
       {
-        EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize,
-          "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
+        EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize, "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
       }
     }
 
@@ -255,7 +252,7 @@ ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter* pOutp
 
 ezCompressedStreamWriterZlib::~ezCompressedStreamWriterZlib()
 {
-  CloseStream();
+  CloseStream().IgnoreResult();
 }
 
 ezResult ezCompressedStreamWriterZlib::CloseStream()

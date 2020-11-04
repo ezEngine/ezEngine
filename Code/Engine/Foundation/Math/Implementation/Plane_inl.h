@@ -22,7 +22,7 @@ ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>& vNormal, cons
 template <typename Type>
 ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
 {
-  SetFromPoints(v1, v2, v3);
+  SetFromPoints(v1, v2, v3).IgnoreResult();
 }
 
 template <typename Type>

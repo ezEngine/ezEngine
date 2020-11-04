@@ -197,7 +197,7 @@ void ezTelemetry::UpdateNetwork()
 
             EZ_ASSERT_DEV((ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
 
-            Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8);
+            Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8).IgnoreResult();
           }
         }
 
