@@ -54,10 +54,7 @@ struct ezFmodEventComponentManager::OcclusionState
   float m_fRadius = 0.0f;
   float m_fLastOcclusionValue = -1.0f;
 
-  float GetOcclusionValue(float fThreshold) const
-  {
-    return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f);
-  }
+  float GetOcclusionValue(float fThreshold) const { return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
 };
 
 ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
@@ -81,7 +78,7 @@ ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
 
       float fRadius = ezMath::Pow((float)rng.DoubleZeroToOneExclusive(), 1.0f / 3.0f);
       fRadius = fRadius * 0.5f + 0.5f;
-      pos.SetLength(fRadius);
+      pos.SetLength(fRadius).IgnoreResult();
     }
   }
 }
@@ -560,8 +557,7 @@ void ezFmodEventComponent::StartOneShot()
   // do not start sounds that will not terminate
   if (!bIsOneShot)
   {
-    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.",
-      pEvent->GetResourceID(), pEvent->GetResourceDescription());
+    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.", pEvent->GetResourceID(), pEvent->GetResourceDescription());
     return;
   }
 
@@ -747,8 +743,7 @@ void ezFmodEventComponent::Update()
         }
       }
 
-      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16, ezDebugRenderer::HorizontalAlignment::Center,
-        ezDebugRenderer::VerticalAlignment::Bottom);
+      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
     }
   }
 #endif

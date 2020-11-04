@@ -223,7 +223,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     ezRemoteMessage msg;
     msg.GetWriter() << uploadGuid;
     msg.GetWriter() << uiChunkSize;
-    msg.GetWriter().WriteBytes(&fileContent[uiNextByte], uiChunkSize);
+    msg.GetWriter().WriteBytes(&fileContent[uiNextByte], uiChunkSize).IgnoreResult();
 
     msg.SetMessageID('FSRV', 'UPLD');
     m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
@@ -294,8 +294,7 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
     it.Value() = 0; // fallback
 }
 
-void ezFileserveClient::BuildPathInCache(
-  const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath, ezStringBuilder* out_pFullPathMeta) const
+void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath, ezStringBuilder* out_pFullPathMeta) const
 {
   EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
   EZ_LOCK(m_Mutex);
@@ -536,8 +535,8 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage& msg)
   if (fileState == ezFileserveFileState::NonExistant)
   {
     // remove them from the cache as well, if they still exist there
-    ezOSFile::DeleteFile(sCachedFile);
-    ezOSFile::DeleteFile(sCachedMetaFile);
+    ezOSFile::DeleteFile(sCachedFile).IgnoreResult();
+    ezOSFile::DeleteFile(sCachedMetaFile).IgnoreResult();
     return;
   }
 
@@ -560,8 +559,8 @@ void ezFileserveClient::WriteMetaFile(ezStringBuilder sCachedMetaFile, ezInt64 i
   ezOSFile file;
   if (file.Open(sCachedMetaFile, ezFileOpenMode::Write).Succeeded())
   {
-    file.Write(&iFileTimeStamp, sizeof(ezInt64));
-    file.Write(&uiFileHash, sizeof(ezUInt64));
+    file.Write(&iFileTimeStamp, sizeof(ezInt64)).IgnoreResult();
+    file.Write(&uiFileHash, sizeof(ezUInt64)).IgnoreResult();
 
     file.Close();
   }
@@ -578,7 +577,7 @@ void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
   if (file.Open(sCachedFile, ezFileOpenMode::Write).Succeeded())
   {
     if (!m_Download.IsEmpty())
-      file.Write(m_Download.GetData(), m_Download.GetCount());
+      file.Write(m_Download.GetData(), m_Download.GetCount()).IgnoreResult();
 
     file.Close();
   }
@@ -692,7 +691,7 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
     if (meta.Open(sAbsPathMeta, ezFileOpenMode::Read).Failed())
     {
       // cleanup, when the meta file does not exist, the data file is useless
-      ezOSFile::DeleteFile(sAbsPathFile);
+      ezOSFile::DeleteFile(sAbsPathFile).IgnoreResult();
       return;
     }
 
@@ -796,7 +795,7 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
   m_sServerConnectionAddress = szAddress;
 
   // always store the IP that was successful in the user directory
-  SaveCurrentConnectionInfoToDisk();
+  SaveCurrentConnectionInfoToDisk().IgnoreResult();
   return EZ_SUCCESS;
 }
 
@@ -832,7 +831,7 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
         }
       });
 
-    network->StartServer('EZIP', "2042", false);
+    EZ_SUCCEED_OR_RETURN(network->StartServer('EZIP', "2042", false));
 
     ezTime tStart = ezTime::Now();
     while (ezTime::Now() - tStart < timeout && sServerIPs.IsEmpty())
@@ -879,7 +878,7 @@ ezResult ezFileserveClient::SaveCurrentConnectionInfoToDisk() const
   ezOSFile file;
   EZ_SUCCEED_OR_RETURN(file.Open(sFile, ezFileOpenMode::Write));
 
-  file.Write(m_sServerConnectionAddress.GetData(), m_sServerConnectionAddress.GetElementCount());
+  EZ_SUCCEED_OR_RETURN(file.Write(m_sServerConnectionAddress.GetData(), m_sServerConnectionAddress.GetElementCount()));
   file.Close();
 
   return EZ_SUCCESS;

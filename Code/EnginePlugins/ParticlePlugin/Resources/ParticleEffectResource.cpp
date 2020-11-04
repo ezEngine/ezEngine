@@ -47,7 +47,7 @@ ezResourceLoadDesc ezParticleEffectResource::UpdateContent(ezStreamReader* Strea
   (*Stream) >> sAbsFilePath;
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_Desc.Load(*Stream);
 

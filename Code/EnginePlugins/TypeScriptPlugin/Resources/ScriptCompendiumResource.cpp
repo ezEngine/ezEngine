@@ -49,9 +49,9 @@ ezResourceLoadDesc ezScriptCompendiumResource::UpdateContent(ezStreamReader* pSt
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*pStream);
+  AssetHash.Read(*pStream).IgnoreResult();
 
-  m_Desc.Deserialize(*pStream);
+  m_Desc.Deserialize(*pStream).IgnoreResult();
 
   ld.m_State = ezResourceState::Loaded;
 

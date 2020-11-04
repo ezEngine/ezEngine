@@ -13,13 +13,13 @@ static int __CPP_Physics_OverlapTestCapsule(duk_context* pDuk);
 static int __CPP_Physics_GetGravity(duk_context* pDuk);
 static int __CPP_Physics_QueryShapesInSphere(duk_context* pDuk);
 
-#define GetPhysicsModule()                                    \
-  pWorld->GetOrCreateModule<ezPhysicsWorldModuleInterface>(); \
-                                                              \
-  if (pModule == nullptr)                                     \
-  {                                                           \
-    duk.Error("No Physics World Module available.");          \
-    return 0;                                                 \
+#define GetPhysicsModule()                                                                                                                                                                                                                                                                                 \
+  pWorld->GetOrCreateModule<ezPhysicsWorldModuleInterface>();                                                                                                                                                                                                                                              \
+                                                                                                                                                                                                                                                                                                           \
+  if (pModule == nullptr)                                                                                                                                                                                                                                                                                  \
+  {                                                                                                                                                                                                                                                                                                        \
+    duk.Error("No Physics World Module available.");                                                                                                                                                                                                                                                       \
+    return 0;                                                                                                                                                                                                                                                                                              \
   }
 
 ezResult ezTypeScriptBinding::Init_Physics()
@@ -41,8 +41,8 @@ static void PutHitResult(ezDuktapeHelper& duk, const ezPhysicsCastResult& res)
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
 
   duk.PushGlobalObject();                                 // [ global ]
-  duk.PushLocalObject("__Physics");                       // [ global __Physics ]
-  duk.PushLocalObject("Physics");                         // [ global __Physics Physics ]
+  duk.PushLocalObject("__Physics").IgnoreResult();        // [ global __Physics ]
+  duk.PushLocalObject("Physics").IgnoreResult();          // [ global __Physics Physics ]
   duk_get_prop_string(duk, -1, "HitResult");              // [ global __Physics Physics HitResult ]
   duk_new(duk, 0);                                        // [ global __Physics Physics HitResultObj ]
   duk_remove(duk, -2);                                    // [ global __Physics HitResultObj ]

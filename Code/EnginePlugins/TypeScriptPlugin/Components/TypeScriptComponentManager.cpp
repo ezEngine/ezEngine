@@ -31,7 +31,7 @@ void ezTypeScriptComponentManager::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  m_TsBinding.Initialize(*GetWorld());
+  m_TsBinding.Initialize(*GetWorld()).IgnoreResult();
 }
 
 void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& context)

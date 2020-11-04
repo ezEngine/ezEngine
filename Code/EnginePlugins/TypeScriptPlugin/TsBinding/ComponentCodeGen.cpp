@@ -20,7 +20,7 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
   // read ez.ts
   {
     ezFileReader fileEz;
-    fileEz.Open(sAbsPathToEzTemplate);
+    EZ_SUCCEED_OR_RETURN(fileEz.Open(sAbsPathToEzTemplate));
     sEzFileContent.ReadAll(fileEz);
   }
 
@@ -34,7 +34,7 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
     {
       it.GetStats().GetFullPath(sTargetPath);
 
-      sTargetPath.MakeRelativeTo(sAbsPathToData);
+      sTargetPath.MakeRelativeTo(sAbsPathToData).IgnoreResult();
       sTargetPath.Prepend(":project/TypeScript/");
 
       ezFileSystem::DeleteFile(sTargetPath);
@@ -59,8 +59,8 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
   {
     ezDeferredFileWriter fileOut;
     fileOut.SetOutput(":project/TypeScript/ez.ts", true);
-    fileOut.WriteBytes(sEzFileContent.GetData(), sEzFileContent.GetElementCount());
-    fileOut.Close();
+    EZ_SUCCEED_OR_RETURN(fileOut.WriteBytes(sEzFileContent.GetData(), sEzFileContent.GetElementCount()));
+    EZ_SUCCEED_OR_RETURN(fileOut.Close());
   }
 
   return EZ_SUCCESS;
@@ -178,7 +178,7 @@ declare function __CPP_ComponentFunction_Call(component: Component, id: number, 
   ezDeferredFileWriter file;
   file.SetOutput(szFile, true);
 
-  file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount());
+  file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount()).IgnoreResult();
 
   if (file.Close().Failed())
   {

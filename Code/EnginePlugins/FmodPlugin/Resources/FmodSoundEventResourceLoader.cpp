@@ -73,8 +73,8 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   ezFmodSoundBankResourceHandle* pHandle = &pData->m_hSoundBank;
 
   ezMemoryStreamWriter w(&pData->m_Storage);
-  w.WriteBytes(&pHandle, sizeof(ezFmodSoundBankResourceHandle*));
-  w.WriteBytes(&pData->m_pEventDescription, sizeof(FMOD::Studio::EventDescription*));
+  w.WriteBytes(&pHandle, sizeof(ezFmodSoundBankResourceHandle*)).IgnoreResult();
+  w.WriteBytes(&pData->m_pEventDescription, sizeof(FMOD::Studio::EventDescription*)).IgnoreResult();
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;

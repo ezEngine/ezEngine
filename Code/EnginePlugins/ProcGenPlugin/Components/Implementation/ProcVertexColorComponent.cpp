@@ -186,8 +186,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   taskName.Append(pCpuMesh->GetResourceDescription().GetView());
   pUpdateTask->ConfigureTask(taskName, ezTaskNesting::Never);
 
-  pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs, outputMappings,
-    m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
+  pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs, outputMappings, m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask);
 
@@ -437,7 +436,7 @@ void ezProcVertexColorComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
-  s.WriteArray(m_OutputDescs);
+  s.WriteArray(m_OutputDescs).IgnoreResult();
 }
 
 void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -449,12 +448,12 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hResource;
   if (uiVersion >= 2)
   {
-    s.ReadArray(m_OutputDescs);
+    s.ReadArray(m_OutputDescs).IgnoreResult();
   }
   else
   {
     ezHybridArray<ezHashedString, 2> outputNames;
-    s.ReadArray(outputNames);
+    s.ReadArray(outputNames).IgnoreResult();
 
     for (auto& outputName : outputNames)
     {

@@ -80,7 +80,7 @@ void ezTypeScriptBinding::GenerateEnumsFile(const char* szFile, const ezSet<cons
   ezDeferredFileWriter file;
   file.SetOutput(szFile, true);
 
-  file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount());
+  file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount()).IgnoreResult();
 
   if (file.Close().Failed())
   {

@@ -76,7 +76,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   ezUniquePtr<ezStringDeduplicationReadContext> pStringDedupReadContext;
   if (AssetHash.GetFileVersion() >= 5)
@@ -129,7 +129,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
-          chunk.ReadArray(pOutput->m_VolumeTagSetIndices);
+          chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
 
           ezUInt64 uiNumObjectsToPlace = 0;
           chunk >> uiNumObjectsToPlace;
@@ -196,7 +196,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
-          chunk.ReadArray(pOutput->m_VolumeTagSetIndices);
+          chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
 
           m_VertexColorOutputs.PushBack(pOutput);
         }

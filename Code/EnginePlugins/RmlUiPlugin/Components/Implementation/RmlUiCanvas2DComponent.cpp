@@ -53,7 +53,7 @@ void ezRmlUiCanvas2DComponent::Initialize()
   sName.AppendFormat("_{}", ezArgP(this));
 
   m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
-  m_pContext->LoadDocumentFromResource(m_hResource);
+  m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
 
   UpdateCachedValues();
 }
@@ -157,7 +157,7 @@ void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
 
     if (m_pContext != nullptr)
     {
-      m_pContext->LoadDocumentFromResource(m_hResource);
+      m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
       if (IsActive())
       {
         m_pContext->ShowDocument();
@@ -230,8 +230,7 @@ ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
 
 void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView &&
-      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
+  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
     return;
 
   // Don't extract render data for selection.
@@ -248,7 +247,7 @@ void ezRmlUiCanvas2DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
 {
   if (m_pContext != nullptr)
   {
-    m_pContext->ReloadDocumentFromResource(m_hResource);
+    m_pContext->ReloadDocumentFromResource(m_hResource).IgnoreResult();
     m_pContext->ShowDocument();
 
     UpdateCachedValues();

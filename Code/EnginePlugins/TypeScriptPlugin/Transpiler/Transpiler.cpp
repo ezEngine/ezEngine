@@ -166,7 +166,7 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
     sHashHeader.Format("/*SOURCE-HASH:{}*/\n", ezArgU(uiActualFileHash, 16, true, 16, true));
     out_Result.Prepend(sHashHeader);
 
-    fileOut.WriteBytes(out_Result.GetData(), out_Result.GetElementCount());
+    EZ_SUCCEED_OR_RETURN(fileOut.WriteBytes(out_Result.GetData(), out_Result.GetElementCount()));
     ezLog::Success("Transpiled '{}'", szFile);
   }
 

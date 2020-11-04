@@ -95,7 +95,7 @@ ezResourceLoadDesc ezPxMeshResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   ezUInt8 uiVersion = 1;
   ezUInt8 uiCompressionMode = 0;

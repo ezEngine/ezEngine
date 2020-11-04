@@ -62,7 +62,7 @@ ezResourceLoadDesc ezKrautTreeResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   if (desc.Load(*Stream).Failed())
   {
@@ -302,10 +302,9 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
   stream << m_Details.m_sSurfaceResource;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  stream.FinishCompressedStream();
+  stream.FinishCompressedStream().IgnoreResult();
 
-  ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
-    ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+  ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
 #endif
 }
 

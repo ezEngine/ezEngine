@@ -183,10 +183,10 @@ ezResourceLoadDesc ezRecastNavMeshResource::UpdateContent(ezStreamReader* Stream
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   ezRecastNavMeshResourceDescriptor descriptor;
-  descriptor.Deserialize(*Stream);
+  descriptor.Deserialize(*Stream).IgnoreResult();
 
   return CreateResource(std::move(descriptor));
 }

@@ -86,8 +86,7 @@ void ezRmlUiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
   categories.PushBack(ezDefaultRenderDataCategories::GUI);
 }
 
-void ezRmlUiRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALContext* pGALContext = pRenderContext->GetGALContext();
@@ -131,12 +130,11 @@ void ezRmlUiRenderer::RenderBatch(
         pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_NORMAL");
       }
 
-      pRenderContext->BindMeshBuffer(rmlUiBatch.m_CompiledGeometry.m_hVertexBuffer, rmlUiBatch.m_CompiledGeometry.m_hIndexBuffer,
-        &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, rmlUiBatch.m_CompiledGeometry.m_uiTriangleCount);
+      pRenderContext->BindMeshBuffer(rmlUiBatch.m_CompiledGeometry.m_hVertexBuffer, rmlUiBatch.m_CompiledGeometry.m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, rmlUiBatch.m_CompiledGeometry.m_uiTriangleCount);
 
       pRenderContext->BindTexture2D("BaseTexture", rmlUiBatch.m_CompiledGeometry.m_hTexture);
 
-      pRenderContext->DrawMeshBuffer();
+      pRenderContext->DrawMeshBuffer().IgnoreResult();
     }
   }
 }
@@ -178,5 +176,5 @@ void ezRmlUiRenderer::PrepareStencil(const ezRenderViewContext& renderViewContex
   pConstants->QuadVertexPos[3] = ezVec4(rect.x, rect.y + rect.height, 0, 1);
 
   pRenderContext->BindMeshBuffer(ezGALBufferHandle(), m_hQuadIndexBuffer, nullptr, ezGALPrimitiveTopology::Triangles, 2);
-  pRenderContext->DrawMeshBuffer();
+  pRenderContext->DrawMeshBuffer().IgnoreResult();
 }

@@ -649,7 +649,7 @@ void ezProcPlacementComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
-  s.WriteArray(m_BoxExtents);
+  s.WriteArray(m_BoxExtents).IgnoreResult();
 }
 
 void ezProcPlacementComponent::DeserializeComponent(ezWorldReader& stream)
@@ -659,7 +659,7 @@ void ezProcPlacementComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;
-  s.ReadArray(m_BoxExtents);
+  s.ReadArray(m_BoxExtents).IgnoreResult();
 }
 
 ezUInt32 ezProcPlacementComponent::BoxExtents_GetCount() const

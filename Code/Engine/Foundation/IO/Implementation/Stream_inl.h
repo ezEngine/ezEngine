@@ -234,7 +234,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 ezResult ezStreamWriter::WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map)
 {
   const ezUInt64 uiWriteSize = Map.GetCount();
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (auto It = Map.GetIterator(); It.IsValid(); ++It)
   {
