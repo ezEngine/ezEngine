@@ -45,11 +45,15 @@ public:
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
   float m_fSpeed = 1.0f;                      // [ property ]
 
+  void SetNormalizedPlaybackPosition(float fPosition);
+  float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
+
 protected:
   void Update();
-  bool UpdatePlaybackTime(ezTime tDiff, ezTime duration);
+  bool UpdatePlaybackTime(ezTime tDiff);
 
-  ezTime m_PlaybackTime;
+  float m_fNormalizedPlaybackPosition = 0.0f;
+  ezTime m_Duration;
   ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
 

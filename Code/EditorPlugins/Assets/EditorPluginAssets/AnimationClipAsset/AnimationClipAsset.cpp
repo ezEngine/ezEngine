@@ -48,6 +48,57 @@ ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumen
 {
 }
 
+void ezAnimationClipAssetDocument::TriggerRestart()
+{
+  ezAnimationClipAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezAnimationClipAssetEvent::Restart;
+
+  m_Events.Broadcast(e);
+}
+
+void ezAnimationClipAssetDocument::SetLoop(bool enable)
+{
+  if (m_bLoop == enable)
+    return;
+
+  m_bLoop = enable;
+
+  ezAnimationClipAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezAnimationClipAssetEvent::LoopChanged;
+
+  m_Events.Broadcast(e);
+}
+
+void ezAnimationClipAssetDocument::SetSimulationPaused(bool bPaused)
+{
+  if (m_bSimulationPaused == bPaused)
+    return;
+
+  m_bSimulationPaused = bPaused;
+
+  ezAnimationClipAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezAnimationClipAssetEvent::SimulationSpeedChanged;
+
+  m_Events.Broadcast(e);
+}
+
+void ezAnimationClipAssetDocument::SetSimulationSpeed(float speed)
+{
+  if (m_fSimulationSpeed == speed)
+    return;
+
+  m_fSimulationSpeed = speed;
+
+  ezAnimationClipAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezAnimationClipAssetEvent::SimulationSpeedChanged;
+
+  m_Events.Broadcast(e);
+}
+
 ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);

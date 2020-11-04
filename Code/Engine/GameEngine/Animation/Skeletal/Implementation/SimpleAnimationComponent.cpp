@@ -68,7 +68,6 @@ void ezSimpleAnimationComponent::OnSimulationStarted()
   m_hSkeleton = msg.m_hSkeleton;
 }
 
-
 void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
 {
   m_hAnimationClip = hResource;
@@ -99,9 +98,20 @@ const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
   return m_hAnimationClip.GetResourceID();
 }
 
+void ezSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)
+{
+  m_fNormalizedPlaybackPosition = fPosition;
+
+  // force update next time
+  SetUserFlag(1, true);
+}
+
 void ezSimpleAnimationComponent::Update()
 {
-  if (!m_hSkeleton.IsValid() || !m_hAnimationClip.IsValid() || m_fSpeed == 0.0f)
+  if (!m_hSkeleton.IsValid() || !m_hAnimationClip.IsValid())
+    return;
+
+  if (m_fSpeed == 0.0f && !GetUserFlag(1))
     return;
 
   ezResourceLock<ezAnimationClipResource> pAnimation(m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
@@ -110,7 +120,9 @@ void ezSimpleAnimationComponent::Update()
 
   const ezAnimationClipResourceDescriptor& animDesc = pAnimation->GetDescriptor();
 
-  if (!UpdatePlaybackTime(GetWorld()->GetClock().GetTimeDiff(), animDesc.GetDuration()))
+  m_Duration = animDesc.GetDuration();
+
+  if (!UpdatePlaybackTime(GetWorld()->GetClock().GetTimeDiff()))
     return;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
@@ -138,7 +150,7 @@ void ezSimpleAnimationComponent::Update()
     ozz::animation::SamplingJob job;
     job.animation = pOzzAnimation;
     job.cache = &m_ozzSamplingCache;
-    job.ratio = m_PlaybackTime.AsFloatInSeconds() / pOzzAnimation->duration();
+    job.ratio = m_fNormalizedPlaybackPosition;
     job.output = make_span(m_ozzLocalTransforms);
     job.Run();
   }
@@ -161,31 +173,40 @@ void ezSimpleAnimationComponent::Update()
   }
 }
 
-bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, ezTime duration)
+bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff)
 {
   if (tDiff.IsZero() || m_fSpeed == 0.0f)
-    return false;
+  {
+    if (GetUserFlag(1))
+    {
+      SetUserFlag(1, false);
+      return true;
+    }
 
-  const ezTime tPrev = m_PlaybackTime;
+    return false;
+  }
+
+  const float tDiffNorm = static_cast<float>(tDiff.GetSeconds() / m_Duration.GetSeconds());
+  const float tPrefNorm = m_fNormalizedPlaybackPosition;
 
   switch (m_AnimationMode)
   {
     case ezPropertyAnimMode::Once:
     {
-      m_PlaybackTime += tDiff * m_fSpeed;
-      m_PlaybackTime = ezMath::Clamp(m_PlaybackTime, ezTime::Zero(), duration);
+      m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
+      m_fNormalizedPlaybackPosition = ezMath::Clamp(m_fNormalizedPlaybackPosition, 0.0f, 1.0f);
       break;
     }
 
     case ezPropertyAnimMode::Loop:
     {
-      m_PlaybackTime += tDiff * m_fSpeed;
+      m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
 
-      if (m_PlaybackTime < ezTime::Zero())
-        m_PlaybackTime += duration;
+      if (m_fNormalizedPlaybackPosition < 0.0f)
+        m_fNormalizedPlaybackPosition += 1.0f;
 
-      if (m_PlaybackTime > duration)
-        m_PlaybackTime -= duration;
+      if (m_fNormalizedPlaybackPosition > 1.0f)
+        m_fNormalizedPlaybackPosition -= 1.0f;
 
       break;
     }
@@ -195,30 +216,28 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, ezTime duratio
       const bool bReverse = GetUserFlag(0);
 
       if (bReverse)
-        m_PlaybackTime -= tDiff * m_fSpeed;
+        m_fNormalizedPlaybackPosition -= tDiffNorm * m_fSpeed;
       else
-        m_PlaybackTime += tDiff * m_fSpeed;
+        m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
 
-      if (m_PlaybackTime > duration)
+      if (m_fNormalizedPlaybackPosition > 1.0f)
       {
         SetUserFlag(0, !bReverse);
 
-        const ezTime tOver = duration - m_PlaybackTime;
-
-        m_PlaybackTime = duration - tOver;
+        m_fNormalizedPlaybackPosition = 2.0f - m_fNormalizedPlaybackPosition;
       }
-      else if (m_PlaybackTime < ezTime::Zero())
+      else if (m_fNormalizedPlaybackPosition < 0.0f)
       {
         SetUserFlag(0, !bReverse);
 
-        m_PlaybackTime = -m_PlaybackTime;
+        m_fNormalizedPlaybackPosition = -m_fNormalizedPlaybackPosition;
       }
 
       break;
     }
   }
 
-  return tPrev != m_PlaybackTime;
+  return tPrefNorm != m_fNormalizedPlaybackPosition;
 }
 
 

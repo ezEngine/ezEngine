@@ -93,6 +93,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
     EZ_MEMBER_PROPERTY("Payload", m_sPayload),
+    EZ_MEMBER_PROPERTY("PayloadValue", m_fPayload),
   }
   EZ_END_PROPERTIES;
 }
@@ -279,6 +280,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEngine, 1, ezRTTIDefa
   {
     EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
     EZ_MEMBER_PROPERTY("Payload", m_sPayload),
+    EZ_MEMBER_PROPERTY("PayloadValue", m_fPayload),
   }
   EZ_END_PROPERTIES;
 }

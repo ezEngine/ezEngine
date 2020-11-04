@@ -3,6 +3,8 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
+class ezAnimationClipAssetDocument;
+
 struct ezRootMotionMode
 {
   using StorageType = ezUInt8;
@@ -40,6 +42,19 @@ public:
   // ezString m_sJoint2;
 };
 
+struct ezAnimationClipAssetEvent
+{
+  enum Type
+  {
+    Restart,
+    LoopChanged,
+    SimulationSpeedChanged,
+  };
+
+  ezAnimationClipAssetDocument* m_pDocument;
+  Type m_Type;
+};
+
 //////////////////////////////////////////////////////////////////////////
 
 class ezAnimationClipAssetDocument : public ezSimpleAssetDocument<ezAnimationClipAssetProperties>
@@ -49,6 +64,20 @@ class ezAnimationClipAssetDocument : public ezSimpleAssetDocument<ezAnimationCli
 public:
   ezAnimationClipAssetDocument(const char* szDocumentPath);
 
+  ezEvent<const ezAnimationClipAssetEvent&> m_Events;
+
+  void TriggerRestart();
+
+  void SetLoop(bool enable);
+  bool GetLoop() const { return m_bLoop; }
+
+  void SetSimulationPaused(bool bPaused);
+  bool GetSimulationPaused() const { return m_bSimulationPaused; }
+
+  void SetSimulationSpeed(float speed);
+  float GetSimulationSpeed() const { return m_fSimulationSpeed; }
+
+
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
@@ -56,6 +85,11 @@ protected:
   // void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
   // void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
   // void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
+
+private:
+  bool m_bSimulationPaused = false;
+  bool m_bLoop = true;
+  float m_fSimulationSpeed = 1.0f;
 };
 
 //////////////////////////////////////////////////////////////////////////

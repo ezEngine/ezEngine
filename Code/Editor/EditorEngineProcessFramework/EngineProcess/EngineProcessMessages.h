@@ -90,6 +90,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleConfigMsgToEngine : public ezE
 public:
   ezString m_sWhatToDo;
   ezString m_sPayload;
+  double m_fPayload;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
@@ -138,6 +139,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEngine : pu
 public:
   ezString m_sWhatToDo;
   ezString m_sPayload;
+  double m_fPayload;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezEditorEngineDocumentMsg

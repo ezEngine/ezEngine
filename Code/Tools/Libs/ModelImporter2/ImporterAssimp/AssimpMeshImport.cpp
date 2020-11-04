@@ -140,40 +140,40 @@ namespace ezModelImporter2
       const ezVec3 position = globalTransform * ConvertAssimpType(pMesh->mVertices[vertIdx]);
       mb.SetVertexData(streams.uiPositions, finalVertIdx, position);
 
-      if (pMesh->HasNormals())
+      if (streams.uiNormals != ezInvalidIndex && pMesh->HasNormals())
       {
         const ezVec3 normal = normalsTransform * ConvertAssimpType(pMesh->mNormals[vertIdx]);
 
         ezMeshBufferUtils::EncodeNormal(normal, mb.GetVertexData(streams.uiNormals, finalVertIdx), meshNormalsPrecision);
       }
 
-      if (pMesh->HasTextureCoords(0))
+      if (streams.uiUV0 != ezInvalidIndex && pMesh->HasTextureCoords(0))
       {
         const ezVec2 texcoord = ConvertAssimpType(pMesh->mTextureCoords[0][vertIdx]).GetAsVec2();
 
         ezMeshBufferUtils::EncodeTexCoord(texcoord, mb.GetVertexData(streams.uiUV0, finalVertIdx), meshTexCoordsPrecision);
       }
 
-      if (pMesh->HasTextureCoords(1))
+      if (streams.uiUV1 != ezInvalidIndex && pMesh->HasTextureCoords(1))
       {
         const ezVec2 texcoord = ConvertAssimpType(pMesh->mTextureCoords[1][vertIdx]).GetAsVec2();
 
         ezMeshBufferUtils::EncodeTexCoord(texcoord, mb.GetVertexData(streams.uiUV1, finalVertIdx), meshTexCoordsPrecision);
       }
 
-      if (pMesh->HasVertexColors(0))
+      if (streams.uiColor0 != ezInvalidIndex && pMesh->HasVertexColors(0))
       {
         const ezColorLinearUB color = ConvertAssimpType(pMesh->mColors[0][vertIdx]);
         mb.SetVertexData(streams.uiColor0, finalVertIdx, color);
       }
 
-      if (pMesh->HasVertexColors(1))
+      if (streams.uiColor1 != ezInvalidIndex && pMesh->HasVertexColors(1))
       {
         const ezColorLinearUB color = ConvertAssimpType(pMesh->mColors[1][vertIdx]);
         mb.SetVertexData(streams.uiColor1, finalVertIdx, color);
       }
 
-      if (pMesh->HasTangentsAndBitangents())
+      if (streams.uiTangents != ezInvalidIndex && pMesh->HasTangentsAndBitangents())
       {
         const ezVec3 normal = normalsTransform * ConvertAssimpType(pMesh->mNormals[vertIdx]);
         const ezVec3 tangent = normalsTransform * ConvertAssimpType(pMesh->mTangents[vertIdx]);
@@ -185,7 +185,7 @@ namespace ezModelImporter2
     }
   }
 
-  static void AllocateMeshStreams(ezMeshBufferResourceDescriptor& mb, const aiMesh* pReferenceMesh, StreamIndices& streams, ezUInt32 uiTotalMeshVertices, ezUInt32 uiTotalMeshTriangles, ezEnum<ezMeshNormalPrecision> meshNormalsPrecision, ezEnum<ezMeshTexCoordPrecision> meshTexCoordsPrecision, bool bImportSkinningData, bool b8BitBoneIndices)
+  static void AllocateMeshStreams(ezMeshBufferResourceDescriptor& mb, ezArrayPtr<aiMesh*> referenceMeshes, StreamIndices& streams, ezUInt32 uiTotalMeshVertices, ezUInt32 uiTotalMeshTriangles, ezEnum<ezMeshNormalPrecision> meshNormalsPrecision, ezEnum<ezMeshTexCoordPrecision> meshTexCoordsPrecision, bool bImportSkinningData, bool b8BitBoneIndices)
   {
     streams.uiPositions = mb.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     streams.uiNormals = mb.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(meshNormalsPrecision));
@@ -202,16 +202,30 @@ namespace ezModelImporter2
       streams.uiBoneWgt = mb.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAHalf);
     }
 
-    if (pReferenceMesh->HasTextureCoords(1))
+    bool bTexCoords1 = true;
+    bool bVertexColors0 = true;
+    bool bVertexColors1 = true;
+
+    for (auto pMesh : referenceMeshes)
+    {
+      if (!pMesh->HasTextureCoords(1))
+        bTexCoords1 = false;
+      if (!pMesh->HasVertexColors(0))
+        bVertexColors0 = false;
+      if (!pMesh->HasVertexColors(1))
+        bVertexColors1 = false;
+    }
+
+    if (bTexCoords1)
     {
       streams.uiUV1 = mb.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(meshTexCoordsPrecision));
     }
 
-    if (pReferenceMesh->HasVertexColors(0))
+    if (bVertexColors0)
     {
       streams.uiColor0 = mb.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
     }
-    if (pReferenceMesh->HasVertexColors(1))
+    if (bVertexColors1)
     {
       streams.uiColor1 = mb.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
     }
@@ -442,7 +456,7 @@ namespace ezModelImporter2
     const bool b8BitBoneIndices = m_Options.m_pMeshOutput->m_Bones.GetCount() <= 255;
 
     StreamIndices streams;
-    AllocateMeshStreams(mb, m_aiScene->mMeshes[0], streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices);
+    AllocateMeshStreams(mb, ezArrayPtr<aiMesh*>(m_aiScene->mMeshes, m_aiScene->mNumMeshes), streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices);
 
     ezUInt32 uiMeshPrevTriangleIdx = 0;
     ezUInt32 uiMeshCurVertexIdx = 0;

@@ -75,7 +75,31 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
       pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
       pAnimController->SetAnimationClipFile(sAnimClipGuid);
     }
+    else if (pMsg->m_sWhatToDo == "SimulationSpeed")
+    {
+      SetSpeed((float)pMsg->m_fPayload);
+    }
+
     return;
+  }
+
+  if (auto pMsg = ezDynamicCast<const ezSimulationSettingsMsgToEngine*>(pMsg0))
+  {
+    // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
+
+    m_pWorld->SetWorldSimulationEnabled(pMsg->m_bSimulateWorld);
+    m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
+    return;
+  }
+
+  if (auto pMsg = ezDynamicCast<const ezEditorEngineRestartSimulationMsg*>(pMsg0))
+  {
+    Restart();
+  }
+
+  if (auto pMsg = ezDynamicCast<const ezEditorEngineLoopAnimationMsg*>(pMsg0))
+  {
+    SetLoop(pMsg->m_bLoop);
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg0);
@@ -161,4 +185,37 @@ void ezAnimationClipContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);
+}
+
+void ezAnimationClipContext::Restart()
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezSimpleAnimationComponent* pAnimController;
+  if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+  {
+    pAnimController->SetNormalizedPlaybackPosition(0.0f);
+  }
+}
+
+void ezAnimationClipContext::SetLoop(bool loop)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezSimpleAnimationComponent* pAnimController;
+  if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+  {
+    pAnimController->m_AnimationMode = loop ? ezPropertyAnimMode::Loop : ezPropertyAnimMode::Once;
+  }
+}
+
+void ezAnimationClipContext::SetSpeed(float speed)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezSimpleAnimationComponent* pAnimController;
+  if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+  {
+    pAnimController->m_fSpeed = speed;
+  }
 }

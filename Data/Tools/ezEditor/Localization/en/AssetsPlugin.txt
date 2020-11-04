@@ -200,3 +200,16 @@ Input1;Input1
 AvailableClips;Available Clips
 ezRootMotionMode::None;No Root Motion
 ezRootMotionMode::Constant;Constant Motion
+AnimClip.Pause;Pause
+AnimClip.Restart;Restart
+AnimClip.Loop;Loop
+AnimClip.Speed.01;10%
+AnimClip.Speed.025;25%
+AnimClip.Speed.05;50%
+AnimClip.Speed.1;100%
+AnimClip.Speed.15;150%
+AnimClip.Speed.2;200%
+AnimClip.Speed.3;300%
+AnimClip.Speed.4;400%
+AnimClip.Speed.5;500%
+AnimClip.Speed.10;1000%

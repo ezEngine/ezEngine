@@ -10,6 +10,7 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipActions.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
@@ -394,6 +395,8 @@ static void ConfigureDecalAsset()
 
 static void ConfigureAnimationClipAsset()
 {
+  ezAnimationClipActions::RegisterActions();
+
   // Menu Bar
   {
     ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar");
@@ -409,6 +412,7 @@ static void ConfigureAnimationClipAsset()
     ezDocumentActions::MapActions("AnimationClipAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("AnimationClipAssetToolBar", "");
     ezAssetActions::MapActions("AnimationClipAssetToolBar", true);
+    ezAnimationClipActions::MapActions("AnimationClipAssetToolBar", "");
   }
 
   // View Tool Bar
@@ -502,6 +506,7 @@ void OnUnloadPlugin(bool bReloading)
   ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
   ezVisualScriptActions::UnregisterActions();
+  ezAnimationClipActions::UnregisterActions();
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);

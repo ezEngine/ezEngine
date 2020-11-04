@@ -15,6 +15,7 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
+#include <SharedPluginAssets/Common/Messages.h>
 #include <Texture/Image/ImageConversion.h>
 
 ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument)
@@ -75,6 +76,13 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
   FinishWindowCreation();
 
   QueryObjectBBox(0);
+
+  GetAnimationClipDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::AnimClipEventHandler, this));
+}
+
+ezQtAnimationClipAssetDocumentWindow::~ezQtAnimationClipAssetDocumentWindow()
+{
+  GetAnimationClipDocument()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::AnimClipEventHandler, this));
 }
 
 ezAnimationClipAssetDocument* ezQtAnimationClipAssetDocumentWindow::GetAnimationClipDocument()
@@ -95,6 +103,18 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     GetDocument()->SendMessageToEngine(&msg);
   }
 
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "SimulationSpeed";
+
+    if (GetAnimationClipDocument()->GetSimulationPaused())
+      msg.m_fPayload = 0.0;
+    else
+      msg.m_fPayload = GetAnimationClipDocument()->GetSimulationSpeed();
+
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
+
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(false);
@@ -111,6 +131,30 @@ void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   GetDocument()->SendMessageToEngine(&msg);
 }
 
+void ezQtAnimationClipAssetDocumentWindow::AnimClipEventHandler(const ezAnimationClipAssetEvent& e)
+{
+  switch (e.m_Type)
+  {
+    case ezAnimationClipAssetEvent::Restart:
+    {
+      ezEditorEngineRestartSimulationMsg msg;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    break;
+
+    case ezAnimationClipAssetEvent::LoopChanged:
+    {
+      ezEditorEngineLoopAnimationMsg msg;
+      msg.m_bLoop = GetAnimationClipDocument()->GetLoop();
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    break;
+
+    default:
+      break;
+  }
+}
+
 void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
 {
   ezEditorInputContext::UpdateActiveInputContext();
@@ -124,8 +168,7 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 &&
-        pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 && pMessage->m_vHalfExtents.z >= 0)
     {
       m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }

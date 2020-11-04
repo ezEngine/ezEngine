@@ -13,6 +13,7 @@ class ezQtAnimationClipAssetDocumentWindow : public ezQtEngineDocumentWindow
 
 public:
   ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument);
+  ~ezQtAnimationClipAssetDocumentWindow();
 
   ezAnimationClipAssetDocument* GetAnimationClipDocument();
   virtual const char* GetWindowLayoutGroupName() const override { return "AnimationClipAsset"; }
@@ -24,6 +25,7 @@ protected:
 private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose);
+  void AnimClipEventHandler(const ezAnimationClipAssetEvent& e);
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
