@@ -170,19 +170,19 @@ namespace ezStreamWriterUtil
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, long) -> decltype(Obj.Serialize(Stream), ezResult(EZ_SUCCESS))
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, long) -> decltype(Obj.Serialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Serialize(Stream));
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, float) -> decltype(Obj.serialize(Stream), ezResult(EZ_SUCCESS))
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, float) -> decltype(Obj.serialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.serialize(Stream));
   }
 
   template <class T>
-  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj, 0), ezResult(EZ_SUCCESS))
+  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return SerializeImpl(Stream, Obj, 0);
   }
@@ -271,19 +271,19 @@ namespace ezStreamReaderUtil
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, long) -> decltype(Obj.Deserialize(Stream), ezResult(EZ_SUCCESS))
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, long) -> decltype(Obj.Deserialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Deserialize(Stream));
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, float) -> decltype(Obj.deserialize(Stream), ezResult(EZ_SUCCESS))
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, float) -> decltype(Obj.deserialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.deserialize(Stream));
   }
 
   template <class T>
-  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj, 0), ezResult(EZ_SUCCESS))
+  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return DeserializeImpl(Stream, Obj, 0);
   }
