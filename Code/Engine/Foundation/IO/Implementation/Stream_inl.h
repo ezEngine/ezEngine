@@ -206,7 +206,7 @@ template <typename ValueType, ezUInt32 uiSize>
 ezResult ezStreamWriter::WriteArray(const ValueType (&Array)[uiSize])
 {
   const ezUInt64 uiWriteSize = uiSize;
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiSize); ++i)
   {
