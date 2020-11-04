@@ -125,8 +125,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     // since it contains other useful information (resource bindings), that we need for shader binding
     m_pShaderStageBinaries[stage] = pStageBin;
 
-    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'",
-      ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
+    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
 
     ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 
@@ -203,8 +202,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResou
     ezStringBuilder sPermutationFile = pResource->GetResourceID();
 
     sPermutationFile.ChangeFileExtension("");
-    sPermutationFile.Shrink(
-      ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
+    sPermutationFile.Shrink(ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
 
     sPermutationFile.Shrink(0, 9); // remove underscore and the hash at the end
     sPermutationFile.Append(".ezShader");
@@ -212,8 +210,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResou
     ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource)->GetPermutationVars();
 
     ezShaderCompiler sc;
-    return sc.CompileShaderPermutationForPlatforms(
-      sPermutationFile, permutationVars, ezLog::GetThreadLocalLogSystem(), ezShaderManager::GetActivePlatform());
+    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezLog::GetThreadLocalLogSystem(), ezShaderManager::GetActivePlatform());
   }
   else
   {
@@ -336,7 +333,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
   // preload the files that are referenced in the .ezPermutation file
   {
     // write the permutation file info back to the output stream, so that the resource can read it as well
-    permutationBinary.Write(w);
+    permutationBinary.Write(w).IgnoreResult();
 
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {

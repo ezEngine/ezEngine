@@ -58,8 +58,7 @@ void ezSpriteRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDa
   categories.PushBack(ezDefaultRenderDataCategories::Selection);
 }
 
-void ezSpriteRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
@@ -86,9 +85,8 @@ void ezSpriteRenderer::RenderBatch(
     {
       pGALContext->UpdateBuffer(hSpriteData, 0, m_spriteData.GetByteArrayPtr());
 
-      renderViewContext.m_pRenderContext->BindMeshBuffer(
-        ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer();
+      renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
     }
 
     uiStartIndex += uiCount;

@@ -28,15 +28,15 @@ ezResult ezControllerInputAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  m_ButtonA.Serialize(stream);
-  m_ButtonB.Serialize(stream);
-  m_ButtonX.Serialize(stream);
-  m_ButtonY.Serialize(stream);
+  EZ_SUCCEED_OR_RETURN(m_ButtonA.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ButtonB.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ButtonX.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ButtonY.Serialize(stream));
 
-  m_StickLeft.Serialize(stream);
-  m_StickRight.Serialize(stream);
-  m_StickUp.Serialize(stream);
-  m_StickDown.Serialize(stream);
+  EZ_SUCCEED_OR_RETURN(m_StickLeft.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_StickRight.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_StickUp.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_StickDown.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -47,15 +47,15 @@ ezResult ezControllerInputAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  m_ButtonA.Deserialize(stream);
-  m_ButtonB.Deserialize(stream);
-  m_ButtonX.Deserialize(stream);
-  m_ButtonY.Deserialize(stream);
+  EZ_SUCCEED_OR_RETURN(m_ButtonA.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ButtonB.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ButtonX.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ButtonY.Deserialize(stream));
 
-  m_StickLeft.Deserialize(stream);
-  m_StickRight.Deserialize(stream);
-  m_StickUp.Deserialize(stream);
-  m_StickDown.Deserialize(stream);
+  EZ_SUCCEED_OR_RETURN(m_StickLeft.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_StickRight.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_StickUp.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_StickDown.Deserialize(stream));
 
   return EZ_SUCCESS;
 }

@@ -34,8 +34,7 @@ ezStereoTestPass::ezStereoTestPass()
 
 ezStereoTestPass::~ezStereoTestPass() {}
 
-bool ezStereoTestPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezStereoTestPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   if (pInput != nullptr)
@@ -54,8 +53,7 @@ bool ezStereoTestPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -78,7 +76,7 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
-  renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1);
+  renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1).IgnoreResult();
 }
 
 

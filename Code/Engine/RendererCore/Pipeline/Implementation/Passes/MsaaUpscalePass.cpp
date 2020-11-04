@@ -34,8 +34,7 @@ ezMsaaUpscalePass::ezMsaaUpscalePass()
 
 ezMsaaUpscalePass::~ezMsaaUpscalePass() {}
 
-bool ezMsaaUpscalePass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -62,8 +61,7 @@ bool ezMsaaUpscalePass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -86,7 +84,7 @@ void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, co
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
-  renderViewContext.m_pRenderContext->DrawMeshBuffer();
+  renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 }
 
 
@@ -106,10 +104,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
-  {
-    pNode->RenameProperty("MSAA Mode", "MSAA_Mode");
-  }
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("MSAA Mode", "MSAA_Mode"); }
 };
 
 ezMsaaUpscalePassPatch_1_2 g_ezMsaaUpscalePassPatch_1_2;

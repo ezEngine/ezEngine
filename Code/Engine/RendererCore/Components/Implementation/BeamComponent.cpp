@@ -263,8 +263,7 @@ void ezBeamComponent::CreateMeshes()
   // Create the beam mesh name, it expresses the beam in local space with it's width
   // this way multiple beams in a corridor can share the same mesh for example.
   ezStringBuilder meshName;
-  meshName.Format("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, ezArgF(targetPositionInOwnerSpace.x, 2),
-    ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
+  meshName.Format("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, ezArgF(targetPositionInOwnerSpace.x, 2), ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(meshName);
 
@@ -277,16 +276,16 @@ void ezBeamComponent::CreateMeshes()
   //
   //  4        2
   ezVec3 crossVector1 = (0.5f * ezVec3::UnitYAxis() + 0.5f * ezVec3::UnitZAxis());
-  crossVector1.SetLength(m_fWidth * 0.5f);
+  crossVector1.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
   ezVec3 crossVector2 = (0.5f * ezVec3::UnitYAxis() - 0.5f * ezVec3::UnitZAxis());
-  crossVector2.SetLength(m_fWidth * 0.5f);
+  crossVector2.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
   ezVec3 crossVector3 = (-0.5f * ezVec3::UnitYAxis() + 0.5f * ezVec3::UnitZAxis());
-  crossVector3.SetLength(m_fWidth * 0.5f);
+  crossVector3.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
   ezVec3 crossVector4 = (-0.5f * ezVec3::UnitYAxis() - 0.5f * ezVec3::UnitZAxis());
-  crossVector4.SetLength(m_fWidth * 0.5f);
+  crossVector4.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
   const float fDistance = (m_vLastOwnerPosition - m_vLastTargetPosition).GetLength();
 
@@ -301,10 +300,8 @@ void ezBeamComponent::CreateMeshes()
     {
       ezUInt32 index0 = g.AddVertex(ezVec3::ZeroVector() + crossVector1, ezVec3::UnitXAxis(), ezVec2(0, 0), ezColor::White);
       ezUInt32 index1 = g.AddVertex(ezVec3::ZeroVector() + crossVector4, ezVec3::UnitXAxis(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 =
-        g.AddVertex(targetPositionInOwnerSpace + crossVector1, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 =
-        g.AddVertex(targetPositionInOwnerSpace + crossVector4, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector1, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
+      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector4, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
 
       ezUInt32 indices[] = {index0, index2, index3, index1};
       g.AddPolygon(ezArrayPtr(indices), false);
@@ -315,10 +312,8 @@ void ezBeamComponent::CreateMeshes()
     {
       ezUInt32 index0 = g.AddVertex(ezVec3::ZeroVector() + crossVector2, ezVec3::UnitXAxis(), ezVec2(0, 0), ezColor::White);
       ezUInt32 index1 = g.AddVertex(ezVec3::ZeroVector() + crossVector3, ezVec3::UnitXAxis(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 =
-        g.AddVertex(targetPositionInOwnerSpace + crossVector2, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 =
-        g.AddVertex(targetPositionInOwnerSpace + crossVector3, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector2, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
+      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector3, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
 
       ezUInt32 indices[] = {index0, index2, index3, index1};
       g.AddPolygon(ezArrayPtr(indices), false);
@@ -364,4 +359,3 @@ void ezBeamComponent::Cleanup()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_BeamComponent);
-

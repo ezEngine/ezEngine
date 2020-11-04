@@ -48,8 +48,7 @@ ezSelectionHighlightPass::~ezSelectionHighlightPass()
   m_hConstantBuffer.Invalidate();
 }
 
-bool ezSelectionHighlightPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
@@ -61,8 +60,7 @@ bool ezSelectionHighlightPass::GetRenderTargetDescriptions(
   return false;
 }
 
-void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pColorOutput = outputs[m_PinColor.m_uiOutputIndex];
   if (pColorOutput == nullptr)
@@ -96,8 +94,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     ezGALMSAASampleCount::Enum sampleCount = pColorOutput->m_Desc.m_SampleCount;
     ezUInt32 uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
 
-    hDepthTexture =
-      ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
+    hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
 
     ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
@@ -128,7 +125,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     renderViewContext.m_pRenderContext->BindTexture2D("SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
     renderViewContext.m_pRenderContext->BindTexture2D("SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hDepthTexture);
   }

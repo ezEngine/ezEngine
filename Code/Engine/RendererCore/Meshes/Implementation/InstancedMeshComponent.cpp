@@ -194,14 +194,14 @@ void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
-  stream.GetStream().WriteArray(m_rawInstancedData);
+  stream.GetStream().WriteArray(m_rawInstancedData).IgnoreResult();
 }
 
 void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
 
-  stream.GetStream().ReadArray(m_rawInstancedData);
+  stream.GetStream().ReadArray(m_rawInstancedData).IgnoreResult();
 }
 
 void ezInstancedMeshComponent::OnActivated()
@@ -329,7 +329,7 @@ ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const
     else
     {
       ezMat3 mInverse = objectToWorld.GetRotationalPart();
-      mInverse.Invert(0.0f);
+      mInverse.Invert(0.0f).IgnoreResult();
       // we explicitly ignore the return value here (success / failure)
       // because when we have a scale of 0 (which happens temporarily during editing) that would be annoying
 

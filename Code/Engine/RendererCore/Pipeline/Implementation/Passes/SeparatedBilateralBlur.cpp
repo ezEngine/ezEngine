@@ -50,8 +50,7 @@ ezSeparatedBilateralBlurPass::~ezSeparatedBilateralBlurPass()
   m_hBilateralBlurCB.Invalidate();
 }
 
-bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   EZ_ASSERT_DEBUG(inputs.GetCount() == 2, "Unexpected number of inputs for ezSeparatedBilateralBlurPass.");
 
@@ -78,8 +77,7 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(
     ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
     return false;
   }
-  if (inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiWidth != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiWidth ||
-      inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiHeight != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiHeight)
+  if (inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiWidth != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiWidth || inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiHeight != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiHeight)
   {
     ezLog::Error("Blur target and depth buffer for bilateral blur pass need to have the same dimensions.");
     return false;
@@ -92,8 +90,7 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderViewContext,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
@@ -128,14 +125,14 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_HORIZONTAL");
     renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hBlurSourceInputView);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     // Vertical.
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
     renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hTempTextureRView);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     // Give back temp texture.
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(tempTexture);

@@ -123,7 +123,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hIrradianceShader);
 
-    renderViewContext.m_pRenderContext->Dispatch(1);
+    renderViewContext.m_pRenderContext->Dispatch(1).IgnoreResult();
   }
 }
 

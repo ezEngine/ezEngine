@@ -193,7 +193,9 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     chunk << m_MeshBufferDescriptor.GetVertexBufferData().GetCount();
 
     if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
-      chunk.WriteBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount());
+    {
+      chunk.WriteBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount()).IgnoreResult();
+    }
 
     chunk.EndChunk();
   }
@@ -206,7 +208,9 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     chunk << m_MeshBufferDescriptor.GetIndexBufferData().GetCount();
 
     if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
-      chunk.WriteBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
+    {
+      chunk.WriteBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount()).IgnoreResult();
+    }
 
     chunk.EndChunk();
   }
@@ -215,7 +219,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
   {
     chunk.BeginChunk("BindPose", 1);
 
-    chunk.WriteHashTable(m_Bones);
+    chunk.WriteHashTable(m_Bones).IgnoreResult();
 
     chunk.EndChunk();
   }
@@ -232,7 +236,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
   chunk.EndStream();
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  compressor.FinishCompressedStream();
+  compressor.FinishCompressedStream().IgnoreResult();
 
   ezLog::Dev("Compressed mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
 #endif
@@ -251,7 +255,7 @@ ezResult ezMeshResourceDescriptor::Load(const char* szFile)
 
   // skip asset header
   ezAssetFileHeader assetHeader;
-  assetHeader.Read(file);
+  EZ_SUCCEED_OR_RETURN(assetHeader.Read(file));
 
   return Load(file);
 }
@@ -462,7 +466,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
     if (ci.m_sChunkName == "BindPose")
     {
-      chunk.ReadHashTable(m_Bones);
+      EZ_SUCCEED_OR_RETURN(chunk.ReadHashTable(m_Bones));
     }
 
     if (ci.m_sChunkName == "Skeleton")

@@ -117,7 +117,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // version 7
   s << m_uiRandomDecalIdx;
-  s.WriteArray(m_hDecals);
+  s.WriteArray(m_hDecals).IgnoreResult();
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -182,7 +182,7 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 7)
   {
     s >> m_uiRandomDecalIdx;
-    s.ReadArray(m_hDecals);
+    s.ReadArray(m_hDecals).IgnoreResult();
   }
 }
 

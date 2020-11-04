@@ -23,7 +23,7 @@ void ezAnimGraphResource::DeserializeAnimGraphState(ezAnimGraph& out)
 {
   ezMemoryStreamContainerWrapperStorage<ezDataBuffer> wrapper(&m_Storage);
   ezMemoryStreamReader reader(&wrapper);
-  out.Deserialize(reader);
+  out.Deserialize(reader).IgnoreResult();
 }
 
 ezResourceLoadDesc ezAnimGraphResource::UnloadData(Unload WhatToUnload)
@@ -57,7 +57,7 @@ ezResourceLoadDesc ezAnimGraphResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   ezUInt32 uiDateSize = 0;
   *Stream >> uiDateSize;
