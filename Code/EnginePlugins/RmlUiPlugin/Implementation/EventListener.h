@@ -9,12 +9,12 @@ class ezRmlUiContext;
 
 namespace ezRmlUiInternal
 {
-  class EventListener final : public Rml::Core::EventListener
+  class EventListener final : public Rml::EventListener
   {
   public:
-    virtual void ProcessEvent(Rml::Core::Event& event) override;
+    virtual void ProcessEvent(Rml::Event& event) override;
 
-    virtual void OnDetach(Rml::Core::Element* element) override;
+    virtual void OnDetach(Rml::Element* element) override;
 
   private:
     friend class EventListenerInstancer;
@@ -22,13 +22,13 @@ namespace ezRmlUiInternal
     ezUInt32 m_uiIndex = 0;
   };
 
-  class EventListenerInstancer final : public Rml::Core::EventListenerInstancer
+  class EventListenerInstancer final : public Rml::EventListenerInstancer
   {
   public:
     EventListenerInstancer();
     ~EventListenerInstancer();
 
-    virtual Rml::Core::EventListener* InstanceEventListener(const Rml::Core::String& value, Rml::Core::Element* element) override;
+    virtual Rml::EventListener* InstanceEventListener(const Rml::String& value, Rml::Element* element) override;
 
     void ReturnToPool(EventListener& listener);
 

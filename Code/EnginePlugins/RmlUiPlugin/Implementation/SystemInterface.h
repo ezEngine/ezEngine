@@ -4,13 +4,13 @@
 
 namespace ezRmlUiInternal
 {
-  class SystemInterface final : public Rml::Core::SystemInterface
+  class SystemInterface final : public Rml::SystemInterface
   {
   public:
     virtual double GetElapsedTime() override;
 
-    virtual void JoinPath(Rml::Core::String& translated_path, const Rml::Core::String& document_path, const Rml::Core::String& path) override;
+    virtual void JoinPath(Rml::String& translated_path, const Rml::String& document_path, const Rml::String& path) override;
 
-    virtual bool LogMessage(Rml::Core::Log::Type type, const Rml::Core::String& message) override;
+    virtual bool LogMessage(Rml::Log::Type type, const Rml::String& message) override;
   };
 } // namespace ezRmlUiInternal

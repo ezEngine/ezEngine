@@ -13,13 +13,15 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_RMLUI_SUPPO
 # Don't use standard c++ rtti since it will be disabled in the project
 target_compile_definitions(${PROJECT_NAME} PUBLIC RMLUI_USE_CUSTOM_RTTI)
 
-# Freetype
 get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty/RmlUi/Include")
+
+# Freetype
 set(RMLUI_FREETYPE_PATH ${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty/RmlUi/Dependencies/freetype)
 target_include_directories(${PROJECT_NAME} PRIVATE "${RMLUI_FREETYPE_PATH}/Include")
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC RmlCore_EXPORTS)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE RmlCore_EXPORTS)
   
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(RMLUI_FREETYPE_LIB "${RMLUI_FREETYPE_PATH}/win64")
