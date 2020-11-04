@@ -14,7 +14,7 @@
 static ezResult TranspileString(const char* szSource, ezDuktapeContext& script, ezStringBuilder& result)
 {
   script.PushGlobalObject();                                           // [ global ]
-  script.PushLocalObject("ts");                                        // [ global ts ]
+  script.PushLocalObject("ts").IgnoreResult();                         // [ global ts ]
   EZ_SUCCEED_OR_RETURN(script.PrepareObjectFunctionCall("transpile")); // [ global ts transpile ]
   script.PushString(szSource);                                         // [ global ts transpile source ]
   EZ_SUCCEED_OR_RETURN(script.CallPreparedFunction());                 // [ global ts result ]
@@ -27,7 +27,7 @@ static ezResult TranspileString(const char* szSource, ezDuktapeContext& script, 
 static ezResult TranspileFile(const char* szFile, ezDuktapeContext& script, ezStringBuilder& result)
 {
   ezFileReader file;
-  file.Open(szFile);
+  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
 
   ezStringBuilder source;
   source.ReadAll(file);
@@ -45,7 +45,7 @@ static ezResult TranspileFileToJS(const char* szFile, ezDuktapeContext& script, 
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  file.WriteBytes(result.GetData(), result.GetElementCount());
+  EZ_SUCCEED_OR_RETURN(file.WriteBytes(result.GetData(), result.GetElementCount()));
   return EZ_SUCCESS;
 }
 
@@ -74,7 +74,7 @@ static duk_ret_t ModuleSearchFunction2(duk_context* ctx)
 
   ezStringBuilder source;
   ezFileReader file;
-  file.Open(id);
+  file.Open(id).IgnoreResult();
   source.ReadAll(file);
 
   return script.ReturnString(source);
@@ -92,10 +92,10 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
 
     ezStringBuilder sTestDataDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sTestDataDir.AppendPath("Scripting/TypeScript");
-    if (EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sTestDataDir, "TypeScriptTest", "TypeScriptTest", ezFileSystem::AllowWrites)).Failed())
+    if (!EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sTestDataDir, "TypeScriptTest", "TypeScriptTest", ezFileSystem::AllowWrites)))
       return;
 
-    if (EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor", "DuktapeTest")).Failed())
+    if (!EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor", "DuktapeTest")))
       return;
   }
 
@@ -113,7 +113,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
 
     // complicated way, needed to retrieve the result
     ezStringBuilder sTranspiled;
-    TranspileString("class X{}", duk, sTranspiled);
+    TranspileString("class X{}", duk, sTranspiled).IgnoreResult();
 
     // validate that the transpiled code can be executed by Duktape
     ezDuktapeContext duk("duk");
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
     ezStringBuilder result;
     EZ_TEST_RESULT(TranspileFileToJS("Foo.ts", duk, result));
 
-    duk.ExecuteFile("Foo.js");
+    duk.ExecuteFile("Foo.js").IgnoreResult();
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Import files")
@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
     ezStringBuilder result;
     EZ_TEST_RESULT(TranspileFileToJS("Bar.ts", duk, result));
 
-    duk.ExecuteFile("Bar.js");
+    duk.ExecuteFile("Bar.js").IgnoreResult();
   }
 
   ezFileSystem::DeleteFile(":TypeScriptTest/Foo.js");
