@@ -178,7 +178,7 @@ public:
       ezLog::Error("This tool requires at leas one command-line argument: An absolute path to the top-level folder of a library.");
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
 
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     ezStringBuilder sSearchDir;
@@ -416,7 +416,7 @@ public:
   void CheckHeaderFile(const ezStringBuilder& currentFile)
   {
     ezStringBuilder fileContents(m_stackAllocator.Borrow());
-    ReadEntireFile(currentFile.GetData(), fileContents);
+    ReadEntireFile(currentFile.GetData(), fileContents).IgnoreResult();
 
     auto fileDir = currentFile.GetFileDirectory();
 

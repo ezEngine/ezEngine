@@ -62,7 +62,7 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
 
   SetupLevel();
 
-  ActivateGameState(m_pWorld.Borrow());
+  ActivateGameState(m_pWorld.Borrow()).IgnoreResult();
 }
 
 void ezPlayerApplication::BeforeHighLevelSystemsShutdown()
@@ -91,7 +91,7 @@ void ezPlayerApplication::SetupLevel()
       // File Header
       {
         ezAssetFileHeader header;
-        header.Read(file);
+        header.Read(file).IgnoreResult();
 
         char szSceneTag[16];
         file.ReadBytes(szSceneTag, sizeof(char) * 16);
@@ -100,7 +100,7 @@ void ezPlayerApplication::SetupLevel()
       }
 
       ezWorldReader reader;
-      reader.ReadWorldDescription(file);
+      reader.ReadWorldDescription(file).IgnoreResult();
       reader.InstantiateWorld(*m_pWorld, nullptr);
       // reader.InstantiatePrefab(*m_pWorld, ezVec3(0, 2, 0), ezQuat::IdentityQuaternion(), ezVec3(0.1f));
     }

@@ -69,7 +69,7 @@ void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGr
     ezRawMemoryStreamReader stringReader(sGraph.GetStartPointer(), sGraph.GetElementCount());
     ezUniquePtr<ezAbstractObjectGraph> header;
     ezUniquePtr<ezAbstractObjectGraph> types;
-    ezAbstractGraphDdlSerializer::ReadDocument(stringReader, header, it.Value(), types, true);
+    ezAbstractGraphDdlSerializer::ReadDocument(stringReader, header, it.Value(), types, true).IgnoreResult();
   }
 
   it.Value()->Clone(out_graph);
@@ -81,8 +81,7 @@ ezPrefabCache::PrefabData& ezPrefabCache::GetOrCreatePrefabCache(const ezUuid& d
   if (it.IsValid())
   {
     ezFileStats Stats;
-    if (ezOSFile::GetFileStats(it.Value()->m_sAbsPath, Stats).Succeeded() &&
-        !Stats.m_LastModificationTime.Compare(it.Value()->m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
+    if (ezOSFile::GetFileStats(it.Value()->m_sAbsPath, Stats).Succeeded() && !Stats.m_LastModificationTime.Compare(it.Value()->m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
     {
       UpdatePrefabData(*it.Value().Borrow());
     }

@@ -40,7 +40,7 @@ ezString ezApplicationServices::GetApplicationDataFolder() const
   ezStringBuilder sAppDir(">sdk/Data/Tools/", m_sApplicationName);
 
   ezStringBuilder result;
-  ezFileSystem::ResolveSpecialDirectory(sAppDir, result);
+  ezFileSystem::ResolveSpecialDirectory(sAppDir, result).IgnoreResult();
   result.MakeCleanPath();
 
   return result;

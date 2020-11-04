@@ -248,7 +248,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     {
       // Deserialize
       ezRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
-      ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
+      EZ_SUCCEED_OR_RETURN(ezAbstractGraphDdlSerializer::Read(memoryReader, &graph));
     }
 
     // Remap
@@ -893,8 +893,7 @@ ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
     if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
     {
-      return ezStatus(
-        ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
+      return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
     }
   }
   return ezStatus(EZ_SUCCESS);

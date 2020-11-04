@@ -144,21 +144,21 @@ namespace ezModelImporter2
       {
         const ezVec3 normal = normalsTransform * ConvertAssimpType(pMesh->mNormals[vertIdx]);
 
-        ezMeshBufferUtils::EncodeNormal(normal, mb.GetVertexData(streams.uiNormals, finalVertIdx), meshNormalsPrecision);
+        ezMeshBufferUtils::EncodeNormal(normal, mb.GetVertexData(streams.uiNormals, finalVertIdx), meshNormalsPrecision).IgnoreResult();
       }
 
       if (streams.uiUV0 != ezInvalidIndex && pMesh->HasTextureCoords(0))
       {
         const ezVec2 texcoord = ConvertAssimpType(pMesh->mTextureCoords[0][vertIdx]).GetAsVec2();
 
-        ezMeshBufferUtils::EncodeTexCoord(texcoord, mb.GetVertexData(streams.uiUV0, finalVertIdx), meshTexCoordsPrecision);
+        ezMeshBufferUtils::EncodeTexCoord(texcoord, mb.GetVertexData(streams.uiUV0, finalVertIdx), meshTexCoordsPrecision).IgnoreResult();
       }
 
       if (streams.uiUV1 != ezInvalidIndex && pMesh->HasTextureCoords(1))
       {
         const ezVec2 texcoord = ConvertAssimpType(pMesh->mTextureCoords[1][vertIdx]).GetAsVec2();
 
-        ezMeshBufferUtils::EncodeTexCoord(texcoord, mb.GetVertexData(streams.uiUV1, finalVertIdx), meshTexCoordsPrecision);
+        ezMeshBufferUtils::EncodeTexCoord(texcoord, mb.GetVertexData(streams.uiUV1, finalVertIdx), meshTexCoordsPrecision).IgnoreResult();
       }
 
       if (streams.uiColor0 != ezInvalidIndex && pMesh->HasVertexColors(0))
@@ -180,12 +180,13 @@ namespace ezModelImporter2
         const ezVec3 bitangent = normalsTransform * ConvertAssimpType(pMesh->mBitangents[vertIdx]);
         const float fBitangentSign = ezMath::Abs(tangent.CrossRH(bitangent).Dot(normal));
 
-        ezMeshBufferUtils::EncodeTangent(tangent, fBitangentSign, mb.GetVertexData(streams.uiTangents, finalVertIdx), meshNormalsPrecision);
+        ezMeshBufferUtils::EncodeTangent(tangent, fBitangentSign, mb.GetVertexData(streams.uiTangents, finalVertIdx), meshNormalsPrecision).IgnoreResult();
       }
     }
   }
 
-  static void AllocateMeshStreams(ezMeshBufferResourceDescriptor& mb, ezArrayPtr<aiMesh*> referenceMeshes, StreamIndices& streams, ezUInt32 uiTotalMeshVertices, ezUInt32 uiTotalMeshTriangles, ezEnum<ezMeshNormalPrecision> meshNormalsPrecision, ezEnum<ezMeshTexCoordPrecision> meshTexCoordsPrecision, bool bImportSkinningData, bool b8BitBoneIndices)
+  static void AllocateMeshStreams(ezMeshBufferResourceDescriptor& mb, ezArrayPtr<aiMesh*> referenceMeshes, StreamIndices& streams, ezUInt32 uiTotalMeshVertices, ezUInt32 uiTotalMeshTriangles, ezEnum<ezMeshNormalPrecision> meshNormalsPrecision, ezEnum<ezMeshTexCoordPrecision> meshTexCoordsPrecision,
+    bool bImportSkinningData, bool b8BitBoneIndices)
   {
     streams.uiPositions = mb.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     streams.uiNormals = mb.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(meshNormalsPrecision));
@@ -309,7 +310,7 @@ namespace ezModelImporter2
     const ezUInt32 uiVertexIdx = pMikkData->m_pIndices16[iFace * 3 + iVert];
 
     ezVec3* pDest = reinterpret_cast<ezVec3*>(outData);
-    ezMeshBufferUtils::DecodeNormal(ezConstByteArrayPtr(pMikkData->m_pNormals + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_NormalsFormat, *pDest);
+    ezMeshBufferUtils::DecodeNormal(ezConstByteArrayPtr(pMikkData->m_pNormals + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_NormalsFormat, *pDest).IgnoreResult();
   }
 
   static void MikkGetNormal32(const SMikkTSpaceContext* pContext, float outData[], int iFace, int iVert)
@@ -318,7 +319,7 @@ namespace ezModelImporter2
     const ezUInt32 uiVertexIdx = pMikkData->m_pIndices32[iFace * 3 + iVert];
 
     ezVec3* pDest = reinterpret_cast<ezVec3*>(outData);
-    ezMeshBufferUtils::DecodeNormal(ezConstByteArrayPtr(pMikkData->m_pNormals + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_NormalsFormat, *pDest);
+    ezMeshBufferUtils::DecodeNormal(ezConstByteArrayPtr(pMikkData->m_pNormals + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_NormalsFormat, *pDest).IgnoreResult();
   }
 
   static void MikkGetTexCoord16(const SMikkTSpaceContext* pContext, float outData[], int iFace, int iVert)
@@ -327,7 +328,7 @@ namespace ezModelImporter2
     const ezUInt32 uiVertexIdx = pMikkData->m_pIndices16[iFace * 3 + iVert];
 
     ezVec2* pDest = reinterpret_cast<ezVec2*>(outData);
-    ezMeshBufferUtils::DecodeTexCoord(ezConstByteArrayPtr(pMikkData->m_pTexCoords + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TexCoordsFormat, *pDest);
+    ezMeshBufferUtils::DecodeTexCoord(ezConstByteArrayPtr(pMikkData->m_pTexCoords + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TexCoordsFormat, *pDest).IgnoreResult();
   }
 
   static void MikkGetTexCoord32(const SMikkTSpaceContext* pContext, float outData[], int iFace, int iVert)
@@ -336,7 +337,7 @@ namespace ezModelImporter2
     const ezUInt32 uiVertexIdx = pMikkData->m_pIndices32[iFace * 3 + iVert];
 
     ezVec2* pDest = reinterpret_cast<ezVec2*>(outData);
-    ezMeshBufferUtils::DecodeTexCoord(ezConstByteArrayPtr(pMikkData->m_pTexCoords + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TexCoordsFormat, *pDest);
+    ezMeshBufferUtils::DecodeTexCoord(ezConstByteArrayPtr(pMikkData->m_pTexCoords + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TexCoordsFormat, *pDest).IgnoreResult();
   }
 
   static void MikkSetTangents16(const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
@@ -346,7 +347,7 @@ namespace ezModelImporter2
 
     const ezVec3 tangent = *reinterpret_cast<const ezVec3*>(fvTangent);
 
-    ezMeshBufferUtils::EncodeTangent(tangent, fSign, ezByteArrayPtr(pMikkData->m_pTangents + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TangentsFormat);
+    ezMeshBufferUtils::EncodeTangent(tangent, fSign, ezByteArrayPtr(pMikkData->m_pTangents + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TangentsFormat).IgnoreResult();
   }
 
   static void MikkSetTangents32(const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
@@ -356,7 +357,7 @@ namespace ezModelImporter2
 
     const ezVec3 tangent = *reinterpret_cast<const ezVec3*>(fvTangent);
 
-    ezMeshBufferUtils::EncodeTangent(tangent, fSign, ezByteArrayPtr(pMikkData->m_pTangents + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TangentsFormat);
+    ezMeshBufferUtils::EncodeTangent(tangent, fSign, ezByteArrayPtr(pMikkData->m_pTangents + (uiVertexIdx * pMikkData->m_uiVertexSize), 32), pMikkData->m_TangentsFormat).IgnoreResult();
   }
 
   ezResult ImporterAssimp::RecomputeTangents()

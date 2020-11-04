@@ -32,8 +32,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybr
   TableDocuments->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Stretch);
   TableDocuments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Fixed);
 
-  EZ_VERIFY(connect(TableDocuments, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(SlotSelectionChanged(int, int, int, int))) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(TableDocuments, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(SlotSelectionChanged(int, int, int, int))) != nullptr, "signal/slot connection failed");
 
   ezInt32 iRow = 0;
   for (ezDocument* pDoc : m_ModifiedDocs)
@@ -110,7 +109,7 @@ void ezQtModifiedDocumentsDlg::SlotSaveDocument()
 
   ezDocument* pDoc = (ezDocument*)pButtonSave->property("document").value<void*>();
 
-  SaveDocument(pDoc);
+  SaveDocument(pDoc).IgnoreResult();
 
   pButtonSave->setEnabled(pDoc->IsModified());
 }

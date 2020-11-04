@@ -104,7 +104,7 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
           if (uiRead == 0)
             break;
 
-          Writer.WriteBytes(uiTemp, uiRead);
+          Writer.WriteBytes(uiTemp, uiRead).IgnoreResult();
         }
 
         s_pWidget->on_ComboTransfers_currentIndexChanged(s_pWidget->ComboTransfers->currentIndex());
@@ -248,8 +248,7 @@ bool ezQtDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
   QFile FileOut(szFile);
   if (!FileOut.open(QIODevice::WriteOnly))
   {
-    QMessageBox::warning(this, QLatin1String("Error writing to file"), QLatin1String("Could not open the specified file for writing."),
-      QMessageBox::Ok, QMessageBox::Ok);
+    QMessageBox::warning(this, QLatin1String("Error writing to file"), QLatin1String("Could not open the specified file for writing."), QMessageBox::Ok, QMessageBox::Ok);
     return false;
   }
 
@@ -315,7 +314,5 @@ void ezQtDataWidget::on_ButtonOpen_clicked()
   SaveToFile(*pItem, pItem->m_sFileName.GetData());
 
   if (!QDesktopServices::openUrl(QUrl(pItem->m_sFileName.GetData())))
-    QMessageBox::information(this, QLatin1String("ezInspector"),
-      QLatin1String("Could not open the file. There is probably no application registered to handle this file type."), QMessageBox::Ok,
-      QMessageBox::Ok);
+    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("Could not open the file. There is probably no application registered to handle this file type."), QMessageBox::Ok, QMessageBox::Ok);
 }

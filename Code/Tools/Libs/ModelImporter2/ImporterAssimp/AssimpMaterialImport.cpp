@@ -12,7 +12,7 @@ namespace ezModelImporter2
   static const void MakeValidMaterialName(ezString& target, const char* source, ezUInt32 matIdx, ezSet<ezString>& knownMaterialNames)
   {
     ezStringBuilder tmp;
-    ezPathUtils::MakeValidFilename(source, '_', tmp);
+    ezPathUtils::MakeValidFilename(source, '_', tmp).IgnoreResult();
 
     if (knownMaterialNames.Contains(tmp))
     {

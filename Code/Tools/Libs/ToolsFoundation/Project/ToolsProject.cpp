@@ -40,7 +40,7 @@ ezStatus ezToolsProject::Create()
     {
       const char* szToken = "ezEditor Project File";
 
-      ProjectFile.Write(szToken, ezStringUtils::GetStringElementCount(szToken) + 1);
+      EZ_SUCCEED_OR_RETURN(ProjectFile.Write(szToken, ezStringUtils::GetStringElementCount(szToken) + 1));
       ProjectFile.Close();
     }
   }
@@ -85,7 +85,7 @@ void ezToolsProject::CreateSubFolder(const char* szFolder) const
   sPath.PathParentDirectory();
   sPath.AppendPath(szFolder);
 
-  ezOSFile::CreateDirectoryStructure(sPath);
+  ezOSFile::CreateDirectoryStructure(sPath).IgnoreResult();
 }
 
 void ezToolsProject::CloseProject()
@@ -233,7 +233,7 @@ bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezStrin
     if (out_RelativePath)
     {
       ezStringBuilder sText = szDocumentPath;
-      sText.MakeRelativeTo(root);
+      sText.MakeRelativeTo(root).IgnoreResult();
 
       *out_RelativePath = sText;
     }

@@ -31,7 +31,7 @@ int main(int argc, const char** argv)
   pQtApplication->setOrganizationName("ezEngine Project");
   pQtApplication->setApplicationVersion("1.0.0");
 
-  ezRun_Startup(pApp);
+  ezRun_Startup(pApp).IgnoreResult();
 
   CreateFileserveMainWindow(pApp);
   pQtApplication->exec();

@@ -78,13 +78,12 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget* parent /*= nullptr*/)
   SpecialDirBrowseButton->setVisible(false);
   SpecialDirRemoveButton->setVisible(false);
 
-  SpecialDirList->setToolTip(
-    "Special directories allow to redirect mount requests from the client to a specific folder on the server.\n\n"
-    "Some special directories are built in (e.g. 'sdk', 'user' and 'appdir') but you can add custom ones, if your app needs one.\n"
-    "To add special directories, run Fileserve with the command line argument '-specialdirs' followed by the name and the path to a "
-    "directory.\n\n"
-    "For instance:\n"
-    "-specialdirs project \"C:\\path\\to\\project\" secondDir \"d:\\another\\path\"");
+  SpecialDirList->setToolTip("Special directories allow to redirect mount requests from the client to a specific folder on the server.\n\n"
+                             "Some special directories are built in (e.g. 'sdk', 'user' and 'appdir') but you can add custom ones, if your app needs one.\n"
+                             "To add special directories, run Fileserve with the command line argument '-specialdirs' followed by the name and the path to a "
+                             "directory.\n\n"
+                             "For instance:\n"
+                             "-specialdirs project \"C:\\path\\to\\project\" secondDir \"d:\\another\\path\"");
 
   ConfigureSpecialDirectories();
 
@@ -462,7 +461,7 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   }
 
   {
-    ezFileSystem::ResolveSpecialDirectory(">sdk", sResolved);
+    ezFileSystem::ResolveSpecialDirectory(">sdk", sResolved).IgnoreResult();
 
     pItem = new QTableWidgetItem();
     pItem->setText("sdk");
@@ -478,7 +477,7 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   }
 
   {
-    ezFileSystem::ResolveSpecialDirectory(">user", sResolved);
+    ezFileSystem::ResolveSpecialDirectory(">user", sResolved).IgnoreResult();
 
     pItem = new QTableWidgetItem();
     pItem->setText("user");
@@ -494,7 +493,7 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   }
 
   {
-    ezFileSystem::ResolveSpecialDirectory(">appdir", sResolved);
+    ezFileSystem::ResolveSpecialDirectory(">appdir", sResolved).IgnoreResult();
 
     pItem = new QTableWidgetItem();
     pItem->setText("appdir");
