@@ -72,7 +72,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
     }
 
     // flush all data
-    CompressedWriter.FinishCompressedStream();
+    CompressedWriter.FinishCompressedStream().IgnoreResult();
 
     const ezUInt64 uiCompressed = CompressedWriter.GetCompressedSize();
     const ezUInt64 uiUncompressed = CompressedWriter.GetUncompressedSize();

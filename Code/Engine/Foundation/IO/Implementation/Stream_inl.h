@@ -220,7 +220,7 @@ template <typename KeyType, typename Comparer>
 ezResult ezStreamWriter::WriteSet(const ezSetBase<KeyType, Comparer>& Set)
 {
   const ezUInt64 uiWriteSize = Set.GetCount();
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (const auto& item : Set)
   {

@@ -140,7 +140,7 @@ void ezTestFramework::Initialize()
 
   m_bIsInitialized = true;
 
-  ezFileSystem::DetectSdkRootDirectory();
+  ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
 }
 
 void ezTestFramework::DeInitialize()
@@ -369,7 +369,7 @@ void ezTestFramework::LoadTestSettings()
 
 void ezTestFramework::CreateOutputFolder()
 {
-  ezOSFile::CreateDirectoryStructure(m_sAbsTestOutputDir.c_str());
+  ezOSFile::CreateDirectoryStructure(m_sAbsTestOutputDir.c_str()).IgnoreResult();
 
   EZ_ASSERT_RELEASE(ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestOutputDir.c_str());
 }
@@ -386,8 +386,8 @@ void ezTestFramework::UpdateReferenceImages()
   const ezStringBuilder sRefFiles(sDir, "/Images_Reference");
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  ezOSFile::CopyFolder(sNewFiles, sRefFiles);
-  ezOSFile::DeleteFolder(sNewFiles);
+  ezOSFile::CopyFolder(sNewFiles, sRefFiles).IgnoreResult();
+  ezOSFile::DeleteFolder(sNewFiles).IgnoreResult();
 #endif
 }
 
@@ -1029,8 +1029,7 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     else
     {
       m_iTestsFailed++;
-      ezTestFramework::Output(ezTestOutput::Error, "Test '%s' failed: %i Errors (%.2f sec).", szTestName,
-        (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex), m_fTotalTestDuration / 1000.0f);
+      ezTestFramework::Output(ezTestOutput::Error, "Test '%s' failed: %i Errors (%.2f sec).", szTestName, (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex), m_fTotalTestDuration / 1000.0f);
     }
   }
   else
@@ -1048,8 +1047,7 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     }
     else
     {
-      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test '%s' failed: %i Errors (%.2f sec).", szSubTestName,
-        (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex), m_fTotalSubTestDuration / 1000.0f);
+      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test '%s' failed: %i Errors (%.2f sec).", szSubTestName, (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex), m_fTotalSubTestDuration / 1000.0f);
     }
   }
 }
@@ -1095,9 +1093,8 @@ void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderNa
   }
 }
 
-static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-  'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-  'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+  'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
 static const ezUInt8 BASE64_CHARS_PER_LINE = 76;
 
@@ -1188,16 +1185,15 @@ static void AppendImageData(ezStringBuilder& output, ezImage& img)
   ezDynamicArray<ezUInt8> imgData;
   ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&imgData);
   ezMemoryStreamWriter writer(&storage);
-  format->WriteImage(writer, img, ezLog::GetThreadLocalLogSystem(), "png");
+  format->WriteImage(writer, img, ezLog::GetThreadLocalLogSystem(), "png").IgnoreResult();
 
   ezDynamicArray<char> imgDataBase64 = ArrayToBase64(imgData.GetArrayPtr());
   ezStringView imgDataBase64StringView(imgDataBase64.GetArrayPtr().GetPtr(), imgDataBase64.GetArrayPtr().GetEndPtr());
   output.AppendFormat("data:image/png;base64,{0}", imgDataBase64StringView);
 }
 
-void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha, ezImage& capturedImgRgb,
-  ezImage& capturedImgAlpha, ezImage& diffImgRgb, ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
-  ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha)
+void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha, ezImage& capturedImgRgb, ezImage& capturedImgAlpha, ezImage& diffImgRgb, ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb,
+  ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha)
 {
 
   ezFileWriter outputFile;
@@ -1267,8 +1263,7 @@ void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenc
 
   output.AppendFormat("<b>Test result for \"{} > {}\" from ", szTestName, szSubTestName);
   ezDateTime dateTime(ezTimestamp::CurrentTimestamp());
-  output.AppendFormat("{}-{}-{} {}:{}:{}</b><br>\n", dateTime.GetYear(), ezArgI(dateTime.GetMonth(), 2, true), ezArgI(dateTime.GetDay(), 2, true),
-    ezArgI(dateTime.GetHour(), 2, true), ezArgI(dateTime.GetMinute(), 2, true), ezArgI(dateTime.GetSecond(), 2, true));
+  output.AppendFormat("{}-{}-{} {}:{}:{}</b><br>\n", dateTime.GetYear(), ezArgI(dateTime.GetMonth(), 2, true), ezArgI(dateTime.GetDay(), 2, true), ezArgI(dateTime.GetHour(), 2, true), ezArgI(dateTime.GetMinute(), 2, true), ezArgI(dateTime.GetSecond(), 2, true));
 
   output.Append("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n");
 
@@ -1347,7 +1342,7 @@ void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenc
                 "</div>\n"
                 "</BODY> </HTML>");
 
-  outputFile.WriteBytes(output.GetData(), output.GetCharacterCount());
+  outputFile.WriteBytes(output.GetData(), output.GetCharacterCount()).IgnoreResult();
   outputFile.Close();
 }
 
@@ -1386,7 +1381,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   ezImage imgExp, imgExpRgba;
   if (imgExp.LoadFrom(sImgPathReference).Failed())
   {
-    imgRgba.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
     return false;
@@ -1394,7 +1389,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   if (ezImageConversion::Convert(imgExp, imgExpRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
-    imgRgba.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be converted to RGBA8", sImgPathReference.GetData());
     return false;
@@ -1402,10 +1397,9 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   if (imgRgba.GetWidth() != imgExpRgba.GetWidth() || imgRgba.GetHeight() != imgExpRgba.GetHeight())
   {
-    imgRgba.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)",
-      sImgPathReference.GetData(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)", sImgPathReference.GetData(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
     return false;
   }
 
@@ -1416,45 +1410,43 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   if (uiMeanError > uiMaxError)
   {
-    imgRgba.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
 
     ezUInt8 uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha;
     ezImageUtils::Normalize(imgDiffRgba, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
     ezImage imgDiffRgb;
-    ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM);
+    ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
 
     ezStringBuilder sImgDiffName;
     sImgDiffName.Format(":imgout/Images_Diff/{0}.png", sImgName);
-    imgDiffRgb.SaveTo(sImgDiffName);
+    imgDiffRgb.SaveTo(sImgDiffName).IgnoreResult();
 
     ezImage imgDiffAlpha;
     ezImageUtils::ExtractAlphaChannel(imgDiffRgba, imgDiffAlpha);
 
     ezStringBuilder sImgDiffAlphaName;
     sImgDiffAlphaName.Format(":imgout/Images_Diff/{0}_alpha.png", sImgName);
-    imgDiffAlpha.SaveTo(sImgDiffAlphaName);
+    imgDiffAlpha.SaveTo(sImgDiffAlphaName).IgnoreResult();
 
     ezImage imgExpRgb;
-    ezImageConversion::Convert(imgExpRgba, imgExpRgb, ezImageFormat::R8G8B8_UNORM);
+    ezImageConversion::Convert(imgExpRgba, imgExpRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
     ezImage imgExpAlpha;
     ezImageUtils::ExtractAlphaChannel(imgExpRgba, imgExpAlpha);
 
     ezImage imgRgb;
-    ezImageConversion::Convert(imgRgba, imgRgb, ezImageFormat::R8G8B8_UNORM);
+    ezImageConversion::Convert(imgRgba, imgRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
     ezImage imgAlpha;
     ezImageUtils::ExtractAlphaChannel(imgRgba, imgAlpha);
 
     ezStringBuilder sDiffHtmlPath;
     sDiffHtmlPath.Format(":imgout/Html_Diff/{0}.html", sImgName);
-    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError, uiMinDiffRgb,
-      uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiMeanError,
-      uiMaxError, sImgName.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError, sImgName.GetData());
 
     ezStringBuilder sDataDirRelativePath;
-    ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath);
+    ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath).IgnoreResult();
     ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
     return false;
   }
@@ -1558,8 +1550,7 @@ void ezTestFramework::OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_
 
   if (ezTestFramework::s_LogTimestampMode != ezLog::TimestampMode::None)
   {
-    if (Type == ezTestOutput::BeginBlock || Type == ezTestOutput::EndBlock || Type == ezTestOutput::ImportantInfo || Type == ezTestOutput::Details ||
-        Type == ezTestOutput::Success || Type == ezTestOutput::Message || Type == ezTestOutput::Warning || Type == ezTestOutput::Error ||
+    if (Type == ezTestOutput::BeginBlock || Type == ezTestOutput::EndBlock || Type == ezTestOutput::ImportantInfo || Type == ezTestOutput::Details || Type == ezTestOutput::Success || Type == ezTestOutput::Message || Type == ezTestOutput::Warning || Type == ezTestOutput::Error ||
         Type == ezTestOutput::FinalResult)
     {
       ezStringBuilder timestamp;
@@ -1601,17 +1592,17 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fD
 // EZ_TEST_... macro functions
 ////////////////////////////////////////////////////////////////////////
 
-#define OUTPUT_TEST_ERROR                                                                                                                            \
-  {                                                                                                                                                  \
-    va_list args;                                                                                                                                    \
-    va_start(args, szMsg);                                                                                                                           \
-    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args);                                                                     \
-    EZ_TEST_DEBUG_BREAK                                                                                                                              \
-    va_end(args);                                                                                                                                    \
-    return EZ_FAILURE;                                                                                                                               \
+#define OUTPUT_TEST_ERROR                                                                                                                                                                                                                                                                                  \
+  {                                                                                                                                                                                                                                                                                                        \
+    va_list args;                                                                                                                                                                                                                                                                                          \
+    va_start(args, szMsg);                                                                                                                                                                                                                                                                                 \
+    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args);                                                                                                                                                                                                                           \
+    EZ_TEST_DEBUG_BREAK                                                                                                                                                                                                                                                                                    \
+    va_end(args);                                                                                                                                                                                                                                                                                          \
+    return EZ_FAILURE;                                                                                                                                                                                                                                                                                     \
   }
 
-ezResult ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1624,7 +1615,7 @@ ezResult ezTestBool(bool bCondition, const char* szErrorText, const char* szFile
   return EZ_SUCCESS;
 }
 
-ezResult ezTestResult(ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestResult(ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1637,8 +1628,7 @@ ezResult ezTestResult(ezResult bCondition, const char* szErrorText, const char* 
   return EZ_SUCCESS;
 }
 
-ezResult ezTestDouble(double f1, double f2, double fEps, const char* szF1, const char* szF2, const char* szFile, ezInt32 iLine,
-  const char* szFunction, const char* szMsg, ...)
+bool ezTestDouble(double f1, double f2, double fEps, const char* szF1, const char* szF2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1655,8 +1645,7 @@ ezResult ezTestDouble(double f1, double f2, double fEps, const char* szF1, const
   return EZ_SUCCESS;
 }
 
-ezResult ezTestInt(
-  ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1671,16 +1660,14 @@ ezResult ezTestInt(
   return EZ_SUCCESS;
 }
 
-ezResult ezTestWString(std::wstring ws1, std::wstring ws2, const char* szWString1, const char* szWString2, const char* szFile, ezInt32 iLine,
-  const char* szFunction, const char* szMsg, ...)
+bool ezTestWString(std::wstring ws1, std::wstring ws2, const char* szWString1, const char* szWString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
   if (ws1 != ws2)
   {
     char szErrorText[2048];
-    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", szWString1, ezStringUtf8(ws1.c_str()).GetData(), szWString2,
-      ezStringUtf8(ws2.c_str()).GetData());
+    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", szWString1, ezStringUtf8(ws1.c_str()).GetData(), szWString2, ezStringUtf8(ws2.c_str()).GetData());
 
     OUTPUT_TEST_ERROR
   }
@@ -1688,8 +1675,7 @@ ezResult ezTestWString(std::wstring ws1, std::wstring ws2, const char* szWString
   return EZ_SUCCESS;
 }
 
-ezResult ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
-  const char* szFunction, const char* szMsg, ...)
+bool ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1704,8 +1690,7 @@ ezResult ezTestString(std::string s1, std::string s2, const char* szString1, con
   return EZ_SUCCESS;
 }
 
-ezResult ezTestVector(
-  ezVec4d v1, ezVec4d v2, double fEps, const char* szCondition, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const char* szCondition, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1742,7 +1727,7 @@ ezResult ezTestVector(
   return EZ_SUCCESS;
 }
 
-ezResult ezTestFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1766,8 +1751,7 @@ ezResult ezTestFiles(const char* szFile1, const char* szFile2, const char* szFil
 
   else if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize())
   {
-    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1,
-      ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize());
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1, ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize());
 
     OUTPUT_TEST_ERROR
   }
@@ -1804,7 +1788,7 @@ ezResult ezTestFiles(const char* szFile1, const char* szFile2, const char* szFil
   return EZ_SUCCESS;
 }
 
-ezResult ezTestTextFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestTextFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1846,7 +1830,7 @@ ezResult ezTestTextFiles(const char* szFile1, const char* szFile2, const char* s
   return EZ_SUCCESS;
 }
 
-ezResult ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   char szErrorText[s_iMaxErrorMessageLength] = "";
 

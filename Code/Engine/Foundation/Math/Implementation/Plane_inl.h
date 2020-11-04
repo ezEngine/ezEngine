@@ -28,13 +28,13 @@ ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezV
 template <typename Type>
 ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>* const pVertices)
 {
-  SetFromPoints(pVertices);
+  SetFromPoints(pVertices).IgnoreResult();
 }
 
 template <typename Type>
 ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 iMaxVertices)
 {
-  SetFromPoints(pVertices, iMaxVertices);
+  SetFromPoints(pVertices, iMaxVertices).IgnoreResult();
 }
 
 template <typename Type>
@@ -73,8 +73,7 @@ ezResult ezPlaneTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* const 
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::SetFromDirections(
-  const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane)
+ezResult ezPlaneTemplate<Type>::SetFromDirections(const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane)
 {
   ezVec3Template<Type> vNormal = vTangent1.CrossRH(vTangent2);
   ezResult res = vNormal.NormalizeIfNotZero();
@@ -221,17 +220,16 @@ ezResult ezPlaneTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* const 
 
   if (FindSupportPoints(pVertices, iMaxVertices, iPoints[0], iPoints[1], iPoints[2]) == EZ_FAILURE)
   {
-    SetFromPoints(pVertices);
+    SetFromPoints(pVertices).IgnoreResult();
     return EZ_FAILURE;
   }
 
-  SetFromPoints(pVertices[iPoints[0]], pVertices[iPoints[1]], pVertices[iPoints[2]]);
+  SetFromPoints(pVertices[iPoints[0]], pVertices[iPoints[1]], pVertices[iPoints[2]]).IgnoreResult();
   return EZ_SUCCESS;
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::FindSupportPoints(
-  const ezVec3Template<Type>* const pVertices, int iMaxVertices, int& out_v1, int& out_v2, int& out_v3)
+ezResult ezPlaneTemplate<Type>::FindSupportPoints(const ezVec3Template<Type>* const pVertices, int iMaxVertices, int& out_v1, int& out_v2, int& out_v3)
 {
   const ezVec3Template<Type> v1 = pVertices[0];
 
@@ -306,8 +304,7 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezVec3Tem
 }
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(
-  const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices, Type fPlaneHalfWidth) const
+ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices, Type fPlaneHalfWidth) const
 {
   bool bFront = false;
   bool bBack = false;
@@ -341,8 +338,7 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection,
-  ezVec3Template<Type>* out_vIntersection) const
+bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
 {
   EZ_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
   EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
@@ -368,8 +364,7 @@ bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayS
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir,
-  Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
+bool ezPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
 {
   EZ_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
   EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
@@ -392,8 +387,7 @@ bool ezPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const ezVec3Template
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
-  Type* out_fHitFraction, ezVec3Template<Type>* out_vIntersection) const
+bool ezPlaneTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction, ezVec3Template<Type>* out_vIntersection) const
 {
   Type fTime = 0;
 
@@ -407,8 +401,7 @@ bool ezPlaneTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type
 }
 
 template <typename Type>
-Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(
-  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
+Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
@@ -429,8 +422,7 @@ Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(
 }
 
 template <typename Type>
-void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints,
-  ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
+void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
@@ -456,8 +448,7 @@ void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, 
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::GetPlanesIntersectionPoint(
-  const ezPlaneTemplate& p0, const ezPlaneTemplate& p1, const ezPlaneTemplate& p2, ezVec3Template<Type>& out_Result)
+ezResult ezPlaneTemplate<Type>::GetPlanesIntersectionPoint(const ezPlaneTemplate& p0, const ezPlaneTemplate& p1, const ezPlaneTemplate& p2, ezVec3Template<Type>& out_Result)
 {
   const ezVec3Template<Type> n1(p0.m_vNormal);
   const ezVec3Template<Type> n2(p1.m_vNormal);

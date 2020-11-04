@@ -90,7 +90,7 @@ void TestSerialize(T* pObject)
     }
 
     ezAbstractObjectGraph graph2;
-    ezAbstractGraphDdlSerializer::Read(reader, &graph2);
+    ezAbstractGraphDdlSerializer::Read(reader, &graph2).IgnoreResult();
 
     ezMemoryStreamStorage storage2;
     ezMemoryStreamWriter writer2(&storage2);

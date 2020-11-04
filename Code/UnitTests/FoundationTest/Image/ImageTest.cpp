@@ -170,8 +170,8 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
         ezImage image2;
         EZ_TEST_BOOL_MSG(image2.LoadFrom(fileName).Succeeded(), "Reading written image failed: '%s'", fileName.GetData());
 
-        image.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB);
-        image2.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB);
+        image.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB).IgnoreResult();
+        image2.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB).IgnoreResult();
 
         ezImage diff;
         ezImageUtils::ComputeImageDifferenceABS(image, image2, diff);

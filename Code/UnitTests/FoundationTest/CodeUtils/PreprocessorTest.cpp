@@ -224,8 +224,8 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.SetFileLocatorFunction(FileLocator);
         pp.SetCustomFileCache(&SharedCache);
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void(const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
-        pp.AddCustomDefine("PP_OBJ");
-        pp.AddCustomDefine("PP_FUNC(a) a");
+        pp.AddCustomDefine("PP_OBJ").IgnoreResult();
+        pp.AddCustomDefine("PP_FUNC(a) a").IgnoreResult();
         pp.SetPassThroughUnknownCmdsCB([](const char* s) -> bool { return ezStringUtils::IsEqual(s, "version"); }); // TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
@@ -241,19 +241,19 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
           if (pp.Process(fileName, sOutput) == EZ_SUCCESS)
           {
             ezString sError = "Processing succeeded\r\n";
-            fout.WriteBytes(sError.GetData(), sError.GetElementCount());
-            fout.WriteBytes(sOutput.GetData(), sOutput.GetElementCount());
+            fout.WriteBytes(sError.GetData(), sError.GetElementCount()).IgnoreResult();
+            fout.WriteBytes(sOutput.GetData(), sOutput.GetElementCount()).IgnoreResult();
 
             if (!log.m_sOutput.IsEmpty())
-              fout.WriteBytes("\r\n", 2);
+              fout.WriteBytes("\r\n", 2).IgnoreResult();
           }
           else
           {
             ezString sError = "Processing failed\r\n";
-            fout.WriteBytes(sError.GetData(), sError.GetElementCount());
+            fout.WriteBytes(sError.GetData(), sError.GetElementCount()).IgnoreResult();
           }
 
-          fout.WriteBytes(log.m_sOutput.GetData(), log.m_sOutput.GetElementCount());
+          fout.WriteBytes(log.m_sOutput.GetData(), log.m_sOutput.GetElementCount()).IgnoreResult();
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut), "Output file is missing: '%s'", fileNameOut.GetData());
         }

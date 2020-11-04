@@ -395,7 +395,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       a2.PushBack(3);
       a2.SetCount(10, 42);
 
-      if (EZ_TEST_INT(a2.GetCount(), 10).Succeeded())
+      if (EZ_TEST_INT(a2.GetCount(), 10))
       {
         EZ_TEST_INT(a2[0], 5);
         EZ_TEST_INT(a2[1], 3);
@@ -409,7 +409,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       a2.PushBack(3);
 
       a2.SetCount(2, 10);
-      if (EZ_TEST_INT(a2.GetCount(), 2).Succeeded())
+      if (EZ_TEST_INT(a2.GetCount(), 2))
       {
         EZ_TEST_INT(a2[0], 1);
         EZ_TEST_INT(a2[1], 2);
@@ -424,7 +424,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a2.PushBack(3);
     a2.SetCount(10, 42);
 
-    if (EZ_TEST_INT(a2.GetCount(), 10).Succeeded())
+    if (EZ_TEST_INT(a2.GetCount(), 10))
     {
       EZ_TEST_INT(a2[0], 5);
       EZ_TEST_INT(a2[1], 3);
@@ -438,7 +438,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a2.PushBack(3);
 
     a2.SetCount(2, 10);
-    if (EZ_TEST_INT(a2.GetCount(), 2).Succeeded())
+    if (EZ_TEST_INT(a2.GetCount(), 2))
     {
       EZ_TEST_INT(a2[0], 1);
       EZ_TEST_INT(a2[1], 2);

@@ -162,7 +162,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DeduplicationContext)
 
     for (ezUInt32 i = 0; i < 10; ++i)
     {
-      if (EZ_TEST_BOOL(obj.m_TransformMap.GetValue(i) != nullptr).Succeeded())
+      if (EZ_TEST_BOOL(obj.m_TransformMap.GetValue(i) != nullptr))
       {
         EZ_TEST_BOOL(*obj.m_TransformMap.GetValue(i) == obj.m_Transforms[i].Borrow());
       }

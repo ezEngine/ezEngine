@@ -10,7 +10,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DeferredFileWriter)
 
   const ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
   ezStringBuilder sOutputFolderResolved;
-  ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved);
+  ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved).IgnoreResult();
 
   ezStringBuilder sTempFile = sOutputFolderResolved;
   sTempFile.AppendPath("Temp.tmp");
