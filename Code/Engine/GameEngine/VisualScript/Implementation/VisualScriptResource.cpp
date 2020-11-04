@@ -54,7 +54,7 @@ ezResourceLoadDesc ezVisualScriptResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_Descriptor.Load(*Stream);
 
@@ -307,8 +307,7 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     if (pType->IsDerivedFrom<ezEventMessage>())
     {
       // TODO: just do the generic node logic here without allocating the node
-      ezVisualScriptNode_GenericEvent* pEvent =
-        ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+      ezVisualScriptNode_GenericEvent* pEvent = ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
       pNode = pEvent;
 
       pEvent->m_sEventType = pType->GetTypeName();

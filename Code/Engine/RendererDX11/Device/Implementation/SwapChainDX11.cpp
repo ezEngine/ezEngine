@@ -45,8 +45,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   // SRGB, see: https://software.intel.com/en-us/blogs/2013/06/03/full-screen-direct3d-games-using-borderless-windowed-mode
   //
   SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  if (m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalized &&
-      m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalizedsRGB)
+  if (m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalized && m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalizedsRGB)
   {
     ezLog::Warning("Back buffer format for UWP can only be RGBAUByteNormalized or RGBAUByteNormalizedsRGB. Ignoring setting.");
   }
@@ -67,14 +66,12 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
   DXGI_SWAP_CHAIN_DESC SwapChainDesc;
   SwapChainDesc.BufferCount = m_Description.m_bDoubleBuffered ? 2 : 1;
-  SwapChainDesc.Flags =
-    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
+  SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
   SwapChainDesc.SampleDesc.Count = m_Description.m_SampleCount;
   SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_Description
   SwapChainDesc.OutputWindow = ezMinWindows::ToNative(m_Description.m_pWindow->GetNativeWindowHandle());
-  SwapChainDesc.SwapEffect =
-    DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See
-                              // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See
+                                                       // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
   SwapChainDesc.Windowed = m_Description.m_pWindow->IsFullscreenWindow(true) ? FALSE : TRUE;
 
   /// \todo Get from enumeration of available modes
@@ -97,8 +94,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
     ComPtr<IDXGISwapChain1> swapChain1;
     ComPtr<IDXGISwapChain> swapChain;
-    HRESULT result = dxgiFactory3->CreateSwapChainForCoreWindow(
-      pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1);
+    HRESULT result = dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1);
     if (FAILED(result))
     {
       if (result == E_ACCESSDENIED)
@@ -202,7 +198,7 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 
   EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
 
-  ezGALSwapChain::DeInitPlatform(pDevice);
+  EZ_SUCCEED_OR_RETURN(ezGALSwapChain::DeInitPlatform(pDevice));
 
   return EZ_SUCCESS;
 }

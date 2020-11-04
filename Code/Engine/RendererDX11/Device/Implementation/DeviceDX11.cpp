@@ -336,7 +336,7 @@ ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendState
 void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
 {
   ezGALBlendStateDX11* pState = static_cast<ezGALBlendStateDX11*>(pBlendState);
-  pState->DeInitPlatform(this);
+  pState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pState);
 }
 
@@ -358,7 +358,7 @@ ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const e
 void ezGALDeviceDX11::DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
 {
   ezGALDepthStencilStateDX11* pDX11DepthStencilState = static_cast<ezGALDepthStencilStateDX11*>(pDepthStencilState);
-  pDX11DepthStencilState->DeInitPlatform(this);
+  pDX11DepthStencilState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11DepthStencilState);
 }
 
@@ -380,7 +380,7 @@ ezGALRasterizerState* ezGALDeviceDX11::CreateRasterizerStatePlatform(const ezGAL
 void ezGALDeviceDX11::DestroyRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)
 {
   ezGALRasterizerStateDX11* pDX11RasterizerState = static_cast<ezGALRasterizerStateDX11*>(pRasterizerState);
-  pDX11RasterizerState->DeInitPlatform(this);
+  pDX11RasterizerState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11RasterizerState);
 }
 
@@ -402,7 +402,7 @@ ezGALSamplerState* ezGALDeviceDX11::CreateSamplerStatePlatform(const ezGALSample
 void ezGALDeviceDX11::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState)
 {
   ezGALSamplerStateDX11* pDX11SamplerState = static_cast<ezGALSamplerStateDX11*>(pSamplerState);
-  pDX11SamplerState->DeInitPlatform(this);
+  pDX11SamplerState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11SamplerState);
 }
 
@@ -425,7 +425,7 @@ ezGALShader* ezGALDeviceDX11::CreateShaderPlatform(const ezGALShaderCreationDesc
 void ezGALDeviceDX11::DestroyShaderPlatform(ezGALShader* pShader)
 {
   ezGALShaderDX11* pDX11Shader = static_cast<ezGALShaderDX11*>(pShader);
-  pDX11Shader->DeInitPlatform(this);
+  pDX11Shader->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Shader);
 }
 
@@ -445,7 +445,7 @@ ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDesc
 void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
 {
   ezGALBufferDX11* pDX11Buffer = static_cast<ezGALBufferDX11*>(pBuffer);
-  pDX11Buffer->DeInitPlatform(this);
+  pDX11Buffer->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Buffer);
 }
 
@@ -465,7 +465,7 @@ ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationD
 void ezGALDeviceDX11::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureDX11* pDX11Texture = static_cast<ezGALTextureDX11*>(pTexture);
-  pDX11Texture->DeInitPlatform(this);
+  pDX11Texture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
 
@@ -485,7 +485,7 @@ ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALResourceBase
 void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALResourceView* pResourceView)
 {
   ezGALResourceViewDX11* pDX11ResourceView = static_cast<ezGALResourceViewDX11*>(pResourceView);
-  pDX11ResourceView->DeInitPlatform(this);
+  pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11ResourceView);
 }
 
@@ -505,7 +505,7 @@ ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(ezGALText
 void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView)
 {
   ezGALRenderTargetViewDX11* pDX11RenderTargetView = static_cast<ezGALRenderTargetViewDX11*>(pRenderTargetView);
-  pDX11RenderTargetView->DeInitPlatform(this);
+  pDX11RenderTargetView->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11RenderTargetView);
 }
 
@@ -525,7 +525,7 @@ ezGALUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezG
 void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView)
 {
   ezGALUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  pUnorderedAccessViewDX11->DeInitPlatform(this);
+  pUnorderedAccessViewDX11->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
 }
 
@@ -548,7 +548,7 @@ ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCre
 void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
   ezGALSwapChainDX11* pSwapChainDX11 = static_cast<ezGALSwapChainDX11*>(pSwapChain);
-  pSwapChainDX11->DeInitPlatform(this);
+  pSwapChainDX11->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pSwapChainDX11);
 }
 
@@ -568,7 +568,7 @@ ezGALFence* ezGALDeviceDX11::CreateFencePlatform()
 void ezGALDeviceDX11::DestroyFencePlatform(ezGALFence* pFence)
 {
   ezGALFenceDX11* pFenceDX11 = static_cast<ezGALFenceDX11*>(pFence);
-  pFenceDX11->DeInitPlatform(this);
+  pFenceDX11->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pFenceDX11);
 }
 
@@ -588,7 +588,7 @@ ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescrip
 void ezGALDeviceDX11::DestroyQueryPlatform(ezGALQuery* pQuery)
 {
   ezGALQueryDX11* pQueryDX11 = static_cast<ezGALQueryDX11*>(pQuery);
-  pQueryDX11->DeInitPlatform(this);
+  pQueryDX11->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pQueryDX11);
 }
 
@@ -610,7 +610,7 @@ ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const e
 void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
 {
   ezGALVertexDeclarationDX11* pVertexDeclarationDX11 = static_cast<ezGALVertexDeclarationDX11*>(pVertexDeclaration);
-  pVertexDeclarationDX11->DeInitPlatform(this);
+  pVertexDeclarationDX11->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVertexDeclarationDX11);
 }
 

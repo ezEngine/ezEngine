@@ -28,8 +28,7 @@ ezImguiExtractor::ezImguiExtractor(const char* szName)
 {
 }
 
-void ezImguiExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   ezImgui* pImGui = ezImgui::GetSingleton();
   if (pImGui == nullptr)
@@ -107,8 +106,7 @@ void ezImguiExtractor::Extract(
           ezImguiBatch& batch = pRenderData->m_Batches[cmdIdx];
           batch.m_uiVertexCount = pCmd->ElemCount;
           batch.m_uiTextureID = (ezUInt16)iTextureID;
-          batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y, (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x),
-            (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
+          batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y, (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x), (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
         }
       }
 
@@ -173,8 +171,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     pGALContext->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
     pGALContext->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
 
-    pRenderContext->BindMeshBuffer(
-      m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
+    pRenderContext->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
 
     ezUInt32 uiFirstIndex = 0;
     const ezUInt32 numBatches = pRenderData->m_Batches.GetCount();
@@ -186,7 +183,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
       {
         pGALContext->SetScissorRect(imGuiBatch.m_ScissorRect);
         pRenderContext->BindTexture2D("BaseTexture", textures[imGuiBatch.m_uiTextureID]);
-        pRenderContext->DrawMeshBuffer(imGuiBatch.m_uiVertexCount / 3, uiFirstIndex / 3);
+        pRenderContext->DrawMeshBuffer(imGuiBatch.m_uiVertexCount / 3, uiFirstIndex / 3).IgnoreResult();
       }
 
       uiFirstIndex += imGuiBatch.m_uiVertexCount;

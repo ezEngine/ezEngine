@@ -116,8 +116,7 @@ void ezSimpleWindComponent::ComputeNextState()
   float fStrengthChange = fStrengthDiff * 0.2f;
 
   m_NextChange = m_LastChange + ezTime::Seconds(rng.DoubleMinMax(2.0f, 5.0f));
-  m_fNextStrength =
-    ezMath::Clamp<float>(m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), m_fWindStrengthMin, m_fWindStrengthMax);
+  m_fNextStrength = ezMath::Clamp<float>(m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), m_fWindStrengthMin, m_fWindStrengthMax);
 
   const ezVec3 vMainDir = GetOwner()->GetGlobalDirForwards();
 
@@ -131,7 +130,7 @@ void ezSimpleWindComponent::ComputeNextState()
   const float fRemoveUp = m_vNextDirection.Dot(cs.m_vUpDir);
 
   m_vNextDirection -= cs.m_vUpDir * fRemoveUp;
-  m_vNextDirection.NormalizeIfNotZero(ezVec3::ZeroVector());
+  m_vNextDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
 }
 
 void ezSimpleWindComponent::Initialize()

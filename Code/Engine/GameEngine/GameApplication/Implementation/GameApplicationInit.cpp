@@ -249,19 +249,19 @@ void ezGameApplication::Init_SetupGraphicsDevice()
 void ezGameApplication::Init_LoadRequiredPlugins()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezPlugin::LoadPlugin("ezInspectorPlugin");
+  ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezPlugin::LoadPlugin("ezShaderCompilerHLSL");
+  ezPlugin::LoadPlugin("ezShaderCompilerHLSL").IgnoreResult();
 #  endif
 
 #  ifdef BUILDSYSTEM_ENABLE_RENDERDOC_SUPPORT
-  ezPlugin::LoadPlugin("ezRenderDocPlugin");
+  ezPlugin::LoadPlugin("ezRenderDocPlugin").IgnoreResult();
 #  endif
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
 #  if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
-  ezPlugin::LoadPlugin("ezFileservePlugin"); // don't care if it fails to load
+  ezPlugin::LoadPlugin("ezFileservePlugin").IgnoreResult(); // don't care if it fails to load
 #  endif
 
 #endif
@@ -279,7 +279,7 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
   ezResourceManager::FreeAllUnusedResources();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  pDevice->Shutdown();
+  pDevice->Shutdown().IgnoreResult();
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);
 #endif
