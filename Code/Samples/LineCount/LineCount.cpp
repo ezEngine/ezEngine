@@ -211,7 +211,7 @@ public:
     // As we only need access to files through global paths, we add the "empty data directory"
     // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them
     // since we don't add any further data dirs, this is it
-    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
 
 
     // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)
@@ -292,14 +292,16 @@ public:
       ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
       while (MapIt.IsValid())
       {
-        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
+        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes,
+          MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
 
         AllTypes += MapIt.Value();
 
         ++MapIt;
       }
 
-      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
+      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes,
+        AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
     else
     {
