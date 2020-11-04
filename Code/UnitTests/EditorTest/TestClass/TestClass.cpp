@@ -60,7 +60,7 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   ezQtUiServices::SetHeadless(true);
   ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
-  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
 }
 
 void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()
@@ -100,7 +100,7 @@ ezResult ezEditorTest::InitializeTest()
   if (m_pApplication == nullptr)
     return EZ_FAILURE;
 
-  ezRun_Startup(m_pApplication);
+  EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
   static bool s_bCheckedReferenceDriver = false;
   static bool s_bIsReferenceDriver = false;
@@ -116,14 +116,14 @@ ezResult ezEditorTest::InitializeTest()
 
     pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
 
-    pDevice->Init();
+    EZ_SUCCEED_OR_RETURN(pDevice->Init());
 
     if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
     {
       s_bIsReferenceDriver = true;
     }
 
-    pDevice->Shutdown();
+    EZ_SUCCEED_OR_RETURN(pDevice->Shutdown());
     pDevice.Clear();
 #endif
   }
@@ -263,7 +263,7 @@ ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szI
   ezStringBuilder sImgPath = ezOSFile::GetUserDataFolder("EditorTests");
   sImgPath.AppendFormat("/{}.tga", szImageName);
 
-  ezOSFile::DeleteFile(sImgPath);
+  ezOSFile::DeleteFile(sImgPath).IgnoreResult();
 
   pWindow->CreateImageCapture(sImgPath);
 
@@ -299,7 +299,7 @@ void ezEditorTest::SafeProfilingData()
   {
     ezProfilingSystem::ProfilingData profilingData;
     ezProfilingSystem::Capture(profilingData);
-    profilingData.Write(fileWriter);
+    profilingData.Write(fileWriter).IgnoreResult();
   }
 }
 

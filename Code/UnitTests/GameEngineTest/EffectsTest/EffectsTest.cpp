@@ -25,7 +25,7 @@ void ezGameEngineTestEffects::SetupSubTests()
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 {
-  SUPER::InitializeSubTest(iIdentifier);
+  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
   m_iImgCompIdx = 0;
@@ -37,7 +37,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(30);
     m_ImgCompFrames.PushBack(60);
 
-    m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezObjectGraph");
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezObjectGraph"));
     return EZ_SUCCESS;
   }
 
