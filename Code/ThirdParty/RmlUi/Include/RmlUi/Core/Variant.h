@@ -35,7 +35,6 @@
 #include "Animation.h"
 
 namespace Rml {
-namespace Core {
 
 /**
 	Variant is a container that can store a selection of basic types. The variant will store the
@@ -53,12 +52,14 @@ public:
 	enum Type : size_t
 	{
 		NONE = '-',
+		BOOL = 'B',
 		BYTE = 'b',
 		CHAR = 'c',
 		FLOAT = 'f',
+		DOUBLE = 'd',
 		INT = 'i',
+		INT64 = 'I',
 		STRING = 's',
-		WORD = 'w',
 		VECTOR2 = '2',
 		VECTOR3 = '3',
 		VECTOR4 = '4',
@@ -121,11 +122,13 @@ private:
 	void Set(const Variant& copy);
 	void Set(Variant&& other);
 
+	void Set(const bool value);
 	void Set(const byte value);
 	void Set(const char value);
 	void Set(const float value);
+	void Set(const double value);
 	void Set(const int value);
-	void Set(const Character value);
+	void Set(const int64_t value);
 	void Set(const char* value);
 	void Set(void* value);
 	void Set(const Vector2f& value);
@@ -154,8 +157,7 @@ private:
 	alignas(TransitionList) char data[LOCAL_DATA_SIZE];
 };
 
-}
-}
+} // namespace Rml
 
 #include "Variant.inl"
 

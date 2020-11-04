@@ -26,17 +26,18 @@
  *
  */
 
-#ifndef RMLUICOREFACTORY_H
-#define RMLUICOREFACTORY_H
+#ifndef RMLUI_CORE_FACTORY_H
+#define RMLUI_CORE_FACTORY_H
 
 #include "XMLParser.h"
 #include "Header.h"
 
 namespace Rml {
-namespace Core {
 
 class Context;
 class ContextInstancer;
+class DataControllerInstancer;
+class DataViewInstancer;
 class Decorator;
 class DecoratorInstancer;
 class Element;
@@ -73,7 +74,7 @@ public:
 
 	/// Registers a non-owning pointer to the instancer used to instance contexts.
 	/// @param[in] instancer The new context instancer.
-	/// @lifetime The instancer must be kept alive until after the call to Core::Shutdown.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown.
 	static void RegisterContextInstancer(ContextInstancer* instancer);
 	/// Instances a new context.
 	/// @param[in] name The name of the new context.
@@ -83,7 +84,7 @@ public:
 	/// Registers a non-owning pointer to the element instancer that will be used to instance an element when the specified tag is encountered.
 	/// @param[in] name Name of the instancer; elements with this as their tag will use this instancer.
 	/// @param[in] instancer The instancer to call when the tag is encountered.
-	/// @lifetime The instancer must be kept alive until after the call to Core::Shutdown.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown.
 	static void RegisterElementInstancer(const String& name, ElementInstancer* instancer);
 	/// Returns the element instancer for the specified tag.
 	/// @param[in] tag Name of the tag to get the instancer for.
@@ -97,8 +98,8 @@ public:
 	/// @return The instanced element, or nullptr if the instancing failed.
 	static ElementPtr InstanceElement(Element* parent, const String& instancer, const String& tag, const XMLAttributes& attributes);
 
-	/// Instances a single text element containing a string. The string is assumed to contain no RML markup, but will
-	/// be translated and therefore may have some introduced. In this case more than one element may be instanced.
+	/// Instances a text element containing a string.
+	/// More than one element may be instanced if the string contains RML or RML is introduced during translation.
 	/// @param[in] parent The element any instanced elements will be parented to.
 	/// @param[in] text The text to instance the element (or elements) from.
 	/// @return True if the string was parsed without error, false otherwise.
@@ -112,12 +113,12 @@ public:
 	/// @param[in] context The context that is creating the document.
 	/// @param[in] stream The stream to instance from.
 	/// @return The instanced document, or nullptr if an error occurred.
-	static ElementPtr InstanceDocumentStream(Rml::Core::Context* context, Stream* stream);
+	static ElementPtr InstanceDocumentStream(Context* context, Stream* stream);
 
 	/// Registers a non-owning pointer to an instancer that will be used to instance decorators.
 	/// @param[in] name The name of the decorator the instancer will be called for.
 	/// @param[in] instancer The instancer to call when the decorator name is encountered.
-	/// @lifetime The instancer must be kept alive until after the call to Core::Shutdown.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown.
 	/// @return The added instancer if the registration was successful, nullptr otherwise.
 	static void RegisterDecoratorInstancer(const String& name, DecoratorInstancer* instancer);
 	/// Retrieves a decorator instancer registered with the factory.
@@ -128,7 +129,7 @@ public:
 	/// Registers a non-owning pointer to an instancer that will be used to instance font effects.
 	/// @param[in] name The name of the font effect the instancer will be called for.
 	/// @param[in] instancer The instancer to call when the font effect name is encountered.
-	/// @lifetime The instancer must be kept alive until after the call to Core::Shutdown.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown.
 	/// @return The added instancer if the registration was successful, nullptr otherwise.
 	static void RegisterFontEffectInstancer(const String& name, FontEffectInstancer* instancer);
 	/// Retrieves a font-effect instancer registered with the factory.
@@ -155,7 +156,7 @@ public:
 
 	/// Registers an instancer for all events.
 	/// @param[in] instancer The instancer to be called.
-	/// @lifetime The instancer must be kept alive until after the call to Core::Shutdown.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown.
 	static void RegisterEventInstancer(EventInstancer* instancer);
 	/// Instance an event object
 	/// @param[in] target Target element of this event.
@@ -166,19 +167,41 @@ public:
 	static EventPtr InstanceEvent(Element* target, EventId id, const String& type, const Dictionary& parameters, bool interruptible);
 
 	/// Register the instancer to be used for all event listeners.
-	/// @lifetime The instancer must be kept alive until after the call to Core::Shutdown, or until a new instancer is set.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown, or until a new instancer is set.
 	static void RegisterEventListenerInstancer(EventListenerInstancer* instancer);
 	/// Instance an event listener with the given string. This is used for instancing listeners for the on* events from RML.
 	/// @param[in] value The parameters to the event listener.
 	/// @return The instanced event listener.
 	static EventListener* InstanceEventListener(const String& value, Element* element);
 
+	/// Register an instancer for data views.
+	/// Structural views start a special XML parsing procedure when encountering a declaration of the view. Instead of instancing
+	/// children elements, the raw inner XML/RML contents are submitted to the initializing procedure of the view.
+	/// @param[in] instancer  The instancer to be called.
+	/// @param[in] type_name  The type name of the view, determines the element attribute that is used to initialize it.
+	/// @param[in] is_structural_view  Set true if the view should be parsed as a structural view.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown.
+	static void RegisterDataViewInstancer(DataViewInstancer* instancer, const String& type_name, bool is_structural_view = false);
+
+	/// Register an instancer for data controllers.
+	/// @param[in] instancer  The instancer to be called.
+	/// @param[in] type_name  The type name of the controller, determines the element attribute that is used to initialize it.
+	/// @lifetime The instancer must be kept alive until after the call to Rml::Shutdown.
+	static void RegisterDataControllerInstancer(DataControllerInstancer* instancer, const String& type_name);
+
+	/// Instance the data view with the given type name.
+	static DataViewPtr InstanceDataView(const String& type_name, Element* element, bool is_structural_view);
+
+	/// Instance the data controller with the given type name.
+	static DataControllerPtr InstanceDataController(const String& type_name, Element* element);
+
+	/// Returns the list of element attribute names with an associated structural data view instancer.
+	static const StringList& GetStructuralDataViewAttributeNames();
+
 private:
 	Factory();
 	~Factory();
 };
 
-}
-}
-
+} // namespace Rml
 #endif

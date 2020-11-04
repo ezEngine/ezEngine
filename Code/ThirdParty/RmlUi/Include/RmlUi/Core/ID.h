@@ -27,14 +27,12 @@
  */
 
  
-#ifndef RMLUICOREID_H
-#define RMLUICOREID_H
+#ifndef RMLUI_CORE_ID_H
+#define RMLUI_CORE_ID_H
 
 #include <stdint.h>
 
 namespace Rml {
-namespace Core {
-
 
 enum class ShorthandId : uint8_t
 {
@@ -54,9 +52,11 @@ enum class ShorthandId : uint8_t
 	BorderBottom,
 	BorderLeft,
 	Border,
+	BorderRadius,
 	Overflow,
 	Background,
 	Font,
+	Gap,
 	PerspectiveOrigin,
 	TransformOrigin,
 
@@ -93,6 +93,10 @@ enum class PropertyId : uint8_t
 	BorderRightColor,
 	BorderBottomColor,
 	BorderLeftColor,
+	BorderTopLeftRadius,
+	BorderTopRightRadius,
+	BorderBottomRightRadius,
+	BorderBottomLeftRadius,
 	Display,
 	Position,
 	Top,
@@ -101,6 +105,7 @@ enum class PropertyId : uint8_t
 	Left,
 	Float,
 	Clear,
+	BoxSizing,
 	ZIndex,
 	Width,
 	MinWidth,
@@ -125,6 +130,9 @@ enum class PropertyId : uint8_t
 	TextDecoration,
 	TextTransform,
 	WhiteSpace,
+	WordBreak,
+	RowGap,
+	ColumnGap,
 	Cursor,
 	Drag,
 	TabIndex,
@@ -193,7 +201,7 @@ enum class EventId : uint16_t
 	Animationend,
 	Transitionend,
 
-	// Controls events
+	// Form control events
 	Change,
 	Submit,
 	Tabchange,
@@ -212,7 +220,5 @@ enum class EventId : uint16_t
 	MaxNumIds = 0xffff
 };
 
-}
-}
-
+} // namespace Rml
 #endif

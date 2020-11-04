@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef RMLUICOREELEMENT_H
-#define RMLUICOREELEMENT_H
+#ifndef RMLUI_CORE_ELEMENT_H
+#define RMLUI_CORE_ELEMENT_H
 
 #include "ScriptInterface.h"
 #include "Header.h"
@@ -41,27 +41,28 @@
 #include "Tween.h"
 
 namespace Rml {
-namespace Core {
 
 class Context;
+class DataModel;
 class Decorator;
 class ElementInstancer;
 class EventDispatcher;
 class EventListener;
-class ElementBackground;
-class ElementBorder;
 class ElementDecoration;
 class ElementDefinition;
 class ElementDocument;
 class ElementScroll;
 class ElementStyle;
+class LayoutEngine;
+class LayoutInlineBox;
+class LayoutBlockBox;
 class PropertiesIteratorView;
-class FontFaceHandleDefault;
 class PropertyDictionary;
 class RenderInterface;
-class TransformState;
 class StyleSheet;
+class TransformState;
 struct ElementMeta;
+struct StackingOrderedChild;
 
 /**
 	A generic element in the DOM tree.
@@ -118,7 +119,7 @@ public:
 	/// @param[in] offset The offset (in pixels) of our primary box's top-left border corner from our offset parent's top-left border corner.
 	/// @param[in] offset_parent The element this element is being positioned relative to.
 	/// @param[in] offset_fixed True if the element is fixed in place (and will not scroll), false if not.
-	void SetOffset(const Vector2f& offset, Element* offset_parent, bool offset_fixed = false);
+	void SetOffset(Vector2f offset, Element* offset_parent, bool offset_fixed = false);
 	/// Returns the position of the top-left corner of one of the areas of this element's primary box, relative to its
 	/// offset parent's top-left border corner.
 	/// @param[in] area The desired area position.
@@ -141,20 +142,22 @@ public:
 	/// this element's logical children, plus the element's padding.
 	/// @param[in] content_offset The offset of the box's internal content.
 	/// @param[in] content_box The dimensions of the box's internal content.
-	void SetContentBox(const Vector2f& content_offset, const Vector2f& content_box);
+	void SetContentBox(Vector2f content_offset, Vector2f content_box);
 	/// Sets the box describing the size of the element, and removes all others.
 	/// @param[in] box The new dimensions box for the element.
 	void SetBox(const Box& box);
 	/// Adds a box to the end of the list describing this element's geometry.
 	/// @param[in] box The auxiliary box for the element.
-	void AddBox(const Box& box);
+	/// @param[in] offset The offset of the box relative to the top left border corner of the element.
+	void AddBox(const Box& box, Vector2f offset);
 	/// Returns the main box describing the size of the element.
 	/// @return The box.
 	const Box& GetBox();
 	/// Returns one of the boxes describing the size of the element.
 	/// @param[in] index The index of the desired box, with 0 being the main box. If outside of bounds, the main box will be returned.
+	/// @param[out] offset The offset of the box relative to the element's border box.
 	/// @return The requested box.
-	const Box& GetBox(int index);
+	const Box& GetBox(int index, Vector2f& offset);
 	/// Returns the number of boxes making up this element's geometry.
 	/// @return the number of boxes making up this element's geometry.
 	int GetNumBoxes();
@@ -164,9 +167,10 @@ public:
 	virtual float GetBaseline() const;
 	/// Gets the intrinsic dimensions of this element, if it is of a type that has an inherent size. This size will
 	/// only be overriden by a styled width or height.
-	/// @param[in] dimensions The dimensions to size, if appropriate.
+	/// @param[out] dimensions The dimensions to size, if appropriate.
+	/// @param[out] ratio The intrinsic ratio (width/height), if appropriate.
 	/// @return True if the element has intrinsic dimensions, false otherwise. The default element will return false.
-	virtual bool GetIntrinsicDimensions(Vector2f& dimensions);
+	virtual bool GetIntrinsicDimensions(Vector2f& dimensions, float& ratio);
 
 	/// Checks if a given point in screen coordinates lies within the bordered area of this element.
 	/// @param[in] point The point to test.
@@ -245,8 +249,6 @@ public:
 	/// Returns 'line-height' property value from element's computed values.
 	float GetLineHeight();
 
-	/// Returns this element's TransformState
-	const TransformState *GetTransformState() const noexcept;
 	/// Project a 2D point in pixel coordinates onto the element's plane.
 	/// @param[in-out] point The point to project in, and the resulting projected point out.
 	/// @return True on success, false if transformation matrix is singular.
@@ -468,8 +470,12 @@ public:
 	/// @param[in] event Event to attach to.
 	/// @param[in] listener The listener object to be attached.
 	/// @param[in] in_capture_phase True to attach in the capture phase, false in bubble phase.
+	/// @lifetime The added listener must stay alive until after the dispatched call from EventListener::OnDetach(). This occurs
+	///     eg. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
 	void AddEventListener(const String& event, EventListener* listener, bool in_capture_phase = false);
 	/// Adds an event listener to this element by id.
+	/// @lifetime The added listener must stay alive until after the dispatched call from EventListener::OnDetach(). This occurs
+	///     eg. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
 	void AddEventListener(EventId id, EventListener* listener, bool in_capture_phase = false);
 	/// Removes an event listener from this element.
 	/// @param[in] event Event to detach from.
@@ -526,6 +532,18 @@ public:
 	/// @param[out] elements Resulting elements.
 	/// @param[in] tag Tag to search for.
 	void GetElementsByClassName(ElementList& elements, const String& class_name);
+	/// Returns the first descendent element matching the RCSS selector query.
+	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @return The first matching element during a depth-first traversal.
+	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
+	Element* QuerySelector(const String& selector);
+	/// Returns all descendent elements matching the RCSS selector query.
+	/// @param[out] elements The list of matching elements.
+	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
+	void QuerySelectorAll(ElementList& elements, const String& selectors);
+
+
 	//@}
 
 	/**
@@ -533,23 +551,17 @@ public:
 	 */
 	//@{
 	/// Access the event dispatcher for this element.
-	/// @return The element's dispatcher.
 	EventDispatcher* GetEventDispatcher() const;
 	/// Returns event types with number of listeners for debugging.
-	/// @return Summary of attached listeners.
 	String GetEventDispatcherSummary() const;
-	/// Access the element background.
-	/// @return The element's background.
-	ElementBackground* GetElementBackground() const;
-	/// Access the element border.
-	/// @return The element's boder.
-	ElementBorder* GetElementBorder() const;
 	/// Access the element decorators.
-	/// @return The element decoration.
 	ElementDecoration* GetElementDecoration() const;
 	/// Returns the element's scrollbar functionality.
-	/// @return The element's scrolling functionality.
 	ElementScroll* GetElementScroll() const;
+	/// Returns the element's transform state.
+	const TransformState* GetTransformState() const noexcept;
+	/// Returns the data model of this element.
+	DataModel* GetDataModel() const;
 	//@}
 	
 	/// Returns true if this element requires clipping
@@ -622,12 +634,16 @@ protected:
 
 private:
 	void SetParent(Element* parent);
+	
+	void SetDataModel(DataModel* new_data_model);
 
 	void DirtyOffset();
 	void UpdateOffset();
+	void SetBaseline(float baseline);
 
 	void BuildLocalStackingContext();
 	void BuildStackingContext(ElementList* stacking_context);
+	static void BuildStackingContextForTable(Vector<StackingOrderedChild>& ordered_children, Element* child);
 	void DirtyStackingContext();
 
 	void DirtyStructure();
@@ -672,6 +688,8 @@ private:
 	// The owning document
 	ElementDocument* owner_document;
 
+	// Active data model for this element.
+	DataModel* data_model;
 	// Attributes on this element.
 	ElementAttributes attributes;
 
@@ -688,9 +706,13 @@ private:
 	Vector2f scroll_offset;
 
 	// The size of the element.
-	using BoxList = std::vector< Box >;
+	struct PositionedBox {
+		Box box;
+		Vector2f offset;
+	};
+	using PositionedBoxList = Vector< PositionedBox >;
 	Box main_box;
-	BoxList additional_boxes;
+	PositionedBoxList additional_boxes;
 
 	// And of the element's internal content.
 	Vector2f content_offset;
@@ -698,6 +720,8 @@ private:
 
 	// Defines what box area represents the element's client area; this is usually padding, but may be content.
 	Box::Area client_area;
+
+	float baseline;
 
 	// True if the element is visible and active.
 	bool visible;
@@ -716,11 +740,6 @@ private:
 
 	bool computed_values_are_default_initialized;
 
-	// Cached rendering information
-	int clipping_ignore_depth;
-	bool clipping_enabled;
-	bool clipping_state_dirty;
-
 	// Transform state
 	UniquePtr< TransformState > transform_state;
 	bool dirty_transform;
@@ -732,16 +751,15 @@ private:
 
 	ElementMeta* meta;
 
-	friend class Context;
-	friend class ElementStyle;
-	friend class LayoutEngine;
-	friend class LayoutInlineBox;
-	friend struct ElementDeleter;
-	friend class ElementScroll;
+	friend class Rml::Context;
+	friend class Rml::ElementStyle;
+	friend class Rml::LayoutEngine;
+	friend class Rml::LayoutBlockBox;
+	friend class Rml::LayoutInlineBox;
+	friend class Rml::ElementScroll;
 };
 
-}
-}
+} // namespace Rml
 
 #include "Element.inl"
 

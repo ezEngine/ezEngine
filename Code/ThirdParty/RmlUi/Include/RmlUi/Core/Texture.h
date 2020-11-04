@@ -26,15 +26,13 @@
  *
  */
 
-#ifndef RMLUICORETEXTURE_H
-#define RMLUICORETEXTURE_H
+#ifndef RMLUI_CORE_TEXTURE_H
+#define RMLUI_CORE_TEXTURE_H
 
 #include "Header.h"
 #include "Types.h"
-#include <functional>
 
 namespace Rml {
-namespace Core {
 
 class TextureResource;
 class RenderInterface;
@@ -46,7 +44,7 @@ class RenderInterface;
 	/// @param[out] dimensions The width and height of the generated texture.
 	/// @return True on success.
 */
-using TextureCallback = std::function<bool(const String& name, UniquePtr<const byte[]>& data, Vector2i& dimensions)>;
+using TextureCallback = Function<bool(const String& name, UniquePtr<const byte[]>& data, Vector2i& dimensions)>;
 
 
 /**
@@ -90,7 +88,5 @@ private:
 	SharedPtr<TextureResource> resource;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

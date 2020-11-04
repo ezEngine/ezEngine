@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef RMLUICOREELEMENTINSTANCER_H
-#define RMLUICOREELEMENTINSTANCER_H
+#ifndef RMLUI_CORE_ELEMENTINSTANCER_H
+#define RMLUI_CORE_ELEMENTINSTANCER_H
 
 #include "Traits.h"
 #include "Types.h"
@@ -36,7 +36,6 @@
 #include "Profiling.h"
 
 namespace Rml {
-namespace Core {
 
 class Element;
 
@@ -88,12 +87,12 @@ public:
 };
 
 /**
-	The element text default instancer constructs ElementTextDefault.
+	The element text instancer constructs ElementText.
 	This is a slightly faster version of the generic instancer, making use of a memory
 	pool for allocations.
  */
 
-class RMLUICORE_API ElementInstancerTextDefault : public ElementInstancer
+class RMLUICORE_API ElementInstancerText : public ElementInstancer
 {
 public:
 	ElementPtr InstanceElement(Element* parent, const String& tag, const XMLAttributes& attributes) override;
@@ -103,7 +102,7 @@ public:
 
 /**
 	Generic Instancer that creates the provided element type using new and delete. This instancer
-	is typically used specialized element types.
+	is typically used for specialized element types.
  */
 
 template <typename T>
@@ -127,7 +126,5 @@ public:
 	}
 };
 
-}
-}
-
+} // namespace Rml
 #endif

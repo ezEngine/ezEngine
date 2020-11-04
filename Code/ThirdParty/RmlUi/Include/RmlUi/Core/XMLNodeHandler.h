@@ -26,18 +26,18 @@
  *
  */
 
-#ifndef RMLUICOREXMLNODEHANDLER_H
-#define RMLUICOREXMLNODEHANDLER_H
+#ifndef RMLUI_CORE_XMLNODEHANDLER_H
+#define RMLUI_CORE_XMLNODEHANDLER_H
 
 #include "Header.h"
 #include "Traits.h"
 #include "Types.h"
 
 namespace Rml {
-namespace Core {
 
 class Element;
 class XMLParser;
+enum class XMLDataType;
 
 /**
 	A handler gets ElementStart, ElementEnd and ElementData called by the XMLParser.
@@ -65,10 +65,8 @@ public:
 	/// Called for element data.
 	/// @param parser The parser executing the parse.
 	/// @param data The element data.
-	virtual bool ElementData(XMLParser* parser, const String& data) = 0;
+	virtual bool ElementData(XMLParser* parser, const String& data, XMLDataType type) = 0;
 };
 
-}
-}
-
+} // namespace Rml
 #endif
