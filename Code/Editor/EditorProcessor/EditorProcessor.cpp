@@ -71,29 +71,24 @@ public:
           // it is also not clear whether this is actually safe to execute here
           ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
 
-          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(
-            pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash);
+          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash);
 
           // Check if asset matches the state of the editor
-          if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash ||
-              uiThumbHash != pMsg->m_ThumbHash)
+          if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
           {
             // Force update the state. If the asset was created automatically the file might not be known yet.
             ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
-            state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(
-              pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
+            state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
           }
 
           if (uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
           {
-            ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}{}' differs from the state in the editor with hashes '{}{}'",
-              pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
+            ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}{}' differs from the state in the editor with hashes '{}{}'", pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
           }
 
           if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)
           {
-            const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
-              pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
 
             msg.m_bSuccess = res.m_Result.Succeeded();
             if (res.m_Result.Failed())
@@ -134,32 +129,30 @@ public:
 
     if (!ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform")))
     {
-      ezQtEditorApp::GetSingleton()->OpenProject(sProject);
+      ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 
       bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(
-        ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
-          if (!bTransform)
-            return;
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
+        if (!bTransform)
+          return;
 
-          bTransform = false;
+        bTransform = false;
 
-          const ezString sPlatform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
-          const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sPlatform);
+        const ezString sPlatform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
+        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sPlatform);
 
-          if (uiPlatform == ezInvalidIndex)
-          {
-            ezLog::Error("Asset platform config '{0}' is unknown", sPlatform);
-          }
-          else
-          {
-            ezAssetCurator::GetSingleton()->TransformAllAssets(
-              ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
-          }
+        if (uiPlatform == ezInvalidIndex)
+        {
+          ezLog::Error("Asset platform config '{0}' is unknown", sPlatform);
+        }
+        else
+        {
+          ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+        }
 
-          QApplication::quit();
-        });
+        QApplication::quit();
+      });
 
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       SetReturnCode(iReturnCode);
@@ -171,7 +164,7 @@ public:
       {
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
 
-        ezQtEditorApp::GetSingleton()->OpenProject(sProject);
+        ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
         ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
           static bool bRecursionBlock = false;
           if (bRecursionBlock)

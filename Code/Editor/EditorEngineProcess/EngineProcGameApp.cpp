@@ -433,14 +433,14 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
   ezStringBuilder sUserData = ">user/ezEngine Project/EditorEngineProcess";
 
   // make sure these directories exist
-  ezFileSystem::CreateDirectoryStructure(sAppDir);
-  ezFileSystem::CreateDirectoryStructure(sUserData);
+  ezFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
+  ezFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
 
-  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites);                   // for absolute paths
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly);            // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites); // for shader files
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app");                             // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites);      // for writing app user data
+  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites).IgnoreResult();                   // for absolute paths
+  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly).IgnoreResult();            // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").IgnoreResult();                             // app specific data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).IgnoreResult();      // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 }
@@ -569,7 +569,7 @@ void ezEngineProcessGameApplication::HandleResourceUpdateMsg(const ezResourceUpd
     loader->m_sResourceDescription = sResourceDesc;
 
     ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
-    memoryWriter.WriteBytes(msg.m_Data.GetData(), msg.m_Data.GetCount());
+    memoryWriter.WriteBytes(msg.m_Data.GetData(), msg.m_Data.GetCount()).IgnoreResult();
 
     ezResourceManager::UpdateResourceWithCustomLoader(hResource, std::move(loader));
 
