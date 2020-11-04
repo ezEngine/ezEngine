@@ -50,7 +50,7 @@ void ezTypeScriptAssetDocument::EditScript()
     for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
     {
       ezStringBuilder path;
-      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path).IgnoreResult();
 
       args.append(QString::fromUtf8(path));
     }
@@ -105,7 +105,7 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
     ezFileWriter file;
     if (file.Open(sScriptFile).Succeeded())
     {
-      file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
+      file.WriteBytes(sContent.GetData(), sContent.GetElementCount()).IgnoreResult();
     }
   }
 
@@ -125,10 +125,10 @@ void ezTypeScriptAssetDocument::CreateTsConfigFiles()
       continue;
 
     ezStringBuilder path;
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path).IgnoreResult();
     path.MakeCleanPath();
 
-    CreateTsConfigFile(path);
+    CreateTsConfigFile(path).IgnoreResult();
   }
 }
 
@@ -142,7 +142,7 @@ ezResult ezTypeScriptAssetDocument::CreateTsConfigFile(const char* szDirectory)
     const auto& dd = ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs[iPlus1 - 1];
 
     ezStringBuilder path;
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path));
     path.MakeCleanPath();
     path.AppendPath("*");
 
@@ -176,7 +176,7 @@ ezResult ezTypeScriptAssetDocument::CreateTsConfigFile(const char* szDirectory)
     sTmp = szDirectory;
     sTmp.AppendPath(".gitignore");
 
-    ezQtUiServices::AddToGitIgnore(sTmp, "tsconfig.json"); //.IgnoreFailure();
+    ezQtUiServices::AddToGitIgnore(sTmp, "tsconfig.json").IgnoreResult();
   }
 
   return EZ_SUCCESS;
@@ -234,8 +234,7 @@ void ezTypeScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_SUCCEED_OR_RETURN(ValidateScriptCode());
   EZ_SUCCEED_OR_RETURN(AutoGenerateVariablesCode());
@@ -248,7 +247,7 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   }
 
   ezTypeScriptAssetDocumentManager* pAssMan = static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager());
-  pAssMan->GenerateScriptCompendium(transformFlags);
+  EZ_SUCCEED_OR_RETURN(pAssMan->GenerateScriptCompendium(transformFlags));
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -345,8 +344,7 @@ ezStatus ezTypeScriptAssetDocument::AutoGenerateVariablesCode()
     }
     for (const auto& p : GetProperties()->m_ColorParameters)
     {
-      sAutoGen.AppendFormat("    {}: ez.Color = new ez.Color({}, {}, {}, {});\n", p.m_sName, p.m_DefaultValue.r, p.m_DefaultValue.g,
-        p.m_DefaultValue.b, p.m_DefaultValue.a);
+      sAutoGen.AppendFormat("    {}: ez.Color = new ez.Color({}, {}, {}, {});\n", p.m_sName, p.m_DefaultValue.r, p.m_DefaultValue.g, p.m_DefaultValue.b, p.m_DefaultValue.a);
     }
   }
 
@@ -363,7 +361,7 @@ ezStatus ezTypeScriptAssetDocument::AutoGenerateVariablesCode()
       return ezStatus(ezFmt("Could not update .ts file '{}'", GetProperties()->m_sScriptFile));
     }
 
-    tsWriteBack.WriteBytes(content.GetData(), content.GetElementCount());
+    EZ_SUCCEED_OR_RETURN(tsWriteBack.WriteBytes(content.GetData(), content.GetElementCount()));
   }
 
   return ezStatus(EZ_SUCCESS);

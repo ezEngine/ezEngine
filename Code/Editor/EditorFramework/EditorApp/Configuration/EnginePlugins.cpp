@@ -68,7 +68,7 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
   if (bChange)
   {
     AddReloadProjectRequiredReason("The set of active engine plugins was changed.");
-    m_EnginePluginConfig.Save();
+    m_EnginePluginConfig.Save().IgnoreResult();
   }
 }
 
@@ -115,7 +115,7 @@ void ezQtEditorApp::ReadEnginePluginConfig()
   }
 
   // save new state again
-  m_EnginePluginConfig.Save();
+  m_EnginePluginConfig.Save().IgnoreResult();
 
   DetectAvailableEnginePlugins();
 

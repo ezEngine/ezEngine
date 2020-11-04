@@ -540,12 +540,12 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   if (false)
   {
     ezFileWriter file;
-    file.Open("C:\\temp\\Material - diff.txt");
+    file.Open("C:\\temp\\Material - diff.txt").IgnoreResult();
 
     ezStringBuilder sDiff;
     sDiff.Append("######## New Instance To Instance #######\n");
     ezPrefabUtils::WriteDiff(newInstanceToCurrentInstance, sDiff);
-    file.WriteBytes(sDiff.GetData(), sDiff.GetElementCount());
+    file.WriteBytes(sDiff.GetData(), sDiff.GetElementCount()).IgnoreResult();
   }
   // Apply diff to current instance
   // Shader needs to be set first
@@ -987,7 +987,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
 
           stream << sResourceName;
           stream << content.GetCount();
-          stream.WriteBytes(content.GetData(), content.GetCount());
+          EZ_SUCCEED_OR_RETURN(stream.WriteBytes(content.GetData(), content.GetCount()));
         }
       }
 
@@ -996,7 +996,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
     }
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-    stream.FinishCompressedStream();
+    EZ_SUCCEED_OR_RETURN(stream.FinishCompressedStream());
 
     ezLog::Dev("Compressed material data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
 #endif
@@ -1032,7 +1032,7 @@ void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezPlatformProfile
     if (fileOut.Open(sAutoGenShader).Failed())
       return;
 
-    fileOut.WriteBytes(all.GetData(), all.GetElementCount());
+    fileOut.WriteBytes(all.GetData(), all.GetElementCount()).IgnoreResult();
   }
 }
 
@@ -1056,7 +1056,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHead
     ezStringBuilder shader = codeGen.GetFinalShaderCode();
     shader.PrependFormat("//{0}|{1}\n", AssetHeader.GetFileHash(), AssetHeader.GetFileVersion());
 
-    file.WriteBytes(shader.GetData(), shader.GetElementCount());
+    EZ_SUCCEED_OR_RETURN(file.WriteBytes(shader.GetData(), shader.GetElementCount()));
     file.Close();
 
     InvalidateCachedShader();

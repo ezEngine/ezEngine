@@ -141,7 +141,7 @@ ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& s
 
   ezUInt32 uiSize = storage.GetStorageSize();
   stream << uiSize;
-  stream.WriteBytes(storage.GetData(), uiSize);
+  EZ_SUCCEED_OR_RETURN(stream.WriteBytes(storage.GetData(), uiSize));
   return ezStatus(EZ_SUCCESS);
 }
 

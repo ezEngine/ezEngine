@@ -42,8 +42,7 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
 
-  ezGameObjectDocument::s_GameObjectDocumentEvents.AddEventHandler(
-    ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
+  ezGameObjectDocument::s_GameObjectDocumentEvents.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
 
   // make sure the preferences exist
   ezPreferences::QueryPreferences<ezTypeScriptPreferences>();
@@ -57,8 +56,7 @@ ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
 
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  ezGameObjectDocument::s_GameObjectDocumentEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
+  ezGameObjectDocument::s_GameObjectDocumentEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
 }
 
 void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -79,8 +77,7 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezTypeScriptAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTypeScriptAssetDocument(szPath);
 }
@@ -111,7 +108,7 @@ void ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler(const ezGa
     {
       if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForSimulation)
       {
-        GenerateScriptCompendium(ezTransformFlags::Default);
+        GenerateScriptCompendium(ezTransformFlags::Default).IgnoreResult();
       }
       break;
     }
@@ -121,7 +118,7 @@ void ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler(const ezGa
     {
       if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForPlayTheGame)
       {
-        GenerateScriptCompendium(ezTransformFlags::Default);
+        GenerateScriptCompendium(ezTransformFlags::Default).IgnoreResult();
       }
       break;
     }
@@ -196,7 +193,7 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 
   if (ezFileSystem::FindDataDirectoryWithRoot("TypeScript") == nullptr)
   {
-    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
+    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript").IgnoreResult();
   }
 
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");
@@ -266,7 +263,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
     ezFileReader file;
     if (file.Open(sFile).Succeeded())
     {
-      file.ReadMap(m_CheckedTsFiles);
+      file.ReadMap(m_CheckedTsFiles).IgnoreResult();
     }
   }
 
@@ -294,7 +291,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 
       fsIt.GetStats().GetFullPath(sTsFilePath);
 
-      sTsFilePath.MakeRelativeTo(sDataDirPath);
+      sTsFilePath.MakeRelativeTo(sDataDirPath).IgnoreResult();
 
       relPathToDataDirIdx[sTsFilePath] = ddIdx;
 
@@ -388,9 +385,9 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
     ezAssetFileHeader header;
     header.SetFileHashAndVersion(1, 1);
 
-    header.Write(file);
+    EZ_SUCCEED_OR_RETURN(header.Write(file));
 
-    compendium.Serialize(file);
+    EZ_SUCCEED_OR_RETURN(compendium.Serialize(file));
 
     EZ_SUCCEED_OR_RETURN(file.Close());
   }
@@ -403,7 +400,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
     ezFileWriter file;
     if (file.Open(sFile).Succeeded())
     {
-      file.WriteMap(m_CheckedTsFiles);
+      EZ_SUCCEED_OR_RETURN(file.WriteMap(m_CheckedTsFiles));
     }
   }
 

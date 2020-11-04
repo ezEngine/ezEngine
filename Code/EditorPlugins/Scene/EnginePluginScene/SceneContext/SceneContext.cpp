@@ -472,7 +472,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition);
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition).IgnoreResult();
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -619,10 +619,10 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     {
       ezAssetFileHeader header;
       header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
-      header.Write(file);
+      header.Write(file).IgnoreResult();
 
       const char* szSceneTag = "[ezBinaryScene]";
-      file.WriteBytes(szSceneTag, sizeof(char) * 16);
+      file.WriteBytes(szSceneTag, sizeof(char) * 16).IgnoreResult();
     }
 
     const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");

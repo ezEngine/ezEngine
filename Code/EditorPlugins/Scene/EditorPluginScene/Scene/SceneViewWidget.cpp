@@ -52,7 +52,7 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
   {
     s_bContextMenuInitialized = true;
 
-    ezActionMapManager::RegisterActionMap("SceneViewContextMenu");
+    ezActionMapManager::RegisterActionMap("SceneViewContextMenu").IgnoreResult();
 
     ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
     ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");

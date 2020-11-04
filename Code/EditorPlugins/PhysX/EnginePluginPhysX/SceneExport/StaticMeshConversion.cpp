@@ -91,7 +91,7 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
   file.SetOutput(sOutputFile);
 
   ezAssetFileHeader header;
-  header.Write(file);
+  header.Write(file).IgnoreResult();
 
   ezChunkStreamWriter chunk(file);
   chunk.BeginStream(1);

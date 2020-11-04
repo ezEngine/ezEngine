@@ -205,12 +205,12 @@ void ezQtAssetProfilesDlg::on_ButtonOk_clicked()
 
     sProfileRuntimeDataFile.Set(":project/RuntimeConfigs/", pProfile->GetConfigName(), ".ezProfile");
 
-    pProfile->SaveForRuntime(sProfileRuntimeDataFile);
+    pProfile->SaveForRuntime(sProfileRuntimeDataFile).IgnoreResult();
   }
 
   accept();
 
-  ezAssetCurator::GetSingleton()->SaveAssetProfiles();
+  ezAssetCurator::GetSingleton()->SaveAssetProfiles().IgnoreResult();
 }
 
 void ezQtAssetProfilesDlg::on_ButtonCancel_clicked()
@@ -386,7 +386,7 @@ void ezQtAssetProfilesDlg::ApplyAllChanges()
 
     if (binding.m_State == Binding::State::Deleted)
     {
-      ezAssetCurator::GetSingleton()->DeleteAssetProfile(pProfile);
+      ezAssetCurator::GetSingleton()->DeleteAssetProfile(pProfile).IgnoreResult();
       continue;
     }
 

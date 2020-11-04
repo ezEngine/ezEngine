@@ -23,10 +23,8 @@ ezVisualizerAdapter::~ezVisualizerAdapter()
 
   if (m_pObject)
   {
-    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
-    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
-      ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
   }
 }
 
@@ -37,8 +35,7 @@ void ezVisualizerAdapter::SetVisualizer(const ezVisualizerAttribute* pAttribute,
 
   auto& meta = m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData;
 
-  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(
-    ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
   meta.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
 
   {
@@ -60,9 +57,7 @@ void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObj
   {
     if (e.m_pObject == m_pObject)
     {
-      if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 || e.m_sProperty == m_pVisualizerAttr->m_sProperty2 ||
-          e.m_sProperty == m_pVisualizerAttr->m_sProperty3 || e.m_sProperty == m_pVisualizerAttr->m_sProperty4 ||
-          e.m_sProperty == m_pVisualizerAttr->m_sProperty5)
+      if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 || e.m_sProperty == m_pVisualizerAttr->m_sProperty2 || e.m_sProperty == m_pVisualizerAttr->m_sProperty3 || e.m_sProperty == m_pVisualizerAttr->m_sProperty4 || e.m_sProperty == m_pVisualizerAttr->m_sProperty5)
       {
         Update();
       }
@@ -91,7 +86,7 @@ void ezVisualizerAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMetaD
 ezTransform ezVisualizerAdapter::GetObjectTransform() const
 {
   ezTransform t;
-  m_pObject->GetDocumentObjectManager()->GetDocument()->ComputeObjectTransformation(m_pObject, t);
+  m_pObject->GetDocumentObjectManager()->GetDocument()->ComputeObjectTransformation(m_pObject, t).IgnoreResult();
 
   return t;
 }

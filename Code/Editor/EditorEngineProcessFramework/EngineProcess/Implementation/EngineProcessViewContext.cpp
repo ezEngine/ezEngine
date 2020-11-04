@@ -59,9 +59,9 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   {
     ezImage img;
     ezActorPluginWindow* pWindow = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
-    pWindow->GetOutputTarget()->CaptureImage(img);
+    pWindow->GetOutputTarget()->CaptureImage(img).IgnoreResult();
 
-    img.SaveTo(msg->m_sOutputFile);
+    img.SaveTo(msg->m_sOutputFile).IgnoreResult();
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");

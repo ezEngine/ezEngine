@@ -196,8 +196,8 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 
   ezVec3 vPosOnNearPlane0, vRayDir0;
   ezVec3 vPosOnNearPlane1, vRayDir1;
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0).IgnoreResult();
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1).IgnoreResult();
 
   ezTransform t;
   t.SetIdentity();
@@ -313,8 +313,7 @@ ezEditorInput ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
   return ezEditorInput::MayBeHandledByOthers;
 }
 
-static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject,
-  const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
+static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject, const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
 {
   if (pObject == pRootObject)
     return false;

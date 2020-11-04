@@ -23,7 +23,7 @@ namespace ezMeshImportUtils
 
     ezStringBuilder textureNameTemp = ezStringBuilder(szTexturePath).GetFileName();
     ezStringBuilder textureName;
-    ezPathUtils::MakeValidFilename(textureNameTemp, '_', textureName);
+    ezPathUtils::MakeValidFilename(textureNameTemp, '_', textureName).IgnoreResult();
 
     ezStringBuilder newAssetPathAbs = szImportTargetFolder;
     newAssetPathAbs.AppendPath(ezStringBuilder(szTexturePath).GetFileNameAndExtension().GetStartPointer());
@@ -58,7 +58,7 @@ namespace ezMeshImportUtils
       ezStringBuilder relTexturePath = szImportSourceFolder;
       relTexturePath.AppendPath(szTexturePath);
 
-      ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions);
+      ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions).IgnoreResult();
       pAccessor->SetValue(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 
       ezEnum<ezTexture2DChannelMappingEnum> channelMapping;
@@ -785,7 +785,8 @@ namespace ezMeshImportUtils
   //  return ezStatus(EZ_SUCCESS);
   //}
 
-  // ezStatus TryImportMesh(ezSharedPtr<ezModelImporter::Scene>& out_pScene, ezModelImporter::Mesh*& out_pMesh, const char* szMeshFile, const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals, ezMeshNormalPrecision::Enum normalPrecision, ezMeshTexCoordPrecision::Enum texCoordPrecision, ezProgressRange& range, ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh)
+  // ezStatus TryImportMesh(ezSharedPtr<ezModelImporter::Scene>& out_pScene, ezModelImporter::Mesh*& out_pMesh, const char* szMeshFile, const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals, ezMeshNormalPrecision::Enum normalPrecision,
+  // ezMeshTexCoordPrecision::Enum texCoordPrecision, ezProgressRange& range, ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh)
   //{
   //  ezMat3 mInverseTransform = mMeshTransform;
 

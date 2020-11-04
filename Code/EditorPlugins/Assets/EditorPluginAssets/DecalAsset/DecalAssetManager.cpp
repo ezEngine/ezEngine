@@ -46,8 +46,7 @@ ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(
-  const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const
 {
   ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   projectDir.MakeCleanPath();
@@ -59,8 +58,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(
   }
 }
 
-ezString ezDecalAssetDocumentManager::GetAssetTableEntry(
-  const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection
   return ezString();
@@ -84,8 +82,7 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
   }
 }
 
-void ezDecalAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezDecalAssetDocument(szPath);
 }
@@ -264,7 +261,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   {
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
-    ezOSFile::DeleteFile(decalFile);
+    ezOSFile::DeleteFile(decalFile).IgnoreResult();
     result.m_Result = EZ_FAILURE;
   }
 
@@ -277,7 +274,7 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
   if (file.Open(szDecalFile).Succeeded())
   {
     ezAssetFileHeader header;
-    header.Read(file);
+    header.Read(file).IgnoreResult();
 
     // file still valid
     if (header.GetFileHash() == uiAssetHash)

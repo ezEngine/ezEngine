@@ -84,7 +84,9 @@ void ezQtWindowCfgDlg::LoadDescs()
     sPath.AppendPath("Window.ddl");
 
     if (m_Descs[0].LoadFromDDL(sPath).Failed())
-      m_Descs[0].SaveToDDL(sPath); // make sure the file exists
+    {
+      m_Descs[0].SaveToDDL(sPath).IgnoreResult(); // make sure the file exists
+    }
 
     m_bOverrideProjectDefault[0] = false;
   }
@@ -105,7 +107,7 @@ void ezQtWindowCfgDlg::SaveDescs()
     sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("Window.ddl");
 
-    m_Descs[0].SaveToDDL(sPath);
+    m_Descs[0].SaveToDDL(sPath).IgnoreResult();
   }
 
   {
@@ -114,11 +116,11 @@ void ezQtWindowCfgDlg::SaveDescs()
 
     if (m_bOverrideProjectDefault[1])
     {
-      m_Descs[1].SaveToDDL(sPath);
+      m_Descs[1].SaveToDDL(sPath).IgnoreResult();
     }
     else
     {
-      ezOSFile::DeleteFile(sPath);
+      ezOSFile::DeleteFile(sPath).IgnoreResult();
     }
   }
 }

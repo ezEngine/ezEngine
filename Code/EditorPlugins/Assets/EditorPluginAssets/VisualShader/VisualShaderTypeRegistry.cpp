@@ -28,8 +28,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
   ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
   const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); }).IgnoreResult();
+  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); }).IgnoreResult();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -211,7 +211,7 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
   if (pType == ezGetStaticRTTI<bool>())
   {
     bool res = false;
-    ezConversionUtils::StringToBool(szDefault, res);
+    ezConversionUtils::StringToBool(szDefault, res).IgnoreResult();
     return ezVariant(res);
   }
 
@@ -312,7 +312,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       // this is optional
       if (auto pColor = pElement->FindChild("Color"))
       {
-        ezOpenDdlUtils::ConvertToColorGamma(pColor, pin.m_Color);
+        ezOpenDdlUtils::ConvertToColorGamma(pColor, pin.m_Color).IgnoreResult();
       }
 
       // this is optional
@@ -473,7 +473,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
   {
     if (ezStringUtils::IsEqual(pElement->GetName(), "Color"))
     {
-      ezOpenDdlUtils::ConvertToColorGamma(pElement, nd.m_Color);
+      ezOpenDdlUtils::ConvertToColorGamma(pElement, nd.m_Color).IgnoreResult();
     }
     else if (pElement->HasPrimitives(ezOpenDdlPrimitiveType::String))
     {

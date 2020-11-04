@@ -62,7 +62,7 @@ void ezQtEngineDocumentWindow::InternalRedraw()
 
     if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
     {
-      ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
+      ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0)).IgnoreResult();
     }
 
     ++m_uiRedrawCountSent;
