@@ -59,7 +59,9 @@ ezResult ezWindow::Initialize()
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
-    Destroy();
+  {
+    Destroy().IgnoreResult();
+  }
 
   EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
 
@@ -100,7 +102,7 @@ ezResult ezWindow::Initialize()
     if (ChangeDisplaySettingsW(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
     {
       m_CreationDescription.m_WindowMode = ezWindowMode::FullscreenBorderlessNativeResolution;
-      m_CreationDescription.AdjustWindowSizeAndPosition();
+      EZ_SUCCEED_OR_RETURN(m_CreationDescription.AdjustWindowSizeAndPosition());
 
       ezLog::Error("Failed to change display resolution for fullscreen window. Falling back to borderless window.");
     }
@@ -273,7 +275,7 @@ void ezWindow::ProcessWindowMessages()
   {
     if (msg.message == WM_QUIT)
     {
-      Destroy();
+      Destroy().IgnoreResult();
       return;
     }
 

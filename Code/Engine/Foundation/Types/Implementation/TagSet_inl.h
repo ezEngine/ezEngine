@@ -39,29 +39,23 @@ public:
 
   virtual void Clear(void* pInstance) override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetByName(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).RemoveByName(*static_cast<const RealType*>(pObject));
   }
 
-  virtual bool Contains(const void* pInstance, void* pObject) const override
-  {
-    return m_ConstGetter(static_cast<const Class*>(pInstance)).IsSetByName(*static_cast<const RealType*>(pObject));
-  }
+  virtual bool Contains(const void* pInstance, void* pObject) const override { return m_ConstGetter(static_cast<const Class*>(pInstance)).IsSetByName(*static_cast<const RealType*>(pObject)); }
 
   virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override
   {
@@ -396,7 +390,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, ezTag
 
   // Manually read version value since 0 can be a valid version here
   ezTypeVersion version;
-  stream.ReadWordValue(&version);
+  stream.ReadWordValue(&version).IgnoreResult();
 
   if (version == 0)
   {

@@ -37,8 +37,7 @@ void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
-  out_String.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+  out_String.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
 void ezGameApplicationBase::TakeProfilingCapture()
@@ -61,7 +60,7 @@ void ezGameApplicationBase::TakeProfilingCapture()
       ezFileWriter fileWriter;
       if (fileWriter.Open(sPath) == EZ_SUCCESS)
       {
-        m_profilingData.Write(fileWriter);
+        m_profilingData.Write(fileWriter).IgnoreResult();
         ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
       }
       else
@@ -100,7 +99,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
     virtual void Execute() override
     {
       // get rid of Alpha channel before saving
-      m_Image.Convert(ezImageFormat::R8G8B8_UNORM_SRGB);
+      m_Image.Convert(ezImageFormat::R8G8B8_UNORM_SRGB).IgnoreResult();
 
       if (m_Image.SaveTo(m_sPath).Succeeded())
       {
@@ -290,7 +289,7 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWo
 
 void ezGameApplicationBase::ActivateGameStateAtStartup()
 {
-  ActivateGameState();
+  ActivateGameState().IgnoreResult();
 }
 
 ezResult ezGameApplicationBase::BeforeCoreSystemsStartup()

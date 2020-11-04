@@ -165,13 +165,13 @@ void ezWindowCreationDesc::LoadFromDDL(const ezOpenDdlReaderElement* pParentElem
 
     if (const ezOpenDdlReaderElement* pPosition = pDesc->FindChild("Position"))
     {
-      ezOpenDdlUtils::ConvertToVec2I(pPosition, m_Position);
+      ezOpenDdlUtils::ConvertToVec2I(pPosition, m_Position).IgnoreResult();
     }
 
     if (const ezOpenDdlReaderElement* pPosition = pDesc->FindChild("Resolution"))
     {
       ezVec2U32 res;
-      ezOpenDdlUtils::ConvertToVec2U(pPosition, res);
+      ezOpenDdlUtils::ConvertToVec2U(pPosition, res).IgnoreResult();
       m_Resolution.width = res.x;
       m_Resolution.height = res.y;
     }
@@ -209,7 +209,9 @@ ezWindow::ezWindow()
 ezWindow::~ezWindow()
 {
   if (m_bInitialized)
-    Destroy();
+  {
+    Destroy().IgnoreResult();
+  }
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

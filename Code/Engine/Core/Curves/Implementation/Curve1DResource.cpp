@@ -59,7 +59,7 @@ ezResourceLoadDesc ezCurve1DResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_Descriptor.Load(*Stream);
 
