@@ -57,10 +57,10 @@ void ezRmlUiCanvas2DComponent::Initialize()
 
   for (auto& pDataBinding : m_DataBindings)
   {
-    pDataBinding->Setup(*m_pContext);
+    pDataBinding->Setup(*m_pContext).IgnoreResult();
   }
 
-  m_pContext->LoadDocumentFromResource(m_hResource);
+  m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
 
   UpdateCachedValues();
 }
@@ -71,6 +71,8 @@ void ezRmlUiCanvas2DComponent::Deinitialize()
 
   ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
   m_pContext = nullptr;
+
+  m_DataBindings.Clear();
 }
 
 void ezRmlUiCanvas2DComponent::OnActivated()
@@ -169,8 +171,7 @@ void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
 
     if (m_pContext != nullptr)
     {
-      m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
-      if (IsActive())
+      if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
       {
         m_pContext->ShowDocument();
       }
@@ -213,12 +214,12 @@ ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding
   // Document needs to be loaded again since data bindings have to be set before document load
   if (m_pContext != nullptr)
   {
-    dataBinding->Setup(*m_pContext);
-
-    m_pContext->LoadDocumentFromResource(m_hResource);
-    if (IsActive())
+    if (dataBinding->Setup(*m_pContext).Succeeded())
     {
-      m_pContext->ShowDocument();
+      if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
+      {
+        m_pContext->ShowDocument();
+      }
     }
   }
 

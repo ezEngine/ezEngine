@@ -19,12 +19,16 @@ const char* g_BuildItemTypes[] = {
 };
 
 static ezHashedString s_sSelectKey = ezMakeHashedString("SelectKey");
+static ezHashedString s_sCreateKey = ezMakeHashedString("CreateKey");
+static ezHashedString s_sRemoveKey = ezMakeHashedString("RemoveKey");
 
 RtsEditLevelMode::RtsEditLevelMode()
 {
   m_pBlackboard = EZ_DEFAULT_NEW(ezBlackboard);
 
   m_pBlackboard->RegisterEntry(s_sSelectKey, ezVariant());
+  m_pBlackboard->RegisterEntry(s_sCreateKey, ezVariant());
+  m_pBlackboard->RegisterEntry(s_sRemoveKey, ezVariant());
 }
 
 RtsEditLevelMode::~RtsEditLevelMode() = default;
@@ -58,6 +62,8 @@ void RtsEditLevelMode::SetupEditUI()
   // Set blackboard values
   {
     m_pBlackboard->SetEntryValue(s_sSelectKey, ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
+    m_pBlackboard->SetEntryValue(s_sCreateKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
+    m_pBlackboard->SetEntryValue(s_sRemoveKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
   }
 
   ezGameObject* pEditUIObject = nullptr;
@@ -90,27 +96,6 @@ void RtsEditLevelMode::SetupEditUI()
         }
       }
     }
-  }
-
-  if (auto pElement = pDocument->GetElementById("selectkey"))
-  {
-    ezStringBuilder s;
-    s.Format("Select: {}", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
-    pElement->SetInnerRML(s.GetData());
-  }
-
-  if (auto pElement = pDocument->GetElementById("createkey"))
-  {
-    ezStringBuilder s;
-    s.Format("Create: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
-    pElement->SetInnerRML(s.GetData());
-  }
-
-  if (auto pElement = pDocument->GetElementById("removekey"))
-  {
-    ezStringBuilder s;
-    s.Format("Remove: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
-    pElement->SetInnerRML(s.GetData());
   }
 
   pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Event& e) { m_uiTeam = static_cast<Rml::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
