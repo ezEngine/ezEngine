@@ -6,6 +6,7 @@
 
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
+class ezRmlUiDataBinding;
 class ezBlackboard;
 
 using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
@@ -48,8 +49,11 @@ public:
   void SetPassInput(bool bPassInput);                // [ property ]
   bool GetPassInput() const { return m_bPassInput; } // [ property ]
 
-  void BindBlackboard(ezBlackboard& blackboard);
-  void UnbindBlackboard();
+  ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding);
+  void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
+
+  ezUInt32 AddBlackboardBinding(ezBlackboard& blackboard, const char* szModelName);
+  void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
 
   ezRmlUiContext* GetRmlContext() { return m_pContext; }
 
@@ -73,4 +77,6 @@ protected:
   bool m_bPassInput = true;
 
   ezRmlUiContext* m_pContext = nullptr;
+
+  ezDynamicArray<ezUniquePtr<ezRmlUiDataBinding>> m_DataBindings;
 };

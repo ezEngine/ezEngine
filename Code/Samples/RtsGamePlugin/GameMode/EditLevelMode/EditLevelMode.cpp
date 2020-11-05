@@ -68,7 +68,7 @@ void RtsEditLevelMode::SetupEditUI()
   if (!pEditUIObject->TryGetComponentOfBaseType(pUiComponent))
     return;
 
-  pUiComponent->BindBlackboard(*m_pBlackboard);
+  pUiComponent->AddBlackboardBinding(*m_pBlackboard, "EditLevelModel");
   m_hEditUIComponent = pUiComponent->GetHandle();
 
   pUiComponent->EnsureInitialized();

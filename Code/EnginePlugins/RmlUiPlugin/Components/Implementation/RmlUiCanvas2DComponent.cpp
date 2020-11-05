@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
@@ -53,7 +54,13 @@ void ezRmlUiCanvas2DComponent::Initialize()
   sName.AppendFormat("_{}", ezArgP(this));
 
   m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
-  m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
+
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    pDataBinding->Setup(*m_pContext);
+  }
+
+  m_pContext->LoadDocumentFromResource(m_hResource);
 
   UpdateCachedValues();
 }
@@ -123,6 +130,11 @@ void ezRmlUiCanvas2DComponent::Update()
 
     mousePos = mousePos.CompMul(viewSize) - offset;
     m_pContext->UpdateInput(mousePos);
+  }
+
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    pDataBinding->Update();
   }
 
   m_pContext->Update();
@@ -196,20 +208,40 @@ void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
   m_bPassInput = bPassInput;
 }
 
-void ezRmlUiCanvas2DComponent::BindBlackboard(ezBlackboard& blackboard)
+ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding)
 {
+  // Document needs to be loaded again since data bindings have to be set before document load
   if (m_pContext != nullptr)
   {
-    m_pContext->BindBlackboard(blackboard);
+    dataBinding->Setup(*m_pContext);
+
+    m_pContext->LoadDocumentFromResource(m_hResource);
+    if (IsActive())
+    {
+      m_pContext->ShowDocument();
+    }
   }
+
+  ezUInt32 uiDataBindingIndex = m_DataBindings.GetCount();
+  m_DataBindings.PushBack(std::move(dataBinding));
+  return uiDataBindingIndex;
 }
 
-void ezRmlUiCanvas2DComponent::UnbindBlackboard()
+void ezRmlUiCanvas2DComponent::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
 {
-  if (m_pContext != nullptr)
-  {
-    m_pContext->UnbindBlackboard();
-  }
+  // Can't remove data bindings atm
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard, const char* szModelName)
+{
+  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, blackboard, szModelName);
+  return AddDataBinding(pDataBinding);
+}
+
+void ezRmlUiCanvas2DComponent::RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex)
+{
+  RemoveDataBinding(uiDataBindingIndex);
 }
 
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
