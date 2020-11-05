@@ -80,7 +80,7 @@ void ezGameApplicationBase::Init_ConfigureAssetManagement() {}
 void ezGameApplicationBase::Init_LoadRequiredPlugins()
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezPlugin::LoadOptionalPlugin("XBoxControllerPlugin");
+  ezPlugin::LoadOptionalPlugin("XBoxControllerPlugin").IgnoreResult();
 #endif
 }
 
@@ -91,7 +91,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 
   const ezStringBuilder sUserDataPath(">user/", GetApplicationName());
 
-  ezFileSystem::CreateDirectoryStructure(sUserDataPath);
+  ezFileSystem::CreateDirectoryStructure(sUserDataPath).IgnoreResult();
 
   ezString writableBinRoot = ">appdir/";
   ezString shaderCacheRoot = ">appdir/";
@@ -104,30 +104,30 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 #endif
 
   // for absolute paths, read-only
-  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezFileSystem::ReadOnly);
+  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezFileSystem::ReadOnly).IgnoreResult();
 
   // ":bin/" : writing to the binary directory
-  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezFileSystem::AllowWrites).IgnoreResult();
 
   // ":shadercache/" for reading and writing shader files
-  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezFileSystem::AllowWrites).IgnoreResult();
 
   // ":appdata/" for reading and writing app user data
-  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezFileSystem::AllowWrites).IgnoreResult();
 
   // ":base/" for reading the core engine files
-  ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezFileSystem::DataDirUsage::ReadOnly);
+  ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
 
   // ":project/" for reading the project specific files
-  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly);
+  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
 
   // ":plugins/" for plugin specific data (optional, if it exists)
   {
     ezStringBuilder dir;
-    ezFileSystem::ResolveSpecialDirectory(">sdk/Data/Plugins", dir);
+    ezFileSystem::ResolveSpecialDirectory(">sdk/Data/Plugins", dir).IgnoreResult();
     if (ezOSFile::ExistsDirectory(dir))
     {
-      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezFileSystem::DataDirUsage::ReadOnly);
+      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
     }
   }
 
@@ -139,8 +139,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
     for (ezUInt32 i = appFileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
     {
       const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
-      if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") ||
-          name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("plugins"))
+      if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") || name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("plugins"))
       {
         appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
       }
@@ -169,7 +168,7 @@ void ezGameApplicationBase::Init_PlatformProfile_LoadForRuntime()
 {
   const ezStringBuilder sRuntimeProfileFile(":project/RuntimeConfigs/", m_PlatformProfile.m_sName, ".ezProfile");
   m_PlatformProfile.AddMissingConfigs();
-  m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile);
+  m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile).IgnoreResult();
 }
 
 void ezGameApplicationBase::Init_ConfigureInput() {}
@@ -234,7 +233,7 @@ void ezGameApplicationBase::Init_SetupDefaultResources()
 
 void ezGameApplicationBase::Deinit_UnloadPlugins()
 {
-  ezPlugin::UnloadAllPlugins();
+  ezPlugin::UnloadAllPlugins().IgnoreResult();
 }
 
 void ezGameApplicationBase::Deinit_ShutdownLogging()

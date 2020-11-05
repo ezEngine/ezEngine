@@ -27,7 +27,7 @@ void ezFileserver::StartServer()
   ezStringBuilder tmp;
 
   m_Network = ezRemoteInterfaceEnet::Make();
-  m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false);
+  m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false).IgnoreResult();
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
   m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
 
@@ -299,7 +299,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteM
       ret.GetWriter() << uiFileSize;
 
       if (!m_SendToClient.IsEmpty())
-        ret.GetWriter().WriteBytes(&m_SendToClient[uiNextByte], uiChunkSize);
+        ret.GetWriter().WriteBytes(&m_SendToClient[uiNextByte], uiChunkSize).IgnoreResult();
 
       ret.SetMessageID('FSRV', 'DWNL');
       m_Network->Send(ezRemoteTransmitMode::Reliable, ret);
@@ -356,7 +356,7 @@ void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezR
   sAbsPath = dd.m_sPathOnServer;
   sAbsPath.AppendPath(sFile);
 
-  ezOSFile::DeleteFile(sAbsPath);
+  ezOSFile::DeleteFile(sAbsPath).IgnoreResult();
 }
 
 void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage& msg)
@@ -434,7 +434,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 
     if (!m_SentFromClient.IsEmpty())
     {
-      file.Write(m_SentFromClient.GetData(), m_SentFromClient.GetCount());
+      file.Write(m_SentFromClient.GetData(), m_SentFromClient.GetCount()).IgnoreResult();
     }
   }
 

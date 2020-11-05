@@ -70,10 +70,10 @@ ezResourceLoadDesc ezAnimationClipResource::UpdateContent(ezStreamReader* Stream
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_pDescriptor = EZ_DEFAULT_NEW(ezAnimationClipResourceDescriptor);
-  m_pDescriptor->Deserialize(*Stream);
+  m_pDescriptor->Deserialize(*Stream).IgnoreResult();
 
   res.m_State = ezResourceState::Loaded;
   return res;

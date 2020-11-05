@@ -431,7 +431,7 @@ void ezTypeScriptBinding::ExecuteConsoleFuncs()
   for (auto& call : m_CFuncCalls)
   {
     TsConsoleFunc* pFunc = static_cast<TsConsoleFunc*>(call.m_pFunc);
-    pFunc->DoCall(call.m_Arguments.GetArrayPtr());
+    pFunc->DoCall(call.m_Arguments.GetArrayPtr()).IgnoreResult();
   }
 
   m_CFuncCalls.Clear();

@@ -87,7 +87,7 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy File")
   {
-    ezOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData());
+    ezOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData()).IgnoreResult();
 
     ezOSFile f;
     EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Read) == EZ_SUCCESS);

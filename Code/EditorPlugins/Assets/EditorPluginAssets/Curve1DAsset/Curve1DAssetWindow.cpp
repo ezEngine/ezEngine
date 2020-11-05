@@ -86,8 +86,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 ezQtCurve1DAssetDocumentWindow::~ezQtCurve1DAssetDocumentWindow()
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
@@ -353,7 +352,7 @@ void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(pDoc->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
-  AssetHeader.Write(memoryWriter);
+  AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
   pDoc->WriteResource(memoryWriter);

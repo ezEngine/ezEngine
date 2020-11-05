@@ -47,7 +47,7 @@ void ezLongOpProxy_BuildNavMesh::GetReplicationInfo(ezStringBuilder& out_sReplic
   rcCfg.m_fDetailMeshSampleErrorFactor = cfg.GetValue("SampleErrorFactor").Get<float>();
   rcCfg.m_fMaxSimplificationError = cfg.GetValue("MaxSimplification").Get<float>();
   rcCfg.m_fMaxEdgeLength = cfg.GetValue("MaxEdgeLength").Get<float>();
-  rcCfg.Serialize(description);
+  rcCfg.Serialize(description).IgnoreResult();
 }
 
 void ezLongOpProxy_BuildNavMesh::Finalize(ezResult result, const ezDataBuffer& resultData)

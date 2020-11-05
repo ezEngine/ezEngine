@@ -49,7 +49,7 @@ ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, cons
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   ezStringBuilder relativePath = szFileToLoad;
-  relativePath.MakeRelativeTo(ezOSFile::GetApplicationDirectory());
+  EZ_SUCCEED_OR_RETURN(relativePath.MakeRelativeTo(ezOSFile::GetApplicationDirectory()));
   Module = LoadPackagedLibrary(ezStringWChar(relativePath).GetData(), 0);
 #  else
   Module = LoadLibraryW(ezStringWChar(szFileToLoad).GetData());

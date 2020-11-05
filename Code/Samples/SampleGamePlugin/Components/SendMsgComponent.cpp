@@ -41,7 +41,7 @@ void SendMsgComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s.WriteArray(m_TextArray);
+  s.WriteArray(m_TextArray).IgnoreResult();
 }
 
 void SendMsgComponent::DeserializeComponent(ezWorldReader& stream)
@@ -49,7 +49,7 @@ void SendMsgComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s.ReadArray(m_TextArray);
+  s.ReadArray(m_TextArray).IgnoreResult();
 }
 
 void SendMsgComponent::OnSimulationStarted()

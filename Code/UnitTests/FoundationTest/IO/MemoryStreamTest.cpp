@@ -61,7 +61,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 
     StreamWriter.SetWritePosition(0);
 
-    StreamWriter.WriteBytes(uiData, sizeof(ezUInt32) * 4);
+    StreamWriter.WriteBytes(uiData, sizeof(ezUInt32) * 4).IgnoreResult();
 
     // Clear the array for the read back
     ezMemoryUtils::ZeroFill(uiData, 4);

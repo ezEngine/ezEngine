@@ -124,7 +124,7 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader assetHeader;
-  assetHeader.Read(s);
+  assetHeader.Read(s).IgnoreResult();
 
   char szSceneTag[16];
   s.ReadBytes(szSceneTag, sizeof(char) * 16);
@@ -136,7 +136,7 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  m_WorldReader.ReadWorldDescription(s);
+  m_WorldReader.ReadWorldDescription(s).IgnoreResult();
 
   if (assetHeader.GetFileVersion() >= 4)
   {
@@ -159,14 +159,16 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
       // so we can only apply it later as often as needed
       {
         if (ppd.m_sComponentType.IsEmpty())
-          ppd.m_CachedPropertyPath.InitializeFromPath(*ezGetStaticRTTI<ezGameObject>(), ppd.m_sProperty);
+        {
+          ppd.m_CachedPropertyPath.InitializeFromPath(*ezGetStaticRTTI<ezGameObject>(), ppd.m_sProperty).IgnoreResult();
+        }
         else
         {
           for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
           {
             if (pRtti->GetTypeNameHash() == ppd.m_sComponentType.GetHash())
             {
-              ppd.m_CachedPropertyPath.InitializeFromPath(*pRtti, ppd.m_sProperty);
+              ppd.m_CachedPropertyPath.InitializeFromPath(*pRtti, ppd.m_sProperty).IgnoreResult();
               break;
             }
           }

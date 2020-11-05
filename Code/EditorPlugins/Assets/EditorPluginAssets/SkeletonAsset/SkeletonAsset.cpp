@@ -114,7 +114,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   range.BeginNextStep("Writing Result");
 
-  desc.Serialize(stream);
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 
   return ezStatus(EZ_SUCCESS);
 }

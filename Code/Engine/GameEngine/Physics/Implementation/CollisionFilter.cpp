@@ -123,8 +123,8 @@ void ezCollisionFilterConfig::Save(ezStreamWriter& stream) const
 
   stream << uiVersion;
 
-  stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
-  stream.WriteBytes(m_GroupNames, sizeof(char) * 32 * 32);
+  stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).IgnoreResult();
+  stream.WriteBytes(m_GroupNames, sizeof(char) * 32 * 32).IgnoreResult();
 }
 
 

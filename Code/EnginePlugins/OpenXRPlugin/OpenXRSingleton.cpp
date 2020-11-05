@@ -868,13 +868,13 @@ void ezOpenXR::BeforeBeginFrame()
     // Update render target setup with current OpenXR swapchain texture.
     ID3D11Texture2D* pTex = m_colorSwapChainImagesD3D11[m_colorSwapchain.imageIndex].texture;
     pTex->AddRef();
-    ezGALDevice::GetDefaultDevice()->ReplaceExisitingNativeObject(m_hColorRT, pTex);
+    ezGALDevice::GetDefaultDevice()->ReplaceExisitingNativeObject(m_hColorRT, pTex).IgnoreResult();
 
     if (m_extensions.m_bDepthComposition)
     {
       ID3D11Texture2D* pTex = m_depthSwapChainImagesD3D11[m_depthSwapchain.imageIndex].texture;
       pTex->AddRef();
-      ezGALDevice::GetDefaultDevice()->ReplaceExisitingNativeObject(m_hDepthRT, pTex);
+      ezGALDevice::GetDefaultDevice()->ReplaceExisitingNativeObject(m_hDepthRT, pTex).IgnoreResult();
     }
 
     pView->UpdateViewData(ezRenderWorld::GetDataIndexForRendering());

@@ -50,8 +50,7 @@ void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
   types.PushBack(ezGetStaticRTTI<ezParticleTrailRenderData>());
 }
 
-void ezParticleTrailRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALContext* pGALContext = pRenderContext->GetGALContext();
@@ -90,9 +89,8 @@ void ezParticleTrailRenderer::RenderBatch(
 
     pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime,
-      pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX,
-      pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
+    systemConstants.SetGenericData(
+      pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
     systemConstants.SetTrailData(pRenderData->m_fSnapshotFraction, pRenderData->m_uiMaxTrailPoints);
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
@@ -108,12 +106,11 @@ void ezParticleTrailRenderer::RenderBatch(
       pGALContext->UpdateBuffer(m_hTrailDataBuffer, 0, ezMakeArrayPtr(pParticleTrailData, uiNumParticlesInBatch).ToByteArray());
       pParticleTrailData += uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(
-        m_hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());
+      pGALContext->UpdateBuffer(m_hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());
       pParticlePointsData += uiNumParticlesInBatch * uiBucketSize;
 
       // do one drawcall
-      pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * uiMaxTrailSegments * uiPrimFactor);
+      pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * uiMaxTrailSegments * uiPrimFactor).IgnoreResult();
     }
   }
 }
@@ -167,8 +164,7 @@ bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* p
       return false;
   }
 
-  renderViewContext.m_pRenderContext->BindBuffer(
-    "particlePointsData", ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(m_hActiveTrailPointsDataBuffer));
+  renderViewContext.m_pRenderContext->BindBuffer("particlePointsData", ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(m_hActiveTrailPointsDataBuffer));
   return true;
 }
 

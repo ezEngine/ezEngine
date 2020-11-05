@@ -6,14 +6,14 @@ ezGameStateWindow::ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezD
   : m_OnClickClose(onClickClose)
 {
   m_CreationDescription = windowdesc;
-  m_CreationDescription.AdjustWindowSizeAndPosition();
+  m_CreationDescription.AdjustWindowSizeAndPosition().IgnoreResult();
 
-  Initialize();
+  Initialize().IgnoreResult();
 }
 
 ezGameStateWindow::~ezGameStateWindow()
 {
-  Destroy();
+  Destroy().IgnoreResult();
 }
 
 

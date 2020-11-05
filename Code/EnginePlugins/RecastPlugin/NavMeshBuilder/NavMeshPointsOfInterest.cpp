@@ -16,8 +16,7 @@ void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime tNo
   m_uiCheckVisibilityTimeStamp += 4;
 }
 
-EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(
-  const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
+EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
 {
   const ezUInt16* v = &pMesh->verts[uiVertex * 3];
   const float x = vMeshOrigin.x + v[0] * fCellSize;
@@ -38,11 +37,10 @@ struct PotentialPoI
   ezVec3 m_vLineDir;
 };
 
-EZ_ALWAYS_INLINE static void AddToInterestPoints(
-  ezDeque<PotentialPoI>& interestPoints, ezInt32 iVertexIdx, const ezVec3& pos, const ezVec3& vPolyCenter, ezVec3 vLineDir)
+EZ_ALWAYS_INLINE static void AddToInterestPoints(ezDeque<PotentialPoI>& interestPoints, ezInt32 iVertexIdx, const ezVec3& pos, const ezVec3& vPolyCenter, ezVec3 vLineDir)
 {
   ezVec3 toCenter = vPolyCenter - pos;
-  toCenter.SetLength(toCenterOffset);
+  toCenter.SetLength(toCenterOffset).IgnoreResult();
 
   const ezVec3 posWithOffset = pos + toCenter + vLineDir * alongLineOffset;
 
@@ -65,7 +63,7 @@ EZ_ALWAYS_INLINE static void AddToInterestPoints(
     auto& poi = interestPoints[iVertexIdx];
 
     ezPlane plane;
-    plane.SetFromPoints(poi.m_vVertexPos, poi.m_vVertexPos + poi.m_vLineDir, poi.m_vVertexPos + ezVec3(0, 0, 1.0f));
+    plane.SetFromPoints(poi.m_vVertexPos, poi.m_vVertexPos + poi.m_vLineDir, poi.m_vVertexPos + ezVec3(0, 0, 1.0f)).IgnoreResult();
 
     ezPositionOnPlane::Enum side1 = plane.GetPointPosition(poi.m_vPosition);
     ezPositionOnPlane::Enum side2 = plane.GetPointPosition(posWithOffset);

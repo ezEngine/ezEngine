@@ -68,9 +68,9 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
   }
 
   if (!m_Params.IsEmpty())
-    pFunc->Call(ezArrayPtr<ezVariant>(&m_Params[0], m_Params.GetCount()));
+    pFunc->Call(ezArrayPtr<ezVariant>(&m_Params[0], m_Params.GetCount())).IgnoreResult();
   else
-    pFunc->Call(ezArrayPtr<ezVariant>());
+    pFunc->Call(ezArrayPtr<ezVariant>()).IgnoreResult();
 
   return s.ReturnToScript();
 }
@@ -340,7 +340,7 @@ __index = readcvar,\n\
 __metatable = \"Access Denied\",\n\
 })";
 
-  Script.ExecuteString(sInit.GetData());
+  Script.ExecuteString(sInit.GetData()).IgnoreResult();
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT

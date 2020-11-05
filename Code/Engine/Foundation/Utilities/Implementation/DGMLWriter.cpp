@@ -74,7 +74,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToFile(const char* szFileName, const ezDGM
     if (!FileWriter.Open(szFileName).Succeeded())
       return EZ_FAILURE;
 
-    FileWriter.WriteBytes(StringBuilder.GetData(), StringBuilder.GetElementCount());
+    FileWriter.WriteBytes(StringBuilder.GetData(), StringBuilder.GetElementCount()).IgnoreResult();
 
     FileWriter.Close();
 
@@ -118,8 +118,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
       break;
   }
 
-  StringBuilder.AppendFormat(
-    "<DirectedGraph xmlns=\"http://schemas.microsoft.com/vs/2009/dgml\" GraphDirection=\"{0}\" Layout=\"{1}\">\n", szDirection, szLayout);
+  StringBuilder.AppendFormat("<DirectedGraph xmlns=\"http://schemas.microsoft.com/vs/2009/dgml\" GraphDirection=\"{0}\" Layout=\"{1}\">\n", szDirection, szLayout);
 
   // Write out all the properties
   if (!Graph.m_PropertyTypes.IsEmpty())
@@ -201,8 +200,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
         PropertiesString.AppendFormat(" {0}=\"{1}\"", Graph.m_PropertyTypes[prop.m_PropertyId].m_Name, prop.m_sValue);
       }
 
-      StringBuilder.AppendFormat("\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3}{4}{5}/>\n", i, SanitizedName, ColorValue, StyleString,
-        szGroupString, PropertiesString);
+      StringBuilder.AppendFormat("\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3}{4}{5}/>\n", i, SanitizedName, ColorValue, StyleString, szGroupString, PropertiesString);
     }
     StringBuilder.Append("\t</Nodes>\n");
   }
@@ -214,8 +212,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
     {
       for (ezUInt32 i = 0; i < Graph.m_Connections.GetCount(); ++i)
       {
-        StringBuilder.AppendFormat(
-          "\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" />\n", Graph.m_Connections[i].m_Source, Graph.m_Connections[i].m_Target);
+        StringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" />\n", Graph.m_Connections[i].m_Source, Graph.m_Connections[i].m_Target);
       }
 
       for (ezUInt32 i = 0; i < Graph.m_Nodes.GetCount(); ++i)

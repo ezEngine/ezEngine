@@ -350,7 +350,7 @@ struct ezTestBlock
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestBool(
+EZ_TEST_DLL bool ezTestBool(
   bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests for a boolean condition, does not output an extra message.
@@ -362,7 +362,7 @@ EZ_TEST_DLL ezResult ezTestBool(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestResult(
+EZ_TEST_DLL bool ezTestResult(
   ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests for a boolean condition, does not output an extra message.
@@ -374,7 +374,7 @@ EZ_TEST_DLL ezResult ezTestResult(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestResult(
+EZ_TEST_DLL bool ezTestResult(
   ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests for a boolean condition, does not output an extra message.
@@ -401,7 +401,7 @@ inline double ToFloat(double f)
   return static_cast<double>(f);
 }
 
-EZ_TEST_DLL ezResult ezTestDouble(double f1, double f2, double fEps, const char* szF1, const char* szF2, const char* szFile, ezInt32 iLine,
+EZ_TEST_DLL bool ezTestDouble(double f1, double f2, double fEps, const char* szF1, const char* szF2, const char* szFile, ezInt32 iLine,
   const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output.
@@ -427,7 +427,7 @@ EZ_TEST_DLL ezResult ezTestDouble(double f1, double f2, double fEps, const char*
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestInt(
+EZ_TEST_DLL bool ezTestInt(
   ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests two ints for equality. On failure both actual and expected values are output.
@@ -439,7 +439,7 @@ EZ_TEST_DLL ezResult ezTestInt(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
+EZ_TEST_DLL bool ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
   const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output.
@@ -452,7 +452,7 @@ EZ_TEST_DLL ezResult ezTestString(std::string s1, std::string s2, const char* sz
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestWString(std::wstring s1, std::wstring s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
+EZ_TEST_DLL bool ezTestWString(std::wstring s1, std::wstring s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
   const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output.
@@ -477,7 +477,7 @@ EZ_TEST_DLL ezResult ezTestWString(std::wstring s1, std::wstring s2, const char*
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestVector(
+EZ_TEST_DLL bool ezTestVector(
   ezVec4d v1, ezVec4d v2, double fEps, const char* szCondition, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests two ezVec2's for equality, using some epsilon. On failure both actual and expected values are output.
@@ -511,13 +511,13 @@ EZ_TEST_DLL ezResult ezTestVector(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestFiles(
+EZ_TEST_DLL bool ezTestFiles(
   const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 #define EZ_TEST_FILES(szFile1, szFile2, msg, ...)                                                                                                    \
   ezTestFiles(szFile1, szFile2, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
-EZ_TEST_DLL ezResult ezTestTextFiles(
+EZ_TEST_DLL bool ezTestTextFiles(
   const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 #define EZ_TEST_TEXT_FILES(szFile1, szFile2, msg, ...)                                                                                               \
@@ -525,7 +525,7 @@ EZ_TEST_DLL ezResult ezTestTextFiles(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL ezResult ezTestImage(
+EZ_TEST_DLL bool ezTestImage(
   ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Same as EZ_TEST_IMAGE_MSG but uses an empty error message.

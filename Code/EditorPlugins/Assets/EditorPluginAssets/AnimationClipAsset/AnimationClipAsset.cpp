@@ -142,7 +142,7 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   range.BeginNextStep("Writing Result");
 
-  desc.Serialize(stream);
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 
   // merge the new data with the actual asset document
   ApplyNativePropertyChangesToObjectManager(true);

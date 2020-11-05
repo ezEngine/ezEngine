@@ -25,10 +25,8 @@ HRESULT ezUwpApplication::CreateView(IFrameworkView** viewProvider)
 
 HRESULT ezUwpApplication::Initialize(ICoreApplicationView* applicationView)
 {
-  using OnActivatedHandler =
-    __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs;
-  EZ_SUCCEED_OR_RETURN(applicationView->add_Activated(
-    Microsoft::WRL::Callback<OnActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
+  using OnActivatedHandler = __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs;
+  EZ_SUCCEED_OR_RETURN(applicationView->add_Activated(Microsoft::WRL::Callback<OnActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
 
   return S_OK;
 }
@@ -41,7 +39,7 @@ HRESULT ezUwpApplication::SetWindow(ABI::Windows::UI::Core::ICoreWindow* window)
   //
   // Major drawback is that we don't have launch args yet which seem to be only available on OnActivated.
   // Maybe we need to split the startup further up?
-  ezRun_Startup(m_application);
+  ezRun_Startup(m_application).IgnoreResult();
   return S_OK;
 }
 
@@ -94,8 +92,7 @@ HRESULT ezUwpApplication::OnActivated(ICoreApplicationView* view, IActivatedEven
 EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 {
   ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplication> coreApplication;
-  HRESULT result = ABI::Windows::Foundation::GetActivationFactory(
-    HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
+  HRESULT result = ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
   if (FAILED(result))
   {
     ezLog::Printf("Failed to create core application: %i\n", result);

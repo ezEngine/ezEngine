@@ -217,7 +217,7 @@ void ezApplicationPluginConfig::Apply()
     }
 
 
-    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, var.m_bLoadCopy);
+    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, var.m_bLoadCopy).IgnoreResult();
   }
 }
 

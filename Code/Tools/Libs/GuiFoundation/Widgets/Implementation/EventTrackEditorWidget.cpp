@@ -68,7 +68,7 @@ void ezQtEventTrackEditorWidget::on_AddEventButton_clicked()
 
   if (m_EventSet.IsModified())
   {
-    m_EventSet.WriteToDDL(":project/Editor/Events.ddl");
+    m_EventSet.WriteToDDL(":project/Editor/Events.ddl").IgnoreResult();
 
     FillEventComboBox(name.toUtf8().data());
   }
@@ -251,7 +251,7 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
 
 void ezQtEventTrackEditorWidget::DetermineAvailableEvents()
 {
-  m_EventSet.ReadFromDDL(":project/Editor/Events.ddl");
+  m_EventSet.ReadFromDDL(":project/Editor/Events.ddl").IgnoreResult();
 
   FillEventComboBox(nullptr);
 }

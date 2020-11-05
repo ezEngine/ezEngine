@@ -32,9 +32,7 @@ VertexColorTask::VertexColorTask()
 
 VertexColorTask::~VertexColorTask() = default;
 
-void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
-  ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings,
-  ezArrayPtr<ezUInt32> outputVertexColors)
+void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
 {
   EZ_PROFILE_SCOPE("VertexColorPrepare");
 
@@ -93,7 +91,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   }
 
   ezMat3 normalTransform = transform.GetAsMat4().GetRotationalPart();
-  normalTransform.Invert(0.0f);
+  normalTransform.Invert(0.0f).IgnoreResult();
   normalTransform.Transpose();
 
   const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
@@ -101,7 +99,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   // write out all vertices
   for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
   {
-    ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal);
+    ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();
 
     auto& vert = m_InputVertices.ExpandAndGetRef();
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
@@ -181,7 +179,7 @@ void VertexColorTask::Execute()
     }
 
     // Execute expression bytecode
-    m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices, m_GlobalData);
+    m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices, m_GlobalData).IgnoreResult();
 
     auto& outputMapping = m_OutputMappings[uiOutputIndex];
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)

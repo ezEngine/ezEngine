@@ -44,7 +44,7 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
 
   ConfigureInputActions();
 
-  SpawnPlayer(pStartPosition);
+  SpawnPlayer(pStartPosition).IgnoreResult();
 }
 
 void ezGameState::OnDeactivation()
@@ -261,7 +261,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   if (false)
   {
     ezHybridArray<ezScreenInfo, 2> screens;
-    ezScreen::EnumerateScreens(screens);
+    ezScreen::EnumerateScreens(screens).IgnoreResult();
     ezScreen::PrintScreenInfo(screens);
   }
 
@@ -282,7 +282,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   }
 
   ezWindowCreationDesc wndDesc;
-  wndDesc.LoadFromDDL(sWndCfg);
+  wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
 
   if (m_bXREnabled)
   {

@@ -191,15 +191,15 @@ void ezFrustum::InvertFrustum()
 void ezFrustum::ComputeCornerPoints(ezVec3 out_Points[FrustumCorner::CORNER_COUNT]) const
 {
   // clang-format off
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::NearTopLeft]);
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_Points[FrustumCorner::NearTopRight]);
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::NearBottomLeft]);
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_Points[FrustumCorner::NearBottomRight]);
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::NearTopLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_Points[FrustumCorner::NearTopRight]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::NearBottomLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_Points[FrustumCorner::NearBottomRight]).IgnoreResult();
 
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::FarTopLeft]);
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_Points[FrustumCorner::FarTopRight]);
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::FarBottomLeft]);
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_Points[FrustumCorner::FarBottomRight]);
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::FarTopLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_Points[FrustumCorner::FarTopRight]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::FarBottomLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_Points[FrustumCorner::FarBottomRight]).IgnoreResult();
   // clang-format on
 }
 
@@ -233,8 +233,7 @@ void ezFrustum::SetFrustum(const ezMat4& ModelViewProjection0, ezClipSpaceDepthR
   }
 }
 
-void ezFrustum::SetFrustum(
-  const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane)
+void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane)
 {
   EZ_ASSERT_DEBUG(ezMath::Abs(vForwards.GetNormalized().Dot(vUp.GetNormalized())) < 0.999f, "Up dir must be different from forward direction");
 

@@ -31,7 +31,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 #if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
       if (fs->SearchForServerAddress().Failed())
       {
-        fs->WaitForServerInfo();
+        fs->WaitForServerInfo().IgnoreResult();
       }
 #endif
     }

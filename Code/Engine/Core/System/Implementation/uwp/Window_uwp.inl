@@ -23,7 +23,9 @@ ezResult ezWindow::Initialize()
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
-    Destroy();
+  {
+    Destroy().IgnoreResult();
+  }
 
   // Checking and adjustments to creation desc.
   {

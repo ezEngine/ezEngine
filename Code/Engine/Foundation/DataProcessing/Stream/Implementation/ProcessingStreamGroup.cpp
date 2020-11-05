@@ -224,12 +224,10 @@ void ezProcessingStreamGroup::RunPendingDeletions()
     {
       const ezUInt64 uiStreamElementStride = pStream->GetElementStride();
       const ezUInt64 uiStreamElementSize = pStream->GetElementSize();
-      const void* pSourceData =
-        ezMemoryUtils::AddByteOffset(pStream->GetData(), static_cast<ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
+      const void* pSourceData = ezMemoryUtils::AddByteOffset(pStream->GetData(), static_cast<ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
       void* pTargetData = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<ptrdiff_t>(uiElementToRemove * uiStreamElementStride));
 
-      ezMemoryUtils::Copy<ezUInt8>(
-        static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize));
+      ezMemoryUtils::Copy<ezUInt8>(static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize));
     }
 
     // And decrease the size since we swapped the last element to the location of the element we just removed
@@ -254,7 +252,7 @@ void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
 
     for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
     {
-      pStreamProcessor->UpdateStreamBindings();
+      pStreamProcessor->UpdateStreamBindings().IgnoreResult();
     }
 
     m_bStreamAssignmentDirty = false;
@@ -286,10 +284,7 @@ void ezProcessingStreamGroup::RunPendingSpawns()
 
 struct ProcessorComparer
 {
-  EZ_ALWAYS_INLINE bool Less(const ezProcessingStreamProcessor* a, const ezProcessingStreamProcessor* b) const
-  {
-    return a->m_fPriority < b->m_fPriority;
-  }
+  EZ_ALWAYS_INLINE bool Less(const ezProcessingStreamProcessor* a, const ezProcessingStreamProcessor* b) const { return a->m_fPriority < b->m_fPriority; }
 };
 
 void ezProcessingStreamGroup::SortProcessorsByPriority()

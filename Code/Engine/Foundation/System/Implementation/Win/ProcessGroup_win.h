@@ -70,7 +70,7 @@ ezProcessGroup::ezProcessGroup(const char* szGroupName /*= nullptr*/)
 
 ezProcessGroup::~ezProcessGroup()
 {
-  TerminateAll();
+  TerminateAll().IgnoreResult();
 }
 
 ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
@@ -78,7 +78,7 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
   m_impl->Initialize();
 
   ezProcess& process = m_Processes.ExpandAndGetRef();
-  process.Launch(opt, ezProcessLaunchFlags::Suspended);
+  EZ_SUCCEED_OR_RETURN(process.Launch(opt, ezProcessLaunchFlags::Suspended));
 
   if (AssignProcessToJobObject(m_impl->m_hJobObject, process.GetProcessHandle()) == FALSE)
   {

@@ -54,20 +54,16 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sReadDir.PathParentDirectory();
 
-    ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites)); // for shader files
 
-    if (ezFileSystem::AddDataDirectory(sBaseDir, "Base").Failed())
-      return EZ_FAILURE;
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sBaseDir, "Base"));
 
-    if (ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).Failed())
-      return EZ_FAILURE;
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites));
 
-    if (ezFileSystem::AddDataDirectory(sReadDir, "UnitTestData").Failed())
-      return EZ_FAILURE;
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sReadDir, "UnitTestData"));
 
     sReadDir.Set(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
-    if (ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").Failed())
-      return EZ_FAILURE;
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir"));
   }
 
   // Create a window for rendering
@@ -146,13 +142,13 @@ void ezGraphicsTest::ShutdownRenderer()
     m_pDevice->DestroyTexture(m_hDepthStencilTexture);
     m_hDepthStencilTexture.Invalidate();
 
-    m_pDevice->Shutdown();
+    m_pDevice->Shutdown().IgnoreResult();
     EZ_DEFAULT_DELETE(m_pDevice);
   }
 
   if (m_pWindow)
   {
-    m_pWindow->Destroy();
+    m_pWindow->Destroy().IgnoreResult();
     EZ_DEFAULT_DELETE(m_pWindow);
   }
 
@@ -307,5 +303,5 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
   ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 
   ezRenderContext::GetDefaultInstance()->BindMeshBuffer(hObject);
-  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
+  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
 }

@@ -28,7 +28,7 @@ ezResult ezAssetFileHeader::Write(ezStreamWriter& stream) const
   EZ_ASSERT_DEBUG(m_uiHash != 0xFFFFFFFFFFFFFFFF, "Cannot write an invalid hash to file");
 
   // 8 Bytes for identification + version
-  stream.WriteBytes(g_szAssetTag, 7);
+  EZ_SUCCEED_OR_RETURN(stream.WriteBytes(g_szAssetTag, 7));
 
   const ezUInt8 uiVersion = ezAssetFileHeaderVersion::VersionCurrent;
   stream << uiVersion;

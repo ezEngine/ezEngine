@@ -59,8 +59,7 @@ ezTonemapPass::~ezTonemapPass()
   m_hConstantBuffer.Invalidate();
 }
 
-bool ezTonemapPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -95,8 +94,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pColorInput = inputs[m_PinColorInput.m_uiInputIndex];
   auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -169,7 +167,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
 
-  renderViewContext.m_pRenderContext->DrawMeshBuffer();
+  renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 }
 
 void ezTonemapPass::SetVignettingTextureFile(const char* szFile)

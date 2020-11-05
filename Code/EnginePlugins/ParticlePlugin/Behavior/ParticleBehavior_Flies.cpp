@@ -120,13 +120,13 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
     const float fDist = vPartToEm.GetLengthSquared();
     const ezVec3 vVelocity = itVelocity.Current();
     ezVec3 vDir = vVelocity;
-    vDir.NormalizeIfNotZero();
+    vDir.NormalizeIfNotZero().IgnoreResult();
 
     if (fDist > fMaxDistanceToEmitterSquared)
     {
       ezVec3 vPivot;
       vPivot = vDir.CrossRH(vPartToEm);
-      vPivot.NormalizeIfNotZero();
+      vPivot.NormalizeIfNotZero().IgnoreResult();
 
       qRot.SetFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
 

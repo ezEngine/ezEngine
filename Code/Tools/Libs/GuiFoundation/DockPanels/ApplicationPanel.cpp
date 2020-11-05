@@ -36,7 +36,7 @@ ezQtApplicationPanel::~ezQtApplicationPanel()
 
 void ezQtApplicationPanel::EnsureVisible()
 {
-  m_pContainerWindow->EnsureVisible(this);
+  m_pContainerWindow->EnsureVisible(this).IgnoreResult();
 
   QWidget* pThis = this;
 

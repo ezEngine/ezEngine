@@ -172,27 +172,26 @@ void ezPrefabUtils::WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& merge
   }
 }
 
-void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph, const ezAbstractObjectGraph& rightGraph,
-  ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff)
+void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph, const ezAbstractObjectGraph& rightGraph, ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff)
 {
   // debug output
   if (PREFAB_DEBUG)
   {
     {
       ezFileWriter file;
-      file.Open("C:\\temp\\Prefab - base.txt");
+      file.Open("C:\\temp\\Prefab - base.txt").IgnoreResult();
       ezAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
 
     {
       ezFileWriter file;
-      file.Open("C:\\temp\\Prefab - template.txt");
+      file.Open("C:\\temp\\Prefab - template.txt").IgnoreResult();
       ezAbstractGraphDdlSerializer::Write(file, &leftGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
 
     {
       ezFileWriter file;
-      file.Open("C:\\temp\\Prefab - instance.txt");
+      file.Open("C:\\temp\\Prefab - instance.txt").IgnoreResult();
       ezAbstractGraphDdlSerializer::Write(file, &rightGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
   }
@@ -208,7 +207,7 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
   if (PREFAB_DEBUG)
   {
     ezFileWriter file;
-    file.Open("C:\\temp\\Prefab - diff.txt");
+    file.Open("C:\\temp\\Prefab - diff.txt").IgnoreResult();
 
     ezStringBuilder sDiff;
     sDiff.Append("######## Template To Base #######\n");
@@ -219,12 +218,11 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
     ezPrefabUtils::WriteDiff(out_mergedDiff, sDiff);
 
 
-    file.WriteBytes(sDiff.GetData(), sDiff.GetElementCount());
+    file.WriteBytes(sDiff.GetData(), sDiff.GetElementCount()).IgnoreResult();
   }
 }
 
-void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& PrefabSeed,
-  ezStringBuilder& out_sNewGraph)
+void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph)
 {
   // prepare the original prefab as a graph
   ezAbstractObjectGraph baseGraph;
@@ -286,7 +284,7 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
     if (PREFAB_DEBUG)
     {
       ezFileWriter file;
-      file.Open("C:\\temp\\Prefab - result.txt");
+      file.Open("C:\\temp\\Prefab - result.txt").IgnoreResult();
       ezAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
   }

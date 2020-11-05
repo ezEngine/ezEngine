@@ -145,8 +145,7 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
 
     const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
-    sPath.AppendFormat("{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-      ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+    sPath.AppendFormat("{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 
     sPath.ChangeFileExtension("dgml");
   }
@@ -154,10 +153,10 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
   ezDGMLGraph graph;
   ezTaskSystem::WriteStateSnapshotToDGML(graph);
 
-  ezDGMLGraphWriter::WriteGraphToFile(sPath, graph);
+  ezDGMLGraphWriter::WriteGraphToFile(sPath, graph).IgnoreResult();
 
   ezStringBuilder absPath;
-  ezFileSystem::ResolvePath(sPath, &absPath, nullptr);
+  ezFileSystem::ResolvePath(sPath, &absPath, nullptr).IgnoreResult();
   ezLog::Info("Task graph snapshot saved to '{}'", absPath);
 }
 

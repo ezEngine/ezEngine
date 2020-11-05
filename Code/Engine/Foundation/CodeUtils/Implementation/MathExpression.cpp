@@ -38,7 +38,7 @@ void ezMathExpression::Reset(const char* szExpressionString)
 
   ezUInt32 readTokens = 0;
   TokenStream tokenStream;
-  tokenizer.GetNextLine(readTokens, tokenStream);
+  tokenizer.GetNextLine(readTokens, tokenStream).IgnoreResult();
 
   ezUInt32 curToken = 0;
   m_bIsValid = ParseExpression(tokenStream, curToken).Succeeded();
@@ -262,7 +262,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
     const ezString sVal = tokens[uiValueToken]->m_DataView;
 
     double fConstant = 0;
-    ezConversionUtils::StringToFloat(sVal, fConstant);
+    ezConversionUtils::StringToFloat(sVal, fConstant).IgnoreResult();
 
     m_InstructionStream.PushBack(InstructionType::PushConstant);
     m_InstructionStream.PushBack(m_Constants.GetCount());
@@ -300,7 +300,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
   else if (Accept(tokens, uiCurToken, "("))
   {
     // A new expression!
-    ParseExpression(tokens, uiCurToken);
+    EZ_SUCCEED_OR_RETURN(ParseExpression(tokens, uiCurToken));
 
     if (!Accept(tokens, uiCurToken, ")"))
     {

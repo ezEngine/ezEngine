@@ -67,7 +67,7 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   if (desc.Load(*Stream).Failed())
   {

@@ -120,7 +120,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   chunk.EndStream();
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  compressor.FinishCompressedStream();
+  EZ_SUCCEED_OR_RETURN(compressor.FinishCompressedStream());
 
   ezLog::Dev("Compressed collision mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
 

@@ -314,12 +314,12 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     EZ_TEST_BOOL(!s.Contains(b2));
 
     ezVec3T vDir(1, 1, 1);
-    vDir.SetLength(3.99f);
+    vDir.SetLength(3.99f).IgnoreResult();
     ezBoundingBoxT b3(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
 
     EZ_TEST_BOOL(s.Contains(b3));
 
-    vDir.SetLength(4.01f);
+    vDir.SetLength(4.01f).IgnoreResult();
     ezBoundingBoxT b4(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
 
     EZ_TEST_BOOL(!s.Contains(b4));
@@ -448,7 +448,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     ezMat4T mTransform;
 
     mTransform.SetTranslationMatrix(ezVec3T(5, 6, 7));
-    mTransform.SetScalingFactors(ezVec3T(4, 3, 2));
+    mTransform.SetScalingFactors(ezVec3T(4, 3, 2)).IgnoreResult();
 
     s.TransformFromOrigin(mTransform);
 
@@ -462,7 +462,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     ezMat4T mTransform;
 
     mTransform.SetTranslationMatrix(ezVec3T(5, 6, 7));
-    mTransform.SetScalingFactors(ezVec3T(4, 3, 2));
+    mTransform.SetScalingFactors(ezVec3T(4, 3, 2)).IgnoreResult();
 
     s.TransformFromCenter(mTransform);
 

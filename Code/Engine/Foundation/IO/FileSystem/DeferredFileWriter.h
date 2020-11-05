@@ -13,7 +13,7 @@ public:
   ezDeferredFileWriter();
 
   /// \brief Upon destruction the file is closed and thus written, unless Discard was called before.
-  ~ezDeferredFileWriter() { Close(); }
+  ~ezDeferredFileWriter() { Close().IgnoreResult(); }
 
   /// \brief This must be configured before anything is written to the file.
   void SetOutput(const char* szFileToWriteTo, bool bOnlyWriteIfDifferent = false); // [tested]

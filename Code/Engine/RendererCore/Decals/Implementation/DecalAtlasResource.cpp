@@ -101,7 +101,7 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
   // skip the asset header
   {
     ezAssetFileHeader header;
-    header.Read(*Stream);
+    header.Read(*Stream).IgnoreResult();
   }
 
   {
@@ -191,7 +191,7 @@ void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ez
 
 void ezDecalAtlasResource::ReadDecalInfo(ezStreamReader* Stream)
 {
-  m_Atlas.Deserialize(*Stream);
+  m_Atlas.Deserialize(*Stream).IgnoreResult();
 }
 
 void ezDecalAtlasResource::ReportResourceIsMissing()

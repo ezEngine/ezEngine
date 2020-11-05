@@ -122,7 +122,7 @@ public:
     m_sSearchDir = sSearchDir;
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
 
     // use such a path to write to an absolute file
     // ':abs/C:/some/file.txt"
@@ -280,7 +280,7 @@ public:
       else
       {
         m_bModifiedFiles = true;
-        FileOut.WriteBytes(it.Value().m_sFileContent.GetData(), it.Value().m_sFileContent.GetElementCount());
+        FileOut.WriteBytes(it.Value().m_sFileContent.GetData(), it.Value().m_sFileContent.GetElementCount()).IgnoreResult();
 
         ezLog::Success("File has been modified: '{0}'", it.Key());
       }
@@ -459,7 +459,7 @@ public:
   ezString GetFileMarkerName(const char* szFile)
   {
     ezStringBuilder sRel = szFile;
-    sRel.MakeRelativeTo(m_sSearchDir.GetData());
+    sRel.MakeRelativeTo(m_sSearchDir.GetData()).IgnoreResult();
 
     ezStringBuilder sRefPointName = ezPathUtils::GetFileName(m_sSearchDir.GetData());
     sRefPointName.Append("_");

@@ -110,8 +110,7 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezShaderManager::Configure(
-  const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
+void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
 {
   s_ShaderCacheDirectory = szShaderCacheDirectory;
   s_sPermVarSubDir = szPermVarSubDirectory;
@@ -142,7 +141,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
-  pp.AddCustomDefine(sTemp.GetData());
+  pp.AddCustomDefine(sTemp.GetData()).IgnoreResult();
 
   if (pp.Process(sPath, sTemp, false).Failed())
   {
@@ -166,8 +165,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   }
 }
 
-bool ezShaderManager::IsPermutationValueAllowed(
-  const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue, ezHashedString& out_sName, ezHashedString& out_sValue)
+bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue, ezHashedString& out_sName, ezHashedString& out_sValue)
 {
   const PermutationVarConfig* pConfig = FindConfig(szName, sHashedName);
   if (pConfig == nullptr)
@@ -260,8 +258,7 @@ ezArrayPtr<const ezHashedString> ezShaderManager::GetPermutationEnumValues(const
   return ezArrayPtr<ezHashedString>();
 }
 
-void ezShaderManager::PreloadPermutations(
-  ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn)
+void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 #if 0
@@ -286,11 +283,9 @@ void ezShaderManager::PreloadPermutations(
 #endif
 }
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(
-  ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback)
 {
-  ezResourceLock<ezShaderResource> pShader(
-    hShader, bAllowFallback ? ezResourceAcquireMode::AllowLoadingFallback : ezResourceAcquireMode::BlockTillLoaded);
+  ezResourceLock<ezShaderResource> pShader(hShader, bAllowFallback ? ezResourceAcquireMode::AllowLoadingFallback : ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pShader->IsShaderValid())
     return ezShaderPermutationResourceHandle();
@@ -302,8 +297,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(
 }
 
 
-ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars,
-  const ezHashTable<ezHashedString, ezHashedString>& permVars, ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables)
+ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables)
 {
   for (auto& sName : usedVars)
   {
@@ -334,8 +328,7 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(
-  const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
   const ezUInt64 uiPermutationKey = (ezUInt64)uiResourceIdHash << 32 | uiPermutationHash;
 

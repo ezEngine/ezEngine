@@ -75,8 +75,7 @@ void ezFileSystem::CleanUpRootName(ezStringBuilder& sRoot)
 ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char* szGroup, const char* szRootName, DataDirUsage Usage)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
-  EZ_ASSERT_DEV(Usage != AllowWrites || !ezStringUtils::IsNullOrEmpty(szRootName),
-    "A data directory must have a non-empty, unique name to be mounted for write access");
+  EZ_ASSERT_DEV(Usage != AllowWrites || !ezStringUtils::IsNullOrEmpty(szRootName), "A data directory must have a non-empty, unique name to be mounted for write access");
 
   ezStringBuilder sPath = szDataDirectory;
   sPath.MakeCleanPath();
@@ -329,7 +328,7 @@ void ezFileSystem::DeleteFile(const char* szFile)
 
   if (ezPathUtils::IsAbsolutePath(szFile))
   {
-    ezOSFile::DeleteFile(szFile);
+    ezOSFile::DeleteFile(szFile).IgnoreResult();
     return;
   }
 
@@ -591,8 +590,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, ezFileSha
   return nullptr;
 }
 
-ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath,
-  ezDataDirectoryType** out_ppDataDir /*= nullptr*/)
+ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir /*= nullptr*/)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
@@ -636,7 +634,7 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
         if (out_sDataDirRelativePath)
         {
           *out_sDataDirRelativePath = absPath;
-          out_sDataDirRelativePath->MakeRelativeTo(dir.m_pDataDirectory->GetRedirectedDataDirectoryPath());
+          out_sDataDirRelativePath->MakeRelativeTo(dir.m_pDataDirectory->GetRedirectedDataDirectoryPath()).IgnoreResult();
         }
 
         if (out_ppDataDir)
@@ -924,7 +922,7 @@ ezMutex& ezFileSystem::GetMutex()
 ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)
 {
   ezStringBuilder sRedir;
-  ResolveSpecialDirectory(szPath, sRedir);
+  EZ_SUCCEED_OR_RETURN(ResolveSpecialDirectory(szPath, sRedir));
 
   return ezOSFile::CreateDirectoryStructure(sRedir);
 }

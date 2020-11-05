@@ -182,8 +182,7 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
 
           if (pReference->m_iReferenceCount == 0)
           {
-            bUnloadedAny =
-              true; // make sure to try again, even if DeallocateResource() fails; need to release our lock for that to prevent dead-locks
+            bUnloadedAny = true; // make sure to try again, even if DeallocateResource() fails; need to release our lock for that to prevent dead-locks
 
             if (DeallocateResource(pReference).Succeeded())
             {
@@ -322,9 +321,7 @@ void ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent(const ezRTTI
 {
   auto& info = s_State->m_TypeInfo[pTypeBeingUpdated];
 
-  EZ_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false,
-    "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.",
-    pTypeBeingUpdated->GetTypeName());
+  EZ_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false, "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.", pTypeBeingUpdated->GetTypeName());
 
   if (info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) == ezInvalidIndex)
   {
@@ -397,8 +394,7 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
 
 ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 {
-  EZ_ASSERT_DEBUG(
-    pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
+  EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
 
   if (RemoveFromLoadingQueue(pResource).Failed())
   {
@@ -409,8 +405,7 @@ ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 
   pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
-  EZ_ASSERT_DEBUG(pResource->GetLoadingState() <= ezResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.",
-    pResource->GetResourceID());
+  EZ_ASSERT_DEBUG(pResource->GetLoadingState() <= ezResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
 
   // broadcast that we are going to delete the resource
   {
@@ -497,8 +492,7 @@ void ezResourceManager::PerFrameUpdate()
       // If the resource was still loaded, we are going to unload it now.
       resourceToUnload->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
-      EZ_ASSERT_DEV(resourceToUnload->GetLoadingState() <= ezResourceState::LoadedResourceMissing,
-        "Resource '{0}' should be in an unloaded state now.", resourceToUnload->GetResourceID());
+      EZ_ASSERT_DEV(resourceToUnload->GetLoadingState() <= ezResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.", resourceToUnload->GetResourceID());
     }
 
     s_State->s_ResourcesToUnloadOnMainThread.Clear();
@@ -570,12 +564,12 @@ void ezResourceManager::EngineAboutToShutdown()
 
   for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(s_State->s_WorkerTasksDataLoad[i].m_pTask);
+    ezTaskSystem::CancelTask(s_State->s_WorkerTasksDataLoad[i].m_pTask).IgnoreResult();
   }
 
   for (ezUInt32 i = 0; i < s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(s_State->s_WorkerTasksUpdateContent[i].m_pTask);
+    ezTaskSystem::CancelTask(s_State->s_WorkerTasksUpdateContent[i].m_pTask).IgnoreResult();
   }
 
   {
@@ -699,8 +693,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
   pRtti = FindResourceTypeOverride(pRtti, szResourceID);
 
   EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
-  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(),
-    "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
   ezResource* pResource = nullptr;
   ezTempHashedString sHashedResourceID(szResourceID);

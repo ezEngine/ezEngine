@@ -17,8 +17,8 @@ void ezChunkStreamWriter::BeginStream(ezUInt16 uiVersion)
   m_bWritingFile = true;
 
   const char* szTag = "BGNCHNK2";
-  m_Stream.WriteBytes(szTag, 8);
-  m_Stream.WriteBytes(&uiVersion, 2);
+  m_Stream.WriteBytes(szTag, 8).IgnoreResult();
+  m_Stream.WriteBytes(&uiVersion, 2).IgnoreResult();
 }
 
 void ezChunkStreamWriter::EndStream()
@@ -29,7 +29,7 @@ void ezChunkStreamWriter::EndStream()
   m_bWritingFile = false;
 
   const char* szTag = "END CHNK";
-  m_Stream.WriteBytes(szTag, 8);
+  m_Stream.WriteBytes(szTag, 8).IgnoreResult();
 }
 
 void ezChunkStreamWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
@@ -40,7 +40,7 @@ void ezChunkStreamWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
   m_sChunkName = szName;
 
   const char* szTag = "NXT CHNK";
-  m_Stream.WriteBytes(szTag, 8);
+  m_Stream.WriteBytes(szTag, 8).IgnoreResult();
 
   m_Stream << m_sChunkName;
   m_Stream << uiVersion;
@@ -66,7 +66,7 @@ void ezChunkStreamWriter::EndChunk()
 
     EZ_ASSERT_DEBUG(uiRange > 0, "Invalid contiguous range");
 
-    m_Stream.WriteBytes(&m_Storage[i], uiRange);
+    m_Stream.WriteBytes(&m_Storage[i], uiRange).IgnoreResult();
     i += uiRange;
   }
 
@@ -170,8 +170,7 @@ void ezChunkStreamReader::NextChunk()
 
   const ezUInt64 uiToSkip = m_ChunkInfo.m_uiUnreadChunkBytes;
   const ezUInt64 uiSkipped = SkipBytes(uiToSkip);
-  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName,
-    m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
+  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
 
   TryReadChunkHeader();
 }

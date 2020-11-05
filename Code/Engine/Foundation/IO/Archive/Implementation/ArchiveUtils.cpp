@@ -86,9 +86,7 @@ ezResult ezArchiveUtils::ReadHeader(ezStreamReader& stream, ezUInt8& out_uiVersi
   return EZ_SUCCESS;
 }
 
-ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSourcePath, ezUInt32 uiPathStringOffset,
-  ezArchiveCompressionMode compression, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition,
-  FileWriteProgressCallback progress /*= FileWriteProgressCallback()*/)
+ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSourcePath, ezUInt32 uiPathStringOffset, ezArchiveCompressionMode compression, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition, FileWriteProgressCallback progress /*= FileWriteProgressCallback()*/)
 {
   ezFileReader file;
   EZ_SUCCEED_OR_RETURN(file.Open(szAbsSourcePath, 1024 * 1024));
@@ -293,7 +291,7 @@ ezResult ezArchiveUtils::AppendTOC(ezStreamWriter& stream, const ezArchiveTOC& t
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
 
-  toc.Serialize(writer);
+  EZ_SUCCEED_OR_RETURN(toc.Serialize(writer));
 
   EZ_SUCCEED_OR_RETURN(stream.WriteBytes(storage.GetData(), storage.GetStorageSize()));
 
@@ -545,8 +543,7 @@ ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC
       entry.m_uiUncompressedDataSize = cdfHeader.uncompressedSize;
       entry.m_uiStoredDataSize = cdfHeader.compressedSize;
       entry.m_uiPathStringOffset = toc.m_AllPathStrings.GetCount();
-      entry.m_CompressionMode =
-        cdfHeader.compression == CompressionType::Uncompressed ? ezArchiveCompressionMode::Uncompressed : ezArchiveCompressionMode::Compressed_zip;
+      entry.m_CompressionMode = cdfHeader.compression == CompressionType::Uncompressed ? ezArchiveCompressionMode::Uncompressed : ezArchiveCompressionMode::Compressed_zip;
 
       auto nameBuffer = ezArrayPtr<const ezUInt8>(static_cast<const ezUInt8*>(pCdfStart) + CDFileHeaderLength, cdfHeader.fileNameLength);
       toc.m_AllPathStrings.PushBackRange(nameBuffer);
@@ -554,8 +551,7 @@ ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC
       const char* szName = reinterpret_cast<const char*>(toc.m_AllPathStrings.GetData() + entry.m_uiPathStringOffset);
       sLowerCaseHash = szName;
       sLowerCaseHash.ToLower();
-      toc.m_PathToEntryIndex.Insert(
-        ezArchiveStoredString(ezTempHashedString::ComputeHash(sLowerCaseHash.GetData()), entry.m_uiPathStringOffset), toc.m_Entries.GetCount() - 1);
+      toc.m_PathToEntryIndex.Insert(ezArchiveStoredString(ezTempHashedString::ComputeHash(sLowerCaseHash.GetData()), entry.m_uiPathStringOffset), toc.m_Entries.GetCount() - 1);
 
       // Compute data stream start location. We need to skip past the local (and redundant) file header to find it.
       const void* pLfStart = memFile.GetReadPointer(cdfHeader.offsetLocalHeader, ezMemoryMappedFile::OffsetBase::Start);

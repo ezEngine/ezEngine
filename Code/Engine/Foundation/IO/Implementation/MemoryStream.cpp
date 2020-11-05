@@ -133,7 +133,8 @@ void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& Stream, ezUInt64 ui
     const ezUInt64 uiRead = Stream.ReadBytes(uiTemp, uiToRead);
     uiMaxBytes -= uiRead;
 
-    w.WriteBytes(uiTemp, uiRead);
+    w.WriteBytes(uiTemp, uiRead).IgnoreResult();
+
     if (uiRead < uiToRead)
       break;
   }

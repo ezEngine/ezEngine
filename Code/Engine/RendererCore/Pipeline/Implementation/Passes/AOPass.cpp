@@ -222,7 +222,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       constants->LinearizeDepth = (i == 0);
 
       renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", hInputView);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
     }
   }
 
@@ -260,7 +260,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 
   // Blur pass
@@ -273,7 +273,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
     renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", pDevice->GetDefaultResourceView(tempSSAOTexture));
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 
   // Return temp targets

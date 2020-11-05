@@ -343,7 +343,7 @@ void ezPxCharacterControllerComponent::Update()
 
         const float fSpeedAlongRealDir = vRealDirLateral.Dot(m_vVelocityLateral);
 
-        m_vVelocityLateral.SetLength(fSpeedAlongRealDir);
+        m_vVelocityLateral.SetLength(fSpeedAlongRealDir).IgnoreResult();
       }
       else
         m_vVelocityLateral.SetZero();
@@ -455,7 +455,7 @@ void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterControlle
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
 
   m_vRelativeMoveDirection += ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
-  m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector());
+  m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
   m_vRelativeMoveDirection *= fDistanceToMove;
 
   m_RotateZ += m_RotateSpeed * (float)(msg.m_fRotateRight - msg.m_fRotateLeft);

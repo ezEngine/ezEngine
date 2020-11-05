@@ -68,7 +68,8 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
   {
     ezStringBuilder folder = szDumpFile;
     folder.PathParentDirectory();
-    ezOSFile::CreateDirectoryStructure(folder);
+    if (ezOSFile::CreateDirectoryStructure(folder).Failed())
+      return ezStatus("Failed to create output directory structure.");
   }
 
   HANDLE hFile = CreateFileW(ezDosDevicePath(szDumpFile), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);

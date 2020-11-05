@@ -54,7 +54,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
     desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
     desc.m_Title = "Engine View";
 
-    pWindow->Initialize(desc);
+    pWindow->Initialize(desc).IgnoreResult();
 
     ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
     pWindowPlugin->m_pWindow = std::move(pWindow);

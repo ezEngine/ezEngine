@@ -91,7 +91,7 @@ ezResult ezTexConv::BeforeCoreSystemsStartup()
 
 void ezTexConv::AfterCoreSystemsStartup()
 {
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -199,7 +199,7 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
   ezAssetFileHeader asset;
   asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
-  asset.Write(stream);
+  EZ_SUCCEED_OR_RETURN(asset.Write(stream));
 
   ezTexFormat texFormat;
   texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
@@ -227,7 +227,7 @@ ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
     ezDeferredFileWriter file;
     file.SetOutput(szFile);
 
-    WriteTexFile(file, image);
+    EZ_SUCCEED_OR_RETURN(WriteTexFile(file, image));
 
     return file.Close();
   }
@@ -255,9 +255,9 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     ezAssetFileHeader header;
     header.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
-    header.Write(file);
+    header.Write(file).IgnoreResult();
 
-    file.WriteBytes(m_Processor.m_TextureAtlas.GetData(), m_Processor.m_TextureAtlas.GetStorageSize());
+    file.WriteBytes(m_Processor.m_TextureAtlas.GetData(), m_Processor.m_TextureAtlas.GetStorageSize()).IgnoreResult();
 
     if (file.Close().Succeeded())
     {
@@ -296,7 +296,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   if (!m_sOutputLowResFile.IsEmpty())
   {
     // the image may not exist, if we do not have enough mips, so make sure any old low-res file is cleaned up
-    ezOSFile::DeleteFile(m_sOutputLowResFile);
+    ezOSFile::DeleteFile(m_sOutputLowResFile).IgnoreResult();
 
     if (m_Processor.m_LowResOutputImage.IsValid())
     {

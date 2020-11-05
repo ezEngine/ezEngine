@@ -27,7 +27,7 @@ ezSpatialAnchorComponent::~ezSpatialAnchorComponent()
   {
     if (!m_AnchorID.IsInvalidated())
     {
-      pXR->DestroyAnchor(m_AnchorID);
+      pXR->DestroyAnchor(m_AnchorID).IgnoreResult();
       m_AnchorID = ezXRSpatialAnchorID();
     }
   }
@@ -57,7 +57,7 @@ ezResult ezSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& position)
   {
     if (!m_AnchorID.IsInvalidated())
     {
-      pXR->DestroyAnchor(m_AnchorID);
+      pXR->DestroyAnchor(m_AnchorID).IgnoreResult();
       m_AnchorID = ezXRSpatialAnchorID();
     }
 

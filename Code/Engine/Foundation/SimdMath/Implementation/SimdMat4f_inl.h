@@ -78,7 +78,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::GetTranspose() const
 EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::GetInverse(const ezSimdFloat& fEpsilon) const
 {
   ezSimdMat4f result = *this;
-  result.Invert(fEpsilon);
+  result.Invert(fEpsilon).IgnoreResult();
   return result;
 }
 

@@ -1,4 +1,4 @@
-﻿#include <FoundationTestPCH.h>
+#include <FoundationTestPCH.h>
 
 // NOTE: always save as Unicode UTF-8 with signature
 
@@ -1412,7 +1412,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     const char* szText =
       "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
 
-    MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText));
+    MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText)).IgnoreResult();
 
     ezStringBuilder s;
     s.ReadAll(MemoryReader);

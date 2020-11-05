@@ -96,7 +96,7 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
   {
     stream << node->GetDynamicRTTI()->GetTypeName();
 
-    node->SerializeNode(stream);
+    EZ_SUCCEED_OR_RETURN(node->SerializeNode(stream));
   }
 
   stream << m_hSkeleton;
@@ -129,7 +129,7 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
     stream >> sTypeName;
     node = std::move(ezRTTI::FindTypeByName(sTypeName)->GetAllocator()->Allocate<ezAnimGraphNode>());
 
-    node->DeserializeNode(stream);
+    EZ_SUCCEED_OR_RETURN(node->DeserializeNode(stream));
   }
 
   stream >> m_hSkeleton;

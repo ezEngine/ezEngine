@@ -152,11 +152,10 @@ void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUIn
     ezMemoryUtils::Copy(pCopyDst, data.GetPtr(), data.GetCount());
   }
 
-  Transmit(tm, m_TempSendBuffer);
+  Transmit(tm, m_TempSendBuffer).IgnoreResult();
 }
 
-void ezRemoteInterface::Send(
-  ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData /*= nullptr*/, ezUInt32 uiDataBytes /*= 0*/)
+void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData /*= nullptr*/, ezUInt32 uiDataBytes /*= 0*/)
 {
   Send(tm, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pData), uiDataBytes));
 }
@@ -297,7 +296,7 @@ void ezRemoteInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSyste
   auto& msg = queue.m_MessageQueueIn.ExpandAndGetRef();
   msg.m_uiApplicationID = uiApplicationID;
   msg.SetMessageID(uiSystemID, uiMsgID);
-  msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount());
+  msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount()).IgnoreResult();
 }
 
 ezResult ezRemoteInterface::DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port)

@@ -372,8 +372,7 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
     {
       EZ_PX_WRITE_LOCK(*pActor->getScene());
 
-      PxRigidBodyExt::addForceAtPos(
-        *pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+      PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
     }
   }
 }
@@ -575,8 +574,7 @@ void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= null
   m_TimeUntilDisappear = m_fDisappearTimeout;
 
   DestroyUnbrokenPhysicsObject();
-  CreatePiecesPhysicsObjects(
-    pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(), pMessage ? pMessage->m_vPosition : GetOwner()->GetGlobalPosition());
+  CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(), pMessage ? pMessage->m_vPosition : GetOwner()->GetGlobalPosition());
 
   ezMsgBreakableSheetBroke msg;
 
@@ -601,8 +599,7 @@ void ezBreakableSheetComponent::CreateMeshes()
   // Deal with the unbroken mesh first
   {
     ezStringBuilder unbrokenMeshName;
-    unbrokenMeshName.Format(
-      "ezBreakableSheetComponent_unbroken_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight, m_bFixedBorder);
+    unbrokenMeshName.Format("ezBreakableSheetComponent_unbroken_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight, m_bFixedBorder);
 
     m_hUnbrokenMesh = ezResourceManager::GetExistingResource<ezMeshResource>(unbrokenMeshName);
 
@@ -624,8 +621,7 @@ void ezBreakableSheetComponent::CreateMeshes()
   // Build broken mesh
   {
     ezStringBuilder piecesMeshName;
-    piecesMeshName.Format("ezBreakableSheetComponent_pieces_{0}_{1}_{2}_{3}_{4}_{5}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight,
-      m_uiNumPieces, m_uiRandomSeedUsed, m_bFixedBorder);
+    piecesMeshName.Format("ezBreakableSheetComponent_pieces_{0}_{1}_{2}_{3}_{4}_{5}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight, m_uiNumPieces, m_uiRandomSeedUsed, m_bFixedBorder);
 
     m_hPiecesMesh = ezResourceManager::GetExistingResource<ezMeshResource>(piecesMeshName);
 
@@ -753,25 +749,16 @@ void ezBreakableSheetComponent::CreateMeshes()
 
             // Front side
             ezUInt32 frontIdx[3];
-            frontIdx[0] = g.AddVertex(ezVec3(site->p.x, fHalfThickness, site->p.y), ezVec3(0, 1, 0),
-              ezVec2((site->p.x + halfSize.x) * fInvWidth, (site->p.y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
-            frontIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, fHalfThickness, e->pos[0].y), ezVec3(0, 1, 0),
-              ezVec2((e->pos[0].x + halfSize.x) * fInvWidth, (e->pos[0].y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
-            frontIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, fHalfThickness, e->pos[1].y), ezVec3(0, 1, 0),
-              ezVec2((e->pos[1].x + halfSize.x) * fInvWidth, (e->pos[1].y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
+            frontIdx[0] = g.AddVertex(ezVec3(site->p.x, fHalfThickness, site->p.y), ezVec3(0, 1, 0), ezVec2((site->p.x + halfSize.x) * fInvWidth, (site->p.y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
+            frontIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, fHalfThickness, e->pos[0].y), ezVec3(0, 1, 0), ezVec2((e->pos[0].x + halfSize.x) * fInvWidth, (e->pos[0].y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
+            frontIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, fHalfThickness, e->pos[1].y), ezVec3(0, 1, 0), ezVec2((e->pos[1].x + halfSize.x) * fInvWidth, (e->pos[1].y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
             g.AddPolygon(frontIdx, true);
 
             // Back side
             ezUInt32 backIdx[3];
-            backIdx[0] = g.AddVertex(ezVec3(site->p.x, -fHalfThickness, site->p.y), ezVec3(0, -1, 0),
-              ezVec2(1.0f - ((site->p.x + halfSize.x) * fInvWidth), 1.0f - ((site->p.y + halfSize.z) * fInvHeight)), ezColor::White,
-              iPieceMatrixIndex);
-            backIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, -fHalfThickness, e->pos[0].y), ezVec3(0, -1, 0),
-              ezVec2(1.0f - ((e->pos[0].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[0].y + halfSize.z) * fInvHeight)), ezColor::White,
-              iPieceMatrixIndex);
-            backIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, -fHalfThickness, e->pos[1].y), ezVec3(0, -1, 0),
-              ezVec2(1.0f - ((e->pos[1].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[1].y + halfSize.z) * fInvHeight)), ezColor::White,
-              iPieceMatrixIndex);
+            backIdx[0] = g.AddVertex(ezVec3(site->p.x, -fHalfThickness, site->p.y), ezVec3(0, -1, 0), ezVec2(1.0f - ((site->p.x + halfSize.x) * fInvWidth), 1.0f - ((site->p.y + halfSize.z) * fInvHeight)), ezColor::White, iPieceMatrixIndex);
+            backIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, -fHalfThickness, e->pos[0].y), ezVec3(0, -1, 0), ezVec2(1.0f - ((e->pos[0].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[0].y + halfSize.z) * fInvHeight)), ezColor::White, iPieceMatrixIndex);
+            backIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, -fHalfThickness, e->pos[1].y), ezVec3(0, -1, 0), ezVec2(1.0f - ((e->pos[1].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[1].y + halfSize.z) * fInvHeight)), ezColor::White, iPieceMatrixIndex);
             g.AddPolygon(backIdx, false);
 
             // Add skirt connecting front and back side
@@ -830,16 +817,14 @@ void ezBreakableSheetComponent::CreateMeshes()
   BufferDesc.m_bAllowShaderResourceView = true;
   BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
-  m_hPieceTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-    BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_PieceTransforms.GetData()), BufferDesc.m_uiTotalSize));
+  m_hPieceTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_PieceTransforms.GetData()), BufferDesc.m_uiTotalSize));
   if (m_hPieceTransformsBuffer.IsInvalidated())
   {
     ezLog::Warning("Couldn't allocate buffer for piece transforms of breakable sheet.");
   }
 }
 
-void ezBreakableSheetComponent::AddSkirtPolygons(
-  ezVec2 Point0, ezVec2 Point1, float fHalfThickness, ezInt32 iPieceMatrixIndex, ezGeometry& Geometry) const
+void ezBreakableSheetComponent::AddSkirtPolygons(ezVec2 Point0, ezVec2 Point1, float fHalfThickness, ezInt32 iPieceMatrixIndex, ezGeometry& Geometry) const
 {
   const float fSpanX = ezMath::Abs(Point0.x - Point1.x);
   const float fSpanY = ezMath::Abs(Point0.y - Point1.y);
@@ -855,7 +840,7 @@ void ezBreakableSheetComponent::AddSkirtPolygons(
   ezVec2 Point1BackUV(0, fSpan);
 
   ezVec3 FaceNormal;
-  FaceNormal.CalculateNormal(Point0Front, Point1Front, Point0Back);
+  FaceNormal.CalculateNormal(Point0Front, Point1Front, Point0Back).IgnoreResult();
 
   const ezUInt32 uiIdx0 = Geometry.AddVertex(Point0Front, FaceNormal, Point0FrontUV, ezColor::White, iPieceMatrixIndex);
   const ezUInt32 uiIdx1 = Geometry.AddVertex(Point0Back, FaceNormal, Point0BackUV, ezColor::White, iPieceMatrixIndex);
@@ -1120,8 +1105,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
         const ezVec3 modifiedImpulse = vImpulse * fStrength;
 
-        PxRigidBodyExt::addForceAtPos(
-          *pActor, ezPxConversionUtils::ToVec3(modifiedImpulse), ezPxConversionUtils::ToVec3(vPointOfBreakage), PxForceMode::eIMPULSE);
+        PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(modifiedImpulse), ezPxConversionUtils::ToVec3(vPointOfBreakage), PxForceMode::eIMPULSE);
       }
     }
   }

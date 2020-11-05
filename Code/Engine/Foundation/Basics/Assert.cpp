@@ -51,7 +51,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 
   if (ezEnvironmentVariableUtils::IsVariableSet("EZ_SILENT_ASSERTS"))
   {
-    ezConversionUtils::StringToBool(ezEnvironmentVariableUtils::GetValueString("EZ_SILENT_ASSERTS"), bSilentAsserts);
+    ezConversionUtils::StringToBool(ezEnvironmentVariableUtils::GetValueString("EZ_SILENT_ASSERTS"), bSilentAsserts).IgnoreResult();
   }
 
   if (bSilentAsserts)

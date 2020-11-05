@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
 
     ezInt32 exitCode = -1;
 
-    if (EZ_TEST_BOOL_MSG(ezProcess::Execute(opt, &exitCode).Succeeded(), "Failed to start process.").Failed())
+    if (!EZ_TEST_BOOL_MSG(ezProcess::Execute(opt, &exitCode).Succeeded(), "Failed to start process."))
       return;
 
     EZ_TEST_INT(exitCode, 0);
@@ -59,7 +59,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezProcess proc;
     EZ_TEST_BOOL(proc.GetState() == ezProcessState::NotStarted);
 
-    if (EZ_TEST_BOOL_MSG(proc.Launch(opt).Succeeded(), "Failed to start process.").Failed())
+    if (!EZ_TEST_BOOL_MSG(proc.Launch(opt).Succeeded(), "Failed to start process."))
       return;
 
     EZ_TEST_BOOL(proc.GetState() == ezProcessState::Running);
@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezProcess proc;
     EZ_TEST_BOOL(proc.GetState() == ezProcessState::NotStarted);
 
-    if (EZ_TEST_BOOL_MSG(proc.Launch(opt).Succeeded(), "Failed to start process.").Failed())
+    if (!EZ_TEST_BOOL_MSG(proc.Launch(opt).Succeeded(), "Failed to start process."))
       return;
 
     EZ_TEST_BOOL(proc.GetState() == ezProcessState::Running);
@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
       opt.m_Arguments.PushBack("10000");
 
       ezProcess proc;
-      if (EZ_TEST_BOOL_MSG(proc.Launch(opt).Succeeded(), "Failed to start process.").Failed())
+      if (!EZ_TEST_BOOL_MSG(proc.Launch(opt).Succeeded(), "Failed to start process."))
         return;
 
       proc.Detach();
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     opt.m_Arguments.PushBack("-stdout");
     opt.m_Arguments.PushBack(g_szTestMsg);
 
-    if (EZ_TEST_BOOL_MSG(ezProcess::Execute(opt).Succeeded(), "Failed to start process.").Failed())
+    if (!EZ_TEST_BOOL_MSG(ezProcess::Execute(opt).Succeeded(), "Failed to start process."))
       return;
 
     out.Trim("\r\n");
@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
 
     ezInt32 exitCode = 0;
 
-    if (EZ_TEST_BOOL_MSG(ezProcess::Execute(opt, &exitCode).Succeeded(), "Failed to start process.").Failed())
+    if (!EZ_TEST_BOOL_MSG(ezProcess::Execute(opt, &exitCode).Succeeded(), "Failed to start process."))
       return;
 
     EZ_TEST_BOOL_MSG(!err.IsEmpty(), "Error stream should contain something.");
@@ -166,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     opt.m_Arguments.PushBack("-stdout");
     opt.m_Arguments.PushBack(g_szTestMsg);
 
-    if (EZ_TEST_BOOL_MSG(ezProcess::Execute(opt).Succeeded(), "Failed to start process.").Failed())
+    if (!EZ_TEST_BOOL_MSG(ezProcess::Execute(opt).Succeeded(), "Failed to start process."))
       return;
 
     out.Trim("\r\n");

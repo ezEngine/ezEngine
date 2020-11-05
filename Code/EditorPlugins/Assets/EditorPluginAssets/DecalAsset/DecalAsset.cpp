@@ -78,8 +78,7 @@ ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
@@ -99,7 +98,7 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
   {
     // Thumbnail
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    ezOSFile::CreateDirectoryStructure(sDir);
+    EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sDir));
 
     arguments << "-thumbnailOut";
     arguments << QString::fromUtf8(sThumbnail.GetData());
@@ -178,8 +177,7 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
 
 ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() {}
 
-void ezDecalAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -199,8 +197,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
   out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);

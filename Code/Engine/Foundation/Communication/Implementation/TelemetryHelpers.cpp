@@ -20,7 +20,9 @@ void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezU
   msg.SetMessageID(uiSystemID, uiMsgID);
 
   if (uiDataBytes > 0)
-    msg.GetWriter().WriteBytes(pData, uiDataBytes);
+  {
+    msg.GetWriter().WriteBytes(pData, uiDataBytes).IgnoreResult();
+  }
 
   // if our outgoing queue has grown too large, dismiss older messages
   if (Queue.m_OutgoingQueue.GetCount() > Queue.m_uiMaxQueuedOutgoing)
@@ -55,8 +57,7 @@ void ezTelemetry::FlushOutgoingQueues()
       Send(ezTelemetry::Reliable, it.Value().m_OutgoingQueue[i]); // Send() will already update the network
 
     // check that they have not been queue again
-    EZ_ASSERT_DEV(it.Value().m_OutgoingQueue.GetCount() == uiCurCount,
-      "Implementation Error: When queued messages are flushed, they should not get queued again.");
+    EZ_ASSERT_DEV(it.Value().m_OutgoingQueue.GetCount() == uiCurCount, "Implementation Error: When queued messages are flushed, they should not get queued again.");
 
     it.Value().m_OutgoingQueue.Clear();
   }

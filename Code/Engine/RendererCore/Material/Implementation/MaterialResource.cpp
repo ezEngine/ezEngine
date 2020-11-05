@@ -32,9 +32,7 @@ void ezMaterialResourceDescriptor::Clear()
 
 bool ezMaterialResourceDescriptor::operator==(const ezMaterialResourceDescriptor& other) const
 {
-  return m_hBaseMaterial == other.m_hBaseMaterial && m_hShader == other.m_hShader && m_PermutationVars == other.m_PermutationVars &&
-         m_Parameters == other.m_Parameters && m_Texture2DBindings == other.m_Texture2DBindings &&
-         m_TextureCubeBindings == other.m_TextureCubeBindings;
+  return m_hBaseMaterial == other.m_hBaseMaterial && m_hShader == other.m_hShader && m_PermutationVars == other.m_PermutationVars && m_Parameters == other.m_Parameters && m_Texture2DBindings == other.m_Texture2DBindings && m_TextureCubeBindings == other.m_TextureCubeBindings;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -486,7 +484,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     ezStringBuilder sTemp, sTemp2;
 
     ezAssetFileHeader AssetHash;
-    AssetHash.Read(*Stream);
+    AssetHash.Read(*Stream).IgnoreResult();
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
@@ -658,7 +656,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         ezUInt32 dataSize = 0;
         s >> dataSize;
 
-        ezTextureResourceLoader::LoadTexFile(s, embedded);
+        ezTextureResourceLoader::LoadTexFile(s, embedded).IgnoreResult();
         embedded.m_bIsFallback = true;
 
         ezMemoryStreamStorage storage;
@@ -797,11 +795,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU =
-    sizeof(ezMaterialResource) +
-    (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() + m_Desc.m_Parameters.GetHeapMemoryUsage() +
-               m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() + m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+    sizeof(ezMaterialResource) + (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() + m_Desc.m_Parameters.GetHeapMemoryUsage() + m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() + m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() +
+                                            m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
@@ -880,8 +875,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
     return;
 
   ezTempHashedString sConstantBufferName("ezMaterialConstants");
-  const ezShaderResourceBinding* pBinding =
-    pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
+  const ezShaderResourceBinding* pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
   if (pBinding == nullptr)
   {
     pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::VertexShader)->GetShaderResourceBinding(sConstantBufferName);

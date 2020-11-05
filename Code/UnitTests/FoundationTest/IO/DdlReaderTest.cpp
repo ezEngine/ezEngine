@@ -144,7 +144,7 @@ static void WriteToString(const ezOpenDdlReader& doc, ezStringBuilder& string)
   WriteToDDL(doc, writer);
 
   ezUInt8 term = 0;
-  writer.WriteBytes(&term, 1);
+  writer.WriteBytes(&term, 1).IgnoreResult();
   string = (const char*)storage.GetData();
 }
 

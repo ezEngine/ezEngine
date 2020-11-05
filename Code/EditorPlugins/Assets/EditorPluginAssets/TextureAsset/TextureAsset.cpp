@@ -180,7 +180,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   {
     // Thumbnail
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    ezOSFile::CreateDirectoryStructure(sDir);
+    ezOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
 
     arguments << "-thumbnailRes";
     arguments << "256";
@@ -384,8 +384,7 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
@@ -398,7 +397,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
     ezDeferredFileWriter file;
     file.SetOutput(szTargetFile);
 
-    AssetHeader.Write(file);
+    EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
 
     // TODO: move this into a shared location, reuse in ezTexConv::WriteTexHeader
     const ezUInt8 uiTexFileFormatVersion = 5;
@@ -495,7 +494,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
     {
       // if the file was touched, but nothing written to it, delete the file
       // might happen if TexConv crashed or had an error
-      ezOSFile::DeleteFile(szTargetFile);
+      ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
       result.m_Result = EZ_FAILURE;
     }
 
@@ -533,8 +532,7 @@ ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
 
 ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator() = default;
 
-void ezTextureAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -548,13 +546,11 @@ void ezTextureAssetDocumentGenerator::GetImportModes(
   {
     tt = TextureType::HDR;
   }
-  else if (baseFilename.EndsWith_NoCase("_d") || baseFilename.EndsWith_NoCase("diffuse") || baseFilename.EndsWith_NoCase("diff") ||
-           baseFilename.EndsWith_NoCase("col") || baseFilename.EndsWith_NoCase("color"))
+  else if (baseFilename.EndsWith_NoCase("_d") || baseFilename.EndsWith_NoCase("diffuse") || baseFilename.EndsWith_NoCase("diff") || baseFilename.EndsWith_NoCase("col") || baseFilename.EndsWith_NoCase("color"))
   {
     tt = TextureType::Diffuse;
   }
-  else if (baseFilename.EndsWith_NoCase("_n") || baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") ||
-           baseFilename.EndsWith_NoCase("nrm") || baseFilename.EndsWith_NoCase("norm"))
+  else if (baseFilename.EndsWith_NoCase("_n") || baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("nrm") || baseFilename.EndsWith_NoCase("norm"))
   {
     tt = TextureType::Normal;
   }
@@ -570,8 +566,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(
   {
     tt = TextureType::Height;
   }
-  else if (baseFilename.EndsWith_NoCase("_metal") || baseFilename.EndsWith_NoCase("_met") || baseFilename.EndsWith_NoCase("metallic") ||
-           baseFilename.EndsWith_NoCase("metalness"))
+  else if (baseFilename.EndsWith_NoCase("_metal") || baseFilename.EndsWith_NoCase("_met") || baseFilename.EndsWith_NoCase("metallic") || baseFilename.EndsWith_NoCase("metalness"))
   {
     tt = TextureType::Metalness;
   }
@@ -713,8 +708,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezTextureAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

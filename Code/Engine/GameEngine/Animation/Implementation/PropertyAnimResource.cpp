@@ -73,7 +73,7 @@ ezResourceLoadDesc ezPropertyAnimResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
   m_pDescriptor->Load(*Stream);

@@ -13,8 +13,7 @@
 // ezReflectionSerializer public static functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/,
-  ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
+void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/, ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
@@ -76,7 +75,7 @@ void* ezReflectionSerializer::ReadObjectFromDDL(const ezOpenDdlReaderElement* pR
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
 
-  ezAbstractGraphDdlSerializer::Read(pRootElement, &graph);
+  ezAbstractGraphDdlSerializer::Read(pRootElement, &graph).IgnoreResult();
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
@@ -118,7 +117,7 @@ void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& stream,
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
 
-  ezAbstractGraphDdlSerializer::Read(stream, &graph);
+  ezAbstractGraphDdlSerializer::Read(stream, &graph).IgnoreResult();
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
@@ -335,8 +334,7 @@ namespace
 
         for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
         {
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
-              (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
           {
             ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
             ezReflectionUtils::SetMapPropertyValue(pSpecific, pClone, keys[i], value);
@@ -361,8 +359,7 @@ namespace
               }
               else
               {
-                ezLog::Error(
-                  "The property '{0}' can not be cloned as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
+                ezLog::Error("The property '{0}' can not be cloned as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
               }
             }
           }
@@ -412,8 +409,7 @@ void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRT
   {
     const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
     pType = pRefObject->GetDynamicRTTI();
-    EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(), "Object '{0}' and clone '{1}' have mismatching types!",
-      pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
+    EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(), "Object '{0}' and clone '{1}' have mismatching types!", pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
   }
 
   CloneProperties(pObject, pClone, pType);

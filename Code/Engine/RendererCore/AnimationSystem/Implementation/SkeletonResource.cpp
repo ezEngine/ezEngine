@@ -67,10 +67,10 @@ ezResourceLoadDesc ezSkeletonResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_pDescriptor = EZ_DEFAULT_NEW(ezSkeletonResourceDescriptor);
-  m_pDescriptor->Deserialize(*Stream);
+  m_pDescriptor->Deserialize(*Stream).IgnoreResult();
 
   res.m_State = ezResourceState::Loaded;
   return res;
@@ -96,7 +96,7 @@ ezSkeletonResourceDescriptor::ezSkeletonResourceDescriptor(ezSkeletonResourceDes
 void ezSkeletonResourceDescriptor::operator=(ezSkeletonResourceDescriptor&& rhs)
 {
   m_Skeleton = std::move(rhs.m_Skeleton);
-  //m_Geometry = std::move(rhs.m_Geometry);
+  // m_Geometry = std::move(rhs.m_Geometry);
 }
 
 ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
@@ -110,10 +110,10 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
 
   m_Skeleton.Save(stream);
 
-  //const ezUInt16 uiNumGeom = m_Geometry.GetCount();
-  //stream << uiNumGeom;
+  // const ezUInt16 uiNumGeom = m_Geometry.GetCount();
+  // stream << uiNumGeom;
 
-  //for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  // for (ezUInt32 i = 0; i < uiNumGeom; ++i)
   //{
   //  const auto& geo = m_Geometry[i];
 
@@ -131,13 +131,13 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& stream)
 
   m_Skeleton.Load(stream);
 
-  //m_Geometry.Clear();
+  // m_Geometry.Clear();
 
-  //ezUInt16 uiNumGeom = 0;
-  //stream >> uiNumGeom;
-  //m_Geometry.Reserve(uiNumGeom);
+  // ezUInt16 uiNumGeom = 0;
+  // stream >> uiNumGeom;
+  // m_Geometry.Reserve(uiNumGeom);
 
-  //for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  // for (ezUInt32 i = 0; i < uiNumGeom; ++i)
   //{
   //  auto& geo = m_Geometry.ExpandAndGetRef();
 

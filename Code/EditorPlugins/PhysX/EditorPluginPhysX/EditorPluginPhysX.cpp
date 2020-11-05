@@ -35,17 +35,16 @@ void OnLoadPlugin(bool bReloading)
 
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar").IgnoreResult();
       ezProjectActions::MapActions("CollisionMeshAssetMenuBar");
-      ezStandardMenus::MapActions(
-        "CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("CollisionMeshAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("CollisionMeshAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("CollisionMeshAssetToolBar");
+      ezActionMapManager::RegisterActionMap("CollisionMeshAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("CollisionMeshAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("CollisionMeshAssetToolBar", "");
       ezAssetActions::MapActions("CollisionMeshAssetToolBar", true);

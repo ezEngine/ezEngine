@@ -72,7 +72,7 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   {
     // Thumbnail
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    ezOSFile::CreateDirectoryStructure(sDir);
+    ezOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
 
     arguments << "-thumbnailRes";
     arguments << "256";
@@ -205,8 +205,7 @@ void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
   }
 }
 
-ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
@@ -218,7 +217,7 @@ ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTarget
   {
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
-    ezOSFile::DeleteFile(szTargetFile);
+    ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
     result.m_Result = EZ_FAILURE;
   }
 
@@ -245,8 +244,7 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 
 ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() {}
 
-void ezTextureCubeAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -280,8 +278,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

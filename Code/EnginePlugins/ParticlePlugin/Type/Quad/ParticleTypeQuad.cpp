@@ -305,7 +305,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
   auto SetTangentDataEmitterDirOrtho = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
     const ezVec3 vDirToParticle = (pPosition[srcIdx].GetAsVec3() - vEmitterPos);
     ezVec3 vOrthoDir = vEmitterDir.CrossRH(vDirToParticle);
-    vOrthoDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+    vOrthoDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
 
     ezMat3 mRotation;
     mRotation.SetRotationMatrix(vOrthoDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[srcIdx]) + pRotationOffset[srcIdx]));

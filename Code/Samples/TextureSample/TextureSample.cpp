@@ -81,7 +81,7 @@ public:
   {
     ezStringBuilder sProjectDir = ">sdk/Data/Samples/TextureSample";
     ezStringBuilder sProjectDirResolved;
-    ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved);
+    ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).IgnoreResult();
 
     ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
@@ -93,21 +93,21 @@ public:
       ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
     }
 
-    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);              // writing to the binary directory
-    ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();              // writing to the binary directory
+    ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
     ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
-      ezFileSystem::AllowWrites); // app user data
+      ezFileSystem::AllowWrites).IgnoreResult(); // app user data
 
-    ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");
-    ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared");
-    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
+    ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared").IgnoreResult();
+    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
     ezTelemetry::CreateServer();
-    ezPlugin::LoadPlugin("ezInspectorPlugin");
+    ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
@@ -151,7 +151,7 @@ public:
       WindowCreationDesc.m_Resolution.width = g_uiWindowWidth;
       WindowCreationDesc.m_Resolution.height = g_uiWindowHeight;
       m_pWindow = EZ_DEFAULT_NEW(TextureSampleWindow);
-      m_pWindow->Initialize(WindowCreationDesc);
+      m_pWindow->Initialize(WindowCreationDesc).IgnoreResult();
     }
 
     // Create a device
@@ -353,7 +353,7 @@ public:
 
           ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
-          ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
+          ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
         }
       }
 
@@ -397,12 +397,12 @@ public:
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
 
     // now we can destroy the graphics device
-    m_pDevice->Shutdown();
+    m_pDevice->Shutdown().IgnoreResult();
 
     EZ_DEFAULT_DELETE(m_pDevice);
 
     // finally destroy the window
-    m_pWindow->Destroy();
+    m_pWindow->Destroy().IgnoreResult();
     EZ_DEFAULT_DELETE(m_pWindow);
   }
 
@@ -507,13 +507,13 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResource*
 
   if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
   {
-    ezImageConversion::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+    ezImageConversion::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).IgnoreResult();
   }
 
   ezMemoryStreamWriter w(&pData->m_Storage);
 
   ezImage* pImage = &pData->m_Image;
-  w.WriteBytes(&pImage, sizeof(ezImage*));
+  w.WriteBytes(&pImage, sizeof(ezImage*)).IgnoreResult();
 
   /// This is a hack to get the SRGB information for the texture
 

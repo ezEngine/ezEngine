@@ -463,7 +463,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     // not a single thread should have finished the execution
-    if (EZ_TEST_BOOL_MSG(uiDone == 0, "This test can fail when the PC is under heavy load.").Succeeded())
+    if (EZ_TEST_BOOL_MSG(uiDone == 0, "This test can fail when the PC is under heavy load."))
     {
       EZ_TEST_BOOL(uiStarted > 0);
       EZ_TEST_BOOL(uiStarted <= ezTaskSystem::GetNumAllocatedWorkerThreads(

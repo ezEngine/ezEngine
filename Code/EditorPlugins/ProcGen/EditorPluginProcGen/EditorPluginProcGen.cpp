@@ -25,10 +25,9 @@ void OnLoadPlugin(bool bReloading)
   {// Menu Bar
     {const char* szMenuBar = "ProcGenAssetMenuBar";
 
-  ezActionMapManager::RegisterActionMap(szMenuBar);
+  ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
   ezProjectActions::MapActions(szMenuBar);
-  ezStandardMenus::MapActions(
-    szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+  ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
   ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
 
@@ -38,7 +37,7 @@ void OnLoadPlugin(bool bReloading)
 // Tool Bar
 {
   const char* szToolBar = "ProcGenAssetToolBar";
-  ezActionMapManager::RegisterActionMap(szToolBar);
+  ezActionMapManager::RegisterActionMap(szToolBar).IgnoreResult();
   ezDocumentActions::MapActions(szToolBar, "", true);
   ezCommandHistoryActions::MapActions(szToolBar, "");
   ezAssetActions::MapActions(szToolBar, true);

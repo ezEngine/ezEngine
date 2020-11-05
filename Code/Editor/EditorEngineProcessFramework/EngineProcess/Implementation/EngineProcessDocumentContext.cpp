@@ -464,7 +464,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         ezImage* pImageSwap = &imageSwap;
         for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
         {
-          ezImageUtils::Scale(*pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2);
+          ezImageUtils::Scale(*pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2).IgnoreResult();
           ezMath::Swap(pImage, pImageSwap);
         }
 

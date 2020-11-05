@@ -26,8 +26,7 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateMipmaps(
-  ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode /*= MipmapChannelMode::AllChannels*/) const
+ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode /*= MipmapChannelMode::AllChannels*/) const
 {
   ezImageUtils::MipMapOptions opt;
   opt.m_numMipMaps = uiNumMips;
@@ -56,8 +55,7 @@ ezResult ezTexConvProcessor::GenerateMipmaps(
   opt.m_preserveCoverage = m_Descriptor.m_bPreserveMipmapCoverage;
   opt.m_alphaThreshold = m_Descriptor.m_fMipmapAlphaThreshold;
 
-  opt.m_renormalizeNormals = m_Descriptor.m_Usage == ezTexConvUsage::NormalMap || m_Descriptor.m_Usage == ezTexConvUsage::NormalMap_Inverted ||
-                             m_Descriptor.m_Usage == ezTexConvUsage::BumpMap;
+  opt.m_renormalizeNormals = m_Descriptor.m_Usage == ezTexConvUsage::NormalMap || m_Descriptor.m_Usage == ezTexConvUsage::NormalMap_Inverted || m_Descriptor.m_Usage == ezTexConvUsage::BumpMap;
 
   // Copy red to alpha channel if we only have a single channel input texture
   if (opt.m_preserveCoverage && channelMode == MipmapChannelMode::SingleChannel)
@@ -240,7 +238,7 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
       Accum accum = filterKernel(x, y);
 
       ezVec3 normal = ezVec3(1.f, 0.f, accum.x).CrossRH(ezVec3(0.f, 1.f, accum.y));
-      normal.NormalizeIfNotZero(ezVec3(0, 0, 1), 0.001f);
+      normal.NormalizeIfNotZero(ezVec3(0, 0, 1), 0.001f).IgnoreResult();
       normal.y = -normal.y;
 
       normal = normal * 0.5f + ezVec3(0.5f);

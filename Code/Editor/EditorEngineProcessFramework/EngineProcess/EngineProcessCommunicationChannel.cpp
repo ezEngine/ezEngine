@@ -53,7 +53,7 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
     }
 
     m_iHostPID = 0;
-    ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID);
+    EZ_SUCCEED_OR_RETURN(ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID));
 
     ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 

@@ -162,7 +162,7 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
 
     ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
 
     m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
 
@@ -189,24 +189,24 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   ezStringBuilder sProjectDir = ">sdk/Data/Samples/ShaderExplorer";
   ezStringBuilder sProjectDirResolved;
-  ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved);
+  ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).IgnoreResult();
 
   ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
   EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
-  ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);                                   // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites);                      // for shader files
-  ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
+  ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();                                   // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult();                      // for shader files
+  ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites).IgnoreResult(); // app user data
 
-  ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");
-  ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
+  ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites).IgnoreResult();
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
-  ezPlugin::LoadPlugin("ezInspectorPlugin");
+  ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
@@ -294,7 +294,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
     WindowCreationDesc.m_bClipMouseCursor = false;
     WindowCreationDesc.m_WindowMode = ezWindowMode::WindowResizable;
     m_pWindow = EZ_DEFAULT_NEW(ezShaderExplorerWindow);
-    m_pWindow->Initialize(WindowCreationDesc);
+    m_pWindow->Initialize(WindowCreationDesc).IgnoreResult();
   }
 
   // Create a device
@@ -359,12 +359,12 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
   ezStartup::ShutdownHighLevelSystems();
 
   // now we can destroy the graphics device
-  m_pDevice->Shutdown();
+  m_pDevice->Shutdown().IgnoreResult();
 
   EZ_DEFAULT_DELETE(m_pDevice);
 
   // finally destroy the window
-  m_pWindow->Destroy();
+  m_pWindow->Destroy().IgnoreResult();
   EZ_DEFAULT_DELETE(m_pWindow);
 
   m_camera.Clear();

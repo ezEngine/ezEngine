@@ -96,7 +96,7 @@ void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
-  m_ReflectionProbeData.Serialize(s);
+  m_ReflectionProbeData.Serialize(s).IgnoreResult();
 }
 
 void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
@@ -105,7 +105,7 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  m_ReflectionProbeData.Deserialize(s);
+  m_ReflectionProbeData.Deserialize(s).IgnoreResult();
 }
 
 

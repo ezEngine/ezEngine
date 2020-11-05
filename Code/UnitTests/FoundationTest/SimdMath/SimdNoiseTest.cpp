@@ -95,7 +95,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(histogram); ++i)
       {
         sLine.Format("{},\n", histogram[i]);
-        fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount());
+        fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount()).IgnoreResult();
       }
     }
 

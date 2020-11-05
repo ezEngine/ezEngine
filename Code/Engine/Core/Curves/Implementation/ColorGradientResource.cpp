@@ -59,7 +59,7 @@ ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_Descriptor.Load(*Stream);
 
@@ -70,8 +70,7 @@ ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream
 void ezColorGradientResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU =
-    static_cast<ezUInt32>(m_Descriptor.m_Gradient.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
+  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_Descriptor.m_Gradient.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
 }
 
 void ezColorGradientResourceDescriptor::Save(ezStreamWriter& stream) const

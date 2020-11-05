@@ -151,7 +151,7 @@ void ezQtEditorApp::UnloadEditorPlugins()
   {
     if (it.Value().m_bActive)
     {
-      ezPlugin::UnloadPlugin(it.Key().GetData());
+      ezPlugin::UnloadPlugin(it.Key().GetData()).IgnoreResult();
       it.Value().m_bActive = false;
     }
   }

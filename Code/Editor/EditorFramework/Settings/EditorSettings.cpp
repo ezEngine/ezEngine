@@ -80,7 +80,7 @@ void ezQtEditorApp::SaveSettings()
     ezPreferences::SaveProjectPreferences();
     SaveOpenDocumentsList();
 
-    m_FileSystemConfig.Save();
-    m_EnginePluginConfig.Save();
+    m_FileSystemConfig.Save().IgnoreResult();
+    m_EnginePluginConfig.Save().IgnoreResult();
   }
 }

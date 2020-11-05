@@ -116,7 +116,7 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
 
     ezGALResourceViewHandle hInputView = pDevice->GetDefaultResourceView(m_hColorRT);
     m_pRenderContext->BindTexture2D("VRTexture", hInputView);
-    m_pRenderContext->DrawMeshBuffer();
+    m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
   if (m_pCompanionWindowOutputTarget)
   {
@@ -140,8 +140,7 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
 
 //////////////////////////////////////////////////////////////////////////
 
-ezActorPluginWindowXR::ezActorPluginWindowXR(
-  ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput)
+ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput)
   : m_pVrInterface(pVrInterface)
 {
   m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(companionWindow));

@@ -56,8 +56,7 @@ ezRmlUiAssetDocument::ezRmlUiAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezRmlUiAssetProperties* pProp = GetProperties();
 
@@ -109,7 +108,7 @@ ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, co
     }
   }
 
-  desc.Save(stream);
+  EZ_SUCCEED_OR_RETURN(desc.Save(stream));
 
   return ezStatus(EZ_SUCCESS);
 }

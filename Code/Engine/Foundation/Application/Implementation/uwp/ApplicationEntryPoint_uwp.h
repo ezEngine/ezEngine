@@ -35,7 +35,7 @@ namespace ezApplicationDetails
     // will be used dynamically as nothing has been initialized yet.
     ezRun(pApp);
 #else
-    ezUWPRun(pApp);
+    ezUWPRun(pApp).IgnoreResult();
 #endif // BUILDSYSTEM_ENABLE_OPENXR_SUPPORT
 
     const int iReturnCode = pApp->GetReturnCode();

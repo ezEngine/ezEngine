@@ -106,7 +106,7 @@ ezProcess::~ezProcess()
   {
     ezLog::Dev("Process still running - terminating '{}'", m_sProcess);
 
-    Terminate();
+    Terminate().IgnoreResult();
   }
 
   // Explicitly clear the implementation here so that member

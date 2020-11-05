@@ -307,7 +307,7 @@ public:
         }
 
         vAvgPos /= (float)uiNumContactPoints;
-        vAvgNormal.NormalizeIfNotZero(ezVec3::ZeroVector());
+        vAvgNormal.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
 
         if (CombinedContactFlags.IsAnySet(ezOnPhysXContact::SlideReactions | ezOnPhysXContact::RollXReactions | ezOnPhysXContact::RollYReactions | ezOnPhysXContact::RollZReactions) && !pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
         {
@@ -336,7 +336,8 @@ public:
               const ezVec3 vAngularVel = ezPxConversionUtils::ToVec3(pRigid0->getGlobalPose().rotateInv(pRigid0->getAngularVelocity()));
 
               // TODO: make threshold tweakable
-              if ((ContactFlags0.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags0.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) || (ContactFlags0.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
+              if ((ContactFlags0.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags0.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
+                  (ContactFlags0.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
               {
                 m_SlidingActors[pRigid0].m_bStillRolling = true;
                 m_SlidingActors[pRigid0].m_vPosition = vAvgPos;
@@ -349,7 +350,8 @@ public:
               const ezVec3 vAngularVel = ezPxConversionUtils::ToVec3(pRigid1->getGlobalPose().rotateInv(pRigid1->getAngularVelocity()));
 
               // TODO: make threshold tweakable
-              if ((ContactFlags1.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags1.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) || (ContactFlags1.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
+              if ((ContactFlags1.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags1.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
+                  (ContactFlags1.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
               {
                 m_SlidingActors[pRigid1].m_bStillRolling = true;
                 m_SlidingActors[pRigid1].m_vPosition = vAvgPos;
@@ -417,7 +419,7 @@ public:
                   InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
                   ic.m_vPosition = vAvgPos;
                   ic.m_vNormal = vAvgNormal;
-                  ic.m_vNormal.NormalizeIfNotZero(ezVec3(0, 0, 1));
+                  ic.m_vNormal.NormalizeIfNotZero(ezVec3(0, 0, 1)).IgnoreResult();
                   ic.m_fImpulseSqr = fMaxImpactSqr;
 
                   // if one actor is static or kinematic, prefer to spawn the interaction from its surface definition
@@ -475,7 +477,7 @@ public:
     }
 
     msg.m_vPosition /= fNumContactPoints;
-    msg.m_vNormal.NormalizeIfNotZero();
+    msg.m_vNormal.NormalizeIfNotZero().IgnoreResult();
     msg.m_vImpulse /= fNumContactPoints;
 
     const PxActor* pActorA = pairHeader.actors[0];

@@ -49,7 +49,9 @@ ezResult ezOSFile::Open(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFil
     ezStringBuilder sFolder = m_sFileName.GetFileDirectory();
 
     if (OpenMode == ezFileOpenMode::Write || OpenMode == ezFileOpenMode::Append)
-      CreateDirectoryStructure(sFolder.GetData());
+    {
+      EZ_SUCCEED_OR_RETURN(CreateDirectoryStructure(sFolder.GetData()));
+    }
   }
 
   if (InternalOpen(m_sFileName.GetData(), OpenMode, FileShareMode) == EZ_SUCCESS)

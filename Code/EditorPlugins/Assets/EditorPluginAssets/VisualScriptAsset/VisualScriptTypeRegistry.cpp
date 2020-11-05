@@ -31,9 +31,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualScript)
     ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
     const ezRTTI* pBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
-    ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode(); });
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); }).IgnoreResult();
+    ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); }).IgnoreResult();
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode(); }).IgnoreResult();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -694,8 +694,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       prd.m_sName = sName;
       prd.m_sType = pFunction->GetArgumentType(argIdx)->GetTypeName();
 
-      ezVisScriptMappingAttribute* pMappingAttr =
-        ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
+      ezVisScriptMappingAttribute* pMappingAttr = ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
       pMappingAttr->m_iMapping = argIdx;
       prd.m_Attributes.PushBack(pMappingAttr);
 

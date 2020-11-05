@@ -92,8 +92,7 @@ namespace
     }
   }
 
-  static const char* s_szStageDefines[ezGALShaderStage::ENUM_COUNT] = {
-    "VERTEX_SHADER", "HULL_SHADER", "DOMAIN_SHADER", "GEOMETRY_SHADER", "PIXEL_SHADER", "COMPUTE_SHADER"};
+  static const char* s_szStageDefines[ezGALShaderStage::ENUM_COUNT] = {"VERTEX_SHADER", "HULL_SHADER", "DOMAIN_SHADER", "GEOMETRY_SHADER", "PIXEL_SHADER", "COMPUTE_SHADER"};
 } // namespace
 
 ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
@@ -160,8 +159,7 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(
-  const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, const char* szPlatform)
+ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, const char* szPlatform)
 {
   ezStringBuilder sFileContent, sTemp;
 
@@ -183,8 +181,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(
   m_ShaderData.m_Platforms = sTemp;
 
   ezHybridArray<ezHashedString, 16> usedPermutations;
-  ezShaderParser::ParsePermutationSection(
-    Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations, m_ShaderData.m_FixedPermVars);
+  ezShaderParser::ParsePermutationSection(Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations, m_ShaderData.m_FixedPermVars);
 
   for (const ezHashedString& usedPermutationVar : usedPermutations)
   {
@@ -339,7 +336,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
       for (auto& define : defines)
       {
-        pp.AddCustomDefine(define);
+        EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine(define));
       }
 
       bool bFoundUndefinedVars = false;
@@ -348,8 +345,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error(
-            "Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         }
       });
 
@@ -391,15 +387,14 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error(
-            "Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         }
       });
 
-      pp.AddCustomDefine(s_szStageDefines[stage]);
+      EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine(s_szStageDefines[stage]));
       for (auto& define : defines)
       {
-        pp.AddCustomDefine(define);
+        EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine(define));
       }
 
       ezUInt32 uiSourceStringLen = 0;
@@ -480,7 +475,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
     ezDeferredFileWriter PermutationFileOut;
     PermutationFileOut.SetOutput(sTemp.GetData());
-    shaderPermutationBinary.Write(PermutationFileOut);
+    EZ_SUCCEED_OR_RETURN(shaderPermutationBinary.Write(PermutationFileOut));
 
     if (PermutationFileOut.Close().Failed())
     {
@@ -502,13 +497,12 @@ void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramCompiler::ezShader
       ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
       sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform().GetData());
-      sShaderStageFile.AppendFormat(
-        "/_Failed_{0}_{1}.ezShaderSource", ezGALShaderStage::Names[stage], ezArgU(spd.m_StageBinary[stage].m_uiSourceHash, 8, true, 16, true));
+      sShaderStageFile.AppendFormat("/_Failed_{0}_{1}.ezShaderSource", ezGALShaderStage::Names[stage], ezArgU(spd.m_StageBinary[stage].m_uiSourceHash, 8, true, 16, true));
 
       ezFileWriter StageFileOut;
       if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())
       {
-        StageFileOut.WriteBytes(spd.m_szShaderSource[stage], ezStringUtils::GetStringElementCount(spd.m_szShaderSource[stage]));
+        StageFileOut.WriteBytes(spd.m_szShaderSource[stage], ezStringUtils::GetStringElementCount(spd.m_szShaderSource[stage])).IgnoreResult();
         ezLog::Info(pLog, "Failed shader source written to '{0}'", sShaderStageFile);
       }
     }

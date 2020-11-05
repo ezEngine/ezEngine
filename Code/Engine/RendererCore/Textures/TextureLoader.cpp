@@ -116,8 +116,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
     const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
     pData->m_TexFormat.m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
-    if (sAbsolutePath.HasExtension("ezTexture2D") || sAbsolutePath.HasExtension("ezTexture3D") || sAbsolutePath.HasExtension("ezTextureCube") ||
-        sAbsolutePath.HasExtension("ezRenderTarget") || sAbsolutePath.HasExtension("ezLUT"))
+    if (sAbsolutePath.HasExtension("ezTexture2D") || sAbsolutePath.HasExtension("ezTexture3D") || sAbsolutePath.HasExtension("ezTextureCube") || sAbsolutePath.HasExtension("ezRenderTarget") || sAbsolutePath.HasExtension("ezLUT"))
     {
       if (LoadTexFile(File, *pData).Failed())
         return res;
@@ -194,7 +193,7 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
 {
   // read the hash, ignore it
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(stream);
+  EZ_SUCCEED_OR_RETURN(AssetHash.Read(stream));
 
   data.m_TexFormat.ReadHeader(stream);
 
@@ -212,7 +211,7 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
 void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const LoadedData& data)
 {
   const ezImage* pImage = &data.m_Image;
-  w.WriteBytes(&pImage, sizeof(ezImage*));
+  w.WriteBytes(&pImage, sizeof(ezImage*)).IgnoreResult();
 
   w << data.m_bIsFallback;
   data.m_TexFormat.WriteRenderTargetHeader(w);

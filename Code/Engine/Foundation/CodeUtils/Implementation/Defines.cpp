@@ -142,7 +142,7 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
     TokenStream ReplacementTokens;
     CopyTokensReplaceParams(Tokens, uiCurToken, ReplacementTokens, parameters);
 
-    StoreDefine(Tokens[uiNameToken], &ReplacementTokens, 0, parameters.GetCount(), bVarArgsFounds);
+    EZ_SUCCEED_OR_RETURN(StoreDefine(Tokens[uiNameToken], &ReplacementTokens, 0, parameters.GetCount(), bVarArgsFounds));
   }
 
   return EZ_SUCCESS;

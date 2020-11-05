@@ -649,7 +649,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetParticleDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetParticleDocument()->GetAssetTypeVersion());
-  AssetHeader.Write(memoryWriter);
+  AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
   GetParticleDocument()->WriteResource(memoryWriter);

@@ -11,7 +11,7 @@
 ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
 {
   ezStringView szView(szValue);
-  Stream.WriteString(szView);
+  Stream.WriteString(szView).IgnoreResult();
 
   return Stream;
 }
@@ -20,13 +20,13 @@ ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
 
 ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezStringBuilder& sValue)
 {
-  Stream.WriteString(sValue.GetView());
+  Stream.WriteString(sValue.GetView()).IgnoreResult();
   return Stream;
 }
 
 ezStreamReader& operator>>(ezStreamReader& Stream, ezStringBuilder& sValue)
 {
-  Stream.ReadString(sValue);
+  Stream.ReadString(sValue).IgnoreResult();
   return Stream;
 }
 

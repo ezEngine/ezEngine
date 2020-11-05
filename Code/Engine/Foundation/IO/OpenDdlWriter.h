@@ -136,8 +136,8 @@ protected:
     bool m_bPrimitivesWritten;
   };
 
-  EZ_ALWAYS_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)); }
-  EZ_ALWAYS_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount); }
+  EZ_ALWAYS_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)).IgnoreResult(); }
+  EZ_ALWAYS_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount).IgnoreResult(); }
   void OutputEscapedString(const ezStringView& string);
   void OutputIndentation();
   void OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType type);

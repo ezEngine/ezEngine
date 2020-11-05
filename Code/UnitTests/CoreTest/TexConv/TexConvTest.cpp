@@ -48,7 +48,7 @@ private:
       return EZ_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
 
     return EZ_SUCCESS;
   }
@@ -71,7 +71,7 @@ private:
     sTexConvExe.AppendPath("TexConv.exe");
     sTexConvExe.MakeCleanPath();
 
-    if (EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sTexConvExe), "TexConv.exe does not exist").Failed())
+    if (!EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sTexConvExe), "TexConv.exe does not exist"))
       return;
 
     options.m_sProcess = sTexConvExe;
@@ -82,15 +82,15 @@ private:
     options.AddArgument("-out");
     options.AddArgument(sOut);
 
-    if (EZ_TEST_BOOL(m_State->m_TexConvGroup.Launch(options).Succeeded()).Failed())
+    if (!EZ_TEST_BOOL(m_State->m_TexConvGroup.Launch(options).Succeeded()))
       return;
 
-    if (EZ_TEST_BOOL_MSG(m_State->m_TexConvGroup.WaitToFinish(ezTime::Minutes(1.0)).Succeeded(), "TexConv did not finish in time.").Failed())
+    if (!EZ_TEST_BOOL_MSG(m_State->m_TexConvGroup.WaitToFinish(ezTime::Minutes(1.0)).Succeeded(), "TexConv did not finish in time."))
       return;
 
     EZ_TEST_INT_MSG(m_State->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
 
-    m_State->m_image.LoadFrom(sOut);
+    m_State->m_image.LoadFrom(sOut).IgnoreResult();
   }
 
   struct State
@@ -114,7 +114,7 @@ void ezTexConvTest::SetupSubTests()
 ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   ezStringBuilder sImageData;
-  ezFileSystem::ResolvePath(":testdata/TexConv", &sImageData, nullptr);
+  ezFileSystem::ResolvePath(":testdata/TexConv", &sImageData, nullptr).IgnoreResult();
 
   const ezStringBuilder sPathEZ(sImageData, "/EZ.png");
   const ezStringBuilder sPathE(sImageData, "/E.png");

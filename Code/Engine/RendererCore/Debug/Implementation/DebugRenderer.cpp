@@ -394,7 +394,8 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
   const ezVec3 yAxis = ezVec3::UnitYAxis() * fHalfLineLength;
   const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
 
-  Line lines[3] = {{transform.TransformPosition(globalPosition - xAxis), transform.TransformPosition(globalPosition + xAxis)}, {transform.TransformPosition(globalPosition - yAxis), transform.TransformPosition(globalPosition + yAxis)}, {transform.TransformPosition(globalPosition - zAxis), transform.TransformPosition(globalPosition + zAxis)}};
+  Line lines[3] = {{transform.TransformPosition(globalPosition - xAxis), transform.TransformPosition(globalPosition + xAxis)}, {transform.TransformPosition(globalPosition - yAxis), transform.TransformPosition(globalPosition + yAxis)},
+    {transform.TransformPosition(globalPosition - zAxis), transform.TransformPosition(globalPosition + zAxis)}};
 
   DrawLines(context, lines, color);
 }
@@ -770,7 +771,8 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
+void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+  VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
   AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
     auto& textLine = data.m_textLines2D.ExpandAndGetRef();
@@ -782,7 +784,8 @@ void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ez
 }
 
 
-void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
+void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+  VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
   AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
     auto& textLine = data.m_textLines3D.ExpandAndGetRef();
@@ -849,7 +852,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumSolidBoxes -= uiNumSolidBoxesInBatch;
         pSolidBoxData += BOXES_PER_BATCH;
@@ -880,7 +883,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumTriangleVertices -= uiNumTriangleVerticesInBatch;
         pTriangleData += TRIANGLE_VERTICES_PER_BATCH;
@@ -911,7 +914,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumLineVertices -= uiNumLineVerticesInBatch;
         pLineData += LINE_VERTICES_PER_BATCH;
@@ -942,7 +945,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumLineVertices -= uiNumLineVerticesInBatch;
         pLineData += LINE_VERTICES_PER_BATCH;
@@ -971,7 +974,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumLineBoxes -= uiNumLineBoxesInBatch;
         pLineBoxData += BOXES_PER_BATCH;
@@ -1002,7 +1005,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNum2DVertices -= uiNum2DVerticesInBatch;
         pTriangleData += TRIANGLE_VERTICES_PER_BATCH;
@@ -1039,7 +1042,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
           if (renderViewContext.m_pCamera->IsStereoscopic())
             uiRenderedInstances *= 2;
 
-          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
           uiNum2DVertices -= uiNum2DVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
@@ -1077,7 +1080,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
           if (renderViewContext.m_pCamera->IsStereoscopic())
             uiRenderedInstances *= 2;
 
-          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
           uiNumVertices -= uiNumVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
@@ -1129,7 +1132,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumGlyphs -= uiNumGlyphsInBatch;
         pGlyphData += GLYPHS_PER_BATCH;

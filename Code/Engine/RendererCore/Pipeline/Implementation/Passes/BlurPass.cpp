@@ -42,8 +42,7 @@ ezBlurPass::~ezBlurPass()
   m_hBlurCB.Invalidate();
 }
 
-bool ezBlurPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
@@ -65,8 +64,7 @@ bool ezBlurPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
@@ -92,7 +90,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindTexture2D("Input", hResourceView);
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 }
 

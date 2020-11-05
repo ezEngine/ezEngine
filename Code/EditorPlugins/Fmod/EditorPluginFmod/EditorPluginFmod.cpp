@@ -26,16 +26,15 @@ void OnLoadPlugin(bool bReloading)
   // Mesh
   {
     // Menu Bar
-    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("SoundBankAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar");
+      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("SoundBankAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
       ezAssetActions::MapActions("SoundBankAssetToolBar", true);

@@ -44,7 +44,7 @@ ezResult TranformProject(const char* szProjectPath)
   ezResult res = proc.Launch(opt);
   if (res.Failed())
   {
-    proc.Terminate();
+    proc.Terminate().IgnoreResult();
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
 
@@ -52,7 +52,7 @@ ezResult TranformProject(const char* szProjectPath)
   res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {
-    proc.Terminate();
+    proc.Terminate().IgnoreResult();
     ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
     return EZ_FAILURE;
   }
@@ -116,7 +116,7 @@ void ezGameEngineTestBasics::SetupSubTests()
 
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
-  SUPER::InitializeSubTest(iIdentifier);
+  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
 
@@ -416,7 +416,7 @@ void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph");
+  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)

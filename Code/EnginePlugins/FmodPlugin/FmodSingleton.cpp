@@ -78,8 +78,7 @@ void ezFmod::Startup()
     }
 
     EZ_LOG_BLOCK("Fmod Configuration");
-    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels,
-      config.m_uiSamplerRate);
+    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
     ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
 
@@ -185,7 +184,7 @@ ezUInt8 ezFmod::GetNumListeners()
 
 void ezFmod::LoadConfiguration(const char* szFile)
 {
-  m_pData->m_Configs.Load(szFile);
+  m_pData->m_Configs.Load(szFile).IgnoreResult();
 }
 
 void ezFmod::SetOverridePlatform(const char* szPlatform)

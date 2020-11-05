@@ -40,13 +40,13 @@ void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg
   m_FileSystemConfig = cfg;
   ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
 
-  m_FileSystemConfig.CreateDataDirStubFiles();
+  m_FileSystemConfig.CreateDataDirStubFiles().IgnoreResult();
 }
 
 void ezQtEditorApp::SetupDataDirectories()
 {
   EZ_PROFILE_SCOPE("SetupDataDirectories");
-  ezFileSystem::DetectSdkRootDirectory();
+  ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
 
@@ -223,12 +223,12 @@ bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& sPath) const
 
     if (sPath.IsPathBelowFolder(sTemp))
     {
-      sPath.MakeRelativeTo(sTemp);
+      sPath.MakeRelativeTo(sTemp).IgnoreResult();
       return true;
     }
   }
 
-  sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory());
+  sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
   return false;
 }
 
@@ -247,12 +247,12 @@ bool ezQtEditorApp::MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) 
     {
       sTemp.PathParentDirectory();
 
-      sPath.MakeRelativeTo(sTemp);
+      sPath.MakeRelativeTo(sTemp).IgnoreResult();
       return true;
     }
   }
 
-  sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory());
+  sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
   return false;
 }
 

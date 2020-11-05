@@ -108,7 +108,7 @@ public:
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
 
-    ezTelemetry::ConnectToServer(sServer.toUtf8().data());
+    ezTelemetry::ConnectToServer(sServer.toUtf8().data()).IgnoreResult();
 
     MainWindow.show();
     SetReturnCode(app.exec());

@@ -25,8 +25,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezDataDirectory::ArchiveType::ArchiveType() = default;
 ezDataDirectory::ArchiveType::~ArchiveType() = default;
 
-ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(
-  const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
+ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
 {
   ArchiveType* pDataDir = EZ_DEFAULT_NEW(ArchiveType);
 
@@ -37,8 +36,7 @@ ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(
   return nullptr;
 }
 
-ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(
-  const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
+ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
@@ -166,7 +164,8 @@ ezResult ezDataDirectory::ArchiveType::GetFileStats(const char* szFileOrFolder, 
 ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(const char* szDirectory)
 {
   ezStringBuilder sRedirected;
-  ezFileSystem::ResolveSpecialDirectory(szDirectory, sRedirected);
+  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(szDirectory, sRedirected));
+
   sRedirected.MakeCleanPath();
   // remove trailing slashes
   sRedirected.Trim("", "/");
@@ -275,8 +274,7 @@ ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::GetFileSize() const
 
 ezResult ezDataDirectory::ArchiveReaderUncompressed::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
-  EZ_ASSERT_DEBUG(
-    FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
+  EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   // nothing to do
   return EZ_SUCCESS;
@@ -305,8 +303,7 @@ ezUInt64 ezDataDirectory::ArchiveReaderZstd::Read(void* pBuffer, ezUInt64 uiByte
 
 ezResult ezDataDirectory::ArchiveReaderZstd::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
-  EZ_ASSERT_DEBUG(
-    FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
+  EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   m_CompressedStreamReader.SetInputStream(&m_MemStreamReader);
   return EZ_SUCCESS;
@@ -332,8 +329,7 @@ ezUInt64 ezDataDirectory::ArchiveReaderZip::Read(void* pBuffer, ezUInt64 uiBytes
 
 ezResult ezDataDirectory::ArchiveReaderZip::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
-  EZ_ASSERT_DEBUG(
-    FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
+  EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   m_CompressedStreamReader.SetInputStream(&m_MemStreamReader, m_uiCompressedSize);
   return EZ_SUCCESS;

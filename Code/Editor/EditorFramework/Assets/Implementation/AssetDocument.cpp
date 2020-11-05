@@ -36,8 +36,7 @@ ezAssetDocument::~ezAssetDocument()
 
   if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
   {
-    ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(
-      ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
+    ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
 
     if (m_pEngineConnection)
     {
@@ -106,7 +105,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
       }
       else
       {
-        ezAssetCurator::GetSingleton()->WriteAssetTables();
+        ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
       }
     }
   }
@@ -314,8 +313,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  ezAssetInfo::TransformState state =
-    ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash);
   if (state == ezAssetInfo::TransformState::UpToDate && !transformFlags.IsSet(ezTransformFlags::ForceTransform))
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
@@ -329,8 +327,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
     auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezStatus {
-      const ezString sTargetFile =
-        GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
+      const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
       auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
       // if writing failed, make sure the output file does not exist
@@ -373,8 +370,7 @@ ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformF
 
     const auto flags = GetAssetFlags();
     {
-      if (flags.IsSet(ezAssetDocumentFlags::DisableTransform) ||
-          (flags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
+      if (flags.IsSet(ezAssetDocumentFlags::DisableTransform) || (flags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
         return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
     }
   }
@@ -386,8 +382,7 @@ ezStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(),
-        GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
+  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
@@ -404,13 +399,12 @@ ezStatus ezAssetDocument::CreateThumbnail()
   }
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
 
-  AssetHeader.Write(file);
+  EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
 
   EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, transformFlags));
 
@@ -495,7 +489,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo
 
   // make sure the directory exists, Qt will not create sub-folders
   const ezStringBuilder sDir = sResourceFile.GetFileDirectory();
-  ezOSFile::CreateDirectoryStructure(sDir);
+  EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sDir));
 
   // save to JPEG
   if (!qimg.save(QString::fromUtf8(sResourceFile.GetData()), nullptr, 90))
@@ -524,9 +518,9 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const Thu
 
   ezDeferredFileWriter writer;
   writer.SetOutput(szThumbnailFile);
-  writer.WriteBytes(storage.GetData(), storage.GetStorageSize());
+  writer.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
 
-  thumbnailInfo.Serialize(writer);
+  thumbnailInfo.Serialize(writer).IgnoreResult();
 
   if (writer.Close().Failed())
   {
@@ -546,14 +540,11 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()
-          ->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10))
-          .Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
     {
       return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, document initialization timed out.", GetDocumentTypeName(), szOutputTarget));
     }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded,
-      "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
 
   range.BeginNextStep(szOutputTarget);
@@ -572,9 +563,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
     return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()
-        ->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback)
-        .Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
   {
     return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" timed out.", GetDocumentTypeName(), msg.m_sOutputFile));
   }
@@ -601,7 +590,7 @@ ezStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnail
 
 ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const
 {
-  ezAssetCurator::GetSingleton()->WriteAssetTables();
+  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
 
   ezLog::Info("Create {0} thumbnail for \"{1}\"", GetDocumentTypeName(), GetDocumentPath());
 
@@ -611,14 +600,11 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()
-          ->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10))
-          .Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
     {
       return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed, document initialization timed out.", GetDocumentTypeName(), GetDocumentPath()));
     }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded,
-      "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
 
   ezCreateThumbnailMsgToEngine msg;
@@ -631,9 +617,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
     return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()
-        ->WaitForDocumentMessage(GetGuid(), ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback)
-        .Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
   {
     return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed timed out.", GetDocumentTypeName(), GetDocumentPath()));
   }
@@ -781,7 +765,7 @@ ezResult ezAssetDocument::ThumbnailInfo::Deserialize(ezStreamReader& Reader)
 
 ezResult ezAssetDocument::ThumbnailInfo::Serialize(ezStreamWriter& Writer) const
 {
-  Writer.WriteBytes(szThumbnailInfoTag, 7);
+  EZ_SUCCEED_OR_RETURN(Writer.WriteBytes(szThumbnailInfoTag, 7));
 
   Writer << m_uiHash;
   Writer << m_uiVersion;

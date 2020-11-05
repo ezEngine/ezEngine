@@ -17,7 +17,7 @@ namespace
     {
       ezProfilingSystem::ProfilingData profilingData;
       ezProfilingSystem::Capture(profilingData);
-      profilingData.Write(fileWriter);
+      profilingData.Write(fileWriter).IgnoreResult();
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }

@@ -57,7 +57,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
       ezFileWriter fOut;
       if (fOut.Open(sOut).Succeeded())
       {
-        ddsWriter.WriteImage(fOut, atlasImg, ezLog::GetThreadLocalLogSystem(), "dds");
+        EZ_SUCCEED_OR_RETURN(ddsWriter.WriteImage(fOut, atlasImg, ezLog::GetThreadLocalLogSystem(), "dds"));
       }
     }
   }
@@ -121,7 +121,7 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
       EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[0], item.m_InputImage[0], uiResX, uiResY));
 
       // copy alpha channel into layer 0
-      ezImageUtils::CopyChannel(item.m_InputImage[0], 3, alphaImg, 0);
+      EZ_SUCCEED_OR_RETURN(ezImageUtils::CopyChannel(item.m_InputImage[0], 3, alphaImg, 0));
 
       // rescale all layers to be no larger than the alpha mask texture
       for (ezUInt32 layer = 1; layer < atlasDesc.m_Layers.GetCount(); ++layer)
@@ -173,8 +173,7 @@ ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasIt
   {
     if (item.m_InputImage[layer].IsValid())
     {
-      packer.AddTexture((item.m_InputImage[layer].GetWidth() + (uiPixelAlign - 1)) / uiPixelAlign,
-        (item.m_InputImage[layer].GetHeight() + (uiPixelAlign - 1)) / uiPixelAlign);
+      packer.AddTexture((item.m_InputImage[layer].GetWidth() + (uiPixelAlign - 1)) / uiPixelAlign, (item.m_InputImage[layer].GetHeight() + (uiPixelAlign - 1)) / uiPixelAlign);
     }
   }
 
@@ -232,8 +231,7 @@ ezResult ezTexConvProcessor::SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>
   return EZ_FAILURE;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasTexture(
-  ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
+ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
 {
   ezImageHeader imgHeader;
   imgHeader.SetWidth(uiResX);
@@ -259,7 +257,7 @@ ezResult ezTexConvProcessor::CreateAtlasTexture(
       r.width = itemImage.GetWidth();
       r.height = itemImage.GetHeight();
 
-      ezImageUtils::Copy(itemImage, r, atlas, ezVec3U32(item.m_AtlasRect[layer].x, item.m_AtlasRect[layer].y, 0));
+      EZ_SUCCEED_OR_RETURN(ezImageUtils::Copy(itemImage, r, atlas, ezVec3U32(item.m_AtlasRect[layer].x, item.m_AtlasRect[layer].y, 0)));
     }
   }
 
@@ -320,8 +318,7 @@ ezResult ezTexConvProcessor::FillAtlasBorders(ezDynamicArray<TextureAtlasItem>& 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasLayerTexture(
-  const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
+ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
 {
   ezUInt32 uiTexWidth, uiTexHeight;
   EZ_SUCCEED_OR_RETURN(SortItemsIntoAtlas(atlasItems, uiTexWidth, uiTexHeight, layer));

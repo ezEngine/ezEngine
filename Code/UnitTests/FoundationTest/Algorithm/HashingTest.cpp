@@ -27,8 +27,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     EZ_TEST_INT(uiHashRT, uiHashCT);
 
     // Static assert to ensure this is happening at compile time!
-    static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4),
-      "Error in compile time murmur hash calculation!");
+    static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
 
     // Test short inputs (< 16 characters) of xx hash at compile time
     ezUInt32 uixxHashRT = ezHashingUtils::xxHash32("Test string", 11, 0);
@@ -179,26 +178,38 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
 
     auto test = [szTest, szTestHalf1, szTestHalf2](bool flush, ezUInt32* outHash) {
       ezHashStreamWriter32 writer1;
-      writer1.WriteBytes(szTest, std::strlen(szTest));
+      writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
       if (flush)
-        writer1.Flush();
+      {
+        writer1.Flush().IgnoreResult();
+      }
+
       const ezUInt32 uiHash1 = writer1.GetHashValue();
 
       ezHashStreamWriter32 writer2;
-      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1));
+      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1)).IgnoreResult();
       if (flush)
-        writer2.Flush();
-      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2));
+      {
+        writer2.Flush().IgnoreResult();
+      }
+
+      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2)).IgnoreResult();
       if (flush)
-        writer2.Flush();
+      {
+        writer2.Flush().IgnoreResult();
+      }
+
       const ezUInt32 uiHash2 = writer2.GetHashValue();
 
       ezHashStreamWriter32 writer3;
       for (ezUInt64 i = 0; szTest[i] != 0; ++i)
       {
-        writer3.WriteBytes(szTest + i, 1);
+        writer3.WriteBytes(szTest + i, 1).IgnoreResult();
+
         if (flush)
-          writer3.Flush();
+        {
+          writer3.Flush().IgnoreResult();
+        }
       }
       const ezUInt32 uiHash3 = writer3.GetHashValue();
 
@@ -225,26 +236,31 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
 
     auto test = [szTest, szTestHalf1, szTestHalf2](bool flush, ezUInt64* outHash) {
       ezHashStreamWriter64 writer1;
-      writer1.WriteBytes(szTest, std::strlen(szTest));
+      writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
+
       if (flush)
-        writer1.Flush();
+      {
+        writer1.Flush().IgnoreResult();
+      }
+
       const ezUInt64 uiHash1 = writer1.GetHashValue();
 
       ezHashStreamWriter64 writer2;
-      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1));
+      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1)).IgnoreResult();
       if (flush)
-        writer2.Flush();
-      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2));
+        writer2.Flush().IgnoreResult();
+      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2)).IgnoreResult();
       if (flush)
-        writer2.Flush();
+        writer2.Flush().IgnoreResult();
+
       const ezUInt64 uiHash2 = writer2.GetHashValue();
 
       ezHashStreamWriter64 writer3;
       for (ezUInt64 i = 0; szTest[i] != 0; ++i)
       {
-        writer3.WriteBytes(szTest + i, 1);
+        writer3.WriteBytes(szTest + i, 1).IgnoreResult();
         if (flush)
-          writer3.Flush();
+          writer3.Flush().IgnoreResult();
       }
       const ezUInt64 uiHash3 = writer3.GetHashValue();
 

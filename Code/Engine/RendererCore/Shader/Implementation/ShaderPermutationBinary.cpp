@@ -29,7 +29,7 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriter& Stream)
 {
   // write this at the beginning so that the file can be read as an ezDependencyFile
   m_DependencyFile.StoreCurrentTimeStamp();
-  m_DependencyFile.WriteDependencyFile(Stream);
+  EZ_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(Stream));
 
   const ezUInt8 uiVersion = ezShaderPermutationBinaryVersion::Current;
 
@@ -57,7 +57,7 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriter& Stream)
 
 ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream, bool& out_bOldVersion)
 {
-  m_DependencyFile.ReadDependencyFile(Stream);
+  EZ_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(Stream));
 
   ezUInt8 uiVersion = 0;
 

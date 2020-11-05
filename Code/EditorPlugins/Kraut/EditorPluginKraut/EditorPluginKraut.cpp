@@ -26,17 +26,16 @@ void OnLoadPlugin(bool bReloading)
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar").IgnoreResult();
       ezProjectActions::MapActions("KrautTreeAssetMenuBar");
-      ezStandardMenus::MapActions(
-        "KrautTreeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("KrautTreeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("KrautTreeAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("KrautTreeAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar");
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("KrautTreeAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("KrautTreeAssetToolBar", "");
       ezAssetActions::MapActions("KrautTreeAssetToolBar", true);
