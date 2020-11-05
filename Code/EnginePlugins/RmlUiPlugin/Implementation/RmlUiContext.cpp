@@ -193,6 +193,9 @@ void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
   m_EventHandler.Remove(ezTempHashedString(szIdentifier));
 }
 
+void ezRmlUiContext::BindBlackboard(ezBlackboard& blackboard) {}
+void ezRmlUiContext::UnbindBlackboard() {}
+
 void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
 {
   if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())

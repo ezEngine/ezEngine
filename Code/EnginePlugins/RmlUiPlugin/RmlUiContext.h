@@ -7,6 +7,7 @@
 #include <RmlUi/Include/RmlUi/Core.h>
 
 class ezRenderData;
+class ezBlackboard;
 
 namespace ezRmlUiInternal
 {
