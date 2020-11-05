@@ -4,9 +4,12 @@ ez_build_filter_runtime()
 
 ez_requires_rmlui()
 
-project(RmlCore)
+set (PROJECT_NAME "RmlCore")
 
 ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+
+# override the default IDE folder
+ez_set_project_ide_folder(${PROJECT_NAME} "Code/ThirdParty/RmlCore")
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_RMLUI_SUPPORT)
 

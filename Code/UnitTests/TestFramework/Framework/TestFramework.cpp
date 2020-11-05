@@ -515,7 +515,7 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 
       if (ezFileserveClient::GetSingleton()->SearchForServerAddress().Failed())
       {
-        ezFileserveClient::GetSingleton()->WaitForServerInfo();
+        ezFileserveClient::GetSingleton()->WaitForServerInfo().IgnoreResult();
       }
     }
 
