@@ -4,7 +4,6 @@
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
-#include <RmlUi/Include/RmlUi/Controls.h>
 #include <RmlUi/Include/RmlUi/Core.h>
 
 class ezRenderData;
@@ -15,10 +14,10 @@ namespace ezRmlUiInternal
   class EventListener;
 } // namespace ezRmlUiInternal
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiContext final : public Rml::Core::Context
+class EZ_RMLUIPLUGIN_DLL ezRmlUiContext final : public Rml::Context
 {
 public:
-  ezRmlUiContext(const Rml::Core::String& name);
+  ezRmlUiContext(const Rml::String& name);
   ~ezRmlUiContext();
 
 public:
@@ -38,7 +37,7 @@ public:
   void SetSize(const ezVec2U32& size);
   void SetDpiScale(float fScale);
 
-  using EventHandler = ezDelegate<void(Rml::Core::Event&)>;
+  using EventHandler = ezDelegate<void(Rml::Event&)>;
 
   void RegisterEventHandler(const char* szIdentifier, EventHandler handler);
   void DeregisterEventHandler(const char* szIdentifier);
@@ -50,7 +49,7 @@ private:
   void ExtractRenderData(ezRmlUiInternal::Extractor& extractor);
 
   friend class ezRmlUiInternal::EventListener;
-  void ProcessEvent(const ezHashedString& sIdentifier, Rml::Core::Event& event);
+  void ProcessEvent(const ezHashedString& sIdentifier, Rml::Event& event);
 
   ezVec2I32 m_Offset = ezVec2I32::ZeroVector();
 
@@ -64,11 +63,11 @@ private:
 
 namespace ezRmlUiInternal
 {
-  class ContextInstancer : public Rml::Core::ContextInstancer
+  class ContextInstancer : public Rml::ContextInstancer
   {
   public:
-    virtual Rml::Core::ContextPtr InstanceContext(const Rml::Core::String& name) override;
-    virtual void ReleaseContext(Rml::Core::Context* context) override;
+    virtual Rml::ContextPtr InstanceContext(const Rml::String& name) override;
+    virtual void ReleaseContext(Rml::Context* context) override;
 
   private:
     virtual void Release() override;

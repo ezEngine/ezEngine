@@ -4,8 +4,8 @@
       "component": {
         "type": "git",
         "git": {
-          "repositoryUrl": "https://github.com/mikke89/RmlUi",
-          "commitHash": "a220824bfc65332568516eb25709ea3a22605b21"
+          "repositoryUrl": "https://github.com/ezEngine/RmlUi.git",
+          "commitHash": "4520b5210c3f7fe41c0d28e8b003389d7c591333"
         }
       }
     }

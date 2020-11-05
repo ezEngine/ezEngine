@@ -26,15 +26,14 @@
  *
  */
 
-#ifndef RMLUICORETRAITS_H
-#define RMLUICORETRAITS_H
+#ifndef RMLUI_CORE_TRAITS_H
+#define RMLUI_CORE_TRAITS_H
 
 #include "Header.h"
+#include "../Config/Config.h"
 #include <type_traits>
 
 namespace Rml {
-namespace Core {
-
 
 class RMLUICORE_API NonCopyMoveable {
 public:
@@ -53,7 +52,7 @@ class RMLUICORE_API Releasable : public NonCopyMoveable {
 protected:
 	virtual ~Releasable() = default;
 	virtual void Release() = 0;
-	friend class ReleaserBase;
+	friend class Rml::ReleaserBase;
 };
 
 class RMLUICORE_API ReleaserBase {
@@ -64,16 +63,42 @@ protected:
 };
 
 template<typename T>
-class RMLUICORE_API Releaser final : public ReleaserBase {
+class RMLUICORE_API Releaser : public ReleaserBase {
 public:
 	void operator()(T* target) const {
-		static_assert(std::is_base_of<Releasable, T>::value, "Rml::Core::Releaser can only operate with classes derived from Rml::Core::Releasable.");
+		static_assert(std::is_base_of<Releasable, T>::value, "Rml::Releaser can only operate with classes derived from ::Rml::Releasable.");
 		Release(static_cast<Releasable*>(target));
 	}
 };
 
-}
-}
+
+enum class FamilyId : int {};
+
+class RMLUICORE_API FamilyBase {
+protected:
+	static int GetNewId() {
+		static int id = 0;
+		return id++;
+	}
+	template<typename T>
+	static FamilyId GetId() {
+		static int id = GetNewId();
+		return static_cast<FamilyId>(id);
+	}
+};
+
+template<typename T>
+class Family : FamilyBase {
+public:
+	// Get a unique ID for a given type.
+	// Note: IDs will be unique across DLL-boundaries even for the same type.
+	static FamilyId Id() {
+		return GetId< typename std::remove_cv< typename std::remove_reference< T >::type >::type >();
+	}
+};
+
+} // namespace Rml
+
 
 
 #ifdef RMLUI_USE_CUSTOM_RTTI
@@ -106,7 +131,7 @@ Derived rmlui_dynamic_cast(Base base_instance)
 }
 
 template<class T>
-const char* rmlui_type_name(const T& var)
+const char* rmlui_type_name(const T& /*var*/)
 {
 	return "(type name unavailable)";
 }
@@ -131,7 +156,6 @@ const char* rmlui_type_name(const T& var)
 	return typeid(var).name();
 }
 
-#endif
+#endif	// RMLUI_USE_CUSTOM_RTTI
 
-
-#endif
+#endif	// RMLUI_CORE_TRAITS_H

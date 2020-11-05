@@ -26,29 +26,17 @@
  *
  */
 
-#ifndef RMLUICORETYPES_H
-#define RMLUICORETYPES_H
+#ifndef RMLUI_CORE_TYPES_H
+#define RMLUI_CORE_TYPES_H
 
-#include <string>
+#include "../Config/Config.h"
+
 #include <cstdlib>
 #include <memory>
-#include <utility>
-#include <vector>
 
 #include "Traits.h"
 
-#ifdef RMLUI_NO_THIRDPARTY_CONTAINERS
-#include <set>
-#include <unordered_set>
-#include <unordered_map>
-#else
-#include "Containers/chobo/flat_map.hpp"
-#include "Containers/chobo/flat_set.hpp"
-#include "Containers/robin_hood.h"
-#endif
-
 namespace Rml {
-namespace Core {
 
 // Commonly used basic types
 using byte = unsigned char;
@@ -59,7 +47,6 @@ using std::size_t;
 enum class Character : char32_t { Null, Replacement = 0xfffd };
 
 }
-}
 
 #include "Colour.h"
 #include "Vector2.h"
@@ -69,8 +56,6 @@ enum class Character : char32_t { Null, Replacement = 0xfffd };
 #include "ObserverPtr.h"
 
 namespace Rml {
-namespace Core {
-
 
 // Color and linear algebra
 using Colourf = Colour< float, 1 >;
@@ -83,8 +68,7 @@ using Vector4i = Vector4< int >;
 using Vector4f = Vector4< float >;
 using ColumnMajorMatrix4f = Matrix4< float, ColumnMajorStorage< float > >;
 using RowMajorMatrix4f = Matrix4< float, RowMajorStorage< float > >;
-using Matrix4f = ColumnMajorMatrix4f;
-
+using Matrix4f = RMLUI_MATRIX4_TYPE;
 
 // Common classes
 class Element;
@@ -104,6 +88,7 @@ struct TransitionList;
 struct Rectangle;
 enum class EventId : uint16_t;
 enum class PropertyId : uint8_t;
+enum class FamilyId : int;
 
 // Types for external interfaces.
 using FileHandle = uintptr_t;
@@ -113,55 +98,15 @@ using DecoratorDataHandle = uintptr_t;
 using FontFaceHandle = uintptr_t;
 using FontEffectsHandle = uintptr_t;
 
-// Strings
-using String = std::string;
-using StringList = std::vector< String >;
-using U16String = std::u16string;
-
-// Smart pointer types
-template<typename T>
-using UniquePtr = std::unique_ptr<T>;
-template<typename T>
-using UniqueReleaserPtr = std::unique_ptr<T, Releaser<T>>;
-template<typename T>
-using SharedPtr = std::shared_ptr<T>;
-template<typename T>
-using WeakPtr = std::weak_ptr<T>;
-
 using ElementPtr = UniqueReleaserPtr<Element>;
 using ContextPtr = UniqueReleaserPtr<Context>;
 using EventPtr = UniqueReleaserPtr<Event>;
 
-// Containers
-#ifdef RMLUI_NO_THIRDPARTY_CONTAINERS
-template <typename Key, typename Value>
-using UnorderedMap = std::unordered_map< Key, Value >;
-template <typename Key, typename Value>
-using SmallUnorderedMap = UnorderedMap< Key, Value >;
-template <typename T>
-using UnorderedSet = std::unordered_set< T >;
-template <typename T>
-using SmallUnorderedSet = std::unordered_set< T >;
-template <typename T>
-using SmallOrderedSet = std::set< T >;
-#else
-template < typename Key, typename Value>
-using UnorderedMap = robin_hood::unordered_flat_map< Key, Value >;
-template <typename Key, typename Value>
-using SmallUnorderedMap = chobo::flat_map< Key, Value >;
-template <typename T>
-using UnorderedSet = robin_hood::unordered_flat_set< T >;
-template <typename T>
-using SmallUnorderedSet = chobo::flat_set< T >;
-template <typename T>
-using SmallOrderedSet = chobo::flat_set< T >;
-#endif
-
-
 // Container types for common classes
-using ElementList = std::vector< Element* >;
-using OwnedElementList = std::vector< ElementPtr >;
-using ElementAnimationList = std::vector< ElementAnimation >;
+using ElementList = Vector< Element* >;
+using OwnedElementList = Vector< ElementPtr >;
+using VariantList = Vector< Variant >;
+using ElementAnimationList = Vector< ElementAnimation >;
 
 using PseudoClassList = SmallUnorderedSet< String >;
 using AttributeNameList = SmallUnorderedSet< String >;
@@ -171,9 +116,9 @@ using Dictionary = SmallUnorderedMap< String, Variant >;
 using ElementAttributes = Dictionary;
 using XMLAttributes = Dictionary;
 
-using AnimationList = std::vector<Animation>;
-using DecoratorList = std::vector<SharedPtr<const Decorator>>;
-using FontEffectList = std::vector<SharedPtr<const FontEffect>>;
+using AnimationList = Vector<Animation>;
+using DecoratorList = Vector<SharedPtr<const Decorator>>;
+using FontEffectList = Vector<SharedPtr<const FontEffect>>;
 
 struct Decorators {
 	DecoratorList list;
@@ -189,18 +134,28 @@ using TransformPtr = SharedPtr< Transform >;
 using DecoratorsPtr = SharedPtr<const Decorators>;
 using FontEffectsPtr = SharedPtr<const FontEffects>;
 
-}
-}
+// Data binding types
+class DataView;
+using DataViewPtr = UniqueReleaserPtr<DataView>;
+class DataController;
+using DataControllerPtr = UniqueReleaserPtr<DataController>;
+
+} // namespace Rml
+
 
 namespace std {
 // Hash specialization for enum class types (required on some older compilers)
-template <> struct hash<::Rml::Core::PropertyId> {
-	using utype = typename ::std::underlying_type<::Rml::Core::PropertyId>::type;
-	size_t operator() (const ::Rml::Core::PropertyId& t) const { ::std::hash<utype> h; return h(static_cast<utype>(t)); }
+template <> struct hash<::Rml::PropertyId> {
+	using utype = typename ::std::underlying_type<::Rml::PropertyId>::type;
+	size_t operator() (const ::Rml::PropertyId& t) const { ::Rml::Hash<utype> h; return h(static_cast<utype>(t)); }
 };
-template <> struct hash<::Rml::Core::Character> {
-    using utype = typename ::std::underlying_type<::Rml::Core::Character>::type;
-    size_t operator() (const ::Rml::Core::Character& t) const { ::std::hash<utype> h; return h(static_cast<utype>(t)); }
+template <> struct hash<::Rml::Character> {
+	using utype = typename ::std::underlying_type<::Rml::Character>::type;
+	size_t operator() (const ::Rml::Character& t) const { ::Rml::Hash<utype> h; return h(static_cast<utype>(t)); }
+};
+template <> struct hash<::Rml::FamilyId> {
+	using utype = typename ::std::underlying_type<::Rml::FamilyId>::type;
+	size_t operator() (const ::Rml::FamilyId& t) const { ::std::hash<utype> h; return h(static_cast<utype>(t)); }
 };
 }
 

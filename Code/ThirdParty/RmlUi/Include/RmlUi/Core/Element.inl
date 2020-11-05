@@ -27,7 +27,6 @@
  */
 
 namespace Rml {
-namespace Core {
 
 // Returns the values of one of this element's properties.
 template < typename T >
@@ -48,7 +47,8 @@ void Element::SetAttribute(const String& name, const T& value)
 {
 	Variant variant(value);
 	attributes[name] = variant;
-	ElementAttributes changed_attributes = { {name, variant} };
+    ElementAttributes changed_attributes;
+    changed_attributes.emplace(name, std::move(variant));
 	OnAttributeChange(changed_attributes);
 }
 
@@ -59,5 +59,4 @@ T Element::GetAttribute(const String& name, const T& default_value) const
 	return Get(attributes, name, default_value);
 }
 
-}
-}
+} // namespace Rml

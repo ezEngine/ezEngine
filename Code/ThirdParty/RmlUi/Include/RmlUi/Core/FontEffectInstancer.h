@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef RMLUICOREFONTEFFECTINSTANCER_H
-#define RMLUICOREFONTEFFECTINSTANCER_H
+#ifndef RMLUI_CORE_FONTEFFECTINSTANCER_H
+#define RMLUI_CORE_FONTEFFECTINSTANCER_H
 
 #include "Traits.h"
 #include "Header.h"
@@ -35,8 +35,8 @@
 #include "PropertySpecification.h"
 
 namespace Rml {
-namespace Core {
 
+class Factory;
 class FontEffect;
 
 /**
@@ -84,10 +84,8 @@ private:
 	// Properties that define the geometry.
 	SmallUnorderedSet< PropertyId > volatile_properties;
 
-	friend class Factory;
+	friend class Rml::Factory;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

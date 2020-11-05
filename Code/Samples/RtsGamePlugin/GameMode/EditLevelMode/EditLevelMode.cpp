@@ -6,7 +6,7 @@
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
-#include <RmlUi/Controls/ElementFormControlSelect.h>
+#include <RmlUi/Core/Elements/ElementFormControlSelect.h>
 
 const char* g_BuildItemTypes[] = {
   "FederationShip1",
@@ -60,8 +60,7 @@ void RtsEditLevelMode::SetupEditUI()
 
   if (auto pElement = pDocument->GetElementById("build"))
   {
-    // should be rmlui_dynamic_cast but ElementFormControlSelect has no rtti
-    if (auto pSelectElement = static_cast<Rml::Controls::ElementFormControlSelect*>(pElement))
+    if (auto pSelectElement = rmlui_dynamic_cast<Rml::ElementFormControlSelect*>(pElement))
     {
       if (pSelectElement->GetNumOptions() == 0)
       {
@@ -97,8 +96,8 @@ void RtsEditLevelMode::SetupEditUI()
     pElement->SetInnerRML(s.GetData());
   }
 
-  pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Core::Event& e) { m_uiTeam = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
-  pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged", [this](Rml::Core::Event& e) { m_iShipType = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
+  pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Event& e) { m_uiTeam = static_cast<Rml::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
+  pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged", [this](Rml::Event& e) { m_iShipType = static_cast<Rml::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
 
   m_hEditUIComponent = pUiComponent->GetHandle();
 }
@@ -117,12 +116,12 @@ void RtsEditLevelMode::DisplayEditUI()
 
     if (auto pElement = pDocument->GetElementById("team"))
     {
-      static_cast<Rml::Controls::ElementFormControlSelect*>(pElement)->SetSelection(m_uiTeam);
+      static_cast<Rml::ElementFormControlSelect*>(pElement)->SetSelection(m_uiTeam);
     }
 
     if (auto pElement = pDocument->GetElementById("build"))
     {
-      static_cast<Rml::Controls::ElementFormControlSelect*>(pElement)->SetSelection(m_iShipType);
+      static_cast<Rml::ElementFormControlSelect*>(pElement)->SetSelection(m_iShipType);
     }
   }
   else

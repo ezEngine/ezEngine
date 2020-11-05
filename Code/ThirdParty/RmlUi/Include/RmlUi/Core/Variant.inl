@@ -27,7 +27,6 @@
  */
 
 namespace Rml {
-namespace Core {
 
 inline Variant::Type Variant::GetType() const
 {
@@ -54,6 +53,10 @@ bool Variant::GetInto(T& value) const
 {
 	switch (type)
 	{
+	case BOOL:
+		return TypeConverter< bool, T >::Convert(*(bool*)data, value);
+		break;
+
 	case BYTE:
 		return TypeConverter< byte, T >::Convert(*(byte*)data, value);
 		break;
@@ -66,16 +69,20 @@ bool Variant::GetInto(T& value) const
 		return TypeConverter< float, T >::Convert(*(float*)data, value);
 		break;
 
+	case DOUBLE:
+		return TypeConverter< double, T >::Convert(*(double*)data, value);
+		break;
+
 	case INT:
 		return TypeConverter< int, T >::Convert(*(int*)data, value);
 		break;
 
-	case STRING:
-		return TypeConverter< String, T >::Convert(*(String*)data, value);
+	case INT64:
+		return TypeConverter< int64_t, T >::Convert(*(int64_t*)data, value);
 		break;
 
-	case WORD:
-		return TypeConverter< Character, T >::Convert(*(Character*)data, value);
+	case STRING:
+		return TypeConverter< String, T >::Convert(*(String*)data, value);
 		break;
 
 	case VECTOR2:
@@ -146,5 +153,4 @@ inline const T& Variant::GetReference() const
 	return *(T*)data;
 }
 
-}
-}
+} // namespace Rml

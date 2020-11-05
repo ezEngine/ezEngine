@@ -10,7 +10,7 @@ namespace ezRmlUiInternal
 
   FileInterface::~FileInterface() { EZ_ASSERT_DEV(m_OpenFiles.IsEmpty(), "FileInterface has still open files"); }
 
-  Rml::Core::FileHandle FileInterface::Open(const Rml::Core::String& path)
+  Rml::FileHandle FileInterface::Open(const Rml::String& path)
   {
     ezFileReader fileReader;
     if (fileReader.Open(path.c_str()).Failed())
@@ -25,16 +25,16 @@ namespace ezRmlUiInternal
     return m_OpenFiles.Insert(std::move(pOpenFile)).ToRml();
   }
 
-  void FileInterface::Close(Rml::Core::FileHandle file) { EZ_VERIFY(m_OpenFiles.Remove(FileId::FromRml(file)), "Invalid file handle {}", file); }
+  void FileInterface::Close(Rml::FileHandle file) { EZ_VERIFY(m_OpenFiles.Remove(FileId::FromRml(file)), "Invalid file handle {}", file); }
 
-  size_t FileInterface::Read(void* buffer, size_t size, Rml::Core::FileHandle file)
+  size_t FileInterface::Read(void* buffer, size_t size, Rml::FileHandle file)
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
     return static_cast<size_t>(pOpenFile->m_Reader.ReadBytes(buffer, size));
   }
 
-  bool FileInterface::Seek(Rml::Core::FileHandle file, long offset, int origin)
+  bool FileInterface::Seek(Rml::FileHandle file, long offset, int origin)
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
@@ -64,14 +64,14 @@ namespace ezRmlUiInternal
     return false;
   }
 
-  size_t FileInterface::Tell(Rml::Core::FileHandle file)
+  size_t FileInterface::Tell(Rml::FileHandle file)
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
     return pOpenFile->m_Reader.GetReadPosition();
   }
 
-  size_t FileInterface::Length(Rml::Core::FileHandle file)
+  size_t FileInterface::Length(Rml::FileHandle file)
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 

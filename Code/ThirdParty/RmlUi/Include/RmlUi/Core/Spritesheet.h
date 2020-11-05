@@ -32,7 +32,6 @@
 #include "Texture.h"
 
 namespace Rml {
-namespace Core {
 
 struct Spritesheet;
 
@@ -65,7 +64,7 @@ struct Spritesheet {
 };
 
 using SpritesheetMap = SmallUnorderedMap<String, SharedPtr<const Spritesheet>>; // key: spritesheet name (as given in @spritesheet)
-using SpriteDefinitionList = std::vector<std::pair<String, Rectangle>>; // Sprite name and rectangle
+using SpriteDefinitionList = Vector<Pair<String, Rectangle>>; // Sprite name and rectangle
 
 
 /**
@@ -95,7 +94,5 @@ private:
 };
 
 
-}
-}
-
+} // namespace Rml
 #endif

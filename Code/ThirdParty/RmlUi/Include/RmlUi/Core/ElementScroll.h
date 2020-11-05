@@ -26,16 +26,16 @@
  *
  */
 
-#ifndef RMLUICOREELEMENTSCROLL_H
-#define RMLUICOREELEMENTSCROLL_H
+#ifndef RMLUI_CORE_ELEMENTSCROLL_H
+#define RMLUI_CORE_ELEMENTSCROLL_H
 
 #include "Header.h"
+#include "Types.h"
 
 namespace Rml {
-namespace Core {
 
 class Element;
-class WidgetSliderScroll;
+class WidgetScroll;
 
 /**
 	Manages an element's scrollbars and scrolling state.
@@ -82,19 +82,16 @@ public:
 	/// Formats the enabled scrollbars based on the current size of the host element.
 	void FormatScrollbars();
 
-	/// Clears the scrollbars, resetting it to initial conditions.
-	void ClearScrollbars();
-
 private:
 	struct Scrollbar
 	{
 		Scrollbar();
 		~Scrollbar();
 
-		Element* element;
-		WidgetSliderScroll* widget;
-		bool enabled;
-		float size;
+		Element* element = nullptr;
+		UniquePtr<WidgetScroll> widget;
+		bool enabled = false;
+		float size = 0;
 	};
 
 	// Creates one of the scroll component's scrollbar.
@@ -108,7 +105,5 @@ private:
 	Element* corner;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

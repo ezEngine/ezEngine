@@ -26,22 +26,21 @@
  *
  */
 
-#ifndef RMLUICOREFILEINTERFACE_H
-#define RMLUICOREFILEINTERFACE_H
+#ifndef RMLUI_CORE_FILEINTERFACE_H
+#define RMLUI_CORE_FILEINTERFACE_H
 
 #include "Header.h"
 #include "Types.h"
 #include "Traits.h"
 
 namespace Rml {
-namespace Core {
 
 /**
 	The abstract base class for application-specific file I/O.
 
 	By default, RmlUi will use a file interface implementing the standard C file functions. If this is not sufficient,
 	or your application wants more control over file I/O, this class should be derived, instanced, and installed
-	through Core::SetFileInterface() before you initialise RmlUi.
+	through Rml::SetFileInterface() before you initialise RmlUi.
 
 	@author Peter Curry
  */
@@ -53,7 +52,7 @@ public:
 	virtual ~FileInterface();
 
 	/// Opens a file.
-	/// @param file The file handle to write to.
+	/// @param path The path to the file to open.
 	/// @return A valid file handle, or nullptr on failure
 	virtual FileHandle Open(const String& path) = 0;
 	/// Closes a previously opened file.
@@ -82,9 +81,13 @@ public:
 	/// @param file The handle of the file to be queried.
 	/// @return The length of the file in bytes.
 	virtual size_t Length(FileHandle file);
+
+	/// Load and return a file.
+	/// @param path The path to the file to load.
+	/// @param out_data The string contents of the file.
+	/// @return True on success.
+	virtual bool LoadFile(const String& path, String& out_data);
 };
 
-}
-}
-
+} // namespace Rml
 #endif

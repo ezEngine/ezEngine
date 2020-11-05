@@ -26,15 +26,14 @@
  *
  */
 
-#ifndef RMLUICORESTYLESHEET_H
-#define RMLUICORESTYLESHEET_H
+#ifndef RMLUI_CORE_STYLESHEET_H
+#define RMLUI_CORE_STYLESHEET_H
 
 #include "Traits.h"
 #include "PropertyDictionary.h"
 #include "Spritesheet.h"
 
 namespace Rml {
-namespace Core {
 
 class Element;
 class ElementDefinition;
@@ -52,8 +51,8 @@ struct KeyframeBlock {
 	PropertyDictionary properties;
 };
 struct Keyframes {
-	std::vector<PropertyId> property_ids;
-	std::vector<KeyframeBlock> blocks;
+	Vector<PropertyId> property_ids;
+	Vector<KeyframeBlock> blocks;
 };
 using KeyframesMap = UnorderedMap<String, Keyframes>;
 
@@ -74,7 +73,7 @@ using DecoratorSpecificationMap = UnorderedMap<String, DecoratorSpecification>;
 class RMLUICORE_API StyleSheet : public NonCopyMoveable
 {
 public:
-	typedef std::vector< StyleSheetNode* > NodeList;
+	typedef Vector< StyleSheetNode* > NodeList;
 	typedef UnorderedMap< size_t, NodeList > NodeIndex;
 
 	StyleSheet();
@@ -85,9 +84,11 @@ public:
 
 	/// Combines this style sheet with another one, producing a new sheet.
 	SharedPtr<StyleSheet> CombineStyleSheet(const StyleSheet& sheet) const;
-	/// Builds the node index for a combined style sheet, and optimizes some properties for faster retrieval.
-	/// Specifically, converts all decorator properties from strings to instanced decorator lists.
-	void BuildNodeIndexAndOptimizeProperties();
+	/// Builds the node index for a combined style sheet.
+	void BuildNodeIndex();
+	/// Optimizes some properties for faster retrieval.
+	/// Specifically, converts all decorator and font-effect properties from strings to instanced decorator and font effect lists.
+	void OptimizeNodeProperties();
 
 	/// Returns the Keyframes of the given name, or null if it does not exist.
 	Keyframes* GetKeyframes(const String& name);
@@ -139,7 +140,5 @@ private:
 	mutable ElementDefinitionCache node_cache;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

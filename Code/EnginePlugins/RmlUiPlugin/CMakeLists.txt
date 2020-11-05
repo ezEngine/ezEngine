@@ -12,9 +12,8 @@ ez_create_target(LIBRARY ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   GameEngine
+  RmlCore
 )
 
 # needed for shader files to compile
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Base")
-
-ez_link_target_rmlui(${PROJECT_NAME})
