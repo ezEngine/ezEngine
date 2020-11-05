@@ -42,6 +42,9 @@ public:
   void RegisterEventHandler(const char* szIdentifier, EventHandler handler);
   void DeregisterEventHandler(const char* szIdentifier);
 
+  void BindBlackboard(ezBlackboard& blackboard);
+  void UnbindBlackboard();
+
 private:
   bool HasDocument() { return GetNumDocuments() > 0; }
 

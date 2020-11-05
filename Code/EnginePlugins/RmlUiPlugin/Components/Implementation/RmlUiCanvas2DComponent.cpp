@@ -196,6 +196,22 @@ void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
   m_bPassInput = bPassInput;
 }
 
+void ezRmlUiCanvas2DComponent::BindBlackboard(ezBlackboard& blackboard)
+{
+  if (m_pContext != nullptr)
+  {
+    m_pContext->BindBlackboard(blackboard);
+  }
+}
+
+void ezRmlUiCanvas2DComponent::UnbindBlackboard()
+{
+  if (m_pContext != nullptr)
+  {
+    m_pContext->UnbindBlackboard();
+  }
+}
+
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);

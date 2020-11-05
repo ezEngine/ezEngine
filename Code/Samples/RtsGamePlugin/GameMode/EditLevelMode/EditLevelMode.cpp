@@ -1,6 +1,7 @@
 #include <RtsGamePluginPCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
+#include <Core/Utils/Blackboard.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
@@ -17,7 +18,15 @@ const char* g_BuildItemTypes[] = {
   "KlingonShip3",
 };
 
-RtsEditLevelMode::RtsEditLevelMode() = default;
+static ezHashedString s_sSelectKey = ezMakeHashedString("SelectKey");
+
+RtsEditLevelMode::RtsEditLevelMode()
+{
+  m_pBlackboard = EZ_DEFAULT_NEW(ezBlackboard);
+
+  m_pBlackboard->RegisterEntry(s_sSelectKey, ezVariant());
+}
+
 RtsEditLevelMode::~RtsEditLevelMode() = default;
 
 void RtsEditLevelMode::OnActivateMode()
@@ -46,6 +55,11 @@ void RtsEditLevelMode::OnBeforeWorldUpdate()
 
 void RtsEditLevelMode::SetupEditUI()
 {
+  // Set blackboard values
+  {
+    m_pBlackboard->SetEntryValue(s_sSelectKey, ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
+  }
+
   ezGameObject* pEditUIObject = nullptr;
   if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("EditUI"), pEditUIObject))
     return;
@@ -53,6 +67,9 @@ void RtsEditLevelMode::SetupEditUI()
   ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
   if (!pEditUIObject->TryGetComponentOfBaseType(pUiComponent))
     return;
+
+  pUiComponent->BindBlackboard(*m_pBlackboard);
+  m_hEditUIComponent = pUiComponent->GetHandle();
 
   pUiComponent->EnsureInitialized();
 
@@ -98,8 +115,6 @@ void RtsEditLevelMode::SetupEditUI()
 
   pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Event& e) { m_uiTeam = static_cast<Rml::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
   pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged", [this](Rml::Event& e) { m_iShipType = static_cast<Rml::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
-
-  m_hEditUIComponent = pUiComponent->GetHandle();
 }
 
 void RtsEditLevelMode::DisplayEditUI()

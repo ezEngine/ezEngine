@@ -7,7 +7,7 @@
 <div class="title">
   Edit Level
 </div>
-<div class="content">
+<div class="content" data-model="EditLevelModel">
   <div class="prop"><div class="proplabel">Team</div>
     <select id="team" onchange="teamChanged">
       <option value="0" selected>Red</option>
@@ -19,9 +19,9 @@
   <div class="prop"><div class="proplabel">Build</div>
     <select id="build" onchange="buildChanged"></select>
   </div>
-  <div id="selectkey">Select:</div>
-  <div id="createkey">Create:</div>
-  <div id="removekey">Remove:</div>
+  <div>Select: {{SelectKey}}</div>
+  <div>Create: {{CreateKey}}</div>
+  <div>Remove: {{RemoveKey}}</div>
 </div>
 </body>
 </rml>
