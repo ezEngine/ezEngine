@@ -46,7 +46,13 @@ namespace ezRmlUiInternal
 
   void BlackboardDataBinding::EntryWrapper::SetValue(const Rml::Variant& value)
   {
-    m_Blackboard.SetEntryValue(m_sName, ezRmlUiConversionUtils::ToVariant(value));
+    ezVariant::Type::Enum targetType = ezVariant::Type::Invalid;
+    if (auto pEntry = m_Blackboard.GetEntry(m_sName))
+    {
+      targetType = pEntry->m_Value.GetType();
+    }
+
+    m_Blackboard.SetEntryValue(m_sName, ezRmlUiConversionUtils::ToVariant(value, targetType));
   }
 
   void BlackboardDataBinding::EntryWrapper::GetValue(Rml::Variant& out_Value) const

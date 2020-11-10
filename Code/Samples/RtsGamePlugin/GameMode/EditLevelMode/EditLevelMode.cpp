@@ -18,6 +18,7 @@ const char* g_BuildItemTypes[] = {
   "KlingonShip3",
 };
 
+static ezHashedString s_sTeam = ezMakeHashedString("Team");
 static ezHashedString s_sSelectKey = ezMakeHashedString("SelectKey");
 static ezHashedString s_sCreateKey = ezMakeHashedString("CreateKey");
 static ezHashedString s_sRemoveKey = ezMakeHashedString("RemoveKey");
@@ -26,6 +27,7 @@ RtsEditLevelMode::RtsEditLevelMode()
 {
   m_pBlackboard = EZ_DEFAULT_NEW(ezBlackboard);
 
+  m_pBlackboard->RegisterEntry(s_sTeam, 0);
   m_pBlackboard->RegisterEntry(s_sSelectKey, ezVariant());
   m_pBlackboard->RegisterEntry(s_sCreateKey, ezVariant());
   m_pBlackboard->RegisterEntry(s_sRemoveKey, ezVariant());
@@ -98,7 +100,6 @@ void RtsEditLevelMode::SetupEditUI()
     }
   }
 
-  pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Event& e) { m_uiTeam = static_cast<Rml::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
   pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged", [this](Rml::Event& e) { m_iShipType = static_cast<Rml::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
 }
 
@@ -113,11 +114,6 @@ void RtsEditLevelMode::DisplayEditUI()
   if (s_bUseRmlUi && pUiComponent != nullptr)
   {
     auto pDocument = pUiComponent->GetRmlContext()->GetDocument(0);
-
-    if (auto pElement = pDocument->GetElementById("team"))
-    {
-      static_cast<Rml::ElementFormControlSelect*>(pElement)->SetSelection(m_uiTeam);
-    }
 
     if (auto pElement = pDocument->GetElementById("build"))
     {
@@ -136,10 +132,10 @@ void RtsEditLevelMode::DisplayEditUI()
     ImGui::SetNextWindowSize(ImVec2(ww, 150));
     ImGui::Begin("Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
-    int iTeam = m_uiTeam;
+    int iTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<int>();
     if (ImGui::Combo("Team", &iTeam, "Red\0Green\0Blue\0Yellow\0\0", 4))
     {
-      m_uiTeam = iTeam;
+      m_pBlackboard->SetEntryValue(s_sTeam, iTeam);
     }
 
     if (ImGui::Combo("Build", &m_iShipType, g_BuildItemTypes, EZ_ARRAY_SIZE(g_BuildItemTypes)))
@@ -180,10 +176,11 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     ezGameObject* pSpawned = nullptr;
 
-    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[m_iShipType], m_uiTeam);
+    int iTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<int>();
+    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[m_iShipType], iTeam);
 
     ezMsgSetColor msg;
-    msg.m_Color = RtsGameMode::GetTeamColor(m_uiTeam);
+    msg.m_Color = RtsGameMode::GetTeamColor(iTeam);
 
     pSpawned->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 

@@ -9,7 +9,7 @@
 </div>
 <div class="content" data-model="EditLevelModel">
   <div class="prop"><div class="proplabel">Team</div>
-    <select id="team" onchange="teamChanged">
+    <select id="team" data-event-change="Team = ev.value">
       <option value="0" selected>Red</option>
       <option value="1">Green</option>
       <option value="2" >Blue</option>
