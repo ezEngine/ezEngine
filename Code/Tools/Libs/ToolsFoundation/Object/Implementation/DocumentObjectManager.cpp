@@ -1,9 +1,9 @@
 #include <ToolsFoundationPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentObjectManager

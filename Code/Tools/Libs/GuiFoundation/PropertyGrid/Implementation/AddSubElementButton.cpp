@@ -1,6 +1,7 @@
 #include <GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -10,7 +11,6 @@
 #include <QMenu>
 #include <QPushButton>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezString ezQtAddSubElementButton::s_sLastMenuSearch;
 

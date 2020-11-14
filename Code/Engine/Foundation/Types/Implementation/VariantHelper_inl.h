@@ -208,7 +208,6 @@ class ezVariantHelper
     bSuccessful = true;
     EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::TypedPointer, "Only ptr can be converted to void*!");
     result = value.Get<ezTypedPointer>();
-    
   }
 
   static void To(const ezVariant& value, ezColor& result, bool& bSuccessful)

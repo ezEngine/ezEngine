@@ -5,9 +5,9 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Types/TypedPointer.h>
 #include <Foundation/Types/Types.h>
 #include <Foundation/Types/VariantType.h>
-#include <Foundation/Types/TypedPointer.h>
 
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <Foundation/Utilities/ConversionUtils.h>
@@ -46,9 +46,9 @@ class EZ_FOUNDATION_DLL ezVariant
 {
 public:
   using Type = ezVariantType;
-  template<typename T>
+  template <typename T>
   using TypeDeduction = ezVariantTypeDeduction<T>;
-  
+
   /// \brief helper struct to wrap a string pointer
   struct StringWrapper
   {
@@ -58,7 +58,7 @@ public:
     }
     const char* m_str;
   };
-  
+
   /// \brief Initializes the variant to be 'Invalid'
   ezVariant(); // [tested]
 
@@ -113,10 +113,10 @@ public:
   ezVariant(const ezTypedPointer& value);
   ezVariant(const ezTypedObject& value);
 
-  template<typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
+  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
   ezVariant(const T& value);
 
-  template<typename T>
+  template <typename T>
   ezVariant(const T* value);
 
   /// \brief Initializes to a TypedPointer of the given object and type.
@@ -395,5 +395,5 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
 
 
 #include <Foundation/Types/Implementation/Variant_inl.h>
-#include <Foundation/Types/Implementation/VariantHelper_inl.h>
 
+#include <Foundation/Types/Implementation/VariantHelper_inl.h>

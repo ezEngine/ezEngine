@@ -1,10 +1,10 @@
 #include <ToolsFoundationPCH.h>
 
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
 {
@@ -354,7 +354,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
       EZ_VERIFY(pObjectAccessor->GetKeys(pObject, pProp, keys).Succeeded(), "Property is not a map, getting keys failed.");
 
       if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer) &&
-          !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+                            !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
         for (const ezVariant& key : keys)
         {

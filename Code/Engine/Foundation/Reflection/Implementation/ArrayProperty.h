@@ -16,9 +16,9 @@ public:
   {
     m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
     EZ_CHECK_AT_COMPILETIME_MSG(!std::is_pointer<Type>::value ||
-                                    ezVariantTypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value ==
-                                        ezVariantType::Invalid,
-                                "Pointer to standard types are not supported.");
+                                  ezVariantTypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value ==
+                                    ezVariantType::Invalid,
+      "Pointer to standard types are not supported.");
   }
 
   virtual const ezRTTI* GetSpecificType() const override { return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>(); }

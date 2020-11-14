@@ -82,7 +82,7 @@ enum ezVariantClass
   Invalid,
   DirectCast,     ///< A standard type
   PointerCast,    ///< Any cast to T*
-  TypedObject,    ///< ezTypedObject cast. Needed because at no point does and ezVariant ever store a ezTypedObject so it can't be returned as a const reference. 
+  TypedObject,    ///< ezTypedObject cast. Needed because at no point does and ezVariant ever store a ezTypedObject so it can't be returned as a const reference.
   CustomTypeCast, ///< Custom object types
 };
 

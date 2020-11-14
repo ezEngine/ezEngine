@@ -1,12 +1,12 @@
 #include <ToolsFoundationTestPCH.h>
 
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
@@ -94,7 +94,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_BOOL(podClass.GetBuffer() == ezDataBuffer());
     VariantToPropertyTest(&podClass, pRttiPOD, "VarianceAngle", ezVariant::Type::TypedObject);
     EZ_TEST_BOOL(podClass.GetCustom() == ezVarianceTypeAngle{});
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Math Properties")

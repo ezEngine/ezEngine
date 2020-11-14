@@ -66,7 +66,6 @@ struct ezTestStruct
   EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct);
 
 public:
-
   static ezDataBuffer GetDefaultDataBuffer()
   {
     ezDataBuffer data;

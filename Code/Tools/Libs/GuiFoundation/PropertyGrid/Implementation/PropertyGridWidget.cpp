@@ -3,6 +3,7 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
@@ -10,7 +11,6 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 #include <Foundation/Profiling/Profiling.h>
 #include <QLayout>

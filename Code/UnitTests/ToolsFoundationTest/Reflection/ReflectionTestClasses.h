@@ -66,7 +66,6 @@ private:
   double m_fDouble;
   ezTime m_Time;
   ezAngle m_Angle;
-
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezFloatStruct);
 
@@ -84,7 +83,7 @@ public:
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
     m_Buffer.PushBack(0xCD);
-    m_VarianceAngle = { 0.1f, ezAngle::Degree(90.0f) };
+    m_VarianceAngle = {0.1f, ezAngle::Degree(90.0f)};
   }
 
   ezIntegerStruct m_IntegerStruct;

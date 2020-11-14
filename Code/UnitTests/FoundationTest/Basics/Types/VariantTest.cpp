@@ -1,8 +1,8 @@
 #include <FoundationTestPCH.h>
 
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Types/Variant.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <Foundation/Types/Variant.h>
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
 
 // this file takes ages to compile in a Release build
@@ -31,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-template<typename T>
+template <typename T>
 void TestVariant(ezVariant& v, ezVariantType::Enum type)
 {
   EZ_TEST_BOOL(v.IsValid());
@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant b(true);
     TestVariant<bool>(b, ezVariantType::Bool);
-   
+
     EZ_TEST_BOOL(b.Get<bool>() == true);
 
     EZ_TEST_BOOL(b == ezVariant(true));
@@ -967,7 +967,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedPointer nullptr")
   {
-    ezTypedPointer ptr = {nullptr, ezGetStaticRTTI<Blubb>() };
+    ezTypedPointer ptr = {nullptr, ezGetStaticRTTI<Blubb>()};
     ezVariant v = ptr;
     EZ_TEST_BOOL(v.IsValid());
     EZ_TEST_BOOL(v.GetType() == ezVariant::Type::TypedPointer);
@@ -995,12 +995,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject inline")
   {
-    ezVarianceTypeAngle value = { 0.1f, ezAngle::Degree(90.0f) };
-    ezVarianceTypeAngle value2 = { 0.2f, ezAngle::Degree(90.0f) };
+    ezVarianceTypeAngle value = {0.1f, ezAngle::Degree(90.0f)};
+    ezVarianceTypeAngle value2 = {0.2f, ezAngle::Degree(90.0f)};
 
     ezVariant v(value);
     TestVariant<ezVarianceTypeAngle>(v, ezVariantType::TypedObject);
-  
+
     EZ_TEST_BOOL(v.IsA<ezTypedObject>());
     EZ_TEST_BOOL(!v.IsA<void*>());
     EZ_TEST_BOOL(!v.IsA<const void*>());
@@ -1019,7 +1019,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezUInt64 uiHash = v.ComputeHash(0);
     EZ_TEST_INT(uiHash, 13667342936068485827ul);
 
-    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, { 0.1f, ezAngle::Degree(90.0f) });
+    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::Degree(90.0f)});
     ezVariant copy;
     copy.CopyTypedObject(pTypedAngle, ezGetStaticRTTI<ezVarianceTypeAngle>());
     ezVariant move;

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ads/DockWidget.h>
-#include <Foundation/Reflection/Reflection.h>
 
 class ezQtContainerWindow;
 

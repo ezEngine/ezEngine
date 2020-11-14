@@ -111,9 +111,9 @@ struct ezIsValueType<T, ezVariant>
 //////////////////////////////////////////////////////////////////////////
 /// \brief Used to automatically assign any value to an ezVariant using the assignment rules
 /// outlined in ezAbstractFunctionProperty::Execute.
-template <class T,                                        ///< Only this parameter needs to be provided, the actual type of the value.
-          class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
-          int VALUE_TYPE = ezIsValueType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType or a custom type
+template <class T,                          ///< Only this parameter needs to be provided, the actual type of the value.
+  class C = typename ezCleanType<T>::Type,  ///< Same as T but without the const&* fluff.
+  int VALUE_TYPE = ezIsValueType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType or a custom type
 struct ezVariantAssignmentAdapter
 {
   using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
@@ -177,10 +177,10 @@ struct ezVariantAssignmentAdapter<T, C, 1>
 
 /// \brief Used to implicitly retrieve any value from an ezVariant to be used as a function argument
 /// using the assignment rules outlined in ezAbstractFunctionProperty::Execute.
-template <class T, ///< Only this parameter needs to be provided, the actual type of the argument. Rest is used to force specializations.
-          class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
-          int VALUE_TYPE = ezIsValueType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType or a custom type
-          int OUT_PARAM = ezIsOutParam<T>::value>         ///< Is 1 if T a non-const reference or pointer.
+template <class T,                          ///< Only this parameter needs to be provided, the actual type of the argument. Rest is used to force specializations.
+  class C = typename ezCleanType<T>::Type,  ///< Same as T but without the const&* fluff.
+  int VALUE_TYPE = ezIsValueType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType or a custom type
+  int OUT_PARAM = ezIsOutParam<T>::value>   ///< Is 1 if T a non-const reference or pointer.
 struct ezVariantAdapter
 {
   using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
@@ -288,7 +288,7 @@ struct ezVariantAdapter<T, C, 1, 0>
   {
   }
 
-  operator const C&()
+  operator const C &()
   {
     if constexpr (ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast)
     {
@@ -298,7 +298,7 @@ struct ezVariantAdapter<T, C, 1, 0>
     return m_value.Get<RealType>();
   }
 
-  operator const C*()
+  operator const C *()
   {
     if constexpr (ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast)
     {
@@ -316,13 +316,13 @@ struct ezVariantAdapter<T, C, 1, 1>
 {
   using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
-      : m_value(value)
+    : m_value(value)
   {
     // We ignore the return value here instead const_cast the Get<> result to profit from the Get methods runtime type checks.
     m_value.GetWriteAccess();
   }
 
-  operator C& ()
+  operator C&()
   {
     if (m_value.GetType() == ezVariantType::TypedPointer)
       return *m_value.Get<RealType*>();

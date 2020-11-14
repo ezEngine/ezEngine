@@ -1,11 +1,11 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
-#include <Foundation/Logging/Log.h>
 
 // ezAllocatorBase::Stats
 

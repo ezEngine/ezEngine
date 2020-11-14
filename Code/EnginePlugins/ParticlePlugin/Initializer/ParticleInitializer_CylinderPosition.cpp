@@ -3,11 +3,11 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/Serialization/GraphPatch.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_CylinderPosition>)

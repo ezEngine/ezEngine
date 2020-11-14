@@ -195,10 +195,10 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE.
-#define EZ_END_STATIC_REFLECTED_TYPE                                                                                                                 \
-  ;                                                                                                                                                  \
-  return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),                              \
-    ezVariantTypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, nullptr);       \
+#define EZ_END_STATIC_REFLECTED_TYPE                                                                                                         \
+  ;                                                                                                                                          \
+  return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),                      \
+    ezVariantTypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, nullptr); \
   }
 
 

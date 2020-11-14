@@ -1,9 +1,9 @@
 #include <FoundationPCH.h>
 
-#include <Foundation/Types/VarianceTypes.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/VarianceTypes.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeBase, ezNoBase, 1, ezRTTINoAllocator)

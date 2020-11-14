@@ -2,13 +2,13 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezMap<const ezRTTI*, ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*> ezReflectedTypeStorageManager::m_ReflectedTypeToStorageMapping;
 

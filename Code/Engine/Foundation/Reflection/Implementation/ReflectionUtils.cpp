@@ -39,7 +39,7 @@ namespace
       CALL_FUNCTOR(functor, ezVariant);
       return;
     }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) )
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
     {
       ezVariant::DispatchTo(functor, pProp->GetSpecificType()->GetVariantType(), std::forward<Args>(args)...);
       return;
@@ -116,20 +116,19 @@ namespace
 
 
 
-
   template <typename T>
   struct ezPropertyValue
   {
     using Type = T;
     using StorageType = typename ezVariantTypeDeduction<T>::StorageType;
   };
-  template<>
+  template <>
   struct ezPropertyValue<ezEnumBase>
   {
     using Type = ezInt64;
     using StorageType = ezInt64;
   };
-  template<>
+  template <>
   struct ezPropertyValue<ezBitflagsBase>
   {
     using Type = ezInt64;
@@ -240,8 +239,8 @@ namespace
     {
       m_tempValue = value.ConvertTo<ezPropertyValue<T>::StorageType>();
     }
-    
-    operator const void*()
+
+    operator const void *()
     {
       return &m_tempValue;
     }
@@ -258,7 +257,7 @@ namespace
       m_pValue = m_sData;
     }
 
-    operator const void*()
+    operator const void *()
     {
       return &m_pValue;
     }
@@ -274,7 +273,7 @@ namespace
     {
     }
 
-    operator const void*()
+    operator const void *()
     {
       return const_cast<ezVariant*>(&m_value);
     }
@@ -292,7 +291,7 @@ namespace
         "Pointer of type '{0}' does not derive from '{}'", m_ptr.m_pType->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
     }
 
-    operator const void*()
+    operator const void *()
     {
       return &m_ptr.m_pObject;
     }
@@ -309,7 +308,7 @@ namespace
       m_pPtr = value.GetData();
     }
 
-    operator const void*()
+    operator const void *()
     {
       return m_pPtr;
     }
@@ -347,7 +346,7 @@ namespace
       pProp->GetValue(pObject, uiIndex, getter);
     }
   };
-  
+
   struct SetArrayValueFunc
   {
     template <typename T>

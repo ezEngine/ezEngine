@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
+
 #include <Foundation/Reflection/Implementation/RTTI.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVariantTypeRegistry);
 
@@ -70,5 +71,4 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezVariantTypeInfo);
 
 ezVariantTypeInfo::ezVariantTypeInfo()
 {
-
 }

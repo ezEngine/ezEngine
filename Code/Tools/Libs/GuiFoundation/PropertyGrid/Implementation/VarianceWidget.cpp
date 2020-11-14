@@ -1,5 +1,6 @@
 #include <GuiFoundationPCH.h>
 
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
@@ -7,7 +8,6 @@
 #include <QBoxLayout>
 #include <QSlider>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
 {
@@ -158,4 +158,3 @@ void ezQtVarianceTypeWidget::InternalSetValue(const ezVariant& value)
     m_pVarianceWidget->setValue(50);
   }
 }
-

@@ -5,10 +5,10 @@
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomRotationSpeed.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/Serialization/GraphPatch.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomRotationSpeed, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomRotationSpeed>)

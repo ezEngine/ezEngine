@@ -4,13 +4,13 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 namespace
 {

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -51,7 +51,7 @@ public:
 
 /// \brief Helper template used by EZ_DEFINE_CUSTOM_VARIANT_TYPE.
 /// \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE
-template<typename T>
+template <typename T>
 class ezVariantTypeInfoT : public ezVariantTypeInfo
 {
   const ezRTTI* GetType() const override
@@ -82,5 +82,5 @@ class ezVariantTypeInfoT : public ezVariantTypeInfo
 /// Macros should be placed in any cpp. Note that once a custom type is defined, it is considered a value type and will be passed by value. It must be linked into every editor and engine dll to allow serialization. Thus it should only be used for common types in base libraries.
 /// Limitations: Currently only member variables are supported on custom types, no arrays, set, maps etc. For best performance, any custom type smaller than 16 bytes should be POD so it can be inlined into the ezVariant.
 /// \sa EZ_DECLARE_CUSTOM_VARIANT_TYPE, ezVariantTypeRegistry, ezVariant
-#define EZ_DEFINE_CUSTOM_VARIANT_TYPE(TYPE)              \
-  ezVariantTypeInfoT<TYPE> g_ezVariantTypeInfoT_ ## TYPE;
+#define EZ_DEFINE_CUSTOM_VARIANT_TYPE(TYPE) \
+  ezVariantTypeInfoT<TYPE> g_ezVariantTypeInfoT_##TYPE;

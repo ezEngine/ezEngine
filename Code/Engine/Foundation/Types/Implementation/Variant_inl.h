@@ -155,16 +155,16 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColorGammaUB& value)
   InitInplace(value);
 }
 
-template<typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const T& value)
 {
   const constexpr bool forceSharing = TypeDeduction<T>::forceSharing;
   const constexpr bool inlineSized = sizeof(T) <= InlinedStruct::DataSize;
   const constexpr bool isPOD = ezIsPodType<T>::value;
-  InitTypedObject(value, ezTraitInt<(!forceSharing && inlineSized && isPOD) ? 1 : 0>());
+  InitTypedObject(value, ezTraitInt < (!forceSharing && inlineSized && isPOD) ? 1 : 0 > ());
 }
 
-template<typename T>
+template <typename T>
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const T* value)
 {
   constexpr bool bla = !std::is_same<T, void>::value;

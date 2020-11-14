@@ -641,7 +641,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
     EZ_TEST_BOOL(data.GetEnumClass() == ezExampleEnum::Value3);
 
     TestSerialization<ezTestEnumStruct>(data);
-
   }
 }
 
@@ -859,7 +858,7 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
 
   T v1 = {};
   pArrayProp->GetValue(pObject, 0, &v1);
-  if constexpr(std::is_same<const char*, T>::value)
+  if constexpr (std::is_same<const char*, T>::value)
   {
     EZ_TEST_BOOL(ezStringUtils::IsEqual(v1, value));
   }
@@ -1177,8 +1176,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CustomVariant")
   {
-    ezVarianceTypeAngle value1{ -0.1f, ezAngle::Degree(-45.0f) };
-    ezVarianceTypeAngle value2{ 0.1f, ezAngle::Degree(45.0f) };
+    ezVarianceTypeAngle value1{-0.1f, ezAngle::Degree(-45.0f)};
+    ezVarianceTypeAngle value2{0.1f, ezAngle::Degree(45.0f)};
 
     TestMapProperty<ezVarianceTypeAngle>("CustomVariant", &containers, pRtti, value1, value2);
     TestMapProperty<ezVarianceTypeAngle>("CustomVariantRO", &containers, pRtti, value1, value2);

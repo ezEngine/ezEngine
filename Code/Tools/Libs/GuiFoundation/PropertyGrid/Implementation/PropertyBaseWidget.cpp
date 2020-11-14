@@ -1,6 +1,7 @@
 #include <GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ElementGroupButton.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
@@ -18,7 +19,6 @@
 #include <QStringBuilder>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
 
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget()

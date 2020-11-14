@@ -1,5 +1,7 @@
 #include <ParticlePluginPCH.h>
 
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_Age.h>
@@ -8,8 +10,6 @@
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
-#include <Foundation/Serialization/GraphPatch.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 2, ezRTTIDefaultAllocator<ezParticleSystemDescriptor>)
