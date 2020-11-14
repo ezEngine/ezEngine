@@ -6,6 +6,8 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
+
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 
@@ -19,7 +21,8 @@ void VariantToPropertyTest(void* intStruct, const ezRTTI* pRttiInt, const char* 
     EZ_TEST_BOOL(oldValue.IsValid());
     EZ_TEST_BOOL(oldValue.GetType() == type);
 
-    ezVariant defaultValue = ezReflectionUtils::GetDefaultVariantFromType(type);
+    ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
+    EZ_TEST_BOOL(defaultValue.GetType() == type);
     ezReflectionUtils::SetMemberPropertyValue(pProp, intStruct, defaultValue);
 
     ezVariant newValue = ezReflectionUtils::GetMemberPropertyValue(pProp, intStruct);
@@ -89,6 +92,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_STRING(podClass.GetString(), "");
     VariantToPropertyTest(&podClass, pRttiPOD, "Buffer", ezVariant::Type::DataBuffer);
     EZ_TEST_BOOL(podClass.GetBuffer() == ezDataBuffer());
+    VariantToPropertyTest(&podClass, pRttiPOD, "VarianceAngle", ezVariant::Type::TypedObject);
+    EZ_TEST_BOOL(podClass.GetCustom() == ezVarianceTypeAngle{});
+
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Math Properties")
@@ -126,7 +132,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     VariantToPropertyTest(&enumClass, pRttiEnum, "Enum", ezVariant::Type::Int64);
     EZ_TEST_BOOL(enumClass.GetEnum() == ezExampleEnum::Value1);
     VariantToPropertyTest(&enumClass, pRttiEnum, "Bitflags", ezVariant::Type::Int64);
-    EZ_TEST_BOOL(enumClass.GetBitflags() == 0);
+    EZ_TEST_BOOL(enumClass.GetBitflags() == ezExampleBitflags::Value1);
   }
 }
 
@@ -136,7 +142,9 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& accessor, const char* szProp
   EZ_TEST_BOOL(oldValue.IsValid());
   EZ_TEST_BOOL(oldValue.GetType() == type);
 
-  ezVariant defaultValue = ezReflectionUtils::GetDefaultVariantFromType(type);
+  ezAbstractProperty* pProp = accessor.GetType()->FindPropertyByName(szProperty);
+  ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
+  EZ_TEST_BOOL(defaultValue.GetType() == type);
   bool bSetSuccess = accessor.SetValue(szProperty, defaultValue);
   EZ_TEST_BOOL(bSetSuccess);
 
@@ -162,6 +170,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
   for (ezUInt32 i = 0; i < uiPropCount; ++i)
   {
     ezAbstractProperty* pProp = pType->GetProperties()[i];
+    const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
 
     switch (pProp->GetCategory())
     {
@@ -178,7 +187,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
           AccessorPropertyTest(accessor, pProp->GetPropertyName(), ezVariant::Type::Int64);
           uiPropertiesSet++;
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        else if (bIsValueType)
         {
           AccessorPropertyTest(accessor, pProp->GetPropertyName(), pProp3->GetSpecificType()->GetVariantType());
           uiPropertiesSet++;
@@ -265,12 +274,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     }
     {
       ezDocumentObject* pObject = manager.CreateObject(pRttiPOD);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 16);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 17);
       manager.DestroyObject(pObject);
     }
     {
       ezDocumentObject* pObject = manager.CreateObject(pRttiMath);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 25);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 26);
       manager.DestroyObject(pObject);
     }
     {

@@ -10,6 +10,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 #include <Foundation/Profiling/Profiling.h>
 #include <QLayout>
@@ -396,7 +397,8 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       }
 
       // Fallback to default container widgets.
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+      const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+      if (bIsValueType)
       {
         return new ezQtPropertyStandardTypeContainerWidget();
       }
@@ -459,9 +461,11 @@ void GetDefaultValues(const ezRTTI* pType, const ezDocument* pDocument, ezProper
 
     switch (pProp->GetCategory())
     {
+
       case ezPropertyCategory::Member:
       {
-        if (!pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+        const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
+        if (bIsValueType)
         {
           (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
         }

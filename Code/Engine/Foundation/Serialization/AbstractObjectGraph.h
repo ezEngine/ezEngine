@@ -40,6 +40,10 @@ public:
 
   void RenameProperty(const char* szOldName, const char* szNewName);
 
+  // \brief Inlines a custom variant type. Use to patch properties that have been turned into custom variant type.
+  // \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE, EZ_DECLARE_CUSTOM_VARIANT_TYPE
+  ezResult InlineProperty(const char* szName);
+
   const ezUuid& GetGuid() const { return m_Guid; }
   ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
   void SetTypeVersion(ezUInt32 uiTypeVersion) { m_uiTypeVersion = uiTypeVersion; }

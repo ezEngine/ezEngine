@@ -57,7 +57,7 @@ public:
   EZ_ALWAYS_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
   /// \brief Returns the corresponding variant type for this type or Invalid if there is none.
-  EZ_ALWAYS_INLINE ezVariant::Type::Enum GetVariantType() const { return static_cast<ezVariant::Type::Enum>(m_uiVariantType); }
+  EZ_ALWAYS_INLINE ezVariantType::Enum GetVariantType() const { return static_cast<ezVariantType::Enum>(m_uiVariantType); }
 
   /// \brief Returns true if this type is derived from the given type.
   bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]

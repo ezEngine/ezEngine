@@ -8,9 +8,11 @@
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllocator<ezParticleSystemDescriptor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 2, ezRTTIDefaultAllocator<ezParticleSystemDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -348,5 +350,22 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
   SetupDefaultProcessors();
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+class ezParticleSystemDescriptor_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleSystemDescriptor_1_2()
+    : ezGraphPatch("ezParticleSystemDescriptor", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->InlineProperty("LifeTime").IgnoreResult();
+  }
+};
+
+ezParticleSystemDescriptor_1_2 g_ezParticleSystemDescriptor_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemDescriptor);

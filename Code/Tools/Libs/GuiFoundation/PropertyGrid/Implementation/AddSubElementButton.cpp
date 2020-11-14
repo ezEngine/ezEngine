@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <QPushButton>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezString ezQtAddSubElementButton::s_sLastMenuSearch;
 
@@ -398,7 +399,8 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   m_pObjectAccessor->StartTransaction("Add Element");
 
   ezStatus res;
-  if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::StandardType))
+  const bool bIsValueType = ezReflectionUtils::IsValueType(m_pProp);
+  if (bIsValueType)
   {
     for (auto& item : m_Items)
     {

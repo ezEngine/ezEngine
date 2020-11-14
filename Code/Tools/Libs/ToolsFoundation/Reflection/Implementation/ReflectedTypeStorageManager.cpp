@@ -8,6 +8,7 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezMap<const ezRTTI*, ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*> ezReflectedTypeStorageManager::m_ReflectedTypeToStorageMapping;
 
@@ -239,11 +240,14 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
 ezVariantType::Enum ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::GetStorageType(const ezAbstractProperty* pProperty)
 {
   ezVariantType::Enum type = ezVariantType::Uuid;
+
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
+
   switch (pProperty->GetCategory())
   {
     case ezPropertyCategory::Member:
     {
-      if (pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
+      if (bIsValueType)
         type = pProperty->GetSpecificType()->GetVariantType();
       else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         type = ezVariantType::Int64;

@@ -486,8 +486,8 @@ void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String,
     case ezVariant::Type::DataBuffer:
     case ezVariant::Type::VariantArray:
     case ezVariant::Type::VariantDictionary:
-    case ezVariant::Type::ReflectedPointer:
-    case ezVariant::Type::VoidPointer:
+    case ezVariant::Type::TypedPointer:
+    case ezVariant::Type::TypedObject:
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;

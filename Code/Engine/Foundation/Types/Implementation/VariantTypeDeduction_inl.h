@@ -1,508 +1,550 @@
 
+
+
 /// \cond
 
 template <>
-struct ezVariant::TypeDeduction<bool>
+struct ezVariantTypeDeduction<bool>
 {
   enum
   {
-    value = Type::Bool,
+    value = ezVariantType::Bool,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = bool;
+  using ReturnType = bool;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezInt8>
+struct ezVariantTypeDeduction<ezInt8>
 {
   enum
   {
-    value = Type::Int8,
+    value = ezVariantType::Int8,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezInt8;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezUInt8>
+struct ezVariantTypeDeduction<ezUInt8>
 {
   enum
   {
-    value = Type::UInt8,
+    value = ezVariantType::UInt8,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezUInt8;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezInt16>
+struct ezVariantTypeDeduction<ezInt16>
 {
   enum
   {
-    value = Type::Int16,
+    value = ezVariantType::Int16,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezInt16;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezUInt16>
+struct ezVariantTypeDeduction<ezUInt16>
 {
   enum
   {
-    value = Type::UInt16,
+    value = ezVariantType::UInt16,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezUInt16;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezInt32>
+struct ezVariantTypeDeduction<ezInt32>
 {
   enum
   {
-    value = Type::Int32,
+    value = ezVariantType::Int32,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezInt32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezUInt32>
+struct ezVariantTypeDeduction<ezUInt32>
 {
   enum
   {
-    value = Type::UInt32,
+    value = ezVariantType::UInt32,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezUInt32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezInt64>
+struct ezVariantTypeDeduction<ezInt64>
 {
   enum
   {
-    value = Type::Int64,
+    value = ezVariantType::Int64,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezInt64;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezUInt64>
+struct ezVariantTypeDeduction<ezUInt64>
 {
   enum
   {
-    value = Type::UInt64,
+    value = ezVariantType::UInt64,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezUInt64;
 };
 
 template <>
-struct ezVariant::TypeDeduction<float>
+struct ezVariantTypeDeduction<float>
 {
   enum
   {
-    value = Type::Float,
+    value = ezVariantType::Float,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = float;
 };
 
 template <>
-struct ezVariant::TypeDeduction<double>
+struct ezVariantTypeDeduction<double>
 {
   enum
   {
-    value = Type::Double,
+    value = ezVariantType::Double,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = double;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezColor>
+struct ezVariantTypeDeduction<ezColor>
 {
   enum
   {
-    value = Type::Color,
+    value = ezVariantType::Color,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezColor;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezColorGammaUB>
+struct ezVariantTypeDeduction<ezColorGammaUB>
 {
   enum
   {
-    value = Type::ColorGamma,
+    value = ezVariantType::ColorGamma,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezColorGammaUB;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec2>
+struct ezVariantTypeDeduction<ezVec2>
 {
   enum
   {
-    value = Type::Vector2,
+    value = ezVariantType::Vector2,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec2;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec3>
+struct ezVariantTypeDeduction<ezVec3>
 {
   enum
   {
-    value = Type::Vector3,
+    value = ezVariantType::Vector3,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec3;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec4>
+struct ezVariantTypeDeduction<ezVec4>
 {
   enum
   {
-    value = Type::Vector4,
+    value = ezVariantType::Vector4,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec4;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec2I32>
+struct ezVariantTypeDeduction<ezVec2I32>
 {
   enum
   {
-    value = Type::Vector2I,
+    value = ezVariantType::Vector2I,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec2I32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec3I32>
+struct ezVariantTypeDeduction<ezVec3I32>
 {
   enum
   {
-    value = Type::Vector3I,
+    value = ezVariantType::Vector3I,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec3I32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec4I32>
+struct ezVariantTypeDeduction<ezVec4I32>
 {
   enum
   {
-    value = Type::Vector4I,
+    value = ezVariantType::Vector4I,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec4I32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec2U32>
+struct ezVariantTypeDeduction<ezVec2U32>
 {
   enum
   {
-    value = Type::Vector2U,
+    value = ezVariantType::Vector2U,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec2U32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec3U32>
+struct ezVariantTypeDeduction<ezVec3U32>
 {
   enum
   {
-    value = Type::Vector3U,
+    value = ezVariantType::Vector3U,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec3U32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVec4U32>
+struct ezVariantTypeDeduction<ezVec4U32>
 {
   enum
   {
-    value = Type::Vector4U,
+    value = ezVariantType::Vector4U,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVec4U32;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezQuat>
+struct ezVariantTypeDeduction<ezQuat>
 {
   enum
   {
-    value = Type::Quaternion,
+    value = ezVariantType::Quaternion,
     forceSharing = false,
-    hasReflectedMembers = true
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezQuat;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezMat3>
+struct ezVariantTypeDeduction<ezMat3>
 {
   enum
   {
-    value = Type::Matrix3,
+    value = ezVariantType::Matrix3,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezMat3;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezMat4>
+struct ezVariantTypeDeduction<ezMat4>
 {
   enum
   {
-    value = Type::Matrix4,
+    value = ezVariantType::Matrix4,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezMat4;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezTransform>
+struct ezVariantTypeDeduction<ezTransform>
 {
   enum
   {
-    value = Type::Transform,
+    value = ezVariantType::Transform,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezTransform;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezString>
+struct ezVariantTypeDeduction<ezString>
 {
   enum
   {
-    value = Type::String,
+    value = ezVariantType::String,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezString;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezUntrackedString>
+struct ezVariantTypeDeduction<ezUntrackedString>
 {
   enum
   {
-    value = Type::String,
+    value = ezVariantType::String,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezString;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezStringView>
+struct ezVariantTypeDeduction<ezStringView>
 {
   enum
   {
-    value = Type::StringView,
+    value = ezVariantType::StringView,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezStringView;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezDataBuffer>
+struct ezVariantTypeDeduction<ezDataBuffer>
 {
   enum
   {
-    value = Type::DataBuffer,
+    value = ezVariantType::DataBuffer,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezDataBuffer;
 };
 
 template <>
-struct ezVariant::TypeDeduction<char*>
+struct ezVariantTypeDeduction<char*>
 {
   enum
   {
-    value = Type::String,
+    value = ezVariantType::String,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezString;
 };
 
 template <>
-struct ezVariant::TypeDeduction<const char*>
+struct ezVariantTypeDeduction<const char*>
 {
   enum
   {
-    value = Type::String,
+    value = ezVariantType::String,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezString;
 };
 
 template <size_t N>
-struct ezVariant::TypeDeduction<char[N]>
+struct ezVariantTypeDeduction<char[N]>
 {
   enum
   {
-    value = Type::String,
+    value = ezVariantType::String,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezString;
 };
 
 template <size_t N>
-struct ezVariant::TypeDeduction<const char[N]>
+struct ezVariantTypeDeduction<const char[N]>
 {
   enum
   {
-    value = Type::String,
+    value = ezVariantType::String,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezString;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezTime>
+struct ezVariantTypeDeduction<ezTime>
 {
   enum
   {
-    value = Type::Time,
+    value = ezVariantType::Time,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezTime;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezUuid>
+struct ezVariantTypeDeduction<ezUuid>
 {
   enum
   {
-    value = Type::Uuid,
+    value = ezVariantType::Uuid,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezUuid;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezAngle>
+struct ezVariantTypeDeduction<ezAngle>
 {
   enum
   {
-    value = Type::Angle,
+    value = ezVariantType::Angle,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezAngle;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezVariantArray>
+struct ezVariantTypeDeduction<ezVariantArray>
 {
   enum
   {
-    value = Type::VariantArray,
+    value = ezVariantType::VariantArray,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVariantArray;
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezArrayPtr<ezVariant>>
+struct ezVariantTypeDeduction<ezArrayPtr<ezVariant>>
 {
   enum
   {
-    value = Type::VariantArray,
+    value = ezVariantType::VariantArray,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVariantArray;
@@ -510,13 +552,14 @@ struct ezVariant::TypeDeduction<ezArrayPtr<ezVariant>>
 
 
 template <>
-struct ezVariant::TypeDeduction<ezVariantDictionary>
+struct ezVariantTypeDeduction<ezVariantDictionary>
 {
   enum
   {
-    value = Type::VariantDictionary,
+    value = ezVariantType::VariantDictionary,
     forceSharing = true,
-    hasReflectedMembers = false
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
   };
 
   using StorageType = ezVariantDictionary;
@@ -542,17 +585,46 @@ namespace ezInternal
   };
 } // namespace ezInternal
 
-template <typename T>
-struct ezVariant::TypeDeduction<T*>
+template <>
+struct ezVariantTypeDeduction<ezTypedPointer>
 {
   enum
   {
-    value = EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T) ? Type::ReflectedPointer : Type::VoidPointer,
+    value = ezVariantType::TypedPointer,
     forceSharing = false,
-    hasReflectedMembers = false
+    hasReflectedMembers = true,
+    classification = ezVariantClass::DirectCast
   };
 
-  using StorageType = typename ezInternal::PointerDeductionHelper<EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T)>::StorageType;
+  using StorageType = ezTypedPointer;
+};
+
+template <typename T>
+struct ezVariantTypeDeduction<T*>
+{
+  enum
+  {
+    value = ezVariantType::TypedPointer,
+    forceSharing = false,
+    hasReflectedMembers = true,
+    classification = ezVariantClass::PointerCast
+  };
+
+  using StorageType = ezTypedPointer;
+};
+
+template <>
+struct ezVariantTypeDeduction<ezTypedObject>
+{
+  enum
+  {
+    value = ezVariantType::TypedObject,
+    forceSharing = false,
+    hasReflectedMembers = true,
+    classification = ezVariantClass::TypedObject
+  };
+
+  using StorageType = ezTypedObject;
 };
 
 /// \endcond

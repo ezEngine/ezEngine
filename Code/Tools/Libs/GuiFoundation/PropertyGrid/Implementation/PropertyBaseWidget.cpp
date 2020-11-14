@@ -18,6 +18,7 @@
 #include <QStringBuilder>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget()
@@ -1059,7 +1060,9 @@ void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<ezPropertySelection,
   m_pObjectAccessor->StartTransaction("Delete Object");
 
   ezStatus res(EZ_SUCCESS);
-  if (m_pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+  const bool bIsValueType = ezReflectionUtils::IsValueType(m_pProp);
+
+  if (bIsValueType)
   {
     for (auto& item : items)
     {
@@ -1097,8 +1100,8 @@ void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<ezPropertySelection, 8
   m_pObjectAccessor->StartTransaction("Reparent Object");
 
   ezStatus res(EZ_SUCCESS);
-
-  if (m_pProp != nullptr && m_pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+  const bool bIsValueType = ezReflectionUtils::IsValueType(m_pProp);
+  if (bIsValueType)
   {
     for (auto& item : items)
     {

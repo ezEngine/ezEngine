@@ -6,9 +6,11 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_SpherePosition>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_SpherePosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -189,6 +191,22 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+class ezParticleInitializerFactory_SpherePosition_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleInitializerFactory_SpherePosition_1_2()
+    : ezGraphPatch("ezParticleInitializerFactory_SpherePosition", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->InlineProperty("Speed").IgnoreResult();
+  }
+};
+
+ezParticleInitializerFactory_SpherePosition_1_2 g_ezParticleInitializerFactory_SpherePosition_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_SpherePosition);

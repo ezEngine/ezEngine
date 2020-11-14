@@ -87,7 +87,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   if (m_pDevice->Init().Failed())
     return EZ_FAILURE;
 
-  if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || m_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");

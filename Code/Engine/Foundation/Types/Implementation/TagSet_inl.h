@@ -43,26 +43,29 @@ public:
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
-  virtual void Insert(void* pInstance, void* pObject) override
+  virtual void Insert(void* pInstance, const void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetByName(*static_cast<const RealType*>(pObject));
   }
 
-  virtual void Remove(void* pInstance, void* pObject) override
+  virtual void Remove(void* pInstance, const void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).RemoveByName(*static_cast<const RealType*>(pObject));
   }
 
-  virtual bool Contains(const void* pInstance, void* pObject) const override { return m_ConstGetter(static_cast<const Class*>(pInstance)).IsSetByName(*static_cast<const RealType*>(pObject)); }
+  virtual bool Contains(const void* pInstance, const void* pObject) const override
+  {
+    return m_ConstGetter(static_cast<const Class*>(pInstance)).IsSetByName(*static_cast<const RealType*>(pObject));
+  }
 
   virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override
   {
     out_keys.Clear();
     for (const auto& value : m_ConstGetter(static_cast<const Class*>(pInstance)))
     {
-      out_keys.PushBack(ezVariant(value));
+      out_keys.PushBack(ezVariant(value->GetTagString()));
     }
   }
 

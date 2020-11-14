@@ -3,6 +3,9 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/Types/VarianceTypes.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
+#include <Foundation/Logging/Log.h>
 
 // ezAllocatorBase::Stats
 
@@ -117,15 +120,24 @@ EZ_FORCE_INLINE void WriteValueFunc::operator()<ezVariantDictionary>()
 }
 
 template <>
-inline void WriteValueFunc::operator()<ezReflectedClass*>()
+inline void WriteValueFunc::operator()<ezTypedPointer>()
 {
   EZ_REPORT_FAILURE("Type 'ezReflectedClass*' not supported in serialization.");
 }
 
 template <>
-inline void WriteValueFunc::operator()<void*>()
+inline void WriteValueFunc::operator()<ezTypedObject>()
 {
-  EZ_REPORT_FAILURE("Type 'void*' not supported in serialization.");
+  ezTypedObject obj = m_pValue->Get<ezTypedObject>();
+  if (const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(obj.m_pType))
+  {
+    (*m_pStream) << obj.m_pType->GetTypeName();
+    pTypeInfo->Serialize(*m_pStream, obj.m_pObject);
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", obj.m_pType->GetTypeName());
+  }
 }
 
 template <>
@@ -190,15 +202,23 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezVariantDictionary>()
 }
 
 template <>
-inline void ReadValueFunc::operator()<ezReflectedClass*>()
+inline void ReadValueFunc::operator()<ezTypedPointer>()
 {
-  EZ_REPORT_FAILURE("Type 'ezReflectedClass*' not supported in serialization.");
+  EZ_REPORT_FAILURE("Type 'ezTypedPointer' not supported in serialization.");
 }
 
 template <>
-inline void ReadValueFunc::operator()<void*>()
+inline void ReadValueFunc::operator()<ezTypedObject>()
 {
-  EZ_REPORT_FAILURE("Type 'void*' not supported in serialization.");
+  ezStringBuilder sType;
+  (*m_pStream) >> sType;
+  const ezRTTI* pType = ezRTTI::FindTypeByName(sType);
+  EZ_ASSERT_DEV(pType, "The type '{0}' could not be found.", sType);
+  const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pType);
+  EZ_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", sType);
+  void* pObject = pType->GetAllocator()->Allocate<void>();
+  pTypeInfo->Deserialize(*m_pStream, pObject);
+  m_pValue->MoveTypedObject(pObject, pType);
 }
 
 template <>
@@ -278,4 +298,42 @@ void operator>>(ezStreamReader& Stream, ezTimestamp& Value)
   Value.SetInt64(value, ezSIUnitOfTime::Microsecond);
 }
 
+// ezVarianceTypeFloat
+
+void operator<<(ezStreamWriter& Stream, const ezVarianceTypeFloat& Value)
+{
+  Stream << Value.m_fVariance;
+  Stream << Value.m_Value;
+}
+void operator>>(ezStreamReader& Stream, ezVarianceTypeFloat& Value)
+{
+  Stream >> Value.m_fVariance;
+  Stream >> Value.m_Value;
+}
+
+// ezVarianceTypeTime
+
+void operator<<(ezStreamWriter& Stream, const ezVarianceTypeTime& Value)
+{
+  Stream << Value.m_fVariance;
+  Stream << Value.m_Value;
+}
+void operator>>(ezStreamReader& Stream, ezVarianceTypeTime& Value)
+{
+  Stream >> Value.m_fVariance;
+  Stream >> Value.m_Value;
+}
+
+// ezVarianceTypeAngle
+
+void operator<<(ezStreamWriter& Stream, const ezVarianceTypeAngle& Value)
+{
+  Stream << Value.m_fVariance;
+  Stream << Value.m_Value;
+}
+void operator>>(ezStreamReader& Stream, ezVarianceTypeAngle& Value)
+{
+  Stream >> Value.m_fVariance;
+  Stream >> Value.m_Value;
+}
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);

@@ -2,6 +2,7 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectChangeType, 1)
@@ -156,6 +157,50 @@ void ezAbstractObjectNode::RenameProperty(const char* szOldName, const char* szN
       return;
     }
   }
+}
+
+ezResult ezAbstractObjectNode::InlineProperty(const char* szName)
+{
+  for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
+  {
+    Property& prop = m_Properties[i];
+    if (ezStringUtils::IsEqual(prop.m_szPropertyName, szName))
+    {
+      if (!prop.m_Value.IsA<ezUuid>())
+        return EZ_FAILURE;
+
+      ezUuid guid = prop.m_Value.Get<ezUuid>();
+      ezAbstractObjectNode* pNode = m_pOwner->GetNode(guid);
+      if (!pNode)
+        return EZ_FAILURE;
+
+      class InlineContext : public ezRttiConverterContext
+      {
+      public:
+        void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override
+        {
+          m_SubTree.PushBack(guid);
+        }
+        ezHybridArray<ezUuid, 1> m_SubTree;
+      };
+
+      InlineContext context;
+      ezRttiConverterReader reader(m_pOwner, &context);
+      void* pObject = reader.CreateObjectFromNode(pNode);
+      if (!pObject)
+        return EZ_FAILURE;
+
+      prop.m_Value.MoveTypedObject(pObject, ezRTTI::FindTypeByName(pNode->GetType()));
+
+      // Delete old objects.
+      for (ezUuid& uuid : context.m_SubTree)
+      {
+        m_pOwner->RemoveNode(uuid);
+      }
+      return EZ_SUCCESS;
+    }
+  }
+  return EZ_FAILURE;
 }
 
 void ezAbstractObjectNode::RemoveProperty(const char* szName)

@@ -6,9 +6,11 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_VelocityCone.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_VelocityCone>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_VelocityCone>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -115,6 +117,22 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+class ezParticleInitializerFactory_VelocityCone_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleInitializerFactory_VelocityCone_1_2()
+    : ezGraphPatch("ezParticleInitializerFactory_VelocityCone", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->InlineProperty("Speed").IgnoreResult();
+  }
+};
+
+ezParticleInitializerFactory_VelocityCone_1_2 g_ezParticleInitializerFactory_VelocityCone_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_VelocityCone);

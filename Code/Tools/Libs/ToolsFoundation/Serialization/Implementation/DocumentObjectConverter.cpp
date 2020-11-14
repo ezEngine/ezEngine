@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
 {
@@ -27,6 +28,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
     return;
 
   const ezRTTI* pPropType = pProp->GetSpecificType();
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
 
   switch (pProp->GetCategory())
   {
@@ -56,7 +58,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
             pPropType, pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).ConvertTo<ezInt64>(), sTemp);
           pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        else if (bIsValueType)
         {
           pNode->AddProperty(pProp->GetPropertyName(), pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()));
         }
@@ -84,7 +86,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
       for (ezInt32 i = 0; i < iCount; ++i)
       {
         values[i] = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
-        if (!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (!bIsValueType)
         {
           m_QueuedObjects.Insert(m_pManager->GetObject(values[i].Get<ezUuid>()));
         }
@@ -106,7 +108,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
       {
         ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), key);
         values.Insert(key.Get<ezString>(), value);
-        if (!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (!bIsValueType)
         {
           m_QueuedObjects.Insert(m_pManager->GetObject(value.Get<ezUuid>()));
         }
@@ -232,6 +234,8 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
 {
   ezStringBuilder sTemp;
 
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+
   auto NeedsToBeDeleted = [&diff](const ezUuid& guid) -> bool {
     for (auto& op : diff)
     {
@@ -253,7 +257,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
   {
     case ezPropertyCategory::Member:
     {
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) || bIsValueType)
       {
         pObjectAccessor->SetValue(pObject, pProp, op.m_Value);
       }
@@ -301,8 +305,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
     {
       const ezVariantArray& values = op.m_Value.Get<ezVariantArray>();
       ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
-          !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+      if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
         for (ezUInt32 i = 0; i < values.GetCount(); ++i)
         {
@@ -350,7 +353,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
       ezHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(pObjectAccessor->GetKeys(pObject, pProp, keys).Succeeded(), "Property is not a map, getting keys failed.");
 
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
+      if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer) &&
           !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
         for (const ezVariant& key : keys)
@@ -409,6 +412,8 @@ void ezDocumentObjectConverterReader::ApplyProperty(
 {
   ezStringBuilder sTemp;
 
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+
   switch (pProp->GetCategory())
   {
     case ezPropertyCategory::Member:
@@ -437,7 +442,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(
       }
       else
       {
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
+        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) || bIsValueType)
         {
           pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), pSource->m_Value);
         }
@@ -461,8 +466,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(
     {
       const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
       const ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
-          !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+      if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
         for (ezUInt32 i = 0; i < array.GetCount(); ++i)
         {
@@ -522,8 +526,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(
       ezHybridArray<ezVariant, 16> keys;
       pObject->GetTypeAccessor().GetKeys(pProp->GetPropertyName(), keys);
 
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
-          !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+      if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
         for (const ezVariant& key : keys)
         {

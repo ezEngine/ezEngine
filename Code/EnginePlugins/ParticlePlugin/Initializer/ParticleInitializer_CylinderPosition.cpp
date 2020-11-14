@@ -6,9 +6,11 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_CylinderPosition>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_CylinderPosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -209,5 +211,23 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
     pPosition[i] = (trans * pos).GetAsVec4(0);
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezParticleInitializerFactory_CylinderPosition_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleInitializerFactory_CylinderPosition_1_2()
+    : ezGraphPatch("ezParticleInitializerFactory_CylinderPosition", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->InlineProperty("Speed").IgnoreResult();
+  }
+};
+
+ezParticleInitializerFactory_CylinderPosition_1_2 g_ezParticleInitializerFactory_CylinderPosition_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);

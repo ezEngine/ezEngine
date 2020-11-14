@@ -10,6 +10,7 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 namespace
 {
@@ -100,6 +101,8 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
 
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
+
   switch (pProperty->GetCategory())
   {
     case ezPropertyCategory::Member:
@@ -110,7 +113,7 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
     case ezPropertyCategory::Array:
     case ezPropertyCategory::Set:
     {
-      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType) && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
+      if (bIsValueType && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
       {
         const ezVariantArray& value = pAttrib->GetValue().Get<ezVariantArray>();
         ezVariantArray ret;

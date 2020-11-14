@@ -155,24 +155,26 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColorGammaUB& value)
   InitInplace(value);
 }
 
-EZ_ALWAYS_INLINE ezVariant::ezVariant(ezReflectedClass* value)
+template<typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const T& value)
 {
-  InitInplace(value);
+  const constexpr bool forceSharing = TypeDeduction<T>::forceSharing;
+  const constexpr bool inlineSized = sizeof(T) <= InlinedStruct::DataSize;
+  const constexpr bool isPOD = ezIsPodType<T>::value;
+  InitTypedObject(value, ezTraitInt<(!forceSharing && inlineSized && isPOD) ? 1 : 0>());
 }
 
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezReflectedClass* value)
+template<typename T>
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const T* value)
 {
-  InitInplace(value);
+  constexpr bool bla = !std::is_same<T, void>::value;
+  EZ_CHECK_AT_COMPILETIME(bla);
+  InitTypedPointer(const_cast<T*>(value), ezGetStaticRTTI<T>());
 }
 
-EZ_ALWAYS_INLINE ezVariant::ezVariant(void* value)
+EZ_ALWAYS_INLINE ezVariant::ezVariant(void* value, const ezRTTI* pType)
 {
-  InitInplace(value);
-}
-
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const void* value)
-{
-  InitInplace(value);
+  InitTypedPointer(value, pType);
 }
 
 EZ_ALWAYS_INLINE ezVariant::~ezVariant()
@@ -255,10 +257,56 @@ EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPoint() const
   return IsFloatingPointStatic(m_Type);
 }
 
-template <typename T>
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int>>
 EZ_ALWAYS_INLINE bool ezVariant::IsA() const
 {
   return m_Type == TypeDeduction<T>::value;
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int>>
+EZ_ALWAYS_INLINE bool ezVariant::IsA() const
+{
+  if (m_Type == TypeDeduction<T>::value)
+  {
+    const ezTypedPointer& ptr = *reinterpret_cast<const ezTypedPointer*>(&m_Data);
+    // Always allow cast to void*.
+    if constexpr (std::is_same<T, void*>::value || std::is_same<T, const void*>::value)
+    {
+      return true;
+    }
+    else if (ptr.m_pType)
+    {
+      typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
+      const ezRTTI* pType = ezGetStaticRTTI<NonPointerT>();
+      return ptr.m_pType->IsDerivedFrom(pType);
+    }
+    else if (!ptr.m_pObject)
+    {
+      // nullptr can be converted to anything
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::TypedObject, int>>
+EZ_ALWAYS_INLINE bool ezVariant::IsA() const
+{
+  return m_Type == TypeDeduction<T>::value;
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
+EZ_ALWAYS_INLINE bool ezVariant::IsA() const
+{
+  typedef typename ezTypeTraits<T>::NonConstReferenceType NonRefT;
+  if (m_Type == TypeDeduction<T>::value)
+  {
+    if (const ezRTTI* pType = GetReflectedType())
+    {
+      return pType->IsDerivedFrom(ezGetStaticRTTI<NonRefT>());
+    }
+  }
+  return false;
 }
 
 EZ_ALWAYS_INLINE ezVariant::Type::Enum ezVariant::GetType() const
@@ -266,20 +314,40 @@ EZ_ALWAYS_INLINE ezVariant::Type::Enum ezVariant::GetType() const
   return static_cast<Type::Enum>(m_Type);
 }
 
-template <typename T>
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int>>
 EZ_ALWAYS_INLINE const T& ezVariant::Get() const
 {
   EZ_ASSERT_DEV(IsA<T>(), "Stored type '{0}' does not match requested type '{1}'", m_Type, TypeDeduction<T>::value);
   return Cast<T>();
 }
 
-EZ_ALWAYS_INLINE void* ezVariant::GetData()
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int>>
+EZ_ALWAYS_INLINE T ezVariant::Get() const
 {
-  return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
+  EZ_ASSERT_DEV(IsA<T>(), "Stored type '{0}' does not match requested type '{1}'", m_Type, TypeDeduction<T>::value);
+  return Cast<T>();
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::TypedObject, int>>
+EZ_ALWAYS_INLINE const T ezVariant::Get() const
+{
+  EZ_ASSERT_DEV(IsA<T>(), "Stored type '{0}' does not match requested type '{1}'", m_Type, TypeDeduction<T>::value);
+  return Cast<T>();
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
+EZ_ALWAYS_INLINE const T& ezVariant::Get() const
+{
+  EZ_ASSERT_DEV(m_Type == TypeDeduction<T>::value, "Stored type '{0}' does not match requested type '{1}'", m_Type, TypeDeduction<T>::value);
+  return Cast<T>();
 }
 
 EZ_ALWAYS_INLINE const void* ezVariant::GetData() const
 {
+  if (m_Type == Type::TypedPointer)
+  {
+    return Cast<ezTypedPointer>().m_pObject;
+  }
   return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
 }
 
@@ -320,13 +388,13 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = nullptr*/) const
 
 // for some reason MSVC does not accept the template keyword here
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-#  define CALL_FUNCTOR(functor, type) functor.operator()<type>()
+#  define CALL_FUNCTOR(functor, type) return functor.operator()<type>(std::forward<Args>(args)...)
 #else
-#  define CALL_FUNCTOR(functor, type) functor.template operator()<type>()
+#  define CALL_FUNCTOR(functor, type) return functor.template operator(std::forward<Args>(args)...)<type>()
 #endif
 
-template <typename Functor>
-void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
+template <typename Functor, class... Args>
+auto ezVariant::DispatchTo(Functor& functor, Type::Enum type, Args&&... args)
 {
   switch (type)
   {
@@ -466,16 +534,15 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
       CALL_FUNCTOR(functor, ezVariantDictionary);
       break;
 
-    case Type::ReflectedPointer:
-      CALL_FUNCTOR(functor, ezReflectedClass*);
-      break;
-
-    case Type::VoidPointer:
-      CALL_FUNCTOR(functor, void*);
+    case Type::TypedObject:
+      CALL_FUNCTOR(functor, ezTypedObject);
       break;
 
     default:
       EZ_REPORT_FAILURE("Could not dispatch type '{0}'", type);
+      // Intended fall through to disable warning.
+    case Type::TypedPointer:
+      CALL_FUNCTOR(functor, ezTypedPointer);
       break;
   }
 }
@@ -492,6 +559,32 @@ EZ_FORCE_INLINE void ezVariant::InitInplace(const T& value)
   ezMemoryUtils::CopyConstruct(reinterpret_cast<T*>(&m_Data), value, 1);
 
   m_Type = TypeDeduction<T>::value;
+  m_bIsShared = false;
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezVariant::InitTypedObject(const T& value, ezTraitInt<0>)
+{
+  typedef typename TypeDeduction<T>::StorageType StorageType;
+
+  EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(InlinedStruct::DataSize)) || TypeDeduction<T>::forceSharing, "Value should be inplace instead.");
+  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
+  const ezRTTI* pType = ezGetStaticRTTI<T>();
+  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, pType);
+  m_Type = Type::TypedObject;
+  m_bIsShared = true;
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezVariant::InitTypedObject(const T& value, ezTraitInt<1>)
+{
+  typedef typename TypeDeduction<T>::StorageType StorageType;
+  EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) <= InlinedStruct::DataSize) && !TypeDeduction<T>::forceSharing, "Value can't be stored inplace.");
+  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
+  EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
+  ezMemoryUtils::CopyConstruct(reinterpret_cast<T*>(&m_Data), value, 1);
+  m_Data.inlined.m_pType = ezGetStaticRTTI<T>();
+  m_Type = Type::TypedObject;
   m_bIsShared = false;
 }
 
@@ -533,25 +626,46 @@ EZ_ALWAYS_INLINE void ezVariant::MoveFrom(ezVariant&& other)
   other.m_Data.shared = nullptr;
 }
 
-template <typename T>
-EZ_FORCE_INLINE T& ezVariant::Cast()
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int>>
+const T& ezVariant::Cast() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "Value of this type cannot be compared against a Variant");
   const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
   EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
 
-  return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ? *static_cast<T*>(m_Data.shared->m_Ptr) : *reinterpret_cast<T*>(&m_Data);
+  return m_bIsShared ? *static_cast<const T*>(m_Data.shared->m_Ptr) : *reinterpret_cast<const T*>(&m_Data);
 }
 
-template <typename T>
-EZ_FORCE_INLINE const T& ezVariant::Cast() const
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int>>
+T ezVariant::Cast() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "Value of this type cannot be compared against a Variant");
-  const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
-  EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
+  const ezTypedPointer& ptr = *reinterpret_cast<const ezTypedPointer*>(&m_Data);
 
-  return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ? *static_cast<const T*>(m_Data.shared->m_Ptr)
-                                                                      : *reinterpret_cast<const T*>(&m_Data);
+  const ezRTTI* pType = GetReflectedType();
+  typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonRefPtrT;
+  if constexpr (!std::is_same<T, void*>::value && !std::is_same<T, const void*>::value)
+  {
+    EZ_ASSERT_DEV(pType == nullptr || pType->IsDerivedFrom(ezGetStaticRTTI<NonRefPtrT>()), "Object of type '{0}' does not derive from '{}'", pType->GetTypeName(), ezGetStaticRTTI<NonRefPtrT>()->GetTypeName());
+  }
+  return static_cast<T>(ptr.m_pObject);
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::TypedObject, int>>
+const T ezVariant::Cast() const
+{
+  ezTypedObject obj;
+  obj.m_pObject = GetData();
+  obj.m_pType = GetReflectedType();
+  return obj;
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
+const T& ezVariant::Cast() const
+{
+  const ezRTTI* pType = GetReflectedType();
+  typedef typename ezTypeTraits<T>::NonConstReferenceType NonRefT;
+  EZ_ASSERT_DEV(pType->IsDerivedFrom(ezGetStaticRTTI<NonRefT>()), "Object of type '{0}' does not derive from '{}'", pType->GetTypeName(), ezGetStaticRTTI<NonRefT>()->GetTypeName());
+
+  return m_bIsShared ? *static_cast<const T*>(m_Data.shared->m_Ptr) : *reinterpret_cast<const T*>(&m_Data);
 }
 
 EZ_ALWAYS_INLINE bool ezVariant::IsNumberStatic(ezUInt32 type)

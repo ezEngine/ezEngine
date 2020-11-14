@@ -4,6 +4,7 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ads/DockWidget.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class ezQtContainerWindow;
 
@@ -31,3 +32,4 @@ private:
 
   ezQtContainerWindow* m_pContainerWindow;
 };
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezQtApplicationPanel);

@@ -74,8 +74,7 @@ struct ezIsStandardType
 {
   enum
   {
-    // TODO: Not quite correct.
-    value = ezVariant::TypeDeduction<C>::value != ezVariantType::Invalid,
+    value = ezVariant::TypeDeduction<C>::value >= ezVariantType::FirstStandardType && ezVariant::TypeDeduction<C>::value <= ezVariantType::LastStandardType,
   };
 };
 
@@ -90,11 +89,31 @@ struct ezIsStandardType<T, ezVariant>
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Used to determine if the given type is a
+template <class T, class C = typename ezCleanType<T>::Type>
+struct ezIsValueType
+{
+  enum
+  {
+    value = ezVariant::TypeDeduction<C>::value >= ezVariantType::FirstStandardType && ezVariant::TypeDeduction<C>::value <= ezVariantType::LastStandardType || ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast,
+  };
+};
+
+template <class T>
+struct ezIsValueType<T, ezVariant>
+{
+  enum
+  {
+    value = true,
+  };
+};
+
+//////////////////////////////////////////////////////////////////////////
 /// \brief Used to automatically assign any value to an ezVariant using the assignment rules
 /// outlined in ezAbstractFunctionProperty::Execute.
-template <class T,                                ///< Only this parameter needs to be provided, the actual type of the value.
-  class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
-  int STANDARD_TYPE = ezIsStandardType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType
+template <class T,                                        ///< Only this parameter needs to be provided, the actual type of the value.
+          class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
+          int VALUE_TYPE = ezIsValueType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType or a custom type
 struct ezVariantAssignmentAdapter
 {
   using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
@@ -107,7 +126,7 @@ struct ezVariantAssignmentAdapter
   void operator=(T&& rhs)
   {
     if (m_value.IsValid())
-      *static_cast<RealType*>(m_value.ConvertTo<void*>()) = rhs;
+      *m_value.Get<RealType*>() = rhs;
   }
   ezVariant& m_value;
 };
@@ -159,9 +178,9 @@ struct ezVariantAssignmentAdapter<T, C, 1>
 /// \brief Used to implicitly retrieve any value from an ezVariant to be used as a function argument
 /// using the assignment rules outlined in ezAbstractFunctionProperty::Execute.
 template <class T, ///< Only this parameter needs to be provided, the actual type of the argument. Rest is used to force specializations.
-  class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
-  int STANDARD_TYPE = ezIsStandardType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType
-  int OUT_PARAM = ezIsOutParam<T>::value>         ///< Is 1 if T a non-const reference or pointer.
+          class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
+          int VALUE_TYPE = ezIsValueType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType or a custom type
+          int OUT_PARAM = ezIsOutParam<T>::value>         ///< Is 1 if T a non-const reference or pointer.
 struct ezVariantAdapter
 {
   using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
@@ -171,9 +190,9 @@ struct ezVariantAdapter
   {
   }
 
-  operator RealType&() { return *static_cast<RealType*>(m_value.ConvertTo<void*>()); }
+  operator RealType&() { return *m_value.Get<RealType*>(); }
 
-  operator RealType*() { return m_value.IsValid() ? static_cast<RealType*>(m_value.ConvertTo<void*>()) : nullptr; }
+  operator RealType*() { return m_value.IsValid() ? m_value.Get<RealType*>() : nullptr; }
 
   ezVariant& m_value;
 };
@@ -269,9 +288,25 @@ struct ezVariantAdapter<T, C, 1, 0>
   {
   }
 
-  operator const C &() { return m_value.Get<RealType>(); }
+  operator const C&()
+  {
+    if constexpr (ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast)
+    {
+      if (m_value.GetType() == ezVariantType::TypedPointer)
+        return *m_value.Get<RealType*>();
+    }
+    return m_value.Get<RealType>();
+  }
 
-  operator const C *() { return m_value.IsValid() ? &m_value.Get<RealType>() : nullptr; }
+  operator const C*()
+  {
+    if constexpr (ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast)
+    {
+      if (m_value.GetType() == ezVariantType::TypedPointer)
+        return m_value.IsValid() ? m_value.Get<RealType*>() : nullptr;
+    }
+    return m_value.IsValid() ? &m_value.Get<RealType>() : nullptr;
+  }
 
   ezVariant& m_value;
 };
@@ -281,22 +316,28 @@ struct ezVariantAdapter<T, C, 1, 1>
 {
   using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
-    : m_value(value)
+      : m_value(value)
   {
-    if (m_value.IsValid())
-      m_realValue = m_value.Get<RealType>();
-  }
-  ~ezVariantAdapter()
-  {
-    if (m_value.IsValid())
-      m_value = m_realValue;
+    // We ignore the return value here instead const_cast the Get<> result to profit from the Get methods runtime type checks.
+    m_value.GetWriteAccess();
   }
 
-  operator C&() { return m_realValue; }
-  operator C*() { return m_value.IsValid() ? &m_realValue : nullptr; }
+  operator C& ()
+  {
+    if (m_value.GetType() == ezVariantType::TypedPointer)
+      return *m_value.Get<RealType*>();
+    else
+      return const_cast<RealType&>(m_value.Get<RealType>());
+  }
+  operator C*()
+  {
+    if (m_value.GetType() == ezVariantType::TypedPointer)
+      return m_value.IsValid() ? m_value.Get<RealType*>() : nullptr;
+    else
+      return m_value.IsValid() ? &const_cast<RealType&>(m_value.Get<RealType>()) : nullptr;
+  }
 
   ezVariant& m_value;
-  RealType m_realValue;
 };
 
 template <class T>
