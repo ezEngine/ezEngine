@@ -373,7 +373,10 @@ private:
   static bool IsVector2Static(ezUInt32 type);
   static bool IsVector3Static(ezUInt32 type);
   static bool IsVector4Static(ezUInt32 type);
+
+  // Needed to prevent including ezRTTI in ezVariant.h
   static bool IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2);
+  static const char* GetTypeName(const ezRTTI* pType);
 
   template <typename T>
   T ConvertNumber() const;

@@ -482,7 +482,7 @@ T ezVariant::Cast() const
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonRefPtrT;
   if constexpr (!std::is_same<T, void*>::value && !std::is_same<T, const void*>::value)
   {
-    EZ_ASSERT_DEV(pType == nullptr || IsDerivedFrom(pType, ezGetStaticRTTI<NonRefPtrT>()), "Object of type '{0}' does not derive from '{}'", pType->GetTypeName(), ezGetStaticRTTI<NonRefPtrT>()->GetTypeName());
+    EZ_ASSERT_DEV(pType == nullptr || IsDerivedFrom(pType, ezGetStaticRTTI<NonRefPtrT>()), "Object of type '{0}' does not derive from '{}'", GetTypeName(pType), GetTypeName(ezGetStaticRTTI<NonRefPtrT>()));
   }
   return static_cast<T>(ptr.m_pObject);
 }
@@ -501,7 +501,7 @@ const T& ezVariant::Cast() const
 {
   const ezRTTI* pType = GetReflectedType();
   typedef typename ezTypeTraits<T>::NonConstReferenceType NonRefT;
-  EZ_ASSERT_DEV(IsDerivedFrom(pType, ezGetStaticRTTI<NonRefT>()), "Object of type '{0}' does not derive from '{}'", pType->GetTypeName(), ezGetStaticRTTI<NonRefT>()->GetTypeName());
+  EZ_ASSERT_DEV(IsDerivedFrom(pType, ezGetStaticRTTI<NonRefT>()), "Object of type '{0}' does not derive from '{}'", GetTypeName(pType), GetTypeName(ezGetStaticRTTI<NonRefT>()));
 
   return m_bIsShared ? *static_cast<const T*>(m_Data.shared->m_Ptr) : *reinterpret_cast<const T*>(&m_Data);
 }
