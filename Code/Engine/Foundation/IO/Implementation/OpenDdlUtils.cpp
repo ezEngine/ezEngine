@@ -1436,6 +1436,9 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
               case ezPropertyCategory::Map:
                 EZ_REPORT_FAILURE("Only member properties are supported in custom variant types!");
                 break;
+              case ezPropertyCategory::Constant:
+              case ezPropertyCategory::Function:
+                break;
             }
           }
         }
