@@ -3,10 +3,13 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Reflection/Implementation/AbstractProperty.h>
+#include <Foundation/Reflection/Implementation/RTTI.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Uuid.h>
 #include <Foundation/Types/Variant.h>
-
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezResult ezOpenDdlUtils::ConvertToColor(const ezOpenDdlReaderElement* pElement, ezColor& out_result)
 {
@@ -667,10 +670,6 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    // always expect exactly one child
-    if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
-
     if (ezStringUtils::IsEqual(pElement->GetCustomType(), "VarDataBuffer"))
     {
       /// \test This is just quickly hacked
@@ -869,6 +868,46 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
 
       out_result = value;
       return EZ_SUCCESS;
+    }
+
+    if (const ezRTTI* pRTTI = ezRTTI::FindTypeByName(pElement->GetCustomType()))
+    {
+      if (ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pRTTI))
+      {
+        if (pElement == nullptr)
+          return EZ_FAILURE;
+
+        void* pObject = pRTTI->GetAllocator()->Allocate<void>();
+
+        for (const ezOpenDdlReaderElement* pChildElement = pElement->GetFirstChild(); pChildElement != nullptr; pChildElement = pChildElement->GetSibling())
+        {
+          if (!pChildElement->HasName())
+            continue;
+
+          if (ezAbstractProperty* pProp = pRTTI->FindPropertyByName(pChildElement->GetName()))
+          {
+            // Custom types should be POD and only consist of member properties.
+            if (pProp->GetCategory() == ezPropertyCategory::Member)
+            {
+              ezVariant subValue;
+              if (ConvertToVariant(pChildElement, subValue).Succeeded())
+              {
+                ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pObject, subValue);
+              }
+            }
+          }
+        }
+        out_result.MoveTypedObject(pObject, pRTTI);
+        return EZ_SUCCESS;
+      }
+      else
+      {
+        ezLog::Error("The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", pElement->GetCustomType());
+      }
+    }
+    else
+    {
+      ezLog::Error("The type '{0}' is unknown.", pElement->GetCustomType());
     }
   }
   else
@@ -1372,6 +1411,45 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
     }
       return;
 
+    case ezVariant::Type::TypedObject:
+    {
+      ezTypedObject obj = value.Get<ezTypedObject>();
+      if (ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(obj.m_pType))
+      {
+        writer.BeginObject(obj.m_pType->GetTypeName(), szName, bGlobalName);
+        {
+          ezHybridArray<ezAbstractProperty*, 32> properties;
+          obj.m_pType->GetAllProperties(properties);
+          for (const ezAbstractProperty* pProp : properties)
+          {
+            // Custom types should be POD and only consist of member properties.
+            switch (pProp->GetCategory())
+            {
+              case ezPropertyCategory::Member:
+              {
+                ezVariant subValue = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), obj.m_pObject);
+                StoreVariant(writer, subValue, pProp->GetPropertyName(), false);
+              }
+              break;
+              case ezPropertyCategory::Array:
+              case ezPropertyCategory::Set:
+              case ezPropertyCategory::Map:
+                EZ_REPORT_FAILURE("Only member properties are supported in custom variant types!");
+                break;
+              case ezPropertyCategory::Constant:
+              case ezPropertyCategory::Function:
+                break;
+            }
+          }
+        }
+        writer.EndObject();
+      }
+      else
+      {
+        ezLog::Error("The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", obj.m_pType->GetTypeName());
+      }
+    }
+      return;
     default:
       EZ_REPORT_FAILURE("Can't write this type of Variant");
   }

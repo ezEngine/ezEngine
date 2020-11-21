@@ -236,7 +236,15 @@ void ezGraphVersioning::PatchGraph(ezAbstractObjectGraph* pGraph, ezAbstractObje
 
 void ezGraphVersioning::PluginEventHandler(const ezPluginEvent& EventData)
 {
-  UpdatePatches();
+  switch (EventData.m_EventType)
+  {
+    case ezPluginEvent::AfterLoadingBeforeInit:
+    case ezPluginEvent::AfterUnloading:
+      UpdatePatches();
+      break;
+    default:
+      break;
+  }
 }
 
 void ezGraphVersioning::UpdatePatches()

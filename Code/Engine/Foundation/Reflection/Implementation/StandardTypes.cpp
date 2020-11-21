@@ -394,7 +394,7 @@ EZ_BITFLAGS_CONSTANTS(ezVariantType::Color, ezVariantType::Vector2, ezVariantTyp
 EZ_BITFLAGS_CONSTANTS(ezVariantType::Vector2I, ezVariantType::Vector3I, ezVariantType::Vector4I, ezVariantType::Vector2U, ezVariantType::Vector3U, ezVariantType::Vector4U)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::Quaternion, ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::Transform)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::String, ezVariantType::StringView, ezVariantType::DataBuffer, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle, ezVariantType::ColorGamma)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::VariantArray, ezVariantType::VariantDictionary, ezVariantType::ReflectedPointer, ezVariantType::VoidPointer)
+EZ_BITFLAGS_CONSTANTS(ezVariantType::VariantArray, ezVariantType::VariantDictionary, ezVariantType::TypedPointer, ezVariantType::TypedObject)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyCategory, 1)

@@ -6,6 +6,97 @@
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
 
 
+template <typename T>
+void TestSerialization(const T& source)
+{
+  ezMemoryStreamStorage StreamStorage;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToDDL")
+  {
+    ezMemoryStreamWriter FileOut(&StreamStorage);
+
+    ezReflectionSerializer::WriteObjectToDDL(FileOut, ezGetStaticRTTI<T>(), &source, false, ezOpenDdlWriter::TypeStringMode::Compliant);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromDDL")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+    T data;
+    ezReflectionSerializer::ReadObjectPropertiesFromDDL(FileIn, *ezGetStaticRTTI<T>(), &data);
+
+    EZ_TEST_BOOL(data == source);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromDDL")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+
+    const ezRTTI* pRtti;
+    void* pObject = ezReflectionSerializer::ReadObjectFromDDL(FileIn, pRtti);
+
+    T& c2 = *((T*)pObject);
+
+    EZ_TEST_BOOL(c2 == source);
+
+    if (pObject)
+    {
+      pRtti->GetAllocator()->Deallocate(pObject);
+    }
+  }
+
+  ezMemoryStreamStorage StreamStorageBinary;
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToBinary")
+  {
+    ezMemoryStreamWriter FileOut(&StreamStorageBinary);
+
+    ezReflectionSerializer::WriteObjectToBinary(FileOut, ezGetStaticRTTI<T>(), &source);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromBinary")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorageBinary);
+    T data;
+    ezReflectionSerializer::ReadObjectPropertiesFromBinary(FileIn, *ezGetStaticRTTI<T>(), &data);
+
+    EZ_TEST_BOOL(data == source);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromBinary")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorageBinary);
+
+    const ezRTTI* pRtti;
+    void* pObject = ezReflectionSerializer::ReadObjectFromBinary(FileIn, pRtti);
+
+    T& c2 = *((T*)pObject);
+
+    EZ_TEST_BOOL(c2 == source);
+
+    if (pObject)
+    {
+      pRtti->GetAllocator()->Deallocate(pObject);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clone")
+  {
+    {
+      T clone;
+      ezReflectionSerializer::Clone(&source, &clone, ezGetStaticRTTI<T>());
+      EZ_TEST_BOOL(clone == source);
+      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&clone, &source, ezGetStaticRTTI<T>()));
+    }
+
+    {
+      T* pClone = ezReflectionSerializer::Clone(&source);
+      EZ_TEST_BOOL(*pClone == source);
+      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, &source));
+      ezGetStaticRTTI<T>()->GetAllocator()->Deallocate(pClone);
+    }
+  }
+}
+
+
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 
@@ -117,7 +208,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       ezRTTI* pType = ezRTTI::FindTypeByName("ezTestStruct");
 
       auto Props = pType->GetProperties();
-      EZ_TEST_INT(Props.GetCount(), 8);
+      EZ_TEST_INT(Props.GetCount(), 9);
       EZ_TEST_STRING(Props[0]->GetPropertyName(), "Float");
       EZ_TEST_STRING(Props[1]->GetPropertyName(), "Vector");
       EZ_TEST_STRING(Props[2]->GetPropertyName(), "Int");
@@ -126,6 +217,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       EZ_TEST_STRING(Props[5]->GetPropertyName(), "Angle");
       EZ_TEST_STRING(Props[6]->GetPropertyName(), "DataBuffer");
       EZ_TEST_STRING(Props[7]->GetPropertyName(), "vVec3I");
+      EZ_TEST_STRING(Props[8]->GetPropertyName(), "VarianceAngle");
     }
 
     {
@@ -336,8 +428,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
 
 template <typename T, typename T2>
-void TestMemberProperty(
-  const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T2 expectedValue, T2 testValue)
+void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T2 expectedValue, T2 testValue, bool testDefaultValue = true)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
@@ -352,11 +443,30 @@ void TestMemberProperty(
   T value = pMember->GetValue(pObject);
   EZ_TEST_BOOL(expectedValue == value);
 
+  if (testDefaultValue)
+  {
+    // Default value
+    ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
+    EZ_TEST_BOOL(ezVariant(expectedValue) == defaultValue);
+  }
+
   if (!pMember->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
     pMember->SetValue(pObject, testValue);
 
     EZ_TEST_BOOL(testValue == pMember->GetValue(pObject));
+
+    ezReflectionUtils::SetMemberPropertyValue(pMember, pObject, ezVariant(expectedValue));
+    ezVariant res = ezReflectionUtils::GetMemberPropertyValue(pMember, pObject);
+
+    EZ_TEST_BOOL(res == ezVariant(expectedValue));
+    EZ_TEST_BOOL(res != ezVariant(testValue));
+
+    ezReflectionUtils::SetMemberPropertyValue(pMember, pObject, ezVariant(testValue));
+    res = ezReflectionUtils::GetMemberPropertyValue(pMember, pObject);
+
+    EZ_TEST_BOOL(res != ezVariant(expectedValue));
+    EZ_TEST_BOOL(res == ezVariant(testValue));
   }
 }
 
@@ -369,10 +479,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 
     TestMemberProperty<float>("Float", &data, pRtti, ezPropertyFlags::StandardType, 1.1f, 5.0f);
     TestMemberProperty<ezInt32>("Int", &data, pRtti, ezPropertyFlags::StandardType, 2, -8);
-    TestMemberProperty<ezVec3>(
-      "Vector", &data, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(0, -1.0f, 3.14f));
-    TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"), ezVariant(ezVec3(0, -1.0f, 3.14f)));
+    TestMemberProperty<ezVec3>("Vector", &data, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5),
+      ezVec3(0, -1.0f, 3.14f));
+    TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"),
+      ezVariant(ezVec3(0, -1.0f, 3.14f)));
     TestMemberProperty<ezAngle>("Angle", &data, pRtti, ezPropertyFlags::StandardType, ezAngle::Degree(0.5f), ezAngle::Degree(1.0f));
+    ezVarianceTypeAngle expectedVA = {0.5f, ezAngle::Degree(90.0f)};
+    ezVarianceTypeAngle testVA = {0.1f, ezAngle::Degree(45.0f)};
+    TestMemberProperty<ezVarianceTypeAngle>("VarianceAngle", &data, pRtti, ezPropertyFlags::Class, expectedVA, testVA);
 
     ezDataBuffer expected;
     expected.PushBack(255);
@@ -385,6 +499,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 
     TestMemberProperty<ezDataBuffer>("DataBuffer", &data, pRtti, ezPropertyFlags::StandardType, expected, newValue);
     TestMemberProperty<ezVec3I32>("vVec3I", &data, pRtti, ezPropertyFlags::StandardType, ezVec3I32(1, 2, 3), ezVec3I32(5, 6, 7));
+
+    TestSerialization<ezTestStruct>(data);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTestClass2")
@@ -393,15 +509,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     const ezRTTI* pRtti = ezGetStaticRTTI<ezTestClass2>();
 
     {
-      TestMemberProperty<const char*>(
-        "Text", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::Const, ezString("Legen"), ezString("dary"));
+      TestMemberProperty<const char*>("Text", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::Const, ezString("Legen"), ezString("dary"));
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubVector", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }
 
     {
-      TestMemberProperty<ezVec3>(
-        "SubVector", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(3, 4, 5));
+      TestMemberProperty<ezVec3>("SubVector", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(3, 4, 5));
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubStruct", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }
@@ -418,101 +532,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 
       EZ_TEST_BOOL(pSubStruct != nullptr);
 
-      TestMemberProperty<float>("Float", pSubStruct, pStruct, ezPropertyFlags::StandardType, 33.3f, 44.4f);
+      TestMemberProperty<float>("Float", pSubStruct, pStruct, ezPropertyFlags::StandardType, 33.3f, 44.4f, false);
     }
+
+    TestSerialization<ezTestClass2>(Instance);
   }
 }
 
-
-template <typename T>
-void TestSerialization(const T& source)
-{
-  ezMemoryStreamStorage StreamStorage;
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToDDL")
-  {
-    ezMemoryStreamWriter FileOut(&StreamStorage);
-
-    ezReflectionSerializer::WriteObjectToDDL(FileOut, ezGetStaticRTTI<T>(), &source, false, ezOpenDdlWriter::TypeStringMode::Compliant);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromDDL")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-    T data;
-    ezReflectionSerializer::ReadObjectPropertiesFromDDL(FileIn, *ezGetStaticRTTI<T>(), &data);
-
-    EZ_TEST_BOOL(data == source);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromDDL")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-
-    const ezRTTI* pRtti;
-    void* pObject = ezReflectionSerializer::ReadObjectFromDDL(FileIn, pRtti);
-
-    T& c2 = *((T*)pObject);
-
-    EZ_TEST_BOOL(c2 == source);
-
-    if (pObject)
-    {
-      pRtti->GetAllocator()->Deallocate(pObject);
-    }
-  }
-
-  ezMemoryStreamStorage StreamStorageBinary;
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToBinary")
-  {
-    ezMemoryStreamWriter FileOut(&StreamStorageBinary);
-
-    ezReflectionSerializer::WriteObjectToBinary(FileOut, ezGetStaticRTTI<T>(), &source);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromBinary")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorageBinary);
-    T data;
-    ezReflectionSerializer::ReadObjectPropertiesFromBinary(FileIn, *ezGetStaticRTTI<T>(), &data);
-
-    EZ_TEST_BOOL(data == source);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromBinary")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorageBinary);
-
-    const ezRTTI* pRtti;
-    void* pObject = ezReflectionSerializer::ReadObjectFromBinary(FileIn, pRtti);
-
-    T& c2 = *((T*)pObject);
-
-    EZ_TEST_BOOL(c2 == source);
-
-    if (pObject)
-    {
-      pRtti->GetAllocator()->Deallocate(pObject);
-    }
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clone")
-  {
-    {
-      T clone;
-      ezReflectionSerializer::Clone(&source, &clone, ezGetStaticRTTI<T>());
-      EZ_TEST_BOOL(clone == source);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&clone, &source, ezGetStaticRTTI<T>()));
-    }
-
-    {
-      T* pClone = ezReflectionSerializer::Clone(&source);
-      EZ_TEST_BOOL(*pClone == source);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, &source));
-      ezGetStaticRTTI<T>()->GetAllocator()->Deallocate(pClone);
-    }
-  }
-}
 
 EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
 {
@@ -613,6 +639,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
 
     EZ_TEST_BOOL(data.GetEnum() == ezExampleEnum::Value3);
     EZ_TEST_BOOL(data.GetEnumClass() == ezExampleEnum::Value3);
+
+    TestSerialization<ezTestEnumStruct>(data);
   }
 }
 
@@ -671,11 +699,23 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
         static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[2])->GetValue(),
         static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[3])->GetValue()};
 
-      const char* stringValues[] = {"", "ezExampleBitflags::Value1", "ezExampleBitflags::Value2",
-        "ezExampleBitflags::Value1|ezExampleBitflags::Value2", "ezExampleBitflags::Value3", "ezExampleBitflags::Value1|ezExampleBitflags::Value3",
-        "ezExampleBitflags::Value2|ezExampleBitflags::Value3", "ezExampleBitflags::Value1|ezExampleBitflags::Value2|ezExampleBitflags::Value3"};
+      const char* stringValues[] = {"",
+        "ezExampleBitflags::Value1",
+        "ezExampleBitflags::Value2",
+        "ezExampleBitflags::Value1|ezExampleBitflags::Value2",
+        "ezExampleBitflags::Value3",
+        "ezExampleBitflags::Value1|ezExampleBitflags::Value3",
+        "ezExampleBitflags::Value2|ezExampleBitflags::Value3",
+        "ezExampleBitflags::Value1|ezExampleBitflags::Value2|ezExampleBitflags::Value3"};
 
-      const char* stringValuesShort[] = {"", "Value1", "Value2", "Value1|Value2", "Value3", "Value1|Value3", "Value2|Value3", "Value1|Value2|Value3"};
+      const char* stringValuesShort[] = {"",
+        "Value1",
+        "Value2",
+        "Value1|Value2",
+        "Value3",
+        "Value1|Value3",
+        "Value2|Value3",
+        "Value1|Value2|Value3"};
       for (ezInt32 i = 0; i < 8; ++i)
       {
         ezUInt64 uiBitflagValue = 0;
@@ -723,9 +763,41 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
 
     EZ_TEST_BOOL(data.m_bitflagsClass == (ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
     EZ_TEST_BOOL(data.GetBitflagsClass() == (ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
+    TestSerialization<ezTestBitflagsStruct>(data);
   }
 }
 
+
+template <typename T>
+void TestArrayPropertyVariant(ezAbstractArrayProperty* pArrayProp, void* pObject, const ezRTTI* pRtti, T& value)
+{
+  T temp = {};
+
+  // Reflection Utils
+  ezVariant value0 = ezReflectionUtils::GetArrayPropertyValue(pArrayProp, pObject, 0);
+  EZ_TEST_BOOL(value0 == ezVariant(value));
+  // insert
+  ezReflectionUtils::InsertArrayPropertyValue(pArrayProp, pObject, ezVariant(temp), 2);
+  EZ_TEST_INT(pArrayProp->GetCount(pObject), 3);
+  ezVariant value2 = ezReflectionUtils::GetArrayPropertyValue(pArrayProp, pObject, 2);
+  EZ_TEST_BOOL(value0 != value2);
+  ezReflectionUtils::SetArrayPropertyValue(pArrayProp, pObject, 2, value);
+  value2 = ezReflectionUtils::GetArrayPropertyValue(pArrayProp, pObject, 2);
+  EZ_TEST_BOOL(value0 == value2);
+  // remove again
+  ezReflectionUtils::RemoveArrayPropertyValue(pArrayProp, pObject, 2);
+  EZ_TEST_INT(pArrayProp->GetCount(pObject), 2);
+}
+
+template <>
+void TestArrayPropertyVariant<ezTestArrays>(ezAbstractArrayProperty* pArrayProp, void* pObject, const ezRTTI* pRtti, ezTestArrays& value)
+{
+}
+
+template <>
+void TestArrayPropertyVariant<ezTestStruct3>(ezAbstractArrayProperty* pArrayProp, void* pObject, const ezRTTI* pRtti, ezTestStruct3& value)
+{
+}
 
 template <typename T>
 void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& value)
@@ -736,7 +808,6 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
   ezAbstractArrayProperty* pArrayProp = static_cast<ezAbstractArrayProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
   EZ_TEST_BOOL(pElemRtti == ezGetStaticRTTI<T>());
-
   if (!pArrayProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
     // If we don't know the element type T but we can allocate it, we can handle it anyway.
@@ -766,7 +837,7 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
     pArrayProp->SetValue(pObject, 1, &value);
 
     // Insert default init values
-    T temp;
+    T temp = {};
     pArrayProp->Insert(pObject, 2, &temp);
     EZ_TEST_INT(pArrayProp->GetCount(pObject), 3);
     pArrayProp->Insert(pObject, 0, &temp);
@@ -777,19 +848,35 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
     EZ_TEST_INT(pArrayProp->GetCount(pObject), 3);
     pArrayProp->Remove(pObject, 0);
     EZ_TEST_INT(pArrayProp->GetCount(pObject), 2);
+
+    TestArrayPropertyVariant<T>(pArrayProp, pObject, pRtti, value);
   }
 
   // Assumes this function gets called first by a writeable property, and then immediately by the same data as a read-only property.
   // So the checks are valid for the read-only version, too.
   EZ_TEST_INT(pArrayProp->GetCount(pObject), 2);
 
-  T v1;
+  T v1 = {};
   pArrayProp->GetValue(pObject, 0, &v1);
-  EZ_TEST_BOOL(v1 == value);
+  if constexpr (std::is_same<const char*, T>::value)
+  {
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(v1, value));
+  }
+  else
+  {
+    EZ_TEST_BOOL(v1 == value);
+  }
 
-  T v2;
+  T v2 = {};
   pArrayProp->GetValue(pObject, 1, &v2);
-  EZ_TEST_BOOL(v2 == value);
+  if constexpr (std::is_same<const char*, T>::value)
+  {
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(v2, value));
+  }
+  else
+  {
+    EZ_TEST_BOOL(v2 == value);
+  }
 
   if (pElemRtti->GetAllocator()->CanAllocate())
   {
@@ -820,8 +907,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
 
     const char* szValue = "Bla";
     const char* szValue2 = "LongString------------------------------------------------------------------------------------";
-    containers.m_HybridChar.PushBack(szValue);
-    containers.m_HybridChar.PushBack(szValue2);
+    ezString sValue = szValue;
+    ezString sValue2 = szValue2;
+
+    TestArrayProperty<ezString>("HybridChar", &containers, pRtti, sValue);
+    TestArrayProperty<ezString>("HybridCharRO", &containers, pRtti, sValue);
+
+    TestArrayProperty<const char*>("AcHybridChar", &containers, pRtti, szValue);
+    TestArrayProperty<const char*>("AcHybridCharRO", &containers, pRtti, szValue);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Struct Array")
@@ -849,6 +942,17 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
     TestArrayProperty<ezTestArrays>("AcDequeRO", &containers, pRtti, data);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom Variant Array")
+  {
+    ezVarianceTypeAngle data{0.1f, ezAngle::Degree(45.0f)};
+
+    TestArrayProperty<ezVarianceTypeAngle>("Custom", &containers, pRtti, data);
+    TestArrayProperty<ezVarianceTypeAngle>("CustomRO", &containers, pRtti, data);
+
+    TestArrayProperty<ezVarianceTypeAngle>("AcCustom", &containers, pRtti, data);
+    TestArrayProperty<ezVarianceTypeAngle>("AcCustomRO", &containers, pRtti, data);
+  }
+
   TestSerialization<ezTestArrays>(containers);
 }
 
@@ -865,7 +969,6 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   ezAbstractSetProperty* pSetProp = static_cast<ezAbstractSetProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
   EZ_TEST_BOOL(pElemRtti == ezGetStaticRTTI<T>());
-  EZ_TEST_BOOL(ezReflectionUtils::IsBasicType(pElemRtti));
 
   if (!pSetProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
@@ -964,6 +1067,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
     TestSetProperty<const char*>("AcPseudoSet2b", &containers, pRtti, szValue1, szValue2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom Variant HashSet")
+  {
+    ezVarianceTypeAngle value1{-0.1f, ezAngle::Degree(-45.0f)};
+    ezVarianceTypeAngle value2{0.1f, ezAngle::Degree(45.0f)};
+
+    TestSetProperty<ezVarianceTypeAngle>("CustomHashSet", &containers, pRtti, value1, value2);
+    TestSetProperty<ezVarianceTypeAngle>("CustomHashSetRO", &containers, pRtti, value1, value2);
+
+    ezVarianceTypeAngle value3{-0.2f, ezAngle::Degree(-90.0f)};
+    ezVarianceTypeAngle value4{0.2f, ezAngle::Degree(90.0f)};
+    TestSetProperty<ezVarianceTypeAngle>("CustomHashAcSet", &containers, pRtti, value3, value4);
+    TestSetProperty<ezVarianceTypeAngle>("CustomHashAcSetRO", &containers, pRtti, value3, value4);
+  }
   TestSerialization<ezTestSets>(containers);
 }
 
@@ -976,7 +1092,7 @@ void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   ezAbstractMapProperty* pMapProp = static_cast<ezAbstractMapProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
   EZ_TEST_BOOL(pElemRtti == ezGetStaticRTTI<T>());
-  EZ_TEST_BOOL(ezReflectionUtils::IsBasicType(pElemRtti) || pElemRtti == ezGetStaticRTTI<ezVariant>());
+  EZ_TEST_BOOL(ezReflectionUtils::IsBasicType(pElemRtti) || pElemRtti == ezGetStaticRTTI<ezVariant>() || pElemRtti == ezGetStaticRTTI<ezVarianceTypeAngle>());
 
   if (!pMapProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
@@ -1057,13 +1173,21 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
     TestMapProperty<ezVariant>("Accessor", &containers, pRtti, sValue1, sValue2);
     TestMapProperty<ezVariant>("AccessorRO", &containers, pRtti, sValue1, sValue2);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CustomVariant")
+  {
+    ezVarianceTypeAngle value1{-0.1f, ezAngle::Degree(-45.0f)};
+    ezVarianceTypeAngle value2{0.1f, ezAngle::Degree(45.0f)};
+
+    TestMapProperty<ezVarianceTypeAngle>("CustomVariant", &containers, pRtti, value1, value2);
+    TestMapProperty<ezVarianceTypeAngle>("CustomVariantRO", &containers, pRtti, value1, value2);
+  }
   TestSerialization<ezTestMaps>(containers);
 }
 
 
 template <typename T>
-void TestPointerMemberProperty(
-  const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T* pExpectedValue)
+void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T* pExpectedValue)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);

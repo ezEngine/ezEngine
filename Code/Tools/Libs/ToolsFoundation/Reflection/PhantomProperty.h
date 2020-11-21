@@ -28,7 +28,7 @@ public:
   virtual const ezRTTI* GetSpecificType() const override;
   virtual void* GetPropertyPointer(const void* pInstance) const override { return nullptr; }
   virtual void GetValuePtr(const void* pInstance, void* pObject) const override {}
-  virtual void SetValuePtr(void* pInstance, void* pObject) override {}
+  virtual void SetValuePtr(void* pInstance, const void* pObject) override {}
 
 private:
   ezString m_sPropertyNameStorage;
@@ -88,9 +88,9 @@ public:
   virtual const ezRTTI* GetSpecificType() const override;
   virtual bool IsEmpty(const void* pInstance) const override { return true; }
   virtual void Clear(void* pInstance) override {}
-  virtual void Insert(void* pInstance, void* pObject) override {}
-  virtual void Remove(void* pInstance, void* pObject) override {}
-  virtual bool Contains(const void* pInstance, void* pObject) const override { return false; }
+  virtual void Insert(void* pInstance, const void* pObject) override {}
+  virtual void Remove(void* pInstance, const void* pObject) override {}
+  virtual bool Contains(const void* pInstance, const void* pObject) const override { return false; }
   virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override {}
 
 private:

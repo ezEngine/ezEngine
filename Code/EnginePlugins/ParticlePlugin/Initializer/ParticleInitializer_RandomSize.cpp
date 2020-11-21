@@ -5,11 +5,13 @@
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomSize.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -130,6 +132,22 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+class ezParticleInitializerFactory_RandomSize_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleInitializerFactory_RandomSize_1_2()
+    : ezGraphPatch("ezParticleInitializerFactory_RandomSize", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->InlineProperty("Size").IgnoreResult();
+  }
+};
+
+ezParticleInitializerFactory_RandomSize_1_2 g_ezParticleInitializerFactory_RandomSize_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomSize);

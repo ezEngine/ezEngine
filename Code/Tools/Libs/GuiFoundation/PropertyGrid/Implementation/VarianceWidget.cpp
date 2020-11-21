@@ -1,5 +1,6 @@
 #include <GuiFoundationPCH.h>
 
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
@@ -39,11 +40,8 @@ ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
 
 void ezQtVarianceTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
-  ezQtEmbeddedClassPropertyWidget::SetSelection(items);
-  EZ_ASSERT_DEBUG(m_pResolvedType->IsDerivedFrom<ezVarianceTypeBase>(), "Selection does not match ezVarianceType.");
-
-  OnPropertyChanged("Value");
-  OnPropertyChanged("Variance");
+  ezQtStandardPropertyWidget::SetSelection(items);
+  EZ_ASSERT_DEBUG(m_pProp->GetSpecificType()->IsDerivedFrom<ezVarianceTypeBase>(), "Selection does not match ezVarianceType.");
 }
 
 void ezQtVarianceTypeWidget::onBeginTemporary()
@@ -66,43 +64,43 @@ void ezQtVarianceTypeWidget::SlotValueChanged()
 {
   onBeginTemporary();
 
-  ezStringBuilder sTemp;
-  sTemp.Format("Change Property '{0}'", ezTranslate(m_pProp->GetPropertyName()));
-  m_pObjectAccessor->StartTransaction(sTemp);
-  {
-    ezVariant value;
-    ezToolsReflectionUtils::GetVariantFromFloat(m_pValueWidget->value(), m_pValueType->GetVariantType(), value);
-    SetPropertyValue(m_pResolvedType->FindPropertyByName("Value"), value);
-  }
-  m_pObjectAccessor->FinishTransaction();
+  ezVariant value;
+  ezToolsReflectionUtils::GetVariantFromFloat(m_pValueWidget->value(), m_pValueProp->GetSpecificType()->GetVariantType(), value);
+
+  auto obj = m_OldValue.Get<ezTypedObject>();
+  void* pCopy = ezReflectionSerializer::Clone(obj.m_pObject, obj.m_pType);
+  ezReflectionUtils::SetMemberPropertyValue(m_pValueProp, pCopy, value);
+  ezVariant newValue;
+  newValue.MoveTypedObject(pCopy, obj.m_pType);
+
+  BroadcastValueChanged(newValue);
 }
 
 
 void ezQtVarianceTypeWidget::SlotVarianceChanged()
 {
-  ezStringBuilder sTemp;
-  sTemp.Format("Change Property '{0}' Variance", ezTranslate(m_pProp->GetPropertyName()));
-  m_pObjectAccessor->StartTransaction(sTemp);
-  {
-    double variance = ezMath::Clamp<double>(m_pVarianceWidget->value() / 100.0, 0, 1);
-    SetPropertyValue(m_pResolvedType->FindPropertyByName("Variance"), variance);
-  }
-  m_pObjectAccessor->FinishTransaction();
+  double variance = ezMath::Clamp<double>(m_pVarianceWidget->value() / 100.0, 0, 1);
+
+  ezVariant newValue = m_OldValue;
+  ezTypedPointer ptr = newValue.GetWriteAccess();
+  ezReflectionUtils::SetMemberPropertyValue(m_pVarianceProp, ptr.m_pObject, variance);
+
+  BroadcastValueChanged(newValue);
 }
 
 void ezQtVarianceTypeWidget::OnInit()
 {
-  ezQtEmbeddedClassPropertyWidget::OnInit();
+  m_pValueProp = static_cast<ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Value"));
+  m_pVarianceProp = static_cast<ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Variance"));
+
   // Property type adjustments
   ezQtScopedBlockSignals bs(m_pValueWidget);
-  const ezAbstractProperty* pValueProp = GetProperty()->GetSpecificType()->FindPropertyByName("Value");
-  // const ezAbstractProperty* pVarianceProp = m_pResolvedType->FindPropertyByName("Variance");
-  m_pValueType = pValueProp->GetSpecificType();
-  if (m_pValueType == ezGetStaticRTTI<ezTime>())
+  const ezRTTI* pValueType = m_pValueProp->GetSpecificType();
+  if (pValueType == ezGetStaticRTTI<ezTime>())
   {
     m_pValueWidget->setDisplaySuffix(" sec");
   }
-  else if (m_pValueType == ezGetStaticRTTI<ezAngle>())
+  else if (pValueType == ezGetStaticRTTI<ezAngle>())
   {
     m_pValueWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
   }
@@ -114,40 +112,49 @@ void ezQtVarianceTypeWidget::OnInit()
   }
   if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
   {
-    m_pValueWidget->setMinimum(pClamp->GetMinValue());
-    m_pValueWidget->setMaximum(pClamp->GetMaxValue());
+    if (pClamp->GetMinValue().CanConvertTo<double>())
+    {
+      m_pValueWidget->setMinimum(pClamp->GetMinValue());
+    }
+    else if (const ezRTTI* pType = pClamp->GetMinValue().GetReflectedType(); pType && pType->IsDerivedFrom<ezVarianceTypeBase>())
+    {
+      m_pValueWidget->setMinimum(pClamp->GetMinValue()["Value"]);
+      m_pVarianceWidget->setMinimum(static_cast<ezInt32>(pClamp->GetMinValue()["Variance"].ConvertTo<double>() * 100.0));
+    }
+    if (pClamp->GetMaxValue().CanConvertTo<double>())
+    {
+      m_pValueWidget->setMaximum(pClamp->GetMaxValue());
+    }
+    else if (const ezRTTI* pType = pClamp->GetMaxValue().GetReflectedType(); pType && pType->IsDerivedFrom<ezVarianceTypeBase>())
+    {
+      m_pValueWidget->setMaximum(pClamp->GetMaxValue()["Value"]);
+      m_pVarianceWidget->setMaximum(static_cast<ezInt32>(pClamp->GetMaxValue()["Variance"].ConvertTo<double>() * 100.0));
+    }
   }
   if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
   {
-    m_pValueWidget->setDefaultValue(pDefault->GetValue());
+    if (pDefault->GetValue().CanConvertTo<double>())
+    {
+      m_pValueWidget->setDefaultValue(pDefault->GetValue());
+    }
+    else if (const ezRTTI* pType = pDefault->GetValue().GetReflectedType(); pType && pType->IsDerivedFrom<ezVarianceTypeBase>())
+    {
+      m_pValueWidget->setDefaultValue(pDefault->GetValue()["Value"]);
+    }
   }
 }
 
-void ezQtVarianceTypeWidget::DoPrepareToDie()
+void ezQtVarianceTypeWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtEmbeddedClassPropertyWidget::DoPrepareToDie();
-}
-
-void ezQtVarianceTypeWidget::OnPropertyChanged(const ezString& sProperty)
-{
-  if (sProperty == "Value")
+  ezQtScopedBlockSignals bs(m_pValueWidget, m_pVarianceWidget);
+  if (value.IsValid())
   {
-    ezQtScopedBlockSignals _(m_pValueWidget);
-    ezVariant vVal = GetCommonValue(m_ResolvedObjects, m_pResolvedType->FindPropertyByName("Value"));
-    m_pValueWidget->setValue(vVal);
+    m_pValueWidget->setValue(value["Value"]);
+    m_pVarianceWidget->setValue(value["Variance"].ConvertTo<double>() * 100.0);
   }
-  else if (sProperty == "Variance")
+  else
   {
-    ezQtScopedBlockSignals _(m_pVarianceWidget);
-    ezVariant vVar = GetCommonValue(m_ResolvedObjects, m_pResolvedType->FindPropertyByName("Variance"));
-    if (vVar.IsValid())
-    {
-      m_pVarianceWidget->setValue(vVar.ConvertTo<double>() * 100.0);
-    }
-    else
-    {
-      // m_pVarianceWidget->setValueInvalid();
-      m_pVarianceWidget->setValue(50);
-    }
+    m_pValueWidget->setValueInvalid();
+    m_pVarianceWidget->setValue(50);
   }
 }

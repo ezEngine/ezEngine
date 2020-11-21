@@ -123,10 +123,10 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
       return ezVariantArray();
     case ezVariant::Type::VariantDictionary:
       return ezVariantDictionary();
-    case ezVariant::Type::ReflectedPointer:
-      return ezVariant();
-    case ezVariant::Type::VoidPointer:
-      return ezVariant();
+    case ezVariant::Type::TypedPointer:
+      return ezVariant(ezTypedPointer(nullptr, nullptr));
+    case ezVariant::Type::TypedObject:
+      EZ_ASSERT_NOT_IMPLEMENTED;
 
     default:
       EZ_REPORT_FAILURE("Invalid case statement");

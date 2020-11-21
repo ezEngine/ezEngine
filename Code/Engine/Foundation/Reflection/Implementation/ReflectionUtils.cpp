@@ -4,9 +4,83 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 namespace
 {
+  // for some reason MSVC does not accept the template keyword here
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
+#  define CALL_FUNCTOR(functor, type) functor.operator()<type>(std::forward<Args>(args)...)
+#else
+#  define CALL_FUNCTOR(functor, type) functor.template operator()<type>(std::forward<Args>(args)...)
+#endif
+
+  template <typename Functor, class... Args>
+  void DispatchTo(Functor& functor, const ezAbstractProperty* pProp, Args&&... args)
+  {
+    const bool bIsPtr = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer);
+    if (bIsPtr)
+    {
+      CALL_FUNCTOR(functor, ezTypedPointer);
+      return;
+    }
+    else if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
+    {
+      CALL_FUNCTOR(functor, const char*);
+      return;
+    }
+    else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezUntrackedString>())
+    {
+      CALL_FUNCTOR(functor, ezUntrackedString);
+      return;
+    }
+    else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+    {
+      CALL_FUNCTOR(functor, ezVariant);
+      return;
+    }
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    {
+      ezVariant::DispatchTo(functor, pProp->GetSpecificType()->GetVariantType(), std::forward<Args>(args)...);
+      return;
+    }
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum))
+    {
+      CALL_FUNCTOR(functor, ezEnumBase);
+      return;
+    }
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags))
+    {
+      CALL_FUNCTOR(functor, ezBitflagsBase);
+      return;
+    }
+    else if (pProp->GetSpecificType()->GetVariantType() == ezVariantType::TypedObject)
+    {
+      CALL_FUNCTOR(functor, ezTypedObject);
+      return;
+    }
+
+    EZ_REPORT_FAILURE("Unknown dispatch type");
+  }
+
+#undef CALL_FUNCTOR
+
+  ezVariantType::Enum GetDispatchType(const ezAbstractProperty* pProp)
+  {
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+    {
+      return ezVariantType::TypedPointer;
+    }
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    {
+      return pProp->GetSpecificType()->GetVariantType();
+    }
+    else
+    {
+      return ezVariantType::TypedObject;
+    }
+  }
+
   struct GetTypeFromVariantTypeFunc
   {
     template <typename T>
@@ -28,274 +102,310 @@ namespace
     m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezReflectedClass*>()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezTypedPointer>()
   {
-    m_pType = ezGetStaticRTTI<ezReflectedClass>();
+    m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<void*>()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezTypedObject>()
   {
     m_pType = nullptr;
   }
 
-  struct GetTypeFromVariantFunc
+  //////////////////////////////////////////////////////////////////////////
+
+
+
+  template <typename T>
+  struct ezPropertyValue
   {
-    template <typename T>
-    EZ_ALWAYS_INLINE void operator()()
+    using Type = T;
+    using StorageType = typename ezVariantTypeDeduction<T>::StorageType;
+  };
+  template <>
+  struct ezPropertyValue<ezEnumBase>
+  {
+    using Type = ezInt64;
+    using StorageType = ezInt64;
+  };
+  template <>
+  struct ezPropertyValue<ezBitflagsBase>
+  {
+    using Type = ezInt64;
+    using StorageType = ezInt64;
+  };
+
+  //////////////////////////////////////////////////////////////////////////
+
+  template <class T>
+  struct ezVariantFromProperty
+  {
+    ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
+      : m_value(value)
     {
-      m_pType = ezGetStaticRTTI<T>();
+    }
+    ~ezVariantFromProperty()
+    {
+      if (m_bSuccess)
+        m_value = m_tempValue;
     }
 
-    const ezVariant* m_pVariant;
-    const ezRTTI* m_pType;
+    operator void*()
+    {
+      return &m_tempValue;
+    }
+
+    ezVariant& m_value;
+    typename ezPropertyValue<T>::Type m_tempValue = {};
+    bool m_bSuccess = true;
+  };
+
+  template <>
+  struct ezVariantFromProperty<ezVariant>
+  {
+    ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
+      : m_value(value)
+    {
+    }
+
+    operator void*()
+    {
+      return &m_value;
+    }
+
+    ezVariant& m_value;
+    bool m_bSuccess = true;
+  };
+
+  template <>
+  struct ezVariantFromProperty<ezTypedPointer>
+  {
+    ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
+      : m_value(value)
+      , m_pProp(pProp)
+    {
+    }
+    ~ezVariantFromProperty()
+    {
+      if (m_bSuccess)
+        m_value = ezVariant(m_ptr, m_pProp->GetSpecificType());
+    }
+
+    operator void*()
+    {
+      return &m_ptr;
+    }
+
+    ezVariant& m_value;
+    const ezAbstractProperty* m_pProp = nullptr;
+    void* m_ptr = nullptr;
+    bool m_bSuccess = true;
+  };
+
+  template <>
+  struct ezVariantFromProperty<ezTypedObject>
+  {
+    ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
+      : m_value(value)
+      , m_pProp(pProp)
+    {
+      m_ptr = m_pProp->GetSpecificType()->GetAllocator()->Allocate<void>();
+    }
+    ~ezVariantFromProperty()
+    {
+      if (m_bSuccess)
+        m_value.MoveTypedObject(m_ptr, m_pProp->GetSpecificType());
+      else
+        m_pProp->GetSpecificType()->GetAllocator()->Deallocate(m_ptr);
+    }
+
+    operator void*()
+    {
+      return m_ptr;
+    }
+
+    ezVariant& m_value;
+    const ezAbstractProperty* m_pProp = nullptr;
+    void* m_ptr = nullptr;
+    bool m_bSuccess = true;
+  };
+
+  //////////////////////////////////////////////////////////////////////////
+
+  template <class T>
+  struct ezVariantToProperty
+  {
+    ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
+    {
+      m_tempValue = value.ConvertTo<typename ezPropertyValue<T>::StorageType>();
+    }
+
+    operator const void *()
+    {
+      return &m_tempValue;
+    }
+
+    typename ezPropertyValue<T>::Type m_tempValue = {};
+  };
+
+  template <>
+  struct ezVariantToProperty<const char*>
+  {
+    ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
+    {
+      m_sData = value.ConvertTo<ezString>();
+      m_pValue = m_sData;
+    }
+
+    operator const void *()
+    {
+      return &m_pValue;
+    }
+    ezString m_sData;
+    const char* m_pValue;
+  };
+
+  template <>
+  struct ezVariantToProperty<ezVariant>
+  {
+    ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
+      : m_value(value)
+    {
+    }
+
+    operator const void *()
+    {
+      return const_cast<ezVariant*>(&m_value);
+    }
+
+    const ezVariant& m_value;
+  };
+
+  template <>
+  struct ezVariantToProperty<ezTypedPointer>
+  {
+    ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
+    {
+      m_ptr = value.Get<ezTypedPointer>();
+      EZ_ASSERT_DEBUG(!m_ptr.m_pType || m_ptr.m_pType->IsDerivedFrom(pProp->GetSpecificType()),
+        "Pointer of type '{0}' does not derive from '{}'", m_ptr.m_pType->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
+    }
+
+    operator const void *()
+    {
+      return &m_ptr.m_pObject;
+    }
+
+    ezTypedPointer m_ptr;
   };
 
 
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezVariantArray>()
+  struct ezVariantToProperty<ezTypedObject>
   {
-    m_pType = nullptr;
-  }
-  template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezVariantDictionary>()
-  {
-    m_pType = nullptr;
-  }
-  template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezReflectedClass*>()
-  {
-    m_pType = m_pVariant->Get<ezReflectedClass*>()->GetDynamicRTTI();
-  }
-  template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<void*>()
-  {
-    m_pType = nullptr;
-  }
+    ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
+    {
+      m_pPtr = value.GetData();
+    }
+
+    operator const void *()
+    {
+      return m_pPtr;
+    }
+    const void* m_pPtr = nullptr;
+  };
+
+  //////////////////////////////////////////////////////////////////////////
 
   struct GetValueFunc
   {
     template <typename T>
-    EZ_ALWAYS_INLINE void operator()()
+    EZ_ALWAYS_INLINE void operator()(const ezAbstractMemberProperty* pProp, const void* pObject, ezVariant& value)
     {
-      T value;
-      m_pProp->GetValuePtr(m_pObject, &value);
-      m_Result = value;
+      ezVariantFromProperty<T> getter(value, pProp);
+      pProp->GetValuePtr(pObject, getter);
     }
-
-    const ezAbstractMemberProperty* m_pProp;
-    const void* m_pObject;
-    ezVariant m_Result;
   };
-
-  template <>
-  EZ_FORCE_INLINE void GetValueFunc::operator()<ezString>()
-  {
-    if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>())
-    {
-      ezString value;
-      m_pProp->GetValuePtr(m_pObject, &value);
-      m_Result = value;
-    }
-    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-    {
-      const char* szTemp = nullptr;
-      m_pProp->GetValuePtr(m_pObject, &szTemp);
-      m_Result = szTemp;
-    }
-    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezUntrackedString>())
-    {
-      ezUntrackedString value;
-      m_pProp->GetValuePtr(m_pObject, &value);
-      m_Result = value;
-    }
-  }
 
   struct SetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
     {
-      T value = m_pValue->ConvertTo<T>();
-      m_pProp->SetValuePtr(m_pObject, &value);
+      ezVariantToProperty<T> setter(value, pProp);
+      pProp->SetValuePtr(pObject, setter);
     }
-
-    ezAbstractMemberProperty* m_pProp;
-    void* m_pObject;
-    const ezVariant* m_pValue;
   };
-
-  template <>
-  EZ_FORCE_INLINE void SetValueFunc::operator()<ezString>()
-  {
-    if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>())
-    {
-      ezString value = m_pValue->Get<ezString>();
-      m_pProp->SetValuePtr(m_pObject, &value);
-    }
-    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-    {
-      const ezString& sTemp = m_pValue->Get<ezString>();
-      const char* szTemp = sTemp;
-      m_pProp->SetValuePtr(m_pObject, &szTemp);
-    }
-    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezUntrackedString>())
-    {
-      ezUntrackedString value = m_pValue->Get<ezString>();
-      m_pProp->SetValuePtr(m_pObject, &value);
-    }
-  }
 
   struct GetArrayValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex, ezVariant& value)
     {
-      T value;
-      m_pProp->GetValue(m_pObject, m_uiIndex, &value);
-      *m_pValue = value;
+      ezVariantFromProperty<T> getter(value, pProp);
+      pProp->GetValue(pObject, uiIndex, getter);
     }
-
-    const ezAbstractArrayProperty* m_pProp;
-    const void* m_pObject;
-    ezUInt32 m_uiIndex;
-    ezVariant* m_pValue;
   };
-
-  template <>
-  EZ_FORCE_INLINE void GetArrayValueFunc::operator()<ezString>()
-  {
-    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
-    ezString value;
-    m_pProp->GetValue(m_pObject, m_uiIndex, &value);
-    *m_pValue = value;
-  }
 
   struct SetArrayValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
     {
-      T value = m_pValue->ConvertTo<T>();
-      m_pProp->SetValue(m_pObject, m_uiIndex, &value);
+      ezVariantToProperty<T> setter(value, pProp);
+      pProp->SetValue(pObject, uiIndex, setter);
     }
-
-    ezAbstractArrayProperty* m_pProp;
-    void* m_pObject;
-    ezUInt32 m_uiIndex;
-    const ezVariant* m_pValue;
   };
-
-  template <>
-  EZ_FORCE_INLINE void SetArrayValueFunc::operator()<ezString>()
-  {
-    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
-    ezString value = m_pValue->ConvertTo<ezString>();
-    m_pProp->SetValue(m_pObject, m_uiIndex, &value);
-  }
 
   struct InsertArrayValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
     {
-      T value = m_pValue->ConvertTo<T>();
-      m_pProp->Insert(m_pObject, m_uiIndex, &value);
+      ezVariantToProperty<T> setter(value, pProp);
+      pProp->Insert(pObject, uiIndex, setter);
     }
-
-    ezAbstractArrayProperty* m_pProp;
-    void* m_pObject;
-    ezUInt32 m_uiIndex;
-    const ezVariant* m_pValue;
   };
-
-  template <>
-  EZ_FORCE_INLINE void InsertArrayValueFunc::operator()<ezString>()
-  {
-    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
-    ezString value = m_pValue->ConvertTo<ezString>();
-    m_pProp->Insert(m_pObject, m_uiIndex, &value);
-  }
 
   struct InsertSetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
     {
-      T value = m_pValue->ConvertTo<T>();
-      m_pProp->Insert(m_pObject, &value);
+      ezVariantToProperty<T> setter(value, pProp);
+      pProp->Insert(pObject, setter);
     }
-
-    ezAbstractSetProperty* m_pProp;
-    void* m_pObject;
-    const ezVariant* m_pValue;
   };
 
   struct RemoveSetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
     {
-      T value = m_pValue->ConvertTo<T>();
-      m_pProp->Remove(m_pObject, &value);
+      ezVariantToProperty<T> setter(value, pProp);
+      pProp->Remove(pObject, setter);
     }
-
-    ezAbstractSetProperty* m_pProp;
-    void* m_pObject;
-    const ezVariant* m_pValue;
   };
-
 
   struct GetMapValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(const ezAbstractMapProperty* pProp, const void* pObject, const char* szKey, ezVariant& value)
     {
-      T temp;
-      if (m_pProp->GetValue(m_pObject, m_szKey, &temp))
-      {
-        *m_pValue = temp;
-      }
+      ezVariantFromProperty<T> getter(value, pProp);
+      getter.m_bSuccess = pProp->GetValue(pObject, szKey, getter);
     }
-
-    const ezAbstractMapProperty* m_pProp;
-    const void* m_pObject;
-    const char* m_szKey;
-    ezVariant* m_pValue;
   };
-
-  template <>
-  EZ_FORCE_INLINE void GetMapValueFunc::operator()<ezString>()
-  {
-    ezString temp;
-    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
-    if (m_pProp->GetValue(m_pObject, m_szKey, &temp))
-    {
-      *m_pValue = temp;
-    }
-  }
 
   struct SetMapValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_FORCE_INLINE void operator()(ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value)
     {
-      T value = m_pValue->ConvertTo<T>();
-      m_pProp->Insert(m_pObject, m_szKey, &value);
+      ezVariantToProperty<T> setter(value, pProp);
+      pProp->Insert(pObject, szKey, setter);
     }
-
-    ezAbstractMapProperty* m_pProp;
-    void* m_pObject;
-    const char* m_szKey;
-    const ezVariant* m_pValue;
   };
-
-  template <>
-  EZ_FORCE_INLINE void SetMapValueFunc::operator()<ezString>()
-  {
-    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
-    ezString value = m_pValue->ConvertTo<ezString>();
-    m_pProp->Insert(m_pObject, m_szKey, &value);
-  }
 
   static bool CompareProperties(const void* pObject, const void* pObject2, const ezRTTI* pType)
   {
@@ -510,15 +620,14 @@ bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
   return type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType;
 }
 
+bool ezReflectionUtils::IsValueType(const ezAbstractProperty* pProp)
+{
+  return !pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pProp->GetSpecificType()));
+}
 
 const ezRTTI* ezReflectionUtils::GetTypeFromVariant(const ezVariant& value)
 {
-  GetTypeFromVariantFunc func;
-  func.m_pVariant = &value;
-  func.m_pType = nullptr;
-  ezVariant::DispatchTo(func, value.GetType());
-
-  return func.m_pType;
+  return value.GetReflectedType();
 }
 
 const ezRTTI* ezReflectionUtils::GetTypeFromVariant(ezVariantType::Enum type)
@@ -572,37 +681,13 @@ double ezReflectionUtils::GetComponent(const ezVariant& vector, ezUInt32 iCompon
 
 ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject)
 {
+  ezVariant res;
   EZ_ASSERT_DEBUG(pProp != nullptr, "GetMemberPropertyValue: missing data!");
 
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    void* pValue = nullptr;
-    pProp->GetValuePtr(pObject, &pValue);
-    return ezVariant(pValue);
-  }
-  else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
-  {
-    const ezAbstractEnumerationProperty* pEnumerationProp = static_cast<const ezAbstractEnumerationProperty*>(pProp);
-    return pEnumerationProp->GetValue(pObject);
-  }
-  else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-  {
-    ezVariant value;
-    pProp->GetValuePtr(pObject, &value);
-    return value;
-  }
-  else
-  {
-    GetValueFunc func;
-    func.m_pProp = pProp;
-    func.m_pObject = pObject;
+  GetValueFunc func;
+  DispatchTo(func, pProp, pProp, pObject, res);
 
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
-
-    return func.m_Result;
-  }
-
-  return ezVariant();
+  return res;
 }
 
 void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
@@ -611,12 +696,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
 
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    void* pValue = value.ConvertTo<void*>();
-    pProp->SetValuePtr(pObject, &pValue);
-  }
-  else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+  if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Bitflags | ezPropertyFlags::IsEnum))
   {
     ezAbstractEnumerationProperty* pEnumerationProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
 
@@ -631,66 +711,29 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
     {
       pEnumerationProp->SetValue(pObject, value.ConvertTo<ezInt64>());
     }
-    return;
-  }
-  else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-  {
-    ezVariant tempValue = value;
-    pProp->SetValuePtr(pObject, &tempValue);
   }
   else
   {
     SetValueFunc func;
-    func.m_pProp = pProp;
-    func.m_pObject = pObject;
-    func.m_pValue = &value;
-
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+    DispatchTo(func, pProp, pProp, pObject, value);
   }
 }
 
 ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex)
 {
+  ezVariant res;
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "GetArrayPropertyValue: missing data!");
   auto uiCount = pProp->GetCount(pObject);
   if (uiIndex >= uiCount)
   {
     ezLog::Error("GetArrayPropertyValue: Invalid index: {0}", uiIndex);
-    return ezVariant();
-  }
-
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-  {
-    const char* pData = nullptr;
-    pProp->GetValue(pObject, uiIndex, &pData);
-    return ezVariant(pData);
-  }
-
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    void* pValue = nullptr;
-    pProp->GetValue(pObject, uiIndex, &pValue);
-    return ezVariant(pValue);
-  }
-
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-  {
-    ezVariant value;
-    pProp->GetValue(pObject, uiIndex, &value);
-    return value;
   }
   else
   {
-    ezVariant value;
     GetArrayValueFunc func;
-    func.m_pProp = pProp;
-    func.m_uiIndex = uiIndex;
-    func.m_pObject = pObject;
-    func.m_pValue = &value;
-
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
-    return value;
+    DispatchTo(func, pProp, pProp, pObject, uiIndex, res);
   }
+  return res;
 }
 
 void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
@@ -703,37 +746,11 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
   if (uiIndex >= uiCount)
   {
     ezLog::Error("SetArrayPropertyValue: Invalid index: {0}", uiIndex);
-    return;
-  }
-
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-  {
-    ezString sData = value.ConvertTo<ezString>().GetData();
-    const char* pData = sData.GetData();
-    pProp->SetValue(pObject, uiIndex, &pData);
-    return;
-  }
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    void* pValue = value.ConvertTo<void*>();
-    pProp->SetValue(pObject, uiIndex, &pValue);
-    return;
-  }
-
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-  {
-    pProp->SetValue(pObject, uiIndex, &value);
-    return;
   }
   else
   {
     SetArrayValueFunc func;
-    func.m_pProp = pProp;
-    func.m_uiIndex = uiIndex;
-    func.m_pObject = pObject;
-    func.m_pValue = &value;
-
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+    DispatchTo(func, pProp, pProp, pObject, uiIndex, value);
   }
 }
 
@@ -743,23 +760,8 @@ void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, voi
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
 
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-  {
-    ezString sData = value.ConvertTo<ezString>().GetData();
-    const char* pData = sData.GetData();
-    pProp->Insert(pObject, &pData);
-    return;
-  }
-
   InsertSetValueFunc func;
-  func.m_pProp = pProp;
-  func.m_pObject = pObject;
-  func.m_pValue = &value;
-
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-    ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
-  else
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+  DispatchTo(func, pProp, pProp, pObject, value);
 }
 
 void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
@@ -768,57 +770,18 @@ void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, voi
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
 
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-  {
-    ezString sData = value.ConvertTo<ezString>().GetData();
-    const char* pData = sData.GetData();
-    pProp->Remove(pObject, &pData);
-    return;
-  }
-
   RemoveSetValueFunc func;
-  func.m_pProp = pProp;
-  func.m_pObject = pObject;
-  func.m_pValue = &value;
-
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-    ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
-  else
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+  DispatchTo(func, pProp, pProp, pObject, value);
 }
 
 ezVariant ezReflectionUtils::GetMapPropertyValue(const ezAbstractMapProperty* pProp, const void* pObject, const char* szKey)
 {
+  ezVariant value;
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "GetMapPropertyValue: missing data!");
 
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    void* pValue = nullptr;
-    pProp->GetValue(pObject, szKey, &pValue);
-    return ezVariant(pValue);
-  }
-
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-  {
-    ezVariant value;
-    if (pProp->GetValue(pObject, szKey, &value))
-    {
-      return value;
-    }
-    return ezVariant();
-  }
-  else
-  {
-    ezVariant value;
-    GetMapValueFunc func;
-    func.m_pProp = pProp;
-    func.m_szKey = szKey;
-    func.m_pObject = pObject;
-    func.m_pValue = &value;
-
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
-    return value;
-  }
+  GetMapValueFunc func;
+  DispatchTo(func, pProp, pProp, pObject, szKey, value);
+  return value;
 }
 
 void ezReflectionUtils::SetMapPropertyValue(ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value)
@@ -827,28 +790,8 @@ void ezReflectionUtils::SetMapPropertyValue(ezAbstractMapProperty* pProp, void* 
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
 
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    void* pValue = value.ConvertTo<void*>();
-    pProp->Insert(pObject, szKey, &pValue);
-    return;
-  }
-
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-  {
-    pProp->Insert(pObject, szKey, &value);
-    return;
-  }
-  else
-  {
-    SetMapValueFunc func;
-    func.m_pProp = pProp;
-    func.m_szKey = szKey;
-    func.m_pObject = pObject;
-    func.m_pValue = &value;
-
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
-  }
+  SetMapValueFunc func;
+  DispatchTo(func, pProp, pProp, pObject, szKey, value);
 }
 
 void ezReflectionUtils::InsertArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex)
@@ -864,35 +807,8 @@ void ezReflectionUtils::InsertArrayPropertyValue(ezAbstractArrayProperty* pProp,
     return;
   }
 
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-  {
-    ezString sData = value.ConvertTo<ezString>().GetData();
-    const char* pData = sData.GetData();
-    pProp->Insert(pObject, uiIndex, &pData);
-    return;
-  }
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    void* pValue = value.ConvertTo<void*>();
-    pProp->Insert(pObject, uiIndex, &pValue);
-    return;
-  }
-
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-  {
-    pProp->Insert(pObject, uiIndex, &value);
-    return;
-  }
-  else
-  {
-    InsertArrayValueFunc func;
-    func.m_pProp = pProp;
-    func.m_uiIndex = uiIndex;
-    func.m_pObject = pObject;
-    func.m_pValue = &value;
-
-    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
-  }
+  InsertArrayValueFunc func;
+  DispatchTo(func, pProp, pProp, pObject, uiIndex, value);
 }
 
 void ezReflectionUtils::RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex)
@@ -1195,10 +1111,14 @@ ezInt64 ezReflectionUtils::MakeEnumerationValid(const ezRTTI* pEnumerationRtti, 
 
 bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbstractProperty* pProp)
 {
+  //#VAR TEST
   const ezRTTI* pPropType = pProp->GetSpecificType();
 
   ezVariant vTemp;
   ezVariant vTemp2;
+
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+
   switch (pProp->GetCategory())
   {
     case ezPropertyCategory::Member:
@@ -1227,7 +1147,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       }
       else
       {
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
+        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) || bIsValueType)
         {
           vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
           vTemp2 = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject2);
@@ -1300,7 +1220,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       }
       else
       {
-        if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (bIsValueType)
         {
           for (ezUInt32 i = 0; i < uiCount; ++i)
           {
@@ -1347,7 +1267,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       if (uiCount != uiCount2)
         return false;
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+      if (bIsValueType || (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1397,7 +1317,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       if (uiCount != uiCount2)
         return false;
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+      if (bIsValueType || (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1581,10 +1501,8 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
       return ezVariantArray();
     case ezVariant::Type::VariantDictionary:
       return ezVariantDictionary();
-    case ezVariant::Type::ReflectedPointer:
-      return ezVariant(static_cast<ezReflectedClass*>(nullptr));
-    case ezVariant::Type::VoidPointer:
-      return ezVariant(static_cast<void*>(nullptr));
+    case ezVariant::Type::TypedPointer:
+      return ezVariant(static_cast<void*>(nullptr), nullptr);
 
     default:
       EZ_REPORT_FAILURE("Invalid case statement");
@@ -1595,12 +1513,19 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
 
 ezVariant ezReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty)
 {
+  if (pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
+    return ezUuid();
+
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
+
   auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
   if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
   {
     if (pAttrib)
     {
+      if (pProperty->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+        return pAttrib->GetValue();
+
       if (pAttrib->GetValue().CanConvertTo(type))
       {
         return pAttrib->GetValue().ConvertTo(type);
@@ -1621,6 +1546,15 @@ ezVariant ezReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty
   }
   else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Class))
   {
+    if (const ezVariantTypeInfo* pInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pProperty->GetSpecificType()))
+    {
+      if (pAttrib && pAttrib->GetValue().GetReflectedType() == pProperty->GetSpecificType())
+        return pAttrib->GetValue();
+
+      ezVariant val;
+      val.MoveTypedObject(pProperty->GetSpecificType()->GetAllocator()->Allocate<void>(), pProperty->GetSpecificType());
+      return val;
+    }
     return ezUuid();
   }
   EZ_REPORT_FAILURE("Not reachable.");

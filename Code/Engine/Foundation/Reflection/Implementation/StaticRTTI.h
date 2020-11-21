@@ -4,11 +4,12 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Bitflags.h>
-#include <Foundation/Types/Variant.h>
+#include <Foundation/Types/VariantType.h>
 #include <type_traits>
 
 class ezRTTI;
 class ezReflectedClass;
+class ezVariant;
 
 /// \brief Flags that describe a reflected type.
 struct ezTypeFlags
@@ -86,9 +87,9 @@ namespace ezInternal
   ezBitflags<ezTypeFlags> DetermineTypeFlags()
   {
     ezBitflags<ezTypeFlags> flags;
-    ezVariant::Type::Enum type =
-      static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
-    if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
+    ezVariantType::Enum type =
+      static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
+    if ((type >= ezVariantType::FirstStandardType && type <= ezVariantType::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
       flags.Add(ezTypeFlags::StandardType);
     else
       flags.Add(ezTypeFlags::Class);
@@ -194,10 +195,10 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE.
-#define EZ_END_STATIC_REFLECTED_TYPE                                                                                                                 \
-  ;                                                                                                                                                  \
-  return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),                              \
-    ezVariant::TypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, nullptr);       \
+#define EZ_END_STATIC_REFLECTED_TYPE                                                                                                         \
+  ;                                                                                                                                          \
+  return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),                      \
+    ezVariantTypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, nullptr); \
   }
 
 

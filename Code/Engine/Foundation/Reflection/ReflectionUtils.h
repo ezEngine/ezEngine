@@ -4,6 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 
 class ezVariant;
+class ezAbstractProperty;
 
 /// \brief Helper functions for handling reflection related operations.
 class EZ_FOUNDATION_DLL ezReflectionUtils
@@ -13,6 +14,9 @@ public:
 
   /// \brief Returns whether a type can be stored directly inside a ezVariant.
   static bool IsBasicType(const ezRTTI* pRtti);
+
+  /// \brief Returns whether the property is a non-ptr basic type or custom type.
+  static bool IsValueType(const ezAbstractProperty* pProp);
 
   /// \brief Returns the RTTI type matching the variant's type.
   static const ezRTTI* GetTypeFromVariant(const ezVariant& value);

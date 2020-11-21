@@ -93,13 +93,13 @@ struct ezPropertyFlags
   {
     using CleanType = typename ezTypeTraits<Type>::NonConstReferencePointerType;
     ezBitflags<ezPropertyFlags> flags;
-    ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<CleanType>::value);
+    ezVariantType::Enum type = static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<CleanType>::value);
     if (std::is_same<CleanType, ezVariant>::value)
       flags.Add(ezPropertyFlags::StandardType);
     else if (std::is_same<Type, const char*>::value)
       // We treat const char* as a basic type and not a pointer.
       flags.Add(ezPropertyFlags::StandardType);
-    else if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
+    else if ((type >= ezVariantType::FirstStandardType && type <= ezVariantType::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
       flags.Add(ezPropertyFlags::StandardType);
     else if (ezIsEnum<CleanType>::value)
       flags.Add(ezPropertyFlags::IsEnum);
@@ -266,7 +266,7 @@ public:
 
   /// \brief Sets the value of pObject to the property in pInstance.
   /// pObject needs to point to an instance of this property's type.
-  virtual void SetValuePtr(void* pInstance, void* pObject) = 0;
+  virtual void SetValuePtr(void* pInstance, const void* pObject) = 0;
 };
 
 
@@ -328,13 +328,13 @@ public:
   virtual void Clear(void* pInstance) = 0;
 
   /// \brief Inserts the target of pObject into the set.
-  virtual void Insert(void* pInstance, void* pObject) = 0;
+  virtual void Insert(void* pInstance, const void* pObject) = 0;
 
   /// \brief Removes the target of pObject from the set.
-  virtual void Remove(void* pInstance, void* pObject) = 0;
+  virtual void Remove(void* pInstance, const void* pObject) = 0;
 
   /// \brief Returns whether the target of pObject is in the set.
-  virtual bool Contains(const void* pInstance, void* pObject) const = 0;
+  virtual bool Contains(const void* pInstance, const void* pObject) const = 0;
 
   /// \brief Writes the content of the set to out_keys.
   virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const = 0;

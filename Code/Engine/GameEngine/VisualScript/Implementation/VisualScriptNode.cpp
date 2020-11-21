@@ -368,7 +368,7 @@ void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
   if (uiPin >= m_Arguments.GetCount() + 2)
     return &m_ReturnValue; // unused dummy just to return anything in case of a mismatch
 
-  return m_Arguments[uiPin - 2].GetData();
+  return m_Arguments[uiPin - 2].GetWriteAccess().m_pObject;
 }
 
 ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type)

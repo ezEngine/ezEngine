@@ -54,3 +54,27 @@ EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& Stream, ezTimestamp Value);
 
 /// \brief Operator to serialize ezTimestamp objects.
 EZ_FOUNDATION_DLL void operator>>(ezStreamReader& Stream, ezTimestamp& Value);
+
+struct ezVarianceTypeFloat;
+
+/// \brief Operator to serialize ezTimestamp objects.
+EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& Stream, const ezVarianceTypeFloat& Value);
+
+/// \brief Operator to serialize ezTimestamp objects.
+EZ_FOUNDATION_DLL void operator>>(ezStreamReader& Stream, ezVarianceTypeFloat& Value);
+
+struct ezVarianceTypeTime;
+
+/// \brief Operator to serialize ezTimestamp objects.
+EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& Stream, const ezVarianceTypeTime& Value);
+
+/// \brief Operator to serialize ezTimestamp objects.
+EZ_FOUNDATION_DLL void operator>>(ezStreamReader& Stream, ezVarianceTypeTime& Value);
+
+struct ezVarianceTypeAngle;
+
+/// \brief Operator to serialize ezTimestamp objects.
+EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& Stream, const ezVarianceTypeAngle& Value);
+
+/// \brief Operator to serialize ezTimestamp objects.
+EZ_FOUNDATION_DLL void operator>>(ezStreamReader& Stream, ezVarianceTypeAngle& Value);

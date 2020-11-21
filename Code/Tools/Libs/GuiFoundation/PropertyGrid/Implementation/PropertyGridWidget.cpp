@@ -3,6 +3,7 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
@@ -396,7 +397,8 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       }
 
       // Fallback to default container widgets.
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+      const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+      if (bIsValueType)
       {
         return new ezQtPropertyStandardTypeContainerWidget();
       }
@@ -459,9 +461,11 @@ void GetDefaultValues(const ezRTTI* pType, const ezDocument* pDocument, ezProper
 
     switch (pProp->GetCategory())
     {
+
       case ezPropertyCategory::Member:
       {
-        if (!pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+        const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
+        if (bIsValueType)
         {
           (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
         }

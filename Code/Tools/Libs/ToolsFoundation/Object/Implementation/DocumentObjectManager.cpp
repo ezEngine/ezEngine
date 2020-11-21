@@ -1,6 +1,7 @@
 #include <ToolsFoundationPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
@@ -305,7 +306,9 @@ ezStatus ezDocumentObjectManager::CanAdd(
     if (pProp == nullptr)
       return ezStatus(ezFmt("Property '{0}' could not be found in type '{1}'", szParentProperty, pType->GetTypeName()));
 
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+    const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+
+    if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       return ezStatus("Need to use 'InsertValue' action instead.");
     }
@@ -621,7 +624,9 @@ void ezDocumentObjectManager::PatchEmbeddedClassObjectsInternal(ezDocumentObject
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     const ezAbstractProperty* pProperty = pType->GetProperties()[i];
-    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::Class) &&
+    const ezVariantTypeInfo* pInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pProperty->GetSpecificType());
+
+    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::Class) && !pInfo &&
         !pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
       ezUuid value = accessor.GetValue(pProperty->GetPropertyName()).Get<ezUuid>();

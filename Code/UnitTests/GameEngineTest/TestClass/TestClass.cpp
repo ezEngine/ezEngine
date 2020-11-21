@@ -28,7 +28,7 @@ ezResult ezGameEngineTest::InitializeTest()
 
   EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  if (ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics")))
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");

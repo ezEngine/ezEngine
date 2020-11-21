@@ -5,11 +5,13 @@
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomRotationSpeed.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomRotationSpeed, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomRotationSpeed>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomRotationSpeed, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomRotationSpeed>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -131,6 +133,22 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+class ezParticleInitializerFactory_RandomRotationSpeed_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleInitializerFactory_RandomRotationSpeed_1_2()
+    : ezGraphPatch("ezParticleInitializerFactory_CylinderPosition", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->InlineProperty("DegreesPerSecond").IgnoreResult();
+  }
+};
+
+ezParticleInitializerFactory_RandomRotationSpeed_1_2 g_ezParticleInitializerFactory_RandomRotationSpeed_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomRotationSpeed);

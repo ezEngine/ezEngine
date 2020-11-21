@@ -118,7 +118,7 @@ ezResult ezEditorTest::InitializeTest()
 
     EZ_SUCCEED_OR_RETURN(pDevice->Init());
 
-    if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+    if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
     {
       s_bIsReferenceDriver = true;
     }

@@ -2,6 +2,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/RangeView.h>
+#include <Foundation/Types/VarianceTypes.h>
 
 struct ezExampleEnum
 {
@@ -65,6 +66,15 @@ struct ezTestStruct
   EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct);
 
 public:
+  static ezDataBuffer GetDefaultDataBuffer()
+  {
+    ezDataBuffer data;
+    data.PushBack(255);
+    data.PushBack(0);
+    data.PushBack(127);
+    return data;
+  }
+
   ezTestStruct()
   {
     m_fFloat1 = 1.1f;
@@ -73,13 +83,18 @@ public:
     m_UInt8 = 6;
     m_variant = "Test";
     m_Angle = ezAngle::Degree(0.5);
-    m_DataBuffer.PushBack(255);
-    m_DataBuffer.PushBack(0);
-    m_DataBuffer.PushBack(127);
+    m_DataBuffer = GetDefaultDataBuffer();
     m_vVec3I = ezVec3I32(1, 2, 3);
+    m_VarianceAngle.m_fVariance = 0.5f;
+    m_VarianceAngle.m_Value = ezAngle::Degree(90.0f);
   }
 
-  bool operator==(const ezTestStruct& rhs) const { return m_fFloat1 == rhs.m_fFloat1 && m_UInt8 == rhs.m_UInt8 && m_variant == rhs.m_variant && m_iInt2 == rhs.m_iInt2 && m_vProperty3 == rhs.m_vProperty3 && m_Angle == rhs.m_Angle && m_DataBuffer == rhs.m_DataBuffer && m_vVec3I == rhs.m_vVec3I; }
+
+
+  bool operator==(const ezTestStruct& rhs) const
+  {
+    return m_fFloat1 == rhs.m_fFloat1 && m_UInt8 == rhs.m_UInt8 && m_variant == rhs.m_variant && m_iInt2 == rhs.m_iInt2 && m_vProperty3 == rhs.m_vProperty3 && m_Angle == rhs.m_Angle && m_DataBuffer == rhs.m_DataBuffer && m_vVec3I == rhs.m_vVec3I && m_VarianceAngle == rhs.m_VarianceAngle;
+  }
 
   float m_fFloat1;
   ezUInt8 m_UInt8;
@@ -87,6 +102,7 @@ public:
   ezAngle m_Angle;
   ezDataBuffer m_DataBuffer;
   ezVec3I32 m_vVec3I;
+  ezVarianceTypeAngle m_VarianceAngle;
 
 private:
   void SetInt(ezInt32 i) { m_iInt2 = i; }
@@ -135,6 +151,30 @@ private:
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct3);
 
+struct ezTypedObjectStruct
+{
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezTypedObjectStruct);
+
+public:
+  ezTypedObjectStruct()
+  {
+    m_fFloat1 = 1.1f;
+    m_UInt8 = 6;
+    m_iInt32 = 2;
+  }
+  ezTypedObjectStruct(double a, ezInt16 b)
+  {
+    m_fFloat1 = a;
+    m_UInt8 = b;
+    m_iInt32 = 32;
+  }
+
+  double m_fFloat1;
+  ezInt16 m_UInt8;
+  ezInt32 m_iInt32;
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTypedObjectStruct);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezTypedObjectStruct);
 
 class ezTestClass1 : public ezReflectedClass
 {
@@ -237,7 +277,10 @@ class ezTestArrays : public ezReflectedClass
 public:
   ezTestArrays() {}
 
-  bool operator==(const ezTestArrays& rhs) const { return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque && m_HybridChar == rhs.m_HybridChar; }
+  bool operator==(const ezTestArrays& rhs) const
+  {
+    return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque && m_HybridChar == rhs.m_HybridChar && m_CustomVariant == rhs.m_CustomVariant;
+  }
 
   bool operator!=(const ezTestArrays& rhs) const { return !(*this == rhs); }
 
@@ -265,10 +308,17 @@ public:
   void InsertDeq(ezUInt32 uiIndex, const ezTestArrays& value);
   void RemoveDeq(ezUInt32 uiIndex);
 
+  ezUInt32 GetCountCustom() const;
+  ezVarianceTypeAngle GetValueCustom(ezUInt32 uiIndex) const;
+  void SetValueCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value);
+  void InsertCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value);
+  void RemoveCustom(ezUInt32 uiIndex);
+
   ezHybridArray<double, 5> m_Hybrid;
   ezHybridArray<ezString, 2> m_HybridChar;
   ezDynamicArray<ezTestStruct3> m_Dynamic;
   ezDeque<ezTestArrays> m_Deque;
+  ezHybridArray<ezVarianceTypeAngle, 1> m_CustomVariant;
 };
 
 
@@ -279,7 +329,10 @@ class ezTestSets : public ezReflectedClass
 public:
   ezTestSets() {}
 
-  bool operator==(const ezTestSets& rhs) const { return m_SetMember == rhs.m_SetMember && m_SetAccessor == rhs.m_SetAccessor && m_Deque == rhs.m_Deque && m_Array == rhs.m_Array; }
+  bool operator==(const ezTestSets& rhs) const
+  {
+    return m_SetMember == rhs.m_SetMember && m_SetAccessor == rhs.m_SetAccessor && m_Deque == rhs.m_Deque && m_Array == rhs.m_Array && m_CustomVariant == rhs.m_CustomVariant;
+  }
 
   bool operator!=(const ezTestSets& rhs) const { return !(*this == rhs); }
 
@@ -302,6 +355,10 @@ public:
   void PseudoInsert2b(const char* value);
   void PseudoRemove2b(const char* value);
 
+  const ezHashSet<ezVarianceTypeAngle>& GetCustomHashSet() const;
+  void CustomHashInsert(ezVarianceTypeAngle value);
+  void CustomHashRemove(ezVarianceTypeAngle value);
+
   ezSet<ezInt8> m_SetMember;
   ezSet<double> m_SetAccessor;
 
@@ -310,6 +367,7 @@ public:
 
   ezDeque<int> m_Deque;
   ezDynamicArray<ezString> m_Array;
+  ezHashSet<ezVarianceTypeAngle> m_CustomVariant;
 };
 
 
@@ -340,6 +398,8 @@ public:
 
   ezHashTable<ezString, double> m_HashTableMember;
   ezHashTable<ezString, ezString> m_HashTableAccessor;
+
+  ezMap<ezString, ezVarianceTypeAngle> m_CustomVariant;
 
   struct Tuple
   {

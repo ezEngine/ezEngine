@@ -76,12 +76,13 @@ public:
   EZ_ALWAYS_INLINE virtual ~ezReflectedClass() = default;
 
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
-  EZ_ALWAYS_INLINE bool IsInstanceOf(const ezRTTI* pType) const { return GetDynamicRTTI()->IsDerivedFrom(pType); }
+  bool IsInstanceOf(const ezRTTI* pType) const;
 
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
   template <typename T>
   EZ_ALWAYS_INLINE bool IsInstanceOf() const
   {
-    return GetDynamicRTTI()->IsDerivedFrom<T>();
+    const ezRTTI* pType = ezGetStaticRTTI<T>();
+    return IsInstanceOf(pType);
   }
 };

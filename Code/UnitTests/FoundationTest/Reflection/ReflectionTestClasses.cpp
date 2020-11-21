@@ -26,14 +26,15 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Float", m_fFloat1),
-    EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3),
-    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
-    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
-    EZ_MEMBER_PROPERTY("Variant", m_variant),
-    EZ_MEMBER_PROPERTY("Angle", m_Angle),
-    EZ_MEMBER_PROPERTY("DataBuffer", m_DataBuffer),
-    EZ_MEMBER_PROPERTY("vVec3I", m_vVec3I),
+    EZ_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new ezDefaultValueAttribute(1.1f)),
+    EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3)->AddAttributes(new ezDefaultValueAttribute(ezVec3(3.0f,4.0f,5.0f))),
+    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt)->AddAttributes(new ezDefaultValueAttribute(2)),
+    EZ_MEMBER_PROPERTY("UInt8", m_UInt8)->AddAttributes(new ezDefaultValueAttribute(6)),
+    EZ_MEMBER_PROPERTY("Variant", m_variant)->AddAttributes(new ezDefaultValueAttribute("Test")),
+    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(0.5))),
+    EZ_MEMBER_PROPERTY("DataBuffer", m_DataBuffer)->AddAttributes(new ezDefaultValueAttribute(ezTestStruct::GetDefaultDataBuffer())),
+    EZ_MEMBER_PROPERTY("vVec3I", m_vVec3I)->AddAttributes(new ezDefaultValueAttribute(ezVec3I32(1,2,3))),
+    EZ_MEMBER_PROPERTY("VarianceAngle", m_VarianceAngle)->AddAttributes(new ezDefaultValueAttribute(ezVarianceTypeAngle{0.5f, ezAngle::Degree(90.0f)})),
   }
   EZ_END_PROPERTIES;
 }
@@ -43,7 +44,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTIDefaultAllocat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Float", m_fFloat1),
+    EZ_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new ezDefaultValueAttribute(33.3f)),
     EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
     EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
   }
@@ -57,6 +58,18 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTIDefaultAllocat
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypedObjectStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTypedObjectStruct>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new ezDefaultValueAttribute(33.3f)),
+    EZ_MEMBER_PROPERTY("Int", m_iInt32),
+    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestClass1>)
 {
   EZ_BEGIN_PROPERTIES
@@ -64,7 +77,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestC
     EZ_MEMBER_PROPERTY("SubStruct", m_Struct),
     // EZ_MEMBER_PROPERTY("MyVector", m_MyVector), Intentionally not reflected
     EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("SubVector", GetVector)
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("SubVector", GetVector)->AddAttributes(new ezDefaultValueAttribute(ezVec3(3, 4, 5)))
   }
     EZ_END_PROPERTIES;
 }
@@ -77,7 +90,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Text", GetText, SetText),
+    EZ_ACCESSOR_PROPERTY("Text", GetText, SetText)->AddAttributes(new ezDefaultValueAttribute("Legen")),
     EZ_MEMBER_PROPERTY("Time", m_Time),
     EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
     EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),
@@ -105,11 +118,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestAr
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("Hybrid", m_Hybrid),
+    EZ_ARRAY_MEMBER_PROPERTY("HybridChar", m_HybridChar),
     EZ_ARRAY_MEMBER_PROPERTY("Dynamic", m_Dynamic),
     EZ_ARRAY_MEMBER_PROPERTY("Deque", m_Deque),
+    EZ_ARRAY_MEMBER_PROPERTY("Custom", m_CustomVariant),
+
     EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridRO", m_Hybrid),
+    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridCharRO", m_HybridChar),
     EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DynamicRO", m_Dynamic),
     EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DequeRO", m_Deque),
+    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("CustomRO", m_CustomVariant),
 
     EZ_ARRAY_ACCESSOR_PROPERTY("AcHybrid", GetCount, GetValue, SetValue, Insert, Remove),
     EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridRO", GetCount, GetValue),
@@ -119,6 +137,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestAr
     EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDynamicRO", GetCountDyn, GetValueDyn),
     EZ_ARRAY_ACCESSOR_PROPERTY("AcDeque", GetCountDeq, GetValueDeq, SetValueDeq, InsertDeq, RemoveDeq),
     EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDequeRO", GetCountDeq, GetValueDeq),
+    EZ_ARRAY_ACCESSOR_PROPERTY("AcCustom", GetCountCustom, GetValueCustom, SetValueCustom, InsertCustom, RemoveCustom),
+    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcCustomRO", GetCountCustom, GetValueCustom),
   }
   EZ_END_PROPERTIES;
 }
@@ -209,6 +229,27 @@ void ezTestArrays::RemoveDeq(ezUInt32 uiIndex)
   m_Deque.RemoveAtAndCopy(uiIndex);
 }
 
+ezUInt32 ezTestArrays::GetCountCustom() const
+{
+  return m_CustomVariant.GetCount();
+}
+ezVarianceTypeAngle ezTestArrays::GetValueCustom(ezUInt32 uiIndex) const
+{
+  return m_CustomVariant[uiIndex];
+}
+void ezTestArrays::SetValueCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
+{
+  m_CustomVariant[uiIndex] = value;
+}
+void ezTestArrays::InsertCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
+{
+  m_CustomVariant.Insert(value, uiIndex);
+}
+void ezTestArrays::RemoveCustom(ezUInt32 uiIndex)
+{
+  m_CustomVariant.RemoveAtAndCopy(uiIndex);
+}
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets>)
 {
@@ -227,6 +268,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets
     EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2", GetPseudoSet2, PseudoInsert2, PseudoRemove2),
     EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSet2RO", GetPseudoSet2),
     EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2b", GetPseudoSet2, PseudoInsert2b, PseudoRemove2b),
+    EZ_SET_MEMBER_PROPERTY("CustomHashSet", m_CustomVariant),
+    EZ_SET_MEMBER_PROPERTY_READ_ONLY("CustomHashSetRO", m_CustomVariant),
+    EZ_SET_ACCESSOR_PROPERTY("CustomHashAcSet", GetCustomHashSet, CustomHashInsert, CustomHashRemove),
+    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("CustomHashAcSetRO", GetCustomHashSet),
   }
   EZ_END_PROPERTIES;
 }
@@ -308,6 +353,21 @@ void ezTestSets::PseudoRemove2b(const char* value)
   m_Array.RemoveAndCopy(value);
 }
 
+const ezHashSet<ezVarianceTypeAngle>& ezTestSets::GetCustomHashSet() const
+{
+  return m_CustomVariant;
+}
+
+void ezTestSets::CustomHashInsert(ezVarianceTypeAngle value)
+{
+  m_CustomVariant.Insert(value);
+}
+
+void ezTestSets::CustomHashRemove(ezVarianceTypeAngle value)
+{
+  m_CustomVariant.Remove(value);
+}
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestMaps, 1, ezRTTIDefaultAllocator<ezTestMaps>)
 {
@@ -315,12 +375,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestMaps, 1, ezRTTIDefaultAllocator<ezTestMaps
   {
     EZ_MAP_MEMBER_PROPERTY("Map", m_MapMember),
     EZ_MAP_MEMBER_PROPERTY_READ_ONLY("MapRO", m_MapMember),
+    EZ_MAP_WRITE_ACCESSOR_PROPERTY("AcMap", GetContainer, Insert, Remove),
     EZ_MAP_MEMBER_PROPERTY("HashTable", m_HashTableMember),
     EZ_MAP_MEMBER_PROPERTY_READ_ONLY("HashTableRO", m_HashTableMember),
-    EZ_MAP_WRITE_ACCESSOR_PROPERTY("AcMap", GetContainer, Insert, Remove),
     EZ_MAP_WRITE_ACCESSOR_PROPERTY("AcHashTable", GetContainer2, Insert2, Remove2),
     EZ_MAP_ACCESSOR_PROPERTY("Accessor", GetKeys3, GetValue3, Insert3, Remove3),
     EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AccessorRO", GetKeys3, GetValue3),
+    EZ_MAP_MEMBER_PROPERTY("CustomVariant", m_CustomVariant),
+    EZ_MAP_MEMBER_PROPERTY_READ_ONLY("CustomVariantRO", m_CustomVariant),
   }
   EZ_END_PROPERTIES;
 }
@@ -343,7 +405,7 @@ bool ezTestMaps::operator==(const ezTestMaps& rhs) const
     if (!bRes)
       return false;
   }
-  return m_MapMember == rhs.m_MapMember && m_MapAccessor == rhs.m_MapAccessor && m_HashTableMember == rhs.m_HashTableMember && m_HashTableAccessor == rhs.m_HashTableAccessor;
+  return m_MapMember == rhs.m_MapMember && m_MapAccessor == rhs.m_MapAccessor && m_HashTableMember == rhs.m_HashTableMember && m_HashTableAccessor == rhs.m_HashTableAccessor && m_CustomVariant == rhs.m_CustomVariant;
 }
 
 const ezMap<ezString, ezInt64>& ezTestMaps::GetContainer() const

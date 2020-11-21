@@ -1,6 +1,8 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 24);
@@ -47,12 +49,48 @@ ezVariant::ezVariant(const ezDataBuffer& value)
 
 ezVariant::ezVariant(const ezVariantArray& value)
 {
-  InitShared(value);
+  typedef typename TypeDeduction<ezVariantArray>::StorageType StorageType;
+  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
+  m_Type = TypeDeduction<ezVariantArray>::value;
+  m_bIsShared = true;
 }
 
 ezVariant::ezVariant(const ezVariantDictionary& value)
 {
-  InitShared(value);
+  typedef typename TypeDeduction<ezVariantDictionary>::StorageType StorageType;
+  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
+  m_Type = TypeDeduction<ezVariantDictionary>::value;
+  m_bIsShared = true;
+}
+
+ezVariant::ezVariant(const ezTypedPointer& value)
+{
+  InitInplace(value);
+}
+
+ezVariant::ezVariant(const ezTypedObject& value)
+{
+  void* ptr = ezReflectionSerializer::Clone(value.m_pObject, value.m_pType);
+  m_Data.shared = EZ_DEFAULT_NEW(RTTISharedData, ptr, value.m_pType);
+  m_Type = Type::TypedObject;
+  m_bIsShared = true;
+}
+
+void ezVariant::CopyTypedObject(const void* value, const ezRTTI* pType)
+{
+  Release();
+  void* ptr = ezReflectionSerializer::Clone(value, pType);
+  m_Data.shared = EZ_DEFAULT_NEW(RTTISharedData, ptr, pType);
+  m_Type = Type::TypedObject;
+  m_bIsShared = true;
+}
+
+void ezVariant::MoveTypedObject(void* value, const ezRTTI* pType)
+{
+  Release();
+  m_Data.shared = EZ_DEFAULT_NEW(RTTISharedData, value, pType);
+  m_Type = Type::TypedObject;
+  m_bIsShared = true;
 }
 
 template <typename T>
@@ -62,8 +100,9 @@ EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
 
   EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
   EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
+  const ezRTTI* pType = ezGetStaticRTTI<T>();
 
-  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value);
+  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, pType);
   m_Type = TypeDeduction<T>::value;
   m_bIsShared = true;
 }
@@ -73,70 +112,86 @@ EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
 struct ComputeHashFunc
 {
   template <typename T>
-  EZ_FORCE_INLINE void operator()()
+  EZ_FORCE_INLINE ezUInt64 operator()(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(
-      sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 && !ezVariant::TypeDeduction<T>::forceSharing,
+    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
+                                  !ezVariant::TypeDeduction<T>::forceSharing,
       "This type requires special handling! Add a specialization below.");
-    m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(T), m_uiHash);
+    return ezHashingUtils::xxHash64(pData, sizeof(T), uiSeed);
   }
-
-  const void* m_pData;
-  ezUInt64 m_uiHash;
 };
 
 template <>
-EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezString>()
+EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezString>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezString* pData = (ezString*)m_pData;
+  ezString* pString = (ezString*)pData;
 
-  m_uiHash = ezHashingUtils::xxHash64(pData->GetData(), pData->GetElementCount(), m_uiHash);
+  return ezHashingUtils::xxHash64(pString->GetData(), pString->GetElementCount(), uiSeed);
 }
 
 template <>
-EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezMat3>()
+EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezMat3>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(ezMat3), m_uiHash);
+  return ezHashingUtils::xxHash64(pData, sizeof(ezMat3), uiSeed);
 }
 
 template <>
-EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezMat4>()
+EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezMat4>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(ezMat4), m_uiHash);
+  return ezHashingUtils::xxHash64(pData, sizeof(ezMat4), uiSeed);
 }
 
 template <>
-EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezTransform>()
+EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezTransform>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(ezTransform), m_uiHash);
+  return ezHashingUtils::xxHash64(pData, sizeof(ezTransform), uiSeed);
 }
 
 template <>
-EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezDataBuffer>()
+EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezDataBuffer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezDataBuffer* pData = (ezDataBuffer*)m_pData;
+  ezDataBuffer* pDataBuffer = (ezDataBuffer*)pData;
 
-  m_uiHash = ezHashingUtils::xxHash64(pData->GetData(), pData->GetCount(), m_uiHash);
+  return ezHashingUtils::xxHash64(pDataBuffer->GetData(), pDataBuffer->GetCount(), uiSeed);
 }
 
 template <>
-EZ_FORCE_INLINE void ComputeHashFunc::operator()<ezVariantArray>()
+EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantArray>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezVariantArray* pData = (ezVariantArray*)m_pData;
   EZ_IGNORE_UNUSED(pData);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
-  // m_uiHash = ezHashingUtils::xxHash64(pData, sizeof(ezMat4), m_uiHash);
+  return 0;
 }
 
 template <>
-EZ_FORCE_INLINE void ComputeHashFunc::operator()<ezVariantDictionary>()
+EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezVariantDictionary* pData = (ezVariantDictionary*)m_pData;
   EZ_IGNORE_UNUSED(pData);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
-  // m_uiHash = ezHashingUtils::xxHash64(pData, sizeof(ezMat4), m_uiHash);
+  return 0;
+}
+
+template <>
+EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezTypedPointer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
+{
+  EZ_IGNORE_UNUSED(pData);
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0;
+}
+
+template <>
+EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezTypedObject>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
+{
+  auto pType = v.GetReflectedType();
+
+  const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pType);
+  EZ_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable comparing of this variant type.", pType->GetTypeName());
+  ezUInt32 uiHash32 = pTypeInfo->Hash(pData);
+
+  return ezHashingUtils::xxHash64(&uiHash32, sizeof(ezUInt32), uiSeed);
 }
 
 struct CompareFunc
@@ -152,15 +207,38 @@ struct CompareFunc
   bool m_bResult;
 };
 
+template <>
+EZ_FORCE_INLINE void CompareFunc::operator()<ezTypedObject>()
+{
+  m_bResult = false;
+  ezTypedObject A = m_pThis->Get<ezTypedObject>();
+  ezTypedObject B = m_pOther->Get<ezTypedObject>();
+  if (A.m_pType == B.m_pType)
+  {
+    const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(A.m_pType);
+    EZ_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable comparing of this variant type.", A.m_pType->GetTypeName());
+    m_bResult = pTypeInfo->Equal(A.m_pObject, B.m_pObject);
+  }
+}
+
 struct IndexFunc
 {
   template <typename T>
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
-    const ezRTTI* pRtti = ezGetStaticRTTI<T>();
+    const ezRTTI* pRtti = m_pThis->GetReflectedType();
     ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex);
     if (!pProp)
       return ezVariant();
+
+    if (m_pThis->GetType() == ezVariantType::TypedPointer)
+    {
+      const ezTypedPointer& ptr = m_pThis->Get<ezTypedPointer>();
+      if (ptr.m_pObject)
+        return ezReflectionUtils::GetMemberPropertyValue(pProp, ptr.m_pObject);
+      else
+        return ezVariant();
+    }
     return ezReflectionUtils::GetMemberPropertyValue(pProp, m_pThis->GetData());
   }
 
@@ -186,10 +264,18 @@ struct KeyFunc
   template <typename T>
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
-    const ezRTTI* pRtti = ezGetStaticRTTI<T>();
+    const ezRTTI* pRtti = m_pThis->GetReflectedType();
     ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_szKey);
     if (!pProp)
       return ezVariant();
+    if (m_pThis->GetType() == ezVariantType::TypedPointer)
+    {
+      const ezTypedPointer& ptr = m_pThis->Get<ezTypedPointer>();
+      if (ptr.m_pObject)
+        return ezReflectionUtils::GetMemberPropertyValue(pProp, ptr.m_pObject);
+      else
+        return ezVariant();
+    }
     return ezReflectionUtils::GetMemberPropertyValue(pProp, m_pThis->GetData());
   }
 
@@ -255,22 +341,35 @@ bool ezVariant::operator==(const ezVariant& other) const
   return false;
 }
 
-ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
+ezTypedPointer ezVariant::GetWriteAccess()
+{
+  ezTypedPointer obj;
+  obj.m_pType = GetReflectedType();
+  if (m_bIsShared)
+  {
+    if (m_Data.shared->m_uiRef > 1)
+    {
+      // We need to make sure we hold the only reference to the shared data to be able to edit it.
+      SharedData* pData = m_Data.shared->Clone();
+      Release();
+      m_Data.shared = pData;
+    }
+    obj.m_pObject = m_Data.shared->m_Ptr;
+  }
+  else
+  {
+    obj.m_pObject = m_Type == Type::TypedPointer ? Cast<ezTypedPointer>().m_pObject : &m_Data;
+  }
+  return obj;
+}
+
+const ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
 {
   if (m_Type == Type::VariantArray)
   {
     const ezVariantArray& a = Cast<ezVariantArray>();
     if (uiIndex < a.GetCount())
       return a[uiIndex];
-  }
-  else if (m_Type == Type::ReflectedPointer)
-  {
-    ezReflectedClass* pObject = Cast<ezReflectedClass*>();
-    const ezRTTI* pRtti = pObject->GetDynamicRTTI();
-    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, uiIndex);
-    if (!pProp)
-      return ezVariant();
-    return ezReflectionUtils::GetMemberPropertyValue(pProp, pObject);
   }
   else if (IsValid())
   {
@@ -286,22 +385,13 @@ ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
   return ezVariant();
 }
 
-ezVariant ezVariant::operator[](StringWrapper szKey) const
+const ezVariant ezVariant::operator[](StringWrapper szKey) const
 {
   if (m_Type == Type::VariantDictionary)
   {
     ezVariant result;
     Cast<ezVariantDictionary>().TryGetValue(szKey.m_str, result);
     return result;
-  }
-  else if (m_Type == Type::ReflectedPointer)
-  {
-    ezReflectedClass* pObject = Cast<ezReflectedClass*>();
-    const ezRTTI* pRtti = pObject->GetDynamicRTTI();
-    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, szKey.m_str);
-    if (!pProp)
-      return ezVariant();
-    return ezReflectionUtils::GetMemberPropertyValue(pProp, pObject);
   }
   else if (IsValid())
   {
@@ -346,7 +436,9 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (type == Type::ColorGamma && m_Type == Type::Color)
     return true;
 
-  if (type == Type::VoidPointer && m_Type == Type::ReflectedPointer)
+  if (type == Type::TypedPointer && m_Type == Type::TypedPointer)
+    return true;
+  if (type == Type::TypedObject && m_Type == Type::TypedObject)
     return true;
 
   return false;
@@ -388,12 +480,94 @@ ezUInt64 ezVariant::ComputeHash(ezUInt64 uiSeed) const
     return uiSeed;
 
   ComputeHashFunc obj;
-  obj.m_uiHash = uiSeed;
-  obj.m_pData = GetData();
+  return DispatchTo<ComputeHashFunc>(obj, GetType(), *this, GetData(), uiSeed);
+}
 
-  DispatchTo<ComputeHashFunc>(obj, GetType());
 
-  return obj.m_uiHash;
+inline ezVariant::RTTISharedData::RTTISharedData(void* pData, const ezRTTI* pType)
+  : SharedData(pData, pType)
+{
+  EZ_ASSERT_DEBUG(pType != nullptr && pType->GetAllocator()->CanAllocate(), "");
+}
+
+inline ezVariant::RTTISharedData::~RTTISharedData()
+{
+  m_pType->GetAllocator()->Deallocate(m_Ptr);
+}
+
+
+ezVariant::ezVariant::SharedData* ezVariant::RTTISharedData::Clone() const
+{
+  void* ptr = ezReflectionSerializer::Clone(m_Ptr, m_pType);
+  return EZ_DEFAULT_NEW(RTTISharedData, ptr, m_pType);
+}
+
+struct GetTypeFromVariantFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()()
+  {
+    m_pType = ezGetStaticRTTI<T>();
+  }
+
+  const ezVariant* m_pVariant;
+  const ezRTTI* m_pType;
+};
+
+template <>
+EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezVariantArray>()
+{
+  m_pType = nullptr;
+}
+template <>
+EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezVariantDictionary>()
+{
+  m_pType = nullptr;
+}
+template <>
+EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezTypedPointer>()
+{
+  m_pType = m_pVariant->Cast<ezTypedPointer>().m_pType;
+}
+template <>
+EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezTypedObject>()
+{
+  m_pType = m_pVariant->m_bIsShared ? m_pVariant->m_Data.shared->m_pType : m_pVariant->m_Data.inlined.m_pType;
+}
+
+const ezRTTI* ezVariant::GetReflectedType() const
+{
+  if (m_Type != Type::Invalid)
+  {
+    GetTypeFromVariantFunc func;
+    func.m_pVariant = this;
+    func.m_pType = nullptr;
+    ezVariant::DispatchTo(func, GetType());
+    return func.m_pType;
+  }
+  return nullptr;
+}
+
+void ezVariant::InitTypedPointer(void* value, const ezRTTI* pType)
+{
+  ezTypedPointer ptr;
+  ptr.m_pObject = value;
+  ptr.m_pType = pType;
+
+  ezMemoryUtils::CopyConstruct(reinterpret_cast<ezTypedPointer*>(&m_Data), ptr, 1);
+
+  m_Type = TypeDeduction<ezTypedPointer>::value;
+  m_bIsShared = false;
+}
+
+bool ezVariant::IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2)
+{
+  return pType1->IsDerivedFrom(pType2);
+}
+
+const char* ezVariant::GetTypeName(const ezRTTI* pType)
+{
+  return pType->GetTypeName();
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);
