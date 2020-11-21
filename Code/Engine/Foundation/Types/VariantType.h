@@ -77,13 +77,16 @@ struct ezVariantType
 
 EZ_DEFINE_AS_POD_TYPE(ezVariantType::Enum);
 
-enum ezVariantClass
+struct ezVariantClass
 {
-  Invalid,
-  DirectCast,     ///< A standard type
-  PointerCast,    ///< Any cast to T*
-  TypedObject,    ///< ezTypedObject cast. Needed because at no point does and ezVariant ever store a ezTypedObject so it can't be returned as a const reference.
-  CustomTypeCast, ///< Custom object types
+  enum Enum
+  {
+    Invalid,
+    DirectCast,     ///< A standard type
+    PointerCast,    ///< Any cast to T*
+    TypedObject,    ///< ezTypedObject cast. Needed because at no point does and ezVariant ever store a ezTypedObject so it can't be returned as a const reference.
+    CustomTypeCast, ///< Custom object types
+  };
 };
 
 /// \brief A helper struct to convert the C++ type, which is passed as the template argument, into one of the ezVariant::Type enum values.

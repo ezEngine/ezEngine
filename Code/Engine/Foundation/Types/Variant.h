@@ -17,7 +17,7 @@ class ezRTTI;
 /// \brief Defines a reference to an immutable object owned by an ezVariant.
 ///
 /// Used to store custom types inside an ezVariant. As lifetime is governed by the ezVariant, it is generally not safe to store an ezTypedObject.
-/// This class is needed to be able to difference between ezVariantType::TypedPointer and ezVariantType::TypedObject e.g. in ezVariant::DispatchTo.
+/// This class is needed to be able to differentiate between ezVariantType::TypedPointer and ezVariantType::TypedObject e.g. in ezVariant::DispatchTo.
 /// \sa ezVariant, EZ_DECLARE_CUSTOM_VARIANT_TYPE
 struct ezTypedObject
 {
@@ -301,6 +301,7 @@ private:
   {
   private:
     T m_t;
+
   public:
     EZ_ALWAYS_INLINE TypedSharedData(const T& value, const ezRTTI* pType = nullptr)
       : SharedData(&m_t, pType)
@@ -372,6 +373,7 @@ private:
   static bool IsVector2Static(ezUInt32 type);
   static bool IsVector3Static(ezUInt32 type);
   static bool IsVector4Static(ezUInt32 type);
+  static bool IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2);
 
   template <typename T>
   T ConvertNumber() const;
@@ -396,4 +398,3 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
 
 #include <Foundation/Types/Implementation/Variant_inl.h>
-

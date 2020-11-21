@@ -560,4 +560,9 @@ void ezVariant::InitTypedPointer(void* value, const ezRTTI* pType)
   m_bIsShared = false;
 }
 
+bool ezVariant::IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2)
+{
+  return pType1->IsDerivedFrom(pType2);
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);

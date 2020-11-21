@@ -68,7 +68,7 @@ struct ezIsOutParam<T*>
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Used to determine if the given type is a
+/// \brief Used to determine if the given type is a build-in standard variant type.
 template <class T, class C = typename ezCleanType<T>::Type>
 struct ezIsStandardType
 {
@@ -89,7 +89,7 @@ struct ezIsStandardType<T, ezVariant>
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Used to determine if the given type is a
+/// \brief Used to determine if the given type can be stored by value inside an ezVariant (either standard type or custom type).
 template <class T, class C = typename ezCleanType<T>::Type>
 struct ezIsValueType
 {

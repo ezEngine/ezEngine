@@ -19,7 +19,7 @@ ON_CORESYSTEMS_STARTUP
 
 ON_CORESYSTEMS_SHUTDOWN
 {
-  ezVariantTypeRegistry* pDummy = ezVariantTypeRegistry::GetSingleton();
+  ezVariantTypeRegistry * pDummy = ezVariantTypeRegistry::GetSingleton();
   EZ_DEFAULT_DELETE(pDummy);
 }
 
@@ -48,7 +48,13 @@ const ezVariantTypeInfo* ezVariantTypeRegistry::FindVariantTypeInfo(const ezRTTI
 
 void ezVariantTypeRegistry::PluginEventHandler(const ezPluginEvent& EventData)
 {
-  UpdateTypes();
+  switch (EventData.m_EventType)
+  {
+    case ezPluginEvent::AfterLoadingBeforeInit:
+    case ezPluginEvent::AfterUnloading:
+      UpdateTypes();
+      break;
+  }
 }
 
 void ezVariantTypeRegistry::UpdateTypes()

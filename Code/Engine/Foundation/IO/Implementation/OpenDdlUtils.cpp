@@ -1423,10 +1423,19 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
           for (const ezAbstractProperty* pProp : properties)
           {
             // Custom types should be POD and only consist of member properties.
-            if (pProp->GetCategory() == ezPropertyCategory::Member)
+            switch (pProp->GetCategory())
             {
-              ezVariant subValue = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), obj.m_pObject);
-              StoreVariant(writer, subValue, pProp->GetPropertyName(), false);
+              case ezPropertyCategory::Member:
+              {
+                ezVariant subValue = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), obj.m_pObject);
+                StoreVariant(writer, subValue, pProp->GetPropertyName(), false);
+              }
+              break;
+              case ezPropertyCategory::Array:
+              case ezPropertyCategory::Set:
+              case ezPropertyCategory::Map:
+                EZ_REPORT_FAILURE("Only member properties are supported in custom variant types!");
+                break;
             }
           }
         }
