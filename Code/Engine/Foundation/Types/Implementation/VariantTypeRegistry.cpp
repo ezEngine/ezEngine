@@ -54,6 +54,8 @@ void ezVariantTypeRegistry::PluginEventHandler(const ezPluginEvent& EventData)
     case ezPluginEvent::AfterUnloading:
       UpdateTypes();
       break;
+    default:
+      break;
   }
 }
 

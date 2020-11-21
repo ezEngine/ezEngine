@@ -242,6 +242,8 @@ void ezGraphVersioning::PluginEventHandler(const ezPluginEvent& EventData)
     case ezPluginEvent::AfterUnloading:
       UpdatePatches();
       break;
+    default:
+      break;
   }
 }
 
