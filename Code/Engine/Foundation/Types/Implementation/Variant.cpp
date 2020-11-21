@@ -385,7 +385,7 @@ const ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
   return ezVariant();
 }
 
-ezVariant ezVariant::operator[](StringWrapper szKey) const
+const ezVariant ezVariant::operator[](StringWrapper szKey) const
 {
   if (m_Type == Type::VariantDictionary)
   {

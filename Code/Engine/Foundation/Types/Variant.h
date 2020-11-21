@@ -231,7 +231,7 @@ public:
   /// \brief Returns the sub value with szKey. This could be a value in a dictionary or a member property inside a reflected type.
   ///
   /// This function will return an invalid variant if no corresponding sub value is found.
-  ezVariant operator[](StringWrapper szKey) const; // [tested]
+  const ezVariant operator[](StringWrapper szKey) const; // [tested]
 
   /// \brief Returns whether the stored type can generally be converted to the desired type.
   ///
@@ -393,7 +393,7 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
   return nullptr;
 }
 
+#include <Foundation/Types/Implementation/VariantHelper_inl.h>
 
 #include <Foundation/Types/Implementation/Variant_inl.h>
 
-#include <Foundation/Types/Implementation/VariantHelper_inl.h>

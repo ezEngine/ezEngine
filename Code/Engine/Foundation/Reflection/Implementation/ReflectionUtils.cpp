@@ -237,7 +237,7 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
-      m_tempValue = value.ConvertTo<ezPropertyValue<T>::StorageType>();
+      m_tempValue = value.ConvertTo<typename ezPropertyValue<T>::StorageType>();
     }
 
     operator const void *()
