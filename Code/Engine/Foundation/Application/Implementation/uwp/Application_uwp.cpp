@@ -43,12 +43,13 @@ void ezUwpApplication::Load(winrt::hstring const& entryPoint)
 
 void ezUwpApplication::Run()
 {
-  ezRun_Startup(m_application);
+  if (ezRun_Startup(m_application).Succeeded())
+  {
+    auto window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+    window.Activate();
 
-  auto window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
-  window.Activate();
-
-  ezRun_MainLoop(m_application);
+    ezRun_MainLoop(m_application);
+  }
   ezRun_Shutdown(m_application);
 }
 
