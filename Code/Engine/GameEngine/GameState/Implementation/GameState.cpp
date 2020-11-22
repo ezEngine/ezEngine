@@ -130,7 +130,7 @@ void ezGameState::CreateActors()
         SetupMainView(pOutput.Borrow(), pMainWindow->GetClientAreaSize());
       }
     }
-    
+
     {
       // Default flat window
       ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);

@@ -54,7 +54,8 @@ elseif (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ezOpenXR DEFAULT_MSG EZ_OPENXR_DIR)
+find_package_handle_standard_args(ezOpenXR DEFAULT_MSG EZ_OPENXR_LOADER_DIR)
+find_package_handle_standard_args(ezOpenXR DEFAULT_MSG EZ_OPENXR_HEADERS_DIR)
 
 if (EZOPENXR_FOUND)
 

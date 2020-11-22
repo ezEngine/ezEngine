@@ -11,7 +11,7 @@ EZ_IMPLEMENT_SINGLETON(ezOpenXRHandTracking);
 
 bool ezOpenXRHandTracking::IsHandTrackingSupported(ezOpenXR* pOpenXR)
 {
-  XrSystemHandTrackingPropertiesEXT handTrackingSystemProperties{ XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT };
+  XrSystemHandTrackingPropertiesEXT handTrackingSystemProperties{XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT};
   XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES, &handTrackingSystemProperties};
   XrResult res = xrGetSystemProperties(pOpenXR->m_instance, pOpenXR->m_systemId, &systemProperties);
   if (res == XrResult::XR_SUCCESS)
@@ -28,7 +28,7 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
   for (ezUInt32 uiSide : {0, 1})
   {
     const XrHandEXT uiHand = uiSide == 0 ? XR_HAND_LEFT_EXT : XR_HAND_RIGHT_EXT;
-    XrHandTrackerCreateInfoEXT createInfo{ XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT };
+    XrHandTrackerCreateInfoEXT createInfo{XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT};
     createInfo.hand = uiHand;
     XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrCreateHandTrackerEXT(pOpenXR->m_session, &createInfo, &m_HandTracker[uiSide]));
 
@@ -135,7 +135,7 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
 {
   EZ_PROFILE_SCOPE("UpdateJointTransforms");
   const XrTime time = m_pOpenXR->m_frameState.predictedDisplayTime;
-  XrHandJointsLocateInfoEXT locateInfo{ XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT };
+  XrHandJointsLocateInfoEXT locateInfo{XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT};
   locateInfo.baseSpace = m_pOpenXR->GetBaseSpace();
   locateInfo.time = time;
 
@@ -150,7 +150,7 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
       {
         const XrHandJointLocationEXT& spaceLocation = m_JointLocations[uiSide][i];
         if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-          (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
+            (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
         {
           m_JointData[uiSide][i].m_bValid = true;
           m_JointData[uiSide][i].m_Bone.m_fRadius = spaceLocation.radius;

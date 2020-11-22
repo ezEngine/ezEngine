@@ -34,11 +34,11 @@ private:
   };
 
   ezOpenXR* m_pOpenXR = nullptr;
-  XrHandTrackerEXT m_HandTracker[2] = { XR_NULL_HANDLE, XR_NULL_HANDLE };
+  XrHandTrackerEXT m_HandTracker[2] = {XR_NULL_HANDLE, XR_NULL_HANDLE};
   XrHandJointLocationEXT m_JointLocations[2][XR_HAND_JOINT_COUNT_EXT];
   XrHandJointVelocityEXT m_JointVelocities[2][XR_HAND_JOINT_COUNT_EXT];
-  XrHandJointLocationsEXT m_Locations[2]{ XR_TYPE_HAND_JOINT_LOCATIONS_EXT };
-  XrHandJointVelocitiesEXT m_Velocities[2]{ XR_TYPE_HAND_JOINT_VELOCITIES_EXT };
+  XrHandJointLocationsEXT m_Locations[2]{XR_TYPE_HAND_JOINT_LOCATIONS_EXT};
+  XrHandJointVelocitiesEXT m_Velocities[2]{XR_TYPE_HAND_JOINT_VELOCITIES_EXT};
 
   ezStaticArray<JointData, XR_HAND_JOINT_LITTLE_TIP_EXT + 1> m_JointData[2];
   ezStaticArray<ezUInt32, 6> m_HandParts[ezXRHandPart::Little + 1];

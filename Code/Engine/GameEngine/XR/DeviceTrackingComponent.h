@@ -59,4 +59,3 @@ protected:
   bool m_bRotation = true;
   bool m_bScale = true;
 };
-
