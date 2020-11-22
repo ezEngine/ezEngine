@@ -18,14 +18,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZLIB_SUPPOR
 if(MSVC)
   target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32)
 
-  if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-
-    target_link_libraries(${PROJECT_NAME}
-      PRIVATE
-      OneCore.lib
-    )
-
-  elseif(EZ_COMPILE_ENGINE_AS_DLL)
+  if(NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP AND EZ_COMPILE_ENGINE_AS_DLL)
 
     target_compile_definitions(${PROJECT_NAME} PRIVATE ZLIB_DLL_EXPORT=1)
     target_compile_definitions(${PROJECT_NAME} PUBLIC ZLIB_DLL_IMPORT=1)

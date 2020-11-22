@@ -115,9 +115,22 @@ void ezGameState::CreateActors()
       ezView* pView = nullptr;
       EZ_VERIFY(ezRenderWorld::TryGetView(m_hMainView, pView), "");
       ezUniquePtr<ezActor> pXRActor = pXRInterface->CreateActor(pView, ezGALMSAASampleCount::Default, std::move(pMainWindow), std::move(pOutput));
-      ezActorManager::GetSingleton()->AddActor(std::move(pXRActor));
+
+      if (pXRActor)
+      {
+        ezActorManager::GetSingleton()->AddActor(std::move(pXRActor));
+        return;
+      }
+      else
+      {
+        ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
+        EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
+        ezUniquePtr<ezWindowOutputTargetBase> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
+        ConfigureMainWindowInputDevices(pMainWindow.Borrow());
+        SetupMainView(pOutput.Borrow(), pMainWindow->GetClientAreaSize());
+      }
     }
-    else
+
     {
       // Default flat window
       ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);

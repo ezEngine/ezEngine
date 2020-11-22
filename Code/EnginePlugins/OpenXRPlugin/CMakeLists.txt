@@ -13,7 +13,6 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
 )
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_OPENXR_SUPPORT)
 if (NOT EZ_OPENXR_PREVIEW_DIR STREQUAL "")
 	target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT)
 endif()

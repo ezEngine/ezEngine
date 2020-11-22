@@ -118,8 +118,8 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   }
 
   XrActionSetCreateInfo actionSetInfo{XR_TYPE_ACTION_SET_CREATE_INFO};
-  strcpy(actionSetInfo.actionSetName, "gameplay");
-  strcpy(actionSetInfo.localizedActionSetName, "Gameplay");
+  ezStringUtils::Copy(actionSetInfo.actionSetName, XR_MAX_ACTION_SET_NAME_SIZE, "gameplay");
+  ezStringUtils::Copy(actionSetInfo.localizedActionSetName, XR_MAX_LOCALIZED_ACTION_SET_NAME_SIZE, "Gameplay");
   actionSetInfo.priority = 0;
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateActionSet(m_instance, &actionSetInfo, &m_ActionSet), DestroyActions);
 

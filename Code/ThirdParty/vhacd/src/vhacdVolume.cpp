@@ -23,6 +23,9 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#pragma warning(push)
+#pragma warning(disable : 4244)
+
 #ifndef _CRT_SECURE_NO_WARNINGS
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -1185,3 +1188,5 @@ void raycastFill(Volume* volume, RaycastMesh* raycastMesh)
 }
 
 } // namespace VHACD
+
+#pragma warning(pop)

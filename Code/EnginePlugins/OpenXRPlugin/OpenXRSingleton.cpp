@@ -1,43 +1,35 @@
 #include <OpenXRPluginPCH.h>
 
-#include <Foundation/Configuration/CVar.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRHandTracking.h>
-#include <OpenXRPlugin/OpenXRIncludes.h>
 #include <OpenXRPlugin/OpenXRInputDevice.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
 
 #include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererFoundation/Context/Context.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Profiling/Profiling.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 
 #include <Core/ActorSystem/Actor.h>
 #include <Core/World/World.h>
 #include <GameEngine/XR/StageSpaceComponent.h>
 #include <GameEngine/XR/XRWindow.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <algorithm>
-#include <vector>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <RendererDX11/Context/ContextDX11.h>
 #  include <RendererDX11/Device/DeviceDX11.h>
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  include <winrt/Windows.Graphics.Holographic.h>
+#  include <winrt/Windows.UI.Core.h>
+#  include <winrt/base.h>
+#endif
+
+#include <vector>
 
 EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::None == 1);
 EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::TwoSamples == 2);
@@ -93,10 +85,15 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   AddExtIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME, m_extensions.m_bDepthComposition);
   AddExtIfSupported(XR_MSFT_UNBOUNDED_REFERENCE_SPACE_EXTENSION_NAME, m_extensions.m_bUnboundedReferenceSpace);
   AddExtIfSupported(XR_MSFT_SPATIAL_ANCHOR_EXTENSION_NAME, m_extensions.m_bSpatialAnchor);
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
+  AddExtIfSupported(XR_EXT_HAND_TRACKING_EXTENSION_NAME, m_extensions.m_bHandTracking);
   AddExtIfSupported(XR_MSFT_HAND_INTERACTION_EXTENSION_NAME, m_extensions.m_bHandInteraction);
-  AddExtIfSupported(XR_MSFT_HAND_TRACKING_PREVIEW_EXTENSION_NAME, m_extensions.m_bHandTracking);
-  AddExtIfSupported(XR_MSFT_HAND_TRACKING_MESH_PREVIEW_EXTENSION_NAME, m_extensions.m_bHandTrackingMesh);
+  AddExtIfSupported(XR_MSFT_HAND_TRACKING_MESH_EXTENSION_NAME, m_extensions.m_bHandTrackingMesh);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  AddExtIfSupported(XR_MSFT_HOLOGRAPHIC_WINDOW_ATTACHMENT_EXTENSION_NAME, m_extensions.m_bHolographicWindowAttachment);
+#endif
+
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
 #endif
   return XR_SUCCESS;
 }
@@ -143,20 +140,15 @@ ezResult ezOpenXR::Initialize()
 
   if (m_extensions.m_bHandTracking)
   {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-    EZ_GET_INSTANCE_PROC_ADDR(xrCreateHandTrackerMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrDestroyHandTrackerMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrGetHandTrackerStateMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrCreateHandJointSpaceMSFT);
-#endif
+    EZ_GET_INSTANCE_PROC_ADDR(xrCreateHandTrackerEXT);
+    EZ_GET_INSTANCE_PROC_ADDR(xrDestroyHandTrackerEXT);
+    EZ_GET_INSTANCE_PROC_ADDR(xrLocateHandJointsEXT);
   }
 
   if (m_extensions.m_bHandTrackingMesh)
   {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
     EZ_GET_INSTANCE_PROC_ADDR(xrCreateHandMeshSpaceMSFT);
     EZ_GET_INSTANCE_PROC_ADDR(xrUpdateHandMeshMSFT);
-#endif
   }
 
   m_Input = EZ_DEFAULT_NEW(ezOpenXRInputDevice, this);
@@ -324,8 +316,36 @@ XrResult ezOpenXR::InitSession()
   XR_SUCCEED_OR_CLEANUP_LOG(InitGraphicsPlugin(), DeinitSession);
 
   XrSessionCreateInfo sessionCreateInfo{XR_TYPE_SESSION_CREATE_INFO};
-  sessionCreateInfo.next = &m_xrGraphicsBindingD3D11;
   sessionCreateInfo.systemId = m_systemId;
+  sessionCreateInfo.next = &m_xrGraphicsBindingD3D11;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  if (m_extensions.m_bHolographicWindowAttachment)
+  {
+    // Creating a HolographicSpace before activating the CoreWindow to make it a holographic window
+    winrt::Windows::UI::Core::CoreWindow window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+    winrt::Windows::Graphics::Holographic::HolographicSpace holographicSpace = winrt::Windows::Graphics::Holographic::HolographicSpace::CreateForCoreWindow(window);
+    window.Activate();
+
+    XrHolographicWindowAttachmentMSFT holographicWindowAttachment{XR_TYPE_HOLOGRAPHIC_WINDOW_ATTACHMENT_MSFT};
+    {
+      holographicWindowAttachment.next = &m_xrGraphicsBindingD3D11;
+      // TODO: The code in this block works around the fact that for some reason the commented out winrt equivalent does not compile although it works in every sample:
+      // error C2131: expression did not evaluate to a constant.
+      // holographicWindowAttachment.coreWindow = window.as<IUnknown>().get();
+      // holographicWindowAttachment.holographicSpace = holographicSpace.as<IUnknown>().get();
+      winrt::com_ptr<IUnknown> temp;
+      winrt::copy_to_abi(window.as<winrt::Windows::Foundation::IUnknown>(), *temp.put_void());
+      holographicWindowAttachment.coreWindow = temp.detach();
+
+      winrt::copy_to_abi(holographicSpace.as<winrt::Windows::Foundation::IUnknown>(), *temp.put_void());
+      holographicWindowAttachment.holographicSpace = temp.detach();
+    }
+
+    sessionCreateInfo.next = &holographicWindowAttachment;
+  }
+#endif
+
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSession(m_instance, &sessionCreateInfo, &m_session), DeinitSession);
 
   XrReferenceSpaceCreateInfo spaceCreateInfo{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
@@ -818,6 +838,11 @@ void ezOpenXR::UpdateCamera()
 
 void ezOpenXR::BeforeBeginFrame()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  winrt::Windows::UI::Core::CoreWindow window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+  window.Dispatcher().ProcessEvents(winrt::Windows::UI::Core::CoreProcessEventsOption::ProcessAllIfPresent);
+#endif
+
   if (m_hView.IsInvalidated() || !m_sessionRunning)
     return;
 

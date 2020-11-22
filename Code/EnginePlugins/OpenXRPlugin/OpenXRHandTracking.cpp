@@ -11,15 +11,13 @@ EZ_IMPLEMENT_SINGLETON(ezOpenXRHandTracking);
 
 bool ezOpenXRHandTracking::IsHandTrackingSupported(ezOpenXR* pOpenXR)
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-  XrSystemHandTrackingPropertiesMSFT handTrackingSystemProperties{XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_MSFT};
+  XrSystemHandTrackingPropertiesEXT handTrackingSystemProperties{XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT};
   XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES, &handTrackingSystemProperties};
   XrResult res = xrGetSystemProperties(pOpenXR->m_instance, pOpenXR->m_systemId, &systemProperties);
   if (res == XrResult::XR_SUCCESS)
   {
     return handTrackingSystemProperties.supportsHandTracking;
   }
-#endif
   return false;
 }
 
@@ -27,88 +25,81 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
   : m_SingletonRegistrar(this)
   , m_pOpenXR(pOpenXR)
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-  EZ_ASSERT_DEV(m_pOpenXR->m_extensions.m_bHandTracking, "Hand tracking not supported");
   for (ezUInt32 uiSide : {0, 1})
   {
-    const XrHandMSFT uiHand = uiSide == 0 ? XR_HAND_LEFT_MSFT : XR_HAND_RIGHT_MSFT;
-    XrHandTrackerCreateInfoMSFT createInfo{XR_TYPE_HAND_TRACKER_CREATE_INFO_MSFT};
+    const XrHandEXT uiHand = uiSide == 0 ? XR_HAND_LEFT_EXT : XR_HAND_RIGHT_EXT;
+    XrHandTrackerCreateInfoEXT createInfo{XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT};
     createInfo.hand = uiHand;
-    XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrCreateHandTrackerMSFT(pOpenXR->m_session, &createInfo, &m_HandTracker[uiSide]));
+    XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrCreateHandTrackerEXT(pOpenXR->m_session, &createInfo, &m_HandTracker[uiSide]));
 
-    XrHandJointSpaceCreateInfoMSFT jointCreateInfo{XR_TYPE_HAND_JOINT_SPACE_CREATE_INFO_MSFT};
-    jointCreateInfo.handTracker = m_HandTracker[uiSide];
-    jointCreateInfo.poseInJointSpace = {{0, 0, 0, 1}, {0, 0, 0}};
+    m_Locations[uiSide].type = XR_TYPE_HAND_JOINT_LOCATIONS_EXT;
+    m_Locations[uiSide].next = &m_Velocities;
+    m_Locations[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
+    m_Locations[uiSide].jointLocations = m_JointLocations[uiSide];
 
-    m_JointData[uiSide].SetCount(XR_HAND_JOINT_LITTLE_TIP_MSFT + 1);
-    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_MSFT; ++i)
+    m_Velocities[uiSide].type = XR_TYPE_HAND_JOINT_VELOCITIES_EXT;
+    m_Velocities[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
+    m_Velocities[uiSide].jointVelocities = m_JointVelocities[uiSide];
+
+    m_JointData[uiSide].SetCount(XR_HAND_JOINT_LITTLE_TIP_EXT + 1);
+    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
     {
       m_JointData[uiSide][i].m_Bone.m_Transform.SetIdentity();
-      jointCreateInfo.joint = (XrHandJointMSFT)i;
-      XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrCreateHandJointSpaceMSFT(pOpenXR->m_session, &jointCreateInfo, &m_JointData[uiSide][i].m_Space));
     }
   }
 
   // Map hand parts to hand joints
-  m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_PALM_MSFT);
-  m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_WRIST_MSFT);
+  m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_PALM_EXT);
+  m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Wrist].PushBack(XR_HAND_JOINT_WRIST_MSFT);
+  m_HandParts[ezXRHandPart::Wrist].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_TIP_MSFT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_DISTAL_MSFT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_PROXIMAL_MSFT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_METACARPAL_MSFT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_WRIST_MSFT);
+  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_TIP_EXT);
+  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_DISTAL_EXT);
+  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_PROXIMAL_EXT);
+  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_METACARPAL_EXT);
+  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_TIP_MSFT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_DISTAL_MSFT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_INTERMEDIATE_MSFT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_PROXIMAL_MSFT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_METACARPAL_MSFT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_WRIST_MSFT);
+  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_TIP_EXT);
+  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_DISTAL_EXT);
+  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT);
+  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_PROXIMAL_EXT);
+  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_METACARPAL_EXT);
+  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_TIP_MSFT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_DISTAL_MSFT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_INTERMEDIATE_MSFT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_PROXIMAL_MSFT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_METACARPAL_MSFT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_WRIST_MSFT);
+  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_TIP_EXT);
+  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_DISTAL_EXT);
+  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT);
+  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT);
+  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_METACARPAL_EXT);
+  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_TIP_MSFT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_DISTAL_MSFT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_INTERMEDIATE_MSFT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_PROXIMAL_MSFT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_METACARPAL_MSFT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_WRIST_MSFT);
+  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_TIP_EXT);
+  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_DISTAL_EXT);
+  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_INTERMEDIATE_EXT);
+  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_PROXIMAL_EXT);
+  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_METACARPAL_EXT);
+  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_TIP_MSFT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_DISTAL_MSFT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_INTERMEDIATE_MSFT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_PROXIMAL_MSFT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_METACARPAL_MSFT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_WRIST_MSFT);
-#endif
+  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_TIP_EXT);
+  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_DISTAL_EXT);
+  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT);
+  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_PROXIMAL_EXT);
+  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_METACARPAL_EXT);
+  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_WRIST_EXT);
 }
 
 ezOpenXRHandTracking::~ezOpenXRHandTracking()
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
   for (ezUInt32 uiSide : {0, 1})
   {
-    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_MSFT; ++i)
-    {
-      XR_LOG_ERROR(xrDestroySpace(m_JointData[uiSide][i].m_Space));
-    }
-    XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrDestroyHandTrackerMSFT(m_HandTracker[uiSide]));
+    XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrDestroyHandTrackerEXT(m_HandTracker[uiSide]));
   }
-#endif
 }
 
 ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBoneTransforms(
   ezEnum<ezXRHand> hand, ezEnum<ezXRHandPart> handPart, ezEnum<ezXRTransformSpace> space, ezDynamicArray<ezXRHandBone>& out_bones)
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
   EZ_ASSERT_DEV(handPart <= ezXRHandPart::Little, "Invalid hand part.");
   out_bones.Clear();
 
@@ -128,7 +119,7 @@ ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBon
     {
       if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
       {
-        ezTransform globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
+        const ezTransform globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
         for (ezXRHandBone& bone : out_bones)
         {
           ezTransform local = bone.m_Transform;
@@ -138,38 +129,48 @@ ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBon
     }
   }
   return ezXRHandTrackingInterface::HandPartTrackingState::Tracked;
-#else
-  return ezXRHandTrackingInterface::HandPartTrackingState::NotSupported;
-#endif
 }
 
 void ezOpenXRHandTracking::UpdateJointTransforms()
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
   EZ_PROFILE_SCOPE("UpdateJointTransforms");
   const XrTime time = m_pOpenXR->m_frameState.predictedDisplayTime;
+  XrHandJointsLocateInfoEXT locateInfo{XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT};
+  locateInfo.baseSpace = m_pOpenXR->GetBaseSpace();
+  locateInfo.time = time;
+
   for (ezUInt32 uiSide : {0, 1})
   {
-    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_MSFT; ++i)
+    if (m_pOpenXR->m_extensions.pfn_xrLocateHandJointsEXT(m_HandTracker[uiSide], &locateInfo, &m_Locations[uiSide]) != XrResult::XR_SUCCESS)
+      m_Locations[uiSide].isActive = false;
+
+    if (m_Locations[uiSide].isActive)
     {
-      XrHandJointRadiusMSFT jointRadius{XR_TYPE_HAND_JOINT_RADIUS_MSFT};
-      XrSpaceLocation spaceLocation{XR_TYPE_SPACE_LOCATION, &jointRadius};
-      XrResult res = xrLocateSpace(m_JointData[uiSide][i].m_Space, m_pOpenXR->GetBaseSpace(), time, &spaceLocation);
-      if (res == XrResult::XR_SUCCESS && (spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-          (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
+      for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
       {
-        m_JointData[uiSide][i].m_bValid = true;
-        m_JointData[uiSide][i].m_Bone.m_fRadius = jointRadius.radius;
-        m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = ezOpenXR::ConvertPosition(spaceLocation.pose.position);
-        m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = ezOpenXR::ConvertOrientation(spaceLocation.pose.orientation);
+        const XrHandJointLocationEXT& spaceLocation = m_JointLocations[uiSide][i];
+        if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+            (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
+        {
+          m_JointData[uiSide][i].m_bValid = true;
+          m_JointData[uiSide][i].m_Bone.m_fRadius = spaceLocation.radius;
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = ezOpenXR::ConvertPosition(spaceLocation.pose.position);
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = ezOpenXR::ConvertOrientation(spaceLocation.pose.orientation);
+        }
+        else
+        {
+          m_JointData[uiSide][i].m_bValid = false;
+        }
       }
-      else
+    }
+    else
+    {
+      for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
       {
         m_JointData[uiSide][i].m_bValid = false;
       }
     }
   }
-#endif
 }
 
 EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_OpenXRHandTracking);
