@@ -305,54 +305,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(e
 
 const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
 {
-  if (ezStringUtils::IsEqual(szPlatform, "DX11_SM40_93"))
-  {
-    switch (Stage)
-    {
-      case ezGALShaderStage::VertexShader:
-        return "vs_4_0_level_9_3";
-      case ezGALShaderStage::PixelShader:
-        return "ps_4_0_level_9_3";
-      default:
-        break;
-    }
-  }
-
-  if (ezStringUtils::IsEqual(szPlatform, "DX11_SM40"))
-  {
-    switch (Stage)
-    {
-      case ezGALShaderStage::VertexShader:
-        return "vs_4_0";
-      case ezGALShaderStage::GeometryShader:
-        return "gs_4_0";
-      case ezGALShaderStage::PixelShader:
-        return "ps_4_0";
-      case ezGALShaderStage::ComputeShader:
-        return "cs_4_0";
-      default:
-        break;
-    }
-  }
-
-  if (ezStringUtils::IsEqual(szPlatform, "DX11_SM41"))
-  {
-    switch (Stage)
-    {
-      case ezGALShaderStage::GeometryShader:
-        return "gs_4_0";
-      case ezGALShaderStage::VertexShader:
-        return "vs_4_1";
-      case ezGALShaderStage::PixelShader:
-        return "ps_4_1";
-      case ezGALShaderStage::ComputeShader:
-        return "cs_4_1";
-      default:
-        break;
-    }
-  }
-
-  if (ezStringUtils::IsEqual(szPlatform, "DX11_SM50"))
+  if (ezStringUtils::IsEqual(szPlatform, "SPIRV"))
   {
     switch (Stage)
     {

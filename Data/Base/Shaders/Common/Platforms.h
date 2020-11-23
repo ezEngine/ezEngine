@@ -21,3 +21,10 @@
 
 #endif
 
+#if defined(SPIRV)
+
+// test values for now
+#  undef PLATFORM_DX11
+#  define PLATFORM_DX11 EZ_ON
+
+#endif

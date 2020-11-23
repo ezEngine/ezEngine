@@ -12,10 +12,7 @@ class EZ_SHADERCOMPILERDXC_DLL ezShaderCompilerDXC : public ezShaderProgramCompi
 public:
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& Platforms) override
   {
-    Platforms.PushBack("DX11_SM40_93");
-    Platforms.PushBack("DX11_SM40");
-    Platforms.PushBack("DX11_SM41");
-    Platforms.PushBack("DX11_SM50");
+    Platforms.PushBack("SPIRV");
   }
 
   virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) override;
