@@ -106,7 +106,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   {
     m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
 
-    ezShaderManager::Configure("DX11_SM40", true);
+    ezShaderManager::Configure("DX11_SM50", true);
 
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 

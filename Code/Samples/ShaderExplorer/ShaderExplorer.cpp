@@ -335,7 +335,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   // Setup Shaders and Materials
   {
-    ezShaderManager::Configure("DX11_SM40", true);
+    ezShaderManager::Configure("DX11_SM50", true);
 
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/screen.ezMaterial");
 
