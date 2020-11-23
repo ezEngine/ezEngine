@@ -110,6 +110,7 @@ public:
     ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "Compiler Plugin not found");
 
     // Register Input
     {
@@ -211,7 +212,7 @@ public:
 
     // Setup Shaders and Materials
     {
-      ezShaderManager::Configure("DX11_SM50", true);
+      ezShaderManager::Configure("SPIRV", true);
 
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
