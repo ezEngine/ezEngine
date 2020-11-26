@@ -203,18 +203,18 @@ namespace ezModelImporter2
       streams.uiBoneWgt = mb.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAHalf);
     }
 
-    bool bTexCoords1 = true;
-    bool bVertexColors0 = true;
-    bool bVertexColors1 = true;
+    bool bTexCoords1 = false;
+    bool bVertexColors0 = false;
+    bool bVertexColors1 = false;
 
     for (auto pMesh : referenceMeshes)
     {
-      if (!pMesh->HasTextureCoords(1))
-        bTexCoords1 = false;
-      if (!pMesh->HasVertexColors(0))
-        bVertexColors0 = false;
-      if (!pMesh->HasVertexColors(1))
-        bVertexColors1 = false;
+      if (pMesh->HasTextureCoords(1))
+        bTexCoords1 = true;
+      if (pMesh->HasVertexColors(0))
+        bVertexColors0 = true;
+      if (pMesh->HasVertexColors(1))
+        bVertexColors1 = true;
     }
 
     if (bTexCoords1)
