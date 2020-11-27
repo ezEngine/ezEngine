@@ -63,29 +63,56 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   ezGeometry geom;
   const ezMat4 mTrans(mTransformation, ezVec3::ZeroVector());
 
+  auto detail1 = pProp->m_uiDetail;
+  auto detail2 = pProp->m_uiDetail2;
+
   if (pProp->m_PrimitiveType == ezMeshPrimitive::Box)
   {
     geom.AddTexturedBox(ezVec3(1.0f), ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Capsule)
   {
-    geom.AddCapsule(pProp->m_fRadius, ezMath::Max(0.0f, pProp->m_fHeight), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(1, pProp->m_uiDetail2), ezColor::White, mTrans);
+    // use decent default values, if the user hasn't provided anything themselves
+    if (detail1 == 0)
+      detail1 = 32;
+    if (detail2 == 0)
+      detail2 = 16;
+
+    geom.AddCapsule(pProp->m_fRadius, ezMath::Max(0.0f, pProp->m_fHeight), ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(1, detail2), ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Cone)
   {
-    geom.AddCone(pProp->m_fRadius, pProp->m_fHeight, pProp->m_bCap, ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezColor::White, mTrans);
+    // use decent default values, if the user hasn't provided anything themselves
+    if (detail1 == 0)
+      detail1 = 32;
+
+    geom.AddCone(pProp->m_fRadius, pProp->m_fHeight, pProp->m_bCap, ezMath::Max<ezUInt16>(3, detail1), ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Cylinder)
   {
-    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2, ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezColor::White, mTrans, 0, ezMath::Clamp(pProp->m_Angle, ezAngle::Degree(0.0f), ezAngle::Degree(360.0f)));
+    // use decent default values, if the user hasn't provided anything themselves
+    if (detail1 == 0)
+      detail1 = 32;
+
+    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2, ezMath::Max<ezUInt16>(3, detail1), ezColor::White, mTrans, 0, ezMath::Clamp(pProp->m_Angle, ezAngle::Degree(0.0f), ezAngle::Degree(360.0f)));
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::GeodesicSphere)
   {
-    geom.AddGeodesicSphere(pProp->m_fRadius, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 0, 6), ezColor::White, mTrans);
+    // use decent default values, if the user hasn't provided anything themselves
+    if (detail1 == 0)
+      detail1 = 2;
+
+    geom.AddGeodesicSphere(pProp->m_fRadius, ezMath::Clamp<ezUInt16>(detail1, 0, 6), ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::HalfSphere)
   {
-    geom.AddHalfSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(1, pProp->m_uiDetail2), pProp->m_bCap, ezColor::White, mTrans);
+    // use decent default values, if the user hasn't provided anything themselves
+    if (detail1 == 0)
+      detail1 = 32;
+    if (detail2 == 0)
+      detail2 = 16;
+
+    geom.AddHalfSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(1, detail2), pProp->m_bCap, ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Pyramid)
   {
@@ -99,16 +126,34 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     mTrans2.Element(2, 1) = -mTrans.Element(2, 1);
     mTrans2.Element(2, 2) = -mTrans.Element(2, 2);
 
-    geom.AddTesselatedRectXY(ezVec2(1.0f), ezColor::White, ezMath::Max<ezUInt16>(1, pProp->m_uiDetail), ezMath::Max<ezUInt16>(1, pProp->m_uiDetail2), mTrans2);
+    geom.AddTesselatedRectXY(ezVec2(1.0f), ezColor::White, ezMath::Max<ezUInt16>(1, detail1), ezMath::Max<ezUInt16>(1, detail2), mTrans2);
     // geom.AddRectXY(ezVec2(1.0f), ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Sphere)
   {
-    geom.AddSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(2, pProp->m_uiDetail2), ezColor::White, mTrans);
+    // use decent default values, if the user hasn't provided anything themselves
+    if (detail1 == 0)
+      detail1 = 32;
+    if (detail2 == 0)
+      detail2 = 32;
+
+    geom.AddSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(2, detail2), ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Torus)
   {
-    geom.AddTorus(pProp->m_fRadius, ezMath::Max(pProp->m_fRadius + 0.01f, pProp->m_fRadius2), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail2), ezColor::White, mTrans);
+    // use decent default values, if the user hasn't provided anything themselves
+    if (detail1 == 0)
+      detail1 = 32;
+    if (detail2 == 0)
+      detail2 = 32;
+
+    float r1 = pProp->m_fRadius;
+    float r2 = pProp->m_fRadius2;
+
+    if (r1 == r2)
+      r1 = r2 * 0.5f;
+
+    geom.AddTorus(r1, ezMath::Max(r1 + 0.01f, r2), ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(3, detail2), ezColor::White, mTrans);
   }
 
   geom.TriangulatePolygons(4);
