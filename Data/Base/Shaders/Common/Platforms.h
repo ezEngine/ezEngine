@@ -21,7 +21,7 @@
 
 #endif
 
-#if defined(SPIRV)
+#if defined(VULKAN)
 
 // test values for now
 #  undef PLATFORM_DX11

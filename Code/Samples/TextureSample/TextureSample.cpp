@@ -212,7 +212,7 @@ public:
 
     // Setup Shaders and Materials
     {
-      ezShaderManager::Configure("SPIRV", true);
+      ezShaderManager::Configure("VULKAN", true);
 
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
