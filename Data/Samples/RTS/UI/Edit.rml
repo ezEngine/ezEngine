@@ -10,10 +10,10 @@
 <div class="content" data-model="EditLevelModel">
   <div class="prop"><div class="proplabel">Team</div>
     <select id="team" data-event-change="Team = ev.value">
-      <option value="0" selected>Red</option>
-      <option value="1">Green</option>
-      <option value="2" >Blue</option>
-      <option value="3" >Yellow</option>
+      <option value="0" data-attrif-selected="Team == 0">Red</option>
+      <option value="1" data-attrif-selected="Team == 1">Green</option>
+      <option value="2" data-attrif-selected="Team == 2">Blue</option>
+      <option value="3" data-attrif-selected="Team == 3">Yellow</option>
     </select>
   </div>
   <div class="prop"><div class="proplabel">Build</div>

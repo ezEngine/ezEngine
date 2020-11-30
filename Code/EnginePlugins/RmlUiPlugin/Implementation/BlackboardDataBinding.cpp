@@ -25,22 +25,51 @@ namespace ezRmlUiInternal
 
     for (auto it : m_Blackboard.GetAllEntries())
     {
-      m_EntryWrapper.emplace_back(m_Blackboard, it.Key());
+      m_EntryWrappers.emplace_back(m_Blackboard, it.Key(), it.Value().m_uiChangeCounter);
     }
 
-    for (auto& wrapper : m_EntryWrapper)
+    for (auto& wrapper : m_EntryWrappers)
     {
-      constructor.BindFunc(wrapper.m_sName.GetData(),
+      constructor.BindFunc(
+        wrapper.m_sName.GetData(),
         [&](Rml::Variant& out_Value) { wrapper.GetValue(out_Value); },
         [&](const Rml::Variant& value) { wrapper.SetValue(value); });
     }
 
     m_hDataModel = constructor.GetModelHandle();
 
+    m_uiBlackboardChangeCounter = m_Blackboard.GetBlackboardChangeCounter();
+    m_uiBlackboardEntryChangeCounter = m_Blackboard.GetBlackboardEntryChangeCounter();
+
     return EZ_SUCCESS;
   }
 
-  void BlackboardDataBinding::Update() { m_hDataModel.Update(); }
+  void BlackboardDataBinding::Update()
+  {
+    if (m_uiBlackboardChangeCounter != m_Blackboard.GetBlackboardChangeCounter())
+    {
+      ezLog::Warning("Data Binding doesn't work with values that are registered or unregistered after setup");
+      m_uiBlackboardChangeCounter = m_Blackboard.GetBlackboardChangeCounter();
+    }
+
+    if (m_uiBlackboardEntryChangeCounter != m_Blackboard.GetBlackboardEntryChangeCounter())
+    {
+      for (auto& wrapper : m_EntryWrappers)
+      {
+        auto pEntry = m_Blackboard.GetEntry(wrapper.m_sName);
+
+        if (pEntry != nullptr && wrapper.m_uiChangeCounter != pEntry->m_uiChangeCounter)
+        {
+          m_hDataModel.DirtyVariable(wrapper.m_sName.GetData());
+          wrapper.m_uiChangeCounter = pEntry->m_uiChangeCounter;
+        }
+      }
+
+      m_uiBlackboardEntryChangeCounter = m_Blackboard.GetBlackboardEntryChangeCounter();
+    }
+
+    m_hDataModel.Update();
+  }
 
   //////////////////////////////////////////////////////////////////////////
 

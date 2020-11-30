@@ -24,9 +24,10 @@ namespace ezRmlUiInternal
 
     struct EntryWrapper
     {
-      EntryWrapper(ezBlackboard& blackboard, const ezHashedString& sName)
+      EntryWrapper(ezBlackboard& blackboard, const ezHashedString& sName, ezUInt32 uiChangeCounter)
         : m_Blackboard(blackboard)
         , m_sName(sName)
+        , m_uiChangeCounter(uiChangeCounter)
       {
       }
 
@@ -35,8 +36,12 @@ namespace ezRmlUiInternal
 
       ezBlackboard& m_Blackboard;
       ezHashedString m_sName;
+      ezUInt32 m_uiChangeCounter;
     };
 
-    Rml::Vector<EntryWrapper> m_EntryWrapper;
+    Rml::Vector<EntryWrapper> m_EntryWrappers;
+
+    ezUInt32 m_uiBlackboardChangeCounter = 0;
+    ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
   };
 } // namespace ezRmlUiInternal
