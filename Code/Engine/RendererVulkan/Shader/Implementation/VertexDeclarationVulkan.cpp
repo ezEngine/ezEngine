@@ -8,7 +8,6 @@
 
 ezGALVertexDeclarationVulkan::ezGALVertexDeclarationVulkan(const ezGALVertexDeclarationCreationDescription& Description)
   : ezGALVertexDeclaration(Description)
-  , m_pDXInputLayout(nullptr)
 {
 }
 
@@ -29,6 +28,8 @@ EZ_DEFINE_AS_POD_TYPE(D3D11_INPUT_ELEMENT_DESC);
 
 ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
 {
+  // TODO
+#if 0
   ezHybridArray<D3D11_INPUT_ELEMENT_DESC, 8> DXInputElementDescs;
 
   ezGALDeviceVulkan* pDXDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
@@ -76,11 +77,14 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
   {
     return EZ_SUCCESS;
   }
+#endif
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezGALVertexDeclarationVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  EZ_GAL_Vulkan_RELEASE(m_pDXInputLayout);
+  // TODO
   return EZ_SUCCESS;
 }
 

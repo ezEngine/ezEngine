@@ -15,7 +15,6 @@
 
 ezGALBlendStateVulkan::ezGALBlendStateVulkan(const ezGALBlendStateCreationDescription& Description)
     : ezGALBlendState(Description)
-    , m_blendState({})
 {
   m_blendState.pAttachments = m_blendAttachmentState;
 }
@@ -113,7 +112,6 @@ ezResult ezGALBlendStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALDepthStencilStateVulkan::ezGALDepthStencilStateVulkan(const ezGALDepthStencilStateCreationDescription& Description)
     : ezGALDepthStencilState(Description)
-    , m_depthStencilState({})
 {
 }
 
@@ -156,7 +154,6 @@ ezResult ezGALDepthStencilStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALRasterizerStateVulkan::ezGALRasterizerStateVulkan(const ezGALRasterizerStateCreationDescription& Description)
     : ezGALRasterizerState(Description)
-  , m_rasterizerState({})
 {
 }
 
@@ -172,7 +169,7 @@ ezResult ezGALRasterizerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 
   m_rasterizerState.cullMode = GALCullModeToVulkan[m_Description.m_CullMode];
   m_rasterizerState.depthBiasClamp = m_Description.m_fDepthBiasClamp;
-  m_rasterizerState.depthBiasConstantFactor = m_Description.m_iDepthBias; // TODO does this have the intended effect?
+  m_rasterizerState.depthBiasConstantFactor = static_cast<float>(m_Description.m_iDepthBias); // TODO does this have the intended effect?
   m_rasterizerState.depthBiasSlopeFactor = m_Description.m_fSlopeScaledDepthBias;
   m_rasterizerState.depthClampEnable = m_Description.m_fDepthBiasClamp > 0.f;
   m_rasterizerState.frontFace = m_Description.m_bFrontCounterClockwise ? vk::FrontFace::eCounterClockwise : vk::FrontFace::eClockwise;
@@ -217,7 +214,7 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.compareOp = GALCompareFuncToVulkan[m_Description.m_SampleCompareFunc];
   samplerCreateInfo.magFilter = GALFilterToVulkanFilter[m_Description.m_MagFilter];
   samplerCreateInfo.minFilter = GALFilterToVulkanFilter[m_Description.m_MinFilter];
-  samplerCreateInfo.maxAnisotropy = m_Description.m_uiMaxAnisotropy;
+  samplerCreateInfo.maxAnisotropy = static_cast<float>(m_Description.m_uiMaxAnisotropy);
   samplerCreateInfo.maxLod = m_Description.m_fMaxMip;
   samplerCreateInfo.minLod = m_Description.m_fMinMip;
   samplerCreateInfo.mipLodBias = m_Description.m_fMipLodBias;

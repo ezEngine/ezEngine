@@ -6,7 +6,6 @@
 ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
   , m_image(nullptr)
-  , m_stagingBuffer(nullptr)
   , m_memory(nullptr)
   , m_memoryOffset(0)
   , m_memorySize(0)
@@ -240,7 +239,7 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(ezGALDeviceVulkan* pDevice)
   ezGALBufferCreationDescription bufferDescription;
   bufferDescription.m_BufferType = ezGALBufferType::Generic;
   bufferDescription.m_uiStructSize = 1;
-  bufferDescription.m_uiTotalSize = m_memorySize;
+  bufferDescription.m_uiTotalSize = static_cast<ezUInt32>(m_memorySize);
 
   m_stagingBufferHandle = pDevice->CreateBuffer(bufferDescription);
   const ezGALBuffer* pStagingBuffer = pDevice->GetBuffer(m_stagingBufferHandle);

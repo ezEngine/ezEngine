@@ -24,6 +24,8 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
+  virtual ezResult Present(int, int) { return EZ_FAILURE; } // TODO impl
+
   vk::SurfaceKHR m_vulkanSurface;
   vk::SwapchainKHR m_vulkanSwapChain;
 

@@ -1,10 +1,10 @@
 
-vk::DescriptorSetLayoutBinding& ezGALResourceViewVulkan::GetResourceBinding() const
+const vk::DescriptorSetLayoutBinding& ezGALResourceViewVulkan::GetResourceBinding() const
 {
-  return &m_resourceBinding;
+  return m_resourceBinding;
 }
 
-vk::WriteDescriptorSet& ezGALResourceViewVulkan::GetResourceBindingData() const
+const vk::WriteDescriptorSet& ezGALResourceViewVulkan::GetResourceBindingData() const
 {
-  return &m_resourceBinding;
+  return m_resourceBindingData;
 }

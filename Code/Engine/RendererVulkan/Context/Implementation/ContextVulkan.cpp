@@ -265,11 +265,11 @@ static void SetSamplers(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pCont
 }
 #endif
 
-#if 0
 
 // Some state changes are deferred so they can be updated faster
 void ezGALContextVulkan::FlushDeferredStateChanges()
 {
+#if 0
   if (m_BoundVertexBuffersRange.IsValid())
   {
     // TODO vertex buffer needs to be in index buffer resource state
@@ -334,9 +334,8 @@ void ezGALContextVulkan::FlushDeferredStateChanges()
       m_BoundSamplerStatesRange[stage].Reset();
     }
   }
-}
-
 #endif
+}
 
 // Dispatch
 
@@ -423,7 +422,7 @@ void ezGALContextVulkan::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::En
 void ezGALContextVulkan::SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer)
 {
   // \todo Check if the device supports the slot index?
-  m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pBuffer)->GetBuffer() : nullptr;
+  m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pBuffer) : nullptr;
 
   // The GAL doesn't care about stages for constant buffer, but we need to handle this internaly.
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
@@ -436,7 +435,7 @@ void ezGALContextVulkan::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, e
 {
   // \todo Check if the device supports the stage / the slot index
   m_pBoundSamplerStates[Stage][uiSlot] =
-    pSamplerState != nullptr ? static_cast<const ezGALSamplerStateVulkan*>(pSamplerState)->GetSamplerState() : nullptr;
+    pSamplerState != nullptr ? static_cast<const ezGALSamplerStateVulkan*>(pSamplerState) : nullptr;
   m_BoundSamplerStatesRange[Stage].SetToIncludeValue(uiSlot);
 
   m_bDescriptorsDirty = true;
@@ -568,7 +567,6 @@ void ezGALContextVulkan::InsertFencePlatform(const ezGALFence* pFence)
 
 bool ezGALContextVulkan::IsFenceReachedPlatform(const ezGALFence* pFence)
 {
-  BOOL data = FALSE;
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
   auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
   vk::Result fenceStatus = pVulkanDevice->GetVulkanDevice().getFenceStatus(pVulkanFence->GetFence());
@@ -729,7 +727,7 @@ void ezGALContextVulkan::CopyTexturePlatform(const ezGALTexture* pDestination, c
   // TODO need to copy every mip level
   ezHybridArray<vk::ImageCopy, 14> imageCopies;
 
-  for (int i = 0; i < destDesc.m_uiMipLevelCount; ++i)
+  for (ezUInt32 i = 0; i < destDesc.m_uiMipLevelCount; ++i)
   {
     vk::ImageCopy& imageCopy = imageCopies.ExpandAndGetRef();
     imageCopy.dstOffset = {};
@@ -811,15 +809,15 @@ void ezGALContextVulkan::UpdateTexturePlatform(const ezGALTexture* pDestination,
     EZ_ASSERT_DEV(pSourceData.m_uiSlicePitch == 0 || pSourceData.m_uiSlicePitch == uiSlicePitch,
       "Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, pSourceData.m_uiSlicePitch);
 
-    ezMemoryUtils::Copy(pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
+    ezMemoryUtils::RawByteCopy(pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
 
     pVulkanDevice->GetVulkanDevice().unmapMemory(pTempTexture->GetMemory());
 
     ezGALTextureSubresource sourceSubResource;
     sourceSubResource.m_uiArraySlice = 0;
     sourceSubResource.m_uiMipLevel = 0;
-    ezBoundingBoxu32 sourceBox = DestinationBox;
-    sourceBox.Translate(-sourceBox.m_vMin);
+    ezBoundingBoxu32 sourceBox;
+    sourceBox.SetElements(ezVec3U32::ZeroVector(), DestinationBox.m_vMax - DestinationBox.m_vMin);
     CopyTextureRegionPlatform(pDestination, DestinationSubResource, DestinationBox.m_vMin, pTempTexture, sourceSubResource, sourceBox);
   }
   else
@@ -859,7 +857,7 @@ void ezGALContextVulkan::ResolveTexturePlatform(const ezGALTexture* pDestination
   resolveRegion.srcSubresource.mipLevel = 0;// TODO implement resolve of higher mips
 
   vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
-  currentCmdBuffer.resolveImage(pVulkanSource->GetImage(), vk::ImageLayout::eGeneral, pVulkanDestination->GetImage, vk::ImageLayout::eGeneral, 1, &resolveRegion);
+  currentCmdBuffer.resolveImage(pVulkanSource->GetImage(), vk::ImageLayout::eGeneral, pVulkanDestination->GetImage(), vk::ImageLayout::eGeneral, 1, &resolveRegion);
 }
 
 void ezGALContextVulkan::ReadbackTexturePlatform(const ezGALTexture* pTexture)
@@ -916,7 +914,7 @@ void ezGALContextVulkan::CopyTextureReadbackResultPlatform(const ezGALTexture* p
   if (pSrcData)
   {
     // TODO size of the buffer could missmatch the texture data size necessary
-    ezMemoryUtils::Copy(pData->GetPtr()->m_pData, pSrcData, pStagingBuffer->GetSize());
+    ezMemoryUtils::RawByteCopy(pData->GetPtr()->m_pData, pSrcData, pStagingBuffer->GetSize());
 
     pVulkanDevice->GetVulkanDevice().unmapMemory(pStagingBuffer->GetMemory());
   }

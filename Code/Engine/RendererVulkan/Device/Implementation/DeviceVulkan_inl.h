@@ -10,9 +10,9 @@ EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetVulkanInstance() const
   return m_instance;
 }
 
-EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetFamilyQueueIndices() const
+EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt32> ezGALDeviceVulkan::GetQueueFamilyIndices() const
 {
-  return m_queueFamilyIndices;
+  return m_queueFamilyIndices.GetArrayPtr();
 }
 
 inline vk::Queue ezGALDeviceVulkan::GetQueue()

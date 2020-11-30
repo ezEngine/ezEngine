@@ -4,18 +4,16 @@
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 
-#include <d3d11.h>
-
 bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
 {
   return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstSlice > 0;
 }
 
 ezGALRenderTargetViewVulkan::ezGALRenderTargetViewVulkan(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
-    : ezGALRenderTargetView(pTexture, Description)
-    , m_pRenderTargetView(nullptr)
-    , m_pDepthStencilView(nullptr)
-    , m_pUnorderedAccessView(nullptr)
+  : ezGALRenderTargetView(pTexture, Description)
+  , m_pRenderTargetView(nullptr)
+  , m_pDepthStencilView(nullptr)
+  , m_pUnorderedAccessView(nullptr)
 {
 }
 
@@ -23,6 +21,8 @@ ezGALRenderTargetViewVulkan::~ezGALRenderTargetViewVulkan() {}
 
 ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
 {
+  // TODO
+#if 0
   const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
     pTexture = pDevice->GetTexture(m_Description.m_hTexture);
@@ -157,14 +157,18 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
       return EZ_SUCCESS;
     }
   }
+#endif
+  return EZ_SUCCESS;
 }
 
 ezResult ezGALRenderTargetViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
+  // TODO
+#if 0
   EZ_GAL_Vulkan_RELEASE(m_pRenderTargetView);
   EZ_GAL_Vulkan_RELEASE(m_pDepthStencilView);
   EZ_GAL_Vulkan_RELEASE(m_pUnorderedAccessView);
-
+#endif
   return EZ_SUCCESS;
 }
 

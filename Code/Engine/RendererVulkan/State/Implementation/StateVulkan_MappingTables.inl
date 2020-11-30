@@ -34,12 +34,14 @@ static const vk::Filter GALFilterToVulkanFilter[3] =
 };
 
 static const vk::SamplerMipmapMode GALFilterToVulkanMipmapMode[3] =
-{
-  vk::SamplerMipmapMode::eNearest,
-  vk::SamplerMipmapMode::eLinear,
-  vk::SamplerMipmapMode::eLinear
-}
+  {
+    vk::SamplerMipmapMode::eNearest,
+    vk::SamplerMipmapMode::eLinear,
+    vk::SamplerMipmapMode::eLinear
+};
 
+// TODO this isn't available directly in vulkan
+#if 0
 static const D3D11_FILTER GALFilterTableIndexToVulkan[16] =
 {
   D3D11_FILTER_MIN_MAG_MIP_POINT,
@@ -59,6 +61,7 @@ static const D3D11_FILTER GALFilterTableIndexToVulkan[16] =
   D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT,
   D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR
 };
+#endif
 
 static const vk::StencilOp GALStencilOpTableIndexToVulkan[8] =
 {

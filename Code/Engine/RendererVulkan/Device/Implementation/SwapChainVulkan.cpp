@@ -2,7 +2,7 @@
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
-#include <System/Window/Window.h>
+#include <Core/System/Window.h>
 
 ezGALSwapChainVulkan::ezGALSwapChainVulkan(const ezGALSwapChainCreationDescription& Description)
   : ezGALSwapChain(Description)
@@ -44,7 +44,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
   swapChainCreateInfo.surface = m_vulkanSurface;
 
-  ezArrayPtr<ezUInt32> queueFamilyIndices = pVulkanDevice->GetQueueFamilyIndices();
+  ezArrayPtr<const ezUInt32> queueFamilyIndices = pVulkanDevice->GetQueueFamilyIndices();
   swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices.GetPtr();
   swapChainCreateInfo.queueFamilyIndexCount = queueFamilyIndices.GetCount();
 
@@ -99,6 +99,8 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 
     return EZ_SUCCESS;
   }*/
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
@@ -116,9 +118,7 @@ ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
   pVulkanDevice->GetVulkanDevice().destroySwapchainKHR(m_vulkanSwapChain);
   m_vulkanSwapChain = nullptr;
 
-  ezGALSwapChain::DeInitPlatform(pDevice);
-
-  return EZ_SUCCESS;
+  return ezGALSwapChain::DeInitPlatform(pDevice);
 }
 
 

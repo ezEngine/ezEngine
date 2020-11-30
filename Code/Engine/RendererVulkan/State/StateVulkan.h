@@ -24,8 +24,8 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::PipelineColorBlendStateCreateInfo m_blendState;
-  vk::PipelineColorBlendAttachmentState m_blendAttachmentState[8];
+  vk::PipelineColorBlendStateCreateInfo m_blendState = {};
+  vk::PipelineColorBlendAttachmentState m_blendAttachmentState[8] = {};
 };
 
 class EZ_RENDERERVULKAN_DLL ezGALDepthStencilStateVulkan : public ezGALDepthStencilState
@@ -47,7 +47,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::PipelineDepthStencilStateCreateInfo m_depthStencilState;
+  vk::PipelineDepthStencilStateCreateInfo m_depthStencilState = {};
 };
 
 class EZ_RENDERERVULKAN_DLL ezGALRasterizerStateVulkan : public ezGALRasterizerState
@@ -69,7 +69,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::PipelineRasterizationStateCreateInfo m_rasterizerState;
+  vk::PipelineRasterizationStateCreateInfo m_rasterizerState = {};
 };
 
 class EZ_RENDERERVULKAN_DLL ezGALSamplerStateVulkan : public ezGALSamplerState
@@ -91,8 +91,8 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::Sampler m_sampler;
-  vk::DescriptorSetLayoutBinding m_samplerState;
+  vk::Sampler m_sampler = {};
+  vk::DescriptorSetLayoutBinding m_samplerState = {};
 };
 
 

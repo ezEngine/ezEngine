@@ -23,6 +23,8 @@ ezGALUnorderedAccessViewVulkan::~ezGALUnorderedAccessViewVulkan() {}
 
 ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
 {
+  // TODO
+#if 0
   const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
     pTexture = pDevice->GetTexture(m_Description.m_hTexture);
@@ -136,14 +138,15 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
   {
     return EZ_SUCCESS;
   }
+#endif
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezGALUnorderedAccessViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  EZ_GAL_Vulkan_RELEASE(m_pDXUnorderedAccessView);
+  // TODO
   return EZ_SUCCESS;
 }
-
-
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_UnorderedAccessViewVulkan);

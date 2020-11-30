@@ -10,7 +10,10 @@
 using ezGALFormatLookupEntryVulkan = ezGALFormatLookupEntry<vk::Format, (vk::Format)0>;
 using ezGALFormatLookupTableVulkan = ezGALFormatLookupTable<ezGALFormatLookupEntryVulkan>;
 
-/// \brief The Vulkan device implementation of the graphics abstraction layer.
+class ezGALBufferVulkan;
+class ezGALTextureVulkan;
+
+  /// \brief The Vulkan device implementation of the graphics abstraction layer.
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
 {
 
@@ -25,7 +28,7 @@ public:
   vk::Instance GetVulkanInstance() const;
   vk::Device GetVulkanDevice() const;
 
-  ezArrayPtr<ezUInt32> GetQueueFamilyIndices() const;
+  ezArrayPtr<const ezUInt32> GetQueueFamilyIndices() const;
   vk::Queue GetQueue();
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
@@ -157,8 +160,8 @@ private:
   };
 
 
-  //ID3D11Resource* FindTempBuffer(ezUInt32 uiSize);
-  //ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
+  ezGALBufferVulkan* FindTempBuffer(ezUInt32 uiSize) { return nullptr; }                                                                           // TODO impl
+  ezGALTextureVulkan* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format) { return nullptr; } // TODO impl
   void FreeTempResources(ezUInt64 uiFrame);
 
   //ID3D11Query* GetTimestamp(ezGALTimestampHandle hTimestamp);

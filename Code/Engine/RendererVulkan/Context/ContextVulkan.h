@@ -9,11 +9,14 @@
 #include <vulkan/vulkan.hpp>
 
 class ezGALBlendStateVulkan;
+class ezGALBufferVulkan;
 class ezGALDepthStencilStateVulkan;
-class ezGALResourceViewVulkan;
-class ezGALUnorderedAccessViewVulkan;
 class ezGALRasterizerStateVulkan;
 class ezGALRenderTargetViewVulkan;
+class ezGALResourceViewVulkan;
+class ezGALSamplerStateVulkan;
+class ezGALShaderVulkan;
+class ezGALUnorderedAccessViewVulkan;
 
 /// \brief The Vulkan implementation of the graphics context.
 class EZ_RENDERERVULKAN_DLL ezGALContextVulkan : public ezGALContext

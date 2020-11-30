@@ -110,7 +110,8 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
       if (m_Description.m_bAllowUAV ||
         m_Description.m_bAllowShaderResourceView ||
         m_Description.m_bStreamOutputTarget ||
-        m_Description.m_ResourceAccess.m_bReadBack) 
+        m_Description.m_ResourceAccess.m_bReadBack)
+      {
         bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
       }
       else

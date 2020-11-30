@@ -3,8 +3,6 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 
-#include <d3d11.h>
-
 ezGALShaderVulkan::ezGALShaderVulkan(const ezGALShaderCreationDescription& Description)
     : ezGALShader(Description)
     , m_pVertexShader(nullptr)
@@ -22,6 +20,8 @@ void ezGALShaderVulkan::SetDebugName(const char* szName) const
 {
   ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
 
+  // TODO
+#if 0
   if (m_pVertexShader != nullptr)
   {
     m_pVertexShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
@@ -51,11 +51,15 @@ void ezGALShaderVulkan::SetDebugName(const char* szName) const
   {
     m_pComputeShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
   }
+#endif
 }
 
 ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pDXDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+
+  // TODO
+#if 0
   ID3D11Device* pD3D11Device = pDXDevice->GetDXDevice();
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::VertexShader))
@@ -122,23 +126,24 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
       return EZ_FAILURE;
     }
   }
-
+#endif
 
   return EZ_SUCCESS;
 }
 
 ezResult ezGALShaderVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
+  // TODO
+#if 0
   EZ_GAL_Vulkan_RELEASE(m_pVertexShader);
   EZ_GAL_Vulkan_RELEASE(m_pHullShader);
   EZ_GAL_Vulkan_RELEASE(m_pDomainShader);
   EZ_GAL_Vulkan_RELEASE(m_pGeometryShader);
   EZ_GAL_Vulkan_RELEASE(m_pPixelShader);
   EZ_GAL_Vulkan_RELEASE(m_pComputeShader);
+#endif
 
   return EZ_SUCCESS;
 }
-
-
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Shader_Implementation_ShaderVulkan);
