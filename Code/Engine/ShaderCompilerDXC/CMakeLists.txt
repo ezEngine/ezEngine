@@ -19,4 +19,4 @@ target_link_libraries(${PROJECT_NAME}
 ez_link_target_dxc(${PROJECT_NAME})
 ez_link_target_vulkan(${PROJECT_NAME})
 
-
+target_compile_definitions(${PROJECT_NAME} PRIVATE "_CRT_SECURE_NO_WARNINGS")
