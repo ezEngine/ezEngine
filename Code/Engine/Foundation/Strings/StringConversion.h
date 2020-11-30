@@ -34,9 +34,6 @@ public:
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  // It is not intended to copy these things around.
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStringWChar);
-
   static const ezUInt32 BufferSize = 1024;
   ezHybridArray<wchar_t, BufferSize> m_Data;
 };
@@ -74,9 +71,6 @@ public:
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  // It is not intended to copy these things around.
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStringUtf8);
-
   static const ezUInt32 BufferSize = 1024;
   ezHybridArray<char, BufferSize> m_Data;
 };
@@ -106,9 +100,6 @@ public:
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  // It is not intended to copy these things around.
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStringUtf16);
-
   static const ezUInt32 BufferSize = 1024;
   ezHybridArray<ezUInt16, BufferSize> m_Data;
 };
@@ -136,9 +127,6 @@ public:
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  // It is not intended to copy these things around.
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStringUtf32);
-
   static const ezUInt32 BufferSize = 1024;
   ezHybridArray<ezUInt32, BufferSize> m_Data;
 };
@@ -169,9 +157,6 @@ public:
   const Microsoft::WRL::Wrappers::HString& GetData() const { return m_Data; }
 
 private:
-  // It is not intended to copy these things around.
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStringHString);
-
   Microsoft::WRL::Wrappers::HString m_Data;
 };
 
