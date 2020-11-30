@@ -1,6 +1,7 @@
 ez_cmake_init()
 
 ez_build_filter_renderer()
+ez_requires_vulkan()
 ez_requires_dxc()
 
 # Get the name of this folder as the project name
@@ -16,5 +17,6 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 ez_link_target_dxc(${PROJECT_NAME})
+ez_link_target_vulkan(${PROJECT_NAME})
 
 
