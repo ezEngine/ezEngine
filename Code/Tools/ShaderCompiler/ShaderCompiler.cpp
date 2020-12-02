@@ -72,6 +72,7 @@ void ezShaderCompilerApplication::AfterCoreSystemsStartup()
 void ezShaderCompilerApplication::Init_LoadRequiredPlugins()
 {
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "Compiler Plugin not found");
 }
 
 ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)

@@ -3,6 +3,8 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <ShaderCompilerDXC/ShaderCompilerDXCDLL.h>
 
+struct SpvReflectDescriptorBinding;
+
 class EZ_SHADERCOMPILERDXC_DLL ezShaderCompilerDXC : public ezShaderProgramCompiler
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerDXC, ezShaderProgramCompiler);
@@ -13,7 +15,8 @@ public:
   virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) override;
 
 private:
-  void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
+  ezResult ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
+  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezShaderStageBinary& pStageBinary, const SpvReflectDescriptorBinding& pConstantBufferReflection);
 
   ezResult Initialize();
 };

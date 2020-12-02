@@ -17,4 +17,5 @@ target_link_libraries(${PROJECT_NAME}
 
 add_dependencies(${PROJECT_NAME}
   ShaderCompilerHLSL
+  ShaderCompilerDXC
 )
