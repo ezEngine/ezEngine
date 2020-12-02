@@ -14,8 +14,3 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
   RendererDX11
 )
-
-add_dependencies(${PROJECT_NAME}
-  ShaderCompilerHLSL
-  ShaderCompilerDXC
-)

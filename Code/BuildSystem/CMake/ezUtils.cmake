@@ -166,6 +166,10 @@ function(ez_set_common_target_definitions TARGET_NAME)
 	# set the BUILDSYSTEM_BUILDING_XYZ_LIB definition
 	string(TOUPPER ${TARGET_NAME} PROJECT_NAME_UPPER)
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
+	
+	if (EZ_BUILD_EXPERIMENTAL_VULKAN)
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
+	endif()
 
 endfunction()
 

@@ -97,7 +97,8 @@ public:
     ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();              // writing to the binary directory
     ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
     ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
-      ezFileSystem::AllowWrites).IgnoreResult(); // app user data
+      ezFileSystem::AllowWrites)
+      .IgnoreResult(); // app user data
 
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
     ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared").IgnoreResult();
@@ -109,8 +110,13 @@ public:
     ezTelemetry::CreateServer();
     ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "Compiler Plugin not found");
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+    ezShaderManager::Configure("VULKAN", true);
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+#else
+    ezShaderManager::Configure("DX11_SM50", true);
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
+#endif
 
     // Register Input
     {
@@ -212,8 +218,6 @@ public:
 
     // Setup Shaders and Materials
     {
-      ezShaderManager::Configure("VULKAN", true);
-
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
       // Create the mesh that we use for rendering

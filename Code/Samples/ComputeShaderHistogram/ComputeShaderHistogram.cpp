@@ -139,7 +139,13 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
   EZ_VERIFY(m_directoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+  ezShaderManager::Configure("VULKAN", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+#else
+  ezShaderManager::Configure("DX11_SM50", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
+#endif
 
   auto device = ezGALDevice::GetDefaultDevice();
 
@@ -222,7 +228,6 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 
   // Setup Shaders and Materials
   {
-    ezShaderManager::Configure("DX11_SM50", true);
     m_hScreenShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/screen.ezShader");
     m_hHistogramComputeShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/histogramcompute.ezShader");
     m_hHistogramDisplayShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/histogramdisplay.ezShader");

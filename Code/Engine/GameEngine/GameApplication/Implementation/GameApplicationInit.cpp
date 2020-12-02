@@ -236,10 +236,6 @@ void ezGameApplication::Init_SetupGraphicsDevice()
   ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
   ezGPUResourcePool::SetDefaultInstance(pResourcePool);
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezShaderManager::Configure("DX11_SM50", true);
-#  endif
-
 #endif
 }
 
@@ -248,8 +244,12 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezPlugin::LoadPlugin("ezShaderCompilerHLSL").IgnoreResult();
+#  ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+  ezShaderManager::Configure("VULKAN", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+#  else
+  ezShaderManager::Configure("DX11_SM50", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
 #  endif
 
 #  ifdef BUILDSYSTEM_ENABLE_RENDERDOC_SUPPORT
