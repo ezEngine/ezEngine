@@ -33,7 +33,7 @@ ezGALContextVulkan::ezGALContextVulkan(ezGALDevice* pDevice)
   vk::CommandBufferAllocateInfo commandBufferAllocateInfo = {};
   commandBufferAllocateInfo.commandBufferCount = NUM_CMD_BUFFERS;
   commandBufferAllocateInfo.commandPool = m_commandPool;
-  commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
+  commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;  
 
   m_device.allocateCommandBuffers(&commandBufferAllocateInfo, m_commandBuffers);
 
@@ -730,7 +730,7 @@ void ezGALContextVulkan::CopyTexturePlatform(const ezGALTexture* pDestination, c
   for (ezUInt32 i = 0; i < destDesc.m_uiMipLevelCount; ++i)
   {
     vk::ImageCopy& imageCopy = imageCopies.ExpandAndGetRef();
-    imageCopy.dstOffset = {};
+    imageCopy.dstOffset = vk::Offset3D();
     imageCopy.dstSubresource.aspectMask = imageAspect;
     imageCopy.dstSubresource.baseArrayLayer = 0;
     imageCopy.dstSubresource.layerCount = destDesc.m_uiArraySize;
@@ -738,7 +738,7 @@ void ezGALContextVulkan::CopyTexturePlatform(const ezGALTexture* pDestination, c
     imageCopy.extent.width = destDesc.m_uiWidth;
     imageCopy.extent.height = destDesc.m_uiHeight;
     imageCopy.extent.depth = destDesc.m_uiDepth;
-    imageCopy.srcOffset = {};
+    imageCopy.srcOffset = vk::Offset3D();
     imageCopy.srcSubresource.aspectMask = imageAspect;
     imageCopy.srcSubresource.baseArrayLayer = 0;
     imageCopy.srcSubresource.layerCount = srcDesc.m_uiArraySize;
@@ -944,7 +944,7 @@ void ezGALContextVulkan::PushMarkerPlatform(const char* szMarker)
 
   constexpr float markerColor[4] = {1, 1, 1, 1};
   vk::DebugMarkerMarkerInfoEXT markerInfo = {};
-  ezMemoryUtils::Copy(markerInfo.color, markerColor, EZ_ARRAY_SIZE(markerColor));
+  ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
   markerInfo.pMarkerName = szMarker;
   currentCmdBuffer.debugMarkerBeginEXT(markerInfo);
 }
@@ -961,7 +961,7 @@ void ezGALContextVulkan::InsertEventMarkerPlatform(const char* szMarker)
 
   constexpr float markerColor[4] = {1, 1, 1, 1};
   vk::DebugMarkerMarkerInfoEXT markerInfo = {};
-  ezMemoryUtils::Copy(markerInfo.color, markerColor, EZ_ARRAY_SIZE(markerColor));
+  ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
   markerInfo.pMarkerName = szMarker;
   currentCmdBuffer.debugMarkerInsertEXT(markerInfo);
 }
