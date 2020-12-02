@@ -4,13 +4,13 @@
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 
 ezGALShaderVulkan::ezGALShaderVulkan(const ezGALShaderCreationDescription& Description)
-    : ezGALShader(Description)
-    , m_pVertexShader(nullptr)
-    , m_pHullShader(nullptr)
-    , m_pDomainShader(nullptr)
-    , m_pGeometryShader(nullptr)
-    , m_pPixelShader(nullptr)
-    , m_pComputeShader(nullptr)
+  : ezGALShader(Description)
+  , m_pVertexShader(nullptr)
+  , m_pHullShader(nullptr)
+  , m_pDomainShader(nullptr)
+  , m_pGeometryShader(nullptr)
+  , m_pPixelShader(nullptr)
+  , m_pComputeShader(nullptr)
 {
 }
 

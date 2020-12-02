@@ -8,7 +8,6 @@
 class EZ_RENDERERVULKAN_DLL ezGALBufferVulkan : public ezGALBuffer
 {
 public:
-
   EZ_ALWAYS_INLINE vk::Buffer GetBuffer() const;
 
   EZ_ALWAYS_INLINE vk::IndexType GetIndexType() const;
@@ -17,7 +16,6 @@ public:
   EZ_ALWAYS_INLINE vk::DeviceSize GetMemoryOffset() const;
 
 protected:
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

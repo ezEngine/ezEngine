@@ -1,13 +1,13 @@
 #include <RendererVulkanPCH.h>
 
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Resources/FenceVulkan.h>
 
 #include <d3d11.h>
 
 ezGALFenceVulkan::ezGALFenceVulkan()
-    : m_fence(nullptr)
+  : m_fence(nullptr)
 {
 }
 

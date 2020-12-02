@@ -1,7 +1,7 @@
 #include <RendererVulkanPCH.h>
 
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/State/StateVulkan.h>
 
 #include <d3d11.h>
@@ -14,7 +14,7 @@
 // Blend state
 
 ezGALBlendStateVulkan::ezGALBlendStateVulkan(const ezGALBlendStateCreationDescription& Description)
-    : ezGALBlendState(Description)
+  : ezGALBlendState(Description)
 {
   m_blendState.pAttachments = m_blendAttachmentState;
 }
@@ -111,7 +111,7 @@ ezResult ezGALBlendStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 // Depth Stencil state
 
 ezGALDepthStencilStateVulkan::ezGALDepthStencilStateVulkan(const ezGALDepthStencilStateCreationDescription& Description)
-    : ezGALDepthStencilState(Description)
+  : ezGALDepthStencilState(Description)
 {
 }
 
@@ -135,7 +135,7 @@ ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
   m_depthStencilState.front.passOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_PassOp];
 
   const ezGALStencilOpDescription& backFaceStencilOp =
-      m_Description.m_bSeparateFrontAndBack ? m_Description.m_BackFaceStencilOp : m_Description.m_FrontFaceStencilOp;
+    m_Description.m_bSeparateFrontAndBack ? m_Description.m_BackFaceStencilOp : m_Description.m_FrontFaceStencilOp;
   m_depthStencilState.back.compareOp = GALCompareFuncToVulkan[backFaceStencilOp.m_StencilFunc];
   m_depthStencilState.back.depthFailOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_DepthFailOp];
   m_depthStencilState.back.failOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_FailOp];
@@ -153,7 +153,7 @@ ezResult ezGALDepthStencilStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 // Rasterizer state
 
 ezGALRasterizerStateVulkan::ezGALRasterizerStateVulkan(const ezGALRasterizerStateCreationDescription& Description)
-    : ezGALRasterizerState(Description)
+  : ezGALRasterizerState(Description)
 {
 }
 

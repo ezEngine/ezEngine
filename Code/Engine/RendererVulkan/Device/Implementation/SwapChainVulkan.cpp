@@ -1,8 +1,8 @@
 #include <RendererVulkanPCH.h>
 
+#include <Core/System/Window.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
-#include <Core/System/Window.h>
 
 ezGALSwapChainVulkan::ezGALSwapChainVulkan(const ezGALSwapChainCreationDescription& Description)
   : ezGALSwapChain(Description)

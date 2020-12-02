@@ -6,7 +6,7 @@
 #include <d3d11.h>
 
 ezGALQueryVulkan::ezGALQueryVulkan(const ezGALQueryCreationDescription& Description)
-    : ezGALQuery(Description)
+  : ezGALQuery(Description)
 {
 }
 
@@ -38,6 +38,6 @@ void ezGALQueryVulkan::SetDebugNamePlatform(const char* szName) const
   ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
 
   // TODO
-} 
+}
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_QueryVulkan);

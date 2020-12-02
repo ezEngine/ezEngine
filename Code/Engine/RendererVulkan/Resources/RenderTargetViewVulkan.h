@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -10,8 +10,6 @@ struct ID3D11UnorderedAccessView;
 class ezGALRenderTargetViewVulkan : public ezGALRenderTargetView
 {
 public:
-
-
   EZ_ALWAYS_INLINE ID3D11RenderTargetView* GetRenderTargetView() const;
 
   EZ_ALWAYS_INLINE ID3D11DepthStencilView* GetDepthStencilView() const;
@@ -19,7 +17,6 @@ public:
   EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetUnorderedAccessView() const;
 
 protected:
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

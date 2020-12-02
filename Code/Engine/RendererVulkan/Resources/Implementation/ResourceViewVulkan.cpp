@@ -131,7 +131,7 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
       case ezGALTextureType::Texture3D:
 
-          viewCreateInfo.viewType = vk::ImageViewType::e3D;
+        viewCreateInfo.viewType = vk::ImageViewType::e3D;
 
         break;
 

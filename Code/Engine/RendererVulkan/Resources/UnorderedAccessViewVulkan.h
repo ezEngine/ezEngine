@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
@@ -8,11 +8,9 @@ struct ID3D11UnorderedAccessView;
 class ezGALUnorderedAccessViewVulkan : public ezGALUnorderedAccessView
 {
 public:
-
   EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetDXResourceView() const;
 
 protected:
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

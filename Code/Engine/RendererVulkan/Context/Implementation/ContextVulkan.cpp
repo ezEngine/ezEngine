@@ -33,7 +33,7 @@ ezGALContextVulkan::ezGALContextVulkan(ezGALDevice* pDevice)
   vk::CommandBufferAllocateInfo commandBufferAllocateInfo = {};
   commandBufferAllocateInfo.commandBufferCount = NUM_CMD_BUFFERS;
   commandBufferAllocateInfo.commandPool = m_commandPool;
-  commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;  
+  commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
 
   m_device.allocateCommandBuffers(&commandBufferAllocateInfo, m_commandBuffers);
 
@@ -63,7 +63,7 @@ ezGALContextVulkan::~ezGALContextVulkan()
 // Draw functions
 
 void ezGALContextVulkan::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil,
-                                     float fDepthClear, ezUInt8 uiStencilClear)
+  float fDepthClear, ezUInt8 uiStencilClear)
 {
   // TODO
   // * start appropriate render pass with respective framebuffer of all the bound attachments
@@ -95,7 +95,7 @@ void ezGALContextVulkan::DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiS
 
   vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
 
-#if 0//EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if 0 //EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   currentCmdBuffer.drawIndexed(uiIndexCount, 1, uiStartIndex, 0, 0);
 
   // In debug builds, with a debugger attached, the engine will break on D3D errors
@@ -847,14 +847,14 @@ void ezGALContextVulkan::ResolveTexturePlatform(const ezGALTexture* pDestination
   resolveRegion.dstSubresource.aspectMask = imageAspect;
   resolveRegion.dstSubresource.baseArrayLayer = DestinationSubResource.m_uiArraySlice;
   resolveRegion.dstSubresource.layerCount = 1; // TODO is this correct?
-  resolveRegion.dstSubresource.mipLevel = 0; // TODO implement resolve of higher mips
+  resolveRegion.dstSubresource.mipLevel = 0;   // TODO implement resolve of higher mips
   resolveRegion.extent.width = destDesc.m_uiWidth;
   resolveRegion.extent.height = destDesc.m_uiHeight;
   resolveRegion.extent.depth = destDesc.m_uiDepth;
   resolveRegion.srcSubresource.aspectMask = imageAspect;
   resolveRegion.srcSubresource.baseArrayLayer = DestinationSubResource.m_uiArraySlice;
   resolveRegion.srcSubresource.layerCount = 1;
-  resolveRegion.srcSubresource.mipLevel = 0;// TODO implement resolve of higher mips
+  resolveRegion.srcSubresource.mipLevel = 0; // TODO implement resolve of higher mips
 
   vk::CommandBuffer& currentCmdBuffer = m_commandBuffers[m_uiCurrentCmdBufferIndex];
   currentCmdBuffer.resolveImage(pVulkanSource->GetImage(), vk::ImageLayout::eGeneral, pVulkanDestination->GetImage(), vk::ImageLayout::eGeneral, 1, &resolveRegion);

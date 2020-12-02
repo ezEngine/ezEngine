@@ -8,12 +8,10 @@
 class ezGALResourceViewVulkan : public ezGALResourceView
 {
 public:
-
   EZ_ALWAYS_INLINE const vk::DescriptorSetLayoutBinding& GetResourceBinding() const;
   EZ_ALWAYS_INLINE const vk::WriteDescriptorSet& GetResourceBindingData() const;
 
 protected:
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

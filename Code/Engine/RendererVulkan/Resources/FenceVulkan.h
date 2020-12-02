@@ -8,14 +8,12 @@
 class EZ_RENDERERVULKAN_DLL ezGALFenceVulkan : public ezGALFence
 {
 public:
-
   EZ_ALWAYS_INLINE vk::Fence GetFence() const
   {
     return m_fence;
   }
 
 protected:
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

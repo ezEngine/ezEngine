@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/Shader.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
 struct ID3D11VertexShader;
 struct ID3D11HullShader;

@@ -10,11 +10,9 @@
 class ezGALVertexDeclarationVulkan : public ezGALVertexDeclaration
 {
 public:
-
   EZ_ALWAYS_INLINE const vk::PipelineVertexInputStateCreateInfo& GetInputLayout() const;
 
 protected:
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

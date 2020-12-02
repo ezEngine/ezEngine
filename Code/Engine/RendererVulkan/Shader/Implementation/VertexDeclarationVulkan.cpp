@@ -1,8 +1,8 @@
 #include <RendererVulkanPCH.h>
 
+#include <RendererFoundation/Shader/Shader.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
-#include <RendererFoundation/Shader/Shader.h>
 
 #include <d3d11.h>
 

@@ -199,7 +199,7 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
     m_memoryOffset = 0;
     m_memorySize = 0;
   }
-  
+
   if (m_pStagingBuffer)
   {
     m_pStagingBuffer = nullptr;

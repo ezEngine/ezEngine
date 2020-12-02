@@ -7,7 +7,6 @@
 class ezGALTextureVulkan : public ezGALTexture
 {
 public:
-
   EZ_ALWAYS_INLINE vk::Image GetImage() const;
 
   EZ_ALWAYS_INLINE const ezGALBufferVulkan* GetStagingBuffer() const;
@@ -18,7 +17,6 @@ public:
   EZ_ALWAYS_INLINE vk::DeviceSize GetMemorySize() const;
 
 protected:
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

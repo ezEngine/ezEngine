@@ -93,7 +93,7 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
     // TODO do we need to use this for vulkan?
     // If constant buffer: Patch size to be aligned to 64 bytes for easier usability
-   // BufferDesc.ByteWidth = ezMemoryUtils::AlignSize(BufferDesc.ByteWidth, 64u);
+    // BufferDesc.ByteWidth = ezMemoryUtils::AlignSize(BufferDesc.ByteWidth, 64u);
   }
   else
   {
@@ -108,9 +108,9 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
       // for performance reasons we'll require shader accessed buffers to reside in device
       // memory.
       if (m_Description.m_bAllowUAV ||
-        m_Description.m_bAllowShaderResourceView ||
-        m_Description.m_bStreamOutputTarget ||
-        m_Description.m_ResourceAccess.m_bReadBack)
+          m_Description.m_bAllowShaderResourceView ||
+          m_Description.m_bStreamOutputTarget ||
+          m_Description.m_ResourceAccess.m_bReadBack)
       {
         bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
       }
@@ -120,7 +120,7 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
       }
     }
   }
-  
+
   vk::MemoryRequirements bufferMemoryRequirements = pVulkanDevice->GetVulkanDevice().getBufferMemoryRequirements(m_buffer);
 
   vk::MemoryAllocateInfo memoryAllocateInfo = {};
@@ -128,7 +128,7 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   memoryAllocateInfo.memoryTypeIndex = pVulkanDevice->GetMemoryIndex(bufferMemoryProperties, bufferMemoryRequirements);
 
   m_memory = pVulkanDevice->GetVulkanDevice().allocateMemory(memoryAllocateInfo);
-  m_memoryOffset = 0;// TODO suballocations
+  m_memoryOffset = 0; // TODO suballocations
 
   if (!m_memory)
   {
@@ -143,7 +143,6 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
   // TODO initial data upload
   return EZ_SUCCESS;
-
 }
 
 ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)

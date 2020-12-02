@@ -19,4 +19,3 @@ EZ_STATICLINK_LIBRARY(RendererVulkan)
   EZ_STATICLINK_REFERENCE(RendererVulkan_Shader_Implementation_VertexDeclarationVulkan);
   EZ_STATICLINK_REFERENCE(RendererVulkan_State_Implementation_StateVulkan);
 }
-

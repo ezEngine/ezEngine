@@ -13,7 +13,7 @@ using ezGALFormatLookupTableVulkan = ezGALFormatLookupTable<ezGALFormatLookupEnt
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 
-  /// \brief The Vulkan device implementation of the graphics abstraction layer.
+/// \brief The Vulkan device implementation of the graphics abstraction layer.
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
 {
 
@@ -194,7 +194,8 @@ private:
 
     Type m_type;
 
-    union {
+    union
+    {
       VkImage* m_pImage;
       VkBuffer* m_pBuffer;
     };
