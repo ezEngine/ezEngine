@@ -1,6 +1,2 @@
-if (TARGET Editor AND TARGET TypeScriptPlugin)
-
-    # Make sure this project is built when the Editor is built
-    add_dependencies(Editor TypeScriptPlugin)
-
-endif()
+# Make sure this project is built when the Editor is built
+ez_add_as_runtime_dependency(TypeScriptPlugin)
