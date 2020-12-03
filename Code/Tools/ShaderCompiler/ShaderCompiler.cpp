@@ -1,5 +1,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -30,6 +31,8 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "Project directory has not been specified. Use the -project command followed by a path");
 
   m_sPlatforms = cmd->GetStringOption("-platform", 0, "");
+
+  m_bIgnoreErrors = cmd->GetBoolOption("-IgnoreErrors", false);
 
   if (m_sPlatforms.IsEmpty())
     m_sPlatforms = "DX11_SM50"; // "ALL";
@@ -186,6 +189,8 @@ ezApplication::Execution ezShaderCompilerApplication::Run()
 
   ezStringBuilder files = m_sShaderFiles;
 
+  ezDynamicArray<ezString> shadersToCompile;
+
   ezDynamicArray<ezStringView> allFiles;
   files.Split(false, allFiles, ";");
 
@@ -194,13 +199,52 @@ ezApplication::Execution ezShaderCompilerApplication::Run()
     ezStringBuilder file = shader;
     ezStringBuilder relPath;
 
-    if (ezFileSystem::ResolvePath(file, nullptr, &relPath).Failed())
+    if (ezFileSystem::ResolvePath(file, nullptr, &relPath).Succeeded())
     {
-      ezLog::Error("Could not resolve path to shader '{0}'", file);
+      shadersToCompile.PushBack(relPath);
     }
+    else
+    {
+      if (ezPathUtils::IsRelativePath(file))
+      {
+        file.Prepend(m_sAppProjectPath, "/");
+      }
 
-    if (CompileShader(relPath).Failed())
-      return ezApplication::Execution::Quit;
+      file.TrimWordEnd("*");
+      file.MakeCleanPath();
+
+      if (ezOSFile::ExistsDirectory(file))
+      {
+        ezFileSystemIterator fsIt;
+        for (fsIt.StartSearch(file, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
+        {
+          if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
+          {
+            fsIt.GetStats().GetFullPath(relPath);
+
+            if (relPath.MakeRelativeTo(m_sAppProjectPath).Succeeded())
+            {
+              shadersToCompile.PushBack(relPath);
+            }
+          }
+        }
+      }
+      else
+      {
+        ezLog::Error("Could not resolve path to shader '{0}'", file);
+      }
+    }
+  }
+
+  for (const auto& shader : shadersToCompile)
+  {
+    if (CompileShader(shader).Failed())
+    {
+      if (!m_bIgnoreErrors)
+      {
+        return ezApplication::Execution::Quit;
+      }
+    }
   }
 
   return ezApplication::Execution::Quit;
