@@ -17,6 +17,9 @@ public:
 private:
   ezResult ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
   ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezShaderStageBinary& pStageBinary, const SpvReflectDescriptorBinding& pConstantBufferReflection);
+  ezResult FillResourceBinding(ezShaderStageBinary& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
+  ezResult FillSRVResourceBinding(ezShaderStageBinary& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
+  ezResult FillUAVResourceBinding(ezShaderStageBinary& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
 
   ezResult Initialize();
 };

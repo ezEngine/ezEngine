@@ -5,10 +5,12 @@
 function(ez_add_dependency DST_TARGET SRC_TARGET)
 
 	if (NOT TARGET ${DST_TARGET})
+		message(STATUS "DST_TARGET '${DST_TARGET}' is unknown")
 		return()
 	endif()
 	
 	if (NOT TARGET ${SRC_TARGET})
+		message(STATUS "SRC_TARGET '${SRC_TARGET}' is unknown")
 		return()
 	endif()
 	

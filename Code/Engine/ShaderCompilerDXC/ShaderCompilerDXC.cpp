@@ -187,6 +187,207 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
   return EZ_SUCCESS;
 }
 
+ezResult ezShaderCompilerDXC::FillResourceBinding(ezShaderStageBinary& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
+{
+  if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV)
+  {
+    return FillSRVResourceBinding(shaderBinary, binding, info);
+  }
+
+  if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV)
+  {
+    return FillUAVResourceBinding(shaderBinary, binding, info);
+  }
+
+  if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV)
+  {
+    binding.m_Type = ezShaderResourceBinding::ConstantBuffer;
+    binding.m_pLayout = ReflectConstantBufferLayout(shaderBinary, info);
+
+    return EZ_SUCCESS;
+  }
+
+  if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER)
+  {
+    binding.m_Type = ezShaderResourceBinding::Sampler;
+
+    // TODO: not sure how this will map to Vulkan
+    if (binding.m_sName.GetString().EndsWith("_AutoSampler"))
+    {
+      ezStringBuilder sb = binding.m_sName.GetString();
+      sb.TrimWordEnd("_AutoSampler");
+      binding.m_sName.Assign(sb);
+    }
+
+    return EZ_SUCCESS;
+  }
+
+  ezLog::Error("Resource '{}': Unsupported resource type.", info.name);
+  return EZ_FAILURE;
+}
+
+ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
+{
+  if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+  {
+    if (info.type_description->op == SpvOp::SpvOpTypeStruct)
+    {
+      binding.m_Type = ezShaderResourceBinding::RWStructuredBuffer;
+      return EZ_SUCCESS;
+    }
+  }
+
+  if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE)
+  {
+    switch (info.image.dim)
+    {
+      case SpvDim::SpvDim1D:
+      {
+        if (info.image.ms == 0)
+        {
+          if (info.image.arrayed > 0)
+          {
+            binding.m_Type = ezShaderResourceBinding::Texture1DArray;
+            return EZ_SUCCESS;
+          }
+          else
+          {
+            binding.m_Type = ezShaderResourceBinding::Texture1D;
+            return EZ_SUCCESS;
+          }
+        }
+
+        break;
+      }
+
+      case SpvDim::SpvDim2D:
+      {
+        if (info.image.ms == 0)
+        {
+          if (info.image.arrayed > 0)
+          {
+            binding.m_Type = ezShaderResourceBinding::Texture2DArray;
+            return EZ_SUCCESS;
+          }
+          else
+          {
+            binding.m_Type = ezShaderResourceBinding::Texture2D;
+            return EZ_SUCCESS;
+          }
+        }
+        else
+        {
+          if (info.image.arrayed > 0)
+          {
+            binding.m_Type = ezShaderResourceBinding::Texture2DMSArray;
+            return EZ_SUCCESS;
+          }
+          else
+          {
+            binding.m_Type = ezShaderResourceBinding::Texture2DMS;
+            return EZ_SUCCESS;
+          }
+        }
+
+        break;
+      }
+
+      case SpvDim::SpvDim3D:
+      {
+        if (info.image.ms == 0 && info.image.arrayed == 0)
+        {
+          binding.m_Type = ezShaderResourceBinding::Texture3D;
+          return EZ_SUCCESS;
+        }
+
+        break;
+      }
+
+      case SpvDim::SpvDimCube:
+      {
+        if (info.image.ms == 0)
+        {
+          if (info.image.arrayed == 0)
+          {
+            binding.m_Type = ezShaderResourceBinding::TextureCube;
+            return EZ_SUCCESS;
+          }
+          else
+          {
+            binding.m_Type = ezShaderResourceBinding::TextureCubeArray;
+            return EZ_SUCCESS;
+          }
+        }
+
+        break;
+      }
+
+      case SpvDim::SpvDimBuffer:
+        binding.m_Type = ezShaderResourceBinding::GenericBuffer;
+        return EZ_SUCCESS;
+    }
+
+    if (info.image.ms > 0)
+    {
+      ezLog::Error("Resource '{}': Multi-sampled textures of this type are not supported.", info.name);
+      return EZ_FAILURE;
+    }
+
+    if (info.image.arrayed > 0)
+    {
+      ezLog::Error("Resource '{}': Array-textures of this type are not supported.", info.name);
+      return EZ_FAILURE;
+    }
+  }
+
+  ezLog::Error("Resource '{}': Unsupported SRV type.", info.name);
+  return EZ_FAILURE;
+}
+
+ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderStageBinary& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
+{
+  if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE)
+  {
+    if (info.image.ms > 0)
+    {
+      ezLog::Error("Resource '{}': Multi-sampled UAVs are not supported.", info.name);
+      return EZ_FAILURE;
+    }
+
+    switch (info.image.dim)
+    {
+      case SpvDim::SpvDim1D:
+      {
+        if (info.image.arrayed > 0)
+        {
+          binding.m_Type = ezShaderResourceBinding::RWTexture1DArray;
+        }
+        else
+        {
+          binding.m_Type = ezShaderResourceBinding::RWTexture1D;
+        }
+        return EZ_SUCCESS;
+      }
+
+      case SpvDim::SpvDim2D:
+      {
+        if (info.image.arrayed > 0)
+        {
+          binding.m_Type = ezShaderResourceBinding::RWTexture2DArray;
+        }
+        else
+        {
+          binding.m_Type = ezShaderResourceBinding::RWTexture2D;
+        }
+        return EZ_SUCCESS;
+      }
+    }
+  }
+
+  ezLog::Error("Resource '{}': Unsupported UAV type.", info.name);
+  return EZ_FAILURE;
+}
+
 ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage)
 {
   EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_szSourceFile);
@@ -223,109 +424,27 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 
     for (ezUInt32 i = 0; i < vars.GetCount(); ++i)
     {
-      auto& sibd = *vars[i];
+      auto& info = *vars[i];
 
-      ezLog::Info("Bound Resource: '{}' at slot {} (Count: {})", sibd.name, sibd.binding, sibd.count);
+      ezLog::Info("Bound Resource: '{}' at slot {} (Count: {})", info.name, info.binding, info.count);
 
       ezShaderResourceBinding shaderResourceBinding;
       shaderResourceBinding.m_Type = ezShaderResourceBinding::Unknown;
-      shaderResourceBinding.m_iSlot = sibd.binding;
-      shaderResourceBinding.m_sName.Assign(sibd.name);
+      shaderResourceBinding.m_iSlot = info.binding;
+      shaderResourceBinding.m_sName.Assign(info.name);
 
-      if (sibd.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV)
-      {
-        if (sibd.descriptor_type != SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE)
-        {
-          ezLog::Error("For texture resources only SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE is implemented.");
-          return EZ_FAILURE;
-        }
+      if (FillResourceBinding(inout_Data.m_StageBinary[Stage], shaderResourceBinding, info).Failed())
+        continue;
 
-        switch (sibd.image.dim)
-        {
-          case SpvDim::SpvDim1D:
-            shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1D;
-            break;
-          //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-          //  shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1DArray;
-          //  break;
-          case SpvDim::SpvDim2D:
-            shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2D;
-            break;
-          //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
-          //  shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DArray;
-          //  break;
-          //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS:
-          //  shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMS;
-          //  break;
-          //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY:
-          //  shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMSArray;
-          //  break;
-          case SpvDim::SpvDim3D:
-            shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture3D;
-            break;
-          case SpvDim::SpvDimCube:
-            shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCube;
-            break;
-          //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY:
-          //  shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCubeArray;
-          //  break;
-          case SpvDim::SpvDimBuffer:
-            shaderResourceBinding.m_Type = ezShaderResourceBinding::GenericBuffer;
-            break;
+      EZ_ASSERT_DEV(shaderResourceBinding.m_Type != ezShaderResourceBinding::Unknown, "FillResourceBinding should have failed.");
 
-          default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
-            break;
-        }
-      }
-      else if (sibd.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV)
-      {
-            EZ_ASSERT_NOT_IMPLEMENTED;
-      }
-      else if (sibd.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV)
-      {
-        shaderResourceBinding.m_Type = ezShaderResourceBinding::ConstantBuffer;
-        shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(inout_Data.m_StageBinary[Stage], sibd);
-      }
-      else if (sibd.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER)
-      {
-        shaderResourceBinding.m_Type = ezShaderResourceBinding::Sampler;
-
-        // TODO: not sure how this will map to Vulkan
-        if (shaderResourceBinding.m_sName.GetString().EndsWith("_AutoSampler"))
-        {
-          ezStringBuilder sb = shaderResourceBinding.m_sName.GetString();
-          sb.TrimWordEnd("_AutoSampler");
-          shaderResourceBinding.m_sName.Assign(sb);
-        }
-      }
-
-      if (shaderResourceBinding.m_Type != ezShaderResourceBinding::Unknown)
-      {
-        inout_Data.m_StageBinary[Stage].AddShaderResourceBinding(shaderResourceBinding);
-      }
-      else
-      {
-        ezLog::Error("Unsupported resource binding type");
-      }
+      inout_Data.m_StageBinary[Stage].AddShaderResourceBinding(shaderResourceBinding);
     }
   }
   //  else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWTYPED)
   //  {
   //    switch (shaderInputBindDesc.Dimension)
   //    {
-  //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
-  //        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture1D;
-  //        break;
-  //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-  //        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture1DArray;
-  //        break;
-  //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D:
-  //        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2D;
-  //        break;
-  //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
-  //        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2DArray;
-  //        break;
   //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
   //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX:
   //        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWBuffer;
