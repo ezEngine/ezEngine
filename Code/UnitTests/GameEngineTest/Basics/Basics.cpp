@@ -217,7 +217,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
 
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   if (iCurFrame > 3)
@@ -292,7 +292,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
   pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   pCamera->RotateGlobally(ezAngle::Degree(0), ezAngle::Degree(0), ezAngle::Degree(iCurFrame * 80.0f));
 
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   if (iCurFrame < 5)
@@ -397,7 +397,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezDebugRenderer::DrawSolidTriangles(m_pWorld.Borrow(), tris, ezColor::Gainsboro);
   }
 
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   // first frame no image is captured yet
@@ -421,7 +421,7 @@ void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)

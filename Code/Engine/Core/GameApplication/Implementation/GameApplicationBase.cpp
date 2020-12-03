@@ -366,17 +366,17 @@ EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
   s_bUpdatePluginsExecuted = true;
 }
 
-ezApplication::ApplicationExecution ezGameApplicationBase::Run()
+ezApplication::Execution ezGameApplicationBase::Run()
 {
   if (m_bWasQuitRequested)
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
 
   s_bUpdatePluginsExecuted = false;
 
   ezActorManager::GetSingleton()->Update();
 
   if (!IsGameUpdateEnabled())
-    return ezApplication::Continue;
+    return ezApplication::Execution::Continue;
 
   {
     // for plugins that need to hook into this without a link dependency on this lib
@@ -427,7 +427,7 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
 
   Run_FinishFrame();
 
-  return ezApplication::Continue;
+  return ezApplication::Execution::Continue;
 }
 
 void ezGameApplicationBase::Run_InputUpdate()

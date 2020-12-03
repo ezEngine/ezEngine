@@ -39,7 +39,7 @@ public:
     m_pEditorApp = nullptr;
   }
 
-  virtual ApplicationExecution Run() override
+  virtual Execution Run() override
   {
     ezQtEditorApp::GetSingleton()->StartupEditor();
     {
@@ -48,7 +48,7 @@ public:
     }
     ezQtEditorApp::GetSingleton()->ShutdownEditor();
 
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 
 private:

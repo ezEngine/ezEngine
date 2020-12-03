@@ -26,7 +26,7 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   m_sShaderFiles = cmd->GetStringOption("-shader", 0, "");
   EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "Shader file has not been specified. Use the -shader command followed by a path");
 
-  m_sAppProjectPath = cmd->GetStringOption("-project", 0, "");
+  m_sAppProjectPath = cmd->GetAbsolutePathOption("-project", 0, "");
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "Project directory has not been specified. Use the -project command followed by a path");
 
   m_sPlatforms = cmd->GetStringOption("-platform", 0, "");
@@ -180,7 +180,7 @@ void ezShaderCompilerApplication::PrintConfig()
   ezLog::Info("Platform: '{0}'", m_sPlatforms);
 }
 
-ezApplication::ApplicationExecution ezShaderCompilerApplication::Run()
+ezApplication::Execution ezShaderCompilerApplication::Run()
 {
   PrintConfig();
 
@@ -200,10 +200,10 @@ ezApplication::ApplicationExecution ezShaderCompilerApplication::Run()
     }
 
     if (CompileShader(relPath).Failed())
-      return ezApplication::ApplicationExecution::Quit;
+      return ezApplication::Execution::Quit;
   }
 
-  return ezApplication::ApplicationExecution::Quit;
+  return ezApplication::Execution::Quit;
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);

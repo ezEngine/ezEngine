@@ -88,7 +88,7 @@ void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
 
 ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(const char* szSubTestName)
 {
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   EZ_LOCK(m_pWorld->GetWriteMarker());

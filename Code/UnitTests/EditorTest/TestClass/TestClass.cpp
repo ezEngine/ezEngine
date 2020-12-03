@@ -41,10 +41,10 @@ void ezEditorTestApplication::AfterCoreSystemsShutdown()
   m_pEditorApp = nullptr;
 }
 
-ezApplication::ApplicationExecution ezEditorTestApplication::Run()
+ezApplication::Execution ezEditorTestApplication::Run()
 {
   qApp->processEvents();
-  return ezApplication::Continue;
+  return ezApplication::Execution::Continue;
 }
 
 void ezEditorTestApplication::AfterCoreSystemsStartup()

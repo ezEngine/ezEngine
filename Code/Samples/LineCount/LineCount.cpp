@@ -235,7 +235,7 @@ public:
     g_HtmlLog.EndLog();
   }
 
-  virtual ezApplication::ApplicationExecution Run() override
+  virtual ezApplication::Execution Run() override
   {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
 
@@ -310,7 +310,7 @@ public:
 #else
     EZ_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
 #endif
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 };
 

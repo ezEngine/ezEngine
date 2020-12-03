@@ -57,16 +57,16 @@ public:
     SUPER::BeforeCoreSystemsShutdown();
   }
 
-  virtual ApplicationExecution Run() override
+  virtual Execution Run() override
   {
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     ezMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID);
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 };
 

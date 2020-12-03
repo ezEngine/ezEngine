@@ -21,7 +21,7 @@ public:
 
   ezShaderExplorerApp();
 
-  virtual ApplicationExecution Run() override;
+  virtual Execution Run() override;
 
   virtual void AfterCoreSystemsStartup() override;
 

@@ -264,12 +264,12 @@ public:
   }
 
 
-  ApplicationExecution Run() override
+  Execution Run() override
   {
     m_pWindow->ProcessWindowMessages();
 
     if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
-      return ApplicationExecution::Quit;
+      return Execution::Quit;
 
     // make sure time goes on
     ezClock::GetGlobalClock()->Update();
@@ -375,7 +375,7 @@ public:
     // uploading GPU data etc.
     ezTaskSystem::FinishFrameTasks();
 
-    return ezApplication::Continue;
+    return ezApplication::Execution::Continue;
   }
 
   void BeforeCoreSystemsShutdown() override

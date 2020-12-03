@@ -113,7 +113,7 @@ public:
     }
   }
 
-  virtual ApplicationExecution Run() override
+  virtual Execution Run() override
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // Setting this flags prevents Windows from showing a dialog when the Engine process crashes
@@ -190,7 +190,7 @@ public:
 
     ezQtEditorApp::GetSingleton()->ShutdownEditor();
 
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 
 private:
