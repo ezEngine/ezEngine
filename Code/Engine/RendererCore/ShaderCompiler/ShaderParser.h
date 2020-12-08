@@ -23,11 +23,17 @@ public:
     ezHybridArray<AttributeDefinition, 4> m_Attributes;
   };
 
+  struct EnumValue
+  {
+    ezHashedString m_sValueName;
+    ezInt32 m_iValueValue = 0;
+  };
+
   struct EnumDefinition
   {
     ezString m_sName;
-    ezUInt32 m_uiDefaultValue;
-    ezHybridArray<ezHashedString, 16> m_Values;
+    ezUInt32 m_uiDefaultValue = 0;
+    ezHybridArray<EnumValue, 16> m_Values;
   };
 
   static void ParseMaterialParameterSection(

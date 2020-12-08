@@ -102,15 +102,12 @@ namespace
 
         descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
 
-        for (ezUInt32 i = 0; i < enumDefinition.m_Values.GetCount(); ++i)
+        for (const auto& ev : enumDefinition.m_Values)
         {
-          if (enumDefinition.m_Values[i].IsEmpty())
-            continue;
-
           ezStringBuilder sEnumName;
-          sEnumName.Format("{0}::{1}", def.m_sName, enumDefinition.m_Values[i]);
+          sEnumName.Format("{0}::{1}", def.m_sName, ev.m_sValueName);
 
-          descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
+          descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, ev.m_iValueValue, noAttributes));
         }
 
         pConfig->m_pType = ezPhantomRttiManager::RegisterType(descEnum);
@@ -145,15 +142,12 @@ namespace
 
     descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, def.m_uiDefaultValue, noAttributes));
 
-    for (ezUInt32 i = 0; i < def.m_Values.GetCount(); ++i)
+    for (const auto& ev : def.m_Values)
     {
-      if (def.m_Values[i].IsEmpty())
-        continue;
-
       ezStringBuilder sEnumName;
-      sEnumName.Format("{0}::{1}", def.m_sName, def.m_Values[i]);
+      sEnumName.Format("{0}::{1}", def.m_sName, ev.m_sValueName);
 
-      descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
+      descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, ev.m_iValueValue, noAttributes));
     }
 
     pType = ezPhantomRttiManager::RegisterType(descEnum);

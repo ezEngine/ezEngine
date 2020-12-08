@@ -14,8 +14,6 @@ CullMode = CullMode_None
 
 #include <Shaders/Common/GlobalConstants.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 struct VS_IN
 {
   float3 Position : POSITION;
@@ -35,8 +33,6 @@ VS_OUT main(VS_IN Input)
 
   return RetVal;
 }
-
-#endif
 
 [PIXELSHADER]
 

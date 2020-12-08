@@ -137,7 +137,7 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* sz
   {
     for (const auto& s : permVars)
     {
-      ezHybridArray<ezHashedString, 4> values;
+      ezHybridArray<ezHashedString, 16> values;
       ezShaderManager::GetPermutationValues(s, values);
 
       for (const auto& val : values)

@@ -323,6 +323,7 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
       }
 
       case SpvDim::SpvDimBuffer:
+        // not sure whether this is correct, and also why we would need this distinction, at all
         binding.m_Type = ezShaderResourceBinding::GenericBuffer;
         return EZ_SUCCESS;
     }
@@ -338,6 +339,19 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
       ezLog::Error("Resource '{}': Array-textures of this type are not supported.", info.name);
       return EZ_FAILURE;
     }
+  }
+
+  if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER)
+  {
+    if (info.image.dim == SpvDim::SpvDimBuffer)
+    {
+      // not sure whether this is correct, and also why we would need this distinction, at all
+      binding.m_Type = ezShaderResourceBinding::RWRawBuffer;
+      return EZ_SUCCESS;
+    }
+
+    ezLog::Error("Resource '{}': Unsupported texel buffer SRV type.", info.name);
+    return EZ_FAILURE;
   }
 
   ezLog::Error("Resource '{}': Unsupported SRV type.", info.name);
@@ -382,6 +396,19 @@ ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderStageBinary& shader
         return EZ_SUCCESS;
       }
     }
+  }
+
+  if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)
+  {
+    if (info.image.dim == SpvDim::SpvDimBuffer)
+    {
+      // not sure whether this is correct, and also why we would need this distinction, at all
+      binding.m_Type = ezShaderResourceBinding::RWBuffer;
+      return EZ_SUCCESS;
+    }
+
+    ezLog::Error("Resource '{}': Unsupported texel buffer UAV type.", info.name);
+    return EZ_FAILURE;
   }
 
   ezLog::Error("Resource '{}': Unsupported UAV type.", info.name);
@@ -612,6 +639,14 @@ ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(e
       }
     }
 
+    if (uiFlags & SpvReflectTypeFlagBits::SPV_REFLECT_TYPE_FLAG_STRUCT)
+    {
+      uiFlags &= ~SpvReflectTypeFlagBits::SPV_REFLECT_TYPE_FLAG_STRUCT;
+      uiFlags &= ~SpvReflectTypeFlagBits::SPV_REFLECT_TYPE_FLAG_EXTERNAL_BLOCK;
+
+      constant.m_Type = ezShaderConstantBufferLayout::Constant::Type::Struct;
+    }
+
     if (uiFlags != 0)
     {
       ezLog::Error("Variable '{}': Unknown additional type flags '{}'", constant.m_sName, uiFlags);
@@ -640,7 +675,9 @@ ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(e
       "Mat3x3",
       "Mat4x4",
       "Transform",
-      "Bool"};
+      "Bool",
+      "Struct",
+    };
 
     if (constant.m_uiArrayElements > 1)
     {

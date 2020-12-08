@@ -103,7 +103,13 @@ struct VS_OUT
 
   #if defined(PIXEL_SHADER) && defined(TWO_SIDED)
     #if TWO_SIDED == TRUE
-      uint FrontFace : SV_IsFrontFace;
+	
+	  #ifdef VULKAN
+	    // uint type is not supported by DXC/SPIR-V for SV_IsFrontFace
+		bool FrontFace : SV_IsFrontFace;
+	  #else
+		uint FrontFace : SV_IsFrontFace;
+	  #endif
     #endif
   #endif
 };

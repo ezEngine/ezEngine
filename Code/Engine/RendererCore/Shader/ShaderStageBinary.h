@@ -38,6 +38,7 @@ public:
         Mat4x4,
         Transform,
         Bool,
+        Struct,
         ENUM_COUNT
       };
     };

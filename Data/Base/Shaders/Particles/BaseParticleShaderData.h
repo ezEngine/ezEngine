@@ -10,7 +10,7 @@ struct EZ_ALIGN_16(ezBaseParticleShaderData)
 };
 
 // this is only defined during shader compilation
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
 
 StructuredBuffer<ezBaseParticleShaderData> particleBaseData;
 

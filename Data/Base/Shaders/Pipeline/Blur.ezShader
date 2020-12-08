@@ -24,6 +24,7 @@ struct PS_IN
   float2 TexCoord0 : TEXCOORD0;
 };
 
+#include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/DefaultMaterialCB.h>

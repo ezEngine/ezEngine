@@ -5,8 +5,6 @@ ALL
 
 #include "Common.h"
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
@@ -17,14 +15,10 @@ VS_OUT main(VS_IN Input)
   return RetVal;
 }
 
-#endif
-
 
 [PIXELSHADER]
 
 #include "Common.h"
-
-#if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D DiffuseTexture;
 SamplerState DiffuseTexture_AutoSampler;
@@ -33,6 +27,3 @@ float4 main(PS_IN Input) : SV_Target
 {
   return DiffuseTexture.Sample(DiffuseTexture_AutoSampler, Input.TexCoord0);
 }
-
-#endif
-
