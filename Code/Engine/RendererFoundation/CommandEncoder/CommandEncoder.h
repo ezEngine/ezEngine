@@ -1,49 +1,17 @@
 
 #pragma once
 
-#include <Foundation/Communication/Event.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <RendererFoundation/Context/ContextState.h>
+#include <RendererFoundation/CommandEncoder/ContextState.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezGALDevice;
-
-class EZ_RENDERERFOUNDATION_DLL ezGALContext
+class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezGALCommandEncoder);
+
 public:
-  // Draw functions
 
-  /// \brief Clears active rendertargets.
-  ///
-  /// \param uiRenderTargetClearMask
-  ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
-  void Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true,
-    float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
-
-  /// Clears an unordered access view with a float value.
-  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues);
-
-  /// Clears an unordered access view with an int value.
-  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues);
-
-  void Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
-
-  void DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
-
-  void DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex);
-
-  void DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
-
-  void DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex);
-
-  void DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
-
-  void DrawAuto();
-
-  void BeginStreamOut();
-
-  void EndStreamOut();
 
   // Dispatch
 
@@ -109,6 +77,12 @@ public:
 
   // Resource functions
 
+  /// Clears an unordered access view with a float value.
+  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues);
+
+  /// Clears an unordered access view with an int value.
+  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues);
+
   void CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource);
 
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
@@ -145,44 +119,15 @@ public:
 
   void InsertEventMarker(const char* Marker);
 
-  void ClearStatisticsCounters();
+  virtual void ClearStatisticsCounters();
 
-  ezGALDevice* GetDevice() const;
+  EZ_ALWAYS_INLINE ezGALDevice& GetDevice() { return m_Device; }
 
 protected:
   friend class ezGALDevice;
 
-  ezGALContext(ezGALDevice* pDevice);
-
-  virtual ~ezGALContext();
-
-
-  // Draw functions
-
-  virtual void ClearPlatform(
-    const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) = 0;
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) = 0;
-
-  virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) = 0;
-
-  virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) = 0;
-
-  virtual void DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) = 0;
-
-  virtual void DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
-
-  virtual void DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) = 0;
-
-  virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
-
-  virtual void DrawAutoPlatform() = 0;
-
-  virtual void BeginStreamOutPlatform() = 0;
-
-  virtual void EndStreamOutPlatform() = 0;
+  ezGALCommandEncoder(ezGALDevice& device);
+  virtual ~ezGALCommandEncoder();
 
   // Dispatch
 
@@ -246,6 +191,10 @@ protected:
 
   // Resource update functions
 
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) = 0;
+
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) = 0;
+
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) = 0;
 
   virtual void CopyBufferRegionPlatform(
@@ -286,40 +235,82 @@ protected:
   virtual void InsertEventMarkerPlatform(const char* Marker) = 0;
 
   // Don't use light hearted ;)
-  void InvalidateState();
+  virtual void InvalidateState();
 
   // Returns whether a resource view has been unset for the given resource
   bool UnsetResourceViews(const ezGALResourceBase* pResource);
   // Returns whether a unordered access view has been unset for the given resource
   bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
 
+  void AssertRenderingThread()
+  {
+    EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function can only be executed on the main thread.");
+  }
+
 private:
   friend class ezMemoryUtils;
 
-  void CountDrawCall();
+  
+  void CountDispatchCall() { m_uiDispatchCalls++; }
+  void CountStateChange() { m_uiStateChanges++; }
+  void CountRedundantStateChange() { m_uiRedundantStateChanges++; }
 
-  void CountDispatchCall();
-
-  void CountStateChange();
-
-  void CountRedundantStateChange();
-
-  void AssertRenderingThread();
-
-  // Parent device
-  ezGALDevice* m_pDevice;
+  // Parent Device
+  ezGALDevice& m_Device;
 
   // Used to track redundant state changes
   ezGALContextState m_State;
 
   // Statistic variables
-  ezUInt32 m_uiDrawCalls;
-
-  ezUInt32 m_uiDispatchCalls;
-
-  ezUInt32 m_uiStateChanges;
-
-  ezUInt32 m_uiRedundantStateChanges;
+  ezUInt32 m_uiDispatchCalls = 0;
+  ezUInt32 m_uiStateChanges = 0;
+  ezUInt32 m_uiRedundantStateChanges = 0;
 };
 
-#include <RendererFoundation/Context/Implementation/Context_inl.h>
+class EZ_RENDERERFOUNDATION_DLL ezGALRenderCommandEncoder : public ezGALCommandEncoder
+{
+public:
+  // Draw functions
+
+  void Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
+  void DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
+  void DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex);
+  void DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+  void DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex);
+  void DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+  void DrawAuto();
+
+  void BeginStreamOut();
+  void EndStreamOut();
+
+  virtual void ClearStatisticsCounters() override;
+
+protected:
+  friend class ezGALDevice;
+
+  ezGALRenderCommandEncoder(ezGALDevice& device);
+  virtual ~ezGALRenderCommandEncoder();
+
+  // Draw functions
+
+  virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) = 0;
+  virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) = 0;
+  virtual void DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) = 0;
+  virtual void DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+  virtual void DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) = 0;
+  virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+  virtual void DrawAutoPlatform() = 0;
+
+  virtual void BeginStreamOutPlatform() = 0;
+  virtual void EndStreamOutPlatform() = 0;
+
+private:
+  void CountDrawCall() { m_uiDrawCalls++; }
+
+  // Statistic variables
+  ezUInt32 m_uiDrawCalls = 0;
+};
+
+class EZ_RENDERERFOUNDATION_DLL ezGALComputeCommandEncoder : public ezGALCommandEncoder
+{
+};

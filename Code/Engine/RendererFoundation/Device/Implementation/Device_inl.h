@@ -24,18 +24,6 @@ EZ_ALWAYS_INLINE ezGALSwapChainHandle ezGALDevice::GetPrimarySwapChain() const
   return m_hPrimarySwapChain;
 }
 
-EZ_ALWAYS_INLINE ezGALContext* ezGALDevice::GetPrimaryContext() const
-{
-  return m_pPrimaryContext;
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE T* ezGALDevice::GetPrimaryContext() const
-{
-  return static_cast<T*>(m_pPrimaryContext);
-}
-
-
 template <typename IdTableType, typename ReturnType>
 EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {

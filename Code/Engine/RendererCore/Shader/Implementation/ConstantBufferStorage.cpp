@@ -1,7 +1,7 @@
 #include <RendererCorePCH.h>
 
 #include <RendererCore/Shader/ConstantBufferStorage.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 
 ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
@@ -32,7 +32,7 @@ ezArrayPtr<const ezUInt8> ezConstantBufferStorageBase::GetRawDataForReading() co
   return m_Data;
 }
 
-void ezConstantBufferStorageBase::UploadData(ezGALContext* pContext)
+void ezConstantBufferStorageBase::UploadData(ezGALCommandEncoder* pCommandEncoder)
 {
   if (!m_bHasBeenModified)
     return;
@@ -42,7 +42,7 @@ void ezConstantBufferStorageBase::UploadData(ezGALContext* pContext)
   ezUInt32 uiNewHash = ezHashingUtils::xxHash32(m_Data.GetPtr(), m_Data.GetCount());
   if (m_uiLastHash != uiNewHash)
   {
-    pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Data);
+    pCommandEncoder->UpdateBuffer(m_hGALConstantBuffer, 0, m_Data);
     m_uiLastHash = uiNewHash;
   }
 }

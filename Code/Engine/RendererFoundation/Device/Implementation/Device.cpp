@@ -2,7 +2,6 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -59,8 +58,6 @@ ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
   , m_AllocatorWrapper(&m_Allocator)
   , m_Description(desc)
-  , m_pPrimaryContext(nullptr)
-  , m_bFrameBeginCalled(false)
 {
 }
 
@@ -193,6 +190,20 @@ ezResult ezGALDevice::Shutdown()
   }
 
   return ShutdownPlatform();
+}
+
+ezGALPass* ezGALDevice::BeginPass(const char* szName)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  return BeginPassPlatform(szName);
+}
+
+void ezGALDevice::EndPass(ezGALPass* pPass)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  EndPassPlatform(pPass);
 }
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
@@ -1276,7 +1287,9 @@ void ezGALDevice::BeginFrame()
 
     BeginFramePlatform();
   }
-  m_pPrimaryContext->ClearStatisticsCounters();
+
+  // TODO: move to beginrendering/compute calls
+  //m_pPrimaryContext->ClearStatisticsCounters();
 
   {
     ezGALDeviceEvent e;

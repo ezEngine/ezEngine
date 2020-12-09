@@ -56,7 +56,10 @@ class ezGALResourceView;
 class ezGALRenderTargetView;
 class ezGALUnorderedAccessView;
 class ezGALDevice;
-class ezGALContext;
+class ezGALPass;
+class ezGALCommandEncoder;
+class ezGALRenderCommandEncoder;
+class ezGALComputeCommandEncoder;
 
 // Basic enums
 struct ezGALPrimitiveTopology

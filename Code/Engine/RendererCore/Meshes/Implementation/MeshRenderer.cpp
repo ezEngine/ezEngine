@@ -41,7 +41,6 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
-  ezGALContext* pGALContext = pContext->GetGALContext();
 
   const ezMeshRenderData* pRenderData = batch.GetFirstData<ezMeshRenderData>();
 

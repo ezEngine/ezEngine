@@ -525,9 +525,10 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
   ezUInt64 uiRenderFrame = GetUseMultithreadedRendering() ? s_uiFrameCounter - 1 : s_uiFrameCounter;
 
-  ezStringBuilder sb;
-  sb.Format("FRAME {}", uiRenderFrame);
-  EZ_PROFILE_AND_MARKER(ezGALDevice::GetDefaultDevice()->GetPrimaryContext(), sb.GetData());
+  // TODO:
+  //ezStringBuilder sb;
+  //sb.Format("FRAME {}", uiRenderFrame);
+  //EZ_PROFILE_AND_MARKER(ezGALDevice::GetDefaultDevice()->GetPrimaryContext(), sb.GetData());
 
   ezRenderWorldRenderEvent renderEvent;
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;

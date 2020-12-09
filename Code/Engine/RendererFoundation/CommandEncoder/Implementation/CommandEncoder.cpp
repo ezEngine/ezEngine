@@ -1,6 +1,6 @@
 #include <RendererFoundationPCH.h>
 
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Query.h>
@@ -9,160 +9,15 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
 
-ezGALContext::ezGALContext(ezGALDevice* pDevice)
-  : m_pDevice(pDevice)
-  , m_uiDrawCalls(0)
-  , m_uiDispatchCalls(0)
-  , m_uiStateChanges(0)
-  , m_uiRedundantStateChanges(0)
+ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& device)
+  : m_Device(device)
 {
-  EZ_ASSERT_DEV(pDevice != nullptr, "The context needs a valid device pointer!");
-
   InvalidateState();
 }
 
-ezGALContext::~ezGALContext() {}
+ezGALCommandEncoder::~ezGALCommandEncoder() = default;
 
-void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/,
-  bool bClearStencil /*= true*/, float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
-{
-  AssertRenderingThread();
-
-  ClearPlatform(ClearColor, uiRenderTargetClearMask, bClearDepth, bClearStencil, fDepthClear, uiStencilClear);
-}
-
-void ezGALContext::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues)
-{
-  AssertRenderingThread();
-
-  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
-  if (pUnorderedAccessView == nullptr)
-  {
-    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
-    return;
-  }
-
-  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
-}
-
-void ezGALContext::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues)
-{
-  AssertRenderingThread();
-
-  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
-  if (pUnorderedAccessView == nullptr)
-  {
-    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
-    return;
-  }
-
-  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
-}
-
-void ezGALContext::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
-{
-  AssertRenderingThread();
-
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
-  /// (0, 1, 2, ..)
-
-  DrawPlatform(uiVertexCount, uiStartVertex);
-
-  CountDrawCall();
-}
-
-void ezGALContext::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
-{
-  AssertRenderingThread();
-
-  DrawIndexedPlatform(uiIndexCount, uiStartIndex);
-
-  CountDrawCall();
-}
-
-void ezGALContext::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
-{
-  AssertRenderingThread();
-  /// \todo Assert for instancing
-
-  DrawIndexedInstancedPlatform(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex);
-
-  CountDrawCall();
-}
-
-void ezGALContext::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
-{
-  AssertRenderingThread();
-  /// \todo Assert for instancing
-  /// \todo Assert for indirect draw
-  /// \todo Assert offset < buffer size
-
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndirectArgumentBuffer);
-  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
-
-  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
-  DrawIndexedInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
-
-  CountDrawCall();
-}
-
-void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
-{
-  AssertRenderingThread();
-  /// \todo Assert for instancing
-
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
-  /// (0, 1, 2, ..)
-
-  DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
-
-  CountDrawCall();
-}
-
-void ezGALContext::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
-{
-  AssertRenderingThread();
-  /// \todo Assert for instancing
-  /// \todo Assert for indirect draw
-  /// \todo Assert offset < buffer size
-
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndirectArgumentBuffer);
-  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
-
-  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
-  DrawInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
-
-  CountDrawCall();
-}
-
-void ezGALContext::DrawAuto()
-{
-  AssertRenderingThread();
-  /// \todo Assert for draw auto support
-
-  DrawAutoPlatform();
-
-  CountDrawCall();
-}
-
-void ezGALContext::BeginStreamOut()
-{
-  AssertRenderingThread();
-  /// \todo Assert for streamout support
-
-  BeginStreamOutPlatform();
-}
-
-void ezGALContext::EndStreamOut()
-{
-  AssertRenderingThread();
-
-  EndStreamOutPlatform();
-}
-
-
-
-void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
+void ezGALCommandEncoder::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
 {
   AssertRenderingThread();
 
@@ -176,14 +31,14 @@ void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroup
   CountDispatchCall();
 }
 
-void ezGALContext::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+void ezGALCommandEncoder::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   AssertRenderingThread();
   /// \todo Assert for compute
   /// \todo Assert for indirect dispatch
   /// \todo Assert offset < buffer size
 
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndirectArgumentBuffer);
+  const ezGALBuffer* pBuffer = m_Device.GetBuffer(hIndirectArgumentBuffer);
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
@@ -193,7 +48,7 @@ void ezGALContext::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, e
 }
 
 
-void ezGALContext::SetShader(ezGALShaderHandle hShader)
+void ezGALCommandEncoder::SetShader(ezGALShaderHandle hShader)
 {
   AssertRenderingThread();
   /// \todo Assert for shader capabilities (supported shader stages etc.)
@@ -204,7 +59,7 @@ void ezGALContext::SetShader(ezGALShaderHandle hShader)
     return;
   }
 
-  const ezGALShader* pShader = m_pDevice->GetShader(hShader);
+  const ezGALShader* pShader = m_Device.GetShader(hShader);
   EZ_ASSERT_DEV(pShader != nullptr, "The given shader handle isn't valid, this may be a use after destroy!");
 
   SetShaderPlatform(pShader);
@@ -213,7 +68,7 @@ void ezGALContext::SetShader(ezGALShaderHandle hShader)
   CountStateChange();
 }
 
-void ezGALContext::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
+void ezGALCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
 {
   if (m_State.m_hIndexBuffer == hIndexBuffer)
   {
@@ -221,7 +76,7 @@ void ezGALContext::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
     return;
   }
 
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndexBuffer);
+  const ezGALBuffer* pBuffer = m_Device.GetBuffer(hIndexBuffer);
   /// \todo Assert on index buffer type (if non nullptr)
   // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
 
@@ -231,7 +86,7 @@ void ezGALContext::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
   CountStateChange();
 }
 
-void ezGALContext::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer)
+void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer)
 {
   if (m_State.m_hVertexBuffers[uiSlot] == hVertexBuffer)
   {
@@ -239,7 +94,7 @@ void ezGALContext::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuf
     return;
   }
 
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hVertexBuffer);
+  const ezGALBuffer* pBuffer = m_Device.GetBuffer(hVertexBuffer);
   // Assert on vertex buffer type (if non-zero)
   // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
 
@@ -249,7 +104,7 @@ void ezGALContext::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuf
   CountStateChange();
 }
 
-void ezGALContext::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum Topology)
+void ezGALCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum Topology)
 {
   AssertRenderingThread();
 
@@ -266,7 +121,7 @@ void ezGALContext::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum Topology)
   CountStateChange();
 }
 
-void ezGALContext::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
+void ezGALCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
 {
   AssertRenderingThread();
 
@@ -276,7 +131,7 @@ void ezGALContext::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDecl
     return;
   }
 
-  const ezGALVertexDeclaration* pVertexDeclaration = m_pDevice->GetVertexDeclaration(hVertexDeclaration);
+  const ezGALVertexDeclaration* pVertexDeclaration = m_Device.GetVertexDeclaration(hVertexDeclaration);
   // Assert on vertex buffer type (if non-zero)
 
   SetVertexDeclarationPlatform(pVertexDeclaration);
@@ -286,7 +141,7 @@ void ezGALContext::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDecl
   CountStateChange();
 }
 
-void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
+void ezGALCommandEncoder::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
 {
   AssertRenderingThread();
   EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
@@ -297,7 +152,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
     return;
   }
 
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
+  const ezGALBuffer* pBuffer = m_Device.GetBuffer(hBuffer);
   EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer, "Wrong buffer type");
 
   SetConstantBufferPlatform(uiSlot, pBuffer);
@@ -307,7 +162,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
   CountStateChange();
 }
 
-void ezGALContext::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerStateHandle hSamplerState)
+void ezGALCommandEncoder::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerStateHandle hSamplerState)
 {
   AssertRenderingThread();
   EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_SAMPLER_COUNT, "Sampler state slot index too big!");
@@ -318,7 +173,7 @@ void ezGALContext::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
     return;
   }
 
-  const ezGALSamplerState* pSamplerState = m_pDevice->GetSamplerState(hSamplerState);
+  const ezGALSamplerState* pSamplerState = m_Device.GetSamplerState(hSamplerState);
 
   SetSamplerStatePlatform(Stage, uiSlot, pSamplerState);
 
@@ -327,7 +182,7 @@ void ezGALContext::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
   CountStateChange();
 }
 
-void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView)
+void ezGALCommandEncoder::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
 
@@ -340,7 +195,7 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
     return;
   }
 
-  const ezGALResourceView* pResourceView = m_pDevice->GetResourceView(hResourceView);
+  const ezGALResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
   if (pResourceView != nullptr)
   {
     if (UnsetUnorderedAccessViews(pResourceView->GetResource()))
@@ -361,7 +216,7 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
   CountStateChange();
 }
 
-void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTargetSetup)
+void ezGALCommandEncoder::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTargetSetup)
 {
   AssertRenderingThread();
 
@@ -382,7 +237,7 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTarg
   {
     for (ezUInt8 uiIndex = 0; uiIndex <= RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex)
     {
-      const ezGALRenderTargetView* pRenderTargetView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetRenderTarget(uiIndex));
+      const ezGALRenderTargetView* pRenderTargetView = m_Device.GetRenderTargetView(RenderTargetSetup.GetRenderTarget(uiIndex));
       if (pRenderTargetView != nullptr)
       {
         const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
@@ -397,7 +252,7 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTarg
     uiRenderTargetCount = RenderTargetSetup.GetMaxRenderTargetIndex() + 1;
   }
 
-  pDepthStencilView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetDepthStencilTarget());
+  pDepthStencilView = m_Device.GetRenderTargetView(RenderTargetSetup.GetDepthStencilTarget());
   if (pDepthStencilView != nullptr)
   {
     const ezGALResourceBase* pTexture = pDepthStencilView->GetTexture()->GetParentResource();
@@ -417,7 +272,7 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTarg
   CountStateChange();
 }
 
-void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
+void ezGALCommandEncoder::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
 {
   AssertRenderingThread();
 
@@ -429,7 +284,7 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessV
     return;
   }
 
-  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
+  const ezGALUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
   if (pUnorderedAccessView != nullptr)
   {
     if (UnsetResourceViews(pUnorderedAccessView->GetResource()))
@@ -450,7 +305,7 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessV
   CountStateChange();
 }
 
-void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
+void ezGALCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
 {
   AssertRenderingThread();
 
@@ -460,7 +315,7 @@ void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColo
     return;
   }
 
-  const ezGALBlendState* pBlendState = m_pDevice->GetBlendState(hBlendState);
+  const ezGALBlendState* pBlendState = m_Device.GetBlendState(hBlendState);
 
   SetBlendStatePlatform(pBlendState, BlendFactor, uiSampleMask);
 
@@ -469,7 +324,7 @@ void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColo
   CountStateChange();
 }
 
-void ezGALContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
+void ezGALCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
 {
   AssertRenderingThread();
 
@@ -479,7 +334,7 @@ void ezGALContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStenc
     return;
   }
 
-  const ezGALDepthStencilState* pDepthStencilState = m_pDevice->GetDepthStencilState(hDepthStencilState);
+  const ezGALDepthStencilState* pDepthStencilState = m_Device.GetDepthStencilState(hDepthStencilState);
 
   SetDepthStencilStatePlatform(pDepthStencilState, uiStencilRefValue);
 
@@ -488,7 +343,7 @@ void ezGALContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStenc
   CountStateChange();
 }
 
-void ezGALContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
+void ezGALCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
 {
   AssertRenderingThread();
 
@@ -498,7 +353,7 @@ void ezGALContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerStat
     return;
   }
 
-  const ezGALRasterizerState* pRasterizerState = m_pDevice->GetRasterizerState(hRasterizerState);
+  const ezGALRasterizerState* pRasterizerState = m_Device.GetRasterizerState(hRasterizerState);
 
   SetRasterizerStatePlatform(pRasterizerState);
 
@@ -507,7 +362,7 @@ void ezGALContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerStat
   CountStateChange();
 }
 
-void ezGALContext::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
+void ezGALCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
 {
   AssertRenderingThread();
 
@@ -526,7 +381,7 @@ void ezGALContext::SetViewport(const ezRectFloat& rect, float fMinDepth, float f
   CountStateChange();
 }
 
-void ezGALContext::SetScissorRect(const ezRectU32& rect)
+void ezGALCommandEncoder::SetScissorRect(const ezRectU32& rect)
 {
   AssertRenderingThread();
 
@@ -543,7 +398,7 @@ void ezGALContext::SetScissorRect(const ezRectU32& rect)
   CountStateChange();
 }
 
-void ezGALContext::SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer, ezUInt32 uiOffset)
+void ezGALCommandEncoder::SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer, ezUInt32 uiOffset)
 {
   EZ_REPORT_FAILURE("not implemented");
 
@@ -551,72 +406,100 @@ void ezGALContext::SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer
 }
 
 
-void ezGALContext::InsertFence(ezGALFenceHandle hFence)
+void ezGALCommandEncoder::InsertFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  InsertFencePlatform(m_pDevice->GetFence(hFence));
+  InsertFencePlatform(m_Device.GetFence(hFence));
 }
 
-bool ezGALContext::IsFenceReached(ezGALFenceHandle hFence)
+bool ezGALCommandEncoder::IsFenceReached(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  return IsFenceReachedPlatform(m_pDevice->GetFence(hFence));
+  return IsFenceReachedPlatform(m_Device.GetFence(hFence));
 }
 
-void ezGALContext::WaitForFence(ezGALFenceHandle hFence)
+void ezGALCommandEncoder::WaitForFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  WaitForFencePlatform(m_pDevice->GetFence(hFence));
+  WaitForFencePlatform(m_Device.GetFence(hFence));
 }
 
-void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
+void ezGALCommandEncoder::BeginQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
 
-  auto query = m_pDevice->GetQuery(hQuery);
+  auto query = m_Device.GetQuery(hQuery);
   EZ_ASSERT_DEV(!query->m_bStarted, "Can't stat ezGALQuery because it is already running.");
 
   BeginQueryPlatform(query);
 }
 
-void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
+void ezGALCommandEncoder::EndQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
 
-  auto query = m_pDevice->GetQuery(hQuery);
+  auto query = m_Device.GetQuery(hQuery);
   EZ_ASSERT_DEV(query->m_bStarted, "Can't end ezGALQuery, query hasn't started yet.");
 
   EndQueryPlatform(query);
 }
 
-ezResult ezGALContext::GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQueryResult)
+ezResult ezGALCommandEncoder::GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQueryResult)
 {
   AssertRenderingThread();
 
-  auto query = m_pDevice->GetQuery(hQuery);
+  auto query = m_Device.GetQuery(hQuery);
   EZ_ASSERT_DEV(!query->m_bStarted, "Can't retrieve data from ezGALQuery while query is still running.");
 
   return GetQueryResultPlatform(query, uiQueryResult);
 }
 
-ezGALTimestampHandle ezGALContext::InsertTimestamp()
+ezGALTimestampHandle ezGALCommandEncoder::InsertTimestamp()
 {
-  ezGALTimestampHandle hTimestamp = m_pDevice->GetTimestamp();
+  ezGALTimestampHandle hTimestamp = m_Device.GetTimestamp();
 
   InsertTimestampPlatform(hTimestamp);
 
   return hTimestamp;
 }
 
-void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource)
+void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues)
 {
   AssertRenderingThread();
 
-  const ezGALBuffer* pDest = m_pDevice->GetBuffer(hDest);
-  const ezGALBuffer* pSource = m_pDevice->GetBuffer(hSource);
+  const ezGALUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  if (pUnorderedAccessView == nullptr)
+  {
+    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
+    return;
+  }
+
+  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
+}
+
+void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues)
+{
+  AssertRenderingThread();
+
+  const ezGALUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  if (pUnorderedAccessView == nullptr)
+  {
+    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
+    return;
+  }
+
+  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
+}
+
+void ezGALCommandEncoder::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource)
+{
+  AssertRenderingThread();
+
+  const ezGALBuffer* pDest = m_Device.GetBuffer(hDest);
+  const ezGALBuffer* pSource = m_Device.GetBuffer(hSource);
 
   if (pDest != nullptr && pSource != nullptr)
   {
@@ -628,13 +511,13 @@ void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource
   }
 }
 
-void ezGALContext::CopyBufferRegion(
+void ezGALCommandEncoder::CopyBufferRegion(
   ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
 {
   AssertRenderingThread();
 
-  const ezGALBuffer* pDest = m_pDevice->GetBuffer(hDest);
-  const ezGALBuffer* pSource = m_pDevice->GetBuffer(hSource);
+  const ezGALBuffer* pDest = m_Device.GetBuffer(hDest);
+  const ezGALBuffer* pSource = m_Device.GetBuffer(hSource);
 
   if (pDest != nullptr && pSource != nullptr)
   {
@@ -652,18 +535,18 @@ void ezGALContext::CopyBufferRegion(
   }
 }
 
-void ezGALContext::UpdateBuffer(
+void ezGALCommandEncoder::UpdateBuffer(
   ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode)
 {
   AssertRenderingThread();
 
   EZ_VERIFY(!pSourceData.IsEmpty(), "Source data for buffer update is invalid!");
 
-  const ezGALBuffer* pDest = m_pDevice->GetBuffer(hDest);
+  const ezGALBuffer* pDest = m_Device.GetBuffer(hDest);
 
   if (pDest != nullptr)
   {
-    if (updateMode == ezGALUpdateMode::NoOverwrite && !(GetDevice()->GetCapabilities().m_bNoOverwriteBufferUpdate))
+    if (updateMode == ezGALUpdateMode::NoOverwrite && !(GetDevice().GetCapabilities().m_bNoOverwriteBufferUpdate))
     {
       updateMode = ezGALUpdateMode::CopyToTempStorage;
     }
@@ -677,12 +560,12 @@ void ezGALContext::UpdateBuffer(
   }
 }
 
-void ezGALContext::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource)
+void ezGALCommandEncoder::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
-  const ezGALTexture* pSource = m_pDevice->GetTexture(hSource);
+  const ezGALTexture* pDest = m_Device.GetTexture(hDest);
+  const ezGALTexture* pSource = m_Device.GetTexture(hSource);
 
   if (pDest != nullptr && pSource != nullptr)
   {
@@ -694,13 +577,13 @@ void ezGALContext::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSou
   }
 }
 
-void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
+void ezGALCommandEncoder::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
   const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
-  const ezGALTexture* pSource = m_pDevice->GetTexture(hSource);
+  const ezGALTexture* pDest = m_Device.GetTexture(hDest);
+  const ezGALTexture* pSource = m_Device.GetTexture(hSource);
 
   if (pDest != nullptr && pSource != nullptr)
   {
@@ -712,12 +595,12 @@ void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextur
   }
 }
 
-void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
+void ezGALCommandEncoder::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
   const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
+  const ezGALTexture* pDest = m_Device.GetTexture(hDest);
 
   if (pDest != nullptr)
   {
@@ -729,13 +612,13 @@ void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSub
   }
 }
 
-void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource,
+void ezGALCommandEncoder::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource,
   const ezGALTextureSubresource& SourceSubResource)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
-  const ezGALTexture* pSource = m_pDevice->GetTexture(hSource);
+  const ezGALTexture* pDest = m_Device.GetTexture(hDest);
+  const ezGALTexture* pSource = m_Device.GetTexture(hSource);
 
   if (pDest != nullptr && pSource != nullptr)
   {
@@ -747,11 +630,11 @@ void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSu
   }
 }
 
-void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)
+void ezGALCommandEncoder::ReadbackTexture(ezGALTextureHandle hTexture)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
+  const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
 
   if (pTexture != nullptr)
   {
@@ -762,11 +645,11 @@ void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)
   }
 }
 
-void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
+void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
+  const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
 
   if (pTexture != nullptr)
   {
@@ -777,15 +660,15 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
   }
 }
 
-void ezGALContext::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
+void ezGALCommandEncoder::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
 
-  const ezGALResourceView* pResourceView = m_pDevice->GetResourceView(hResourceView);
+  const ezGALResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
   if (pResourceView != nullptr)
   {
     EZ_ASSERT_DEV(!pResourceView->GetDescription().m_hTexture.IsInvalidated(), "Resource view needs a valid texture to generate mip maps.");
-    const ezGALTexture* pTexture = m_pDevice->GetTexture(pResourceView->GetDescription().m_hTexture);
+    const ezGALTexture* pTexture = m_Device.GetTexture(pResourceView->GetDescription().m_hTexture);
     EZ_ASSERT_DEV(pTexture->GetDescription().m_bAllowDynamicMipGeneration,
       "Dynamic mip map generation needs to be enabled (m_bAllowDynamicMipGeneration = true)!");
 
@@ -793,7 +676,7 @@ void ezGALContext::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
   }
 }
 
-void ezGALContext::Flush()
+void ezGALCommandEncoder::Flush()
 {
   AssertRenderingThread();
 
@@ -802,7 +685,7 @@ void ezGALContext::Flush()
 
 // Debug helper functions
 
-void ezGALContext::PushMarker(const char* Marker)
+void ezGALCommandEncoder::PushMarker(const char* Marker)
 {
   AssertRenderingThread();
 
@@ -811,14 +694,14 @@ void ezGALContext::PushMarker(const char* Marker)
   PushMarkerPlatform(Marker);
 }
 
-void ezGALContext::PopMarker()
+void ezGALCommandEncoder::PopMarker()
 {
   AssertRenderingThread();
 
   PopMarkerPlatform();
 }
 
-void ezGALContext::InsertEventMarker(const char* Marker)
+void ezGALCommandEncoder::InsertEventMarker(const char* Marker)
 {
   AssertRenderingThread();
 
@@ -827,21 +710,20 @@ void ezGALContext::InsertEventMarker(const char* Marker)
   InsertEventMarkerPlatform(Marker);
 }
 
-void ezGALContext::ClearStatisticsCounters()
+void ezGALCommandEncoder::ClearStatisticsCounters()
 {
   // Reset counters for various statistics
-  m_uiDrawCalls = 0;
   m_uiDispatchCalls = 0;
   m_uiStateChanges = 0;
   m_uiRedundantStateChanges = 0;
 }
 
-void ezGALContext::InvalidateState()
+void ezGALCommandEncoder::InvalidateState()
 {
   m_State.Invalidate();
 }
 
-bool ezGALContext::UnsetResourceViews(const ezGALResourceBase* pResource)
+bool ezGALCommandEncoder::UnsetResourceViews(const ezGALResourceBase* pResource)
 {
   EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
 
@@ -866,7 +748,7 @@ bool ezGALContext::UnsetResourceViews(const ezGALResourceBase* pResource)
   return bResult;
 }
 
-bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
+bool ezGALCommandEncoder::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
 {
   EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
 
@@ -886,6 +768,116 @@ bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
   }
 
   return bResult;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezGALRenderCommandEncoder::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
+{
+  AssertRenderingThread();
+
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
+  /// (0, 1, 2, ..)
+
+  DrawPlatform(uiVertexCount, uiStartVertex);
+
+  CountDrawCall();
+}
+
+void ezGALRenderCommandEncoder::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
+{
+  AssertRenderingThread();
+
+  DrawIndexedPlatform(uiIndexCount, uiStartIndex);
+
+  CountDrawCall();
+}
+
+void ezGALRenderCommandEncoder::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
+{
+  AssertRenderingThread();
+  /// \todo Assert for instancing
+
+  DrawIndexedInstancedPlatform(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex);
+
+  CountDrawCall();
+}
+
+void ezGALRenderCommandEncoder::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  AssertRenderingThread();
+  /// \todo Assert for instancing
+  /// \todo Assert for indirect draw
+  /// \todo Assert offset < buffer size
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+
+  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
+  DrawIndexedInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
+
+  CountDrawCall();
+}
+
+void ezGALRenderCommandEncoder::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
+{
+  AssertRenderingThread();
+  /// \todo Assert for instancing
+
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
+  /// (0, 1, 2, ..)
+
+  DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
+
+  CountDrawCall();
+}
+
+void ezGALRenderCommandEncoder::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  AssertRenderingThread();
+  /// \todo Assert for instancing
+  /// \todo Assert for indirect draw
+  /// \todo Assert offset < buffer size
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+
+  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
+  DrawInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
+
+  CountDrawCall();
+}
+
+void ezGALRenderCommandEncoder::DrawAuto()
+{
+  AssertRenderingThread();
+  /// \todo Assert for draw auto support
+
+  DrawAutoPlatform();
+
+  CountDrawCall();
+}
+
+void ezGALRenderCommandEncoder::BeginStreamOut()
+{
+  AssertRenderingThread();
+  /// \todo Assert for streamout support
+
+  BeginStreamOutPlatform();
+}
+
+void ezGALRenderCommandEncoder::EndStreamOut()
+{
+  AssertRenderingThread();
+
+  EndStreamOutPlatform();
+}
+
+void ezGALRenderCommandEncoder::ClearStatisticsCounters()
+{
+  ezGALCommandEncoder::ClearStatisticsCounters();
+
+  m_uiDrawCalls = 0;
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Context_Implementation_Context);

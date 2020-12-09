@@ -28,7 +28,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Texture/Image/ImageConversion.h>
 
@@ -300,19 +300,16 @@ public:
       // Before starting to render in a frame call this function
       m_pDevice->BeginFrame();
 
-      // The ezGALContext class is the main interaction point for draw / compute operations
-      ezGALContext* pContext = m_pDevice->GetPrimaryContext();
+      ezGALPass* pGALPass = m_pDevice->BeginPass("ezTextureSampleMainPass");
 
+      ezGALRenderingSetup renderingSetup;
+      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
+      renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
-      ezGALRenderTargetSetup RTS;
-      RTS.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
+      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, std::move(renderingSetup), "", ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
 
-      pContext->SetRenderTargetSetup(RTS);
-      pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight), 0.0f, 1.0f);
-      pContext->Clear(ezColor::Black);
-
-      pContext->SetRasterizerState(m_hRasterizerState);
-      pContext->SetDepthStencilState(m_hDepthStencilState);
+      pCommandEncoder->SetRasterizerState(m_hRasterizerState);
+      pCommandEncoder->SetDepthStencilState(m_hDepthStencilState);
 
       ezMat4 Proj =
         ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
@@ -361,6 +358,9 @@ public:
           ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
         }
       }
+
+      ezRenderContext::GetDefaultInstance()->EndRendering();
+      m_pDevice->EndPass(pGALPass);
 
       m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
 

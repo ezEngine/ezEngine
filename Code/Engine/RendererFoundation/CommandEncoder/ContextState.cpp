@@ -1,6 +1,6 @@
 #include <RendererFoundationPCH.h>
 
-#include <RendererFoundation/Context/ContextState.h>
+#include <RendererFoundation/CommandEncoder/ContextState.h>
 
 void ezGALContextState::Invalidate()
 {

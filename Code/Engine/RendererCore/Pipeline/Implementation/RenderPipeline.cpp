@@ -953,8 +953,9 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
-
+  //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
+  EZ_PROFILE_SCOPE(m_sName.GetData());
+  
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
   if (m_PipelineState == PipelineState::RebuildError)
   {
@@ -1001,10 +1002,14 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   gc.Exposure = pCamera->GetExposure();
   gc.RenderPass = ezViewRenderMode::GetRenderPassForShader(pViewData->m_ViewRenderMode);
 
+  ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(m_sName);
+  EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndPass(pGALPass));
+
   ezRenderViewContext renderViewContext;
   renderViewContext.m_pCamera = pCamera;
   renderViewContext.m_pViewData = pViewData;
   renderViewContext.m_pRenderContext = pRenderContext;
+  renderViewContext.m_pGALPass = pGALPass;
   renderViewContext.m_pWorldDebugContext = &data.GetWorldDebugContext();
   renderViewContext.m_pViewDebugContext = &data.GetViewDebugContext();
 
@@ -1058,7 +1063,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
     // Execute pass block
     {
-      EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_sName.GetData());
+      //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_sName.GetData());
 
       ConnectionData& connectionData = m_Connections[pPass.Borrow()];
       if (pPass->m_bActive)
