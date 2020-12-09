@@ -232,7 +232,7 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
   {
     if (info.type_description->op == SpvOp::SpvOpTypeStruct)
     {
-      binding.m_Type = ezShaderResourceBinding::RWStructuredBuffer;
+      binding.m_Type = ezShaderResourceBinding::UAV;
       return EZ_SUCCESS;
     }
   }
@@ -323,7 +323,6 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
       }
 
       case SpvDim::SpvDimBuffer:
-        // not sure whether this is correct, and also why we would need this distinction, at all
         binding.m_Type = ezShaderResourceBinding::GenericBuffer;
         return EZ_SUCCESS;
     }
@@ -345,8 +344,7 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
   {
     if (info.image.dim == SpvDim::SpvDimBuffer)
     {
-      // not sure whether this is correct, and also why we would need this distinction, at all
-      binding.m_Type = ezShaderResourceBinding::RWRawBuffer;
+      binding.m_Type = ezShaderResourceBinding::UAV;
       return EZ_SUCCESS;
     }
 
@@ -362,48 +360,15 @@ ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderStageBinary& shader
 {
   if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE)
   {
-    if (info.image.ms > 0)
-    {
-      ezLog::Error("Resource '{}': Multi-sampled UAVs are not supported.", info.name);
-      return EZ_FAILURE;
-    }
-
-    switch (info.image.dim)
-    {
-      case SpvDim::SpvDim1D:
-      {
-        if (info.image.arrayed > 0)
-        {
-          binding.m_Type = ezShaderResourceBinding::RWTexture1DArray;
-        }
-        else
-        {
-          binding.m_Type = ezShaderResourceBinding::RWTexture1D;
-        }
-        return EZ_SUCCESS;
-      }
-
-      case SpvDim::SpvDim2D:
-      {
-        if (info.image.arrayed > 0)
-        {
-          binding.m_Type = ezShaderResourceBinding::RWTexture2DArray;
-        }
-        else
-        {
-          binding.m_Type = ezShaderResourceBinding::RWTexture2D;
-        }
-        return EZ_SUCCESS;
-      }
-    }
+    binding.m_Type = ezShaderResourceBinding::UAV;
+    return EZ_SUCCESS;
   }
 
   if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)
   {
     if (info.image.dim == SpvDim::SpvDimBuffer)
     {
-      // not sure whether this is correct, and also why we would need this distinction, at all
-      binding.m_Type = ezShaderResourceBinding::RWBuffer;
+      binding.m_Type = ezShaderResourceBinding::UAV;
       return EZ_SUCCESS;
     }
 

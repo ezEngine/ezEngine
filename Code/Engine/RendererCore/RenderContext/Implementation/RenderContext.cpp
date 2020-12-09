@@ -1117,7 +1117,7 @@ void ezRenderContext::ApplyUAVBindings(const ezShaderStageBinary* pBinary)
 {
   for (const auto& binding : pBinary->m_ShaderResourceBindings)
   {
-    if (binding.m_Type < ezShaderResourceBinding::RWTexture1D || binding.m_Type > ezShaderResourceBinding::RWStructuredBufferWithCounter)
+    if (binding.m_Type != ezShaderResourceBinding::UAV)
       continue;
 
     const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
