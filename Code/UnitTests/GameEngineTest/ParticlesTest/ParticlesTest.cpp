@@ -163,7 +163,7 @@ void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szF
 
 ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)

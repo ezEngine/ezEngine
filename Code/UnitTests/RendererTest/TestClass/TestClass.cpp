@@ -106,9 +106,13 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   {
     m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
 
-    ezShaderManager::Configure("DX11_SM40", true);
-
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+    ezShaderManager::Configure("VULKAN", true);
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+#else
+    ezShaderManager::Configure("DX11_SM50", true);
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
+#endif
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Default.ezShader");
 

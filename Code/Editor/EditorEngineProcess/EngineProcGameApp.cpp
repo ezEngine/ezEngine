@@ -107,7 +107,7 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
+ezApplication::Execution ezEngineProcessGameApplication::Run()
 {
   ezRenderWorld::ClearMainViews();
 

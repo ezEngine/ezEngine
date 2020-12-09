@@ -1,5 +1,4 @@
-if (TARGET Player AND TARGET OpenXRPlugin)
-
-    add_dependencies(Player OpenXRPlugin)
-
+if (TARGET OpenXRPlugin)
+	# Make sure this project is built when the Editor is built
+	ez_add_as_runtime_dependency(OpenXRPlugin)
 endif()

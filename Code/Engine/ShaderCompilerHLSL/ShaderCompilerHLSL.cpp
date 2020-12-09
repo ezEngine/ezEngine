@@ -1,15 +1,14 @@
 #include <ShaderCompilerHLSL/ShaderCompilerHLSL.h>
 #include <d3dcompiler.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, 1, ezRTTIDefaultAllocator<ezShaderCompilerHLSL>)
-  ;
-// no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPlugin g_Plugin(false);
 
-ezResult CompileDXShader(
-  const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
+ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
   out_ByteCode.Clear();
 
@@ -28,17 +27,14 @@ ezResult CompileDXShader(
     szCompileSource = sDebugSource;
   }
 
-  if (FAILED(D3DCompile(
-        szCompileSource, strlen(szCompileSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)))
+  if (FAILED(D3DCompile(szCompileSource, strlen(szCompileSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)))
   {
     if (bDebug)
     {
       // Try again with '#line' intact to get correct error messages with file and line info.
       pErrorBlob->Release();
       pErrorBlob = nullptr;
-      EZ_VERIFY(
-        FAILED(D3DCompile(szSource, strlen(szSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)),
-        "Debug compilation with commented out '#line' failed but original version did not.");
+      EZ_VERIFY(FAILED(D3DCompile(szSource, strlen(szSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)), "Debug compilation with commented out '#line' failed but original version did not.");
     }
 
     const char* szError = static_cast<const char*>(pErrorBlob->GetBufferPointer());
@@ -140,20 +136,12 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       switch (shaderInputBindDesc.Dimension)
       {
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture1D;
-          break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture1DArray;
-          break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2D;
-          break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2DArray;
-          break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::RWBuffer;
+          shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
           break;
 
         default:
@@ -163,25 +151,24 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     }
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWStructuredBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWRawBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWAppendBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWConsumeBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWStructuredBufferWithCounter;
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_CBUFFER)
     {
       shaderResourceBinding.m_Type = ezShaderResourceBinding::ConstantBuffer;
-      shaderResourceBinding.m_pLayout =
-        ReflectConstantBufferLayout(inout_Data.m_StageBinary[Stage], pReflector->GetConstantBufferByName(shaderInputBindDesc.Name));
+      shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(inout_Data.m_StageBinary[Stage], pReflector->GetConstantBufferByName(shaderInputBindDesc.Name));
     }
     else if (shaderInputBindDesc.Type == D3D_SIT_SAMPLER)
     {
@@ -207,8 +194,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
   pReflector->Release();
 }
 
-ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
-  ezShaderStageBinary& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection)
+ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(ezShaderStageBinary& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection)
 {
   D3D11_SHADER_BUFFER_DESC shaderBufferDesc;
 
@@ -246,16 +232,13 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
       switch (std.Type)
       {
         case D3D_SVT_FLOAT:
-          constant.m_Type =
-            (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Float1 + std.Columns - 1);
+          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Float1 + std.Columns - 1);
           break;
         case D3D_SVT_INT:
-          constant.m_Type =
-            (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Int1 + std.Columns - 1);
+          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Int1 + std.Columns - 1);
           break;
         case D3D_SVT_UINT:
-          constant.m_Type =
-            (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::UInt1 + std.Columns - 1);
+          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::UInt1 + std.Columns - 1);
           break;
         case D3D_SVT_BOOL:
           if (std.Columns == 1)
@@ -402,9 +385,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
 
     if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
     {
-      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug),
-            GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode())
-            .Succeeded())
+      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
         ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage);
       }

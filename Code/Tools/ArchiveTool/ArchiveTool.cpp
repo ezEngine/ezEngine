@@ -311,12 +311,12 @@ public:
     return EZ_SUCCESS;
   }
 
-  virtual ApplicationExecution Run() override
+  virtual Execution Run() override
   {
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     if (m_Mode == ArchiveMode::Pack)
@@ -327,7 +327,7 @@ public:
         SetReturnCode(2);
       }
 
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     if (m_Mode == ArchiveMode::Unpack)
@@ -338,11 +338,11 @@ public:
         SetReturnCode(3);
       }
 
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     ezLog::Error("Unknown mode");
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 };
 

@@ -45,12 +45,12 @@ ezShaderExplorerApp::ezShaderExplorerApp()
 {
 }
 
-ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
+ezApplication::Execution ezShaderExplorerApp::Run()
 {
   m_pWindow->ProcessWindowMessages();
 
   if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
-    return ApplicationExecution::Quit;
+    return Execution::Quit;
 
   // make sure time goes on
   ezClock::GetGlobalClock()->Update();
@@ -178,7 +178,7 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
   // uploading GPU data etc.
   ezTaskSystem::FinishFrameTasks();
 
-  return ezApplication::Continue;
+  return ezApplication::Execution::Continue;
 }
 
 void ezShaderExplorerApp::AfterCoreSystemsStartup()
@@ -208,7 +208,13 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+  ezShaderManager::Configure("VULKAN", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+#else
+  ezShaderManager::Configure("DX11_SM50", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
+#endif
 
   // Register Input
   {
@@ -335,8 +341,6 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   // Setup Shaders and Materials
   {
-    ezShaderManager::Configure("DX11_SM40", true);
-
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/screen.ezMaterial");
 
     // Create the mesh that we use for rendering

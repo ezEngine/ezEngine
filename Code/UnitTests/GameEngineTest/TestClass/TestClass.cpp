@@ -48,7 +48,7 @@ ezResult ezGameEngineTest::DeInitializeTest()
     m_pApplication->RequestQuit();
 
     ezInt32 iSteps = 2;
-    while (m_pApplication->Run() == ezApplication::Continue && iSteps > 0)
+    while (m_pApplication->Run() == ezApplication::Execution::Continue && iSteps > 0)
     {
       --iSteps;
     }

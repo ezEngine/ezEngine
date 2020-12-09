@@ -26,7 +26,7 @@ public:
 
   virtual void BeforeCoreSystemsShutdown() override;
 
-  virtual ezApplication::ApplicationExecution Run() override;
+  virtual ezApplication::Execution Run() override;
 
   void LogWriter(const ezLoggingEventData& e);
 

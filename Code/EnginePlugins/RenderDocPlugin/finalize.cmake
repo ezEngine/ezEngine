@@ -1,6 +1,2 @@
-if (TARGET Editor AND TARGET RenderDocPlugin)
-
-    # Make sure this project is built when the Editor is built
-    add_dependencies(Editor RenderDocPlugin)
-
-endif()
+# Make sure this project is built when the Editor is built
+ez_add_as_runtime_dependency(RenderDocPlugin)

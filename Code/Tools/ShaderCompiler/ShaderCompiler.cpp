@@ -1,5 +1,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -26,10 +27,12 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   m_sShaderFiles = cmd->GetStringOption("-shader", 0, "");
   EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "Shader file has not been specified. Use the -shader command followed by a path");
 
-  m_sAppProjectPath = cmd->GetStringOption("-project", 0, "");
+  m_sAppProjectPath = cmd->GetAbsolutePathOption("-project", 0, "");
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "Project directory has not been specified. Use the -project command followed by a path");
 
   m_sPlatforms = cmd->GetStringOption("-platform", 0, "");
+
+  m_bIgnoreErrors = cmd->GetBoolOption("-IgnoreErrors", false);
 
   if (m_sPlatforms.IsEmpty())
     m_sPlatforms = "DX11_SM50"; // "ALL";
@@ -71,7 +74,13 @@ void ezShaderCompilerApplication::AfterCoreSystemsStartup()
 
 void ezShaderCompilerApplication::Init_LoadRequiredPlugins()
 {
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+  ezShaderManager::Configure("VULKAN", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+#else
+  ezShaderManager::Configure("DX11_SM50", true);
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
+#endif
 }
 
 ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)
@@ -128,7 +137,7 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* sz
   {
     for (const auto& s : permVars)
     {
-      ezHybridArray<ezHashedString, 4> values;
+      ezHybridArray<ezHashedString, 16> values;
       ezShaderManager::GetPermutationValues(s, values);
 
       for (const auto& val : values)
@@ -174,11 +183,13 @@ void ezShaderCompilerApplication::PrintConfig()
   ezLog::Info("Platform: '{0}'", m_sPlatforms);
 }
 
-ezApplication::ApplicationExecution ezShaderCompilerApplication::Run()
+ezApplication::Execution ezShaderCompilerApplication::Run()
 {
   PrintConfig();
 
   ezStringBuilder files = m_sShaderFiles;
+
+  ezDynamicArray<ezString> shadersToCompile;
 
   ezDynamicArray<ezStringView> allFiles;
   files.Split(false, allFiles, ";");
@@ -188,16 +199,55 @@ ezApplication::ApplicationExecution ezShaderCompilerApplication::Run()
     ezStringBuilder file = shader;
     ezStringBuilder relPath;
 
-    if (ezFileSystem::ResolvePath(file, nullptr, &relPath).Failed())
+    if (ezFileSystem::ResolvePath(file, nullptr, &relPath).Succeeded())
     {
-      ezLog::Error("Could not resolve path to shader '{0}'", file);
+      shadersToCompile.PushBack(relPath);
     }
+    else
+    {
+      if (ezPathUtils::IsRelativePath(file))
+      {
+        file.Prepend(m_sAppProjectPath, "/");
+      }
 
-    if (CompileShader(relPath).Failed())
-      return ezApplication::ApplicationExecution::Quit;
+      file.TrimWordEnd("*");
+      file.MakeCleanPath();
+
+      if (ezOSFile::ExistsDirectory(file))
+      {
+        ezFileSystemIterator fsIt;
+        for (fsIt.StartSearch(file, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
+        {
+          if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
+          {
+            fsIt.GetStats().GetFullPath(relPath);
+
+            if (relPath.MakeRelativeTo(m_sAppProjectPath).Succeeded())
+            {
+              shadersToCompile.PushBack(relPath);
+            }
+          }
+        }
+      }
+      else
+      {
+        ezLog::Error("Could not resolve path to shader '{0}'", file);
+      }
+    }
   }
 
-  return ezApplication::ApplicationExecution::Quit;
+  for (const auto& shader : shadersToCompile)
+  {
+    if (CompileShader(shader).Failed())
+    {
+      if (!m_bIgnoreErrors)
+      {
+        return ezApplication::Execution::Quit;
+      }
+    }
+  }
+
+  return ezApplication::Execution::Quit;
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);

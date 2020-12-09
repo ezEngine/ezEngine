@@ -70,13 +70,10 @@ namespace
         const char* szName = var.m_sName.GetData();
         auto enumValues = ezShaderManager::GetPermutationEnumValues(var.m_sName);
 
-        for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
+        for (const auto& ev : enumValues)
         {
-          if (!enumValues[i].IsEmpty())
-          {
-            sTemp.Format("{1} {2}", szName, enumValues[i], i);
-            out_Defines.PushBack(sTemp);
-          }
+          sTemp.Format("{1} {2}", szName, ev.m_sValueName, ev.m_iValueValue);
+          out_Defines.PushBack(sTemp);
         }
 
         if (ezStringUtils::StartsWith(szValue, szName))

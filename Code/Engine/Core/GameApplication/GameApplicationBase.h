@@ -246,7 +246,7 @@ protected:
   ///@{
 
 public:
-  virtual ezApplication::ApplicationExecution Run() override;
+  virtual ezApplication::Execution Run() override;
 
   ezCopyOnBroadcastEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
 

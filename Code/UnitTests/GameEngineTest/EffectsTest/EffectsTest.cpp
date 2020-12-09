@@ -48,7 +48,7 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
 {
   ++m_iFrame;
 
-  if (m_pOwnApplication->Run() == ezApplication::Quit)
+  if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_iImgCompIdx] == m_iFrame)

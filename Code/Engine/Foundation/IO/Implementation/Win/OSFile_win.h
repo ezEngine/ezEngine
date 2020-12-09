@@ -80,6 +80,12 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
 
     if (res.Failed())
     {
+      if (ezOSFile::ExistsDirectory(szFile))
+      {
+        // trying to 'open' a directory fails with little useful error codes such as 'access denied'
+        return EZ_FAILURE;
+      }
+
       error = GetLastError();
 
       // file does not exist

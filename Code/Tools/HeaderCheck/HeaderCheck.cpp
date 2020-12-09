@@ -543,15 +543,15 @@ public:
     }
   }
 
-  virtual ezApplication::ApplicationExecution Run() override
+  virtual ezApplication::Execution Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
 
     IterateOverFiles();
 
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 };
 

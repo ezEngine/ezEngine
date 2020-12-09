@@ -15,6 +15,7 @@ include("ezUtilsTargetCS")
 include("ezUtilsVcpkg")
 include("ezUtilsSubmodule")
 include("ezUtilsVulkan")
+include("ezUtilsDependency")
 
 ######################################
 ### ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
@@ -165,6 +166,10 @@ function(ez_set_common_target_definitions TARGET_NAME)
 	# set the BUILDSYSTEM_BUILDING_XYZ_LIB definition
 	string(TOUPPER ${TARGET_NAME} PROJECT_NAME_UPPER)
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
+	
+	if (EZ_BUILD_EXPERIMENTAL_VULKAN)
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
+	endif()
 
 endfunction()
 
@@ -393,6 +398,16 @@ endmacro()
 macro(ez_requires_windows)
 
     ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
+
+endmacro()
+
+######################################
+### ez_requires_windows_desktop()
+######################################
+
+macro(ez_requires_windows_desktop)
+
+    ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 
 endmacro()
 

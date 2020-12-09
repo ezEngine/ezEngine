@@ -292,17 +292,11 @@ namespace
           ezLog::Error("Enum value does not start with the expected enum name as prefix: '{0}'", sEnumPrefix);
         }
 
-        out_EnumDefinition.m_Values.EnsureCount(uiCurrentValue + 1);
+        auto& ev = out_EnumDefinition.m_Values.ExpandAndGetRef();
 
-        if (ezStringUtils::IsNullOrEmpty(out_EnumDefinition.m_Values[uiCurrentValue].GetData()))
-        {
-          const ezStringBuilder sFinalName = sValueName;
-          out_EnumDefinition.m_Values[uiCurrentValue].Assign(sFinalName.GetData());
-        }
-        else
-        {
-          ezLog::Error("A enum value with '{0}' already exists: '{1}'", uiCurrentValue, out_EnumDefinition.m_Values[uiCurrentValue]);
-        }
+        const ezStringBuilder sFinalName = sValueName;
+        ev.m_sValueName.Assign(sFinalName.GetData());
+        ev.m_iValueValue = static_cast<ezInt32>(uiCurrentValue);
       }
 
       if (Accept(Tokens, uiCurToken, ","))
@@ -313,15 +307,20 @@ namespace
       {
         break;
       }
-    }
 
-    out_EnumDefinition.m_uiDefaultValue = uiDefaultValue;
+      if (Accept(Tokens, uiCurToken, "}"))
+        goto after_braces;
+    }
 
     if (!Accept(Tokens, uiCurToken, "}"))
     {
       ezLog::Error("Closing bracket expected for enum definition.");
       return EZ_FAILURE;
     }
+
+  after_braces:
+
+    out_EnumDefinition.m_uiDefaultValue = uiDefaultValue;
 
     Accept(Tokens, uiCurToken, ";");
 
@@ -362,6 +361,8 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
     EnumDefinition enumDef;
     if (ParseEnum(tokens, uiCurToken, enumDef, false).Succeeded())
     {
+      EZ_ASSERT_DEV(!enumDef.m_sName.IsEmpty(), "");
+
       out_EnumDefinitions.PushBack(std::move(enumDef));
       continue;
     }
@@ -501,9 +502,16 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
     tokenizer.GetAllLines(tokens);
 
     ezUInt32 uiCurToken = 0;
-    ParseEnum(tokens, uiCurToken, out_EnumDefinition, true).IgnoreResult();
+    if (ParseEnum(tokens, uiCurToken, out_EnumDefinition, true).Failed())
+    {
+      ezLog::Error("Invalid enum PermutationVar definition.");
+    }
+    else
+    {
+      EZ_ASSERT_DEV(!out_EnumDefinition.m_sName.IsEmpty(), "");
 
-    out_DefaultValue = out_EnumDefinition.m_uiDefaultValue;
+      out_DefaultValue = out_EnumDefinition.m_uiDefaultValue;
+    }
   }
   else
   {

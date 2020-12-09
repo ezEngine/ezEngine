@@ -38,6 +38,7 @@ public:
         Mat4x4,
         Transform,
         Bool,
+        Struct,
         ENUM_COUNT
       };
     };
@@ -79,33 +80,22 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
 
   enum ResourceType
   {
-    Unknown,
+    Unknown = 0,
 
-    Texture1D,
-    Texture1DArray,
-    Texture2D,
-    Texture2DArray,
-    Texture2DMS,
-    Texture2DMSArray,
-    Texture3D,
-    TextureCube,
-    TextureCubeArray,
+    Texture1D = 1,
+    Texture1DArray = 2,
+    Texture2D = 3,
+    Texture2DArray = 4,
+    Texture2DMS = 5,
+    Texture2DMSArray = 6,
+    Texture3D = 7,
+    TextureCube = 8,
+    TextureCubeArray = 9,
 
-    RWTexture1D,
-    RWTexture1DArray,
-    RWTexture2D,
-    RWTexture2DArray,
-
-    RWBuffer,
-    RWStructuredBuffer,
-    RWRawBuffer,
-    RWAppendBuffer,
-    RWConsumeBuffer,
-    RWStructuredBufferWithCounter,
-
-    ConstantBuffer,
-    GenericBuffer, ///< A read only (structured) buffer
-    Sampler
+    UAV = 10,            ///< RW textures and buffers
+    ConstantBuffer = 20, ///< Constant buffers
+    GenericBuffer = 21,  ///< Read only (structured) buffers
+    Sampler = 22,        ///< Separate sampler states
   };
 
   ezShaderResourceBinding();

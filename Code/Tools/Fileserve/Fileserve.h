@@ -28,7 +28,7 @@ public:
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
-  virtual ezApplication::ApplicationExecution Run() override;
+  virtual ezApplication::Execution Run() override;
   void FileserverEventHandlerConsole(const ezFileserverEvent& e);
   void FileserverEventHandler(const ezFileserverEvent& e);
 
