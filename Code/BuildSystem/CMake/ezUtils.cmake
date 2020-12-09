@@ -402,6 +402,16 @@ macro(ez_requires_windows)
 endmacro()
 
 ######################################
+### ez_requires_windows_desktop()
+######################################
+
+macro(ez_requires_windows_desktop)
+
+    ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+
+endmacro()
+
+######################################
 ### ez_requires_editor()
 ######################################
 

@@ -46,7 +46,7 @@ void ezAndroidApplication::AndroidRun()
 
       HandleIdent(iIdent);
     }
-    if (bRun && m_pEzApp->Run() != ezApplication::Continue)
+    if (bRun && m_pEzApp->Run() != ezApplication::Execution::Continue)
     {
       bRun = false;
       ANativeActivity_finish(m_pApp->activity);

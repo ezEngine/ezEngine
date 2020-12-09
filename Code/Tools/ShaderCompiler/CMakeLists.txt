@@ -1,5 +1,6 @@
 ez_cmake_init()
 
+ez_requires_windows_desktop()
 ez_requires_d3d()
 
 # Get the name of this folder as the project name
