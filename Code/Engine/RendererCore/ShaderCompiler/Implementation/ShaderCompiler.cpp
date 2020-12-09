@@ -73,8 +73,8 @@ namespace
         for (const auto& ev : enumValues)
         {
           sTemp.Format("{1} {2}", szName, ev.m_sValueName, ev.m_iValueValue);
-            out_Defines.PushBack(sTemp);
-          }
+          out_Defines.PushBack(sTemp);
+        }
 
         if (ezStringUtils::StartsWith(szValue, szName))
         {
