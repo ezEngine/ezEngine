@@ -54,14 +54,14 @@ public:
   ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, ezGALRenderingSetup&& renderingSetup, const char* szName, const ezRectFloat& viewport);
   void EndRendering();
 
-  static ezGALRenderCommandEncoder* BeginRendering(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName);
-  static void EndRendering(const ezRenderViewContext& viewContext);
+  static ezGALRenderCommandEncoder* BeginPassAndRendering(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName);
+  static void EndPassAndRendering(const ezRenderViewContext& viewContext);
 
   ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName);
   void EndCompute();
 
-  static ezGALComputeCommandEncoder* BeginCompute(const ezRenderViewContext& viewContext, const char* szName);
-  static void EndCompute(const ezRenderViewContext& viewContext);
+  static ezGALComputeCommandEncoder* BeginPassAndCompute(const ezRenderViewContext& viewContext, const char* szName);
+  static void EndPassAndCompute(const ezRenderViewContext& viewContext);
 
   // Helper class to automatically end rendering or compute on scope exit
   template <typename T>
@@ -70,7 +70,13 @@ public:
     EZ_DISALLOW_COPY_AND_ASSIGN(CommandEncoderScope);
 
   public:
+    EZ_ALWAYS_INLINE ~CommandEncoderScope()
+    {
+      m_RenderContext.EndCommandEncoder(m_pGALCommandEncoder);
+    }
+
     EZ_ALWAYS_INLINE T* operator->() { return m_pGALCommandEncoder; }
+    EZ_ALWAYS_INLINE operator const T*() { return m_pGALCommandEncoder; }
 
   private:
     friend class ezRenderContext;
@@ -81,25 +87,20 @@ public:
     {
     }
 
-    EZ_ALWAYS_INLINE ~CommandEncoderScope()
-    {
-      m_RenderContext.EndCommandEncoder(m_pGALCommandEncoder);
-    }
-
     ezRenderContext& m_RenderContext;
     T* m_pGALCommandEncoder;
   };
 
   using RenderingScope = CommandEncoderScope<ezGALRenderCommandEncoder>;
-  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
+  EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
   {
-    return RenderingScope(*viewContext.m_pRenderContext, BeginRendering(viewContext, std::move(renderingSetup), szName));
+    return RenderingScope(*viewContext.m_pRenderContext, BeginPassAndRendering(viewContext, std::move(renderingSetup), szName));
   }
 
   using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
-  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(const ezRenderViewContext& viewContext, const char* szName)
+  EZ_ALWAYS_INLINE static ComputeScope BeginPassAndComputeScope(const ezRenderViewContext& viewContext, const char* szName)
   {
-    return ComputeScope(*viewContext.m_pRenderContext, BeginCompute(viewContext, szName));
+    return ComputeScope(*viewContext.m_pRenderContext, BeginPassAndCompute(viewContext, szName));
   }
 
   EZ_ALWAYS_INLINE ezGALCommandEncoder* GetCommandEncoder()
@@ -329,6 +330,7 @@ private: // Per Renderer States
   EZ_ALWAYS_INLINE void EndCommandEncoder(ezGALRenderCommandEncoder*) { EndRendering(); }
   EZ_ALWAYS_INLINE void EndCommandEncoder(ezGALComputeCommandEncoder*) { EndCompute(); }
 
+  ezGALPass* m_pGALPass = nullptr;
   ezGALCommandEncoder* m_pGALCommandEncoder = nullptr;
   bool m_bCompute = false;
 

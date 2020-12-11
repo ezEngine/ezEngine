@@ -14,7 +14,6 @@ class ezRenderData;
 class ezRenderDataBatch;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
-class ezGALContext;
 class ezRenderContext;
 class ezDebugRendererContext;
 
@@ -53,7 +52,6 @@ struct ezRenderViewContext
   const ezCamera* m_pCamera;
   const ezViewData* m_pViewData;
   ezRenderContext* m_pRenderContext;
-  ezGALPass* m_pGALPass;
 
   const ezDebugRendererContext* m_pWorldDebugContext;
   const ezDebugRendererContext* m_pViewDebugContext;

@@ -29,8 +29,7 @@ ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
 
 ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() {}
 
-bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   if (!SUPER::GetRenderTargetDescriptions(view, inputs, outputs))
   {
@@ -54,8 +53,7 @@ bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezOpaqueForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezOpaqueForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   SUPER::SetupResources(renderViewContext, inputs, outputs);
 

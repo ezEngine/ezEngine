@@ -85,7 +85,7 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, c
   renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
   // Bind render target and viewport
-  auto commandEncoderScope = ezRenderContext::BeginRendering(renderViewContext, std::move(renderingSetup), GetName());
+  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName());
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MSAA_SAMPLES", m_sMsaaSampleCount);
 

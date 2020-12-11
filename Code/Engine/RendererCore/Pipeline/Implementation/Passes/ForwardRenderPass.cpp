@@ -71,7 +71,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   RenderObjects(renderViewContext);
 
-  ezRenderContext::EndRendering(renderViewContext);
+  ezRenderContext::EndPassAndRendering(renderViewContext);
 }
 
 void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
@@ -90,7 +90,7 @@ void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewCo
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  ezRenderContext::BeginRendering(renderViewContext, std::move(renderingSetup), GetName());
+  ezRenderContext::BeginPassAndRendering(renderViewContext, std::move(renderingSetup), GetName());
 }
 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)

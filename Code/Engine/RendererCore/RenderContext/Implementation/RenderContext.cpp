@@ -157,20 +157,31 @@ ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, 
   gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
   gc.NumMsaaSamples = msaaSampleCount;
 
-  auto pCommandEncoder = pGALPass->BeginRendering(std::move(renderingSetup), szName);
+  auto pGALCommandEncoder = pGALPass->BeginRendering(std::move(renderingSetup), szName);
 
-  pCommandEncoder->SetViewport(viewport);
+  pGALCommandEncoder->SetViewport(viewport);
 
-  m_pGALCommandEncoder = pCommandEncoder;
+  m_pGALPass = pGALPass;
+  m_pGALCommandEncoder = pGALCommandEncoder;
   m_bCompute = false;
 
-  return pCommandEncoder;
+  return pGALCommandEncoder;
+}
+
+void ezRenderContext::EndRendering()
+{
+  m_pGALPass->EndRendering(GetRenderCommandEncoder());
+
+  m_pGALPass = nullptr;
+  m_pGALCommandEncoder = nullptr;
 }
 
 //static
-ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
+ezGALRenderCommandEncoder* ezRenderContext::BeginPassAndRendering(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
 {
-  return viewContext.m_pRenderContext->BeginRendering(viewContext.m_pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect);  
+  ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
+
+  return viewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect);
 }
 
 void ezRenderContext::SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sTempValue)

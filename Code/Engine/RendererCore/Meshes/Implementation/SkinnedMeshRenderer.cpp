@@ -34,7 +34,7 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
 
     if (!pSkinnedRenderData->m_pNewSkinningMatricesData.IsEmpty())
     {
-      pContext->GetGALContext()->UpdateBuffer(pSkinnedRenderData->m_hSkinningMatrices, 0, pSkinnedRenderData->m_pNewSkinningMatricesData);
+      pContext->GetCommandEncoder()->UpdateBuffer(pSkinnedRenderData->m_hSkinningMatrices, 0, pSkinnedRenderData->m_pNewSkinningMatricesData);
     }
 
     pContext->BindBuffer("skinningMatrices", pDevice->GetDefaultResourceView(pSkinnedRenderData->m_hSkinningMatrices));

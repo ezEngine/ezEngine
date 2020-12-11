@@ -49,8 +49,7 @@ bool ezCopyTexturePass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -61,8 +60,7 @@ void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, co
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-
+  
   const ezGALTexture* pDest = pDevice->GetTexture(pOutput->m_TextureHandle);
   const ezGALTexture* pSource = pDevice->GetTexture(pInput->m_TextureHandle);
 
@@ -74,7 +72,9 @@ void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, co
   }
   else
   {
-    pGALContext->CopyTexture(pOutput->m_TextureHandle, pInput->m_TextureHandle);
+    auto pCommandEncoder = ezRenderContext::BeginPassAndComputeScope(renderViewContext, GetName());
+
+    pCommandEncoder->CopyTexture(pOutput->m_TextureHandle, pInput->m_TextureHandle);
   }
 }
 

@@ -103,9 +103,9 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   auto pIrradianceOutput = outputs[m_PinIrradianceData.m_uiOutputIndex];
   if (pIrradianceOutput != nullptr && !pIrradianceOutput->m_TextureHandle.IsInvalidated())
   {
-    EZ_PROFILE_AND_MARKER(pGALContext, "Irradiance");
+    auto pCommandEncoder = ezRenderContext::BeginPassAndComputeScope(renderViewContext, GetName());
 
-    pGALContext->SetRenderTargetSetup(ezGALRenderTargetSetup());
+    EZ_PROFILE_AND_MARKER(pCommandEncoder, "Irradiance");
 
     ezGALUnorderedAccessViewHandle hIrradianceOutput;
     {
