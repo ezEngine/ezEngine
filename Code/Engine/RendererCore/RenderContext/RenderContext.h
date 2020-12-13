@@ -6,18 +6,18 @@
 #include <Foundation/Strings/String.h>
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Shader/Shader.h>
-
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Textures/Texture3DResource.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
 
 struct ezRenderWorldRenderEvent;
 
@@ -54,14 +54,8 @@ public:
   ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, ezGALRenderingSetup&& renderingSetup, const char* szName, const ezRectFloat& viewport);
   void EndRendering();
 
-  static ezGALRenderCommandEncoder* BeginPassAndRendering(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName);
-  static void EndPassAndRendering(const ezRenderViewContext& viewContext);
-
   ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName);
   void EndCompute();
-
-  static ezGALComputeCommandEncoder* BeginPassAndCompute(const ezRenderViewContext& viewContext, const char* szName);
-  static void EndPassAndCompute(const ezRenderViewContext& viewContext);
 
   // Helper class to automatically end rendering or compute on scope exit
   template <typename T>
@@ -73,34 +67,56 @@ public:
     EZ_ALWAYS_INLINE ~CommandEncoderScope()
     {
       m_RenderContext.EndCommandEncoder(m_pGALCommandEncoder);
+
+      if (m_pGALPass != nullptr)
+      {
+        ezGALDevice::GetDefaultDevice()->EndPass(m_pGALPass);
+      }
     }
 
     EZ_ALWAYS_INLINE T* operator->() { return m_pGALCommandEncoder; }
-    EZ_ALWAYS_INLINE operator const T*() { return m_pGALCommandEncoder; }
+    EZ_ALWAYS_INLINE operator const T *() { return m_pGALCommandEncoder; }
 
   private:
     friend class ezRenderContext;
 
-    EZ_ALWAYS_INLINE CommandEncoderScope(ezRenderContext& renderContext, T* pGALCommandEncoder)
+    EZ_ALWAYS_INLINE CommandEncoderScope(ezRenderContext& renderContext, ezGALPass* pGALPass, T* pGALCommandEncoder)
       : m_RenderContext(renderContext)
+      , m_pGALPass(pGALPass)
       , m_pGALCommandEncoder(pGALCommandEncoder)
     {
     }
 
     ezRenderContext& m_RenderContext;
+    ezGALPass* m_pGALPass;
     T* m_pGALCommandEncoder;
   };
 
   using RenderingScope = CommandEncoderScope<ezGALRenderCommandEncoder>;
+  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
+  {
+    return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect));
+  }
+
   EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
   {
-    return RenderingScope(*viewContext.m_pRenderContext, BeginPassAndRendering(viewContext, std::move(renderingSetup), szName));
+    ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
+
+    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect));
+  }
+
+  using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
+  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const char* szName)
+  {
+    return ComputeScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginCompute(pGALPass, szName));
   }
 
   using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
   EZ_ALWAYS_INLINE static ComputeScope BeginPassAndComputeScope(const ezRenderViewContext& viewContext, const char* szName)
   {
-    return ComputeScope(*viewContext.m_pRenderContext, BeginPassAndCompute(viewContext, szName));
+    ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
+
+    return ComputeScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginCompute(pGALPass, szName));
   }
 
   EZ_ALWAYS_INLINE ezGALCommandEncoder* GetCommandEncoder()
@@ -120,7 +136,7 @@ public:
     EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr && m_bCompute, "BeginCompute has not been called");
     return static_cast<ezGALComputeCommandEncoder*>(m_pGALCommandEncoder);
   }
-  
+
 
   // Member Functions
   void SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sValue);

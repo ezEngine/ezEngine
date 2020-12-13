@@ -1059,8 +1059,6 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
     // Execute pass block
     {
-      //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_sName.GetData());
-
       ConnectionData& connectionData = m_Connections[pPass.Borrow()];
       if (pPass->m_bActive)
       {

@@ -73,39 +73,43 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
     return;
   }
 
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-  pGALContext->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
+  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
+  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
-  auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
-  if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
   {
-    ezUInt32 uiNumMipMaps = pInputCubemap->GetDescription().m_uiMipLevelCount;
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, ezGALRenderingSetup(), "MipMaps + Reflection");
 
-    ezBoundingBoxu32 srcBox;
-    srcBox.m_vMin = ezVec3U32(0);
-    srcBox.m_vMax = ezVec3U32(pInputCubemap->GetDescription().m_uiWidth, pInputCubemap->GetDescription().m_uiHeight, 1);
+    pCommandEncoder->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
 
-    for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
+    auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
+    if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
     {
-      for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
+      ezUInt32 uiNumMipMaps = pInputCubemap->GetDescription().m_uiMipLevelCount;
+
+      ezBoundingBoxu32 srcBox;
+      srcBox.m_vMin = ezVec3U32(0);
+      srcBox.m_vMax = ezVec3U32(pInputCubemap->GetDescription().m_uiWidth, pInputCubemap->GetDescription().m_uiHeight, 1);
+
+      for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
       {
-        ezGALTextureSubresource destSubResource{uiMipMapIndex, m_uiOutputIndex * 6 + uiFaceIndex};
-        ezGALTextureSubresource srcSubResource{uiMipMapIndex, uiFaceIndex};
+        for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
+        {
+          ezGALTextureSubresource destSubResource{uiMipMapIndex, m_uiOutputIndex * 6 + uiFaceIndex};
+          ezGALTextureSubresource srcSubResource{uiMipMapIndex, uiFaceIndex};
 
-        pGALContext->CopyTextureRegion(pFilteredSpecularOutput->m_TextureHandle, destSubResource, ezVec3U32(0), m_hInputCubemap, srcSubResource, srcBox);
+          pCommandEncoder->CopyTextureRegion(pFilteredSpecularOutput->m_TextureHandle, destSubResource, ezVec3U32(0), m_hInputCubemap, srcSubResource, srcBox);
+        }
+
+        srcBox.m_vMax.x >>= 1;
+        srcBox.m_vMax.y >>= 1;
       }
-
-      srcBox.m_vMax.x >>= 1;
-      srcBox.m_vMax.y >>= 1;
     }
   }
 
   auto pIrradianceOutput = outputs[m_PinIrradianceData.m_uiOutputIndex];
   if (pIrradianceOutput != nullptr && !pIrradianceOutput->m_TextureHandle.IsInvalidated())
   {
-    auto pCommandEncoder = ezRenderContext::BeginPassAndComputeScope(renderViewContext, GetName());
-
-    EZ_PROFILE_AND_MARKER(pCommandEncoder, "Irradiance");
+    auto pCommandEncoder = ezRenderContext::BeginComputeScope(pGALPass, renderViewContext, "Irradiance");
 
     ezGALUnorderedAccessViewHandle hIrradianceOutput;
     {

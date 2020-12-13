@@ -6,7 +6,6 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -81,9 +80,6 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-
-  pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
 
   ezGALTextureHandle hDepthTexture;
 
@@ -96,12 +92,12 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
     hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
 
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
+    renderingSetup.m_bClearDepth = true;
+    renderingSetup.m_bClearStencil = true;
 
-    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
-
-    pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0);
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName());
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
 
@@ -114,10 +110,10 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     constants->HighlightColor = m_HighlightColor;
     constants->OverlayOpacity = m_fOverlayOpacity;
 
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
-    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName());
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);

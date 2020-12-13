@@ -12,7 +12,6 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -726,17 +725,20 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   if (s_pData->m_hSkyIrradianceTexture.IsInvalidated())
     return;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = pDevice->GetPrimaryContext();
-
-  EZ_PROFILE_AND_MARKER(pGALContext, "Sky Irradiance Texture Update");
-
   EZ_LOCK(s_pData->m_Mutex);
 
   ezUInt64 uiWorldHasSkyLight = s_pData->m_uiWorldHasSkyLight;
   ezUInt64 uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
+  if (uiWorldHasSkyLight == 0 || uiSkyIrradianceChanged == 0)
+    return;
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  auto pGALPass = pDevice->BeginPass("Sky Irradiance Texture Update");
+  auto pGALCommandEncoder = pGALPass->BeginCompute();
+  EZ_SCOPE_EXIT(pGALPass->EndCompute(pGALCommandEncoder); pDevice->EndPass(pGALPass););
 
   for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
   {
@@ -750,7 +752,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
       memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
       memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
 
-      pGALContext->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+      pGALCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
 
       uiSkyIrradianceChanged &= ~EZ_BIT(i);
     }

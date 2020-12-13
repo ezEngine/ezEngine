@@ -4,7 +4,6 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
@@ -174,14 +173,6 @@ void ezRenderContext::EndRendering()
 
   m_pGALPass = nullptr;
   m_pGALCommandEncoder = nullptr;
-}
-
-//static
-ezGALRenderCommandEncoder* ezRenderContext::BeginPassAndRendering(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
-{
-  ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
-
-  return viewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect);
 }
 
 void ezRenderContext::SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sTempValue)

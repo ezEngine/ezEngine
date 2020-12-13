@@ -49,13 +49,12 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
   desc.m_uiMipLevelCount = 1;
 
   ezGALTextureHandle hSceneColor = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+  UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALResourceViewHandle colorResourceViewHandle = pDevice->GetDefaultResourceView(hSceneColor);
   renderViewContext.m_pRenderContext->BindTexture2D("SceneColor", colorResourceViewHandle);
   renderViewContext.m_pRenderContext->BindSamplerState("SceneColorSampler", m_hSceneColorSamplerState);
-
-  UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
 
   SetupResources(renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
@@ -66,10 +65,10 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
   ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hSceneColor);
 }
 
-void ezTransparentForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext,
+void ezTransparentForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SUPER::SetupResources(renderViewContext, inputs, outputs);
+  SUPER::SetupResources(pGALPass, renderViewContext, inputs, outputs);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 

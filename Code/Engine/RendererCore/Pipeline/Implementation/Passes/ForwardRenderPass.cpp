@@ -65,16 +65,21 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
 
 void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SetupResources(renderViewContext, inputs, outputs);
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
+  
+  SetupResources(pGALPass, renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
   SetupLighting(renderViewContext);
 
   RenderObjects(renderViewContext);
 
-  ezRenderContext::EndPassAndRendering(renderViewContext);
+  renderViewContext.m_pRenderContext->EndRendering();
+  pDevice->EndPass(pGALPass);
 }
 
-void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -90,7 +95,7 @@ void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewCo
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  ezRenderContext::BeginPassAndRendering(renderViewContext, std::move(renderingSetup), GetName());
+  renderViewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), GetName(), renderViewContext.m_pViewData->m_ViewPortRect);
 }
 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
