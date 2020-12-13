@@ -242,7 +242,7 @@ protected:
   virtual ezResult InitPlatform() = 0;
   virtual ezResult ShutdownPlatform() = 0;
 
-  // Pass & Command encoder functions
+  // Pass functions
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) = 0;
   virtual void EndPassPlatform(ezGALPass* pPass) = 0;
@@ -316,7 +316,8 @@ protected:
   /// \endcond
 
 private:
-  bool m_bFrameBeginCalled = false;
+  bool m_bBeginFrameCalled = false;
+  bool m_bBeginPassCalled = false;
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>

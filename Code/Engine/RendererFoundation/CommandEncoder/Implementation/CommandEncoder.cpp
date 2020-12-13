@@ -17,43 +17,12 @@ ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& device)
 
 ezGALCommandEncoder::~ezGALCommandEncoder() = default;
 
-void ezGALCommandEncoder::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
-{
-  AssertRenderingThread();
-
-  EZ_ASSERT_DEBUG(
-    uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
-
-  /// \todo Assert for compute
-
-  DispatchPlatform(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
-
-  CountDispatchCall();
-}
-
-void ezGALCommandEncoder::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
-{
-  AssertRenderingThread();
-  /// \todo Assert for compute
-  /// \todo Assert for indirect dispatch
-  /// \todo Assert offset < buffer size
-
-  const ezGALBuffer* pBuffer = m_Device.GetBuffer(hIndirectArgumentBuffer);
-  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
-
-  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
-  DispatchIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
-
-  CountDispatchCall();
-}
-
-
 void ezGALCommandEncoder::SetShader(ezGALShaderHandle hShader)
 {
   AssertRenderingThread();
   /// \todo Assert for shader capabilities (supported shader stages etc.)
 
-  if (m_State.m_hShader == hShader)
+  if (m_hShader == hShader)
   {
     CountRedundantStateChange();
     return;
@@ -64,80 +33,7 @@ void ezGALCommandEncoder::SetShader(ezGALShaderHandle hShader)
 
   SetShaderPlatform(pShader);
 
-  m_State.m_hShader = hShader;
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
-{
-  if (m_State.m_hIndexBuffer == hIndexBuffer)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  const ezGALBuffer* pBuffer = m_Device.GetBuffer(hIndexBuffer);
-  /// \todo Assert on index buffer type (if non nullptr)
-  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
-
-  SetIndexBufferPlatform(pBuffer);
-
-  m_State.m_hIndexBuffer = hIndexBuffer;
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer)
-{
-  if (m_State.m_hVertexBuffers[uiSlot] == hVertexBuffer)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  const ezGALBuffer* pBuffer = m_Device.GetBuffer(hVertexBuffer);
-  // Assert on vertex buffer type (if non-zero)
-  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
-
-  SetVertexBufferPlatform(uiSlot, pBuffer);
-
-  m_State.m_hVertexBuffers[uiSlot] = hVertexBuffer;
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum Topology)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_Topology == Topology)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  SetPrimitiveTopologyPlatform(Topology);
-
-  m_State.m_Topology = Topology;
-
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_hVertexDeclaration == hVertexDeclaration)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  const ezGALVertexDeclaration* pVertexDeclaration = m_Device.GetVertexDeclaration(hVertexDeclaration);
-  // Assert on vertex buffer type (if non-zero)
-
-  SetVertexDeclarationPlatform(pVertexDeclaration);
-
-  m_State.m_hVertexDeclaration = hVertexDeclaration;
-
+  m_hShader = hShader;
   CountStateChange();
 }
 
@@ -146,7 +42,7 @@ void ezGALCommandEncoder::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle h
   AssertRenderingThread();
   EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
 
-  if (m_State.m_hConstantBuffers[uiSlot] == hBuffer)
+  if (m_hConstantBuffers[uiSlot] == hBuffer)
   {
     CountRedundantStateChange();
     return;
@@ -157,7 +53,7 @@ void ezGALCommandEncoder::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle h
 
   SetConstantBufferPlatform(uiSlot, pBuffer);
 
-  m_State.m_hConstantBuffers[uiSlot] = hBuffer;
+  m_hConstantBuffers[uiSlot] = hBuffer;
 
   CountStateChange();
 }
@@ -167,7 +63,7 @@ void ezGALCommandEncoder::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32
   AssertRenderingThread();
   EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_SAMPLER_COUNT, "Sampler state slot index too big!");
 
-  if (m_State.m_hSamplerStates[Stage][uiSlot] == hSamplerState)
+  if (m_hSamplerStates[Stage][uiSlot] == hSamplerState)
   {
     CountRedundantStateChange();
     return;
@@ -177,7 +73,7 @@ void ezGALCommandEncoder::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32
 
   SetSamplerStatePlatform(Stage, uiSlot, pSamplerState);
 
-  m_State.m_hSamplerStates[Stage][uiSlot] = hSamplerState;
+  m_hSamplerStates[Stage][uiSlot] = hSamplerState;
 
   CountStateChange();
 }
@@ -188,7 +84,7 @@ void ezGALCommandEncoder::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32
 
   /// \todo Check if the device supports the stage / the slot index
 
-  auto& boundResourceViews = m_State.m_hResourceViews[Stage];
+  auto& boundResourceViews = m_hResourceViews[Stage];
   if (uiSlot < boundResourceViews.GetCount() && boundResourceViews[uiSlot] == hResourceView)
   {
     CountRedundantStateChange();
@@ -209,18 +105,19 @@ void ezGALCommandEncoder::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32
   boundResourceViews.EnsureCount(uiSlot + 1);
   boundResourceViews[uiSlot] = hResourceView;
 
-  auto& boundResources = m_State.m_pResourcesForResourceViews[Stage];
+  auto& boundResources = m_pResourcesForResourceViews[Stage];
   boundResources.EnsureCount(uiSlot + 1);
   boundResources[uiSlot] = pResourceView != nullptr ? pResourceView->GetResource()->GetParentResource() : nullptr;
 
   CountStateChange();
 }
 
+#if 0
 void ezGALCommandEncoder::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTargetSetup)
 {
   AssertRenderingThread();
 
-  if (m_State.m_RenderTargetSetup == RenderTargetSetup)
+  if (m_RenderTargetSetup == RenderTargetSetup)
   {
     CountRedundantStateChange();
     return;
@@ -267,10 +164,11 @@ void ezGALCommandEncoder::SetRenderTargetSetup(const ezGALRenderTargetSetup& Ren
   }
   SetRenderTargetSetupPlatform(ezMakeArrayPtr(pRenderTargetViews, uiRenderTargetCount), pDepthStencilView);
 
-  m_State.m_RenderTargetSetup = RenderTargetSetup;
+  m_RenderTargetSetup = RenderTargetSetup;
 
   CountStateChange();
 }
+#endif
 
 void ezGALCommandEncoder::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
 {
@@ -278,7 +176,7 @@ void ezGALCommandEncoder::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnordered
 
   /// \todo Check if the device supports the stage / the slot index
 
-  if (uiSlot < m_State.m_hUnorderedAccessViews.GetCount() && m_State.m_hUnorderedAccessViews[uiSlot] == hUnorderedAccessView)
+  if (uiSlot < m_hUnorderedAccessViews.GetCount() && m_hUnorderedAccessViews[uiSlot] == hUnorderedAccessView)
   {
     CountRedundantStateChange();
     return;
@@ -295,116 +193,15 @@ void ezGALCommandEncoder::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnordered
 
   SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
 
-  m_State.m_hUnorderedAccessViews.EnsureCount(uiSlot + 1);
-  m_State.m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
+  m_hUnorderedAccessViews.EnsureCount(uiSlot + 1);
+  m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
 
-  m_State.m_pResourcesForUnorderedAccessViews.EnsureCount(uiSlot + 1);
-  m_State.m_pResourcesForUnorderedAccessViews[uiSlot] =
+  m_pResourcesForUnorderedAccessViews.EnsureCount(uiSlot + 1);
+  m_pResourcesForUnorderedAccessViews[uiSlot] =
     pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource()->GetParentResource() : nullptr;
 
   CountStateChange();
 }
-
-void ezGALCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(BlendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  const ezGALBlendState* pBlendState = m_Device.GetBlendState(hBlendState);
-
-  SetBlendStatePlatform(pBlendState, BlendFactor, uiSampleMask);
-
-  m_State.m_hBlendState = hBlendState;
-
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_hDepthStencilState == hDepthStencilState && uiStencilRefValue == m_State.m_uiStencilRefValue)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  const ezGALDepthStencilState* pDepthStencilState = m_Device.GetDepthStencilState(hDepthStencilState);
-
-  SetDepthStencilStatePlatform(pDepthStencilState, uiStencilRefValue);
-
-  m_State.m_hDepthStencilState = hDepthStencilState;
-
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_hRasterizerState == hRasterizerState)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  const ezGALRasterizerState* pRasterizerState = m_Device.GetRasterizerState(hRasterizerState);
-
-  SetRasterizerStatePlatform(pRasterizerState);
-
-  m_State.m_hRasterizerState = hRasterizerState;
-
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_ViewPortRect == rect && m_State.m_fViewPortMinDepth == fMinDepth && m_State.m_fViewPortMaxDepth == fMaxDepth)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  SetViewportPlatform(rect, fMinDepth, fMaxDepth);
-
-  m_State.m_ViewPortRect = rect;
-  m_State.m_fViewPortMinDepth = fMinDepth;
-  m_State.m_fViewPortMaxDepth = fMaxDepth;
-
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetScissorRect(const ezRectU32& rect)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_ScissorRect == rect)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  SetScissorRectPlatform(rect);
-
-  m_State.m_ScissorRect = rect;
-
-  CountStateChange();
-}
-
-void ezGALCommandEncoder::SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer, ezUInt32 uiOffset)
-{
-  EZ_REPORT_FAILURE("not implemented");
-
-  CountStateChange();
-}
-
 
 void ezGALCommandEncoder::InsertFence(ezGALFenceHandle hFence)
 {
@@ -713,14 +510,23 @@ void ezGALCommandEncoder::InsertEventMarker(const char* Marker)
 void ezGALCommandEncoder::ClearStatisticsCounters()
 {
   // Reset counters for various statistics
-  m_uiDispatchCalls = 0;
   m_uiStateChanges = 0;
   m_uiRedundantStateChanges = 0;
 }
 
 void ezGALCommandEncoder::InvalidateState()
 {
-  m_State.Invalidate();
+  m_hShader = ezGALShaderHandle();
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  //m_hConstantBuffers = {};
+
+
+  // ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
+
+  // ezGALResourceViewHandle m_hResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+
+  // ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
 }
 
 bool ezGALCommandEncoder::UnsetResourceViews(const ezGALResourceBase* pResource)
@@ -731,14 +537,14 @@ bool ezGALCommandEncoder::UnsetResourceViews(const ezGALResourceBase* pResource)
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    for (ezUInt32 uiSlot = 0; uiSlot < m_State.m_pResourcesForResourceViews[stage].GetCount(); ++uiSlot)
+    for (ezUInt32 uiSlot = 0; uiSlot < m_pResourcesForResourceViews[stage].GetCount(); ++uiSlot)
     {
-      if (m_State.m_pResourcesForResourceViews[stage][uiSlot] == pResource)
+      if (m_pResourcesForResourceViews[stage][uiSlot] == pResource)
       {
         SetResourceViewPlatform((ezGALShaderStage::Enum)stage, uiSlot, nullptr);
 
-        m_State.m_hResourceViews[stage][uiSlot].Invalidate();
-        m_State.m_pResourcesForResourceViews[stage][uiSlot] = nullptr;
+        m_hResourceViews[stage][uiSlot].Invalidate();
+        m_pResourcesForResourceViews[stage][uiSlot] = nullptr;
 
         bResult = true;
       }
@@ -754,14 +560,14 @@ bool ezGALCommandEncoder::UnsetUnorderedAccessViews(const ezGALResourceBase* pRe
 
   bool bResult = false;
 
-  for (ezUInt32 uiSlot = 0; uiSlot < m_State.m_pResourcesForUnorderedAccessViews.GetCount(); ++uiSlot)
+  for (ezUInt32 uiSlot = 0; uiSlot < m_pResourcesForUnorderedAccessViews.GetCount(); ++uiSlot)
   {
-    if (m_State.m_pResourcesForUnorderedAccessViews[uiSlot] == pResource)
+    if (m_pResourcesForUnorderedAccessViews[uiSlot] == pResource)
     {
       SetUnorderedAccessViewPlatform(uiSlot, nullptr);
 
-      m_State.m_hUnorderedAccessViews[uiSlot].Invalidate();
-      m_State.m_pResourcesForUnorderedAccessViews[uiSlot] = nullptr;
+      m_hUnorderedAccessViews[uiSlot].Invalidate();
+      m_pResourcesForUnorderedAccessViews[uiSlot] = nullptr;
 
       bResult = true;
     }
@@ -873,11 +679,251 @@ void ezGALRenderCommandEncoder::EndStreamOut()
   EndStreamOutPlatform();
 }
 
+void ezGALRenderCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
+{
+  if (m_hIndexBuffer == hIndexBuffer)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndexBuffer);
+  /// \todo Assert on index buffer type (if non nullptr)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
+
+  SetIndexBufferPlatform(pBuffer);
+
+  m_hIndexBuffer = hIndexBuffer;
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer)
+{
+  if (m_hVertexBuffers[uiSlot] == hVertexBuffer)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hVertexBuffer);
+  // Assert on vertex buffer type (if non-zero)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
+
+  SetVertexBufferPlatform(uiSlot, pBuffer);
+
+  m_hVertexBuffers[uiSlot] = hVertexBuffer;
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum Topology)
+{
+  AssertRenderingThread();
+
+  if (m_Topology == Topology)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  SetPrimitiveTopologyPlatform(Topology);
+
+  m_Topology = Topology;
+
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
+{
+  AssertRenderingThread();
+
+  if (m_hVertexDeclaration == hVertexDeclaration)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  const ezGALVertexDeclaration* pVertexDeclaration = GetDevice().GetVertexDeclaration(hVertexDeclaration);
+  // Assert on vertex buffer type (if non-zero)
+
+  SetVertexDeclarationPlatform(pVertexDeclaration);
+
+  m_hVertexDeclaration = hVertexDeclaration;
+
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
+{
+  AssertRenderingThread();
+
+  if (m_hBlendState == hBlendState && m_BlendFactor.IsEqualRGBA(BlendFactor, 0.001f) && m_uiSampleMask == uiSampleMask)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  const ezGALBlendState* pBlendState = GetDevice().GetBlendState(hBlendState);
+
+  SetBlendStatePlatform(pBlendState, BlendFactor, uiSampleMask);
+
+  m_hBlendState = hBlendState;
+
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
+{
+  AssertRenderingThread();
+
+  if (m_hDepthStencilState == hDepthStencilState && uiStencilRefValue == m_uiStencilRefValue)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  const ezGALDepthStencilState* pDepthStencilState = GetDevice().GetDepthStencilState(hDepthStencilState);
+
+  SetDepthStencilStatePlatform(pDepthStencilState, uiStencilRefValue);
+
+  m_hDepthStencilState = hDepthStencilState;
+
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
+{
+  AssertRenderingThread();
+
+  if (m_hRasterizerState == hRasterizerState)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  const ezGALRasterizerState* pRasterizerState = GetDevice().GetRasterizerState(hRasterizerState);
+
+  SetRasterizerStatePlatform(pRasterizerState);
+
+  m_hRasterizerState = hRasterizerState;
+
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
+{
+  AssertRenderingThread();
+
+  if (m_ViewPortRect == rect && m_fViewPortMinDepth == fMinDepth && m_fViewPortMaxDepth == fMaxDepth)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  SetViewportPlatform(rect, fMinDepth, fMaxDepth);
+
+  m_ViewPortRect = rect;
+  m_fViewPortMinDepth = fMinDepth;
+  m_fViewPortMaxDepth = fMaxDepth;
+
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetScissorRect(const ezRectU32& rect)
+{
+  AssertRenderingThread();
+
+  if (m_ScissorRect == rect)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  SetScissorRectPlatform(rect);
+
+  m_ScissorRect = rect;
+
+  CountStateChange();
+}
+
+void ezGALRenderCommandEncoder::SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer, ezUInt32 uiOffset)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
+  CountStateChange();
+}
+
 void ezGALRenderCommandEncoder::ClearStatisticsCounters()
 {
   ezGALCommandEncoder::ClearStatisticsCounters();
 
   m_uiDrawCalls = 0;
+}
+
+void ezGALRenderCommandEncoder::InvalidateState()
+{
+  ezGALCommandEncoder::InvalidateState();
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hVertexBuffers); ++i)
+  {
+    m_hVertexBuffers[i].Invalidate();
+  }
+  m_hIndexBuffer.Invalidate();
+
+  m_hVertexDeclaration.Invalidate();
+  m_Topology = ezGALPrimitiveTopology::ENUM_COUNT;
+
+  m_hBlendState.Invalidate();
+  m_BlendFactor = ezColor(0, 0, 0, 0);
+  m_uiSampleMask = 0x0;
+
+  m_hDepthStencilState.Invalidate();
+  m_uiStencilRefValue = 0;
+
+  m_hRasterizerState.Invalidate();
+
+  m_ScissorRect = ezRectU32(0xFFFFFFFF, 0xFFFFFFFF, 0, 0);
+  m_ViewPortRect = ezRectFloat(ezMath::MaxValue<float>(), ezMath::MaxValue<float>(), 0.0f, 0.0f);
+  m_fViewPortMinDepth = ezMath::MaxValue<float>();
+  m_fViewPortMaxDepth = -ezMath::MaxValue<float>();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezGALComputeCommandEncoder::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
+{
+  AssertRenderingThread();
+
+  EZ_ASSERT_DEBUG(
+    uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
+
+  /// \todo Assert for compute
+
+  DispatchPlatform(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
+
+  CountDispatchCall();
+}
+
+void ezGALComputeCommandEncoder::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  AssertRenderingThread();
+  /// \todo Assert for compute
+  /// \todo Assert for indirect dispatch
+  /// \todo Assert offset < buffer size
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+
+  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
+  DispatchIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
+
+  CountDispatchCall();
+}
+
+void ezGALComputeCommandEncoder::ClearStatisticsCounters()
+{
+  ezGALCommandEncoder::ClearStatisticsCounters();
+
+  m_uiDispatchCalls = 0;
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Context_Implementation_Context);
