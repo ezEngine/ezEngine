@@ -12,9 +12,12 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #  include <Dbghelp.h>
 #  include <Shlwapi.h>
+#  include <Utilities/CommandLineOptions.h>
 #  include <Utilities/CommandLineUtils.h>
 #  include <tchar.h>
 #  include <werapi.h>
+
+ezCommandLineOptionBool opt_FullCrashDumps("app", "-fullcrashdumps", "If enabled, crash dumps will contain the full memory image.", false);
 
 typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType,
   PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
@@ -59,7 +62,7 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
   ezUInt32 dumpType = MiniDumpWithHandleData | MiniDumpWithModuleHeaders | MiniDumpWithUnloadedModules | MiniDumpWithProcessThreadData |
                       MiniDumpWithFullMemoryInfo | MiniDumpWithThreadInfo;
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fullcrashdumps"))
+  if (opt_FullCrashDumps.GetOptionValue(ezCommandLineOption::LogMode::Always))
   {
     dumpType |= MiniDumpWithFullMemory;
   }
@@ -141,7 +144,7 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(const char* szDumpFile)
   procOpt.m_Arguments.PushBack("-f");
   procOpt.m_Arguments.PushBack(szDumpFile);
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fullcrashdumps"))
+  if (opt_FullCrashDumps.GetOptionValue(ezCommandLineOption::LogMode::Always))
   {
     // forward the '-fullcrashdumps' command line argument
     procOpt.AddArgument("-fullcrashdumps");

@@ -1,0 +1,294 @@
+#pragma once
+
+#include <Foundation/Basics.h>
+#include <Foundation/Math/Math.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
+#include <Foundation/Utilities/EnumerableClass.h>
+
+class ezStringBuilder;
+class ezLogInterface;
+
+/// \brief ezCommandLineOption (and derived types) are used to define options that the application supports.
+///
+/// Command line options are created as global variables anywhere throughout the code, wherever they are needed.
+/// The point of using them over going through ezCommandLineUtils directly, is that the options can be listed automatically
+/// and thus an application can print all available options, when the user requests help.
+///
+/// Consequently, their main purpose is to make options discoverable and to document them in a consistent manner.
+///
+/// Additionally, classes like ezCommandLineOptionEnum add functionality that makes some options easier to setup.
+class EZ_FOUNDATION_DLL ezCommandLineOption : public ezEnumerable<ezCommandLineOption>
+{
+  EZ_DECLARE_ENUMERABLE_CLASS(ezCommandLineOption);
+
+public:
+  enum class LogAvailableModes
+  {
+    Always,         ///< Logs the available modes no matter what
+    IfHelpRequested ///< Only logs the modes, if '-h', '-help', '-?' or something similar was specified
+  };
+
+  /// \brief Describes whether the value of an option (and whether something went wrong), should be printed to ezLog.
+  enum class LogMode
+  {
+    Never,                ///< Don't log anything.
+    FirstTime,            ///< Only print the information the first time a value is accessed.
+    FirstTimeIfSpecified, ///< Only on first access and only if the user specified the value on the command line.
+    Always,               ///< Always log the options value on access.
+    AlwaysIfSpecified,    ///< Always log values, if the user specified non-default ones.
+  };
+
+  /// \brief Prints all available options to the ezLog.
+  ///
+  /// \param szGroupFilter
+  ///   If this is empty, all options from all 'sorting groups' are logged.
+  ///   If non-empty, only options from sorting groups that appear in this string will be logged.
+  static bool LogAvailableOptions(LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance());
+
+  /// \brief Same as LogAvailableOptions() but captures the output from ezLog and returns it in an ezStringBuilder.
+  static bool LogAvailableOptionsToBuffer(ezStringBuilder& out_Buffer, LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance());
+
+public:
+  /// \param szSortingGroup
+  ///   This string is used to sort options. Application options should start with an underscore, such that they appear first
+  ///   in the output.
+  ezCommandLineOption(const char* szSortingGroup) { m_szSortingGroup = szSortingGroup; }
+
+  /// \brief Writes the sorting group name to 'out'.
+  virtual void GetSortingGroup(ezStringBuilder& out) const;
+
+  /// \brief Writes all the supported options (e.g. '-arg') to 'out'.
+  /// If more than one option is allowed, they should be separated with semicolons or pipes.
+  virtual void GetOptions(ezStringBuilder& out) const = 0;
+
+  /// \brief Returns the supported option names (e.g. '-arg') as split strings.
+  void GetSplitOptions(ezStringBuilder& outAll, ezDynamicArray<ezStringView>& splitOptions) const;
+
+  /// \brief Returns a very short description of the option (type). For example "<int>" or "<enum>".
+  virtual void GetParamShortDesc(ezStringBuilder& out) const = 0;
+
+  /// \brief Returns a very short string for the options default value. For example "0" or "auto".
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const = 0;
+
+  /// \brief Returns a proper description of the option.
+  ///
+  /// The long description is allowed to contain newlines (\n) and the output will be formatted accordingly.
+  virtual void GetLongDesc(ezStringBuilder& out) const = 0;
+
+protected:
+  const char* m_szSortingGroup = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief ezCommandLineOptionDoc can be used to document a command line option whose logic might be more complex than what the other option types provide.
+///
+/// This class is meant to be used for options that are actually queried directly through ezCommandLineUtils,
+/// but should still show up in the command line option documentation, such that the user can discover them.
+///
+class EZ_FOUNDATION_DLL ezCommandLineOptionDoc : public ezCommandLineOption
+{
+public:
+  ezCommandLineOptionDoc(const char* szSortingGroup, const char* szArgument, const char* szParamShortDesc, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
+
+  virtual void GetOptions(ezStringBuilder& out) const override;
+
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+
+  virtual void GetLongDesc(ezStringBuilder& out) const override;
+
+  /// \brief Checks whether any of the option variants is set on the command line, and returns which one. For example '-h' or '-help'.
+  bool IsOptionSpecified(ezStringBuilder* out_which, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+
+protected:
+  bool ShouldLog(LogMode mode, bool bWasSpecified) const;
+  void LogOption(const char* szOption, const char* szValue, bool bWasSpecified) const;
+
+  const char* m_szArgument = nullptr;
+  const char* m_szParamShortDesc = nullptr;
+  const char* m_szParamDefaultValue = nullptr;
+  const char* m_szLongDesc = nullptr;
+  bool m_bCaseSensitive = false;
+  mutable bool m_bLoggedOnce = false;
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief This command line option exposes simple on/off switches.
+class EZ_FOUNDATION_DLL ezCommandLineOptionBool : public ezCommandLineOptionDoc
+{
+public:
+  ezCommandLineOptionBool(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, bool bDefaultValue, bool bCaseSensitive = false);
+
+  /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
+  bool GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+
+  /// \brief Modifies the default value
+  void SetDefault(bool value)
+  {
+    m_bDefaultValue = value;
+  }
+
+protected:
+  bool m_bDefaultValue = false;
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief This command line option exposes integer values, optionally with a min/max range.
+///
+/// If the user specified a value outside the allowed range, a warning is printed, and the default value is used instead.
+/// It is valid for the default value to be outside the min/max range, which can be used to detect whether the user provided any value at all.
+class EZ_FOUNDATION_DLL ezCommandLineOptionInt : public ezCommandLineOptionDoc
+{
+public:
+  ezCommandLineOptionInt(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, int iDefaultValue, int iMinValue = ezMath::MinValue<int>(), int iMaxValue = ezMath::MaxValue<int>(), bool bCaseSensitive = false);
+
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+
+  /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
+  int GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+
+  /// \brief Modifies the default value
+  void SetDefault(ezInt32 value)
+  {
+    m_iDefaultValue = value;
+  }
+
+protected:
+  ezInt32 m_iDefaultValue = 0;
+  ezInt32 m_iMinValue = 0;
+  ezInt32 m_iMaxValue = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief This command line option exposes float values, optionally with a min/max range.
+///
+/// If the user specified a value outside the allowed range, a warning is printed, and the default value is used instead.
+/// It is valid for the default value to be outside the min/max range, which can be used to detect whether the user provided any value at all.
+class EZ_FOUNDATION_DLL ezCommandLineOptionFloat : public ezCommandLineOptionDoc
+{
+public:
+  ezCommandLineOptionFloat(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, float fDefaultValue, float fMinValue = ezMath::MinValue<float>(), float fMaxValue = ezMath::MaxValue<float>(), bool bCaseSensitive = false);
+
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+
+  /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
+  float GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+
+  /// \brief Modifies the default value
+  void SetDefault(float value)
+  {
+    m_fDefaultValue = value;
+  }
+
+protected:
+  float m_fDefaultValue = 0;
+  float m_fMinValue = 0;
+  float m_fMaxValue = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief This command line option exposes simple string values.
+class EZ_FOUNDATION_DLL ezCommandLineOptionString : public ezCommandLineOptionDoc
+{
+public:
+  ezCommandLineOptionString(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
+
+  /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
+  const char* GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+
+  /// \brief Modifies the default value
+  void SetDefault(const char* value)
+  {
+    m_szDefaultValue = value;
+  }
+
+protected:
+  const char* m_szDefaultValue = "";
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief This command line option exposes absolute paths. If the user provides a relative path, it will be concatenated with the current working directory.
+class EZ_FOUNDATION_DLL ezCommandLineOptionPath : public ezCommandLineOptionDoc
+{
+public:
+  ezCommandLineOptionPath(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
+
+  /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
+  const char* GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+
+  /// \brief Modifies the default value
+  void SetDefault(const char* value)
+  {
+    m_szDefaultValue = value;
+  }
+
+protected:
+  const char* m_szDefaultValue = "";
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief An 'enum' option is a string option that only allows certain phrases ('keys').
+///
+/// Each phrase has an integer value, and GetOptionValue() returns the integer value of the selected phrase.
+/// It is valid for the default value to be different from all the phrase values,
+/// which can be used to detect whether the user provided any phrase at all.
+///
+/// The allowed values are passed in as a single string, in the form "OptA = 0 | OptB = 1 | ..."
+/// Phrase values ("= 0" etc) are optional, and if not given are automatically assigned starting at zero.
+/// Multiple phrases may share the same value.
+class EZ_FOUNDATION_DLL ezCommandLineOptionEnum : public ezCommandLineOptionDoc
+{
+public:
+  ezCommandLineOptionEnum(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szEnumKeysAndValues, ezInt32 iDefaultValue, bool bCaseSensitive = false);
+
+  /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
+  ezInt32 GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+
+  struct EnumKeyValue
+  {
+    ezStringView m_Key;
+    ezInt32 m_iValue = 0;
+  };
+
+  void GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>& out_KeysAndValues) const;
+
+  /// \brief Modifies the default value
+  void SetDefault(ezInt32 value)
+  {
+    m_iDefaultValue = value;
+  }
+
+protected:
+  ezInt32 m_iDefaultValue = 0;
+  const char* m_szEnumKeysAndValues = nullptr;
+};

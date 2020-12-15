@@ -12,6 +12,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>
 #endif
+#include <Application/Application.h>
 
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
@@ -245,6 +246,26 @@ void ezLog::Printf(const char* szFormat, ...)
   Print(buffer);
 
   va_end(args);
+}
+
+void ezLog::OsMessageBox(const ezFormatString& text)
+{
+  ezStringBuilder tmp;
+  ezStringBuilder display = text.GetText(tmp);
+  display.Trim(" \n\r\t");
+
+  const char* title = "";
+  if (ezApplication::GetApplicationInstance())
+  {
+    title = ezApplication::GetApplicationInstance()->GetApplicationName();
+  }
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  MessageBoxW(nullptr, ezStringWChar(display).GetData(), ezStringWChar(title), MB_OK);
+#else
+  ezLog::Print(display);
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 }
 
 void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut)

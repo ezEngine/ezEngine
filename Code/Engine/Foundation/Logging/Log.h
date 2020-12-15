@@ -2,6 +2,7 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Time/Time.h>
@@ -65,7 +66,7 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
 #endif
 };
 
-using ezLoggingEvent = ezEvent<const ezLoggingEventData &, ezMutex>;
+using ezLoggingEvent = ezEvent<const ezLoggingEventData&, ezMutex>;
 
 /// \brief Base class for all logging classes.
 ///
@@ -329,11 +330,16 @@ public:
   /// This function flushes the output immediately, to ensure output is never lost during a crash. Consequently it has a high performance
   /// overhead.
   static void Print(const char* szText);
-  
+
   /// \brief Calls low-level OS functionality to print a string to the typical outputs. Forwards to Print.
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
   /// \sa ezLog::Print
   static void Printf(const char* szFormat, ...);
+
+  /// \brief Shows a simple message box using the OS functionality.
+  ///
+  /// This should only be used for critical information that can't be conveyed in another way.
+  static void OsMessageBox(const ezFormatString& text);
 
   /// \brief This enum is used in context of outputting timestamp information to indicate a formatting for said timestamps.
   enum class TimestampMode
@@ -417,6 +423,34 @@ protected:
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezLogSystemScope);
+};
+
+
+/// \brief A simple log interface implementation that gathers all messages in a string buffer.
+class ezLogSystemToBuffer : public ezLogInterface
+{
+public:
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override
+  {
+    switch (le.m_EventType)
+    {
+      case ezLogMsgType::ErrorMsg:
+        m_sBuffer.Append("Error: ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::SeriousWarningMsg:
+      case ezLogMsgType::WarningMsg:
+        m_sBuffer.Append("Warning: ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::SuccessMsg:
+      case ezLogMsgType::InfoMsg:
+      case ezLogMsgType::DevMsg:
+      case ezLogMsgType::DebugMsg:
+        m_sBuffer.Append(le.m_szText, "\n");
+        break;
+    }
+  }
+
+  ezStringBuilder m_sBuffer;
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>

@@ -205,7 +205,7 @@ const char* ezCommandLineUtils::GetStringOption(const char* szOption, ezUInt32 u
   return szDefault;
 }
 
-const ezString ezCommandLineUtils::GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument /*= 0*/, const char* szDefault /*= ""*/, bool bCaseSensitive /*= false*/)
+const ezString ezCommandLineUtils::GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument /*= 0*/, const char* szDefault /*= ""*/, bool bCaseSensitive /*= false*/) const
 {
   const char* szPath = GetStringOption(szOption, uiArgument, szDefault, bCaseSensitive);
 

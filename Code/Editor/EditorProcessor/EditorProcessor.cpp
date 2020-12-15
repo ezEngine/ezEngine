@@ -7,10 +7,19 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
+
+ezCommandLineOptionPath opt_Project("_EditorProcessor", "-project", "Path to the project folder.", "");
+ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
+\n\
+Example:\n\
+  -transform PC\n\
+",
+  "");
 
 class ezEditorApplication : public ezApplication
 {
@@ -115,6 +124,15 @@ public:
 
   virtual Execution Run() override
   {
+    {
+      ezStringBuilder cmdHelp;
+      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_EditorProcessor;cvar"))
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
+        return ezApplication::Execution::Quit;
+      }
+    }
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // Setting this flags prevents Windows from showing a dialog when the Engine process crashes
     // this also speeds up process termination significantly (down to less than a second)
@@ -125,9 +143,9 @@ public:
     ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::Headless);
     ezQtUiServices::SetHeadless(true);
 
-    const ezStringBuilder sProject = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-project");
+    const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (!ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform")))
+    if (!ezStringUtils::IsNullOrEmpty(opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified)))
     {
       ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 
@@ -139,7 +157,7 @@ public:
 
         bTransform = false;
 
-        const ezString sPlatform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
+        const ezString sPlatform = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::Never);
         const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sPlatform);
 
         if (uiPlatform == ezInvalidIndex)

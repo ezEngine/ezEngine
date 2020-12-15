@@ -7,6 +7,11 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/System/MiniDumpUtils.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
+
+ezCommandLineOptionInt opt_PID("_MiniDumpTool", "-PID", "Process ID of the application for which to create a crash dump.", 0);
+
+ezCommandLineOptionPath opt_DumpFile("_MiniDumpTool", "-f", "Path to the crash dump file to write.", "");
 
 class ezMiniDumpTool : public ezApplication
 {
@@ -26,7 +31,8 @@ public:
     ezCommandLineUtils* cmd = ezCommandLineUtils::GetGlobalInstance();
 
     m_uiProcessID = cmd->GetUIntOption("-PID");
-    m_sDumpFile = cmd->GetStringOption("-f", 0, m_sDumpFile);
+
+    m_sDumpFile = opt_DumpFile.GetOptionValue(ezCommandLineOption::LogMode::Always);
     m_sDumpFile.MakeCleanPath();
 
     if (m_uiProcessID == 0)
@@ -34,7 +40,6 @@ public:
       ezLog::Error("Missing '-PID' argument");
       return EZ_FAILURE;
     }
-
 
     return EZ_SUCCESS;
   }
@@ -59,6 +64,15 @@ public:
 
   virtual Execution Run() override
   {
+    {
+      ezStringBuilder cmdHelp;
+      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_MiniDumpTool"))
+      {
+        ezLog::Print(cmdHelp);
+        return ezApplication::Execution::Quit;
+      }
+    }
+
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);

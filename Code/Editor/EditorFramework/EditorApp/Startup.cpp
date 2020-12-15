@@ -44,6 +44,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/Action/ActionManager.h>
@@ -135,14 +136,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
+ezCommandLineOptionBool opt_Safe("_Editor", "-safe", "In safe-mode the editor minimizes the risk of crashing, for instance by not loading previous projects and scenes.", false);
+ezCommandLineOptionBool opt_NoRecent("_Editor", "-noRecent", "Disables automatic loading of recent projects and documents.", false);
+ezCommandLineOptionBool opt_Debug("_Editor", "-debug", "Enables debug-mode, which makes the editor wait for a debugger to attach, and disables risky features, such as recent file loading.", false);
 
 void ezQtEditorApp::StartupEditor()
 {
   ezBitflags<StartupFlags> startupFlags;
 
-  startupFlags.AddOrRemove(StartupFlags::SafeMode, ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe"));
-  startupFlags.AddOrRemove(StartupFlags::NoRecent, ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent"));
-  startupFlags.AddOrRemove(StartupFlags::Debug, ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"));
+  startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  startupFlags.AddOrRemove(StartupFlags::NoRecent, opt_NoRecent.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  startupFlags.AddOrRemove(StartupFlags::Debug, opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
 
   StartupEditor(startupFlags);
 }

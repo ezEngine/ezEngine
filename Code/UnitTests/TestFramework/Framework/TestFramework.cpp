@@ -2,6 +2,7 @@
 
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
@@ -10,6 +11,7 @@
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 #include <cstdlib>
@@ -22,14 +24,31 @@
 #  include <FileservePlugin/FileservePluginDLL.h>
 #endif
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 
 const char* ezTestFramework::s_szTestBlockName = "";
 int ezTestFramework::s_iAssertCounter = 0;
 bool ezTestFramework::s_bCallstackOnAssert = false;
 ezLog::TimestampMode ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode::None;
+
+ezCommandLineOptionPath opt_OrderFile("_TestFramework", "-order", "Path to a file that defines which tests to run.", "");
+ezCommandLineOptionPath opt_SettingsFile("_TestFramework", "-settings", "Path to a file containing the test settings.", "");
+ezCommandLineOptionBool opt_Run("_TestFramework", "-run", "Makes the tests execute right away.", false);
+ezCommandLineOptionBool opt_Close("_TestFramework", "-close", "Makes the application close automatically after the tests are finished.", false);
+ezCommandLineOptionBool opt_NoGui("_TestFramework", "-noGui", "Never show a GUI.", false);
+ezCommandLineOptionBool opt_HTML("_TestFramework", "-html", "Open summary HTML on error.", false);
+ezCommandLineOptionBool opt_Console("_TestFramework", "-console", "Keep the console open.", false);
+ezCommandLineOptionBool opt_Timestamps("_TestFramework", "-timestamps", "Show timestamps in logs.", false);
+ezCommandLineOptionBool opt_MsgBox("_TestFramework", "-msgbox", "Show message box after tests.", false);
+ezCommandLineOptionBool opt_DisableSuccessful("_TestFramework", "-disableSuccessful", "Disable tests that ran successfully.", false);
+ezCommandLineOptionBool opt_EnableAllTests("_TestFramework", "-all", "Enable all tests.", false);
+ezCommandLineOptionBool opt_NoSave("_TestFramework", "-noSave", "Disables saving of any state.", false);
+ezCommandLineOptionInt opt_Revision("_TestFramework", "-rev", "Revision number to pass through to JSON output.", -1);
+ezCommandLineOptionInt opt_Passes("_TestFramework", "-passes", "Number of passes to execute.", 1);
+ezCommandLineOptionInt opt_Assert("_TestFramework", "-assert", "Whether to assert when a test fails.", (int)AssertOnTestFail::AssertIfDebuggerAttached);
+ezCommandLineOptionString opt_Filter("_TestFramework", "-filter", "Filter to execute only certain tests.", "");
+ezCommandLineOptionPath opt_Json("_TestFramework", "-json", "JSON file to write.", "");
+ezCommandLineOptionPath opt_OutputDir("_TestFramework", "-outputDir", "Output directory", "");
 
 constexpr int s_iMaxErrorMessageLength = 512;
 
@@ -79,6 +98,18 @@ ezTestFramework::~ezTestFramework()
 
 void ezTestFramework::Initialize()
 {
+  {
+    ezStringBuilder cmdHelp;
+    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_TestFramework;cvar"))
+    {
+      // make sure the console stays open
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-console");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("true");
+
+      ezLog::Print(cmdHelp);
+    }
+  }
+
   if (m_Settings.m_bNoGUI)
   {
     // if the UI is run with GUI disabled, set the environment variable EZ_SILENT_ASSERTS
@@ -88,7 +119,7 @@ void ezTestFramework::Initialize()
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     // Not supported
 #else
-    /// \todo Need a platform abstraction for setting/retrieving environmment variables
+    /// \todo Need a platform abstraction for setting/retrieving environment variables
     setenv("EZ_SILENT_ASSERTS", "1", 1);
 #endif
   }
@@ -120,14 +151,15 @@ void ezTestFramework::Initialize()
   ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
   // figure out which tests exist
   GatherAllTests();
-  if (!m_Settings.m_bNoGUI || cmd.GetStringOptionArguments("-order") == 1)
+
+  if (!m_Settings.m_bNoGUI || opt_OrderFile.IsOptionSpecified(nullptr, &cmd))
   {
     // load the test order from file, if that file does not exist, the array is not modified.
     LoadTestOrder();
   }
   ApplyTestOrderFromCommandLine(cmd);
 
-  if (!m_Settings.m_bNoGUI || cmd.GetStringOptionArguments("-settings") == 1)
+  if (!m_Settings.m_bNoGUI || opt_SettingsFile.IsOptionSpecified(nullptr, &cmd))
   {
     // Load the test settings from file, if that file does not exist, the settings are not modified.
     LoadTestSettings();
@@ -269,13 +301,13 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   // use a local instance of ezCommandLineUtils as global instance is not guaranteed to have been set up
   // for all call sites of this method.
 
-  m_Settings.m_bRunTests = cmd.GetBoolOption("-run", false);
-  m_Settings.m_bCloseOnSuccess = cmd.GetBoolOption("-close", false);
-  m_Settings.m_bNoGUI = cmd.GetBoolOption("-nogui", false);
+  m_Settings.m_bRunTests = opt_Run.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_bCloseOnSuccess = opt_Close.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_bNoGUI = opt_NoGui.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  if (cmd.GetOptionIndex("-assert") >= 0)
+  if (opt_Assert.IsOptionSpecified(nullptr, &cmd))
   {
-    const int assertOnTestFailure = cmd.GetIntOption("-assert", (int)AssertOnTestFail::AssertIfDebuggerAttached);
+    const int assertOnTestFailure = opt_Assert.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
     switch (assertOnTestFailure)
     {
       case 0:
@@ -290,28 +322,40 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
     }
   }
 
-  m_Settings.m_bOpenHtmlOutputOnError = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutputOnError);
-  m_Settings.m_bKeepConsoleOpen = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
-  m_Settings.m_bShowTimestampsInLog = cmd.GetBoolOption("-timestamps", m_Settings.m_bShowTimestampsInLog);
-  m_Settings.m_bShowMessageBox = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
-  m_Settings.m_bAutoDisableSuccessfulTests = cmd.GetBoolOption("-disableSuccessful", m_Settings.m_bAutoDisableSuccessfulTests);
-  m_Settings.m_iRevision = cmd.GetIntOption("-rev", -1);
-  m_Settings.m_bEnableAllTests = cmd.GetBoolOption("-all", false);
-  m_Settings.m_uiFullPasses = cmd.GetIntOption("-passes", 1, false);
-  m_Settings.m_sTestFilter = cmd.GetStringOption("-filter", 0, "");
+  opt_HTML.SetDefault(m_Settings.m_bOpenHtmlOutputOnError);
+  m_Settings.m_bOpenHtmlOutputOnError = opt_HTML.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  if (cmd.GetStringOptionArguments("-json") == 1)
-    m_Settings.m_sJsonOutput = cmd.GetStringOption("-json", 0, "");
+  opt_Console.SetDefault(m_Settings.m_bKeepConsoleOpen);
+  m_Settings.m_bKeepConsoleOpen = opt_Console.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  if (cmd.GetStringOptionArguments("-outputDir") == 1)
+  opt_Timestamps.SetDefault(m_Settings.m_bShowTimestampsInLog);
+  m_Settings.m_bShowTimestampsInLog = opt_Timestamps.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+
+  opt_MsgBox.SetDefault(m_Settings.m_bShowMessageBox);
+  m_Settings.m_bShowMessageBox = opt_MsgBox.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+
+  opt_DisableSuccessful.SetDefault(m_Settings.m_bAutoDisableSuccessfulTests);
+  m_Settings.m_bAutoDisableSuccessfulTests = opt_DisableSuccessful.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+
+  m_Settings.m_iRevision = opt_Revision.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_bEnableAllTests = opt_EnableAllTests.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_uiFullPasses = opt_Passes.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_sTestFilter = opt_Filter.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+
+  if (opt_Json.IsOptionSpecified(nullptr, &cmd))
   {
-    m_sAbsTestOutputDir = cmd.GetStringOption("-outputDir", 0, "");
+    m_Settings.m_sJsonOutput = opt_Json.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  }
+
+  if (opt_OutputDir.IsOptionSpecified(nullptr, &cmd))
+  {
+    m_sAbsTestOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   }
 
   bool bNoAutoSave = false;
-  if (cmd.GetStringOptionArguments("-order") == 1)
+  if (opt_OrderFile.IsOptionSpecified(nullptr, &cmd))
   {
-    m_sAbsTestOrderFilePath = cmd.GetStringOption("-order", 0, "");
+    m_sAbsTestOrderFilePath = opt_OrderFile.GetOptionValue(ezCommandLineOption::LogMode::Always);
     // If a custom order file was provided, default to -nosave as to not overwrite that file with additional
     // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
     bNoAutoSave = true;
@@ -321,9 +365,9 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
     m_sAbsTestOrderFilePath = m_sAbsTestOutputDir + std::string("/TestOrder.txt");
   }
 
-  if (cmd.GetStringOptionArguments("-settings") == 1)
+  if (opt_SettingsFile.IsOptionSpecified(nullptr, &cmd))
   {
-    m_sAbsTestSettingsFilePath = cmd.GetStringOption("-settings", 0, "");
+    m_sAbsTestSettingsFilePath = opt_SettingsFile.GetOptionValue(ezCommandLineOption::LogMode::Always);
     // If a custom settings file was provided, default to -nosave as to not overwrite that file with additional
     // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
     bNoAutoSave = true;
@@ -332,7 +376,8 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   {
     m_sAbsTestSettingsFilePath = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
   }
-  m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", bNoAutoSave);
+  opt_NoSave.SetDefault(bNoAutoSave);
+  m_Settings.m_bNoAutomaticSaving = opt_NoSave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   m_uiPassesLeft = m_Settings.m_uiFullPasses;
 }
@@ -1592,14 +1637,14 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fD
 // EZ_TEST_... macro functions
 ////////////////////////////////////////////////////////////////////////
 
-#define OUTPUT_TEST_ERROR                                                                                                                                                                                                                                                                                  \
-  {                                                                                                                                                                                                                                                                                                        \
-    va_list args;                                                                                                                                                                                                                                                                                          \
-    va_start(args, szMsg);                                                                                                                                                                                                                                                                                 \
-    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args);                                                                                                                                                                                                                           \
-    EZ_TEST_DEBUG_BREAK                                                                                                                                                                                                                                                                                    \
-    va_end(args);                                                                                                                                                                                                                                                                                          \
-    return EZ_FAILURE;                                                                                                                                                                                                                                                                                     \
+#define OUTPUT_TEST_ERROR                                                        \
+  {                                                                              \
+    va_list args;                                                                \
+    va_start(args, szMsg);                                                       \
+    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args); \
+    EZ_TEST_DEBUG_BREAK                                                          \
+    va_end(args);                                                                \
+    return EZ_FAILURE;                                                           \
   }
 
 bool ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
