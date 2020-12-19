@@ -36,4 +36,5 @@ protected:
   };
 
   CommandEncoderType m_CurrentCommandEncoderType = CommandEncoderType::Invalid;
+  bool m_bMarker = false;
 };

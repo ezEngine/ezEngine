@@ -53,10 +53,10 @@ public:
 
   Statistics GetAndResetStatistics();
 
-  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const char* szName, const ezRectFloat& viewport);
+  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "");
   void EndRendering();
 
-  ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName);
+  ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName = "");
   void EndCompute();
 
   // Helper class to automatically end rendering or compute on scope exit
@@ -95,20 +95,20 @@ public:
   };
 
   using RenderingScope = CommandEncoderScope<ezGALRenderCommandEncoder>;
-  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName)
+  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "")
   {
-    return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect));
+    return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName));
   }
 
   EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName)
   {
     ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
 
-    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect));
+    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName));
   }
 
   using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
-  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const char* szName)
+  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const char* szName = "")
   {
     return ComputeScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginCompute(pGALPass, szName));
   }

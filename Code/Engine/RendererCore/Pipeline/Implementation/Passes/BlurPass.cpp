@@ -69,16 +69,16 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-
+    
     // Setup render target
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.m_uiRenderTargetClearMask = ezInvalidIndex;
+    renderingSetup.m_ClearColor = ezColor(1.0f, 0.0f, 0.0f);
 
     // Bind render target and viewport
-    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
 
-    pGALContext->Clear(ezColor(1.0f, 0.0f, 0.0f));
     // Setup input view and sampler
     ezGALResourceViewCreationDescription rvcd;
     rvcd.m_hTexture = inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle;

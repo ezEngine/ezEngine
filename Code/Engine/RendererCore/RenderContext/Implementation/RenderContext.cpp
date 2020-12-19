@@ -128,7 +128,7 @@ ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
   return ret;
 }
 
-ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const char* szName, const ezRectFloat& viewport)
+ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName /*= ""*/)
 {
   ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
 
@@ -156,7 +156,7 @@ ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, 
   gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
   gc.NumMsaaSamples = msaaSampleCount;
 
-  auto pGALCommandEncoder = pGALPass->BeginRendering(std::move(renderingSetup), szName);
+  auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, szName);
 
   pGALCommandEncoder->SetViewport(viewport);
 
@@ -170,6 +170,25 @@ ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, 
 void ezRenderContext::EndRendering()
 {
   m_pGALPass->EndRendering(GetRenderCommandEncoder());
+
+  m_pGALPass = nullptr;
+  m_pGALCommandEncoder = nullptr;
+}
+
+ezGALComputeCommandEncoder* ezRenderContext::BeginCompute(ezGALPass* pGALPass, const char* szName /*= ""*/)
+{
+  auto pGALCommandEncoder = pGALPass->BeginCompute(szName);
+
+  m_pGALPass = pGALPass;
+  m_pGALCommandEncoder = pGALCommandEncoder;
+  m_bCompute = true;
+
+  return pGALCommandEncoder;
+}
+
+void ezRenderContext::EndCompute()
+{
+  m_pGALPass->EndCompute(GetComputeCommandEncoder());
 
   m_pGALPass = nullptr;
   m_pGALCommandEncoder = nullptr;
