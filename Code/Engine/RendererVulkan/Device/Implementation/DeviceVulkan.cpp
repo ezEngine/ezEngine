@@ -1,8 +1,8 @@
 #include <RendererVulkanPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <RendererVulkan/Context/ContextVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Device/PassVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/FenceVulkan.h>
@@ -165,6 +165,27 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
   ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
 
+  // Command buffer
+  vk::CommandPoolCreateInfo commandPoolCreateInfo = {};
+  commandPoolCreateInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+  commandPoolCreateInfo.queueFamilyIndex = graphicsQueueIndex;
+
+  m_commandPool = m_device.createCommandPool(commandPoolCreateInfo);
+
+  vk::CommandBufferAllocateInfo commandBufferAllocateInfo = {};
+  commandBufferAllocateInfo.commandBufferCount = NUM_CMD_BUFFERS;
+  commandBufferAllocateInfo.commandPool = m_commandPool;
+  commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
+
+  m_device.allocateCommandBuffers(&commandBufferAllocateInfo, m_commandBuffers);
+
+  vk::FenceCreateInfo fenceCreateInfo = {};
+  fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+  for (ezUInt32 i = 0; i < NUM_CMD_BUFFERS; ++i)
+  {
+    m_commandBufferFences[i] = m_device.createFence(fenceCreateInfo);
+  }
+
   // Per frame data & timer data
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
@@ -190,6 +211,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
   m_SyncTimeDiff.SetZero();
 
+  m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
+
   return EZ_SUCCESS;
 }
 
@@ -214,6 +237,17 @@ void ezGALDeviceVulkan::ReportLiveGpuObjects()
 
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
+  m_device.waitForFences(vk::ArrayProxy<const vk::Fence>(NUM_CMD_BUFFERS, m_commandBufferFences), VK_TRUE, 1000000000ui64);
+
+  for (ezUInt32 i = 0; i < NUM_CMD_BUFFERS; ++i)
+  {
+    m_device.destroyFence(m_commandBufferFences[i]);
+    m_commandBufferFences[i] = nullptr;
+  }
+
+  m_device.freeCommandBuffers(m_commandPool, NUM_CMD_BUFFERS, m_commandBuffers);
+  m_device.destroyCommandPool(m_commandPool);
+
   for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
   {
     for (auto it = m_FreeTempResources[type].GetIterator(); it.IsValid(); ++it)
@@ -249,8 +283,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
     //EZ_GAL_VULKAN_RELEASE(perFrameData.m_pDisjointTimerQuery);
   }
 
-  EZ_DELETE(&m_Allocator, m_pPrimaryContext);
-  vk::Image image;
+  m_pDefaultPass = nullptr;
   m_device.destroy();
 
   ReportLiveGpuObjects();
@@ -258,6 +291,14 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   return EZ_SUCCESS;
 }
 
+ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
+{
+  return m_pDefaultPass.Borrow();
+}
+
+void ezGALDeviceVulkan::EndPassPlatform(ezGALPass* pPass)
+{
+}
 
 // State creation functions
 
@@ -589,7 +630,6 @@ ezResult ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTim
     return EZ_FAILURE;
   }
 
-  ezGALContextVulkan* pContext = GetPrimaryContext<ezGALContextVulkan>();
 #if 0 // TODO port
   ID3D11Query* pQuery = GetTimestamp(hTimestamp);
 
@@ -629,10 +669,9 @@ void ezGALDeviceVulkan::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 
 void ezGALDeviceVulkan::BeginFramePlatform()
 {
-  ezGALContextVulkan* pContext = GetPrimaryContext<ezGALContextVulkan>();
 
   // check if fence is reached and wait if the disjoint timer is about to be re-used
-  {
+  /*{
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
@@ -642,7 +681,7 @@ void ezGALDeviceVulkan::BeginFramePlatform()
         pContext->WaitForFencePlatform(perFrameData.m_pFence);
       }
     }
-  }
+  }*/
 
   {
     auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
@@ -655,7 +694,6 @@ void ezGALDeviceVulkan::BeginFramePlatform()
 
 void ezGALDeviceVulkan::EndFramePlatform()
 {
-  ezGALContextVulkan* pContext = GetPrimaryContext<ezGALContextVulkan>();
   /*
   // end disjoint query
   {
@@ -714,6 +752,15 @@ void ezGALDeviceVulkan::EndFramePlatform()
     m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   }
   */
+
+  vk::SubmitInfo submitInfo = {};
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &m_commandBuffers[m_uiCurrentCmdBufferIndex];
+
+  m_queue.submit(1, &submitInfo, vk::Fence());  
+
+  m_uiCurrentCmdBufferIndex = (m_uiCurrentCmdBufferIndex + 1) % NUM_CMD_BUFFERS;
+
   ++m_uiFrameCounter;
 }
 

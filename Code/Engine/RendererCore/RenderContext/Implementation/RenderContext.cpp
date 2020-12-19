@@ -128,7 +128,7 @@ ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
   return ret;
 }
 
-ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, ezGALRenderingSetup&& renderingSetup, const char* szName, const ezRectFloat& viewport)
+ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const char* szName, const ezRectFloat& viewport)
 {
   ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
 

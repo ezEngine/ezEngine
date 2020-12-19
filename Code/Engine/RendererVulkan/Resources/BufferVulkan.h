@@ -8,7 +8,7 @@
 class EZ_RENDERERVULKAN_DLL ezGALBufferVulkan : public ezGALBuffer
 {
 public:
-  EZ_ALWAYS_INLINE vk::Buffer GetBuffer() const;
+  EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const;
 
   EZ_ALWAYS_INLINE vk::IndexType GetIndexType() const;
 

@@ -151,7 +151,7 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
   }
   else if (pBuffer)
   {
-    vk::Buffer buffer = static_cast<const ezGALBufferVulkan*>(pBuffer)->GetBuffer();
+    vk::Buffer buffer = static_cast<const ezGALBufferVulkan*>(pBuffer)->GetVkBuffer();
 
     m_resourceBufferInfo.buffer = buffer;
     m_resourceBufferInfo.offset = m_Description.m_uiFirstElement;

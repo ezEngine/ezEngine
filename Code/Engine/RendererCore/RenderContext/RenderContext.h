@@ -4,7 +4,6 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Strings/String.h>
-#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
@@ -14,10 +13,13 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Shader/Shader.h>
+
+#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 
 struct ezRenderWorldRenderEvent;
 
@@ -51,7 +53,7 @@ public:
 
   Statistics GetAndResetStatistics();
 
-  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, ezGALRenderingSetup&& renderingSetup, const char* szName, const ezRectFloat& viewport);
+  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const char* szName, const ezRectFloat& viewport);
   void EndRendering();
 
   ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName);
@@ -93,12 +95,12 @@ public:
   };
 
   using RenderingScope = CommandEncoderScope<ezGALRenderCommandEncoder>;
-  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
+  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName)
   {
     return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), szName, viewContext.m_pViewData->m_ViewPortRect));
   }
 
-  EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, ezGALRenderingSetup&& renderingSetup, const char* szName)
+  EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName)
   {
     ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
 
