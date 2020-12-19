@@ -71,10 +71,10 @@ namespace ezModelImporter2
       if (m_Options.m_sAnimationToImport != pAnim->mName.C_Str())
         continue;
 
-      const ezUInt32 uiMaxKeyframes = (ezUInt32)pAnim->mDuration;
-
-      if (uiMaxKeyframes == 0)
+      if (ezMath::IsZero(pAnim->mDuration, ezMath::DefaultEpsilon<double>()))
         return EZ_FAILURE;
+
+      const ezUInt32 uiMaxKeyframes = (ezUInt32)ezMath::Max(1.0, pAnim->mDuration);
 
       if (m_Options.m_uiNumAnimKeyframes == 0)
       {
