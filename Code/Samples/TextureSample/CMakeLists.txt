@@ -7,15 +7,13 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(APPLICATION ${PROJECT_NAME})
 
-ez_link_target_dx11(${PROJECT_NAME})
-
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererCore
-  RendererDX11
 )
 
 add_dependencies(${PROJECT_NAME}
   InspectorPlugin
-  ShaderCompilerHLSL
+  RendererDX11
+  RendererVulkan
 )

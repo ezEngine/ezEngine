@@ -45,12 +45,18 @@ void ezGALRenderCommandEncoderVulkan::EndEncode()
   m_pCommandBuffer = nullptr;
 }
 
+void ezGALRenderCommandEncoderVulkan::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)
+{
+  // TODO:
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
 // Draw functions
 
 void ezGALRenderCommandEncoderVulkan::DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 {
   //FlushDeferredStateChanges();
-  
+
   m_pCommandBuffer->draw(uiVertexCount, 1, uiStartVertex, 0);
 }
 

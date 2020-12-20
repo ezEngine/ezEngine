@@ -6,7 +6,6 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
@@ -53,7 +52,7 @@ void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
 void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   TempSystemCB systemConstants(pRenderContext);
 
@@ -100,13 +99,13 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
       pParticleBaseData += uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(m_hTrailDataBuffer, 0, ezMakeArrayPtr(pParticleTrailData, uiNumParticlesInBatch).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_hTrailDataBuffer, 0, ezMakeArrayPtr(pParticleTrailData, uiNumParticlesInBatch).ToByteArray());
       pParticleTrailData += uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(m_hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());
       pParticlePointsData += uiNumParticlesInBatch * uiBucketSize;
 
       // do one drawcall

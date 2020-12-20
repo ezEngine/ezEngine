@@ -1,7 +1,6 @@
 #include <GameEnginePCH.h>
 
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
@@ -31,6 +30,8 @@ void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
 
 ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#if 0
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALTextureHandle hBackbuffer = pDevice->GetBackBufferTextureFromSwapChain(m_hSwapChain);
 
@@ -60,6 +61,7 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   ezUInt8* pData = out_Image.GetPixelPointer<ezUInt8>();
 
   ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
+#endif
 
   return EZ_SUCCESS;
 }

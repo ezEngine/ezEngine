@@ -9,6 +9,12 @@ class EZ_RENDERERFOUNDATION_DLL ezGALRenderCommandEncoder : public ezGALCommandE
 public:
   // Draw functions
 
+  /// \brief Clears active rendertargets.
+  ///
+  /// \param uiRenderTargetClearMask
+  ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
+  void Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
+
   void Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
   void DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
   void DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex);
@@ -47,6 +53,8 @@ protected:
   virtual ~ezGALRenderCommandEncoder();
 
   // Draw functions
+
+  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
 
   virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) = 0;
   virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) = 0;

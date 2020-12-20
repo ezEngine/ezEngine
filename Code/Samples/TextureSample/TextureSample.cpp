@@ -27,8 +27,8 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
-#include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Texture/Image/ImageConversion.h>
 
@@ -110,13 +110,20 @@ public:
     ezTelemetry::CreateServer();
     ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
+
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-    ezShaderManager::Configure("VULKAN", true);
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+    constexpr const char* szDefaultRenderer = "Vulkan";
 #else
-    ezShaderManager::Configure("DX11_SM50", true);
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
+    constexpr const char* szDefaultRenderer = "DX11";
 #endif
+
+    const char* szRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+    const char* szShaderModel = "";
+    const char* szShaderCompiler = "";
+    ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+
+    ezShaderManager::Configure(szShaderModel, true);
+    EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 
     // Register Input
     {
@@ -170,7 +177,8 @@ public:
       DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
       DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
-      m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
+      m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+      EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
       EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
       ezGALDevice::SetDefaultDevice(m_pDevice);
@@ -306,13 +314,12 @@ public:
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
-      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, std::move(renderingSetup), "", ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, std::move(renderingSetup), ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
 
       pCommandEncoder->SetRasterizerState(m_hRasterizerState);
       pCommandEncoder->SetDepthStencilState(m_hDepthStencilState);
 
-      ezMat4 Proj =
-        ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);

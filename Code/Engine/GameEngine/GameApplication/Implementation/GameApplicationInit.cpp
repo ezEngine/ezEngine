@@ -10,6 +10,7 @@
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -18,13 +19,7 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <RendererDX11/Device/DeviceDX11.h>
-typedef ezGALDeviceDX11 ezGALDeviceDefault;
-#endif
-
-#include <RendererCore/Decals/DecalAtlasResource.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 
 void ezGameApplication::Init_ConfigureAssetManagement()
 {
@@ -209,6 +204,16 @@ void ezGameApplication::Init_SetupDefaultResources()
   }
 }
 
+const char* GetRendererNameFromCommandLine()
+{
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+  constexpr const char* szDefaultRenderer = "Vulkan";
+#else
+  constexpr const char* szDefaultRenderer = "DX11";
+#endif
+
+  return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+}
 
 void ezGameApplication::Init_SetupGraphicsDevice()
 {
@@ -224,9 +229,15 @@ void ezGameApplication::Init_SetupGraphicsDevice()
     ezGALDevice* pDevice = nullptr;
 
     if (s_DefaultDeviceCreator.IsValid())
+    {
       pDevice = s_DefaultDeviceCreator(DeviceInit);
+    }
     else
-      pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
+    {
+      const char* szRendererName = GetRendererNameFromCommandLine();
+      pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+      EZ_ASSERT_DEV(pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
+    }
 
     EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
     ezGALDevice::SetDefaultDevice(pDevice);
@@ -241,16 +252,16 @@ void ezGameApplication::Init_SetupGraphicsDevice()
 
 void ezGameApplication::Init_LoadRequiredPlugins()
 {
+  const char* szRendererName = GetRendererNameFromCommandLine();
+  const char* szShaderModel = "";
+  const char* szShaderCompiler = "";
+  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+  ezShaderManager::Configure(szShaderModel, true);
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
-#  ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-  ezShaderManager::Configure("VULKAN", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
-#  else
-  ezShaderManager::Configure("DX11_SM50", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
-#  endif
+  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 
 #  ifdef BUILDSYSTEM_ENABLE_RENDERDOC_SUPPORT
   ezPlugin::LoadPlugin("ezRenderDocPlugin").IgnoreResult();

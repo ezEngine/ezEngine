@@ -92,24 +92,23 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = pDevice->GetPrimaryContext();
   ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
 
   if (const ezGALTexture* tex = pDevice->GetTexture(m_hCompanionRenderTarget))
   {
-    EZ_PROFILE_AND_MARKER(pGALContext, "VR CompanionView");
-
-    m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    m_pRenderContext->BindConstantBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
-    m_pRenderContext->BindShader(m_hCompanionShader);
+    auto pPass = pDevice->BeginPass("VR CompanionView");
 
     auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hCompanionRenderTarget);
     ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
 
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetRenderTarget(0, hRenderTargetView);
-    pGALContext->SetRenderTargetSetup(renderTargetSetup);
-    pGALContext->SetViewport(ezRectFloat(targetSize.x, targetSize.y));
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hRenderTargetView);
+
+    m_pRenderContext->BeginRendering(pPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+
+    m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    m_pRenderContext->BindConstantBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+    m_pRenderContext->BindShader(m_hCompanionShader);
 
     auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
     constants->TargetSize = targetSize;
@@ -117,6 +116,10 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
     ezGALResourceViewHandle hInputView = pDevice->GetDefaultResourceView(m_hColorRT);
     m_pRenderContext->BindTexture2D("VRTexture", hInputView);
     m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+
+    m_pRenderContext->EndRendering();
+
+    pDevice->EndPass(pPass);
   }
   if (m_pCompanionWindowOutputTarget)
   {

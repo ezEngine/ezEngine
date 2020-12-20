@@ -155,7 +155,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     return;
 
   ezRenderContext* pRenderContext = renderContext.m_pRenderContext;
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALRenderCommandEncoder* pCommandEncoder = pRenderContext->GetRenderCommandEncoder();
 
   pRenderContext->BindShader(m_hShader);
   const auto& textures = ezImgui::GetSingleton()->m_hTextures;
@@ -168,8 +168,8 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < VertexBufferSize, "GUI has too many elements to render in one drawcall");
     EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < IndexBufferSize, "GUI has too many elements to render in one drawcall");
 
-    pGALContext->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
-    pGALContext->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
+    pCommandEncoder->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
+    pCommandEncoder->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
 
     pRenderContext->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
 
@@ -181,7 +181,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
 
       if (imGuiBatch.m_uiVertexCount > 0 && imGuiBatch.m_uiTextureID < numTextures)
       {
-        pGALContext->SetScissorRect(imGuiBatch.m_ScissorRect);
+        pCommandEncoder->SetScissorRect(imGuiBatch.m_ScissorRect);
         pRenderContext->BindTexture2D("BaseTexture", textures[imGuiBatch.m_uiTextureID]);
         pRenderContext->DrawMeshBuffer(imGuiBatch.m_uiVertexCount / 3, uiFirstIndex / 3).IgnoreResult();
       }
