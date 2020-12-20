@@ -2,31 +2,31 @@
 #pragma once
 
 #include <Foundation/Types/Bitflags.h>
+#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
+struct ID3D11DeviceChild;
+struct ID3D11DeviceContext;
+struct ID3DUserDefinedAnnotation;
+struct ID3D11RenderTargetView;
+struct ID3D11DepthStencilView;
+struct ID3D11Buffer;
+struct ID3D11ShaderResourceView;
+struct ID3D11UnorderedAccessView;
+struct ID3D11SamplerState;
+struct ID3D11Query;
 
-class ezGALBlendStateVulkan;
-class ezGALBufferVulkan;
-class ezGALDepthStencilStateVulkan;
-class ezGALRasterizerStateVulkan;
-class ezGALResourceViewVulkan;
-class ezGALSamplerStateVulkan;
-class ezGALShaderVulkan;
-class ezGALUnorderedAccessViewVulkan;
-
-/// \brief The Vulkan implementation of the command encoder.
+/// \brief The DX11 implementation of the graphics context.
 template <typename Base>
-class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderVulkan : public Base
+class EZ_RENDERERDX11_DLL ezGALCommandEncoderDX11 : public Base
 {
 protected:
-  friend class ezGALDeviceVulkan;
+  friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
-  ezGALCommandEncoderVulkan(ezGALDevice& device);
-  ~ezGALCommandEncoderVulkan();
+  ezGALCommandEncoderDX11(ezGALDevice& device);
+  ~ezGALCommandEncoderDX11();
 
   // State setting functions
 
@@ -64,9 +64,11 @@ protected:
   virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) override;
   virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box) override;
 
-  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) override;
+  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+    const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) override;
 
-  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) override;
+  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+    const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) override;
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) override;
 
@@ -84,45 +86,26 @@ protected:
   virtual void PopMarkerPlatform() override;
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
-  void FlushDeferredStateChanges();
+  virtual void FlushDeferredStateChanges();
 
-  vk::Device m_vkDevice;
 
-  vk::CommandBuffer* m_pCommandBuffer = nullptr;
-
-  const ezGALShaderVulkan* m_pCurrentShader;
-  const ezGALBlendStateVulkan* m_pCurrentBlendState;
-  const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState;
-  const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState;
-  const vk::PipelineVertexInputStateCreateInfo* m_pCurrentVertexLayout;
-  vk::PrimitiveTopology m_currentPrimitiveTopology;
-
-  bool m_bPipelineStateDirty = false;
-  bool m_bFrameBufferDirty = false;
-  bool m_bDescriptorsDirty = false;
+  ID3D11DeviceContext* m_pDXContext = nullptr;
+  ID3DUserDefinedAnnotation* m_pDXAnnotation = nullptr;
 
   // Bound objects for deferred state flushes
-  const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];
-  const ezGALRenderTargetView* m_pBoundDepthStencilTarget;
-  ezUInt32 m_uiBoundRenderTargetCount;
-
-  vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-  ezGAL::ModifiedRange m_BoundVertexBuffersRange;
-
-  ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-  ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-
-  const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
+  ID3D11Buffer* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
   ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<const ezGALResourceViewVulkan*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT];
+  ezHybridArray<ID3D11ShaderResourceView*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
   ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<const ezGALUnorderedAccessViewVulkan*, 16> m_pBoundUnoderedAccessViews;
+  ezHybridArray<ID3D11UnorderedAccessView*, 16> m_pBoundUnoderedAccessViews;
   ezGAL::ModifiedRange m_pBoundUnoderedAccessViewsRange;
 
-  const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
+  ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};
   ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
+
+  ID3D11DeviceChild* m_pBoundShaders[ezGALShaderStage::ENUM_COUNT] = {};
 };
 
-#include <RendererVulkan/CommandEncoder/Implementation/CommandEncoderVulkan_inl.h>
+#include <RendererDX11/CommandEncoder/Implementation/CommandEncoderDX11_inl.h>

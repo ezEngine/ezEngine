@@ -18,13 +18,12 @@ class ezGALPassVulkan;
 /// \brief The Vulkan device implementation of the graphics abstraction layer.
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
 {
-
-  /// \todo This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
-public:
+private:
+  friend ezGALDevice* CreateVulkanDevice(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description);
   ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description);
 
+public:
   virtual ~ezGALDeviceVulkan();
-
 
 public:
   vk::Instance GetVulkanInstance() const;

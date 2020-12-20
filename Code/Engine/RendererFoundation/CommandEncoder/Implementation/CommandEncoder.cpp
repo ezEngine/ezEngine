@@ -518,15 +518,27 @@ void ezGALCommandEncoder::InvalidateState()
 {
   m_hShader = ezGALShaderHandle();
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  //m_hConstantBuffers = {};
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hConstantBuffers); ++i)
+  {
+    m_hConstantBuffers[i].Invalidate();
+  }
 
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  {
+    m_hResourceViews[i].Clear();
+    m_pResourcesForResourceViews[i].Clear();
+  }
 
-  // ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
+  m_hUnorderedAccessViews.Clear();
+  m_pResourcesForUnorderedAccessViews.Clear();
 
-  // ezGALResourceViewHandle m_hResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
-
-  // ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  {
+    for (ezUInt32 j = 0; j < EZ_GAL_MAX_SAMPLER_COUNT; j++)
+    {
+      m_hSamplerStates[i][j].Invalidate();
+    }
+  }
 }
 
 bool ezGALCommandEncoder::UnsetResourceViews(const ezGALResourceBase* pResource)

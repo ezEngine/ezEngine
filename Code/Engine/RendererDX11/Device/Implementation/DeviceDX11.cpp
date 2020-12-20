@@ -2,8 +2,9 @@
 
 #include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <RendererDX11/Context/ContextDX11.h>
+#include <RendererDX11/CommandEncoder/RenderCommandEncoderDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/Device/PassDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
 #include <RendererDX11/Resources/FenceDX11.h>
@@ -15,6 +16,7 @@
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 
 #include <d3d11.h>
 #include <d3d11_3.h>
@@ -23,6 +25,13 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <d3d11_1.h>
 #endif
+
+ezGALDevice* CreateDX11Device(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
+{
+  return EZ_NEW(pAllocator, ezGALDeviceDX11, Description);
+}
+
+static bool s_Dummy = ezGALDeviceFactory::RegisterCreatorFunc("DX11", &CreateDX11Device, "DX11_SM50", "ezShaderCompilerHLSL");
 
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
@@ -92,6 +101,8 @@ retry:
   }
   else
   {
+    m_pImmediateContext = pImmediateContext;
+
     const char* FeatureLevelNames[] = {"11.1", "11.0", "10.1", "10", "9.3"};
 
     EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
@@ -136,9 +147,8 @@ retry:
   }
 
 
-  // Create primary context object
-  m_pPrimaryContext = EZ_NEW(&m_Allocator, ezGALContextDX11, this, pImmediateContext);
-  EZ_ASSERT_RELEASE(m_pPrimaryContext != nullptr, "Couldn't create primary context!");
+  // Create default pass
+  m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassDX11, *this);
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void**)&m_pDXGIDevice)))
   {
@@ -301,8 +311,9 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   }
 #endif
 
-  EZ_DELETE(&m_Allocator, m_pPrimaryContext);
+  m_pDefaultPass = nullptr;
 
+  EZ_GAL_DX11_RELEASE(m_pImmediateContext);
   EZ_GAL_DX11_RELEASE(m_pDevice3);
   EZ_GAL_DX11_RELEASE(m_pDevice);
   EZ_GAL_DX11_RELEASE(m_pDebug);
@@ -315,6 +326,21 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   return EZ_SUCCESS;
 }
 
+// Pass functions
+
+ezGALPass* ezGALDeviceDX11::BeginPassPlatform(const char* szName)
+{
+  m_pDefaultPass->BeginPass(szName);
+
+  return m_pDefaultPass.Borrow();
+}
+
+void ezGALDeviceDX11::EndPassPlatform(ezGALPass* pPass)
+{
+  EZ_ASSERT_DEV(m_pDefaultPass.Borrow() == pPass, "Invalid pass");
+
+  m_pDefaultPass->EndPass();
+}
 
 // State creation functions
 
@@ -641,11 +667,10 @@ ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimes
     return EZ_FAILURE;
   }
 
-  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
   ID3D11Query* pQuery = GetTimestamp(hTimestamp);
 
   ezUInt64 uiTimestamp;
-  if (FAILED(pContext->GetDXContext()->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
+  if (FAILED(m_pImmediateContext->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
   {
     return EZ_FAILURE;
   }
@@ -671,7 +696,7 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
   // If there is a "actual backbuffer" (see it's documentation for detailed explanation), copy to it.
   if (!pDXSwapChain->m_hActualBackBufferTexture.IsInvalidated())
   {
-    GetPrimaryContext()->CopyTexture(pDXSwapChain->m_hActualBackBufferTexture, pDXSwapChain->m_hBackBufferTexture);
+    m_pDefaultPass->m_pRenderCommandEncoder->CopyTexture(pDXSwapChain->m_hActualBackBufferTexture, pDXSwapChain->m_hBackBufferTexture);
   }
 
   HRESULT result = pDXGISwapChain->Present(bVSync ? 1 : 0, 0);
@@ -683,9 +708,8 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Since the swap chain can't be in discard mode, we do the discarding ourselves.
-  ID3D11DeviceContext* deviceContext = static_cast<ezGALContextDX11*>(GetPrimaryContext())->GetDXContext();
   ID3D11DeviceContext1* deviceContext1 = nullptr;
-  if (FAILED(deviceContext->QueryInterface(&deviceContext1)))
+  if (FAILED(m_pImmediateContext->QueryInterface(&deviceContext1)))
   {
     ezLog::Error("Failed to query ID3D11DeviceContext1.");
     return;
@@ -707,24 +731,24 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 
 void ezGALDeviceDX11::BeginFramePlatform()
 {
-  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
+  auto& pCommandEncoder = m_pDefaultPass->m_pRenderCommandEncoder;
 
   // check if fence is reached and wait if the disjoint timer is about to be re-used
   {
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-      bool bFenceReached = pContext->IsFenceReachedPlatform(perFrameData.m_pFence);
+      bool bFenceReached = pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence);
       if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
       {
-        pContext->WaitForFencePlatform(perFrameData.m_pFence);
+        pCommandEncoder->WaitForFencePlatform(perFrameData.m_pFence);
       }
     }
   }
 
   {
     auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    pContext->GetDXContext()->Begin(perFrameData.m_pDisjointTimerQuery);
+    m_pImmediateContext->Begin(perFrameData.m_pDisjointTimerQuery);
 
     perFrameData.m_fInvTicksPerSecond = -1.0f;
   }
@@ -732,12 +756,12 @@ void ezGALDeviceDX11::BeginFramePlatform()
 
 void ezGALDeviceDX11::EndFramePlatform()
 {
-  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
+  auto& pCommandEncoder = m_pDefaultPass->m_pRenderCommandEncoder;
 
   // end disjoint query
   {
     auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    pContext->GetDXContext()->End(perFrameData.m_pDisjointTimerQuery);
+    m_pImmediateContext->End(perFrameData.m_pDisjointTimerQuery);
   }
 
   // check if fence is reached and update per frame data
@@ -745,12 +769,12 @@ void ezGALDeviceDX11::EndFramePlatform()
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-      if (pContext->IsFenceReachedPlatform(perFrameData.m_pFence))
+      if (pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence))
       {
         FreeTempResources(perFrameData.m_uiFrame);
 
         D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data;
-        if (FAILED(pContext->GetDXContext()->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)) || data.Disjoint)
+        if (FAILED(m_pImmediateContext->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)) || data.Disjoint)
         {
           perFrameData.m_fInvTicksPerSecond = 0.0f;
         }
@@ -760,11 +784,11 @@ void ezGALDeviceDX11::EndFramePlatform()
 
           if (m_bSyncTimeNeeded)
           {
-            ezGALTimestampHandle hTimestamp = pContext->InsertTimestamp();
+            ezGALTimestampHandle hTimestamp = pCommandEncoder->InsertTimestamp();
             ID3D11Query* pQuery = GetTimestamp(hTimestamp);
 
             ezUInt64 uiTimestamp;
-            while (pContext->GetDXContext()->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), 0) != S_OK)
+            while (m_pImmediateContext->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), 0) != S_OK)
             {
               ezThreadUtils::YieldTimeSlice();
             }
@@ -784,7 +808,7 @@ void ezGALDeviceDX11::EndFramePlatform()
     perFrameData.m_uiFrame = m_uiFrameCounter;
 
     // insert fence
-    pContext->InsertFencePlatform(perFrameData.m_pFence);
+    pCommandEncoder->InsertFencePlatform(perFrameData.m_pFence);
 
     m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   }

@@ -1,6 +1,7 @@
 #include <RendererVulkanPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/PassVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
@@ -58,6 +59,13 @@ VkResult vkDebugMarkerSetObjectNameEXT(VkDevice device, const VkDebugMarkerObjec
 {
   return vkDebugMarkerSetObjectNameEXTFunc(device, pNameInfo);
 }
+
+ezGALDevice* CreateVulkanDevice(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
+{
+  return EZ_NEW(pAllocator, ezGALDeviceVulkan, Description);
+}
+
+static bool s_Dummy = ezGALDeviceFactory::RegisterCreatorFunc("Vulkan", &CreateVulkanDevice, "VULKAN", "ezShaderCompilerDXC");
 
 ezGALDeviceVulkan::ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
@@ -757,7 +765,7 @@ void ezGALDeviceVulkan::EndFramePlatform()
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &m_commandBuffers[m_uiCurrentCmdBufferIndex];
 
-  m_queue.submit(1, &submitInfo, vk::Fence());  
+  m_queue.submit(1, &submitInfo, vk::Fence());
 
   m_uiCurrentCmdBufferIndex = (m_uiCurrentCmdBufferIndex + 1) % NUM_CMD_BUFFERS;
 
