@@ -27,7 +27,8 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 
   enum Enum : ezInt8
   {
-    Flush = -3,            ///< The user explicitly called ezLog::Flush() to instruct log writers to flush any cached output
+    GlobalDefault = -4,    ///< Takes the log level from the ezLog default value. See ezLog::SetDefaultLogLevel().
+    Flush = -3,            ///< The user explicitly called ezLog::Flush() to instruct log writers to flush any cached output.
     BeginGroup = -2,       ///< A logging group has been opened.
     EndGroup = -1,         ///< A logging group has been closed.
     None = 0,              ///< Can be used to disable all log message types.
@@ -89,7 +90,7 @@ private:
   friend class ezLog;
   friend class ezLogBlock;
   ezLogBlock* m_pCurrentBlock = nullptr;
-  ezLogMsgType::Enum m_LogLevel = ezLogMsgType::All;
+  ezLogMsgType::Enum m_LogLevel = ezLogMsgType::GlobalDefault;
   ezUInt32 m_uiLoggedMsgsSinceFlush = 0;
   ezTime m_LastFlushTime;
 };
@@ -100,6 +101,11 @@ private:
 class ezMuteLog : public ezLogInterface
 {
 public:
+  ezMuteLog()
+  {
+    SetLogLevel(ezLogMsgType::None);
+  }
+
   virtual void HandleLogMessage(const ezLoggingEventData&) override {}
 };
 
@@ -169,10 +175,11 @@ public:
   /// \brief Returns the currently set default logging system, or a thread local instance of ezGlobalLog, if nothing else was set.
   static ezLogInterface* GetThreadLocalLogSystem();
 
-  /// \brief Sets the default log level which is used when new per thread logging systems are created on demand.
-  ///
-  /// Note that changes using this method will not affect already created log systems.
+  /// \brief Sets the default log level which is used by all ezLogInterface's that have their log level set to ezLogMsgType::GlobalDefault
   static void SetDefaultLogLevel(ezLogMsgType::Enum LogLevel);
+
+  /// \brief Returns the currently set default log level.
+  static ezLogMsgType::Enum GetDefaultLogLevel();
 
   /// \brief An error that needs to be fixed as soon as possible.
   static void Error(ezLogInterface* pInterface, const ezFormatString& string);
