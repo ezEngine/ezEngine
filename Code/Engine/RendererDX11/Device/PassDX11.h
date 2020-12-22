@@ -3,8 +3,11 @@
 
 #include <RendererFoundation/Device/Pass.h>
 
-class ezGALRenderCommandEncoderDX11;
-class ezGALComputeCommandEncoderDX11;
+struct ezGALCommandEncoderRenderState;
+class ezGALRenderCommandEncoder;
+class ezGALComputeCommandEncoder;
+
+class ezGALCommandEncoderImplDX11;
 
 class ezGALPassDX11 : public ezGALPass
 {
@@ -25,6 +28,9 @@ protected:
   void EndPass();
 
 private:
-  ezUniquePtr<ezGALRenderCommandEncoderDX11> m_pRenderCommandEncoder;
-  ezUniquePtr<ezGALComputeCommandEncoderDX11> m_pComputeCommandEncoder;
+  ezUniquePtr<ezGALCommandEncoderRenderState> m_pCommandEncoderState;
+  ezUniquePtr<ezGALCommandEncoderImplDX11> m_pCommandEncoderImpl;
+
+  ezUniquePtr<ezGALRenderCommandEncoder> m_pRenderCommandEncoder;
+  ezUniquePtr<ezGALComputeCommandEncoder> m_pComputeCommandEncoder;
 };

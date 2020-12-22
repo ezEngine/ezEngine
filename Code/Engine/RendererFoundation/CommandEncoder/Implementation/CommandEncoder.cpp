@@ -9,20 +9,12 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
 
-ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& device)
-  : m_Device(device)
-{
-  InvalidateState();
-}
-
-ezGALCommandEncoder::~ezGALCommandEncoder() = default;
-
 void ezGALCommandEncoder::SetShader(ezGALShaderHandle hShader)
 {
   AssertRenderingThread();
   /// \todo Assert for shader capabilities (supported shader stages etc.)
 
-  if (m_hShader == hShader)
+  if (m_State.m_hShader == hShader)
   {
     CountRedundantStateChange();
     return;
@@ -31,9 +23,9 @@ void ezGALCommandEncoder::SetShader(ezGALShaderHandle hShader)
   const ezGALShader* pShader = m_Device.GetShader(hShader);
   EZ_ASSERT_DEV(pShader != nullptr, "The given shader handle isn't valid, this may be a use after destroy!");
 
-  SetShaderPlatform(pShader);
+  m_CommonImpl.SetShaderPlatform(pShader);
 
-  m_hShader = hShader;
+  m_State.m_hShader = hShader;
   CountStateChange();
 }
 
@@ -42,7 +34,7 @@ void ezGALCommandEncoder::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle h
   AssertRenderingThread();
   EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
 
-  if (m_hConstantBuffers[uiSlot] == hBuffer)
+  if (m_State.m_hConstantBuffers[uiSlot] == hBuffer)
   {
     CountRedundantStateChange();
     return;
@@ -51,9 +43,9 @@ void ezGALCommandEncoder::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle h
   const ezGALBuffer* pBuffer = m_Device.GetBuffer(hBuffer);
   EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer, "Wrong buffer type");
 
-  SetConstantBufferPlatform(uiSlot, pBuffer);
+  m_CommonImpl.SetConstantBufferPlatform(uiSlot, pBuffer);
 
-  m_hConstantBuffers[uiSlot] = hBuffer;
+  m_State.m_hConstantBuffers[uiSlot] = hBuffer;
 
   CountStateChange();
 }
@@ -63,7 +55,7 @@ void ezGALCommandEncoder::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32
   AssertRenderingThread();
   EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_SAMPLER_COUNT, "Sampler state slot index too big!");
 
-  if (m_hSamplerStates[Stage][uiSlot] == hSamplerState)
+  if (m_State.m_hSamplerStates[Stage][uiSlot] == hSamplerState)
   {
     CountRedundantStateChange();
     return;
@@ -71,9 +63,9 @@ void ezGALCommandEncoder::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32
 
   const ezGALSamplerState* pSamplerState = m_Device.GetSamplerState(hSamplerState);
 
-  SetSamplerStatePlatform(Stage, uiSlot, pSamplerState);
+  m_CommonImpl.SetSamplerStatePlatform(Stage, uiSlot, pSamplerState);
 
-  m_hSamplerStates[Stage][uiSlot] = hSamplerState;
+  m_State.m_hSamplerStates[Stage][uiSlot] = hSamplerState;
 
   CountStateChange();
 }
@@ -84,7 +76,7 @@ void ezGALCommandEncoder::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32
 
   /// \todo Check if the device supports the stage / the slot index
 
-  auto& boundResourceViews = m_hResourceViews[Stage];
+  auto& boundResourceViews = m_State.m_hResourceViews[Stage];
   if (uiSlot < boundResourceViews.GetCount() && boundResourceViews[uiSlot] == hResourceView)
   {
     CountRedundantStateChange();
@@ -96,79 +88,21 @@ void ezGALCommandEncoder::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32
   {
     if (UnsetUnorderedAccessViews(pResourceView->GetResource()))
     {
-      FlushPlatform();
+      m_CommonImpl.FlushPlatform();
     }
   }
 
-  SetResourceViewPlatform(Stage, uiSlot, pResourceView);
+  m_CommonImpl.SetResourceViewPlatform(Stage, uiSlot, pResourceView);
 
   boundResourceViews.EnsureCount(uiSlot + 1);
   boundResourceViews[uiSlot] = hResourceView;
 
-  auto& boundResources = m_pResourcesForResourceViews[Stage];
+  auto& boundResources = m_State.m_pResourcesForResourceViews[Stage];
   boundResources.EnsureCount(uiSlot + 1);
   boundResources[uiSlot] = pResourceView != nullptr ? pResourceView->GetResource()->GetParentResource() : nullptr;
 
   CountStateChange();
 }
-
-#if 0
-void ezGALCommandEncoder::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTargetSetup)
-{
-  AssertRenderingThread();
-
-  if (m_RenderTargetSetup == RenderTargetSetup)
-  {
-    CountRedundantStateChange();
-    return;
-  }
-
-  const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = {nullptr};
-  const ezGALRenderTargetView* pDepthStencilView = nullptr;
-
-  ezUInt32 uiRenderTargetCount = 0;
-
-  bool bFlushNeeded = false;
-
-  if (RenderTargetSetup.HasRenderTargets())
-  {
-    for (ezUInt8 uiIndex = 0; uiIndex <= RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex)
-    {
-      const ezGALRenderTargetView* pRenderTargetView = m_Device.GetRenderTargetView(RenderTargetSetup.GetRenderTarget(uiIndex));
-      if (pRenderTargetView != nullptr)
-      {
-        const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
-
-        bFlushNeeded |= UnsetResourceViews(pTexture);
-        bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
-      }
-
-      pRenderTargetViews[uiIndex] = pRenderTargetView;
-    }
-
-    uiRenderTargetCount = RenderTargetSetup.GetMaxRenderTargetIndex() + 1;
-  }
-
-  pDepthStencilView = m_Device.GetRenderTargetView(RenderTargetSetup.GetDepthStencilTarget());
-  if (pDepthStencilView != nullptr)
-  {
-    const ezGALResourceBase* pTexture = pDepthStencilView->GetTexture()->GetParentResource();
-
-    bFlushNeeded |= UnsetResourceViews(pTexture);
-    bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
-  }
-
-  if (bFlushNeeded)
-  {
-    FlushPlatform();
-  }
-  SetRenderTargetSetupPlatform(ezMakeArrayPtr(pRenderTargetViews, uiRenderTargetCount), pDepthStencilView);
-
-  m_RenderTargetSetup = RenderTargetSetup;
-
-  CountStateChange();
-}
-#endif
 
 void ezGALCommandEncoder::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
 {
@@ -176,7 +110,7 @@ void ezGALCommandEncoder::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnordered
 
   /// \todo Check if the device supports the stage / the slot index
 
-  if (uiSlot < m_hUnorderedAccessViews.GetCount() && m_hUnorderedAccessViews[uiSlot] == hUnorderedAccessView)
+  if (uiSlot < m_State.m_hUnorderedAccessViews.GetCount() && m_State.m_hUnorderedAccessViews[uiSlot] == hUnorderedAccessView)
   {
     CountRedundantStateChange();
     return;
@@ -187,41 +121,87 @@ void ezGALCommandEncoder::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnordered
   {
     if (UnsetResourceViews(pUnorderedAccessView->GetResource()))
     {
-      FlushPlatform();
+      m_CommonImpl.FlushPlatform();
     }
   }
 
-  SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
+  m_CommonImpl.SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
 
-  m_hUnorderedAccessViews.EnsureCount(uiSlot + 1);
-  m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
+  m_State.m_hUnorderedAccessViews.EnsureCount(uiSlot + 1);
+  m_State.m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
 
-  m_pResourcesForUnorderedAccessViews.EnsureCount(uiSlot + 1);
-  m_pResourcesForUnorderedAccessViews[uiSlot] =
-    pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource()->GetParentResource() : nullptr;
+  m_State.m_pResourcesForUnorderedAccessViews.EnsureCount(uiSlot + 1);
+  m_State.m_pResourcesForUnorderedAccessViews[uiSlot] = pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource()->GetParentResource() : nullptr;
 
   CountStateChange();
+}
+
+bool ezGALCommandEncoder::UnsetResourceViews(const ezGALResourceBase* pResource)
+{
+  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
+
+  bool bResult = false;
+
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    for (ezUInt32 uiSlot = 0; uiSlot < m_State.m_pResourcesForResourceViews[stage].GetCount(); ++uiSlot)
+    {
+      if (m_State.m_pResourcesForResourceViews[stage][uiSlot] == pResource)
+      {
+        m_CommonImpl.SetResourceViewPlatform((ezGALShaderStage::Enum)stage, uiSlot, nullptr);
+
+        m_State.m_hResourceViews[stage][uiSlot].Invalidate();
+        m_State.m_pResourcesForResourceViews[stage][uiSlot] = nullptr;
+
+        bResult = true;
+      }
+    }
+  }
+
+  return bResult;
+}
+
+bool ezGALCommandEncoder::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
+{
+  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
+
+  bool bResult = false;
+
+  for (ezUInt32 uiSlot = 0; uiSlot < m_State.m_pResourcesForUnorderedAccessViews.GetCount(); ++uiSlot)
+  {
+    if (m_State.m_pResourcesForUnorderedAccessViews[uiSlot] == pResource)
+    {
+      m_CommonImpl.SetUnorderedAccessViewPlatform(uiSlot, nullptr);
+
+      m_State.m_hUnorderedAccessViews[uiSlot].Invalidate();
+      m_State.m_pResourcesForUnorderedAccessViews[uiSlot] = nullptr;
+
+      bResult = true;
+    }
+  }
+
+  return bResult;
 }
 
 void ezGALCommandEncoder::InsertFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  InsertFencePlatform(m_Device.GetFence(hFence));
+  m_CommonImpl.InsertFencePlatform(m_Device.GetFence(hFence));
 }
 
 bool ezGALCommandEncoder::IsFenceReached(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  return IsFenceReachedPlatform(m_Device.GetFence(hFence));
+  return m_CommonImpl.IsFenceReachedPlatform(m_Device.GetFence(hFence));
 }
 
 void ezGALCommandEncoder::WaitForFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  WaitForFencePlatform(m_Device.GetFence(hFence));
+  m_CommonImpl.WaitForFencePlatform(m_Device.GetFence(hFence));
 }
 
 void ezGALCommandEncoder::BeginQuery(ezGALQueryHandle hQuery)
@@ -231,7 +211,7 @@ void ezGALCommandEncoder::BeginQuery(ezGALQueryHandle hQuery)
   auto query = m_Device.GetQuery(hQuery);
   EZ_ASSERT_DEV(!query->m_bStarted, "Can't stat ezGALQuery because it is already running.");
 
-  BeginQueryPlatform(query);
+  m_CommonImpl.BeginQueryPlatform(query);
 }
 
 void ezGALCommandEncoder::EndQuery(ezGALQueryHandle hQuery)
@@ -241,7 +221,7 @@ void ezGALCommandEncoder::EndQuery(ezGALQueryHandle hQuery)
   auto query = m_Device.GetQuery(hQuery);
   EZ_ASSERT_DEV(query->m_bStarted, "Can't end ezGALQuery, query hasn't started yet.");
 
-  EndQueryPlatform(query);
+  m_CommonImpl.EndQueryPlatform(query);
 }
 
 ezResult ezGALCommandEncoder::GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQueryResult)
@@ -251,14 +231,14 @@ ezResult ezGALCommandEncoder::GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& 
   auto query = m_Device.GetQuery(hQuery);
   EZ_ASSERT_DEV(!query->m_bStarted, "Can't retrieve data from ezGALQuery while query is still running.");
 
-  return GetQueryResultPlatform(query, uiQueryResult);
+  return m_CommonImpl.GetQueryResultPlatform(query, uiQueryResult);
 }
 
 ezGALTimestampHandle ezGALCommandEncoder::InsertTimestamp()
 {
   ezGALTimestampHandle hTimestamp = m_Device.GetTimestamp();
 
-  InsertTimestampPlatform(hTimestamp);
+  m_CommonImpl.InsertTimestampPlatform(hTimestamp);
 
   return hTimestamp;
 }
@@ -274,7 +254,7 @@ void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandl
     return;
   }
 
-  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
+  m_CommonImpl.ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
 }
 
 void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues)
@@ -288,7 +268,7 @@ void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandl
     return;
   }
 
-  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
+  m_CommonImpl.ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
 }
 
 void ezGALCommandEncoder::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource)
@@ -300,7 +280,7 @@ void ezGALCommandEncoder::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle 
 
   if (pDest != nullptr && pSource != nullptr)
   {
-    CopyBufferPlatform(pDest, pSource);
+    m_CommonImpl.CopyBufferPlatform(pDest, pSource);
   }
   else
   {
@@ -324,7 +304,7 @@ void ezGALCommandEncoder::CopyBufferRegion(
     EZ_ASSERT_DEV(uiDestSize >= uiDestOffset + uiByteCount, "Destination buffer too small (or offset too big)");
     EZ_ASSERT_DEV(uiSourceSize >= uiSourceOffset + uiByteCount, "Source buffer too small (or offset too big)");
 
-    CopyBufferRegionPlatform(pDest, uiDestOffset, pSource, uiSourceOffset, uiByteCount);
+    m_CommonImpl.CopyBufferRegionPlatform(pDest, uiDestOffset, pSource, uiSourceOffset, uiByteCount);
   }
   else
   {
@@ -349,7 +329,7 @@ void ezGALCommandEncoder::UpdateBuffer(
     }
 
     EZ_VERIFY(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
-    UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, updateMode);
+    m_CommonImpl.UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, updateMode);
   }
   else
   {
@@ -366,7 +346,7 @@ void ezGALCommandEncoder::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHand
 
   if (pDest != nullptr && pSource != nullptr)
   {
-    CopyTexturePlatform(pDest, pSource);
+    m_CommonImpl.CopyTexturePlatform(pDest, pSource);
   }
   else
   {
@@ -384,7 +364,7 @@ void ezGALCommandEncoder::CopyTextureRegion(ezGALTextureHandle hDest, const ezGA
 
   if (pDest != nullptr && pSource != nullptr)
   {
-    CopyTextureRegionPlatform(pDest, DestinationSubResource, DestinationPoint, pSource, SourceSubResource, Box);
+    m_CommonImpl.CopyTextureRegionPlatform(pDest, DestinationSubResource, DestinationPoint, pSource, SourceSubResource, Box);
   }
   else
   {
@@ -401,7 +381,7 @@ void ezGALCommandEncoder::UpdateTexture(ezGALTextureHandle hDest, const ezGALTex
 
   if (pDest != nullptr)
   {
-    UpdateTexturePlatform(pDest, DestinationSubResource, DestinationBox, pSourceData);
+    m_CommonImpl.UpdateTexturePlatform(pDest, DestinationSubResource, DestinationBox, pSourceData);
   }
   else
   {
@@ -419,7 +399,7 @@ void ezGALCommandEncoder::ResolveTexture(ezGALTextureHandle hDest, const ezGALTe
 
   if (pDest != nullptr && pSource != nullptr)
   {
-    ResolveTexturePlatform(pDest, DestinationSubResource, pSource, SourceSubResource);
+    m_CommonImpl.ResolveTexturePlatform(pDest, DestinationSubResource, pSource, SourceSubResource);
   }
   else
   {
@@ -438,7 +418,7 @@ void ezGALCommandEncoder::ReadbackTexture(ezGALTextureHandle hTexture)
     EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
       "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
-    ReadbackTexturePlatform(pTexture);
+    m_CommonImpl.ReadbackTexturePlatform(pTexture);
   }
 }
 
@@ -453,7 +433,7 @@ void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture,
     EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
       "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
-    CopyTextureReadbackResultPlatform(pTexture, pData);
+    m_CommonImpl.CopyTextureReadbackResultPlatform(pTexture, pData);
   }
 }
 
@@ -469,7 +449,7 @@ void ezGALCommandEncoder::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
     EZ_ASSERT_DEV(pTexture->GetDescription().m_bAllowDynamicMipGeneration,
       "Dynamic mip map generation needs to be enabled (m_bAllowDynamicMipGeneration = true)!");
 
-    GenerateMipMapsPlatform(pResourceView);
+    m_CommonImpl.GenerateMipMapsPlatform(pResourceView);
   }
 }
 
@@ -477,7 +457,7 @@ void ezGALCommandEncoder::Flush()
 {
   AssertRenderingThread();
 
-  FlushPlatform();
+  m_CommonImpl.FlushPlatform();
 }
 
 // Debug helper functions
@@ -488,14 +468,14 @@ void ezGALCommandEncoder::PushMarker(const char* Marker)
 
   EZ_ASSERT_DEV(Marker != nullptr, "Invalid marker!");
 
-  PushMarkerPlatform(Marker);
+  m_CommonImpl.PushMarkerPlatform(Marker);
 }
 
 void ezGALCommandEncoder::PopMarker()
 {
   AssertRenderingThread();
 
-  PopMarkerPlatform();
+  m_CommonImpl.PopMarkerPlatform();
 }
 
 void ezGALCommandEncoder::InsertEventMarker(const char* Marker)
@@ -504,7 +484,7 @@ void ezGALCommandEncoder::InsertEventMarker(const char* Marker)
 
   EZ_ASSERT_DEV(Marker != nullptr, "Invalid marker!");
 
-  InsertEventMarkerPlatform(Marker);
+  m_CommonImpl.InsertEventMarkerPlatform(Marker);
 }
 
 void ezGALCommandEncoder::ClearStatisticsCounters()
@@ -514,76 +494,16 @@ void ezGALCommandEncoder::ClearStatisticsCounters()
   m_uiRedundantStateChanges = 0;
 }
 
+ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl)
+  : m_Device(device)
+  , m_State(state)
+  , m_CommonImpl(commonImpl)
+{
+}
+
+ezGALCommandEncoder::~ezGALCommandEncoder() = default;
+
 void ezGALCommandEncoder::InvalidateState()
 {
-  m_hShader = ezGALShaderHandle();
-
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hConstantBuffers); ++i)
-  {
-    m_hConstantBuffers[i].Invalidate();
-  }
-
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
-  {
-    m_hResourceViews[i].Clear();
-    m_pResourcesForResourceViews[i].Clear();
-  }
-
-  m_hUnorderedAccessViews.Clear();
-  m_pResourcesForUnorderedAccessViews.Clear();
-
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
-  {
-    for (ezUInt32 j = 0; j < EZ_GAL_MAX_SAMPLER_COUNT; j++)
-    {
-      m_hSamplerStates[i][j].Invalidate();
-    }
-  }
-}
-
-bool ezGALCommandEncoder::UnsetResourceViews(const ezGALResourceBase* pResource)
-{
-  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
-
-  bool bResult = false;
-
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-  {
-    for (ezUInt32 uiSlot = 0; uiSlot < m_pResourcesForResourceViews[stage].GetCount(); ++uiSlot)
-    {
-      if (m_pResourcesForResourceViews[stage][uiSlot] == pResource)
-      {
-        SetResourceViewPlatform((ezGALShaderStage::Enum)stage, uiSlot, nullptr);
-
-        m_hResourceViews[stage][uiSlot].Invalidate();
-        m_pResourcesForResourceViews[stage][uiSlot] = nullptr;
-
-        bResult = true;
-      }
-    }
-  }
-
-  return bResult;
-}
-
-bool ezGALCommandEncoder::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
-{
-  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
-
-  bool bResult = false;
-
-  for (ezUInt32 uiSlot = 0; uiSlot < m_pResourcesForUnorderedAccessViews.GetCount(); ++uiSlot)
-  {
-    if (m_pResourcesForUnorderedAccessViews[uiSlot] == pResource)
-    {
-      SetUnorderedAccessViewPlatform(uiSlot, nullptr);
-
-      m_hUnorderedAccessViews[uiSlot].Invalidate();
-      m_pResourcesForUnorderedAccessViews[uiSlot] = nullptr;
-
-      bResult = true;
-    }
-  }
-
-  return bResult;
+  m_State.InvalidateState();
 }

@@ -4,16 +4,23 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
+ezGALComputeCommandEncoder::ezGALComputeCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl, ezGALCommandEncoderComputePlatformInterface& computeImpl)
+  : ezGALCommandEncoder(device, state, commonImpl)
+  , m_ComputeImpl(computeImpl)
+{
+}
+
+ezGALComputeCommandEncoder::~ezGALComputeCommandEncoder() = default;
+
 void ezGALComputeCommandEncoder::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
 {
   AssertRenderingThread();
 
-  EZ_ASSERT_DEBUG(
-    uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
+  EZ_ASSERT_DEBUG(uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
 
   /// \todo Assert for compute
 
-  DispatchPlatform(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
+  m_ComputeImpl.DispatchPlatform(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
 
   CountDispatchCall();
 }
@@ -29,7 +36,7 @@ void ezGALComputeCommandEncoder::DispatchIndirect(ezGALBufferHandle hIndirectArg
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
-  DispatchIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
+  m_ComputeImpl.DispatchIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
 
   CountDispatchCall();
 }
@@ -40,10 +47,3 @@ void ezGALComputeCommandEncoder::ClearStatisticsCounters()
 
   m_uiDispatchCalls = 0;
 }
-
-ezGALComputeCommandEncoder::ezGALComputeCommandEncoder(ezGALDevice& device)
-  : ezGALCommandEncoder(device)
-{
-}
-
-ezGALComputeCommandEncoder::~ezGALComputeCommandEncoder() = default;

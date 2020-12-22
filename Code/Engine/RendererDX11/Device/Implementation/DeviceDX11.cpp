@@ -2,7 +2,7 @@
 
 #include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <RendererDX11/CommandEncoder/RenderCommandEncoderDX11.h>
+#include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/PassDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -17,6 +17,7 @@
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 
 #include <d3d11.h>
 #include <d3d11_3.h>
@@ -731,7 +732,7 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 
 void ezGALDeviceDX11::BeginFramePlatform()
 {
-  auto& pCommandEncoder = m_pDefaultPass->m_pRenderCommandEncoder;
+  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 
   // check if fence is reached and wait if the disjoint timer is about to be re-used
   {
@@ -756,7 +757,7 @@ void ezGALDeviceDX11::BeginFramePlatform()
 
 void ezGALDeviceDX11::EndFramePlatform()
 {
-  auto& pCommandEncoder = m_pDefaultPass->m_pRenderCommandEncoder;
+  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 
   // end disjoint query
   {
@@ -784,7 +785,7 @@ void ezGALDeviceDX11::EndFramePlatform()
 
           if (m_bSyncTimeNeeded)
           {
-            ezGALTimestampHandle hTimestamp = pCommandEncoder->InsertTimestamp();
+            ezGALTimestampHandle hTimestamp = m_pDefaultPass->m_pRenderCommandEncoder->InsertTimestamp();
             ID3D11Query* pQuery = GetTimestamp(hTimestamp);
 
             ezUInt64 uiTimestamp;

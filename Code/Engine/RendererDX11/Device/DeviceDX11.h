@@ -135,14 +135,8 @@ protected:
 
   /// \endcond
 
-public:
-  ID3D11Resource* FindTempBuffer(ezUInt32 uiSize);
-  ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
-
-  ID3D11Query* GetTimestamp(ezGALTimestampHandle hTimestamp);
-
 private:
-  friend class ezGALRenderCommandEncoderDX11;
+  friend class ezGALCommandEncoderImplDX11;
 
   struct TempResourceType
   {
@@ -155,6 +149,10 @@ private:
     };
   };
 
+  ID3D11Query* GetTimestamp(ezGALTimestampHandle hTimestamp);
+
+  ID3D11Resource* FindTempBuffer(ezUInt32 uiSize);
+  ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
   void FreeTempResources(ezUInt64 uiFrame);
 
   void FillFormatLookupTable();
