@@ -22,7 +22,9 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOw
 #if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
 EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner);
 #else
-EZ_ALWAYS_INLINE void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner) {}
+EZ_ALWAYS_INLINE void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner)
+{
+}
 #endif
 
 /// \brief The typeless implementation of resource handles. A typed interface is provided by ezTypedResourceHandle.

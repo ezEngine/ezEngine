@@ -139,7 +139,7 @@ class ezParticleInitializerFactory_RandomRotationSpeed_1_2 : public ezGraphPatch
 {
 public:
   ezParticleInitializerFactory_RandomRotationSpeed_1_2()
-    : ezGraphPatch("ezParticleInitializerFactory_CylinderPosition", 2)
+    : ezGraphPatch("ezParticleInitializerFactory_RandomRotationSpeed", 2)
   {
   }
 

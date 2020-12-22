@@ -38,7 +38,7 @@ EZ_ALWAYS_INLINE const T* ezBlockStorage<T, BlockSize, StorageType>::ConstIterat
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator const T*() const
+EZ_ALWAYS_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator const T *() const
 {
   return &CurrentElement();
 }

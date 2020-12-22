@@ -37,7 +37,8 @@ struct ezGraphVersioningHash
 {
   EZ_FORCE_INLINE static ezUInt32 Hash(const ezVersionKey& a)
   {
-    ezUInt32 uiHash = ezHashingUtils::StringHashTo32(a.m_sType.GetHash());
+    auto typeNameHash = a.m_sType.GetHash();
+    ezUInt32 uiHash = ezHashingUtils::xxHash32(&typeNameHash, sizeof(typeNameHash));
     uiHash = ezHashingUtils::xxHash32(&a.m_uiTypeVersion, sizeof(a.m_uiTypeVersion), uiHash);
     return uiHash;
   }

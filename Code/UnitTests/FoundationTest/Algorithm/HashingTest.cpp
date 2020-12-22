@@ -30,31 +30,31 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
 
     {
-    // Test short inputs (< 16 characters) of xx hash at compile time
-    ezUInt32 uixxHashRT = ezHashingUtils::xxHash32("Test string", 11, 0);
-    ezUInt32 uixxHashCT = ezHashingUtils::xxHash32String("Test string", 0);
-    EZ_TEST_INT(uixxHashRT, uixxHashCT);
-    static_assert(ezHashingUtils::xxHash32String("Test string") == 0x1b50ee03);
+      // Test short inputs (< 16 characters) of xx hash at compile time
+      ezUInt32 uixxHashRT = ezHashingUtils::xxHash32("Test string", 11, 0);
+      ezUInt32 uixxHashCT = ezHashingUtils::xxHash32String("Test string", 0);
+      EZ_TEST_INT(uixxHashRT, uixxHashCT);
+      static_assert(ezHashingUtils::xxHash32String("Test string") == 0x1b50ee03);
 
-    // Test long inputs ( > 16 characters) of xx hash at compile time
-    ezUInt32 uixxHashRTLong = ezHashingUtils::xxHash32String(sb.GetData());
-    ezUInt32 uixxHashCTLong = ezHashingUtils::xxHash32String("This is a test string. 1234");
-    EZ_TEST_INT(uixxHashRTLong, uixxHashCTLong);
-    static_assert(ezHashingUtils::xxHash32String("This is a test string. 1234") == 0xff35b049);
+      // Test long inputs ( > 16 characters) of xx hash at compile time
+      ezUInt32 uixxHashRTLong = ezHashingUtils::xxHash32String(sb.GetData());
+      ezUInt32 uixxHashCTLong = ezHashingUtils::xxHash32String("This is a test string. 1234");
+      EZ_TEST_INT(uixxHashRTLong, uixxHashCTLong);
+      static_assert(ezHashingUtils::xxHash32String("This is a test string. 1234") == 0xff35b049);
     }
 
     {
-    // Test short inputs (< 32 characters) of xx hash 64 at compile time
-    ezUInt64 uixxHash64RT = ezHashingUtils::xxHash64("Test string", 11, 0);
-    ezUInt64 uixxHash64CT = ezHashingUtils::xxHash64String("Test string", 0);
-    EZ_TEST_INT(uixxHash64RT, uixxHash64CT);
-    static_assert(ezHashingUtils::xxHash64String("Test string") == 0xcf0f91eece7c88feULL);
+      // Test short inputs (< 32 characters) of xx hash 64 at compile time
+      ezUInt64 uixxHash64RT = ezHashingUtils::xxHash64("Test string", 11, 0);
+      ezUInt64 uixxHash64CT = ezHashingUtils::xxHash64String("Test string", 0);
+      EZ_TEST_INT(uixxHash64RT, uixxHash64CT);
+      static_assert(ezHashingUtils::xxHash64String("Test string") == 0xcf0f91eece7c88feULL);
 
-    // Test long inputs ( > 32 characters) of xx hash 64 at compile time
-    ezUInt64 uixxHash64RTLong = ezHashingUtils::xxHash64String(ezStringView("This is a longer test string for 64-bit. 123456"));
-    ezUInt64 uixxHash64CTLong = ezHashingUtils::xxHash64String("This is a longer test string for 64-bit. 123456");
-    EZ_TEST_INT(uixxHash64RTLong, uixxHash64CTLong);
-    static_assert(ezHashingUtils::xxHash64String("This is a longer test string for 64-bit. 123456") == 0xb85d007925299bacULL);
+      // Test long inputs ( > 32 characters) of xx hash 64 at compile time
+      ezUInt64 uixxHash64RTLong = ezHashingUtils::xxHash64String(ezStringView("This is a longer test string for 64-bit. 123456"));
+      ezUInt64 uixxHash64CTLong = ezHashingUtils::xxHash64String("This is a longer test string for 64-bit. 123456");
+      EZ_TEST_INT(uixxHash64RTLong, uixxHash64CTLong);
+      static_assert(ezHashingUtils::xxHash64String("This is a longer test string for 64-bit. 123456") == 0xb85d007925299bacULL);
     }
 
     {

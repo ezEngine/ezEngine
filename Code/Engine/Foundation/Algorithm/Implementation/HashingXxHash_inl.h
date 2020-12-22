@@ -191,4 +191,3 @@ EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::xxHash64String(ezStringView str, ezUIn
 {
   return xxHash64(str.GetStartPointer(), str.GetElementCount(), uiSeed);
 }
-

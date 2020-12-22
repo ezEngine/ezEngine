@@ -17,7 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColorEmissive)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 2, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 3, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -69,7 +69,7 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 3, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
