@@ -6,10 +6,6 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-// TODO:
-// LogAvailableOptions -> pass in required options -> show help if not fulfilled
-// Function to check WHETHER help is requested (to early out manually)
-
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCommandLineOption);
 
 void ezCommandLineOption::GetSortingGroup(ezStringBuilder& out) const
@@ -23,14 +19,47 @@ void ezCommandLineOption::GetSplitOptions(ezStringBuilder& outAll, ezDynamicArra
   outAll.Split(false, splitOptions, ";", "|");
 }
 
+bool ezCommandLineOption::IsHelpRequested(const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+{
+  return pUtils->GetBoolOption("-help") || pUtils->GetBoolOption("--help") || pUtils->GetBoolOption("-h") || pUtils->GetBoolOption("-?");
+}
+
+ezResult ezCommandLineOption::RequireOptions(const char* requiredOptions, ezString* pMissingOption /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+{
+  ezStringBuilder tmp;
+  ezStringBuilder allOpts = requiredOptions;
+  ezHybridArray<ezStringView, 16> options;
+  allOpts.Split(false, options, ";");
+
+  for (auto opt : options)
+  {
+    opt.Trim(" ");
+
+    if (pUtils->GetOptionIndex(opt.GetData(tmp)) < 0)
+    {
+      if (pMissingOption)
+      {
+        *pMissingOption = opt;
+      }
+
+      return EZ_FAILURE;
+    }
+  }
+
+  if (pMissingOption)
+  {
+    pMissingOption->Clear();
+  }
+
+  return EZ_SUCCESS;
+}
+
 bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, const char* szGroupFilter /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
 {
   if (mode == LogAvailableModes::IfHelpRequested)
   {
-    if (!pUtils->GetBoolOption("-help") && !pUtils->GetBoolOption("--help") && !pUtils->GetBoolOption("-h") && !pUtils->GetBoolOption("-?"))
-    {
+    if (!IsHelpRequested(pUtils))
       return false;
-    }
   }
 
   ezMap<ezString, ezHybridArray<ezCommandLineOption*, 16>> sorted;

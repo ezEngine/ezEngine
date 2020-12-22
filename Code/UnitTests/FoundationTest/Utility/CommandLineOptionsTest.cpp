@@ -133,7 +133,13 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
     cmd.InjectCustomArgument("-path1");
     cmd.InjectCustomArgument("C:/test");
 
-    EZ_TEST_STRING(optPath1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), "C:/test");
+    const ezString path = optPath1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    EZ_TEST_STRING(path, "C:/test");
+#else
+    EZ_TEST_BOOL(path.EndsWith("C:/test"));
+#endif
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezCommandLineOptionEnum")
@@ -159,50 +165,79 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
   {
     ezCommandLineUtils cmd;
 
-    LogTestLogInterface log;
-    ezLogSystemScope _ls(&log);
+    ezStringBuilder result;
 
-    EZ_TEST_BOOL(ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::Always, "__test", &cmd));
+    EZ_TEST_BOOL(ezCommandLineOption::LogAvailableOptionsToBuffer(result, ezCommandLineOption::LogAvailableModes::Always, "__test", &cmd));
 
-    EZ_TEST_STRING(log.m_Result, "\
-I: \n\
-I: -argDoc <doc> = no value\n\
-I:     Doc argument\n\
-I: \n\
-I: -bool1 <bool> = false\n\
-I:     bool argument 1\n\
-I: \n\
-I: -bool2 <bool> = true\n\
-I:     bool argument 2\n\
-I: \n\
-I: -int1 <int> = 1\n\
-I:     int argument 1\n\
-I: \n\
-I: -int2 <int> [4 .. 8] = 0\n\
-I:     int argument 2\n\
-I: \n\
-I: -int3 <int> [-8 .. 8] = 6\n\
-I:     int argument 3\n\
-I: \n\
-I: -float1 <float> = 1\n\
-I:     float argument 1\n\
-I: \n\
-I: -float2 <float> [4 .. 8] = 0\n\
-I:     float argument 2\n\
-I: \n\
-I: -float3 <float> [-8 .. 8] = 6\n\
-I:     float argument 3\n\
-I: \n\
-I: -string1 <string> = default string\n\
-I:     string argument 1\n\
-I: \n\
-I: -path1 <path> = default path\n\
-I:     path argument 1\n\
-I: \n\
-I: -enum1 <A | B | C | D | E> = C\n\
-I:     enum argument 1\n\
-I: \n\
-I: \n\
+    EZ_TEST_STRING(result, "\
+\n\
+-argDoc <doc> = no value\n\
+    Doc argument\n\
+\n\
+-bool1 <bool> = false\n\
+    bool argument 1\n\
+\n\
+-bool2 <bool> = true\n\
+    bool argument 2\n\
+\n\
+-int1 <int> = 1\n\
+    int argument 1\n\
+\n\
+-int2 <int> [4 .. 8] = 0\n\
+    int argument 2\n\
+\n\
+-int3 <int> [-8 .. 8] = 6\n\
+    int argument 3\n\
+\n\
+-float1 <float> = 1\n\
+    float argument 1\n\
+\n\
+-float2 <float> [4 .. 8] = 0\n\
+    float argument 2\n\
+\n\
+-float3 <float> [-8 .. 8] = 6\n\
+    float argument 3\n\
+\n\
+-string1 <string> = default string\n\
+    string argument 1\n\
+\n\
+-path1 <path> = default path\n\
+    path argument 1\n\
+\n\
+-enum1 <A | B | C | D | E> = C\n\
+    enum argument 1\n\
+\n\
+\n\
 ");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsHelpRequested")
+  {
+    ezCommandLineUtils cmd;
+
+    EZ_TEST_BOOL(!ezCommandLineOption::IsHelpRequested(&cmd));
+
+    cmd.InjectCustomArgument("-help");
+
+    EZ_TEST_BOOL(ezCommandLineOption::IsHelpRequested(&cmd));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RequireOptions")
+  {
+    ezCommandLineUtils cmd;
+    ezString missing;
+
+    EZ_TEST_BOOL(ezCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Failed());
+    EZ_TEST_STRING(missing, "-opt1");
+
+    cmd.InjectCustomArgument("-opt1");
+
+    EZ_TEST_BOOL(ezCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Failed());
+    EZ_TEST_STRING(missing, "-opt2");
+
+    cmd.InjectCustomArgument("-opt2");
+
+    EZ_TEST_BOOL(ezCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Succeeded());
+    EZ_TEST_STRING(missing, "");
   }
 }

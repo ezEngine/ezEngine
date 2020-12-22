@@ -38,15 +38,23 @@ public:
     AlwaysIfSpecified,    ///< Always log values, if the user specified non-default ones.
   };
 
+  /// \brief Checks whether a command line was passed that requests help output.
+  static bool IsHelpRequested(const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
+
+  /// \brief Checks whether all required options are passed to the command line.
+  ///
+  /// The options are passed as a semicolon-separated list (spare spaces are stripped away), for instance "-opt1; -opt2"
+  static ezResult RequireOptions(const char* requiredOptions, ezString* pMissingOption = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
+
   /// \brief Prints all available options to the ezLog.
   ///
   /// \param szGroupFilter
   ///   If this is empty, all options from all 'sorting groups' are logged.
   ///   If non-empty, only options from sorting groups that appear in this string will be logged.
-  static bool LogAvailableOptions(LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance());
+  static bool LogAvailableOptions(LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
 
   /// \brief Same as LogAvailableOptions() but captures the output from ezLog and returns it in an ezStringBuilder.
-  static bool LogAvailableOptionsToBuffer(ezStringBuilder& out_Buffer, LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance());
+  static bool LogAvailableOptionsToBuffer(ezStringBuilder& out_Buffer, LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
 
 public:
   /// \param szSortingGroup
@@ -93,16 +101,16 @@ class EZ_FOUNDATION_DLL ezCommandLineOptionDoc : public ezCommandLineOption
 public:
   ezCommandLineOptionDoc(const char* szSortingGroup, const char* szArgument, const char* szParamShortDesc, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
 
-  virtual void GetOptions(ezStringBuilder& out) const override;
+  virtual void GetOptions(ezStringBuilder& out) const override; // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override; // [tested]
 
-  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override; // [tested]
 
-  virtual void GetLongDesc(ezStringBuilder& out) const override;
+  virtual void GetLongDesc(ezStringBuilder& out) const override; // [tested]
 
   /// \brief Checks whether any of the option variants is set on the command line, and returns which one. For example '-h' or '-help'.
-  bool IsOptionSpecified(ezStringBuilder* out_which, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  bool IsOptionSpecified(ezStringBuilder* out_which, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
 protected:
   bool ShouldLog(LogMode mode, bool bWasSpecified) const;
@@ -127,7 +135,7 @@ public:
   ezCommandLineOptionBool(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, bool bDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  bool GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  bool GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
   void SetDefault(bool value)
@@ -152,12 +160,12 @@ class EZ_FOUNDATION_DLL ezCommandLineOptionInt : public ezCommandLineOptionDoc
 public:
   ezCommandLineOptionInt(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, int iDefaultValue, int iMinValue = ezMath::MinValue<int>(), int iMaxValue = ezMath::MaxValue<int>(), bool bCaseSensitive = false);
 
-  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override; // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override; // [tested]
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  int GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  int GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
   void SetDefault(ezInt32 value)
@@ -184,12 +192,12 @@ class EZ_FOUNDATION_DLL ezCommandLineOptionFloat : public ezCommandLineOptionDoc
 public:
   ezCommandLineOptionFloat(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, float fDefaultValue, float fMinValue = ezMath::MinValue<float>(), float fMaxValue = ezMath::MaxValue<float>(), bool bCaseSensitive = false);
 
-  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override; // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override; // [tested]
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  float GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  float GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
   void SetDefault(float value)
@@ -214,7 +222,7 @@ public:
   ezCommandLineOptionString(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
   void SetDefault(const char* value)
@@ -237,7 +245,7 @@ public:
   ezCommandLineOptionPath(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
   void SetDefault(const char* value)
@@ -268,11 +276,11 @@ public:
   ezCommandLineOptionEnum(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szEnumKeysAndValues, ezInt32 iDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  ezInt32 GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  ezInt32 GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& out) const override;
+  virtual void GetParamShortDesc(ezStringBuilder& out) const override; // [tested]
 
-  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override;
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& out) const override; // [tested]
 
   struct EnumKeyValue
   {
@@ -280,6 +288,7 @@ public:
     ezInt32 m_iValue = 0;
   };
 
+  /// \brief Returns the enum keys (names) and values (integers) extracted from the string that was passed to the constructor.
   void GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>& out_KeysAndValues) const;
 
   /// \brief Modifies the default value
