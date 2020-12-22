@@ -4,7 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 
-typedef ezUInt16 ezMessageId;
+using ezMessageId = ezUInt16;
 class ezStreamWriter;
 class ezStreamReader;
 
@@ -51,7 +51,7 @@ public:
   EZ_ALWAYS_INLINE ezUInt16 GetSize() const { return m_uiSize; }
 
   /// \brief Calculates a hash of the message.
-  EZ_ALWAYS_INLINE ezUInt32 GetHash() const { return ezHashingUtils::xxHash32(this, m_uiSize); }
+  EZ_ALWAYS_INLINE ezUInt64 GetHash() const { return ezHashingUtils::xxHash64(this, m_uiSize); }
 
   /// \brief Implement this for efficient transmission across process boundaries (e.g. network transfer etc.)
   ///
@@ -110,28 +110,28 @@ private:
 };
 
 /// \brief Add this macro to the declaration of your custom message type.
-#define EZ_DECLARE_MESSAGE_TYPE(messageType, baseType)                                                                                               \
-private:                                                                                                                                             \
-  EZ_ADD_DYNAMIC_REFLECTION(messageType, baseType);                                                                                                  \
-  static ezMessageId MSG_ID;                                                                                                                         \
-                                                                                                                                                     \
-protected:                                                                                                                                           \
-  EZ_ALWAYS_INLINE explicit messageType(size_t messageSize)                                                                                          \
-    : baseType(messageSize)                                                                                                                          \
-  {                                                                                                                                                  \
-    m_Id = messageType::MSG_ID;                                                                                                                      \
-  }                                                                                                                                                  \
-                                                                                                                                                     \
-public:                                                                                                                                              \
-  static ezMessageId GetTypeMsgId()                                                                                                                  \
-  {                                                                                                                                                  \
-    static ezMessageId id = ezMessage::GetNextMsgId();                                                                                               \
-    return id;                                                                                                                                       \
-  }                                                                                                                                                  \
-                                                                                                                                                     \
-  EZ_ALWAYS_INLINE messageType()                                                                                                                     \
-    : messageType(sizeof(messageType))                                                                                                               \
-  {                                                                                                                                                  \
+#define EZ_DECLARE_MESSAGE_TYPE(messageType, baseType)      \
+private:                                                    \
+  EZ_ADD_DYNAMIC_REFLECTION(messageType, baseType);         \
+  static ezMessageId MSG_ID;                                \
+                                                            \
+protected:                                                  \
+  EZ_ALWAYS_INLINE explicit messageType(size_t messageSize) \
+    : baseType(messageSize)                                 \
+  {                                                         \
+    m_Id = messageType::MSG_ID;                             \
+  }                                                         \
+                                                            \
+public:                                                     \
+  static ezMessageId GetTypeMsgId()                         \
+  {                                                         \
+    static ezMessageId id = ezMessage::GetNextMsgId();      \
+    return id;                                              \
+  }                                                         \
+                                                            \
+  EZ_ALWAYS_INLINE messageType()                            \
+    : messageType(sizeof(messageType))                      \
+  {                                                         \
   }
 
 /// \brief Implements the given message type. Add this macro to a cpp outside of the type declaration.

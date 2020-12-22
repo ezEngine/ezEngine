@@ -119,7 +119,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
   return res;
 }
 
-const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
+const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt64 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
 {
   while (true)
   {

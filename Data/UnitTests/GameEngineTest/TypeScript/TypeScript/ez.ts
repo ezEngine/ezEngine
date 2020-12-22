@@ -159,7 +159,6 @@ export import SpatialAnchorComponent = __AllComponents.SpatialAnchorComponent;
 export import SpawnComponent = __AllComponents.SpawnComponent;
 export import SpotLightComponent = __AllComponents.SpotLightComponent;
 export import SpriteComponent = __AllComponents.SpriteComponent;
-export import SrmRenderComponent = __AllComponents.SrmRenderComponent;
 export import StageSpaceComponent = __AllComponents.StageSpaceComponent;
 export import TimedDeathComponent = __AllComponents.TimedDeathComponent;
 export import VisualScriptComponent = __AllComponents.VisualScriptComponent;

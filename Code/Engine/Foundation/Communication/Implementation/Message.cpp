@@ -23,13 +23,13 @@ void ezMessage::PackageForTransfer(const ezMessage& msg, ezStreamWriter& stream)
 
 ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
 {
-  ezUInt32 uiTypeHash = 0;
+  ezUInt64 uiTypeHash = 0;
   stream >> uiTypeHash;
 
   ezUInt8 uiTypeVersion = 0;
   stream >> uiTypeVersion;
 
-  static ezHashTable<ezUInt32, const ezRTTI*, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> MessageTypes;
+  static ezHashTable<ezUInt64, const ezRTTI*, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> MessageTypes;
 
   const ezRTTI* pRtti = nullptr;
   if (!MessageTypes.TryGetValue(uiTypeHash, pRtti))

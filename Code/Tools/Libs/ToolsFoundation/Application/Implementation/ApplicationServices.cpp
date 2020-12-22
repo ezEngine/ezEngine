@@ -60,7 +60,7 @@ ezString ezApplicationServices::GetProjectPreferencesFolder() const
   ezStringBuilder ProjectPath = ProjectName;
   ProjectPath.PathParentDirectory();
 
-  const ezUInt32 uiPathHash = ezTempHashedString::ComputeHash(ProjectPath.GetData());
+  const ezUInt64 uiPathHash = ezHashingUtils::StringHash(ProjectPath.GetData());
 
   ProjectName = ProjectName.GetFileName();
 

@@ -163,7 +163,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
 
         // store the GUID as the decal identifier
         ezConversionUtils::ToString(pDecalAsset->GetGuid(), sAbsPath);
-        item.m_uiUniqueID = ezHashingUtils::xxHash32(sAbsPath.GetData(), sAbsPath.GetElementCount());
+        item.m_uiUniqueID = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sAbsPath));
 
         auto pDecalProps = pDecalAsset->GetProperties();
         item.m_uiFlags = 0;

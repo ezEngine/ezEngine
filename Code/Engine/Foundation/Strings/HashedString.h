@@ -33,7 +33,7 @@ public:
   };
 
   // Do NOT use a hash-table! The map does not relocate memory when it resizes, which is a vital aspect for the hashed strings to work.
-  typedef ezMap<ezUInt32, HashedData, ezCompareHelper<ezUInt32>, ezStaticAllocatorWrapper> StringStorage;
+  typedef ezMap<ezUInt64, HashedData, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper> StringStorage;
   typedef StringStorage::Iterator HashedType;
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
@@ -115,7 +115,7 @@ public:
   const char* GetData() const;
 
   /// \brief Returns the hash of the stored string.
-  ezUInt32 GetHash() const; // [tested]
+  ezUInt64 GetHash() const; // [tested]
 
   /// \brief Returns whether the string is empty.
   bool IsEmpty() const;
@@ -130,11 +130,11 @@ public:
   EZ_ALWAYS_INLINE ezStringView GetView() const { return GetString().GetView(); }
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char *() const { return GetData(); }
+  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
 private:
   static void InitHashedString();
-  static HashedType AddHashedString(ezStringView szString, ezUInt32 uiHash);
+  static HashedType AddHashedString(ezStringView szString, ezUInt64 uiHash);
 
   HashedType m_Data;
 };
@@ -174,7 +174,7 @@ public:
   ezTempHashedString(const ezHashedString& rhs); // [tested]
 
   /// \brief Copies the hash from the integer.
-  ezTempHashedString(ezUInt32 uiHash);
+  explicit ezTempHashedString(ezUInt64 uiHash);
 
   /// \brief The hash of the given string can be computed at compile time.
   template <size_t N>
@@ -205,16 +205,10 @@ public:
   void Clear(); // [tested]
 
   /// \brief Returns the hash of the stored string.
-  ezUInt32 GetHash() const; // [tested]
-
-  template <size_t N>
-  static constexpr ezUInt32 ComputeHash(const char (&szString)[N]);
-
-  static ezUInt32 ComputeHash(ezStringView szString);
-
+  ezUInt64 GetHash() const; // [tested]
 
 private:
-  ezUInt32 m_uiHash;
+  ezUInt64 m_uiHash;
 };
 
 // For ezFormatString

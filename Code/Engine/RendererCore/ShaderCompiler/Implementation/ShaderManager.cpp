@@ -328,9 +328,9 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
-  const ezUInt64 uiPermutationKey = (ezUInt64)uiResourceIdHash << 32 | uiPermutationHash;
+  const ezUInt64 uiPermutationKey = (ezUInt64)ezHashingUtils::StringHashTo32(uiResourceIdHash) << 32 | uiPermutationHash;
 
   ezString* pPermutationPath = &s_PermutationPaths[uiPermutationKey];
   if (pPermutationPath->IsEmpty())

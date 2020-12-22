@@ -90,7 +90,7 @@ namespace ezShaderHelper
 
   ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars)
   {
-    ezHybridArray<ezUInt32, 128> buffer;
+    ezHybridArray<ezUInt64, 128> buffer;
     buffer.SetCountUninitialized(vars.GetCount() * 2);
 
     for (ezUInt32 i = 0; i < vars.GetCount(); ++i)

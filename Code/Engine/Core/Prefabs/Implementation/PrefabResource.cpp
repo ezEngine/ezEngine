@@ -47,7 +47,7 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
   for (ezUInt32 i = 0; i < pExposedParamValues->GetCount(); ++i)
   {
     const ezHashedString& name = pExposedParamValues->GetKey(i);
-    const ezUInt32 uiNameHash = name.GetHash();
+    const ezUInt64 uiNameHash = name.GetHash();
 
     for (ezUInt32 uiCurParam = FindFirstParamWithName(uiNameHash); uiCurParam < uiNumParamDescs; ++uiCurParam)
     {
@@ -199,7 +199,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPrefabResource, ezPrefabResourceDescriptor)
   return desc;
 }
 
-ezUInt32 ezPrefabResource::FindFirstParamWithName(ezUInt32 uiNameHash) const
+ezUInt32 ezPrefabResource::FindFirstParamWithName(ezUInt64 uiNameHash) const
 {
   ezUInt32 lb = 0;
   ezUInt32 ub = m_PrefabParamDescs.GetCount();

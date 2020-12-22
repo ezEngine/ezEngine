@@ -396,9 +396,9 @@ bool ezTestMaps::operator==(const ezTestMaps& rhs) const
     bool bRes = false;
     for (ezUInt32 j = 0; j < rhs.m_Accessor3.GetCount(); j++)
     {
-      if (m_Accessor3[i].m_Key == rhs.m_Accessor3[i].m_Key)
+      if (m_Accessor3[i].m_Key == rhs.m_Accessor3[j].m_Key)
       {
-        if (m_Accessor3[i].m_Value == rhs.m_Accessor3[i].m_Value)
+        if (m_Accessor3[i].m_Value == rhs.m_Accessor3[j].m_Value)
           bRes = true;
       }
     }

@@ -45,7 +45,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezUInt32 FindFirstParamWithName(ezUInt32 uiNameHash) const;
+  ezUInt32 FindFirstParamWithName(ezUInt64 uiNameHash) const;
 
   ezWorldReader m_WorldReader;
   ezDynamicArray<ezExposedPrefabParameterDesc> m_PrefabParamDescs;

@@ -199,7 +199,7 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
 
 void ezRTTI::RegisterType(ezRTTI* pType)
 {
-  m_uiTypeNameHash = ezHashingUtils::xxHash32String(m_szTypeName);
+  m_uiTypeNameHash = ezHashingUtils::StringHash(m_szTypeName);
   static_cast<ezTypeHashTable*>(ezRTTI::GetTypeHashTable())->Insert(pType->m_szTypeName, pType);
 }
 
@@ -257,7 +257,7 @@ ezRTTI* ezRTTI::FindTypeByName(const char* szName)
   return nullptr;
 }
 
-ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt32 uiNameHash)
+ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
 {
   // TODO: actually reuse the hash table for the lookup
 
@@ -266,6 +266,23 @@ ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt32 uiNameHash)
   while (pInstance)
   {
     if (pInstance->GetTypeNameHash() == uiNameHash)
+      return pInstance;
+
+    pInstance = pInstance->GetNextInstance();
+  }
+
+  return nullptr;
+}
+
+ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
+{
+  // TODO: actually reuse the hash table for the lookup
+
+  ezRTTI* pInstance = ezRTTI::GetFirstInstance();
+
+  while (pInstance)
+  {
+    if (ezHashingUtils::StringHashTo32(pInstance->GetTypeNameHash()) == uiNameHash)
       return pInstance;
 
     pInstance = pInstance->GetNextInstance();

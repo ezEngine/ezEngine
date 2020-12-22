@@ -447,12 +447,12 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
     return this;
 
   const char* szSep = ezStringUtils::FindSubString(path, "/");
-  ezUInt32 uiNameHash = 0;
+  ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
-    uiNameHash = ezHashingUtils::xxHash32String(path);
+    uiNameHash = ezHashingUtils::StringHash(path);
   else
-    uiNameHash = ezHashingUtils::xxHash32(path, szSep - path);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(path, szSep));
 
   ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash), false);
 
@@ -482,17 +482,17 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
 
   const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
   const char* szNextSequence = nullptr;
-  ezUInt32 uiNameHash = 0;
+  ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, len);
+    const ezUInt32 len = ezStringUtils::GetStringElementCount(szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, len));
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, static_cast<ezUInt32>(szSep - szObjectSequence)));
     szNextSequence = szSep + 1;
   }
 
@@ -548,17 +548,17 @@ void ezGameObject::SearchForChildrenByNameSequence(
 
   const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
   const char* szNextSequence = nullptr;
-  ezUInt32 uiNameHash = 0;
+  ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, len);
+    const ezUInt32 len = ezStringUtils::GetStringElementCount(szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, len));
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, static_cast<ezUInt32>(szSep - szObjectSequence)));
     szNextSequence = szSep + 1;
   }
 

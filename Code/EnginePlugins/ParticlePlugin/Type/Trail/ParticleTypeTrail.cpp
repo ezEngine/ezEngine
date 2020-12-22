@@ -247,7 +247,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& msg, con
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr);
 
   /// \todo Is this batch ID correct?
-  pRenderData->m_uiBatchId = m_hTexture.GetResourceIDHash() + m_uiMaxPoints;
+  pRenderData->m_uiBatchId = ezHashingUtils::StringHashTo32(m_hTexture.GetResourceIDHash()) + m_uiMaxPoints;
   pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode);
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();

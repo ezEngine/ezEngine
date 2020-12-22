@@ -114,8 +114,8 @@ void ezTypeScriptBinding::GenerateMessageCode(ezStringBuilder& out_Code, const e
 
   out_Code.AppendFormat("export class {0} extends {1}\n", sType, sParentType);
   out_Code.Append("{\n");
-  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", pRtti->GetTypeNameHash());
-  out_Code.AppendFormat("  constructor() { super(); this.TypeNameHash = {}; }\n", pRtti->GetTypeNameHash());
+  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()));
+  out_Code.AppendFormat("  constructor() { super(); this.TypeNameHash = {}; }\n", ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()));
   GenerateMessagePropertiesCode(out_Code, pRtti);
   out_Code.Append("}\n\n");
 }
@@ -191,7 +191,7 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
 
     for (pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
     {
-      if (pRtti->GetTypeNameHash() == uiTypeHash)
+      if (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiTypeHash)
       {
         MessageTypes[uiTypeHash] = pRtti;
         break;
@@ -322,7 +322,7 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
   ezUInt32 uiMsgTypeHash = duk.GetUIntValue(0);
   const char* szMsgHandler = duk.GetStringValue(1);
 
-  const ezRTTI* pMsgType = ezRTTI::FindTypeByNameHash(uiMsgTypeHash);
+  const ezRTTI* pMsgType = ezRTTI::FindTypeByNameHash32(uiMsgTypeHash);
 
   // this happens for pure TypeScript messages
   // if (pMsgType == nullptr)

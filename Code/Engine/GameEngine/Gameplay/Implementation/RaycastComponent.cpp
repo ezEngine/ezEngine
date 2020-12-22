@@ -289,7 +289,7 @@ void ezRaycastComponent::PostTriggerMessage(ezTriggerState::Enum state, ezGameOb
   ezMsgTriggerTriggered msg;
 
   msg.m_TriggerState = state;
-  msg.m_uiMessageStringHash = m_sTriggerMessage.GetHash();
+  msg.m_uiMessageStringHash = ezHashingUtils::StringHashTo32(m_sTriggerMessage.GetHash());
   msg.m_hTriggeringObject = hObject;
 
   m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);

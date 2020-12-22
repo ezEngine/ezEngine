@@ -10,7 +10,8 @@ ezUInt32 ezHashHelperString_NoCase::Hash(const char* szValue)
   temp.SetCountUninitialized(uiElemCount);
   ezMemoryUtils::Copy(temp.GetData(), szValue, uiElemCount);
   uiElemCount = ezStringUtils::ToLowerString(temp.GetData(), temp.GetData() + uiElemCount);
-  return ezHashingUtils::xxHash32((void*)temp.GetData(), uiElemCount);
+
+  return ezHashingUtils::StringHashTo32(ezHashingUtils::xxHash64((void*)temp.GetData(), uiElemCount));
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Algorithm_Implementation_HashHelperString);
