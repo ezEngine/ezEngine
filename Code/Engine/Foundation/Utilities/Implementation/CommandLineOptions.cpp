@@ -390,9 +390,9 @@ ezCommandLineOptionString::ezCommandLineOptionString(const char* szSortingGroup,
   m_szDefaultValue = szDefaultValue;
 }
 
-const char* ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+ezString ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
-  const char* result = m_szDefaultValue;
+  ezString result = m_szDefaultValue;
 
   ezStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
@@ -420,9 +420,9 @@ ezCommandLineOptionPath::ezCommandLineOptionPath(const char* szSortingGroup, con
   m_szDefaultValue = szDefaultValue;
 }
 
-const char* ezCommandLineOptionPath::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+ezString ezCommandLineOptionPath::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
-  const char* result = m_szDefaultValue;
+  ezString result = m_szDefaultValue;
 
   ezStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);

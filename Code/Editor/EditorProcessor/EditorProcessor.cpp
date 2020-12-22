@@ -145,7 +145,7 @@ public:
 
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (!ezStringUtils::IsNullOrEmpty(opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified)))
+    if (!opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified).IsEmpty())
     {
       ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 

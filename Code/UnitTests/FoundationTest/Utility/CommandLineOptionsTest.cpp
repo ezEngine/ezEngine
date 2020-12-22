@@ -166,7 +166,6 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
 
     EZ_TEST_STRING(log.m_Result, "\
 I: \n\
-I: \n\
 I: -argDoc <doc> = no value\n\
 I:     Doc argument\n\
 I: \n\
@@ -202,6 +201,7 @@ I:     path argument 1\n\
 I: \n\
 I: -enum1 <A | B | C | D | E> = C\n\
 I:     enum argument 1\n\
+I: \n\
 I: \n\
 ");
   }

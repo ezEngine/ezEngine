@@ -214,7 +214,7 @@ public:
   ezCommandLineOptionString(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  const char* GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
 
   /// \brief Modifies the default value
   void SetDefault(const char* value)
@@ -237,7 +237,7 @@ public:
   ezCommandLineOptionPath(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  const char* GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
+  ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const;
 
   /// \brief Modifies the default value
   void SetDefault(const char* value)
