@@ -134,25 +134,10 @@ public:
     else
       return (*this->m_Array)[(ezUInt32)this->m_iIndex];
   }
-  inline T& operator*()
-  {
-    if (reverse)
-      return (*this->m_Array)[this->m_Array->GetCount() - (ezUInt32)this->m_iIndex - 1];
-    else
-      return (*this->m_Array)[(ezUInt32)this->m_iIndex];
-  }
 
   EZ_ALWAYS_INLINE T* operator->() const { return &(**this); }
-  EZ_ALWAYS_INLINE T* operator->() { return &(**this); }
 
   EZ_ALWAYS_INLINE T& operator[](size_t index) const
-  {
-    if (reverse)
-      return (*this->m_Array)[this->m_Array->GetCount() - static_cast<ezUInt32>(this->m_iIndex + index) - 1];
-    else
-      return (*this->m_Array)[static_cast<ezUInt32>(this->m_iIndex + index)];
-  }
-  EZ_ALWAYS_INLINE T& operator[](size_t index)
   {
     if (reverse)
       return (*this->m_Array)[this->m_Array->GetCount() - static_cast<ezUInt32>(this->m_iIndex + index) - 1];
@@ -268,10 +253,6 @@ public:
   EZ_ALWAYS_INLINE reverse_pointer_iterator operator-(ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_ptr + rhs); }
 
   EZ_ALWAYS_INLINE T& operator*() const { return *(this->m_ptr); }
-  EZ_ALWAYS_INLINE T& operator*() { return *(this->m_ptr); }
   EZ_ALWAYS_INLINE T* operator->() const { return this->m_ptr; }
-  EZ_ALWAYS_INLINE T* operator->() { return this->m_ptr; }
-
   EZ_ALWAYS_INLINE T& operator[](ptrdiff_t index) const { return *(this->m_ptr - index); }
-  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t index) { return *(this->m_ptr - index); }
 };

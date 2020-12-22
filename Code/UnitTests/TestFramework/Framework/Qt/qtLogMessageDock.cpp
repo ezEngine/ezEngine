@@ -187,7 +187,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags ezQtLogMessageModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid() || m_pTestResult == nullptr)
-    return 0;
+    return Qt::ItemFlags();
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
