@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RenderDocPlugin/RenderDocSingleton.h>
 #include <RenderDocPlugin/ThirdParty/renderdoc_app.h>
@@ -10,11 +11,12 @@ EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
 
 static ezRenderDoc g_RenderDocSingleton;
 
+static ezCommandLineOptionBool opt_NoCaptures("RenderDoc", "-NoCaptures", "Disables RenderDoc capture support.", false);
 
 ezRenderDoc::ezRenderDoc()
   : m_SingletonRegistrar(this)
 {
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-NoCaptures"))
+  if (opt_NoCaptures.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
     ezLog::Info("RenderDoc plugin: Initialization suppressed via command-line.");
     return;

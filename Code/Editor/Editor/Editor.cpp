@@ -2,10 +2,15 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
+#include <corecrt_io.h>
+#include <fcntl.h>
 
 class ezEditorApplication : public ezApplication
 {
@@ -41,6 +46,15 @@ public:
 
   virtual Execution Run() override
   {
+    {
+      ezStringBuilder cmdHelp;
+      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_Editor;cvar"))
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
+        return ezApplication::Execution::Quit;
+      }
+    }
+
     ezQtEditorApp::GetSingleton()->StartupEditor();
     {
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();

@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/RotorComponent.h>
 #include <GameEngine/Animation/SliderComponent.h>
 #include <GameEngine/Gameplay/InputComponent.h>
@@ -13,6 +14,8 @@
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+
+ezCommandLineOptionPath opt_Scene("_Player", "-scene", "Path to a scene file", "");
 
 ezPlayerApplication::ezPlayerApplication()
   : ezGameApplication("ezPlayer", nullptr)
@@ -22,6 +25,18 @@ ezPlayerApplication::ezPlayerApplication()
 
 ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
 {
+  {
+    // since this is a GUI application (not a Console app), printf has no effect
+    // therefore we have to show the command line options with a message box
+
+    ezStringBuilder cmdHelp;
+    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested))
+    {
+      ezLog::OsMessageBox(cmdHelp);
+      return EZ_FAILURE;
+    }
+  }
+
   ezStartup::AddApplicationTag("player");
 
   EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
@@ -37,7 +52,7 @@ ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
   }
   else
 #else
-  m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
+  m_sSceneFile = opt_Scene.GetOptionValue(ezCommandLineOption::LogMode::Always);
   EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
 #endif
   {

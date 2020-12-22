@@ -2,93 +2,109 @@
 
 #include <TexConv/TexConv.h>
 
+#include <Foundation/Utilities/CommandLineOptions.h>
+
+ezCommandLineOptionPath opt_Out("_TexConv", "-out",
+  "Absolute path to main output file.\n\
+   ext = tga, dds, ezTexture2D, ezTexture3D, ezTextureCube or ezTextureAtlas.",
+  "");
+
+
+ezCommandLineOptionDoc opt_In("_TexConv", "-inX", "\"File\"",
+  "Specifies input image X.\n\
+   X = 0 .. 63, e.g. -in0, -in1, etc.\n\
+   If X is not given, X equals 0.",
+  "");
+
+ezCommandLineOptionDoc opt_Channels("_TexConv", "-r;-rg;-rgb;-rgba", "inX.rgba",
+  "\
+  Specifies how many output channels are used (1 - 4) and from which input image to take the data.\n\
+  Examples:\n\
+  -rgba in0 -> Output has 4 channels, all taken from input image 0.\n\
+  -rgb in0 -> Output has 3 channels, all taken from input image 0.\n\
+  -rgb in0 -a in1.r -> Output has 4 channels, RGB taken from input image 0 (RGB) Alpha taken from input 1 (Red).\n\
+  -rgb in0.bgr -> Output has 3 channels, taken from image 0 and swapped blue and red.\n\
+  -r in0.r -g in1.r -b in2.r -a in3.r -> Output has 4 channels, each one taken from another input image (Red).\n\
+  -rgb0 in0 -rgb1 in1 -rgb2 in2 -rgb3 in3 -rgb4 in4 -rgb5 in5 -> Output has 3 channels and six faces (-type Cubemap), built from 6 images.\n\
+",
+  "");
+
+ezCommandLineOptionBool opt_MipsPreserveCoverage("_TexConv", "-mipsPreserveCoverage", "Whether to preserve alpha-coverage in mipmaps for alpha-tested geometry.", false);
+
+ezCommandLineOptionBool opt_FlipHorz("_TexConv", "-flip_horz", "Whether to flip the output horizontally.", false);
+
+ezCommandLineOptionBool opt_Dilate("_TexConv", "-dilate", "Dilate/smear color from opaque areas into transparent areas.", false);
+
+ezCommandLineOptionInt opt_DilateStrength("_TexConv", "-dilateStrength", "How many pixels to smear the image, if -dilate is enabled.", 8, 1, 255);
+
+ezCommandLineOptionBool opt_Premulalpha("_TexConv", "-premulalpha", "Whether to multiply the alpha channel into the RGB channels.", false);
+
+ezCommandLineOptionInt opt_ThumbnailRes("_TexConv", "-thumbnailRes", "Thumbnail resolution. Should be a power-of-two.", 0, 32, 1024);
+
+ezCommandLineOptionPath opt_ThumbnailOut("_TexConv", "-thumbnailOut",
+  "\
+  Path to 2D thumbnail file.\n\
+  ext = tga, jpg, png\n\
+",
+  "");
+
+ezCommandLineOptionPath opt_LowOut("_TexConv", "-lowOut",
+  "\
+  Path to low-resolution output file.\n\
+  ext = Same as main output\n\
+",
+  "");
+
+ezCommandLineOptionInt opt_LowMips("_TexConv", "-lowMips", "Number of mipmaps to use from main result as low-res data.", 0, 0, 8);
+
+ezCommandLineOptionInt opt_MinRes("_TexConv", "-minRes", "The minimum resolution allowed for the output.", 16, 4, 8 * 1024);
+
+ezCommandLineOptionInt opt_MaxRes("_TexConv", "-maxRes", "The maximum resolution allowed for the output.", 1024 * 8, 4, 16 * 1024);
+
+ezCommandLineOptionInt opt_Downscale("_TexConv", "-downscale", "How often to half the input texture resolution.", 0, 0, 10);
+
+ezCommandLineOptionFloat opt_MipsAlphaThreshold("_TexConv", "-mipsAlphaThreshold", "Alpha threshold used by renderer for alpha-testing, when alpha-coverage should be preserved.", 0.5f, 0.01f, 0.99f);
+
+ezCommandLineOptionFloat opt_HdrExposure("_TexConv", "-hdrExposure", "For scaling HDR image brightness up or down.", 0.0f, -20.0f, +20.0f);
+
+ezCommandLineOptionFloat opt_Clamp("_TexConv", "-clamp", "Input values will be clamped to [-value ; +value].", 64000.0f, -64000.0f, 64000.0f);
+
+ezCommandLineOptionInt opt_AssetVersion("_TexConv", "-assetVersion", "Asset version number to embed in ez specific output formats", 0, 1, 0xFFFF);
+
+ezCommandLineOptionString opt_AssetHashLow("_TexConv", "-assetHashLow", "Low part of a 64 bit asset hash value.\n\
+Has to be specified as a HEX value.\n\
+Required to be non-zero when using ez specific output formats.\n\
+Example: -assetHashLow 0xABCDABCD",
+  "");
+
+ezCommandLineOptionString opt_AssetHashHigh("_TexConv", "-assetHashHigh", "High part of a 64 bit asset hash value.\n\
+Has to be specified as a HEX value.\n\
+Required to be non-zero when using ez specific output formats.\n\
+Example: -assetHashHigh 0xABCDABCD",
+  "");
+
+ezCommandLineOptionEnum opt_Type("_TexConv", "-type", "The type of output to generate.", "2D = 1 | Volume = 2 | Cubemap = 3 | Atlas = 4", 1);
+
+ezCommandLineOptionEnum opt_Compression("_TexConv", "-compression", "Compression strength for output format.", "Medium = 1 | High = 2 | None = 0", 1);
+
+ezCommandLineOptionEnum opt_Usage("_TexConv", "-usage", "What type of data the image contains. Affects which final output format is used and how mipmaps are generated.", "Auto = 0 | Color = 1 | Linear = 2 | HDR = 3 | NormalMap = 4 | NormalMap_Inverted = 5 | BumpMap = 6", 0);
+
+ezCommandLineOptionEnum opt_Mipmaps("_TexConv", "-mipmaps", "Whether to generate mipmaps and with which algorithm.", "None = 0 |Linear = 1 | Kaisser = 2", 1);
+
+ezCommandLineOptionEnum opt_AddressU("_TexConv", "-addressU", "Which texture address mode to use along U. Only supported by ez-specific output formats.", "Repeat = 0 | Clamp = 1 | ClampBorder = 2 | Mirror = 3", 0);
+ezCommandLineOptionEnum opt_AddressV("_TexConv", "-addressV", "Which texture address mode to use along V. Only supported by ez-specific output formats.", "Repeat = 0 | Clamp = 1 | ClampBorder = 2 | Mirror = 3", 0);
+ezCommandLineOptionEnum opt_AddressW("_TexConv", "-addressW", "Which texture address mode to use along W. Only supported by ez-specific output formats.", "Repeat = 0 | Clamp = 1 | ClampBorder = 2 | Mirror = 3", 0);
+
+ezCommandLineOptionEnum opt_Filter("_TexConv", "-filter", "Which texture filter mode to use at runtime. Only supported by ez-specific output formats.", "Default = 9 | Lowest = 7 | Low = 8 | High = 10 | Highest = 11 | Nearest = 0 | Linear = 1 | Trilinear = 2 | Aniso2x = 3 | Aniso4x = 4 | Aniso8x = 5 | Aniso16x = 6", 9);
+
+ezCommandLineOptionEnum opt_BumpMapFilter("_TexConv", "-bumpMapFilter", "Filter used to approximate the x/y bump map gradients.", "Finite = 0 | Sobel = 1 | Scharr = 2", 0);
+
+ezCommandLineOptionEnum opt_Platform("_TexConv", "-platform", "What platform to generate the textures for.", "PC | Android", 0);
+
 ezResult ezTexConv::ParseCommandLine()
 {
-  auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
-  if (pCmd->GetBoolOption("-help") || pCmd->GetBoolOption("--help") || pCmd->GetBoolOption("-h"))
-  {
-    ezLog::Info("ezTexConv Help:");
-    ezLog::Info("");
-    ezLog::Info("  -out \"File.ext\"");
-    ezLog::Info("     Absolute path to main output file");
-    ezLog::Info("     ext = tga, dds, ezTexture2D, ezTexture3D, ezTextureCube or ezTextureAtlas.");
-    ezLog::Info("");
-    ezLog::Info("  -inX \"File\"");
-    ezLog::Info("    Specifies input image X.");
-    ezLog::Info("    X = 0 .. 63, e.g. -in0, -in1, etc.");
-    ezLog::Info("    If X is not given, X equals 0.");
-    ezLog::Info("");
-    ezLog::Info("  -r / -rg / -rgb / -rgba inX.rgba");
-    ezLog::Info("    Specifies how many output channels are used (1 - 4) and from which input image to take the data.");
-    ezLog::Info("    Examples:");
-    ezLog::Info("    -rgba in0 -> Output has 4 channels, all taken from input image 0.");
-    ezLog::Info("    -rgb in0 -> Output has 3 channels, all taken from input image 0.");
-    ezLog::Info("    -rgb in0 -a in1.r -> Output has 4 channels, RGB taken from input image 0 (RGB) Alpha taken from input 1 (Red).");
-    ezLog::Info("    -rgb in0.bgr -> Output has 3 channels, taken from image 0 and swapped blue and red.");
-    ezLog::Info("    -r in0.r -g in1.r -b in2.r -a in3.r -> Output has 4 channels, each one taken from another input image (Red).");
-    ezLog::Info(
-      "    -rgb0 in0 -rgb1 in1 -rgb2 in2 -rgb3 in3 -rgb4 in4 -rgb5 in5 -> Output has 3 channels and six faces (-type Cubemap), built from 6 images.");
-
-    ezLog::Info("");
-    ezLog::Info("  -thumbnailOut \"File.ext\"");
-    ezLog::Info("     Absolute path to 2D thumbnail file.");
-    ezLog::Info("     ext = tga, jpg, png");
-    ezLog::Info("  -thumbnailRes Number");
-    ezLog::Info("     Thumbnail resolution. Should be a power-of-two.");
-    ezLog::Info("");
-    ezLog::Info("  -lowOut \"File.ext\"");
-    ezLog::Info("     Absolute path to low-resolution output file.");
-    ezLog::Info("     ext = Same as main output");
-    ezLog::Info("  -lowMips Number");
-    ezLog::Info("     Number of mipmaps to use from main result as low-res data.");
-    ezLog::Info("");
-    PrintOptionValuesHelp("  -type", m_AllowedOutputTypes);
-    ezLog::Info("     The type of output to generate.");
-    ezLog::Info("");
-    ezLog::Info("  -assetVersion Number");
-    ezLog::Info("     Asset version number to embed in ez specific output formats.");
-    ezLog::Info("  -assetHashLow 0xHEX_VALUE / -assetHashHigh 0xHEX_VALUE");
-    ezLog::Info("     Low and high part of a 64 bit asset hash value.");
-    ezLog::Info("     Required to be non-zero when using ez specific output formats.");
-    ezLog::Info("");
-    PrintOptionValuesHelp("  -compression", m_AllowedCompressionModes);
-    ezLog::Info("     Compression strength for output format.");
-    ezLog::Info("");
-    PrintOptionValuesHelp("  -usage", m_AllowedUsages);
-    ezLog::Info("     What type of data the image contains. Affects which final output format is used and how mipmaps are generated.");
-    ezLog::Info("");
-    PrintOptionValuesHelp("  -mipmaps", m_AllowedMimapModes);
-    ezLog::Info("     Whether to generate mipmaps and with which algorithm.");
-    ezLog::Info("  -mipsPerserveCoverage");
-    ezLog::Info("     Whether to preserve alpha-coverage in mipmaps for alpha-tested geometry.");
-    ezLog::Info("  -mipsAlphaThreshold float [0; 1]");
-    ezLog::Info("     Alpha threshold used by renderer for alpha-testing, when alpha-coverage should be preserved.");
-    ezLog::Info("");
-    PrintOptionValuesHelp("  -addressU/V/W", m_AllowedWrapModes);
-    ezLog::Info("     Which texture address mode to use along U/V/W. Only supported by ez-specific output formats.");
-    PrintOptionValuesHelp("  -filter", m_AllowedFilterModes);
-    ezLog::Info("     Which texture filter mode to use at runtime. Only supported by ez-specific output formats.");
-    ezLog::Info("");
-    ezLog::Info("  -minRes / -maxRes Number");
-    ezLog::Info("    The minimum and maximum resolution allowed for the output.");
-    ezLog::Info("  -downscale Number");
-    ezLog::Info("    How often to half the input texture resolution.");
-    ezLog::Info("");
-    ezLog::Info("  -dilate");
-    ezLog::Info("    Dilate/smear color from opaque areas into transparent areas.");
-    ezLog::Info("  -flip_horz");
-    ezLog::Info("    Whether to flip the output horizontally.");
-    ezLog::Info("  -premulalpha");
-    ezLog::Info("    Whether to multiply the alpha channel into the RGB channels.");
-    ezLog::Info("  -hdrExposure float [-20;+20]");
-    ezLog::Info("    For scaling HDR image brightness up or down.");
-    ezLog::Info("  -clamp float");
-    ezLog::Info("    Input values will be clamped to [-value;+value] (default 64000).");
-    PrintOptionValuesHelp("  -bumpMapFilter", m_AllowedBumpMapFilters);
-    ezLog::Info("    Filter used to approximate the x/y bump map gradients.");
-
+  if (ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_TexConv"))
     return EZ_FAILURE;
-  }
 
   EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
   EZ_SUCCEED_OR_RETURN(DetectOutputFormat());
@@ -118,8 +134,7 @@ ezResult ezTexConv::ParseOutputType()
     return EZ_SUCCESS;
   }
 
-  ezInt32 value = -1;
-  EZ_SUCCEED_OR_RETURN(ParseStringOption("-type", m_AllowedOutputTypes, value));
+  ezInt32 value = opt_Type.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   m_Processor.m_Descriptor.m_OutputType = static_cast<ezTexConvOutputType::Enum>(value);
 
@@ -257,16 +272,20 @@ ezResult ezTexConv::ParseOutputFiles()
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
-  ParseFile("-out", m_sOutputFile);
+  m_sOutputFile = opt_Out.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-  if (ParseFile("-thumbnailOut", m_sOutputThumbnailFile))
+  m_sOutputThumbnailFile = opt_ThumbnailOut.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
+  if (!m_sOutputThumbnailFile.IsEmpty())
   {
-    EZ_SUCCEED_OR_RETURN(ParseUIntOption("-thumbnailRes", 32, 1024, m_Processor.m_Descriptor.m_uiThumbnailOutputResolution));
+    m_Processor.m_Descriptor.m_uiThumbnailOutputResolution = opt_ThumbnailRes.GetOptionValue(ezCommandLineOption::LogMode::Always);
   }
 
-  if (ParseFile("-lowOut", m_sOutputLowResFile))
+  m_sOutputLowResFile = opt_LowOut.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
+  if (!m_sOutputLowResFile.IsEmpty())
   {
-    EZ_SUCCEED_OR_RETURN(ParseUIntOption("-lowMips", 0, 8, m_Processor.m_Descriptor.m_uiLowResMipmaps));
+    m_Processor.m_Descriptor.m_uiLowResMipmaps = opt_LowMips.GetOptionValue(ezCommandLineOption::LogMode::Always);
   }
 
   return EZ_SUCCESS;
@@ -277,8 +296,7 @@ ezResult ezTexConv::ParseUsage()
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
     return EZ_SUCCESS;
 
-  ezInt32 value = -1;
-  EZ_SUCCEED_OR_RETURN(ParseStringOption("-usage", m_AllowedUsages, value));
+  const ezInt32 value = opt_Usage.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   m_Processor.m_Descriptor.m_Usage = static_cast<ezTexConvUsage::Enum>(value);
   return EZ_SUCCESS;
@@ -294,16 +312,15 @@ ezResult ezTexConv::ParseMipmapMode()
     return EZ_SUCCESS;
   }
 
-  ezInt32 value = -1;
-  EZ_SUCCEED_OR_RETURN(ParseStringOption("-mipmaps", m_AllowedMimapModes, value));
+  const ezInt32 value = opt_Mipmaps.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
   m_Processor.m_Descriptor.m_MipmapMode = static_cast<ezTexConvMipmapMode::Enum>(value);
 
-
-  EZ_SUCCEED_OR_RETURN(ParseBoolOption("-mipsPerserveCoverage", m_Processor.m_Descriptor.m_bPreserveMipmapCoverage));
+  m_Processor.m_Descriptor.m_bPreserveMipmapCoverage = opt_MipsPreserveCoverage.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   if (m_Processor.m_Descriptor.m_bPreserveMipmapCoverage)
   {
-    EZ_SUCCEED_OR_RETURN(ParseFloatOption("-mipsAlphaThreshold", 0.01f, 0.99f, m_Processor.m_Descriptor.m_fMipmapAlphaThreshold));
+    m_Processor.m_Descriptor.m_fMipmapAlphaThreshold = opt_MipsAlphaThreshold.GetOptionValue(ezCommandLineOption::LogMode::Always);
   }
 
   return EZ_SUCCESS;
@@ -311,8 +328,7 @@ ezResult ezTexConv::ParseMipmapMode()
 
 ezResult ezTexConv::ParseTargetPlatform()
 {
-  ezInt32 value = -1;
-  EZ_SUCCEED_OR_RETURN(ParseStringOption("-platform", m_AllowedPlatforms, value));
+  ezInt32 value = opt_Platform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
 
   m_Processor.m_Descriptor.m_TargetPlatform = static_cast<ezTexConvTargetPlatform::Enum>(value);
   return EZ_SUCCESS;
@@ -328,8 +344,7 @@ ezResult ezTexConv::ParseCompressionMode()
     return EZ_SUCCESS;
   }
 
-  ezInt32 value = -1;
-  EZ_SUCCEED_OR_RETURN(ParseStringOption("-compression", m_AllowedCompressionModes, value));
+  const ezInt32 value = opt_Compression.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   m_Processor.m_Descriptor.m_CompressionMode = static_cast<ezTexConvCompressionMode::Enum>(value);
   return EZ_SUCCESS;
@@ -338,25 +353,21 @@ ezResult ezTexConv::ParseCompressionMode()
 ezResult ezTexConv::ParseWrapModes()
 {
   // cubemaps do not require any wrap mode settings
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap || m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas ||
-      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap || m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas || m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
 
   {
-    ezInt32 value = -1;
-    EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressU", m_AllowedWrapModes, value));
+    ezInt32 value = opt_AddressU.GetOptionValue(ezCommandLineOption::LogMode::Always);
     m_Processor.m_Descriptor.m_AddressModeU = static_cast<ezImageAddressMode::Enum>(value);
   }
   {
-    ezInt32 value = -1;
-    EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressV", m_AllowedWrapModes, value));
+    ezInt32 value = opt_AddressV.GetOptionValue(ezCommandLineOption::LogMode::Always);
     m_Processor.m_Descriptor.m_AddressModeV = static_cast<ezImageAddressMode::Enum>(value);
   }
 
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
   {
-    ezInt32 value = -1;
-    EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressW", m_AllowedWrapModes, value));
+    ezInt32 value = opt_AddressW.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
     m_Processor.m_Descriptor.m_AddressModeW = static_cast<ezImageAddressMode::Enum>(value);
   }
 
@@ -371,8 +382,7 @@ ezResult ezTexConv::ParseFilterModes()
     return EZ_SUCCESS;
   }
 
-  ezInt32 value = -1;
-  EZ_SUCCEED_OR_RETURN(ParseStringOption("-filter", m_AllowedFilterModes, value));
+  ezInt32 value = opt_Filter.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   m_Processor.m_Descriptor.m_FilterMode = static_cast<ezTextureFilterSetting::Enum>(value);
   return EZ_SUCCESS;
@@ -383,9 +393,9 @@ ezResult ezTexConv::ParseResolutionModifiers()
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
 
-  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-minRes", 4, 8 * 1024, m_Processor.m_Descriptor.m_uiMinResolution));
-  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-maxRes", 4, 16 * 1024, m_Processor.m_Descriptor.m_uiMaxResolution));
-  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-downscale", 0, 10, m_Processor.m_Descriptor.m_uiDownscaleSteps));
+  m_Processor.m_Descriptor.m_uiMinResolution = opt_MinRes.GetOptionValue(ezCommandLineOption::LogMode::Always);
+  m_Processor.m_Descriptor.m_uiMaxResolution = opt_MaxRes.GetOptionValue(ezCommandLineOption::LogMode::Always);
+  m_Processor.m_Descriptor.m_uiDownscaleSteps = opt_Downscale.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   return EZ_SUCCESS;
 }
@@ -394,26 +404,22 @@ ezResult ezTexConv::ParseMiscOptions()
 {
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D || m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
   {
-    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flip_horz", m_Processor.m_Descriptor.m_bFlipHorizontal));
-    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premulalpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
+    m_Processor.m_Descriptor.m_bFlipHorizontal = opt_FlipHorz.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    bool bDilate = false;
-    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-dilate", bDilate));
+    m_Processor.m_Descriptor.m_bPremultiplyAlpha = opt_Premulalpha.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (bDilate)
+    if (opt_Dilate.GetOptionValue(ezCommandLineOption::LogMode::Always))
     {
-      ezUInt32 res = 8;
-      EZ_SUCCEED_OR_RETURN(ParseUIntOption("-dilate", 0, 255, res));
-      m_Processor.m_Descriptor.m_uiDilateColor = static_cast<ezUInt8>(res);
+      m_Processor.m_Descriptor.m_uiDilateColor = static_cast<ezUInt8>(opt_DilateStrength.GetOptionValue(ezCommandLineOption::LogMode::Always));
     }
   }
 
   if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Hdr)
   {
-    EZ_SUCCEED_OR_RETURN(ParseFloatOption("-hdrExposure", -20.0f, 20.0f, m_Processor.m_Descriptor.m_fHdrExposureBias));
+    m_Processor.m_Descriptor.m_fHdrExposureBias = opt_HdrExposure.GetOptionValue(ezCommandLineOption::LogMode::Always);
   }
 
-  EZ_SUCCEED_OR_RETURN(ParseFloatOption("-clamp", -64000.f, 64000.f, m_Processor.m_Descriptor.m_fMaxValue));
+  m_Processor.m_Descriptor.m_fMaxValue = opt_Clamp.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   return EZ_SUCCESS;
 }
@@ -428,17 +434,17 @@ ezResult ezTexConv::ParseAssetHeader()
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
   ezUInt32 tmp = m_Processor.m_Descriptor.m_uiAssetVersion;
-  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-assetVersion", 1, 0xFFFF, tmp));
-  m_Processor.m_Descriptor.m_uiAssetVersion = (ezUInt16)tmp;
 
-  const ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashLow"));
-  const ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashHigh"));
+  m_Processor.m_Descriptor.m_uiAssetVersion = (ezUInt16)opt_AssetVersion.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
+  const ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(opt_AssetHashLow.GetOptionValue(ezCommandLineOption::LogMode::Always));
+  const ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(opt_AssetHashHigh.GetOptionValue(ezCommandLineOption::LogMode::Always));
 
   m_Processor.m_Descriptor.m_uiAssetHash = (uiHashHigh << 32) | uiHashLow;
 
   if (m_Processor.m_Descriptor.m_uiAssetHash == 0)
   {
-    ezLog::Error("'-assetHashLow 0xHEX32' and '-assetHashHigh 0xHEX32' have not been specified.");
+    ezLog::Error("'-assetHashLow 0xHEX32' and '-assetHashHigh 0xHEX32' have not been specified correctly.");
     return EZ_FAILURE;
   }
 
@@ -447,8 +453,7 @@ ezResult ezTexConv::ParseAssetHeader()
 
 ezResult ezTexConv::ParseBumpMapFilter()
 {
-  ezInt32 value = -1;
-  EZ_SUCCEED_OR_RETURN(ParseStringOption("-bumpMapFilter", m_AllowedBumpMapFilters, value));
+  const ezInt32 value = opt_BumpMapFilter.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   m_Processor.m_Descriptor.m_BumpMapFilter = static_cast<ezTexConvBumpMapFilter::Enum>(value);
   return EZ_SUCCESS;

@@ -226,7 +226,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   if (pProp->m_bPreserveAlphaCoverage)
   {
-    arguments << "-mipsPerserveCoverage";
+    arguments << "-mipsPreserveCoverage";
     arguments << "-mipsAlphaThreshold";
     temp.Format("{0}", ezArgF(pProp->m_fAlphaThreshold, 2));
     arguments << temp.GetData();

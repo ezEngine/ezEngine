@@ -15,6 +15,11 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Types/TagRegistry.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
+
+ezCommandLineOptionBool opt_DisableConsoleOutput("app", "-disableConsoleOutput", "Disables logging to the standard console window.", false);
+ezCommandLineOptionInt opt_TelemetryPort("app", "-TelemetryPort", "The network port over which telemetry is sent.", ezTelemetry::s_uiPort);
+ezCommandLineOptionString opt_Profile("app", "-profile", "The platform profile to use.", "PC");
 
 ezString ezGameApplicationBase::GetBaseDataDirectoryPath() const
 {
@@ -46,25 +51,26 @@ void ezGameApplicationBase::ExecuteInitFunctions()
 
 void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
 {
-  m_PlatformProfile.m_sName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-profile", 0, "PC");
+  m_PlatformProfile.m_sName = opt_Profile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
   m_PlatformProfile.AddMissingConfigs();
 }
 
 void ezGameApplicationBase::BaseInit_ConfigureLogging()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-disableConsoleOutput", false))
+  if (!opt_DisableConsoleOutput.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
-    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+    m_LogToConsoleID = ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   }
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+
+  m_LogToVsID = ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 #endif
 }
 
 void ezGameApplicationBase::Init_ConfigureTelemetry()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezTelemetry::s_uiPort = static_cast<ezUInt16>(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-TelemetryPort", ezTelemetry::s_uiPort));
+  ezTelemetry::s_uiPort = static_cast<ezUInt16>(opt_TelemetryPort.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
   ezTelemetry::SetServerName(GetApplicationName());
   ezTelemetry::CreateServer();
 #endif
@@ -238,13 +244,8 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
 
 void ezGameApplicationBase::Deinit_ShutdownLogging()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-disableConsoleOutput", false))
-  {
-    ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-  }
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-#endif
+  ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
+  ezGlobalLog::RemoveLogWriter(m_LogToVsID);
 }
 
 

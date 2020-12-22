@@ -87,7 +87,7 @@ public:
   ///
   /// If szDefault is empty and the user did not provide this option, then the result will also be the empty string.
   /// If szDefault is a relative path, it will be concatenated with the CWD just as any user provided option would.
-  const ezString GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "", bool bCaseSensitive = false);
+  const ezString GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "", bool bCaseSensitive = false) const;
 
   /// \brief Returns a boolean interpretation of the option \a szOption or bDefault if it cannot be found.
   ///

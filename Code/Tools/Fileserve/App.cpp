@@ -26,6 +26,7 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezFileserver::GetSingleton()->StartServer();
 #endif
 
+  // TODO: CommandLine Option
   m_CloseAppTimeout = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));
   m_TimeTillClosing = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_wait_timeout", 0));
 

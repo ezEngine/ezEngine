@@ -2,10 +2,44 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <ShaderCompiler/ShaderCompiler.h>
+
+ezCommandLineOptionString opt_Shader("_ShaderCompiler", "-shader", "\
+One or multiple paths to shader files or folders containing shaders.\n\
+Paths are separated with semicolons.\n\
+Paths may be absolute or relative to the -project directory.\n\
+If a path to a folder is specified, all .ezShader files in that folder are compiled.\n\
+\n\
+This option has to be specified.",
+  "");
+
+ezCommandLineOptionPath opt_Project("_ShaderCompiler", "-project", "\
+Path to the folder of the project, for which shaders should be compiled.",
+  "");
+
+ezCommandLineOptionString opt_Platform("_ShaderCompiler", "-platform", "The name of the platform for which to compile the shaders.\n\
+Examples:\n\
+  -platform DX11_SM50\n\
+  -platform VULKAN\n\
+  -platform ALL",
+  "DX11_SM50");
+
+ezCommandLineOptionBool opt_IgnoreErrors("_ShaderCompiler", "-IgnoreErrors", "If set, a compile error won't stop other shaders from being compiled.", false);
+
+ezCommandLineOptionDoc opt_Perm("_ShaderCompiler", "-perm", "<string list>", "List of permutation variables to set to fixed values.\n\
+Spaces are used to separate multiple arguments, therefore each argument musn't use spaces.\n\
+In the form of 'SOME_VAR=VALUE'\n\
+Examples:\n\
+  -perm BLEND_MODE=BLEND_MODE_OPAQUE\n\
+  -perm TWO_SIDED=FALSE MSAA=TRUE\n\
+\n\
+If a permutation variable is not set to a fixed value, all shader permutations for that variable will generated and compiled.\n\
+",
+  "");
 
 ezShaderCompilerApplication::ezShaderCompilerApplication()
   : ezGameApplication("ezShaderCompiler", nullptr)
@@ -14,28 +48,34 @@ ezShaderCompilerApplication::ezShaderCompilerApplication()
 
 ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
 {
+  {
+    ezStringBuilder cmdHelp;
+    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_ShaderCompiler"))
+    {
+      ezLog::Print(cmdHelp);
+      return EZ_FAILURE;
+    }
+  }
+
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("shadercompiler");
 
   // only print important messages
-  ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
+  ezLog::SetDefaultLogLevel(ezLogMsgType::InfoMsg);
 
   EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   auto cmd = ezCommandLineUtils::GetGlobalInstance();
 
-  m_sShaderFiles = cmd->GetStringOption("-shader", 0, "");
+  m_sShaderFiles = opt_Shader.GetOptionValue(ezCommandLineOption::LogMode::Always);
   EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "Shader file has not been specified. Use the -shader command followed by a path");
 
-  m_sAppProjectPath = cmd->GetAbsolutePathOption("-project", 0, "");
+  m_sAppProjectPath = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "Project directory has not been specified. Use the -project command followed by a path");
 
-  m_sPlatforms = cmd->GetStringOption("-platform", 0, "");
+  m_sPlatforms = opt_Platform.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-  m_bIgnoreErrors = cmd->GetBoolOption("-IgnoreErrors", false);
-
-  if (m_sPlatforms.IsEmpty())
-    m_sPlatforms = "DX11_SM50"; // "ALL";
+  m_bIgnoreErrors = opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
 
@@ -250,4 +290,4 @@ ezApplication::Execution ezShaderCompilerApplication::Run()
   return ezApplication::Execution::Quit;
 }
 
-EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);
+EZ_CONSOLEAPP_ENTRY_POINT(ezShaderCompilerApplication);

@@ -10,6 +10,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/System/Screen.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/Configuration/XRConfig.h>
@@ -269,6 +270,8 @@ void ezGameState::ConfigureMainCamera()
   }
 }
 
+ezCommandLineOptionPath opt_Window("GameState", "-wnd", "Path to the window configuration file to use.", "");
+
 ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 {
   if (false)
@@ -278,7 +281,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
     ezScreen::PrintScreenInfo(screens);
   }
 
-  ezStringBuilder sWndCfg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-wnd", 0, "");
+  ezStringBuilder sWndCfg = opt_Window.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
 
   if (!sWndCfg.IsEmpty() && !ezFileSystem::ExistsFile(sWndCfg))
   {
