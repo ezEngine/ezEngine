@@ -447,6 +447,8 @@ public:
       case ezLogMsgType::DebugMsg:
         m_sBuffer.Append(le.m_szText, "\n");
         break;
+      default:
+        break;
     }
   }
 
