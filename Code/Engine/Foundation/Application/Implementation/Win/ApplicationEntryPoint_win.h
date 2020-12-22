@@ -36,6 +36,7 @@ namespace ezApplicationDetails
     const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
+      pApp->SetReturnCode(dwCtrlType);
       pApp->RequestQuit();
       EZ_LOCK(GetShutdownMutex());
       return 1;

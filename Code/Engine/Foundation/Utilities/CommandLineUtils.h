@@ -27,8 +27,7 @@ public:
   /// Useful for platforms where command line args come in as a single string.
   /// \param addExecutableDir
   ///   Adds executable path as first parameter (just as it would normally be in 'int main(argc, argv)').
-  static void SplitCommandLineString(
-    const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV);
+  static void SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV);
 
   /// \brief Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
   void SetCommandLine(ezUInt32 argc, const char** argv, ArgMode mode = UseArgcArgv); // [tested]

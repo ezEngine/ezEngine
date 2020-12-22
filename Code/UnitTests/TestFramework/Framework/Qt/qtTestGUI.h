@@ -8,9 +8,9 @@
 #  include <TestFramework/TestFrameworkDLL.h>
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#    define USE_WIN_EXTRAS EZ_ON
+#    define EZ_USE_WIN_EXTRAS EZ_ON
 #  else
-#    define USE_WIN_EXTRAS EZ_OFF
+#    define EZ_USE_WIN_EXTRAS EZ_OFF
 #  endif
 
 
@@ -99,7 +99,7 @@ private:
   ezUInt32 m_uiTestsEnabledCount = 0;
   ezUInt32 m_uiSubTestsEnabledCount = 0;
 
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
   QWinTaskbarButton* m_pWinTaskBarButton = nullptr;
   QWinTaskbarProgress* m_pWinTaskBarProgress = nullptr;
   QMetaObject::Connection m_OnButtonDestroyed;

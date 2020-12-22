@@ -4,7 +4,6 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>
-#include <Foundation/Strings/String.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/mman.h>

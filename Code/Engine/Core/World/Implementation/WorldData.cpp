@@ -106,9 +106,41 @@ namespace ezInternal
     m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
   }
 
-  WorldData::~WorldData()
+  WorldData::~WorldData() = default;
+
+  void WorldData::Clear()
   {
-    EZ_ASSERT_DEV(m_Modules.IsEmpty(), "Modules should be cleaned up already.");
+    // allow reading and writing during destruction
+    m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
+    m_iReadCounter.Increment();
+
+    // deactivate all objects and components before destroying them
+    for (auto it = m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
+    {
+      it->SetActiveFlag(false);
+    }
+
+    // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
+    for (ezWorldModule* pModule : m_Modules)
+    {
+      if (pModule != nullptr)
+      {
+        pModule->Deinitialize();
+      }
+    }
+
+    // now delete all modules
+    for (ezWorldModule* pModule : m_Modules)
+    {
+      if (pModule != nullptr)
+      {
+        EZ_DELETE(&m_Allocator, pModule);
+      }
+    }
+    m_Modules.Clear();
+
+    // this deletes the ezGameObject instances
+    m_ObjectStorage.Clear();
 
     // delete all transformation data
     for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
@@ -124,6 +156,8 @@ namespace ezInternal
         }
         EZ_DELETE(&m_Allocator, blocks);
       }
+
+      hierarchy.m_Data.Clear();
     }
 
     // delete task storage
@@ -212,14 +246,10 @@ namespace ezInternal
   {
     struct Helper
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
-      {
-        return (*static_cast<VisitorFunc*>(pUserData))(pData->m_pObject);
-      }
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData) { return (*static_cast<VisitorFunc*>(pUserData))(pData->m_pObject); }
     };
 
-    const ezUInt32 uiMaxHierarchyLevel =
-      ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
+    const ezUInt32 uiMaxHierarchyLevel = ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
 
     for (ezUInt32 uiHierarchyLevel = 0; uiHierarchyLevel < uiMaxHierarchyLevel; ++uiHierarchyLevel)
     {
@@ -241,10 +271,7 @@ namespace ezInternal
   {
     struct Helper
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
-      {
-        return WorldData::TraverseObjectDepthFirst(pData->m_pObject, *static_cast<VisitorFunc*>(pUserData));
-      }
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData) { return WorldData::TraverseObjectDepthFirst(pData->m_pObject, *static_cast<VisitorFunc*>(pUserData)); }
     };
 
     for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
@@ -311,8 +338,7 @@ namespace ezInternal
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransformAndSpatialData(
-          pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
+        WorldData::UpdateGlobalTransformAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
@@ -321,8 +347,7 @@ namespace ezInternal
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransformWithParentAndSpatialData(
-          pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
+        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
