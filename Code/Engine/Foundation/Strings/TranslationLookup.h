@@ -121,7 +121,7 @@ private:
 };
 
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
-#define ezTranslate(string) ezTranslationLookup::Translate(string, ezHashingUtils::xxHash32String(string), ezTranslationUsage::Default)
+#define ezTranslate(string) ezTranslationLookup::Translate(string, ezHashingUtils::StringHash(string), ezTranslationUsage::Default)
 
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
-#define ezTranslateTooltip(string) ezTranslationLookup::Translate(string, ezHashingUtils::xxHash32String(string), ezTranslationUsage::Tooltip)
+#define ezTranslateTooltip(string) ezTranslationLookup::Translate(string, ezHashingUtils::StringHash(string), ezTranslationUsage::Tooltip)

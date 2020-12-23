@@ -310,7 +310,6 @@ ezLogInterface* ezLog::GetThreadLocalLogSystem()
   {
     // use new, not EZ_DEFAULT_NEW, to prevent tracking
     s_DefaultLogSystem = new ezGlobalLog;
-    s_DefaultLogSystem->SetLogLevel(s_DefaultLogLevel);
   }
 
   return s_DefaultLogSystem;
@@ -318,13 +317,26 @@ ezLogInterface* ezLog::GetThreadLocalLogSystem()
 
 void ezLog::SetDefaultLogLevel(ezLogMsgType::Enum LogLevel)
 {
+  EZ_ASSERT_DEV(LogLevel >= ezLogMsgType::None && LogLevel <= ezLogMsgType::All, "Invalid default log level {}", (int)LogLevel);
+
   s_DefaultLogLevel = LogLevel;
 }
 
+ezLogMsgType::Enum ezLog::GetDefaultLogLevel()
+{
+  return s_DefaultLogLevel;
+}
+
+#define LOG_LEVEL_FILTER(MaxLevel)                                                                                                  \
+  if (pInterface == nullptr)                                                                                                        \
+    return;                                                                                                                         \
+  if ((pInterface->GetLogLevel() == ezLogMsgType::GlobalDefault ? ezLog::s_DefaultLogLevel : pInterface->GetLogLevel()) < MaxLevel) \
+    return;
+
+
 void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::ErrorMsg)
-    return;
+  LOG_LEVEL_FILTER(ezLogMsgType::ErrorMsg);
 
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::ErrorMsg, string.GetText(tmp));
@@ -332,8 +344,7 @@ void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::SeriousWarningMsg)
-    return;
+  LOG_LEVEL_FILTER(ezLogMsgType::SeriousWarningMsg);
 
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::SeriousWarningMsg, string.GetText(tmp));
@@ -341,8 +352,7 @@ void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& str
 
 void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::WarningMsg)
-    return;
+  LOG_LEVEL_FILTER(ezLogMsgType::WarningMsg);
 
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::WarningMsg, string.GetText(tmp));
@@ -350,8 +360,7 @@ void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::SuccessMsg)
-    return;
+  LOG_LEVEL_FILTER(ezLogMsgType::SuccessMsg);
 
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::SuccessMsg, string.GetText(tmp));
@@ -359,8 +368,7 @@ void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::InfoMsg)
-    return;
+  LOG_LEVEL_FILTER(ezLogMsgType::InfoMsg);
 
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::InfoMsg, string.GetText(tmp));
@@ -370,8 +378,7 @@ void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::DevMsg)
-    return;
+  LOG_LEVEL_FILTER(ezLogMsgType::DevMsg);
 
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::DevMsg, string.GetText(tmp));
@@ -383,8 +390,7 @@ void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::DebugMsg)
-    return;
+  LOG_LEVEL_FILTER(ezLogMsgType::DebugMsg);
 
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::DebugMsg, string.GetText(tmp));

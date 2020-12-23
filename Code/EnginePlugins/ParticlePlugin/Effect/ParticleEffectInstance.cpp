@@ -270,12 +270,12 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
     for (auto it = desc.m_FloatParameters.GetIterator(); it.IsValid(); ++it)
     {
-      SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
+      SetParameter(ezTempHashedString(it.Key().GetData()), it.Value());
     }
 
     for (auto it = desc.m_ColorParameters.GetIterator(); it.IsValid(); ++it)
     {
-      SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
+      SetParameter(ezTempHashedString(it.Key().GetData()), it.Value());
     }
 
     // shared effects do not support per-instance parameters

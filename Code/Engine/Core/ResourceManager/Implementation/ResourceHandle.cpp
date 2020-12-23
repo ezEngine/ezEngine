@@ -22,7 +22,7 @@ void ezTypelessResourceHandle::Invalidate()
   m_pResource = nullptr;
 }
 
-ezUInt32 ezTypelessResourceHandle::GetResourceIDHash() const
+ezUInt64 ezTypelessResourceHandle::GetResourceIDHash() const
 {
   return IsValid() ? m_pResource->GetResourceIDHash() : 0;
 }

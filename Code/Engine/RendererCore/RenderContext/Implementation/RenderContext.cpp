@@ -648,11 +648,11 @@ void ezRenderContext::ResetContextState()
   m_BoundBuffer.Clear();
 
   m_BoundSamplers.Clear();
-  m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("LinearSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering));
-  m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("LinearClampSampler"),
+  m_BoundSamplers.Insert(ezHashingUtils::StringHash("LinearSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering));
+  m_BoundSamplers.Insert(ezHashingUtils::StringHash("LinearClampSampler"),
     GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
-  m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("PointSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering));
-  m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("PointClampSampler"),
+  m_BoundSamplers.Insert(ezHashingUtils::StringHash("PointSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering));
+  m_BoundSamplers.Insert(ezHashingUtils::StringHash("PointClampSampler"),
     GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
 
   m_BoundUAVs.Clear();
@@ -1054,7 +1054,7 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
     if (binding.m_Type != ezShaderResourceBinding::ConstantBuffer)
       continue;
 
-    const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
+    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
 
     BoundConstantBuffer boundConstantBuffer;
     if (!m_BoundConstantBuffers.TryGetValue(uiResourceHash, boundConstantBuffer))
@@ -1090,7 +1090,7 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
   {
     // we currently only support 2D and cube textures
 
-    const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
+    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
     ezGALResourceViewHandle hResourceView;
 
     if (binding.m_Type >= ezShaderResourceBinding::Texture2D && binding.m_Type <= ezShaderResourceBinding::Texture2DMSArray)
@@ -1120,7 +1120,7 @@ void ezRenderContext::ApplyUAVBindings(const ezShaderStageBinary* pBinary)
     if (binding.m_Type != ezShaderResourceBinding::UAV)
       continue;
 
-    const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
+    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
 
     ezGALUnorderedAccessViewHandle hResourceView;
     m_BoundUAVs.TryGetValue(uiResourceHash, hResourceView);
@@ -1136,7 +1136,7 @@ void ezRenderContext::ApplySamplerBindings(ezGALShaderStage::Enum stage, const e
     if (binding.m_Type != ezShaderResourceBinding::Sampler)
       continue;
 
-    const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
+    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
 
     ezGALSamplerStateHandle hSamplerState;
     if (!m_BoundSamplers.TryGetValue(uiResourceHash, hSamplerState))
@@ -1155,7 +1155,7 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
     if (binding.m_Type != ezShaderResourceBinding::GenericBuffer)
       continue;
 
-    const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
+    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
 
     ezGALResourceViewHandle hResourceView;
     m_BoundBuffer.TryGetValue(uiResourceHash, hResourceView);

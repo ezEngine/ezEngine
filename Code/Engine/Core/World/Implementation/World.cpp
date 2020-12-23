@@ -72,34 +72,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
 ezWorld::~ezWorld()
 {
-  // allow reading and writing during destruction
-  m_Data.m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
-  m_Data.m_iReadCounter.Increment();
-
-  // deactivate all objects and components before destroying them
-  for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
-  {
-    it->SetActiveFlag(false);
-  }
-
-  // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
-  for (ezWorldModule* pModule : m_Data.m_Modules)
-  {
-    if (pModule != nullptr)
-    {
-      pModule->Deinitialize();
-    }
-  }
-
-  // now delete all modules
-  for (ezWorldModule* pModule : m_Data.m_Modules)
-  {
-    if (pModule != nullptr)
-    {
-      EZ_DELETE(&m_Data.m_Allocator, pModule);
-    }
-  }
-  m_Data.m_Modules.Clear();
+  m_Data.Clear();
 
   s_Worlds[m_uiIndex] = nullptr;
   m_uiIndex = ezInvalidIndex;

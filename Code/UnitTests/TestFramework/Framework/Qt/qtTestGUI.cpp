@@ -11,7 +11,7 @@
 #  include <TestFramework/Framework/Qt/qtTestGUI.h>
 #  include <TestFramework/Framework/Qt/qtTestModel.h>
 
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
 #    include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #    include <QtWinExtras/QWinTaskbarButton>
 #    include <QtWinExtras/QWinTaskbarProgress>
@@ -101,7 +101,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
 ezQtTestGUI::~ezQtTestGUI()
 {
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
   if (m_pWinTaskBarProgress)
   {
     QObject::disconnect(m_OnProgressDestroyed);
@@ -272,7 +272,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
     m_bAbort = false;
 
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
     if (m_pWinTaskBarProgress)
     {
       m_pWinTaskBarProgress->pause();
@@ -288,7 +288,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
       if (m_pTestFramework->GetSettings().m_bShowMessageBox)
         QMessageBox::critical(this, "Tests Failed", "Some tests have failed.", QMessageBox::Ok, QMessageBox::Ok);
 
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
       if (m_pWinTaskBarProgress)
       {
         m_pWinTaskBarProgress->stop();
@@ -305,7 +305,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
       if (m_pTestFramework->GetSettings().m_bCloseOnSuccess)
         QTimer::singleShot(100, this, SLOT(on_actionQuit_triggered()));
 
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
       if (m_pWinTaskBarProgress)
       {
         m_pWinTaskBarProgress->reset();
@@ -442,7 +442,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   m_pStatusText->setText(sStatusText);
   m_pMessageLogDock->currentTestResultChanged(&m_pTestFramework->GetTestResult().GetTestResultData(iTestIndex, iSubTestIndex));
 
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
   if (m_pWinTaskBarButton == nullptr)
   {
     auto ClearPointers = [this]() {

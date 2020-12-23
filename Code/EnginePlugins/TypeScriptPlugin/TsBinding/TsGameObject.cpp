@@ -539,7 +539,7 @@ static int __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(duk_context* pDuk)
 
   ezUInt32 uiTypeNameHash = duk.GetUIntValue(1);
 
-  const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash(uiTypeNameHash);
+  const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash32(uiTypeNameHash);
   if (pRtti == nullptr)
   {
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnNull(), +1);
@@ -600,7 +600,7 @@ static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk)
 
   if (uiTypeNameHash != 0)
   {
-    pRtti = ezRTTI::FindTypeByNameHash(uiTypeNameHash);
+    pRtti = ezRTTI::FindTypeByNameHash32(uiTypeNameHash);
   }
 
   ezGameObject* pObject = pGameObject->SearchForChildByNameSequence(duk.GetStringValue(1), pRtti);

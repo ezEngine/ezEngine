@@ -60,7 +60,7 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 void ezTimedDeathComponent::OnSimulationStarted()
 {
   ezMsgComponentInternalTrigger msg;
-  msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
+  msg.m_uiUsageStringHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide"));
 
   ezWorld* pWorld = GetWorld();
 
@@ -77,7 +77,7 @@ void ezTimedDeathComponent::OnSimulationStarted()
 
 void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
+  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide")))
     return;
 
   if (m_hTimeoutPrefab.IsValid())

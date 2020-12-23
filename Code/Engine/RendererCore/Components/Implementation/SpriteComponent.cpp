@@ -37,7 +37,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezSpriteRenderData::FillBatchIdAndSortingKey()
 {
-  const ezUInt32 uiTextureIDHash = m_hTexture.GetResourceIDHash();
+  // ignore upper 32 bit of the resource ID hash
+  const ezUInt32 uiTextureIDHash = static_cast<ezUInt32>(m_hTexture.GetResourceIDHash());
 
   // Generate batch id from mode and texture
   ezUInt32 data[] = {(ezUInt32)m_BlendMode, uiTextureIDHash};

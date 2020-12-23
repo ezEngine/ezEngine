@@ -25,11 +25,6 @@ const ezString& ezTag::GetTagString() const
   return m_TagString.GetString();
 }
 
-ezUInt32 ezTag::GetTagHash() const
-{
-  return m_TagString.GetHash();
-}
-
 bool ezTag::IsValid() const
 {
   return m_uiBlockIndex != 0xFFFFFFFEu;

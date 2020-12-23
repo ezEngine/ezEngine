@@ -22,7 +22,7 @@ ezUInt32 ezTypeScriptBinding::ComputePropertyBindingHash(const ezRTTI* pType, ez
 
   sFuncName.Set(pType->GetTypeName(), "::", pMember->GetPropertyName());
 
-  return ezTempHashedString::ComputeHash(sFuncName.GetData());
+  return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sFuncName.GetData()));
 }
 
 void ezTypeScriptBinding::SetupRttiPropertyBindings()

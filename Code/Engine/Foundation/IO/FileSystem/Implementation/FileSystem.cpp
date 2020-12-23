@@ -178,7 +178,8 @@ bool ezFileSystem::RemoveDataDirectory(const char* szRootName)
 
 ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
 {
-  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
+  if (s_Data == nullptr)
+    return 0;
 
   EZ_LOCK(s_Data->m_FsMutex);
 

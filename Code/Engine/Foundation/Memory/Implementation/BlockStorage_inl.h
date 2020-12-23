@@ -112,6 +112,12 @@ EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ezBlockStorage(
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
 ezBlockStorage<T, BlockSize, StorageType>::~ezBlockStorage()
 {
+  Clear();
+}
+
+template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
+void ezBlockStorage<T, BlockSize, StorageType>::Clear()
+{
   for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < m_Blocks.GetCount(); ++uiBlockIndex)
   {
     ezDataBlock<T, BlockSize>& block = m_Blocks[uiBlockIndex];

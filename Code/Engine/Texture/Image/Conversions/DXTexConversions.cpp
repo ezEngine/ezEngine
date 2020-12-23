@@ -187,7 +187,7 @@ namespace
       if (SUCCEEDED(hr))
       {
         ezStringUtf8 sDesc(desc.Description);
-        ezLog::Info("Using DirectCompute on \"{0}\"", sDesc.GetData());
+        ezLog::Dev("Using DirectCompute on \"{0}\"", sDesc.GetData());
       }
 
       return deviceType;

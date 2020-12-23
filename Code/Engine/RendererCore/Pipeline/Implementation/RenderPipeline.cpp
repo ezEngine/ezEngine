@@ -607,7 +607,7 @@ void ezRenderPipeline::SortExtractors()
     {
       for (auto& extractor : container)
       {
-        if (sDependency == extractor->GetDynamicRTTI()->GetTypeNameHash())
+        if (sDependency == ezTempHashedString(extractor->GetDynamicRTTI()->GetTypeNameHash()))
         {
           return true;
         }

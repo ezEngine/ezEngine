@@ -202,12 +202,12 @@ private:
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
   bool m_bAllowAsyncShaderLoading;
 
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures2D;
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures3D;
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTexturesCube;
-  ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
-  ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers;
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures2D;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures3D;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTexturesCube;
+  ezHashTable<ezUInt64, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
+  ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundBuffer;
 
   struct BoundConstantBuffer
   {
@@ -227,7 +227,7 @@ private:
     ezConstantBufferStorageHandle m_hConstantBufferStorage;
   };
 
-  ezHashTable<ezUInt32, BoundConstantBuffer> m_BoundConstantBuffers;
+  ezHashTable<ezUInt64, BoundConstantBuffer> m_BoundConstantBuffers;
 
   ezConstantBufferStorageHandle m_hGlobalConstantBufferStorage;
 

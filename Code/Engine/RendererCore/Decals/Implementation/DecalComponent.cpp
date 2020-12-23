@@ -203,7 +203,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
+    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_hDecals[uiDecalIndex].GetResourceIDHash()));
 
     if (decalIdx != ezInvalidIndex)
     {
@@ -408,7 +408,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
+    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_hDecals[uiDecalIndex].GetResourceIDHash()));
 
     if (decalIdx != ezInvalidIndex)
     {
@@ -544,7 +544,7 @@ void ezDecalComponent::OnSimulationStarted()
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
     {
       ezMsgComponentInternalTrigger msg;
-      msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
+      msg.m_uiUsageStringHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide"));
 
       const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
 
@@ -575,7 +575,7 @@ void ezDecalComponent::OnActivated()
 
 void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
+  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide")))
     return;
 
   ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);

@@ -93,6 +93,15 @@ public:
     return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
   }
 
+  struct EnumKeyValuePair
+  {
+    ezString m_sKey;
+    ezInt32 m_iValue = 0;
+  };
+
+  /// \brief If the given type is an enum, \a entries will be filled with all available keys (strings) and values (integers).
+  static void GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezDynamicArray<EnumKeyValuePair>& entries, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default);
+
   /// \brief Converts an enum or bitfield in its string representation to its value.
   ///
   /// The type of pEnumerationRtti will be automatically detected. The syntax of szValue must equal the MSVC debugger output.

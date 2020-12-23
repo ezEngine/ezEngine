@@ -27,7 +27,7 @@ ezQtGraphicsView::ezQtGraphicsView(QWidget* parent /*= nullptr*/)
 
 void ezQtGraphicsView::wheelEvent(QWheelEvent* e)
 {
-  if (e->delta() > 0)
+  if (e->angleDelta().y() > 0)
   {
     m_fZoom *= 1.2f;
   }

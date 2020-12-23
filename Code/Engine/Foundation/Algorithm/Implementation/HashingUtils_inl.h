@@ -14,7 +14,7 @@ namespace ezInternal
     template <class Derived>
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezStringBase<Derived>& string)
     {
-      return ezHashingUtils::xxHash32((void*)string.InternalGetData(), string.InternalGetElementCount());
+      return ezHashingUtils::StringHashTo32(ezHashingUtils::xxHash64((void*)string.InternalGetData(), string.InternalGetElementCount()));
     }
   };
 
@@ -86,7 +86,10 @@ struct ezHashHelper<ezInt64>
 template <>
 struct ezHashHelper<const char*>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const char* szValue) { return ezHashingUtils::xxHash32String(szValue); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const char* szValue)
+  {
+    return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(szValue));
+  }
 
   EZ_ALWAYS_INLINE static bool Equal(const char* a, const char* b) { return ezStringUtils::IsEqual(a, b); }
 };
@@ -105,3 +108,20 @@ struct ezHashHelper<T*>
 
   EZ_ALWAYS_INLINE static bool Equal(T* a, T* b) { return a == b; }
 };
+
+template <size_t N>
+constexpr EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::StringHash(const char (&str)[N], ezUInt64 uiSeed)
+{
+  return xxHash64String(str, uiSeed);
+}
+
+EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::StringHash(ezStringView str, ezUInt64 uiSeed)
+{
+  return xxHash64String(str, uiSeed);
+}
+
+constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::StringHashTo32(ezUInt64 hash)
+{
+  // just throw away the upper bits
+  return static_cast<ezUInt32>(hash);
+}

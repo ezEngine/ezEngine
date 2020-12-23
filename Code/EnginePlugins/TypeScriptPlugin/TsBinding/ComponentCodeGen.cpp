@@ -81,7 +81,7 @@ void ezTypeScriptBinding::GenerateComponentCode(ezStringBuilder& out_Code, const
 
   out_Code.AppendFormat("export class {0} extends {1}\n", sComponentType, sParentType);
   out_Code.Append("{\n");
-  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", pRtti->GetTypeNameHash());
+  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()));
   GenerateExposedFunctionsCode(out_Code, pRtti);
   GeneratePropertiesCode(out_Code, pRtti);
   out_Code.Append("}\n\n");

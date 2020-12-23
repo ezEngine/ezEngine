@@ -183,14 +183,14 @@ private:
   struct FloatParameter
   {
     EZ_DECLARE_POD_TYPE();
-    ezUInt32 m_uiNameHash;
+    ezUInt64 m_uiNameHash;
     float m_fValue;
   };
 
   struct ColorParameter
   {
     EZ_DECLARE_POD_TYPE();
-    ezUInt32 m_uiNameHash;
+    ezUInt64 m_uiNameHash;
     ezColor m_Value;
   };
 

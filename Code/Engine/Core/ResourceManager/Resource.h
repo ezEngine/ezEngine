@@ -47,7 +47,7 @@ public:
   EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_UniqueID; }
 
   /// \brief Returns the hash of the unique ID.
-  EZ_ALWAYS_INLINE ezUInt32 GetResourceIDHash() const { return m_uiUniqueIDHash; }
+  EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }
 
   /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
@@ -216,7 +216,7 @@ private:
   /// \brief Called by ezResourceMananger::CreateResource
   void VerifyAfterCreateResource(const ezResourceLoadDesc& ld);
 
-  ezUInt32 m_uiUniqueIDHash = 0;
+  ezUInt64 m_uiUniqueIDHash = 0;
   ezUInt32 m_uiResourceChangeCounter = 0;
   ezAtomicInteger32 m_iReferenceCount = 0;
   ezAtomicInteger32 m_iLockCount = 0;

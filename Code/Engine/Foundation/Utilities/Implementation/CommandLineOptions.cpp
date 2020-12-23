@@ -222,6 +222,11 @@ bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_which, const
     }
   }
 
+  if (out_which)
+  {
+    *out_which = m_szArgument;
+  }
+
   return false;
 }
 

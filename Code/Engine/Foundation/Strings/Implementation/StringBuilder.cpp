@@ -341,7 +341,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
 void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEndPos, const ezStringView& szReplaceWith)
 {
   EZ_ASSERT_DEV(ezMath::IsInRange(szStartPos, GetData(), GetData() + m_Data.GetCount()), "szStartPos is not inside this string.");
-  EZ_ASSERT_DEV(ezMath::IsInRange(szEndPos, GetData(), GetData() + m_Data.GetCount()), "szStartPos is not inside this string.");
+  EZ_ASSERT_DEV(ezMath::IsInRange(szEndPos, GetData(), GetData() + m_Data.GetCount()), "szEndPos is not inside this string.");
   EZ_ASSERT_DEV(szStartPos <= szEndPos, "ezStartPos must be before ezEndPos");
 
   ezUInt32 uiWordChars = 0;

@@ -32,8 +32,8 @@ protected:
     m_uiFlipWinding = m_GlobalTransform.ContainsNegativeScale() ? 1 : 0;
     m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
 
-    const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
-    const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? m_hMaterial.GetResourceIDHash() : 0;
+    const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(m_hMesh.GetResourceIDHash());
+    const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash()) : 0;
 
     // Generate batch id from mesh, material and part index.
     ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, m_uiSubMeshIndex, m_uiFlipWinding, uiAdditionalBatchData};

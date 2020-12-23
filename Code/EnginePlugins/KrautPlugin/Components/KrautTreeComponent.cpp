@@ -148,7 +148,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     if (!lodData.m_hMesh.IsValid())
       continue;
 
-    const ezUInt32 uiMeshIDHash = lodData.m_hMesh.GetResourceIDHash();
+    const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(lodData.m_hMesh.GetResourceIDHash());
 
     ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
@@ -169,7 +169,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
       const ezUInt32 uiMaterialIndex = subMesh.m_uiMaterialIndex;
 
       const ezMaterialResourceHandle& hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
-      const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
+      const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(hMaterial.GetResourceIDHash()) : 0;
 
       // Generate batch id from mesh, material and part index.
       const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};

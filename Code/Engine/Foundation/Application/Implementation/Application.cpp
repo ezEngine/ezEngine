@@ -37,7 +37,7 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
   ezRTTI::VerifyCorrectnessForAllTypes();
 #endif
 
-  if (opt_WaitForDebugger.GetOptionValue(ezCommandLineOption::LogMode::Always))
+  if (opt_WaitForDebugger.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
     while (!ezSystemInformation::IsDebuggerAttached())
     {

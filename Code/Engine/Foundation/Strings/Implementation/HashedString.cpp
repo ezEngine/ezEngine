@@ -18,7 +18,7 @@ EZ_MSVC_ANALYSIS_WARNING_PUSH
 EZ_MSVC_ANALYSIS_WARNING_DISABLE(6011) // Disable warning for null pointer dereference as InitHashedString() will ensure that s_pHSData is set
 
 // static
-ezHashedString::HashedType ezHashedString::AddHashedString(ezStringView szString, ezUInt32 uiHash)
+ezHashedString::HashedType ezHashedString::AddHashedString(ezStringView szString, ezUInt64 uiHash)
 {
   if (s_pHSData == nullptr)
     InitHashedString();
@@ -32,12 +32,11 @@ ezHashedString::HashedType ezHashedString::AddHashedString(ezStringView szString
   // if it already exists, just increase the refcount
   if (bExisted)
   {
-    //EZ_ASSERT_DEV(ret.Value().m_sString == szString, "Hash collision encountered. Strings \"{}\" and \"{}\" both hash to {}.", ezArgSensitive(ret.Value().m_sString), ezArgSensitive(szString), uiHash);
-
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (ret.Value().m_sString != szString)
     {
-      ezLog::Error("Hash collision encountered. Strings \"{}\" and \"{}\" both hash to {}.", ezArgSensitive(ret.Value().m_sString), ezArgSensitive(szString), uiHash);
+      // TODO: I think this should be a more serious issue
+      ezLog::Error("Hash collision encountered: Strings \"{}\" and \"{}\" both hash to {}.", ezArgSensitive(ret.Value().m_sString), ezArgSensitive(szString), uiHash);
     }
 #endif
 
@@ -69,7 +68,7 @@ void ezHashedString::InitHashedString()
   s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
   // makes sure the empty string exists for the default constructor to use
-  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::xxHash32String(""));
+  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::StringHash(""));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // this one should never get deleted, so make sure its refcount is 2

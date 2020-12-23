@@ -22,7 +22,7 @@ ezUInt32 ezArchiveTOC::FindEntry(const char* szFile) const
 
   ezUInt32 uiIndex;
 
-  ezArchiveLookupString lookup(ezTempHashedString::ComputeHash(sLowerCasePath.GetData()), sLowerCasePath, m_AllPathStrings);
+  ezArchiveLookupString lookup(ezHashingUtils::StringHash(sLowerCasePath.GetData()), sLowerCasePath, m_AllPathStrings);
 
   if (!m_PathToEntryIndex.TryGetValue(lookup, uiIndex))
     return ezInvalidIndex;
@@ -43,7 +43,7 @@ ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Entries));
 
   // write the hash of a known string to the archive, to detect hash function changes
-  ezUInt64 uiStringHash = ezTempHashedString::ComputeHash("ezArchive");
+  ezUInt64 uiStringHash = ezHashingUtils::StringHash("ezArchive");
   stream << uiStringHash;
 
   EZ_SUCCEED_OR_RETURN(stream.WriteHashTable(m_PathToEntryIndex));
@@ -78,7 +78,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
       ezUInt64 uiStringHash = 0;
       stream >> uiStringHash;
 
-      if (uiStringHash == ezTempHashedString::ComputeHash("ezArchive"))
+      if (uiStringHash == ezHashingUtils::StringHash("ezArchive"))
       {
         bRecreateStringHashes = false;
       }
@@ -116,7 +116,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
       sLowerCasePath.ToLower();
 
       // cut off the upper 32 bit, we don't need them here
-      const ezUInt32 uiLowerCaseHash = static_cast<ezUInt32>(ezTempHashedString::ComputeHash(sLowerCasePath.GetData()) & 0xFFFFFFFFllu);
+      const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sLowerCasePath.GetData()) & 0xFFFFFFFFllu);
 
       m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
 

@@ -58,6 +58,8 @@ public:
   ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocatorBase* pAllocator);
   ~ezBlockStorage();
 
+  void Clear();
+
   T* Create();
   void Delete(T* pObject);
   void Delete(T* pObject, T*& out_pMovedObject);

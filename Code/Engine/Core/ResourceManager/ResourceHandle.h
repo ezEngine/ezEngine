@@ -70,7 +70,7 @@ public:
 
   /// \brief Returns the Resource ID hash of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  ezUInt32 GetResourceIDHash() const;
+  ezUInt64 GetResourceIDHash() const;
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
@@ -202,7 +202,7 @@ public:
 
   /// \brief Returns the Resource ID hash of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  EZ_ALWAYS_INLINE ezUInt32 GetResourceIDHash() const { return m_Typeless.GetResourceIDHash(); }
+  EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_Typeless.GetResourceIDHash(); }
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.

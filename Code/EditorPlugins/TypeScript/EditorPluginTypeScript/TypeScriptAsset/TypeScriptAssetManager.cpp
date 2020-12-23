@@ -173,7 +173,7 @@ void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuild
         return;
       }
 
-      uiTypeNameHash = ezTempHashedString::ComputeHash(sClassName.GetData());
+      uiTypeNameHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sClassName.GetData()));
     }
 
     sAutoGen.Format("public static GetTypeNameHash(): number { return {0}; }\nconstructor() { super(); this.TypeNameHash = {0}; }\n", uiTypeNameHash);

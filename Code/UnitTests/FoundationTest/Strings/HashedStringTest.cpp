@@ -11,19 +11,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
 
     s2.Assign("test"); // compile time hashing
 
-    EZ_TEST_INT(s.GetHash(), 0x02cc5d05);
+    EZ_TEST_INT(s.GetHash(), 0xef46db3751d8e999llu);
     EZ_TEST_STRING(s.GetString().GetData(), "");
     EZ_TEST_BOOL(s.GetString().IsEmpty());
 
     ezTempHashedString ts("test"); // compile time hashing
-    EZ_TEST_INT(ts.GetHash(), 0x3e2023cf);
+    EZ_TEST_INT(ts.GetHash(), 0x4fdcca5ddb678139llu);
 
     ezStringBuilder sb = "test2";
     ezTempHashedString ts2(sb.GetData()); // runtime hashing
-    EZ_TEST_INT(ts2.GetHash(), 0xd77409c3);
+    EZ_TEST_INT(ts2.GetHash(), 0x890e0a4c7111eb87llu);
 
     ezTempHashedString ts3(s2);
-    EZ_TEST_INT(ts3.GetHash(), 0x3e2023cf);
+    EZ_TEST_INT(ts3.GetHash(), 0x4fdcca5ddb678139llu);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assign")
@@ -32,22 +32,22 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     s.Assign("Test"); // compile time hashing
 
     EZ_TEST_STRING(s.GetString().GetData(), "Test");
-    EZ_TEST_INT(s.GetHash(), 0xeac53571);
+    EZ_TEST_INT(s.GetHash(), 0xda83efc38a8922b4llu);
 
     ezStringBuilder sb = "test2";
     s.Assign(sb.GetData()); // runtime hashing
     EZ_TEST_STRING(s.GetString().GetData(), "test2");
-    EZ_TEST_INT(s.GetHash(), 0xd77409c3);
+    EZ_TEST_INT(s.GetHash(), 0x890e0a4c7111eb87llu);
 
     ezTempHashedString ts("dummy");
     ts = "test"; // compile time hashing
-    EZ_TEST_INT(ts.GetHash(), 0x3e2023cf);
+    EZ_TEST_INT(ts.GetHash(), 0x4fdcca5ddb678139llu);
 
     ts = sb.GetData(); // runtime hashing
-    EZ_TEST_INT(ts.GetHash(), 0xd77409c3);
+    EZ_TEST_INT(ts.GetHash(), 0x890e0a4c7111eb87llu);
 
     s.Assign("");
-    EZ_TEST_INT(s.GetHash(), 0x02cc5d05);
+    EZ_TEST_INT(s.GetHash(), 0xef46db3751d8e999llu);
     EZ_TEST_STRING(s.GetString().GetData(), "");
     EZ_TEST_BOOL(s.GetString().IsEmpty());
   }
@@ -59,16 +59,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
 
     EZ_TEST_INT(ts.GetHash(), hs.GetHash());
 
-    EZ_TEST_INT(ts.GetHash(), 0x02cc5d05);
+    EZ_TEST_INT(ts.GetHash(), 0xef46db3751d8e999llu);
 
     ts = "Test";
     ezTempHashedString ts2 = ts;
-    EZ_TEST_INT(ts.GetHash(), 0xeac53571);
+    EZ_TEST_INT(ts.GetHash(), 0xda83efc38a8922b4llu);
 
     ts = "";
     ts2.Clear();
-    EZ_TEST_INT(ts.GetHash(), 0x02cc5d05);
-    EZ_TEST_INT(ts2.GetHash(), 0x02cc5d05);
+    EZ_TEST_INT(ts.GetHash(), 0xef46db3751d8e999llu);
+    EZ_TEST_INT(ts2.GetHash(), 0xef46db3751d8e999llu);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")

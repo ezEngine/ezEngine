@@ -95,7 +95,7 @@ void ezInputComponent::Update()
       continue;
 
     msg.m_TriggerState = ToTriggerState(state);
-    msg.m_uiInputActionHash = ezTempHashedString::ComputeHash(actionName.GetData());
+    msg.m_uiInputActionHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(actionName.GetData()));
     msg.m_fKeyPressValue = fValue;
 
     m_InputEventSender.SendEventMessage(msg, this, GetOwner());

@@ -8,13 +8,13 @@ namespace
 {
   EZ_ALWAYS_INLINE ezUInt32 CalculateTypeHash(const ezRenderData* pRenderData)
   {
-    ezUInt32 uiTypeHash = pRenderData->GetDynamicRTTI()->GetTypeNameHash();
+    ezUInt32 uiTypeHash = ezHashingUtils::StringHashTo32(pRenderData->GetDynamicRTTI()->GetTypeNameHash());
     return (uiTypeHash >> 16) ^ (uiTypeHash & 0xFFFF);
   }
 
   EZ_FORCE_INLINE ezUInt32 CalculateDistance(const ezRenderData* pRenderData, const ezCamera& camera)
   {
-    ///\todo farplane is not enough to normalize distance
+    ///\todo far-plane is not enough to normalize distance
     const float fDistance = (camera.GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength();
     const float fNormalizedDistance = ezMath::Clamp(fDistance / camera.GetFarPlane(), 0.0f, 1.0f);
     return static_cast<ezUInt32>(fNormalizedDistance * 65535.0f);

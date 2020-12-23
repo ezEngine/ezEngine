@@ -422,11 +422,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags ezQtTestModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
-    return 0;
+    return Qt::ItemFlags();
 
   ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*)index.internalPointer();
   if (pEntry == &m_Root)
-    return 0;
+    return Qt::ItemFlags();
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
 }
