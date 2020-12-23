@@ -10,7 +10,7 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-ezResult TranformProject(const char* szProjectPath)
+ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 {
   ezStringBuilder sBinPath = ezOSFile::GetApplicationDirectory();
 
@@ -27,6 +27,41 @@ ezResult TranformProject(const char* szProjectPath)
     sProjectDir.PathParentDirectory(3);
     sProjectDir.AppendPath(szProjectPath);
     sProjectDir.MakeCleanPath();
+  }
+
+  ezLog::Info("Transforming assets for project '{}'", sProjectDir);
+
+  {
+    ezStringBuilder sProjectAssetDir = sProjectDir;
+    sProjectAssetDir.PathParentDirectory();
+    sProjectAssetDir.AppendPath("AssetCache");
+
+    ezStringBuilder sCleanFile = sProjectAssetDir;
+    sCleanFile.AppendPath("CleanVersion.dat");
+
+    ezUInt32 uiTargetVersion = 0;
+    ezOSFile f;
+
+    if (f.Open(sCleanFile, ezFileOpenMode::Read, ezFileShareMode::Default).Succeeded())
+    {
+      f.Read(&uiTargetVersion, sizeof(ezUInt32));
+      f.Close();
+
+      ezLog::Info("CleanVersion.dat exists -> project has been transformed before.");
+    }
+
+    if (uiTargetVersion != uiCleanVersion)
+    {
+      ezLog::Info("Clean version {} != {} -> deleting asset cache.", uiTargetVersion, uiCleanVersion);
+
+      ezOSFile::DeleteFolder(sProjectAssetDir).IgnoreResult();
+
+      if (f.Open(sCleanFile, ezFileOpenMode::Write, ezFileShareMode::Default).Succeeded())
+      {
+        f.Write(&uiCleanVersion, sizeof(ezUInt32)).IgnoreResult();
+        f.Close();
+      }
+    }
   }
 
   sBinPath.AppendPath("EditorProcessor.exe");
@@ -67,27 +102,27 @@ EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
 {
-  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 1).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject", 1).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 1).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 1).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 1).Succeeded());
 }
 
 #endif
