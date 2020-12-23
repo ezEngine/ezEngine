@@ -3,6 +3,7 @@
 #include "Basics.h"
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/System/Process.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
@@ -12,6 +13,9 @@
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 {
+  ezGlobalLog::AddLogWriter(&ezLogWriter::Console::LogMessageHandler);
+  EZ_SCOPE_EXIT(ezGlobalLog::RemoveLogWriter(&ezLogWriter::Console::LogMessageHandler));
+
   ezStringBuilder sBinPath = ezOSFile::GetApplicationDirectory();
 
   ezStringBuilder sProjectDir;
@@ -54,13 +58,20 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     {
       ezLog::Info("Clean version {} != {} -> deleting asset cache.", uiTargetVersion, uiCleanVersion);
 
-      ezOSFile::DeleteFolder(sProjectAssetDir).IgnoreResult();
+      if (ezOSFile::DeleteFolder(sProjectAssetDir).Failed())
+      {
+        ezLog::Warning("Deleting the asset cache folder failed.");
+      }
 
       if (f.Open(sCleanFile, ezFileOpenMode::Write, ezFileShareMode::Default).Succeeded())
       {
         f.Write(&uiCleanVersion, sizeof(ezUInt32)).IgnoreResult();
         f.Close();
       }
+    }
+    else
+    {
+      ezLog::Info("Clean version {} == {}.", uiTargetVersion, uiCleanVersion);
     }
   }
 
@@ -112,17 +123,17 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 2).Succeeded());
 }
 
 #endif
