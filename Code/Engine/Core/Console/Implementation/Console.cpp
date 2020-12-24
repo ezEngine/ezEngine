@@ -116,6 +116,7 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
 
   switch (data.m_EventType)
   {
+    case ezLogMsgType::GlobalDefault:
     case ezLogMsgType::Flush:
     case ezLogMsgType::BeginGroup:
     case ezLogMsgType::EndGroup:
