@@ -3,8 +3,11 @@
 
 #include <RendererFoundation/Device/Pass.h>
 
-class ezGALRenderCommandEncoderVulkan;
-class ezGALComputeCommandEncoderVulkan;
+struct ezGALCommandEncoderRenderState;
+class ezGALRenderCommandEncoder;
+class ezGALComputeCommandEncoder;
+
+class ezGALCommandEncoderImplVulkan;
 
 class ezGALPassVulkan : public ezGALPass
 {
@@ -25,6 +28,9 @@ protected:
   void EndPass();
 
 private:
-  ezUniquePtr<ezGALRenderCommandEncoderVulkan> m_pRenderCommandEncoder;
-  ezUniquePtr<ezGALComputeCommandEncoderVulkan> m_pComputeCommandEncoder;
+  ezUniquePtr<ezGALCommandEncoderRenderState> m_pCommandEncoderState;
+  ezUniquePtr<ezGALCommandEncoderImplVulkan> m_pCommandEncoderImpl;
+
+  ezUniquePtr<ezGALRenderCommandEncoder> m_pRenderCommandEncoder;
+  ezUniquePtr<ezGALComputeCommandEncoder> m_pComputeCommandEncoder;
 };

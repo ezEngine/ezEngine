@@ -22,7 +22,7 @@ ezGALPassDX11::~ezGALPassDX11() = default;
 
 ezGALRenderCommandEncoder* ezGALPassDX11::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName)
 {
-  m_pCommandEncoderImpl->BeginRender(renderingSetup);
+  m_pCommandEncoderImpl->BeginRendering(renderingSetup);
 
   return m_pRenderCommandEncoder.Borrow();
 }

@@ -1,5 +1,6 @@
+#include <RendererVulkanPCH.h>
 
-#include <RendererVulkan/CommandEncoder/CommandEncoderVulkan.h>
+#include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/FenceVulkan.h>
@@ -12,20 +13,17 @@
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
 
-template <typename Base>
-ezGALCommandEncoderVulkan<Base>::ezGALCommandEncoderVulkan(ezGALDevice& device)
-  : Base(device)
+ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device)
+  : m_GALDeviceVulkan(device)
 {
-  m_vkDevice = static_cast<ezGALDeviceVulkan&>(device).GetVulkanDevice();
+  m_vkDevice = device.GetVulkanDevice();
 }
 
-template <typename Base>
-ezGALCommandEncoderVulkan<Base>::~ezGALCommandEncoderVulkan() = default;
+ezGALCommandEncoderImplVulkan::~ezGALCommandEncoderImplVulkan() = default;
 
 // State setting functions
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::SetShaderPlatform(const ezGALShader* pShader)
+void ezGALCommandEncoderImplVulkan::SetShaderPlatform(const ezGALShader* pShader)
 {
   if (pShader != nullptr)
   {
@@ -34,8 +32,7 @@ void ezGALCommandEncoderVulkan<Base>::SetShaderPlatform(const ezGALShader* pShad
   }
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer)
+void ezGALCommandEncoderImplVulkan::SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer)
 {
   // \todo Check if the device supports the slot index?
   m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pBuffer) : nullptr;
@@ -47,8 +44,7 @@ void ezGALCommandEncoderVulkan<Base>::SetConstantBufferPlatform(ezUInt32 uiSlot,
   m_bDescriptorsDirty = true;
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState)
+void ezGALCommandEncoderImplVulkan::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState)
 {
   // \todo Check if the device supports the stage / the slot index
   m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != nullptr ? static_cast<const ezGALSamplerStateVulkan*>(pSamplerState) : nullptr;
@@ -57,8 +53,7 @@ void ezGALCommandEncoderVulkan<Base>::SetSamplerStatePlatform(ezGALShaderStage::
   m_bDescriptorsDirty = true;
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView)
+void ezGALCommandEncoderImplVulkan::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView)
 {
   auto& boundShaderResourceViews = m_pBoundShaderResourceViews[Stage];
   boundShaderResourceViews.EnsureCount(uiSlot + 1);
@@ -68,8 +63,7 @@ void ezGALCommandEncoderVulkan<Base>::SetResourceViewPlatform(ezGALShaderStage::
   m_bDescriptorsDirty = true;
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView)
+void ezGALCommandEncoderImplVulkan::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView)
 {
   m_pBoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
   m_pBoundUnoderedAccessViews[uiSlot] = pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewVulkan*>(pUnorderedAccessView) : nullptr;
@@ -80,13 +74,11 @@ void ezGALCommandEncoderVulkan<Base>::SetUnorderedAccessViewPlatform(ezUInt32 ui
 
 // Fence & Query functions
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::InsertFencePlatform(const ezGALFence* pFence)
+void ezGALCommandEncoderImplVulkan::InsertFencePlatform(const ezGALFence* pFence)
 {
-  auto& vulkanDevice = static_cast<ezGALDeviceVulkan&>(this->GetDevice());
   auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
 
-  vk::Queue queue = vulkanDevice.GetQueue();
+  vk::Queue queue = m_GALDeviceVulkan.GetQueue();
 
   m_pCommandBuffer->end();
   vk::SubmitInfo submitInfo = {};
@@ -96,8 +88,7 @@ void ezGALCommandEncoderVulkan<Base>::InsertFencePlatform(const ezGALFence* pFen
   queue.submit(1, &submitInfo, pVulkanFence->GetFence());
 }
 
-template <typename Base>
-bool ezGALCommandEncoderVulkan<Base>::IsFenceReachedPlatform(const ezGALFence* pFence)
+bool ezGALCommandEncoderImplVulkan::IsFenceReachedPlatform(const ezGALFence* pFence)
 {
   auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
   vk::Result fenceStatus = m_vkDevice.getFenceStatus(pVulkanFence->GetFence());
@@ -107,20 +98,18 @@ bool ezGALCommandEncoderVulkan<Base>::IsFenceReachedPlatform(const ezGALFence* p
   return fenceStatus == vk::Result::eSuccess;
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::WaitForFencePlatform(const ezGALFence* pFence)
+void ezGALCommandEncoderImplVulkan::WaitForFencePlatform(const ezGALFence* pFence)
 {
   /*while (!IsFenceReachedPlatform(pFence))
   {
     ezThreadUtils::YieldTimeSlice();
   }*/
 
-   auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
+  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
   m_vkDevice.waitForFences(1, &pVulkanFence->GetFence(), true, 1000000000ui64);
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::BeginQueryPlatform(const ezGALQuery* pQuery)
+void ezGALCommandEncoderImplVulkan::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
   auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
 
@@ -129,16 +118,14 @@ void ezGALCommandEncoderVulkan<Base>::BeginQueryPlatform(const ezGALQuery* pQuer
   m_pCommandBuffer->beginQuery(pVulkanQuery->GetPool(), pVulkanQuery->GetID(), {});
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::EndQueryPlatform(const ezGALQuery* pQuery)
+void ezGALCommandEncoderImplVulkan::EndQueryPlatform(const ezGALQuery* pQuery)
 {
   auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
 
   m_pCommandBuffer->endQuery(pVulkanQuery->GetPool(), pVulkanQuery->GetID());
 }
 
-template <typename Base>
-ezResult ezGALCommandEncoderVulkan<Base>::GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult)
+ezResult ezGALCommandEncoderImplVulkan::GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult)
 {
   auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
   vk::Result result = m_vkDevice.getQueryPoolResults(pVulkanQuery->GetPool(), pVulkanQuery->GetID(), 1u, sizeof(ezUInt64), &uiQueryResult, 0, vk::QueryResultFlagBits::e64);
@@ -146,8 +133,7 @@ ezResult ezGALCommandEncoderVulkan<Base>::GetQueryResultPlatform(const ezGALQuer
   return result == vk::Result::eSuccess ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::InsertTimestampPlatform(ezGALTimestampHandle hTimestamp)
+void ezGALCommandEncoderImplVulkan::InsertTimestampPlatform(ezGALTimestampHandle hTimestamp)
 {
   // TODO how to implement this in Vulkan?
   //ID3D11Query* pDXQuery = static_cast<ezGALDeviceVulkan*>(GetDevice())->GetTimestamp(hTimestamp);
@@ -159,8 +145,7 @@ void ezGALCommandEncoderVulkan<Base>::InsertTimestampPlatform(ezGALTimestampHand
 
 // Resource update functions
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues)
+void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues)
 {
   // this looks to require custom code, either using buffer copies or
   // clearing via a compute shader
@@ -168,16 +153,14 @@ void ezGALCommandEncoderVulkan<Base>::ClearUnorderedAccessViewPlatform(const ezG
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues)
+void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues)
 {
   // Same as the other clearing variant
 
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource)
+void ezGALCommandEncoderImplVulkan::CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource)
 {
   vk::Buffer destination = static_cast<const ezGALBufferVulkan*>(pDestination)->GetVkBuffer();
   vk::Buffer source = static_cast<const ezGALBufferVulkan*>(pSource)->GetVkBuffer();
@@ -191,8 +174,7 @@ void ezGALCommandEncoderVulkan<Base>::CopyBufferPlatform(const ezGALBuffer* pDes
   m_pCommandBuffer->copyBuffer(source, destination, 1, &bufferCopy);
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource,
+void ezGALCommandEncoderImplVulkan::CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource,
   ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
 {
   vk::Buffer destination = static_cast<const ezGALBufferVulkan*>(pDestination)->GetVkBuffer();
@@ -205,8 +187,7 @@ void ezGALCommandEncoderVulkan<Base>::CopyBufferRegionPlatform(const ezGALBuffer
   m_pCommandBuffer->copyBuffer(source, destination, 1, &bufferCopy);
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
+void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
   ezGALUpdateMode::Enum updateMode)
 {
   EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
@@ -219,11 +200,9 @@ void ezGALCommandEncoderVulkan<Base>::UpdateBufferPlatform(const ezGALBuffer* pD
   }
   else
   {
-    auto& vulkanDevice = static_cast<ezGALDeviceVulkan&>(this->GetDevice());
-
     if (updateMode == ezGALUpdateMode::CopyToTempStorage)
     {
-      if (ezGALBufferVulkan* tmpBuffer = vulkanDevice.FindTempBuffer(pSourceData.GetCount()))
+      if (ezGALBufferVulkan* tmpBuffer = m_GALDeviceVulkan.FindTempBuffer(pSourceData.GetCount()))
       {
         EZ_ASSERT_DEV(tmpBuffer->GetSize() >= pSourceData.GetCount(), "Source data is too big to copy staged!");
 
@@ -261,8 +240,7 @@ void ezGALCommandEncoderVulkan<Base>::UpdateBufferPlatform(const ezGALBuffer* pD
   }
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource)
+void ezGALCommandEncoderImplVulkan::CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource)
 {
   auto destination = static_cast<const ezGALTextureVulkan*>(pDestination);
   auto source = static_cast<const ezGALTextureVulkan*>(pSource);
@@ -303,8 +281,7 @@ void ezGALCommandEncoderVulkan<Base>::CopyTexturePlatform(const ezGALTexture* pD
   m_pCommandBuffer->copyImage(source->GetImage(), vk::ImageLayout::eGeneral, destination->GetImage(), vk::ImageLayout::eGeneral, destDesc.m_uiMipLevelCount, imageCopies.GetData());
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+void ezGALCommandEncoderImplVulkan::CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
   const ezVec3U32& DestinationPoint, const ezGALTexture* pSource,
   const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
@@ -342,8 +319,7 @@ void ezGALCommandEncoderVulkan<Base>::CopyTextureRegionPlatform(const ezGALTextu
   m_pCommandBuffer->copyImage(source->GetImage(), vk::ImageLayout::eGeneral, destination->GetImage(), vk::ImageLayout::eGeneral, 1, &imageCopy);
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+void ezGALCommandEncoderImplVulkan::UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
   const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
   ezUInt32 uiWidth = ezMath::Max(DestinationBox.m_vMax.x - DestinationBox.m_vMin.x, 1u);
@@ -351,9 +327,7 @@ void ezGALCommandEncoderVulkan<Base>::UpdateTexturePlatform(const ezGALTexture* 
   ezUInt32 uiDepth = ezMath::Max(DestinationBox.m_vMax.z - DestinationBox.m_vMin.z, 1u);
   ezGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
 
-  auto& vulkanDevice = static_cast<ezGALDeviceVulkan&>(this->GetDevice());
-
-  if (ezGALTextureVulkan* pTempTexture = vulkanDevice.FindTempTexture(uiWidth, uiHeight, uiDepth, format))
+  if (ezGALTextureVulkan* pTempTexture = m_GALDeviceVulkan.FindTempTexture(uiWidth, uiHeight, uiDepth, format))
   {
     void* pData = m_vkDevice.mapMemory(pTempTexture->GetMemory(), pTempTexture->GetMemoryOffset(), pTempTexture->GetMemorySize());
     EZ_ASSERT_DEV(pData, "Implementation error");
@@ -381,8 +355,7 @@ void ezGALCommandEncoderVulkan<Base>::UpdateTexturePlatform(const ezGALTexture* 
   }
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
+void ezGALCommandEncoderImplVulkan::ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
   const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource)
 {
   EZ_ASSERT_ALWAYS(DestinationSubResource.m_uiMipLevel == 0, "Resolving of higher mips not implemented yet!");
@@ -415,8 +388,7 @@ void ezGALCommandEncoderVulkan<Base>::ResolveTexturePlatform(const ezGALTexture*
   m_pCommandBuffer->resolveImage(pVulkanSource->GetImage(), vk::ImageLayout::eGeneral, pVulkanDestination->GetImage(), vk::ImageLayout::eGeneral, 1, &resolveRegion);
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::ReadbackTexturePlatform(const ezGALTexture* pTexture)
+void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* pTexture)
 {
   const ezGALTextureVulkan* pVulkanTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
 
@@ -453,8 +425,7 @@ void ezGALCommandEncoderVulkan<Base>::ReadbackTexturePlatform(const ezGALTexture
   }
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture,
+void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture,
   const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
 {
   auto pVulkanTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
@@ -475,24 +446,21 @@ void ezGALCommandEncoderVulkan<Base>::CopyTextureReadbackResultPlatform(const ez
   }
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::GenerateMipMapsPlatform(const ezGALResourceView* pResourceView)
+void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALResourceView* pResourceView)
 {
   const ezGALResourceViewVulkan* pDXResourceView = static_cast<const ezGALResourceViewVulkan*>(pResourceView);
 
   // TODO texture blit based approach
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::FlushPlatform()
+void ezGALCommandEncoderImplVulkan::FlushPlatform()
 {
   FlushDeferredStateChanges();
 }
 
 // Debug helper functions
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::PushMarkerPlatform(const char* szMarker)
+void ezGALCommandEncoderImplVulkan::PushMarkerPlatform(const char* szMarker)
 {
   // TODO early out if device doesn't support debug markers
 
@@ -503,14 +471,12 @@ void ezGALCommandEncoderVulkan<Base>::PushMarkerPlatform(const char* szMarker)
   m_pCommandBuffer->debugMarkerBeginEXT(markerInfo);
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::PopMarkerPlatform()
+void ezGALCommandEncoderImplVulkan::PopMarkerPlatform()
 {
   m_pCommandBuffer->debugMarkerEndEXT();
 }
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::InsertEventMarkerPlatform(const char* szMarker)
+void ezGALCommandEncoderImplVulkan::InsertEventMarkerPlatform(const char* szMarker)
 {
   constexpr float markerColor[4] = {1, 1, 1, 1};
   vk::DebugMarkerMarkerInfoEXT markerInfo = {};
@@ -518,6 +484,252 @@ void ezGALCommandEncoderVulkan<Base>::InsertEventMarkerPlatform(const char* szMa
   markerInfo.pMarkerName = szMarker;
   m_pCommandBuffer->debugMarkerInsertEXT(markerInfo);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezGALCommandEncoderImplVulkan::BeginRendering(vk::CommandBuffer& commandBuffer, const ezGALRenderingSetup& renderingSetup)
+{
+  m_pCommandBuffer = &commandBuffer;
+
+  vk::RenderPassCreateInfo renderPassCreateInfo;
+  renderPassCreateInfo.attachmentCount = 0;
+  // TODO: fill render pass create info
+  // TODO: caching
+
+  vk::RenderPass renderPass = m_vkDevice.createRenderPass(renderPassCreateInfo);
+
+  vk::RenderPassBeginInfo renderPassBeginInfo;
+  renderPassBeginInfo.renderPass = renderPass;
+
+  m_pCommandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+}
+
+void ezGALCommandEncoderImplVulkan::EndRendering()
+{
+  m_pCommandBuffer->endRenderPass();
+
+  m_pCommandBuffer = nullptr;
+}
+
+void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)
+{
+  // TODO:
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+// Draw functions
+
+void ezGALCommandEncoderImplVulkan::DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
+{
+  //FlushDeferredStateChanges();
+
+  m_pCommandBuffer->draw(uiVertexCount, 1, uiStartVertex, 0);
+}
+
+void ezGALCommandEncoderImplVulkan::DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
+{
+  //FlushDeferredStateChanges();
+
+#if 0 //EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  m_pCommandBuffer->drawIndexed(uiIndexCount, 1, uiStartIndex, 0, 0);
+
+  // In debug builds, with a debugger attached, the engine will break on D3D errors
+  // this can be very annoying when an error happens repeatedly
+  // you can disable it at runtime, by using the debugger to set bChangeBreakPolicy to 'true', or dragging the
+  // the instruction pointer into the if
+  volatile bool bChangeBreakPolicy = false;
+  if (bChangeBreakPolicy)
+  {
+    ezGALDeviceVulkan* pDevice = static_cast<ezGALDeviceVulkan*>(GetDevice());
+    if (pDevice->m_pDebug)
+    {
+      ID3D11InfoQueue* pInfoQueue = nullptr;
+      if (SUCCEEDED(pDevice->m_pDebug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&pInfoQueue)))
+      {
+        // modify these, if you want to keep certain things enabled
+        static BOOL bBreakOnCorruption = FALSE;
+        static BOOL bBreakOnError = FALSE;
+        static BOOL bBreakOnWarning = FALSE;
+
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, bBreakOnCorruption);
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, bBreakOnError);
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, bBreakOnWarning);
+      }
+    }
+  }
+#else
+  m_pCommandBuffer->drawIndexed(uiIndexCount, 1, uiStartIndex, 0, 0);
+#endif
+}
+
+void ezGALCommandEncoderImplVulkan::DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
+{
+  //FlushDeferredStateChanges();
+
+  m_pCommandBuffer->drawIndexed(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex, 0, 0);
+}
+
+void ezGALCommandEncoderImplVulkan::DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  //FlushDeferredStateChanges();
+
+  m_pCommandBuffer->drawIndexedIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetVkBuffer(), uiArgumentOffsetInBytes, 1, 0);
+}
+
+void ezGALCommandEncoderImplVulkan::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
+{
+  //FlushDeferredStateChanges();
+
+  m_pCommandBuffer->draw(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex, 0);
+}
+
+void ezGALCommandEncoderImplVulkan::DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  //FlushDeferredStateChanges();
+
+  m_pCommandBuffer->drawIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetVkBuffer(), uiArgumentOffsetInBytes, 1, 0);
+}
+
+void ezGALCommandEncoderImplVulkan::DrawAutoPlatform()
+{
+  //FlushDeferredStateChanges();
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+void ezGALCommandEncoderImplVulkan::BeginStreamOutPlatform()
+{
+  FlushDeferredStateChanges();
+}
+
+void ezGALCommandEncoderImplVulkan::EndStreamOutPlatform()
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+void ezGALCommandEncoderImplVulkan::SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer)
+{
+  // TODO index buffer needs to be in index buffer resource state
+
+  if (pIndexBuffer != nullptr)
+  {
+    const ezGALBufferVulkan* pVulkanBuffer = static_cast<const ezGALBufferVulkan*>(pIndexBuffer);
+    m_pCommandBuffer->bindIndexBuffer(pVulkanBuffer->GetVkBuffer(), 0, pVulkanBuffer->GetIndexType());
+  }
+  else
+  {
+    // TODO binding a null buffer is not allowed in vulkan
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    //m_pCommandBuffer->bindIndexBuffer({}, 0, vk::IndexType::eUint16);
+  }
+}
+
+void ezGALCommandEncoderImplVulkan::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer)
+{
+  EZ_ASSERT_DEV(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
+
+  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pVertexBuffer)->GetVkBuffer() : nullptr;
+  m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
+  m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
+}
+
+void ezGALCommandEncoderImplVulkan::SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration)
+{
+  if (pVertexDeclaration)
+  {
+    m_pCurrentVertexLayout = &static_cast<const ezGALVertexDeclarationVulkan*>(pVertexDeclaration)->GetInputLayout();
+    m_bPipelineStateDirty = true;
+  }
+  // TODO defer to pipeline update
+  //m_pDXContext->IASetInputLayout(
+  //  pVertexDeclaration != nullptr ? static_cast<const ezGALVertexDeclarationVulkan*>(pVertexDeclaration)->GetDXInputLayout() : nullptr);
+}
+
+
+static const vk::PrimitiveTopology GALTopologyToVulkan[ezGALPrimitiveTopology::ENUM_COUNT] = {
+  vk::PrimitiveTopology::ePointList,
+  vk::PrimitiveTopology::eLineList,
+  vk::PrimitiveTopology::eTriangleList,
+};
+
+void ezGALCommandEncoderImplVulkan::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology)
+{
+  m_currentPrimitiveTopology = GALTopologyToVulkan[Topology];
+  m_bPipelineStateDirty = true;
+}
+
+void ezGALCommandEncoderImplVulkan::SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
+{
+  m_pCurrentBlendState = pBlendState != nullptr ? static_cast<const ezGALBlendStateVulkan*>(pBlendState) : nullptr;
+  m_bPipelineStateDirty = true;
+}
+
+void ezGALCommandEncoderImplVulkan::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
+{
+  m_pCurrentDepthStencilState = pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateVulkan*>(pDepthStencilState) : nullptr;
+  m_bPipelineStateDirty = true;
+}
+
+void ezGALCommandEncoderImplVulkan::SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState)
+{
+  m_pCurrentRasterizerState = pRasterizerState != nullptr ? static_cast<const ezGALRasterizerStateVulkan*>(pRasterizerState) : nullptr;
+  m_bPipelineStateDirty = true;
+}
+
+void ezGALCommandEncoderImplVulkan::SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
+{
+  vk::Viewport viewport = {};
+  viewport.x = rect.x;
+  viewport.y = rect.y;
+  viewport.width = rect.width;
+  viewport.height = rect.height;
+  viewport.minDepth = fMinDepth;
+  viewport.maxDepth = fMaxDepth;
+
+  m_pCommandBuffer->setViewport(0, 1, &viewport);
+}
+
+void ezGALCommandEncoderImplVulkan::SetScissorRectPlatform(const ezRectU32& rect)
+{
+  vk::Rect2D scissor;
+  scissor.offset.x = rect.x;
+  scissor.offset.y = rect.y;
+  scissor.extent.width = rect.width;
+  scissor.extent.height = rect.height;
+
+  m_pCommandBuffer->setScissor(0, 1, &scissor);
+}
+
+void ezGALCommandEncoderImplVulkan::SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezGALCommandEncoderImplVulkan::BeginCompute(vk::CommandBuffer& commandBuffer)
+{
+  m_pCommandBuffer = &commandBuffer;
+
+  // TODO: do we need a renderpass for compute only?
+}
+
+void ezGALCommandEncoderImplVulkan::EndCompute()
+{
+  m_pCommandBuffer = nullptr;
+}
+
+void ezGALCommandEncoderImplVulkan::DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
+{
+  m_pCommandBuffer->dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
+}
+
+void ezGALCommandEncoderImplVulkan::DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  m_pCommandBuffer->dispatchIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetVkBuffer(), uiArgumentOffsetInBytes);
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 #if 0
 static void SetShaderResources(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots,
@@ -605,8 +817,7 @@ static void SetSamplers(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pCont
 }
 #endif
 
-template <typename Base>
-void ezGALCommandEncoderVulkan<Base>::FlushDeferredStateChanges()
+void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 {
 #if 0
   if (m_BoundVertexBuffersRange.IsValid())

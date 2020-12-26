@@ -22,9 +22,6 @@ class ezGALDeviceDX11;
 class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 : public ezGALCommandEncoderCommonPlatformInterface, public ezGALCommandEncoderRenderPlatformInterface, public ezGALCommandEncoderComputePlatformInterface
 {
 public:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
-
   ezGALCommandEncoderImplDX11(ezGALDeviceDX11& deviceDX11);
   ~ezGALCommandEncoderImplDX11();
 
@@ -89,7 +86,7 @@ public:
 
 
   // ezGALCommandEncoderRenderPlatformInterface
-  void BeginRender(const ezGALRenderingSetup& renderingSetup);
+  void BeginRendering(const ezGALRenderingSetup& renderingSetup);
 
   // Draw functions
 
@@ -129,7 +126,9 @@ public:
   virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
   virtual void DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
-  
+private:
+  friend class ezGALPassDX11;
+
   void FlushDeferredStateChanges();
 
   ezGALDeviceDX11& m_GALDeviceDX11;

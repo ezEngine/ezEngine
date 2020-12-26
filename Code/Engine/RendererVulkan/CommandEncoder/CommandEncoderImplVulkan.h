@@ -2,8 +2,8 @@
 #pragma once
 
 #include <Foundation/Types/Bitflags.h>
-#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
-#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
 #include <vulkan/vulkan.hpp>
@@ -16,18 +16,15 @@ class ezGALResourceViewVulkan;
 class ezGALSamplerStateVulkan;
 class ezGALShaderVulkan;
 class ezGALUnorderedAccessViewVulkan;
+class ezGALDeviceVulkan;
 
-/// \brief The Vulkan implementation of the command encoder.
-template <typename Base>
-class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderVulkan : public Base
+class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandEncoderCommonPlatformInterface, public ezGALCommandEncoderRenderPlatformInterface, public ezGALCommandEncoderComputePlatformInterface
 {
-protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+public:
+  ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device);
+  ~ezGALCommandEncoderImplVulkan();
 
-  ezGALCommandEncoderVulkan(ezGALDevice& device);
-  ~ezGALCommandEncoderVulkan();
-
+  // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
 
   virtual void SetShaderPlatform(const ezGALShader* pShader) override;
@@ -84,7 +81,54 @@ protected:
   virtual void PopMarkerPlatform() override;
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
+  // ezGALCommandEncoderRenderPlatformInterface
+  void BeginRendering(vk::CommandBuffer& commandBuffer, const ezGALRenderingSetup& renderingSetup);
+  void EndRendering();
+
+  // Draw functions
+
+  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
+
+  virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
+  virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
+  virtual void DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
+  virtual void DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual void DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
+  virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual void DrawAutoPlatform() override;
+
+  virtual void BeginStreamOutPlatform() override;
+  virtual void EndStreamOutPlatform() override;
+
+  // State functions
+
+  virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) override;
+  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer) override;
+  virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) override;
+  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology) override;
+
+  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) override;
+  virtual void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) override;
+  virtual void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState) override;
+
+  virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
+  virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
+
+  virtual void SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset) override;
+
+
+  // ezGALCommandEncoderComputePlatformInterface
+  // Dispatch
+  void BeginCompute(vk::CommandBuffer& commandBuffer);
+  void EndCompute();
+
+  virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
+  virtual void DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+
+private:
   void FlushDeferredStateChanges();
+
+  ezGALDeviceVulkan& m_GALDeviceVulkan;
 
   vk::Device m_vkDevice;
 
@@ -124,5 +168,3 @@ protected:
   const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
   ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
 };
-
-#include <RendererVulkan/CommandEncoder/Implementation/CommandEncoderVulkan_inl.h>

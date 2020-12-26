@@ -441,7 +441,7 @@ void ezGALCommandEncoderImplDX11::InsertEventMarkerPlatform(const char* szMarker
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGALCommandEncoderImplDX11::BeginRender(const ezGALRenderingSetup& renderingSetup)
+void ezGALCommandEncoderImplDX11::BeginRendering(const ezGALRenderingSetup& renderingSetup)
 {
   if (m_RenderTargetSetup != renderingSetup.m_RenderTargetSetup)
   {
