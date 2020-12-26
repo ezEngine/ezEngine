@@ -60,7 +60,7 @@ VkResult vkDebugMarkerSetObjectNameEXT(VkDevice device, const VkDebugMarkerObjec
   return vkDebugMarkerSetObjectNameEXTFunc(device, pNameInfo);
 }
 
-ezGALDevice* CreateVulkanDevice(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
+ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
 {
   return EZ_NEW(pAllocator, ezGALDeviceVulkan, Description);
 }

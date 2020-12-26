@@ -27,7 +27,7 @@
 #  include <d3d11_1.h>
 #endif
 
-ezGALDevice* CreateDX11Device(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
+ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
 {
   return EZ_NEW(pAllocator, ezGALDeviceDX11, Description);
 }

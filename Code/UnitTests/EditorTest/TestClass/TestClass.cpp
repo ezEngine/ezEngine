@@ -6,11 +6,8 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <RendererDX11/Device/DeviceDX11.h>
-#endif
 
 ezEditorTestApplication::ezEditorTestApplication()
   : ezApplication("ezEditor")
@@ -114,7 +111,7 @@ ezResult ezEditorTest::InitializeTest()
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bCreatePrimarySwapChain = false;
 
-    pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
+    pDevice = ezGALDeviceFactory::CreateDevice("DX11", ezFoundation::GetDefaultAllocator(), DeviceInit);
 
     EZ_SUCCEED_OR_RETURN(pDevice->Init());
 

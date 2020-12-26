@@ -28,14 +28,14 @@ CreatorFuncInfo* GetCreatorFuncInfo(const char* szRendererName)
   return pFuncInfo;
 }
 
-ezGALDevice* ezGALDeviceFactory::CreateDevice(const char* szRendererName, ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& desc)
+ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(const char* szRendererName, ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& desc)
 {
   if (auto pFuncInfo = GetCreatorFuncInfo(szRendererName))
   {
     return pFuncInfo->m_Func(pAllocator, desc);
   }
 
-  return nullptr;
+  return ezInternal::NewInstance<ezGALDevice>(nullptr, pAllocator);
 }
 
 void ezGALDeviceFactory::GetShaderModelAndCompiler(const char* szRendererName, const char*& szShaderModel, const char*& szShaderCompiler)
