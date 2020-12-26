@@ -184,7 +184,6 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
       return;
 
     ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-    ezGALContext* pGALContext = pRenderContext->GetGALContext();
 
     pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
     pRenderContext->BindShader(m_hShader);
@@ -197,7 +196,7 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
       const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LineVerticesPerBatch);
       EZ_ASSERT_DEBUG(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
 
-      pGALContext->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
+      pRenderContext->GetCommandEncoder()->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
 
       pRenderContext->BindMeshBuffer(m_hVertexBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
       pRenderContext->DrawMeshBuffer().IgnoreResult();

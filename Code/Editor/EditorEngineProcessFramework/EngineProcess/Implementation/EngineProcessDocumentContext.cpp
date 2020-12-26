@@ -23,8 +23,9 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
@@ -439,7 +440,13 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
       // Download image
       {
-        ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
+        auto pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass("Thumbnail Readback");
+        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndPass(pGALPass));
+
+        auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
+        EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
+
+        pGALCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
 
         ezGALSystemMemoryDescription MemDesc;
         {
@@ -457,7 +464,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
         MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-        ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hThumbnailColorRT, &SysMemDescs);
+        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, &SysMemDescs);
 
         ezImage imageSwap;
         ezImage* pImage = &image;
