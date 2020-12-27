@@ -69,7 +69,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    
+
     // Setup render target
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));

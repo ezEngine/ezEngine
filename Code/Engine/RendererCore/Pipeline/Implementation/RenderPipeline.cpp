@@ -955,7 +955,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
   //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
   EZ_PROFILE_SCOPE(m_sName.GetData());
-  
+
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
   if (m_PipelineState == PipelineState::RebuildError)
   {

@@ -2,8 +2,8 @@
 #pragma once
 
 #include <Foundation/Threading/ThreadUtils.h>
-#include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
 {

@@ -68,7 +68,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-  
+
   SetupResources(pGALPass, renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
   SetupLighting(renderViewContext);

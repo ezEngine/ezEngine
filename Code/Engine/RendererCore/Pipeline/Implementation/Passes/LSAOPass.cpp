@@ -354,13 +354,13 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
     }
 
     // todo: Ddd debug test to check whether any direction is duplicated. Mistakes in the equations above can easily happen!
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     for (int i = 0; i < numSweepDirs - 1; ++i)
     {
       for (int j = i + 1; j < numSweepDirs; ++j)
         EZ_ASSERT_DEBUG(samplingDir[i] != samplingDir[j], "Two SSAO sampling directions are equal. Implementation for direction determination is broken.");
     }
-#  endif
+#endif
   }
 
   for (int dirIndex = 0; dirIndex < EZ_ARRAY_SIZE(samplingDir); ++dirIndex)
@@ -456,8 +456,8 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
   // Helper to avoid duplication for dominant x/y
   int domDir = walkDir.x > walkDir.y ? 0 : 1;
   int secDir = 1 - domDir;
-#  define DOM GetData()[domDir]
-#  define SEC GetData()[secDir]
+#define DOM GetData()[domDir]
+#define SEC GetData()[secDir]
 
   // Walk along secondary axis backwards.
   for (ezInt32 sec = imageResolution.SEC - 1; true; sec -= m_uiLineToLinePixelOffset)
@@ -524,8 +524,8 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
     newLine.LineDirIndex_NumSamples = lineIndex | (numSamples << 16);
   }
 
-#  undef SEC
-#  undef DOM
+#undef SEC
+#undef DOM
 
   // Now consider x/y being negative.
   for (int c = 0; c < 2; ++c)
@@ -540,13 +540,13 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
   }
 
   // Validation.
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   for (ezUInt32 i = firstNewLineInstructionIndex; i < outinLineInstructions.GetCount(); ++i)
   {
     auto p = outinLineInstructions[i].FirstSamplePos;
     EZ_ASSERT_DEV(p.x >= 0 && p.y >= 0 && p.x < imageResolution.x && p.y < imageResolution.y, "First sweep line sample pos is invalid. Something is wrong with the sweep line generation algorithm.");
   }
-#  endif
+#endif
 }
 
 
