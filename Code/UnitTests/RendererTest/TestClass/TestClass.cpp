@@ -7,6 +7,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Memory/MemoryTracker.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -15,7 +16,6 @@
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
-#include <Foundation/Utilities/CommandLineUtils.h>
 
 
 ezGraphicsTest::ezGraphicsTest() = default;
@@ -61,7 +61,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir"));
   }
 
-  #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
   constexpr const char* szDefaultRenderer = "Vulkan";
 #else
   constexpr const char* szDefaultRenderer = "DX11";
