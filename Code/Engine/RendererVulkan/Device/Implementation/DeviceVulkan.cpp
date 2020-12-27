@@ -1,6 +1,7 @@
 #include <RendererVulkanPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Configuration/Startup.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/PassVulkan.h>
@@ -65,7 +66,21 @@ ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocatorBase* pAlloca
   return EZ_NEW(pAllocator, ezGALDeviceVulkan, Description);
 }
 
-static bool s_Dummy = ezGALDeviceFactory::RegisterCreatorFunc("Vulkan", &CreateVulkanDevice, "VULKAN", "ezShaderCompilerDXC");
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererVulkan, DeviceFactory)
+
+ON_CORESYSTEMS_STARTUP
+{
+  ezGALDeviceFactory::RegisterCreatorFunc("Vulkan", &CreateVulkanDevice, "VULKAN", "ezShaderCompilerDXC");
+}
+
+ON_CORESYSTEMS_SHUTDOWN
+{
+  ezGALDeviceFactory::UnregisterCreatorFunc("Vulkan");
+}
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezGALDeviceVulkan::ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)

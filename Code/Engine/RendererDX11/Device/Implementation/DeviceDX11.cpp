@@ -2,6 +2,7 @@
 
 #include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Configuration/Startup.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/PassDX11.h>
@@ -16,8 +17,8 @@
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
-#include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 
 #include <d3d11.h>
 #include <d3d11_3.h>
@@ -32,7 +33,21 @@ ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocatorBase* pAllocato
   return EZ_NEW(pAllocator, ezGALDeviceDX11, Description);
 }
 
-static bool s_Dummy = ezGALDeviceFactory::RegisterCreatorFunc("DX11", &CreateDX11Device, "DX11_SM50", "ezShaderCompilerHLSL");
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererDX11, DeviceFactory)
+
+ON_CORESYSTEMS_STARTUP
+{
+  ezGALDeviceFactory::RegisterCreatorFunc("DX11", &CreateDX11Device, "DX11_SM50", "ezShaderCompilerHLSL");
+}
+
+ON_CORESYSTEMS_SHUTDOWN
+{
+  ezGALDeviceFactory::UnregisterCreatorFunc("DX11");
+}
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)

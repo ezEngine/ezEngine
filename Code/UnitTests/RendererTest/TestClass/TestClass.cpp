@@ -10,20 +10,15 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 
-
-ezGraphicsTest::ezGraphicsTest()
-{
-  m_pWindow = nullptr;
-  m_pDevice = nullptr;
-}
+ezGraphicsTest::ezGraphicsTest() = default;
 
 ezResult ezGraphicsTest::InitializeSubTest(ezInt32 iIdentifier)
 {
@@ -66,6 +61,20 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir"));
   }
 
+  #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+  constexpr const char* szDefaultRenderer = "Vulkan";
+#else
+  constexpr const char* szDefaultRenderer = "DX11";
+#endif
+
+  const char* szRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+  const char* szShaderModel = "";
+  const char* szShaderCompiler = "";
+  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+
+  ezShaderManager::Configure(szShaderModel, true);
+  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
+
   // Create a window for rendering
   ezWindowCreationDesc WindowCreationDesc;
   WindowCreationDesc.m_Resolution.width = uiResolutionX;
@@ -82,7 +91,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
   DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
-  m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
+  m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
 
   if (m_pDevice->Init().Failed())
     return EZ_FAILURE;
@@ -105,14 +114,6 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
   {
     m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
-
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-    ezShaderManager::Configure("VULKAN", true);
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
-#else
-    ezShaderManager::Configure("DX11_SM50", true);
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
-#endif
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Default.ezShader");
 
@@ -168,6 +169,10 @@ void ezGraphicsTest::EndFrame()
 {
   m_pWindow->ProcessWindowMessages();
 
+  ezRenderContext::GetDefaultInstance()->EndRendering();
+  m_pDevice->EndPass(m_pPass);
+  m_pPass = nullptr;
+
   m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), false);
 
   m_pDevice->EndFrame();
@@ -177,10 +182,10 @@ void ezGraphicsTest::EndFrame()
 
 ezResult ezGraphicsTest::GetImage(ezImage& img)
 {
-  ezGALContext* pContext = m_pDevice->GetPrimaryContext();
+  auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
 
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_pDevice->GetPrimarySwapChain())->GetBackBufferTexture();
-  pContext->ReadbackTexture(hBBTexture);
+  pCommandEncoder->ReadbackTexture(hBBTexture);
 
   ezImageHeader header;
   header.SetWidth(m_pWindow->GetClientAreaSize().width);
@@ -195,24 +200,28 @@ ezResult ezGraphicsTest::GetImage(ezImage& img)
 
   ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
 
-  pContext->CopyTextureReadbackResult(hBBTexture, &SysMemDescs);
+  pCommandEncoder->CopyTextureReadbackResult(hBBTexture, &SysMemDescs);
 
   return EZ_SUCCESS;
 }
 
 void ezGraphicsTest::ClearScreen(const ezColor& color)
 {
-  ezGALContext* pContext = m_pDevice->GetPrimaryContext();
+  m_pPass = m_pDevice->BeginPass("RendererTest");
 
   ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
 
-  ezGALRenderTargetSetup RTS;
-  RTS.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture())).SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
+  ezGALRenderingSetup renderingSetup;
+  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture())).SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
+  renderingSetup.m_ClearColor = color;
+  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+  renderingSetup.m_bClearDepth = true;
+  renderingSetup.m_bClearStencil = true;
 
-  pContext->SetRenderTargetSetup(RTS);
-  pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height), 0.0f, 1.0f);
-  pContext->Clear(color);
+  ezRectFloat viewport = ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
+
+  ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
 }
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, const char* szResourceName)

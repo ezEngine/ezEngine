@@ -18,7 +18,6 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>

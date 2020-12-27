@@ -11,5 +11,6 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceFactory
 
   static void GetShaderModelAndCompiler(const char* szRendererName, const char*& szShaderModel, const char*& szShaderCompiler);
 
-  static bool RegisterCreatorFunc(const char* szRendererName, const CreatorFunc& func, const char* szShaderModel, const char* szShaderCompiler);
+  static void RegisterCreatorFunc(const char* szRendererName, const CreatorFunc& func, const char* szShaderModel, const char* szShaderCompiler);
+  static void UnregisterCreatorFunc(const char* szRendererName);
 };

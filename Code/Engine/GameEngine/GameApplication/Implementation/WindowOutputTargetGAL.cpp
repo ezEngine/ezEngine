@@ -30,12 +30,17 @@ void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
 
 ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#if 0
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  auto pGALPass = pDevice->BeginPass("CaptureImage");
+  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
+
+  auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
+  EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
+
   ezGALTextureHandle hBackbuffer = pDevice->GetBackBufferTextureFromSwapChain(m_hSwapChain);
 
-  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(hBackbuffer);
+  pGALCommandEncoder->ReadbackTexture(hBackbuffer);
 
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
   const ezUInt32 uiWidth = pBackbuffer->GetDescription().m_uiWidth;
@@ -51,7 +56,7 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   /// \todo Make this more efficient
   MemDesc.m_pData = backbufferData.GetData();
   ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(hBackbuffer, &SysMemDescsDepth);
+  pGALCommandEncoder->CopyTextureReadbackResult(hBackbuffer, &SysMemDescsDepth);
 
   ezImageHeader header;
   header.SetWidth(uiWidth);
@@ -61,7 +66,6 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   ezUInt8* pData = out_Image.GetPixelPointer<ezUInt8>();
 
   ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
-#endif
 
   return EZ_SUCCESS;
 }

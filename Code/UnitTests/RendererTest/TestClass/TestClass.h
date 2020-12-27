@@ -50,8 +50,9 @@ protected:
   ezMeshBufferResourceHandle CreateLineBox(float fWidth, float fHeight, float fDepth);
   void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
 
-  ezWindow* m_pWindow;
-  ezGALDevice* m_pDevice;
+  ezWindow* m_pWindow = nullptr;
+  ezGALDevice* m_pDevice = nullptr;
+  ezGALPass* m_pPass = nullptr;
 
   ezConstantBufferStorageHandle m_hObjectTransformCB;
   ezShaderResourceHandle m_hShader;

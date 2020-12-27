@@ -2,7 +2,6 @@
 
 #include "Basics.h"
 #include <Core/Graphics/Camera.h>
-#include <RendererFoundation/Context/Context.h>
 
 ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 {
@@ -121,9 +120,9 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
 
-  m_pDevice->GetPrimaryContext()->SetRasterizerState(hState);
+  ezRenderContext::GetDefaultInstance()->GetRenderCommandEncoder()->SetRasterizerState(hState);
 
-  m_pDevice->GetPrimaryContext()->SetScissorRect(ezRectU32(100, 50, GetResolution().width / 2, GetResolution().height / 2));
+  ezRenderContext::GetDefaultInstance()->GetRenderCommandEncoder()->SetScissorRect(ezRectU32(100, 50, GetResolution().width / 2, GetResolution().height / 2));
 
   RenderObjects(ezShaderBindFlags::NoRasterizerState);
 

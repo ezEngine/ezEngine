@@ -17,9 +17,9 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
@@ -137,8 +137,15 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     // Before starting to render in a frame call this function
     m_pDevice->BeginFrame();
 
-    // The ezGALContext class is the main interaction point for draw / compute operations
-    ezGALContext* pContext = m_pDevice->GetPrimaryContext();
+    ezGALPass* pGALPass = m_pDevice->BeginPass("ezShaderExplorerMainPass");
+
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
+    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.m_bClearDepth = true;
+    renderingSetup.m_bClearStencil = true;
+
+    ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
 
     auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
     ezMemoryUtils::ZeroFill(&gc, 1);
@@ -152,17 +159,12 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
     gc.WorldTime = gc.GlobalTime;
 
-
-    ezGALRenderTargetSetup RTS;
-    RTS.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
-
-    pContext->SetRenderTargetSetup(RTS);
-    pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight), 0.0f, 1.0f);
-    pContext->Clear(ezColor::Black);
-
     ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
+
+    ezRenderContext::GetDefaultInstance()->EndRendering();
+    m_pDevice->EndPass(pGALPass);
 
     m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
 
@@ -209,12 +211,18 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-  ezShaderManager::Configure("VULKAN", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
+  constexpr const char* szDefaultRenderer = "Vulkan";
 #else
-  ezShaderManager::Configure("DX11_SM50", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
+  constexpr const char* szDefaultRenderer = "DX11";
 #endif
+
+  const char* szRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+  const char* szShaderModel = "";
+  const char* szShaderCompiler = "";
+  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+
+  ezShaderManager::Configure(szShaderModel, true);
+  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 
   // Register Input
   {
@@ -307,12 +315,13 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bCreatePrimarySwapChain = true;
-    DeviceInit.m_bDebugDevice = false; // On Windows 10 this makes device creation fail :-(
+    DeviceInit.m_bDebugDevice = true;
     DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
     DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
     DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
-    m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
+    m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+    EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
     ezGALDevice::SetDefaultDevice(m_pDevice);
