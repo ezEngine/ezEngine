@@ -11,7 +11,8 @@ ezGALRenderCommandEncoder* ezGALPass::BeginRendering(const ezGALRenderingSetup& 
 
   ezGALRenderCommandEncoder* pCommandEncoder = BeginRenderingPlatform(renderingSetup, szName);
 
-  if (m_bMarker = !ezStringUtils::IsNullOrEmpty(szName))
+  m_bMarker = !ezStringUtils::IsNullOrEmpty(szName);
+  if (m_bMarker)
   {
     pCommandEncoder->PushMarker(szName);
   }
@@ -40,7 +41,8 @@ ezGALComputeCommandEncoder* ezGALPass::BeginCompute(const char* szName /*= ""*/)
 
   ezGALComputeCommandEncoder* pCommandEncoder = BeginComputePlatform(szName);
 
-  if (m_bMarker = !ezStringUtils::IsNullOrEmpty(szName))
+  m_bMarker = !ezStringUtils::IsNullOrEmpty(szName);
+  if (m_bMarker)
   {
     pCommandEncoder->PushMarker(szName);
   }

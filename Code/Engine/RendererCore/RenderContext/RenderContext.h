@@ -113,7 +113,6 @@ public:
     return ComputeScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginCompute(pGALPass, szName));
   }
 
-  using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
   EZ_ALWAYS_INLINE static ComputeScope BeginPassAndComputeScope(const ezRenderViewContext& viewContext, const char* szName)
   {
     ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
