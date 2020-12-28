@@ -1,5 +1,6 @@
 #include <RmlUiPluginPCH.h>
 
+#include <Foundation/Types/Variant.h>
 #include <RmlUiPlugin/RmlUiConversionUtils.h>
 
 namespace ezRmlUiConversionUtils
