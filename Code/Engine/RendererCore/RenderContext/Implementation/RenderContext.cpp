@@ -103,14 +103,14 @@ ezRenderContext::ezRenderContext()
 
   m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
 
-  //ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezRenderContext::OnRenderEvent, this));
+  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezRenderContext::OnRenderEvent, this));
 
   ResetContextState();
 }
 
 ezRenderContext::~ezRenderContext()
 {
-  //ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezRenderContext::OnRenderEvent, this));
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezRenderContext::OnRenderEvent, this));
 
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
 
@@ -173,6 +173,11 @@ void ezRenderContext::EndRendering()
 
   m_pGALPass = nullptr;
   m_pGALCommandEncoder = nullptr;
+
+  // TODO: The render context needs to reset its state after every encoding block if we want to record to separate command buffers.
+  // Although this is currently not possible since a lot of high level code binds stuff only once per frame on the render context.
+  // Resetting the state after every encoding block breaks those assumptions.
+  //ResetContextState();
 }
 
 ezGALComputeCommandEncoder* ezRenderContext::BeginCompute(ezGALPass* pGALPass, const char* szName /*= ""*/)
@@ -192,6 +197,9 @@ void ezRenderContext::EndCompute()
 
   m_pGALPass = nullptr;
   m_pGALCommandEncoder = nullptr;
+
+  // TODO: See EndRendering
+  //ResetContextState();
 }
 
 void ezRenderContext::SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sTempValue)
@@ -486,8 +494,7 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
     return EZ_FAILURE;
   }
 
-  EZ_ASSERT_DEV(uiFirstPrimitive < m_uiMeshBufferPrimitiveCount,
-    "Invalid primitive range: first primitive ({0}) can't be larger than number of primitives ({1})", uiFirstPrimitive, uiPrimitiveCount);
+  EZ_ASSERT_DEV(uiFirstPrimitive < m_uiMeshBufferPrimitiveCount, "Invalid primitive range: first primitive ({0}) can't be larger than number of primitives ({1})", uiFirstPrimitive, uiPrimitiveCount);
 
   uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
@@ -714,11 +721,9 @@ void ezRenderContext::ResetContextState()
 
   m_BoundSamplers.Clear();
   m_BoundSamplers.Insert(ezHashingUtils::StringHash("LinearSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering));
-  m_BoundSamplers.Insert(ezHashingUtils::StringHash("LinearClampSampler"),
-    GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
+  m_BoundSamplers.Insert(ezHashingUtils::StringHash("LinearClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
   m_BoundSamplers.Insert(ezHashingUtils::StringHash("PointSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering));
-  m_BoundSamplers.Insert(ezHashingUtils::StringHash("PointClampSampler"),
-    GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
+  m_BoundSamplers.Insert(ezHashingUtils::StringHash("PointClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
 
   m_BoundUAVs.Clear();
   m_BoundConstantBuffers.Clear();
@@ -876,13 +881,13 @@ void ezRenderContext::OnEngineShutdown()
   }
 }
 
-/*void ezRenderContext::OnRenderEvent(const ezRenderWorldRenderEvent& e)
+void ezRenderContext::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
   if (e.m_Type == ezRenderWorldRenderEvent::Type::EndRender)
   {
     ResetContextState();
   }
-}*/
+}
 
 // static
 ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration)

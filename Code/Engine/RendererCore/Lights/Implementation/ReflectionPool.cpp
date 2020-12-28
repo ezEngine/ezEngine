@@ -729,7 +729,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
   ezUInt64 uiWorldHasSkyLight = s_pData->m_uiWorldHasSkyLight;
   ezUInt64 uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
-  if (uiWorldHasSkyLight == 0 || uiSkyIrradianceChanged == 0)
+  if ((~uiWorldHasSkyLight & uiSkyIrradianceChanged) == 0)
     return;
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;

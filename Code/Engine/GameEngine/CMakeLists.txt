@@ -17,10 +17,10 @@ target_link_libraries(${PROJECT_NAME}
   ozz
 )
 
-add_dependencies(${PROJECT_NAME}
-  RendererDX11
-  RendererVulkan
-)
+#add_dependencies(${PROJECT_NAME}
+  #RendererDX11
+  #RendererVulkan
+#)
 
 if (EZ_3RDPARTY_IMGUI_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PUBLIC Imgui)

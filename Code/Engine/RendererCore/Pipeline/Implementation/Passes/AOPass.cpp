@@ -180,16 +180,9 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None, pOutput->m_Desc.m_uiArraySize);
   }
 
-  // Bind common data
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-
   // Mip map passes
   {
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezDownscaleDepthConstants", m_hDownscaleConstantBuffer);
-    renderViewContext.m_pRenderContext->BindShader(m_hDownscaleShader);
-
-    CreateSamplerState();
-    renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
+    CreateSamplerState();   
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
@@ -218,7 +211,14 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       constants->PixelSize = pixelSize;
       constants->LinearizeDepth = (i == 0);
 
+      renderViewContext.m_pRenderContext->BindConstantBuffer("ezDownscaleDepthConstants", m_hDownscaleConstantBuffer);
+      renderViewContext.m_pRenderContext->BindShader(m_hDownscaleShader);
+
       renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", hInputView);
+      renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
+
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
@@ -227,8 +227,6 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
   // Update constants
   {
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
-
     float fadeOutScale = -1.0f / ezMath::Max(0.001f, (m_fFadeOutEnd - m_fFadeOutStart));
     float fadeOutOffset = -fadeOutScale * m_fFadeOutStart + 1.0f;
 
@@ -250,6 +248,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempSSAOTexture));
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "SSAO");
 
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hSSAOShader);
 
     renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
@@ -257,6 +256,8 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
 
     renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
+
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
@@ -267,8 +268,12 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Blur");
 
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
+
     renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", pDevice->GetDefaultResourceView(tempSSAOTexture));
+
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }

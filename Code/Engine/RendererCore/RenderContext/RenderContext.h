@@ -171,6 +171,11 @@ public:
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
   void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
+  EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
+  {
+    BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, topology, uiPrimitiveCount);
+  }
+
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   ezResult Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY = 1, ezUInt32 uiThreadGroupCountZ = 1);
@@ -259,7 +264,7 @@ private:
 
   static void OnEngineShutdown();
 
-  //void OnRenderEvent(const ezRenderWorldRenderEvent& e);
+  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
 private:
   Statistics m_Statistics;
