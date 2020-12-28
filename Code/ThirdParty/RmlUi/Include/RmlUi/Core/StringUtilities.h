@@ -78,6 +78,9 @@ namespace StringUtilities
 	/// Encode RML characters, eg. '<' to '&lt;'
 	RMLUICORE_API String EncodeRml(const String& string);
 
+	/// Decode RML characters, eg. '&lt;' to '<'
+	RMLUICORE_API String DecodeRml(const String& string);
+
 	// Replaces all occurences of 'search' in 'subject' with 'replace'.
 	RMLUICORE_API String Replace(String subject, const String& search, const String& replace);
 	// Replaces all occurences of 'search' in 'subject' with 'replace'.
@@ -96,7 +99,7 @@ namespace StringUtilities
 	RMLUICORE_API String StripWhitespace(StringView string);
 
 	/// Trim trailing zeros and the dot from a string-representation of a number with a decimal point.
-	/// @warning If the string does not represent a number _with_ a decimal point, the result will probably not be as desired.
+	/// @warning If the string does not represent a number _with_ a decimal point, the result is ill-defined.
 	RMLUICORE_API void TrimTrailingDotZeros(String& string);
 
 	/// Case insensitive string comparison. Returns true if they compare equal.

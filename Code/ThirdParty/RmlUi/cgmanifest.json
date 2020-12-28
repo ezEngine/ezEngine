@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/ezEngine/RmlUi.git",
-          "commitHash": "4520b5210c3f7fe41c0d28e8b003389d7c591333"
+          "commitHash": "725faaf4727ec84d1e62f3344a4ad4e1f5e05a86"
         }
       }
     }

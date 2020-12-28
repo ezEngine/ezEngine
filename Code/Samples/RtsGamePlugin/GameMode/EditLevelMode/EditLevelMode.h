@@ -23,8 +23,6 @@ private:
   void SetupEditUI();
   void DisplayEditUI();
 
-  ezInt32 m_iShipType = 0;
-
   ezComponentHandle m_hEditUIComponent;
 
   ezUniquePtr<ezBlackboard> m_pBlackboard;

@@ -67,8 +67,6 @@ namespace ezRmlUiInternal
 
       m_uiBlackboardEntryChangeCounter = m_Blackboard.GetBlackboardEntryChangeCounter();
     }
-
-    m_hDataModel.Update();
   }
 
   //////////////////////////////////////////////////////////////////////////

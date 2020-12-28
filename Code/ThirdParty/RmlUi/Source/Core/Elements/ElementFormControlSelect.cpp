@@ -166,4 +166,13 @@ bool ElementFormControlSelect::GetIntrinsicDimensions(Vector2f& intrinsic_dimens
 	return true;
 }
 
+void ElementFormControlSelect::OnAttributeChange(const ElementAttributes& changed_attributes)
+{
+	ElementFormControl::OnAttributeChange(changed_attributes);
+
+	auto it = changed_attributes.find("value");
+	if (it != changed_attributes.end())
+		SetValue(it->second.Get<String>());
+}
+
 } // namespace Rml

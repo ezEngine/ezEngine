@@ -25,44 +25,28 @@
  * THE SOFTWARE.
  *
  */
+ 
+#ifndef RMLUI_LUA_HEADER_H
+#define RMLUI_LUA_HEADER_H
 
-#include "DocumentHeader.h"
-#include "XMLParseTools.h"
-#include "../../Include/RmlUi/Core/Core.h"
-#include "../../Include/RmlUi/Core/SystemInterface.h"
-#include "../../Include/RmlUi/Core/StringUtilities.h"
+#include <RmlUi/Core/Platform.h>
 
-namespace Rml {
+#ifdef RMLUILUA_API
+#undef RMLUILUA_API
+#endif
 
-void DocumentHeader::MergeHeader(const DocumentHeader& header)
-{
-	// Copy the title across if ours is empty
-	if (title.empty())
-		title = header.title;
-	// Copy the url across if ours is empty
-	if (source.empty())
-		source = header.source;
+#if !defined RMLUI_STATIC_LIB
+	#ifdef RMLUI_PLATFORM_WIN32
+		#if defined RmlLua_EXPORTS 
+			#define RMLUILUA_API __declspec(dllexport)
+		#else
+			#define RMLUILUA_API __declspec(dllimport)
+		#endif
+	#else
+		#define RMLUILUA_API __attribute__((visibility("default")))
+	#endif
+#else
+	#define RMLUILUA_API
+#endif
 
-	// Combine external data, keeping relative paths
-	MergePaths(template_resources, header.template_resources, header.source);
-	MergeResources(rcss, header.rcss);
-	MergeResources(scripts, header.scripts);
-}
-
-void DocumentHeader::MergePaths(StringList& target, const StringList& source, const String& source_path)
-{
-	for (size_t i = 0; i < source.size(); i++)
-	{
-		String joined_path;
-		::Rml::GetSystemInterface()->JoinPath(joined_path, StringUtilities::Replace(source_path, '|', ':'), StringUtilities::Replace(source[i], '|', ':'));
-
-		target.push_back(StringUtilities::Replace(joined_path, ':', '|'));
-	}
-}
-
-void DocumentHeader::MergeResources(ResourceList& target, const ResourceList& source)
-{
-	target.insert(target.end(), source.begin(), source.end());
-}
-
-} // namespace Rml
+#endif
