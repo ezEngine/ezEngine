@@ -7,8 +7,6 @@
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
-#include <RmlUi/Core/Elements/ElementFormControlSelect.h>
-
 const char* g_BuildItemTypes[] = {
   "FederationShip1",
   "FederationShip2",
