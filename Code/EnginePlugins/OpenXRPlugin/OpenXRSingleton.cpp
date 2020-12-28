@@ -19,7 +19,6 @@
 #include <GameEngine/XR/XRWindow.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <RendererDX11/Context/ContextDX11.h>
 #  include <RendererDX11/Device/DeviceDX11.h>
 #endif
 
