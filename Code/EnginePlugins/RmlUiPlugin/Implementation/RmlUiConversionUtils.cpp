@@ -1,4 +1,4 @@
-#pragma once
+#include <RmlUiPluginPCH.h>
 
 #include <RmlUiPlugin/RmlUiConversionUtils.h>
 
