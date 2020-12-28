@@ -1,6 +1,7 @@
 #include <RendererDX11PCH.h>
 
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
+#include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/PassDX11.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 #include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>

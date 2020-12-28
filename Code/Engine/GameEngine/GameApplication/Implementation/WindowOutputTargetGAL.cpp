@@ -1,7 +1,9 @@
 #include <GameEnginePCH.h>
 
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
