@@ -7,21 +7,28 @@
 <div class="title">
   Edit Level
 </div>
-<div class="content">
+<div class="content" data-model="EditLevelModel">
   <div class="prop"><div class="proplabel">Team</div>
-    <select id="team" onchange="teamChanged">
-      <option value="0" selected>Red</option>
+    <select id="team" data-value="Team">
+      <option value="0">Red</option>
       <option value="1">Green</option>
-      <option value="2" >Blue</option>
-      <option value="3" >Yellow</option>
+      <option value="2">Blue</option>
+      <option value="3">Yellow</option>
     </select>
   </div>
   <div class="prop"><div class="proplabel">Build</div>
-    <select id="build" onchange="buildChanged"></select>
+    <select id="shipType" data-value="ShipType">
+      <option value="0">Federation Ship 1</option>
+      <option value="1">Federation Ship 2</option>
+      <option value="2">Federation Ship 3</option>
+      <option value="3">Klingon Ship 1</option>
+      <option value="4">Klingon Ship 2</option>
+      <option value="5">Klingon Ship 3</option>
+    </select>
   </div>
-  <div id="selectkey">Select:</div>
-  <div id="createkey">Create:</div>
-  <div id="removekey">Remove:</div>
+  <div>Select: {{SelectKey}}</div>
+  <div>Create: {{CreateKey}}</div>
+  <div>Remove: {{RemoveKey}}</div>
 </div>
 </body>
 </rml>

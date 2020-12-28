@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
@@ -53,6 +54,12 @@ void ezRmlUiCanvas2DComponent::Initialize()
   sName.AppendFormat("_{}", ezArgP(this));
 
   m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
+
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    pDataBinding->Setup(*m_pContext).IgnoreResult();
+  }
+
   m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
 
   UpdateCachedValues();
@@ -64,6 +71,8 @@ void ezRmlUiCanvas2DComponent::Deinitialize()
 
   ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
   m_pContext = nullptr;
+
+  m_DataBindings.Clear();
 }
 
 void ezRmlUiCanvas2DComponent::OnActivated()
@@ -125,6 +134,11 @@ void ezRmlUiCanvas2DComponent::Update()
     m_pContext->UpdateInput(mousePos);
   }
 
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    pDataBinding->Update();
+  }
+
   m_pContext->Update();
 }
 
@@ -157,8 +171,7 @@ void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
 
     if (m_pContext != nullptr)
     {
-      m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
-      if (IsActive())
+      if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
       {
         m_pContext->ShowDocument();
       }
@@ -194,6 +207,42 @@ void ezRmlUiCanvas2DComponent::SetAnchorPoint(const ezVec2& anchorPoint)
 void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
 {
   m_bPassInput = bPassInput;
+}
+
+ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding)
+{
+  // Document needs to be loaded again since data bindings have to be set before document load
+  if (m_pContext != nullptr)
+  {
+    if (dataBinding->Setup(*m_pContext).Succeeded())
+    {
+      if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
+      {
+        m_pContext->ShowDocument();
+      }
+    }
+  }
+
+  ezUInt32 uiDataBindingIndex = m_DataBindings.GetCount();
+  m_DataBindings.PushBack(std::move(dataBinding));
+  return uiDataBindingIndex;
+}
+
+void ezRmlUiCanvas2DComponent::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
+{
+  // Can't remove data bindings atm
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard, const char* szModelName)
+{
+  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, blackboard, szModelName);
+  return AddDataBinding(pDataBinding);
+}
+
+void ezRmlUiCanvas2DComponent::RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex)
+{
+  RemoveDataBinding(uiDataBindingIndex);
 }
 
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const

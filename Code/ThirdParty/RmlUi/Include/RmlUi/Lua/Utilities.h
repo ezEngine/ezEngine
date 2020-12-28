@@ -25,72 +25,52 @@
  * THE SOFTWARE.
  *
  */
-
-#include "InputType.h"
-#include "../../../Include/RmlUi/Core/Elements/ElementFormControlInput.h"
+ 
+#ifndef RMLUI_LUA_UTILITIES_H
+#define RMLUI_LUA_UTILITIES_H
+/*
+    This file is for free-floating functions that are used across more than one file.
+*/
+#include "Header.h"
+#include "IncludeLua.h"
+#include "LuaType.h"
+#include <RmlUi/Core/Types.h>
 
 namespace Rml {
+namespace Lua {
 
-InputType::InputType(ElementFormControlInput* element) : element(element)
+/** casts the variant to its specific type before pushing it to the stack 
+@relates LuaType */
+void RMLUILUA_API PushVariant(lua_State* L, const Variant* var);
+
+/** Populate the variant based on the Lua value at the given index */
+void RMLUILUA_API GetVariant(lua_State* L, int index, Variant* variant);
+
+//Helper function, so that the types don't have to define individual functions themselves
+// to fill the Elements.As table
+template<typename ToType>
+int CastFromElementTo(lua_State* L)
 {
+    Element* ele = LuaType<Element>::check(L,1);
+    RMLUI_CHECK_OBJ(ele);
+    LuaType<ToType>::push(L,(ToType*)ele,false);
+    return 1;
 }
 
-InputType::~InputType()
+//Adds to the Element.As table the name of the type, and the function to use to cast
+template<typename T>
+void AddTypeToElementAsTable(lua_State* L)
 {
+    int top = lua_gettop(L);
+    lua_getglobal(L,"Element");
+    lua_getfield(L,-1,"As");
+    if(!lua_isnoneornil(L,-1))
+    {
+        lua_pushcfunction(L,CastFromElementTo<T>);
+        lua_setfield(L,-2,GetTClassName<T>());
+    }
+    lua_settop(L,top); //pop "As" and "Element"
 }
-
-// Returns a string representation of the current value of the form control.
-String InputType::GetValue() const
-{
-	return element->GetAttribute< String >("value", "");
-}
-
-// Returns if this value should be submitted with the form.
-bool InputType::IsSubmitted()
-{
-	return true;
-}
-
-// Called every update from the host element.
-void InputType::OnUpdate()
-{
-}
-
-// Called every render from the host element.
-void InputType::OnRender()
-{
-}
-
-void InputType::OnResize()
-{
-}
-
-void InputType::OnLayout()
-{
-}
-
-// Checks for necessary functional changes in the control as a result of changed attributes.
-bool InputType::OnAttributeChange(const ElementAttributes& RMLUI_UNUSED_PARAMETER(changed_attributes))
-{
-	RMLUI_UNUSED(changed_attributes);
-
-	return true;
-}
-
-// Called when properties on the control are changed.
-void InputType::OnPropertyChange(const PropertyIdSet& RMLUI_UNUSED_PARAMETER(changed_properties))
-{
-	RMLUI_UNUSED(changed_properties);
-}
-
-// Called when the element is added into a hierarchy.
-void InputType::OnChildAdd()
-{
-}
-
-// Called when the element is removed from a hierarchy.
-void InputType::OnChildRemove()
-{
-}
-
+} // namespace Lua
 } // namespace Rml
+#endif

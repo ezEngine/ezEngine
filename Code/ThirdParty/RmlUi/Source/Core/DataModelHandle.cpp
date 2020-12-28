@@ -26,71 +26,44 @@
  *
  */
 
-#include "InputType.h"
-#include "../../../Include/RmlUi/Core/Elements/ElementFormControlInput.h"
+#include "../../Include/RmlUi/Core/DataModelHandle.h"
+#include "DataModel.h"
 
 namespace Rml {
 
-InputType::InputType(ElementFormControlInput* element) : element(element)
-{
+
+DataModelHandle::DataModelHandle(DataModel* model) : model(model)
+{}
+
+bool DataModelHandle::IsVariableDirty(const String& variable_name) {
+	return model->IsVariableDirty(variable_name);
 }
 
-InputType::~InputType()
-{
+void DataModelHandle::DirtyVariable(const String& variable_name) {
+	model->DirtyVariable(variable_name);
 }
 
-// Returns a string representation of the current value of the form control.
-String InputType::GetValue() const
-{
-	return element->GetAttribute< String >("value", "");
+
+DataModelConstructor::DataModelConstructor() : model(nullptr), type_register(nullptr) {}
+
+DataModelConstructor::DataModelConstructor(DataModel* model, DataTypeRegister* type_register) : model(model), type_register(type_register) {
+	RMLUI_ASSERT(model && type_register);
 }
 
-// Returns if this value should be submitted with the form.
-bool InputType::IsSubmitted()
-{
-	return true;
+DataModelHandle DataModelConstructor::GetModelHandle() const {
+	return DataModelHandle(model);
 }
 
-// Called every update from the host element.
-void InputType::OnUpdate()
-{
+bool DataModelConstructor::BindFunc(const String& name, DataGetFunc get_func, DataSetFunc set_func) {
+	return model->BindFunc(name, std::move(get_func), std::move(set_func));
 }
 
-// Called every render from the host element.
-void InputType::OnRender()
-{
+bool DataModelConstructor::BindEventCallback(const String& name, DataEventFunc event_func) {
+	return model->BindEventCallback(name, std::move(event_func));
 }
 
-void InputType::OnResize()
-{
-}
-
-void InputType::OnLayout()
-{
-}
-
-// Checks for necessary functional changes in the control as a result of changed attributes.
-bool InputType::OnAttributeChange(const ElementAttributes& RMLUI_UNUSED_PARAMETER(changed_attributes))
-{
-	RMLUI_UNUSED(changed_attributes);
-
-	return true;
-}
-
-// Called when properties on the control are changed.
-void InputType::OnPropertyChange(const PropertyIdSet& RMLUI_UNUSED_PARAMETER(changed_properties))
-{
-	RMLUI_UNUSED(changed_properties);
-}
-
-// Called when the element is added into a hierarchy.
-void InputType::OnChildAdd()
-{
-}
-
-// Called when the element is removed from a hierarchy.
-void InputType::OnChildRemove()
-{
+bool DataModelConstructor::BindVariable(const String& name, DataVariable data_variable) {
+	return model->BindVariable(name, data_variable);
 }
 
 } // namespace Rml

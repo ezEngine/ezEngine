@@ -6,11 +6,12 @@
 
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
+class ezRmlUiDataBinding;
+class ezBlackboard;
 
 using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
 
-using ezRmlUiCanvas2DComponentManager =
-  ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
+using ezRmlUiCanvas2DComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
 class EZ_RMLUIPLUGIN_DLL ezRmlUiCanvas2DComponent : public ezRenderComponent
 {
@@ -48,6 +49,12 @@ public:
   void SetPassInput(bool bPassInput);                // [ property ]
   bool GetPassInput() const { return m_bPassInput; } // [ property ]
 
+  ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding);
+  void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
+
+  ezUInt32 AddBlackboardBinding(ezBlackboard& blackboard, const char* szModelName);
+  void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
+
   ezRmlUiContext* GetRmlContext() { return m_pContext; }
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
@@ -70,4 +77,6 @@ protected:
   bool m_bPassInput = true;
 
   ezRmlUiContext* m_pContext = nullptr;
+
+  ezDynamicArray<ezUniquePtr<ezRmlUiDataBinding>> m_DataBindings;
 };

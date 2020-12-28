@@ -25,72 +25,29 @@
  * THE SOFTWARE.
  *
  */
+ 
+#ifndef RMLUI_LUA_LUA_H
+#define RMLUI_LUA_LUA_H 
 
-#include "InputType.h"
-#include "../../../Include/RmlUi/Core/Elements/ElementFormControlInput.h"
+#include "Header.h"
+
+typedef struct lua_State lua_State;
 
 namespace Rml {
+namespace Lua {
 
-InputType::InputType(ElementFormControlInput* element) : element(element)
-{
-}
+/** Initialise the Lua plugin.
+    @remark This is equivalent to calling Initialise(nullptr). */
+RMLUILUA_API void Initialise();
 
-InputType::~InputType()
-{
-}
+/** Initialise the Lua plugin and add RmlUi to an existing Lua state if one is provided.
+ @remark If nullptr is passed as an argument, the plugin will automatically create the lua state during initialisation
+   and close the state during the call to Rml::Shutdown(). Otherwise, if a Lua state is provided, the user is
+   responsible for closing the provided Lua state. The state must then be closed after the call to Rml::Shutdown().
+ @remark The plugin registers the "body" tag to generate a LuaDocument rather than a ElementDocument. */
+RMLUILUA_API void Initialise(lua_State* L);
 
-// Returns a string representation of the current value of the form control.
-String InputType::GetValue() const
-{
-	return element->GetAttribute< String >("value", "");
-}
 
-// Returns if this value should be submitted with the form.
-bool InputType::IsSubmitted()
-{
-	return true;
-}
-
-// Called every update from the host element.
-void InputType::OnUpdate()
-{
-}
-
-// Called every render from the host element.
-void InputType::OnRender()
-{
-}
-
-void InputType::OnResize()
-{
-}
-
-void InputType::OnLayout()
-{
-}
-
-// Checks for necessary functional changes in the control as a result of changed attributes.
-bool InputType::OnAttributeChange(const ElementAttributes& RMLUI_UNUSED_PARAMETER(changed_attributes))
-{
-	RMLUI_UNUSED(changed_attributes);
-
-	return true;
-}
-
-// Called when properties on the control are changed.
-void InputType::OnPropertyChange(const PropertyIdSet& RMLUI_UNUSED_PARAMETER(changed_properties))
-{
-	RMLUI_UNUSED(changed_properties);
-}
-
-// Called when the element is added into a hierarchy.
-void InputType::OnChildAdd()
-{
-}
-
-// Called when the element is removed from a hierarchy.
-void InputType::OnChildRemove()
-{
-}
-
+} // namespace Lua
 } // namespace Rml
+#endif

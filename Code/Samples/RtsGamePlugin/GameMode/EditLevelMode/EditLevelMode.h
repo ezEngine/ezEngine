@@ -2,6 +2,8 @@
 
 #include <RtsGamePlugin/GameMode/GameMode.h>
 
+class ezBlackboard;
+
 class RtsEditLevelMode : public RtsGameMode
 {
 public:
@@ -21,8 +23,7 @@ private:
   void SetupEditUI();
   void DisplayEditUI();
 
-  ezUInt16 m_uiTeam = 0;
-  ezInt32 m_iShipType = 0;
-
   ezComponentHandle m_hEditUIComponent;
+
+  ezUniquePtr<ezBlackboard> m_pBlackboard;
 };
