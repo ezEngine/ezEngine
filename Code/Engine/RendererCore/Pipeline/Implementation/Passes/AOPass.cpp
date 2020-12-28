@@ -182,7 +182,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
   // Mip map passes
   {
-    CreateSamplerState();   
+    CreateSamplerState();
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
