@@ -473,6 +473,16 @@ export class Vec3 {
     }
 
     /**
+     * Sets this vector to the linear interpolation between lhs and rhs.
+     * @param lerpFactor Factor between 0 and 1 that specifies how much to interpolate.
+     */    
+    SetLerp(lhs: Vec3, rhs: Vec3, lerpFactor: number) {
+        this.SetSub(rhs, lhs);
+        this.MulNumber(lerpFactor);
+        this.AddVec3(lhs);
+    }
+
+    /**
      * Returns a random point inside a sphere of radius 1 around the origin.
      */
     static CreateRandomPointInSphere(): Vec3 { // [tested]
