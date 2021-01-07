@@ -21,4 +21,7 @@ private:
 
   ezString m_sSceneFile;
   ezUniquePtr<ezWorld> m_pWorld;
+
+protected:
+  virtual void Run_InputUpdate() override;
 };

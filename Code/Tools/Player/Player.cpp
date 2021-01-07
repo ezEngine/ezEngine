@@ -87,6 +87,16 @@ void ezPlayerApplication::BeforeHighLevelSystemsShutdown()
   m_pWorld = nullptr;
 }
 
+void ezPlayerApplication::Run_InputUpdate()
+{
+  SUPER::Run_InputUpdate();
+
+  if (GetActiveGameState() && GetActiveGameState()->WasQuitRequested())
+  {
+    RequestQuit();
+  }
+}
+
 void ezPlayerApplication::SetupLevel()
 {
   EZ_LOG_BLOCK("SetupLevel", m_sSceneFile.GetData());

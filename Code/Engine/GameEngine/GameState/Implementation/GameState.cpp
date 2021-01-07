@@ -308,7 +308,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   }
 
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
-  pWindow->ResetOnClickClose([]() { ezGameApplicationBase::GetGameApplicationBaseInstance()->RequestQuit(); });
+  pWindow->ResetOnClickClose([this]() { this->RequestQuit(); });
   if (pWindow->GetInputDevice())
     pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 
