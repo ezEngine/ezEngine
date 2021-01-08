@@ -7,12 +7,12 @@
 class EZ_RENDERERFOUNDATION_DLL ezProfilingScopeAndMarker : public ezProfilingScope
 {
 public:
-  ezProfilingScopeAndMarker(ezGALContext* pGALContext, const char* szName);
+  ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName);
 
   ~ezProfilingScopeAndMarker();
 
 protected:
-  ezGALContext* m_pGALContext;
+  ezGALCommandEncoder* m_pCommandEncoder;
   struct GPUTimingScope* m_pTimingScope;
 };
 

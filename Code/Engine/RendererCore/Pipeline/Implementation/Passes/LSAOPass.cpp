@@ -128,10 +128,13 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
+  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#if 0
   // Set rendertarget immediately to ensure that depth buffer is no longer bound (we need it right away in the sweeping part)
-  ezGALRenderTargetSetup renderTargetSetup;
+  ezGALRenderingSetup renderingSetup;
   ezGALTextureHandle tempTexture;
   if (m_bDistributedGathering)
   {
@@ -139,10 +142,12 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     tempTextureDesc.m_bAllowShaderResourceView = true;
     tempTextureDesc.m_bCreateRenderTarget = true;
     tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
   }
   else
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+  {
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+  }
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
 
@@ -237,6 +242,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     // Give back temp texture.
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(tempTexture);
   }
+#endif
 }
 
 void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
@@ -248,13 +254,13 @@ void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, c
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  ezGALRenderTargetSetup renderTargetSetup;
-  renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-  pGALContext->SetRenderTargetSetup(renderTargetSetup);
+  ezGALRenderingSetup renderingSetup;
+  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+  renderingSetup.m_ClearColor = ezColor::White;
 
-  pGALContext->Clear(ezColor::White);
+  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, "Clear");
 }
 
 void ezLSAOPass::SetLineToLinePixelOffset(ezUInt32 uiPixelOffset)

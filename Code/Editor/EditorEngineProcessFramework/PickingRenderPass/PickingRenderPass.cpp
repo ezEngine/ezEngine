@@ -5,7 +5,6 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
@@ -71,10 +70,13 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
-  renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(viewPortRect, m_RenderTargetSetup);
+  ezGALRenderingSetup renderingSetup;
+  renderingSetup.m_RenderTargetSetup = m_RenderTargetSetup;
+  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+  renderingSetup.m_bClearDepth = true;
+  renderingSetup.m_bClearStencil = true;
 
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
+  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
 
   ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
   if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
@@ -141,7 +143,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   {
     if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
     {
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(GetPickingDepthRT());
+      pCommandEncoder->ReadbackTexture(GetPickingDepthRT());
 
       ezMat4 mProj;
       renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
@@ -185,7 +187,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
       MemDesc.m_pData = m_PickingResultsDepth.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(GetPickingDepthRT(), &SysMemDescsDepth);
+      pCommandEncoder->CopyTextureReadbackResult(GetPickingDepthRT(), &SysMemDescsDepth);
     }
   }
 
@@ -193,7 +195,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     // download the picking information from the GPU
     if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
     {
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(GetPickingIdRT());
+      pCommandEncoder->ReadbackTexture(GetPickingIdRT());
 
       ezMat4 mProj;
       renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
@@ -237,7 +239,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
       MemDesc.m_pData = m_PickingResultsID.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(GetPickingIdRT(), &SysMemDescs);
+      pCommandEncoder->CopyTextureReadbackResult(GetPickingIdRT(), &SysMemDescs);
     }
   }
 }

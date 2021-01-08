@@ -117,6 +117,12 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << "-debug";
   }
 
+  if (!m_sRenderer.IsEmpty())
+  {
+    args << "-renderer";
+    args << m_sRenderer.GetData();
+  }
+
   {
     ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sWndCfgPath.AppendPath("Window.ddl");

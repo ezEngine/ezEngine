@@ -56,7 +56,10 @@ class ezGALResourceView;
 class ezGALRenderTargetView;
 class ezGALUnorderedAccessView;
 class ezGALDevice;
-class ezGALContext;
+class ezGALPass;
+class ezGALCommandEncoder;
+class ezGALRenderCommandEncoder;
+class ezGALComputeCommandEncoder;
 
 // Basic enums
 struct ezGALPrimitiveTopology
@@ -313,8 +316,6 @@ class ezGALSwapChainHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALSwapChainHandle, ezGAL::ez16_16Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALShaderHandle
@@ -322,8 +323,6 @@ class ezGALShaderHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALShaderHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALTextureHandle
@@ -331,8 +330,6 @@ class ezGALTextureHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALTextureHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALBufferHandle
@@ -340,8 +337,6 @@ class ezGALBufferHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALBufferHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALResourceViewHandle
@@ -349,8 +344,6 @@ class ezGALResourceViewHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALResourceViewHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALUnorderedAccessViewHandle
@@ -358,8 +351,6 @@ class ezGALUnorderedAccessViewHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALUnorderedAccessViewHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALRenderTargetViewHandle
@@ -367,8 +358,6 @@ class ezGALRenderTargetViewHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALRenderTargetViewHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALDepthStencilStateHandle
@@ -376,8 +365,6 @@ class ezGALDepthStencilStateHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALDepthStencilStateHandle, ezGAL::ez16_16Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALBlendStateHandle
@@ -385,8 +372,6 @@ class ezGALBlendStateHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALBlendStateHandle, ezGAL::ez16_16Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALRasterizerStateHandle
@@ -394,8 +379,6 @@ class ezGALRasterizerStateHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALRasterizerStateHandle, ezGAL::ez16_16Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALSamplerStateHandle
@@ -403,8 +386,6 @@ class ezGALSamplerStateHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALSamplerStateHandle, ezGAL::ez16_16Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALVertexDeclarationHandle
@@ -412,8 +393,6 @@ class ezGALVertexDeclarationHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALVertexDeclarationHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALFenceHandle
@@ -421,8 +400,6 @@ class ezGALFenceHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALFenceHandle, ezGAL::ez20_12Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 class ezGALQueryHandle
@@ -430,8 +407,6 @@ class ezGALQueryHandle
   EZ_DECLARE_HANDLE_TYPE(ezGALQueryHandle, ezGAL::ez20_12Id);
 
   friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
 };
 
 struct ezGALTimestampHandle

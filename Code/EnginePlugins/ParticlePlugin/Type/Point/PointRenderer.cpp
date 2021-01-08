@@ -5,7 +5,6 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
@@ -42,7 +41,7 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   TempSystemCB systemConstants(pRenderContext);
 
@@ -73,10 +72,10 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
       pParticleBaseData += uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
       pParticleBillboardData += uiNumParticlesInBatch;
 
       // do one drawcall

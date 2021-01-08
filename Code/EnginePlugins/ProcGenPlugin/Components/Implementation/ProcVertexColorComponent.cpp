@@ -9,8 +9,9 @@
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcVertexColorRenderData, 1, ezRTTIDefaultAllocator<ezProcVertexColorRenderData>)
@@ -219,12 +220,17 @@ void ezProcVertexColorComponentManager::OnRenderEvent(const ezRenderWorldRenderE
   auto& dataCopy = m_DataCopy[ezRenderWorld::GetDataIndexForRendering()];
   if (!dataCopy.m_Data.IsEmpty())
   {
-    ezGALContext* pGALContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+    ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
+    ezGALPass* pGALPass = pGALDevice->BeginPass("ProcVertexUpdate");
+    ezGALComputeCommandEncoder* pGALCommandEncoder = pGALPass->BeginCompute();
 
     ezUInt32 uiByteOffset = dataCopy.m_uiStart * sizeof(ezUInt32);
-    pGALContext->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
+    pGALCommandEncoder->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
 
     dataCopy = DataCopy();
+
+    pGALPass->EndCompute(pGALCommandEncoder);
+    pGALDevice->EndPass(pGALPass);
   }
 }
 

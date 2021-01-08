@@ -4,7 +4,6 @@
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
@@ -66,30 +65,37 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
 
 void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SetupResources(renderViewContext, inputs, outputs);
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
+
+  SetupResources(pGALPass, renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
   SetupLighting(renderViewContext);
 
   RenderObjects(renderViewContext);
+
+  renderViewContext.m_pRenderContext->EndRendering();
+  pDevice->EndPass(pGALPass);
 }
 
-void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Setup render target
-  ezGALRenderTargetSetup renderTargetSetup;
+  ezGALRenderingSetup renderingSetup;
   if (inputs[m_PinColor.m_uiInputIndex])
   {
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
   }
 
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
-    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
+    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+  renderViewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect);
 }
 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)

@@ -424,9 +424,9 @@ ezCommandLineOptionString::ezCommandLineOptionString(const char* szSortingGroup,
   m_szDefaultValue = szDefaultValue;
 }
 
-ezString ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+const char* ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
-  ezString result = m_szDefaultValue;
+  const char* result = m_szDefaultValue;
 
   ezStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);

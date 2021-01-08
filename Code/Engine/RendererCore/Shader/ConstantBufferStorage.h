@@ -17,7 +17,7 @@ public:
   ezArrayPtr<ezUInt8> GetRawDataForWriting();
   ezArrayPtr<const ezUInt8> GetRawDataForReading() const;
 
-  void UploadData(ezGALContext* pContext);
+  void UploadData(ezGALCommandEncoder* pCommandEncoder);
 
   EZ_ALWAYS_INLINE ezGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
 

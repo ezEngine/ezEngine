@@ -10,6 +10,11 @@ EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetVulkanInstance() const
   return m_instance;
 }
 
+EZ_ALWAYS_INLINE vk::CommandBuffer& ezGALDeviceVulkan::GetPrimaryCommandBuffer()
+{
+  return m_commandBuffers[m_uiCurrentCmdBufferIndex];
+}
+
 EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt32> ezGALDeviceVulkan::GetQueueFamilyIndices() const
 {
   return m_queueFamilyIndices.GetArrayPtr();

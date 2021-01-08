@@ -38,7 +38,7 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   TempSystemCB systemConstants(pRenderContext);
 
@@ -79,18 +79,18 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
       pParticleBaseData += uiNumParticlesInBatch;
 
       if (pParticleBillboardData != nullptr)
       {
-        pGALContext->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
         pParticleBillboardData += uiNumParticlesInBatch;
       }
 
       if (pParticleTangentData != nullptr)
       {
-        pGALContext->UpdateBuffer(m_hTangentDataBuffer, 0, ezMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(m_hTangentDataBuffer, 0, ezMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray());
         pParticleTangentData += uiNumParticlesInBatch;
       }
 

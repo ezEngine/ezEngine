@@ -1,5 +1,5 @@
 
-vk::Buffer ezGALBufferVulkan::GetBuffer() const
+vk::Buffer ezGALBufferVulkan::GetVkBuffer() const
 {
   return m_buffer;
 }

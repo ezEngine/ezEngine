@@ -2,7 +2,7 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
@@ -88,14 +88,14 @@ ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::m_TimingSc
 
 //////////////////////////////////////////////////////////////////////////
 
-ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALContext* pGALContext, const char* szName)
+ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName)
   : ezProfilingScope(szName, nullptr)
-  , m_pGALContext(pGALContext)
+  , m_pCommandEncoder(pCommandEncoder)
 {
-  m_pGALContext->PushMarker(m_szName);
+  pCommandEncoder->PushMarker(m_szName);
 
   auto& timingScope = GPUProfilingSystem::AllocateScope();
-  timingScope.m_BeginTimestamp = m_pGALContext->InsertTimestamp();
+  timingScope.m_BeginTimestamp = pCommandEncoder->InsertTimestamp();
   ezStringUtils::Copy(timingScope.m_szName, EZ_ARRAY_SIZE(timingScope.m_szName), m_szName);
 
   m_pTimingScope = &timingScope;
@@ -103,8 +103,8 @@ ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALContext* pGALContext, 
 
 ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
 {
-  m_pGALContext->PopMarker();
-  m_pTimingScope->m_EndTimestamp = m_pGALContext->InsertTimestamp();
+  m_pCommandEncoder->PopMarker();
+  m_pTimingScope->m_EndTimestamp = m_pCommandEncoder->InsertTimestamp();
 }
 
 #endif

@@ -140,9 +140,9 @@ ezClusteredDataProvider::~ezClusteredDataProvider() {}
 
 void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+  ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetRenderCommandEncoder();
 
-  EZ_PROFILE_AND_MARKER(pGALContext, "Update Clustered Data");
+  EZ_PROFILE_AND_MARKER(pGALCommandEncoder, "Update Clustered Data");
 
   if (auto pData = extractedData.GetFrameData<ezClusteredDataCPU>())
   {
@@ -151,18 +151,18 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     {
       if (!pData->m_LightData.IsEmpty())
       {
-        pGALContext->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, pData->m_LightData.ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, pData->m_LightData.ToByteArray());
       }
 
       if (!pData->m_DecalData.IsEmpty())
       {
-        pGALContext->UpdateBuffer(m_Data.m_hDecalDataBuffer, 0, pData->m_DecalData.ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(m_Data.m_hDecalDataBuffer, 0, pData->m_DecalData.ToByteArray());
       }
 
-      pGALContext->UpdateBuffer(m_Data.m_hClusterItemBuffer, 0, pData->m_ClusterItemList.ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_Data.m_hClusterItemBuffer, 0, pData->m_ClusterItemList.ToByteArray());
     }
 
-    pGALContext->UpdateBuffer(m_Data.m_hClusterDataBuffer, 0, pData->m_ClusterData.ToByteArray());
+    pGALCommandEncoder->UpdateBuffer(m_Data.m_hClusterDataBuffer, 0, pData->m_ClusterData.ToByteArray());
 
     // Update Constants
     const ezRectFloat& viewport = renderViewContext.m_pViewData->m_ViewPortRect;

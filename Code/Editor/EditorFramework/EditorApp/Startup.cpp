@@ -184,6 +184,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
   s_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
+  s_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
 
   m_LongOpControllerManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
 

@@ -2,7 +2,6 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -59,8 +58,6 @@ ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
   , m_AllocatorWrapper(&m_Allocator)
   , m_Description(desc)
-  , m_pPrimaryContext(nullptr)
-  , m_bFrameBeginCalled(false)
 {
 }
 
@@ -193,6 +190,26 @@ ezResult ezGALDevice::Shutdown()
   }
 
   return ShutdownPlatform();
+}
+
+ezGALPass* ezGALDevice::BeginPass(const char* szName)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  EZ_ASSERT_DEV(!m_bBeginPassCalled, "Nested Passes are not allowed: You must call ezGALDevice::EndPass before you can call ezGALDevice::BeginPass again");
+  m_bBeginPassCalled = true;
+
+  return BeginPassPlatform(szName);
+}
+
+void ezGALDevice::EndPass(ezGALPass* pPass)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  EZ_ASSERT_DEV(m_bBeginPassCalled, "You must have called ezGALDevice::BeginPass before you can call ezGALDevice::EndPass");
+  m_bBeginPassCalled = false;
+
+  EndPassPlatform(pPass);
 }
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
@@ -1227,7 +1244,7 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
 
 void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain, bool bVSync)
 {
-  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
+  EZ_ASSERT_DEV(m_bBeginFrameCalled, "You must have called ezGALDevice::Begin before you can call this function");
 
   ezGALSwapChain* pSwapChain = nullptr;
 
@@ -1271,12 +1288,14 @@ void ezGALDevice::BeginFrame()
 
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
-    EZ_ASSERT_DEV(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
-    m_bFrameBeginCalled = true;
+    EZ_ASSERT_DEV(!m_bBeginFrameCalled, "You must call ezGALDevice::EndFrame before you can call ezGALDevice::BeginFrame again");
+    m_bBeginFrameCalled = true;
 
     BeginFramePlatform();
   }
-  m_pPrimaryContext->ClearStatisticsCounters();
+
+  // TODO: move to beginrendering/compute calls
+  //m_pPrimaryContext->ClearStatisticsCounters();
 
   {
     ezGALDeviceEvent e;
@@ -1297,13 +1316,13 @@ void ezGALDevice::EndFrame()
 
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
-    EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
+    EZ_ASSERT_DEV(m_bBeginFrameCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
 
     DestroyDeadObjects();
 
     EndFramePlatform();
 
-    m_bFrameBeginCalled = false;
+    m_bBeginFrameCalled = false;
   }
 
   {

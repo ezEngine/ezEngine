@@ -4,7 +4,6 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-class ezGALContext;
 class ezShaderStageBinary;
 struct ezVertexDeclarationInfo;
 

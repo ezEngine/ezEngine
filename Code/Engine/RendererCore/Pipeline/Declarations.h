@@ -14,7 +14,6 @@ class ezRenderData;
 class ezRenderDataBatch;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
-class ezGALContext;
 class ezRenderContext;
 class ezDebugRendererContext;
 

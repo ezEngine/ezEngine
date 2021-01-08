@@ -953,7 +953,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
+  //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
+  EZ_PROFILE_SCOPE(m_sName.GetData());
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
   if (m_PipelineState == PipelineState::RebuildError)
@@ -1058,8 +1059,6 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
     // Execute pass block
     {
-      EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_sName.GetData());
-
       ConnectionData& connectionData = m_Connections[pPass.Borrow()];
       if (pPass->m_bActive)
       {

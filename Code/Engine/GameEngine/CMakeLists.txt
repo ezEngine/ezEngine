@@ -9,7 +9,6 @@ ez_create_target(LIBRARY ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
-  RendererDX11
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -19,7 +18,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if (EZ_3RDPARTY_IMGUI_SUPPORT)
-	target_link_libraries(${PROJECT_NAME} PUBLIC Imgui)
+  target_link_libraries(${PROJECT_NAME} PUBLIC Imgui)
 endif()
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

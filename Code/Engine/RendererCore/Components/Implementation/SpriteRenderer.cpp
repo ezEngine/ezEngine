@@ -62,18 +62,17 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
-  ezGALContext* pGALContext = pContext->GetGALContext();
 
   const ezSpriteRenderData* pRenderData = batch.GetFirstData<ezSpriteRenderData>();
 
   ezGALBufferHandle hSpriteData = CreateSpriteDataBuffer();
   EZ_SCOPE_EXIT(DeleteSpriteDataBuffer(hSpriteData));
 
-  renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindBuffer("spriteData", pDevice->GetDefaultResourceView(hSpriteData));
-  renderViewContext.m_pRenderContext->BindTexture2D("SpriteTexture", pRenderData->m_hTexture);
+  pContext->BindShader(m_hShader);
+  pContext->BindBuffer("spriteData", pDevice->GetDefaultResourceView(hSpriteData));
+  pContext->BindTexture2D("SpriteTexture", pRenderData->m_hTexture);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
+  pContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
 
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())
@@ -83,10 +82,10 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
     FillSpriteData(batch, uiStartIndex, uiCount);
     if (m_spriteData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
     {
-      pGALContext->UpdateBuffer(hSpriteData, 0, m_spriteData.GetByteArrayPtr());
+      pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_spriteData.GetByteArrayPtr());
 
-      renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
+      pContext->DrawMeshBuffer().IgnoreResult();
     }
 
     uiStartIndex += uiCount;

@@ -89,7 +89,6 @@ void ezRmlUiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
 void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
 
   pRenderContext->BindShader(m_hShader);
   pRenderContext->BindConstantBuffer("ezRmlUiConstants", m_hConstantBuffer);
@@ -142,7 +141,7 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 void ezRmlUiRenderer::SetScissorRect(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect, bool bEnable, bool bTransformRect) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALRenderCommandEncoder* pGALCommandEncoder = pRenderContext->GetRenderCommandEncoder();
 
   ezRectFloat scissorRect = rect;
   if (!bEnable || bTransformRect)
@@ -155,16 +154,16 @@ void ezRmlUiRenderer::SetScissorRect(const ezRenderViewContext& renderViewContex
   ezUInt32 width = static_cast<ezUInt32>(ezMath::Max(scissorRect.width, 0.0f));
   ezUInt32 height = static_cast<ezUInt32>(ezMath::Max(scissorRect.height, 0.0f));
 
-  pGALContext->SetScissorRect(ezRectU32(x, y, width, height));
+  pGALCommandEncoder->SetScissorRect(ezRectU32(x, y, width, height));
 }
 
 void ezRmlUiRenderer::PrepareStencil(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALRenderCommandEncoder* pGALCommandEncoder = pRenderContext->GetRenderCommandEncoder();
 
   // Clear stencil
-  pGALContext->Clear(ezColor::Black, 0, false, true, 1.0f, 0);
+  pGALCommandEncoder->Clear(ezColor::Black, 0, false, true, 1.0f, 0);
 
   // Draw quad to set stencil pixels
   pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_STENCIL_SET");

@@ -5,7 +5,6 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererFoundation/Context/Context.h>
 
 ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 {
