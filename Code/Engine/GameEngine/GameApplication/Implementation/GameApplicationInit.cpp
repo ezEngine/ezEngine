@@ -5,6 +5,7 @@
 #include <Core/Curves/Curve1DResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Physics/SurfaceResource.h>
@@ -21,6 +22,14 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+constexpr const char* szDefaultRenderer = "Vulkan";
+#else
+constexpr const char* szDefaultRenderer = "DX11";
+#endif
+
+ezCommandLineOptionString opt_Renderer("app", "-renderer", "The renderer implementation to use.", szDefaultRenderer);
 
 void ezGameApplication::Init_ConfigureAssetManagement()
 {
@@ -205,15 +214,9 @@ void ezGameApplication::Init_SetupDefaultResources()
   }
 }
 
-const char* GetRendererNameFromCommandLine()
+ezString GetRendererNameFromCommandLine()
 {
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-  constexpr const char* szDefaultRenderer = "Vulkan";
-#else
-  constexpr const char* szDefaultRenderer = "DX11";
-#endif
-
-  return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+  return opt_Renderer.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified);
 }
 
 void ezGameApplication::Init_SetupGraphicsDevice()

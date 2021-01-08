@@ -10,7 +10,6 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#  include <RendererDX11/Context/ContextDX11.h>
 #  include <dxgi1_3.h>
 #endif
 

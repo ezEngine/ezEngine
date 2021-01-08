@@ -319,11 +319,10 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476425(v=vs.85).aspx#Defer_Issues_with_Flip
   // Strictly speaking we should do this right after we destroy the swap chain and flush all contexts that are affected.
   // However, the particular usecase where this problem comes up is usually a restart scenario.
-  ezGALContextDX11* primaryContextDX = static_cast<ezGALContextDX11*>(m_pPrimaryContext);
-  if (primaryContextDX)
+  if (m_pImmediateContext != nullptr)
   {
-    primaryContextDX->GetDXContext()->ClearState();
-    primaryContextDX->GetDXContext()->Flush();
+    m_pImmediateContext->ClearState();
+    m_pImmediateContext->Flush();
   }
 #endif
 
