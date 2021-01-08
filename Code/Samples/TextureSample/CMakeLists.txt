@@ -14,6 +14,4 @@ target_link_libraries(${PROJECT_NAME}
 
 add_dependencies(${PROJECT_NAME}
   InspectorPlugin
-  #RendererDX11
-  #RendererVulkan
 )
