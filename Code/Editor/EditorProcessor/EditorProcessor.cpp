@@ -145,7 +145,7 @@ public:
 
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (!opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified).IsEmpty())
+    if (!ezStringUtils::IsNullOrEmpty(opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified)))
     {
       ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 
@@ -157,12 +157,12 @@ public:
 
         bTransform = false;
 
-        const ezString sPlatform = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::Never);
-        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sPlatform);
+        const char* szPlatform = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::Never);
+        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(szPlatform);
 
         if (uiPlatform == ezInvalidIndex)
         {
-          ezLog::Error("Asset platform config '{0}' is unknown", sPlatform);
+          ezLog::Error("Asset platform config '{0}' is unknown", szPlatform);
         }
         else
         {
