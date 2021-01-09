@@ -96,6 +96,7 @@ private:
   friend class ezOpenXRInputDevice;
   friend class ezOpenXRSpatialAnchors;
   friend class ezOpenXRHandTracking;
+  friend class ezOpenXRRemoting;
 
   struct Extensions
   {
@@ -123,11 +124,22 @@ private:
     PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT;
 
     bool m_bHolographicWindowAttachment = false;
+
+    bool m_bRemoting = false;
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+    PFN_xrRemotingSetContextPropertiesMSFT pfn_xrRemotingSetContextPropertiesMSFT;
+    PFN_xrRemotingConnectMSFT pfn_xrRemotingConnectMSFT;
+    PFN_xrRemotingDisconnectMSFT pfn_xrRemotingDisconnectMSFT;
+    PFN_xrRemotingGetConnectionStateMSFT pfn_xrRemotingGetConnectionStateMSFT;
+#endif
   };
 
   // Instance
   XrInstance m_instance = XR_NULL_HANDLE;
   Extensions m_extensions;
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+  ezUniquePtr<class ezOpenXRRemoting> m_remoting;
+#endif
 
   // System
   uint64_t m_systemId = XR_NULL_SYSTEM_ID;

@@ -36,6 +36,11 @@ function(ez_link_target_openxr TARGET_NAME)
 			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezOpenXR::Loader> $<TARGET_FILE_DIR:${TARGET_NAME}>)
 		endif()
+        
+        if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+            # This will add the remoting .targets file.
+            target_link_libraries(${TARGET_NAME} PRIVATE $<TARGET_FILE:ezOpenXR::Remoting>)
+        endif()
 		unset(_dll_location)
 		ez_uwp_add_import_to_sources(${TARGET_NAME} ezOpenXR::Loader)
       

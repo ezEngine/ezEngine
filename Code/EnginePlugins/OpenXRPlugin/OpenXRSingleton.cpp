@@ -6,6 +6,7 @@
 #include <OpenXRPlugin/OpenXRInputDevice.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
+#include <OpenXRPlugin/OpenXRRemoting.h>
 
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/View.h>
@@ -43,6 +44,9 @@ static ezOpenXR g_OpenXRSingleton;
 ezOpenXR::ezOpenXR()
   : m_SingletonRegistrar(this)
 {
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+  m_remoting = EZ_DEFAULT_NEW(ezOpenXRRemoting, this);
+#endif
 }
 
 ezOpenXR::~ezOpenXR() {}
@@ -92,6 +96,10 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   AddExtIfSupported(XR_MSFT_HOLOGRAPHIC_WINDOW_ATTACHMENT_EXTENSION_NAME, m_extensions.m_bHolographicWindowAttachment);
 #endif
 
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+  AddExtIfSupported(XR_MSFT_HOLOGRAPHIC_REMOTING_EXTENSION_NAME, m_extensions.m_bRemoting);
+#endif
+
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
 #endif
   return XR_SUCCESS;
@@ -102,7 +110,7 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
 ezResult ezOpenXR::Initialize()
 {
   if (m_instance != XR_NULL_HANDLE)
-    return EZ_FAILURE;
+    return EZ_SUCCESS;
 
   // Build out the extensions to enable. Some extensions are required and some are optional.
   ezHybridArray<const char*, 6> enabledExtensions;
@@ -119,12 +127,21 @@ ezResult ezOpenXR::Initialize()
   createInfo.applicationInfo.engineVersion = 1;
   createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
   createInfo.applicationInfo.applicationVersion = 1;
-  if (xrCreateInstance(&createInfo, &m_instance) != XR_SUCCESS)
+  XrResult res = xrCreateInstance(&createInfo, &m_instance);
+  if (res  != XR_SUCCESS)
+  {
+    ezLog::Error("InitSystem xrCreateInstance failed: {}", res);
+    Deinitialize();
     return EZ_FAILURE;
-
+  }
   XrInstanceProperties instanceProperties{XR_TYPE_INSTANCE_PROPERTIES};
-  if (xrGetInstanceProperties(m_instance, &instanceProperties) != XR_SUCCESS)
+  res = xrGetInstanceProperties(m_instance, &instanceProperties);
+  if (res != XR_SUCCESS)
+  {
+    ezLog::Error("InitSystem xrGetInstanceProperties failed: {}", res);
+    Deinitialize();
     return EZ_FAILURE;
+  }
   ezStringBuilder sTemp;
   m_Info.m_sDeviceDriver = ezConversionUtils::ToString(instanceProperties.runtimeVersion, sTemp);
 
@@ -150,7 +167,27 @@ ezResult ezOpenXR::Initialize()
     EZ_GET_INSTANCE_PROC_ADDR(xrUpdateHandMeshMSFT);
   }
 
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+  if (m_extensions.m_bRemoting)
+  {
+    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingSetContextPropertiesMSFT);
+    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingConnectMSFT);
+    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingDisconnectMSFT);
+    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingGetConnectionStateMSFT);
+  }
+#endif
+
   m_Input = EZ_DEFAULT_NEW(ezOpenXRInputDevice, this);
+
+  m_executionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezOpenXR::GameApplicationEventHandler, this));
+
+  res = InitSystem();
+  if (res != XR_SUCCESS)
+  {
+    ezLog::Error("InitSystem failed: {}", res);
+    Deinitialize();
+    return EZ_FAILURE;
+  }
 
   ezLog::Success("OpenXR {0} v{1} initialized successfully.", instanceProperties.runtimeName, instanceProperties.runtimeVersion);
   return EZ_SUCCESS;
@@ -158,6 +195,15 @@ ezResult ezOpenXR::Initialize()
 
 void ezOpenXR::Deinitialize()
 {
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+  m_remoting->Disconnect().IgnoreResult();
+#endif
+
+  if (m_executionEventsId != 0)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_executionEventsId);
+  }
+
   DeinitSwapChain();
   DeinitSession();
   DeinitSystem();
@@ -167,7 +213,7 @@ void ezOpenXR::Deinitialize()
   if (m_instance)
   {
     xrDestroyInstance(m_instance);
-    m_instance = 0;
+    m_instance = XR_NULL_HANDLE;
   }
 }
 
@@ -191,16 +237,9 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
 {
   EZ_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
 
-  XrResult res = InitSystem();
+  XrResult res = InitSession();
   if (res != XrResult::XR_SUCCESS)
   {
-    ezLog::Error("InitSystem failed: {}", res);
-    return {};
-  }
-  res = InitSession();
-  if (res != XrResult::XR_SUCCESS)
-  {
-    DeinitSystem();
     ezLog::Error("InitSession failed: {}", res);
     return {};
   }
@@ -209,7 +248,6 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
   if (res != XrResult::XR_SUCCESS)
   {
     DeinitSession();
-    DeinitSystem();
     ezLog::Error("InitSwapChain failed: {}", res);
     return {};
   }
@@ -258,14 +296,8 @@ void ezOpenXR::OnActorDestroyed()
   m_hView.Invalidate();
   m_RenderTargetSetup.DestroyAllAttachedViews();
 
-  pDevice->DestroyTexture(m_hColorRT);
-  m_hColorRT.Invalidate();
-  pDevice->DestroyTexture(m_hDepthRT);
-  m_hDepthRT.Invalidate();
-
   DeinitSwapChain();
   DeinitSession();
-  DeinitSystem();
 }
 
 bool ezOpenXR::SupportsCompanionView()
@@ -291,16 +323,6 @@ XrResult ezOpenXR::InitSystem()
   systemInfo.formFactor = XrFormFactor::XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
   XR_SUCCEED_OR_CLEANUP_LOG(xrGetSystem(m_instance, &systemInfo, &m_systemId), DeinitSystem);
 
-  ezUInt32 count;
-  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType, 0, &count, nullptr), DeinitSystem);
-
-  ezHybridArray<XrEnvironmentBlendMode, 4> environmentBlendModes;
-  environmentBlendModes.SetCount(count);
-  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType, count, &count, environmentBlendModes.GetData()), DeinitSystem);
-
-  // Select preferred blend mode.
-  m_blendMode = environmentBlendModes[0];
-
   return XrResult::XR_SUCCESS;
 }
 
@@ -312,6 +334,17 @@ void ezOpenXR::DeinitSystem()
 XrResult ezOpenXR::InitSession()
 {
   EZ_ASSERT_DEV(m_session == XR_NULL_HANDLE, "");
+
+  ezUInt32 count;
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType, 0, &count, nullptr), DeinitSystem);
+
+  ezHybridArray<XrEnvironmentBlendMode, 4> environmentBlendModes;
+  environmentBlendModes.SetCount(count);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType, count, &count, environmentBlendModes.GetData()), DeinitSession);
+
+  // Select preferred blend mode.
+  m_blendMode = environmentBlendModes[0];
+
   XR_SUCCEED_OR_CLEANUP_LOG(InitGraphicsPlugin(), DeinitSession);
 
   XrSessionCreateInfo sessionCreateInfo{XR_TYPE_SESSION_CREATE_INFO};
@@ -366,7 +399,6 @@ XrResult ezOpenXR::InitSession()
   XR_SUCCEED_OR_CLEANUP_LOG(m_Input->CreateActions(m_session, m_sceneSpace), DeinitSession);
   XR_SUCCEED_OR_CLEANUP_LOG(m_Input->AttachSessionActionSets(m_session), DeinitSession);
 
-  m_executionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezOpenXR::GameApplicationEventHandler, this));
   m_GALdeviceEventsId = ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
 
   SetStageSpace(ezXRStageSpace::Standing);
@@ -385,9 +417,8 @@ void ezOpenXR::DeinitSession()
 {
   m_HandTracking = nullptr;
   m_Anchors = nullptr;
-  if (m_executionEventsId != 0)
+  if (m_GALdeviceEventsId != 0)
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_executionEventsId);
     ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(m_GALdeviceEventsId);
   }
 
@@ -606,10 +637,16 @@ void ezOpenXR::DeinitSwapChain()
   m_colorSwapChainImagesD3D11.Clear();
   m_depthSwapChainImagesD3D11.Clear();
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  pDevice->DestroyTexture(m_hColorRT);
-  pDevice->DestroyTexture(m_hDepthRT);
-  m_hColorRT.Invalidate();
-  m_hDepthRT.Invalidate();
+  if (!m_hColorRT.IsInvalidated())
+  {
+    pDevice->DestroyTexture(m_hColorRT);
+    m_hColorRT.Invalidate();
+  }
+  if (!m_hDepthRT.IsInvalidated())
+  {
+    pDevice->DestroyTexture(m_hDepthRT);
+    m_hDepthRT.Invalidate();
+  }
 }
 
 void ezOpenXR::BeforeUpdatePlugins()
@@ -629,10 +666,12 @@ void ezOpenXR::BeforeUpdatePlugins()
   }
 
   XrEventDataBuffer event{XR_TYPE_EVENT_DATA_BUFFER, nullptr};
-  XrEventDataBaseHeader* header = reinterpret_cast<XrEventDataBaseHeader*>(&event);
 
   while (xrPollEvent(m_instance, &event) == XR_SUCCESS)
   {
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+    m_remoting->HandleEvent(event);
+#endif
     switch (event.type)
     {
       case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
@@ -853,7 +892,8 @@ void ezOpenXR::BeforeBeginFrame()
     XrResult result = xrWaitFrame(m_session, &m_frameWaitInfo, &m_frameState);
     if (result != XR_SUCCESS)
     {
-      // TODO?
+      m_renderInProgress = false;
+      return;
     }
   }
   {
@@ -862,7 +902,8 @@ void ezOpenXR::BeforeBeginFrame()
     XrResult result = xrBeginFrame(m_session, &m_frameBeginInfo);
     if (result != XR_SUCCESS)
     {
-      // TODO?
+      m_renderInProgress = false;
+      return;
     }
   }
 

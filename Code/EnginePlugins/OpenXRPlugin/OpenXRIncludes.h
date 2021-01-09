@@ -9,3 +9,7 @@
 #include <openxr/openxr.h>
 #include <openxr/openxr_platform.h>
 #include <openxr/openxr_platform_defines.h>
+
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+#include <openxr/openxr_msft_holographic_remoting.h>
+#endif
