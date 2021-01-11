@@ -121,7 +121,7 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     // We need to wait for processes even if the job is done as the threads for the pipes are potentially still alive and lead to incomplete stdout / stderr output even though the process has exited.
     for (ezProcess& p : m_Processes)
     {
-      p.WaitToFinish();
+      p.WaitToFinish().IgnoreResult();
     }
     m_impl->Close();
     return EZ_SUCCESS;
@@ -166,7 +166,7 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
       // We need to wait for processes even if the job is done as the threads for the pipes are potentially still alive and lead to incomplete stdout / stderr output even though the process has exited.
       for (ezProcess& p : m_Processes)
       {
-        p.WaitToFinish();
+        p.WaitToFinish().IgnoreResult();
       }
 
       m_impl->Close();

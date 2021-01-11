@@ -124,8 +124,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezDynamicArray<ezStringBuilder> lines;
     ezStringBuilder out;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView view)
-    {
+    opt.m_onStdOut = [&](ezStringView view) {
       out.Append(view);
       lines.PushBack(view);
     };
@@ -182,8 +181,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezStringBuilder out;
     ezStringBuilder err;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView view)
-    {
+    opt.m_onStdOut = [&](ezStringView view) {
       out.Append(view);
       lines.PushBack(view);
     };
