@@ -27,7 +27,12 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-  static const char* g_szTestMsg = "Tell me more!";
+  static const char* g_szTestMsg = "Tell me more!\nAnother line\n520CharactersInOneLineAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_END\nThat's all";
+  static const char* g_szTestMsgLine0 = "Tell me more!\n";
+  static const char* g_szTestMsgLine1 = "Another line\n";
+  static const char* g_szTestMsgLine2 = "520CharactersInOneLineAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_END\n";
+  static const char* g_szTestMsgLine3 = "That's all";
+
 
   // we can launch FoundationTest with the -cmd parameter to execute a couple of useful things to test launching process
   const ezStringBuilder pathToSelf = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
@@ -116,9 +121,13 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "STDOUT")
   {
+    ezDynamicArray<ezStringBuilder> lines;
     ezStringBuilder out;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&out](ezStringView view) { out.Append(view); };
+    opt.m_onStdOut = [&](ezStringView view) {
+      out.Append(view);
+      lines.PushBack(view);
+    };
 
     opt.m_sProcess = pathToSelf;
     opt.m_Arguments.PushBack("-cmd");
@@ -128,7 +137,19 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     if (!EZ_TEST_BOOL_MSG(ezProcess::Execute(opt).Succeeded(), "Failed to start process."))
       return;
 
-    out.Trim("\r\n");
+    if (EZ_TEST_BOOL(lines.GetCount() == 4))
+    {
+      lines[0].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[0], g_szTestMsgLine0);
+      lines[1].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[1], g_szTestMsgLine1);
+      lines[2].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[2], g_szTestMsgLine2);
+      lines[3].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[3], g_szTestMsgLine3);
+    }
+
+    out.ReplaceAll("\r\n", "\n");
     EZ_TEST_STRING(out, g_szTestMsg);
   }
 
@@ -156,10 +177,14 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "STDOUT_STDERROR")
   {
+    ezDynamicArray<ezStringBuilder> lines;
     ezStringBuilder out;
     ezStringBuilder err;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&out](ezStringView view) { out.Append(view); };
+    opt.m_onStdOut = [&](ezStringView view) {
+      out.Append(view);
+      lines.PushBack(view);
+    };
     opt.m_onStdError = [&err](ezStringView view) { err.Append(view); };
     opt.m_sProcess = pathToSelf;
     opt.m_Arguments.PushBack("-cmd");
@@ -169,7 +194,19 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     if (!EZ_TEST_BOOL_MSG(ezProcess::Execute(opt).Succeeded(), "Failed to start process."))
       return;
 
-    out.Trim("\r\n");
+    if (EZ_TEST_BOOL(lines.GetCount() == 4))
+    {
+      lines[0].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[0], g_szTestMsgLine0);
+      lines[1].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[1], g_szTestMsgLine1);
+      lines[2].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[2], g_szTestMsgLine2);
+      lines[3].ReplaceAll("\r\n", "\n");
+      EZ_TEST_STRING(lines[3], g_szTestMsgLine3);
+    }
+
+    out.ReplaceAll("\r\n", "\n");
     EZ_TEST_STRING(out, g_szTestMsg);
     EZ_TEST_BOOL_MSG(err.IsEmpty(), "Error stream should be empty.");
   }

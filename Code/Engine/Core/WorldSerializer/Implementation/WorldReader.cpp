@@ -292,7 +292,7 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(
   {
     InstantiationContext context = InstantiationContext(*this, bUseTransform, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic, maxStepTime, pProgress);
 
-    EZ_VERIFY(context.Step(), "Instantiation should be completed after this call");
+    EZ_VERIFY(context.Step() == InstantiationContextBase::StepResult::Finished, "Instantiation should be completed after this call");
     return nullptr;
   }
 
@@ -343,7 +343,7 @@ ezWorldReader::InstantiationContext::~InstantiationContext()
   }
 }
 
-bool ezWorldReader::InstantiationContext::Step()
+ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationContext::Step()
 {
   EZ_ASSERT_DEV(m_Phase != Phase::Invalid, "InstantiationContext cannot be re-used.");
 
@@ -358,12 +358,12 @@ bool ezWorldReader::InstantiationContext::Step()
     if (m_bUseTransform)
     {
       if (!CreateGameObjects<true>(m_WorldReader.m_RootObjectsToCreate, m_hParent, m_pCreatedRootObjects, endTime))
-        return false;
+        return StepResult::Continue;
     }
     else
     {
       if (!CreateGameObjects<false>(m_WorldReader.m_RootObjectsToCreate, m_hParent, m_pCreatedRootObjects, endTime))
-        return false;
+        return StepResult::Continue;
     }
 
     m_Phase = Phase::CreateChildObjects;
@@ -373,7 +373,7 @@ bool ezWorldReader::InstantiationContext::Step()
   if (m_Phase == Phase::CreateChildObjects)
   {
     if (!CreateGameObjects<false>(m_WorldReader.m_ChildObjectsToCreate, ezGameObjectHandle(), m_pCreatedChildObjects, endTime))
-      return false;
+      return StepResult::Continue;
 
     m_CurrentReader.SetStorage(&m_WorldReader.m_ComponentCreationStream);
     m_Phase = Phase::CreateComponents;
@@ -392,7 +392,7 @@ bool ezWorldReader::InstantiationContext::Step()
       EZ_SCOPE_EXIT(m_WorldReader.m_pStream = pPrevReader; m_WorldReader.m_pStringDedupReadContext->SetActive(false););
 
       if (!CreateComponents(endTime))
-        return false;
+        return StepResult::Continue;
     }
 
     m_CurrentReader.SetStorage(&m_WorldReader.m_ComponentDataStream);
@@ -412,7 +412,7 @@ bool ezWorldReader::InstantiationContext::Step()
       EZ_SCOPE_EXIT(m_WorldReader.m_pStream = pPrevReader; m_WorldReader.m_pStringDedupReadContext->SetActive(false););
 
       if (!DeserializeComponents(endTime))
-        return false;
+        return StepResult::Continue;
     }
 
     m_CurrentReader.SetStorage(nullptr);
@@ -423,7 +423,7 @@ bool ezWorldReader::InstantiationContext::Step()
   if (m_Phase == Phase::AddComponentsToBatch)
   {
     if (!AddComponentsToBatch(endTime))
-      return false;
+      return StepResult::Continue;
 
     m_Phase = Phase::InitComponents;
     BeginNextProgressStep("InitComponents");
@@ -437,7 +437,7 @@ bool ezWorldReader::InstantiationContext::Step()
       if (!m_WorldReader.m_pWorld->IsComponentInitBatchCompleted(m_hComponentInitBatch, &fCompletionFactor))
       {
         SetSubProgressCompletion(fCompletionFactor);
-        return false;
+        return StepResult::ContinueNextFrame;
       }
     }
 
@@ -446,7 +446,7 @@ bool ezWorldReader::InstantiationContext::Step()
     m_pOverallProgressRange = nullptr;
   }
 
-  return true;
+  return StepResult::Finished;
 }
 
 void ezWorldReader::InstantiationContext::Cancel()

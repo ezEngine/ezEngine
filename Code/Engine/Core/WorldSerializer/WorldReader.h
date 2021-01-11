@@ -24,10 +24,18 @@ public:
   class InstantiationContextBase
   {
   public:
+    enum class StepResult
+    {
+      Continue,
+      ContinueNextFrame,
+      Finished,
+    };
+
     virtual ~InstantiationContextBase() {}
 
-    /// \Brief Advance the instantiation by one step and return true if instantiation is done.
-    virtual bool Step() = 0;
+    /// \Brief Advance the instantiation by one step
+    /// \return Whether the operation is finished or needs to be repeated.
+    virtual StepResult Step() = 0;
 
     /// \Brief Cancel the instantiation. This might lead to inconsistent states and must be used with care.
     virtual void Cancel() = 0;
@@ -163,7 +171,7 @@ private:
       const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress);
     ~InstantiationContext();
 
-    virtual bool Step() override;
+    virtual StepResult Step() override;
     virtual void Cancel() override;
 
     template <bool UseTransform>

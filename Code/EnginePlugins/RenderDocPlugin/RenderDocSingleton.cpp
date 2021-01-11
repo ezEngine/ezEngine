@@ -9,9 +9,9 @@
 
 EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
 
-static ezRenderDoc g_RenderDocSingleton;
-
 static ezCommandLineOptionBool opt_NoCaptures("RenderDoc", "-NoCaptures", "Disables RenderDoc capture support.", false);
+
+static ezRenderDoc g_RenderDocSingleton;
 
 ezRenderDoc::ezRenderDoc()
   : m_SingletonRegistrar(this)

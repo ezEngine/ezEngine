@@ -83,12 +83,14 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
   if (AssignProcessToJobObject(m_impl->m_hJobObject, process.GetProcessHandle()) == FALSE)
   {
     ezLog::Error("Failed to add process to process group '{}' - {}", m_impl->m_sName, ezArgErrorCode(GetLastError()));
+    m_Processes.PopBack();
     return EZ_FAILURE;
   }
 
   if (process.ResumeSuspended().Failed())
   {
     ezLog::Error("Failed to resume the given process. Processes must be launched in a suspended state before adding them to process groups.");
+    m_Processes.PopBack();
     return EZ_FAILURE;
   }
 
@@ -116,6 +118,11 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 
   if (allProcessesGone)
   {
+    // We need to wait for processes even if the job is done as the threads for the pipes are potentially still alive and lead to incomplete stdout / stderr output even though the process has exited.
+    for (ezProcess& p : m_Processes)
+    {
+      p.WaitToFinish().IgnoreResult();
+    }
     m_impl->Close();
     return EZ_SUCCESS;
   }
@@ -156,6 +163,12 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     // we got the expected result, all processes have finished
     if (((HANDLE)CompletionKey == m_impl->m_hJobObject && CompletionCode == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO))
     {
+      // We need to wait for processes even if the job is done as the threads for the pipes are potentially still alive and lead to incomplete stdout / stderr output even though the process has exited.
+      for (ezProcess& p : m_Processes)
+      {
+        p.WaitToFinish().IgnoreResult();
+      }
+
       m_impl->Close();
       return EZ_SUCCESS;
     }
