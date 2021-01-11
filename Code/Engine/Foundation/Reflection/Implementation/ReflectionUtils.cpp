@@ -1001,6 +1001,28 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
   }
 }
 
+void ezReflectionUtils::GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezDynamicArray<EnumKeyValuePair>& entries, ezEnum<EnumConversionMode> conversionMode)
+{
+  /// \test This is new.
+
+  entries.Clear();
+
+  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
+  {
+    for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
+    {
+      if (pProp->GetCategory() == ezPropertyCategory::Constant)
+      {
+        ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
+
+        auto& e = entries.ExpandAndGetRef();
+        e.m_sKey = conversionMode == EnumConversionMode::FullyQualifiedName ? pProp->GetPropertyName() : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2;
+        e.m_iValue = value.ConvertTo<ezInt32>();
+      }
+    }
+  }
+}
+
 bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, const char* szValue, ezInt64& out_iValue)
 {
   out_iValue = 0;

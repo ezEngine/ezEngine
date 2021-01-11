@@ -10,6 +10,12 @@ struct ezPipeWin
   HANDLE m_pipeRead = nullptr;
   HANDLE m_pipeWrite = nullptr;
   std::thread m_readThread;
+  std::atomic<bool> m_running = false;
+
+  bool IsRunning() const
+  {
+    return m_running;
+  }
 
   void Create()
   {
@@ -49,7 +55,11 @@ struct ezPipeWin
   {
     if (m_pipeWrite)
     {
+      m_running = true;
       m_readThread = std::thread([&]() {
+
+        ezStringBuilder overflowBuffer;
+
         constexpr int BUFSIZE = 512;
         char chBuf[BUFSIZE];
         while (true)
@@ -57,10 +67,44 @@ struct ezPipeWin
           DWORD bytesRead = 0;
           bool res = ReadFile(m_pipeRead, chBuf, BUFSIZE, &bytesRead, nullptr);
           if (!res || bytesRead == 0)
+          {
+            if (!overflowBuffer.IsEmpty())
+            {
+              onStdOut(overflowBuffer);
+            }
             break;
+          }
 
-          onStdOut(ezStringView(chBuf, chBuf + bytesRead));
+          const char* szCurrentPos = chBuf;
+          const char* szEndPos = chBuf + bytesRead;
+          while (szCurrentPos < szEndPos)
+          {
+            const char* szFound = ezStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
+            if (szFound)
+            {
+              if (overflowBuffer.IsEmpty())
+              {
+                // If there is nothing in the overflow buffer this is a complete line and can be fired as is.
+                onStdOut(ezStringView(szCurrentPos, szFound + 1));
+              }
+              else
+              {
+                // We have data in the overflow buffer so this is the final part of a partial line so we need to complete and fire the overflow buffer.
+                overflowBuffer.Append(ezStringView(szCurrentPos, szFound + 1));
+                onStdOut(overflowBuffer);
+                overflowBuffer.Clear();
+              }
+              szCurrentPos = szFound + 1;
+            }
+            else
+            {
+              // This is either the start or a middle segment of a line, append to overflow buffer.
+              overflowBuffer.Append(ezStringView(szCurrentPos, szEndPos));
+              szCurrentPos = szEndPos;
+            }
+          } 
         }
+        m_running = false;
       });
     }
   }
@@ -390,6 +434,10 @@ ezProcessState ezProcess::GetState() const
   }
 
   if (exitCode == STILL_ACTIVE)
+    return ezProcessState::Running;
+
+  // Do not consider a process finished if the pipe threads have not exited yet.
+  if (m_impl->m_pipeStdOut.IsRunning() || m_impl->m_pipeStdErr.IsRunning())
     return ezProcessState::Running;
 
   m_iExitCode = (ezInt32)exitCode;
