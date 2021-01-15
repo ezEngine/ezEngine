@@ -341,7 +341,17 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   return EZ_SUCCESS;
 }
 
-// Pass functions
+// Pipeline & Pass functions
+
+void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName)
+{
+  m_pDefaultPass->m_pRenderCommandEncoder->PushMarker(szName);
+}
+
+void ezGALDeviceDX11::EndPipelinePlatform()
+{
+  m_pDefaultPass->m_pRenderCommandEncoder->PopMarker();
+}
 
 ezGALPass* ezGALDeviceDX11::BeginPassPlatform(const char* szName)
 {

@@ -56,7 +56,10 @@ protected:
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;
 
-  // Pass functions
+  // Pipeline & Pass functions
+
+  virtual void BeginPipelinePlatform(const char* szName) override;
+  virtual void EndPipelinePlatform() override;
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) override;
   virtual void EndPassPlatform(ezGALPass* pPass) override;

@@ -155,12 +155,7 @@ ezShaderResourceBinding::~ezShaderResourceBinding() {}
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 
-ezShaderStageBinary::ezShaderStageBinary()
-{
-  m_uiSourceHash = 0;
-  m_Stage = ezGALShaderStage::ENUM_COUNT;
-  m_pGALByteCode = nullptr;
-}
+ezShaderStageBinary::ezShaderStageBinary() = default;
 
 ezShaderStageBinary::~ezShaderStageBinary()
 {
@@ -224,6 +219,8 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
     }
   }
 
+  stream << m_bWasCompiledWithDebug;
+
   return EZ_SUCCESS;
 }
 
@@ -283,6 +280,11 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
         r.m_pLayout = pLayout;
       }
     }
+  }
+
+  if (uiVersion >= ezShaderStageBinary::Version5)
+  {
+    stream >> m_bWasCompiledWithDebug;
   }
 
   return EZ_SUCCESS;

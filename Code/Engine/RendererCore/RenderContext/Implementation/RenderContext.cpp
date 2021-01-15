@@ -587,6 +587,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
         pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
     }
 
+    ezLogBlock applyBindingsBlock("Applying Shader Bindings", pShaderPermutation != nullptr ? pShaderPermutation->GetResourceDescription().GetData() : "");
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::UAVBindingChanged))
     {
@@ -1101,7 +1102,12 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
     BoundConstantBuffer boundConstantBuffer;
     if (!m_BoundConstantBuffers.TryGetValue(uiResourceHash, boundConstantBuffer))
     {
-      ezLog::Error("No resource is bound for constant buffer slot '{0}'", binding.m_sName);
+      // If the shader was compiled with debug info the shader compiler will not strip unused resources and
+      // thus this error would trigger although the shader doesn't actually uses the resource.
+      if (!pBinary->m_bWasCompiledWithDebug)
+      {
+        ezLog::Error("No resource is bound for constant buffer slot '{0}'", binding.m_sName);
+      }
       m_pGALCommandEncoder->SetConstantBuffer(binding.m_iSlot, ezGALBufferHandle());
       continue;
     }

@@ -117,6 +117,7 @@ public:
     Version2,
     Version3, // Added Material Parameters
     Version4, // Constant buffer layouts
+    Version5, // Debug flag
 
     ENUM_COUNT,
     VersionCurrent = ENUM_COUNT - 1
@@ -142,11 +143,12 @@ private:
   friend class ezShaderPermutationResource;
   friend class ezShaderPermutationResourceLoader;
 
-  ezUInt32 m_uiSourceHash;
-  ezGALShaderStage::Enum m_Stage;
+  ezUInt32 m_uiSourceHash = 0;
+  ezGALShaderStage::Enum m_Stage = ezGALShaderStage::ENUM_COUNT;
   ezDynamicArray<ezUInt8> m_ByteCode;
   ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
   ezHybridArray<ezShaderResourceBinding, 8> m_ShaderResourceBindings;
+  bool m_bWasCompiledWithDebug = false;
 
   ezResult WriteStageBinary(ezLogInterface* pLog) const;
   static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);

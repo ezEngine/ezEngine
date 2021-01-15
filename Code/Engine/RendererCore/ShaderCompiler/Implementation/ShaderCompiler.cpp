@@ -442,6 +442,8 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
     {
       if (spd.m_StageBinary[stage].m_uiSourceHash != 0 && spd.m_bWriteToDisk[stage])
       {
+        spd.m_StageBinary[stage].m_bWasCompiledWithDebug = spd.m_Flags.IsSet(ezShaderCompilerFlags::Debug);
+
         if (spd.m_StageBinary[stage].WriteStageBinary(pLog).Failed())
         {
           ezLog::Error(pLog, "Writing stage {0} binary failed", stage);

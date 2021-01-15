@@ -25,7 +25,10 @@ public:
   ezResult Init();
   ezResult Shutdown();
 
-  // Pass functions
+  // Pipeline & Pass functions
+
+  void BeginPipeline(const char* szName);
+  void EndPipeline();
 
   ezGALPass* BeginPass(const char* szName);
   void EndPass(ezGALPass* pPass);
@@ -242,7 +245,10 @@ protected:
   virtual ezResult InitPlatform() = 0;
   virtual ezResult ShutdownPlatform() = 0;
 
-  // Pass functions
+  // Pipeline & Pass functions
+
+  virtual void BeginPipelinePlatform(const char* szName) = 0;
+  virtual void EndPipelinePlatform() = 0;
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) = 0;
   virtual void EndPassPlatform(ezGALPass* pPass) = 0;
@@ -317,6 +323,7 @@ protected:
 
 private:
   bool m_bBeginFrameCalled = false;
+  bool m_bBeginPipelineCalled = false;
   bool m_bBeginPassCalled = false;
 };
 

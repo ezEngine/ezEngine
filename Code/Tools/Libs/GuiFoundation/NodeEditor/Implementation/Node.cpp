@@ -151,7 +151,17 @@ void ezQtNode::UpdateGeometry()
 
 void ezQtNode::UpdateState()
 {
-  m_pLabel->setPlainText(m_pObject->GetTypeAccessor().GetType()->GetTypeName());
+  auto& typeAccessor = m_pObject->GetTypeAccessor();
+
+  ezVariant name = typeAccessor.GetValue("Name");
+  if (name.IsA<ezString>() && name.Get<ezString>().IsEmpty() == false)
+  {
+    m_pLabel->setPlainText(name.Get<ezString>().GetData());
+  }
+  else
+  {
+    m_pLabel->setPlainText(typeAccessor.GetType()->GetTypeName());
+  }
 }
 
 void ezQtNode::SetActive(bool active)

@@ -104,7 +104,7 @@ public:
   {
     ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
 
-    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName));
+    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect));
   }
 
   using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
@@ -117,7 +117,7 @@ public:
   {
     ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
 
-    return ComputeScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginCompute(pGALPass, szName));
+    return ComputeScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginCompute(pGALPass));
   }
 
   EZ_ALWAYS_INLINE ezGALCommandEncoder* GetCommandEncoder()
