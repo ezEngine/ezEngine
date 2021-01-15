@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17711001407536439736,5505436445966180118}}
-		u4 %Hash{10106345614739398629}
+		u4 %Hash{11837901864778201383}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -69,7 +69,7 @@ o
 	{
 		b %Active{1}
 		Uuid %DepthStencil{u4{12374590631366029646,4661154216989813148}}
-		s %Name{""}
+		s %Name{"ShadowDepth"}
 		VarArray %Node::Connections
 		{
 			Uuid{u4{13371694063486489051,17459386005747668061}}

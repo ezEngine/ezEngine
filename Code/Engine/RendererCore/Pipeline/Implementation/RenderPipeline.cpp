@@ -1029,11 +1029,15 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   renderEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
   ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
 
+  ezGALDevice::GetDefaultDevice()->BeginPipeline(m_sName);
+
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     auto& pPass = m_Passes[i];
+
+    ezLogBlock passBlock("Render Pass", pPass->GetName());
 
     // Create pool textures
     for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount();)
@@ -1093,6 +1097,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   }
   EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
   EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
+
+  ezGALDevice::GetDefaultDevice()->EndPipeline();
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
   ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);

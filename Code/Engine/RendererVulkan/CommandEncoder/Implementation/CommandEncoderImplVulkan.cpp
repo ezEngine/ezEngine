@@ -105,8 +105,8 @@ void ezGALCommandEncoderImplVulkan::WaitForFencePlatform(const ezGALFence* pFenc
     ezThreadUtils::YieldTimeSlice();
   }*/
 
-  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
-  m_vkDevice.waitForFences(1, &pVulkanFence->GetFence(), true, 1000000000ui64);
+  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence)->GetFence();
+  m_vkDevice.waitForFences(1, &pVulkanFence, true, 1000000000ui64);
 }
 
 void ezGALCommandEncoderImplVulkan::BeginQueryPlatform(const ezGALQuery* pQuery)

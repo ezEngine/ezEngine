@@ -314,6 +314,16 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   return EZ_SUCCESS;
 }
 
+// Pipeline & Pass functions
+
+void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName)
+{
+}
+
+void ezGALDeviceVulkan::EndPipelinePlatform()
+{
+}
+
 ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
 {
   return m_pDefaultPass.Borrow();

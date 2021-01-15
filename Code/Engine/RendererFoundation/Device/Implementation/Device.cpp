@@ -192,6 +192,26 @@ ezResult ezGALDevice::Shutdown()
   return ShutdownPlatform();
 }
 
+void ezGALDevice::BeginPipeline(const char* szName)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
+  m_bBeginPipelineCalled = true;
+
+  BeginPipelinePlatform(szName);
+}
+
+void ezGALDevice::EndPipeline()
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
+  m_bBeginPipelineCalled = false;
+
+  EndPipelinePlatform();
+}
+
 ezGALPass* ezGALDevice::BeginPass(const char* szName)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
