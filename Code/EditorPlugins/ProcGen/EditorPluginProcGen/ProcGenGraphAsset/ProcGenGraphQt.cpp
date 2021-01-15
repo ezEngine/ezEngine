@@ -65,7 +65,7 @@ void ezQtProcGenNode::UpdateState()
     ezStringBuilder temp2;
 
     ezHybridArray<ezAbstractProperty*, 32> properties;
-    GetObject()->GetType()->GetAllProperties(properties);
+    pRtti->GetAllProperties(properties);
 
     sTitle = pAttr->GetTitle();
 
