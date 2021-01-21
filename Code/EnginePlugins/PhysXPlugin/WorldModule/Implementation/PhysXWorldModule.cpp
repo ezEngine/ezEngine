@@ -207,9 +207,6 @@ namespace
       out_Result.m_hSurface = ezSurfaceResourceHandle(pSurface);
     }
   }
-
-  static thread_local ezDynamicArray<PxOverlapHit, ezStaticAllocatorWrapper> g_OverlapHits;
-  static thread_local ezDynamicArray<PxRaycastHit, ezStaticAllocatorWrapper> g_RaycastHits;
 } // namespace
 
 EZ_DEFINE_AS_POD_TYPE(PxOverlapHit);
@@ -789,8 +786,8 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
     filterData.flags |= PxQueryFlag::eDYNAMIC;
   }
 
-  g_RaycastHits.SetCountUninitialized(256);
-  PxRaycastBuffer allHits(g_RaycastHits.GetData(), g_RaycastHits.GetCount());
+  ezArrayPtr<PxRaycastHit> raycastHits = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), PxRaycastHit, 256);
+  PxRaycastBuffer allHits(raycastHits.GetPtr(), raycastHits.GetCount());
 
   ezPxQueryFilter queryFilter;
 
@@ -1147,8 +1144,8 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
 
   PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
 
-  g_OverlapHits.SetCountUninitialized(256);
-  PxOverlapBuffer overlapHitsBuffer(g_OverlapHits.GetData(), g_OverlapHits.GetCount());
+  ezArrayPtr<PxOverlapHit> overlapHits = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), PxOverlapHit, 256);
+  PxOverlapBuffer overlapHitsBuffer(overlapHits.GetPtr(), overlapHits.GetCount());
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
