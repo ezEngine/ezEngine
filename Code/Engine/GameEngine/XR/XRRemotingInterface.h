@@ -2,8 +2,8 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Reflection/Reflection.h>
 
 struct ezXRRemotingConnectionState
 {

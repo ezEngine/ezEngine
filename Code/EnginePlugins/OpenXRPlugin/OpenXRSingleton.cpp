@@ -4,9 +4,9 @@
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRInputDevice.h>
+#include <OpenXRPlugin/OpenXRRemoting.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
-#include <OpenXRPlugin/OpenXRRemoting.h>
 
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/View.h>
@@ -128,7 +128,7 @@ ezResult ezOpenXR::Initialize()
   createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
   createInfo.applicationInfo.applicationVersion = 1;
   XrResult res = xrCreateInstance(&createInfo, &m_instance);
-  if (res  != XR_SUCCESS)
+  if (res != XR_SUCCESS)
   {
     ezLog::Error("InitSystem xrCreateInstance failed: {}", res);
     Deinitialize();
@@ -415,6 +415,12 @@ XrResult ezOpenXR::InitSession()
 
 void ezOpenXR::DeinitSession()
 {
+  m_sessionRunning = false;
+  m_exitRenderLoop = false;
+  m_requestRestart = false;
+  m_renderInProgress = false;
+  m_sessionState = XR_SESSION_STATE_UNKNOWN;
+
   m_HandTracking = nullptr;
   m_Anchors = nullptr;
   if (m_GALdeviceEventsId != 0)

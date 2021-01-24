@@ -4,6 +4,7 @@
 
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Reflection/ReflectionUtils.h>
+#  include <Foundation/System/EnvironmentVariableUtils.h>
 #  include <OpenXRPlugin/OpenXRDeclarations.h>
 #  include <OpenXRPlugin/OpenXRRemoting.h>
 #  include <OpenXRPlugin/OpenXRSingleton.h>
@@ -32,11 +33,13 @@ ezResult ezOpenXRRemoting::Initialize()
 
   if (ezOSFile::ExistsFile(sRemotingJson))
   {
-    WCHAR temp[512] = {0};
-    GetEnvironmentVariableW(L"XR_RUNTIME_JSON", temp, 512);
-    m_sPreviousRuntime = ezStringUtf8(temp);
+    m_sPreviousRuntime = ezEnvironmentVariableUtils::GetValueString("XR_RUNTIME_JSON");
+    if (ezEnvironmentVariableUtils::SetValueString("XR_RUNTIME_JSON", sRemotingJson).Failed())
+    {
+      ezLog::Error("Failed to set environment variable XR_RUNTIME_JSON.");
+      return EZ_FAILURE;
+    }
 
-    SetEnvironmentVariableW(L"XR_RUNTIME_JSON", ezStringWChar(sRemotingJson));
     m_bInitialized = true;
     return EZ_SUCCESS;
   }

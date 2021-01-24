@@ -1,11 +1,11 @@
 #pragma once
 
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-#include <OpenXRPlugin/Basics.h>
-#include <OpenXRPlugin/OpenXRIncludes.h>
+#  include <OpenXRPlugin/Basics.h>
+#  include <OpenXRPlugin/OpenXRIncludes.h>
 
-#include <Foundation/Configuration/Singleton.h>
-#include <GameEngine/XR/XRRemotingInterface.h>
+#  include <Foundation/Configuration/Singleton.h>
+#  include <GameEngine/XR/XRRemotingInterface.h>
 
 
 class ezOpenXR;

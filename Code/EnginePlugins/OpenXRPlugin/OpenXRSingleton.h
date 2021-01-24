@@ -179,8 +179,6 @@ private:
   bool m_renderInProgress = false;
   XrSessionState m_sessionState{XR_SESSION_STATE_UNKNOWN};
 
-  ezInt32 m_updateFrame = 0;
-  ezInt32 m_renderFrame = 1;
   XrFrameWaitInfo m_frameWaitInfo{XR_TYPE_FRAME_WAIT_INFO};
   XrFrameState m_frameState{XR_TYPE_FRAME_STATE};
   XrFrameBeginInfo m_frameBeginInfo{XR_TYPE_FRAME_BEGIN_INFO};
