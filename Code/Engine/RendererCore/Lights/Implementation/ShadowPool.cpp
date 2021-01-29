@@ -447,6 +447,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     {
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
+      pView->SetLodCamera(pReferenceCamera);
     }
 
     // Setup camera

@@ -868,6 +868,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
   // Store camera and viewdata
   data.SetCamera(*view.GetCamera());
+  data.SetLodCamera(*view.GetLodCamera());
   data.SetViewData(view.GetData());
   data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
   data.SetWorldDebugContext(view.GetWorld());
@@ -1022,6 +1023,12 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   else
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
 
+  // Also set pipeline specific permutation vars
+  for (auto& var : m_PermutationVars)
+  {
+    pRenderContext->SetShaderPermutationVariable(var.m_sName, var.m_sValue);
+  }
+
   ezRenderWorldRenderEvent renderEvent;
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeforePipelineExecution;
   renderEvent.m_pPipeline = this;
@@ -1102,6 +1109,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
   ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+
+  pRenderContext->ResetContextState();
 
   data.Clear();
 

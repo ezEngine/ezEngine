@@ -893,7 +893,7 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const
 {
-  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, this))
   {
     if (pSenderComponent)
     {
@@ -908,7 +908,7 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
 void ezGameObject::PostEventMessage(
   ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, this))
   {
     if (pSenderComponent)
     {

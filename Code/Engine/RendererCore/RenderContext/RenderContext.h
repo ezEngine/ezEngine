@@ -263,8 +263,6 @@ private:
 
   static void OnEngineShutdown();
 
-  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
-
 private:
   Statistics m_Statistics;
   ezBitflags<ezRenderContextFlags> m_StateFlags;
