@@ -39,19 +39,24 @@ EZ_ALWAYS_INLINE const ezCamera* ezView::GetCamera() const
   return m_pCamera;
 }
 
-EZ_ALWAYS_INLINE void ezView::SetCullingCamera(ezCamera* pCamera)
+EZ_ALWAYS_INLINE void ezView::SetCullingCamera(const ezCamera* pCamera)
 {
   m_pCullingCamera = pCamera;
-}
-
-EZ_ALWAYS_INLINE ezCamera* ezView::GetCullingCamera()
-{
-  return m_pCullingCamera != nullptr ? m_pCullingCamera : m_pCamera;
 }
 
 EZ_ALWAYS_INLINE const ezCamera* ezView::GetCullingCamera() const
 {
   return m_pCullingCamera != nullptr ? m_pCullingCamera : m_pCamera;
+}
+
+EZ_ALWAYS_INLINE void ezView::SetLodCamera(const ezCamera* pCamera)
+{
+  m_pLodCamera = pCamera;
+}
+
+EZ_ALWAYS_INLINE const ezCamera* ezView::GetLodCamera() const
+{
+  return m_pLodCamera != nullptr ? m_pLodCamera : m_pCamera;
 }
 
 EZ_ALWAYS_INLINE ezEnum<ezCameraUsageHint> ezView::GetCameraUsageHint() const

@@ -103,15 +103,11 @@ ezRenderContext::ezRenderContext()
 
   m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
 
-  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezRenderContext::OnRenderEvent, this));
-
   ResetContextState();
 }
 
 ezRenderContext::~ezRenderContext()
 {
-  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezRenderContext::OnRenderEvent, this));
-
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
 
   if (s_DefaultInstance == this)
@@ -704,6 +700,7 @@ void ezRenderContext::ResetContextState()
   m_hActiveShader.Invalidate();
   m_hActiveGALShader.Invalidate();
 
+  m_PermutationVariables.Clear();
   m_hNewMaterial.Invalidate();
   m_hMaterial.Invalidate();
 
@@ -879,14 +876,6 @@ void ezRenderContext::OnEngineShutdown()
     }
 
     s_FreeConstantBufferStorage.Clear();
-  }
-}
-
-void ezRenderContext::OnRenderEvent(const ezRenderWorldRenderEvent& e)
-{
-  if (e.m_Type == ezRenderWorldRenderEvent::Type::EndRender)
-  {
-    ResetContextState();
   }
 }
 

@@ -36,19 +36,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezView::ezView()
 {
   m_pExtractTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezView::ExtractData, this));
-
-  m_pWorld = nullptr;
-  m_pCamera = nullptr;
-  m_pCullingCamera = nullptr;
-
-  m_uiLastCameraSettingsModification = 0;
-  m_uiLastCameraOrientationModification = 0;
-  m_fLastViewportAspectRatio = 1.0f;
-
-  m_uiRenderPipelineResourceDescriptionCounter = 0;
 }
 
-ezView::~ezView() {}
+ezView::~ezView() = default;
 
 void ezView::SetName(const char* szName)
 {
@@ -148,6 +138,30 @@ void ezView::ComputeCullingFrustum(ezFrustum& out_Frustum) const
   pCamera->GetProjectionMatrix(fViewportAspectRatio, projectionMatrix);
 
   out_Frustum.SetFrustum(projectionMatrix * viewMatrix);
+}
+
+void ezView::SetShaderPermutationVariable(const char* szName, const char* szValue)
+{
+  ezHashedString sName;
+  sName.Assign(szName);
+
+  for (auto& var : m_PermutationVars)
+  {
+    if (var.m_sName == sName)
+    {
+      if (var.m_sValue != szValue)
+      {
+        var.m_sValue.Assign(szValue);
+        m_bPermutationVarsDirty = true;
+      }
+      return;
+    }
+  }
+
+  auto& var = m_PermutationVars.ExpandAndGetRef();
+  var.m_sName = sName;
+  var.m_sValue.Assign(szValue);
+  m_bPermutationVarsDirty = true;
 }
 
 void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
@@ -258,9 +272,19 @@ void ezView::EnsureUpToDate()
       ResetAllPropertyStates(m_ExtractorProperties);
     }
 
+    ApplyPermutationVars();
     ApplyRenderPassProperties();
     ApplyExtractorProperties();
   }
+}
+
+void ezView::ApplyPermutationVars()
+{
+  if (!m_bPermutationVarsDirty)
+    return;
+
+  m_pRenderPipeline->m_PermutationVars = m_PermutationVars;
+  m_bPermutationVarsDirty = false;
 }
 
 void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)

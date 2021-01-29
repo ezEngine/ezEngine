@@ -35,6 +35,7 @@ ezViewHandle ezMaterialViewContext::CreateView()
   ezRenderWorld::CreateView("Material Editor - View", pView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+  pView->SetShaderPermutationVariable("MATERIAL_PREVIEW", "TRUE");
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
