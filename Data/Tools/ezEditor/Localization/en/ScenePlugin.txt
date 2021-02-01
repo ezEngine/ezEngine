@@ -270,3 +270,9 @@ ezGrabbableItemComponent;Grabbable Item
 ezVisualizeHandComponent;Visualize Hand
 ezSimpleAnimationComponent;Simple Animation
 ezAnimationControllerComponent;Animation Controller
+ezWindStrength::Calm;Calm
+ezWindStrength::LightBreeze;Light Breeze
+ezWindStrength::GentleBreeze;Gentle Breeze
+ezWindStrength::ModerateBreeze;Moderate Breeze
+ezWindStrength::StrongBreeze;Strong Breeze
+ezWindStrength::Storm;Storm

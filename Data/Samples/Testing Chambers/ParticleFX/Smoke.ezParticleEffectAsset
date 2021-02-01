@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{17133521881131031168}
+		u4 %Hash{14432205773205870714}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12870683337904732869,2574950570201427135}}
@@ -140,7 +140,7 @@ o
 	{
 		f %Friction{0x9A99993E}
 		f %RiseSpeed{0x0000003F}
-		f %WindInfluence{0xCDCC4C3F}
+		f %WindInfluence{0x9A99993E}
 	}
 }
 o

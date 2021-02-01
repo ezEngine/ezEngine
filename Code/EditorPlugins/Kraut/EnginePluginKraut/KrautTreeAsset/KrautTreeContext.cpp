@@ -10,6 +10,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameEngine/Animation/RotorComponent.h>
 #include <GameEngine/Animation/SliderComponent.h>
+#include <GameEngine/Effects/Wind/SimpleWindComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Gameplay/InputComponent.h>
 #include <GameEngine/Gameplay/SpawnComponent.h>
@@ -42,15 +43,36 @@ ezKrautTreeContext::ezKrautTreeContext()
   m_pMainObject = nullptr;
 }
 
-void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg0))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pMsg0))
+  {
+    if (pMsg->m_sWhatToDo == "UpdateTree" && !m_hKrautComponent.IsInvalidated())
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezKrautTreeComponent* pTree = nullptr;
+      if (!m_pWorld->TryGetComponent(m_hKrautComponent, pTree))
+        return;
+
+      if (pMsg->m_sPayload == "DisplayRandomSeed")
+      {
+        m_uiDisplayRandomSeed = static_cast<ezUInt32>(pMsg->m_fPayload);
+
+        pTree->SetCustomRandomSeed(m_uiDisplayRandomSeed);
+      }
+    }
+
+    return;
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pMsg0);
 }
 
 void ezKrautTreeContext::OnInitialize()
@@ -76,11 +98,12 @@ void ezKrautTreeContext::OnInitialize()
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
     m_pMainObject->GetTags().Set(tagCastShadows);
 
-    ezKrautTreeComponent::CreateComponent(m_pMainObject, pTree);
+    m_hKrautComponent = ezKrautTreeComponent::CreateComponent(m_pMainObject, pTree);
     ezStringBuilder sMeshGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
-    m_hMainResource = ezResourceManager::LoadResource<ezKrautTreeResource>(sMeshGuid);
-    pTree->SetKrautTree(m_hMainResource);
+    m_hMainResource = ezResourceManager::LoadResource<ezKrautGeneratorResource>(sMeshGuid);
+    pTree->SetVariationIndex(0xFFFF); // takes the 'display seed'
+    pTree->SetKrautGeneratorResource(m_hMainResource);
   }
 
   // Lights
@@ -115,6 +138,22 @@ void ezKrautTreeContext::OnInitialize()
 
     pSkybox->SetExposureBias(1.0f);
     pSkybox->SetCubeMapFile("{ 0b202e08-a64f-465d-b38e-15b81d161822 }");
+  }
+
+  // Wind
+  {
+    ezGameObjectDesc obj;
+    obj.m_sName.Assign("Wind");
+
+    ezGameObject* pObj;
+    pWorld->CreateObject(obj, pObj);
+
+    ezSimpleWindComponent* pWind = nullptr;
+    ezSimpleWindComponent::CreateComponent(pObj, pWind);
+
+    pWind->m_Deviation = ezAngle::Degree(180);
+    pWind->m_MinWindStrength = ezWindStrength::Calm;
+    pWind->m_MaxWindStrength = ezWindStrength::ModerateBreeze;
   }
 
   // ground

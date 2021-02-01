@@ -32,7 +32,14 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
     float m_fAmbientOcclusion = 1.0f;
     ezVec3 m_vNormal;
     ezVec3 m_vTangent;
-    ezColorGammaUB m_VariationColor;
+    ezUInt8 m_uiColorVariation = 0;
+
+    // to compute wind
+    ezUInt8 m_uiBranchLevel = 0;  // 0 = trunk, 1 = main branches, 2 = twigs, ...
+    ezUInt8 m_uiFlutterPhase = 0; // phase shift for the flutter effect
+    ezVec3 m_vBendAnchor;
+    float m_fAnchorBendStrength = 0;
+    float m_fBendAndFlutterStrength = 0;
   };
 
   struct TriangleData
@@ -46,7 +53,7 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
   {
     ezUInt16 m_uiFirstTriangle = 0;
     ezUInt16 m_uiNumTriangles = 0;
-    ezUInt8 m_uiMaterialIndex = 0;
+    ezUInt8 m_uiMaterialIndex = 0xFF;
   };
 
   struct LodData
@@ -63,8 +70,7 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
   struct MaterialData
   {
     ezKrautMaterialType m_MaterialType;
-    ezString m_sDiffuseTexture;
-    ezString m_sNormalMapTexture;
+    ezString m_sMaterial;
     ezColorGammaUB m_VariationColor = ezColor::White;
   };
 

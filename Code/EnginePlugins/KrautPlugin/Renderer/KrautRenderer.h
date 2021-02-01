@@ -21,19 +21,17 @@ public:
   // ezRenderer implementation
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
   virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
-  virtual void RenderBatch(
-    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
-  virtual void FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch,
-    bool bUpdateMinLod, bool bIsShadowView, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const;
+  virtual void FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, bool bIsShadowView, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const;
 
   struct TempTreeCB
   {
     TempTreeCB(ezRenderContext* pRenderContext);
     ~TempTreeCB();
 
-    void SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset);
+    void SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset, const ezVec3& vWindTrunk, const ezVec3& vWindBranches);
 
     ezConstantBufferStorage<ezKrautTreeConstants>* m_pConstants;
     ezConstantBufferStorageHandle m_hConstantBuffer;

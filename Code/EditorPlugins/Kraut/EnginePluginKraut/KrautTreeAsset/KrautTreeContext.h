@@ -16,7 +16,7 @@ public:
   ezKrautTreeContext();
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
-  const ezKrautTreeResourceHandle& GetResource() const { return m_hMainResource; }
+  const ezKrautGeneratorResourceHandle& GetResource() const { return m_hMainResource; }
 
 protected:
   virtual void OnInitialize() override;
@@ -29,6 +29,8 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
 
   ezGameObject* m_pMainObject;
-  ezKrautTreeResourceHandle m_hMainResource;
+  ezComponentHandle m_hKrautComponent;
+  ezKrautGeneratorResourceHandle m_hMainResource;
   ezMeshResourceHandle m_hPreviewMeshResource;
+  ezUInt32 m_uiDisplayRandomSeed = 0xFFFFFFFF;
 };

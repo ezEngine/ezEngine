@@ -5,6 +5,7 @@
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 
 struct ezKrautTreeResourceDescriptor;
+struct ezKrautGeneratorResourceDescriptor;
 
 namespace ezModelImporter2
 {
@@ -21,11 +22,9 @@ public:
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
-  void SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, ezKrautTreeResourceDescriptor& desc);
+  void SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, const ezKrautGeneratorResourceDescriptor& desc);
 
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
-
-  ezString ImportTexture(const char* szFilename, ezModelImporter2::TextureSemantic hint, bool bTextureClamp);
 };
 
 //////////////////////////////////////////////////////////////////////////

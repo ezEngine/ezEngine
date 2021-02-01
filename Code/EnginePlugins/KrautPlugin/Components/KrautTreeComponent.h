@@ -12,7 +12,10 @@ struct ezMsgExtractGeometry;
 struct ezMsgBuildStaticMesh;
 struct ezResourceEvent;
 class ezKrautRenderData;
-typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
+class ezAbstractObjectNode;
+
+using ezKrautTreeResourceHandle = ezTypedResourceHandle<class ezKrautTreeResource>;
+using ezKrautGeneratorResourceHandle = ezTypedResourceHandle<class ezKrautGeneratorResource>;
 
 class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponentManager : public ezComponentManager<class ezKrautTreeComponent, ezBlockStorageType::Compact>
 {
@@ -50,7 +53,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual void Initialize() override;
+  virtual void OnActivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -72,15 +75,32 @@ public:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
 
-  void SetKrautTreeFile(const char* szFile); // [ property ]
-  const char* GetKrautTreeFile() const;      // [ property ]
+  void SetKrautFile(const char* szFile); // [ property ]
+  const char* GetKrautFile() const;      // [ property ]
 
-  void SetKrautTree(const ezKrautTreeResourceHandle& hTree);
-  EZ_ALWAYS_INLINE const ezKrautTreeResourceHandle& GetKrautTree() const { return m_hKrautTree; }
+  void SetVariationIndex(ezUInt16 uiIndex); // [ property ]
+  ezUInt16 GetVariationIndex() const;       // [ property ]
+
+  void SetCustomRandomSeed(ezUInt16 uiSeed); // [ property ]
+  ezUInt16 GetCustomRandomSeed() const;      // [ property ]
+
+  void SetKrautGeneratorResource(const ezKrautGeneratorResourceHandle& hTree);
+  const ezKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; }
 
 private:
-  ezResult CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const;
+  void OnObjectCreated(const ezAbstractObjectNode& node);
 
-  ezSharedPtr<ezKrautLodInfo> m_pLodInfo;
+  ezResult CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const;
+  void EnsureTreeIsGenerated();
+
+  ezUInt16 m_uiVariationIndex = 0xFFFF;
+  ezUInt16 m_uiCustomRandomSeed = 0xFFFF;
+  ezUInt16 m_uiDefaultVariationIndex = 0xFFFF;
   ezKrautTreeResourceHandle m_hKrautTree;
+  ezKrautGeneratorResourceHandle m_hKrautGenerator;
+
+  void ComputeWind() const;
+
+  mutable ezVec3 m_vWindSpringPos;
+  mutable ezVec3 m_vWindSpringVel;
 };

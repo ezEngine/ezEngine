@@ -13,13 +13,13 @@ static int __CPP_Physics_OverlapTestCapsule(duk_context* pDuk);
 static int __CPP_Physics_GetGravity(duk_context* pDuk);
 static int __CPP_Physics_QueryShapesInSphere(duk_context* pDuk);
 
-#define GetPhysicsModule()                                                                                                                                                                                                                                                                                 \
-  pWorld->GetOrCreateModule<ezPhysicsWorldModuleInterface>();                                                                                                                                                                                                                                              \
-                                                                                                                                                                                                                                                                                                           \
-  if (pModule == nullptr)                                                                                                                                                                                                                                                                                  \
-  {                                                                                                                                                                                                                                                                                                        \
-    duk.Error("No Physics World Module available.");                                                                                                                                                                                                                                                       \
-    return 0;                                                                                                                                                                                                                                                                                              \
+#define GetPhysicsModule()                                    \
+  pWorld->GetOrCreateModule<ezPhysicsWorldModuleInterface>(); \
+                                                              \
+  if (pModule == nullptr)                                     \
+  {                                                           \
+    duk.Error("No Physics World Module available.");          \
+    return 0;                                                 \
   }
 
 ezResult ezTypeScriptBinding::Init_Physics()

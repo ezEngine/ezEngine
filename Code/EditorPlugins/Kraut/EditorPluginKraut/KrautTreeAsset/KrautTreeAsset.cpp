@@ -1,19 +1,22 @@
 #include <EditorPluginKrautPCH.h>
 
-#include <Core/Graphics/Geometry.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetManager.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/Progress.h>
+#include <KrautGenerator/Description/LodDesc.h>
+#include <KrautGenerator/Description/TreeStructureDesc.h>
+#include <KrautGenerator/Serialization/SerializeTree.h>
+#include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
-#include <ModelImporter2/Importer/Importer.h>
+#include <RendererCore/Material/MaterialResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 3, ezRTTINoAllocator)
+using namespace AE_NS_FOUNDATION;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
@@ -23,20 +26,63 @@ ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
 
 //////////////////////////////////////////////////////////////////////////
 
-enum ezKrautImportMaterialType : ezUInt8
+class KrautStreamIn : public aeStreamIn
 {
-  Branch = 0,
-  Frond = 1,
-  Leaf = 2,
+public:
+  ezStreamReader* m_pStream = nullptr;
+
+private:
+  virtual aeUInt32 ReadFromStream(void* pData, aeUInt32 uiSize) override { return (aeUInt32)m_pStream->ReadBytes(pData, uiSize); }
 };
 
-enum ezKrautImportLodType : ezUInt8
+static void GetMaterialLabel(ezStringBuilder& out, ezKrautBranchType branchType, ezKrautMaterialType materialType)
 {
-  Mesh = 0,
-  Impostor4Quads = 1,
-  Impostor2Quads = 2,
-  ImpostorBillboard = 3,
-};
+  out.Clear();
+
+  switch (branchType)
+  {
+    case ezKrautBranchType::Trunk1:
+    case ezKrautBranchType::Trunk2:
+    case ezKrautBranchType::Trunk3:
+      out.Format("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
+      break;
+
+    case ezKrautBranchType::MainBranches1:
+    case ezKrautBranchType::MainBranches2:
+    case ezKrautBranchType::MainBranches3:
+      out.Format("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
+      break;
+
+    case ezKrautBranchType::SubBranches1:
+    case ezKrautBranchType::SubBranches2:
+    case ezKrautBranchType::SubBranches3:
+      out.Format("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
+      break;
+
+    case ezKrautBranchType::Twigs1:
+    case ezKrautBranchType::Twigs2:
+    case ezKrautBranchType::Twigs3:
+      out.Format("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  switch (materialType)
+  {
+    case ezKrautMaterialType::Branch:
+      out.Append(" - Stem");
+      break;
+    case ezKrautMaterialType::Frond:
+      out.Append(" - Frond");
+      break;
+    case ezKrautMaterialType::Leaf:
+      out.Append(" - Leaf");
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+}
 
 ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
@@ -44,335 +90,116 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
   ezKrautTreeAssetProperties* pProp = GetProperties();
 
-  ezKrautTreeResourceDescriptor desc;
+  if (!ezPathUtils::HasExtension(pProp->m_sKrautFile, ".tree"))
+    return ezStatus("Unsupported file format");
 
-  ezFileReader krautFile;
-  if (krautFile.Open(pProp->m_sKrautFile).Failed())
-    return ezStatus(ezFmt("Could not open Kraut file '{0}'", pProp->m_sKrautFile));
+  ezKrautGeneratorResourceDescriptor desc;
 
-  char signature[8];
-  krautFile.ReadBytes(signature, 7);
-  signature[7] = '\0';
-
-  if (!ezStringUtils::IsEqual(signature, "{KRAUT}"))
-    return ezStatus("File is not a valid Kraut file");
-
-  ezUInt8 uiVersion = 0;
-  krautFile >> uiVersion;
-
-  if (uiVersion != 1 && uiVersion != 2)
-    return ezStatus(ezFmt("Unknown Kraut file format version {0}", uiVersion));
-
-  ezBoundingBox bbox;
-  krautFile >> bbox.m_vMin;
-  krautFile >> bbox.m_vMax;
-
-  ezMath::Swap(bbox.m_vMin.y, bbox.m_vMin.z);
-  ezMath::Swap(bbox.m_vMax.y, bbox.m_vMax.z);
-
-  bbox.ScaleFromOrigin(ezVec3(pProp->m_fUniformScaling));
-  desc.m_Details.m_Bounds = bbox;
-
-  ezUInt8 uiNumLODs = 0;
-  krautFile >> uiNumLODs;
-
-  // m_Lods is a static array that cannot be resized
-  if (uiNumLODs > desc.m_Lods.GetCapacity())
-    ezLog::Error("Tree mesh contains more LODs than is supported.");
-
-  uiNumLODs = ezMath::Min<ezUInt8>(uiNumLODs, desc.m_Lods.GetCapacity());
-
-  const float fLodDistanceScale = pProp->m_fUniformScaling * pProp->m_fLodDistanceScale;
-
-  ezUInt8 uiNumMaterialTypes = 0;
-  krautFile >> uiNumMaterialTypes;
-
-  EZ_ASSERT_DEV(uiNumMaterialTypes <= 3, "Unexpected number of Kraut material types: {0}", uiNumMaterialTypes);
-
-  // remaps from combination (materialType, indexInType) to single material index
-  ezHybridArray<ezHybridArray<ezUInt8, 8>, 4> MaterialToIndex;
-  MaterialToIndex.SetCount(uiNumMaterialTypes);
-
-  ezBoundingBox leafBBox;
-  leafBBox.SetInvalid();
-
-  for (ezUInt8 importMaterialType = 0; importMaterialType < uiNumMaterialTypes; ++importMaterialType)
+  // read the input data
   {
-    const bool bClampTextureLookup = importMaterialType != ezKrautImportMaterialType::Branch;
+    ezFileReader krautFile;
+    if (krautFile.Open(pProp->m_sKrautFile).Failed())
+      return ezStatus(ezFmt("Could not open Kraut file '{0}'", pProp->m_sKrautFile));
 
-    ezUInt8 uiNumMatsOfType = 0;
-    krautFile >> uiNumMatsOfType;
+    KrautStreamIn kstream;
+    kstream.m_pStream = &krautFile;
 
-    // ezKrautImportMaterialType
-    for (ezUInt8 matOfType = 0; matOfType < uiNumMatsOfType; ++matOfType)
+    ezUInt32 uiKrautEditorVersion = 0;
+    krautFile >> uiKrautEditorVersion;
+
+    Kraut::Deserializer ts;
+    ts.m_pTreeStructure = &desc.m_TreeStructureDesc;
+    ts.m_LODs[0] = &desc.m_LodDesc[0];
+    ts.m_LODs[1] = &desc.m_LodDesc[1];
+    ts.m_LODs[2] = &desc.m_LodDesc[2];
+    ts.m_LODs[3] = &desc.m_LodDesc[3];
+    ts.m_LODs[4] = &desc.m_LodDesc[4];
+
+    if (!ts.Deserialize(kstream))
     {
-      MaterialToIndex[importMaterialType].PushBack(desc.m_Materials.GetCount());
-
-      auto& mat = desc.m_Materials.ExpandAndGetRef();
-      mat.m_MaterialType = static_cast<ezKrautMaterialType>(importMaterialType);
-
-      ezString sDiffuseTexture;
-      krautFile >> sDiffuseTexture;
-
-      ezString sNormalMapTexture;
-      krautFile >> sNormalMapTexture;
-
-      krautFile >> mat.m_VariationColor;
-
-      mat.m_sDiffuseTexture = ImportTexture(sDiffuseTexture, ezModelImporter2::TextureSemantic::DiffuseAlphaMap, bClampTextureLookup);
-      mat.m_sNormalMapTexture = ImportTexture(sNormalMapTexture, ezModelImporter2::TextureSemantic::NormalMap, bClampTextureLookup);
+      return ezStatus(ezFmt("Reading the Kraut file failed: '{}'", pProp->m_sKrautFile));
     }
   }
 
-  ezUInt8 uiNumMeshTypes = 0;
-  krautFile >> uiNumMeshTypes;
-
-  float fPrevLodDistance = 0.0f;
-
-  ezUInt32 uiStaticImpostorMaterialIndex = 0xFFFFFFFF;
-  ezUInt32 uiBillboardImpostorMaterialIndex = 0xFFFFFFFF;
-
-  for (ezUInt8 lodLevel = 0; lodLevel < uiNumLODs; ++lodLevel)
+  // find materials
   {
-    auto& lodData = desc.m_Lods.ExpandAndGetRef();
+    desc.m_Materials.Clear();
 
-    lodData.m_fMinLodDistance = fPrevLodDistance;
-    krautFile >> lodData.m_fMaxLodDistance;
+    ezStringBuilder materialLabel;
 
-    lodData.m_fMaxLodDistance *= fLodDistanceScale;
-
-    if (lodData.m_fMaxLodDistance <= fPrevLodDistance)
+    for (ezUInt32 bt = 0; bt < Kraut::BranchType::ENUM_COUNT; ++bt)
     {
-      lodData.m_fMaxLodDistance = fPrevLodDistance * 3.0f;
-    }
+      const auto& type = desc.m_TreeStructureDesc.m_BranchTypes[bt];
 
-    fPrevLodDistance = lodData.m_fMaxLodDistance;
+      if (!type.m_bUsed)
+        continue;
 
-    ezUInt8 importLodType = 0; // ezKrautImportLodType
-    krautFile >> importLodType;
-
-    switch (importLodType)
-    {
-      case ezKrautImportLodType::Mesh:
-        lodData.m_LodType = ezKrautLodType::Mesh;
-        break;
-      case ezKrautImportLodType::Impostor2Quads:
-        // [fallthrough]
-      case ezKrautImportLodType::Impostor4Quads:
-        lodData.m_LodType = ezKrautLodType::StaticImpostor;
-        break;
-      case ezKrautImportLodType::ImpostorBillboard:
-        lodData.m_LodType = ezKrautLodType::BillboardImpostor;
-        break;
-
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-    }
-
-    ezUInt8 uiNumMatTypesUsed = 0;
-    krautFile >> uiNumMatTypesUsed;
-
-    for (ezUInt8 materialType = 0; materialType < uiNumMatTypesUsed; ++materialType)
-    {
-      // ezKrautImportMaterialType
-      ezUInt8 uiCurMatType = 0;
-      krautFile >> uiCurMatType;
-
-      ezUInt8 uiNumMeshes = 0;
-      krautFile >> uiNumMeshes;
-
-      for (ezUInt8 uiMeshIdx = 0; uiMeshIdx < uiNumMeshes; ++uiMeshIdx)
+      for (ezUInt32 gt = 0; gt < Kraut::BranchGeometryType::ENUM_COUNT; ++gt)
       {
-        // since we merge all vertices into one big array, the vertex indices for the triangles
-        // need to be re-based relative to the previous data
-        const ezUInt32 uiIndexOffset = lodData.m_Vertices.GetCount();
+        if (!type.m_bEnable[gt])
+          continue;
 
-        ezUInt8 uiMaterialID = 0;
-        krautFile >> uiMaterialID;
+        auto& m = desc.m_Materials.ExpandAndGetRef();
 
-        ezUInt32 uiNumVertices = 0;
-        krautFile >> uiNumVertices;
+        m.m_MaterialType = static_cast<ezKrautMaterialType>((int)ezKrautMaterialType::Branch + gt);
+        m.m_BranchType = static_cast<ezKrautBranchType>((int)ezKrautBranchType::Trunk1 + bt);
 
-        ezUInt32 uiNumTriangles = 0;
-        krautFile >> uiNumTriangles;
+        GetMaterialLabel(materialLabel, m.m_BranchType, m.m_MaterialType);
 
-        auto& subMesh = lodData.m_SubMeshes.ExpandAndGetRef();
-        subMesh.m_uiFirstTriangle = lodData.m_Triangles.GetCount();
-        subMesh.m_uiNumTriangles = uiNumTriangles;
-
-        bool bIsLeafVertex = false;
-
-        switch (importLodType)
+        // find the matching material from the user input (don't want to guess an index, in case the list size changed)
+        for (const auto& mat : pProp->m_Materials)
         {
-          case ezKrautImportLodType::Mesh:
+          if (mat.m_sLabel == materialLabel)
           {
-            subMesh.m_uiMaterialIndex = MaterialToIndex[uiCurMatType][uiMaterialID];
-            bIsLeafVertex = (desc.m_Materials[subMesh.m_uiMaterialIndex].m_MaterialType == ezKrautMaterialType::Leaf);
+            m.m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(mat.m_sMaterial);
             break;
           }
-
-          case ezKrautImportLodType::Impostor4Quads:
-            // [fallthrough]
-          case ezKrautImportLodType::Impostor2Quads:
-          {
-            if (uiStaticImpostorMaterialIndex == 0xFFFFFFFF)
-            {
-              uiStaticImpostorMaterialIndex = desc.m_Materials.GetCount();
-              desc.m_Materials.ExpandAndGetRef();
-              desc.m_Materials[uiStaticImpostorMaterialIndex].m_MaterialType = ezKrautMaterialType::StaticImpostor;
-            }
-
-            subMesh.m_uiMaterialIndex = uiStaticImpostorMaterialIndex;
-            break;
-          }
-
-          case ezKrautImportLodType::ImpostorBillboard:
-          {
-            if (uiBillboardImpostorMaterialIndex == 0xFFFFFFFF)
-            {
-              uiBillboardImpostorMaterialIndex = desc.m_Materials.GetCount();
-              desc.m_Materials.ExpandAndGetRef();
-              desc.m_Materials[uiBillboardImpostorMaterialIndex].m_MaterialType = ezKrautMaterialType::BillboardImpostor;
-            }
-
-            subMesh.m_uiMaterialIndex = uiBillboardImpostorMaterialIndex;
-            break;
-          }
-
-          default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
-        }
-
-        for (ezUInt32 v = 0; v < uiNumVertices; ++v)
-        {
-          auto& vtx = lodData.m_Vertices.ExpandAndGetRef();
-
-          krautFile >> vtx.m_vPosition;
-          ezMath::Swap(vtx.m_vPosition.y, vtx.m_vPosition.z);
-          vtx.m_vPosition *= pProp->m_fUniformScaling;
-
-          krautFile >> vtx.m_vTexCoord;
-
-          krautFile >> vtx.m_vNormal;
-          ezMath::Swap(vtx.m_vNormal.y, vtx.m_vNormal.z);
-
-          krautFile >> vtx.m_vTangent;
-          ezMath::Swap(vtx.m_vTangent.y, vtx.m_vTangent.z);
-
-          if (bIsLeafVertex)
-          {
-            leafBBox.ExpandToInclude(vtx.m_vPosition);
-            vtx.m_vTexCoord.z *= pProp->m_fUniformScaling;
-          }
-
-          if (lodData.m_LodType == ezKrautLodType::BillboardImpostor)
-          {
-            vtx.m_vTexCoord.z *= pProp->m_fUniformScaling;
-          }
-
-          if (uiVersion == 1)
-          {
-            krautFile >> vtx.m_VariationColor;
-          }
-
-          if (uiVersion >= 2)
-          {
-            ezUInt8 uiColorVariation;
-            krautFile >> uiColorVariation;
-            vtx.m_VariationColor = ezColorGammaUB(255, 255, 255, uiColorVariation);
-
-            krautFile >> vtx.m_fAmbientOcclusion;
-
-            for (ezUInt32 i = 0; i < 6; ++i)
-            {
-              // TODO: not mentioned in file format docs
-              float fOtherAO;
-              krautFile >> fOtherAO;
-            }
-          }
-        }
-
-        for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
-        {
-          ezUInt32 idx[3];
-          krautFile.ReadBytes(idx, sizeof(ezUInt32) * 3);
-
-          auto& tri = lodData.m_Triangles.ExpandAndGetRef();
-
-          tri.m_uiVertexIndex[0] = uiIndexOffset + idx[0];
-          tri.m_uiVertexIndex[1] = uiIndexOffset + idx[2];
-          tri.m_uiVertexIndex[2] = uiIndexOffset + idx[1];
         }
       }
     }
   }
 
-  if (uiStaticImpostorMaterialIndex != 0xFFFFFFFF)
+  // write the output data
   {
-    auto& mat = desc.m_Materials[uiStaticImpostorMaterialIndex];
+    desc.m_sSurfaceResource = pProp->m_sSurface;
+    desc.m_fStaticColliderRadius = pProp->m_fStaticColliderRadius;
+    desc.m_fUniformScaling = pProp->m_fUniformScaling;
+    desc.m_fLodDistanceScale = pProp->m_fLodDistanceScale;
+    desc.m_GoodRandomSeeds = pProp->m_GoodRandomSeeds;
+    desc.m_uiDefaultDisplaySeed = pProp->m_uiRandomSeedForDisplay;
+    desc.m_fTreeStiffness = pProp->m_fTreeStiffness;
 
-    ezStringBuilder sFile;
-    sFile = pProp->m_sKrautFile;
-    sFile.RemoveFileExtension();
-
-    if (uiVersion == 1)
-      sFile.Append("_D.tga");
-
-    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::DiffuseAlphaMap, true);
-
-    sFile = pProp->m_sKrautFile;
-    sFile.RemoveFileExtension();
-
-    sFile.Append("_N.tga");
-    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::NormalMap, true);
+    if (desc.Serialize(stream).Failed())
+    {
+      return ezStatus("Writing KrautGenerator resource descriptor failed.");
+    }
   }
-
-  if (uiBillboardImpostorMaterialIndex != 0xFFFFFFFF)
-  {
-    auto& mat = desc.m_Materials[uiBillboardImpostorMaterialIndex];
-
-    ezStringBuilder sFile;
-    sFile = pProp->m_sKrautFile;
-    sFile.RemoveFileExtension();
-
-    if (uiVersion == 1)
-      sFile.Append("_D.tga");
-
-    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::DiffuseAlphaMap, true);
-
-    sFile = pProp->m_sKrautFile;
-    sFile.RemoveFileExtension();
-
-    sFile.Append("_N.tga");
-    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter2::TextureSemantic::NormalMap, true);
-  }
-
-  desc.m_Details.m_sSurfaceResource = pProp->m_sSurface;
-  desc.m_Details.m_vLeafCenter = leafBBox.GetCenter();
-  desc.m_Details.m_fStaticColliderRadius = pProp->m_fStaticColliderRadius;
-
-  desc.Save(stream);
 
   SyncBackAssetProperties(pProp, desc);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-
-void ezKrautTreeAssetDocument::SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, ezKrautTreeResourceDescriptor& desc)
+void ezKrautTreeAssetDocument::SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, const ezKrautGeneratorResourceDescriptor& desc)
 {
   bool bModified = pProp->m_Materials.GetCount() != desc.m_Materials.GetCount();
 
   pProp->m_Materials.SetCount(desc.m_Materials.GetCount());
 
+  ezStringBuilder newLabel;
+
+  // TODO: match up old and new materials by label name
+
   for (ezUInt32 m = 0; m < pProp->m_Materials.GetCount(); ++m)
   {
-    if (pProp->m_Materials[m].m_sDiffuseTexture != desc.m_Materials[m].m_sDiffuseTexture || pProp->m_Materials[m].m_sNormalMapTexture != desc.m_Materials[m].m_sNormalMapTexture)
-    {
-      bModified = true;
+    auto& mat = pProp->m_Materials[m];
 
-      pProp->m_Materials[m].m_sDiffuseTexture = desc.m_Materials[m].m_sDiffuseTexture;
-      pProp->m_Materials[m].m_sNormalMapTexture = desc.m_Materials[m].m_sNormalMapTexture;
+    GetMaterialLabel(newLabel, desc.m_Materials[m].m_BranchType, desc.m_Materials[m].m_MaterialType);
+
+    if (newLabel != mat.m_sLabel)
+    {
+      mat.m_sLabel = newLabel;
+      bModified = true;
     }
   }
 
@@ -393,31 +220,6 @@ ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& 
   return status;
 }
 
-ezString ezKrautTreeAssetDocument::ImportTexture(const char* szFilename, ezModelImporter2::TextureSemantic hint, bool bTextureClamp)
-{
-  ezStringBuilder sRelativePathToTexture = szFilename;
-  sRelativePathToTexture.MakeCleanPath();
-
-  ezString allowedExtensions[] = {"dds", "png", "tga", "jpg"};
-  if (ezAssetCurator::GetSingleton()->FindBestMatchForFile(sRelativePathToTexture, allowedExtensions).Failed())
-  {
-    ezLog::Error("Could not find texture '{0}'", szFilename);
-    return ezString();
-  }
-
-  ezStringBuilder sAbsPathToSourceTexture = sRelativePathToTexture;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPathToSourceTexture))
-  {
-    ezLog::Error("Could not find texture '{0}'", szFilename);
-    return ezString();
-  }
-
-  ezStringBuilder sPathPrefix = sAbsPathToSourceTexture;
-  sPathPrefix.PathParentDirectory();
-
-  return ezMeshImportUtils::ImportOrResolveTexture("", sPathPrefix, sRelativePathToTexture, hint, bTextureClamp);
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentGenerator>)
@@ -425,7 +227,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
 {
-  AddSupportedFileType("kraut");
+  AddSupportedFileType("tree");
 }
 
 ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
@@ -449,10 +251,12 @@ ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelati
   auto pApp = ezQtEditorApp::GetSingleton();
 
   out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
   ezKrautTreeAssetDocument* pAssetDoc = ezDynamicCast<ezKrautTreeAssetDocument*>(out_pGeneratedDocument);
+
   if (pAssetDoc == nullptr)
     return ezStatus("Target document is not a valid ezKrautTreeAssetDocument");
 
