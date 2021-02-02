@@ -268,6 +268,7 @@ void ezView::EnsureUpToDate()
       m_pRenderPipeline = pPipeline->CreateRenderPipeline();
       ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
 
+      m_bPermutationVarsDirty = true;
       ResetAllPropertyStates(m_PassProperties);
       ResetAllPropertyStates(m_ExtractorProperties);
     }
