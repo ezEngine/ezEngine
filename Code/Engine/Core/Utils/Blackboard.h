@@ -51,6 +51,7 @@ struct EZ_CORE_DLL ezBlackboardEntryFlags
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezBlackboardEntryFlags);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardEntryFlags);
 
 
 /// \brief A blackboard is a key/value store that provides OnChange events to be informed when a value changes.
@@ -91,6 +92,9 @@ public:
 
   /// \brief Removes the named entry. Does nothing, if no such entry exists.
   void UnregisterEntry(const ezHashedString& name);
+
+  ///  \brief Removes all entries.
+  void UnregisterAllEntries();
 
   /// \brief Sets the value of the named entry.
   ///

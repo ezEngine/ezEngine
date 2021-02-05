@@ -3,6 +3,16 @@
 #include <Core/Utils/Blackboard.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Reflection/Reflection.h>
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezBlackboardEntryFlags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezBlackboardEntryFlags::Save, ezBlackboardEntryFlags::OnChangeEvent,
+    ezBlackboardEntryFlags::UserFlag0, ezBlackboardEntryFlags::UserFlag1, ezBlackboardEntryFlags::UserFlag2, ezBlackboardEntryFlags::UserFlag3, ezBlackboardEntryFlags::UserFlag4, ezBlackboardEntryFlags::UserFlag5, ezBlackboardEntryFlags::UserFlag6, ezBlackboardEntryFlags::UserFlag7)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+// clang-format on
+
+//////////////////////////////////////////////////////////////////////////
 
 ezBlackboard::ezBlackboard() = default;
 ezBlackboard::~ezBlackboard() = default;
@@ -26,6 +36,16 @@ void ezBlackboard::UnregisterEntry(const ezHashedString& name)
   {
     ++m_uiBlackboardChangeCounter;
   }
+}
+
+void ezBlackboard::UnregisterAllEntries()
+{
+  if (m_Entries.IsEmpty() == false)
+  {
+    ++m_uiBlackboardChangeCounter;
+  }
+
+  m_Entries.Clear();
 }
 
 void ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force /*= false*/)
