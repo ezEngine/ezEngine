@@ -31,7 +31,7 @@ protected:
     TempTreeCB(ezRenderContext* pRenderContext);
     ~TempTreeCB();
 
-    void SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset, const ezVec3& vWindTrunk, const ezVec3& vWindBranches);
+    void SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset);
 
     ezConstantBufferStorage<ezKrautTreeConstants>* m_pConstants;
     ezConstantBufferStorageHandle m_hConstantBuffer;

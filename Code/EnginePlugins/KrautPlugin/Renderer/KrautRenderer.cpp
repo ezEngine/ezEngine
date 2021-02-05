@@ -38,8 +38,6 @@ void ezKrautRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
 
 void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
-  
-
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
 
   const ezKrautRenderData* pRenderData = batch.GetFirstData<ezKrautRenderData>();
@@ -65,7 +63,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   pRenderContext->BindMaterial(pMesh->GetMaterials()[subMesh.m_uiMaterialIndex]);
   pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 
-  treeConstants.SetTreeData(pRenderData->m_vLeafCenter, renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::Shadow ? 1.0f : 0.0f, pRenderData->m_vWindTrunk, pRenderData->m_vWindBranches);
+  treeConstants.SetTreeData(pRenderData->m_vLeafCenter, renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::Shadow ? 1.0f : 0.0f);
 
   const ezVec3 vLodCamPos = renderViewContext.m_pLodCamera->GetPosition();
 
@@ -134,7 +132,7 @@ void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<e
     // always assumes uniform-scale only
     perInstanceData.ObjectToWorldNormal = objectToWorld;
     perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
-    perInstanceData.Color = ezColor::White; // pRenderData->m_Color;
+    perInstanceData.Color = ezColor(pRenderData->m_vWindTrunk.x, pRenderData->m_vWindTrunk.y, pRenderData->m_vWindTrunk.z, pRenderData->m_vWindTrunk.GetLength());
 
     ++uiCurrentIndex;
   }
@@ -155,11 +153,9 @@ ezKrautRenderer::TempTreeCB::~TempTreeCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezKrautRenderer::TempTreeCB::SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset, const ezVec3& vWindTrunk, const ezVec3& vWindBranches)
+void ezKrautRenderer::TempTreeCB::SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset)
 {
   ezKrautTreeConstants& cb = m_pConstants->GetDataForWriting();
   cb.LeafCenter = vTreeCenter;
   cb.LeafShadowOffset = fLeafShadowOffset;
-  cb.WindTrunk = vWindTrunk.GetAsVec4(vWindTrunk.GetLength());
-  cb.WindBranches = vWindBranches.GetAsVec4(vWindBranches.GetLength());
 }

@@ -7,6 +7,4 @@ CONSTANT_BUFFER(ezKrautTreeConstants, 4)
 {
   FLOAT3(LeafCenter);
   FLOAT1(LeafShadowOffset);
-  FLOAT4(WindTrunk);
-  FLOAT4(WindBranches);
 };

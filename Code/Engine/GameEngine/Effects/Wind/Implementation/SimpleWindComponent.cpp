@@ -119,13 +119,11 @@ void ezSimpleWindComponent::ComputeNextState()
 
   auto& rng = GetWorld()->GetRandomNumberGenerator();
 
-  if (m_MinWindStrength > m_MaxWindStrength)
-  {
-    ezMath::Swap(m_MinWindStrength, m_MaxWindStrength);
-  }
+  const ezEnum<ezWindStrength> minWind = ezMath::Min(m_MinWindStrength, m_MaxWindStrength);
+  const ezEnum<ezWindStrength> maxWind = ezMath::Max(m_MinWindStrength, m_MaxWindStrength);
 
-  const float fMinStrength = ezWindStrength::GetInMetersPerSecond(m_MinWindStrength);
-  const float fMaxStrength = ezWindStrength::GetInMetersPerSecond(m_MaxWindStrength);
+  const float fMinStrength = ezWindStrength::GetInMetersPerSecond(minWind);
+  const float fMaxStrength = ezWindStrength::GetInMetersPerSecond(maxWind);
 
   float fStrengthDiff = fMaxStrength - fMinStrength;
   float fStrengthChange = fStrengthDiff * 0.2f;

@@ -213,7 +213,8 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   ComputeWind();
 
-  const ezVec3 vLocalWind = GetOwner()->GetGlobalTransform().GetInverse().TransformDirection(m_vWindSpringPos);
+  // ignore scale, the shader expects the wind strength in the global 0-20 m/sec range
+  const ezVec3 vLocalWind = -GetOwner()->GetGlobalRotation() * m_vWindSpringPos;
 
   const ezUInt8 uiMaxLods = static_cast<ezUInt8>(pTree->GetTreeLODs().GetCount());
   for (ezUInt8 uiCurLod = 0; uiCurLod < uiMaxLods; ++uiCurLod)
@@ -314,9 +315,8 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
   {
     const float fHeightScale = GetOwner()->GetGlobalScalingSimd().z();
     const float fMaxScale = GetOwner()->GetGlobalScalingSimd().HorizontalMax<3>();
-    const float fRadius = details.m_fStaticColliderRadius * fMaxScale;
 
-    if (fRadius <= 0.0f)
+    if (details.m_fStaticColliderRadius * fMaxScale <= 0.0f)
       return EZ_FAILURE;
 
     const float fTreeHeight = (details.m_Bounds.m_vCenter.z + details.m_Bounds.m_vBoxHalfExtends.z) * 0.9f;
@@ -331,7 +331,7 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
 
     // due to 'transform' this will already include the tree scale
-    geo.AddCylinderOnePiece(fRadius, fRadius, fTreeHeight, 0.0f, 8, ezColor::White, transform);
+    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8, ezColor::White, transform);
 
     geo.TriangulatePolygons();
   }
@@ -448,12 +448,12 @@ void ezKrautTreeComponent::ComputeWind() const
     }
 
     ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
+
+    ezStringBuilder tmp;
+    tmp.Format("Wind: {}m/s", m_vWindSpringPos.GetLength());
+
+    ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue, 16, ezDebugRenderer::HorizontalAlignment::Center);
   }
-
-  ezStringBuilder tmp;
-  tmp.Format("Wind: {}m/s", m_vWindSpringPos.GetLength());
-
-  ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue, 16, ezDebugRenderer::HorizontalAlignment::Center);
 }
 
 void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const

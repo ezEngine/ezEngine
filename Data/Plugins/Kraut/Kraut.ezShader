@@ -89,6 +89,42 @@ float3 BendPosition(float3 position, float positionBend, float3 anchorPre, float
   return anchorPost + normalize(position) * distToAnchor;
 }
 
+float3 ComputeWind(float3 localPosition, float4 vWindTrunk, float4 vWindBranches, float fBendAndFlutterStrength, float fBranchLevel, float fFlutterPhase, float3 vBendAnchorPre, float fBendAnchorStrength)
+{
+  // wind direction is always in local object space
+  // but uses the global 0 - 20 m/sec speed range (w component and length) no matter the object scale
+
+  float fFlutterAmplitude = 0.1; // expose ?
+  
+  float fFastFlutterWindSpeed = 15.0; // constant
+  float fMinFlutterWindSpeed = 1.0; // constant (always have some flutter)
+  float fMaxFlutterWindSpeed = 20.0; // constant
+  float fFlutterPhaseShift = 1.9; // constant (sin(x) + sin(x*1.9) looks good)
+  float fSlowFlutterSpeed = 1.0; // constant (blend between slow and fast)
+  float fFastFlutterSpeed = 10.0; // constant
+
+  float3 vBendAnchorPost = BendPosition(vBendAnchorPre, fBendAnchorStrength, float3(0, 0, 0), float3(0, 0, 0), vWindTrunk.xyz, 0);
+
+  [branch]
+  if (fBranchLevel == 0)
+  {
+    localPosition = BendPosition(localPosition, fBendAndFlutterStrength, vBendAnchorPre, vBendAnchorPost, vWindTrunk.xyz, 0);
+  }
+  else
+  {
+    float2 flutterSamplePos = float2(fFlutterPhase + WorldTime, (fFlutterPhase + WorldTime) * fFlutterPhaseShift);
+    float flutterAmount = fFlutterAmplitude * fBendAndFlutterStrength * clamp(vWindBranches.w, fMinFlutterWindSpeed, fMaxFlutterWindSpeed);
+
+    float2 flutterSlow = sin(flutterSamplePos * fSlowFlutterSpeed);
+    float2 flutterFast = sin(flutterSamplePos * fFastFlutterSpeed);
+    float2 flutter = lerp(flutterSlow, flutterFast, clamp(vWindBranches.w / fFastFlutterWindSpeed, 0, 1)) * flutterAmount;
+
+    localPosition = BendPosition(localPosition, fBendAndFlutterStrength, vBendAnchorPre, vBendAnchorPost, vWindBranches.xyz, flutter.x + flutter.y);
+  }
+
+  return localPosition;
+}
+
 VS_OUT main(VS_IN Input)
 {
   VS_OUT result = FillVertexData(Input);
@@ -104,53 +140,15 @@ VS_OUT main(VS_IN Input)
   scale.y = length(objectToWorld._m01_m11_m21);
   scale.z = length(objectToWorld._m02_m12_m22);
   
-  float globalUniformScale = dot(scale, 1.0 / 3.0);
-  float4 vWindTrunk = WindTrunk * globalUniformScale;
-  float4 vWindBranches = WindBranches * globalUniformScale;
-  
-  // wind
-  {
-    float fFlutterAmplitude = 0.1; // expose ?
-    
-    float fFastWindSpeed = 15.0; // constant
-    float fFlutterPhaseShift = 1.73; // constant
-    float fSlowFlutterSpeed = 1.0; // constant
-    float fFastFlutterSpeed = 10.31; // constant
-
-    float fBendAndFlutterStrength = Input.Color0.r;
-
-    float fBranchLevel = Input.Color0.g; // currently 0 for trunk, 1 for everything else
-
-    float3 vBendAnchorPre = Input.Color1.xyz;
-    float fBendAnchorStrength = Input.Color1.w;
-
-    float3 vBendAnchorPost = BendPosition(vBendAnchorPre, fBendAnchorStrength, float3(0, 0, 0), float3(0, 0, 0), vWindTrunk.xyz, 0);
-
-    [branch]
-    if (fBranchLevel == 0)
-    {
-      localPosition = BendPosition(localPosition, fBendAndFlutterStrength, vBendAnchorPre, vBendAnchorPost, vWindTrunk.xyz, 0);
-    }
-    else
-    {
-      float fFlutterPhase = Input.Color0.b;
-
-      float2 flutterSamplePos = float2(fFlutterPhase + WorldTime, (fFlutterPhase + WorldTime)* fFlutterPhaseShift);
-      float flutterAmount = fFlutterAmplitude * fBendAndFlutterStrength * clamp(vWindBranches.w, 1, 20);
-
-      float2 flutterSlow = sin(flutterSamplePos * fSlowFlutterSpeed);
-      float2 flutterFast = sin(flutterSamplePos * fFastFlutterSpeed);
-      float2 flutter = lerp(flutterSlow, flutterFast, clamp(vWindBranches.w / fFastWindSpeed, 0, 1)) * flutterAmount;
-
-      localPosition = BendPosition(localPosition, fBendAndFlutterStrength, vBendAnchorPre, vBendAnchorPost, vWindBranches.xyz, flutter.x + flutter.y);
-    }
-  }
+  localPosition = ComputeWind(localPosition, data.Color, data.Color, Input.Color0.r, Input.Color0.g, Input.Color0.b, Input.Color1.xyz, Input.Color1.w);
 
   float4 worldPosition = mul(objectToWorld, float4(localPosition, 1));
 
   result.LeafNormal = float3(0, 0, 0);
   result.Color0 = Input.Color0;
   result.Color1 = Input.Color1;
+
+  float globalUniformScale = dot(scale, 1.0 / 3.0);
   
   [branch]
   if (KrautTreeMode == 4) // Billboard Impostor
