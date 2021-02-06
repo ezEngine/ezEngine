@@ -14,8 +14,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboardEntry, ezNoBase, 1, ezRTTIDefaultAllo
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    EZ_ENUM_MEMBER_PROPERTY("Type", ezVariantType, m_Type),
-    EZ_MEMBER_PROPERTY("InitialValue", m_InitialValue),
+    EZ_MEMBER_PROPERTY("InitialValue", m_InitialValue)->AddAttributes(new ezDefaultValueAttribute(0)),
     EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezBlackboardEntryFlags, m_Flags)
   }
   EZ_END_PROPERTIES;

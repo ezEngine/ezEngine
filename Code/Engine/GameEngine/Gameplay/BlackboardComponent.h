@@ -9,7 +9,6 @@ struct ezBlackboardEntry
   ezHashedString m_sName;
   ezVariant m_InitialValue;
   ezBitflags<ezBlackboardEntryFlags> m_Flags;
-  ezEnum<ezVariantType> m_Type;
 
   void SetName(const char* szName) { m_sName.Assign(szName); }
   const char* GetName() const { return m_sName; }
