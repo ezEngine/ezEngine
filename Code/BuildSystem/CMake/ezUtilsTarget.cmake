@@ -6,7 +6,7 @@ function(ez_create_target TYPE TARGET_NAME)
 
     set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX)
     set(ARG_ONEVALUEARGS "")
-    set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX)
+    set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX MANUAL_SOURCE_FILES)
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
 
     if (ARG_UNPARSED_ARGUMENTS)
@@ -15,7 +15,11 @@ function(ez_create_target TYPE TARGET_NAME)
 
     ez_pull_all_vars()
 
-    ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
+    if(DEFINED ARG_MANUAL_SOURCE_FILES)
+		set(ALL_SOURCE_FILES ${ARG_MANUAL_SOURCE_FILES})
+	else()
+		ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
+	endif()
 	
 
     if ((${TYPE} STREQUAL "LIBRARY") OR (${TYPE} STREQUAL "STATIC_LIBRARY"))
@@ -132,4 +136,3 @@ function(ez_create_target TYPE TARGET_NAME)
 	endif()
 
 endfunction()
-
