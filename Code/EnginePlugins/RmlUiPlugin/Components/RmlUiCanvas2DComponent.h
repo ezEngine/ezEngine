@@ -55,6 +55,7 @@ public:
   ezUInt32 AddBlackboardBinding(ezBlackboard& blackboard, const char* szModelName);
   void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
 
+  ezRmlUiContext* GetOrCreateRmlContext();
   ezRmlUiContext* GetRmlContext() { return m_pContext; }
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;

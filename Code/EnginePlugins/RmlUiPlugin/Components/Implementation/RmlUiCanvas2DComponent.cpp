@@ -45,32 +45,17 @@ ezRmlUiCanvas2DComponent& ezRmlUiCanvas2DComponent::operator=(ezRmlUiCanvas2DCom
 void ezRmlUiCanvas2DComponent::Initialize()
 {
   SUPER::Initialize();
-
-  ezStringBuilder sName = "Context_";
-  if (m_hResource.IsValid())
-  {
-    sName.Append(m_hResource.GetResourceID().GetView());
-  }
-  sName.AppendFormat("_{}", ezArgP(this));
-
-  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
-
-  for (auto& pDataBinding : m_DataBindings)
-  {
-    pDataBinding->Setup(*m_pContext).IgnoreResult();
-  }
-
-  m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
-
-  UpdateCachedValues();
 }
 
 void ezRmlUiCanvas2DComponent::Deinitialize()
 {
   SUPER::Deinitialize();
 
-  ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
-  m_pContext = nullptr;
+  if (m_pContext != nullptr)
+  {
+    ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
+    m_pContext = nullptr;
+  }
 
   m_DataBindings.Clear();
 }
@@ -79,7 +64,7 @@ void ezRmlUiCanvas2DComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_pContext->ShowDocument();
+  GetOrCreateRmlContext()->ShowDocument();
 }
 
 void ezRmlUiCanvas2DComponent::OnDeactivated()
@@ -243,6 +228,34 @@ ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard
 void ezRmlUiCanvas2DComponent::RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex)
 {
   RemoveDataBinding(uiDataBindingIndex);
+}
+
+ezRmlUiContext* ezRmlUiCanvas2DComponent::GetOrCreateRmlContext()
+{
+  if (m_pContext != nullptr)
+  {
+    return m_pContext;
+  }
+
+  ezStringBuilder sName = "Context_";
+  if (m_hResource.IsValid())
+  {
+    sName.Append(m_hResource.GetResourceID().GetView());
+  }
+  sName.AppendFormat("_{}", ezArgP(this));
+
+  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
+
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    pDataBinding->Setup(*m_pContext).IgnoreResult();
+  }
+
+  m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
+
+  UpdateCachedValues();
+
+  return m_pContext;
 }
 
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
