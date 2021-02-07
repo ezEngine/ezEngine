@@ -23,4 +23,5 @@ struct EZ_CORE_DLL ezGameObjectDesc
   ezVec3 m_LocalScaling = ezVec3(1, 1, 1);               ///< The local scaling relative to the parent (or the world)
   float m_LocalUniformScaling = 1.0f;                    ///< An additional local uniform scaling relative to the parent (or the world)
   ezTagSet m_Tags;                                       ///< See ezGameObject::GetTags()
+  ezUInt32 m_uiStableRandomSeed = 0;                     ///< 0 means the entity gets a random value assigned
 };

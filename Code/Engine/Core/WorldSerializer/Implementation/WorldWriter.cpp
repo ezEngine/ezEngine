@@ -66,7 +66,7 @@ void ezWorldWriter::WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGame
 
 ezResult ezWorldWriter::WriteToStream()
 {
-  const ezUInt8 uiVersion = 9;
+  const ezUInt8 uiVersion = 10;
   *m_pStream << uiVersion;
 
   // version 8: use string dedup instead of handle writer
@@ -277,6 +277,7 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->IsDynamic();
   pObject->GetTags().Save(s);
   s << pObject->GetTeamID();
+  s << pObject->GetStableRandomSeed();
 }
 
 void ezWorldWriter::WriteComponentTypeInfo(const ezRTTI* pRtti)

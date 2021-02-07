@@ -149,7 +149,7 @@ protected:
   ezUInt32 m_uiApplyOnlyToId = 0;
 
   ezTime m_StartFadeOutTime;
-  ezUInt32 m_uiInternalSortKey;
+  ezUInt32 m_uiInternalSortKey = 0;
   static ezUInt16 s_uiNextSortKey;
 
 private:
