@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4503936315766485946,5467247986140777545}}
-		u4 %Hash{16237774556327049893}
+		u4 %Hash{15258771342502841268}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4954456250233479308,17760596100351715494}}
@@ -118,7 +118,7 @@ o
 {
 	Uuid %id{u4{16410236728109607093,6175885950551889647}}
 	s %t{"ezDecalComponent"}
-	u3 %v{7}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
@@ -132,7 +132,11 @@ o
 		}
 		Color %EmissiveColor{f{0xFC410A40,0xC7EFCF40,0x2BCF3D40,0x0000803F}}
 		Vec3 %Extents{f{0x0000003F,0x0000003F,0x0000003F}}
-		Uuid %FadeOutDelay{u4{1675289059729366332,8815584581527328376}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x0000000000000840}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{1}
@@ -157,17 +161,6 @@ o
 			Uuid{u4{354221182201801742,179893789059481079}}
 		}
 		Uuid %Settings{u4{1389675116790664894,6171629996812167807}}
-	}
-}
-o
-{
-	Uuid %id{u4{1675289059729366332,8815584581527328376}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x000000000000F03F}}
-		f %Variance{0xA470BD3E}
 	}
 }
 }
@@ -224,7 +217,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
 		u3 %TypeSize{192}
-		u3 %TypeVersion{7}
+		u3 %TypeVersion{8}
 	}
 }
 o

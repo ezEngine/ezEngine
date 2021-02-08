@@ -36,7 +36,7 @@ Objects
 o
 {
 	Uuid %id{u4{3118143113721331799,2298504755260881335}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -138,7 +138,7 @@ o
 o
 {
 	Uuid %id{u4{17678322426543137705,6711846872291065290}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -163,7 +163,7 @@ o
 o
 {
 	Uuid %id{u4{15698615623467960568,11785733594183921061}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -175,7 +175,7 @@ o
 o
 {
 	Uuid %id{u4{10734599634740102229,13935977859858548028}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -187,7 +187,7 @@ o
 o
 {
 	Uuid %id{u4{16517880190460190527,15908073112877240341}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{

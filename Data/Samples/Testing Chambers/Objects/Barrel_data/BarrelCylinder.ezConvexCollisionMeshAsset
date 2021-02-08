@@ -11,7 +11,7 @@ o
 		s %AssetType{"Collision Mesh (Convex)"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9508560866659688859,5762680994806380648}}
-		u4 %Hash{4849776667812109953}
+		u4 %Hash{13691260086184101833}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -43,15 +43,14 @@ o
 	{
 		s %ConvexMeshType{"ezConvexCollisionMeshType::Cylinder"}
 		u1 %Detail{16}
-		s %ForwardDir{"ezBasisAxis::PositiveX"}
+		b %FlipForwardDir{0}
 		f %Height{0x8FC2753F}
 		b %IsConvexMesh{1}
+		u2 %MaxConvexPieces{2}
 		s %MeshFile{""}
-		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %Radius{0x295C8F3E}
 		f %Radius2{0x295C8F3E}
 		s %RightDir{"ezBasisAxis::PositiveY"}
-		s %SubmeshName{""}
 		VarArray %Surfaces
 		{
 			Uuid{u4{6106831891886634399,5204561695266028938}}
@@ -181,7 +180,7 @@ o
 		s %PluginName{"ezEditorPluginPhysX"}
 		VarArray %Properties{}
 		s %TypeName{"ezCollisionMeshAssetProperties"}
-		u3 %TypeSize{1232}
+		u3 %TypeSize{1160}
 		u3 %TypeVersion{2}
 	}
 }

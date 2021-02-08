@@ -14,7 +14,7 @@ o
 			s{"FleetOps/Sovereign_data/Sovereign.fbx"}
 		}
 		Uuid %DocumentID{u4{8162075323282421672,4738933399542900577}}
-		u4 %Hash{14327739183007213023}
+		u4 %Hash{12744636488600085531}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4202708370900592777,4889946379708453151}}
-		u4 %Hash{8774782029432464944}
+		u4 %Hash{10684026373332110411}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11552024804865076842,18190484902498930803}}
@@ -38,31 +38,24 @@ Objects
 {
 o
 {
-	Uuid %id{u4{15964253110149274405,116212559429419498}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x0000000000000840}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{87903812747687853,4953472027449769850}}
 	s %t{"ezParticleInitializerFactory_VelocityCone"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Angle %Angle{f{0xC2B8B23D}}
-		Uuid %Speed{u4{7789738524466362176,5208760658039134438}}
+		ezVarianceTypeFloat %Speed
+		{
+			f %Variance{0}
+			f %Value{0x00000040}
+		}
 	}
 }
 o
 {
 	Uuid %id{u4{2522753709472971402,5151888566929241422}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -80,22 +73,15 @@ o
 			Uuid{u4{87903812747687853,4953472027449769850}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{15964253110149274405,116212559429419498}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x0000000000000840}}
+		}
 		s %Name{"Points"}
 		s %OnDeathEvent{""}
 		VarArray %Types{}
 		b %Visible{1}
-	}
-}
-o
-{
-	Uuid %id{u4{7789738524466362176,5208760658039134438}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x00000040}
-		f %Variance{0}
 	}
 }
 o
@@ -154,7 +140,7 @@ o
 {
 	Uuid %id{u4{11472136107055013277,5721090161652357995}}
 	s %t{"ezParticleEffectDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %AlwaysShared{0}
@@ -221,7 +207,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_VelocityCone"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -383,7 +369,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -455,7 +441,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
 		u3 %TypeSize{360}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

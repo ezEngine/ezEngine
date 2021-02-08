@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Trees/Tree1 Autumn_D.tga"}
 		}
 		Uuid %DocumentID{u4{3618980827970954159,4939345953424844348}}
-		u4 %Hash{12757762731441114084}
+		u4 %Hash{15428132896804238559}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -37,6 +37,7 @@ o
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		s %CompressionMode{"ezTexConvCompressionMode::High"}
+		b %DilateColor{0}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		f %HdrExposureBias{0}

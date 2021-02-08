@@ -14,7 +14,7 @@ o
 			s{"Objects/Asteroid_data/Asteroid.obj"}
 		}
 		Uuid %DocumentID{u4{2545641796057708168,5030287473565369107}}
-		u4 %Hash{10915797015870544690}
+		u4 %Hash{18415434708036037479}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -38,27 +38,24 @@ o
 		b %Cap2{1}
 		u2 %Detail{8}
 		u2 %Detail2{7}
-		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %ImportMaterials{1}
-		b %InvertNormals{0}
 		VarArray %Materials
 		{
 			Uuid{u4{13574957586735319630,12636500879169556211}}
 		}
 		s %MeshFile{"Objects/Asteroid_data/Asteroid.obj"}
-		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000803E}
 		f %Radius2{0x0000003F}
 		b %RecalculateNormals{0}
+		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
-		s %SubmeshName{""}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0AD7233C}
 		s %UpDir{"ezBasisAxis::PositiveY"}
-		b %UseSubfolderForMaterialImport{1}
 	}
 }
 o
@@ -121,7 +118,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshAssetProperties"}
-		u3 %TypeSize{1312}
+		u3 %TypeSize{1240}
 		u3 %TypeVersion{3}
 	}
 }

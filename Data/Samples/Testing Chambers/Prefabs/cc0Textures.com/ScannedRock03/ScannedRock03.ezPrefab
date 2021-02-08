@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13888054779479488951,5158007759078717511}}
-		u4 %Hash{15682115799962229175}
+		u4 %Hash{16094520079221203706}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4537677934235858589,16114030821797568454}}
@@ -58,6 +58,7 @@ o
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{"{ e7bcdd7f-424b-401a-a5c5-fa54cae9199b }"}
 		b %IncludeInNavmesh{1}
+		b %PullSurfacesFromGraphicsMesh{1}
 	}
 }
 o
@@ -67,6 +68,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -222,7 +224,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -276,7 +278,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxStaticActorComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{2}
 	}
 }

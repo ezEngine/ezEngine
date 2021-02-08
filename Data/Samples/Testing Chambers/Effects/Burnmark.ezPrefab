@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17452682337642202802,5103648586153821917}}
-		u4 %Hash{13768228123217059673}
+		u4 %Hash{1297979945907664469}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2167383663703894676,15535504703904649329}}
@@ -41,11 +41,12 @@ o
 {
 	Uuid %id{u4{9250759796351468713,4828770268242183140}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ e21ab062-4083-47d8-930f-00bcb307502b }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -53,6 +54,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -97,16 +99,23 @@ o
 {
 	Uuid %id{u4{4825807929396864935,5520841212548323490}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{50,49,49,255}}
-		s %Decal{"{ 6a1fd60d-19ed-4701-b4a1-29d99ee6af1b }"}
+		VarArray %Decals
+		{
+			s{"{ 6a1fd60d-19ed-4701-b4a1-29d99ee6af1b }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x00004040,0x00004040,0x00004040}}
-		Uuid %FadeOutDelay{u4{15730142567604106706,9589667324506374256}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x0000000000002440}}
 		Angle %InnerFadeAngle{f{0xAA619C3F}}
 		b %MapNormalToGeometry{1}
@@ -131,17 +140,6 @@ o
 			Uuid{u4{474577743846269844,5462057934345311973}}
 		}
 		Uuid %Settings{u4{13515432335933323673,5348591091336876198}}
-	}
-}
-o
-{
-	Uuid %id{u4{15730142567604106706,9589667324506374256}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x0000000000002440}}
-		f %Variance{0x3D0A573E}
 	}
 }
 }
@@ -179,8 +177,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{168}
-		u3 %TypeVersion{6}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{8}
 	}
 }
 o
@@ -251,7 +249,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -324,7 +322,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
 		u3 %TypeSize{328}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o

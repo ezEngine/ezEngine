@@ -2747,8 +2747,8 @@ o
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters
 		{
-			f %SizeY{0x0000C040}
 			f %SizeX{0x0000C040}
+			f %SizeY{0x0000C040}
 		}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0}}
@@ -3972,8 +3972,8 @@ o
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters
 		{
-			Color %Color{f{0,0xA9263144,0x38573F44,0x0000803F}}
 			d %NumMultiplier{0x0000000000002440}
+			Color %Color{f{0,0xA9263144,0x38573F44,0x0000803F}}
 		}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0x000000000000F03F}}
@@ -6911,7 +6911,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -7073,7 +7073,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{552}
+		u3 %TypeSize{504}
 		u3 %TypeVersion{9}
 	}
 }

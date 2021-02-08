@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1604195568484542123,4944665773883242456}}
-		u4 %Hash{14731289990828860501}
+		u4 %Hash{9245378909451227356}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16908388746444736056,1615420986808674110}}
@@ -87,7 +87,7 @@ o
 {
 	Uuid %id{u4{10158737606693738639,4984228565424469465}}
 	s %t{"ezSpawnComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -95,6 +95,7 @@ o
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0}}
 		Time %MinDelay{d{0x000000000000F03F}}
+		VarDict %Parameters{}
 		s %Prefab{"{ 9bd6d5f2-c682-451b-91a0-8b719e3e29c1 }"}
 		b %SpawnAtStart{0}
 		b %SpawnContinuously{0}
@@ -122,7 +123,7 @@ o
 {
 	Uuid %id{u4{15415028221598416041,5188348456811275683}}
 	s %t{"ezSpawnComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -130,6 +131,7 @@ o
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0xC2B8B23D}}
 		Time %MinDelay{d{0x9A9999999999B93F}}
+		VarDict %Parameters{}
 		s %Prefab{"{ 07ca9462-c776-4fd0-ad76-bb783691ea2b }"}
 		b %SpawnAtStart{0}
 		b %SpawnContinuously{0}
@@ -511,8 +513,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpawnComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -601,7 +603,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }

@@ -14,7 +14,7 @@ o
 			s{"Textures/BlueNoise.dds"}
 		}
 		Uuid %DocumentID{u4{9906524041035189418,5366930873287527804}}
-		u4 %Hash{1721776690701361715}
+		u4 %Hash{13766282176655917091}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -37,6 +37,7 @@ o
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
+		b %DilateColor{0}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		f %HdrExposureBias{0}
