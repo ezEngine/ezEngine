@@ -443,7 +443,24 @@ public:
   /// \brief Changes the team ID for this object and all children recursively.
   void SetTeamID(ezUInt16 id);
 
+  /// \brief Returns a random value that is chosen once during object creation and remains stable even throughout serialization.
+  ///
+  /// This value is intended to be used for choosing random variations of components. For instance, if a component has two
+  /// different meshes it can use for variation, this seed should be used to decide which one to use.
+  ///
+  /// The stable random seed can also be set from the outside, which is what the editor does, to assign a truly stable seed value.
+  /// Therefore, each object placed in the editor will always have the same seed value, and objects won't change their appearance
+  /// on every run of the game.
+  ///
+  /// The stable seed is also propagated through prefab instances, such that every prefab instance gets a different value, but
+  /// in a deterministic fashion.
   ezUInt32 GetStableRandomSeed() const { return m_pTransformationData->m_uiStableRandomSeed; }
+
+  /// \brief OVerwrites the object's random seed value.
+  ///
+  /// See \a GetStableRandomSeed() for details.
+  ///
+  /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
   void SetStableRandomSeed(ezUInt32 seed) { m_pTransformationData->m_uiStableRandomSeed = seed; }
 
 private:
