@@ -131,8 +131,10 @@ void RtsUnitComponent::OnUnitDestroyed()
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hOnDestroyedPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
-    pPrefab->InstantiatePrefab(
-      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
+    ezPrefabInstantiationOptions options;
+    options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
+
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), options);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
@@ -310,8 +312,7 @@ void RtsUnitComponent::FireAt(ezGameObjectHandle hUnit)
     RtsMsgSetTarget msg;
     msg.m_hObject = hUnit;
 
-    ezGameObject* pSpawned =
-      RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
+    ezGameObject* pSpawned = RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
 
     pSpawned->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
   }

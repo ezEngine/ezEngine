@@ -259,7 +259,10 @@ ezResult ezGameState::SpawnPlayer(const ezTransform* pStartPosition)
           startPos.m_vPosition.z += 1.0f; // do not spawn player prefabs on the ground, they may not have their origin there
         }
 
-        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, ezGameObjectHandle(), nullptr, &uiTeamID, &(it->m_Parameters), false);
+        ezPrefabInstantiationOptions options;
+        options.m_pOverrideTeamID = &uiTeamID;
+
+        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, options, &(it->m_Parameters));
 
         return EZ_SUCCESS;
       }

@@ -69,8 +69,6 @@ private:
   void InstantiatePrefab();
   void ClearPreviousInstances();
 
-  void ResourceEventHandler(const ezResourceEvent& e);
-
   ezPrefabResourceHandle m_hPrefab;
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
   bool m_bInUpdateList = false;

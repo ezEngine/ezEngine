@@ -127,6 +127,13 @@ const ezWorld::ReferenceResolver& ezWorld::GetGameObjectReferenceResolver() cons
   return m_Data.m_GameObjectReferenceResolver;
 }
 
+// a super simple, but also efficient random number generator
+inline static ezUInt32 NextStableRandomSeed(ezUInt32& seed)
+{
+  seed = 214013L * seed + 2531011L;
+  return ((seed >> 16) & 0x7FFFF);
+}
+
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
 {
   CheckForWriteAccess();
@@ -188,8 +195,20 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_uiSpatialDataCategoryBitmask = 0;
   pTransformationData->m_uiStableRandomSeed = desc.m_uiStableRandomSeed;
 
-  // make sure it's never zero
-  while (pTransformationData->m_uiStableRandomSeed == 0)
+  // if seed is set to 0xFFFFFFFF, use the parent's seed to create a deterministic value for this object
+  if (pTransformationData->m_uiStableRandomSeed == 0xFFFFFFFF && pTransformationData->m_pParentData != nullptr)
+  {
+    ezUInt32 seed = pTransformationData->m_pParentData->m_uiStableRandomSeed + pTransformationData->m_pParentData->m_pObject->GetChildCount();
+
+    do
+    {
+      pTransformationData->m_uiStableRandomSeed = NextStableRandomSeed(seed);
+
+    } while (pTransformationData->m_uiStableRandomSeed == 0 || pTransformationData->m_uiStableRandomSeed == 0xFFFFFFFF);
+  }
+
+  // if the seed is zero (or there was no parent to derive the seed from), assign a random value
+  while (pTransformationData->m_uiStableRandomSeed == 0 || pTransformationData->m_uiStableRandomSeed == 0xFFFFFFFF)
   {
     pTransformationData->m_uiStableRandomSeed = GetRandomNumberGenerator().UInt();
   }

@@ -79,13 +79,18 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
 ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID, ezTime maxStepTime, ezProgress* pProgress)
 {
-  return Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, nullptr, pOverrideTeamID, false, maxStepTime, pProgress, 0xFFFFFFFF);
+  ezPrefabInstantiationOptions options;
+  options.m_pOverrideTeamID = pOverrideTeamID;
+  options.m_MaxStepTime = maxStepTime;
+  options.m_pProgress = pProgress;
+  options.m_RandomSeedMode = ezPrefabInstantiationOptions::RandomSeedMode::FixedFromSerialization;
+
+  return Instantiate(world, false, ezTransform(), options);
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
-  const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezUInt32 uiParentRandomSeed, ezTime maxStepTime, ezProgress* pProgress)
+ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
 {
-  return Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic, maxStepTime, pProgress, uiParentRandomSeed);
+  return Instantiate(world, true, rootTransform, options);
 }
 
 ezGameObjectHandle ezWorldReader::ReadGameObjectHandle()
@@ -286,49 +291,46 @@ void ezWorldReader::ClearHandles()
   }
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
-  const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress, ezUInt32 uiParentRandomSeed)
+ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
 {
   m_pWorld = &world;
 
   ClearHandles();
 
-  if (maxStepTime <= ezTime::Zero())
+  if (options.m_MaxStepTime <= ezTime::Zero())
   {
-    InstantiationContext context = InstantiationContext(*this, bUseTransform, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic, maxStepTime, pProgress, uiParentRandomSeed);
+    InstantiationContext context = InstantiationContext(*this, bUseTransform, rootTransform, options);
 
     EZ_VERIFY(context.Step() == InstantiationContextBase::StepResult::Finished, "Instantiation should be completed after this call");
     return nullptr;
   }
 
-  ezUniquePtr<InstantiationContext> pContext = EZ_DEFAULT_NEW(InstantiationContext, *this, bUseTransform, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic, maxStepTime, pProgress, uiParentRandomSeed);
+  ezUniquePtr<InstantiationContext> pContext = EZ_DEFAULT_NEW(InstantiationContext, *this, bUseTransform, rootTransform, options);
 
   return std::move(pContext);
 }
 
-ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
-  const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress, ezUInt32 uiParentRandomSeed)
+ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
   : m_WorldReader(worldReader)
   , m_bUseTransform(bUseTransform)
   , m_RootTransform(rootTransform)
-  , m_hParent(hParent)
-  , m_pCreatedRootObjects(out_CreatedRootObjects)
-  , m_pCreatedChildObjects(out_CreatedChildObjects)
-  , m_pOverrideTeamID(pOverrideTeamID)
-  , m_bForceDynamic(bForceDynamic)
-  , m_MaxStepTime(maxStepTime.IsPositive() ? maxStepTime : ezTime::Hours(10000))
-  , m_uiParentRandomSeed(uiParentRandomSeed)
+  , m_Options(options)
 {
   m_Phase = Phase::CreateRootObjects;
 
-  if (maxStepTime.IsPositive())
+  if (m_Options.m_MaxStepTime.IsZeroOrNegative())
   {
-    m_hComponentInitBatch = worldReader.m_pWorld->CreateComponentInitBatch("WorldReaderBatch", maxStepTime.IsPositive() ? false : true);
+    m_Options.m_MaxStepTime = ezTime::Hours(24 * 365);
   }
 
-  if (pProgress != nullptr)
+  if (options.m_MaxStepTime.IsPositive())
   {
-    m_pOverallProgressRange = EZ_DEFAULT_NEW(ezProgressRange, "Instantiate", Phase::Count, false, pProgress);
+    m_hComponentInitBatch = worldReader.m_pWorld->CreateComponentInitBatch("WorldReaderBatch", options.m_MaxStepTime.IsPositive() ? false : true);
+  }
+
+  if (options.m_pProgress != nullptr)
+  {
+    m_pOverallProgressRange = EZ_DEFAULT_NEW(ezProgressRange, "Instantiate", Phase::Count, false, options.m_pProgress);
     m_pOverallProgressRange->SetStepWeighting(Phase::CreateRootObjects, m_WorldReader.m_RootObjectsToCreate.GetCount() / 100.0f);
     m_pOverallProgressRange->SetStepWeighting(Phase::CreateChildObjects, m_WorldReader.m_ChildObjectsToCreate.GetCount() / 100.0f);
     m_pOverallProgressRange->SetStepWeighting(Phase::CreateComponents, m_WorldReader.m_uiTotalNumComponents / 100.0f);
@@ -357,18 +359,18 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
 
   EZ_LOCK(m_WorldReader.m_pWorld->GetWriteMarker());
 
-  ezTime endTime = ezTime::Now() + m_MaxStepTime;
+  ezTime endTime = ezTime::Now() + m_Options.m_MaxStepTime;
 
   if (m_Phase == Phase::CreateRootObjects)
   {
     if (m_bUseTransform)
     {
-      if (!CreateGameObjects<true>(m_WorldReader.m_RootObjectsToCreate, m_hParent, m_pCreatedRootObjects, endTime))
+      if (!CreateGameObjects<true>(m_WorldReader.m_RootObjectsToCreate, m_Options.m_hParent, m_Options.m_pCreatedRootObjectsOut, endTime))
         return StepResult::Continue;
     }
     else
     {
-      if (!CreateGameObjects<false>(m_WorldReader.m_RootObjectsToCreate, m_hParent, m_pCreatedRootObjects, endTime))
+      if (!CreateGameObjects<false>(m_WorldReader.m_RootObjectsToCreate, m_Options.m_hParent, m_Options.m_pCreatedRootObjectsOut, endTime))
         return StepResult::Continue;
     }
 
@@ -378,7 +380,7 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
 
   if (m_Phase == Phase::CreateChildObjects)
   {
-    if (!CreateGameObjects<false>(m_WorldReader.m_ChildObjectsToCreate, ezGameObjectHandle(), m_pCreatedChildObjects, endTime))
+    if (!CreateGameObjects<false>(m_WorldReader.m_ChildObjectsToCreate, ezGameObjectHandle(), m_Options.m_pCreatedChildObjectsOut, endTime))
       return StepResult::Continue;
 
     m_CurrentReader.SetStorage(&m_WorldReader.m_ComponentCreationStream);
@@ -485,20 +487,31 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
 
     ezGameObjectDesc desc = godesc.m_Desc; // make a copy
     desc.m_hParent = hParent.IsInvalidated() ? m_WorldReader.m_IndexToGameObjectHandle[godesc.m_uiParentHandleIdx] : hParent;
-    desc.m_bDynamic |= m_bForceDynamic;
+    desc.m_bDynamic |= m_Options.bForceDynamic;
 
-    if (m_uiParentRandomSeed != 0xFFFFFFFF)
+    switch (m_Options.m_RandomSeedMode)
     {
-      // 0xFFFFFFFF means we don't want to assign new seeds, but use the ones that were deserialized
-      // that is the case when instantiating a world
-      // however, when instantiating a prefab, we want to assign new seeds
+      case ezPrefabInstantiationOptions::RandomSeedMode::DeterministicFromParent:
+        desc.m_uiStableRandomSeed = 0xFFFFFFFF; // ezWorld::CreateObject() will either derive a deterministic value from the parent object, or assign a random value, if no parent exists
+        break;
 
-      desc.m_uiStableRandomSeed = NextStableRandomSeed(m_uiParentRandomSeed);
+      case ezPrefabInstantiationOptions::RandomSeedMode::CompletelyRandom:
+        desc.m_uiStableRandomSeed = 0; // ezWorld::CreateObject() will assign a random value to this object
+        break;
+
+      case ezPrefabInstantiationOptions::RandomSeedMode::FixedFromSerialization:
+        // keep deserialized value
+        break;
+
+      case ezPrefabInstantiationOptions::RandomSeedMode::CustomRootValue:
+        // we use the given seed root value to assign a deterministic (but different) value to each game object
+        desc.m_uiStableRandomSeed = NextStableRandomSeed(m_Options.m_uiCustomRandomSeedRootValue);
+        break;
     }
 
-    if (m_pOverrideTeamID != nullptr)
+    if (m_Options.m_pOverrideTeamID != nullptr)
     {
-      desc.m_uiTeamID = *m_pOverrideTeamID;
+      desc.m_uiTeamID = *m_Options.m_pOverrideTeamID;
     }
 
     if (UseTransform)

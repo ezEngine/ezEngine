@@ -84,7 +84,10 @@ void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
+    ezPrefabInstantiationOptions options;
+    options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
+
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), options);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

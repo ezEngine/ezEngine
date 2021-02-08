@@ -10,6 +10,32 @@ class ezStringDeduplicationReadContext;
 class ezProgress;
 class ezProgressRange;
 
+struct ezPrefabInstantiationOptions
+{
+  ezGameObjectHandle m_hParent;
+
+  ezHybridArray<ezGameObject*, 8>* m_pCreatedRootObjectsOut = nullptr;
+  ezHybridArray<ezGameObject*, 8>* m_pCreatedChildObjectsOut = nullptr;
+  const ezUInt16* m_pOverrideTeamID = nullptr;
+
+  bool bForceDynamic = false;
+
+  enum class RandomSeedMode
+  {
+    DeterministicFromParent,
+    CompletelyRandom,
+    FixedFromSerialization,
+    CustomRootValue,
+  };
+
+  RandomSeedMode m_RandomSeedMode = RandomSeedMode::DeterministicFromParent;
+  ezUInt32 m_uiCustomRandomSeedRootValue = 0;
+
+  ezTime m_MaxStepTime = ezTime::Zero();
+
+  ezProgress* m_pProgress = nullptr;
+};
+
 /// \brief Reads a world description from a stream. Allows to instantiate that world multiple times
 ///        in different locations and different ezWorld's.
 ///
@@ -84,8 +110,7 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID,
-    bool bForceDynamic, ezUInt32 uiParentRandomSeed, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
+  ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const { return *m_pStream; }
@@ -134,8 +159,7 @@ private:
   void ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentDataToMemStream();
   void ClearHandles();
-  ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID,
-    bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress, ezUInt32 uiParentRandomSeed);
+  ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
   ezStreamReader* m_pStream = nullptr;
   ezWorld* m_pWorld = nullptr;
@@ -164,8 +188,7 @@ private:
   class InstantiationContext : public InstantiationContextBase
   {
   public:
-    InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID,
-      bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress, ezUInt32 uiParentRandomSeed);
+    InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
     ~InstantiationContext();
 
     virtual StepResult Step() override;
@@ -186,14 +209,10 @@ private:
     ezWorldReader& m_WorldReader;
 
     bool m_bUseTransform = false;
-    bool m_bForceDynamic = false;
     ezTransform m_RootTransform;
-    ezGameObjectHandle m_hParent;
-    ezHybridArray<ezGameObject*, 8>* m_pCreatedRootObjects;
-    ezHybridArray<ezGameObject*, 8>* m_pCreatedChildObjects;
-    const ezUInt16* m_pOverrideTeamID = nullptr;
-    ezTime m_MaxStepTime;
-    ezUInt32 m_uiParentRandomSeed;
+
+    ezPrefabInstantiationOptions m_Options;
+
     ezComponentInitBatchHandle m_hComponentInitBatch;
 
     // Current state

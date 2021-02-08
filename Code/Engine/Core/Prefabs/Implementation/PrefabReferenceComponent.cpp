@@ -257,13 +257,19 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     ezTransform id;
     id.SetIdentity();
 
+    ezPrefabInstantiationOptions options;
+    options.m_hParent = GetOwner()->GetHandle();
+    options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
+
     // if this ID is valid, this prefab is instantiated at editor runtime
     // replicate the same ID across all instantiated sub components to get correct picking behavior
     if (GetUniqueID() != ezInvalidIndex)
     {
       ezHybridArray<ezGameObject*, 8> createdRootObjects;
 
-      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), &createdRootObjects, &GetOwner()->GetTeamID(), &m_Parameters, false, GetOwner()->GetStableRandomSeed());
+      options.m_pCreatedRootObjectsOut = &createdRootObjects;
+
+      pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
 
       // while exporting a scene all game objects with this tag are ignored and not exported
       // set this tag on all game objects that were created by instantiating this prefab
@@ -278,7 +284,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     }
     else
     {
-      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters, false, GetOwner()->GetStableRandomSeed());
+      pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
     }
   }
 }
