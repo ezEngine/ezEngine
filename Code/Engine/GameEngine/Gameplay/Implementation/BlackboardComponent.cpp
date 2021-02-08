@@ -77,6 +77,23 @@ ezBlackboardComponent::ezBlackboardComponent(ezBlackboardComponent&& other) = de
 ezBlackboardComponent::~ezBlackboardComponent() = default;
 ezBlackboardComponent& ezBlackboardComponent::operator=(ezBlackboardComponent&& other) = default;
 
+// static
+ezBlackboard* ezBlackboardComponent::FindBlackboard(ezGameObject* pObject)
+{
+  ezBlackboardComponent* pBlackboardComponent = nullptr;
+  while (pObject != nullptr && !pObject->TryGetComponentOfBaseType(pBlackboardComponent))
+  {
+    pObject = pObject->GetParent();
+  }
+
+  if (pBlackboardComponent != nullptr)
+  {
+    return &pBlackboardComponent->GetBoard();
+  }
+
+  return nullptr;
+}
+
 void ezBlackboardComponent::OnActivated()
 {
   if (GetShowDebugInfo())

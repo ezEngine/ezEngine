@@ -37,6 +37,8 @@ public:
 
   ezBlackboardComponent& operator=(ezBlackboardComponent&& other);
 
+  static ezBlackboard* FindBlackboard(ezGameObject* pSearchObject);
+
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
