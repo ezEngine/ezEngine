@@ -32,7 +32,7 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -61,11 +61,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
     new ezBoxVisualizerAttribute("Extents"),
   }
   EZ_END_ATTRIBUTES;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
-  }
-  EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
@@ -79,12 +74,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezUInt16 ezDecalComponent::s_uiNextSortKey = 0;
-
-ezDecalComponent::ezDecalComponent()
-  : m_uiInternalSortKey(s_uiNextSortKey++)
-{
-}
+ezDecalComponent::ezDecalComponent() {}
 
 ezDecalComponent::~ezDecalComponent() = default;
 
@@ -99,7 +89,6 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_InnerFadeAngle;
   s << m_OuterFadeAngle;
   s << m_fSortOrder;
-  s << m_uiInternalSortKey;
   s << m_FadeOutDelay.m_Value;
   s << m_FadeOutDelay.m_fVariance;
   s << m_FadeOutDuration;
@@ -144,7 +133,15 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_InnerFadeAngle;
   s >> m_OuterFadeAngle;
   s >> m_fSortOrder;
-  s >> m_uiInternalSortKey;
+
+  if (uiVersion <= 7)
+  {
+    ezUInt32 dummy;
+    s >> dummy;
+  }
+
+  m_uiInternalSortKey = GetOwner()->GetStableRandomSeed();
+  m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
 
   if (uiVersion < 7)
   {
@@ -190,6 +187,8 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
 {
   if (m_hDecals.IsEmpty())
     return EZ_FAILURE;
+
+  m_uiRandomDecalIdx = GetOwner()->GetStableRandomSeed() % m_hDecals.GetCount();
 
   const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
 
@@ -521,12 +520,6 @@ void ezDecalComponent::UpdateApplyTo()
   }
 }
 
-void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
-{
-  m_uiInternalSortKey = ezHashHelper<ezUuid>::Hash(node.GetGuid());
-  m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
-}
-
 void ezDecalComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
@@ -534,7 +527,7 @@ void ezDecalComponent::OnSimulationStarted()
   ezWorld* pWorld = GetWorld();
 
   // no fade out -> fade out pretty late
-  m_StartFadeOutTime = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+  m_StartFadeOutTime = ezTime::Hours(24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
@@ -559,16 +552,14 @@ void ezDecalComponent::OnSimulationStarted()
 
     TriggerLocalBoundsUpdate();
   }
-
-  if (m_uiRandomDecalIdx == 0xFF && !m_hDecals.IsEmpty())
-  {
-    m_uiRandomDecalIdx = GetWorld()->GetRandomNumberGenerator().UIntInRange(m_hDecals.GetCount());
-  }
 }
 
 void ezDecalComponent::OnActivated()
 {
   SUPER::OnActivated();
+
+  m_uiInternalSortKey = GetOwner()->GetStableRandomSeed();
+  m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
 
   UpdateApplyTo();
 }

@@ -105,16 +105,21 @@ void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
 {
   ezResourceLock<ezPrefabResource> pResource(m_hPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
+  ezPrefabInstantiationOptions options;
+  options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
+
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
   {
-    pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters, false);
+    options.m_hParent = GetOwner()->GetHandle();
+
+    pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, options, &m_Parameters);
   }
   else
   {
     ezTransform tGlobalSpawn;
     tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
 
-    pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters, false);
+    pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, options, &m_Parameters);
   }
 }
 

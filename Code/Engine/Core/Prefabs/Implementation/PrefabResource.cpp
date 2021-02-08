@@ -17,7 +17,7 @@ ezPrefabResource::ezPrefabResource()
 {
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, bool bForceDynamic)
+void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues)
 {
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
@@ -27,16 +27,23 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
     ezHybridArray<ezGameObject*, 8> createdRootObjects;
     ezHybridArray<ezGameObject*, 8> createdChildObjects;
 
-    if (out_CreatedRootObjects == nullptr)
-      out_CreatedRootObjects = &createdRootObjects;
+    if (options.m_pCreatedRootObjectsOut == nullptr)
+    {
+      options.m_pCreatedRootObjectsOut = &createdRootObjects;
+    }
 
-    m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects, &createdChildObjects, pOverrideTeamID, bForceDynamic);
+    if (options.m_pCreatedChildObjectsOut == nullptr)
+    {
+      options.m_pCreatedChildObjectsOut = &createdChildObjects;
+    }
 
-    ApplyExposedParameterValues(pExposedParamValues, createdChildObjects, *out_CreatedRootObjects);
+    m_WorldReader.InstantiatePrefab(world, rootTransform, options);
+
+    ApplyExposedParameterValues(pExposedParamValues, *options.m_pCreatedChildObjectsOut, *options.m_pCreatedRootObjectsOut);
   }
   else
   {
-    m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects, nullptr, pOverrideTeamID, bForceDynamic);
+    m_WorldReader.InstantiatePrefab(world, rootTransform, options);
   }
 }
 

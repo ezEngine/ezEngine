@@ -174,15 +174,13 @@ public:
   void AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects.
-  void AddChildren(
-    const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
-  void DetachChildren(
-    const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -429,8 +427,7 @@ public:
   ///
   /// \param queueType In which update phase to deliver the message.
   /// \param delay An optional delay before delivering the message.
-  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay,
-    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
 
   /// \brief Returns the tag set associated with this object.
@@ -445,6 +442,26 @@ public:
 
   /// \brief Changes the team ID for this object and all children recursively.
   void SetTeamID(ezUInt16 id);
+
+  /// \brief Returns a random value that is chosen once during object creation and remains stable even throughout serialization.
+  ///
+  /// This value is intended to be used for choosing random variations of components. For instance, if a component has two
+  /// different meshes it can use for variation, this seed should be used to decide which one to use.
+  ///
+  /// The stable random seed can also be set from the outside, which is what the editor does, to assign a truly stable seed value.
+  /// Therefore, each object placed in the editor will always have the same seed value, and objects won't change their appearance
+  /// on every run of the game.
+  ///
+  /// The stable seed is also propagated through prefab instances, such that every prefab instance gets a different value, but
+  /// in a deterministic fashion.
+  ezUInt32 GetStableRandomSeed() const { return m_pTransformationData->m_uiStableRandomSeed; }
+
+  /// \brief OVerwrites the object's random seed value.
+  ///
+  /// See \a GetStableRandomSeed() for details.
+  ///
+  /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
+  void SetStableRandomSeed(ezUInt32 seed) { m_pTransformationData->m_uiStableRandomSeed = seed; }
 
 private:
   friend class ezComponentManagerBase;
@@ -514,7 +531,9 @@ private:
     ezSpatialDataHandle m_hSpatialData;
     ezUInt32 m_uiSpatialDataCategoryBitmask;
 
-    ezUInt32 m_uiPadding2[2];
+    ezUInt32 m_uiStableRandomSeed = 0;
+
+    ezUInt32 m_uiPadding2[1];
 
     void UpdateLocalTransform();
 

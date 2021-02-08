@@ -131,7 +131,11 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
 
     ezTransform transform = ezSimdConversion::ToTransform(objectTransform.m_Transform);
     ezHybridArray<ezGameObject*, 8> rootObjects;
-    pPrefab->InstantiatePrefab(world, transform, ezGameObjectHandle(), &rootObjects, nullptr, nullptr, false);
+
+    ezPrefabInstantiationOptions options;
+    options.m_pCreatedRootObjectsOut = &rootObjects;
+
+    pPrefab->InstantiatePrefab(world, transform, options);
 
     for (auto pRootObject : rootObjects)
     {

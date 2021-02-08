@@ -1287,7 +1287,12 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
           if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
           {
             ezHybridArray<ezGameObject*, 8> created;
-            pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vPosition), ezGameObjectHandle(), &created, nullptr, nullptr, true);
+
+            ezPrefabInstantiationOptions options;
+            options.m_pCreatedRootObjectsOut = &created;
+            options.bForceDynamic = true;
+
+            pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vPosition), options);
             slideInfo.m_hRollPrefab = created[0]->GetHandle();
           }
         }
@@ -1327,7 +1332,12 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
           if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
           {
             ezHybridArray<ezGameObject*, 8> created;
-            pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vPosition), ezGameObjectHandle(), &created, nullptr, nullptr, true);
+
+            ezPrefabInstantiationOptions options;
+            options.m_pCreatedRootObjectsOut = &created;
+            options.bForceDynamic = true;
+
+            pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vPosition), options);
             slideInfo.m_hSlidePrefab = created[0]->GetHandle();
           }
         }

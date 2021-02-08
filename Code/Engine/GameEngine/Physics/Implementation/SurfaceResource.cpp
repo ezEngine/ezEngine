@@ -288,7 +288,13 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   }
 
   ezHybridArray<ezGameObject*, 8> rootObjects;
-  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID, &pIA->m_Parameters, false);
+
+  ezPrefabInstantiationOptions options;
+  options.m_hParent = hParent;
+  options.m_pCreatedRootObjectsOut = &rootObjects;
+  options.m_pOverrideTeamID = pOverrideTeamID;
+
+  pPrefab->InstantiatePrefab(*pWorld, t, options, &pIA->m_Parameters);
 
   {
     ezMsgSetFloatParameter msgSetFloat;
