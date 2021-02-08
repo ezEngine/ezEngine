@@ -686,7 +686,7 @@ bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, const ezCompon
 }
 
 
-void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components)
+void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<ezComponent*>& out_components)
 {
   out_components.Clear();
 
@@ -700,7 +700,7 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray
   }
 }
 
-void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<const ezComponent*, 8>& out_components) const
+void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<const ezComponent*>& out_components) const
 {
   out_components.Clear();
 

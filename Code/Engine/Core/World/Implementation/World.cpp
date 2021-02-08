@@ -407,15 +407,20 @@ const ezComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGam
 
     while (pCurrentObject != nullptr)
     {
-      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
-      if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
+      ezHybridArray<const ezEventMessageHandlerComponent*, 4> eventMessageHandlerComponents;
+      pCurrentObject->TryGetComponentsOfBaseType(eventMessageHandlerComponents);
+
+      if (eventMessageHandlerComponents.IsEmpty() == false)
       {
-        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        for (auto pEventMessageHandlerComponent : eventMessageHandlerComponents)
         {
-          return pEventMessageHandlerComponent;
+          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+          {
+            return pEventMessageHandlerComponent;
+          }
         }
 
-        // found an ezEventMessageHandlerComponent -> stop searching
+        // found at least one ezEventMessageHandlerComponent -> stop searching
         // even if it does not handle this type of message, we do not want to propagate the message to someone else
         return nullptr;
       }
