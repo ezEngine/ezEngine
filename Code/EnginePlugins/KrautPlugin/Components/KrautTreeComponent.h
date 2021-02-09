@@ -88,14 +88,11 @@ public:
   const ezKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; }
 
 private:
-  void OnObjectCreated(const ezAbstractObjectNode& node);
-
   ezResult CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const;
   void EnsureTreeIsGenerated();
 
   ezUInt16 m_uiVariationIndex = 0xFFFF;
   ezUInt16 m_uiCustomRandomSeed = 0xFFFF;
-  ezUInt16 m_uiDefaultVariationIndex = 0xFFFF;
   ezKrautTreeResourceHandle m_hKrautTree;
   ezKrautGeneratorResourceHandle m_hKrautGenerator;
 

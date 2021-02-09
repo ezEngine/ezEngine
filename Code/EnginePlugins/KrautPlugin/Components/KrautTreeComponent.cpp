@@ -16,7 +16,7 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -31,11 +31,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
   }
   EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
-  }
-  EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Vegetation"),
@@ -57,7 +52,6 @@ void ezKrautTreeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hKrautGenerator;
   s << m_uiVariationIndex;
   s << m_uiCustomRandomSeed;
-  s << m_uiDefaultVariationIndex;
 }
 
 void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& stream)
@@ -78,7 +72,12 @@ void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_uiVariationIndex;
   s >> m_uiCustomRandomSeed;
-  s >> m_uiDefaultVariationIndex;
+
+  if (uiVersion == 2)
+  {
+    ezUInt16 m_uiDefaultVariationIndex;
+    s >> m_uiDefaultVariationIndex;
+  }
 
   GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
 }
@@ -186,11 +185,6 @@ void ezKrautTreeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  if (m_uiDefaultVariationIndex == 0xFFFF)
-  {
-    m_uiDefaultVariationIndex = GetWorld()->GetRandomNumberGenerator().UIntInRange(0xFFFF);
-  }
-
   m_hKrautTree.Invalidate();
   m_vWindSpringPos.SetZero();
   m_vWindSpringVel.SetZero();
@@ -285,11 +279,6 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   }
 }
 
-void ezKrautTreeComponent::OnObjectCreated(const ezAbstractObjectNode& node)
-{
-  m_uiDefaultVariationIndex = ezHashHelper<ezUuid>::Hash(node.GetGuid()) % 0xFFFF;
-}
-
 ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const
 {
   if (GetOwner()->IsDynamic())
@@ -359,7 +348,7 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   {
     if (m_uiVariationIndex == 0xFFFF)
     {
-      hNewTree = pResource->GenerateTreeWithGoodSeed(m_uiDefaultVariationIndex);
+      hNewTree = pResource->GenerateTreeWithGoodSeed(GetOwner()->GetStableRandomSeed());
     }
     else
     {
