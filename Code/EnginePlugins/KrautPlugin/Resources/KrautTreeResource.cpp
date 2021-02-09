@@ -111,13 +111,13 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
     const ezUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
     const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
 
-    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat); // 0
-    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat); // 1
-    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat); // 2
-    buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit)); // 3
+    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);                                                // 0
+    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);                                                // 1
+    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat);                                                // 2
+    buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit));   // 3
     buffer.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit)); // 4
-    buffer.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::XYZWFloat); // 5 TODO: better packing
-    buffer.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::XYZWFloat); // 6 TODO: better packing
+    buffer.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::XYZWFloat);                                                 // 5 TODO: better packing
+    buffer.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::XYZWFloat);                                                 // 6 TODO: better packing
     buffer.AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
     for (ezUInt32 v = 0; v < uiNumVertices; ++v)

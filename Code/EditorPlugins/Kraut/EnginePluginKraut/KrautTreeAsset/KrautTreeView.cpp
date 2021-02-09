@@ -10,6 +10,7 @@
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeView.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
@@ -18,7 +19,6 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <KrautPlugin/Resources/KrautGeneratorResource.h>
 
 ezKrautTreeViewContext::ezKrautTreeViewContext(ezKrautTreeContext* pKrautTreeContext)
   : ezEngineProcessViewContext(pKrautTreeContext)
