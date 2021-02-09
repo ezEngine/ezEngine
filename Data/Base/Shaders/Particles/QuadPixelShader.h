@@ -26,7 +26,10 @@ float4 main(PS_IN Input) : SV_Target
 
 
   #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
-    clip(opacity - 0.01);
+    if (opacity == 0.0)
+    {
+      discard;
+    }
 
     float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoord0.xy);
     float3 sceneColor = SampleSceneColor(Input.Position.xy + (texDistort - 0.5) * float2(DistortionStrength, DistortionStrength));
@@ -43,7 +46,10 @@ float4 main(PS_IN Input) : SV_Target
       finalColor = ApplyFog(finalColor, Input.FogAmount);
     #endif
 
-    clip(opacity - 0.01);
+    if (opacity == 0.0)
+    {
+      discard;
+    }
 
     return float4(finalColor, opacity);
 
