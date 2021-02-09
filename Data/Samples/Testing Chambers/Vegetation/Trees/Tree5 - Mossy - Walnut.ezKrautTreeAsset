@@ -11,21 +11,17 @@ o
 		s %AssetType{"Kraut Tree"}
 		VarArray %Dependencies
 		{
-			s{"Vegetation/Trees/Tree5 - Mossy - Walnut.kraut"}
+			s{"Vegetation/Tree5.tree"}
 		}
 		Uuid %DocumentID{u4{16242289591921312934,5331298968656744613}}
-		u4 %Hash{546267677059761390}
+		u4 %Hash{9446677126194320791}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 37772b6e-a129-49be-8a2e-cc21a9da7309 }"}
-			s{"{ 59776d9c-5fb2-4243-892c-a72d1c81b6ac }"}
-			s{"{ 7268382f-76bd-469e-9145-aa6f922c428b }"}
-			s{"{ 7544ccde-6c96-4c9b-a8f4-2c3ed487be85 }"}
-			s{"{ 7ecadd1d-7951-4dd9-869e-1e4ca4389806 }"}
+			s{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
-			s{"{ f96f6b13-4aa3-4758-9c1f-914a8ba09f38 }"}
+			s{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
 		}
 	}
 }
@@ -34,24 +30,35 @@ Objects
 {
 o
 {
+	Uuid %id{u4{440031702117033133,4871387950543216427}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Twig 1 - Leaf"}
+		s %Material{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{13221536648321646759,4964413843328666743}}
 	s %t{"ezKrautAssetMaterial"}
 	u3 %v{1}
 	p
 	{
-		s %DiffuseTexture{"{ 7ecadd1d-7951-4dd9-869e-1e4ca4389806 }"}
-		s %NormalMapTexture{"{ 37772b6e-a129-49be-8a2e-cc21a9da7309 }"}
+		s %Label{"Branch 1 - Leaf"}
+		s %Material{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
 	}
 }
 o
 {
-	Uuid %id{u4{14574734851240801208,5110809754526210436}}
+	Uuid %id{u4{5101323386866554807,5138982381412055676}}
 	s %t{"ezKrautAssetMaterial"}
 	u3 %v{1}
 	p
 	{
-		s %DiffuseTexture{"{ 59776d9c-5fb2-4243-892c-a72d1c81b6ac }"}
-		s %NormalMapTexture{"{ f96f6b13-4aa3-4758-9c1f-914a8ba09f38 }"}
+		s %Label{"Twig 1 - Stem"}
+		s %Material{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
 	}
 }
 o
@@ -61,8 +68,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %DiffuseTexture{"{ 7ecadd1d-7951-4dd9-869e-1e4ca4389806 }"}
-		s %NormalMapTexture{"{ 37772b6e-a129-49be-8a2e-cc21a9da7309 }"}
+		s %Label{"Branch 1 - Stem"}
+		s %Material{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
 	}
 }
 o
@@ -72,8 +79,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %DiffuseTexture{"{ 7544ccde-6c96-4c9b-a8f4-2c3ed487be85 }"}
-		s %NormalMapTexture{"{ 7268382f-76bd-469e-9145-aa6f922c428b }"}
+		s %Label{"Trunk 1 - Stem"}
+		s %Material{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
 	}
 }
 o
@@ -83,17 +90,27 @@ o
 	u3 %v{1}
 	p
 	{
-		s %KrautFile{"Vegetation/Trees/Tree5 - Mossy - Walnut.kraut"}
+		u2 %DisplayRandomSeed{10}
+		VarArray %GoodRandomSeeds
+		{
+			u2{10}
+			u2{4}
+			u2{7}
+			u2{13}
+		}
+		s %KrautFile{"Vegetation/Tree5.tree"}
 		f %LodDistanceScale{0x00008040}
 		VarArray %Materials
 		{
 			Uuid{u4{9980473252024396221,5330160200626627343}}
 			Uuid{u4{4391832461624850561,5280164604799923266}}
 			Uuid{u4{13221536648321646759,4964413843328666743}}
-			Uuid{u4{14574734851240801208,5110809754526210436}}
+			Uuid{u4{5101323386866554807,5138982381412055676}}
+			Uuid{u4{440031702117033133,4871387950543216427}}
 		}
 		f %StaticColliderRadius{0x9A99193F}
 		s %Surface{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
+		f %TreeStiffness{0x00007041}
 		f %UniformScaling{0x0000803F}
 	}
 }
@@ -146,7 +163,7 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeAssetProperties"}
-		u3 %TypeSize{1200}
+		u3 %TypeSize{1264}
 		u3 %TypeVersion{1}
 	}
 }

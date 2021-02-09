@@ -11,21 +11,17 @@ o
 		s %AssetType{"Kraut Tree"}
 		VarArray %Dependencies
 		{
-			s{"Vegetation/Trees/Tree1 Autumn.kraut"}
+			s{"Vegetation/Tree1.tree"}
 		}
 		Uuid %DocumentID{u4{7922893751843090352,4753529958296423156}}
-		u4 %Hash{3943886185040181998}
+		u4 %Hash{6575383111090082903}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 613adf21-c12e-46d7-80f0-81986f30c172 }"}
-			s{"{ 7a80d6b4-9162-42ee-912a-31c8716b2889 }"}
-			s{"{ 8f5e6a71-da0b-461e-91dd-7daa87a5a2f9 }"}
-			s{"{ 90a6a63c-14f9-448c-af63-288ce3333932 }"}
-			s{"{ b1ecbf94-797f-406f-98c3-e2516b489e50 }"}
+			s{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
+			s{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
-			s{"{ f210e08c-8654-4342-ac61-6a9ef6d7ffff }"}
 		}
 	}
 }
@@ -39,8 +35,30 @@ o
 	u3 %v{1}
 	p
 	{
-		s %DiffuseTexture{"{ f210e08c-8654-4342-ac61-6a9ef6d7ffff }"}
-		s %NormalMapTexture{"{ 7a80d6b4-9162-42ee-912a-31c8716b2889 }"}
+		s %Label{"Trunk 1 - Stem"}
+		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+	}
+}
+o
+{
+	Uuid %id{u4{9946521383448143527,5000505601284149650}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 1 - Frond"}
+		s %Material{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15229581238603056830,5068493176192205751}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 1 - Stem"}
+		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
 	}
 }
 o
@@ -50,40 +68,21 @@ o
 	u3 %v{1}
 	p
 	{
-		s %KrautFile{"Vegetation/Trees/Tree1 Autumn.kraut"}
+		u2 %DisplayRandomSeed{0}
+		VarArray %GoodRandomSeeds{}
+		s %KrautFile{"Vegetation/Tree1.tree"}
 		f %LodDistanceScale{0x00004040}
 		VarArray %Materials
 		{
 			Uuid{u4{5088101051107946415,4870035473096612422}}
 			Uuid{u4{1419016552106224791,5503466959349083848}}
-			Uuid{u4{10722759770999945887,5478403013523562832}}
-			Uuid{u4{15674635242533824645,5114899643260578811}}
+			Uuid{u4{15229581238603056830,5068493176192205751}}
+			Uuid{u4{9946521383448143527,5000505601284149650}}
 		}
 		f %StaticColliderRadius{0xCDCCCC3E}
 		s %Surface{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
+		f %TreeStiffness{0x00002042}
 		f %UniformScaling{0x0000803F}
-	}
-}
-o
-{
-	Uuid %id{u4{15674635242533824645,5114899643260578811}}
-	s %t{"ezKrautAssetMaterial"}
-	u3 %v{1}
-	p
-	{
-		s %DiffuseTexture{"{ 90a6a63c-14f9-448c-af63-288ce3333932 }"}
-		s %NormalMapTexture{"{ 613adf21-c12e-46d7-80f0-81986f30c172 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{10722759770999945887,5478403013523562832}}
-	s %t{"ezKrautAssetMaterial"}
-	u3 %v{1}
-	p
-	{
-		s %DiffuseTexture{"{ 90a6a63c-14f9-448c-af63-288ce3333932 }"}
-		s %NormalMapTexture{"{ 613adf21-c12e-46d7-80f0-81986f30c172 }"}
 	}
 }
 o
@@ -93,8 +92,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %DiffuseTexture{"{ 8f5e6a71-da0b-461e-91dd-7daa87a5a2f9 }"}
-		s %NormalMapTexture{"{ b1ecbf94-797f-406f-98c3-e2516b489e50 }"}
+		s %Label{"Trunk 1 - Frond"}
+		s %Material{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
 	}
 }
 o
@@ -146,7 +145,7 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeAssetProperties"}
-		u3 %TypeSize{1200}
+		u3 %TypeSize{1264}
 		u3 %TypeVersion{1}
 	}
 }

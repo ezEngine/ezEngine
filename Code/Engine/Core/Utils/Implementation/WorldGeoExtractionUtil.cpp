@@ -83,7 +83,6 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
 
     line.Format("v {0} {1} {2}\n", ezArgF(pos.x, 8), ezArgF(pos.y, 8), ezArgF(pos.z, 8));
     file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
-    file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
   }
 
   line.Format("\n\n# {0} triangles\n\n", geo.m_Triangles.GetCount());

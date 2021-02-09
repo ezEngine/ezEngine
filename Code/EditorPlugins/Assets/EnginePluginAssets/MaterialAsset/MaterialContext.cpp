@@ -38,7 +38,6 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezMaterialContext::OnInitialize()
 {
-
   const char* szMeshName = "DefaultMaterialPreviewMesh";
   m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 
@@ -60,6 +59,7 @@ void ezMaterialContext::OnInitialize()
       desc.AddCommonStreams();
       desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
       desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+      desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);

@@ -5,8 +5,8 @@
 
 struct ezKrautAssetMaterial
 {
-  ezString m_sDiffuseTexture;
-  ezString m_sNormalMapTexture;
+  ezString m_sLabel;
+  ezString m_sMaterial;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautAssetMaterial);
@@ -23,7 +23,12 @@ public:
   float m_fUniformScaling = 1.0f;
   float m_fLodDistanceScale = 1.0f;
   float m_fStaticColliderRadius = 0.4f;
+  float m_fTreeStiffness = 10.0f;
   ezString m_sSurface;
 
   ezHybridArray<ezKrautAssetMaterial, 8> m_Materials;
+
+  ezUInt16 m_uiRandomSeedForDisplay = 0;
+
+  ezHybridArray<ezUInt16, 16> m_GoodRandomSeeds;
 };

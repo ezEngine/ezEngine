@@ -6,13 +6,13 @@
 #include <GameEngine/Effects/Wind/SimpleWindWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MinStrength", m_fWindStrengthMin)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MaxStrength", m_fWindStrengthMax)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
+    EZ_ENUM_MEMBER_PROPERTY("MinWindStrength", ezWindStrength, m_MinWindStrength),
+    EZ_ENUM_MEMBER_PROPERTY("MaxWindStrength", ezWindStrength, m_MaxWindStrength),
+    EZ_MEMBER_PROPERTY("MaxDeviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -62,19 +62,29 @@ void ezSimpleWindComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s << m_fWindStrengthMin;
-  s << m_fWindStrengthMax;
+  s << m_MinWindStrength;
+  s << m_MaxWindStrength;
   s << m_Deviation;
 }
 
 void ezSimpleWindComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  s >> m_fWindStrengthMin;
-  s >> m_fWindStrengthMax;
+  if (uiVersion == 1)
+  {
+    float m_fWindStrengthMin, m_fWindStrengthMax;
+    s >> m_fWindStrengthMin;
+    s >> m_fWindStrengthMax;
+  }
+  else
+  {
+    s >> m_MinWindStrength;
+    s >> m_MaxWindStrength;
+  }
+
   s >> m_Deviation;
 }
 
@@ -82,7 +92,7 @@ void ezSimpleWindComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_fNextStrength = m_fWindStrengthMin;
+  m_fNextStrength = ezWindStrength::GetInMetersPerSecond(m_MinWindStrength);
   m_vNextDirection = GetOwner()->GetGlobalDirForwards();
   m_NextChange = GetWorld()->GetClock().GetAccumulatedTime();
 
@@ -109,14 +119,17 @@ void ezSimpleWindComponent::ComputeNextState()
 
   auto& rng = GetWorld()->GetRandomNumberGenerator();
 
-  if (m_fWindStrengthMax < m_fWindStrengthMin)
-    ezMath::Swap(m_fWindStrengthMax, m_fWindStrengthMin);
+  const ezEnum<ezWindStrength> minWind = ezMath::Min(m_MinWindStrength, m_MaxWindStrength);
+  const ezEnum<ezWindStrength> maxWind = ezMath::Max(m_MinWindStrength, m_MaxWindStrength);
 
-  float fStrengthDiff = m_fWindStrengthMax - m_fWindStrengthMin;
+  const float fMinStrength = ezWindStrength::GetInMetersPerSecond(minWind);
+  const float fMaxStrength = ezWindStrength::GetInMetersPerSecond(maxWind);
+
+  float fStrengthDiff = fMaxStrength - fMinStrength;
   float fStrengthChange = fStrengthDiff * 0.2f;
 
   m_NextChange = m_LastChange + ezTime::Seconds(rng.DoubleMinMax(2.0f, 5.0f));
-  m_fNextStrength = ezMath::Clamp<float>(m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), m_fWindStrengthMin, m_fWindStrengthMax);
+  m_fNextStrength = ezMath::Clamp<float>(m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), fMinStrength, fMaxStrength);
 
   const ezVec3 vMainDir = GetOwner()->GetGlobalDirForwards();
 

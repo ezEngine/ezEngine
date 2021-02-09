@@ -24,6 +24,21 @@ enum class ezKrautMaterialType : ezUInt8
   Branch = 0,
   Frond = 1,
   Leaf = 2,
-  StaticImpostor = 3,
-  BillboardImpostor = 4,
+};
+
+enum class ezKrautBranchType : ezUInt8
+{
+  None = 0xFF,
+  Trunk1 = 0,
+  Trunk2 = 1,
+  Trunk3 = 2,
+  MainBranches1 = 3,
+  MainBranches2 = 4,
+  MainBranches3 = 5,
+  SubBranches1 = 6,
+  SubBranches2 = 7,
+  SubBranches3 = 8,
+  Twigs1 = 9,
+  Twigs2 = 10,
+  Twigs3 = 11,
 };

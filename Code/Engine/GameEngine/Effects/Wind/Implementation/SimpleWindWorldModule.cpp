@@ -17,7 +17,7 @@ ezSimpleWindWorldModule::ezSimpleWindWorldModule(ezWorld* pWorld)
 
 ezSimpleWindWorldModule::~ezSimpleWindWorldModule() = default;
 
-ezVec3 ezSimpleWindWorldModule::GetWindAt(const ezVec3& vPosition)
+ezVec3 ezSimpleWindWorldModule::GetWindAt(const ezVec3& vPosition) const
 {
   return m_vFallbackWind;
 }

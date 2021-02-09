@@ -972,6 +972,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
   auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   const ezCamera* pCamera = &data.GetCamera();
+  const ezCamera* pLodCamera = &data.GetLodCamera();
   const ezViewData* pViewData = &data.GetViewData();
 
   auto& gc = pRenderContext->WriteGlobalConstants();
@@ -1005,6 +1006,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
   ezRenderViewContext renderViewContext;
   renderViewContext.m_pCamera = pCamera;
+  renderViewContext.m_pLodCamera = pLodCamera;
   renderViewContext.m_pViewData = pViewData;
   renderViewContext.m_pRenderContext = pRenderContext;
   renderViewContext.m_pWorldDebugContext = &data.GetWorldDebugContext();

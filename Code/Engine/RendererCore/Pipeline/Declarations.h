@@ -50,6 +50,7 @@ namespace ezInternal
 struct ezRenderViewContext
 {
   const ezCamera* m_pCamera;
+  const ezCamera* m_pLodCamera;
   const ezViewData* m_pViewData;
   ezRenderContext* m_pRenderContext;
 
