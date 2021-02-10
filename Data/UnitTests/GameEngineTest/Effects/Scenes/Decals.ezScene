@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4114495068825608376,4693612569124721933}}
-		u4 %Hash{11802584495834937495}
+		u4 %Hash{15497834163099604430}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -125,29 +125,25 @@ o
 }
 o
 {
-	Uuid %id{u4{8495911250909471483,535300887426855764}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{11923291469196352611,801549209369366753}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{233,233,233,255}}
-		s %Decal{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		VarArray %Decals
+		{
+			s{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{9169385729105329460,15709046424047015650}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x000000000000F03F}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -181,17 +177,6 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
-	}
-}
-o
-{
-	Uuid %id{u4{1839865677020319936,869415762102760432}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -425,16 +410,23 @@ o
 {
 	Uuid %id{u4{18159204386226433430,1762189018677652954}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{69,1,255,255}}
-		s %Decal{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		VarArray %Decals
+		{
+			s{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		}
 		Color %EmissiveColor{f{0x493D8841,0x98117E3C,0xD3151E41,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{16683821677720999875,3989266332370451899}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{0}
@@ -444,17 +436,6 @@ o
 		f %SizeVariance{0}
 		f %SortOrder{0}
 		b %WrapAround{0}
-	}
-}
-o
-{
-	Uuid %id{u4{2168337112924043397,2232196499015901831}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -535,17 +516,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4763060475952304996,3115672366925645029}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{13143060341973175414,3139123077935277288}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -594,28 +564,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{12865400486714524177,3288075394159069936}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{11072518000947882634,3452384383013971691}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -718,28 +666,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16683821677720999875,3989266332370451899}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{1591374345511817948,4154217706932801489}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{963234587291244852,4199322585090675532}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -787,17 +713,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{15269503430924360775,4681391585092312724}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -911,16 +826,23 @@ o
 {
 	Uuid %id{u4{9510613987454506377,4738429101568201906}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{0,240,236,255}}
-		s %Decal{"{ 29697ae9-f654-4d64-82ea-a0a826798a51 }"}
+		VarArray %Decals
+		{
+			s{"{ 29697ae9-f654-4d64-82ea-a0a826798a51 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x00004040,0x00004040,0x00004040}}
-		Uuid %FadeOutDelay{u4{11072518000947882634,3452384383013971691}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x000000000000E03F}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -1105,16 +1027,23 @@ o
 {
 	Uuid %id{u4{18085442068424735140,4886084605302893068}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{"{ de5b75d4-3549-87d0-1f56-a4a5ecfb4457 }"}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{4644570384341318872,5545235587189814235}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x000000000000F03F}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -1157,16 +1086,23 @@ o
 {
 	Uuid %id{u4{13649859360092904068,4901281856961990908}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{4763060475952304996,3115672366925645029}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -1198,16 +1134,23 @@ o
 {
 	Uuid %id{u4{13426233348495853989,4930755075128542131}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 797e7e43-8b28-45db-8399-944401a96562 }"}
+		VarArray %Decals
+		{
+			s{"{ 797e7e43-8b28-45db-8399-944401a96562 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x00008040,0x00008040,0x0000803F}}
-		Uuid %FadeOutDelay{u4{12865400486714524177,3288075394159069936}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -1223,16 +1166,23 @@ o
 {
 	Uuid %id{u4{17195083967727545483,4982906584338087287}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{0,0,0,255}}
-		s %Decal{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		VarArray %Decals
+		{
+			s{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{8150428805200452045,16213848314918215721}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -1324,16 +1274,23 @@ o
 {
 	Uuid %id{u4{3993240663051057323,5075467591603048276}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0xCDCCCC3D,0x00000040,0x00000040}}
-		Uuid %FadeOutDelay{u4{15092651164844119802,11006102960785051657}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -1377,16 +1334,23 @@ o
 {
 	Uuid %id{u4{13018059425379769499,5147171753512568849}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{19,228,0,255}}
-		s %Decal{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		VarArray %Decals
+		{
+			s{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		}
 		Color %EmissiveColor{f{0xF110893F,0x16E07340,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{2168337112924043397,2232196499015901831}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{1}
@@ -1774,16 +1738,23 @@ o
 {
 	Uuid %id{u4{6048280248667463314,5451735262128846087}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		VarArray %Decals
+		{
+			s{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
-		Uuid %FadeOutDelay{u4{2616126930790858272,7406780583492678985}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -1820,17 +1791,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{4644570384341318872,5545235587189814235}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -1888,16 +1848,23 @@ o
 {
 	Uuid %id{u4{17489337538716084115,5727049623509982980}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{230,0,0,255}}
-		s %Decal{"{ 3acfdf66-2b61-4cf1-a3e4-78801c70b520 }"}
+		VarArray %Decals
+		{
+			s{"{ 3acfdf66-2b61-4cf1-a3e4-78801c70b520 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{8752551215913112807,17190727408608999174}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{0}
@@ -1937,16 +1904,23 @@ o
 {
 	Uuid %id{u4{13207177410609350550,5741766035118617898}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{721989845718257983,8862320201894074765}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -2058,28 +2032,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7819589630565109412,6021106487434267506}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{16460499991458340021,6083745011736234196}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{17592252422807836773,6304088691544086273}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -2187,28 +2139,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7909645259330569189,6641768568947170902}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{16249862813820666771,6700457187719581535}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{9154000129696466167,6735574365454046305}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -2263,16 +2193,23 @@ o
 {
 	Uuid %id{u4{13266486115712621344,6782578351336151269}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{69,1,255,255}}
-		s %Decal{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		VarArray %Decals
+		{
+			s{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		}
 		Color %EmissiveColor{f{0xEAF80141,0x493D8841,0x98117E3C,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{1591374345511817948,4154217706932801489}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{0}
@@ -2282,17 +2219,6 @@ o
 		f %SizeVariance{0}
 		f %SortOrder{0}
 		b %WrapAround{0}
-	}
-}
-o
-{
-	Uuid %id{u4{1604932444110349992,6844933168389060343}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -2341,28 +2267,6 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
-	}
-}
-o
-{
-	Uuid %id{u4{2616126930790858272,7406780583492678985}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{16407404059843238637,7423946401164416179}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -2593,28 +2497,6 @@ o
 }
 o
 {
-	Uuid %id{u4{721989845718257983,8862320201894074765}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{12994384516106613853,8888513650961973264}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{1350745761501105960,9347325600228719553}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -2641,16 +2523,23 @@ o
 {
 	Uuid %id{u4{1487012179149241396,9570302994378047418}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 797e7e43-8b28-45db-8399-944401a96562 }"}
+		VarArray %Decals
+		{
+			s{"{ 797e7e43-8b28-45db-8399-944401a96562 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{16407404059843238637,7423946401164416179}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -2749,16 +2638,23 @@ o
 {
 	Uuid %id{u4{5213310483949040170,9696890048639827631}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0xB81EA53F,0x0000803F,0xC3F5A83F}}
-		Uuid %FadeOutDelay{u4{16249862813820666771,6700457187719581535}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -2900,16 +2796,23 @@ o
 {
 	Uuid %id{u4{14560425768540169744,9910302925739550696}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{233,233,233,255}}
-		s %Decal{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		VarArray %Decals
+		{
+			s{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{1839865677020319936,869415762102760432}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -2925,16 +2828,23 @@ o
 {
 	Uuid %id{u4{12064871567194344989,9935235141914554993}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{19,228,0,255}}
-		s %Decal{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		VarArray %Decals
+		{
+			s{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{1604932444110349992,6844933168389060343}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{1}
@@ -3030,16 +2940,23 @@ o
 {
 	Uuid %id{u4{4709388151703866423,10164110944105803398}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{"{ de5b75d4-3549-87d0-1f56-a4a5ecfb4457 }"}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{3555334989358428473,13384014962199608459}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0xAA619C3F}}
 		b %MapNormalToGeometry{1}
@@ -3055,16 +2972,23 @@ o
 {
 	Uuid %id{u4{2082869138823523415,10170937105768585861}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{19,228,0,255}}
-		s %Decal{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		VarArray %Decals
+		{
+			s{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{7819589630565109412,6021106487434267506}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{1}
@@ -3107,16 +3031,23 @@ o
 {
 	Uuid %id{u4{8853354768495266619,10245945290577549818}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0xCDCCCC3D,0x00000040,0x00000040}}
-		Uuid %FadeOutDelay{u4{12994384516106613853,8888513650961973264}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -3283,16 +3214,23 @@ o
 {
 	Uuid %id{u4{7925389479662853433,10689405157870611925}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,217,0,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x00000040,0x00000040}}
-		Uuid %FadeOutDelay{u4{7844792313318461572,14325561714014085085}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -3361,16 +3299,23 @@ o
 {
 	Uuid %id{u4{18149631906316082199,10836130606222479509}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		VarArray %Decals
+		{
+			s{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
-		Uuid %FadeOutDelay{u4{8495911250909471483,535300887426855764}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -3434,16 +3379,23 @@ o
 {
 	Uuid %id{u4{9779773004496390729,10987467092330771956}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		VarArray %Decals
+		{
+			s{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
-		Uuid %FadeOutDelay{u4{7909645259330569189,6641768568947170902}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x666666666666E63F}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -3479,17 +3431,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{15092651164844119802,11006102960785051657}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -3574,16 +3515,23 @@ o
 {
 	Uuid %id{u4{17114193560923166016,11340562131713244051}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{242,255,0,255}}
-		s %Decal{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		VarArray %Decals
+		{
+			s{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{3934365606237373017,16885978542817766635}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -3693,28 +3641,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{3555334989358428473,13384014962199608459}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{14111875544714679465,13399671661714503243}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -3924,17 +3850,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7844792313318461572,14325561714014085085}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{5312787685759242441,14359732646334466095}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -3961,16 +3876,23 @@ o
 {
 	Uuid %id{u4{2482091257497767142,14394331716456917444}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{"{ 28017bee-a3da-4174-851f-1177ad005ca5 }"}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		VarArray %Decals
+		{
+			s{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{3880122394574835074,14661546517179408596}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -4112,16 +4034,23 @@ o
 {
 	Uuid %id{u4{2744134045769096899,14608464402721667887}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{233,233,233,255}}
-		s %Decal{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		VarArray %Decals
+		{
+			s{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{14111875544714679465,13399671661714503243}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x000000000000F03F}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -4131,17 +4060,6 @@ o
 		f %SizeVariance{0}
 		f %SortOrder{0x000000C0}
 		b %WrapAround{1}
-	}
-}
-o
-{
-	Uuid %id{u4{3880122394574835074,14661546517179408596}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -4174,16 +4092,23 @@ o
 {
 	Uuid %id{u4{14995824384583487729,14882949737388022071}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{69,1,255,255}}
-		s %Decal{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		VarArray %Decals
+		{
+			s{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		}
 		Color %EmissiveColor{f{0xB5BD2E3C,0xC3D25640,0x28673B41,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{16460499991458340021,6083745011736234196}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{1}
@@ -4243,17 +4168,6 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
-	}
-}
-o
-{
-	Uuid %id{u4{9169385729105329460,15709046424047015650}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x000000000000E03F}}
-		f %Variance{0}
 	}
 }
 o
@@ -4365,16 +4279,23 @@ o
 {
 	Uuid %id{u4{17268746327457297907,16054499021785201908}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{0,255,242,255}}
-		s %Decal{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		VarArray %Decals
+		{
+			s{"{ 84a7b41d-ff3a-4291-b1fd-ffcbb2bc9a32 }"}
+		}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{15269503430924360775,4681391585092312724}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
@@ -4410,17 +4331,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{8150428805200452045,16213848314918215721}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -4597,17 +4507,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3934365606237373017,16885978542817766635}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{1421345674596128634,16930998567971207766}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -4652,17 +4551,6 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
-	}
-}
-o
-{
-	Uuid %id{u4{8752551215913112807,17190727408608999174}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -4744,8 +4632,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{168}
-		u3 %TypeVersion{6}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{8}
 	}
 }
 o
@@ -4870,7 +4758,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -4978,7 +4866,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{552}
+		u3 %TypeSize{504}
 		u3 %TypeVersion{9}
 	}
 }

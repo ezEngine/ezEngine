@@ -15,7 +15,7 @@ o
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{6723278151993045132,4670659999096851328}}
-		u4 %Hash{9732653679038082356}
+		u4 %Hash{17734215952236570238}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -28,7 +28,7 @@ o
 {
 	Uuid %id{u4{3771511255039206297,5273830286324878161}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		s %AlphaMask{""}
@@ -72,7 +72,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
 		u3 %TypeSize{336}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

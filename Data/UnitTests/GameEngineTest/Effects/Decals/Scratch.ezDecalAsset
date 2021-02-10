@@ -14,7 +14,7 @@ o
 			s{"Kenney.nl/Decals/scratch_01.png"}
 		}
 		Uuid %DocumentID{u4{5875641870803069570,5576853079923981033}}
-		u4 %Hash{12278293591671594449}
+		u4 %Hash{18137257182629481955}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -27,7 +27,7 @@ o
 {
 	Uuid %id{u4{8239239242168460440,4932593019102862848}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		s %AlphaMask{""}
@@ -71,7 +71,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
 		u3 %TypeSize{336}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

@@ -13,6 +13,7 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipActions.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
+#include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
@@ -476,6 +477,32 @@ static void ConfigureAnimatedMeshAsset()
   }
 }
 
+static void ConfigureImageDataAsset()
+{
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("ImageDataAssetMenuBar").IgnoreResult();
+    ezProjectActions::MapActions("ImageDataAssetMenuBar");
+    ezStandardMenus::MapActions("ImageDataAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezDocumentActions::MapActions("ImageDataAssetMenuBar", "Menu.File", false);
+    ezCommandHistoryActions::MapActions("ImageDataAssetMenuBar", "Menu.Edit");
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("ImageDataAssetToolBar").IgnoreResult();
+    ezDocumentActions::MapActions("ImageDataAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("ImageDataAssetToolBar", "");
+    ezAssetActions::MapActions("ImageDataAssetToolBar", true);
+  }
+
+  // View Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("ImageDataAssetViewToolBar").IgnoreResult();
+    ezViewActions::MapActions("ImageDataAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+  }
+}
+
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
@@ -497,6 +524,7 @@ void OnLoadPlugin(bool bReloading)
   ConfigureAnimationClipAsset();
   ConfigureSkeletonAsset();
   ConfigureAnimatedMeshAsset();
+  ConfigureImageDataAsset();
 }
 
 void OnUnloadPlugin(bool bReloading)

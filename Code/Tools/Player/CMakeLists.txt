@@ -18,7 +18,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   # Due to app sandboxing we need to explicitly name required plugins for UWP.
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
-    KrautPlugin
     ParticlePlugin
     InspectorPlugin
     TypeScriptPlugin

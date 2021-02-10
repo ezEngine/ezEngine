@@ -1,0 +1,61 @@
+#include <EditorPluginAssetsPCH.h>
+
+#include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
+#include <EditorPluginAssets/ImageDataAsset/ImageDataAssetManager.h>
+#include <EditorPluginAssets/ImageDataAsset/ImageDataAssetWindow.moc.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezImageDataAssetDocumentManager>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezImageDataAssetDocumentManager::ezImageDataAssetDocumentManager()
+{
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezImageDataAssetDocumentManager::OnDocumentManagerEvent, this));
+
+  m_DocTypeDesc.m_sDocumentTypeName = "Image Data";
+  m_DocTypeDesc.m_sFileExtension = "ezImageDataAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ImageData.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezImageDataAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_sResourceFileExtension = "ezImageData";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
+}
+
+ezImageDataAssetDocumentManager::~ezImageDataAssetDocumentManager()
+{
+  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezImageDataAssetDocumentManager::OnDocumentManagerEvent, this));
+}
+
+void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+{
+  switch (e.m_Type)
+  {
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    {
+      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezImageDataAssetDocument>())
+      {
+        ezQtImageDataAssetDocumentWindow* pDocWnd = new ezQtImageDataAssetDocumentWindow(static_cast<ezImageDataAssetDocument*>(e.m_pDocument));
+      }
+    }
+    break;
+
+    default:
+      break;
+  }
+}
+
+void ezImageDataAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+{
+  ezImageDataAssetDocument* pDoc = new ezImageDataAssetDocument(szPath);
+  out_pDocument = pDoc;
+}
+
+void ezImageDataAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+{
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
+}

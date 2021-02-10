@@ -16,7 +16,7 @@ o
 			s{"Textures/cc0Textures.com/Leaking004/Leaking004_Opacity.jpg"}
 		}
 		Uuid %DocumentID{u4{11956572882605652905,5001164200007033681}}
-		u4 %Hash{17309867019752364863}
+		u4 %Hash{8879773330679481576}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -29,7 +29,7 @@ o
 {
 	Uuid %id{u4{8889934348167120802,5726226917236795770}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		s %AlphaMask{"Textures/cc0Textures.com/Leaking004/Leaking004_Opacity.jpg"}
@@ -73,7 +73,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
 		u3 %TypeSize{336}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
