@@ -248,10 +248,10 @@ namespace
     ezUInt32 maxLineLength = 0;
 
     ezStringBuilder sb;
-    if (text.FindSubString("\\n"))
+    if (text.FindSubString("\n"))
     {
       sb = text;
-      sb.Split(false, lines, "\\n");
+      sb.Split(false, lines, "\n");
 
       for (auto& line : lines)
       {

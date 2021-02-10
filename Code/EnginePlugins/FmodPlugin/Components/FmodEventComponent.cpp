@@ -727,12 +727,12 @@ void ezFmodEventComponent::Update()
       }
 
       ezStringBuilder sb;
-      sb.Format("{}\\n{}", path, szCurrentState);
+      sb.Format("{}\n{}", path, szCurrentState);
 
       if (GetUseOcclusion())
       {
         auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
-        sb.AppendFormat("\\nOcclusion: {}", occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
+        sb.AppendFormat("\nOcclusion: {}", occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
 
         ezVec3 centerPos = GetOwner()->GetGlobalPosition();
         for (ezUInt32 uiRayIndex = 0; uiRayIndex < EZ_ARRAY_SIZE(s_InSpherePositions); ++uiRayIndex)

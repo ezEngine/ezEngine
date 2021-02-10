@@ -75,11 +75,11 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     }
 
     ezStringBuilder sText;
-    sText.AppendFormat("Triangles: {}\\n", uiNumTriangles);
-    sText.AppendFormat("Vertices: {}\\n", uiNumVertices);
-    sText.AppendFormat("UV Channels: {}\\n", uiNumUVs);
-    sText.AppendFormat("Color Channels: {}\\n", uiNumColors);
-    sText.AppendFormat("Bytes Per Vertex: {}\\n", bufferDesc.m_uiStructSize);
+    sText.AppendFormat("Triangles: {}\n", uiNumTriangles);
+    sText.AppendFormat("Vertices: {}\n", uiNumVertices);
+    sText.AppendFormat("UV Channels: {}\n", uiNumUVs);
+    sText.AppendFormat("Color Channels: {}\n", uiNumColors);
+    sText.AppendFormat("Bytes Per Vertex: {}\n", bufferDesc.m_uiStructSize);
     sText.AppendFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
