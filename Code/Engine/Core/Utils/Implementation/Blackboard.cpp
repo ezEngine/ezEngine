@@ -17,6 +17,11 @@ EZ_END_STATIC_REFLECTED_BITFLAGS;
 ezBlackboard::ezBlackboard() = default;
 ezBlackboard::~ezBlackboard() = default;
 
+void ezBlackboard::SetName(const char* szName)
+{
+  m_sName.Assign(szName);
+}
+
 void ezBlackboard::RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags /*= ezBlackboardEntryFlags::None*/)
 {
   EZ_ASSERT_ALWAYS(!flags.IsSet(ezBlackboardEntryFlags::Invalid), "The invalid flag is reserved for internal use.");

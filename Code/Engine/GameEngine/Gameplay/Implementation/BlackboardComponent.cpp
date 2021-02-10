@@ -48,6 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
     EZ_ARRAY_ACCESSOR_PROPERTY("Entries", Entries_GetCount, Entries_GetValue, Entries_SetValue, Entries_Insert, Entries_Remove),
   }
   EZ_END_PROPERTIES;
@@ -115,6 +116,7 @@ void ezBlackboardComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
+  s << m_pBoard->GetName();
   s.WriteArray(m_InitialEntries).IgnoreResult();
 }
 
@@ -124,6 +126,10 @@ void ezBlackboardComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
+
+  ezStringBuilder sb;
+  s >> sb;
+  m_pBoard->SetName(sb);
 
   ezDynamicArray<ezBlackboardEntry> initialEntries;
   if (s.ReadArray(initialEntries).Succeeded())
@@ -165,6 +171,16 @@ bool ezBlackboardComponent::GetShowDebugInfo() const
   return GetUserFlag(BCFlags::ShowDebugInfo);
 }
 
+void ezBlackboardComponent::SetBlackboardName(const char* szName)
+{
+  m_pBoard->SetName(szName);
+}
+
+const char* ezBlackboardComponent::GetBlackboardName() const
+{
+  return m_pBoard->GetName();
+}
+
 void ezBlackboardComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
   if (GetShowDebugInfo())
@@ -191,6 +207,7 @@ void ezBlackboardComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
     return;
 
   ezStringBuilder sb;
+  sb.Append(m_pBoard->GetName(), "\n");
 
   for (auto it = entries.GetIterator(); it.IsValid(); ++it)
   {

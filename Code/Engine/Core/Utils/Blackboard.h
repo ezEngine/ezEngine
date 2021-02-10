@@ -67,6 +67,9 @@ public:
   ezBlackboard();
   ~ezBlackboard();
 
+  void SetName(const char* szName);
+  const char* GetName() const { return m_sName; }
+
   struct Entry
   {
     ezVariant m_Value;
@@ -153,6 +156,7 @@ public:
   ezResult Deserialize(ezStreamReader& stream);
 
 private:
+  ezHashedString m_sName;
   ezEvent<EntryEvent> m_EntryEvents;
   ezUInt32 m_uiBlackboardChangeCounter = 0;
   ezUInt32 m_uiBlackboardEntryChangeCounter = 0;

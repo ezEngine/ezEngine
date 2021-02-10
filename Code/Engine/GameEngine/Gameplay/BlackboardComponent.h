@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/World/World.h>
 #include <Core/Utils/Blackboard.h>
+#include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
 struct ezBlackboardEntry
@@ -53,6 +53,9 @@ public:
 
   void SetShowDebugInfo(bool bShow); // [ property ]
   bool GetShowDebugInfo() const;     // [ property ]
+
+  void SetBlackboardName(const char* szName); // [ property ]
+  const char* GetBlackboardName() const;      // [ property ]
 
 private:
   ezUInt32 Entries_GetCount() const;

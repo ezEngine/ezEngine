@@ -3,6 +3,7 @@
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Gameplay/BlackboardComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -12,7 +13,7 @@
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,6 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezSuffixAttribute("px"), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),    
     EZ_ACCESSOR_PROPERTY("PassInput", GetPassInput, SetPassInput)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -45,6 +47,8 @@ ezRmlUiCanvas2DComponent& ezRmlUiCanvas2DComponent::operator=(ezRmlUiCanvas2DCom
 void ezRmlUiCanvas2DComponent::Initialize()
 {
   SUPER::Initialize();
+
+  UpdateAutobinding();
 }
 
 void ezRmlUiCanvas2DComponent::Deinitialize()
@@ -121,7 +125,10 @@ void ezRmlUiCanvas2DComponent::Update()
 
   for (auto& pDataBinding : m_DataBindings)
   {
-    pDataBinding->Update();
+    if (pDataBinding != nullptr)
+    {
+      pDataBinding->Update();
+    }
   }
 
   m_pContext->Update();
@@ -194,17 +201,36 @@ void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
   m_bPassInput = bPassInput;
 }
 
+void ezRmlUiCanvas2DComponent::SetAutobindBlackboards(bool bAutobind)
+{
+  if (m_bAutobindBlackboards != bAutobind)
+  {
+    m_bAutobindBlackboards = bAutobind;
+
+    UpdateAutobinding();
+  }
+}
+
 ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding)
 {
   // Document needs to be loaded again since data bindings have to be set before document load
   if (m_pContext != nullptr)
   {
-    if (dataBinding->Setup(*m_pContext).Succeeded())
+    if (dataBinding->Initialize(*m_pContext).Succeeded())
     {
       if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
       {
         m_pContext->ShowDocument();
       }
+    }
+  }
+
+  for (ezUInt32 i = 0; i < m_DataBindings.GetCount(); ++i)
+  {
+    if (dataBinding == nullptr)
+    {
+      m_DataBindings[i] = std::move(dataBinding);
+      return i;
     }
   }
 
@@ -215,13 +241,19 @@ ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding
 
 void ezRmlUiCanvas2DComponent::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
 {
-  // Can't remove data bindings atm
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  auto& pDataBinding = m_DataBindings[uiDataBindingIndex];
+
+  if (m_pContext != nullptr)
+  {
+    pDataBinding->Deinitialize(*m_pContext);
+  }
+
+  m_DataBindings[uiDataBindingIndex] = nullptr;
 }
 
-ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard, const char* szModelName)
+ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard)
 {
-  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, blackboard, szModelName);
+  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, blackboard);
   return AddDataBinding(pDataBinding);
 }
 
@@ -248,7 +280,7 @@ ezRmlUiContext* ezRmlUiCanvas2DComponent::GetOrCreateRmlContext()
 
   for (auto& pDataBinding : m_DataBindings)
   {
-    pDataBinding->Setup(*m_pContext).IgnoreResult();
+    pDataBinding->Initialize(*m_pContext).IgnoreResult();
   }
 
   m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
@@ -269,6 +301,7 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Size;
   s << m_AnchorPoint;
   s << m_bPassInput;
+  s << m_bAutobindBlackboards;
 }
 
 void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
@@ -282,6 +315,11 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Size;
   s >> m_AnchorPoint;
   s >> m_bPassInput;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bAutobindBlackboards;
+  }
 }
 
 ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -343,6 +381,31 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
           }
         },
         m_ResourceEventUnsubscriber);
+    }
+  }
+}
+
+void ezRmlUiCanvas2DComponent::UpdateAutobinding()
+{
+  for (ezUInt32 uiIndex : m_AutoBindings)
+  {
+    RemoveDataBinding(uiIndex);
+  }
+
+  m_AutoBindings.Clear();
+
+  if (m_bAutobindBlackboards)
+  {
+    ezGameObject* pObject = GetOwner();
+    while (pObject != nullptr)
+    {
+      ezBlackboardComponent* pBlackboardComponent = nullptr;
+      if (pObject->TryGetComponentOfBaseType(pBlackboardComponent))
+      {
+        m_AutoBindings.PushBack(AddBlackboardBinding(pBlackboardComponent->GetBoard()));
+      }
+
+      pObject = pObject->GetParent();
     }
   }
 }
