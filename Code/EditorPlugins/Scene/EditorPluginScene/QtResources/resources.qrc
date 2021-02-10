@@ -67,6 +67,7 @@
 	<file>ezMotionMatchingComponent.png</file>
 	<file>ezAnimationControllerComponent.png</file>
 	<file>ezSimpleAnimationComponent.png</file>
+	<file>ezHeightfieldComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

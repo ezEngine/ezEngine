@@ -52,6 +52,7 @@ public:
 
   void ComputeBounds();
   const ezBoundingBoxSphere& GetBounds() const;
+  void SetBounds(const ezBoundingBoxSphere& bounds) { m_Bounds = bounds; }
 
   struct BoneData
   {

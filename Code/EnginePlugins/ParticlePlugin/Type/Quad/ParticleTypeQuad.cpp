@@ -407,9 +407,8 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
 {
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr);
 
-  /// \todo Is this batch ID correct?
   pRenderData->m_uiBatchId = ezHashingUtils::StringHashTo32(m_hTexture.GetResourceIDHash());
-  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode);
+  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, pRenderData->m_uiBatchId);
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
