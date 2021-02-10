@@ -479,6 +479,8 @@ export class KrautTreeComponent extends RenderComponent
   public static GetTypeNameHash(): number { return 3294337085; }
   get KrautTree(): string { return __CPP_ComponentProperty_get(this, 149428869); }
   set KrautTree(value: string) { __CPP_ComponentProperty_set(this, 149428869, value); }
+  get VariationIndex(): number { return __CPP_ComponentProperty_get(this, 2477224123); }
+  set VariationIndex(value: number) { __CPP_ComponentProperty_set(this, 2477224123, value); }
 }
 
 export class LineToComponent extends Component
@@ -1113,12 +1115,12 @@ export class SimpleAnimationComponent extends Component
 export class SimpleWindComponent extends Component
 {
   public static GetTypeNameHash(): number { return 626606470; }
-  get MinStrength(): number { return __CPP_ComponentProperty_get(this, 3817255569); }
-  set MinStrength(value: number) { __CPP_ComponentProperty_set(this, 3817255569, value); }
-  get MaxStrength(): number { return __CPP_ComponentProperty_get(this, 902461922); }
-  set MaxStrength(value: number) { __CPP_ComponentProperty_set(this, 902461922, value); }
-  get Deviation(): number { return __CPP_ComponentProperty_get(this, 1467194676); }
-  set Deviation(value: number) { __CPP_ComponentProperty_set(this, 1467194676, value); }
+  get MinWindStrength(): Enum.WindStrength { return __CPP_ComponentProperty_get(this, 619940196); }
+  set MinWindStrength(value: Enum.WindStrength) { __CPP_ComponentProperty_set(this, 619940196, value); }
+  get MaxWindStrength(): Enum.WindStrength { return __CPP_ComponentProperty_get(this, 1272420470); }
+  set MaxWindStrength(value: Enum.WindStrength) { __CPP_ComponentProperty_set(this, 1272420470, value); }
+  get MaxDeviation(): number { return __CPP_ComponentProperty_get(this, 597539859); }
+  set MaxDeviation(value: number) { __CPP_ComponentProperty_set(this, 597539859, value); }
 }
 
 export class SkeletonComponent extends RenderComponent

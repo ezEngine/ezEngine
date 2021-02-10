@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{17312265184351820622,3834176906439729263}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{2590547947562700164,5640912914266540540}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,13 +11,23 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2590547947562700164,5640912914266540540}}
-		u4 %Hash{17773025949287058023}
+		u4 %Hash{13702584560893501350}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{17312265184351820622,3834176906439729263}}
+			Uuid{u4{6293979876091342740,10625184987079168045}}
 		}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{6293979876091342740,10625184987079168045}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -65,6 +65,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -171,7 +172,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }

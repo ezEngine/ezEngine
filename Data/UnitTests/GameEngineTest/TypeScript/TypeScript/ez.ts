@@ -219,6 +219,7 @@ export import PxSteppingMode = __AllEnums.PxSteppingMode;
 export import SetColorMode = __AllEnums.SetColorMode;
 export import SpriteBlendMode = __AllEnums.SpriteBlendMode;
 export import TriggerState = __AllEnums.TriggerState;
+export import WindStrength = __AllEnums.WindStrength;
 export import XRDeviceType = __AllEnums.XRDeviceType;
 export import XRPoseLocation = __AllEnums.XRPoseLocation;
 export import XRStageSpace = __AllEnums.XRStageSpace;
