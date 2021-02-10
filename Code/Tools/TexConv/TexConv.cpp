@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <TexConv/TexConv.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/StbImageFileFormats.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 ezTexConv::ezTexConv()
@@ -112,6 +113,17 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
+  if (sExt == "EZIMAGEDATA")
+  {
+    m_bOutputSupports2D = true;
+    m_bOutputSupports3D = false;
+    m_bOutputSupportsCube = false;
+    m_bOutputSupportsAtlas = false;
+    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsFiltering = false;
+    m_bOutputSupportsCompression = false;
+    return EZ_SUCCESS;
+  }
 
   ezLog::Error("Output file uses unsupported file format '{}'", sExt);
   return EZ_FAILURE;
@@ -152,7 +164,36 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
 
 ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
 {
-  if (IsTexFormat())
+  if (ezPathUtils::HasExtension(szFile, "ezImageData"))
+  {
+    ezDeferredFileWriter file;
+    file.SetOutput(szFile);
+
+    ezAssetFileHeader asset;
+    asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
+
+    if (asset.Write(file).Failed())
+    {
+      ezLog::Error("Failed to write asset header to file.");
+      return EZ_FAILURE;
+    }
+
+    ezUInt8 uiVersion = 1;
+    file << uiVersion;
+
+    ezUInt8 uiFormat = 1; // 1 == PNG
+    file << uiFormat;
+
+    ezStbImageFileFormats pngWriter;
+    if (pngWriter.WriteImage(file, image, ezLog::GetThreadLocalLogSystem(), "png").Failed())
+    {
+      ezLog::Error("Failed to write data as PNG to ezImageData file.");
+      return EZ_FAILURE;
+    }
+
+    return file.Close();
+  }
+  else if (IsTexFormat())
   {
     ezDeferredFileWriter file;
     file.SetOutput(szFile);

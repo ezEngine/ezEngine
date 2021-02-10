@@ -16,6 +16,7 @@
 #include <GameEngine/Gameplay/SpawnComponent.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
+#include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>

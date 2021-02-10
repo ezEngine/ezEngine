@@ -25,6 +25,7 @@
     <file>Animated_Mesh.png</file>
     <file>LUT.png</file>
     <file>AnimationController.png</file>
+	<file>ImageData.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
     <file>VSE_CleanGraph16.png</file>
