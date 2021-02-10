@@ -11,6 +11,8 @@
 macro(ez_requires_kraut)
 
 	ez_requires_windows()
+	ez_requires(EZ_BUILD_KRAUT)
+	
 	if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		return()
 	endif()

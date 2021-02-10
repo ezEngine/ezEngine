@@ -38,10 +38,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     find_package(EzFmod REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
   endif()
-  
-  if (EZ_BUILD_KRAUT)
-    target_link_libraries(${PROJECT_NAME} PUBLIC KrautPlugin)
-  endif()
 endif()
 
 
