@@ -10,15 +10,15 @@ namespace ezRmlUiInternal
   class BlackboardDataBinding final : public ezRmlUiDataBinding
   {
   public:
-    BlackboardDataBinding(ezBlackboard& blackboard, const char* szModelName);
+    BlackboardDataBinding(ezBlackboard& blackboard);
     ~BlackboardDataBinding();
 
-    virtual ezResult Setup(Rml::Context& context) override;
+    virtual ezResult Initialize(Rml::Context& context) override;
+    virtual void Deinitialize(Rml::Context& context) override;
     virtual void Update() override;
 
   private:
     ezBlackboard& m_Blackboard;
-    ezHashedString m_sModelName;
 
     Rml::DataModelHandle m_hDataModel;
 

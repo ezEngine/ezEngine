@@ -276,3 +276,15 @@ ezWindStrength::GentleBreeze;Gentle Breeze
 ezWindStrength::ModerateBreeze;Moderate Breeze
 ezWindStrength::StrongBreeze;Strong Breeze
 ezWindStrength::Storm;Storm
+ezBlackboardComponent;Blackboard
+ezBlackboardEntry;Entry
+ezBlackboardEntryFlags::Save;Save
+ezBlackboardEntryFlags::OnChangeEvent;OnChangeEvent
+ezBlackboardEntryFlags::UserFlag0;UserFlag 0
+ezBlackboardEntryFlags::UserFlag1;UserFlag 1
+ezBlackboardEntryFlags::UserFlag2;UserFlag 2
+ezBlackboardEntryFlags::UserFlag3;UserFlag 3
+ezBlackboardEntryFlags::UserFlag4;UserFlag 4
+ezBlackboardEntryFlags::UserFlag5;UserFlag 5
+ezBlackboardEntryFlags::UserFlag6;UserFlag 6
+ezBlackboardEntryFlags::UserFlag7;UserFlag 7

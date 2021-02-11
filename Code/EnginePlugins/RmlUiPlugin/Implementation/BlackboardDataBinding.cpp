@@ -7,17 +7,23 @@
 
 namespace ezRmlUiInternal
 {
-  BlackboardDataBinding::BlackboardDataBinding(ezBlackboard& blackboard, const char* szModelName)
+  BlackboardDataBinding::BlackboardDataBinding(ezBlackboard& blackboard)
     : m_Blackboard(blackboard)
   {
-    m_sModelName.Assign(szModelName);
   }
 
   BlackboardDataBinding::~BlackboardDataBinding() = default;
 
-  ezResult BlackboardDataBinding::Setup(Rml::Context& context)
+  ezResult BlackboardDataBinding::Initialize(Rml::Context& context)
   {
-    Rml::DataModelConstructor constructor = context.CreateDataModel(m_sModelName.GetData());
+    const char* szModelName = m_Blackboard.GetName();
+    if (ezStringUtils::IsNullOrEmpty(szModelName))
+    {
+      ezLog::Error("Can't bind a blackboard without a valid name");
+      return EZ_FAILURE;
+    }
+
+    Rml::DataModelConstructor constructor = context.CreateDataModel(szModelName);
     if (!constructor)
     {
       return EZ_FAILURE;
@@ -42,6 +48,11 @@ namespace ezRmlUiInternal
     m_uiBlackboardEntryChangeCounter = m_Blackboard.GetBlackboardEntryChangeCounter();
 
     return EZ_SUCCESS;
+  }
+
+  void BlackboardDataBinding::Deinitialize(Rml::Context& context)
+  {
+    context.RemoveDataModel(m_Blackboard.GetName());
   }
 
   void BlackboardDataBinding::Update()

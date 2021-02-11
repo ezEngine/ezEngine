@@ -130,6 +130,15 @@ export class BeamComponent extends RenderComponent
   set UVUnitsPerWorldUnit(value: number) { __CPP_ComponentProperty_set(this, 676201184, value); }
 }
 
+export class BlackboardComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 4004595404; }
+  get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 3507638090); }
+  set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 3507638090, value); }
+  get BlackboardName(): string { return __CPP_ComponentProperty_get(this, 1957444071); }
+  set BlackboardName(value: string) { __CPP_ComponentProperty_set(this, 1957444071, value); }
+}
+
 export class BreakableSheetComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 1357224007; }
@@ -1063,6 +1072,8 @@ export class RmlUiCanvas2DComponent extends RenderComponent
   set Offset(value: Vec2) { __CPP_ComponentProperty_set(this, 4050008644, value); }
   get PassInput(): boolean { return __CPP_ComponentProperty_get(this, 2890095111); }
   set PassInput(value: boolean) { __CPP_ComponentProperty_set(this, 2890095111, value); }
+  get AutobindBlackboards(): boolean { return __CPP_ComponentProperty_get(this, 481634809); }
+  set AutobindBlackboards(value: boolean) { __CPP_ComponentProperty_set(this, 481634809, value); }
 }
 
 export class TransformComponent extends Component

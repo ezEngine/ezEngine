@@ -51,13 +51,6 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
   {
-    if (storageInfo->m_Type == ezVariant::Type::Invalid)
-    {
-      if (pRes)
-        *pRes = ezStatus(ezFmt("No storage type defined for property '{0}'", szProperty));
-      return ezVariant();
-    }
-
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
@@ -105,9 +98,6 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
   {
-    if (storageInfo->m_Type == ezVariant::Type::Invalid)
-      return false;
-
     const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
     if (pProp == nullptr)
       return false;

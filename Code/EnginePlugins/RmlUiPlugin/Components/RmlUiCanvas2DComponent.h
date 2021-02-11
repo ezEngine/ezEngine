@@ -49,12 +49,18 @@ public:
   void SetPassInput(bool bPassInput);                // [ property ]
   bool GetPassInput() const { return m_bPassInput; } // [ property ]
 
+  /// \brief Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
+  void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
+  bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
+
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
 
-  ezUInt32 AddBlackboardBinding(ezBlackboard& blackboard, const char* szModelName);
+  /// \brief Adds the given blackboard as data binding. The name of the board is used as model name for the binding.
+  ezUInt32 AddBlackboardBinding(ezBlackboard& blackboard);
   void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
 
+  ezRmlUiContext* GetOrCreateRmlContext();
   ezRmlUiContext* GetRmlContext() { return m_pContext; }
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
@@ -66,6 +72,7 @@ protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgReload(ezMsgRmlUiReload& msg);
   void UpdateCachedValues();
+  void UpdateAutobinding();
 
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
@@ -75,8 +82,10 @@ protected:
   ezVec2 m_AnchorPoint = ezVec2::ZeroVector();
   ezVec2U32 m_ReferenceResolution = ezVec2U32::ZeroVector();
   bool m_bPassInput = true;
+  bool m_bAutobindBlackboards = true;
 
   ezRmlUiContext* m_pContext = nullptr;
 
   ezDynamicArray<ezUniquePtr<ezRmlUiDataBinding>> m_DataBindings;
+  ezDynamicArray<ezUInt32> m_AutoBindings;
 };

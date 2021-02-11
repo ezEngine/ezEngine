@@ -460,7 +460,7 @@ EZ_ALWAYS_INLINE bool ezGameObject::TryGetComponentOfBaseType(const T*& out_pCom
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components)
+void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<T*>& out_components)
 {
   out_components.Clear();
 
@@ -475,7 +475,7 @@ void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_componen
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<const T*, 8>& out_components) const
+void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<const T*>& out_components) const
 {
   out_components.Clear();
 

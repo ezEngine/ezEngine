@@ -353,17 +353,17 @@ public:
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
-  void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components);
+  void TryGetComponentsOfBaseType(ezDynamicArray<T*>& out_components);
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
-  void TryGetComponentsOfBaseType(ezHybridArray<const T*, 8>& out_components) const;
+  void TryGetComponentsOfBaseType(ezDynamicArray<const T*>& out_components) const;
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
-  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components);
+  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<ezComponent*>& out_components);
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
-  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<const ezComponent*, 8>& out_components) const;
+  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<const ezComponent*>& out_components) const;
 
   /// \brief Returns a list of all components attached to this object.
   ezArrayPtr<ezComponent* const> GetComponents();

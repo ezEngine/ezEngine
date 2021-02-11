@@ -64,8 +64,8 @@ void ezCollisionMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     ezUInt32 uiNumVertices = pResource->GetNumVertices();
 
     ezStringBuilder sText;
-    sText.AppendFormat("Polygons: {}\\n", uiNumPolys);
-    sText.AppendFormat("Vertices: {}\\n", uiNumVertices);
+    sText.AppendFormat("Polygons: {}\n", uiNumPolys);
+    sText.AppendFormat("Vertices: {}\n", uiNumVertices);
     sText.AppendFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 

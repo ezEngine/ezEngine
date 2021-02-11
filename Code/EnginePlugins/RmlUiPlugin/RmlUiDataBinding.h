@@ -9,7 +9,8 @@ class EZ_RMLUIPLUGIN_DLL ezRmlUiDataBinding
 public:
   virtual ~ezRmlUiDataBinding() {}
 
-  virtual ezResult Setup(Rml::Context& context) = 0;
+  virtual ezResult Initialize(Rml::Context& context) = 0;
+  virtual void Deinitialize(Rml::Context& context) = 0;
 
   virtual void Update() = 0;
 };
