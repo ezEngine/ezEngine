@@ -181,42 +181,6 @@ const char* ezBlackboardComponent::GetBlackboardName() const
   return m_pBoard->GetName();
 }
 
-void ezBlackboardComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
-{
-  if (GetShowDebugInfo())
-  {
-    msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), 2.0f), ezDefaultSpatialDataCategories::RenderDynamic);
-  }
-}
-
-void ezBlackboardComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
-{
-  if (!GetShowDebugInfo())
-    return;
-
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
-      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
-    return;
-
-  // Don't extract render data for selection.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
-    return;
-
-  auto& entries = m_pBoard->GetAllEntries();
-  if (entries.IsEmpty())
-    return;
-
-  ezStringBuilder sb;
-  sb.Append(m_pBoard->GetName(), "\n");
-
-  for (auto it = entries.GetIterator(); it.IsValid(); ++it)
-  {
-    sb.AppendFormat("{}: {}\n", it.Key(), it.Value().m_Value);
-  }
-
-  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::Orange, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
-}
-
 ezUInt32 ezBlackboardComponent::Entries_GetCount() const
 {
   return m_InitialEntries.GetCount();
@@ -257,4 +221,40 @@ void ezBlackboardComponent::RegisterEntries(ezArrayPtr<ezBlackboardEntry> entrie
   {
     m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
   }
+}
+
+void ezBlackboardComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+{
+  if (GetShowDebugInfo())
+  {
+    msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), 2.0f), ezDefaultSpatialDataCategories::RenderDynamic);
+  }
+}
+
+void ezBlackboardComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+{
+  if (!GetShowDebugInfo())
+    return;
+
+  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
+      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+    return;
+
+  // Don't extract render data for selection.
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+    return;
+
+  auto& entries = m_pBoard->GetAllEntries();
+  if (entries.IsEmpty())
+    return;
+
+  ezStringBuilder sb;
+  sb.Append(m_pBoard->GetName(), "\n");
+
+  for (auto it = entries.GetIterator(); it.IsValid(); ++it)
+  {
+    sb.AppendFormat("{}: {}\n", it.Key(), it.Value().m_Value);
+  }
+
+  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::Orange, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
 }

@@ -396,11 +396,13 @@ void ezRmlUiCanvas2DComponent::UpdateAutobinding()
 
   if (m_bAutobindBlackboards)
   {
+    ezHybridArray<ezBlackboardComponent*, 4> blackboardComponents;
+
     ezGameObject* pObject = GetOwner();
     while (pObject != nullptr)
     {
-      ezBlackboardComponent* pBlackboardComponent = nullptr;
-      if (pObject->TryGetComponentOfBaseType(pBlackboardComponent))
+      pObject->TryGetComponentsOfBaseType(blackboardComponents);
+      for (auto pBlackboardComponent : blackboardComponents)
       {
         m_AutoBindings.PushBack(AddBlackboardBinding(pBlackboardComponent->GetBoard()));
       }

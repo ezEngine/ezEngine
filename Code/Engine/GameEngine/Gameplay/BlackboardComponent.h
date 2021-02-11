@@ -26,9 +26,24 @@ struct ezMsgExtractRenderData;
 
 using ezBlackboardComponentManager = ezComponentManager<class ezBlackboardComponent, ezBlockStorageType::Compact>;
 
+/// \brief This component holds an ezBlackboard which can be used to share state between multiple components.
 class EZ_GAMEENGINE_DLL ezBlackboardComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezBlackboardComponent, ezComponent, ezBlackboardComponentManager);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezBlackboardComponent
 
 public:
   ezBlackboardComponent();
@@ -37,17 +52,10 @@ public:
 
   ezBlackboardComponent& operator=(ezBlackboardComponent&& other);
 
-  static ezBlackboard* FindBlackboard(ezGameObject* pSearchObject);
+  /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents and returns its blackboard
+  static ezBlackboard* FindBlackboard(ezGameObject* pSearchObject); 
 
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-
+  /// \brief Returns the blackboard owned by this component
   ezBlackboard& GetBoard();
   const ezBlackboard& GetBoard() const;
 
@@ -65,6 +73,9 @@ private:
   void Entries_Remove(ezUInt32 uiIndex);
 
   void RegisterEntries(ezArrayPtr<ezBlackboardEntry> entries);
+
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezUniquePtr<ezBlackboard> m_pBoard;
 

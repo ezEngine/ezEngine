@@ -74,6 +74,7 @@ export import AnimatedMeshComponent = __AllComponents.AnimatedMeshComponent;
 export import AnimationControllerComponent = __AllComponents.AnimationControllerComponent;
 export import AreaDamageComponent = __AllComponents.AreaDamageComponent;
 export import BeamComponent = __AllComponents.BeamComponent;
+export import BlackboardComponent = __AllComponents.BlackboardComponent;
 export import BreakableSheetComponent = __AllComponents.BreakableSheetComponent;
 export import CameraComponent = __AllComponents.CameraComponent;
 export import CharacterControllerComponent = __AllComponents.CharacterControllerComponent;

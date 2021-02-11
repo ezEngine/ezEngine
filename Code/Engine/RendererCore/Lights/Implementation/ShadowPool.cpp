@@ -309,14 +309,14 @@ struct ezShadowPool::Data
     if (ezRenderWorld::TryGetView(shadowView.m_hView, out_pView))
     {
       out_pView->SetCamera(&shadowView.m_Camera);
+      out_pView->SetLodCamera(nullptr);
     }
 
     m_uiUsedViews++;
     return shadowView;
   }
 
-  bool GetDataForExtraction(
-    const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale, ezUInt32 uiPackedDataSizeInBytes, ShadowData*& out_pData)
+  bool GetDataForExtraction(const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale, ezUInt32 uiPackedDataSizeInBytes, ShadowData*& out_pData)
   {
     EZ_LOCK(m_ShadowDataMutex);
 
