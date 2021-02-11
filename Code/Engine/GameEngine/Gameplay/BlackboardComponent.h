@@ -53,7 +53,7 @@ public:
   ezBlackboardComponent& operator=(ezBlackboardComponent&& other);
 
   /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents and returns its blackboard
-  static ezBlackboard* FindBlackboard(ezGameObject* pSearchObject); 
+  static ezBlackboard* FindBlackboard(ezGameObject* pSearchObject);
 
   /// \brief Returns the blackboard owned by this component
   ezBlackboard& GetBoard();
