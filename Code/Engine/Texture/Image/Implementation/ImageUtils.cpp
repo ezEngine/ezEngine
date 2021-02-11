@@ -1522,8 +1522,13 @@ ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMod
   EZ_ASSERT_DEBUG(image.GetDepth() == 1 && image.GetNumFaces() == 1 && image.GetNumArrayIndices() == 1, "Only 2d images are supported");
   EZ_ASSERT_DEBUG(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "Unsupported format");
 
-  ezInt32 w = image.GetWidth();
-  ezInt32 h = image.GetHeight();
+  return BilinearSample(image.GetPixelPointer<ezColor>(), image.GetWidth(), image.GetHeight(), addressMode, uv);
+}
+
+ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 uv)
+{
+  ezInt32 w = uiWidth;
+  ezInt32 h = uiHeight;
 
   uv = uv.CompMul(ezVec2(static_cast<float>(w), static_cast<float>(h))) - ezVec2(0.5f);
   float floorX = ezMath::Floor(uv.x);
@@ -1552,7 +1557,7 @@ ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMod
       y = y < 0 ? y + w : y;
     }
 
-    c[i] = *image.GetPixelPointer<ezColor>(0, 0, 0, x, y);
+    c[i] = *(pData + (y * w) + x);
   }
 
   ezColor cr0 = ezMath::Lerp(c[0], c[1], fractionX);

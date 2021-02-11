@@ -140,6 +140,8 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTreeWithGoodSeed(ezU
 
 ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRandomSeed) const
 {
+  EZ_PROFILE_SCOPE("Kraut: GenerateTree");
+
   ezStringBuilder sResourceID = GetResourceID();
   ezStringBuilder sResourceDesc = GetResourceDescription();
   sResourceID.AppendFormat(":{}@{}", GetCurrentResourceChangeCounter(), uiRandomSeed);

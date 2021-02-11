@@ -23,7 +23,6 @@ ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwn
   return pType;
 }
 
-
 ezParticleType::ezParticleType()
 {
   m_uiLastExtractedFrame = 0;
@@ -32,32 +31,47 @@ ezParticleType::ezParticleType()
   m_fPriority = +1000.0f;
 }
 
-
-ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode)
+ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt32 uiTextureHash)
 {
+  ezUInt32 key = 0;
+
   switch (mode)
   {
     case ezParticleTypeRenderMode::Additive:
-      return ezParticleTypeSortingKey::Additive;
+      key = ezParticleTypeSortingKey::Additive;
+      break;
 
     case ezParticleTypeRenderMode::Blended:
-      return ezParticleTypeSortingKey::Blended;
+      key = ezParticleTypeSortingKey::Blended;
+      break;
 
     case ezParticleTypeRenderMode::BlendedForeground:
-      return ezParticleTypeSortingKey::BlendedForeground;
+      key = ezParticleTypeSortingKey::BlendedForeground;
+      break;
 
     case ezParticleTypeRenderMode::BlendedBackground:
-      return ezParticleTypeSortingKey::BlendedBackground;
+      key = ezParticleTypeSortingKey::BlendedBackground;
+      break;
 
     case ezParticleTypeRenderMode::Opaque:
-      return ezParticleTypeSortingKey::Opaque;
+      key = ezParticleTypeSortingKey::Opaque;
+      break;
 
     case ezParticleTypeRenderMode::BlendAdd:
-      return ezParticleTypeSortingKey::BlendAdd;
+      key = ezParticleTypeSortingKey::BlendAdd;
+      break;
 
-    default:
-      return 0;
+    case ezParticleTypeRenderMode::Distortion:
+      key = ezParticleTypeSortingKey::Distortion;
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
+
+  key <<= 32 - 3; // require 3 bits for the values above
+  key |= uiTextureHash & 0x1FFFFFFFu;
+
+  return key;
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_ParticleType);

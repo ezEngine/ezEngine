@@ -130,7 +130,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
   ezLogBlock _("Allocate Streams From Geometry");
 
   // Index Buffer Generation
-  ezDynamicArray<ezUInt16> Indices;
+  ezDynamicArray<ezUInt32> Indices;
 
   if (topology == ezGALPrimitiveTopology::Points)
   {

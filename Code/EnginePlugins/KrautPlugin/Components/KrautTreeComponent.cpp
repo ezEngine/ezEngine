@@ -33,7 +33,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Vegetation"),
+    new ezCategoryAttribute("Terrain"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -254,7 +254,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
       {
         pRenderData->m_uiBatchId = uiBatchId;
-        pRenderData->m_uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
+        pRenderData->m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + subMeshIdx) & 0xFFFF);
 
         pRenderData->m_uiThisLodIndex = uiCurLod;
 

@@ -40,7 +40,7 @@ protected:
     m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
 
     // Sort by material and then by mesh
-    m_uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | m_uiFlipWinding;
+    m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + m_uiSubMeshIndex) & 0xFFFE) | m_uiFlipWinding;
   }
 };
 

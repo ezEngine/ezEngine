@@ -411,7 +411,7 @@ void ezPrefabReferenceComponentManager::Initialize()
 {
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPrefabReferenceComponentManager::Update, this);
 
-  this->RegisterUpdateFunction(desc);
+  RegisterUpdateFunction(desc);
 }
 
 void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEvent& e)

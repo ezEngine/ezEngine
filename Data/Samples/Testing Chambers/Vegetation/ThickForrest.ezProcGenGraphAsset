@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{12029954962534532266,5346896610498349464}}
+	Uuid %id{u4{11212234289642059194,4637845551590943091}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -10,13 +10,13 @@ o
 	{
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{12029954962534532266,5346896610498349464}}
-		u4 %Hash{7011350707604907300}
+		Uuid %DocumentID{u4{11212234289642059194,4637845551590943091}}
+		u4 %Hash{1062397367653496202}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+			s{"{ 176b6229-ba87-48ec-bbc6-3fe14f54411b }"}
 			s{"{ 3837dd47-58a1-4659-a678-a88416d16fc0 }"}
 			s{"{ e8c45e75-2e03-4758-852c-a51ff3947c78 }"}
 		}
@@ -27,49 +27,36 @@ Objects
 {
 o
 {
-	Uuid %id{u4{2999212054573773310,509719251074501563}}
-	s %t{"ezRenderPipelineNodeInputPin"}
-	u3 %v{1}
-	p{}
-}
-o
-{
-	Uuid %id{u4{9419475339902937217,5567842822621767264}}
+	Uuid %id{u4{8601754667010464145,4858791763714360891}}
 	s %t{"ezProcGenPlacementOutput"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		f %AlignToNormal{0x0000003F}
+		f %AlignToNormal{0x3333333F}
 		u3 %CollisionLayer{0}
 		s %ColorGradient{""}
-		Uuid %ColorIndex{u4{2999212054573773310,509719251074501563}}
+		Uuid %ColorIndex{u4{14524172235168077613,16706364264459226522}}
 		f %CullDistance{0x0000C842}
-		Uuid %Density{u4{1044769443117931852,8136319887141812986}}
-		f %Footprint{0x00007041}
-		Vec3 %MaxOffset{f{0x00002041,0x00002041,0}}
+		Uuid %Density{u4{4370601800130103009,6843905831647487452}}
+		f %Footprint{0x0000E040}
+		Vec3 %MaxOffset{f{0x0000A040,0x0000A040,0}}
 		Vec3 %MaxScale{f{0x0000C03F,0x0000C03F,0x0000C03F}}
-		Vec3 %MinOffset{f{0x00000040,0x00000040,0xCDCC4CBE}}
+		Vec3 %MinOffset{f{0x0000803F,0x0000803F,0xCDCC4CBE}}
 		Vec3 %MinScale{f{0x3333333F,0x3333333F,0x3333333F}}
 		s %Name{"Trees"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xDB86DD44,0x12ED3644}}
-		Uuid %ObjectIndex{u4{1908035079840421668,10913566884444882326}}
+		Vec2 %Node::Pos{f{0xFDD0B244,0x6FA23144}}
+		Uuid %ObjectIndex{u4{10962629707989849769,17680149162351132219}}
 		VarArray %Objects
 		{
 			s{"{ 3837dd47-58a1-4659-a678-a88416d16fc0 }"}
 			s{"{ e8c45e75-2e03-4758-852c-a51ff3947c78 }"}
+			s{"{ 176b6229-ba87-48ec-bbc6-3fe14f54411b }"}
 		}
-		Uuid %Scale{u4{3802373625921773586,6217822183134204743}}
-		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		Uuid %Scale{u4{9791305905673822488,12638390741642247297}}
+		s %Surface{""}
 	}
-}
-o
-{
-	Uuid %id{u4{3802373625921773586,6217822183134204743}}
-	s %t{"ezRenderPipelineNodeInputPin"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -81,20 +68,34 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{9419475339902937217,5567842822621767264}}
+			Uuid{u4{8601754667010464145,4858791763714360891}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{1044769443117931852,8136319887141812986}}
+	Uuid %id{u4{4370601800130103009,6843905831647487452}}
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
-	Uuid %id{u4{1908035079840421668,10913566884444882326}}
+	Uuid %id{u4{9791305905673822488,12638390741642247297}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{14524172235168077613,16706364264459226522}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{10962629707989849769,17680149162351132219}}
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
 	p{}

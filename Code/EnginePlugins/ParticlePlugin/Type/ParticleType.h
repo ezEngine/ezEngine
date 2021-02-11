@@ -9,12 +9,13 @@ struct ezMsgExtractRenderData;
 
 enum ezParticleTypeSortingKey
 {
-  Opaque = 0,
-  BlendedBackground = 10,
-  Additive = 20,
-  BlendAdd = 30,
-  Blended = 40,
-  BlendedForeground = 50,
+  Distortion, // samples the back-buffer, so doing this later would overwrite their result
+  Opaque,
+  BlendedBackground,
+  Additive,
+  BlendAdd,
+  Blended,
+  BlendedForeground,
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass
@@ -50,7 +51,7 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
   virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
 
-  static ezUInt32 ComputeSortingKey(ezParticleTypeRenderMode::Enum mode);
+  static ezUInt32 ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt32 uiTextureHash);
 
   ezTime m_TimeDiff;
   mutable ezUInt64 m_uiLastExtractedFrame;
