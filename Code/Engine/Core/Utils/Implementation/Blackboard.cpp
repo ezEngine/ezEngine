@@ -80,7 +80,7 @@ void ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVariant
 
     entry.m_Value = value;
 
-    m_EntryEvents.Broadcast(e);
+    m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
   }
   else
   {
