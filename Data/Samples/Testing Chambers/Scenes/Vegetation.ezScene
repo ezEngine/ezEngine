@@ -11,15 +11,15 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{7994392274643337697}
+		u4 %Hash{3319042305571352771}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
-			s{"{ d2a92ebd-fd90-4214-9455-ca14b38571f5 }"}
-			s{"{ d63193e0-3e77-4960-a51a-9c8a45393450 }"}
+			s{"{ ab742a84-3700-40e3-84b3-0ad04f05e636 }"}
+			s{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 			s{"{ f1b42973-eff4-405c-bab5-9174aedb999b }"}
 		}
 	}
@@ -66,7 +66,7 @@ o
 		b %CastShadows{1}
 		f %ConstantBias{0xCDCCCC3D}
 		f %FadeOutStart{0xCDCC4C3F}
-		f %Intensity{0x0000A040}
+		f %Intensity{0x00004040}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %MinShadowRange{0x00004842}
 		f %NearPlaneOffset{0x0000C842}
@@ -118,7 +118,7 @@ o
 			Uuid{u4{13155961314641376217,5199664906609915283}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
+		Vec3 %LocalPosition{f{0x00004040,0x0000A03F,0x000018C1}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -154,14 +154,14 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
-		Vec2 %HalfExtents{f{0x0000C842,0x0000C842}}
-		f %Height{0x0000A041}
-		s %HeightfieldImage{"{ d63193e0-3e77-4960-a51a-9c8a45393450 }"}
-		s %Material{"{ d2a92ebd-fd90-4214-9455-ca14b38571f5 }"}
+		Vec2u %ColMeshTesselation{u3{128,128}}
+		Vec2 %HalfExtents{f{0x00004843,0x00004843}}
+		f %Height{0x00004842}
+		s %HeightfieldImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
+		s %Material{"{ ab742a84-3700-40e3-84b3-0ad04f05e636 }"}
 		Vec2u %Tesselation{u3{256,256}}
 		Vec2 %TexCoordOffset{f{0,0}}
-		Vec2 %TexCoordScale{f{0x00000042,0x00000042}}
+		Vec2 %TexCoordScale{f{0x0000803F,0x0000803F}}
 	}
 }
 o
@@ -188,7 +188,7 @@ o
 			Uuid{u4{7996206397479029460,4821022520573543191}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
+		Vec3 %LocalPosition{f{0,0,0x0000C8C1}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -236,25 +236,12 @@ o
 }
 o
 {
-	Uuid %id{u4{6510944588056550078,5032605027396696773}}
-	s %t{"ezAmbientLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{0}
-		ColorGamma %BottomColor{u1{89,89,108,255}}
-		f %Intensity{0x00004040}
-		ColorGamma %TopColor{u1{124,124,149,255}}
-	}
-}
-o
-{
 	Uuid %id{u4{17650777740968262625,5166333792701518721}}
 	s %t{"ezProcGenBoxExtents"}
 	u3 %v{1}
 	p
 	{
-		Vec3 %Extents{f{0x0000C842,0x0000C842,0x0000A041}}
+		Vec3 %Extents{f{0x0000C843,0x0000C843,0x00004842}}
 		Vec3 %Offset{f{0,0,0}}
 		Quat %Rotation{f{0,0,0,0x0000803F}}
 	}
@@ -283,9 +270,37 @@ o
 	p
 	{
 		b %Active{1}
-		f %Intensity{0x9A99993E}
+		f %Intensity{0xCDCCCC3D}
 		Uuid %ReflectionData{u4{14614855608879498340,8567936598705449987}}
 		f %Saturation{0x9A99993E}
+	}
+}
+o
+{
+	Uuid %id{u4{14171033976457383864,5432960539950661824}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{15822197538874569712,4959048816156858600}}
+			Uuid{u4{10684975021758961885,5528976002230863520}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Terrain"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -380,7 +395,6 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{6510944588056550078,5032605027396696773}}
 			Uuid{u4{10611497023746401260,4719777366942321305}}
 			Uuid{u4{17111430926857678529,5389560250686610601}}
 		}
@@ -409,8 +423,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{7626420791714072807,5009432788266675357}}
-			Uuid{u4{10684975021758961885,5528976002230863520}}
-			Uuid{u4{15822197538874569712,4959048816156858600}}
+			Uuid{u4{14171033976457383864,5432960539950661824}}
 		}
 		Uuid %Settings{u4{8186563928453390810,4874470961855122515}}
 	}
@@ -825,26 +838,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezHeightfieldComponent"}
-		u3 %TypeSize{120}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11081527203184866822,15735316544108576551}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{2}
 	}
 }
 o

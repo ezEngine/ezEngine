@@ -576,7 +576,7 @@ void ezHeightfieldComponent::GenerateRenderMesh() const
         vNormal += edgeT;
         vNormal.Normalize();
 
-        ezVec3 vTangent = ezVec3(0, 1, 0).CrossRH(vNormal).GetNormalized();
+        ezVec3 vTangent = ezVec3(1, 0, 0).CrossRH(vNormal).GetNormalized();
 
         // complicated but faster
         ezMeshBufferUtils::EncodeNormal(vNormal, ezByteArrayPtr(normalData.GetPtr() + uiByteOffset, 32), normalFormat).IgnoreResult();
