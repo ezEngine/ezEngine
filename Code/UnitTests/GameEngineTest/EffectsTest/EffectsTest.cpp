@@ -21,6 +21,7 @@ ezGameEngineTestApplication* ezGameEngineTestEffects::CreateApplication()
 void ezGameEngineTestEffects::SetupSubTests()
 {
   AddSubTest("Decals", SubTests::Decals);
+  AddSubTest("Heightfield", SubTests::Heightfield);
 }
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
@@ -38,6 +39,14 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(60);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
+
+  if (iIdentifier == SubTests::Heightfield)
+  {
+    m_ImgCompFrames.PushBack(10);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Heightfield.ezObjectGraph"));
     return EZ_SUCCESS;
   }
 
