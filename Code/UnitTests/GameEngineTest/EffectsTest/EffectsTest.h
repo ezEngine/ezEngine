@@ -16,6 +16,7 @@ protected:
   enum SubTests
   {
     Decals,
+    Heightfield,
   };
 
   virtual void SetupSubTests() override;
