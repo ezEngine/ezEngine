@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 2).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 3).Succeeded());
 }
 
 #endif
