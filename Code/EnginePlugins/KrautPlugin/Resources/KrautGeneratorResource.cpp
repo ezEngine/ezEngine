@@ -270,11 +270,12 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
 
     const float fVertexScale = m_Descriptor->m_fUniformScaling;
 
+    ezUInt32 uiMaxVertices = 0;
+    ezUInt32 uiMaxTriangles = 0;
+    ezUInt32 uiTriangleInSubmeshes = 0;
+
     // reserve enough memory
     {
-      ezUInt32 uiMaxVertices = 0;
-      ezUInt32 uiMaxTriangles = 0;
-
       for (ezUInt32 branchIdx = 0; branchIdx < mesh.m_BranchMeshes.size(); ++branchIdx)
       {
         for (ezUInt32 geometryType = 0; geometryType < Kraut::BranchGeometryType::ENUM_COUNT; ++geometryType)
@@ -294,10 +295,10 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
 
     for (ezUInt32 geometryType = 0; geometryType < Kraut::BranchGeometryType::ENUM_COUNT; ++geometryType)
     {
-      const ezUInt32 uiFirstTriangleIdx = dstMesh.m_Triangles.GetCount();
-
       for (ezUInt32 branchType = 0; branchType < Kraut::BranchType::ENUM_COUNT; ++branchType)
       {
+        const ezUInt32 uiFirstTriangleIdx = dstMesh.m_Triangles.GetCount();
+
         for (ezUInt32 branchIdx = 0; branchIdx < mesh.m_BranchMeshes.size(); ++branchIdx)
         {
           // yes, we iterate multiple times over the same array to find all the branches of the same type
@@ -425,6 +426,8 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
         subMesh.m_uiFirstTriangle = uiFirstTriangleIdx;
         subMesh.m_uiNumTriangles = dstMesh.m_Triangles.GetCount() - uiFirstTriangleIdx;
 
+        uiTriangleInSubmeshes += subMesh.m_uiNumTriangles;
+
         for (const auto& srcMat : m_Descriptor->m_Materials)
         {
           if ((ezUInt32)srcMat.m_BranchType == branchType && (ezUInt32)srcMat.m_MaterialType == geometryType)
@@ -442,8 +445,15 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
             break;
           }
         }
+
+        if (subMesh.m_uiMaterialIndex == 255)
+        {
+          dstMesh.m_SubMeshes.PopBack();
+        }
       }
     }
+
+    EZ_ASSERT_DEV(uiTriangleInSubmeshes == uiMaxTriangles, "Number of triangles is incorrect.");
 
     // compute the leaf center
     if (lodIdx == 0)

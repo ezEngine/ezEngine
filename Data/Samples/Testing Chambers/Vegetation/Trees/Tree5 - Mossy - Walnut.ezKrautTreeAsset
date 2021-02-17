@@ -14,14 +14,14 @@ o
 			s{"Vegetation/Tree5.tree"}
 		}
 		Uuid %DocumentID{u4{16242289591921312934,5331298968656744613}}
-		u4 %Hash{9446677126194320791}
+		u4 %Hash{17946426737879761945}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
+			s{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
-			s{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
 		}
 	}
 }
@@ -58,7 +58,7 @@ o
 	p
 	{
 		s %Label{"Twig 1 - Stem"}
-		s %Material{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
+		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
 	}
 }
 o
@@ -69,7 +69,7 @@ o
 	p
 	{
 		s %Label{"Branch 1 - Stem"}
-		s %Material{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
+		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
 	}
 }
 o
@@ -80,7 +80,7 @@ o
 	p
 	{
 		s %Label{"Trunk 1 - Stem"}
-		s %Material{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
+		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
 	}
 }
 o

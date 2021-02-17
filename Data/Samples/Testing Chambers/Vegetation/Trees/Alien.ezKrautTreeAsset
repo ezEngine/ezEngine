@@ -14,13 +14,12 @@ o
 			s{"Vegetation/EvilTree.tree"}
 		}
 		Uuid %DocumentID{u4{15484710852909599622,5114518352703152825}}
-		u4 %Hash{1792668950243846237}
+		u4 %Hash{747996405056765876}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
-			s{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
+			s{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 		}
 	}
 }
@@ -35,7 +34,7 @@ o
 	p
 	{
 		s %Label{"Trunk 1 - Stem"}
-		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+		s %Material{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 	}
 }
 o
@@ -68,7 +67,7 @@ o
 	p
 	{
 		s %Label{"Branch 1 - Stem"}
-		s %Material{"{ f2c5c9ea-d68a-4f31-ad41-55468fe8cf20 }"}
+		s %Material{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 	}
 }
 o

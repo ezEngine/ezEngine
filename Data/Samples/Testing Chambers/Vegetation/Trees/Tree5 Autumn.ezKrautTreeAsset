@@ -14,12 +14,12 @@ o
 			s{"Vegetation/Tree5.tree"}
 		}
 		Uuid %DocumentID{u4{16846456159653526701,5701691552207060837}}
-		u4 %Hash{17077284235836648128}
+		u4 %Hash{18058460021470412586}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+			s{"{ 45a9b506-ddc3-4828-984f-9c5bc80365db }"}
 			s{"{ 59ed0373-9186-4dad-99c3-9ea6b5eb113e }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
 		}
@@ -36,7 +36,7 @@ o
 	p
 	{
 		s %Label{"Trunk 1 - Stem"}
-		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+		s %Material{"{ 45a9b506-ddc3-4828-984f-9c5bc80365db }"}
 	}
 }
 o
@@ -46,6 +46,8 @@ o
 	u3 %v{1}
 	p
 	{
+		u2 %DisplayRandomSeed{0}
+		VarArray %GoodRandomSeeds{}
 		s %KrautFile{"Vegetation/Tree5.tree"}
 		f %LodDistanceScale{0x00004040}
 		VarArray %Materials
@@ -58,6 +60,7 @@ o
 		}
 		f %StaticColliderRadius{0x9A99193F}
 		s %Surface{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
+		f %TreeStiffness{0x00002041}
 		f %UniformScaling{0x0000803F}
 	}
 }
@@ -69,7 +72,7 @@ o
 	p
 	{
 		s %Label{"Twig 1 - Stem"}
-		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+		s %Material{"{ 45a9b506-ddc3-4828-984f-9c5bc80365db }"}
 	}
 }
 o
@@ -80,7 +83,7 @@ o
 	p
 	{
 		s %Label{"Branch 1 - Stem"}
-		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+		s %Material{"{ 45a9b506-ddc3-4828-984f-9c5bc80365db }"}
 	}
 }
 o
@@ -154,7 +157,7 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeAssetProperties"}
-		u3 %TypeSize{1200}
+		u3 %TypeSize{1264}
 		u3 %TypeVersion{1}
 	}
 }

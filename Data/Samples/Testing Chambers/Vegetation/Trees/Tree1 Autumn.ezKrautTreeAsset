@@ -14,13 +14,13 @@ o
 			s{"Vegetation/Tree1.tree"}
 		}
 		Uuid %DocumentID{u4{7922893751843090352,4753529958296423156}}
-		u4 %Hash{6575383111090082903}
+		u4 %Hash{17872845841140479931}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
-			s{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+			s{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
 		}
 	}
@@ -36,7 +36,7 @@ o
 	p
 	{
 		s %Label{"Trunk 1 - Stem"}
-		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+		s %Material{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 	}
 }
 o
@@ -58,7 +58,7 @@ o
 	p
 	{
 		s %Label{"Branch 1 - Stem"}
-		s %Material{"{ 59c7777b-17dc-468c-bfa6-7ad7f6cf390b }"}
+		s %Material{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 	}
 }
 o

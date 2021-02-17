@@ -28,7 +28,7 @@ Color SubsurfaceColor @Default(Color(0.0, 0.0, 0.0));
 bool UseNormalAndRoughnessTexture;
 Texture2D NormalTexture;
 Texture2D RoughnessTexture @Default("White.color");
-float RoughnessValue @Default(1.0) @Clamp(0.0, 1.0);
+float RoughnessValue @Default(1.0) @Clamp(0.0, 2.0);
 
 bool UseOcclusionTexture;
 Texture2D OcclusionTexture;
