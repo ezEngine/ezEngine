@@ -805,6 +805,24 @@ ezTypelessResourceHandle ezResourceManager::GetExistingResourceByType(const ezRT
   return ezTypelessResourceHandle();
 }
 
+ezTypelessResourceHandle ezResourceManager::GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader)
+{
+  EZ_LOCK(s_ResourceMutex);
+
+  ezTypelessResourceHandle hResource = GetExistingResourceByType(pResourceType, szResourceID);
+
+  if (hResource.IsValid())
+    return hResource;
+
+  hResource = GetResource(pResourceType, szResourceID, false);
+  ezResource* pResource = hResource.m_pResource;
+
+  pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader | ezResourceFlags::IsCreatedResource);
+  s_State->s_CustomLoaders[pResource] = std::move(loader);
+
+  return hResource;
+}
+
 void ezResourceManager::ForceLoadResourceNow(const ezTypelessResourceHandle& hResource)
 {
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot access an invalid resource");

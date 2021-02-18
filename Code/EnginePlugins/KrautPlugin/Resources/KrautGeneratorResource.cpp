@@ -4,6 +4,7 @@
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Time/Stopwatch.h>
@@ -138,6 +139,60 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTreeWithGoodSeed(ezU
   return GenerateTree(m_Descriptor->m_GoodRandomSeeds[uiGoodSeedIndex]);
 }
 
+class ezKrautResourceLoader : public ezResourceTypeLoader
+{
+public:
+  struct LoadedData
+  {
+    LoadedData()
+      : m_Reader(&m_Storage)
+    {
+    }
+
+    ezMemoryStreamStorage m_Storage;
+    ezMemoryStreamReader m_Reader;
+  };
+
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override
+  {
+    LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
+
+    ezResourceLock<ezKrautGeneratorResource> pGenerator(m_hGeneratorResource, ezResourceAcquireMode::BlockTillLoaded);
+
+    ezKrautTreeResourceDescriptor desc;
+
+    pGenerator->GenerateTreeDescriptor(desc, m_uiRandomSeed);
+
+    ezMemoryStreamWriter writer(&pData->m_Storage);
+
+    writer << pResource->GetResourceID();
+
+    ezAssetFileHeader assetHash;
+    assetHash.Write(writer).IgnoreResult();
+
+    desc.Save(writer);
+
+    ezResourceLoadData ld;
+    ld.m_pDataStream = &pData->m_Reader;
+    ld.m_pCustomLoaderData = pData;
+
+    return ld;
+  }
+
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override
+  {
+    LoadedData* pData = (LoadedData*)LoaderData.m_pCustomLoaderData;
+
+    EZ_DEFAULT_DELETE(pData);
+
+    // not needed anymore
+    m_hGeneratorResource.Invalidate();
+  }
+
+  ezUInt32 m_uiRandomSeed = 0;
+  ezKrautGeneratorResourceHandle m_hGeneratorResource;
+};
+
 ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRandomSeed) const
 {
   EZ_PROFILE_SCOPE("Kraut: GenerateTree");
@@ -153,6 +208,15 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
     return hTree;
   }
 
+  ezUniquePtr<ezKrautResourceLoader> pLoader = EZ_DEFAULT_NEW(ezKrautResourceLoader);
+  pLoader->m_hGeneratorResource = ezKrautGeneratorResourceHandle(const_cast<ezKrautGeneratorResource*>(this));
+  pLoader->m_uiRandomSeed = uiRandomSeed;
+
+  return ezResourceManager::GetExistingResourceOrCreateAsync<ezKrautTreeResource>(sResourceID, std::move(pLoader));
+}
+
+void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescriptor& dstDesc, ezUInt32 uiRandomSeed) const
+{
   EZ_LOG_BLOCK("Generate Kraut Tree");
 
   Kraut::TreeStructure treeStructure;
@@ -172,8 +236,6 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
   auto bbox = treeStructure.ComputeBoundingBox();
   ezBoundingBox bbox2;
   bbox2.SetElements(ToEzSwizzle(bbox.m_vMin), ToEzSwizzle(bbox.m_vMax));
-
-  ezKrautTreeResourceDescriptor dstDesc;
 
   // data for ambient occlusion computation
   ezDynamicArray<ezDynamicArray<ezBoundingSphere>> occlusionSpheres;
@@ -489,8 +551,6 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
   {
     dstDesc.m_Details.m_vLeafCenter = vLeafCenter;
   }
-
-  return ezResourceManager::CreateResource<ezKrautTreeResource>(sResourceID, std::move(dstDesc), sResourceDesc);
 }
 
 ezResourceLoadDesc ezKrautGeneratorResource::UnloadData(Unload WhatToUnload)

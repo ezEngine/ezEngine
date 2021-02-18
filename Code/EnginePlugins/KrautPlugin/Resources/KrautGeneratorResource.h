@@ -6,6 +6,8 @@
 #include <KrautGenerator/Description/LodDesc.h>
 #include <KrautGenerator/Description/TreeStructureDesc.h>
 
+struct ezKrautTreeResourceDescriptor;
+
 namespace Kraut
 {
   struct TreeStructure;
@@ -53,6 +55,8 @@ public:
 
   ezKrautTreeResourceHandle GenerateTree(ezUInt32 uiRandomSeed) const;
   ezKrautTreeResourceHandle GenerateTreeWithGoodSeed(ezUInt16 uiGoodSeedIndex) const;
+
+  void GenerateTreeDescriptor(ezKrautTreeResourceDescriptor& dstDesc, ezUInt32 uiRandomSeed) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
