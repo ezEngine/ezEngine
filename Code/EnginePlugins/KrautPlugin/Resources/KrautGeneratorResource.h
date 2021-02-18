@@ -88,6 +88,8 @@ private:
     ezDynamicArray<BranchExtraData> m_Branches;
   };
 
+  mutable ezKrautTreeResourceHandle m_hFallbackResource;
+
   void InitializeExtraData(TreeStructureExtraData& extraData, const Kraut::TreeStructure& treeStructure, ezUInt32 uiRandomSeed) const;
   void ComputeDistancesAlongBranches(TreeStructureExtraData& extraData, const Kraut::TreeStructure& treeStructure) const;
   void ComputeDistancesToAnchors(TreeStructureExtraData& extraData, const Kraut::TreeStructure& treeStructure) const;

@@ -11,13 +11,12 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{12701892622677526626}
+		u4 %Hash{6807755752627347053}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-			s{"{ 623110a5-942a-49fc-a684-7e19543468e1 }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ ab742a84-3700-40e3-84b3-0ad04f05e636 }"}
 			s{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
@@ -53,33 +52,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 			s{"SkyLight"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{11051192719593907112,4718409821553604662}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9222361759234787713,5162871218623829296}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00400F43,0x0000E142,0x000048C2}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -304,18 +276,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9222361759234787713,5162871218623829296}}
-	s %t{"ezKrautTreeComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		s %KrautTree{"{ 623110a5-942a-49fc-a684-7e19543468e1 }"}
-		u2 %VariationIndex{65535}
-	}
-}
-o
-{
 	Uuid %id{u4{17650777740968262625,5166333792701518721}}
 	s %t{"ezProcGenBoxExtents"}
 	u3 %v{1}
@@ -333,7 +293,7 @@ o
 	u3 %v{2}
 	p
 	{
-		b %Active{1}
+		b %Active{0}
 		VarDict %Parameters
 		{
 			b %GiveAllWeapons{1}
@@ -505,7 +465,6 @@ o
 		{
 			Uuid{u4{7626420791714072807,5009432788266675357}}
 			Uuid{u4{14171033976457383864,5432960539950661824}}
-			Uuid{u4{11051192719593907112,4718409821553604662}}
 		}
 		Uuid %Settings{u4{8186563928453390810,4874470961855122515}}
 	}
@@ -868,24 +827,6 @@ o
 		s %TypeName{"ezRenderComponent"}
 		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{9882684502593738813,12242697362626301325}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"ezEditorPluginKraut"}
-		VarArray %Properties{}
-		s %TypeName{"ezKrautTreeComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{3}
 	}
 }
 o

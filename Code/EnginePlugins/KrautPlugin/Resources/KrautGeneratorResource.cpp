@@ -212,7 +212,15 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTree(ezUInt32 uiRand
   pLoader->m_hGeneratorResource = ezKrautGeneratorResourceHandle(const_cast<ezKrautGeneratorResource*>(this));
   pLoader->m_uiRandomSeed = uiRandomSeed;
 
-  return ezResourceManager::GetExistingResourceOrCreateAsync<ezKrautTreeResource>(sResourceID, std::move(pLoader));
+  auto hRes = ezResourceManager::GetExistingResourceOrCreateAsync<ezKrautTreeResource>(sResourceID, std::move(pLoader), m_hFallbackResource);
+
+  if (!m_hFallbackResource.IsValid())
+  {
+    m_hFallbackResource = hRes;
+    ezResourceManager::PreloadResource(m_hFallbackResource);
+  }
+
+  return hRes;
 }
 
 void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescriptor& dstDesc, ezUInt32 uiRandomSeed) const

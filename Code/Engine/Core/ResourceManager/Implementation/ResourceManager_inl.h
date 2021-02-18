@@ -26,15 +26,10 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* 
     hResource = ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
   }
 
-  ResourceType* pResource =
-    ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
-
   if (hLoadingFallback.IsValid())
   {
-    pResource->SetLoadingFallbackResource(hLoadingFallback);
+    hResource.m_pResource->SetLoadingFallbackResource(hLoadingFallback);
   }
-
-  ezResourceManager::EndAcquireResource(pResource);
 
   return hResource;
 }

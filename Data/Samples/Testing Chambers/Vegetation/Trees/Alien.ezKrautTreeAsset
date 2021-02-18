@@ -14,7 +14,7 @@ o
 			s{"Vegetation/EvilTree.tree"}
 		}
 		Uuid %DocumentID{u4{15484710852909599622,5114518352703152825}}
-		u4 %Hash{747996405056765876}
+		u4 %Hash{5831590393308480861}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -44,8 +44,14 @@ o
 	u3 %v{1}
 	p
 	{
-		u2 %DisplayRandomSeed{0}
-		VarArray %GoodRandomSeeds{}
+		u2 %DisplayRandomSeed{10}
+		VarArray %GoodRandomSeeds
+		{
+			u2{0}
+			u2{3}
+			u2{7}
+			u2{10}
+		}
 		s %KrautFile{"Vegetation/EvilTree.tree"}
 		f %LodDistanceScale{0x00004040}
 		VarArray %Materials

@@ -92,11 +92,18 @@ public:
   static ezTypelessResourceHandle GetExistingResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
 
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> GetExistingResourceOrCreateAsync(const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader)
+  static ezTypedResourceHandle<ResourceType> GetExistingResourceOrCreateAsync(const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader, ezTypedResourceHandle<ResourceType> hLoadingFallback = {})
   {
     ezTypelessResourceHandle hTypeless = GetExistingResourceOrCreateAsync(ezGetStaticRTTI<ResourceType>(), szResourceID, std::move(loader));
 
-    return ezTypedResourceHandle<ResourceType>((ResourceType*)hTypeless.m_pResource);
+    auto hTyped = ezTypedResourceHandle<ResourceType>((ResourceType*)hTypeless.m_pResource);
+
+    if (hLoadingFallback.IsValid())
+    {
+      ((ResourceType*)hTypeless.m_pResource)->SetLoadingFallbackResource(hLoadingFallback);
+    }
+
+    return hTyped;
   }
 
   static ezTypelessResourceHandle GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader);
