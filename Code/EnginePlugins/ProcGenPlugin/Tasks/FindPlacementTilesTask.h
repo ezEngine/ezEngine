@@ -3,9 +3,11 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <ProcGenPlugin/Declarations.h>
 
-#ifndef EmptyTileIndex
-#  define EmptyTileIndex ezInvalidIndex
-#endif
+enum
+{
+  EmptyTileIndex = ezInvalidIndex,
+  NewTileIndex = EmptyTileIndex - 1
+};
 
 class ezProcPlacementComponent;
 
