@@ -63,9 +63,9 @@ void FindPlacementTilesTask::Execute()
         if (iX * iX + iY * iY <= iRadiusSqr)
         {
           ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY);
-          if (outputContext.m_TileIndices.Contains(uiTileKey))
+          if (auto pTile = outputContext.m_TileIndices.GetValue(uiTileKey))
           {
-            outputContext.m_TileIndices[uiTileKey].m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
+            pTile->m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
           }
           else
           {
@@ -92,8 +92,8 @@ void FindPlacementTilesTask::Execute()
             if (!globalToLocalBoxTransforms.IsEmpty())
             {
               ezProcPlacementComponent::OutputContext::TileIndexAndAge emptyTile;
-              emptyTile.m_uiIndex = EmptyTileIndex;
-              emptyTile.m_uiLastSeenFrame = 0;
+              emptyTile.m_uiIndex = NewTileIndex;
+              emptyTile.m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
 
               outputContext.m_TileIndices.Insert(uiTileKey, emptyTile);
 
@@ -104,7 +104,7 @@ void FindPlacementTilesTask::Execute()
               newTile.m_iPosY = iPosY + iY;
               newTile.m_fMinZ = minZ;
               newTile.m_fMaxZ = maxZ;
-              newTile.m_fPatternSize = fPatternSize;
+              newTile.m_fTileSize = fTileSize;
               newTile.m_fDistanceToCamera = ezMath::MaxValue<float>();
               newTile.m_GlobalToLocalBoxTransforms = globalToLocalBoxTransforms;
             }
@@ -120,46 +120,36 @@ void FindPlacementTilesTask::Execute()
     }
   }
 
-  // Update distance to camera
-  for (auto& newTile : m_NewTiles)
-  {
-    ezVec2 tilePos = ezVec2((float)newTile.m_iPosX, (float)newTile.m_iPosY);
-
-    for (ezVec3 vCameraPosition : m_vCameraPositions)
-    {
-      ezVec2 cameraPos = vCameraPosition.GetAsVec2() / fTileSize;
-
-      float fDistance = (tilePos - cameraPos).GetLengthSquared();
-      newTile.m_fDistanceToCamera = ezMath::Min(newTile.m_fDistanceToCamera, fDistance);
-    }
-  }
-
-  // Pre-sort by distance, larger distances come first since new tiles are processed in reverse order.
-  m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
-
   m_vCameraPositions.Clear();
 
   // Find old tiles
-  ezUInt32 uiMaxActiveTiles = (ezUInt32)iRadius * 2;
-  uiMaxActiveTiles *= uiMaxActiveTiles;
+  ezUInt32 uiMaxOldTiles = (ezUInt32)iRadius * 2;
+  uiMaxOldTiles *= uiMaxOldTiles;
 
-  if (outputContext.m_TileIndices.GetCount() > uiMaxActiveTiles)
+  if (outputContext.m_TileIndices.GetCount() > uiMaxOldTiles)
   {
     m_TilesByAge.Clear();
 
+    ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
     for (auto it = outputContext.m_TileIndices.GetIterator(); it.IsValid(); ++it)
     {
-      if (it.Value().m_uiIndex != EmptyTileIndex)
+      if (it.Value().m_uiIndex == EmptyTileIndex)
+        continue;
+
+      if (it.Value().m_uiLastSeenFrame == uiCurrentFrame)
       {
-        m_TilesByAge.PushBack({it.Key(), it.Value().m_uiLastSeenFrame});
+        --uiMaxOldTiles;
+        continue;
       }
+
+      m_TilesByAge.PushBack({it.Key(), it.Value().m_uiLastSeenFrame});
     }
 
-    if (m_TilesByAge.GetCount() > uiMaxActiveTiles)
+    if (m_TilesByAge.GetCount() > uiMaxOldTiles)
     {
       m_TilesByAge.Sort([](auto& tileA, auto& tileB) { return tileA.m_uiLastSeenFrame < tileB.m_uiLastSeenFrame; });
 
-      ezUInt32 uiOldTileCount = m_TilesByAge.GetCount() - uiMaxActiveTiles;
+      ezUInt32 uiOldTileCount = m_TilesByAge.GetCount() - uiMaxOldTiles;
       for (ezUInt32 i = 0; i < uiOldTileCount; ++i)
       {
         m_OldTileKeys.PushBack(m_TilesByAge[i].m_uiTileKey);

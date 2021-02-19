@@ -27,6 +27,8 @@ private:
   void PreparePlace(const ezWorldModule::UpdateContext& context);
   void PlaceObjects(const ezWorldModule::UpdateContext& context);
 
+  void DebugDrawTile(const ezProcGenInternal::PlacementTileDesc& desc, const ezColor& color, ezUInt32 uiQueueIndex = ezInvalidIndex);
+
   void AddComponent(ezProcPlacementComponent* pComponent);
   void RemoveComponent(ezProcPlacementComponent* pComponent);
 
