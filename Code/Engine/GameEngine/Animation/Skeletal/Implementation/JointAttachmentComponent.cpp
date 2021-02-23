@@ -68,21 +68,20 @@ const char* ezJointAttachmentComponent::GetJointName() const
 
 void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
-  //if (m_uiJointIndex == ezInvalidJointIndex)
-  //{
-  //  m_uiJointIndex = msg.m_pSkeleton->FindJointByName(m_sJointToAttachTo);
-  //}
+  if (m_uiJointIndex == ezInvalidJointIndex)
+  {
+    m_uiJointIndex = msg.m_pSkeleton->FindJointByName(m_sJointToAttachTo);
+  }
 
-  //if (m_uiJointIndex == ezInvalidJointIndex)
-  //  return;
+  if (m_uiJointIndex == ezInvalidJointIndex)
+    return;
 
-  //const ezMat4 m = msg.m_pPose->GetTransform(m_uiJointIndex);
-  //ezTransform t;
-  //t.SetFromMat4(m);
+  ezTransform t;
+  t.SetFromMat4(msg.m_ModelTransforms[m_uiJointIndex]);
 
-  //ezGameObject* pOwner = GetOwner();
-  //pOwner->SetLocalPosition(t.m_vPosition);
-  //pOwner->SetLocalRotation(t.m_qRotation);
+  ezGameObject* pOwner = GetOwner();
+  pOwner->SetLocalPosition(t.m_vPosition);
+  pOwner->SetLocalRotation(t.m_qRotation);
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointAttachmentComponent);
