@@ -1,5 +1,6 @@
 #include <GameEnginePCH.h>
 
+#include <Core/Messages/CommonMessages.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/Skeletal/SimpleAnimationComponent.h>
@@ -24,6 +25,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 1, ezComponentMode::Static);
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
+
+  EZ_BEGIN_MESSAGESENDERS
+  {
+    EZ_MESSAGE_SENDER(m_EventTrackMsgSender),
+    EZ_MESSAGE_SENDER(m_ReachedEndMsgSender),
+  }
+  EZ_END_MESSAGESENDERS;
 
   EZ_BEGIN_ATTRIBUTES
   {
@@ -122,7 +130,7 @@ void ezSimpleAnimationComponent::Update()
 
   m_Duration = animDesc.GetDuration();
 
-  if (!UpdatePlaybackTime(GetWorld()->GetClock().GetTimeDiff()))
+  if (!UpdatePlaybackTime(GetWorld()->GetClock().GetTimeDiff(), animDesc.m_EventTrack))
     return;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
@@ -173,7 +181,7 @@ void ezSimpleAnimationComponent::Update()
   }
 }
 
-bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff)
+bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack)
 {
   if (tDiff.IsZero() || m_fSpeed == 0.0f)
   {
@@ -189,12 +197,17 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff)
   const float tDiffNorm = static_cast<float>(tDiff.GetSeconds() / m_Duration.GetSeconds());
   const float tPrefNorm = m_fNormalizedPlaybackPosition;
 
+  ezHybridArray<ezHashedString, 8> events;
+
   switch (m_AnimationMode)
   {
     case ezPropertyAnimMode::Once:
     {
       m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
       m_fNormalizedPlaybackPosition = ezMath::Clamp(m_fNormalizedPlaybackPosition, 0.0f, 1.0f);
+
+      eventTrack.Sample(tPrefNorm * m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
+
       break;
     }
 
@@ -203,10 +216,25 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff)
       m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
 
       if (m_fNormalizedPlaybackPosition < 0.0f)
+      {
+        eventTrack.Sample(tPrefNorm * m_Duration, ezTime::Zero(), events);
+
         m_fNormalizedPlaybackPosition += 1.0f;
 
-      if (m_fNormalizedPlaybackPosition > 1.0f)
+        eventTrack.Sample(m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
+      }
+      else if (m_fNormalizedPlaybackPosition > 1.0f)
+      {
+        eventTrack.Sample(tPrefNorm * m_Duration, m_Duration, events);
+
         m_fNormalizedPlaybackPosition -= 1.0f;
+
+        eventTrack.Sample(ezTime::Zero(), m_fNormalizedPlaybackPosition * m_Duration, events);
+      }
+      else
+      {
+        eventTrack.Sample(tPrefNorm * m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
+      }
 
       break;
     }
@@ -224,17 +252,36 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff)
       {
         SetUserFlag(0, !bReverse);
 
+        eventTrack.Sample(tPrefNorm * m_Duration, m_Duration, events);
+
         m_fNormalizedPlaybackPosition = 2.0f - m_fNormalizedPlaybackPosition;
+
+        eventTrack.Sample(m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
       }
       else if (m_fNormalizedPlaybackPosition < 0.0f)
       {
         SetUserFlag(0, !bReverse);
 
+        eventTrack.Sample(tPrefNorm * m_Duration, ezTime::Zero(), events);
+
         m_fNormalizedPlaybackPosition = -m_fNormalizedPlaybackPosition;
+
+        eventTrack.Sample(ezTime::Zero(), m_fNormalizedPlaybackPosition * m_Duration, events);
+      }
+      else
+      {
+        eventTrack.Sample(tPrefNorm * m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
       }
 
       break;
     }
+  }
+
+  for (const ezHashedString& sEvent : events)
+  {
+    ezMsgGenericEvent msg;
+    msg.m_sMessage = sEvent.GetString();
+    m_EventTrackMsgSender.SendEventMessage(msg, this, GetOwner());
   }
 
   return tPrefNorm != m_fNormalizedPlaybackPosition;

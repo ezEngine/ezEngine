@@ -13,8 +13,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDef
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Events"),
-    new ezTitleAttribute("UserEvent '{Message}'"),
+    new ezCategoryAttribute("Event Handler"),
+    new ezTitleAttribute("OnUserEvent '{Message}'"),
   }
     EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
@@ -61,7 +61,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaul
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Event Handler"),
-    new ezTitleAttribute("Generic Event '{EventType}'"),
+    new ezTitleAttribute("OnGenericEvent '{EventType}'"),
     new ezHiddenAttribute(),
   }
   EZ_END_ATTRIBUTES;
@@ -116,10 +116,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptUpdateEvent, 1, ezRTTID
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Events")
+    new ezCategoryAttribute("Event Handler"),
+    new ezTitleAttribute("OnScriptUpdate"),
   }
-    EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
   {
     EZ_OUTPUT_EXECUTION_PIN("OnUpdate", 0),
   }

@@ -5,6 +5,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Tracks/EventTrack.h>
 
 class ezSkeletonResource;
 
@@ -68,6 +69,8 @@ public:
   ezArrayPtr<const KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo) const;
 
   ezVec3 m_vConstantRootMotion = ezVec3::ZeroVector();
+
+  ezEventTrack m_EventTrack;
 
 private:
   ezArrayMap<ezHashedString, JointInfo> m_JointInfos;

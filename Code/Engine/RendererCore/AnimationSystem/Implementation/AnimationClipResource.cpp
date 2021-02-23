@@ -132,7 +132,7 @@ void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescrip
 
 ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(7);
+  stream.WriteVersion(8);
 
   const ezUInt16 uiNumJoints = m_JointInfos.GetCount();
   stream << uiNumJoints;
@@ -158,12 +158,14 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) co
 
   stream << m_vConstantRootMotion;
 
+  m_EventTrack.Save(stream);
+
   return EZ_SUCCESS;
 }
 
 ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
-  const ezTypeVersion uiVersion = stream.ReadVersion(7);
+  const ezTypeVersion uiVersion = stream.ReadVersion(8);
 
   if (uiVersion < 6)
     return EZ_FAILURE;
@@ -202,6 +204,11 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
   if (uiVersion >= 7)
   {
     stream >> m_vConstantRootMotion;
+  }
+
+  if (uiVersion >= 8)
+  {
+    m_EventTrack.Load(stream);
   }
 
   return EZ_SUCCESS;

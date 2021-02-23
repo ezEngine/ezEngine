@@ -28,10 +28,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnDamage, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Events/Gameplay")
+    new ezCategoryAttribute("Event Handler/Gameplay"),
+    new ezTitleAttribute("OnDamageEvent"),
   }
-    EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
     EZ_OUTPUT_EXECUTION_PIN("OnEvent", 0),

@@ -31,6 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefault
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     //EZ_MEMBER_PROPERTY("Joint1", m_sJoint1),
     //EZ_MEMBER_PROPERTY("Joint2", m_sJoint2),
+    EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack),
   }
   EZ_END_PROPERTIES;
 }
@@ -141,6 +142,8 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   }
 
   range.BeginNextStep("Writing Result");
+
+  pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 
