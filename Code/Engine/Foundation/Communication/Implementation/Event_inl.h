@@ -33,10 +33,10 @@ ezEventSubscriptionID ezEventBase<EventData, MutexType, EventType>::AddEventHand
     EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed. Since "
                                              "this event does not have a mutex, this error can also happen due to multi-threaded access.");
   }
-  else
-  {
-    EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
-  }
+  //else
+  //{
+  //  EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+  //}
 
   EZ_ASSERT_DEV(!handler.IsComparable() || !HasEventHandler(handler), "Event handler cannot be added twice");
 
@@ -57,10 +57,10 @@ void ezEventBase<EventData, MutexType, EventType>::AddEventHandler(Handler handl
     EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed. Since "
                                              "this event does not have a mutex, this error can also happen due to multi-threaded access.");
   }
-  else
-  {
-    EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
-  }
+  //else
+  //{
+  //  EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+  //}
 
   unsubscriber.Unsubscribe();
   unsubscriber.m_pEvent = this;
@@ -88,7 +88,14 @@ void ezEventBase<EventData, MutexType, EventType>::RemoveEventHandler(const Hand
       }
       else
       {
-        EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+        //EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+
+        if (m_bCurrentlyBroadcasting)
+        {
+          m_EventHandlers[idx].m_Handler = {};
+          m_EventHandlers[idx].m_SubscriptionID = {};
+          return;
+        }
       }
 
       m_EventHandlers.RemoveAtAndCopy(idx);
@@ -118,7 +125,15 @@ void ezEventBase<EventData, MutexType, EventType>::RemoveEventHandler(ezEventSub
       }
       else
       {
-        EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+        //EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+
+        if (m_bCurrentlyBroadcasting)
+        {
+          m_EventHandlers[idx].m_Handler = {};
+          m_EventHandlers[idx].m_SubscriptionID = {};
+          id = 0;
+          return;
+        }
       }
 
       m_EventHandlers.RemoveAtAndCopy(idx);
@@ -185,8 +200,22 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
 #endif
     });
 
-    for (ezUInt32 ui = 0; ui < m_EventHandlers.GetCount(); ++ui)
-      m_EventHandlers[ui].m_Handler(eventData);
+    // don't execute handlers that are added while we are broadcasting
+    ezUInt32 uiMaxHandlers = m_EventHandlers.GetCount();
+
+    for (ezUInt32 ui = 0; ui < uiMaxHandlers;)
+    {
+      if (m_EventHandlers[ui].m_Handler.IsValid())
+      {
+        m_EventHandlers[ui].m_Handler(eventData);
+        ++ui;
+      }
+      else
+      {
+        m_EventHandlers.RemoveAtAndCopy(ui);
+        --uiMaxHandlers;
+      }
+    }
   }
   else
   {
