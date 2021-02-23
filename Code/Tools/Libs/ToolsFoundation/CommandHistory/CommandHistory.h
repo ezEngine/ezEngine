@@ -47,7 +47,7 @@ struct ezCommandHistoryEvent
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 {
 public:
-  ezCopyOnBroadcastEvent<const ezCommandHistoryEvent&> m_Events;
+  ezEvent<const ezCommandHistoryEvent&, ezMutex> m_Events;
 
 public:
   ezCommandHistory(ezDocument* pDocument);
