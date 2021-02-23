@@ -3,6 +3,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
@@ -315,6 +316,8 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     else if (pType->IsDerivedFrom<ezVisualScriptNode>())
     {
       pNode = pType->GetAllocator()->Allocate<ezVisualScriptNode>();
+
+      AssignNodeProperties(*pNode, node);
     }
     else
     {
@@ -332,6 +335,20 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
   }
 }
 
+void ezVisualScriptResourceDescriptor::AssignNodeProperties(ezVisualScriptNode& vsNode, const Node& properties) const
+{
+  for (ezUInt32 i = 0; i < properties.m_uiNumProperties; ++i)
+  {
+    const ezUInt32 uiProp = properties.m_uiFirstProperty + i;
+    const auto& prop = m_Properties[uiProp];
 
+    ezAbstractProperty* pAbstract = vsNode.GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+    if (pAbstract->GetCategory() != ezPropertyCategory::Member)
+      continue;
+
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+    ezReflectionUtils::SetMemberPropertyValue(pMember, &vsNode, prop.m_Value);
+  }
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptResource);

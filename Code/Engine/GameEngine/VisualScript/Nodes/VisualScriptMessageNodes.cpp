@@ -60,8 +60,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaul
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Events"),
-    new ezTitleAttribute("Event '{EventType}'"),
+    new ezCategoryAttribute("Event Handler"),
+    new ezTitleAttribute("Generic Event '{EventType}'"),
+    new ezHiddenAttribute(),
   }
   EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
@@ -103,7 +104,7 @@ ezInt32 ezVisualScriptNode_GenericEvent::HandlesMessagesWithID() const
 
 void ezVisualScriptNode_GenericEvent::HandleMessage(ezMessage* pMsg)
 {
-  ezLog::Info("Got generic message of type '{0}'", pMsg->GetDynamicRTTI()->GetTypeName());
+  //ezLog::Info("Got generic message of type '{0}'", pMsg->GetDynamicRTTI()->GetTypeName());
   m_bStepNode = true;
 }
 

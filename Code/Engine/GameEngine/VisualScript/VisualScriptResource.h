@@ -5,6 +5,8 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <GameEngine/GameEngineDLL.h>
 
+class ezVisualScriptNode;
+
 typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 
 /// \brief Describes a visual script graph (node types and connections)
@@ -73,6 +75,8 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     ezHashedString m_sName;
     double m_Value = 0;
   };
+
+  void AssignNodeProperties(ezVisualScriptNode& vsNode, const Node& properties) const;
 
   ezDynamicArray<Node> m_Nodes;
   ezDynamicArray<ExecutionConnection> m_ExecutionPaths;

@@ -236,19 +236,7 @@ void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ez
   ezVisualScriptNode* pNode = node.m_pType->GetAllocator()->Allocate<ezVisualScriptNode>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
-  // assign all property values
-  for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
-  {
-    const ezUInt32 uiProp = node.m_uiFirstProperty + i;
-    const auto& prop = resource.m_Properties[uiProp];
-
-    ezAbstractProperty* pAbstract = pNode->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
-    if (pAbstract->GetCategory() != ezPropertyCategory::Member)
-      continue;
-
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
-    ezReflectionUtils::SetMemberPropertyValue(pMember, pNode, prop.m_Value);
-  }
+  resource.AssignNodeProperties(*pNode, node);
 
   m_Nodes.PushBack(pNode);
 }
@@ -305,8 +293,7 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
 
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_GenericEvent* pNode =
-    ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+  ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   pNode->m_sEventType = node.m_sTypeName;
