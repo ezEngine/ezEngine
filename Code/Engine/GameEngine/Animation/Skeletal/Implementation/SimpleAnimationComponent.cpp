@@ -164,6 +164,14 @@ void ezSimpleAnimationComponent::Update()
   }
 
   {
+    ezMsgAnimationPosePreparing msg;
+    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+    msg.m_LocalTransforms = ezMakeArrayPtr(m_ozzLocalTransforms.data(), (ezUInt32)m_ozzLocalTransforms.size());
+
+    GetOwner()->SendMessageRecursive(msg);
+  }
+
+  {
     ozz::animation::LocalToModelJob job;
     job.input = make_span(m_ozzLocalTransforms);
     job.output = span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));

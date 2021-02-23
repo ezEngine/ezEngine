@@ -5,6 +5,10 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPosePreparing);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPosePreparing, 1, ezRTTIDefaultAllocator<ezMsgAnimationPosePreparing>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseUpdated);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseUpdated>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
