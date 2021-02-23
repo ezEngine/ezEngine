@@ -211,7 +211,7 @@ o
 		Vec3 %MinScale{f{0x3333333F,0x3333333F,0x3333333F}}
 		s %Name{"Fern"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x784AB444,0x4B637044}}
+		Vec2 %Node::Pos{f{0xFA09B444,0x4B637044}}
 		Uuid %ObjectIndex{u4{3624584070298217264,2542264211529665525}}
 		VarArray %Objects
 		{
@@ -294,7 +294,7 @@ o
 		Vec3 %MinScale{f{0x9A99993E,0x9A99993E,0x9A99993E}}
 		s %Name{"Rocks"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x6A46B244,0xC3A08F44}}
+		Vec2 %Node::Pos{f{0x6A46B244,0x42E18F44}}
 		Uuid %ObjectIndex{u4{6465513291391804678,885770289980241172}}
 		VarArray %Objects
 		{

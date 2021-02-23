@@ -120,9 +120,11 @@ void ezQtKrautTreeAssetDocumentWindow::ProcessMessageEventHandler(const ezEditor
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 && pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
+      const ezVec3 vHalfExtents = pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f));
+
+      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }
     else if (pMessage->m_iPurpose == 0)
     {

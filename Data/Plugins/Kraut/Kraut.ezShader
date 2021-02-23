@@ -89,7 +89,7 @@ float3 BendPosition(float3 position, float positionBend, float3 anchorPre, float
   return anchorPost + normalize(position) * distToAnchor;
 }
 
-float3 ComputeWind(float3 localPosition, float4 vWindTrunk, float4 vWindBranches, float fBendAndFlutterStrength, float fBranchLevel, float fFlutterPhase, float3 vBendAnchorPre, float fBendAnchorStrength)
+float3 ComputeWind(float phasedTime, float3 localPosition, float4 vWindTrunk, float4 vWindBranches, float fBendAndFlutterStrength, float fBranchLevel, float fFlutterPhase, float3 vBendAnchorPre, float fBendAnchorStrength)
 {
   // wind direction is always in local object space
   // but uses the global 0 - 20 m/sec speed range (w component and length) no matter the object scale
@@ -112,7 +112,7 @@ float3 ComputeWind(float3 localPosition, float4 vWindTrunk, float4 vWindBranches
   }
   else
   {
-    float2 flutterSamplePos = float2(fFlutterPhase + WorldTime, (fFlutterPhase + WorldTime) * fFlutterPhaseShift);
+    float2 flutterSamplePos = float2(fFlutterPhase + phasedTime, (fFlutterPhase + phasedTime) * fFlutterPhaseShift);
     float flutterAmount = fFlutterAmplitude * fBendAndFlutterStrength * clamp(vWindBranches.w, fMinFlutterWindSpeed, fMaxFlutterWindSpeed);
 
     float2 flutterSlow = sin(flutterSamplePos * fSlowFlutterSpeed);
@@ -139,8 +139,11 @@ VS_OUT main(VS_IN Input)
   scale.x = length(objectToWorld._m00_m10_m20);
   scale.y = length(objectToWorld._m01_m11_m21);
   scale.z = length(objectToWorld._m02_m12_m22);
+
+  // shift time by world space position (x, y) to make trees standing next to each other flutter out of phase
+  float phasedTime = WorldTime + objectToWorld._m03 + objectToWorld._m13;
   
-  localPosition = ComputeWind(localPosition, data.Color, data.Color, Input.Color0.r, Input.Color0.g, Input.Color0.b, Input.Color1.xyz, Input.Color1.w);
+  localPosition = ComputeWind(phasedTime, localPosition, data.Color, data.Color, Input.Color0.r, Input.Color0.g, Input.Color0.b, Input.Color1.xyz, Input.Color1.w);
 
   float4 worldPosition = mul(objectToWorld, float4(localPosition, 1));
 

@@ -200,10 +200,10 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (!m_hKrautTree.IsValid())
     return;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowLoadingFallback);
 
-  if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
+  //if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+  //  return;
 
   ComputeWind();
 
@@ -480,7 +480,11 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
   auto& subMesh = msg.m_pStaticMeshDescription->m_SubMeshes.ExpandAndGetRef();
 
   {
-    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+
+    if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return;
+
     const auto& details = pTree->GetDetails();
 
     if (!details.m_sSurfaceResource.IsEmpty())

@@ -6,6 +6,8 @@
 #include <KrautGenerator/Description/LodDesc.h>
 #include <KrautGenerator/Description/TreeStructureDesc.h>
 
+struct ezKrautTreeResourceDescriptor;
+
 namespace Kraut
 {
   struct TreeStructure;
@@ -54,6 +56,8 @@ public:
   ezKrautTreeResourceHandle GenerateTree(ezUInt32 uiRandomSeed) const;
   ezKrautTreeResourceHandle GenerateTreeWithGoodSeed(ezUInt16 uiGoodSeedIndex) const;
 
+  void GenerateTreeDescriptor(ezKrautTreeResourceDescriptor& dstDesc, ezUInt32 uiRandomSeed) const;
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
@@ -83,6 +87,8 @@ private:
   {
     ezDynamicArray<BranchExtraData> m_Branches;
   };
+
+  mutable ezKrautTreeResourceHandle m_hFallbackResource;
 
   void InitializeExtraData(TreeStructureExtraData& extraData, const Kraut::TreeStructure& treeStructure, ezUInt32 uiRandomSeed) const;
   void ComputeDistancesAlongBranches(TreeStructureExtraData& extraData, const Kraut::TreeStructure& treeStructure) const;
