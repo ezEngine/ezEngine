@@ -63,9 +63,12 @@ private:
 
     if (*reinterpret_cast<ezUInt64*>(&m_hCachedReceiver) == 0xFFFFFFFFFFFFFFFF)
     {
-      if (const ezComponent* pReceiver = pSenderComponent->GetWorld()->FindEventMsgHandler(msg, pSearchObject))
+      ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+      pSenderComponent->GetWorld()->FindEventMsgHandlers(msg, pSearchObject, eventMsgHandlers);
+
+      if (eventMsgHandlers.IsEmpty() == false)
       {
-        m_hCachedReceiver = pReceiver->GetHandle();
+        m_hCachedReceiver = eventMsgHandlers[0]->GetHandle();
       }
       else
       {

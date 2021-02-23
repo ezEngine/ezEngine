@@ -397,9 +397,9 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMe
   }
 }
 
-const ezComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const
+void ezWorld::FindEventMsgHandlers(ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
 {
-  ezWorld* pWorld = const_cast<ezWorld*>(this);
+  out_components.Clear();
 
   // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
   {
@@ -416,13 +416,13 @@ const ezComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGam
         {
           if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
           {
-            return pEventMessageHandlerComponent;
+            out_components.PushBack(pEventMessageHandlerComponent);
           }
         }
 
         // found at least one ezEventMessageHandlerComponent -> stop searching
         // even if it does not handle this type of message, we do not want to propagate the message to someone else
-        return nullptr;
+        return;
       }
 
       pCurrentObject = pCurrentObject->GetParent();
@@ -434,18 +434,16 @@ const ezComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGam
     auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(this);
     for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
     {
-      ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
-      if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
+      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
       {
         if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
         {
-          return pEventMessageHandlerComponent;
+          out_components.PushBack(pEventMessageHandlerComponent);
         }
       }
     }
   }
-
-  return nullptr;
 }
 
 void ezWorld::Update()
