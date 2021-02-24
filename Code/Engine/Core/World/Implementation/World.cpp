@@ -412,17 +412,27 @@ void ezWorld::FindEventMsgHandlers(ezEventMessage& msg, const ezGameObject* pSea
 
       if (eventMessageHandlerComponents.IsEmpty() == false)
       {
+        bool bContinueSearch = true;
+
         for (auto pEventMessageHandlerComponent : eventMessageHandlerComponents)
         {
           if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
           {
             out_components.PushBack(pEventMessageHandlerComponent);
+            bContinueSearch = false;
+          }
+          else
+          {
+            // only continue to search on parent objects if all event handlers on the current object have the "pass through unhandled events" flag set.
+            bContinueSearch &= pEventMessageHandlerComponent->GetPassThroughUnhandledEvents();
           }
         }
 
-        // found at least one ezEventMessageHandlerComponent -> stop searching
-        // even if it does not handle this type of message, we do not want to propagate the message to someone else
-        return;
+        if (!bContinueSearch)
+        {
+          // stop searching as we found at least one ezEventMessageHandlerComponent or one doesn't have the "pass through" flag set.
+          return;
+        }
       }
 
       pCurrentObject = pCurrentObject->GetParent();

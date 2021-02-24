@@ -38,11 +38,12 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("HandleGlobalEvents", GetGlobalEventHandlerMode, SetGlobalEventHandlerMode),
+    EZ_ACCESSOR_PROPERTY("PassThroughUnhandledEvents", GetPassThroughUnhandledEvents, SetPassThroughUnhandledEvents),
   }
   EZ_END_PROPERTIES;
 }
@@ -59,6 +60,9 @@ void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& stream) c
 
   // version 2
   s << m_bIsGlobalEventHandler;
+
+  // version 3
+  s << m_bPassThroughUnhandledEvents;
 }
 
 void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& stream)
@@ -73,6 +77,11 @@ void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& stream)
     s >> bGlobalEH;
 
     SetGlobalEventHandlerMode(bGlobalEH);
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bPassThroughUnhandledEvents;
   }
 }
 
@@ -108,6 +117,11 @@ void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool enable)
   {
     DeregisterGlobalEventHandler(this);
   }
+}
+
+void ezEventMessageHandlerComponent::SetPassThroughUnhandledEvents(bool bPassThrough)
+{
+  m_bPassThroughUnhandledEvents = bPassThrough;
 }
 
 bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& msg) const
