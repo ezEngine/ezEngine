@@ -7,11 +7,13 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 2, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 1, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("JointName", GetJointName, SetJointName),
+    EZ_MEMBER_PROPERTY("PositionOffset", m_vLocalPositionOffset),
+    EZ_MEMBER_PROPERTY("RotationOffset", m_vLocalRotationOffset),
   }
   EZ_END_PROPERTIES;
 
@@ -39,6 +41,8 @@ void ezJointAttachmentComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_sJointToAttachTo;
+  s << m_vLocalPositionOffset;
+  s << m_vLocalRotationOffset;
 }
 
 void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& stream)
@@ -47,10 +51,9 @@ void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  if (uiVersion >= 2)
-  {
-    s >> m_sJointToAttachTo;
-  }
+  s >> m_sJointToAttachTo;
+  s >> m_vLocalPositionOffset;
+  s >> m_vLocalRotationOffset;
 
   m_uiJointIndex = ezInvalidJointIndex;
 }
@@ -68,21 +71,22 @@ const char* ezJointAttachmentComponent::GetJointName() const
 
 void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
-  //if (m_uiJointIndex == ezInvalidJointIndex)
-  //{
-  //  m_uiJointIndex = msg.m_pSkeleton->FindJointByName(m_sJointToAttachTo);
-  //}
+  if (m_uiJointIndex == ezInvalidJointIndex)
+  {
+    m_uiJointIndex = msg.m_pSkeleton->FindJointByName(m_sJointToAttachTo);
+  }
 
-  //if (m_uiJointIndex == ezInvalidJointIndex)
-  //  return;
+  if (m_uiJointIndex == ezInvalidJointIndex)
+    return;
 
-  //const ezMat4 m = msg.m_pPose->GetTransform(m_uiJointIndex);
-  //ezTransform t;
-  //t.SetFromMat4(m);
+  ezTransform t;
+  t.SetFromMat4(msg.m_ModelTransforms[m_uiJointIndex]);
 
-  //ezGameObject* pOwner = GetOwner();
-  //pOwner->SetLocalPosition(t.m_vPosition);
-  //pOwner->SetLocalRotation(t.m_qRotation);
+  const ezQuat rot = t.m_qRotation * m_vLocalRotationOffset;
+
+  ezGameObject* pOwner = GetOwner();
+  pOwner->SetLocalPosition(t.m_vPosition + rot * m_vLocalPositionOffset);
+  pOwner->SetLocalRotation(rot);
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointAttachmentComponent);

@@ -31,28 +31,33 @@ EZ_CREATE_SIMPLE_TEST(Tracks, EventTrack)
     EZ_TEST_BOOL(!et.IsEmpty());
 
     // sampling an empty range should yield no results, even if sampling an exact time where an event is
+    result.Clear();
     {{et.Sample(ezTime::Seconds(0.0), ezTime::Seconds(0.0), result);
     EZ_TEST_INT(result.GetCount(), 0);
   }
 
   {
+    result.Clear();
     et.Sample(ezTime::Seconds(1.0), ezTime::Seconds(1.0), result);
     EZ_TEST_INT(result.GetCount(), 0);
   }
 
   {
+    result.Clear();
     et.Sample(ezTime::Seconds(4.0), ezTime::Seconds(4.0), result);
     EZ_TEST_INT(result.GetCount(), 0);
   }
 }
 
 {
+  result.Clear();
   et.Sample(ezTime::Seconds(0.0), ezTime::Seconds(1.0), result);
   EZ_TEST_INT(result.GetCount(), 1);
   EZ_TEST_STRING(result[0].GetString(), "Event0");
 }
 
 {
+  result.Clear();
   et.Sample(ezTime::Seconds(0.0), ezTime::Seconds(2.0), result);
   EZ_TEST_INT(result.GetCount(), 2);
   EZ_TEST_STRING(result[0].GetString(), "Event0");
@@ -60,6 +65,7 @@ EZ_CREATE_SIMPLE_TEST(Tracks, EventTrack)
 }
 
 {
+  result.Clear();
   et.Sample(ezTime::Seconds(0.0), ezTime::Seconds(4.0), result);
   EZ_TEST_INT(result.GetCount(), 4);
   EZ_TEST_STRING(result[0].GetString(), "Event0");
@@ -69,6 +75,7 @@ EZ_CREATE_SIMPLE_TEST(Tracks, EventTrack)
 }
 
 {
+  result.Clear();
   et.Sample(ezTime::Seconds(0.0), ezTime::Seconds(10.0), result);
   EZ_TEST_INT(result.GetCount(), 5);
   EZ_TEST_STRING(result[0].GetString(), "Event0");
@@ -79,6 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Tracks, EventTrack)
 }
 
 {
+  result.Clear();
   et.Sample(ezTime::Seconds(-0.1), ezTime::Seconds(10.0), result);
   EZ_TEST_INT(result.GetCount(), 5);
   EZ_TEST_STRING(result[0].GetString(), "Event0");
@@ -105,6 +113,7 @@ EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reverse Sample")
   et.AddControlPoint(ezTime::Seconds(2.0), "Event2");
 
   {
+    result.Clear();
     et.Sample(ezTime::Seconds(2.0), ezTime::Seconds(0.0), result);
     EZ_TEST_INT(result.GetCount(), 2);
     EZ_TEST_STRING(result[0].GetString(), "Event2");
@@ -112,6 +121,7 @@ EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reverse Sample")
   }
 
   {
+    result.Clear();
     et.Sample(ezTime::Seconds(4.0), ezTime::Seconds(0.0), result);
     EZ_TEST_INT(result.GetCount(), 4);
     EZ_TEST_STRING(result[0].GetString(), "Event4");
@@ -121,6 +131,7 @@ EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reverse Sample")
   }
 
   {
+    result.Clear();
     et.Sample(ezTime::Seconds(10.0), ezTime::Seconds(0.0), result);
     EZ_TEST_INT(result.GetCount(), 4);
     EZ_TEST_STRING(result[0].GetString(), "Event4");
@@ -130,6 +141,7 @@ EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reverse Sample")
   }
 
   {
+    result.Clear();
     et.Sample(ezTime::Seconds(10.0), ezTime::Seconds(-0.1), result);
     EZ_TEST_INT(result.GetCount(), 5);
     EZ_TEST_STRING(result[0].GetString(), "Event4");

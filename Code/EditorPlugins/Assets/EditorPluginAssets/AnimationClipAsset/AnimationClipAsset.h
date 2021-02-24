@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 class ezAnimationClipAssetDocument;
 
@@ -40,6 +41,8 @@ public:
   ezVec3 m_vConstantRootMotion;
   // ezString m_sJoint1;
   // ezString m_sJoint2;
+
+  ezEventTrackData m_EventTrack;
 };
 
 struct ezAnimationClipAssetEvent

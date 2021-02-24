@@ -109,10 +109,8 @@ ezInt32 ezEventTrack::FindControlPointBefore(ezTime x) const
   return -1;
 }
 
-void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezHybridArray<ezHashedString, 8>& out_Events) const
+void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezHashedString>& out_Events) const
 {
-  out_Events.Clear();
-
   if (m_bSort)
   {
     m_bSort = false;

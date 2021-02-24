@@ -64,7 +64,7 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("AnimatedMeshAssetDockWidget");
-    pPropertyPanel->setWindowTitle("Mesh Properties");
+    pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);

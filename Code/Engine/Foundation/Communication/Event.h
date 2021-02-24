@@ -101,7 +101,7 @@ public:
   /// \brief Implementation specific constants.
   enum
   {
-    /// If the uiMaxRecursionDepth parameter to Broadcast is supported in this implementation or not.
+    /// Whether the uiMaxRecursionDepth parameter to Broadcast() is supported in this implementation or not.
     RecursionDepthSupported = (EventType == ezEventType::Default || ezConversionTest<MutexType, ezNoMutex>::sameType == 1) ? 1 : 0,
 
     /// Default value for the maximum recursion depth of Broadcast.
@@ -144,7 +144,7 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 
 private:
-  /// \brief Used to detect recursive broadcasts and then throw asserts at you.
+  // Used to detect recursive broadcasts and then throw asserts at you.
   ezUInt8 m_uiRecursionDepth = 0;
   mutable ezEventSubscriptionID m_NextSubscriptionID = 0;
 
@@ -152,7 +152,6 @@ private:
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const void* m_pSelf = nullptr;
-  bool m_bCurrentlyBroadcasting = false;
 #endif
 
   struct HandlerData

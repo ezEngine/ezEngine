@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/ComponentManager.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
@@ -9,6 +10,10 @@
 #include <ozz/base/containers/vector.h>
 #include <ozz/base/maths/simd_math.h>
 #include <ozz/base/maths/soa_transform.h>
+
+class ezEventTrack;
+struct ezMsgAnimationReachedEnd;
+struct ezMsgGenericEvent;
 
 using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
@@ -49,8 +54,11 @@ public:
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
 
 protected:
+  ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
+  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;        // [ event ]
+
   void Update();
-  bool UpdatePlaybackTime(ezTime tDiff);
+  bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack);
 
   float m_fNormalizedPlaybackPosition = 0.0f;
   ezTime m_Duration;

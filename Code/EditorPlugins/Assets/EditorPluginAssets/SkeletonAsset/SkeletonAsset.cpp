@@ -15,13 +15,53 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezMat3 CalculateTransformationMatrix(const ezEditableSkeleton* pProp)
+static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp)
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, !pProp->m_bFlipForwardDir);
+  const ezBasisAxis::Enum rightDir = pProp->m_RightDir;
+  const ezBasisAxis::Enum upDir = pProp->m_UpDir;
+  ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !pProp->m_bFlipForwardDir);
 
-  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
+  ezTransform t;
+  t.SetIdentity();
+  t.m_vScale.Set(us);
+
+  if (!pProp->m_bFlipForwardDir)
+  {
+    switch (forwardDir)
+    {
+      case ezBasisAxis::PositiveX:
+        forwardDir = ezBasisAxis::NegativeX;
+        t.m_vScale.x *= -1;
+        break;
+      case ezBasisAxis::PositiveY:
+        forwardDir = ezBasisAxis::NegativeY;
+        t.m_vScale.y *= -1;
+        break;
+      case ezBasisAxis::PositiveZ:
+        forwardDir = ezBasisAxis::NegativeZ;
+        t.m_vScale.z *= -1;
+        break;
+      case ezBasisAxis::NegativeX:
+        forwardDir = ezBasisAxis::PositiveX;
+        t.m_vScale.x *= -1;
+        break;
+      case ezBasisAxis::NegativeY:
+        forwardDir = ezBasisAxis::PositiveY;
+        t.m_vScale.y *= -1;
+        break;
+      case ezBasisAxis::NegativeZ:
+        forwardDir = ezBasisAxis::PositiveZ;
+        t.m_vScale.z *= -1;
+        break;
+    }
+  }
+
+  ezMat3 rot = ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, 1.0f);
+  t.m_qRotation.SetFromMat3(rot);
+
+  return t;
 }
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
@@ -92,7 +132,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
     ezModelImporter2::ImportOptions opt;
     opt.m_sSourceFile = sAbsFilename;
     opt.m_pSkeletonOutput = &newSkeleton;
-    opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+    //opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
     if (pImporter->Import(opt).Failed())
       return ezStatus("Model importer was unable to read this asset.");
@@ -111,6 +151,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezSkeletonResourceDescriptor desc;
   pProp->FillResourceDescriptor(desc);
+  desc.m_RootTransform = CalculateTransformationMatrix(pProp);
 
   range.BeginNextStep("Writing Result");
 

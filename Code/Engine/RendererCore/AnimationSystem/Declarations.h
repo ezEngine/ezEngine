@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Communication/Message.h>
 #include <RendererCore/RendererCoreDLL.h>
+#include <ozz/base/maths/soa_transform.h>
 
 class ezSkeleton;
 class ezAnimationPose;
@@ -32,6 +33,18 @@ struct ezSkeletonJointGeometryType
 
     Default = None
   };
+};
+
+/// \brief Used by components that skin a mesh to inform children whenever a new pose is being prepared.
+///
+/// The pose matrices are still in local space and in the ozz internal structure-of-arrays format.
+/// At this point individual bones can still be modified, to propagate the effect to the child bones.
+struct EZ_RENDERERCORE_DLL ezMsgAnimationPosePreparing : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPosePreparing, ezMessage);
+
+  const ezSkeleton* m_pSkeleton = nullptr;
+  ezArrayPtr<ozz::math::SoaTransform> m_LocalTransforms;
 };
 
 /// \brief Used by components that skin a mesh to inform children whenever a new pose has been computed.

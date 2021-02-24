@@ -48,7 +48,7 @@ public:
   ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.
   ezUInt32 m_uiSortingKey = 0;
 
-  ezTransform m_GlobalTransform;
+  ezTransform m_GlobalTransform = ezTransform::IdentityTransform();
   ezBoundingBoxSphere m_GlobalBounds;
 
   ezGameObjectHandle m_hOwner;

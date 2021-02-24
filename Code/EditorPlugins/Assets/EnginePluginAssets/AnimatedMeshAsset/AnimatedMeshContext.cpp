@@ -1,51 +1,45 @@
 #include <EnginePluginAssetsPCH.h>
 
-#include <EnginePluginAssets/MeshAsset/MeshContext.h>
-#include <EnginePluginAssets/MeshAsset/MeshView.h>
+#include <EnginePluginAssets/AnimatedMeshAsset/AnimatedMeshContext.h>
+#include <EnginePluginAssets/AnimatedMeshAsset/AnimatedMeshView.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/SpawnComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
+#include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <SharedPluginAssets/Common/Messages.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshContext, 1, ezRTTIDefaultAllocator<ezMeshContext>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshContext, 1, ezRTTIDefaultAllocator<ezAnimatedMeshContext>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Animated Mesh"),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMeshContext::ezMeshContext()
+ezAnimatedMeshContext::ezAnimatedMeshContext()
 {
-  m_pMeshObject = nullptr;
+  m_pAnimatedMeshObject = nullptr;
 }
 
-void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
+void ezAnimatedMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {
   if (auto* pMsg = ezDynamicCast<const ezEditorEngineSetMaterialsMsg*>(pDocMsg))
   {
-    ezMeshComponent* pMesh;
-    if (m_pMeshObject && m_pMeshObject->TryGetComponentOfBaseType(pMesh))
+    ezAnimatedMeshComponent* pAnimatedMesh;
+    if (m_pAnimatedMeshObject && m_pAnimatedMeshObject->TryGetComponentOfBaseType(pAnimatedMesh))
     {
       for (ezUInt32 i = 0; i < pMsg->m_Materials.GetCount(); ++i)
       {
@@ -56,7 +50,7 @@ void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
           hMat = ezResourceManager::LoadResource<ezMaterialResource>(pMsg->m_Materials[i]);
         }
 
-        pMesh->SetMaterial(i, hMat);
+        pAnimatedMesh->SetMaterial(i, hMat);
       }
     }
 
@@ -72,31 +66,33 @@ void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
   ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
-void ezMeshContext::OnInitialize()
+void ezAnimatedMeshContext::OnInitialize()
 {
   auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
-  ezGameObjectDesc obj;
-  ezMeshComponent* pMesh;
+  ezAnimatedMeshComponent* pAnimatedMesh;
 
-  // Preview Mesh
+  // Preview AnimatedMesh
   {
-    obj.m_sName.Assign("MeshPreview");
-    pWorld->CreateObject(obj, m_pMeshObject);
+    ezGameObjectDesc obj;
+    obj.m_bDynamic = true;
+    obj.m_sName.Assign("AnimatedMeshPreview");
+    pWorld->CreateObject(obj, m_pAnimatedMeshObject);
 
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pMeshObject->GetTags().Set(tagCastShadows);
+    m_pAnimatedMeshObject->GetTags().Set(tagCastShadows);
 
-    ezMeshComponent::CreateComponent(m_pMeshObject, pMesh);
-    ezStringBuilder sMeshGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
-    m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
-    pMesh->SetMesh(m_hMesh);
+    ezAnimatedMeshComponent::CreateComponent(m_pAnimatedMeshObject, pAnimatedMesh);
+    ezStringBuilder sAnimatedMeshGuid;
+    ezConversionUtils::ToString(GetDocumentGuid(), sAnimatedMeshGuid);
+    m_hAnimatedMesh = ezResourceManager::LoadResource<ezMeshResource>(sAnimatedMeshGuid);
+    pAnimatedMesh->SetMesh(m_hAnimatedMesh);
   }
 
   // Lights
   {
+    ezGameObjectDesc obj;
     obj.m_sName.Assign("DirLight");
     obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
 
@@ -113,28 +109,28 @@ void ezMeshContext::OnInitialize()
   }
 }
 
-ezEngineProcessViewContext* ezMeshContext::CreateViewContext()
+ezEngineProcessViewContext* ezAnimatedMeshContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezMeshViewContext, this);
+  return EZ_DEFAULT_NEW(ezAnimatedMeshViewContext, this);
 }
 
-void ezMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void ezAnimatedMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
   EZ_DEFAULT_DELETE(pContext);
 }
 
-bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool ezAnimatedMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
   ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
-  ezMeshViewContext* pMeshViewContext = static_cast<ezMeshViewContext*>(pThumbnailViewContext);
-  return pMeshViewContext->UpdateThumbnailCamera(bounds);
+  ezAnimatedMeshViewContext* pAnimatedMeshViewContext = static_cast<ezAnimatedMeshViewContext*>(pThumbnailViewContext);
+  return pAnimatedMeshViewContext->UpdateThumbnailCamera(bounds);
 }
 
 
-void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+void ezAnimatedMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (m_pMeshObject == nullptr)
+  if (m_pAnimatedMeshObject == nullptr)
     return;
 
   ezBoundingBoxSphere bounds;
@@ -143,9 +139,9 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
 
-    m_pMeshObject->UpdateLocalBounds();
-    m_pMeshObject->UpdateGlobalTransformAndBounds();
-    const auto& b = m_pMeshObject->GetGlobalBounds();
+    m_pAnimatedMeshObject->UpdateLocalBounds();
+    m_pAnimatedMeshObject->UpdateGlobalTransformAndBounds();
+    const auto& b = m_pAnimatedMeshObject->GetGlobalBounds();
 
     if (b.IsValid())
       bounds.ExpandToInclude(b);

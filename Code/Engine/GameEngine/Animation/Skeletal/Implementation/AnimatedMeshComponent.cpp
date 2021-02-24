@@ -16,7 +16,7 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ?
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ? (I guess because the overridden CreateRenderData() has to be called every frame)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -89,6 +89,8 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
+  m_RootTransform = pSkeleton->GetDescriptor().m_RootTransform;
+
   {
     const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
@@ -151,7 +153,10 @@ ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
     m_SkinningMatrices = pRenderMatrices;
   }
 
-  return SUPER::CreateRenderData();
+  ezMeshRenderData* pData = SUPER::CreateRenderData();
+  pData->m_GlobalTransform = m_RootTransform;
+
+  return pData;
 }
 
 void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
