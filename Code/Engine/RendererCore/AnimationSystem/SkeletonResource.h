@@ -27,7 +27,9 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 
   ezUInt64 GetHeapMemoryUsage() const;
 
+  ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezSkeleton m_Skeleton;
+
   // ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
 };
 

@@ -44,6 +44,7 @@ protected:
 
   void InitializeAnimationPose();
 
+  ezTransform m_RootTransform;
   ezSkeletonResourceHandle m_hSkeleton;
   ezSkinningSpaceAnimationPose m_SkinningSpacePose;
 };

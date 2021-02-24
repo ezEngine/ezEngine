@@ -89,6 +89,8 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
+  m_RootTransform = pSkeleton->GetDescriptor().m_RootTransform;
+
   {
     const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
@@ -151,7 +153,10 @@ ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
     m_SkinningMatrices = pRenderMatrices;
   }
 
-  return SUPER::CreateRenderData();
+  ezMeshRenderData* pData = SUPER::CreateRenderData();
+  pData->m_GlobalTransform = m_RootTransform;
+
+  return pData;
 }
 
 void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)

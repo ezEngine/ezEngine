@@ -106,9 +106,10 @@ ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
 
 ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   m_Skeleton.Save(stream);
+  stream << m_RootTransform;
 
   // const ezUInt16 uiNumGeom = m_Geometry.GetCount();
   // stream << uiNumGeom;
@@ -127,9 +128,14 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
 
 ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
-  stream.ReadVersion(1);
+  const ezTypeVersion version = stream.ReadVersion(2);
 
   m_Skeleton.Load(stream);
+
+  if (version >= 2)
+  {
+    stream >> m_RootTransform;
+  }
 
   // m_Geometry.Clear();
 

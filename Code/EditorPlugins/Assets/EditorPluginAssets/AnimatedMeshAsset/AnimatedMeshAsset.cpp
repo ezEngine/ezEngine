@@ -13,14 +13,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 7, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezMat3 CalculateTransformationMatrix(const ezAnimatedMeshAssetProperties* pProp)
-{
-  const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
-
-  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, !pProp->m_bFlipForwardDir);
-
-  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
-}
+//static ezMat3 CalculateTransformationMatrix(const ezAnimatedMeshAssetProperties* pProp)
+//{
+//  const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+//
+//  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, !pProp->m_bFlipForwardDir);
+//
+//  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
+//}
 
 ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
@@ -85,7 +85,7 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   opt.m_pMeshOutput = &desc;
   opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
   opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
-  opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  //opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
