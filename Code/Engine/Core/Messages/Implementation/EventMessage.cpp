@@ -10,49 +10,73 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEven
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 8);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 16);
 
 namespace ezInternal
 {
-  void EventMessageSenderHelper::SendEventMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg)
+  void EventMessageSenderHelper::SendEventMessage(ezComponent* pSenderComponent, ezArrayPtr<ezComponentHandle> receivers, ezEventMessage& msg)
   {
     ezWorld* pWorld = pSenderComponent->GetWorld();
-    ezComponent* pReceiverComponent = nullptr;
-    if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
-    {
-      pReceiverComponent->SendMessage(msg);
-    }
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    else if (msg.GetDebugMessageRouting())
+    bool bHandlerFound = false;
+#endif
+
+    for (auto hReceiver : receivers)
+    {
+      ezComponent* pReceiverComponent = nullptr;
+      if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
+      {
+        pReceiverComponent->SendMessage(msg);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+        bHandlerFound = true;
+#endif
+      }
+    }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (!bHandlerFound && msg.GetDebugMessageRouting())
     {
       ezLog::Warning("ezEventMessageSender::SendMessage: No event message handler found for message of type {0}.", msg.GetId());
     }
 #endif
   }
 
-  void EventMessageSenderHelper::SendEventMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg)
+  void EventMessageSenderHelper::SendEventMessage(const ezComponent* pSenderComponent, ezArrayPtr<ezComponentHandle> receivers, ezEventMessage& msg)
   {
     const ezWorld* pWorld = pSenderComponent->GetWorld();
-    const ezComponent* pReceiverComponent = nullptr;
-    if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
-    {
-      pReceiverComponent->SendMessage(msg);
-    }
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    else if (msg.GetDebugMessageRouting())
+    bool bHandlerFound = false;
+#endif
+
+    for (auto hReceiver : receivers)
+    {
+      const ezComponent* pReceiverComponent = nullptr;
+      if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
+      {
+        pReceiverComponent->SendMessage(msg);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+        bHandlerFound = true;
+#endif
+      }
+    }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (!bHandlerFound && msg.GetDebugMessageRouting())
     {
       ezLog::Warning("ezEventMessageSender::SendMessage: No event message handler found for message of type {0}.", msg.GetId());
     }
 #endif
   }
 
-  void EventMessageSenderHelper::PostEventMessage(
-    const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType)
+  void EventMessageSenderHelper::PostEventMessage(const ezComponent* pSenderComponent, ezArrayPtr<ezComponentHandle> receivers, const ezEventMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType)
   {
-    if (!hReceiver.IsInvalidated())
+    if (!receivers.IsEmpty())
     {
       const ezWorld* pWorld = pSenderComponent->GetWorld();
-      pWorld->PostMessage(hReceiver, msg, delay, queueType);
+      for (auto hReceiver : receivers)
+      {
+        pWorld->PostMessage(hReceiver, msg, delay, queueType);
+      }
     }
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     else if (msg.GetDebugMessageRouting())
