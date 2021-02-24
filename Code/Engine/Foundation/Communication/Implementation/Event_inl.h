@@ -6,8 +6,6 @@ template <typename EventData, typename MutexType, ezEventType EventType>
 ezEventBase<EventData, MutexType, EventType>::ezEventBase(ezAllocatorBase* pAllocator)
   : m_EventHandlers(pAllocator)
 {
-  m_uiRecursionDepth = 0;
-
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_pSelf = this;
 #endif
@@ -30,15 +28,13 @@ ezEventSubscriptionID ezEventBase<EventData, MutexType, EventType>::AddEventHand
 
   if constexpr (std::is_same_v<MutexType, ezNoMutex>)
   {
-    EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed. Since "
-                                             "this event does not have a mutex, this error can also happen due to multi-threaded access.");
+    if (EventType == ezEventType::Default)
+    {
+      EZ_ASSERT_DEV(m_uiRecursionDepth == 0, "Can't add or remove event handlers while broadcasting (without a mutex). Either enable the use of a mutex on this event, or switch to ezCopyOnBroadcastEvent if this should be allowed. Since this event does not have a mutex, this error can also happen due to multi-threaded access.");
+    }
   }
-  //else
-  //{
-  //  EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
-  //}
 
-  EZ_ASSERT_DEV(!handler.IsComparable() || !HasEventHandler(handler), "Event handler cannot be added twice");
+  EZ_ASSERT_DEV(!handler.IsComparable() || !HasEventHandler(handler), "The same event handler cannot be added twice");
 
   auto& item = m_EventHandlers.ExpandAndGetRef();
   item.m_Handler = std::move(handler);
@@ -54,13 +50,11 @@ void ezEventBase<EventData, MutexType, EventType>::AddEventHandler(Handler handl
 
   if constexpr (std::is_same_v<MutexType, ezNoMutex>)
   {
-    EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed. Since "
-                                             "this event does not have a mutex, this error can also happen due to multi-threaded access.");
+    if constexpr (EventType == ezEventType::Default)
+    {
+      EZ_ASSERT_DEV(m_uiRecursionDepth == 0, "Can't add or remove event handlers while broadcasting (without a mutex). Either enable the use of a mutex on this event, or switch to ezCopyOnBroadcastEvent if this should be allowed. Since this event does not have a mutex, this error can also happen due to multi-threaded access.");
+    }
   }
-  //else
-  //{
-  //  EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
-  //}
 
   unsubscriber.Unsubscribe();
   unsubscriber.m_pEvent = this;
@@ -77,27 +71,33 @@ void ezEventBase<EventData, MutexType, EventType>::RemoveEventHandler(const Hand
 
   EZ_LOCK(m_Mutex);
 
+  if constexpr (EventType == ezEventType::Default)
+  {
+    if constexpr (std::is_same_v<MutexType, ezNoMutex>)
+    {
+      EZ_ASSERT_DEV(m_uiRecursionDepth == 0, "Can't add or remove event handlers while broadcasting (without a mutex). Either enable the use of a mutex on this event, or switch to ezCopyOnBroadcastEvent if this should be allowed. Since this event does not have a mutex, this error can also happen due to multi-threaded access.");
+    }
+  }
+
   for (ezUInt32 idx = 0; idx < m_EventHandlers.GetCount(); ++idx)
   {
     if (m_EventHandlers[idx].m_Handler.IsEqualIfComparable(handler))
     {
-      if constexpr (std::is_same_v<MutexType, ezNoMutex>)
+      if constexpr (EventType == ezEventType::Default)
       {
-        EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed. "
-                                                 "Since this event does not have a mutex, this error can also happen due to multi-threaded access.");
-      }
-      else
-      {
-        //EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+        // if this event does not copy the handlers, and we are currently broadcasting
+        // we can't shrink the size of the array, however, we can replace elements (the check above says that we have a mutex, so this is fine)
 
-        if (m_bCurrentlyBroadcasting)
+        if (m_uiRecursionDepth > 0)
         {
+          // we just write an invalid handler here, and let the broadcast function clean it up for us
           m_EventHandlers[idx].m_Handler = {};
           m_EventHandlers[idx].m_SubscriptionID = {};
           return;
         }
       }
 
+      // if we are not broadcasting, or the broadcast uses a copy anyway, we can just modify the handler array directly
       m_EventHandlers.RemoveAtAndCopy(idx);
       return;
     }
@@ -112,37 +112,44 @@ void ezEventBase<EventData, MutexType, EventType>::RemoveEventHandler(ezEventSub
   if (id == 0)
     return;
 
+  const ezEventSubscriptionID subId = id;
+  id = 0;
+
   EZ_LOCK(m_Mutex);
+
+  if constexpr (EventType == ezEventType::Default)
+  {
+    if constexpr (std::is_same_v<MutexType, ezNoMutex>)
+    {
+      EZ_ASSERT_DEV(m_uiRecursionDepth == 0, "Can't add or remove event handlers while broadcasting (without a mutex). Either enable the use of a mutex on this event, or switch to ezCopyOnBroadcastEvent if this should be allowed. Since this event does not have a mutex, this error can also happen due to multi-threaded access.");
+    }
+  }
 
   for (ezUInt32 idx = 0; idx < m_EventHandlers.GetCount(); ++idx)
   {
-    if (m_EventHandlers[idx].m_SubscriptionID == id)
+    if (m_EventHandlers[idx].m_SubscriptionID == subId)
     {
-      if constexpr (std::is_same_v<MutexType, ezNoMutex>)
+      if constexpr (EventType == ezEventType::Default)
       {
-        EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed. "
-                                                 "Since this event does not have a mutex, this error can also happen due to multi-threaded access.");
-      }
-      else
-      {
-        //EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can't add or remove event handlers while broadcasting. Use ezCopyOnBroadcastEvent if this should be allowed.");
+        // if this event does not copy the handlers, and we are currently broadcasting
+        // we can't shrink the size of the array, however, we can replace elements (the check above says that we have a mutex, so this is fine)
 
-        if (m_bCurrentlyBroadcasting)
+        if (m_uiRecursionDepth > 0)
         {
+          // we just write an invalid handler here, and let the broadcast function clean it up for us
           m_EventHandlers[idx].m_Handler = {};
           m_EventHandlers[idx].m_SubscriptionID = {};
-          id = 0;
           return;
         }
       }
 
+      // if we are not broadcasting, or the broadcast uses a copy anyway, we can just modify the handler array directly
       m_EventHandlers.RemoveAtAndCopy(idx);
-      id = 0;
       return;
     }
   }
 
-  EZ_ASSERT_DEV(false, "ezEvent::RemoveEventHandler: Invalid subscription ID '{0}'.", (ezInt32)id);
+  EZ_ASSERT_DEV(false, "ezEvent::RemoveEventHandler: Invalid subscription ID '{0}'.", (ezInt32)subId);
 }
 
 template <typename EventData, typename MutexType, ezEventType EventType>
@@ -182,22 +189,13 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     EZ_ASSERT_ALWAYS(m_pSelf == this, "The ezEvent was relocated in memory. This is not allowed, as it breaks the Unsubscribers.");
-    if (m_uiRecursionDepth == 0)
-    {
-      m_bCurrentlyBroadcasting = true;
-    }
 #endif
 
     m_uiRecursionDepth++;
 
+    // RAII to ensure correctness in case exceptions are used
     auto scopeExit = ezMakeScopeExit([&]() {
       m_uiRecursionDepth--;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      if (m_uiRecursionDepth == 0)
-      {
-        m_bCurrentlyBroadcasting = false;
-      }
-#endif
     });
 
     // don't execute handlers that are added while we are broadcasting
@@ -248,6 +246,7 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
       eventHandlers = m_EventHandlers;
     }
 
+    // RAII to ensure correctness in case exceptions are used
     auto scopeExit = ezMakeScopeExit([&]() {
     // Bug in MSVC 2017. Can't use if constexpr.
 #if EZ_ENABLED(EZ_COMPILER_MSVC) && _MSC_VER < 1920
@@ -263,7 +262,7 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
 #endif
     });
 
-    ezUInt32 uiHandlerCount = eventHandlers.GetCount();
+    const ezUInt32 uiHandlerCount = eventHandlers.GetCount();
     for (ezUInt32 ui = 0; ui < uiHandlerCount; ++ui)
     {
       eventHandlers[ui].m_Handler(eventData);
