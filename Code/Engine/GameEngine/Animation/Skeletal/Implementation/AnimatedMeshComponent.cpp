@@ -16,7 +16,7 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ?
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ? (I guess because the overridden CreateRenderData() has to be called every frame)
 {
   EZ_BEGIN_ATTRIBUTES
   {
