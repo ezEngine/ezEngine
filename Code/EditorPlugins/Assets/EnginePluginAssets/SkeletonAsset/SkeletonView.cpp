@@ -10,6 +10,7 @@
 #include <EnginePluginAssets/SkeletonAsset/SkeletonView.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -46,4 +47,25 @@ ezViewHandle ezSkeletonViewContext::CreateView()
   pView->SetWorld(pDocumentContext->GetWorld());
   pView->SetCamera(&m_Camera);
   return pView->GetHandle();
+}
+
+void ezSkeletonViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+{
+  ezEngineProcessViewContext::SetCamera(pMsg);
+
+  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
+
+  auto hSkeleton = m_pContext->GetSkeleton();
+  if (hSkeleton.IsValid())
+  {
+    ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::AllowLoadingFallback);
+
+    ezUInt32 uiNumJoints = pSkeleton->GetDescriptor().m_Skeleton.GetJointCount();
+
+    ezStringBuilder sText;
+    sText.AppendFormat("Joints: {}\n", uiNumJoints);
+
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugRenderer::HorizontalAlignment::Left,
+      ezDebugRenderer::VerticalAlignment::Bottom);
+  }
 }

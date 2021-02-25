@@ -64,8 +64,8 @@ void ezSkeletonContext::OnInitialize()
     ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
     ezStringBuilder sSkeletonGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
-    ezSkeletonResourceHandle hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
-    pVisSkeleton->SetSkeleton(hSkeleton);
+    m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
+    pVisSkeleton->SetSkeleton(m_hSkeleton);
     pVisSkeleton->m_bVisualizeSkeleton = true;
   }
 
