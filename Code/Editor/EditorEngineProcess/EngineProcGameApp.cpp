@@ -349,7 +349,11 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     if (pMsg->m_bDocumentOpen)
     {
       pDocumentContext = CreateDocumentContext(pMsg);
-      // EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
+
+      if (pDocumentContext == nullptr)
+      {
+        ezLog::Error("Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
+      }
     }
     else
     {
