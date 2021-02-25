@@ -79,6 +79,7 @@ void ezAnimGraph::SendResultTo(ezGameObject* pObject)
   Finalize(pSkeleton.GetPointer());
 
   ezMsgAnimationPoseUpdated msg;
+  msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
   msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
   msg.m_ModelTransforms = m_ModelSpaceTransforms;
 
