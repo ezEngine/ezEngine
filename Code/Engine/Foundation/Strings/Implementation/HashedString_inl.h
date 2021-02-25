@@ -122,7 +122,7 @@ EZ_ALWAYS_INLINE const char* ezHashedString::GetData() const
   return m_Data.Value().m_sString.GetData();
 }
 
-EZ_ALWAYS_INLINE ezUInt64 ezHashedString::GetHash() const
+EZ_ALWAYS_INLINE ezStringHash ezHashedString::GetHash() const
 {
   return m_Data.Key();
 }
@@ -216,7 +216,7 @@ EZ_ALWAYS_INLINE void ezTempHashedString::Clear()
   *this = ezTempHashedString();
 }
 
-EZ_ALWAYS_INLINE ezUInt64 ezTempHashedString::GetHash() const
+EZ_ALWAYS_INLINE ezStringHash ezTempHashedString::GetHash() const
 {
   return m_uiHash;
 }

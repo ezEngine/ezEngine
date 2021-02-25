@@ -341,6 +341,11 @@ ezStringView ezArgSensitive::BuildString_SensitiveUserData_Hash(char* tmp, ezUIn
   return tmp;
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezStringHash arg)
+{
+  return BuildString(tmp, uiLength, (ezUInt64)arg);
+}
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 

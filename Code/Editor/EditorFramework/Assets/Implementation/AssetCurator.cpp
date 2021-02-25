@@ -1484,7 +1484,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
           {
             if (ezAssetInfo* pInfo = GetAssetInfo(ref))
             {
-              if (name.GetHash() == 0 || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
+              if (name.GetHash() == 0ull || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
               {
                 resReferences = ProcessAsset(pInfo, pAssetProfile, ezTransformFlags::TriggeredManually);
                 if (resReferences.m_Result.Failed())

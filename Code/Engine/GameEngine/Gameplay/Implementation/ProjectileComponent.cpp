@@ -338,7 +338,7 @@ void ezProjectileComponent::OnSimulationStarted()
   if (m_MaxLifetime.GetSeconds() > 0.0)
   {
     ezMsgComponentInternalTrigger msg;
-    msg.m_uiUsageStringHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide"));
+    msg.m_uiUsageStringHash = ezHashingUtils::StringHash("Suicide");
 
     PostMessage(msg, m_MaxLifetime);
 
@@ -354,7 +354,7 @@ void ezProjectileComponent::OnSimulationStarted()
 
 void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide")))
+  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHash("Suicide"))
     return;
 
   if (m_hTimeoutPrefab.IsValid())

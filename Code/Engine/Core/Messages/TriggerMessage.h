@@ -28,7 +28,11 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
 
   /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some
   /// expected string. Use ezTempHashedString::ComputeHash() to assign and compare the value.
-  ezUInt32 m_uiUsageStringHash = 0;
+  ezStringHash m_uiUsageStringHash;
+
+private:
+  ezUInt64 GetUsageStringHash() const { return m_uiUsageStringHash; }
+  void SetUsageStringHash(ezUInt64 uiHash) { m_uiUsageStringHash = uiHash; }
 };
 
 /// \brief Sent when something enters or leaves a trigger
@@ -38,11 +42,15 @@ struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezEventMessage
 
   /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some expected string.
   /// Use ezTempHashedString::GetHash() to assign and compare the value.
-  ezUInt32 m_uiMessageStringHash;
+  ezStringHash m_uiMessageStringHash;
 
   /// Messages are only sent for 'entered' ('Activated') and 'left' ('Deactivated')
   ezEnum<ezTriggerState> m_TriggerState;
 
   /// The object that entered the trigger volume.
   ezGameObjectHandle m_hTriggeringObject;
+
+private:
+  ezUInt64 GetMessageStringHash() const { return m_uiMessageStringHash; }
+  void SetMessageStringHash(ezUInt64 uiHash) { m_uiMessageStringHash = uiHash; }
 };

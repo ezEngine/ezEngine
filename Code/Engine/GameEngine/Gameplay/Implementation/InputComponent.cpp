@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InputActionHash", m_uiInputActionHash),
+    EZ_ACCESSOR_PROPERTY("InputActionHash", GetInputActionHash, SetInputActionHash),
     EZ_MEMBER_PROPERTY("KeyPressValue", m_fKeyPressValue),
     EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
   }
@@ -95,7 +95,7 @@ void ezInputComponent::Update()
       continue;
 
     msg.m_TriggerState = ToTriggerState(state);
-    msg.m_uiInputActionHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(actionName.GetData()));
+    msg.m_uiInputActionHash = ezHashingUtils::StringHash(actionName.GetData());
     msg.m_fKeyPressValue = fValue;
 
     m_InputEventSender.SendEventMessage(msg, this, GetOwner());

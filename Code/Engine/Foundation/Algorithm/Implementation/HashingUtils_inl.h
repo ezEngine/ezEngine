@@ -110,18 +110,18 @@ struct ezHashHelper<T*>
 };
 
 template <size_t N>
-constexpr EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::StringHash(const char (&str)[N], ezUInt64 uiSeed)
+constexpr EZ_ALWAYS_INLINE ezStringHash ezHashingUtils::StringHash(const char (&str)[N], ezUInt64 uiSeed)
 {
   return xxHash64String(str, uiSeed);
 }
 
-EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::StringHash(ezStringView str, ezUInt64 uiSeed)
+EZ_ALWAYS_INLINE ezStringHash ezHashingUtils::StringHash(ezStringView str, ezUInt64 uiSeed)
 {
   return xxHash64String(str, uiSeed);
 }
 
-constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::StringHashTo32(ezUInt64 hash)
+constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::StringHashTo32(ezStringHash hash)
 {
   // just throw away the upper bits
-  return static_cast<ezUInt32>(hash);
+  return static_cast<ezUInt32>((ezUInt64)hash);
 }

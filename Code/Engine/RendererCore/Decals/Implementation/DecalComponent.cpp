@@ -537,7 +537,7 @@ void ezDecalComponent::OnSimulationStarted()
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
     {
       ezMsgComponentInternalTrigger msg;
-      msg.m_uiUsageStringHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide"));
+      msg.m_uiUsageStringHash = ezHashingUtils::StringHash("Suicide");
 
       const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
 
@@ -566,7 +566,7 @@ void ezDecalComponent::OnActivated()
 
 void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide")))
+  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHash("Suicide"))
     return;
 
   ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);

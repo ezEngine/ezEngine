@@ -129,7 +129,7 @@ void ezSpawnComponent::ScheduleSpawn()
     return;
 
   ezMsgComponentInternalTrigger msg;
-  msg.m_uiUsageStringHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("scheduled_spawn"));
+  msg.m_uiUsageStringHash = ezHashingUtils::StringHash("scheduled_spawn");
 
   m_SpawnFlags.Add(ezSpawnComponentFlags::SpawnInFlight);
 
@@ -255,7 +255,7 @@ void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 
 void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash == ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("scheduled_spawn")))
+  if (msg.m_uiUsageStringHash == ezHashingUtils::StringHash("scheduled_spawn"))
   {
     m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
 
@@ -267,7 +267,7 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
       ScheduleSpawn();
     }
   }
-  else if (msg.m_uiUsageStringHash == ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("spawn")))
+  else if (msg.m_uiUsageStringHash == ezHashingUtils::StringHash("spawn"))
   {
     TriggerManualSpawn();
   }
