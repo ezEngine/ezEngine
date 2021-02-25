@@ -219,6 +219,20 @@ bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPosted
   return m_Script->HandleMessage(msg);
 }
 
+void ezVisualScriptComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  EnableUnhandledMessageHandler(true);
+
+  m_Script = EZ_DEFAULT_NEW(ezVisualScriptInstance);
+
+  if (m_hResource.IsValid())
+  {
+    m_Script->Configure(m_hResource, GetOwner());
+  }
+}
+
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },

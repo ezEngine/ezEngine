@@ -131,8 +131,8 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
     if (parentBone == ozz::animation::Skeleton::kNoParent)
       return;
 
-    const ezVec3 v0 = msg.m_ModelTransforms[parentBone].GetTranslationVector();
-    const ezVec3 v1 = msg.m_ModelTransforms[currentBone].GetTranslationVector();
+    const ezVec3 v0 = *msg.m_pRootTransform * msg.m_ModelTransforms[parentBone].GetTranslationVector();
+    const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].GetTranslationVector();
 
     bsphere.ExpandToInclude(v0);
 
@@ -181,6 +181,7 @@ void ezSkeletonComponent::UpdateSkeletonVis()
         }
 
         ezMsgAnimationPoseUpdated msg;
+        msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
         msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
         msg.m_ModelTransforms = ezArrayPtr<const ezMat4>(reinterpret_cast<const ezMat4*>(&modelTransforms[0]), (ezUInt32)modelTransforms.size());
 
