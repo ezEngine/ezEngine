@@ -30,6 +30,7 @@ protected:
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimatedMeshComponent
@@ -44,6 +45,6 @@ protected:
 
   void InitializeAnimationPose();
 
-  ezTransform m_RootTransform;
+  ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezSkinningSpaceAnimationPose m_SkinningSpacePose;
 };

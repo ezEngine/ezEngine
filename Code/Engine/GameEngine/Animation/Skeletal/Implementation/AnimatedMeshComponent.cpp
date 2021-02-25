@@ -156,4 +156,17 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
   }
 }
 
+ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+{
+  if (m_hMesh.IsValid())
+  {
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+    bounds = pMesh->GetBounds();
+    bounds.Transform(m_RootTransform.GetAsMat4());
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);
