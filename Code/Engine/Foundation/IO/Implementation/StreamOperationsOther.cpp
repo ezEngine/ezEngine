@@ -70,12 +70,12 @@ void operator>>(ezStreamReader& Stream, ezHashedString& Value)
 
 void operator<<(ezStreamWriter& Stream, const ezTempHashedString& Value)
 {
-  Stream << Value.GetHash();
+  Stream << (ezUInt64)Value.GetHash();
 }
 
 void operator>>(ezStreamReader& Stream, ezTempHashedString& Value)
 {
-  ezUInt32 hash;
+  ezUInt64 hash;
   Stream >> hash;
   Value = ezTempHashedString(hash);
 }

@@ -33,7 +33,7 @@ export class TargetSphere extends ez.TickedTypescriptComponent {
     OnMsgInputActionTriggered(msg: ez.MsgInputActionTriggered) {
      
         if (msg.TriggerState == ez.TriggerState.Activated) {
-            if (msg.InputActionHash == ez.Utils.StringToHash("Heal")) {
+            if (msg.InputAction == "Heal") {
                 this.curDamage = 0;
             }
         }

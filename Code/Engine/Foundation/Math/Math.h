@@ -47,7 +47,7 @@ namespace ezMath
   ezAngle ATan(float f); // [tested]
 
   /// \brief Returns the atan2 of x and y
-  ezAngle ATan2(float x, float y); // [tested]
+  ezAngle ATan2(float y, float x); // [tested]
 
   /// \brief Returns e^f
   float Exp(float f); // [tested]

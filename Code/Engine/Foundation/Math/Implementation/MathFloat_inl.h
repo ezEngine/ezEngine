@@ -59,7 +59,7 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE ezAngle ATan(float f) { return ezAngle::Radian(atanf(f)); }
 
-  EZ_ALWAYS_INLINE ezAngle ATan2(float x, float y) { return ezAngle::Radian(atan2f(x, y)); }
+  EZ_ALWAYS_INLINE ezAngle ATan2(float y, float x) { return ezAngle::Radian(atan2f(y, x)); }
 
   EZ_ALWAYS_INLINE float Exp(float f) { return expf(f); }
 

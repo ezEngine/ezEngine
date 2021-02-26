@@ -31,14 +31,18 @@ struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgInputActionTriggered, ezEventMessage);
 
-  /// The hash of the input action string.
-  ezUInt32 m_uiInputActionHash;
+  /// The input action string.
+  ezHashedString m_sInputAction;
 
   /// The 'trigger state', depending on the key state and the configuration on the ezInputComponent
   ezEnum<ezTriggerState> m_TriggerState;
 
   /// For analog keys, how much they are pressed. Typically between 0 and 1.
   float m_fKeyPressValue;
+
+private:
+  const char* GetInputAction() const { return m_sInputAction; }
+  void SetInputAction(const char* szInputAction) { m_sInputAction.Assign(szInputAction); }
 };
 
 /// \brief This component polls all input events from the given input set every frame and broadcasts the information to components on the same game

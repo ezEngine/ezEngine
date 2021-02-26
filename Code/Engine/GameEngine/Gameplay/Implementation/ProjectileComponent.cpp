@@ -332,13 +332,14 @@ void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHan
   pSurface->InteractWithSurface(GetWorld(), hObject, vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
 }
 
+static ezHashedString s_sSuicide = ezMakeHashedString("Suicide");
 
 void ezProjectileComponent::OnSimulationStarted()
 {
   if (m_MaxLifetime.GetSeconds() > 0.0)
   {
     ezMsgComponentInternalTrigger msg;
-    msg.m_uiUsageStringHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide"));
+    msg.m_sMessage = s_sSuicide;
 
     PostMessage(msg, m_MaxLifetime);
 
@@ -354,7 +355,7 @@ void ezProjectileComponent::OnSimulationStarted()
 
 void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash("Suicide")))
+  if (msg.m_sMessage != s_sSuicide)
     return;
 
   if (m_hTimeoutPrefab.IsValid())

@@ -254,7 +254,7 @@ void ezVisualScriptNode_InputEvent::HandleMessage(ezMessage* pMsg)
 {
   ezMsgInputActionTriggered& msg = *static_cast<ezMsgInputActionTriggered*>(pMsg);
 
-  if (msg.m_uiInputActionHash == m_sInputAction.GetHash())
+  if (msg.m_sInputAction == m_sInputAction)
   {
     m_bStepNode = true;
 

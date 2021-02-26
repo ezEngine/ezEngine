@@ -222,14 +222,13 @@ public:
   void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay,
     ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerComponent.
+  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerComponent and returns all
+  /// ezEventMessageHandlerComponents owned by that object and that handle messages of the given type.
   ///
   /// If any such parent object exists, the search is stopped there, even if that component does not handle messages of the given type.
-  /// If no such parent object exists, it searches for a ezEventMessageHandlerComponent instance that is set to 'handle global events'
-  /// that handles messages of the given type.
-  ///
-  /// \returns A non-null pointer if an event handler component was found that also handles this type of message. nullptr otherwise.
-  const ezComponent* FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const;
+  /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
+  /// that handle messages of the given type.
+  void FindEventMsgHandlers(ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
 
   ///@}
 
