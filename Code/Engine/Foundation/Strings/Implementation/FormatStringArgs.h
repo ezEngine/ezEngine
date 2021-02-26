@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Algorithm/StringHash.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Strings/StringView.h>
 
 class ezStringBuilder;
@@ -194,7 +194,6 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgSensitive& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezStringHash arg);
 
 
 #if EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)

@@ -520,6 +520,8 @@ void ezDecalComponent::UpdateApplyTo()
   }
 }
 
+static ezHashedString s_sSuicide = ezMakeHashedString("Suicide");
+
 void ezDecalComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
@@ -537,7 +539,7 @@ void ezDecalComponent::OnSimulationStarted()
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
     {
       ezMsgComponentInternalTrigger msg;
-      msg.m_uiUsageStringHash = ezHashingUtils::StringHash("Suicide");
+      msg.m_sMessage = s_sSuicide;
 
       const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
 
@@ -566,7 +568,7 @@ void ezDecalComponent::OnActivated()
 
 void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezHashingUtils::StringHash("Suicide"))
+  if (msg.m_sMessage != s_sSuicide)
     return;
 
   ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);

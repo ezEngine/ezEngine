@@ -115,7 +115,7 @@ public:
   const char* GetData() const;
 
   /// \brief Returns the hash of the stored string.
-  ezStringHash GetHash() const; // [tested]
+  ezUInt64 GetHash() const; // [tested]
 
   /// \brief Returns whether the string is empty.
   bool IsEmpty() const;
@@ -205,7 +205,7 @@ public:
   void Clear(); // [tested]
 
   /// \brief Returns the hash of the stored string.
-  ezStringHash GetHash() const; // [tested]
+  ezUInt64 GetHash() const; // [tested]
 
 private:
   ezUInt64 m_uiHash;

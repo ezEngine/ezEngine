@@ -26,13 +26,12 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgComponentInternalTrigger, ezMessage);
 
-  /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some
-  /// expected string. Use ezTempHashedString::ComputeHash() to assign and compare the value.
-  ezStringHash m_uiUsageStringHash;
+  /// Identifies what the message should trigger.
+  ezHashedString m_sMessage;
 
 private:
-  ezUInt64 GetUsageStringHash() const { return m_uiUsageStringHash; }
-  void SetUsageStringHash(ezUInt64 uiHash) { m_uiUsageStringHash = uiHash; }
+  const char* GetMessage() const { return m_sMessage; }
+  void SetMessage(const char* szMessage) { m_sMessage.Assign(szMessage); }
 };
 
 /// \brief Sent when something enters or leaves a trigger
@@ -40,9 +39,8 @@ struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerTriggered, ezEventMessage);
 
-  /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some expected string.
-  /// Use ezTempHashedString::GetHash() to assign and compare the value.
-  ezStringHash m_uiMessageStringHash;
+  /// Identifies what the message should trigger.
+  ezHashedString m_sMessage;
 
   /// Messages are only sent for 'entered' ('Activated') and 'left' ('Deactivated')
   ezEnum<ezTriggerState> m_TriggerState;
@@ -51,6 +49,6 @@ struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezEventMessage
   ezGameObjectHandle m_hTriggeringObject;
 
 private:
-  ezUInt64 GetMessageStringHash() const { return m_uiMessageStringHash; }
-  void SetMessageStringHash(ezUInt64 uiHash) { m_uiMessageStringHash = uiHash; }
+  const char* GetMessage() const { return m_sMessage; }
+  void SetMessage(const char* szMessage) { m_sMessage.Assign(szMessage); }
 };

@@ -32,7 +32,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("UsageStringHash", GetUsageStringHash, SetUsageStringHash)
+    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -144,7 +144,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerTriggered, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("MsgStringHash", GetMessageStringHash, SetMessageStringHash),
+    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
     EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
     //EZ_MEMBER_PROPERTY("GameObject", m_hTriggeringObject),
   }

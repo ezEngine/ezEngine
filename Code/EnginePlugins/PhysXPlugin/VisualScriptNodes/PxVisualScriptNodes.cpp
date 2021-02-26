@@ -54,7 +54,7 @@ void ezVisualScriptNode_PxTriggerEvent::HandleMessage(ezMessage* pMsg)
 {
   ezMsgTriggerTriggered& msg = *static_cast<ezMsgTriggerTriggered*>(pMsg);
 
-  if (msg.m_uiMessageStringHash == m_sTriggerMessage.GetHash())
+  if (msg.m_sMessage == m_sTriggerMessage)
   {
     m_bStepNode = true;
 

@@ -31,8 +31,8 @@ struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgInputActionTriggered, ezEventMessage);
 
-  /// The hash of the input action string.
-  ezStringHash m_uiInputActionHash;
+  /// The input action string.
+  ezHashedString m_sInputAction;
 
   /// The 'trigger state', depending on the key state and the configuration on the ezInputComponent
   ezEnum<ezTriggerState> m_TriggerState;
@@ -41,8 +41,8 @@ struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
   float m_fKeyPressValue;
 
 private:
-  ezUInt64 GetInputActionHash() const { return m_uiInputActionHash; }
-  void SetInputActionHash(ezUInt64 uiHash) { m_uiInputActionHash = uiHash; }
+  const char* GetInputAction() const { return m_sInputAction; }
+  void SetInputAction(const char* szInputAction) { m_sInputAction.Assign(szInputAction); }
 };
 
 /// \brief This component polls all input events from the given input set every frame and broadcasts the information to components on the same game

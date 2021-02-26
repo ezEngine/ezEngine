@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Foundation/Algorithm/StringHash.h>
+#include <Foundation/Basics.h>
 
 /// \brief This class provides implementations of different hashing algorithms.
 class EZ_FOUNDATION_DLL ezHashingUtils
@@ -51,17 +51,17 @@ public:
 
   /// \brief Calculates the hash of the given string literal at compile time.
   template <size_t N>
-  constexpr static ezStringHash StringHash(const char (&str)[N], ezUInt64 uiSeed = 0); // [tested]
+  constexpr static ezUInt64 StringHash(const char (&str)[N], ezUInt64 uiSeed = 0); // [tested]
 
   /// \brief Calculates the hash of a string pointer at runtime.
   ///
   /// We cannot pass a string pointer directly since a string constant would be treated as pointer as well.
-  static ezStringHash StringHash(ezStringView str, ezUInt64 uiSeed = 0); // [tested]
+  static ezUInt64 StringHash(ezStringView str, ezUInt64 uiSeed = 0); // [tested]
 
   /// \brief Truncates a 64 bit string hash to 32 bit.
   ///
   /// This is necessary when a 64 bit string hash is used in a hash table (which only uses 32 bit indices).
-  constexpr static ezUInt32 StringHashTo32(ezStringHash hash);
+  constexpr static ezUInt32 StringHashTo32(ezUInt64 hash);
 };
 
 /// \brief Helper struct to calculate the Hash of different types.
