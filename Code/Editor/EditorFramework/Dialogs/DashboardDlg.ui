@@ -442,10 +442,14 @@
              <property name="text">
               <string>Report a Problem</string>
              </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/GitHub.png</normaloff>:/EditorFramework/Icons/GitHub.png</iconset>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="OpenGitter">
+            <widget class="QPushButton" name="OpenDiscord">
              <property name="minimumSize">
               <size>
                <width>200</width>
@@ -453,7 +457,11 @@
               </size>
              </property>
              <property name="text">
-              <string>Open Gitter Chat</string>
+              <string>Join Discord Server</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/Discord.png</normaloff>:/EditorFramework/Icons/Discord.png</iconset>
              </property>
             </widget>
            </item>
@@ -467,6 +475,10 @@
              </property>
              <property name="text">
               <string>Open Twitter</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/Twitter.png</normaloff>:/EditorFramework/Icons/Twitter.png</iconset>
              </property>
             </widget>
            </item>

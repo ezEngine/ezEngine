@@ -265,9 +265,9 @@ void ezQtDashboardDlg::on_ReportProblem_clicked()
   QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/issues"));
 }
 
-void ezQtDashboardDlg::on_OpenGitter_clicked()
+void ezQtDashboardDlg::on_OpenDiscord_clicked()
 {
-  QDesktopServices::openUrl(QUrl("https://gitter.im/ezEngine/community"));
+  QDesktopServices::openUrl(QUrl("https://discord.gg/rfJewc5khZ"));
 }
 
 void ezQtDashboardDlg::on_OpenTwitter_clicked()
