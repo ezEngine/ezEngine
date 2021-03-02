@@ -96,7 +96,7 @@ void ezQtKrautTreeAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(1);
+  QueryObjectBBox(-1);
 }
 
 void ezQtKrautTreeAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)

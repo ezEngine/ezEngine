@@ -14,7 +14,7 @@
 ezAnimatedMeshViewContext::ezAnimatedMeshViewContext(ezAnimatedMeshContext* pAnimatedMeshContext)
   : ezEngineProcessViewContext(pAnimatedMeshContext)
 {
-  m_pAnimatedMeshContext = pAnimatedMeshContext;
+  m_pContext = pAnimatedMeshContext;
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
@@ -44,11 +44,16 @@ ezViewHandle ezAnimatedMeshViewContext::CreateView()
 
 void ezAnimatedMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
+  if (m_pContext->m_bDisplayGrid)
+  {
+    ezEngineProcessViewContext::DrawSimpleGrid();
+  }
+
   ezEngineProcessViewContext::SetCamera(pMsg);
 
   const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
-  auto hAnimatedMesh = m_pAnimatedMeshContext->GetAnimatedMesh();
+  auto hAnimatedMesh = m_pContext->GetAnimatedMesh();
   if (hAnimatedMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pAnimatedMesh(hAnimatedMesh, ezResourceAcquireMode::AllowLoadingFallback);

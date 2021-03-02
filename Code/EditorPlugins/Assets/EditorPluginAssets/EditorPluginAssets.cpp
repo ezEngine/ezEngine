@@ -1,6 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
@@ -10,7 +11,6 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
-#include <EditorPluginAssets/AnimationClipAsset/AnimationClipActions.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
@@ -206,6 +206,7 @@ static void ConfigureMeshAsset()
     ezDocumentActions::MapActions("MeshAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("MeshAssetToolBar", "");
     ezAssetActions::MapActions("MeshAssetToolBar", true);
+    ezCommonAssetActions::MapActions("MeshAssetToolBar", "", ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
@@ -396,8 +397,6 @@ static void ConfigureDecalAsset()
 
 static void ConfigureAnimationClipAsset()
 {
-  ezAnimationClipActions::RegisterActions();
-
   // Menu Bar
   {
     ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar").IgnoreResult();
@@ -413,7 +412,7 @@ static void ConfigureAnimationClipAsset()
     ezDocumentActions::MapActions("AnimationClipAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("AnimationClipAssetToolBar", "");
     ezAssetActions::MapActions("AnimationClipAssetToolBar", true);
-    ezAnimationClipActions::MapActions("AnimationClipAssetToolBar", "");
+    ezCommonAssetActions::MapActions("AnimationClipAssetToolBar", "", ezCommonAssetUiState::Loop | ezCommonAssetUiState::Pause | ezCommonAssetUiState::Restart | ezCommonAssetUiState::SimulationSpeed | ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
@@ -442,6 +441,7 @@ static void ConfigureSkeletonAsset()
     ezDocumentActions::MapActions("SkeletonAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("SkeletonAssetToolBar", "");
     ezAssetActions::MapActions("SkeletonAssetToolBar", true);
+    ezCommonAssetActions::MapActions("SkeletonAssetToolBar", "", ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
@@ -468,6 +468,7 @@ static void ConfigureAnimatedMeshAsset()
     ezDocumentActions::MapActions("AnimatedMeshAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("AnimatedMeshAssetToolBar", "");
     ezAssetActions::MapActions("AnimatedMeshAssetToolBar", true);
+    ezCommonAssetActions::MapActions("AnimatedMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
@@ -534,7 +535,6 @@ void OnUnloadPlugin(bool bReloading)
   ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
   ezVisualScriptActions::UnregisterActions();
-  ezAnimationClipActions::UnregisterActions();
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);

@@ -1,5 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
+#include <Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
@@ -81,6 +82,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQuadViewActions::RegisterActions();
     ezTransformGizmoActions::RegisterActions();
     ezTranslateGizmoAction::RegisterActions();
+    ezCommonAssetActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar").IgnoreResult();
     ezProjectActions::MapActions("SettingsTabMenuBar");
@@ -125,6 +127,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQuadViewActions::UnregisterActions();
     ezTransformGizmoActions::UnregisterActions();
     ezTranslateGizmoAction::UnregisterActions();
+    ezCommonAssetActions::UnregisterActions();
 
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>()).IgnoreResult();
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>()).IgnoreResult();

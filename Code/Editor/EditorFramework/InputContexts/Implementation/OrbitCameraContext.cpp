@@ -12,6 +12,7 @@
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
+  m_Volume.SetInvalid();
   m_pCamera = nullptr;
 
   m_Mode = Mode::Off;
@@ -39,8 +40,10 @@ ezCamera* ezOrbitCameraContext::GetCamera() const
 
 void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat)
 {
-  if (!bSetCamLookat && m_Volume.GetCenter().IsEqual(vCenterPos, 0.01f) && m_Volume.GetHalfExtents().IsEqual(vHalfBoxSize, 0.01f))
-    return;
+  if (!m_Volume.GetCenter().IsEqual(vCenterPos, 0.01f) || !m_Volume.GetHalfExtents().IsEqual(vHalfBoxSize, 0.01f))
+  {
+    bSetCamLookat = true;
+  }
 
   m_vOrbitPoint = vCenterPos;
   m_Volume.SetCenterAndHalfExtents(vCenterPos, vHalfBoxSize);

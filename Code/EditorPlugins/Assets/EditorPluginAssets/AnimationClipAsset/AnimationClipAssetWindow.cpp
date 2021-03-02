@@ -77,12 +77,12 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   QueryObjectBBox(0);
 
-  GetAnimationClipDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::AnimClipEventHandler, this));
+  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
 }
 
 ezQtAnimationClipAssetDocumentWindow::~ezQtAnimationClipAssetDocumentWindow()
 {
-  GetAnimationClipDocument()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::AnimClipEventHandler, this));
+  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
 }
 
 ezAnimationClipAssetDocument* ezQtAnimationClipAssetDocumentWindow::GetAnimationClipDocument()
@@ -107,10 +107,10 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "SimulationSpeed";
 
-    if (GetAnimationClipDocument()->GetSimulationPaused())
+    if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Pause) != 0.0f)
       msg.m_fPayload = 0.0;
     else
-      msg.m_fPayload = GetAnimationClipDocument()->GetSimulationSpeed();
+      msg.m_fPayload = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
 
     GetEditorEngineConnection()->SendMessage(&msg);
   }
@@ -121,6 +121,8 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }
+
+  QueryObjectBBox(-1);
 }
 
 void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
@@ -129,30 +131,6 @@ void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
-}
-
-void ezQtAnimationClipAssetDocumentWindow::AnimClipEventHandler(const ezAnimationClipAssetEvent& e)
-{
-  switch (e.m_Type)
-  {
-    case ezAnimationClipAssetEvent::Restart:
-    {
-      ezEditorEngineRestartSimulationMsg msg;
-      GetEditorEngineConnection()->SendMessage(&msg);
-    }
-    break;
-
-    case ezAnimationClipAssetEvent::LoopChanged:
-    {
-      ezEditorEngineLoopAnimationMsg msg;
-      msg.m_bLoop = GetAnimationClipDocument()->GetLoop();
-      GetEditorEngineConnection()->SendMessage(&msg);
-    }
-    break;
-
-    default:
-      break;
-  }
 }
 
 void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()

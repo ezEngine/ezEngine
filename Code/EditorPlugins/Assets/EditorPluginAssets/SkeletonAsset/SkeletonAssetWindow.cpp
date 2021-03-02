@@ -104,7 +104,7 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(1);
+  QueryObjectBBox(-1);
 }
 
 void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)

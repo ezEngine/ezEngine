@@ -25,7 +25,6 @@ protected:
 private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose);
-  void AnimClipEventHandler(const ezAnimationClipAssetEvent& e);
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;

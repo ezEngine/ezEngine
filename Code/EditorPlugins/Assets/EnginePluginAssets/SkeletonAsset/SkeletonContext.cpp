@@ -37,15 +37,27 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonContext::ezSkeletonContext() {}
 
-void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  {
+    if (pMsg->m_sWhatToDo == "CommonAssetUiState")
+    {
+      if (pMsg->m_sPayload == "Grid")
+      {
+        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        return;
+      }
+    }
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
 void ezSkeletonContext::OnInitialize()

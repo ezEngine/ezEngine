@@ -12,13 +12,7 @@ public:
   ~ezAnimatedMeshAssetProperties();
 
   ezString m_sMeshFile;
-  float m_fUniformScaling = 1.0f;
-
   ezString m_sDefaultSkeleton;
-
-  //ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveY;
-  //ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveZ;
-  //bool m_bFlipForwardDir = false;
 
   bool m_bRecalculateNormals = false;
   bool m_bRecalculateTrangents = true;

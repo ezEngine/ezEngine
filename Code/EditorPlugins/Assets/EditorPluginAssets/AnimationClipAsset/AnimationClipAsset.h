@@ -45,41 +45,17 @@ public:
   ezEventTrackData m_EventTrack;
 };
 
-struct ezAnimationClipAssetEvent
-{
-  enum Type
-  {
-    Restart,
-    LoopChanged,
-    SimulationSpeedChanged,
-  };
-
-  ezAnimationClipAssetDocument* m_pDocument;
-  Type m_Type;
-};
-
 //////////////////////////////////////////////////////////////////////////
 
 class ezAnimationClipAssetDocument : public ezSimpleAssetDocument<ezAnimationClipAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetDocument, ezSimpleAssetDocument<ezAnimationClipAssetDocument>);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetDocument, ezSimpleAssetDocument<ezAnimationClipAssetProperties>);
 
 public:
   ezAnimationClipAssetDocument(const char* szDocumentPath);
 
-  ezEvent<const ezAnimationClipAssetEvent&> m_Events;
-
-  void TriggerRestart();
-
-  void SetLoop(bool enable);
-  bool GetLoop() const { return m_bLoop; }
-
-  void SetSimulationPaused(bool bPaused);
-  bool GetSimulationPaused() const { return m_bSimulationPaused; }
-
-  void SetSimulationSpeed(float speed);
-  float GetSimulationSpeed() const { return m_fSimulationSpeed; }
-
+  virtual void SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value) override;
+  virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const override;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
@@ -90,8 +66,6 @@ protected:
   // void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
 
 private:
-  bool m_bSimulationPaused = false;
-  bool m_bLoop = true;
   float m_fSimulationSpeed = 1.0f;
 };
 

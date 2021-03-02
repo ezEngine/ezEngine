@@ -23,6 +23,7 @@ ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectMan
   m_EngineConnectionType = engineConnectionType;
   m_EngineStatus = (m_EngineConnectionType != ezAssetDocEngineConnection::None) ? EngineStatus::Disconnected : EngineStatus::Unsupported;
   m_pEngineConnection = nullptr;
+  m_uiCommonAssetStateFlags = ezCommonAssetUiState::Grid | ezCommonAssetUiState::Loop | ezCommonAssetUiState::Visualizers;
 
   if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
   {
@@ -43,6 +44,29 @@ ezAssetDocument::~ezAssetDocument()
       ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
     }
   }
+}
+
+void ezAssetDocument::SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value)
+{
+  if (value == 0)
+  {
+    m_uiCommonAssetStateFlags &= ~((ezUInt32)state);
+  }
+  else
+  {
+    m_uiCommonAssetStateFlags |= (ezUInt32)state;
+  }
+
+  ezCommonAssetUiState e;
+  e.m_State = state;
+  e.m_fValue = value;
+
+  m_CommonAssetUiChangeEvent.Broadcast(e);
+}
+
+double ezAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const
+{
+  return (m_uiCommonAssetStateFlags & (ezUInt32)state) != 0 ? 1.0f : 0.0f;
 }
 
 ezAssetDocumentManager* ezAssetDocument::GetAssetDocumentManager() const

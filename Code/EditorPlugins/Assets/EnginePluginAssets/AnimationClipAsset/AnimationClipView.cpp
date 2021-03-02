@@ -47,3 +47,13 @@ ezViewHandle ezAnimationClipViewContext::CreateView()
   pView->SetCamera(&m_Camera);
   return pView->GetHandle();
 }
+
+void ezAnimationClipViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+{
+  if (m_pContext->m_bDisplayGrid)
+  {
+    ezEngineProcessViewContext::DrawSimpleGrid();
+  }
+
+  ezEngineProcessViewContext::SetCamera(pMsg);
+}

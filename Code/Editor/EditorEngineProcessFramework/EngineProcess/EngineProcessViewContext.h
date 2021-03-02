@@ -58,6 +58,8 @@ public:
 
   ezViewHandle GetViewHandle() const { return m_hView; }
 
+  void DrawSimpleGrid() const;
+
 protected:
   void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);

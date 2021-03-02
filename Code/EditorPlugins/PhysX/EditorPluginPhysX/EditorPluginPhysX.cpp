@@ -11,6 +11,7 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
+#include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <GameEngine/Physics/CollisionFilter.h>
@@ -48,6 +49,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("CollisionMeshAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("CollisionMeshAssetToolBar", "");
       ezAssetActions::MapActions("CollisionMeshAssetToolBar", true);
+      ezCommonAssetActions::MapActions("CollisionMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
     }
   }
 

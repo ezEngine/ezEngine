@@ -90,7 +90,7 @@ void ezQtCollisionMeshAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(1);
+  QueryObjectBBox(-1);
 }
 
 void ezQtCollisionMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)

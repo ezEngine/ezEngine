@@ -16,5 +16,5 @@ protected:
   virtual ezViewHandle CreateView() override;
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
 
-  ezSkeletonContext* m_pContext;
+  ezSkeletonContext* m_pContext = nullptr;
 };

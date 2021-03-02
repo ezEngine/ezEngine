@@ -19,6 +19,8 @@ public:
 
   const ezMeshResourceHandle& GetAnimatedMesh() const { return m_hAnimatedMesh; }
 
+  bool m_bDisplayGrid = true;
+
 protected:
   virtual void OnInitialize() override;
 

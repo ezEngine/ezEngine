@@ -50,7 +50,30 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
   if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pMsg0))
   {
-    if (pMsg->m_sWhatToDo == "PreviewMesh" && m_sAnimatedMeshToUse != pMsg->m_sPayload)
+    if (pMsg->m_sWhatToDo == "CommonAssetUiState")
+    {
+      if (pMsg->m_sPayload == "Restart")
+      {
+        Restart();
+      }
+      else if (pMsg->m_sPayload == "Loop")
+      {
+        SetLoop(pMsg->m_fPayload != 0.0f);
+      }
+      else if (pMsg->m_sPayload == "SimulationSpeed")
+      {
+        m_pWorld->GetClock().SetSpeed(pMsg->m_fPayload);
+      }
+      else if (pMsg->m_sPayload == "Pause")
+      {
+        m_pWorld->SetWorldSimulationEnabled(pMsg->m_fPayload == 0);
+      }
+      else if (pMsg->m_sPayload == "Grid")
+      {
+        m_bDisplayGrid = pMsg->m_fPayload > 0;
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "PreviewMesh" && m_sAnimatedMeshToUse != pMsg->m_sPayload)
     {
       m_sAnimatedMeshToUse = pMsg->m_sPayload;
 
@@ -81,25 +104,6 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
     }
 
     return;
-  }
-
-  if (auto pMsg = ezDynamicCast<const ezSimulationSettingsMsgToEngine*>(pMsg0))
-  {
-    // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
-
-    m_pWorld->SetWorldSimulationEnabled(pMsg->m_bSimulateWorld);
-    m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
-    return;
-  }
-
-  if (auto pMsg = ezDynamicCast<const ezEditorEngineRestartSimulationMsg*>(pMsg0))
-  {
-    Restart();
-  }
-
-  if (auto pMsg = ezDynamicCast<const ezEditorEngineLoopAnimationMsg*>(pMsg0))
-  {
-    SetLoop(pMsg->m_bLoop);
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg0);

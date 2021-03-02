@@ -14,7 +14,7 @@ o
 			s{"Objects/Container_data/Container.FBX"}
 		}
 		Uuid %DocumentID{u4{4449601798060196994,4952573765573747499}}
-		u4 %Hash{14047906596933081041}
+		u4 %Hash{436037232277353815}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -44,7 +44,7 @@ o
 		{
 			Uuid{u4{14514408665657532340,5505120066361108385}}
 		}
-		f %UniformScaling{0x0AD7233C}
+		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
 	}
 }

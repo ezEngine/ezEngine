@@ -16,5 +16,5 @@ protected:
   virtual ezViewHandle CreateView() override;
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
 
-  ezAnimatedMeshContext* m_pAnimatedMeshContext = nullptr;
+  ezAnimatedMeshContext* m_pContext = nullptr;
 };

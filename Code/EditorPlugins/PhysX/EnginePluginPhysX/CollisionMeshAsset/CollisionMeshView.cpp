@@ -21,7 +21,7 @@
 ezCollisionMeshViewContext::ezCollisionMeshViewContext(ezCollisionMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)
 {
-  m_pMeshContext = pMeshContext;
+  m_pContext = pMeshContext;
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
@@ -51,11 +51,16 @@ ezViewHandle ezCollisionMeshViewContext::CreateView()
 
 void ezCollisionMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
+  if (m_pContext->m_bDisplayGrid)
+  {
+    ezEngineProcessViewContext::DrawSimpleGrid();
+  }
+
   ezEngineProcessViewContext::SetCamera(pMsg);
 
   const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
-  auto hResource = m_pMeshContext->GetMesh();
+  auto hResource = m_pContext->GetMesh();
   if (hResource.IsValid())
   {
     ezResourceLock<ezPxMeshResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);

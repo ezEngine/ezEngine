@@ -14,6 +14,7 @@ class ezAssetDocument;
 class ezEditorEngineDocumentMsg;
 struct ezObjectPickingResult;
 struct ezEngineViewConfig;
+struct ezCommonAssetUiState;
 
 
 struct EZ_EDITORFRAMEWORK_DLL ezEngineWindowEvent
@@ -63,6 +64,8 @@ public:
 protected:
   friend class ezQtEngineViewWidget;
   ezHybridArray<ezQtEngineViewWidget*, 4> m_ViewWidgets;
+
+  virtual void CommonAssetUiEventHandler(const ezCommonAssetUiState& e);
 
   virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg);
   void RemoveViewWidget(ezQtEngineViewWidget* pView);

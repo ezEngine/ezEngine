@@ -49,55 +49,28 @@ ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumen
 {
 }
 
-void ezAnimationClipAssetDocument::TriggerRestart()
+void ezAnimationClipAssetDocument::SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value)
 {
-  ezAnimationClipAssetEvent e;
-  e.m_pDocument = this;
-  e.m_Type = ezAnimationClipAssetEvent::Restart;
+  switch (state)
+  {
+    case ezCommonAssetUiState::SimulationSpeed:
+      m_fSimulationSpeed = value;
+      break;
+  }
 
-  m_Events.Broadcast(e);
+  // handles standard booleans and broadcasts the event
+  return SUPER::SetCommonAssetUiState(state, value);
 }
 
-void ezAnimationClipAssetDocument::SetLoop(bool enable)
+double ezAnimationClipAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const
 {
-  if (m_bLoop == enable)
-    return;
+  switch (state)
+  {
+    case ezCommonAssetUiState::SimulationSpeed:
+      return m_fSimulationSpeed;
+  }
 
-  m_bLoop = enable;
-
-  ezAnimationClipAssetEvent e;
-  e.m_pDocument = this;
-  e.m_Type = ezAnimationClipAssetEvent::LoopChanged;
-
-  m_Events.Broadcast(e);
-}
-
-void ezAnimationClipAssetDocument::SetSimulationPaused(bool bPaused)
-{
-  if (m_bSimulationPaused == bPaused)
-    return;
-
-  m_bSimulationPaused = bPaused;
-
-  ezAnimationClipAssetEvent e;
-  e.m_pDocument = this;
-  e.m_Type = ezAnimationClipAssetEvent::SimulationSpeedChanged;
-
-  m_Events.Broadcast(e);
-}
-
-void ezAnimationClipAssetDocument::SetSimulationSpeed(float speed)
-{
-  if (m_fSimulationSpeed == speed)
-    return;
-
-  m_fSimulationSpeed = speed;
-
-  ezAnimationClipAssetEvent e;
-  e.m_pDocument = this;
-  e.m_Type = ezAnimationClipAssetEvent::SimulationSpeedChanged;
-
-  m_Events.Broadcast(e);
+  return SUPER::GetCommonAssetUiState(state);
 }
 
 ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)

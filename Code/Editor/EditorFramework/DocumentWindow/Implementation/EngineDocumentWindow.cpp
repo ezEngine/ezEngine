@@ -7,6 +7,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Time/Timestamp.h>
 
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
@@ -14,11 +15,13 @@ ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
   : ezQtDocumentWindow(pDocument)
 {
   pDocument->m_ProcessMessageEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
+  pDocument->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
 }
 
 ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
 {
   GetDocument()->m_ProcessMessageEvent.RemoveEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
+  GetDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
 
   // delete all view widgets, so that they can send their messages before we clean up the engine connection
   DestroyAllViews();
@@ -143,6 +146,47 @@ void ezQtEngineDocumentWindow::RemoveViewWidget(ezQtEngineViewWidget* pView)
   e.m_Type = ezEngineWindowEvent::Type::ViewDestroyed;
   e.m_pView = pView;
   m_EngineWindowEvent.Broadcast(e);
+}
+
+void ezQtEngineDocumentWindow::CommonAssetUiEventHandler(const ezCommonAssetUiState& e)
+{
+  ezSimpleDocumentConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "CommonAssetUiState";
+  msg.m_fPayload = e.m_fValue;
+
+  switch (e.m_State)
+  {
+    case ezCommonAssetUiState::Restart:
+      msg.m_sPayload = "Restart";
+      break;
+
+    case ezCommonAssetUiState::Loop:
+      msg.m_sPayload = "Loop";
+      break;
+
+    case ezCommonAssetUiState::Pause:
+      msg.m_sPayload = "Pause";
+      break;
+
+    case ezCommonAssetUiState::Grid:
+      msg.m_sPayload = "Grid";
+      break;
+
+    case ezCommonAssetUiState::SimulationSpeed:
+      msg.m_sPayload = "SimulationSpeed";
+      break;
+
+    case ezCommonAssetUiState::Visualizers:
+      msg.m_sPayload = "Visualizers";
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  if (!msg.m_sPayload.IsEmpty())
+  {
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
 }
 
 void ezQtEngineDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)

@@ -51,6 +51,11 @@ ezViewHandle ezSkeletonViewContext::CreateView()
 
 void ezSkeletonViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
+  if (m_pContext->m_bDisplayGrid)
+  {
+    ezEngineProcessViewContext::DrawSimpleGrid();
+  }
+
   ezEngineProcessViewContext::SetCamera(pMsg);
 
   const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;

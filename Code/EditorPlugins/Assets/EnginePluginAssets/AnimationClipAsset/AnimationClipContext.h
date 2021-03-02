@@ -13,6 +13,8 @@ public:
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
+  bool m_bDisplayGrid = true;
+
 protected:
   virtual void OnInitialize() override;
 

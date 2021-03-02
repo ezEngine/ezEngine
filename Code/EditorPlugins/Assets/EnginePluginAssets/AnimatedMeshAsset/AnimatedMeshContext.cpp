@@ -63,6 +63,18 @@ void ezAnimatedMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocM
     return;
   }
 
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  {
+    if (pMsg->m_sWhatToDo == "CommonAssetUiState")
+    {
+      if (pMsg->m_sPayload == "Grid")
+      {
+        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        return;
+      }
+    }
+  }
+
   ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 

@@ -16,6 +16,8 @@ public:
 
   ezSkeletonResourceHandle GetSkeleton() const { return m_hSkeleton; }
 
+  bool m_bDisplayGrid = true;
+
 protected:
   virtual void OnInitialize() override;
 

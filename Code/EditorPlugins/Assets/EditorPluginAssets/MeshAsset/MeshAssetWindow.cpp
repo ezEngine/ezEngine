@@ -112,7 +112,7 @@ void ezQtMeshAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(1);
+  QueryObjectBBox(-1);
 }
 
 void ezQtMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)

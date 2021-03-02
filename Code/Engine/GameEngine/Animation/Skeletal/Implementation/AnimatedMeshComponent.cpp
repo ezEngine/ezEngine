@@ -111,6 +111,8 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 
   // Create the buffer for the skinning matrices
   CreateSkinningTransformBuffer(m_SkinningSpacePose.m_Transforms);
+
+  TriggerLocalBoundsUpdate();
 }
 
 ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
@@ -144,7 +146,7 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
 
 void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
 {
-  if (!msg.m_hSkeleton.IsValid())
+  if (!msg.m_hSkeleton.IsValid() && m_hMesh.IsValid())
   {
     // only overwrite, if no one else had a better skeleton (e.g. the ezSkeletonComponent)
 
@@ -162,6 +164,18 @@ ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
+
+    const auto hSkeleton = pMesh->m_hDefaultSkeleton;
+
+    if (hSkeleton.IsValid())
+    {
+      ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+      if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::Final)
+      {
+        m_RootTransform = pSkeleton->GetDescriptor().m_RootTransform;
+      }
+    }
+
     bounds.Transform(m_RootTransform.GetAsMat4());
     return EZ_SUCCESS;
   }

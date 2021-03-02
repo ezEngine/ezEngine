@@ -14,7 +14,7 @@
 ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)
 {
-  m_pMeshContext = pMeshContext;
+  m_pContext = pMeshContext;
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
@@ -44,11 +44,16 @@ ezViewHandle ezMeshViewContext::CreateView()
 
 void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
+  if (m_pContext->m_bDisplayGrid)
+  {
+    ezEngineProcessViewContext::DrawSimpleGrid();
+  }
+
   ezEngineProcessViewContext::SetCamera(pMsg);
 
   const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
-  auto hMesh = m_pMeshContext->GetMesh();
+  auto hMesh = m_pContext->GetMesh();
   if (hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);

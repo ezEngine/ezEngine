@@ -112,7 +112,7 @@ void ezQtAnimatedMeshAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(1);
+  QueryObjectBBox(-1);
 }
 
 void ezQtAnimatedMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
@@ -123,7 +123,6 @@ void ezQtAnimatedMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-
 void ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   // if (e.m_sProperty == "Resource") // any material change
@@ -131,7 +130,6 @@ void ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentO
     UpdatePreview();
   }
 }
-
 
 bool ezQtAnimatedMeshAssetDocumentWindow::UpdatePreview()
 {
