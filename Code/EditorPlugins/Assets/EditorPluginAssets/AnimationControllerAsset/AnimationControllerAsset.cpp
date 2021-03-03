@@ -30,8 +30,6 @@ bool ezAnimationControllerNodeManager::InternalIsNode(const ezDocumentObject* pO
 
 void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
 {
-  // currently no connections in the graph
-
   auto pType = pObject->GetTypeAccessor().GetType();
   if (!pType->IsDerivedFrom<ezAnimGraphNode>())
     return;
@@ -71,6 +69,8 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
       pPin->m_DataType = ezAnimGraphPin::Number;
       node.m_Outputs.PushBack(pPin);
     }
+
+    // EXTEND THIS if a new type is introduced
   }
 }
 
@@ -130,6 +130,8 @@ ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin* pSour
       //case ezAnimGraphPin::SkeletonMask:
       //  out_Result = CanConnectResult::Connect1toN;
       //  break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -142,63 +144,17 @@ ezAnimationControllerAssetDocument::ezAnimationControllerAssetDocument(const cha
 
 ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
+  const auto* pNodeManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+
   ezDynamicArray<const ezDocumentObject*> allNodes;
-
-  auto* pNodeManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
-
-  struct PinCount
-  {
-    ezUInt16 m_uiInputCount = 0;
-    ezUInt16 m_uiInputIdx = 0;
-    ezUInt16 m_uiOutputCount = 0;
-    ezUInt16 m_uiOutputIdx = 0;
-  };
-
   ezMap<ezUInt8, PinCount> pinCounts;
 
-  {
-    for (auto pNode : pNodeManager->GetRootObject()->GetChildren())
-    {
-      if (!pNodeManager->IsNode(pNode))
-        continue;
-
-      allNodes.PushBack(pNode);
-
-      // input pins
-      {
-        const auto pins = pNodeManager->GetInputPins(pNode);
-
-        for (auto pPin : pins)
-        {
-          const ezAnimationControllerNodePin* pCtrlPin = ezStaticCast<const ezAnimationControllerNodePin*>(pPin);
-
-          if (pCtrlPin->GetConnections().IsEmpty())
-            continue;
-
-          pinCounts[(ezUInt8)pCtrlPin->m_DataType].m_uiInputCount++;
-        }
-      }
-
-      // output pins
-      {
-        const auto pins = pNodeManager->GetOutputPins(pNode);
-
-        for (auto pPin : pins)
-        {
-          const ezAnimationControllerNodePin* pCtrlPin = ezStaticCast<const ezAnimationControllerNodePin*>(pPin);
-
-          if (pCtrlPin->GetConnections().IsEmpty())
-            continue;
-
-          pinCounts[(ezUInt8)pCtrlPin->m_DataType].m_uiOutputCount++;
-        }
-      }
-    }
-  }
+  CountPinTypes(pNodeManager, allNodes, pinCounts);
 
   ezAnimGraph animController;
   animController.m_TriggerInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Trigger].m_uiInputCount);
   animController.m_NumberInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Number].m_uiInputCount);
+  // EXTEND THIS if a new type is introduced
 
   for (ezUInt32 i = 0; i < ezAnimGraphPin::ENUM_COUNT; ++i)
   {
@@ -211,59 +167,24 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
   ezDynamicArray<ezAnimGraphNode*> newNodes;
   newNodes.Reserve(allNodes.GetCount());
 
-  // create nodes in output graph
-  for (const ezDocumentObject* pNode : allNodes)
-  {
-    animController.m_Nodes.PushBack(pNode->GetType()->GetAllocator()->Allocate<ezAnimGraphNode>());
-    newNodes.PushBack(animController.m_Nodes.PeekBack().Borrow());
-    auto pNewNode = animController.m_Nodes.PeekBack().Borrow();
-
-    // copy properties
-    {
-      ezHybridArray<ezAbstractProperty*, 32> properties;
-      pNode->GetType()->GetAllProperties(properties);
-
-      for (ezAbstractProperty* pProp : properties)
-      {
-        if (pProp->GetCategory() != ezPropertyCategory::Member)
-          continue;
-
-        if (pProp->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::StandardType | ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
-        {
-          ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pNewNode, pNode->GetTypeAccessor().GetValue(pProp->GetPropertyName()));
-        }
-      }
-    }
-  }
+  CreateOutputGraphNodes(allNodes, animController, newNodes);
 
   ezMap<const ezPin*, ezUInt16> inputPinIndices;
+  SetInputPinIndices(newNodes, allNodes, pNodeManager, pinCounts, inputPinIndices, pIdxProperty);
+  SetOutputPinIndices(newNodes, allNodes, pNodeManager, pinCounts, animController, pIdxProperty, inputPinIndices);
 
-  // set input pin indices
-  for (ezUInt32 nodeIdx = 0; nodeIdx < newNodes.GetCount(); ++nodeIdx)
-  {
-    const ezDocumentObject* pNode = allNodes[nodeIdx];
-    auto* pNewNode = newNodes[nodeIdx];
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+  EZ_SUCCEED_OR_RETURN(animController.Serialize(writer));
 
-    const auto inputPins = pNodeManager->GetInputPins(pNode);
+  stream << storage.GetStorageSize();
+  return stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+}
 
-    for (auto pPin : inputPins)
-    {
-      const ezAnimationControllerNodePin* pCtrlPin = ezStaticCast<const ezAnimationControllerNodePin*>(pPin);
+void ezAnimationControllerAssetDocument::SetOutputPinIndices(const ezDynamicArray<ezAnimGraphNode*>& newNodes, const ezDynamicArray<const ezDocumentObject*>& allNodes, const ezDocumentNodeManager* pNodeManager, ezMap<ezUInt8, PinCount>& pinCounts, ezAnimGraph& animController, ezAbstractMemberProperty* pIdxProperty, const ezMap<const ezPin*, ezUInt16>& inputPinIndices) const
+{
+  // this function is generic and doesn't need to be extended for new types
 
-      if (pCtrlPin->GetConnections().IsEmpty())
-        continue;
-
-      const ezUInt16 idx = pinCounts[(ezUInt8)pCtrlPin->m_DataType].m_uiInputIdx++;
-      inputPinIndices[pCtrlPin] = idx;
-
-      auto pPinProp = static_cast<ezAbstractMemberProperty*>(pNewNode->GetDynamicRTTI()->FindPropertyByName(pPin->GetName()));
-      EZ_ASSERT_DEBUG(pPinProp, "Pin with name '{}' has no equally named property", pPin->GetName());
-
-      ezReflectionUtils::SetMemberPropertyValue(pIdxProperty, pPinProp->GetPropertyPointer(pNewNode), idx);
-    }
-  }
-
-  // set output pin indices
   for (ezUInt32 nodeIdx = 0; nodeIdx < newNodes.GetCount(); ++nodeIdx)
   {
     const ezDocumentObject* pNode = allNodes[nodeIdx];
@@ -299,13 +220,107 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
       }
     }
   }
+}
 
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  EZ_SUCCEED_OR_RETURN(animController.Serialize(writer));
+void ezAnimationControllerAssetDocument::SetInputPinIndices(const ezDynamicArray<ezAnimGraphNode*>& newNodes, const ezDynamicArray<const ezDocumentObject*>& allNodes, const ezDocumentNodeManager* pNodeManager, ezMap<ezUInt8, PinCount>& pinCounts, ezMap<const ezPin*, ezUInt16>& inputPinIndices, ezAbstractMemberProperty* pIdxProperty) const
+{
+  // this function is generic and doesn't need to be extended for new types
 
-  stream << storage.GetStorageSize();
-  return stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+  for (ezUInt32 nodeIdx = 0; nodeIdx < newNodes.GetCount(); ++nodeIdx)
+  {
+    const ezDocumentObject* pNode = allNodes[nodeIdx];
+    auto* pNewNode = newNodes[nodeIdx];
+
+    const auto inputPins = pNodeManager->GetInputPins(pNode);
+
+    for (auto pPin : inputPins)
+    {
+      const ezAnimationControllerNodePin* pCtrlPin = ezStaticCast<const ezAnimationControllerNodePin*>(pPin);
+
+      if (pCtrlPin->GetConnections().IsEmpty())
+        continue;
+
+      const ezUInt16 idx = pinCounts[(ezUInt8)pCtrlPin->m_DataType].m_uiInputIdx++;
+      inputPinIndices[pCtrlPin] = idx;
+
+      auto pPinProp = static_cast<ezAbstractMemberProperty*>(pNewNode->GetDynamicRTTI()->FindPropertyByName(pPin->GetName()));
+      EZ_ASSERT_DEBUG(pPinProp, "Pin with name '{}' has no equally named property", pPin->GetName());
+
+      ezReflectionUtils::SetMemberPropertyValue(pIdxProperty, pPinProp->GetPropertyPointer(pNewNode), idx);
+    }
+  }
+}
+
+void ezAnimationControllerAssetDocument::CreateOutputGraphNodes(const ezDynamicArray<const ezDocumentObject*>& allNodes, ezAnimGraph& animController, ezDynamicArray<ezAnimGraphNode*>& newNodes) const
+{
+  // this function is generic and doesn't need to be extended for new types
+
+  for (const ezDocumentObject* pNode : allNodes)
+  {
+    animController.m_Nodes.PushBack(pNode->GetType()->GetAllocator()->Allocate<ezAnimGraphNode>());
+    newNodes.PushBack(animController.m_Nodes.PeekBack().Borrow());
+    auto pNewNode = animController.m_Nodes.PeekBack().Borrow();
+
+    // copy properties
+    {
+      ezHybridArray<ezAbstractProperty*, 32> properties;
+      pNode->GetType()->GetAllProperties(properties);
+
+      for (ezAbstractProperty* pProp : properties)
+      {
+        if (pProp->GetCategory() != ezPropertyCategory::Member)
+          continue;
+
+        if (pProp->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::StandardType | ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+        {
+          ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pNewNode, pNode->GetTypeAccessor().GetValue(pProp->GetPropertyName()));
+        }
+      }
+    }
+  }
+}
+
+void ezAnimationControllerAssetDocument::CountPinTypes(const ezDocumentNodeManager* pNodeManager, ezDynamicArray<const ezDocumentObject*>& allNodes, ezMap<ezUInt8, PinCount>& pinCounts) const
+{
+  // this function is generic and doesn't need to be extended for new types
+
+  for (auto pNode : pNodeManager->GetRootObject()->GetChildren())
+  {
+    if (!pNodeManager->IsNode(pNode))
+      continue;
+
+    allNodes.PushBack(pNode);
+
+    // input pins
+    {
+      const auto pins = pNodeManager->GetInputPins(pNode);
+
+      for (auto pPin : pins)
+      {
+        const ezAnimationControllerNodePin* pCtrlPin = ezStaticCast<const ezAnimationControllerNodePin*>(pPin);
+
+        if (pCtrlPin->GetConnections().IsEmpty())
+          continue;
+
+        pinCounts[(ezUInt8)pCtrlPin->m_DataType].m_uiInputCount++;
+      }
+    }
+
+    // output pins
+    {
+      const auto pins = pNodeManager->GetOutputPins(pNode);
+
+      for (auto pPin : pins)
+      {
+        const ezAnimationControllerNodePin* pCtrlPin = ezStaticCast<const ezAnimationControllerNodePin*>(pPin);
+
+        if (pCtrlPin->GetConnections().IsEmpty())
+          continue;
+
+        pinCounts[(ezUInt8)pCtrlPin->m_DataType].m_uiOutputCount++;
+      }
+    }
+  }
 }
 
 void ezAnimationControllerAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
