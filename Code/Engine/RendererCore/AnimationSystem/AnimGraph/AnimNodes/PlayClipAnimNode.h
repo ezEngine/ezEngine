@@ -43,6 +43,7 @@ public:
 
 private:
   ezAnimGraphTriggerInputPin m_Active; // [ property ]
+  ezAnimGraphNumberInputPin m_SpeedPin;   // [ property ]
 
   ezHashedString m_sPartialBlendingRootBone;
   ezTime m_PlaybackTime;

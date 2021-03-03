@@ -7,9 +7,26 @@ class ezAnimGraph;
 class ezStreamWriter;
 class ezStreamReader;
 
+
+
 class EZ_RENDERERCORE_DLL ezAnimGraphPin : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphPin, ezReflectedClass);
+
+  enum Type : ezUInt8
+  {
+    Invalid,
+    Trigger,
+    Number,
+    //SkeletonMask,
+
+    ENUM_COUNT
+  };
+
+  bool IsConnected() const
+  {
+    return m_iPinIndex != -1;
+  }
 
 public:
   ezInt16 m_iPinIndex = -1;
@@ -49,4 +66,20 @@ public:
 
 private:
   bool m_bTriggered = false;
+};
+
+class EZ_RENDERERCORE_DLL ezAnimGraphNumberInputPin : public ezAnimGraphInputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberInputPin, ezAnimGraphInputPin);
+
+public:
+  double GetNumber(ezAnimGraph& controller) const;
+};
+
+class EZ_RENDERERCORE_DLL ezAnimGraphNumberOutputPin : public ezAnimGraphOutputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberOutputPin, ezAnimGraphOutputPin);
+
+public:
+  void SetNumber(ezAnimGraph& controller, double value);
 };

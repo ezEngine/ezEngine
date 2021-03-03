@@ -59,8 +59,10 @@ public:
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
 
+  ezDynamicArray<ezDynamicArray<ezUInt16>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
+
   ezDynamicArray<ezInt8> m_TriggerInputPinStates;
-  ezDynamicArray<ezDynamicArray<ezUInt16>> m_TriggerOutputToInputPinMapping;
+  ezDynamicArray<double> m_NumberInputPinStates;
 
   /// \brief To be called by ezAnimGraphNode classes every frame that they want to affect animation
   void AddFrameBlendLayer(const ozz::animation::BlendingJob::Layer& layer);

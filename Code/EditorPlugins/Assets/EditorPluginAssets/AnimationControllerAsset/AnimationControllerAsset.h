@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphPins.h>
 
 class ezAnimationControllerNodePin : public ezPin
 {
@@ -11,14 +12,7 @@ public:
   ezAnimationControllerNodePin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject);
   ~ezAnimationControllerNodePin();
 
-  enum class DataType : ezUInt8
-  {
-    Invalid,
-    Trigger,
-    SkeletonMask,
-  };
-
-  DataType m_DataType = DataType::Invalid;
+  ezAnimGraphPin::Type m_DataType = ezAnimGraphPin::Invalid;
 };
 
 class ezAnimationControllerNodeManager : public ezDocumentNodeManager

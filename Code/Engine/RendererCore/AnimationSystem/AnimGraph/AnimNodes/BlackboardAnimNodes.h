@@ -33,6 +33,10 @@ private:
   bool m_bLastActiveState = false;
 };
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 struct ezComparisonOperator
 {
   using StorageType = ezUInt8;
@@ -76,6 +80,36 @@ public:
 
 private:
   ezAnimGraphTriggerOutputPin m_Active; // [ property ]
+
+  ezHashedString m_sBlackboardEntry;
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezGetBlackboardNumberAnimNode : public ezAnimGraphNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGetBlackboardNumberAnimNode, ezAnimGraphNode);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAnimGraphNode
+
+protected:
+  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
+  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+
+  virtual void Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezCheckBlackboardValueAnimNode
+
+public:
+  void SetBlackboardEntry(const char* szFile); // [ property ]
+  const char* GetBlackboardEntry() const;      // [ property ]
+
+private:
+  ezAnimGraphNumberOutputPin m_Value; // [ property ]
 
   ezHashedString m_sBlackboardEntry;
 };

@@ -25,6 +25,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphTriggerOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphTriggerOutputPin>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNumberInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphNumberInputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNumberOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphNumberOutputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezResult ezAnimGraphPin::Serialize(ezStreamWriter& stream) const
@@ -49,7 +55,7 @@ void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& controller, bool tri
 
   m_bTriggered = triggered;
 
-  const auto& map = controller.m_TriggerOutputToInputPinMapping[m_iPinIndex];
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger][m_iPinIndex];
 
   const ezInt8 offset = triggered ? +1 : -1;
 
@@ -66,4 +72,26 @@ bool ezAnimGraphTriggerInputPin::IsTriggered(ezAnimGraph& controller) const
     return false;
 
   return controller.m_TriggerInputPinStates[m_iPinIndex] > 0;
+}
+
+double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraph& controller) const
+{
+  if (m_iPinIndex < 0)
+    return 0;
+
+  return controller.m_NumberInputPinStates[m_iPinIndex];
+}
+
+void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraph& controller, double value)
+{
+  if (m_iPinIndex < 0)
+    return;
+
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::Number][m_iPinIndex];
+
+  // set all input pins that are connected to this output pin
+  for (ezUInt16 idx : map)
+  {
+    controller.m_NumberInputPinStates[idx] = value;
+  }
 }

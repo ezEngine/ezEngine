@@ -39,23 +39,36 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
   ezHybridArray<ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
+  const ezColor triggerPinColor = ezColor::DarkOrange;
+  const ezColor numberPinColor = ezColor::ForestGreen;
+
   for (ezAbstractProperty* pProp : properties)
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member || !pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphPin>())
       continue;
 
-    ezColor pinColor = ezColor::Grey;
-
-    if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphInputPin>())
+    if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphTriggerInputPin>())
     {
-      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
-      pPin->m_DataType = ezAnimationControllerNodePin::DataType::Trigger;
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), triggerPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::Trigger;
       node.m_Inputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphOutputPin>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphTriggerOutputPin>())
     {
-      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
-      pPin->m_DataType = ezAnimationControllerNodePin::DataType::Trigger;
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), triggerPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::Trigger;
+      node.m_Outputs.PushBack(pPin);
+    }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphNumberInputPin>())
+    {
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), numberPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::Number;
+      node.m_Inputs.PushBack(pPin);
+    }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphNumberOutputPin>())
+    {
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), numberPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::Number;
       node.m_Outputs.PushBack(pPin);
     }
   }
@@ -106,13 +119,17 @@ ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin* pSour
 
   switch (pSourcePin->m_DataType)
   {
-    case ezAnimationControllerNodePin::DataType::Trigger:
+    case ezAnimGraphPin::Trigger:
       out_Result = CanConnectResult::ConnectNtoN;
       break;
 
-    case ezAnimationControllerNodePin::DataType::SkeletonMask:
+    case ezAnimGraphPin::Number:
       out_Result = CanConnectResult::Connect1toN;
       break;
+
+      //case ezAnimGraphPin::SkeletonMask:
+      //  out_Result = CanConnectResult::Connect1toN;
+      //  break;
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -180,8 +197,13 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
   }
 
   ezAnimGraph animController;
-  animController.m_TriggerInputPinStates.SetCount(pinCounts[(ezUInt8)ezAnimationControllerNodePin::DataType::Trigger].m_uiInputCount);
-  animController.m_TriggerOutputToInputPinMapping.SetCount(pinCounts[(ezUInt8)ezAnimationControllerNodePin::DataType::Trigger].m_uiOutputCount);
+  animController.m_TriggerInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Trigger].m_uiInputCount);
+  animController.m_NumberInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Number].m_uiInputCount);
+
+  for (ezUInt32 i = 0; i < ezAnimGraphPin::ENUM_COUNT; ++i)
+  {
+    animController.m_OutputPinToInputPinMapping[i].SetCount(pinCounts[i].m_uiOutputCount);
+  }
 
   auto pIdxProperty = static_cast<ezAbstractMemberProperty*>(ezAnimGraphPin::GetStaticRTTI()->FindPropertyByName("PinIdx", false));
   EZ_ASSERT_DEBUG(pIdxProperty, "Missing PinIdx property");
@@ -255,9 +277,11 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
       if (pCtrlPin->GetConnections().IsEmpty())
         continue;
 
-      const ezUInt32 idx = pinCounts[(ezUInt8)pCtrlPin->m_DataType].m_uiOutputIdx++;
+      const ezUInt8 pinType = pCtrlPin->m_DataType;
 
-      animController.m_TriggerOutputToInputPinMapping[idx].Reserve(pCtrlPin->GetConnections().GetCount());
+      const ezUInt32 idx = pinCounts[pinType].m_uiOutputIdx++;
+
+      animController.m_OutputPinToInputPinMapping[pinType][idx].Reserve(pCtrlPin->GetConnections().GetCount());
 
       auto pPinProp = static_cast<ezAbstractMemberProperty*>(pNewNode->GetDynamicRTTI()->FindPropertyByName(pPin->GetName()));
       EZ_ASSERT_DEBUG(pPinProp, "Pin with name '{}' has no equally named property", pPin->GetName());
@@ -271,7 +295,7 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
         const ezUInt16 uiTargetIdx = inputPinIndices.GetValueOrDefault(pCon->GetTargetPin(), 0xFFFF);
         EZ_ASSERT_DEBUG(uiTargetIdx != 0xFFFF, "invalid target pin");
 
-        animController.m_TriggerOutputToInputPinMapping[idx].PushBack(uiTargetIdx);
+        animController.m_OutputPinToInputPinMapping[pinType][idx].PushBack(uiTargetIdx);
       }
     }
   }

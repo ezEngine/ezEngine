@@ -104,7 +104,7 @@ void ezAnimGraph::SetExternalBlackboard(ezBlackboard* pBlackboard)
 
 ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(2);
+  stream.WriteVersion(3);
 
   const ezUInt32 uiNumNodes = m_Nodes.GetCount();
   stream << uiNumNodes;
@@ -120,12 +120,23 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(m_Blackboard.Serialize(stream));
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_TriggerInputPinStates));
-
-  stream << m_TriggerOutputToInputPinMapping.GetCount();
-  for (const auto& ar : m_TriggerOutputToInputPinMapping)
   {
-    EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+    EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_TriggerInputPinStates));
+
+    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger].GetCount();
+    for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger])
+    {
+      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+    }
+  }
+  {
+    EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_NumberInputPinStates));
+
+    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Number].GetCount();
+    for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Number])
+    {
+      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+    }
   }
 
   return EZ_SUCCESS;
@@ -133,7 +144,7 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
 
 ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
 {
-  const auto uiVersion = stream.ReadVersion(2);
+  const auto uiVersion = stream.ReadVersion(3);
 
   ezUInt32 uiNumNodes = 0;
   stream >> uiNumNodes;
@@ -159,8 +170,20 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
 
     ezUInt32 sar = 0;
     stream >> sar;
-    m_TriggerOutputToInputPinMapping.SetCount(sar);
-    for (auto& ar : m_TriggerOutputToInputPinMapping)
+    m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger].SetCount(sar);
+    for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger])
+    {
+      EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
+    }
+  }
+  if (uiVersion >= 3)
+  {
+    EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_NumberInputPinStates));
+
+    ezUInt32 sar = 0;
+    stream >> sar;
+    m_OutputPinToInputPinMapping[ezAnimGraphPin::Number].SetCount(sar);
+    for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Number])
     {
       EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
     }

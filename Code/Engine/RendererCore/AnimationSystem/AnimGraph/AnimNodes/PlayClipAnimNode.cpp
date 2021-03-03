@@ -22,6 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
       EZ_ACCESSOR_PROPERTY("PartialBlendingRootBone", GetPartialBlendingRootBone, SetPartialBlendingRootBone),
 
       EZ_MEMBER_PROPERTY("Active", m_Active)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("SpeedPin", m_SpeedPin)->AddAttributes(new ezHiddenAttribute()),
     }
     EZ_END_PROPERTIES;
   }
@@ -42,6 +43,7 @@ ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
   stream << m_sPartialBlendingRootBone;
 
   EZ_SUCCEED_OR_RETURN(m_Active.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_SpeedPin.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -60,6 +62,7 @@ ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
   stream >> m_sPartialBlendingRootBone;
 
   EZ_SUCCEED_OR_RETURN(m_Active.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_SpeedPin.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -111,12 +114,19 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
 
   const auto& animDesc = pAnimClip->GetDescriptor();
 
-  m_PlaybackTime += tDiff * m_fSpeed;
-  if (m_fSpeed > 0 && m_PlaybackTime > animDesc.GetDuration())
+  float fSpeed = m_fSpeed;
+
+  if (m_SpeedPin.IsConnected())
+  {
+    fSpeed *= (float)m_SpeedPin.GetNumber(*pOwner);
+  }
+
+  m_PlaybackTime += tDiff * fSpeed;
+  if (fSpeed > 0 && m_PlaybackTime > animDesc.GetDuration())
   {
     m_PlaybackTime -= animDesc.GetDuration();
   }
-  else if (m_fSpeed < 0 && m_PlaybackTime < ezTime::Zero())
+  else if (fSpeed < 0 && m_PlaybackTime < ezTime::Zero())
   {
     m_PlaybackTime += animDesc.GetDuration();
   }
