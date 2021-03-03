@@ -8,7 +8,11 @@
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 
-ezAnimGraph::ezAnimGraph() = default;
+ezAnimGraph::ezAnimGraph()
+{
+  m_pBlackboard = &m_Blackboard;
+}
+
 ezAnimGraph::~ezAnimGraph() = default;
 
 void ezAnimGraph::Update(ezTime tDiff)
@@ -84,6 +88,18 @@ void ezAnimGraph::SendResultTo(ezGameObject* pObject)
   msg.m_ModelTransforms = m_ModelSpaceTransforms;
 
   pObject->SendMessageRecursive(msg);
+}
+
+void ezAnimGraph::SetExternalBlackboard(ezBlackboard* pBlackboard)
+{
+  if (pBlackboard)
+  {
+    m_pBlackboard = pBlackboard;
+  }
+  else
+  {
+    m_pBlackboard = &m_Blackboard;
+  }
 }
 
 ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const

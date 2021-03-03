@@ -131,10 +131,14 @@ void ezBlackboardComponent::DeserializeComponent(ezWorldReader& stream)
   s >> sb;
   m_pBoard->SetName(sb);
 
+  // we don't write the data to m_InitialEntries, because that is never needed anymore at runtime
   ezDynamicArray<ezBlackboardEntry> initialEntries;
   if (s.ReadArray(initialEntries).Succeeded())
   {
-    RegisterEntries(initialEntries);
+    for (auto& entry : initialEntries)
+    {
+      m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
+    }
   }
 }
 
@@ -194,33 +198,27 @@ const ezBlackboardEntry& ezBlackboardComponent::Entries_GetValue(ezUInt32 uiInde
 void ezBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, const ezBlackboardEntry& entry)
 {
   m_InitialEntries.EnsureCount(uiIndex + 1);
+
+  m_pBoard->UnregisterEntry(m_InitialEntries[uiIndex].m_sName);
+
   m_InitialEntries[uiIndex] = entry;
 
-  RegisterEntries(m_InitialEntries);
+  m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
 }
 
 void ezBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry)
 {
   m_InitialEntries.Insert(entry, uiIndex);
 
-  RegisterEntries(m_InitialEntries);
+  m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
 }
 
 void ezBlackboardComponent::Entries_Remove(ezUInt32 uiIndex)
 {
+  auto& entry = m_InitialEntries[uiIndex];
+  m_pBoard->UnregisterEntry(entry.m_sName);
+
   m_InitialEntries.RemoveAtAndCopy(uiIndex);
-
-  RegisterEntries(m_InitialEntries);
-}
-
-void ezBlackboardComponent::RegisterEntries(ezArrayPtr<ezBlackboardEntry> entries)
-{
-  m_pBoard->UnregisterAllEntries();
-
-  for (auto& entry : entries)
-  {
-    m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
-  }
 }
 
 void ezBlackboardComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const

@@ -9,9 +9,9 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <ozz/animation/runtime/blending_job.h>
+#include <ozz/animation/runtime/sampling_job.h>
 #include <ozz/base/containers/vector.h>
 #include <ozz/base/maths/soa_transform.h>
-#include <ozz/animation/runtime/sampling_job.h>
 
 class ezGameObject;
 class ezStreamWriter;
@@ -50,7 +50,11 @@ public:
 
   ezSkeletonResourceHandle m_hSkeleton;
 
-  ezBlackboard m_Blackboard;
+  void SetExternalBlackboard(ezBlackboard* pBlackboard);
+  ezBlackboard& GetBlackboard()
+  {
+    return *m_pBlackboard;
+  }
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
@@ -74,6 +78,9 @@ public:
   void FreeSamplingCache(ezAnimGraphSamplingCache*& pTransforms);
 
 private:
+  ezBlackboard* m_pBlackboard = nullptr;
+  ezBlackboard m_Blackboard;
+
   ezDynamicArray<ozz::animation::BlendingJob::Layer> m_ozzBlendLayers;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
   ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelSpaceTransforms;

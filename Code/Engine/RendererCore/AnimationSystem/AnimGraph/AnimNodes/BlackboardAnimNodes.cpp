@@ -74,20 +74,20 @@ void ezSetBlackboardValueAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const
     m_bLastActiveState = bIsActiveNow;
 
     // TODO: register only once
-    pOwner->m_Blackboard.RegisterEntry(m_sBlackboardEntry, 0.0f);
+    pOwner->GetBlackboard().RegisterEntry(m_sBlackboardEntry, 0.0f);
 
     if (bIsActiveNow)
     {
       if (m_bSetOnActivation)
       {
-        pOwner->m_Blackboard.SetEntryValue(m_sBlackboardEntry, m_fOnActivatedValue);
+        pOwner->GetBlackboard().SetEntryValue(m_sBlackboardEntry, m_fOnActivatedValue);
       }
     }
     else
     {
       if (m_bSetOnDeactivation)
       {
-        pOwner->m_Blackboard.SetEntryValue(m_sBlackboardEntry, m_fOnDeactivatedValue);
+        pOwner->GetBlackboard().SetEntryValue(m_sBlackboardEntry, m_fOnDeactivatedValue);
       }
     }
   }
@@ -183,10 +183,10 @@ static bool Compare(ezComparisonOperator::Enum cmp, float f1, float f2)
 
 void ezCheckBlackboardValueAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton)
 {
-  ezVariant value = pOwner->m_Blackboard.GetEntryValue(m_sBlackboardEntry);
+  ezVariant value = pOwner->GetBlackboard().GetEntryValue(m_sBlackboardEntry);
   float fValue = 0.0f;
 
-  if (value.IsValid() && value.IsFloatingPoint())
+  if (value.IsValid() && value.IsNumber())
   {
     fValue = value.ConvertTo<float>();
   }

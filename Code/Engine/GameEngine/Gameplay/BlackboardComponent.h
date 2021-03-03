@@ -72,12 +72,11 @@ private:
   void Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry);
   void Entries_Remove(ezUInt32 uiIndex);
 
-  void RegisterEntries(ezArrayPtr<ezBlackboardEntry> entries);
-
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezUniquePtr<ezBlackboard> m_pBoard;
 
+  // this array is not held during runtime, it is only needed during editor time until the component is serialized out
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;
 };
