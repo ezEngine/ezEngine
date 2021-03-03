@@ -23,6 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
 
       EZ_MEMBER_PROPERTY("Active", m_Active)->AddAttributes(new ezHiddenAttribute()),
       EZ_MEMBER_PROPERTY("SpeedPin", m_SpeedPin)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("Mask", m_Mask)->AddAttributes(new ezHiddenAttribute()),
     }
     EZ_END_PROPERTIES;
   }
@@ -44,6 +45,7 @@ ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(m_Active.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_Mask.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -63,6 +65,7 @@ ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(m_Active.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_Mask.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -151,6 +154,11 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
     job.output = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
     EZ_ASSERT_DEBUG(job.Validate(), "");
     job.Run();
+  }
+
+  if (m_Mask.IsConnected())
+  {
+    // TODO ...
   }
 
   if (!m_sPartialBlendingRootBone.IsEmpty())

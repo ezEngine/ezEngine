@@ -104,7 +104,7 @@ void ezAnimGraph::SetExternalBlackboard(ezBlackboard* pBlackboard)
 
 ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(3);
+  stream.WriteVersion(4);
 
   const ezUInt32 uiNumNodes = m_Nodes.GetCount();
   stream << uiNumNodes;
@@ -138,13 +138,23 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
       EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
     }
   }
+  {
+    EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_SkeletonWeightInputPinStates));
+
+    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights].GetCount();
+    for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights])
+    {
+      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+    }
+  }
+  // EXTEND THIS if a new type is introduced
 
   return EZ_SUCCESS;
 }
 
 ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
 {
-  const auto uiVersion = stream.ReadVersion(3);
+  const auto uiVersion = stream.ReadVersion(4);
 
   ezUInt32 uiNumNodes = 0;
   stream >> uiNumNodes;
@@ -188,6 +198,19 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
       EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
     }
   }
+  if (uiVersion >= 4)
+  {
+    EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_SkeletonWeightInputPinStates));
+
+    ezUInt32 sar = 0;
+    stream >> sar;
+    m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights].SetCount(sar);
+    for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights])
+    {
+      EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
+    }
+  }
+  // EXTEND THIS if a new type is introduced
 
   return EZ_SUCCESS;
 }

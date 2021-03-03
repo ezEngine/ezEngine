@@ -42,8 +42,9 @@ public:
   ezAnimationClipResourceHandle m_hAnimationClip;
 
 private:
-  ezAnimGraphTriggerInputPin m_Active; // [ property ]
-  ezAnimGraphNumberInputPin m_SpeedPin;   // [ property ]
+  ezAnimGraphTriggerInputPin m_Active;       // [ property ]
+  ezAnimGraphNumberInputPin m_SpeedPin;      // [ property ]
+  ezAnimGraphSkeletonWeightsInputPin m_Mask; // [ property ]
 
   ezHashedString m_sPartialBlendingRootBone;
   ezTime m_PlaybackTime;
