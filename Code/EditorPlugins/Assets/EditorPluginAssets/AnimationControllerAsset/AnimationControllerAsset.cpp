@@ -165,8 +165,9 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
 
   ezDynamicArray<const ezDocumentObject*> allNodes;
   ezMap<ezUInt8, PinCount> pinCounts;
-
   CountPinTypes(pNodeManager, allNodes, pinCounts);
+
+  SortNodesByPriority(allNodes);
 
   ezAnimGraph animController;
   animController.m_TriggerInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Trigger].m_uiInputCount);
@@ -197,6 +198,59 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
 
   stream << storage.GetStorageSize();
   return stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+}
+
+static void AssignNodePriority(const ezDocumentObject* pNode, ezUInt16 curPrio, ezMap<const ezDocumentObject*, ezUInt16>& prios, const ezDocumentNodeManager* pNodeManager)
+{
+  prios[pNode] = ezMath::Min(prios[pNode], curPrio);
+
+  const auto inputPins = pNodeManager->GetInputPins(pNode);
+
+  for (auto pPin : inputPins)
+  {
+    for (auto pConnection : pPin->GetConnections())
+    {
+      AssignNodePriority(pConnection->GetSourcePin()->GetParent(), curPrio - 1, prios, pNodeManager);
+    }
+  }
+}
+
+void ezAnimationControllerAssetDocument::SortNodesByPriority(ezDynamicArray<const ezDocumentObject*>& allNodes)
+{
+  // starts at output nodes (which have no output pins) and walks back recursively over the connections on their input nodes
+  // until it reaches the end of the graph
+  // assigns decreasing priorities to the nodes that it finds
+  // thus it generates a weak order in which the nodes should be stepped at runtime
+
+  const auto* pNodeManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+
+  ezMap<const ezDocumentObject*, ezUInt16> prios;
+  for (const ezDocumentObject* pNode : allNodes)
+  {
+    prios[pNode] = 0xFFFF;
+  }
+
+  for (const ezDocumentObject* pNode : allNodes)
+  {
+    // only look at the final nodes in the graph
+    if (pNodeManager->GetOutputPins(pNode).IsEmpty())
+    {
+      AssignNodePriority(pNode, 0xFFFE, prios, pNodeManager);
+    }
+  }
+
+  // remove unreachable nodes
+  for (ezUInt32 i = allNodes.GetCount(); i > 0; --i)
+  {
+    if (prios[allNodes[i - 1]] == 0xFFFF)
+    {
+      allNodes.RemoveAtAndSwap(i - 1);
+    }
+  }
+
+  allNodes.Sort([&](auto lhs, auto rhs) -> bool {
+    return prios[lhs] < prios[rhs];
+  });
 }
 
 void ezAnimationControllerAssetDocument::SetOutputPinIndices(const ezDynamicArray<ezAnimGraphNode*>& newNodes, const ezDynamicArray<const ezDocumentObject*>& allNodes, const ezDocumentNodeManager* pNodeManager, ezMap<ezUInt8, PinCount>& pinCounts, ezAnimGraph& animController, ezAbstractMemberProperty* pIdxProperty, const ezMap<const ezPin*, ezUInt16>& inputPinIndices) const
