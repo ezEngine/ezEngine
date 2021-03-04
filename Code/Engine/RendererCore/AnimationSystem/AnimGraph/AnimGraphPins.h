@@ -6,6 +6,7 @@
 class ezAnimGraph;
 class ezStreamWriter;
 class ezStreamReader;
+struct ezAnimGraphBlendWeights;
 
 
 
@@ -96,7 +97,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphSkeletonWeightsInputPin : public ezAnimGrap
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphSkeletonWeightsInputPin, ezAnimGraphInputPin);
 
 public:
-  ezUInt8 GetIndex(ezAnimGraph& controller) const;
+  ezAnimGraphBlendWeights* GetWeights(ezAnimGraph& controller) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphSkeletonWeightsOutputPin : public ezAnimGraphOutputPin
@@ -104,5 +105,5 @@ class EZ_RENDERERCORE_DLL ezAnimGraphSkeletonWeightsOutputPin : public ezAnimGra
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphSkeletonWeightsOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetIndex(ezAnimGraph& controller, ezUInt8 value);
+  void SetWeights(ezAnimGraph& controller, ezAnimGraphBlendWeights* pWeights);
 };

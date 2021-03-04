@@ -114,15 +114,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphSkeletonWeightsOutputPin, 1, ezRTTIDe
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezUInt8 ezAnimGraphSkeletonWeightsInputPin::GetIndex(ezAnimGraph& controller) const
+ezAnimGraphBlendWeights* ezAnimGraphSkeletonWeightsInputPin::GetWeights(ezAnimGraph& controller) const
 {
   if (m_iPinIndex < 0)
-    return 0;
+    return nullptr;
 
   return controller.m_SkeletonWeightInputPinStates[m_iPinIndex];
 }
 
-void ezAnimGraphSkeletonWeightsOutputPin::SetIndex(ezAnimGraph& controller, ezUInt8 value)
+void ezAnimGraphSkeletonWeightsOutputPin::SetWeights(ezAnimGraph& controller, ezAnimGraphBlendWeights* pWeights)
 {
   if (m_iPinIndex < 0)
     return;
@@ -132,6 +132,6 @@ void ezAnimGraphSkeletonWeightsOutputPin::SetIndex(ezAnimGraph& controller, ezUI
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    controller.m_SkeletonWeightInputPinStates[idx] = value;
+    controller.m_SkeletonWeightInputPinStates[idx] = pWeights;
   }
 }

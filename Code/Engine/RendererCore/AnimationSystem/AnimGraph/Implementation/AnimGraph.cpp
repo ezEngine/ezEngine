@@ -139,7 +139,8 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
     }
   }
   {
-    EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_SkeletonWeightInputPinStates));
+    //EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_SkeletonWeightInputPinStates));
+    stream << m_SkeletonWeightInputPinStates.GetCount();
 
     stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights].GetCount();
     for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights])
@@ -200,9 +201,12 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
   }
   if (uiVersion >= 4)
   {
-    EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_SkeletonWeightInputPinStates));
-
     ezUInt32 sar = 0;
+
+    stream >> sar;
+    //EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_SkeletonWeightInputPinStates));
+    m_SkeletonWeightInputPinStates.SetCount(sar);
+
     stream >> sar;
     m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights].SetCount(sar);
     for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights])
