@@ -14,6 +14,7 @@ class ezQtSkeletonAssetDocumentWindow : public ezQtEngineDocumentWindow
 
 public:
   ezQtSkeletonAssetDocumentWindow(ezSkeletonAssetDocument* pDocument);
+  ~ezQtSkeletonAssetDocumentWindow();
 
   ezSkeletonAssetDocument* GetSkeletonDocument();
   virtual const char* GetWindowLayoutGroupName() const override { return "SkeletonAsset"; }
@@ -25,6 +26,7 @@ protected:
 private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;

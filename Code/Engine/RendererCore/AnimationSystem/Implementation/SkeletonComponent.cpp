@@ -56,7 +56,7 @@ void ezSkeletonComponent::Update()
       }
     }
 
-    ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::DeepPink, GetOwner()->GetGlobalTransform());
+    ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::White, GetOwner()->GetGlobalTransform());
   }
 }
 
@@ -119,6 +119,15 @@ void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
   }
 }
 
+void ezSkeletonComponent::SetBonesToHighlight(const char* szFilter)
+{
+  if (m_sBonesToHighlight != szFilter)
+  {
+    m_sBonesToHighlight = szFilter;
+    m_uiSkeletonChangeCounter = 0xFFFFFFFF;
+  }
+}
+
 void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
   m_LinesSkeleton.Clear();
@@ -126,6 +135,7 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   ezBoundingSphere bsphere;
   bsphere.SetInvalid();
   bsphere.m_fRadius = 0.0f;
+
 
   auto renderBone = [&](int currentBone, int parentBone) {
     if (parentBone == ozz::animation::Skeleton::kNoParent)
@@ -137,6 +147,17 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
     bsphere.ExpandToInclude(v0);
 
     m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+    m_LinesSkeleton.PeekBack().m_startColor = ezColor::HotPink;
+    m_LinesSkeleton.PeekBack().m_endColor = ezColor::HotPink;
+
+    if (!m_sBonesToHighlight.IsEmpty())
+    {
+      if (m_sBonesToHighlight.FindSubString(msg.m_pSkeleton->GetJointByIndex(currentBone).GetName().GetString()))
+      {
+        m_LinesSkeleton.PeekBack().m_startColor = ezColor::YellowGreen;
+        m_LinesSkeleton.PeekBack().m_endColor = ezColor::YellowGreen;
+      }
+    }
   };
 
   ozz::animation::IterateJointsDF(msg.m_pSkeleton->GetOzzSkeleton(), renderBone);

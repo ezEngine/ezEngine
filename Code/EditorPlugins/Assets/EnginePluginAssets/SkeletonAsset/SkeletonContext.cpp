@@ -55,6 +55,16 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
         return;
       }
     }
+    else if (pMsg->m_sWhatToDo == "HighlightBones")
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSkeletonComponent* pSkeleton;
+      if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
+      {
+        pSkeleton->SetBonesToHighlight(pMsg->m_sPayload);
+      }
+    }
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
@@ -73,7 +83,7 @@ void ezSkeletonContext::OnInitialize()
     obj.m_sName.Assign("SkeletonPreview");
     pWorld->CreateObject(obj, m_pGameObject);
 
-    ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
+    m_hSkeletonComponent = ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
     ezStringBuilder sSkeletonGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
     m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
