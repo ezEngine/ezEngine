@@ -2,6 +2,7 @@
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
+#include <RendererCore/Lights/SimplifiedDataProvider.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -141,6 +142,8 @@ void ezForwardRenderPass::SetupLighting(const ezRenderViewContext& renderViewCon
   // Or other light properties.
   else
   {
+    auto pSimplifiedData = GetPipeline()->GetFrameDataProvider<ezSimplifiedDataProvider>()->GetData(renderViewContext);
+    pSimplifiedData->BindResources(renderViewContext.m_pRenderContext);
     // todo
   }
 }

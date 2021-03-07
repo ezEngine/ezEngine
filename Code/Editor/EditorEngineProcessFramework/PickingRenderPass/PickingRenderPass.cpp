@@ -187,7 +187,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
       MemDesc.m_pData = m_PickingResultsDepth.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-      pCommandEncoder->CopyTextureReadbackResult(GetPickingDepthRT(), &SysMemDescsDepth);
+      ezGALTextureSubresource sourceSubResource;
+      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+      pCommandEncoder->CopyTextureReadbackResult(GetPickingDepthRT(), sourceSubResources, SysMemDescsDepth);
     }
   }
 
@@ -239,7 +241,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
       MemDesc.m_pData = m_PickingResultsID.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-      pCommandEncoder->CopyTextureReadbackResult(GetPickingIdRT(), &SysMemDescs);
+      ezGALTextureSubresource sourceSubResource;
+      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+      pCommandEncoder->CopyTextureReadbackResult(GetPickingIdRT(), sourceSubResources, SysMemDescs);
     }
   }
 }

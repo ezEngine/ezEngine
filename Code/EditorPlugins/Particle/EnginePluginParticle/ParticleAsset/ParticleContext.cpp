@@ -88,32 +88,6 @@ void ezParticleContext::OnInitialize()
     m_pComponent->SetParticleEffect(m_hParticle);
   }
 
-  // Lights
-  {
-    ezGameObjectDesc obj;
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetTopColor(ezColor(0.2f, 0.2f, 0.2f));
-    pAmbLight->SetBottomColor(ezColor(0.1f, 0.1f, 0.1f));
-    pAmbLight->SetIntensity(5.0f);
-
-    ezFogComponent* pFog;
-    ezFogComponent::CreateComponent(pObj, pFog);
-    pFog->SetColor(ezColor(0.02f, 0.02f, 0.02f));
-    pFog->SetDensity(5.0f);
-    pFog->SetHeightFalloff(0);
-  }
-
   const char* szMeshName = "ParticlePreviewBackgroundMesh";
   m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 

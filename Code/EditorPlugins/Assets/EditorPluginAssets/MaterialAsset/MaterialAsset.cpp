@@ -358,7 +358,7 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 //////////////////////////////////////////////////////////////////////////
 
 ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
 }

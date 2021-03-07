@@ -21,6 +21,7 @@ public:
   void SetInputCubemap(ezUInt32 uiCubemapHandle);
 
 protected:
+  void UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps, ezUInt32 outputIndex);
   void UpdateIrradianceConstantBuffer();
 
   ezRenderPipelineNodeOutputPin m_PinFilteredSpecular;
@@ -29,9 +30,13 @@ protected:
 
   float m_fIntensity;
   float m_fSaturation;
-  ezUInt32 m_uiOutputIndex;
+  ezUInt32 m_uiSpecularOutputIndex;
+  ezUInt32 m_uiIrradianceOutputIndex;
 
   ezGALTextureHandle m_hInputCubemap;
+
+  ezConstantBufferStorageHandle m_hFilteredSpecularConstantBuffer;
+  ezShaderResourceHandle m_hFilteredSpecularShader;
 
   ezConstantBufferStorageHandle m_hIrradianceConstantBuffer;
   ezShaderResourceHandle m_hIrradianceShader;

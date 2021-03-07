@@ -13,7 +13,11 @@ namespace
 } // namespace
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectionProbeData, ezNoBase, 1, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezReflectionProbeMode, 1)
+  EZ_BITFLAGS_CONSTANTS(ezReflectionProbeMode::Static, ezReflectionProbeMode::Dynamic)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectionProbeData, ezNoBase, 2, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -34,11 +38,11 @@ ezResult ezReflectionProbeData::Serialize(ezStreamWriter& stream) const
   stream << m_bShowDebugInfo;
   stream << m_fIntensity;
   stream << m_fSaturation;
-
+  stream << m_hCubeMap;
   return EZ_SUCCESS;
 }
 
-ezResult ezReflectionProbeData::Deserialize(ezStreamReader& stream)
+ezResult ezReflectionProbeData::Deserialize(ezStreamReader& stream, const ezUInt32 uiVersion)
 {
   m_IncludeTags.Load(stream, ezTagRegistry::GetGlobalRegistry());
   m_ExcludeTags.Load(stream, ezTagRegistry::GetGlobalRegistry());
@@ -46,7 +50,10 @@ ezResult ezReflectionProbeData::Deserialize(ezStreamReader& stream)
   stream >> m_bShowDebugInfo;
   stream >> m_fIntensity;
   stream >> m_fSaturation;
-
+  if (uiVersion >= 2)
+  {
+    stream >> m_hCubeMap;
+  }
   return EZ_SUCCESS;
 }
 

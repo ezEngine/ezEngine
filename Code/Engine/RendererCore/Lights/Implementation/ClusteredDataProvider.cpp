@@ -103,7 +103,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowDataBuffer());
   auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
 
-  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture());
+  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex));
   auto hSkyIrradianceTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetSkyIrradianceTexture());
 
   pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
@@ -146,6 +146,8 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
 
   if (auto pData = extractedData.GetFrameData<ezClusteredDataCPU>())
   {
+    m_Data.m_uiSkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
+
     // Update buffer
     if (!pData->m_ClusterItemList.IsEmpty())
     {

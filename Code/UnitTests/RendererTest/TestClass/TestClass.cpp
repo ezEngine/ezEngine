@@ -199,8 +199,9 @@ ezResult ezGraphicsTest::GetImage(ezImage& img)
   MemDesc.m_uiSlicePitch = 4 * m_pWindow->GetClientAreaSize().width * m_pWindow->GetClientAreaSize().height;
 
   ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-
-  pCommandEncoder->CopyTextureReadbackResult(hBBTexture, &SysMemDescs);
+  ezGALTextureSubresource sourceSubResource;
+  ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+  pCommandEncoder->CopyTextureReadbackResult(hBBTexture, sourceSubResources, SysMemDescs);
 
   return EZ_SUCCESS;
 }

@@ -422,7 +422,7 @@ void ezGALCommandEncoder::ReadbackTexture(ezGALTextureHandle hTexture)
   }
 }
 
-void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
+void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData)
 {
   AssertRenderingThread();
 
@@ -433,7 +433,7 @@ void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture,
     EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
       "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
-    m_CommonImpl.CopyTextureReadbackResultPlatform(pTexture, pData);
+    m_CommonImpl.CopyTextureReadbackResultPlatform(pTexture, SourceSubResource, TargetData);
   }
 }
 

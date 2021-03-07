@@ -107,39 +107,6 @@ void ezKrautTreeContext::OnInitialize()
     pTree->SetKrautGeneratorResource(m_hMainResource);
   }
 
-  // Lights
-  {
-    ezGameObjectDesc obj;
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-    obj.m_LocalPosition = obj.m_LocalRotation * ezVec3(-5, 0, 0);
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
-  }
-
-  // Sky
-  {
-    ezGameObjectDesc obj;
-    obj.m_sName.Assign("Sky");
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezSkyBoxComponent* pSkybox = nullptr;
-    ezSkyBoxComponent::CreateComponent(pObj, pSkybox);
-
-    pSkybox->SetExposureBias(1.0f);
-    pSkybox->SetCubeMapFile("{ 0b202e08-a64f-465d-b38e-15b81d161822 }");
-  }
 
   // Wind
   {

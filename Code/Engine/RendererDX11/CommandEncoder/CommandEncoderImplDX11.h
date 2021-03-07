@@ -70,7 +70,7 @@ public:
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) override;
 
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) override;
+  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData) override;
 
   virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
 

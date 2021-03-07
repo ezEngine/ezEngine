@@ -9,6 +9,7 @@
 #include <EditorFramework/Actions/QuadViewActions.h>
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
@@ -78,6 +79,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
     ezViewActions::RegisterActions();
+    ezViewLightActions::RegisterActions();
     ezGameObjectContextActions::RegisterActions();
     ezGameObjectDocumentActions::RegisterActions();
     ezGameObjectSelectionActions::RegisterActions();
@@ -123,6 +125,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezProjectActions::UnregisterActions();
     ezAssetActions::UnregisterActions();
     ezViewActions::UnregisterActions();
+    ezViewLightActions::UnregisterActions();
     ezGameObjectContextActions::UnregisterActions();
     ezGameObjectDocumentActions::UnregisterActions();
     ezGameObjectSelectionActions::UnregisterActions();

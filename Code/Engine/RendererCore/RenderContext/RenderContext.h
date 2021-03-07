@@ -205,6 +205,10 @@ public:
   /// \brief Set async shader loading. During runtime all shaders should be preloaded so this is off by default.
   void SetAllowAsyncShaderLoading(bool bAllow);
 
+  /// \brief Returns async shader loading. During runtime all shaders should be preloaded so this is off by default.
+  bool GetAllowAsyncShaderLoading();
+
+
   // Static Functions
 public:
   // Constant buffer storage handling

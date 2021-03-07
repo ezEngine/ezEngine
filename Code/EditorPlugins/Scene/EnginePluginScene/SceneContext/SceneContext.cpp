@@ -809,16 +809,6 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
       pDirLight->SetCastShadows(true);
     }
   }
-
-  // the actual ambient light component is dangerous to add, because it is a singleton and you cannot have more than one in a scene
-  // which means if the user added one, this makes trouble
-  // also the Remove/Add pattern doesn't work, because components are always delayed deleted, and the singleton lives longer than it should
-  // ezAmbientLightComponent* pAmbLight = nullptr;
-  // ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-  // if (pAmbLight != nullptr)
-  //{
-  //  pLight->AttachComponent(pAmbLight);
-  //}
 }
 
 void ezSceneContext::RemoveAmbientLight()

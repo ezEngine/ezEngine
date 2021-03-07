@@ -30,7 +30,11 @@ protected:
 
 private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+  void OnResourceEvent(const ezResourceEvent& e);
 
   ezGameObject* m_pMeshObject;
   ezMeshResourceHandle m_hMesh;
+
+  ezAtomicBool m_boundsDirty = false;
+  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_meshResourceEventSubscriber;
 };

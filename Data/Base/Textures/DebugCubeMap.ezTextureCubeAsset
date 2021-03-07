@@ -14,7 +14,7 @@ o
 			s{"Textures/MissingCubeMap.dds"}
 		}
 		Uuid %DocumentID{u4{1338951568161559681,5334970008066883333}}
-		u4 %Hash{5976390048228917386}
+		u4 %Hash{5579110884149096894}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -39,7 +39,7 @@ o
 		s %Input4{""}
 		s %Input5{""}
 		s %Input6{""}
-		s %MipmapMode{"ezTexConvMipmapMode::None"}
+		s %MipmapMode{"ezTexConvMipmapMode::Linear"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
 		s %Usage{"ezTexConvUsage::Color"}
 	}

@@ -631,6 +631,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
     EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
 
+  SyncObjectsToEngine();
   ezCreateThumbnailMsgToEngine msg;
   GetEditorEngineConnection()->SendMessage(&msg);
 
@@ -727,7 +728,19 @@ ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezUuid& guid) co
   return pSync;
 }
 
-void ezAssetDocument::SyncObjectsToEngine()
+ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezRTTI* pType) const
+{
+  for (ezEditorEngineSyncObject* pSync : m_SyncObjects)
+  {
+    if (pSync->GetDynamicRTTI() == pType)
+    {
+      return pSync;
+    }
+  }
+  return nullptr;
+}
+
+void ezAssetDocument::SyncObjectsToEngine() const
 {
   // Tell the engine which sync objects have been removed recently
   {

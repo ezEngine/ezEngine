@@ -9,6 +9,7 @@
 #include <EditorFramework/Actions/QuadViewActions.h>
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
@@ -162,6 +163,7 @@ static void ConfigureMaterialAsset()
   {
     ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("MaterialAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("MaterialAssetViewToolBar", "");
   }
 }
 
@@ -213,6 +215,7 @@ static void ConfigureMeshAsset()
   {
     ezActionMapManager::RegisterActionMap("MeshAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("MeshAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("MeshAssetViewToolBar", "");
   }
 }
 
@@ -392,6 +395,7 @@ static void ConfigureDecalAsset()
   {
     ezActionMapManager::RegisterActionMap("DecalAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("DecalAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("DecalAssetViewToolBar", "");
   }
 }
 
@@ -421,6 +425,7 @@ static void ConfigureAnimationClipAsset()
   {
     ezActionMapManager::RegisterActionMap("AnimationClipAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("AnimationClipAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("AnimationClipAssetViewToolBar", "");
   }
 }
 
@@ -450,6 +455,7 @@ static void ConfigureSkeletonAsset()
   {
     ezActionMapManager::RegisterActionMap("SkeletonAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("SkeletonAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("SkeletonAssetViewToolBar", "");
   }
 }
 
@@ -477,6 +483,7 @@ static void ConfigureAnimatedMeshAsset()
   {
     ezActionMapManager::RegisterActionMap("AnimatedMeshAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("AnimatedMeshAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("AnimatedMeshAssetViewToolBar", "");
   }
 }
 
@@ -503,6 +510,7 @@ static void ConfigureImageDataAsset()
   {
     ezActionMapManager::RegisterActionMap("ImageDataAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("ImageDataAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("ImageDataAssetViewToolBar", "");
   }
 }
 

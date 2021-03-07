@@ -90,23 +90,6 @@ void ezSkeletonContext::OnInitialize()
     pVisSkeleton->SetSkeleton(m_hSkeleton);
     pVisSkeleton->m_bVisualizeSkeleton = true;
   }
-
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
-  }
 }
 
 ezEngineProcessViewContext* ezSkeletonContext::CreateViewContext()

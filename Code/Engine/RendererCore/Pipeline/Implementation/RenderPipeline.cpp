@@ -515,6 +515,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     }
   }
 
+  static ezUInt32 defaultTextureDescHash = ezGALTextureCreationDescription().CalculateHash();
   // Set view's render target textures to target pass connections.
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
   {
@@ -531,12 +532,19 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
           ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
           EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
 
-          ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
-          m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
-
-          for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
+          if (!hTexture.IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
           {
-            pUsedByConn->m_TextureHandle = hTexture;
+            ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
+            m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
+
+            for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
+            {
+              pUsedByConn->m_TextureHandle = hTexture;
+            }
+          }
+          else
+          {
+            // In this case, the ezTargetPass does not provide a render target for the connection but the descriptor is set so we can instead use the pool to supplement the missing texture.
           }
         }
       }

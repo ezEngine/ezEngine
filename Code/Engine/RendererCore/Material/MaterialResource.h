@@ -82,6 +82,8 @@ public:
   void PreserveCurrentDesc();
   virtual void ResetResource() override;
 
+  const ezMaterialResourceDescriptor& GetCurrentDesc() const;
+
   /// \brief Use these enum values together with GetDefaultMaterialFileName() to get the default file names for these material types.
   enum class DefaultMaterialType
   {

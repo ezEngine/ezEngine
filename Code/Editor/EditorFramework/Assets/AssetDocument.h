@@ -134,8 +134,11 @@ public:
   /// \brief Returns the sync object registered under the given guid.
   ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid) const;
 
+  /// \brief Returns the first sync object registered with the given type.
+  ezEditorEngineSyncObject* FindSyncObject(const ezRTTI* pType) const;
+
   /// \brief Sends messages to sync all sync objects to the engine process side.
-  void SyncObjectsToEngine();
+  void SyncObjectsToEngine() const;
 
   ///@}
 

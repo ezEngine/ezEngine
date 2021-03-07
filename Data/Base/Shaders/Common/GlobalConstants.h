@@ -3,6 +3,9 @@
 #include "Platforms.h"
 #include "ConstantBufferMacros.h"
 
+#define MIN_PERCEPTUAL_ROUGHNESS 0.045
+#define MIN_ROUGHNESS 0.002025
+
 #define WIREFRAME_RENDER_PASS_COLOR 1
 #define WIREFRAME_RENDER_PASS_MONOCHROME 2
 

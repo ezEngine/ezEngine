@@ -23,6 +23,8 @@ public:
 
   ezUuid GetGuid() const { return m_SyncObjectGuid; }
 
+  // \brief One-time setup on the engine side.
+  // \returns Whether the sync object is pickable via uiNextComponentPickingID.
   virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) { return false; }
   virtual void UpdateForEngine(ezWorld* pWorld) {}
 

@@ -11,6 +11,10 @@ SHADING_MODE = SHADING_MODE_FULLBRIGHT
 SHADING_QUALITY = SHADING_QUALITY_NORMAL
 CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
 
+[MATERIALPARAMETER]
+
+int MipLevel @Default(0.0);
+
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
@@ -30,6 +34,7 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
+#include <Shaders/Materials/ReflectionProbeVisualizationCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 float3 GetNormal()
@@ -43,7 +48,7 @@ float3 GetDiffuseColor()
   float3 viewDir = normalize(G.Input.WorldPosition - GetCameraPosition());
   float3 reflectionDir = CubeMapDirection(reflect(viewDir, normal));
 
-  return ReflectionSpecularTexture.Sample(LinearSampler, float4(reflectionDir, SkyIrradianceIndex)).rgb;
+  return ReflectionSpecularTexture.SampleLevel(LinearSampler, float4(reflectionDir, SkyIrradianceIndex), MipLevel).rgb;
 }
 
 float3 GetSpecularColor()

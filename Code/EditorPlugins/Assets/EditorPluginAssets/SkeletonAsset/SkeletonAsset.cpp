@@ -65,7 +65,7 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
 }
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 

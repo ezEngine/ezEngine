@@ -68,7 +68,7 @@ void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
 }
 
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
