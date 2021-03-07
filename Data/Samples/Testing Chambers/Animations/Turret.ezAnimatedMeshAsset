@@ -14,7 +14,7 @@ o
 			s{"Animations/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{1502793621205532301,5668305227750489386}}
-		u4 %Hash{9177285028121893907}
+		u4 %Hash{8581560704329916219}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -68,10 +68,9 @@ o
 		}
 		s %MeshFile{"Animations/Turret.glb"}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
-		b %RecalculateNormals{0}
+		b %RecalculateNormals{1}
 		b %RecalculateTangents{1}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
-		f %UniformScaling{0x0000803F}
 	}
 }
 o
@@ -116,7 +115,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
-		u3 %TypeSize{1264}
+		u3 %TypeSize{1256}
 		u3 %TypeVersion{2}
 	}
 }

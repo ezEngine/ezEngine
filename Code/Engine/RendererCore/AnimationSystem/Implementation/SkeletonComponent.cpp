@@ -123,7 +123,10 @@ void ezSkeletonComponent::SetBonesToHighlight(const char* szFilter)
 {
   if (m_sBonesToHighlight != szFilter)
   {
-    m_sBonesToHighlight = szFilter;
+    ezStringBuilder tmp(";", szFilter, ";");
+
+    m_sBonesToHighlight = tmp;
+
     m_uiSkeletonChangeCounter = 0xFFFFFFFF;
   }
 }
@@ -136,6 +139,7 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   bsphere.SetInvalid();
   bsphere.m_fRadius = 0.0f;
 
+  ezStringBuilder tmp;
 
   auto renderBone = [&](int currentBone, int parentBone) {
     if (parentBone == ozz::animation::Skeleton::kNoParent)
@@ -147,15 +151,20 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
     bsphere.ExpandToInclude(v0);
 
     m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
-    m_LinesSkeleton.PeekBack().m_startColor = ezColor::HotPink;
-    m_LinesSkeleton.PeekBack().m_endColor = ezColor::HotPink;
+    m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
+    m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
 
     if (!m_sBonesToHighlight.IsEmpty())
     {
-      if (m_sBonesToHighlight.FindSubString(msg.m_pSkeleton->GetJointByIndex(currentBone).GetName().GetString()))
+      const ezString parentName = msg.m_pSkeleton->GetJointByIndex(parentBone).GetName().GetString();
+      const ezString currentName = msg.m_pSkeleton->GetJointByIndex(currentBone).GetName().GetString();
+
+      tmp.Set(";", currentName, ";");
+
+      if (m_sBonesToHighlight.FindSubString(tmp))
       {
-        m_LinesSkeleton.PeekBack().m_startColor = ezColor::YellowGreen;
-        m_LinesSkeleton.PeekBack().m_endColor = ezColor::YellowGreen;
+        m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
+        m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
       }
     }
   };
