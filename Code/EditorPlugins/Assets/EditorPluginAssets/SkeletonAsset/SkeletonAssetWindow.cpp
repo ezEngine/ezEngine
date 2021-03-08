@@ -125,7 +125,7 @@ void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
 
 void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
-  ezStringBuilder filter = ";";
+  ezStringBuilder filter;
 
   switch (e.m_Type)
   {
@@ -141,7 +141,7 @@ void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
         ezVariant name = pObj->GetTypeAccessor().GetValue("Name");
         if (name.IsValid() && name.CanConvertTo<ezString>())
         {
-          filter.Append(name.ConvertTo<ezString>().GetData());
+          filter.Append(name.ConvertTo<ezString>().GetData(), ";");
         }
       }
 
