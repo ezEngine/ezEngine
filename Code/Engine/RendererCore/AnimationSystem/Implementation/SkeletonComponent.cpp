@@ -11,7 +11,7 @@
 #include <ozz/base/maths/simd_math.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -69,17 +69,23 @@ void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hSkeleton;
   s << m_bVisualizeSkeleton;
+  s << m_sBonesToHighlight;
 }
 
 void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
   s >> m_hSkeleton;
   s >> m_bVisualizeSkeleton;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_sBonesToHighlight;
+  }
 }
 
 void ezSkeletonComponent::OnActivated()
