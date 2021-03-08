@@ -19,12 +19,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphOutputPin>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphTriggerInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphTriggerInputPin>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphTriggerOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphTriggerOutputPin>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezResult ezAnimGraphPin::Serialize(ezStreamWriter& stream) const
@@ -39,6 +33,16 @@ ezResult ezAnimGraphPin::Deserialize(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphTriggerInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphTriggerInputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphTriggerOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphTriggerOutputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& controller, bool triggered)
 {
   if (m_iPinIndex < 0)
@@ -49,7 +53,7 @@ void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& controller, bool tri
 
   m_bTriggered = triggered;
 
-  const auto& map = controller.m_TriggerOutputToInputPinMapping[m_iPinIndex];
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger][m_iPinIndex];
 
   const ezInt8 offset = triggered ? +1 : -1;
 
@@ -66,4 +70,68 @@ bool ezAnimGraphTriggerInputPin::IsTriggered(ezAnimGraph& controller) const
     return false;
 
   return controller.m_TriggerInputPinStates[m_iPinIndex] > 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNumberInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphNumberInputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNumberOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphNumberOutputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraph& controller) const
+{
+  if (m_iPinIndex < 0)
+    return 0;
+
+  return controller.m_NumberInputPinStates[m_iPinIndex];
+}
+
+void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraph& controller, double value)
+{
+  if (m_iPinIndex < 0)
+    return;
+
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::Number][m_iPinIndex];
+
+  // set all input pins that are connected to this output pin
+  for (ezUInt16 idx : map)
+  {
+    controller.m_NumberInputPinStates[idx] = value;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphSkeletonWeightsInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphSkeletonWeightsInputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphSkeletonWeightsOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphSkeletonWeightsOutputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezAnimGraphBlendWeights* ezAnimGraphSkeletonWeightsInputPin::GetWeights(ezAnimGraph& controller) const
+{
+  if (m_iPinIndex < 0)
+    return nullptr;
+
+  return controller.m_SkeletonWeightInputPinStates[m_iPinIndex];
+}
+
+void ezAnimGraphSkeletonWeightsOutputPin::SetWeights(ezAnimGraph& controller, ezAnimGraphBlendWeights* pWeights)
+{
+  if (m_iPinIndex < 0)
+    return;
+
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::SkeletonWeights][m_iPinIndex];
+
+  // set all input pins that are connected to this output pin
+  for (ezUInt16 idx : map)
+  {
+    controller.m_SkeletonWeightInputPinStates[idx] = pWeights;
+  }
 }

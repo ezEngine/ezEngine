@@ -19,9 +19,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
       EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("RampUpTime", m_RampUp),
       EZ_MEMBER_PROPERTY("RampDownTime", m_RampDown),
-      EZ_ACCESSOR_PROPERTY("PartialBlendingRootBone", GetPartialBlendingRootBone, SetPartialBlendingRootBone),
 
       EZ_MEMBER_PROPERTY("Active", m_Active)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("SpeedPin", m_SpeedPin)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("Weights", m_Weights)->AddAttributes(new ezHiddenAttribute()),
     }
     EZ_END_PROPERTIES;
   }
@@ -30,7 +31,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
@@ -39,16 +40,17 @@ ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
   stream << m_PlaybackTime;
   stream << m_hAnimationClip;
   stream << m_fSpeed;
-  stream << m_sPartialBlendingRootBone;
 
   EZ_SUCCEED_OR_RETURN(m_Active.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_SpeedPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_Weights.Serialize(stream));
 
   return EZ_SUCCESS;
 }
 
 ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  stream.ReadVersion(1);
+  stream.ReadVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
@@ -57,9 +59,10 @@ ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
   stream >> m_PlaybackTime;
   stream >> m_hAnimationClip;
   stream >> m_fSpeed;
-  stream >> m_sPartialBlendingRootBone;
 
   EZ_SUCCEED_OR_RETURN(m_Active.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_SpeedPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_Weights.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -100,7 +103,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
   if (m_fCurWeight <= 0.0f)
   {
     m_PlaybackTime.SetZero();
-    pOwner->FreeBlendWeights(m_pPartialBlendingMask);
+    // pOwner->FreeBlendWeights(m_pPartialBlendingMask); // handle this ?
     pOwner->FreeLocalTransforms(m_pLocalTransforms);
     pOwner->FreeSamplingCache(m_pSamplingCache);
     return;
@@ -111,12 +114,19 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
 
   const auto& animDesc = pAnimClip->GetDescriptor();
 
-  m_PlaybackTime += tDiff * m_fSpeed;
-  if (m_fSpeed > 0 && m_PlaybackTime > animDesc.GetDuration())
+  float fSpeed = m_fSpeed;
+
+  if (m_SpeedPin.IsConnected())
+  {
+    fSpeed *= (float)m_SpeedPin.GetNumber(*pOwner);
+  }
+
+  m_PlaybackTime += tDiff * fSpeed;
+  if (fSpeed > 0 && m_PlaybackTime > animDesc.GetDuration())
   {
     m_PlaybackTime -= animDesc.GetDuration();
   }
-  else if (m_fSpeed < 0 && m_PlaybackTime < ezTime::Zero())
+  else if (fSpeed < 0 && m_PlaybackTime < ezTime::Zero())
   {
     m_PlaybackTime += animDesc.GetDuration();
   }
@@ -143,51 +153,16 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
     job.Run();
   }
 
-  if (!m_sPartialBlendingRootBone.IsEmpty())
-  {
-    if (m_pPartialBlendingMask == nullptr)
-    {
-      m_pPartialBlendingMask = pOwner->AllocateBlendWeights(*pSkeleton);
-
-      ezMemoryUtils::ZeroFill<ezUInt8>((ezUInt8*)m_pPartialBlendingMask->m_ozzBlendWeights.data(), m_pPartialBlendingMask->m_ozzBlendWeights.size() * sizeof(ozz::math::SimdFloat4));
-
-      int iRootBone = -1;
-      for (int iBone = 0; iBone < pOzzSkeleton->num_joints(); ++iBone)
-      {
-        if (ezStringUtils::IsEqual(pOzzSkeleton->joint_names()[iBone], m_sPartialBlendingRootBone.GetData()))
-        {
-          iRootBone = iBone;
-          break;
-        }
-      }
-
-      const float fBoneWeight = 10.0f * m_fCurWeight;
-
-      auto setBoneWeight = [&](int currentBone, int) {
-        const int iJointIdx0 = currentBone / 4;
-        const int iJointIdx1 = currentBone % 4;
-
-        ozz::math::SimdFloat4& soa_weight = m_pPartialBlendingMask->m_ozzBlendWeights.at(iJointIdx0);
-        soa_weight = ozz::math::SetI(soa_weight, ozz::math::simd_float4::Load1(fBoneWeight), iJointIdx1);
-      };
-
-      ozz::animation::IterateJointsDF(*pOzzSkeleton, setBoneWeight, iRootBone);
-    }
-  }
-  else
-  {
-    pOwner->FreeBlendWeights(m_pPartialBlendingMask);
-  }
-
   pOwner->AddFrameRootMotion(pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * m_fCurWeight);
 
   ozz::animation::BlendingJob::Layer layer;
   layer.weight = m_fCurWeight;
   layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
 
-  if (m_pPartialBlendingMask != nullptr)
+  if (const ezAnimGraphBlendWeights* pWeights = m_Weights.GetWeights(*pOwner))
   {
-    layer.joint_weights = make_span(m_pPartialBlendingMask->m_ozzBlendWeights);
+    layer.weight *= pWeights->m_fOverallWeight;
+    layer.joint_weights = make_span(pWeights->m_ozzBlendWeights);
   }
 
   pOwner->AddFrameBlendLayer(layer);
@@ -211,14 +186,4 @@ const char* ezPlayClipAnimNode::GetAnimationClip() const
     return "";
 
   return m_hAnimationClip.GetResourceID();
-}
-
-void ezPlayClipAnimNode::SetPartialBlendingRootBone(const char* szBone)
-{
-  m_sPartialBlendingRootBone.Assign(szBone);
-}
-
-const char* ezPlayClipAnimNode::GetPartialBlendingRootBone() const
-{
-  return m_sPartialBlendingRootBone.GetData();
 }

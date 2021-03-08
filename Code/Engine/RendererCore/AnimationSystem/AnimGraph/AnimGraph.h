@@ -21,6 +21,7 @@ using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>
 
 struct ezAnimGraphBlendWeights
 {
+  float m_fOverallWeight = 1.0f;
   ozz::vector<ozz::math::SimdFloat4> m_ozzBlendWeights;
 };
 
@@ -59,8 +60,12 @@ public:
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
 
+  ezDynamicArray<ezDynamicArray<ezUInt16>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
+
+  // EXTEND THIS if a new type is introduced
   ezDynamicArray<ezInt8> m_TriggerInputPinStates;
-  ezDynamicArray<ezDynamicArray<ezUInt16>> m_TriggerOutputToInputPinMapping;
+  ezDynamicArray<double> m_NumberInputPinStates;
+  ezDynamicArray<ezAnimGraphBlendWeights*> m_SkeletonWeightInputPinStates;
 
   /// \brief To be called by ezAnimGraphNode classes every frame that they want to affect animation
   void AddFrameBlendLayer(const ozz::animation::BlendingJob::Layer& layer);

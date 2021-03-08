@@ -45,6 +45,8 @@ public:
 
   bool m_bVisualizeSkeleton = true; // [ property ]
 
+  void SetBonesToHighlight(const char* szFilter);
+
 protected:
   void Update();
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
@@ -53,6 +55,7 @@ protected:
 
   ezSkeletonResourceHandle m_hSkeleton;
   ezUInt32 m_uiSkeletonChangeCounter = 0;
+  ezString m_sBonesToHighlight;
 
   ezBoundingBoxSphere m_LocalBounds;
   ezDynamicArray<ezDebugRenderer::Line> m_LinesSkeleton;

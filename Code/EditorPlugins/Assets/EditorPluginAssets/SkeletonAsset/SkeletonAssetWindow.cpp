@@ -81,9 +81,16 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
   }
 
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
+
   FinishWindowCreation();
 
   QueryObjectBBox(0);
+}
+
+ezQtSkeletonAssetDocumentWindow::~ezQtSkeletonAssetDocumentWindow()
+{
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
 }
 
 ezSkeletonAssetDocument* ezQtSkeletonAssetDocumentWindow::GetSkeletonDocument()
@@ -113,6 +120,39 @@ void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
+}
+
+
+void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+{
+  ezStringBuilder filter;
+
+  switch (e.m_Type)
+  {
+    case ezSelectionManagerEvent::Type::SelectionCleared:
+    case ezSelectionManagerEvent::Type::SelectionSet:
+    case ezSelectionManagerEvent::Type::ObjectAdded:
+    case ezSelectionManagerEvent::Type::ObjectRemoved:
+    {
+      const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
+
+      for (auto pObj : sel)
+      {
+        ezVariant name = pObj->GetTypeAccessor().GetValue("Name");
+        if (name.IsValid() && name.CanConvertTo<ezString>())
+        {
+          filter.Append(name.ConvertTo<ezString>().GetData(), ";");
+        }
+      }
+
+      ezSimpleDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "HighlightBones";
+      msg.m_sPayload = filter;
+
+      GetDocument()->SendMessageToEngine(&msg);
+    }
+    break;
+  }
 }
 
 void ezQtSkeletonAssetDocumentWindow::InternalRedraw()

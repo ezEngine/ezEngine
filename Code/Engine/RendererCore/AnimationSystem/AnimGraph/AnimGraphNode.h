@@ -30,4 +30,6 @@ protected:
   virtual ezResult DeserializeNode(ezStreamReader& stream) = 0;
 
   virtual void Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton) = 0;
+
+  // TODO: Destroy(ezAnimGraph* pOwner) ?
 };

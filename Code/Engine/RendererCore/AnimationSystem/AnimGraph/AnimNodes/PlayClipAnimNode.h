@@ -32,9 +32,6 @@ public:
   void SetAnimationClip(const char* szFile); // [ property ]
   const char* GetAnimationClip() const;      // [ property ]
 
-  void SetPartialBlendingRootBone(const char* szBone); // [ property ]
-  const char* GetPartialBlendingRootBone() const;      // [ property ]
-
   ezTime m_RampUp;       // [ property ]
   ezTime m_RampDown;     // [ property ]
   float m_fSpeed = 1.0f; // [ property ]
@@ -42,14 +39,14 @@ public:
   ezAnimationClipResourceHandle m_hAnimationClip;
 
 private:
-  ezAnimGraphTriggerInputPin m_Active; // [ property ]
+  ezAnimGraphTriggerInputPin m_Active;          // [ property ]
+  ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
+  ezAnimGraphSkeletonWeightsInputPin m_Weights; // [ property ]
 
-  ezHashedString m_sPartialBlendingRootBone;
   ezTime m_PlaybackTime;
   float m_fCurWeight = 0.0f;
   bool m_bIsRampingUpOrDown = false;
 
   ezAnimGraphSamplingCache* m_pSamplingCache = nullptr;
   ezAnimGraphLocalTransforms* m_pLocalTransforms = nullptr;
-  ezAnimGraphBlendWeights* m_pPartialBlendingMask = nullptr;
 };

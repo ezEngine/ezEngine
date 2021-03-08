@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9942389368597704355,5056955079846159374}}
-		u4 %Hash{12873174343567144629}
+		u4 %Hash{13575310235320008710}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -172,6 +172,25 @@ o
 }
 o
 {
+	Uuid %id{u4{11303507044449481878,4617156803704132456}}
+	s %t{"ezRotorComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0}
+		b %Active{1}
+		s %Axis{"ezBasisAxis::PositiveY"}
+		Angle %AxisDeviation{f{0}}
+		f %Deceleration{0}
+		i3 %DegreesToRotate{0}
+		b %ReverseAtEnd{1}
+		b %ReverseAtStart{1}
+		b %Running{1}
+		f %Speed{0x00003442}
+	}
+}
+o
+{
 	Uuid %id{u4{4179506106624289225,4663119434490812366}}
 	s %t{"ezSpriteComponent"}
 	u3 %v{3}
@@ -206,6 +225,7 @@ o
 		b %Active{1}
 		b %HandleGlobalEvents{0}
 		VarDict %Parameters{}
+		b %PassThroughUnhandledEvents{0}
 		s %Script{"{ 474854ab-99a3-4748-b3c0-7e4b659d29c5 }"}
 	}
 }
@@ -419,7 +439,7 @@ o
 	{
 		b %Active{1}
 		f %Intensity{0x9A99993E}
-		Uuid %ReflectionData{u4{8439740986481719669,10854057382963429942}}
+		Uuid %ReflectionData{u4{15013244669714530255,12950940527503131642}}
 		f %Saturation{0x9A99993E}
 	}
 }
@@ -581,7 +601,26 @@ o
 }
 o
 {
-	Uuid %id{u4{8266018560663277906,6213726516936059196}}
+	Uuid %id{u4{8098526360441837965,5658218179961356203}}
+	s %t{"ezRotorComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0x00002041}
+		b %Active{1}
+		s %Axis{"ezBasisAxis::PositiveX"}
+		Angle %AxisDeviation{f{0}}
+		f %Deceleration{0x00002041}
+		i3 %DegreesToRotate{30}
+		b %ReverseAtEnd{1}
+		b %ReverseAtStart{1}
+		b %Running{1}
+		f %Speed{0x00002042}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
 	u3 %v{1}
 	s %n{"ObjectTree"}
@@ -661,6 +700,7 @@ o
 		b %Active{1}
 		b %HandleGlobalEvents{0}
 		VarDict %Parameters{}
+		b %PassThroughUnhandledEvents{0}
 		s %Script{"{ 474854ab-99a3-4748-b3c0-7e4b659d29c5 }"}
 	}
 }
@@ -720,10 +760,11 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{6807405752513229127,9932268461361902610}}
+			Uuid{u4{11303507044449481878,4617156803704132456}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0x61EBA6BD,0,0xF7257F3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -882,7 +923,7 @@ o
 }
 o
 {
-	Uuid %id{u4{8439740986481719669,10854057382963429942}}
+	Uuid %id{u4{15013244669714530255,12950940527503131642}}
 	s %t{"ezReflectionProbeData"}
 	u3 %v{1}
 	p
@@ -907,10 +948,11 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{13017188241732209139,14997419850475691500}}
+			Uuid{u4{8098526360441837965,5658218179961356203}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x000040C0,0,0x000080BF}}
-		Quat %LocalRotation{f{0x0A73E73E,0x763C0D3F,0xE171E33E,0xE1CA0ABF}}
+		Quat %LocalRotation{f{0xD5DCBE3E,0x13AB1B3F,0x9D8FBB3E,0xB5F918BF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -953,7 +995,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{240}
+		u3 %TypeSize{256}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1116,7 +1158,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEventMessageHandlerComponent"}
 		u3 %TypeSize{56}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1427,6 +1469,24 @@ o
 }
 o
 {
+	Uuid %id{u4{10519138687914176703,14437890910412567776}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTransformComponent"}
+		u3 %TypeSize{64}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
 	Uuid %id{u4{10244937169896853361,14776906713232524690}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1531,6 +1591,42 @@ o
 		s %TypeName{"ezAmbientLightComponent"}
 		u3 %TypeSize{72}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{2150460544443279632,16656283025817099123}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTransformComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRotorComponent"}
+		u3 %TypeSize{112}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
