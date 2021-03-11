@@ -212,11 +212,14 @@ ezResourceLoadDesc ezRecastNavMeshResource::CreateResource(ezRecastNavMeshResour
 
   m_DetourNavmeshData = std::move(descriptor.m_DetourNavmeshData);
 
-  m_pNavMesh = EZ_DEFAULT_NEW(dtNavMesh);
+  if (!m_DetourNavmeshData.IsEmpty())
+  {
+    m_pNavMesh = EZ_DEFAULT_NEW(dtNavMesh);
 
-  // the dtNavMesh does not need to free the data, the resource owns it
-  const int dtMeshFlags = 0;
-  m_pNavMesh->init(m_DetourNavmeshData.GetData(), m_DetourNavmeshData.GetCount(), dtMeshFlags);
+    // the dtNavMesh does not need to free the data, the resource owns it
+    const int dtMeshFlags = 0;
+    m_pNavMesh->init(m_DetourNavmeshData.GetData(), m_DetourNavmeshData.GetCount(), dtMeshFlags);
+  }
 
   return res;
 }
