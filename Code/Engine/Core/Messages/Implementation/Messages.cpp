@@ -112,13 +112,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezM
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
+    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
+    EZ_MEMBER_PROPERTY("Value", m_Value)
   }
   EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezAutoGenVisScriptMsgSender,
+    new ezAutoGenVisScriptMsgSender(),
   }
   EZ_END_ATTRIBUTES;
 }

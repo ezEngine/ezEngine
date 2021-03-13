@@ -17,8 +17,12 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* parent)
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.0_25", 0.25f});
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.0_5", 0.5f});
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.1", 1.0f});
+  m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.2", 2.0f});
+  m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.4", 4.0f});
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.5", 5.0f});
+  m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.8", 8.0f});
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.10", 10.0f});
+  m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.16", 16.0f});
 
   m_Rotation.PushBack(KeyValue{"Gizmo.Rotation.Snap.0_Degree", 0.0f});
   m_Rotation.PushBack(KeyValue{"Gizmo.Rotation.Snap.1_Degree", 1.0f});

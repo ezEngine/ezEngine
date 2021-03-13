@@ -32,8 +32,12 @@ Gizmo.Translate.Snap.Menu;Position Snap
 Gizmo.Translate.Snap.PivotToGrid;Snap Pivot To Grid
 Gizmo.Translate.Snap.ObjectsToGrid;Snap Each Object To Grid
 Gizmo.Translate.Snap.0;No Position Snap
+Gizmo.Translate.Snap.16;16
 Gizmo.Translate.Snap.10;10
+Gizmo.Translate.Snap.8;8
 Gizmo.Translate.Snap.5;5
+Gizmo.Translate.Snap.4;4
+Gizmo.Translate.Snap.2;2
 Gizmo.Translate.Snap.1;1
 Gizmo.Translate.Snap.0_5;0.5
 Gizmo.Translate.Snap.0_25;0.25

@@ -103,10 +103,10 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(const char
   const ezStringBuilder sMsg("Test", szSubTestName);
 
   ezMsgGenericEvent msg;
-  msg.m_sMessage = sMsg;
+  msg.m_sMessage.Assign(sMsg);
   pTests->SendMessageRecursive(msg);
 
-  if (msg.m_sMessage == "repeat")
+  if (msg.m_sMessage == ezTempHashedString("repeat"))
     return ezTestAppRun::Continue;
 
   EZ_TEST_STRING(msg.m_sMessage, "done");

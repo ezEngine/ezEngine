@@ -556,7 +556,7 @@ void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTim
   for (const ezHashedString& sEvent : events)
   {
     ezMsgGenericEvent msg;
-    msg.m_sMessage = sEvent.GetString();
+    msg.m_sMessage = sEvent;
     m_EventTrackMsgSender.SendEventMessage(msg, this, GetOwner());
   }
 }

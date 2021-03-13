@@ -24,13 +24,18 @@ struct EZ_CORE_DLL ezMsgSetFloatParameter : public ezMessage
 /// \brief For use in scripts to signal a custom event that some game event has occurred.
 ///
 /// This is a simple message for simple use cases. Create custom messages for more elaborate cases where a string is not sufficient
-/// information. Also be aware that passing this message is not the most efficient due to the string copy overhead.
+/// information.
 struct EZ_CORE_DLL ezMsgGenericEvent : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgGenericEvent, ezEventMessage);
 
   /// A custom string to identify the intent.
-  ezString m_sMessage;
+  ezHashedString m_sMessage;
+  ezVariant m_Value;
+
+private:
+  const char* GetMessage() const { return m_sMessage; }
+  void SetMessage(const char* szMessage) { m_sMessage.Assign(szMessage); }
 };
 
 /// \brief Sent when an animation reached its end (either forwards or backwards playing)
