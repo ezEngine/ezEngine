@@ -113,7 +113,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezM
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
-    EZ_MEMBER_PROPERTY("Value", m_Value)
+    EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezDefaultValueAttribute(0))
   }
   EZ_END_PROPERTIES;
 

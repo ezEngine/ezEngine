@@ -11,7 +11,7 @@ class ezAbstractFunctionProperty;
 
 struct ezVisualScriptPinDescriptor
 {
-  enum PinType
+  enum class PinType : ezUInt8
   {
     Execution,
     Data
@@ -20,7 +20,7 @@ struct ezVisualScriptPinDescriptor
   ezString m_sName;
   ezString m_sTooltip;
   ezColorGammaUB m_Color;
-  ezVisualScriptDataPinType::Enum m_DataType;
+  ezEnum<ezVisualScriptDataPinType> m_DataType;
   PinType m_PinType;
   ezUInt8 m_uiPinIndex;
 };

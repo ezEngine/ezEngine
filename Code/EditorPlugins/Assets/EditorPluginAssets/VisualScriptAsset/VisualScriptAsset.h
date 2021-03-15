@@ -39,6 +39,14 @@ public:
   double m_DefaultValue = 0;
 };
 
+class ezVisualScriptParameterString : public ezVisualScriptParameter
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptParameterString, ezVisualScriptParameter);
+
+public:
+  ezString m_DefaultValue;
+};
+
 class ezVisualScriptAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptAssetProperties, ezReflectedClass);
@@ -46,6 +54,7 @@ class ezVisualScriptAssetProperties : public ezReflectedClass
 public:
   ezDynamicArray<ezVisualScriptParameterBool> m_BoolParameters;
   ezDynamicArray<ezVisualScriptParameterNumber> m_NumberParameters;
+  ezDynamicArray<ezVisualScriptParameterString> m_StringParameters;
 };
 
 class ezVisualScriptAssetDocument : public ezSimpleAssetDocument<ezVisualScriptAssetProperties>

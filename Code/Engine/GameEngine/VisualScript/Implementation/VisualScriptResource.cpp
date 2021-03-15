@@ -90,9 +90,9 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 8, "Incorrect version {0} for visual script", uiVersion);
 
-  if (uiVersion < 7)
+  if (uiVersion < 8)
     return;
 
   ezUInt32 uiNumNodes = 0;
@@ -206,12 +206,27 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
     }
   }
 
+  // Version 8
+  if (uiVersion >= 8)
+  {
+    ezUInt32 num;
+
+    stream >> num;
+    m_StringParameters.SetCount(num);
+
+    for (ezUInt32 i = 0; i < num; ++i)
+    {
+      stream >> m_StringParameters[i].m_sName;
+      stream >> m_StringParameters[i].m_sValue;
+    }
+  }
+
   PrecomputeMessageHandlers();
 }
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 7;
+  const ezUInt8 uiVersion = 8;
 
   stream << uiVersion;
 
@@ -292,6 +307,16 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
     {
       stream << param.m_sName;
       stream << param.m_Value;
+    }
+  }
+
+  // Version 8
+  {
+    stream << m_StringParameters.GetCount();
+    for (const auto& param : m_StringParameters)
+    {
+      stream << param.m_sName;
+      stream << param.m_sValue;
     }
   }
 }

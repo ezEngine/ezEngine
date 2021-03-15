@@ -7,6 +7,15 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
+namespace
+{
+  static bool IsTypeSupported(const ezRTTI* pType)
+  {
+    return pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>() ||
+      pType == ezGetStaticRTTI<ezString>() || pType == ezGetStaticRTTI<ezVariant>();
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -170,8 +179,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
             ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
 
             const ezRTTI* pType = pAbsMember->GetSpecificType();
-
-            if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
+            if (IsTypeSupported(pType))
             {
               const void* pPropPtr = pAbsMember->GetPropertyPointer(m_pMessageToSend);
               pInstance->SetOutputPinValue(this, uiProp, pPropPtr);
@@ -226,8 +234,7 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
       ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
 
       const ezRTTI* pType = pAbsMember->GetSpecificType();
-
-      if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
+      if (IsTypeSupported(pType))
       {
         return pAbsMember->GetPropertyPointer(m_pMessageToSend);
       }
@@ -423,10 +430,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Log, 1, ezRTTIDefaultAllocato
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins
-    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value1", 0, ezVisualScriptDataPinType::Number, m_Value1),
-    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value2", 1, ezVisualScriptDataPinType::Number, m_Value2),
+    EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Variant), new ezDefaultValueAttribute(0)),
+    EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezVisualScriptDataPinType::Variant), new ezDefaultValueAttribute(0)),
+    EZ_MEMBER_PROPERTY("Value3", m_Value3)->AddAttributes(new ezVisScriptDataPinInAttribute(2, ezVisualScriptDataPinType::Variant), new ezDefaultValueAttribute(0)),
     // Properties
-    EZ_MEMBER_PROPERTY("Text", m_sLog)->AddAttributes(new ezDefaultValueAttribute(ezStringView("Value1: {0}, Value2: {1}"))),
+    EZ_MEMBER_PROPERTY("Text", m_sLog)->AddAttributes(new ezDefaultValueAttribute(ezStringView("Value1: {0}, Value2: {1}, Value3: {2}"))),
   }
   EZ_END_PROPERTIES;
 }
@@ -438,7 +446,7 @@ ezVisualScriptNode_Log::~ezVisualScriptNode_Log() {}
 
 void ezVisualScriptNode_Log::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  ezLog::Dev(m_sLog, m_Value1, m_Value2);
+  ezLog::Info(m_sLog, m_Value1, m_Value2, m_Value3);
 
   pInstance->ExecuteConnectedNodes(this, 0);
 }
@@ -451,6 +459,8 @@ void* ezVisualScriptNode_Log::GetInputPinDataPointer(ezUInt8 uiPin)
       return &m_Value1;
     case 1:
       return &m_Value2;
+    case 2:
+      return &m_Value3;
   }
 
   return nullptr;

@@ -220,7 +220,7 @@ void ezQtVisualScriptPin::paint(QPainter* painter, const QStyleOptionGraphicsIte
   painter->setBrush(brush());
   painter->setPen(pen());
 
-  if (pVsPin->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data)
+  if (pVsPin->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Data)
   {
     painter->drawRect(this->path().boundingRect());
   }

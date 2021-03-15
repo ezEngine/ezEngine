@@ -64,16 +64,24 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     ezInt32 m_iMappingIndex = ezMath::MaxValue<ezInt32>(); // can (optionally) be used to map the property to something
   };
 
-  struct LocalParameterBool
+  struct LocalParameter
   {
     ezHashedString m_sName;
+  };
+
+  struct LocalParameterBool : LocalParameter
+  {
     bool m_Value = false;
   };
 
-  struct LocalParameterNumber
+  struct LocalParameterNumber : LocalParameter
   {
-    ezHashedString m_sName;
     double m_Value = 0;
+  };
+
+  struct LocalParameterString : LocalParameter
+  {
+    ezString m_sValue;
   };
 
   void AssignNodeProperties(ezVisualScriptNode& vsNode, const Node& properties) const;
@@ -85,6 +93,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
   ezDeque<Property> m_Properties;
   ezDynamicArray<LocalParameterBool> m_BoolParameters;
   ezDynamicArray<LocalParameterNumber> m_NumberParameters;
+  ezDynamicArray<LocalParameterString> m_StringParameters;
 };
 
 class EZ_GAMEENGINE_DLL ezVisualScriptResource : public ezResource

@@ -136,9 +136,11 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptDataPinType
     Number, ///< Numbers are represented as doubles
     Boolean,
     Vec3,
+    String,
     GameObjectHandle, ///< ezGameObjectHandle
     ComponentHandle,  ///< ezComponentHandle
     // ResourceHandle, ///< ezTypelessResourceHandle ?
+    Variant,
     Default = None,
   };
 };
@@ -199,6 +201,7 @@ public:
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
   ezString m_sLog;
-  double m_Value1 = 0;
-  double m_Value2 = 0;
+  ezVariant m_Value1 = 0;
+  ezVariant m_Value2 = 0;
+  ezVariant m_Value3 = 0;
 };

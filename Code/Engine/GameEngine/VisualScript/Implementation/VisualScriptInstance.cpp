@@ -20,24 +20,10 @@ bool ezVisualScriptAssignNumberNumber(const void* src, void* dst)
   return res;
 }
 
-bool ezVisualScriptAssignBoolBool(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<bool*>(dst) != *reinterpret_cast<const bool*>(src);
-  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const bool*>(src);
-  return res;
-}
-
 bool ezVisualScriptAssignNumberBool(const void* src, void* dst)
 {
   const bool res = (*reinterpret_cast<bool*>(dst) != (*reinterpret_cast<const double*>(src) > 0.0));
   *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const double*>(src) > 0.0;
-  return res;
-}
-
-bool ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<ezVec3*>(dst) != *reinterpret_cast<const ezVec3*>(src);
-  *reinterpret_cast<ezVec3*>(dst) = *reinterpret_cast<const ezVec3*>(src);
   return res;
 }
 
@@ -47,6 +33,50 @@ bool ezVisualScriptAssignNumberVec3(const void* src, void* dst)
   *reinterpret_cast<ezVec3*>(dst) = ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
   return res;
 }
+
+bool ezVisualScriptAssignNumberString(const void* src, void* dst)
+{
+  double value = *reinterpret_cast<const double*>(src);
+  ezStringBuilder sb;
+  ezConversionUtils::ToString(value, sb);
+
+  const bool res = *reinterpret_cast<ezString*>(dst) != sb;
+  *reinterpret_cast<ezString*>(dst) = sb;
+  return res;
+}
+
+bool ezVisualScriptAssignNumberVariant(const void* src, void* dst)
+{
+  ezVariant newValue = *reinterpret_cast<const double*>(src);
+  const bool res = *reinterpret_cast<ezVariant*>(dst) != newValue;
+  *reinterpret_cast<ezVariant*>(dst) = newValue;
+  return res;
+}
+
+
+bool ezVisualScriptAssignBoolBool(const void* src, void* dst)
+{
+  const bool res = *reinterpret_cast<bool*>(dst) != *reinterpret_cast<const bool*>(src);
+  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const bool*>(src);
+  return res;
+}
+
+bool ezVisualScriptAssignBoolNumber(const void* src, void* dst)
+{
+  double newValue = *reinterpret_cast<const bool*>(src) ? 1.0 : 0.0;
+  const bool res = *reinterpret_cast<double*>(dst) != newValue;
+  *reinterpret_cast<double*>(dst) = newValue;
+  return res;
+}
+
+
+bool ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
+{
+  const bool res = *reinterpret_cast<ezVec3*>(dst) != *reinterpret_cast<const ezVec3*>(src);
+  *reinterpret_cast<ezVec3*>(dst) = *reinterpret_cast<const ezVec3*>(src);
+  return res;
+}
+
 
 bool ezVisualScriptAssignGameObject(const void* src, void* dst)
 {
@@ -76,14 +106,18 @@ void ezVisualScriptInstance::SetupPinDataTypeConversions()
   bDone = true;
 
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Number, ezVisualScriptAssignNumberNumber);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignBoolBool);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
-  RegisterDataPinAssignFunction(
-    ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
-  RegisterDataPinAssignFunction(
-    ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::String, ezVisualScriptAssignNumberString);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Variant, ezVisualScriptAssignNumberVariant);
+
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignBoolBool);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Number, ezVisualScriptAssignBoolNumber);
+
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
+
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
 }
 
 ezVisualScriptInstance::~ezVisualScriptInstance()
@@ -223,6 +257,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
     {
       m_LocalVariables.StoreDouble(p.m_sName, p.m_Value);
     }
+
+    for (const auto& p : resource.m_StringParameters)
+    {
+      m_LocalVariables.StoreString(p.m_sName, p.m_sValue);
+    }
   }
 }
 
@@ -247,8 +286,7 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
 
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_MessageSender* pNode =
-    ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
+  ezVisualScriptNode_MessageSender* pNode = ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();

@@ -52,12 +52,23 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterNumber, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterString, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterString>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Default", m_DefaultValue),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultAllocator<ezVisualScriptAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("BoolParameters", m_BoolParameters),
-    EZ_ARRAY_MEMBER_PROPERTY("NumberParameters", m_NumberParameters)
+    EZ_ARRAY_MEMBER_PROPERTY("NumberParameters", m_NumberParameters),
+    EZ_ARRAY_MEMBER_PROPERTY("StringParameters", m_StringParameters)
   }
     EZ_END_PROPERTIES;
 }
@@ -230,7 +241,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
         const ezVisualScriptPin* pVsPinSource = static_cast<const ezVisualScriptPin*>(pCon->GetSourcePin());
         const ezVisualScriptPin* pVsPinTarget = static_cast<const ezVisualScriptPin*>(pCon->GetTargetPin());
 
-        if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Execution)
+        if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Execution)
         {
           auto& path = desc.m_ExecutionPaths.ExpandAndGetRef();
           path.m_uiSourceNode = srcNodeIdx;
@@ -239,7 +250,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
           path.m_uiTargetNode = ObjectToIndex[pVsPinTarget->GetParent()];
           path.m_uiInputPin = pVsPinTarget->GetDescriptor()->m_uiPinIndex;
         }
-        else if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data)
+        else if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Data)
         {
           auto& path = desc.m_DataPaths.ExpandAndGetRef();
           path.m_uiSourceNode = srcNodeIdx;
@@ -286,6 +297,22 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
       outP.m_sName.Assign(p.m_sName.GetData());
       outP.m_Value = p.m_DefaultValue;
     }
+
+    desc.m_StringParameters.Clear();
+    desc.m_StringParameters.Reserve(GetProperties()->m_StringParameters.GetCount());
+
+    for (const auto& p : GetProperties()->m_StringParameters)
+    {
+      if (p.m_sName.IsEmpty())
+      {
+        ezLog::Warning("Visual script declared an unnamed number variable. Variable is ignored.");
+        continue;
+      }
+
+      auto& outP = desc.m_StringParameters.ExpandAndGetRef();
+      outP.m_sName.Assign(p.m_sName.GetData());
+      outP.m_sValue = p.m_DefaultValue;
+    }
   }
 
   // verify used local variables
@@ -295,7 +322,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
       const ezDocumentObject* pObject = allNodes[i];
       const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
 
-      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_Number" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreNumber" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
+      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_Number" || pDesc->m_sTypeName == "ezVisualScriptNode_String" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreNumber" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreString")
       {
         const ezVariant varName = pObject->GetTypeAccessor().GetValue("Name");
         EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
@@ -303,47 +330,42 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
         enum class ValueType
         {
           Bool,
-          Number
+          Number,
+          String
         };
 
         ValueType eValueType = ValueType::Number;
+        const char* szValueType = "number";
+        ezArrayPtr<ezVisualScriptResourceDescriptor::LocalParameter> parameters = desc.m_NumberParameters.GetArrayPtr();
 
         if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
         {
           eValueType = ValueType::Bool;
+          szValueType = "bool";
+          parameters = desc.m_BoolParameters.GetArrayPtr();
+        }
+        else if (pDesc->m_sTypeName == "ezVisualScriptNode_String" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreString")
+        {
+          eValueType = ValueType::String;
+          szValueType = "string";
+          parameters = desc.m_StringParameters.GetArrayPtr();
         }
 
         const ezString name = varName.ConvertTo<ezString>();
 
         bool found = false;
-
-        if (eValueType == ValueType::Bool)
+        for (const auto& p : parameters)
         {
-          for (const auto& p : desc.m_BoolParameters)
+          if (p.m_sName == name)
           {
-            if (p.m_sName == name)
-            {
-              found = true;
-              break;
-            }
-          }
-        }
-
-        if (eValueType == ValueType::Number)
-        {
-          for (const auto& p : desc.m_NumberParameters)
-          {
-            if (p.m_sName == name)
-            {
-              found = true;
-              break;
-            }
+            found = true;
+            break;
           }
         }
 
         if (!found)
         {
-          ezLog::Error("Visual Script uses undeclared {0} variable '{1}'.", (eValueType == ValueType::Bool) ? "bool" : "number", name);
+          ezLog::Error("Visual Script uses undeclared {0} variable '{1}'.", szValueType, name);
         }
       }
     }
