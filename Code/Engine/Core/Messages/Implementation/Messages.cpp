@@ -120,6 +120,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezM
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender(),
+    new ezAutoGenVisScriptMsgHandler()
   }
   EZ_END_ATTRIBUTES;
 }

@@ -108,6 +108,37 @@ void ezVisualScriptNode_GenericEvent::HandleMessage(ezMessage* pMsg)
   m_bStepNode = true;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptStartEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_ScriptStartEvent>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Event Handler"),
+    new ezTitleAttribute("OnScriptStart"),
+  }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_OUTPUT_EXECUTION_PIN("OnStart", 0),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_ScriptStartEvent::ezVisualScriptNode_ScriptStartEvent()
+{
+  m_bStepNode = true;
+}
+
+ezVisualScriptNode_ScriptStartEvent::~ezVisualScriptNode_ScriptStartEvent() {}
+
+void ezVisualScriptNode_ScriptStartEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -517,24 +517,9 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
     if (prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
 
-    {
-      ezReflectedPropertyDescriptor prd;
-      prd.m_Flags = prop->GetFlags();
-      prd.m_Category = prop->GetCategory();
-      prd.m_sName = prop->GetPropertyName();
-      prd.m_sType = prop->GetSpecificType()->GetTypeName();
-
-      for (ezPropertyAttribute* const pAttr : prop->GetAttributes())
-      {
-        prd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
-      }
-
-      nd.m_Properties.PushBack(prd);
-    }
-
     ++iDataPinIndex;
     auto dataPinType = GetDataPinTypeForRTTI(prop->GetSpecificType());
-    if (dataPinType != ezVisualScriptDataPinType::None)
+    if (dataPinType == ezVisualScriptDataPinType::None)
       continue;
 
     ezVisualScriptPinDescriptor pid;

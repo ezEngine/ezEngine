@@ -422,6 +422,17 @@ void ezVisualScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
         param->m_DefaultValue = p.m_DefaultValue;
       }
     }
+
+    for (const auto& p : GetProperties()->m_StringParameters)
+    {
+      if (p.m_bExpose)
+      {
+        ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+        pExposedParams->m_Parameters.PushBack(param);
+        param->m_sName = p.m_sName;
+        param->m_DefaultValue = p.m_DefaultValue;
+      }
+    }
   }
 
   // Info takes ownership of meta data.
