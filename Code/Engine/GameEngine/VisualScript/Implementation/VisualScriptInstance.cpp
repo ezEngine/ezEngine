@@ -108,11 +108,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
     {
       if (node.m_isMsgSender)
       {
-        CreateFunctionMessageNode(n, resource);
+        CreateMessageSenderNode(n, resource);
       }
       else if (node.m_isMsgHandler)
       {
-        CreateEventMessageNode(n, resource);
+        CreateMessageHandlerNode(n, resource);
       }
     }
     else if (node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
@@ -176,7 +176,7 @@ void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ez
   m_Nodes.PushBack(pNode);
 }
 
-void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
   EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
 
@@ -221,45 +221,17 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
 }
 
 
-void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+void ezVisualScriptInstance::CreateMessageHandlerNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
   EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
 
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+  ezVisualScriptNode_MessageHandler* pNode = ezGetStaticRTTI<ezVisualScriptNode_MessageHandler>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageHandler>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
-
-  pNode->m_sEventType = node.m_sTypeName;
+  pNode->m_pMessageTypeToHandle = node.m_pType;
 
   m_Nodes.PushBack(pNode);
-}
-
-ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(
-  const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
-{
-  if (sFuncName.IsEmpty())
-    return nullptr;
-
-  while (pObjectType != nullptr)
-  {
-    for (auto pFunc : pObjectType->GetFunctions())
-    {
-      if (sFuncName != pFunc->GetPropertyName())
-        continue;
-
-      out_pSfAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
-
-      if (out_pSfAttr == nullptr)
-        continue;
-
-      return pFunc;
-    }
-
-    pObjectType = pObjectType->GetParentType();
-  }
-
-  return nullptr;
 }
 
 void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
@@ -330,6 +302,32 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
   }
 
   m_Nodes.PushBack(pNode);
+}
+
+ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
+{
+  if (sFuncName.IsEmpty())
+    return nullptr;
+
+  while (pObjectType != nullptr)
+  {
+    for (auto pFunc : pObjectType->GetFunctions())
+    {
+      if (sFuncName != pFunc->GetPropertyName())
+        continue;
+
+      out_pSfAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
+
+      if (out_pSfAttr == nullptr)
+        continue;
+
+      return pFunc;
+    }
+
+    pObjectType = pObjectType->GetParentType();
+  }
+
+  return nullptr;
 }
 
 void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActivity /*= nullptr*/)

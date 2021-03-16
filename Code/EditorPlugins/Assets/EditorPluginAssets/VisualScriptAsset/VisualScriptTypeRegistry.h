@@ -56,8 +56,8 @@ private:
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
   void UpdateNodeType(const ezRTTI* pRtti);
   const ezRTTI* GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& desc);
-  void CreateMessageNodeType(const ezRTTI* pRtti);
-  void CreateEventMessageNodeType(const ezRTTI* pRtti);
+  void CreateMessageSenderNodeType(const ezRTTI* pRtti);
+  void CreateMessageHandlerNodeType(const ezRTTI* pRtti);
   void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction);
 
   ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;

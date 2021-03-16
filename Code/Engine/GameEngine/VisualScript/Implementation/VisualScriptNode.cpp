@@ -12,9 +12,9 @@ namespace
   static bool IsTypeSupported(const ezRTTI* pType)
   {
     return pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>() ||
-      pType == ezGetStaticRTTI<ezString>() || pType == ezGetStaticRTTI<ezVariant>();
+           pType == ezGetStaticRTTI<ezString>() || pType == ezGetStaticRTTI<ezVariant>();
   }
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -244,6 +244,74 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
   return nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MessageHandler, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_MessageHandler>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Messages"),
+    new ezHiddenAttribute()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_MessageHandler::ezVisualScriptNode_MessageHandler() {}
+ezVisualScriptNode_MessageHandler::~ezVisualScriptNode_MessageHandler() {}
+
+void ezVisualScriptNode_MessageHandler::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_pMsgCopy == nullptr)
+    return;
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  m_pMsgCopy->GetDynamicRTTI()->GetAllProperties(properties);
+
+  for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
+  {
+    auto prop = properties[uiProp];
+
+    if (prop->GetCategory() == ezPropertyCategory::Member)
+    {
+      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(prop);
+
+      const ezRTTI* pType = pAbsMember->GetSpecificType();
+      if (IsTypeSupported(pType))
+      {
+        const void* pPropPtr = pAbsMember->GetPropertyPointer(m_pMsgCopy.Borrow());
+        pInstance->SetOutputPinValue(this, static_cast<ezUInt8>(uiProp), pPropPtr);
+      }
+    }
+  }
+
+  pInstance->ExecuteConnectedNodes(this, 0);
+
+  m_pMsgCopy = nullptr;
+}
+
+ezInt32 ezVisualScriptNode_MessageHandler::HandlesMessagesWithID() const
+{
+  ezInt32 res = -1;
+
+  if (m_pMessageTypeToHandle != nullptr && m_pMessageTypeToHandle->IsDerivedFrom<ezMessage>() && m_pMessageTypeToHandle->GetAllocator()->CanAllocate())
+  {
+    ezUniquePtr<ezMessage> pMsg = m_pMessageTypeToHandle->GetAllocator()->Allocate<ezMessage>();
+    res = pMsg->GetId();
+  }
+
+  return res;
+}
+
+void ezVisualScriptNode_MessageHandler::HandleMessage(ezMessage* pMsg)
+{
+  ezRTTIAllocator* pMsgRTTIAllocator = pMsg->GetDynamicRTTI()->GetAllocator();
+  m_pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(pMsg);
+
+  m_bStepNode = true;
+}
 
 //////////////////////////////////////////////////////////////////////////
 

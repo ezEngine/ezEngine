@@ -3,6 +3,7 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameEngineDLL.h>
 
 class ezVisualScriptInstance;
@@ -51,7 +52,7 @@ private:
 #define EZ_OUTPUT_EXECUTION_PIN(name, slot) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(slot))
 #define EZ_INPUT_DATA_PIN(name, slot, type) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptDataPinInAttribute(slot, type))
 #define EZ_OUTPUT_DATA_PIN(name, slot, type) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(slot, type))
-#define EZ_INPUT_DATA_PIN_AND_PROPERTY(name, slot, type, member)                                                                                     \
+#define EZ_INPUT_DATA_PIN_AND_PROPERTY(name, slot, type, member) \
   EZ_MEMBER_PROPERTY(name, member)->AddAttributes(new ezVisScriptDataPinInAttribute(slot, type))
 
 //////////////////////////////////////////////////////////////////////////
@@ -73,6 +74,26 @@ public:
   ezTime m_Delay;
   bool m_bRecursive;
   ezMessage* m_pMessageToSend = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_MessageHandler : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_MessageHandler, ezVisualScriptNode);
+
+public:
+  ezVisualScriptNode_MessageHandler();
+  ~ezVisualScriptNode_MessageHandler();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+  virtual bool IsManuallyStepped() const override { return true; }
+  virtual ezInt32 HandlesMessagesWithID() const override;
+  virtual void HandleMessage(ezMessage* pMsg) override;
+
+  const ezRTTI* m_pMessageTypeToHandle = nullptr;
+  ezUniquePtr<ezMessage> m_pMsgCopy;
 };
 
 //////////////////////////////////////////////////////////////////////////

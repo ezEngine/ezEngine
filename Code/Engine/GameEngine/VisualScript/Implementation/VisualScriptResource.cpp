@@ -4,7 +4,6 @@
 #include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 
@@ -328,15 +327,14 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     auto& node = m_Nodes[uiNode];
     const ezRTTI* pType = node.m_pType;
 
-    ezVisualScriptNode* pNode = nullptr;
+    ezUniquePtr<ezVisualScriptNode> pNode;
 
-    if (pType->IsDerivedFrom<ezEventMessage>())
+    if (pType->IsDerivedFrom<ezMessage>() && node.m_isMsgHandler)
     {
-      // TODO: just do the generic node logic here without allocating the node
-      ezVisualScriptNode_GenericEvent* pEvent = ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
-      pNode = pEvent;
+      auto pHandler = ezVisualScriptNode_MessageHandler::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_MessageHandler>();
+      pHandler->m_pMessageTypeToHandle = pType;
 
-      pEvent->m_sEventType = pType->GetTypeName();
+      pNode = pHandler;
     }
     else if (pType->IsDerivedFrom<ezVisualScriptNode>())
     {
@@ -355,8 +353,6 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     {
       m_MessageHandlers.Insert(static_cast<ezUInt16>(iMsgID), static_cast<ezUInt16>(uiNode));
     }
-
-    pType->GetAllocator()->Deallocate(pNode);
   }
 }
 

@@ -178,12 +178,12 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
   {
     if (pRtti->GetAttributeByType<ezAutoGenVisScriptMsgSender>())
     {
-      CreateMessageNodeType(pRtti);
+      CreateMessageSenderNodeType(pRtti);
     }
 
     if (pRtti->GetAttributeByType<ezAutoGenVisScriptMsgHandler>())
     {
-      CreateEventMessageNodeType(pRtti);
+      CreateMessageHandlerNodeType(pRtti);
     }
   }
 
@@ -343,7 +343,7 @@ const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScr
   return ezPhantomRttiManager::RegisterType(desc);
 }
 
-void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
+void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti)
 {
   const ezStringBuilder tmp(pRtti->GetTypeName(), "<send>");
 
@@ -476,7 +476,7 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
 }
 
-void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
+void ezVisualScriptTypeRegistry::CreateMessageHandlerNodeType(const ezRTTI* pRtti)
 {
   const ezStringBuilder tmp(pRtti->GetTypeName(), "<handle>");
 
