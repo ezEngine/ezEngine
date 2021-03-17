@@ -6,6 +6,19 @@
 #include <GameEngine/VisualScript/Nodes/VisualScriptBasicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
+namespace
+{
+  const void* GetDataPointer(const ezVariant& var, const ezRTTI* pTargetType)
+  {
+    if (pTargetType == ezGetStaticRTTI<ezVariant>())
+    {
+      return &var;
+    }
+
+    return var.GetData();
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -314,7 +327,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
             {
               ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pAbsMember, m_pMessageToSend.Borrow());
               ezVisualScriptDataPinType::EnforceSupportedType(var);
-              pInstance->SetOutputPinValue(this, uiProp, var.GetData());
+              pInstance->SetOutputPinValue(this, uiProp, GetDataPointer(var, pType));
             }
           }
         }
@@ -476,7 +489,7 @@ void ezVisualScriptNode_MessageHandler::Execute(ezVisualScriptInstance* pInstanc
       {
         ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pAbsMember, m_pMsgCopy.Borrow());
         ezVisualScriptDataPinType::EnforceSupportedType(var);
-        pInstance->SetOutputPinValue(this, uiProp, var.GetData());
+        pInstance->SetOutputPinValue(this, uiProp, GetDataPointer(var, pType));
       }
       else
       {
@@ -615,7 +628,7 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
   if (m_ReturnValue.IsValid())
   {
     ezVisualScriptDataPinType::EnforceSupportedType(m_ReturnValue);
-    pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_ReturnValue.GetData());
+    pInstance->SetOutputPinValue(this, uiOutputPinIndex, GetDataPointer(m_ReturnValue, m_pFunctionToCall->GetReturnType()));
     ++uiOutputPinIndex;
   }
 
@@ -626,7 +639,9 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
     if ((m_ArgumentIsOutParamMask & EZ_BIT(arg)) != 0) // if this argument represents an out or inout parameter, pull the data
     {
-      pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_Arguments[arg].GetData());
+      const ezRTTI* pArgumentType = m_pFunctionToCall->GetArgumentType(arg);
+
+      pInstance->SetOutputPinValue(this, uiOutputPinIndex, GetDataPointer(m_Arguments[arg], pArgumentType));
       ++uiOutputPinIndex;
     }
   }
