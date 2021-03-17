@@ -185,7 +185,7 @@ void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const e
   ezVisualScriptNode_MessageSender* pNode = ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
-  pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();
+  auto pMessage = node.m_pType->GetAllocator()->Allocate<ezMessage>();
 
   // assign all property values
   {
@@ -194,7 +194,7 @@ void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const e
       const ezUInt32 uiProp = node.m_uiFirstProperty + i;
       const auto& prop = resource.m_Properties[uiProp];
 
-      ezAbstractProperty* pAbstract = pNode->m_pMessageToSend->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+      ezAbstractProperty* pAbstract =pMessage->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
       if (pAbstract == nullptr)
       {
         if (prop.m_sName == "Delay" && prop.m_Value.CanConvertTo<ezTime>())
@@ -213,10 +213,11 @@ void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const e
         continue;
 
       ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
-      ezReflectionUtils::SetMemberPropertyValue(pMember, pNode->m_pMessageToSend, prop.m_Value);
+      ezReflectionUtils::SetMemberPropertyValue(pMember, pMessage, prop.m_Value);
     }
   }
 
+  pNode->SetMessageToSend(pMessage);
   m_Nodes.PushBack(pNode);
 }
 
@@ -263,7 +264,7 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
       for (ezUInt32 arg = 0; arg < pNode->m_pFunctionToCall->GetArgumentCount(); ++arg)
       {
         pNode->m_Arguments[arg] = ezReflectionUtils::GetDefaultVariantFromType(pNode->m_pFunctionToCall->GetArgumentType(arg)->GetVariantType());
-        pNode->EnforceVariantTypeForInputPins(pNode->m_Arguments[arg]);
+        ezVisualScriptDataPinType::EnforceSupportedType(pNode->m_Arguments[arg]);
 
         if (pSfAttr->GetArgumentType(arg) != ezScriptableFunctionAttribute::In) // out or inout
         {

@@ -9,27 +9,6 @@ struct ezMsgInputActionTriggered;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_SimpleUserEvent : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_SimpleUserEvent, ezVisualScriptNode);
-
-public:
-  ezVisualScriptNode_SimpleUserEvent();
-  ~ezVisualScriptNode_SimpleUserEvent();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-  virtual ezInt32 HandlesMessagesWithID() const override;
-  virtual void HandleMessage(ezMessage* pMsg) override;
-
-  const char* GetMessage() const { return m_sMessage.GetData(); }
-  void SetMessage(const char* s) { m_sMessage = s; }
-
-  ezString m_sMessage;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_ScriptStartEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ScriptStartEvent, ezVisualScriptNode);

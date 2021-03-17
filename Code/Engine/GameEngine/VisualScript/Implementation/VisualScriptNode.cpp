@@ -7,23 +7,92 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-namespace
-{
-  static bool IsTypeSupported(const ezRTTI* pType)
-  {
-    return pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>() ||
-           pType == ezGetStaticRTTI<ezString>() || pType == ezGetStaticRTTI<ezVariant>();
-  }
-} // namespace
-
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptDataPinType, 1)
-  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::None, ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Vec3)
-  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::ComponentHandle)
+  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::None, ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::String)
+  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::Variant)
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
+// static
+ezVisualScriptDataPinType::Enum ezVisualScriptDataPinType::GetDataPinTypeForType(const ezRTTI* pType)
+{
+  auto varType = pType->GetVariantType();
+  if (varType >= ezVariant::Type::Int8 && varType <= ezVariant::Type::Double)
+  {
+    return ezVisualScriptDataPinType::Number;
+  }
+
+  switch (varType)
+  {
+    case ezVariantType::Bool:
+      return ezVisualScriptDataPinType::Boolean;
+
+    case ezVariantType::Vector3:
+      return ezVisualScriptDataPinType::Vec3;
+
+    case ezVariantType::String:
+      return ezVisualScriptDataPinType::String;
+
+    default:
+      return pType == ezGetStaticRTTI<ezVariant>() ? ezVisualScriptDataPinType::Variant : ezVisualScriptDataPinType::None;
+  }
+}
+
+// static
+void ezVisualScriptDataPinType::EnforceSupportedType(ezVariant& var)
+{
+  switch (var.GetType())
+  {
+    case ezVariantType::Int8:
+    case ezVariantType::UInt8:
+    case ezVariantType::Int16:
+    case ezVariantType::UInt16:
+    case ezVariantType::Int32:
+    case ezVariantType::UInt32:
+    case ezVariantType::Int64:
+    case ezVariantType::UInt64:
+    case ezVariantType::Float:
+    {
+      const double value = var.ConvertTo<double>();
+      var = value;
+      return;
+    }
+
+    default:
+      return;
+  }
+}
+
+static ezUInt32 s_StorageSizes[] = {
+  ezInvalidIndex,             // None
+  sizeof(double),             // Number
+  sizeof(bool),               // Boolean
+  sizeof(ezVec3),             // Vec3
+  sizeof(ezString),           // String
+  sizeof(ezGameObjectHandle), // GameObjectHandle
+  sizeof(ezComponentHandle),  // ComponentHandle
+  sizeof(ezVariant),          // Variant
+};
+
+// static
+ezUInt32 ezVisualScriptDataPinType::GetStorageByteSize(Enum dataPinType)
+{
+  if (dataPinType >= Number && dataPinType <= Variant)
+  {
+    EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(s_StorageSizes) == Variant + 1);
+    return s_StorageSizes[dataPinType];
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezInvalidIndex;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptExecPinOutAttribute, 1, ezRTTIDefaultAllocator<ezVisScriptExecPinOutAttribute>)
 {
   EZ_BEGIN_PROPERTIES
@@ -115,24 +184,87 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MessageSender, 1, ezRTTIDefau
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_MessageSender::ezVisualScriptNode_MessageSender()
-{
-  m_bRecursive = false;
-}
-
+ezVisualScriptNode_MessageSender::ezVisualScriptNode_MessageSender() = default;
 ezVisualScriptNode_MessageSender::~ezVisualScriptNode_MessageSender()
 {
-  if (m_pMessageToSend != nullptr)
+  for (ezUInt32 uiProp = 0; uiProp < m_PropertyIndexToDataPinType.GetCount(); ++uiProp)
   {
-    m_pMessageToSend->GetDynamicRTTI()->GetAllocator()->Deallocate(m_pMessageToSend);
-    m_pMessageToSend = nullptr;
+    auto dataPinType = m_PropertyIndexToDataPinType[uiProp];
+    if (dataPinType == ezVisualScriptDataPinType::None)
+      continue;
+
+    ezUInt32 uiOffset = m_PropertyIndexToMemoryOffset[uiProp];
+    void* ptr = &m_ScratchMemory.GetByteBlobPtr()[uiOffset];
+
+    switch (dataPinType)
+    {
+      case ezVisualScriptDataPinType::String:
+        static_cast<ezString*>(ptr)->~ezString();
+        break;
+
+      case ezVisualScriptDataPinType::Variant:
+        static_cast<ezVariant*>(ptr)->~ezVariant();
+        break;
+
+      default:
+        // Nothing to do for other types
+        break;
+    }
   }
+
+  m_ScratchMemory.Clear();
 }
 
 void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   if (m_pMessageToSend != nullptr)
   {
+    // fill message properties from inputs
+    ezHybridArray<ezAbstractProperty*, 32> properties;
+    m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+
+    const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
+    for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
+    {
+      auto dataPinType = m_PropertyIndexToDataPinType[uiProp];
+      if (dataPinType == ezVisualScriptDataPinType::None)
+        continue;
+
+      ezUInt32 uiOffset = m_PropertyIndexToMemoryOffset[uiProp];
+      void* ptr = &m_ScratchMemory.GetByteBlobPtr()[uiOffset];
+
+      ezVariant var;
+
+      switch (dataPinType)
+      {
+        case ezVisualScriptDataPinType::Number:
+          var = *static_cast<double*>(ptr);
+          break;
+
+        case ezVisualScriptDataPinType::Boolean:
+          var = *static_cast<bool*>(ptr);
+          break;
+
+        case ezVisualScriptDataPinType::Vec3:
+          var = *static_cast<ezVec3*>(ptr);
+          break;
+
+        case ezVisualScriptDataPinType::String:
+          var = *static_cast<ezString*>(ptr);
+          break;
+
+        case ezVisualScriptDataPinType::Variant:
+          var = *static_cast<ezVariant*>(ptr);
+          break;
+
+          EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      }
+
+      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+      ezReflectionUtils::SetMemberPropertyValue(pAbsMember, m_pMessageToSend.Borrow(), var);
+    }
+
+
     ezWorld* pWorld = pInstance->GetWorld();
 
     if (m_Delay.GetSeconds() == 0)
@@ -166,11 +298,6 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
 
       {
         // could skip this, if we knew that there are no output pins, at all
-
-        ezHybridArray<ezAbstractProperty*, 32> properties;
-        m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
-
-        const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
         for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
         {
           if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
@@ -179,10 +306,11 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
             ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
 
             const ezRTTI* pType = pAbsMember->GetSpecificType();
-            if (IsTypeSupported(pType))
+            if (ezVisualScriptDataPinType::IsTypeSupported(pType))
             {
-              const void* pPropPtr = pAbsMember->GetPropertyPointer(m_pMessageToSend);
-              pInstance->SetOutputPinValue(this, uiProp, pPropPtr);
+              ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pAbsMember, m_pMessageToSend.Borrow());
+              ezVisualScriptDataPinType::EnforceSupportedType(var);
+              pInstance->SetOutputPinValue(this, uiProp, var.GetData());
             }
           }
         }
@@ -226,22 +354,82 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
   {
     const ezUInt32 uiProp = uiPin - 2;
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
-    m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+    ezUInt32 uiOffset = m_PropertyIndexToMemoryOffset[uiProp];
+    if (uiOffset != 0xFFFF)
+    {
+      void* pPropertyPointer = &m_ScratchMemory.GetByteBlobPtr()[uiOffset];
+      return pPropertyPointer;
+    }
 
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return nullptr;
+}
+
+void ezVisualScriptNode_MessageSender::SetMessageToSend(ezUniquePtr<ezMessage>&& pMsg)
+{
+  m_pMessageToSend = std::move(pMsg);
+
+  // Calculate scratch memory size and build mapping from property index to memory offset
+  ezUInt32 uiScratchMemorySize = 0;
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+
+  const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
+  m_PropertyIndexToMemoryOffset.SetCount(uiPropCount, 0xFFFF);
+  m_PropertyIndexToDataPinType.SetCount(uiPropCount);
+
+  for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
+  {
     if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member)
     {
       ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
 
       const ezRTTI* pType = pAbsMember->GetSpecificType();
-      if (IsTypeSupported(pType))
-      {
-        return pAbsMember->GetPropertyPointer(m_pMessageToSend);
-      }
+      auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pType);
+      if (dataPinType == ezVisualScriptDataPinType::None)
+        continue;
+
+      m_PropertyIndexToMemoryOffset[uiProp] = uiScratchMemorySize;
+      m_PropertyIndexToDataPinType[uiProp] = dataPinType;
+
+      uiScratchMemorySize += ezMath::Max<ezUInt32>(ezVisualScriptDataPinType::GetStorageByteSize(dataPinType), EZ_ALIGNMENT_MINIMUM);
     }
   }
 
-  return nullptr;
+  m_ScratchMemory.SetCountUninitialized(uiScratchMemorySize);
+  m_ScratchMemory.ZeroFill();
+
+  // Default construct and assign initial values
+  for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
+  {
+    auto dataPinType = m_PropertyIndexToDataPinType[uiProp];
+    if (dataPinType == ezVisualScriptDataPinType::None)
+      continue;
+
+    ezUInt32 uiOffset = m_PropertyIndexToMemoryOffset[uiProp];
+    void* ptr = &m_ScratchMemory.GetByteBlobPtr()[uiOffset];
+
+    ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+    ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pAbsMember, m_pMessageToSend.Borrow());
+    ezVisualScriptDataPinType::EnforceSupportedType(var);
+
+    switch (dataPinType)
+    {
+      case ezVisualScriptDataPinType::String:
+        new (ptr) ezString(var.Get<ezString>());
+        break;
+
+      case ezVisualScriptDataPinType::Variant:
+        new (ptr) ezVariant(var);
+        break;
+
+      default:
+        ezMemoryUtils::RawByteCopy(ptr, var.GetData(), ezVisualScriptDataPinType::GetStorageByteSize(dataPinType));
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -270,7 +458,8 @@ void ezVisualScriptNode_MessageHandler::Execute(ezVisualScriptInstance* pInstanc
   ezHybridArray<ezAbstractProperty*, 32> properties;
   m_pMsgCopy->GetDynamicRTTI()->GetAllProperties(properties);
 
-  for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
+  const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
+  for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
   {
     auto prop = properties[uiProp];
 
@@ -279,10 +468,15 @@ void ezVisualScriptNode_MessageHandler::Execute(ezVisualScriptInstance* pInstanc
       ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(prop);
 
       const ezRTTI* pType = pAbsMember->GetSpecificType();
-      if (IsTypeSupported(pType))
+      if (ezVisualScriptDataPinType::IsTypeSupported(pType))
       {
-        const void* pPropPtr = pAbsMember->GetPropertyPointer(m_pMsgCopy.Borrow());
-        pInstance->SetOutputPinValue(this, static_cast<ezUInt8>(uiProp), pPropPtr);
+        ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pAbsMember, m_pMsgCopy.Borrow());
+        ezVisualScriptDataPinType::EnforceSupportedType(var);
+        pInstance->SetOutputPinValue(this, uiProp, var.GetData());
+      }
+      else
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
       }
     }
   }
@@ -412,7 +606,7 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   if (m_ReturnValue.IsValid())
   {
-    EnforceVariantTypeForInputPins(m_ReturnValue);
+    ezVisualScriptDataPinType::EnforceSupportedType(m_ReturnValue);
     pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_ReturnValue.GetData());
     ++uiOutputPinIndex;
   }
@@ -420,7 +614,7 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
   for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
   {
     // also do this for non-out parameters, as an 'in' parameter may still be a non-const reference (bad but valid)
-    EnforceVariantTypeForInputPins(m_Arguments[arg]);
+    ezVisualScriptDataPinType::EnforceSupportedType(m_Arguments[arg]);
 
     if ((m_ArgumentIsOutParamMask & EZ_BIT(arg)) != 0) // if this argument represents an out or inout parameter, pull the data
     {
@@ -455,30 +649,6 @@ ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVarian
   var = var.ConvertTo(type, &couldConvert);
 
   return couldConvert;
-}
-
-void ezVisualScriptNode_FunctionCall::EnforceVariantTypeForInputPins(ezVariant& var)
-{
-  switch (var.GetType())
-  {
-    case ezVariantType::Int8:
-    case ezVariantType::UInt8:
-    case ezVariantType::Int16:
-    case ezVariantType::UInt16:
-    case ezVariantType::Int32:
-    case ezVariantType::UInt32:
-    case ezVariantType::Int64:
-    case ezVariantType::UInt64:
-    case ezVariantType::Float:
-    {
-      const double value = var.ConvertTo<double>();
-      var = value;
-      return;
-    }
-
-    default:
-      return;
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -15,33 +15,6 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-namespace
-{
-  static ezVisualScriptDataPinType::Enum GetDataPinTypeForRTTI(const ezRTTI* pRTTI)
-  {
-    auto varType = pRTTI->GetVariantType();
-    if (varType > ezVariant::Type::FirstStandardType && varType <= ezVariant::Type::Double)
-    {
-      return ezVisualScriptDataPinType::Number;
-    }
-    
-    switch (varType)
-    {
-      case ezVariantType::Bool:
-        return ezVisualScriptDataPinType::Boolean;
-
-      case ezVariantType::Vector3:
-        return ezVisualScriptDataPinType::Vec3;
-
-      case ezVariantType::String:
-        return ezVisualScriptDataPinType::String;
-
-      default:
-        return pRTTI == ezGetStaticRTTI<ezVariant>() ? ezVisualScriptDataPinType::Variant : ezVisualScriptDataPinType::None;
-    }
-  }
-}
-
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
 // clang-format off
@@ -459,7 +432,7 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
     }
 
     ++iDataPinIndex;
-    auto dataPinType = GetDataPinTypeForRTTI(prop->GetSpecificType());
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(prop->GetSpecificType());
     if (dataPinType == ezVisualScriptDataPinType::None)
       continue;
 
@@ -518,7 +491,7 @@ void ezVisualScriptTypeRegistry::CreateMessageHandlerNodeType(const ezRTTI* pRtt
       continue;
 
     ++iDataPinIndex;
-    auto dataPinType = GetDataPinTypeForRTTI(prop->GetSpecificType());
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(prop->GetSpecificType());
     if (dataPinType == ezVisualScriptDataPinType::None)
       continue;
 
@@ -619,7 +592,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   if (pFunction->GetReturnType() != nullptr)
   {
-    auto dataPinType = GetDataPinTypeForRTTI(pFunction->GetReturnType());
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pFunction->GetReturnType());
     if (dataPinType != ezVisualScriptDataPinType::None)
     {
       tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->Return");
@@ -667,7 +640,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       nd.m_Properties.PushBack(prd);
     }
 
-    auto dataPinType = GetDataPinTypeForRTTI(pFunction->GetArgumentType(argIdx));
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pFunction->GetArgumentType(argIdx));
     if (dataPinType == ezVisualScriptDataPinType::None)
       continue;
 
