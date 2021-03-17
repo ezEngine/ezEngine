@@ -3,21 +3,6 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_Sequence : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Sequence, ezVisualScriptNode);
-
-public:
-  ezVisualScriptNode_Sequence();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-};
-
-//////////////////////////////////////////////////////////////////////////
-
 struct EZ_GAMEENGINE_DLL ezLogicOperator
 {
   typedef ezUInt8 StorageType;

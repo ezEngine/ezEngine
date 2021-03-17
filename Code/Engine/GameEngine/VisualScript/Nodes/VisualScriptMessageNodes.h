@@ -5,7 +5,7 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-struct ezMsgInputActionTriggered;
+
 
 //////////////////////////////////////////////////////////////////////////
 

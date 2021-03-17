@@ -33,7 +33,7 @@ public:
   ~ezVisualScriptInstance();
 
   /// \brief Clears the current state and recreates the script instance from the given template.
-  void Configure(const ezVisualScriptResourceHandle& hScript, ezGameObject* pOwner);
+  void Configure(const ezVisualScriptResourceHandle& hScript, ezComponent* pOwnerComponent);
 
   /// \brief Runs all nodes that are marked for execution. Typically nodes that handle events will mark themselves for execution in the next update.
   void ExecuteScript(ezVisualScriptInstanceActivity* pActivity = nullptr);
@@ -48,8 +48,11 @@ public:
   /// \brief Called by ezVisualScriptNode classes to execute the node that is connected on the given output execution pin.
   void ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget);
 
-  /// \brief Returns the ezGameObject that owns this script. May be nullptr, if the instance is not attached to a game object.
-  ezGameObjectHandle GetOwner() const { return m_hOwner; }
+  /// \brief Returns the ezGameObject that owns this script. May be invalid, if the instance is not attached to a game object.
+  ezGameObjectHandle GetOwner() const { return m_hOwnerObject; }
+
+  /// \brief Returns the ezComponent that owns this script. May be invalid, if the instance is not attached to a component.
+  ezComponentHandle GetOwnerComponent() const { return m_hOwnerComponent; }
 
   /// \brief Returns the world of the owner game object.
   ezWorld* GetWorld() const { return m_pWorld; }
@@ -105,7 +108,8 @@ private:
   };
 
   ezVisualScriptResourceHandle m_hScriptResource;
-  ezGameObjectHandle m_hOwner;
+  ezGameObjectHandle m_hOwnerObject;
+  ezComponentHandle m_hOwnerComponent;
   ezWorld* m_pWorld = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;

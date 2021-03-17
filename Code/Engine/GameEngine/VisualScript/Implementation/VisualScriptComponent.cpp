@@ -156,7 +156,7 @@ void ezVisualScriptComponent::Update()
 
     if (m_hResource.IsValid())
     {
-      m_Script->Configure(m_hResource, GetOwner());
+      m_Script->Configure(m_hResource, this);
     }
   }
 
@@ -238,7 +238,7 @@ void ezVisualScriptComponent::OnSimulationStarted()
 
   if (m_hResource.IsValid())
   {
-    m_Script->Configure(m_hResource, GetOwner());
+    m_Script->Configure(m_hResource, this);
   }
 }
 

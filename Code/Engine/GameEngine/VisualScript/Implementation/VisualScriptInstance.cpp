@@ -1,12 +1,10 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Messages/EventMessage.h>
-#include <Core/World/Declarations.h>
 #include <Core/World/GameObject.h>
-#include <Foundation/Communication/Message.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Strings/HashedString.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptBasicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
@@ -78,7 +76,7 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
   }
 }
 
-void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScript, ezGameObject* pOwner)
+void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScript, ezComponent* pOwnerComponent)
 {
   Clear();
 
@@ -88,10 +86,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
 
   m_hScriptResource = hScript;
 
-  if (pOwner)
+  if (pOwnerComponent)
   {
-    m_hOwner = pOwner->GetHandle();
-    m_pWorld = pOwner->GetWorld();
+    m_hOwnerObject = pOwnerComponent->GetOwner()->GetHandle();
+    m_hOwnerComponent = pOwnerComponent->GetHandle();
+    m_pWorld = pOwnerComponent->GetWorld();
   }
 
   m_Nodes.Reserve(resource.m_Nodes.GetCount());
@@ -194,7 +193,7 @@ void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const e
       const ezUInt32 uiProp = node.m_uiFirstProperty + i;
       const auto& prop = resource.m_Properties[uiProp];
 
-      ezAbstractProperty* pAbstract =pMessage->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+      ezAbstractProperty* pAbstract = pMessage->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
       if (pAbstract == nullptr)
       {
         if (prop.m_sName == "Delay" && prop.m_Value.CanConvertTo<ezTime>())
