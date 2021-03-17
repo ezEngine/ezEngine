@@ -83,6 +83,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 1, ezComponentMode::Static)
   }
   EZ_END_MESSAGEHANDLERS;
 
+  EZ_BEGIN_MESSAGESENDERS
+  {
+    EZ_MESSAGE_SENDER(m_EntryChangedSender)
+  }
+  EZ_END_MESSAGESENDERS;
+
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetEntryValue, In, "Name", In, "Value"),
@@ -208,7 +214,19 @@ bool ezBlackboardComponent::GetShowDebugInfo() const
 
 void ezBlackboardComponent::SetSendEntryChangedMessage(bool bSend)
 {
+  if (GetSendEntryChangedMessage() == bSend)
+    return;
+
   SetUserFlag(BCFlags::SendEntryChangedMessage, bSend);
+
+  if (bSend)
+  {
+    m_pBoard->OnEntryEvent().AddEventHandler(ezMakeDelegate(&ezBlackboardComponent::OnEntryChanged, this));
+  }
+  else
+  {
+    m_pBoard->OnEntryEvent().RemoveEventHandler(ezMakeDelegate(&ezBlackboardComponent::OnEntryChanged, this));
+  }
 }
 
 bool ezBlackboardComponent::GetSendEntryChangedMessage() const
@@ -306,4 +324,17 @@ void ezBlackboardComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
   }
 
   ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::Orange, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+}
+
+void ezBlackboardComponent::OnEntryChanged(const ezBlackboard::EntryEvent& e)
+{
+  if (!IsActiveAndInitialized())
+    return;
+
+  ezMsgBlackboardEntryChanged msg;
+  msg.m_sName = e.m_sName;
+  msg.m_OldValue = e.m_OldValue;
+  msg.m_NewValue = e.m_pEntry->m_Value;
+
+  m_EntryChangedSender.SendEventMessage(msg, this, GetOwner());
 }

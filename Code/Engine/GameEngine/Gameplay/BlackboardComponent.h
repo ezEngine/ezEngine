@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/Utils/Blackboard.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
@@ -21,9 +22,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezBlackboardEntry);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezMessage
+struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezEventMessage);
 
   ezHashedString m_sName;
   ezVariant m_OldValue;
@@ -95,9 +96,12 @@ private:
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnEntryChanged(const ezBlackboard::EntryEvent& e);
 
   ezUniquePtr<ezBlackboard> m_pBoard;
 
   // this array is not held during runtime, it is only needed during editor time until the component is serialized out
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;
+
+  ezEventMessageSender<ezMsgBlackboardEntryChanged> m_EntryChangedSender; // [ event ]
 };
