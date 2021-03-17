@@ -21,6 +21,21 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezBlackboardEntry);
 
 //////////////////////////////////////////////////////////////////////////
 
+struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezMessage);
+
+  ezHashedString m_sName;
+  ezVariant m_OldValue;
+  ezVariant m_NewValue;
+
+private:
+  const char* GetName() const { return m_sName; }
+  void SetName(const char* szName) { m_sName.Assign(szName); }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
 
@@ -62,8 +77,14 @@ public:
   void SetShowDebugInfo(bool bShow); // [ property ]
   bool GetShowDebugInfo() const;     // [ property ]
 
+  void SetSendEntryChangedMessage(bool bSend); // [ property ]
+  bool GetSendEntryChangedMessage() const;     // [ property ]
+
   void SetBlackboardName(const char* szName); // [ property ]
   const char* GetBlackboardName() const;      // [ property ]
+
+  void SetEntryValue(const char* szName, const ezVariant& value); // [ scriptable ]
+  ezVariant GetEntryValue(const char* szName);                    // [ scriptable ]
 
 private:
   ezUInt32 Entries_GetCount() const;

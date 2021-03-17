@@ -43,11 +43,34 @@ ezResult ezBlackboardEntry::Deserialize(ezStreamReader& stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgBlackboardEntryChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgBlackboardEntryChanged, 1, ezRTTIDefaultAllocator<ezMsgBlackboardEntryChanged>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_MEMBER_PROPERTY("OldValue", m_OldValue),
+    EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+      new ezAutoGenVisScriptMsgHandler()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    EZ_ACCESSOR_PROPERTY("SendEntryChangedMessage", GetSendEntryChangedMessage, SetSendEntryChangedMessage),
     EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
     EZ_ARRAY_ACCESSOR_PROPERTY("Entries", Entries_GetCount, Entries_GetValue, Entries_SetValue, Entries_Insert, Entries_Remove),
   }
@@ -59,6 +82,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 1, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetEntryValue, In, "Name", In, "Value"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name"),
+  }
+  EZ_END_FUNCTIONS;
 
   EZ_BEGIN_ATTRIBUTES
   {
@@ -156,7 +186,8 @@ struct BCFlags
 {
   enum Enum
   {
-    ShowDebugInfo = 0
+    ShowDebugInfo = 0,
+    SendEntryChangedMessage
   };
 };
 
@@ -175,6 +206,16 @@ bool ezBlackboardComponent::GetShowDebugInfo() const
   return GetUserFlag(BCFlags::ShowDebugInfo);
 }
 
+void ezBlackboardComponent::SetSendEntryChangedMessage(bool bSend)
+{
+  SetUserFlag(BCFlags::SendEntryChangedMessage, bSend);
+}
+
+bool ezBlackboardComponent::GetSendEntryChangedMessage() const
+{
+  return GetUserFlag(BCFlags::SendEntryChangedMessage);
+}
+
 void ezBlackboardComponent::SetBlackboardName(const char* szName)
 {
   m_pBoard->SetName(szName);
@@ -183,6 +224,16 @@ void ezBlackboardComponent::SetBlackboardName(const char* szName)
 const char* ezBlackboardComponent::GetBlackboardName() const
 {
   return m_pBoard->GetName();
+}
+
+void ezBlackboardComponent::SetEntryValue(const char* szName, const ezVariant& value)
+{
+  m_pBoard->SetEntryValue(ezTempHashedString(szName), value);
+}
+
+ezVariant ezBlackboardComponent::GetEntryValue(const char* szName)
+{
+  return m_pBoard->GetEntryValue(ezTempHashedString(szName));
 }
 
 ezUInt32 ezBlackboardComponent::Entries_GetCount() const
