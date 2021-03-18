@@ -39,39 +39,37 @@ ezVisualScriptNode_Compare::~ezVisualScriptNode_Compare() {}
 
 void ezVisualScriptNode_Compare::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  bool result = true;
-
-  switch (m_Operator)
-  {
-    case ezLogicOperator::Equal:
-      result = m_Value1 == m_Value2;
-      break;
-    case ezLogicOperator::Unequal:
-      result = m_Value1 != m_Value2;
-      break;
-    case ezLogicOperator::Less:
-      result = m_Value1 < m_Value2;
-      break;
-    case ezLogicOperator::LessEqual:
-      result = m_Value1 <= m_Value2;
-      break;
-    case ezLogicOperator::Greater:
-      result = m_Value1 > m_Value2;
-      break;
-    case ezLogicOperator::GreaterEqual:
-      result = m_Value1 >= m_Value2;
-      break;
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-  }
-
   // we can skip this and save some performance, if the inputs did not change, because the result won't have changed either
   if (m_bInputValuesChanged)
   {
+    bool result = true;
+
+    switch (m_Operator)
+    {
+      case ezLogicOperator::Equal:
+        result = m_Value1 == m_Value2;
+        break;
+      case ezLogicOperator::Unequal:
+        result = m_Value1 != m_Value2;
+        break;
+      case ezLogicOperator::Less:
+        result = m_Value1 < m_Value2;
+        break;
+      case ezLogicOperator::LessEqual:
+        result = m_Value1 <= m_Value2;
+        break;
+      case ezLogicOperator::Greater:
+        result = m_Value1 > m_Value2;
+        break;
+      case ezLogicOperator::GreaterEqual:
+        result = m_Value1 >= m_Value2;
+        break;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+
     pInstance->SetOutputPinValue(this, 0, &result);
   }
-
-  pInstance->ExecuteConnectedNodes(this, result ? 0 : 1);
 }
 
 void* ezVisualScriptNode_Compare::GetInputPinDataPointer(ezUInt8 uiPin)
