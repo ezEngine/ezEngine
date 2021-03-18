@@ -454,7 +454,7 @@ bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) cons
   if (m_pMessageHandlers == nullptr)
     return false;
 
-  return m_pMessageHandlers->LowerBound(msg.GetId()) != ezInvalidIndex;
+  return m_pMessageHandlers->Find(msg.GetId()) != ezInvalidIndex;
 }
 
 
