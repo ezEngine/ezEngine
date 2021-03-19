@@ -105,6 +105,16 @@ void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
   }
 }
 
+const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
+{
+  if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+  {
+    return pAttr->GetCategory();
+  }
+
+  return nullptr;
+}
+
 ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
 {
   out_Result = CanConnectResult::ConnectNto1;

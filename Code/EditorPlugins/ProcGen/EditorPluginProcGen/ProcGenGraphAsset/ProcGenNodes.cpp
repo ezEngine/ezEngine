@@ -296,7 +296,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Random, 1, ezRTTIDefaultAllocator<ezPr
   EZ_BEGIN_ATTRIBUTES
   {
     new ezTitleAttribute("Random: {Seed}"),
-    new ezCategoryAttribute("Input"),
+    new ezCategoryAttribute("Math"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -338,7 +338,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PerlinNoise, 1, ezRTTIDefaultAllocator
   EZ_BEGIN_ATTRIBUTES
   {
     new ezTitleAttribute("Perlin Noise"),
-    new ezCategoryAttribute("Input"),
+    new ezCategoryAttribute("Math"),
   }
   EZ_END_ATTRIBUTES;
 }
