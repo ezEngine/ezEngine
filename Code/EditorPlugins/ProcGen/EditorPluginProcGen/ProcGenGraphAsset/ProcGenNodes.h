@@ -37,9 +37,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenPlacementOutput : public ezProcGenOutput
+class ezProcGen_PlacementOutput : public ezProcGenOutput
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPlacementOutput, ezProcGenOutput);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_PlacementOutput, ezProcGenOutput);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -74,9 +74,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenVertexColorOutput : public ezProcGenOutput
+class ezProcGen_VertexColorOutput : public ezProcGenOutput
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenVertexColorOutput, ezProcGenOutput);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_VertexColorOutput, ezProcGenOutput);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -91,9 +91,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenRandom : public ezProcGenNodeBase
+class ezProcGen_Random : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenRandom, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Random, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -113,9 +113,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenPerlinNoise : public ezProcGenNodeBase
+class ezProcGen_PerlinNoise : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPerlinNoise, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_PerlinNoise, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -132,9 +132,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenBlend : public ezProcGenNodeBase
+class ezProcGen_Blend : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenBlend, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Blend, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -151,9 +151,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenHeight : public ezProcGenNodeBase
+class ezProcGen_Height : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenHeight, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Height, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -168,9 +168,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenSlope : public ezProcGenNodeBase
+class ezProcGen_Slope : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenSlope, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Slope, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -185,9 +185,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenMeshVertexColor : public ezProcGenNodeBase
+class ezProcGen_MeshVertexColor : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenMeshVertexColor, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_MeshVertexColor, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
@@ -200,9 +200,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenApplyVolumes : public ezProcGenNodeBase
+class ezProcGen_ApplyVolumes : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenApplyVolumes, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_ApplyVolumes, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;

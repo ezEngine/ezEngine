@@ -130,7 +130,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
         CachedNode cachedNode;
         EZ_VERIFY(nodeCache.TryGetValue(pPlacementNode, cachedNode), "Implementation error");
-        auto pPlacementOutput = ezStaticCast<ezProcGenPlacementOutput*>(cachedNode.m_pPPNode);
+        auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(cachedNode.m_pPPNode);
 
         pPlacementOutput->m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
         pPlacementOutput->Save(chunk);
@@ -172,7 +172,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
       CachedNode cachedNode;
       EZ_VERIFY(nodeCache.TryGetValue(pVertexColorNode, cachedNode), "Implementation error");
-      auto pVertexColorOutput = ezStaticCast<ezProcGenVertexColorOutput*>(cachedNode.m_pPPNode);
+      auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(cachedNode.m_pPPNode);
 
       pVertexColorOutput->m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
       pVertexColorOutput->Save(chunk);
@@ -344,8 +344,8 @@ void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
 
 void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& placementNodes, ezDynamicArray<const ezDocumentObject*>& vertexColorNodes) const
 {
-  const ezRTTI* pPlacementOutputRtti = ezGetStaticRTTI<ezProcGenPlacementOutput>();
-  const ezRTTI* pVertexColorOutputRtti = ezGetStaticRTTI<ezProcGenVertexColorOutput>();
+  const ezRTTI* pPlacementOutputRtti = ezGetStaticRTTI<ezProcGen_PlacementOutput>();
+  const ezRTTI* pVertexColorOutputRtti = ezGetStaticRTTI<ezProcGen_VertexColorOutput>();
 
   placementNodes.Clear();
   vertexColorNodes.Clear();
@@ -514,7 +514,7 @@ void ezProcGenGraphAssetDocument::CreateDebugNode()
   if (m_pDebugNode != nullptr)
     return;
 
-  m_pDebugNode = EZ_DEFAULT_NEW(ezProcGenPlacementOutput);
+  m_pDebugNode = EZ_DEFAULT_NEW(ezProcGen_PlacementOutput);
   m_pDebugNode->m_sName = "Debug";
   m_pDebugNode->m_ObjectsToPlace.PushBack(s_szSphereAssetId);
   m_pDebugNode->m_sColorGradient = s_szBWGradientAssetId;
