@@ -67,6 +67,116 @@ void* ezVisualScriptNode_IsEqual::GetInputPinDataPointer(ezUInt8 uiPin)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Switch, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Switch>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("String"),
+    new ezTitleAttribute("Switch"),
+  }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
+  {
+    // Properties
+    EZ_MEMBER_PROPERTY("IgnoreCase", m_bIgnoreCase),
+    // Execution Pins
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnCase1", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnCase2", 1),
+    EZ_OUTPUT_EXECUTION_PIN("OnCase3", 2),
+    EZ_OUTPUT_EXECUTION_PIN("OnCase4", 3),
+    EZ_OUTPUT_EXECUTION_PIN("OnDefault", 4),
+    // Data Pins (Input)
+    EZ_INPUT_DATA_PIN("Input", 0, ezVisualScriptDataPinType::String),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Case1", 1, ezVisualScriptDataPinType::String, m_sCase1),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Case2", 2, ezVisualScriptDataPinType::String, m_sCase2),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Case3", 3, ezVisualScriptDataPinType::String, m_sCase3),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Case4", 4, ezVisualScriptDataPinType::String, m_sCase4),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_Switch::ezVisualScriptNode_Switch() {}
+ezVisualScriptNode_Switch::~ezVisualScriptNode_Switch() {}
+
+void ezVisualScriptNode_Switch::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_bIgnoreCase)
+  {
+    if (m_sInput.IsEqual_NoCase(m_sCase1))
+    {
+      pInstance->ExecuteConnectedNodes(this, 0);
+    }
+    else if (m_sInput.IsEqual_NoCase(m_sCase2))
+    {
+      pInstance->ExecuteConnectedNodes(this, 1);
+    }
+    else if (m_sInput.IsEqual_NoCase(m_sCase3))
+    {
+      pInstance->ExecuteConnectedNodes(this, 2);
+    }
+    else if (m_sInput.IsEqual_NoCase(m_sCase4))
+    {
+      pInstance->ExecuteConnectedNodes(this, 3);
+    }
+    else
+    {
+      pInstance->ExecuteConnectedNodes(this, 4);
+    }
+  }
+  else
+  {
+    if (m_sInput.IsEqual(m_sCase1))
+    {
+      pInstance->ExecuteConnectedNodes(this, 0);
+    }
+    else if (m_sInput.IsEqual(m_sCase2))
+    {
+      pInstance->ExecuteConnectedNodes(this, 1);
+    }
+    else if (m_sInput.IsEqual(m_sCase3))
+    {
+      pInstance->ExecuteConnectedNodes(this, 2);
+    }
+    else if (m_sInput.IsEqual(m_sCase4))
+    {
+      pInstance->ExecuteConnectedNodes(this, 3);
+    }
+    else
+    {
+      pInstance->ExecuteConnectedNodes(this, 4);
+    }
+  }
+}
+
+void* ezVisualScriptNode_Switch::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+    case 0:
+      return &m_sInput;
+
+    case 1:
+      return &m_sCase1;
+
+    case 2:
+      return &m_sCase2;
+
+    case 3:
+      return &m_sCase3;
+
+    case 4:
+      return &m_sCase4;
+  }
+
+  return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Format, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Format>)
 {
   EZ_BEGIN_ATTRIBUTES

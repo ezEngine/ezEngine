@@ -1,13 +1,9 @@
 #pragma once
 
-#include <Core/Messages/TriggerMessage.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Strings/HashedString.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <PhysXPlugin/PhysXPluginDLL.h>
-
-struct ezMsgTriggerTriggered;
-class ezVisualScriptInstance;
 
 //////////////////////////////////////////////////////////////////////////
 

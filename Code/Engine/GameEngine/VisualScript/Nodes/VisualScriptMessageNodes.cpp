@@ -76,6 +76,55 @@ void ezVisualScriptNode_ScriptUpdateEvent::Execute(ezVisualScriptInstance* pInst
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GenericEvent>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Event Handler"),
+    new ezTitleAttribute("Generic Event '{Message}'"),
+  }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
+    EZ_OUTPUT_EXECUTION_PIN("OnEvent", 0),
+    EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Variant),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_GenericEvent::ezVisualScriptNode_GenericEvent() = default;
+ezVisualScriptNode_GenericEvent::~ezVisualScriptNode_GenericEvent() = default;
+
+void ezVisualScriptNode_GenericEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  pInstance->SetOutputPinValue(this, 0, &m_Value);
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+
+ezInt32 ezVisualScriptNode_GenericEvent::HandlesMessagesWithID() const
+{
+  return ezMsgGenericEvent::GetTypeMsgId();
+}
+
+void ezVisualScriptNode_GenericEvent::HandleMessage(ezMessage* pMsg)
+{
+  ezMsgGenericEvent& msg = *static_cast<ezMsgGenericEvent*>(pMsg);
+
+  if (msg.m_sMessage == m_sMessage)
+  {
+    m_bStepNode = true;
+
+    m_Value = msg.m_Value;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputState, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_InputState>)
 {
   EZ_BEGIN_ATTRIBUTES

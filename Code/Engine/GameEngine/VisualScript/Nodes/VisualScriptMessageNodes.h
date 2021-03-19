@@ -37,6 +37,29 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_GenericEvent : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GenericEvent, ezVisualScriptNode);
+
+public:
+  ezVisualScriptNode_GenericEvent();
+  ~ezVisualScriptNode_GenericEvent();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+  virtual ezInt32 HandlesMessagesWithID() const override;
+  virtual void HandleMessage(ezMessage* pMsg) override;
+
+  const char* GetMessage() const { return m_sMessage; }
+  void SetMessage(const char* s) { m_sMessage.Assign(s); }
+
+private:
+  ezHashedString m_sMessage;
+  ezVariant m_Value;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_InputState : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_InputState, ezVisualScriptNode);

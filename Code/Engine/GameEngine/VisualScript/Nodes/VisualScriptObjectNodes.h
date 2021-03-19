@@ -22,6 +22,22 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_ActivateObject : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ActivateObject, ezVisualScriptNode);
+
+public:
+  ezVisualScriptNode_ActivateObject();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+private:
+  ezGameObjectHandle m_hObject;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_ActivateComponent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ActivateComponent, ezVisualScriptNode);
@@ -49,8 +65,8 @@ public:
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
 private:
-  ezString m_sObjectName;
   ezGameObjectHandle m_hObject;
+  ezString m_sObjectName;
 };
 
 //////////////////////////////////////////////////////////////////////////
