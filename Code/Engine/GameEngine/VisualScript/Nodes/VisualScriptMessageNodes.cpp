@@ -183,7 +183,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Input/Events"),
+    new ezCategoryAttribute("Input"),
     new ezTitleAttribute("InputEvent '{InputAction}'"),
   }
     EZ_END_ATTRIBUTES;

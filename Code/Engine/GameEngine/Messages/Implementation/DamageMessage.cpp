@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnDamage, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Event Handler/Gameplay"),
+    new ezCategoryAttribute("Event Handler"),
     new ezTitleAttribute("OnDamageEvent"),
   }
   EZ_END_ATTRIBUTES;
