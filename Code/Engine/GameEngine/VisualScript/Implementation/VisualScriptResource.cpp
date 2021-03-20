@@ -91,7 +91,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   stream >> uiVersion;
   EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 8, "Incorrect version {0} for visual script", uiVersion);
 
-  if (uiVersion < 8)
+  if (uiVersion < 7)
     return;
 
   ezUInt32 uiNumNodes = 0;
