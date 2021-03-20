@@ -76,8 +76,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
 
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      ezSimdVec4u seed = ezSimdVec4u(i * 4) + ezSimdVec4u(0, 1, 2, 3);
-      ezSimdVec4f randomValues = ezSimdRandom::FloatMinMax(seed, ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f));
+      ezSimdVec4u seed = ezSimdVec4u(i);
+      ezSimdVec4f randomValues = ezSimdRandom::FloatMinMax(ezSimdVec4i(0, 1, 2, 3), ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f), seed);
       ezSimdVec4i randomValuesAsInt = ezSimdVec4i::Truncate(randomValues);
 
       ++histogram[randomValuesAsInt.x()];

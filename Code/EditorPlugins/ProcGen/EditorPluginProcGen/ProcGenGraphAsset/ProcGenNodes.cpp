@@ -36,10 +36,9 @@ namespace
     auto pPointIndex = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPointIndex);
     auto pSeedConstant = out_Ast.CreateConstant(fSeed);
 
-    auto pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPointIndex, pSeedConstant);
-
     auto pFunctionCall = out_Ast.CreateFunctionCall(s_sRandom);
-    pFunctionCall->m_Arguments.PushBack(pSeed);
+    pFunctionCall->m_Arguments.PushBack(pPointIndex);
+    pFunctionCall->m_Arguments.PushBack(pSeedConstant);
 
     return pFunctionCall;
   }
@@ -307,10 +306,9 @@ ezExpressionAST::Node* ezProcGen_Random::GenerateExpressionASTNode(ezTempHashedS
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
-  ezRandom rnd;
-  rnd.Initialize(m_iSeed < 0 ? m_uiAutoSeed : m_iSeed);
+  float fSeed = m_iSeed < 0 ? m_uiAutoSeed : m_iSeed;
 
-  auto pRandom = CreateRandom(rnd.FloatMinMax(0.0f, 100000.0f), out_Ast);
+  auto pRandom = CreateRandom(fSeed, out_Ast);
   return CreateRemapFrom01(pRandom, m_fOutputMin, m_fOutputMax, out_Ast);
 }
 
