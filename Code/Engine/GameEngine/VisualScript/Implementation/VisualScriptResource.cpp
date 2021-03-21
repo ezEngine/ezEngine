@@ -4,7 +4,7 @@
 #include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptBasicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 
 //////////////////////////////////////////////////////////////////////////
