@@ -298,7 +298,7 @@ bool ezVisualScriptComponent::GetParameter(const char* szKey, ezVariant& out_val
       return true;
     }
   }
-  
+
   return false;
 }
 

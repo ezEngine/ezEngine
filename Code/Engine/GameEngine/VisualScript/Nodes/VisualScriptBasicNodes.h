@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/Containers/Blob.h>
+#include <Foundation/Containers/SmallArray.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 

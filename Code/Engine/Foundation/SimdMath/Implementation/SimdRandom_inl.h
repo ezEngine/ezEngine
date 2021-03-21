@@ -17,7 +17,7 @@ EZ_FORCE_INLINE ezSimdVec4u ezSimdRandom::UInt(const ezSimdVec4i& position, cons
   mangled = mangled.CompMul(BIT_NOISE3);
   mangled ^= (mangled >> 8);
 
-  return mangled;  
+  return mangled;
 }
 
 // static

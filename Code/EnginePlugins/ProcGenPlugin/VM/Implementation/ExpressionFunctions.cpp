@@ -17,7 +17,7 @@ void ezDefaultExpressionFunctions::Random(ezExpression::Inputs inputs, ezExpress
   {
     ezArrayPtr<const ezSimdVec4f> seeds = inputs[1];
     const ezSimdVec4f* pSeeds = seeds.GetPtr();
-    
+
     while (pPositions < pPositionsEnd)
     {
       ezSimdVec4i pos = ezSimdVec4i::Truncate(*pPositions);

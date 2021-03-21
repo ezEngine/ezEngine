@@ -538,7 +538,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  
+
   tmp.Format("Components/{}", pRtti->GetTypeName());
   nd.m_sCategory = tmp;
 

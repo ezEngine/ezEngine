@@ -1,11 +1,8 @@
 #pragma once
 
 #include <Core/World/Declarations.h>
-#include <Foundation/Containers/Blob.h>
-#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameEngineDLL.h>
 
 class ezVisualScriptInstance;
