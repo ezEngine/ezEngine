@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12029954962534532266,5346896610498349464}}
-		u4 %Hash{7011350707604907300}
+		u4 %Hash{5625122791755209104}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -35,7 +35,7 @@ o
 o
 {
 	Uuid %id{u4{9419475339902937217,5567842822621767264}}
-	s %t{"ezProcGenPlacementOutput"}
+	s %t{"ezProcGen_PlacementOutput"}
 	u3 %v{1}
 	p
 	{
@@ -176,7 +176,7 @@ o
 }
 o
 {
-	Uuid %id{u4{7464978094588071598,15879580586993333976}}
+	Uuid %id{u4{2549860409077325764,13532112717021023449}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -187,7 +187,7 @@ o
 		s %ParentTypeName{"ezProcGenOutput"}
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
-		s %TypeName{"ezProcGenPlacementOutput"}
+		s %TypeName{"ezProcGen_PlacementOutput"}
 		u3 %TypeSize{648}
 		u3 %TypeVersion{1}
 	}

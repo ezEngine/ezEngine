@@ -9,6 +9,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/SimdMath/SimdRandom.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
@@ -23,17 +24,17 @@ namespace
   }
 
   ezColorGammaUB niceColors[] =
-  {
-    ColorFromHex(0x008F7A),
-    ColorFromHex(0x008E9B),
-    ColorFromHex(0x0089BA),
-    ColorFromHex(0x0081CF),
-    ColorFromHex(0x2C73D2),
-    ColorFromHex(0x845EC2),
-    ColorFromHex(0xD65DB1),
-    ColorFromHex(0xFF6F91),
-    ColorFromHex(0xFF9671),
-    ColorFromHex(0xFFC75F),
+    {
+      ColorFromHex(0x008F7A),
+      ColorFromHex(0x008E9B),
+      ColorFromHex(0x0089BA),
+      ColorFromHex(0x0081CF),
+      ColorFromHex(0x2C73D2),
+      ColorFromHex(0x845EC2),
+      ColorFromHex(0xD65DB1),
+      ColorFromHex(0xFF6F91),
+      ColorFromHex(0xFF9671),
+      ColorFromHex(0xFFC75F),
   };
 
   ezColorGammaUB NiceColorFromFloat(float x)
@@ -50,15 +51,20 @@ namespace
     return ezMath::Lerp(A, B, fFrac);
   }
 
-  ezColorGammaUB NiceColorFromFloatMaxValue(float x, float maxValue = 0.7f)
+  ezColorGammaUB NiceColorFromString(ezStringView s)
   {
-    ezColor c = NiceColorFromFloat(x);
+    float x = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(ezHashingUtils::StringHash(s))).x();
+    return NiceColorFromFloat(x);
+  }
+
+  ezColorGammaUB ClampToMaxValue(ezColor c, float maxValue = 0.7f)
+  {
     float hue, saturation, value;
     c.GetHSV(hue, saturation, value);
     c.SetHSV(hue, saturation, ezMath::Min(value, maxValue));
     return c;
   }
-}
+} // namespace
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -204,16 +210,12 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = pRtti->GetTypeName();
 
-  float x = 0;
-
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
     nd.m_sCategory = pAttr->GetCategory();
-
-    x = static_cast<float>(ezHashingUtils::StringHash(nd.m_sCategory) & 0xFFFF) / 0xFFFF;
   }
 
-  nd.m_Color = NiceColorFromFloatMaxValue(x);
+  nd.m_Color = ClampToMaxValue(NiceColorFromString(nd.m_sCategory));
 
   if (const ezTitleAttribute* pAttr = pRtti->GetAttributeByType<ezTitleAttribute>())
   {
@@ -337,7 +339,7 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = NiceColorFromFloatMaxValue(0.5f);
+  nd.m_Color = ClampToMaxValue(NiceColorFromFloat(0.5f));
   nd.m_sCategory = "Message Senders";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -470,7 +472,7 @@ void ezVisualScriptTypeRegistry::CreateMessageHandlerNodeType(const ezRTTI* pRtt
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = NiceColorFromFloatMaxValue(0.9f);
+  nd.m_Color = ClampToMaxValue(NiceColorFromFloat(0.9f));
   nd.m_sCategory = "Message Handlers";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -536,8 +538,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = NiceColorFromFloatMaxValue(0.1f);
-
+  
   tmp.Format("Components/{}", pRtti->GetTypeName());
   nd.m_sCategory = tmp;
 
@@ -545,6 +546,8 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
   {
     nd.m_sCategory = pAttr->GetCategory();
   }
+
+  nd.m_Color = ClampToMaxValue(NiceColorFromString(nd.m_sCategory));
 
   if (const ezColorAttribute* pAttr = pFunction->GetAttributeByType<ezColorAttribute>())
   {
