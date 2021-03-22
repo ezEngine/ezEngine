@@ -4,8 +4,7 @@
 #include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptBasicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,7 +89,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 8, "Incorrect version {0} for visual script", uiVersion);
 
   if (uiVersion < 7)
     return;
@@ -206,12 +205,27 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
     }
   }
 
+  // Version 8
+  if (uiVersion >= 8)
+  {
+    ezUInt32 num;
+
+    stream >> num;
+    m_StringParameters.SetCount(num);
+
+    for (ezUInt32 i = 0; i < num; ++i)
+    {
+      stream >> m_StringParameters[i].m_sName;
+      stream >> m_StringParameters[i].m_sValue;
+    }
+  }
+
   PrecomputeMessageHandlers();
 }
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 7;
+  const ezUInt8 uiVersion = 8;
 
   stream << uiVersion;
 
@@ -294,6 +308,16 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
       stream << param.m_Value;
     }
   }
+
+  // Version 8
+  {
+    stream << m_StringParameters.GetCount();
+    for (const auto& param : m_StringParameters)
+    {
+      stream << param.m_sName;
+      stream << param.m_sValue;
+    }
+  }
 }
 
 void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
@@ -303,15 +327,14 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     auto& node = m_Nodes[uiNode];
     const ezRTTI* pType = node.m_pType;
 
-    ezVisualScriptNode* pNode = nullptr;
+    ezUniquePtr<ezVisualScriptNode> pNode;
 
-    if (pType->IsDerivedFrom<ezEventMessage>())
+    if (pType->IsDerivedFrom<ezMessage>() && node.m_isMsgHandler)
     {
-      // TODO: just do the generic node logic here without allocating the node
-      ezVisualScriptNode_GenericEvent* pEvent = ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
-      pNode = pEvent;
+      auto pHandler = ezVisualScriptNode_MessageHandler::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_MessageHandler>();
+      pHandler->m_pMessageTypeToHandle = pType;
 
-      pEvent->m_sEventType = pType->GetTypeName();
+      pNode = pHandler;
     }
     else if (pType->IsDerivedFrom<ezVisualScriptNode>())
     {
@@ -330,8 +353,6 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     {
       m_MessageHandlers.Insert(static_cast<ezUInt16>(iMsgID), static_cast<ezUInt16>(uiNode));
     }
-
-    pType->GetAllocator()->Deallocate(pNode);
   }
 }
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11212234289642059194,4637845551590943091}}
-		u4 %Hash{2144443606565186765}
+		u4 %Hash{8017114860444009515}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -75,7 +75,7 @@ o
 o
 {
 	Uuid %id{u4{8601754667010464145,4858791763714360891}}
-	s %t{"ezProcGenPlacementOutput"}
+	s %t{"ezProcGen_PlacementOutput"}
 	u3 %v{1}
 	p
 	{
@@ -108,7 +108,7 @@ o
 o
 {
 	Uuid %id{u4{1507394232540889005,5266196713061815143}}
-	s %t{"ezProcGenSlope"}
+	s %t{"ezProcGen_Slope"}
 	u3 %v{1}
 	p
 	{
@@ -193,7 +193,7 @@ o
 o
 {
 	Uuid %id{u4{17318022188094043471,10193503723611707000}}
-	s %t{"ezProcGenPlacementOutput"}
+	s %t{"ezProcGen_PlacementOutput"}
 	u3 %v{1}
 	p
 	{
@@ -224,7 +224,7 @@ o
 o
 {
 	Uuid %id{u4{1609146095160100947,10350911148129115697}}
-	s %t{"ezProcGenSlope"}
+	s %t{"ezProcGen_Slope"}
 	u3 %v{1}
 	p
 	{
@@ -257,7 +257,7 @@ o
 o
 {
 	Uuid %id{u4{16600160950372042245,14966675785173787356}}
-	s %t{"ezProcGenSlope"}
+	s %t{"ezProcGen_Slope"}
 	u3 %v{1}
 	p
 	{
@@ -276,7 +276,7 @@ o
 o
 {
 	Uuid %id{u4{11095407931685293014,15063649965740399571}}
-	s %t{"ezProcGenPlacementOutput"}
+	s %t{"ezProcGen_PlacementOutput"}
 	u3 %v{1}
 	p
 	{
@@ -351,24 +351,6 @@ Types
 {
 o
 {
-	Uuid %id{u4{16694549596577112173,4577808465773478012}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezProcGenNodeBase"}
-		s %PluginName{"ezEditorPluginProcGen"}
-		VarArray %Properties{}
-		s %TypeName{"ezProcGenSlope"}
-		u3 %TypeSize{40}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{877898746071678167,5219608750413080699}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -423,6 +405,24 @@ o
 }
 o
 {
+	Uuid %id{u4{9971238377151764212,9082536472818234444}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_Slope"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{15359102829867228026,11118511090857846425}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -441,6 +441,24 @@ o
 }
 o
 {
+	Uuid %id{u4{2549860409077325764,13532112717021023449}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenOutput"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_PlacementOutput"}
+		u3 %TypeSize{648}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5542183663418081810,15339814270034028823}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -454,24 +472,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeOutputPin"}
 		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{7464978094588071598,15879580586993333976}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezProcGenOutput"}
-		s %PluginName{"ezEditorPluginProcGen"}
-		VarArray %Properties{}
-		s %TypeName{"ezProcGenPlacementOutput"}
-		u3 %TypeSize{648}
 		u3 %TypeVersion{1}
 	}
 }

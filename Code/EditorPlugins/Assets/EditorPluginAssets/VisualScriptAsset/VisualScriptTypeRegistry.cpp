@@ -9,11 +9,62 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/SimdMath/SimdRandom.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
+
+namespace
+{
+  ezColorGammaUB ColorFromHex(ezUInt32 hex)
+  {
+    return ezColorGammaUB((hex >> 16) & 0xFF, (hex >> 8) & 0xFF, hex & 0xFF);
+  }
+
+  ezColorGammaUB niceColors[] =
+    {
+      ColorFromHex(0x008F7A),
+      ColorFromHex(0x008E9B),
+      ColorFromHex(0x0089BA),
+      ColorFromHex(0x0081CF),
+      ColorFromHex(0x2C73D2),
+      ColorFromHex(0x845EC2),
+      ColorFromHex(0xD65DB1),
+      ColorFromHex(0xFF6F91),
+      ColorFromHex(0xFF9671),
+      ColorFromHex(0xFFC75F),
+  };
+
+  ezColorGammaUB NiceColorFromFloat(float x)
+  {
+    x = ezMath::Saturate(x);
+
+    constexpr ezUInt32 uiMaxIndex = (EZ_ARRAY_SIZE(niceColors) - 1);
+    const ezUInt32 uiIndexA = ezUInt32(x * uiMaxIndex);
+    const ezUInt32 uiIndexB = ezMath::Min(uiIndexA + 1, uiMaxIndex);
+    const float fFrac = (x * uiMaxIndex) - uiIndexA;
+
+    ezColor A = niceColors[uiIndexA];
+    ezColor B = niceColors[uiIndexB];
+    return ezMath::Lerp(A, B, fFrac);
+  }
+
+  ezColorGammaUB NiceColorFromString(ezStringView s)
+  {
+    float x = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(ezHashingUtils::StringHash(s))).x();
+    return NiceColorFromFloat(x);
+  }
+
+  ezColorGammaUB ClampToMaxValue(ezColor c, float maxValue = 0.7f)
+  {
+    float hue, saturation, value;
+    c.GetHSV(hue, saturation, value);
+    c.SetHSV(hue, saturation, ezMath::Min(value, maxValue));
+    return c;
+  }
+} // namespace
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -118,23 +169,10 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
   }
 }
 
-static ezColor PinTypeColor(ezVisualScriptDataPinType::Enum type)
+static ezColorGammaUB PinTypeColor(ezVisualScriptDataPinType::Enum type)
 {
-  switch (type)
-  {
-    case ezVisualScriptDataPinType::Number:
-      return ezColor::DarkGoldenRod;
-    case ezVisualScriptDataPinType::Boolean:
-      return ezColor::DarkGreen;
-    case ezVisualScriptDataPinType::Vec3:
-      return ezColor::Gold;
-    case ezVisualScriptDataPinType::GameObjectHandle:
-      return ezColor::Maroon;
-    case ezVisualScriptDataPinType::ComponentHandle:
-      return ezColor::DodgerBlue;
-    default:
-      return ezColor::Pink;
-  }
+  float x = (float)(type - 1) / (ezVisualScriptDataPinType::Variant - 1);
+  return NiceColorFromFloat(x);
 }
 
 void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
@@ -146,12 +184,12 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
   {
     if (pRtti->GetAttributeByType<ezAutoGenVisScriptMsgSender>())
     {
-      CreateMessageNodeType(pRtti);
+      CreateMessageSenderNodeType(pRtti);
     }
 
     if (pRtti->GetAttributeByType<ezAutoGenVisScriptMsgHandler>())
     {
-      CreateEventMessageNodeType(pRtti);
+      CreateMessageHandlerNodeType(pRtti);
     }
   }
 
@@ -171,29 +209,13 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = pRtti->GetTypeName();
-  nd.m_Color = ezColor::CadetBlue;
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
     nd.m_sCategory = pAttr->GetCategory();
-
-    if (nd.m_sCategory == "Debug")
-      nd.m_Color = ezColorGammaUB(127, 0, 110);
-    else if (nd.m_sCategory == "Logic")
-      nd.m_Color = ezColorGammaUB(128, 0, 0);
-    else if (nd.m_sCategory == "Input")
-      nd.m_Color = ezColorGammaUB(38, 105, 0);
-    else if (nd.m_sCategory == "Math")
-      nd.m_Color = ezColorGammaUB(183, 153, 0);
-    else if (nd.m_sCategory == "Objects")
-      nd.m_Color = ezColorGammaUB(0, 53, 91);
-    else if (nd.m_sCategory == "Components")
-      nd.m_Color = ezColorGammaUB(0, 53, 91);
-    else if (nd.m_sCategory == "References")
-      nd.m_Color = ezColorGammaUB(0, 89, 153);
-    else if (nd.m_sCategory == "Variables")
-      nd.m_Color = ezColorGammaUB(250, 70, 0);
   }
+
+  nd.m_Color = ClampToMaxValue(NiceColorFromString(nd.m_sCategory));
 
   if (const ezTitleAttribute* pAttr = pRtti->GetAttributeByType<ezTitleAttribute>())
   {
@@ -220,7 +242,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
     if (const ezVisScriptDataPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinInAttribute>())
     {
-      pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+      pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
       pd.m_Color = PinTypeColor(pAttr->m_DataType);
       pd.m_DataType = pAttr->m_DataType;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
@@ -234,7 +256,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
     if (const ezVisScriptDataPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinOutAttribute>())
     {
-      pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+      pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
       pd.m_Color = PinTypeColor(pAttr->m_DataType);
       pd.m_DataType = pAttr->m_DataType;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
@@ -248,7 +270,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
     if (const ezVisScriptExecPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinInAttribute>())
     {
-      pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+      pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Execution;
       pd.m_Color = ExecutionPinColor;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
       nd.m_InputPins.PushBack(pd);
@@ -261,7 +283,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
     if (const ezVisScriptExecPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinOutAttribute>())
     {
-      pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+      pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Execution;
       pd.m_Color = ExecutionPinColor;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
       nd.m_OutputPins.PushBack(pd);
@@ -311,13 +333,13 @@ const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScr
   return ezPhantomRttiManager::RegisterType(desc);
 }
 
-void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
+void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti)
 {
   const ezStringBuilder tmp(pRtti->GetTypeName(), "<send>");
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = ezColor::MediumPurple;
+  nd.m_Color = ClampToMaxValue(NiceColorFromFloat(0.5f));
   nd.m_sCategory = "Message Senders";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -340,7 +362,7 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "send";
     pd.m_sTooltip = "When executed, the message is sent to the object or component.";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Execution;
     pd.m_Color = ExecutionPinColor;
     pd.m_uiPinIndex = 0;
     nd.m_InputPins.PushBack(pd);
@@ -353,7 +375,7 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "then";
     pd.m_sTooltip = "";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Execution;
     pd.m_Color = ExecutionPinColor;
     pd.m_uiPinIndex = 0;
     nd.m_OutputPins.PushBack(pd);
@@ -364,7 +386,7 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "Object";
     pd.m_sTooltip = "When the object is given, the message is sent to all its components.";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
     pd.m_DataType = ezVisualScriptDataPinType::GameObjectHandle;
     pd.m_Color = PinTypeColor(ezVisualScriptDataPinType::GameObjectHandle);
     pd.m_uiPinIndex = 0;
@@ -376,7 +398,7 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "Component";
     pd.m_sTooltip = "When the component is given, the message is sent directly to it.";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
     pd.m_DataType = ezVisualScriptDataPinType::ComponentHandle;
     pd.m_Color = PinTypeColor(ezVisualScriptDataPinType::ComponentHandle);
     pd.m_uiPinIndex = 1;
@@ -427,31 +449,16 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     }
 
     ++iDataPinIndex;
-    const auto varType = prop->GetSpecificType()->GetVariantType();
-    if (varType != ezVariantType::Bool && varType != ezVariantType::Double && varType != ezVariantType::Vector3)
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(prop->GetSpecificType());
+    if (dataPinType == ezVisualScriptDataPinType::None)
       continue;
 
     ezVisualScriptPinDescriptor pid;
-
-    switch (varType)
-    {
-      case ezVariantType::Bool:
-        pid.m_DataType = ezVisualScriptDataPinType::Boolean;
-        break;
-      case ezVariantType::Double:
-        pid.m_DataType = ezVisualScriptDataPinType::Number;
-        break;
-      case ezVariantType::Vector3:
-        pid.m_DataType = ezVisualScriptDataPinType::Vec3;
-        break;
-
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-    }
-
     pid.m_sName = prop->GetPropertyName();
     pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
-    pid.m_PinType = ezVisualScriptPinDescriptor::Data;
-    pid.m_Color = PinTypeColor(pid.m_DataType);
+    pid.m_Color = PinTypeColor(dataPinType);
+    pid.m_DataType = dataPinType;
+    pid.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
     pid.m_uiPinIndex = iDataPinIndex;
     nd.m_InputPins.PushBack(pid);
   }
@@ -459,13 +466,13 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
 }
 
-void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
+void ezVisualScriptTypeRegistry::CreateMessageHandlerNodeType(const ezRTTI* pRtti)
 {
   const ezStringBuilder tmp(pRtti->GetTypeName(), "<handle>");
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = ezColor::OrangeRed;
+  nd.m_Color = ClampToMaxValue(NiceColorFromFloat(0.9f));
   nd.m_sCategory = "Message Handlers";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -488,7 +495,7 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "OnMsg";
     pd.m_sTooltip = "";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Execution;
     pd.m_Color = ExecutionPinColor;
     pd.m_uiPinIndex = 0;
     nd.m_OutputPins.PushBack(pd);
@@ -500,77 +507,22 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
     if (prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
 
-    {
-      ezReflectedPropertyDescriptor prd;
-      prd.m_Flags = prop->GetFlags();
-      prd.m_Category = prop->GetCategory();
-      prd.m_sName = prop->GetPropertyName();
-      prd.m_sType = prop->GetSpecificType()->GetTypeName();
-
-      for (ezPropertyAttribute* const pAttr : prop->GetAttributes())
-      {
-        prd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
-      }
-
-      nd.m_Properties.PushBack(prd);
-    }
-
     ++iDataPinIndex;
-    const auto varType = prop->GetSpecificType()->GetVariantType();
-    if (varType != ezVariantType::Bool && varType != ezVariantType::Double && varType != ezVariantType::Vector3)
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(prop->GetSpecificType());
+    if (dataPinType == ezVisualScriptDataPinType::None)
       continue;
 
     ezVisualScriptPinDescriptor pid;
-
-    switch (varType)
-    {
-      case ezVariantType::Bool:
-        pid.m_DataType = ezVisualScriptDataPinType::Boolean;
-        break;
-      case ezVariantType::Double:
-        pid.m_DataType = ezVisualScriptDataPinType::Number;
-        break;
-      case ezVariantType::Vector3:
-        pid.m_DataType = ezVisualScriptDataPinType::Vec3;
-        break;
-
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-    }
-
     pid.m_sName = prop->GetPropertyName();
     pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
-    pid.m_PinType = ezVisualScriptPinDescriptor::Data;
-    pid.m_Color = PinTypeColor(pid.m_DataType);
+    pid.m_Color = PinTypeColor(dataPinType);
+    pid.m_DataType = dataPinType;
+    pid.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
     pid.m_uiPinIndex = iDataPinIndex;
     nd.m_OutputPins.PushBack(pid);
   }
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
-}
-
-static ezVisualScriptDataPinType::Enum GetDataPinTypeForVariant(ezVariantType::Enum varType)
-{
-  switch (varType)
-  {
-    case ezVariantType::Bool:
-      return ezVisualScriptDataPinType::Boolean;
-
-    case ezVariantType::Vector3:
-      return ezVisualScriptDataPinType::Vec3;
-
-    default:
-      return ezVisualScriptDataPinType::Number;
-  }
-}
-
-static bool IsVariantTypeSupported(ezVariantType::Enum varType)
-{
-  if (varType > ezVariant::Type::FirstStandardType && varType <= ezVariant::Type::Double)
-  {
-    return true;
-  }
-
-  return false;
 }
 
 void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction)
@@ -586,7 +538,6 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = ezColor::RoyalBlue;
 
   tmp.Format("Components/{}", pRtti->GetTypeName());
   nd.m_sCategory = tmp;
@@ -595,6 +546,8 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
   {
     nd.m_sCategory = pAttr->GetCategory();
   }
+
+  nd.m_Color = ClampToMaxValue(NiceColorFromString(nd.m_sCategory));
 
   if (const ezColorAttribute* pAttr = pFunction->GetAttributeByType<ezColorAttribute>())
   {
@@ -608,7 +561,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "call";
     pd.m_sTooltip = "When executed, the message is sent to the object or component.";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Execution;
     pd.m_Color = ExecutionPinColor;
     pd.m_uiPinIndex = 0;
     nd.m_InputPins.PushBack(pd);
@@ -621,7 +574,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "then";
     pd.m_sTooltip = "";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Execution;
     pd.m_Color = ExecutionPinColor;
     pd.m_uiPinIndex = 0;
     nd.m_OutputPins.PushBack(pd);
@@ -632,7 +585,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "Object";
     pd.m_sTooltip = "When the object is given, the function is called on the first matching component.";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
     pd.m_DataType = ezVisualScriptDataPinType::GameObjectHandle;
     pd.m_Color = PinTypeColor(pd.m_DataType);
     pd.m_uiPinIndex = 0;
@@ -644,7 +597,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "Component";
     pd.m_sTooltip = "When the component is given, the function is called directly on it.";
-    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
     pd.m_DataType = ezVisualScriptDataPinType::ComponentHandle;
     pd.m_Color = PinTypeColor(pd.m_DataType);
     pd.m_uiPinIndex = 1;
@@ -655,20 +608,24 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   ezStringBuilder sName;
 
-  if (pFunction->GetReturnType() != nullptr && IsVariantTypeSupported(pFunction->GetReturnType()->GetVariantType()))
+  if (pFunction->GetReturnType() != nullptr)
   {
-    tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->Return");
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pFunction->GetReturnType());
+    if (dataPinType != ezVisualScriptDataPinType::None)
+    {
+      tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->Return");
 
-    ezVisualScriptPinDescriptor pd;
-    pd.m_sName = "Result";
-    pd.m_sTooltip = ezTranslateTooltip(tmp);
-    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
-    pd.m_DataType = GetDataPinTypeForVariant(pFunction->GetReturnType()->GetVariantType());
-    pd.m_Color = PinTypeColor(pd.m_DataType);
-    pd.m_uiPinIndex = iDataPinIndexOut; // result is always on pin 0
-    nd.m_OutputPins.PushBack(pd);
+      ezVisualScriptPinDescriptor pd;
+      pd.m_sName = "Result";
+      pd.m_sTooltip = ezTranslateTooltip(tmp);
+      pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
+      pd.m_DataType = dataPinType;
+      pd.m_Color = PinTypeColor(pd.m_DataType);
+      pd.m_uiPinIndex = iDataPinIndexOut; // result is always on pin 0
+      nd.m_OutputPins.PushBack(pd);
 
-    ++iDataPinIndexOut;
+      ++iDataPinIndexOut;
+    }
   }
 
   for (ezUInt32 argIdx = 0; argIdx < pFunction->GetArgumentCount(); ++argIdx)
@@ -701,18 +658,17 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       nd.m_Properties.PushBack(prd);
     }
 
-    const auto varType = pFunction->GetArgumentType(argIdx)->GetVariantType();
-
-    if (!IsVariantTypeSupported(varType))
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pFunction->GetArgumentType(argIdx));
+    if (dataPinType == ezVisualScriptDataPinType::None)
       continue;
 
     tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->", sName);
 
     ezVisualScriptPinDescriptor pid;
-    pid.m_DataType = GetDataPinTypeForVariant(varType);
+    pid.m_DataType = dataPinType;
     pid.m_sName = sName;
     pid.m_sTooltip = ezTranslateTooltip(tmp);
-    pid.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pid.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
     pid.m_Color = PinTypeColor(pid.m_DataType);
     pid.m_uiPinIndex = 2 + argIdx; // TODO: document what m_uiPinIndex is for
 

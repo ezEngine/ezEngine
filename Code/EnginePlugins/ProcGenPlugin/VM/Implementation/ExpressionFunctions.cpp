@@ -8,20 +8,39 @@
 // static
 void ezDefaultExpressionFunctions::Random(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
 {
-  auto seeds = inputs[0];
-
-  const ezSimdVec4f* pSeeds = seeds.GetPtr();
-  const ezSimdVec4f* pSeedsEnd = pSeeds + seeds.GetCount();
+  ezArrayPtr<const ezSimdVec4f> positions = inputs[0];
+  const ezSimdVec4f* pPositions = positions.GetPtr();
+  const ezSimdVec4f* pPositionsEnd = pPositions + positions.GetCount();
   ezSimdVec4f* pOutput = output.GetPtr();
 
-  while (pSeeds < pSeedsEnd)
+  if (inputs.GetCount() >= 2)
   {
-    ezSimdVec4u seed = ezSimdVec4u::Truncate(*pSeeds);
+    ezArrayPtr<const ezSimdVec4f> seeds = inputs[1];
+    const ezSimdVec4f* pSeeds = seeds.GetPtr();
 
-    *pOutput = ezSimdRandom::FloatZeroToOne(seed);
+    while (pPositions < pPositionsEnd)
+    {
+      ezSimdVec4i pos = ezSimdVec4i::Truncate(*pPositions);
+      ezSimdVec4u seed = ezSimdVec4u::Truncate(*pSeeds);
 
-    ++pSeeds;
-    ++pOutput;
+      *pOutput = ezSimdRandom::FloatZeroToOne(pos, seed);
+
+      ++pPositions;
+      ++pSeeds;
+      ++pOutput;
+    }
+  }
+  else
+  {
+    while (pPositions < pPositionsEnd)
+    {
+      ezSimdVec4i pos = ezSimdVec4i::Truncate(*pPositions);
+
+      *pOutput = ezSimdRandom::FloatZeroToOne(pos);
+
+      ++pPositions;
+      ++pOutput;
+    }
   }
 }
 

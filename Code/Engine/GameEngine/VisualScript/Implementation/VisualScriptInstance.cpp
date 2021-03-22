@@ -1,89 +1,17 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Messages/EventMessage.h>
-#include <Core/World/Declarations.h>
 #include <Core/World/GameObject.h>
-#include <Foundation/Communication/Message.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Strings/HashedString.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptBasicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 
-ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
-
-bool ezVisualScriptAssignNumberNumber(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<double*>(dst) != *reinterpret_cast<const double*>(src);
-  *reinterpret_cast<double*>(dst) = *reinterpret_cast<const double*>(src);
-  return res;
-}
-
-bool ezVisualScriptAssignBoolBool(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<bool*>(dst) != *reinterpret_cast<const bool*>(src);
-  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const bool*>(src);
-  return res;
-}
-
-bool ezVisualScriptAssignNumberBool(const void* src, void* dst)
-{
-  const bool res = (*reinterpret_cast<bool*>(dst) != (*reinterpret_cast<const double*>(src) > 0.0));
-  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const double*>(src) > 0.0;
-  return res;
-}
-
-bool ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<ezVec3*>(dst) != *reinterpret_cast<const ezVec3*>(src);
-  *reinterpret_cast<ezVec3*>(dst) = *reinterpret_cast<const ezVec3*>(src);
-  return res;
-}
-
-bool ezVisualScriptAssignNumberVec3(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<ezVec3*>(dst) != ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
-  *reinterpret_cast<ezVec3*>(dst) = ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
-  return res;
-}
-
-bool ezVisualScriptAssignGameObject(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<ezGameObjectHandle*>(dst) != *reinterpret_cast<const ezGameObjectHandle*>(src);
-  *reinterpret_cast<ezGameObjectHandle*>(dst) = *reinterpret_cast<const ezGameObjectHandle*>(src);
-  return res;
-}
-
-bool ezVisualScriptAssignComponent(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<ezComponentHandle*>(dst) != *reinterpret_cast<const ezComponentHandle*>(src);
-  *reinterpret_cast<ezComponentHandle*>(dst) = *reinterpret_cast<const ezComponentHandle*>(src);
-  return res;
-}
-
 ezVisualScriptInstance::ezVisualScriptInstance()
 {
   SetupPinDataTypeConversions();
-}
-
-void ezVisualScriptInstance::SetupPinDataTypeConversions()
-{
-  static bool bDone = false;
-  if (bDone)
-    return;
-
-  bDone = true;
-
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Number, ezVisualScriptAssignNumberNumber);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignBoolBool);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
-  RegisterDataPinAssignFunction(
-    ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
-  RegisterDataPinAssignFunction(
-    ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
 }
 
 ezVisualScriptInstance::~ezVisualScriptInstance()
@@ -148,7 +76,7 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
   }
 }
 
-void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScript, ezGameObject* pOwner)
+void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScript, ezComponent* pOwnerComponent)
 {
   Clear();
 
@@ -158,10 +86,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
 
   m_hScriptResource = hScript;
 
-  if (pOwner)
+  if (pOwnerComponent)
   {
-    m_hOwner = pOwner->GetHandle();
-    m_pWorld = pOwner->GetWorld();
+    m_hOwnerObject = pOwnerComponent->GetOwner()->GetHandle();
+    m_hOwnerComponent = pOwnerComponent->GetHandle();
+    m_pWorld = pOwnerComponent->GetWorld();
   }
 
   m_Nodes.Reserve(resource.m_Nodes.GetCount());
@@ -178,11 +107,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
     {
       if (node.m_isMsgSender)
       {
-        CreateFunctionMessageNode(n, resource);
+        CreateMessageSenderNode(n, resource);
       }
       else if (node.m_isMsgHandler)
       {
-        CreateEventMessageNode(n, resource);
+        CreateMessageHandlerNode(n, resource);
       }
     }
     else if (node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
@@ -223,6 +152,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
     {
       m_LocalVariables.StoreDouble(p.m_sName, p.m_Value);
     }
+
+    for (const auto& p : resource.m_StringParameters)
+    {
+      m_LocalVariables.StoreString(p.m_sName, p.m_sValue);
+    }
   }
 }
 
@@ -241,17 +175,16 @@ void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ez
   m_Nodes.PushBack(pNode);
 }
 
-void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
   EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
 
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_MessageSender* pNode =
-    ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
+  ezVisualScriptNode_MessageSender* pNode = ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
-  pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();
+  auto pMessage = node.m_pType->GetAllocator()->Allocate<ezMessage>();
 
   // assign all property values
   {
@@ -260,7 +193,7 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
       const ezUInt32 uiProp = node.m_uiFirstProperty + i;
       const auto& prop = resource.m_Properties[uiProp];
 
-      ezAbstractProperty* pAbstract = pNode->m_pMessageToSend->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+      ezAbstractProperty* pAbstract = pMessage->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
       if (pAbstract == nullptr)
       {
         if (prop.m_sName == "Delay" && prop.m_Value.CanConvertTo<ezTime>())
@@ -279,53 +212,26 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
         continue;
 
       ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
-      ezReflectionUtils::SetMemberPropertyValue(pMember, pNode->m_pMessageToSend, prop.m_Value);
+      ezReflectionUtils::SetMemberPropertyValue(pMember, pMessage, prop.m_Value);
     }
   }
 
+  pNode->SetMessageToSend(pMessage);
   m_Nodes.PushBack(pNode);
 }
 
 
-void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+void ezVisualScriptInstance::CreateMessageHandlerNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
   EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
 
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+  ezVisualScriptNode_MessageHandler* pNode = ezGetStaticRTTI<ezVisualScriptNode_MessageHandler>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageHandler>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
-
-  pNode->m_sEventType = node.m_sTypeName;
+  pNode->m_pMessageTypeToHandle = node.m_pType;
 
   m_Nodes.PushBack(pNode);
-}
-
-ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(
-  const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
-{
-  if (sFuncName.IsEmpty())
-    return nullptr;
-
-  while (pObjectType != nullptr)
-  {
-    for (auto pFunc : pObjectType->GetFunctions())
-    {
-      if (sFuncName != pFunc->GetPropertyName())
-        continue;
-
-      out_pSfAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
-
-      if (out_pSfAttr == nullptr)
-        continue;
-
-      return pFunc;
-    }
-
-    pObjectType = pObjectType->GetParentType();
-  }
-
-  return nullptr;
 }
 
 void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
@@ -357,7 +263,7 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
       for (ezUInt32 arg = 0; arg < pNode->m_pFunctionToCall->GetArgumentCount(); ++arg)
       {
         pNode->m_Arguments[arg] = ezReflectionUtils::GetDefaultVariantFromType(pNode->m_pFunctionToCall->GetArgumentType(arg)->GetVariantType());
-        pNode->EnforceVariantTypeForInputPins(pNode->m_Arguments[arg]);
+        ezVisualScriptDataPinType::EnforceSupportedType(pNode->m_Arguments[arg]);
 
         if (pSfAttr->GetArgumentType(arg) != ezScriptableFunctionAttribute::In) // out or inout
         {
@@ -396,6 +302,32 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
   }
 
   m_Nodes.PushBack(pNode);
+}
+
+ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
+{
+  if (sFuncName.IsEmpty())
+    return nullptr;
+
+  while (pObjectType != nullptr)
+  {
+    for (auto pFunc : pObjectType->GetFunctions())
+    {
+      if (sFuncName != pFunc->GetPropertyName())
+        continue;
+
+      out_pSfAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
+
+      if (out_pSfAttr == nullptr)
+        continue;
+
+      return pFunc;
+    }
+
+    pObjectType = pObjectType->GetParentType();
+  }
+
+  return nullptr;
 }
 
 void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActivity /*= nullptr*/)
@@ -517,32 +449,12 @@ Override ezVisualScriptNode::IsManuallyStepped() for type '{}' if necessary.",
   }
 }
 
-void ezVisualScriptInstance::RegisterDataPinAssignFunction(
-  ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
-{
-  AssignFuncKey key;
-  key.m_SourceType = sourceType;
-  key.m_DstType = dstType;
-
-  s_DataPinAssignFunctions[key] = func;
-}
-
-ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(
-  ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType)
-{
-  AssignFuncKey key;
-  key.m_SourceType = sourceType;
-  key.m_DstType = dstType;
-
-  return s_DataPinAssignFunctions.GetValueOrDefault(key, nullptr);
-}
-
 bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const
 {
   if (m_pMessageHandlers == nullptr)
     return false;
 
-  return m_pMessageHandlers->LowerBound(msg.GetId()) != ezInvalidIndex;
+  return m_pMessageHandlers->Contains(msg.GetId());
 }
 
 

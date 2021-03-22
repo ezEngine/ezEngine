@@ -157,8 +157,10 @@ ezSkeletonJointGeometryType::Box;Box
 ezSkeletonComponent;Skeleton
 BoolParameters;Bool Variables
 NumberParameters;Number Variables
+StringParameters;String Variables
 ezVisualScriptParameterNumber;Number Variable
 ezVisualScriptParameterBool;Bool Variable
+ezVisualScriptParameterString;String Variable
 ezRootMotionExtractionMode::None;None
 ezRootMotionExtractionMode::Custom;Custom
 ezRootMotionExtractionMode::FromFeet;From Feet

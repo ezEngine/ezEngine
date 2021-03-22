@@ -82,7 +82,7 @@ public:
   ~ezVisualScriptNode_QueryGlobalObject();
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
 private:
   ezString m_sObjectName;

@@ -5,7 +5,7 @@
 
 class ezDocumentObjectConverterWriter;
 class ezProcGenNodeBase;
-class ezProcGenPlacementOutput;
+class ezProcGen_PlacementOutput;
 class ezPin;
 
 class ezProcGenGraphSharedData;
@@ -58,5 +58,5 @@ private:
   void CreateDebugNode();
 
   const ezPin* m_pDebugPin = nullptr;
-  ezUniquePtr<ezProcGenPlacementOutput> m_pDebugNode;
+  ezUniquePtr<ezProcGen_PlacementOutput> m_pDebugNode;
 };

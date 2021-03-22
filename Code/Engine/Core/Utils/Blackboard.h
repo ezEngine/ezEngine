@@ -124,7 +124,7 @@ public:
     return m_Entries;
   }
 
-  /// \brief Allows you to register to the OnEntryEvent. This is broadcast whenever an entry is modified that has the flag ezBlackboardEntryFlags::OnEntryEvent.
+  /// \brief Allows you to register to the OnEntryEvent. This is broadcast whenever an entry is modified that has the flag ezBlackboardEntryFlags::OnChangeEvent.
   const ezEvent<EntryEvent>& OnEntryEvent() const
   {
     return m_EntryEvents;

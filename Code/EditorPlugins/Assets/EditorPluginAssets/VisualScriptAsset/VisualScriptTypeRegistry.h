@@ -11,7 +11,7 @@ class ezAbstractFunctionProperty;
 
 struct ezVisualScriptPinDescriptor
 {
-  enum PinType
+  enum class PinType : ezUInt8
   {
     Execution,
     Data
@@ -20,7 +20,7 @@ struct ezVisualScriptPinDescriptor
   ezString m_sName;
   ezString m_sTooltip;
   ezColorGammaUB m_Color;
-  ezVisualScriptDataPinType::Enum m_DataType;
+  ezEnum<ezVisualScriptDataPinType> m_DataType;
   PinType m_PinType;
   ezUInt8 m_uiPinIndex;
 };
@@ -56,8 +56,8 @@ private:
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
   void UpdateNodeType(const ezRTTI* pRtti);
   const ezRTTI* GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& desc);
-  void CreateMessageNodeType(const ezRTTI* pRtti);
-  void CreateEventMessageNodeType(const ezRTTI* pRtti);
+  void CreateMessageSenderNodeType(const ezRTTI* pRtti);
+  void CreateMessageHandlerNodeType(const ezRTTI* pRtti);
   void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction);
 
   ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;

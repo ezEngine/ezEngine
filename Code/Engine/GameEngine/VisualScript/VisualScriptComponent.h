@@ -67,29 +67,19 @@ protected:
 
   static ezEvent<const ezVisualScriptComponentActivityEvent&> s_ActivityEvents;
 
-  struct NumberParam
+  struct Param
   {
-    EZ_DECLARE_POD_TYPE();
     ezHashedString m_sName;
-    double m_Value;
+    ezVariant m_Value;
   };
 
-  struct BoolParam
-  {
-    EZ_DECLARE_POD_TYPE();
-    ezHashedString m_sName;
-    bool m_Value;
-  };
-
-  bool m_bNumberParamsChanged = false;
-  bool m_bBoolParamsChanged = false;
-  ezHybridArray<NumberParam, 2> m_NumberParams;
-  ezHybridArray<BoolParam, 2> m_BoolParams;
+  ezHybridArray<Param, 4> m_Params;
 
   ezVisualScriptResourceHandle m_hResource;
   ezUniquePtr<ezVisualScriptInstance> m_Script;
 
   bool m_bHadEmptyActivity = true;
+  bool m_bParamsChanged = false;
 
   ezUniquePtr<ezVisualScriptInstanceActivity> m_pActivity;
 };

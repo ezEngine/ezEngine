@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/Utils/Blackboard.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
@@ -18,6 +19,21 @@ struct ezBlackboardEntry
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezBlackboardEntry);
+
+//////////////////////////////////////////////////////////////////////////
+
+struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezEventMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezEventMessage);
+
+  ezHashedString m_sName;
+  ezVariant m_OldValue;
+  ezVariant m_NewValue;
+
+private:
+  const char* GetName() const { return m_sName; }
+  void SetName(const char* szName) { m_sName.Assign(szName); }
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -62,8 +78,14 @@ public:
   void SetShowDebugInfo(bool bShow); // [ property ]
   bool GetShowDebugInfo() const;     // [ property ]
 
+  void SetSendEntryChangedMessage(bool bSend); // [ property ]
+  bool GetSendEntryChangedMessage() const;     // [ property ]
+
   void SetBlackboardName(const char* szName); // [ property ]
   const char* GetBlackboardName() const;      // [ property ]
+
+  void SetEntryValue(const char* szName, const ezVariant& value); // [ scriptable ]
+  ezVariant GetEntryValue(const char* szName);                    // [ scriptable ]
 
 private:
   ezUInt32 Entries_GetCount() const;
@@ -74,9 +96,12 @@ private:
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnEntryChanged(const ezBlackboard::EntryEvent& e);
 
   ezUniquePtr<ezBlackboard> m_pBoard;
 
   // this array is not held during runtime, it is only needed during editor time until the component is serialized out
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;
+
+  ezEventMessageSender<ezMsgBlackboardEntryChanged> m_EntryChangedSender; // [ event ]
 };

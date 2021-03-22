@@ -33,7 +33,7 @@ public:
   ~ezVisualScriptInstance();
 
   /// \brief Clears the current state and recreates the script instance from the given template.
-  void Configure(const ezVisualScriptResourceHandle& hScript, ezGameObject* pOwner);
+  void Configure(const ezVisualScriptResourceHandle& hScript, ezComponent* pOwnerComponent);
 
   /// \brief Runs all nodes that are marked for execution. Typically nodes that handle events will mark themselves for execution in the next update.
   void ExecuteScript(ezVisualScriptInstanceActivity* pActivity = nullptr);
@@ -48,8 +48,11 @@ public:
   /// \brief Called by ezVisualScriptNode classes to execute the node that is connected on the given output execution pin.
   void ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget);
 
-  /// \brief Returns the ezGameObject that owns this script. May be nullptr, if the instance is not attached to a game object.
-  ezGameObjectHandle GetOwner() const { return m_hOwner; }
+  /// \brief Returns the ezGameObject that owns this script. May be invalid, if the instance is not attached to a game object.
+  ezGameObjectHandle GetOwner() const { return m_hOwnerObject; }
+
+  /// \brief Returns the ezComponent that owns this script. May be invalid, if the instance is not attached to a component.
+  ezComponentHandle GetOwnerComponent() const { return m_hOwnerComponent; }
 
   /// \brief Returns the world of the owner game object.
   ezWorld* GetWorld() const { return m_pWorld; }
@@ -63,10 +66,8 @@ public:
   /// \brief Needs to be called once to register the default data pin conversion functions.
   static void SetupPinDataTypeConversions();
 
-  static void RegisterDataPinAssignFunction(
-    ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func);
-  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(
-    ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType);
+  static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func);
+  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType);
 
   /// \brief Returns whether this script has a node that handles this type of event message.
   bool HandlesEventMessage(const ezEventMessage& msg) const;
@@ -83,11 +84,10 @@ private:
     ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType);
 
   void CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
-  void CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
-  void CreateEventMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
+  void CreateMessageSenderNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
+  void CreateMessageHandlerNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
   void CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
-  ezAbstractFunctionProperty* SearchForScriptableFunctionOnType(
-    const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const;
+  ezAbstractFunctionProperty* SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const;
 
   struct DataPinConnection
   {
@@ -108,7 +108,8 @@ private:
   };
 
   ezVisualScriptResourceHandle m_hScriptResource;
-  ezGameObjectHandle m_hOwner;
+  ezGameObjectHandle m_hOwnerObject;
+  ezComponentHandle m_hOwnerComponent;
   ezWorld* m_pWorld = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;
