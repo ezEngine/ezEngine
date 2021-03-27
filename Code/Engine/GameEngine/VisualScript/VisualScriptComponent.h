@@ -34,7 +34,7 @@ protected:
   virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) override;
   virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const override;
 
-  virtual void OnSimulationStarted() override;
+  virtual void Initialize() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezEventMessageHandlerComponent

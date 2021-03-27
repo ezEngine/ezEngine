@@ -228,9 +228,9 @@ bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPosted
   return m_Script->HandleMessage(msg);
 }
 
-void ezVisualScriptComponent::OnSimulationStarted()
+void ezVisualScriptComponent::Initialize()
 {
-  SUPER::OnSimulationStarted();
+  SUPER::Initialize();
 
   EnableUnhandledMessageHandler(true);
 
