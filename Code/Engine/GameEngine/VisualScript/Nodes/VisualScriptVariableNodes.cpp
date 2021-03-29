@@ -72,7 +72,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTID
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Set Number Property '{Name}'"),
+    new ezTitleAttribute("Set Number Property '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
@@ -188,7 +188,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDef
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Set Bool Property '{Name}'"),
+    new ezTitleAttribute("Set Bool Property '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
@@ -304,7 +304,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetStringProperty, 1, ezRTTID
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Set String Property '{Name}'"),
+    new ezTitleAttribute("Set String Property '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
@@ -393,7 +393,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Store Number '{Name}'"),
+    new ezTitleAttribute("Store Number '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
@@ -402,6 +402,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Number, m_Value),
+    EZ_OUTPUT_DATA_PIN("StoredValue", 0, ezVisualScriptDataPinType::Number)
   }
   EZ_END_PROPERTIES;
 }
@@ -414,6 +415,7 @@ ezVisualScriptNode_StoreNumber::~ezVisualScriptNode_StoreNumber() {}
 void ezVisualScriptNode_StoreNumber::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   pInstance->GetLocalVariables().StoreDouble(m_sVariable, m_Value);
+  pInstance->SetOutputPinValue(this, 0, &m_Value);
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
@@ -461,7 +463,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Store Bool '{Name}'"),
+    new ezTitleAttribute("Store Bool '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
@@ -470,6 +472,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Boolean, m_Value),
+    EZ_OUTPUT_DATA_PIN("StoredValue", 0, ezVisualScriptDataPinType::Boolean)
   }
   EZ_END_PROPERTIES;
 }
@@ -482,6 +485,7 @@ ezVisualScriptNode_StoreBool::~ezVisualScriptNode_StoreBool() {}
 void ezVisualScriptNode_StoreBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   pInstance->GetLocalVariables().StoreBool(m_sVariable, m_Value);
+  pInstance->SetOutputPinValue(this, 0, &m_Value);
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
@@ -568,7 +572,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreString, 1, ezRTTIDefault
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Store String '{Name}'"),
+    new ezTitleAttribute("Store String '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
@@ -577,6 +581,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreString, 1, ezRTTIDefault
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::String, m_sValue),
+    EZ_OUTPUT_DATA_PIN("StoredValue", 0, ezVisualScriptDataPinType::String)
   }
   EZ_END_PROPERTIES;
 }
@@ -589,6 +594,7 @@ ezVisualScriptNode_StoreString::~ezVisualScriptNode_StoreString() {}
 void ezVisualScriptNode_StoreString::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   pInstance->GetLocalVariables().StoreString(m_sVariable, m_sValue);
+  pInstance->SetOutputPinValue(this, 0, &m_sValue);
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 

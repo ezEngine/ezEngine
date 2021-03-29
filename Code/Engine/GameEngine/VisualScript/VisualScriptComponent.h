@@ -6,17 +6,32 @@
 #include <Foundation/Types/RangeView.h>
 #include <GameEngine/GameEngineDLL.h>
 
+class ezVisualScriptComponent;
 class ezVisualScriptInstance;
 struct ezVisualScriptInstanceActivity;
 
 typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 
-typedef ezComponentManagerSimple<class ezVisualScriptComponent, ezComponentUpdateType::WhenSimulating> ezVisualScriptComponentManager;
-
 struct EZ_GAMEENGINE_DLL ezVisualScriptComponentActivityEvent
 {
   ezVisualScriptComponent* m_pComponent = nullptr;
   ezVisualScriptInstanceActivity* m_pActivity = nullptr;
+};
+
+class EZ_GAMEENGINE_DLL ezVisualScriptComponentManager : public ezComponentManager<ezVisualScriptComponent, ezBlockStorageType::Compact>
+{
+public:
+  ezVisualScriptComponentManager(ezWorld* pWorld);
+  ~ezVisualScriptComponentManager();
+
+  virtual void Initialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+
+private:
+  void ResourceEventHandler(const ezResourceEvent& e);
+
+  ezSet<ezComponentHandle> m_ComponentsToUpdate;
 };
 
 class EZ_GAMEENGINE_DLL ezVisualScriptComponent : public ezEventMessageHandlerComponent
@@ -47,7 +62,10 @@ protected:
 
 public:
   ezVisualScriptComponent();
+  ezVisualScriptComponent(ezVisualScriptComponent&& other);
   ~ezVisualScriptComponent();
+
+  ezVisualScriptComponent& operator=(ezVisualScriptComponent&& other);
 
   void SetScriptFile(const char* szFile); // [ property ]
   const char* GetScriptFile() const;      // [ property ]
@@ -64,6 +82,7 @@ public:
 
 protected:
   void Update();
+  void InitScriptInstance();
 
   static ezEvent<const ezVisualScriptComponentActivityEvent&> s_ActivityEvents;
 
@@ -76,7 +95,7 @@ protected:
   ezHybridArray<Param, 4> m_Params;
 
   ezVisualScriptResourceHandle m_hResource;
-  ezUniquePtr<ezVisualScriptInstance> m_Script;
+  ezUniquePtr<ezVisualScriptInstance> m_pScriptInstance;
 
   bool m_bHadEmptyActivity = true;
   bool m_bParamsChanged = false;

@@ -9,6 +9,76 @@
 
 ezEvent<const ezVisualScriptComponentActivityEvent&> ezVisualScriptComponent::s_ActivityEvents;
 
+//////////////////////////////////////////////////////////////////////////
+
+ezVisualScriptComponentManager::ezVisualScriptComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+{
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezVisualScriptComponentManager::ResourceEventHandler, this));
+}
+
+ezVisualScriptComponentManager::~ezVisualScriptComponentManager()
+{
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezVisualScriptComponentManager::ResourceEventHandler, this));
+}
+
+void ezVisualScriptComponentManager::Initialize()
+{
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezVisualScriptComponentManager::Update, this);
+
+  RegisterUpdateFunction(desc);
+}
+
+void ezVisualScriptComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  // Don't handle resource reload events during play the game since that would mess up script state
+  if (GetWorld()->GetWorldSimulationEnabled())
+    return;
+
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezVisualScriptResource>())
+  {
+    ezVisualScriptResourceHandle hScript((ezVisualScriptResource*)(e.m_pResource));
+
+    for (auto it = GetComponents(); it.IsValid(); it.Next())
+    {
+      if (it->m_hResource == hScript)
+      {
+        m_ComponentsToUpdate.Insert(it->GetHandle());
+      }
+    }
+  }
+}
+
+void ezVisualScriptComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  {
+    for (auto hComp : m_ComponentsToUpdate)
+    {
+      ezVisualScriptComponent* pComponent = nullptr;
+      if (!TryGetComponent(hComp, pComponent))
+        continue;
+
+      pComponent->InitScriptInstance();
+    }
+
+    m_ComponentsToUpdate.Clear();
+  }
+
+  if (GetWorld()->GetWorldSimulationEnabled())
+  {
+    for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+    {
+      ComponentType* pComponent = it;
+      if (pComponent->IsActiveAndInitialized())
+      {
+        pComponent->Update();
+      }
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 5, ezComponentMode::Static);
 {
@@ -28,7 +98,10 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezVisualScriptComponent::ezVisualScriptComponent() = default;
+ezVisualScriptComponent::ezVisualScriptComponent(ezVisualScriptComponent&& other) = default;
 ezVisualScriptComponent::~ezVisualScriptComponent() = default;
+
+ezVisualScriptComponent& ezVisualScriptComponent::operator=(ezVisualScriptComponent&& other) = default;
 
 void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -132,13 +205,18 @@ const char* ezVisualScriptComponent::GetScriptFile() const
 void ezVisualScriptComponent::SetScript(const ezVisualScriptResourceHandle& hResource)
 {
   m_hResource = hResource;
+
+  if (m_pScriptInstance != nullptr)
+  {
+    InitScriptInstance();
+  }
 }
 
 bool ezVisualScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
 {
-  if (m_Script)
+  if (m_pScriptInstance)
   {
-    return m_Script->HandlesEventMessage(msg);
+    return m_pScriptInstance->HandlesEventMessage(msg);
   }
 
   return false;
@@ -148,17 +226,7 @@ void ezVisualScriptComponent::Update()
 {
   /// \todo Do we really need to tick scripts every frame?
 
-  if (m_Script == nullptr)
-  {
-    EnableUnhandledMessageHandler(true);
-
-    m_Script = EZ_DEFAULT_NEW(ezVisualScriptInstance);
-
-    if (m_hResource.IsValid())
-    {
-      m_Script->Configure(m_hResource, this);
-    }
-  }
+  EZ_ASSERT_DEV(m_pScriptInstance != nullptr, "Script instance should have been created at this point");
 
   const bool bEnableDebugOutput = GetDebugOutput();
 
@@ -180,15 +248,15 @@ void ezVisualScriptComponent::Update()
       {
         if (param.m_Value.IsA<bool>())
         {
-          m_Script->GetLocalVariables().StoreBool(param.m_sName, param.m_Value.Get<bool>());
+          m_pScriptInstance->GetLocalVariables().StoreBool(param.m_sName, param.m_Value.Get<bool>());
         }
         else if (param.m_Value.IsA<ezString>())
         {
-          m_Script->GetLocalVariables().StoreString(param.m_sName, param.m_Value.Get<ezString>());
+          m_pScriptInstance->GetLocalVariables().StoreString(param.m_sName, param.m_Value.Get<ezString>());
         }
         else if (param.m_Value.IsNumber())
         {
-          m_Script->GetLocalVariables().StoreDouble(param.m_sName, param.m_Value.ConvertTo<double>());
+          m_pScriptInstance->GetLocalVariables().StoreDouble(param.m_sName, param.m_Value.ConvertTo<double>());
         }
         else
         {
@@ -203,7 +271,7 @@ void ezVisualScriptComponent::Update()
     }
   }
 
-  m_Script->ExecuteScript(m_pActivity.Borrow());
+  m_pScriptInstance->ExecuteScript(m_pActivity.Borrow());
 
   if (bEnableDebugOutput && (!m_pActivity->IsEmpty() || !m_bHadEmptyActivity))
   {
@@ -218,14 +286,26 @@ void ezVisualScriptComponent::Update()
   }
 }
 
+void ezVisualScriptComponent::InitScriptInstance()
+{
+  m_pScriptInstance = EZ_DEFAULT_NEW(ezVisualScriptInstance);
+
+  if (m_hResource.IsValid())
+  {
+    m_pScriptInstance->Configure(m_hResource, this);
+  }
+
+  m_bParamsChanged = true;
+}
+
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
-  return m_Script->HandleMessage(msg);
+  return m_pScriptInstance->HandleMessage(msg);
 }
 
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
-  return m_Script->HandleMessage(msg);
+  return m_pScriptInstance->HandleMessage(msg);
 }
 
 void ezVisualScriptComponent::Initialize()
@@ -234,12 +314,7 @@ void ezVisualScriptComponent::Initialize()
 
   EnableUnhandledMessageHandler(true);
 
-  m_Script = EZ_DEFAULT_NEW(ezVisualScriptInstance);
-
-  if (m_hResource.IsValid())
-  {
-    m_Script->Configure(m_hResource, this);
-  }
+  InitScriptInstance();
 }
 
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const
