@@ -56,14 +56,27 @@ namespace
 
   ezExpressionAST::Node* CreateRemapTo01WithFadeout(ezExpressionAST::Node* pInput, float fMin, float fMax, float fLowerFade, float fUpperFade, ezExpressionAST& out_Ast)
   {
+    // Note that we need to clamp the scale if it is below eps or we would end up with a division by 0.
+    // To counter the clamp we move the lower and upper bounds by eps.
+    // If no fade out is specified we would get a value of 0 for inputs that are exactly on the bounds otherwise which is not the expected behavior.
+
+    const float eps = ezMath::DefaultEpsilon<float>();
+    const float fLowerScale = ezMath::Max((fMax - fMin), 0.0f) * fLowerFade;
+    const float fUpperScale = ezMath::Max((fMax - fMin), 0.0f) * fUpperFade;
+
+    if (fLowerScale < eps)
+      fMin = fMin - eps;
+    if (fUpperScale < eps)
+      fMax = fMax + eps;
+
     auto pLowerOffset = out_Ast.CreateConstant(fMin);
     auto pLowerValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pInput, pLowerOffset);
-    auto pLowerScale = out_Ast.CreateConstant(ezMath::Max((fMax - fMin) * fLowerFade, ezMath::DefaultEpsilon<float>()));
+    auto pLowerScale = out_Ast.CreateConstant(ezMath::Max(fLowerScale, eps));
     pLowerValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pLowerValue, pLowerScale);
 
     auto pUpperOffset = out_Ast.CreateConstant(fMax);
     auto pUpperValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pUpperOffset, pInput);
-    auto pUpperScale = out_Ast.CreateConstant(ezMath::Max((fMax - fMin) * fUpperFade, ezMath::DefaultEpsilon<float>()));
+    auto pUpperScale = out_Ast.CreateConstant(ezMath::Max(fUpperScale, eps));
     pUpperValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pUpperValue, pUpperScale);
 
     auto pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, pLowerValue, pUpperValue);
