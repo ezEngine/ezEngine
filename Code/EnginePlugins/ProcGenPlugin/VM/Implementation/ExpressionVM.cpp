@@ -25,6 +25,10 @@ namespace
     while (r != re)
     {
       *r = func(*x);
+#ifdef DEBUG_VM
+      EZ_ASSERT_DEV(r->IsValid<4>(), "");
+#endif
+
       ++r;
       ++x;
     }
@@ -41,6 +45,10 @@ namespace
     while (r != re)
     {
       *r = func(x);
+#ifdef DEBUG_VM
+      EZ_ASSERT_DEV(r->IsValid<4>(), "");
+#endif
+
       ++r;
     }
   }
@@ -57,6 +65,10 @@ namespace
     while (r != re)
     {
       *r = func(*a, *b);
+#ifdef DEBUG_VM
+      EZ_ASSERT_DEV(r->IsValid<4>(), "");
+#endif
+
       ++r;
       ++a;
       ++b;
@@ -75,6 +87,10 @@ namespace
     while (r != re)
     {
       *r = func(a, *b);
+#ifdef DEBUG_VM
+      EZ_ASSERT_DEV(r->IsValid<4>(), "");
+#endif
+
       ++r;
       ++b;
     }
@@ -107,6 +123,10 @@ namespace
       pInputData += pInputData < pInputDataEnd ? uiByteStride : 0;
 
       r->Set(x, y, z, w);
+#ifdef DEBUG_VM
+      EZ_ASSERT_DEV(r->IsValid<4>(), "");
+#endif
+
       ++r;
     }
   }
@@ -352,9 +372,19 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
   const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCode();
   const ezExpressionByteCode::StorageType* pByteCodeEnd = byteCode.GetByteCodeEnd();
 
+#ifdef DEBUG_VM
+  ezUInt32 uiInstructionIndex = 0;
+#endif
+
   while (pByteCode < pByteCodeEnd)
   {
     ezExpressionByteCode::OpCode::Enum opCode = ezExpressionByteCode::GetOpCode(pByteCode);
+
+#ifdef DEBUG_VM
+    ezLog::Info("{}: {}", uiInstructionIndex, ezExpressionByteCode::GetOpCodeName(opCode));
+
+    uiInstructionIndex++;
+#endif
 
     switch (opCode)
     {

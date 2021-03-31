@@ -40,7 +40,7 @@ namespace ezProcGenInternal
     ezDynamicArray<ezColor> m_TempData;
     ezArrayPtr<ezUInt32> m_OutputVertexColors;
 
-    ezDynamicArray<ezVolumeCollection> m_VolumeCollections;
+    ezDeque<ezVolumeCollection> m_VolumeCollections;
     ezExpression::GlobalData m_GlobalData;
 
     ezExpressionVM m_VM;

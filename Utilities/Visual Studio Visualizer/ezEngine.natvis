@@ -70,6 +70,19 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
+  
+  <Type Name="ezSmallArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+      <Item Name="userdata">m_uiUserData</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>(m_uiCapacity &lt;= $T2) ? ($T1*)((intptr_t)(m_StaticData)) : m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 	
 	<Type Name="ezStaticArray&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>

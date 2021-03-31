@@ -176,6 +176,11 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
   }
 }
 
+const char* ezExpressionByteCode::GetOpCodeName(OpCode::Enum opCode)
+{
+  return s_szOpCodeNames[opCode];
+}
+
 void ezExpressionByteCode::Save(ezStreamWriter& stream) const
 {
   ezChunkStreamWriter chunk(stream);

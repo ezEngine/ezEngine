@@ -58,12 +58,12 @@ namespace
   {
     auto pLowerOffset = out_Ast.CreateConstant(fMin);
     auto pLowerValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pInput, pLowerOffset);
-    auto pLowerScale = out_Ast.CreateConstant(ezMath::Max(fMax - fMin, 0.0f) * fLowerFade);
+    auto pLowerScale = out_Ast.CreateConstant(ezMath::Max((fMax - fMin) * fLowerFade, ezMath::DefaultEpsilon<float>()));
     pLowerValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pLowerValue, pLowerScale);
 
     auto pUpperOffset = out_Ast.CreateConstant(fMax);
     auto pUpperValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pUpperOffset, pInput);
-    auto pUpperScale = out_Ast.CreateConstant(ezMath::Max(fMax - fMin, 0.0f) * fUpperFade);
+    auto pUpperScale = out_Ast.CreateConstant(ezMath::Max((fMax - fMin) * fUpperFade, ezMath::DefaultEpsilon<float>()));
     pUpperValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pUpperValue, pUpperScale);
 
     auto pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, pLowerValue, pUpperValue);
@@ -488,7 +488,9 @@ ezExpressionAST::Node* ezProcGen_Slope::GenerateExpressionASTNode(ezTempHashedSt
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
   auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ);
-  auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pNormalZ);
+  // acos explodes for values slightly larger than 1 so make sure to clamp before
+  auto pClampedNormalZ = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, out_Ast.CreateConstant(1.0f), pNormalZ);
+  auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pClampedNormalZ);
   return CreateRemapTo01WithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fLowerFade, m_fUpperFade, out_Ast);
 }
 

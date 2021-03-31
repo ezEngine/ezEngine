@@ -70,8 +70,7 @@ ezResult ezProcGenExpressionFunctions::ApplyVolumesValidate(const ezExpression::
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output,
-  ezDynamicArray<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData)
+void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData)
 {
   auto& volumeTagSetIndices = output.m_VolumeTagSetIndices;
   if (volumeTagSetIndices.IsEmpty())
@@ -94,8 +93,7 @@ void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezB
     auto& includeTags = pGraphSharedData->GetTagSet(tagSetIndex);
 
     auto& volumeCollection = volumeCollections.ExpandAndGetRef();
-    ezVolumeCollection::ExtractVolumesInBox(
-      world, box, s_ProcVolumeCategory, includeTags, volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
+    ezVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, includeTags, volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
 
     volumes.EnsureCount(tagSetIndex + 1);
     volumes[tagSetIndex] = ezVariant(&volumeCollection);
