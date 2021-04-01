@@ -122,7 +122,6 @@ void ezPropertyAnimComponent::PlayAnimationRange(ezTime RangeLow, ezTime RangeHi
   m_AnimationRangeLow = RangeLow;
   m_AnimationRangeHigh = RangeHigh;
 
-  m_AnimationTime = m_AnimationRangeLow;
   m_bPlaying = true;
 
   StartPlayback();
@@ -443,10 +442,16 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 
 ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_AnimDesc->m_AnimationDuration);
+  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_AnimDesc->m_AnimationDuration);
+
   const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
   if (duration.IsZero())
+  {
+    m_bPlaying = false;
     return m_AnimationRangeLow;
+  }
 
   tDiff = m_fSpeed * tDiff;
 
@@ -581,6 +586,10 @@ void ezPropertyAnimComponent::StartPlayback()
   if (m_fSpeed < 0.0f)
   {
     m_AnimationTime = m_AnimationRangeHigh;
+  }
+  else
+  {
+    m_AnimationTime = m_AnimationRangeLow;
   }
 
   if (!m_RandomOffset.IsZero() && m_AnimDesc->m_AnimationDuration.IsPositive())
