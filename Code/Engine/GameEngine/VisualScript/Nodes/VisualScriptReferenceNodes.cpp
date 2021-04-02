@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetScriptOwner, 2, ezRTTIDefa
   {
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+    EZ_OUTPUT_DATA_PIN("Component", 1, ezVisualScriptDataPinType::ComponentHandle),
   }
   EZ_END_PROPERTIES;
 }
@@ -36,6 +37,9 @@ void ezVisualScriptNode_GetScriptOwner::Execute(ezVisualScriptInstance* pInstanc
   {
     ezGameObjectHandle hObject = pInstance->GetOwner();
     pInstance->SetOutputPinValue(this, 0, &hObject);
+
+    ezComponentHandle hComponent = pInstance->GetOwnerComponent();
+    pInstance->SetOutputPinValue(this, 1, &hComponent);
   }
 }
 

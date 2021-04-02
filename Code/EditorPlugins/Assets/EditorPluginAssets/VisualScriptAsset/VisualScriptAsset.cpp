@@ -79,7 +79,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // ezVisualScriptAssetDocument
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
@@ -326,41 +326,38 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
       {
         const ezVariant varName = pObject->GetTypeAccessor().GetValue("Name");
         EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
+        const ezString name = varName.ConvertTo<ezString>();
 
-        enum class ValueType
+        auto findVarName = [&](auto parameters)
         {
-          Bool,
-          Number,
-          String
+          for (const auto& p : parameters)
+          {
+            if (p.m_sName == name)
+            {
+              return true;
+            }
+          }
+
+          return false;
         };
 
-        ValueType eValueType = ValueType::Number;
-        const char* szValueType = "number";
-        ezArrayPtr<ezVisualScriptResourceDescriptor::LocalParameter> parameters = desc.m_NumberParameters.GetArrayPtr();
+        bool found = false;
+        const char* szValueType;
 
         if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
         {
-          eValueType = ValueType::Bool;
+          found = findVarName(desc.m_BoolParameters);
           szValueType = "bool";
-          parameters = desc.m_BoolParameters.GetArrayPtr();
         }
         else if (pDesc->m_sTypeName == "ezVisualScriptNode_String" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreString")
         {
-          eValueType = ValueType::String;
+          found = findVarName(desc.m_StringParameters);
           szValueType = "string";
-          parameters = desc.m_StringParameters.GetArrayPtr();
         }
-
-        const ezString name = varName.ConvertTo<ezString>();
-
-        bool found = false;
-        for (const auto& p : parameters)
+        else
         {
-          if (p.m_sName == name)
-          {
-            found = true;
-            break;
-          }
+          found = findVarName(desc.m_NumberParameters);
+          szValueType = "number";
         }
 
         if (!found)

@@ -367,9 +367,12 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
   if (uiPin == 1)
     return &m_hComponent;
 
+  if (uiPin == 2)
+    return &m_Delay;
+
   if (m_pMessageToSend != nullptr)
   {
-    const ezUInt32 uiProp = uiPin - 2;
+    const ezUInt32 uiProp = uiPin - 3;
 
     ezUInt32 uiOffset = m_PropertyIndexToMemoryOffset[uiProp];
     if (uiOffset != 0xFFFF)

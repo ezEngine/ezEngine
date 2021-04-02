@@ -405,6 +405,18 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
     nd.m_InputPins.PushBack(pd);
   }
 
+  // Add an input data pin for delay
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Delay";
+    pd.m_sTooltip = "Delay message send by the given time in seconds.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::PinType::Data;
+    pd.m_DataType = ezVisualScriptDataPinType::Number;
+    pd.m_Color = PinTypeColor(ezVisualScriptDataPinType::Number);
+    pd.m_uiPinIndex = 2;
+    nd.m_InputPins.PushBack(pd);
+  }
+
   // Delayed Delivery Property
   {
     ezReflectedPropertyDescriptor prd;
@@ -427,7 +439,7 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
     nd.m_Properties.PushBack(prd);
   }
 
-  ezInt32 iDataPinIndex = 1; // the first valid index is '2', because of the object and component data pins
+  ezInt32 iDataPinIndex = 2; // the first valid index is '3', because of the object, component and delay data pins
   for (auto prop : properties)
   {
     if (prop->GetCategory() == ezPropertyCategory::Constant)
