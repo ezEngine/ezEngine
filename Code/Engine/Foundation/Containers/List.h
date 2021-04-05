@@ -115,7 +115,7 @@ public:
 
 protected:
   /// \brief Initializes the list to be empty.
-  ezListBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezListBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Initializes the list with a copy from another list.
   ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator); // [tested]
@@ -246,7 +246,7 @@ class ezList : public ezListBase<T>
 {
 public:
   ezList();
-  ezList(ezAllocatorBase* pAllocator);
+  explicit ezList(ezAllocatorBase* pAllocator);
 
   ezList(const ezList<T, AllocatorWrapper>& other);
   ezList(const ezListBase<T>& other);

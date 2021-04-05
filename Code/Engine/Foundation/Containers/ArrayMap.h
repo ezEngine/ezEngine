@@ -28,7 +28,7 @@ public:
   };
 
   /// \brief Constructor.
-  ezArrayMapBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezArrayMapBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copy-Constructor.
   ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -151,7 +151,7 @@ class ezArrayMap : public ezArrayMapBase<KEY, VALUE>
 
 public:
   ezArrayMap();
-  ezArrayMap(ezAllocatorBase* pAllocator);
+  explicit ezArrayMap(ezAllocatorBase* pAllocator);
 
   ezArrayMap(const ezArrayMap<KEY, VALUE, AllocatorWrapper>& rhs);
   ezArrayMap(const ezArrayMapBase<KEY, VALUE>& rhs);

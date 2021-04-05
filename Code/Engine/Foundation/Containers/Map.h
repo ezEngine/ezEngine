@@ -328,7 +328,7 @@ class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:
   ezMap();
-  ezMap(ezAllocatorBase* pAllocator);
+  explicit ezMap(ezAllocatorBase* pAllocator);
   ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator);
 
   ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);

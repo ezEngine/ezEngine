@@ -14,7 +14,7 @@ class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T>>
 {
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
-  ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
 
   ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator); // [tested]
 
@@ -84,7 +84,7 @@ public:
 
 
   ezDynamicArray();
-  ezDynamicArray(ezAllocatorBase* pAllocator);
+  explicit ezDynamicArray(ezAllocatorBase* pAllocator);
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);
