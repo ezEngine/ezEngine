@@ -269,27 +269,6 @@ void ezToolsReflectionUtils::GatherObjectTypes(const ezDocumentObject* pObject, 
   GatherObjectTypesInternal(pObject, inout_types);
 }
 
-void ezToolsReflectionUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph)
-{
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&typesGraph, &context, true, true);
-  for (const ezRTTI* pType : types)
-  {
-    ezReflectedTypeDescriptor desc;
-    if (pType->GetTypeFlags().IsSet(ezTypeFlags::Phantom))
-    {
-      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, desc);
-    }
-    else
-    {
-      ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pType, desc);
-    }
-
-    context.RegisterObject(ezUuid::StableUuidForString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-    rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-  }
-}
-
 bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors)
 {
   ezMap<ezReflectedTypeDescriptor*, ezSet<ezString>> dependencies;
