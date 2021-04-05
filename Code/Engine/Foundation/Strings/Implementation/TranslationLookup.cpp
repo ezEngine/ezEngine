@@ -52,7 +52,7 @@ const char* ezTranslationLookup::Translate(const char* szString, ezUInt64 uiStri
       return szResult;
   }
 
-  return nullptr;
+  return szString;
 }
 
 

@@ -100,28 +100,37 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   opt.m_uiFirstAnimKeyframe = pProp->m_uiFirstFrame;
   opt.m_uiNumAnimKeyframes = pProp->m_uiNumFrames;
 
-  if (pImporter->Import(opt).Failed())
+  const ezResult res = pImporter->Import(opt);
+
+  if (res.Succeeded())
+  {
+    if (pProp->m_RootMotionMode == ezRootMotionMode::Constant)
+    {
+      desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
+    }
+
+    range.BeginNextStep("Writing Result");
+
+    pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
+
+    EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+  }
+
+  // if we found information about animation clips, update the UI, even if the transform failed
+  if (!pImporter->m_OutputAnimationNames.IsEmpty())
+  {
+    pProp->m_AvailableClips.SetCount(pImporter->m_OutputAnimationNames.GetCount());
+    for (ezUInt32 clip = 0; clip < pImporter->m_OutputAnimationNames.GetCount(); ++clip)
+    {
+      pProp->m_AvailableClips[clip] = pImporter->m_OutputAnimationNames[clip];
+    }
+
+    // merge the new data with the actual asset document
+    ApplyNativePropertyChangesToObjectManager(true);
+  }
+
+  if (res.Failed())
     return ezStatus("Model importer was unable to read this asset.");
-
-  pProp->m_AvailableClips.SetCount(pImporter->m_OutputAnimationNames.GetCount());
-  for (ezUInt32 clip = 0; clip < pImporter->m_OutputAnimationNames.GetCount(); ++clip)
-  {
-    pProp->m_AvailableClips[clip] = pImporter->m_OutputAnimationNames[clip];
-  }
-
-  if (pProp->m_RootMotionMode == ezRootMotionMode::Constant)
-  {
-    desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
-  }
-
-  range.BeginNextStep("Writing Result");
-
-  pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
-
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
-
-  // merge the new data with the actual asset document
-  ApplyNativePropertyChangesToObjectManager(true);
 
   return ezStatus(EZ_SUCCESS);
 }

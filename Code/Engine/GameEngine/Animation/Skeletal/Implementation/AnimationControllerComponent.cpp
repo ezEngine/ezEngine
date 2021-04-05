@@ -16,6 +16,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 1, ezComponentMode::Stat
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("AnimController", GetAnimationControllerFile, SetAnimationControllerFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Controller")),
+
+    EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
   }
   EZ_END_PROPERTIES;
 
@@ -37,6 +39,7 @@ void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& stream) c
   auto& s = stream.GetStream();
 
   s << m_hAnimationController;
+  s << m_RootMotionMode;
 }
 
 void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& stream)
@@ -46,6 +49,7 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_hAnimationController;
+  s >> m_RootMotionMode;
 }
 
 void ezAnimationControllerComponent::SetAnimationControllerFile(const char* szFile)
@@ -152,12 +156,9 @@ void ezAnimationControllerComponent::Update()
 
   m_AnimationGraph.GetBlackboard().SetEntryValue("Idle", bActive ? 0.0f : 1.0f);
 
-  m_AnimationGraph.Update(GetWorld()->GetClock().GetTimeDiff());
-  m_AnimationGraph.SendResultTo(GetOwner());
+  m_AnimationGraph.Update(GetWorld()->GetClock().GetTimeDiff(), GetOwner());
 
-  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
-  const ezTime tInv = 1.0 / tDiff;
-  const ezVec3 vRootMotion = tInv.AsFloatInSeconds() * m_AnimationGraph.GetRootMotion();
+  const ezVec3 vRootMotion = m_AnimationGraph.GetRootMotion();
 
   float fRotate = 0;
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_NegX, &fValue);
@@ -168,20 +169,10 @@ void ezAnimationControllerComponent::Update()
 
   auto pOwner = GetOwner();
 
-  ezMsgMoveCharacterController msg;
-  msg.m_fMoveForwards = ezMath::Max(0.0f, vRootMotion.x);
-  msg.m_fMoveBackwards = ezMath::Max(0.0f, -vRootMotion.x);
-  msg.m_fStrafeLeft = ezMath::Max(0.0f, -vRootMotion.y);
-  msg.m_fStrafeRight = ezMath::Max(0.0f, vRootMotion.y);
-  msg.m_fRotateLeft = ezMath::Max(0.0f, -fRotate);
-  msg.m_fRotateRight = ezMath::Max(0.0f, fRotate);
-
-  while (pOwner->GetParent())
+  if (m_RootMotionMode != ezRootMotionMode::Ignore)
   {
-    pOwner = pOwner->GetParent();
+    ezRootMotionMode::Apply(m_RootMotionMode, pOwner, vRootMotion);
   }
-
-  pOwner->SendMessage(msg);
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimationControllerComponent);

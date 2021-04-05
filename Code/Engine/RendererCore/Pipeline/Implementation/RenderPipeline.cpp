@@ -555,7 +555,6 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   }
 
   // Sort first and last usage arrays, these will determine the lifetime of the pool textures.
-  // TODO: Lambda sort function PLOX!
   struct FirstUsageComparer
   {
     FirstUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage)

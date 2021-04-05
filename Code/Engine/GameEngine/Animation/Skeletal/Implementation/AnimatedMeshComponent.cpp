@@ -6,6 +6,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererFoundation/Device/Device.h>
 
+#include <Physics/CharacterControllerComponent.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
@@ -32,6 +33,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); 
   EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionMode, 1)
+  EZ_ENUM_CONSTANTS(ezRootMotionMode::Ignore, ezRootMotionMode::ApplyToOwner, ezRootMotionMode::SendMoveCharacterMsg)
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezAnimatedMeshComponent::ezAnimatedMeshComponent() = default;
@@ -181,6 +186,45 @@ ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
   }
 
   return EZ_FAILURE;
+}
+
+void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& vMotion)
+{
+  switch (mode)
+  {
+    case ezRootMotionMode::Ignore:
+      return;
+
+    case ezRootMotionMode::ApplyToOwner:
+    {
+      ezVec3 vNewPos = pObject->GetLocalPosition();
+
+      vNewPos += pObject->GetLocalRotation() * vMotion;
+      pObject->SetLocalPosition(vNewPos);
+
+      return;
+    }
+
+    case ezRootMotionMode::SendMoveCharacterMsg:
+    {
+      ezMsgMoveCharacterController msg;
+      msg.m_fMoveForwards = ezMath::Max(0.0f, vMotion.x);
+      msg.m_fMoveBackwards = ezMath::Max(0.0f, -vMotion.x);
+      msg.m_fStrafeLeft = ezMath::Max(0.0f, -vMotion.y);
+      msg.m_fStrafeRight = ezMath::Max(0.0f, vMotion.y);
+      //msg.m_fRotateLeft = ezMath::Max(0.0f, -fRotate);
+      //msg.m_fRotateRight = ezMath::Max(0.0f, fRotate);
+
+      while (pObject->GetParent())
+      {
+        pObject = pObject->GetParent();
+      }
+
+      pObject->SendMessage(msg);
+
+      return;
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);

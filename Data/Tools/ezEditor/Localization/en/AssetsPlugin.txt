@@ -215,3 +215,27 @@ Common.Speed.3;300%
 Common.Speed.4;400%
 Common.Speed.5;500%
 Common.Speed.10;1000%
+Common.Grid;Grid
+ezComparisonOperator::Equal;=
+ezComparisonOperator::NotEqual;<>
+ezComparisonOperator::Less;<
+ezComparisonOperator::LessEqual;<=
+ezComparisonOperator::Greater;>
+ezComparisonOperator::GreaterEqual;>=
+AnimRamp;Animation Fade
+RootBones;Root Bones
+ezCombinePosesAnimNode;Combine Poses
+ezSetBlackboardValueAnimNode;Blackboard: Set Value
+ezCheckBlackboardValueAnimNode;Blackboard: Compare Value
+ezGetBlackboardNumberAnimNode;Blackboard: Get Value
+ezControllerInputAnimNode;Controller Input
+ezLerpClipsAnimNode;Lerp Animation Clips
+ezPlayClipAnimNode;Play Animation Clip
+ezPlaySequenceAnimNode;Play Animation Clip Sequence
+ezModelPoseOutputAnimNode;Model Pose Output
+ezBoneWeightsAnimNode;Bone Weight Config
+ezLocalToModelPoseAnimNode;Local To Model Pose
+ezEventAnimNode;Send Event
+ezLogicAndAnimNode;Logic AND
+ezLogicOrAnimNode;Logic OR
+ezLogicNotAnimNode;Logic NOT

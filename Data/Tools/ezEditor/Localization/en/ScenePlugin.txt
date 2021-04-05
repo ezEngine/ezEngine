@@ -292,3 +292,6 @@ ezBlackboardEntryFlags::UserFlag4;UserFlag 4
 ezBlackboardEntryFlags::UserFlag5;UserFlag 5
 ezBlackboardEntryFlags::UserFlag6;UserFlag 6
 ezBlackboardEntryFlags::UserFlag7;UserFlag 7
+ezRootMotionMode::Ignore;Ignore
+ezRootMotionMode::ApplyToOwner;Apply To Owner
+ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg

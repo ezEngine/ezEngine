@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
@@ -693,7 +694,16 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
     }
 
     sFullName = m_pManager->GetTypeCategory(pRtti);
-    sFullName.AppendPath(sCleanName);
+
+    if (sFullName.IsEmpty())
+    {
+      if (auto pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+      {
+        sFullName = pAttr->GetCategory();
+      }
+    }
+
+    sFullName.AppendPath(ezTranslate(sCleanName));
 
     pSearchMenu->AddItem(sFullName, QVariant::fromValue((void*)pRtti));
   }

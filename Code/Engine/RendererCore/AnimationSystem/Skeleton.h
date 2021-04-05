@@ -63,7 +63,7 @@ public:
   ezUInt16 FindJointByName(const ezTempHashedString& sName) const;
 
   /// \brief Checks if two skeletons are compatible (same joint count and hierarchy)
-  bool IsCompatibleWith(const ezSkeleton& other) const;
+  //bool IsCompatibleWith(const ezSkeleton& other) const;
 
   /// \brief Saves the skeleton in a given stream.
   void Save(ezStreamWriter& stream) const;

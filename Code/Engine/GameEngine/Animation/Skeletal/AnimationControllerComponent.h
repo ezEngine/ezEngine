@@ -38,6 +38,8 @@ public:
 protected:
   void Update();
 
+  ezEnum<ezRootMotionMode> m_RootMotionMode;
+
   ezAnimGraphResourceHandle m_hAnimationController;
   ezAnimGraph m_AnimationGraph;
 };
