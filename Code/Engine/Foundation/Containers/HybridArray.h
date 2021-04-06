@@ -18,7 +18,7 @@ public:
   ezHybridArray(); // [tested]
 
   /// \brief Creates an empty array. Does not allocate any data yet.
-  ezHybridArray(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezHybridArray(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
   ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other); // [tested]

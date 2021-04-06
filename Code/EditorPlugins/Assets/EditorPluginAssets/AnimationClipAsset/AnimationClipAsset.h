@@ -6,7 +6,7 @@
 
 class ezAnimationClipAssetDocument;
 
-struct ezRootMotionMode
+struct ezRootMotionSource
 {
   using StorageType = ezUInt8;
 
@@ -21,7 +21,7 @@ struct ezRootMotionMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionMode);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionSource);
 
 class ezAnimationClipAssetProperties : public ezReflectedClass
 {
@@ -37,7 +37,7 @@ public:
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
   ezString m_sPreviewMesh;
-  ezEnum<ezRootMotionMode> m_RootMotionMode;
+  ezEnum<ezRootMotionSource> m_RootMotionMode;
   ezVec3 m_vConstantRootMotion;
   // ezString m_sJoint1;
   // ezString m_sJoint2;

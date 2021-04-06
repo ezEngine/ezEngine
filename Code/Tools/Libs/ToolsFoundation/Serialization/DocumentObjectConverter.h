@@ -5,10 +5,14 @@
 
 class ezObjectAccessorBase;
 
+/// \brief Writes the state of an ezDocumentObject to an abstract graph.
+///
+/// This information can then be applied to another ezDocument object through ezDocumentObjectConverterReader,
+/// or to entirely different class using ezRttiConverterReader.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectConverterWriter
 {
 public:
-  typedef ezDelegate<bool(const ezAbstractProperty*)> FilterFunction;
+  using FilterFunction = ezDelegate<bool(const ezAbstractProperty*)>;
   ezDocumentObjectConverterWriter(ezAbstractObjectGraph* pGraph, const ezDocumentObjectManager* pManager, FilterFunction filter = FilterFunction())
   {
     m_pGraph = pGraph;

@@ -62,6 +62,14 @@ public:
     Output
   };
 
+  enum class Shape
+  {
+    Circle,
+    Rect,
+    RoundRect,
+    Default = Circle
+  };
+
   ezPin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject)
     : m_Type(type)
     , m_Color(color)
@@ -69,6 +77,8 @@ public:
     , m_pParent(pObject)
   {
   }
+
+  Shape m_Shape = Shape::Default;
 
   Type GetType() const { return m_Type; }
   const char* GetName() const { return m_sName; }
@@ -105,11 +115,11 @@ public:
 
   enum class CanConnectResult
   {
-    ConnectNever,
-    Connect1to1,
-    Connect1toN,
-    ConnectNto1,
-    ConnectNtoN,
+    ConnectNever, ///< Pins can't be connected
+    Connect1to1,  ///< Output pin can have 1 outgoing connection, Input pin can have 1 incoming connection
+    Connect1toN,  ///< Output pin can have 1 outgoing connection, Input pin can have N incoming connections
+    ConnectNto1,  ///< Output pin can have N outgoing connections, Input pin can have 1 incoming connection
+    ConnectNtoN,  ///< Output pin can have N outgoing connections, Input pin can have N incoming connections
   };
 
   bool IsNode(const ezDocumentObject* pObject) const;

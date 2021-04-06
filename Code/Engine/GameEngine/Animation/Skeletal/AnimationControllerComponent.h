@@ -4,6 +4,7 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
+#include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
@@ -37,6 +38,8 @@ public:
 
 protected:
   void Update();
+
+  ezEnum<ezRootMotionMode> m_RootMotionMode;
 
   ezAnimGraphResourceHandle m_hAnimationController;
   ezAnimGraph m_AnimationGraph;

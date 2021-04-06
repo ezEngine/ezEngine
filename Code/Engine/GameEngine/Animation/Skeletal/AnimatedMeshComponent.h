@@ -48,3 +48,22 @@ protected:
   ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezSkinningSpaceAnimationPose m_SkinningSpacePose;
 };
+
+
+struct ezRootMotionMode
+{
+  using StorageType = ezInt8;
+
+  enum Enum
+  {
+    Ignore,
+    ApplyToOwner,
+    SendMoveCharacterMsg,
+
+    Default = Ignore
+  };
+
+  EZ_GAMEENGINE_DLL static void Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& vMotion);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezRootMotionMode);

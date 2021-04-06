@@ -87,7 +87,7 @@ public:
 
 protected:
   /// \brief Creates an empty hashtable. Does not allocate any data yet.
-  ezHashTableBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezHashTableBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given hashtable.
   ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -255,7 +255,7 @@ class ezHashTable : public ezHashTableBase<KeyType, ValueType, Hasher>
 {
 public:
   ezHashTable();
-  ezHashTable(ezAllocatorBase* pAllocator);
+  explicit ezHashTable(ezAllocatorBase* pAllocator);
 
   ezHashTable(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& other);
   ezHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& other);

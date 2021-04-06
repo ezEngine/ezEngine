@@ -295,9 +295,9 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
   while (CurTime - LastTime < smoothFrameTime)
   {
     if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr))
-  {
+    {
       // nothing left to do, reset the threshold
-    s_FrameTimeThreshold = smoothFrameTime;
+      s_FrameTimeThreshold = smoothFrameTime;
       return;
     }
 

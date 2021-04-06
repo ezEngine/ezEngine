@@ -99,7 +99,7 @@ namespace ezInternal
 
   EZ_ALWAYS_INLINE const ezGameObject* WorldData::ConstObjectIterator::operator->() const { return m_Iterator; }
 
-  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::operator const ezGameObject *() const { return m_Iterator; }
+  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::operator const ezGameObject*() const { return m_Iterator; }
 
   EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::Next()
   {

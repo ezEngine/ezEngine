@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/Skeletal/SimpleAnimationComponent.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/animation.h>
@@ -23,6 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 1, ezComponentMode::Static);
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
   }
   EZ_END_PROPERTIES;
 
@@ -53,6 +55,7 @@ void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_AnimationMode;
   s << m_fSpeed;
   s << m_hAnimationClip;
+  s << m_RootMotionMode;
 }
 
 void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
@@ -64,6 +67,7 @@ void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_AnimationMode;
   s >> m_fSpeed;
   s >> m_hAnimationClip;
+  s >> m_RootMotionMode;
 }
 
 void ezSimpleAnimationComponent::OnSimulationStarted()
@@ -130,63 +134,55 @@ void ezSimpleAnimationComponent::Update()
 
   m_Duration = animDesc.GetDuration();
 
-  if (!UpdatePlaybackTime(GetWorld()->GetClock().GetTimeDiff(), animDesc.m_EventTrack))
+  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+
+  if (!UpdatePlaybackTime(tDiff, animDesc.m_EventTrack))
     return;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  const ozz::animation::Animation* pOzzAnimation = &animDesc.GetMappedOzzAnimation(*pSkeleton.GetPointer());
-  const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+  ezAnimPoseGenerator poseGen;
+  poseGen.Reset(pSkeleton.GetPointer());
 
-  const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
-  const ezUInt32 uiNumAnimatedJoints = pOzzAnimation->num_tracks();
+  auto& cmdSample = poseGen.AllocCommandSampleTrack();
+  cmdSample.m_hAnimationClip = m_hAnimationClip;
+  cmdSample.m_SampleTime = m_fNormalizedPlaybackPosition * animDesc.GetDuration();
 
-  if (uiNumSkeletonJoints != uiNumAnimatedJoints)
+  auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
+  cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
+  cmdL2M.m_pSendLocalPoseMsgTo = GetOwner();
+
+  auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
+  cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
+
+  auto* pPose = poseGen.GeneratePose();
+
+  if (pPose == nullptr)
     return;
-
-  ezArrayPtr<ezMat4> pPoseMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, uiNumSkeletonJoints);
-
-  if (m_ozzSamplingCache.max_tracks() != uiNumAnimatedJoints)
-  {
-    m_ozzSamplingCache.Resize(uiNumAnimatedJoints);
-    m_ozzLocalTransforms.resize(pOzzSkeleton->num_soa_joints());
-  }
-
-  {
-    ozz::animation::SamplingJob job;
-    job.animation = pOzzAnimation;
-    job.cache = &m_ozzSamplingCache;
-    job.ratio = m_fNormalizedPlaybackPosition;
-    job.output = make_span(m_ozzLocalTransforms);
-    job.Run();
-  }
-
-  {
-    ezMsgAnimationPosePreparing msg;
-    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_LocalTransforms = ezMakeArrayPtr(m_ozzLocalTransforms.data(), (ezUInt32)m_ozzLocalTransforms.size());
-
-    GetOwner()->SendMessageRecursive(msg);
-  }
-
-  {
-    ozz::animation::LocalToModelJob job;
-    job.input = make_span(m_ozzLocalTransforms);
-    job.output = span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
-    job.skeleton = pOzzSkeleton;
-    job.Run();
-  }
 
   // inform child nodes/components that a new pose is available
   {
     ezMsgAnimationPoseUpdated msg;
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = pPoseMatrices;
+    msg.m_ModelTransforms = *pPose;
 
     GetOwner()->SendMessageRecursive(msg);
+  }
+
+  if (m_RootMotionMode != ezRootMotionMode::Ignore)
+  {
+    ezVec3 vRootMotion = tDiff.AsFloatInSeconds() * m_fSpeed * animDesc.m_vConstantRootMotion;
+
+    const bool bReverse = GetUserFlag(0);
+    if (bReverse)
+    {
+      vRootMotion = -vRootMotion;
+    }
+
+    ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion);
   }
 }
 

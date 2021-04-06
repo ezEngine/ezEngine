@@ -11,8 +11,8 @@ struct ezMemoryTrackingFlags
   enum Enum
   {
     None,
-    RegisterAllocator = EZ_BIT(0), ///< Register the allocator with the memory tracker. If EnableAllocationTracking is not set as well it is up to the
-                                   ///< allocator implementation whether it collects usable stats or not.
+    RegisterAllocator = EZ_BIT(0),        ///< Register the allocator with the memory tracker. If EnableAllocationTracking is not set as well it is up to the
+                                          ///< allocator implementation whether it collects usable stats or not.
     EnableAllocationTracking = EZ_BIT(1), ///< Enable tracking of individual allocations
     EnableStackTrace = EZ_BIT(2),         ///< Enable stack traces for each allocation
 

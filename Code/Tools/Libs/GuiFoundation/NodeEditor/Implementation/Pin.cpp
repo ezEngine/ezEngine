@@ -68,7 +68,21 @@ void ezQtPin::SetPin(const ezPin* pPin)
     QRectF bounds(0, 0, iRadus, iRadus);
     bounds.adjust(3, 3, -3, -3);
     m_PinCenter = bounds.center();
-    p.addEllipse(bounds);
+
+    switch (m_pPin->m_Shape)
+    {
+      case ezPin::Shape::Circle:
+        p.addEllipse(bounds);
+        break;
+      case ezPin::Shape::Rect:
+        p.addRect(bounds);
+        break;
+      case ezPin::Shape::RoundRect:
+        p.addRoundedRect(bounds, 2, 2);
+        break;
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+    }
+
     setPath(p);
   }
   else
@@ -78,7 +92,21 @@ void ezQtPin::SetPin(const ezPin* pPin)
     QRectF bounds(rectLabel.width(), 0, iRadus, iRadus);
     bounds.adjust(3, 3, -3, -3);
     m_PinCenter = bounds.center();
-    p.addEllipse(bounds);
+
+    switch (m_pPin->m_Shape)
+    {
+      case ezPin::Shape::Circle:
+        p.addEllipse(bounds);
+        break;
+      case ezPin::Shape::Rect:
+        p.addRect(bounds);
+        break;
+      case ezPin::Shape::RoundRect:
+        p.addRoundedRect(bounds, 2, 2);
+        break;
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+    }
+
     setPath(p);
   }
 

@@ -13,7 +13,7 @@ ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, 
 }
 
 template <typename Type, ezCVarType::Enum CVarType>
-ezTypedCVar<Type, CVarType>::operator const Type &() const
+ezTypedCVar<Type, CVarType>::operator const Type&() const
 {
   return (m_Values[ezCVarValue::Current]);
 }

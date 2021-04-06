@@ -2,37 +2,45 @@
 
 #include <RendererCore/RendererCoreDLL.h>
 
-#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Utils/Blackboard.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
-#include <ozz/animation/runtime/blending_job.h>
+
 #include <ozz/animation/runtime/sampling_job.h>
 #include <ozz/base/containers/vector.h>
 #include <ozz/base/maths/soa_transform.h>
 
 class ezGameObject;
-class ezStreamWriter;
-class ezStreamReader;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-struct ezAnimGraphBlendWeights
+struct ezAnimGraphBoneWeights
 {
   float m_fOverallWeight = 1.0f;
-  ozz::vector<ozz::math::SimdFloat4> m_ozzBlendWeights;
+  ozz::vector<ozz::math::SimdFloat4> m_ozzBoneWeights;
 };
 
 struct ezAnimGraphLocalTransforms
 {
+  const ezAnimGraphBoneWeights* m_pWeights = nullptr;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
+  float m_fOverallWeight = 1.0f;
+  ezVec3 m_vRootMotion = ezVec3::ZeroVector();
+  bool m_bUseRootMotion = false;
 };
 
 struct ezAnimGraphSamplingCache
 {
+  const ozz::animation::Animation* m_pUsedForAnim = nullptr;
   ozz::animation::SamplingCache m_ozzSamplingCache;
+};
+
+struct ezAnimGraphModelTransforms
+{
+  ezVec3 m_vRootMotion = ezVec3::ZeroVector();
+  bool m_bUseRootMotion = false;
+  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelTransforms;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraph
@@ -43,9 +51,8 @@ public:
   ezAnimGraph();
   ~ezAnimGraph();
 
-  void Update(ezTime tDiff);
-  void SendResultTo(ezGameObject* pObject);
-  const ezVec3& GetRootMotion() const { return m_vRootMotion; }
+  void Update(ezTime tDiff, ezGameObject* pTarget);
+  ezVec3 GetRootMotion() const;
 
   ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
 
@@ -65,41 +72,38 @@ public:
   // EXTEND THIS if a new type is introduced
   ezDynamicArray<ezInt8> m_TriggerInputPinStates;
   ezDynamicArray<double> m_NumberInputPinStates;
-  ezDynamicArray<ezAnimGraphBlendWeights*> m_SkeletonWeightInputPinStates;
+  ezDynamicArray<ezAnimGraphBoneWeights*> m_BoneWeightInputPinStates;
+  ezDynamicArray<ezHybridArray<ezAnimGraphLocalTransforms*, 1>> m_LocalPoseInputPinStates;
+  ezDynamicArray<ezAnimGraphModelTransforms*> m_ModelPoseInputPinStates;
 
-  /// \brief To be called by ezAnimGraphNode classes every frame that they want to affect animation
-  void AddFrameBlendLayer(const ozz::animation::BlendingJob::Layer& layer);
-
-  /// \brief To be called by ezAnimGraphNode classes every frame that they want to affect the root motion
-  void AddFrameRootMotion(const ezVec3& motion);
-
-  ezAnimGraphBlendWeights* AllocateBlendWeights(const ezSkeletonResource& skeleton);
-  void FreeBlendWeights(ezAnimGraphBlendWeights*& pWeights);
+  ezAnimGraphBoneWeights* AllocateBoneWeights(const ezSkeletonResource& skeleton);
+  void FreeBoneWeights(ezAnimGraphBoneWeights*& pWeights);
 
   ezAnimGraphLocalTransforms* AllocateLocalTransforms(const ezSkeletonResource& skeleton);
   void FreeLocalTransforms(ezAnimGraphLocalTransforms*& pTransforms);
 
+  ezAnimGraphModelTransforms* AllocateModelTransforms(const ezSkeletonResource& skeleton);
+  void FreeModelTransforms(ezAnimGraphModelTransforms*& pTransforms);
+
   ezAnimGraphSamplingCache* AllocateSamplingCache(const ozz::animation::Animation& animclip);
+  void UpdateSamplingCache(ezAnimGraphSamplingCache*& pCache, const ozz::animation::Animation& animclip);
   void FreeSamplingCache(ezAnimGraphSamplingCache*& pTransforms);
+
+  ezAnimGraphModelTransforms* m_pCurrentModelTransforms = nullptr;
 
 private:
   ezBlackboard* m_pBlackboard = nullptr;
   ezBlackboard m_Blackboard;
 
-  ezDynamicArray<ozz::animation::BlendingJob::Layer> m_ozzBlendLayers;
-  ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelSpaceTransforms;
-
-  ezDeque<ezAnimGraphBlendWeights> m_BlendWeights;
-  ezHybridArray<ezAnimGraphBlendWeights*, 8> m_BlendWeightsFreeList;
+  ezDeque<ezAnimGraphBoneWeights> m_BoneWeights;
+  ezHybridArray<ezAnimGraphBoneWeights*, 8> m_BoneWeightsFreeList;
 
   ezDeque<ezAnimGraphLocalTransforms> m_LocalTransforms;
   ezHybridArray<ezAnimGraphLocalTransforms*, 8> m_LocalTransformsFreeList;
 
+  ezDeque<ezAnimGraphModelTransforms> m_ModelTransforms;
+  ezHybridArray<ezAnimGraphModelTransforms*, 8> m_ModelTransformsFreeList;
+
   ezDeque<ezAnimGraphSamplingCache> m_SamplingCaches;
   ezHybridArray<ezAnimGraphSamplingCache*, 8> m_SamplingCachesFreeList;
-
-  bool m_bFinalized = false;
-  ezVec3 m_vRootMotion = ezVec3::ZeroVector();
-  void Finalize(const ezSkeletonResource* pSkeleton);
 };

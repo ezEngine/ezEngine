@@ -215,7 +215,9 @@ ezWindow::~ezWindow()
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam) {}
+void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam)
+{
+}
 #endif
 
 ezUInt8 ezWindow::GetNextUnusedWindowNumber()

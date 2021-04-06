@@ -325,4 +325,3 @@ ezResult ezMeshBufferUtils::DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGAL
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshBufferUtils);
-

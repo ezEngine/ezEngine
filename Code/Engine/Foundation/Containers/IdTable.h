@@ -73,7 +73,7 @@ public:
 
 protected:
   /// \brief Creates an empty id-table. Does not allocate any data yet.
-  ezIdTableBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezIdTableBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given id-table.
   ezIdTableBase(const ezIdTableBase<IdType, ValueType>& rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -171,7 +171,7 @@ class ezIdTable : public ezIdTableBase<IdType, ValueType>
 {
 public:
   ezIdTable();
-  ezIdTable(ezAllocatorBase* pAllocator);
+  explicit ezIdTable(ezAllocatorBase* pAllocator);
 
   ezIdTable(const ezIdTable<IdType, ValueType, AllocatorWrapper>& other);
   ezIdTable(const ezIdTableBase<IdType, ValueType>& other);

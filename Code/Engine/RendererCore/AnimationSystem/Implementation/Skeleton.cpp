@@ -36,26 +36,26 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
   return ezInvalidJointIndex;
 }
 
-bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
-{
-  if (this == &other)
-    return true;
-
-  if (other.GetJointCount() != GetJointCount())
-    return false;
-
-  // TODO: This only checks the joint hierarchy, maybe it should check names or hierarchy based on names
-  const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_Joints.GetCount());
-  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
-  {
-    if (other.m_Joints[i].GetParentIndex() != m_Joints[i].GetParentIndex())
-    {
-      return false;
-    }
-  }
-
-  return true;
-}
+//bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
+//{
+//  if (this == &other)
+//    return true;
+//
+//  if (other.GetJointCount() != GetJointCount())
+//    return false;
+//
+//  // TODO: This only checks the joint hierarchy, maybe it should check names or hierarchy based on names
+//  const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_Joints.GetCount());
+//  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
+//  {
+//    if (other.m_Joints[i].GetParentIndex() != m_Joints[i].GetParentIndex())
+//    {
+//      return false;
+//    }
+//  }
+//
+//  return true;
+//}
 
 void ezSkeleton::Save(ezStreamWriter& stream) const
 {

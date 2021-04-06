@@ -61,8 +61,8 @@ struct ezPropertyFlags
     PointerOwner = EZ_BIT(7), ///< This pointer property takes ownership of the passed pointer.
     ReadOnly = EZ_BIT(8),     ///< Can only be read but not modified.
     Hidden = EZ_BIT(9),       ///< This property should not appear in the UI.
-    Phantom = EZ_BIT(10), ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used
-                          ///< for data driven types, e.g. by the Visual Shader asset.
+    Phantom = EZ_BIT(10),     ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used
+                              ///< for data driven types, e.g. by the Visual Shader asset.
 
     VarOut = EZ_BIT(11),   ///< Tag for non-const-ref function parameters to indicate usage 'out'
     VarInOut = EZ_BIT(12), ///< Tag for non-const-ref function parameters to indicate usage 'inout'

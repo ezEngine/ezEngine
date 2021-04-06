@@ -208,8 +208,8 @@ struct ezVariantAdapter<T, ezEnum<S>, 0, 0>
       m_realValue = static_cast<typename S::Enum>(m_value.ConvertTo<ezInt64>());
   }
 
-  operator const ezEnum<S> &() { return m_realValue; }
-  operator const ezEnum<S> *() { return m_value.IsValid() ? &m_realValue : nullptr; }
+  operator const ezEnum<S>&() { return m_realValue; }
+  operator const ezEnum<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezEnum<S> m_realValue;
@@ -231,8 +231,8 @@ struct ezVariantAdapter<T, ezEnum<S>, 0, 1>
       m_value = static_cast<ezInt64>(m_realValue.GetValue());
   }
 
-  operator ezEnum<S> &() { return m_realValue; }
-  operator ezEnum<S> *() { return m_value.IsValid() ? &m_realValue : nullptr; }
+  operator ezEnum<S>&() { return m_realValue; }
+  operator ezEnum<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezEnum<S> m_realValue;
@@ -249,8 +249,8 @@ struct ezVariantAdapter<T, ezBitflags<S>, 0, 0>
       m_realValue.SetValue(static_cast<typename S::StorageType>(m_value.ConvertTo<ezInt64>()));
   }
 
-  operator const ezBitflags<S> &() { return m_realValue; }
-  operator const ezBitflags<S> *() { return m_value.IsValid() ? &m_realValue : nullptr; }
+  operator const ezBitflags<S>&() { return m_realValue; }
+  operator const ezBitflags<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezBitflags<S> m_realValue;
@@ -272,8 +272,8 @@ struct ezVariantAdapter<T, ezBitflags<S>, 0, 1>
       m_value = static_cast<ezInt64>(m_realValue.GetValue());
   }
 
-  operator ezBitflags<S> &() { return m_realValue; }
-  operator ezBitflags<S> *() { return m_value.IsValid() ? &m_realValue : nullptr; }
+  operator ezBitflags<S>&() { return m_realValue; }
+  operator ezBitflags<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezBitflags<S> m_realValue;
@@ -288,7 +288,7 @@ struct ezVariantAdapter<T, C, 1, 0>
   {
   }
 
-  operator const C &()
+  operator const C&()
   {
     if constexpr (ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast)
     {
@@ -298,7 +298,7 @@ struct ezVariantAdapter<T, C, 1, 0>
     return m_value.Get<RealType>();
   }
 
-  operator const C *()
+  operator const C*()
   {
     if constexpr (ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast)
     {
@@ -348,8 +348,8 @@ struct ezVariantAdapter<T, ezVariant, 1, 0>
   {
   }
 
-  operator const ezVariant &() { return m_value; }
-  operator const ezVariant *() { return &m_value; }
+  operator const ezVariant&() { return m_value; }
+  operator const ezVariant*() { return &m_value; }
 
   ezVariant& m_value;
 };
@@ -376,7 +376,7 @@ struct ezVariantAdapter<const char*, const char*, 1, 0>
   {
   }
 
-  operator const char *() { return m_value.IsValid() ? m_value.Get<ezString>().GetData() : nullptr; }
+  operator const char*() { return m_value.IsValid() ? m_value.Get<ezString>().GetData() : nullptr; }
 
   ezVariant& m_value;
 };

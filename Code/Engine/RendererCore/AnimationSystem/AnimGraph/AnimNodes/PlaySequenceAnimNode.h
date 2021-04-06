@@ -1,16 +1,6 @@
 #pragma once
 
-#include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
-#include <RendererCore/AnimationSystem/AnimationClipResource.h>
-#include <ozz/animation/runtime/sampling_job.h>
-#include <ozz/base/containers/vector.h>
-#include <ozz/base/maths/soa_transform.h>
-
-class ezSkeletonResource;
-class ezStreamWriter;
-class ezStreamReader;
-using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 
 class EZ_RENDERERCORE_DLL ezPlaySequenceAnimNode : public ezAnimGraphNode
 {
@@ -23,7 +13,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton) override;
+  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezPlayClipAnimNode
@@ -38,26 +28,42 @@ public:
   void SetEndClip(const char* szFile); // [ property ]
   const char* GetEndClip() const;      // [ property ]
 
-  float m_fSpeed = 1.0f; // [ property ]
+  ezAnimRampUpDown m_AnimRamp;           // [ property ]
+  float m_fPlaybackSpeed = 1.0f;         // [ property ]
+  bool m_bApplyRootMotion = false;       // [ property ]
+  bool m_bAllowLoopInterruption = false; // [ property ]
+  ezTime m_StartToMiddleCrossFade;       // [ property ]
+  ezTime m_LoopCrossFade;                // [ property ]
+  ezTime m_MiddleToEndCrossFade;         // [ property ]
 
   ezAnimationClipResourceHandle m_hStartClip;
   ezAnimationClipResourceHandle m_hMiddleClip;
   ezAnimationClipResourceHandle m_hEndClip;
 
 private:
+  ezAnimGraphTriggerInputPin m_ActivePin;       // [ property ]
+  ezAnimGraphBoneWeightsInputPin m_WeightsPin;  // [ property ]
+  ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
+  ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
+  ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
+
   enum class State : ezUInt8
   {
     Off,
     Start,
-    Loop,
-    End
+    Middle,
+    End,
   };
 
-  ezAnimGraphTriggerInputPin m_Active; // [ property ]
-
   State m_State = State::Off;
-  ezTime m_PlaybackTime;
 
-  ezAnimGraphSamplingCache* m_pSamplingCache = nullptr;
-  ezAnimGraphLocalTransforms* m_pLocalTransforms = nullptr;
+  ezAnimationClipResourceHandle m_hPlayingClips[2];
+
+  ezTime m_PlaybackTime;
+  bool m_bStopWhenPossible = false;
+  float m_fCurWeight = 0.0f;
+
+  ezAnimGraphSamplingCache* m_pSamplingCache[2] = {};
+  ezAnimGraphLocalTransforms* m_pLocalTransforms[2] = {};
+  ezAnimGraphLocalTransforms* m_pOutputTransform = nullptr;
 };

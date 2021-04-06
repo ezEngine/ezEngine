@@ -51,7 +51,7 @@ namespace ezInternal
       const ezGameObject& operator*() const;
       const ezGameObject* operator->() const;
 
-      operator const ezGameObject *() const;
+      operator const ezGameObject*() const;
 
       /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();

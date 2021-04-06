@@ -13,8 +13,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionMode, 1)
-  EZ_ENUM_CONSTANTS(ezRootMotionMode::None, ezRootMotionMode::Constant)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionSource, 1)
+  EZ_ENUM_CONSTANTS(ezRootMotionSource::None, ezRootMotionSource::Constant)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefault
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
     EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")), // TODO: need an attribute that something is 'UI only' (doesn't change the transform state, but is also not 'temporary'
-    EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionMode, m_RootMotionMode),
+    EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     //EZ_MEMBER_PROPERTY("Joint1", m_sJoint1),
     //EZ_MEMBER_PROPERTY("Joint2", m_sJoint2),
@@ -100,28 +100,37 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   opt.m_uiFirstAnimKeyframe = pProp->m_uiFirstFrame;
   opt.m_uiNumAnimKeyframes = pProp->m_uiNumFrames;
 
-  if (pImporter->Import(opt).Failed())
+  const ezResult res = pImporter->Import(opt);
+
+  if (res.Succeeded())
+  {
+    if (pProp->m_RootMotionMode == ezRootMotionSource::Constant)
+    {
+      desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
+    }
+
+    range.BeginNextStep("Writing Result");
+
+    pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
+
+    EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+  }
+
+  // if we found information about animation clips, update the UI, even if the transform failed
+  if (!pImporter->m_OutputAnimationNames.IsEmpty())
+  {
+    pProp->m_AvailableClips.SetCount(pImporter->m_OutputAnimationNames.GetCount());
+    for (ezUInt32 clip = 0; clip < pImporter->m_OutputAnimationNames.GetCount(); ++clip)
+    {
+      pProp->m_AvailableClips[clip] = pImporter->m_OutputAnimationNames[clip];
+    }
+
+    // merge the new data with the actual asset document
+    ApplyNativePropertyChangesToObjectManager(true);
+  }
+
+  if (res.Failed())
     return ezStatus("Model importer was unable to read this asset.");
-
-  pProp->m_AvailableClips.SetCount(pImporter->m_OutputAnimationNames.GetCount());
-  for (ezUInt32 clip = 0; clip < pImporter->m_OutputAnimationNames.GetCount(); ++clip)
-  {
-    pProp->m_AvailableClips[clip] = pImporter->m_OutputAnimationNames[clip];
-  }
-
-  if (pProp->m_RootMotionMode == ezRootMotionMode::Constant)
-  {
-    desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
-  }
-
-  range.BeginNextStep("Writing Result");
-
-  pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
-
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
-
-  // merge the new data with the actual asset document
-  ApplyNativePropertyChangesToObjectManager(true);
 
   return ezStatus(EZ_SUCCESS);
 }

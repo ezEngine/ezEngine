@@ -1,28 +1,42 @@
 #include <RendererCorePCH.h>
 
+#include <AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/PlaySequenceAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
-#include <ozz/animation/runtime/animation.h>
-#include <ozz/animation/runtime/blending_job.h>
-#include <ozz/animation/runtime/sampling_job.h>
-#include <ozz/animation/runtime/skeleton.h>
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlaySequenceAnimNode, 1, ezRTTIDefaultAllocator<ezPlaySequenceAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_BEGIN_PROPERTIES
-    {
-      EZ_ACCESSOR_PROPERTY("StartClip", GetStartClip, SetStartClip)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-      EZ_ACCESSOR_PROPERTY("MiddleClip", GetMiddleClip, SetMiddleClip)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-      EZ_ACCESSOR_PROPERTY("EndClip", GetEndClip, SetEndClip)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-      EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("AnimRamp", m_AnimRamp),
+    EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
 
-      EZ_MEMBER_PROPERTY("Active", m_Active)->AddAttributes(new ezHiddenAttribute()),
-    }
-    EZ_END_PROPERTIES;
+    EZ_ACCESSOR_PROPERTY("StartClip", GetStartClip, SetStartClip)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_MEMBER_PROPERTY("StartToMiddleCrossfade", m_StartToMiddleCrossFade),
+    EZ_ACCESSOR_PROPERTY("MiddleClip", GetMiddleClip, SetMiddleClip)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_MEMBER_PROPERTY("LoopCrossfade", m_LoopCrossFade),
+    EZ_MEMBER_PROPERTY("AllowLoopInterruption", m_bAllowLoopInterruption),
+    EZ_MEMBER_PROPERTY("MiddleToEndCrossfade", m_MiddleToEndCrossFade),
+    EZ_ACCESSOR_PROPERTY("EndClip", GetEndClip, SetEndClip)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+
+    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("Speed", m_SpeedPin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("LocalPose", m_LocalPosePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OnFinished", m_OnFinishedPin)->AddAttributes(new ezHiddenAttribute()),
   }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Animation Sampling"),
+    new ezColorAttribute(ezColor::RoyalBlue),
+    new ezTitleAttribute("Sequence: '{StartClip}' '{MiddleClip}' '{EndClip}'"),
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -32,12 +46,22 @@ ezResult ezPlaySequenceAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_fSpeed;
+  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Serialize(stream));
+  stream << m_fPlaybackSpeed;
+  stream << m_bApplyRootMotion;
   stream << m_hStartClip;
   stream << m_hMiddleClip;
   stream << m_hEndClip;
+  stream << m_StartToMiddleCrossFade;
+  stream << m_MiddleToEndCrossFade;
+  stream << m_LoopCrossFade;
+  stream << m_bAllowLoopInterruption;
 
-  EZ_SUCCEED_OR_RETURN(m_Active.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_WeightsPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_SpeedPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -48,166 +72,24 @@ ezResult ezPlaySequenceAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  stream >> m_fSpeed;
+  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Deserialize(stream));
+  stream >> m_fPlaybackSpeed;
+  stream >> m_bApplyRootMotion;
   stream >> m_hStartClip;
   stream >> m_hMiddleClip;
   stream >> m_hEndClip;
+  stream >> m_StartToMiddleCrossFade;
+  stream >> m_MiddleToEndCrossFade;
+  stream >> m_LoopCrossFade;
+  stream >> m_bAllowLoopInterruption;
 
-  EZ_SUCCEED_OR_RETURN(m_Active.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_WeightsPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_SpeedPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Deserialize(stream));
 
   return EZ_SUCCESS;
-}
-
-void ezPlaySequenceAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton)
-{
-  const bool bContinue = m_Active.IsTriggered(*pOwner);
-  m_PlaybackTime += tDiff * m_fSpeed;
-
-  if (bContinue)
-  {
-    if (m_State == State::Off)
-    {
-      m_State = State::Start;
-      m_PlaybackTime.SetZero();
-    }
-  }
-  else
-  {
-    if (m_State == State::Off)
-    {
-      pOwner->FreeLocalTransforms(m_pLocalTransforms);
-      pOwner->FreeSamplingCache(m_pSamplingCache);
-      return;
-    }
-  }
-
-  const ezAnimationClipResource* pClipToSample = nullptr;
-
-  if (m_State == State::Start)
-  {
-    // if anything fails, enter the next state
-    m_State = bContinue ? State::Loop : State::End;
-
-    if (m_hStartClip.IsValid())
-    {
-      ezResourceLock<ezAnimationClipResource> pAnimClip(m_hStartClip, ezResourceAcquireMode::BlockTillLoaded);
-      if (pAnimClip.GetAcquireResult() == ezResourceAcquireResult::Final)
-      {
-        const auto& animDesc = pAnimClip->GetDescriptor();
-        if (m_PlaybackTime <= animDesc.GetDuration())
-        {
-          // stay in the start state
-          m_State = State::Start;
-          pClipToSample = pAnimClip.GetPointer();
-        }
-        else
-        {
-          if (!bContinue || m_hMiddleClip.IsValid())
-          {
-            // continue with the next state
-            m_PlaybackTime -= animDesc.GetDuration();
-          }
-          else
-          {
-            // if there is no middle / loop state, stay at the last frame of the start state
-            m_State = State::Start;
-            pClipToSample = pAnimClip.GetPointer();
-            m_PlaybackTime = animDesc.GetDuration();
-          }
-        }
-      }
-    }
-  }
-
-  if (m_State == State::Loop)
-  {
-    // if anything fails, enter the next state
-    m_State = State::End;
-
-    if (m_hMiddleClip.IsValid())
-    {
-      ezResourceLock<ezAnimationClipResource> pAnimClip(m_hMiddleClip, ezResourceAcquireMode::BlockTillLoaded);
-      if (pAnimClip.GetAcquireResult() == ezResourceAcquireResult::Final)
-      {
-        const auto& animDesc = pAnimClip->GetDescriptor();
-
-        if (m_PlaybackTime > animDesc.GetDuration())
-        {
-          m_PlaybackTime -= animDesc.GetDuration();
-
-          if (bContinue)
-          {
-            pClipToSample = pAnimClip.GetPointer();
-            m_State = State::Loop;
-          }
-        }
-        else
-        {
-          pClipToSample = pAnimClip.GetPointer();
-          m_State = State::Loop;
-        }
-      }
-    }
-  }
-
-  if (m_State == State::End)
-  {
-    // if anything fails, enter the next state
-    m_State = State::Off;
-
-    if (m_hEndClip.IsValid())
-    {
-      ezResourceLock<ezAnimationClipResource> pAnimClip(m_hEndClip, ezResourceAcquireMode::BlockTillLoaded);
-      if (pAnimClip.GetAcquireResult() == ezResourceAcquireResult::Final)
-      {
-        const auto& animDesc = pAnimClip->GetDescriptor();
-        if (m_PlaybackTime <= animDesc.GetDuration())
-        {
-          // stay in this state
-          m_State = State::End;
-
-          pClipToSample = pAnimClip.GetPointer();
-        }
-      }
-    }
-  }
-
-  if (m_State == State::Off)
-    return;
-
-  const auto& animDesc = pClipToSample->GetDescriptor();
-  const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-  const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-
-  const ozz::animation::Animation* pOzzAnimation = &animDesc.GetMappedOzzAnimation(*pSkeleton);
-
-  if (m_pLocalTransforms == nullptr)
-  {
-    m_pLocalTransforms = pOwner->AllocateLocalTransforms(*pSkeleton);
-  }
-
-  if (m_pSamplingCache == nullptr)
-  {
-    m_pSamplingCache = pOwner->AllocateSamplingCache(*pOzzAnimation);
-  }
-
-  {
-    ozz::animation::SamplingJob job;
-    job.animation = pOzzAnimation;
-    job.cache = &m_pSamplingCache->m_ozzSamplingCache;
-    job.ratio = m_PlaybackTime.AsFloatInSeconds() / animDesc.GetDuration().AsFloatInSeconds();
-    job.output = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
-    EZ_ASSERT_DEBUG(job.Validate(), "");
-    job.Run();
-  }
-
-  pOwner->AddFrameRootMotion(animDesc.m_vConstantRootMotion * tDiff.AsFloatInSeconds());
-
-  ozz::animation::BlendingJob::Layer layer;
-  layer.weight = 1.0f;
-  layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
-
-  pOwner->AddFrameBlendLayer(layer);
 }
 
 void ezPlaySequenceAnimNode::SetStartClip(const char* szFile)
@@ -268,4 +150,129 @@ const char* ezPlaySequenceAnimNode::GetEndClip() const
     return "";
 
   return m_hEndClip.GetResourceID();
+}
+
+void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+{
+  if (!m_ActivePin.IsConnected() || !m_LocalPosePin.IsConnected() || !m_hMiddleClip.IsValid())
+    return;
+
+  const bool bContinue = m_ActivePin.IsTriggered(graph);
+
+  if (m_State == State::Off && !bContinue)
+    return;
+
+  if (!bContinue)
+  {
+    m_bStopWhenPossible = true;
+  }
+
+  //if (!m_bStopWhenPossible)
+  {
+    // TODO: need to know how long the remaining anim will run, to ramp down
+    m_AnimRamp.RampWeightUpOrDown(m_fCurWeight, 1.0f, tDiff);
+  }
+  //else
+  //{
+  //  m_AnimRamp.RampWeightUpOrDown(m_fCurWeight, 0.0f, tDiff);
+  //}
+
+
+  m_PlaybackTime += tDiff * m_fPlaybackSpeed;
+
+  if (m_State == State::Off && bContinue)
+  {
+    m_State = State::Start;
+    m_bStopWhenPossible = false;
+
+    m_PlaybackTime.SetZero();
+
+    m_hPlayingClips[0] = m_hStartClip.IsValid() ? m_hStartClip : m_hMiddleClip;
+    m_hPlayingClips[1] = m_hMiddleClip;
+  }
+
+  ezResourceLock<ezAnimationClipResource> pClip0(m_hPlayingClips[0], ezResourceAcquireMode::BlockTillLoaded);
+  if (pClip0.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  ezResourceLock<ezAnimationClipResource> pClip1(m_hPlayingClips[1], ezResourceAcquireMode::BlockTillLoaded);
+  if (pClip1.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  if (m_pOutputTransform == nullptr)
+  {
+    m_pOutputTransform = graph.AllocateLocalTransforms(*pSkeleton);
+    m_pLocalTransforms[0] = graph.AllocateLocalTransforms(*pSkeleton);
+    m_pLocalTransforms[1] = graph.AllocateLocalTransforms(*pSkeleton);
+  }
+
+  graph.UpdateSamplingCache(m_pSamplingCache[0], pClip0->GetDescriptor().GetMappedOzzAnimation(*pSkeleton));
+  graph.UpdateSamplingCache(m_pSamplingCache[1], pClip1->GetDescriptor().GetMappedOzzAnimation(*pSkeleton));
+
+  if (m_State == State::End)
+  {
+    const int fadeRes = CrossfadeAnimations(*m_pOutputTransform,
+      *m_pSamplingCache[0], *pClip0.GetPointer(), *m_pLocalTransforms[0],
+      *m_pSamplingCache[1], *pClip1.GetPointer(), *m_pLocalTransforms[1],
+      *pSkeleton, m_PlaybackTime, m_MiddleToEndCrossFade);
+
+    if (fadeRes == 2) // finished them all
+    {
+      m_State = State::Off;
+
+      graph.FreeLocalTransforms(m_pOutputTransform);
+      graph.FreeLocalTransforms(m_pLocalTransforms[0]);
+      graph.FreeLocalTransforms(m_pLocalTransforms[1]);
+      graph.FreeSamplingCache(m_pSamplingCache[0]);
+      graph.FreeSamplingCache(m_pSamplingCache[1]);
+
+      m_OnFinishedPin.SetTriggered(graph, true);
+
+      return;
+    }
+  }
+
+  if (m_State == State::Start || m_State == State::Middle)
+  {
+    const int fadeRes = CrossfadeAnimations(*m_pOutputTransform,
+      *m_pSamplingCache[0], *pClip0.GetPointer(), *m_pLocalTransforms[0],
+      *m_pSamplingCache[1], *pClip1.GetPointer(), *m_pLocalTransforms[1],
+      *pSkeleton, m_PlaybackTime, m_State == State::Start ? m_StartToMiddleCrossFade : m_LoopCrossFade);
+
+    if (fadeRes == -1 && m_bStopWhenPossible) // not yet started the cross-fade
+    {
+      m_State = State::End;
+      m_hPlayingClips[1] = m_hEndClip.IsValid() ? m_hEndClip : m_hMiddleClip;
+
+      if (m_State == State::Middle && m_bAllowLoopInterruption)
+      {
+        // TODO: somehow get the cross-fade to start right away
+      }
+    }
+
+    if (fadeRes >= +1) // crossed the cross-fade region
+    {
+      m_State = State::Middle;
+      m_PlaybackTime -= pClip0->GetDescriptor().GetDuration();
+
+      m_hPlayingClips[0] = m_hPlayingClips[1];
+      m_hPlayingClips[1] = m_hMiddleClip;
+    }
+  }
+
+  // send to output
+  {
+    m_pOutputTransform->m_fOverallWeight = m_fCurWeight;
+    m_pOutputTransform->m_pWeights = m_WeightsPin.GetWeights(graph);
+
+    m_pOutputTransform->m_bUseRootMotion = m_bApplyRootMotion;
+
+    if (m_bApplyRootMotion)
+    {
+      // TODO: sequence root motion
+      m_pOutputTransform->m_vRootMotion.SetZero();
+    }
+
+    m_LocalPosePin.SetPose(graph, m_pOutputTransform);
+  }
 }

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14207059557900796083,5136524301570692267}}
-		u4 %Hash{12379217212880392251}
+		u4 %Hash{13172438929505874292}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2328361990080593039,5701264661177282199}}
@@ -50,29 +50,17 @@ o
 }
 o
 {
-	Uuid %id{u4{267733807623298199,4863218625396549977}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnEvent"}
-		Uuid %Target{u4{4981207694446464165,5525805001287044357}}
-		s %TargetPin{"call"}
-	}
-}
-o
-{
-	Uuid %id{u4{16454947320917844909,5423510838385008795}}
-	s %t{"VisualScriptNode::ezVisualScriptNode_SimpleUserEvent"}
+	Uuid %id{u4{945318618699101619,4863107549157033633}}
+	s %t{"VisualScriptNode::ezVisualScriptNode_GenericEvent"}
 	u3 %v{1}
 	p
 	{
 		s %Message{"Fire"}
 		VarArray %Node::Connections
 		{
-			Uuid{u4{267733807623298199,4863218625396549977}}
+			Uuid{u4{16041472961677297146,13471294424696711003}}
 		}
-		Vec2 %Node::Pos{f{0x9ACB8842,0x6D254542}}
+		Vec2 %Node::Pos{f{0x0FE21743,0x9FBF8040}}
 	}
 }
 o
@@ -84,6 +72,7 @@ o
 	{
 		VarArray %BoolParameters{}
 		VarArray %NumberParameters{}
+		VarArray %StringParameters{}
 	}
 }
 o
@@ -112,7 +101,7 @@ o
 			Uuid{u4{2343094624503934088,5448788464296785674}}
 			Uuid{u4{4981207694446464165,5525805001287044357}}
 			Uuid{u4{9260322677843003278,4724166397987985930}}
-			Uuid{u4{16454947320917844909,5423510838385008795}}
+			Uuid{u4{945318618699101619,4863107549157033633}}
 		}
 	}
 }
@@ -126,6 +115,18 @@ o
 		s %SourcePin{"Child"}
 		Uuid %Target{u4{4981207694446464165,5525805001287044357}}
 		s %TargetPin{"Object"}
+	}
+}
+o
+{
+	Uuid %id{u4{16041472961677297146,13471294424696711003}}
+	s %t{"DocumentNodeManagerConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"OnEvent"}
+		Uuid %Target{u4{4981207694446464165,5525805001287044357}}
+		s %TargetPin{"call"}
 	}
 }
 }
@@ -161,22 +162,19 @@ o
 }
 o
 {
-	Uuid %id{u4{6606648466975594,3502435576977952527}}
+	Uuid %id{u4{3499090634469354149,3435599044994278687}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezVisualScriptNodeBase"}
-		s %PluginName{"VisualScriptTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{2432547684515818455,5949302394428587952}}
-		}
-		s %TypeName{"VisualScriptNode::ezVisualScriptNode_SimpleUserEvent"}
-		u3 %TypeSize{0}
+		s %ParentTypeName{"ezVisualScriptParameter"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptParameterString"}
+		u3 %TypeSize{144}
 		u3 %TypeVersion{1}
 	}
 }
@@ -199,16 +197,23 @@ o
 }
 o
 {
-	Uuid %id{u4{2432547684515818455,5949302394428587952}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
+	Uuid %id{u4{165302201038288156,6402606196267599591}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
-		s %Name{"Message"}
-		s %Type{"ezConstCharPtr"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualScriptNodeBase"}
+		s %PluginName{"VisualScriptTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{2452840632783947613,16220384518708264627}}
+		}
+		s %TypeName{"VisualScriptNode::ezVisualScriptNode_GenericEvent"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -341,8 +346,22 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptAssetProperties"}
-		u3 %TypeSize{56}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2452840632783947613,16220384518708264627}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"Message"}
+		s %Type{"ezConstCharPtr"}
 	}
 }
 o

@@ -13,7 +13,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton) override;
+  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
 
 private:
   ezAnimGraphTriggerOutputPin m_ButtonA; // [ property ]

@@ -60,6 +60,7 @@ protected:
   void Update();
   bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack);
 
+  ezEnum<ezRootMotionMode> m_RootMotionMode;
   float m_fNormalizedPlaybackPosition = 0.0f;
   ezTime m_Duration;
   ezAnimationClipResourceHandle m_hAnimationClip;

@@ -36,71 +36,71 @@
 /// \brief Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
 ///
 /// The first parameter is the name of the group, in which the subsystem resides, the second is the name of the subsystem itself.
-#define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName)                                                                                     \
-  class GroupName##SubsystemName##SubSystem;                                                                                                         \
-  class GroupName##SubsystemName##SubSystem : public ezSubSystem                                                                                     \
-  {                                                                                                                                                  \
-  public:                                                                                                                                            \
-    virtual const char* GetGroupName() const override { return #GroupName; }                                                                         \
-                                                                                                                                                     \
-  public:                                                                                                                                            \
+#define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName)             \
+  class GroupName##SubsystemName##SubSystem;                                 \
+  class GroupName##SubsystemName##SubSystem : public ezSubSystem             \
+  {                                                                          \
+  public:                                                                    \
+    virtual const char* GetGroupName() const override { return #GroupName; } \
+                                                                             \
+  public:                                                                    \
     virtual const char* GetSubSystemName() const override { return #SubsystemName; }
 
 /// \brief Finishes a subsystem's startup / shutdown sequence declaration.
-#define EZ_END_SUBSYSTEM_DECLARATION                                                                                                                 \
-  }                                                                                                                                                  \
+#define EZ_END_SUBSYSTEM_DECLARATION \
+  }                                  \
   static EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE)
 
 /// \brief Defines what code is to be executed upon base startup.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_BASESYSTEMS_STARTUP                                                                                                                       \
-private:                                                                                                                                             \
+#define ON_BASESYSTEMS_STARTUP \
+private:                       \
   virtual void OnBaseSystemsStartup() override
 
 /// \brief Defines what code is to be executed upon core startup.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_CORESYSTEMS_STARTUP                                                                                                                       \
-private:                                                                                                                                             \
+#define ON_CORESYSTEMS_STARTUP \
+private:                       \
   virtual void OnCoreSystemsStartup() override
 
 /// \brief Defines what code is to be executed upon core shutdown.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_CORESYSTEMS_SHUTDOWN                                                                                                                      \
-private:                                                                                                                                             \
+#define ON_CORESYSTEMS_SHUTDOWN \
+private:                        \
   virtual void OnCoreSystemsShutdown() override
 
 /// \brief Defines what code is to be executed upon engine startup.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_HIGHLEVELSYSTEMS_STARTUP                                                                                                                  \
-private:                                                                                                                                             \
+#define ON_HIGHLEVELSYSTEMS_STARTUP \
+private:                            \
   virtual void OnHighLevelSystemsStartup() override
 
 /// \brief Defines what code is to be executed upon engine shutdown.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_HIGHLEVELSYSTEMS_SHUTDOWN                                                                                                                 \
-private:                                                                                                                                             \
+#define ON_HIGHLEVELSYSTEMS_SHUTDOWN \
+private:                             \
   virtual void OnHighLevelSystemsShutdown() override
 
 /// \brief Begins the list of subsystems, on which the currently declared system depends on.
 ///
 /// Must be followed by a series of strings with the names of the dependencies.
-#define BEGIN_SUBSYSTEM_DEPENDENCIES                                                                                                                 \
-public:                                                                                                                                              \
-  virtual const char* GetDependency(ezInt32 iDep) override                                                                                           \
-  {                                                                                                                                                  \
+#define BEGIN_SUBSYSTEM_DEPENDENCIES                       \
+public:                                                    \
+  virtual const char* GetDependency(ezInt32 iDep) override \
+  {                                                        \
     const char* szDeps[] = {
 
 /// \brief Ends the list of subsystems, on which the currently declared system depends on.
-#define END_SUBSYSTEM_DEPENDENCIES                                                                                                                   \
-  , nullptr                                                                                                                                          \
-  }                                                                                                                                                  \
-  ;                                                                                                                                                  \
-  return szDeps[iDep];                                                                                                                               \
+#define END_SUBSYSTEM_DEPENDENCIES \
+  , nullptr                        \
+  }                                \
+  ;                                \
+  return szDeps[iDep];             \
   }
 
 /// \brief This inserts a friend declaration into a class, such that the given group/subsystem can access private functions which it might need.

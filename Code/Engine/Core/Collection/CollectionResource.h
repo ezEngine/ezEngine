@@ -7,7 +7,7 @@
 struct EZ_CORE_DLL ezCollectionEntry
 {
   ezString m_sOptionalNiceLookupName; ///< Optional, can be used to lookup the resource at runtime with a nice name. E.g. "SkyTexture" instead of some GUID.
-  ezString m_sResourceID;      ///< The ID / path to the resource to load.
+  ezString m_sResourceID;             ///< The ID / path to the resource to load.
   ezHashedString m_sAssetTypeName;
   ezUInt64 m_uiFileSize = 0;
 };

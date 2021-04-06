@@ -1,6 +1,6 @@
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-#pragma once
+#  pragma once
 
 inline lua_State* ezLuaWrapper::GetLuaState()
 {
@@ -213,4 +213,3 @@ inline const char* ezLuaWrapper::GetStringParameter(ezUInt32 iParameter) const
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-

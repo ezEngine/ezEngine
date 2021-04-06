@@ -61,7 +61,7 @@ public:
     const ezGameObject& operator*() const;
     const ezGameObject* operator->() const;
 
-    operator const ezGameObject *() const;
+    operator const ezGameObject*() const;
 
     /// \brief Advances the iterator to the next child object. The iterator will not be valid anymore, if the last child is reached.
     void Next();

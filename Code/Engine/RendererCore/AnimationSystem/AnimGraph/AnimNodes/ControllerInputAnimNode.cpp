@@ -60,31 +60,31 @@ ezResult ezControllerInputAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezControllerInputAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton)
+void ezControllerInputAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
   float fValue = 0.0f;
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegX, &fValue);
-  m_StickLeft.SetTriggered(*pOwner, fValue > 0);
+  m_StickLeft.SetTriggered(graph, fValue > 0);
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosX, &fValue);
-  m_StickRight.SetTriggered(*pOwner, fValue > 0);
+  m_StickRight.SetTriggered(graph, fValue > 0);
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegY, &fValue);
-  m_StickDown.SetTriggered(*pOwner, fValue > 0);
+  m_StickDown.SetTriggered(graph, fValue > 0);
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosY, &fValue);
-  m_StickUp.SetTriggered(*pOwner, fValue > 0);
+  m_StickUp.SetTriggered(graph, fValue > 0);
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonA, &fValue);
-  m_ButtonA.SetTriggered(*pOwner, fValue > 0);
+  m_ButtonA.SetTriggered(graph, fValue > 0);
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonB, &fValue);
-  m_ButtonB.SetTriggered(*pOwner, fValue > 0);
+  m_ButtonB.SetTriggered(graph, fValue > 0);
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonX, &fValue);
-  m_ButtonX.SetTriggered(*pOwner, fValue > 0);
+  m_ButtonX.SetTriggered(graph, fValue > 0);
 
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonY, &fValue);
-  m_ButtonY.SetTriggered(*pOwner, fValue > 0);
+  m_ButtonY.SetTriggered(graph, fValue > 0);
 }

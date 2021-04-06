@@ -187,7 +187,9 @@ ezStatus ezDocumentNodeManager::CanConnect(const ezPin* pSource, const ezPin* pT
 
 ezStatus ezDocumentNodeManager::CanDisconnect(const ezConnection* pConnection) const
 {
-  EZ_ASSERT_DEV(pConnection != nullptr, "Invalid input!");
+  if (pConnection == nullptr)
+    return ezStatus("Invalid connection");
+
   return CanDisconnect(pConnection->m_pSourcePin, pConnection->m_pTargetPin);
 }
 

@@ -84,13 +84,13 @@ private:
 #define EZ_BROADCAST_EVENT(name, ...) ezGlobalEvent::Broadcast(#name, ##__VA_ARGS__);
 
 /// \brief Use this macro to handle an event every time it is broadcast (place function code in curly brackets after it)
-#define EZ_ON_GLOBAL_EVENT(name)                                                                                                                     \
-  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);               \
-  static ezGlobalEvent s_EventHandler_##name(#name, EventHandler_##name, false);                                                                     \
+#define EZ_ON_GLOBAL_EVENT(name)                                                                                                       \
+  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3); \
+  static ezGlobalEvent s_EventHandler_##name(#name, EventHandler_##name, false);                                                       \
   static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)
 
 /// \brief Use this macro to handle an event only once (place function code in curly brackets after it)
-#define EZ_ON_GLOBAL_EVENT_ONCE(name)                                                                                                                \
-  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);               \
-  static ezGlobalEvent s_EventHandler_##name(#name, EventHandler_##name, true);                                                                      \
+#define EZ_ON_GLOBAL_EVENT_ONCE(name)                                                                                                  \
+  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3); \
+  static ezGlobalEvent s_EventHandler_##name(#name, EventHandler_##name, true);                                                        \
   static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)

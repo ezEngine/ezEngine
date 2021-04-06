@@ -26,7 +26,7 @@ class ezDequeBase
 {
 protected:
   /// \brief No memory is allocated during construction.
-  ezDequeBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezDequeBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Constructs this deque by copying from rhs.
   ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocatorBase* pAllocator); // [tested]
