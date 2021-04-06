@@ -14,8 +14,8 @@ struct ezAnimGraphModelTransforms;
 class EZ_RENDERERCORE_DLL ezAnimGraphPin : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphPin, ezReflectedClass);
-public:
 
+public:
   enum Type : ezUInt8
   {
     Invalid,
@@ -72,7 +72,6 @@ class EZ_RENDERERCORE_DLL ezAnimGraphTriggerOutputPin : public ezAnimGraphOutput
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphTriggerOutputPin, ezAnimGraphOutputPin);
 
 public:
-
   /// \brief Sets this output pin to the triggered or untriggered state for this frame.
   ///
   /// All pin states are reset before every graph update, so this only needs to be called
