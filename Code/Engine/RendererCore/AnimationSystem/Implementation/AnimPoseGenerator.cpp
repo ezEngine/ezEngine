@@ -1,4 +1,4 @@
-#include <RendererCore/RendererCorePCH.h>
+#include <RendererCorePCH.h>
 
 #include <AnimationSystem/AnimationClipResource.h>
 #include <AnimationSystem/Declarations.h>

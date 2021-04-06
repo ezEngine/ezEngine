@@ -1,8 +1,12 @@
 #include <RendererCorePCH.h>
 
+#include <AnimationSystem/AnimGraph/AnimGraph.h>
 #include <AnimationSystem/AnimationClipResource.h>
+#include <AnimationSystem/SkeletonResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
+#include <ozz/animation/runtime/blending_job.h>
 #include <ozz/animation/runtime/sampling_job.h>
+#include <ozz/animation/runtime/skeleton.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNode, 1, ezRTTINoAllocator)

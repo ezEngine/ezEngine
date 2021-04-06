@@ -1,5 +1,6 @@
 #include <RendererCorePCH.h>
 
+#include <AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/PlaySequenceAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
