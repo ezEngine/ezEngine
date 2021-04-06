@@ -15,7 +15,7 @@ EZ_ALWAYS_INLINE const ezGameObject* ezGameObject::ConstChildIterator::operator-
   return m_pObject;
 }
 
-EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject *() const
+EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject*() const
 {
   return m_pObject;
 }
