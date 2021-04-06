@@ -111,8 +111,8 @@ private:
 };
 
 
-#define EZ_ENUM_VALUE_TO_STRING(name)                                                                                                                \
-  case name:                                                                                                                                         \
+#define EZ_ENUM_VALUE_TO_STRING(name) \
+  case name:                          \
     return EZ_STRINGIZE(name);
 
 /// \brief Helper macro to generate a 'ToString' function for enum values.
@@ -131,13 +131,13 @@ private:
 ///
 ///   EZ_ENUM_TO_STRING(A, B, C);
 /// };
-#define EZ_ENUM_TO_STRING(...)                                                                                                                       \
-  const char* ToString(ezUInt32 value)                                                                                                               \
-  {                                                                                                                                                  \
-    switch (value)                                                                                                                                   \
-    {                                                                                                                                                \
-      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__)                                                                                         \
-      default:                                                                                                                                       \
-        return nullptr;                                                                                                                              \
-    }                                                                                                                                                \
+#define EZ_ENUM_TO_STRING(...)                               \
+  const char* ToString(ezUInt32 value)                       \
+  {                                                          \
+    switch (value)                                           \
+    {                                                        \
+      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__) \
+      default:                                               \
+        return nullptr;                                      \
+    }                                                        \
   }

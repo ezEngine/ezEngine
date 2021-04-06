@@ -226,7 +226,7 @@ public:
   ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
 
   /// \brief Returns the 'current' value of the CVar. Same as 'GetValue(ezCVarValue::Current)'
-  operator const Type &() const; // [tested]
+  operator const Type&() const; // [tested]
 
   /// \brief Returns the internal values of the CVar.
   const Type& GetValue(ezCVarValue::Enum val = ezCVarValue::Current) const; // [tested]

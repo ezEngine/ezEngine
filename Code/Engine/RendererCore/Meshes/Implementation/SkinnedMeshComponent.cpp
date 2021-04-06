@@ -95,4 +95,3 @@ void ezSkinnedMeshComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezMa
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_SkinnedMeshComponent);
-

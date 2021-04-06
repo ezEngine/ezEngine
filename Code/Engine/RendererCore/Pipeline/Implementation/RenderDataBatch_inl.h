@@ -12,7 +12,7 @@ EZ_ALWAYS_INLINE const T* ezRenderDataBatch::Iterator<T>::operator->() const
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::operator const T *() const
+EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::operator const T*() const
 {
   return ezStaticCast<const T*>(m_pCurrent->m_pRenderData);
 }

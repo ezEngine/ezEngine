@@ -83,7 +83,7 @@ public:
   operator PtrType*() { return GetPtr(); }
 
   /// \brief Returns the masked off pointer value
-  operator const PtrType *() const { return GetPtr(); }
+  operator const PtrType*() const { return GetPtr(); }
 
   /// \brief Changes the pointer value only. Flags stay unchanged.
   void operator=(PtrType* ptr) { SetPtr(ptr); }

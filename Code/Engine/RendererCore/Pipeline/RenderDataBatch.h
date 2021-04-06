@@ -26,7 +26,7 @@ public:
     const T& operator*() const;
     const T* operator->() const;
 
-    operator const T *() const;
+    operator const T*() const;
 
     void Next();
 

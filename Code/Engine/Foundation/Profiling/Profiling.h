@@ -178,7 +178,7 @@ public:
 ///
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_NEXT_SECTION
-#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName)                                                                                      \
+#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) \
     ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szListName, szFirstSectionName, EZ_SOURCE_FUNCTION)
 
 /// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE

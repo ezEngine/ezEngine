@@ -815,8 +815,8 @@ namespace ezConversionUtils
     return result;
   }
 
-#define Check(name)                                                                                                                                  \
-  if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name)))                                                                                \
+#define Check(name)                                                   \
+  if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name))) \
   return ezColor::name
 
   ezColor GetColorByName(const char* szColorName, bool* out_ValidColorName)
@@ -1013,8 +1013,8 @@ namespace ezConversionUtils
 
 #undef Check
 
-#define Check(name)                                                                                                                                  \
-  if (ezColor::name == col)                                                                                                                          \
+#define Check(name)         \
+  if (ezColor::name == col) \
   return #name
 
   ezString GetColorName(const ezColor& col)

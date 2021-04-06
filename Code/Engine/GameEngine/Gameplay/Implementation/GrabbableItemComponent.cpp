@@ -99,4 +99,3 @@ void ezGrabbableItemComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GrabbableItemComponent);
-
