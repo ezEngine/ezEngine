@@ -1,5 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerGraphQt.h>
 
 //#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>

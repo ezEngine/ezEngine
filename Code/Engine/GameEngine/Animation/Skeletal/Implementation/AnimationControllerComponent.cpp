@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Strings/HashedString.h>
+#include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <GameEngine/Animation/Skeletal/AnimationControllerComponent.h>
 #include <GameEngine/Gameplay/BlackboardComponent.h>
 #include <Physics/CharacterControllerComponent.h>
