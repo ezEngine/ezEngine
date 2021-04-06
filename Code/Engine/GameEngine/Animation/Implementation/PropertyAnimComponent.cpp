@@ -208,8 +208,9 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
   if (pAnim->m_Target == ezPropertyAnimTarget::Number)
   {
     // Game objects only support to animate Position, Rotation,
-    // Non-Uniform Scale and the one single-float Uniform scale value
-    if (pPropRtti != ezGetStaticRTTI<float>())
+    // Non-Uniform Scale, the one single-float Uniform scale value
+    // and the active flag
+    if (pPropRtti != ezGetStaticRTTI<float>() && pPropRtti != ezGetStaticRTTI<bool>())
       return;
   }
   else if (pAnim->m_Target >= ezPropertyAnimTarget::RotationX && pAnim->m_Target <= ezPropertyAnimTarget::RotationZ)
