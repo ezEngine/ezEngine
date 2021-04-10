@@ -2,6 +2,7 @@
 
 #include <ModelImporter2/ImporterAssimp/ImporterAssimp.h>
 #include <ModelImporter2/ImporterSourceBSP/ImporterSourceBSP.h>
+#include <ModelImporter2/ImporterMagicaVoxel/ImporterMagicaVoxel.h>
 #include <ModelImporter2/ModelImporter.h>
 
 namespace ezModelImporter2
@@ -19,6 +20,11 @@ namespace ezModelImporter2
     if (sFile.HasExtension(".bsp"))
     {
       return EZ_DEFAULT_NEW(ImporterSourceBSP);
+    }
+
+    if (sFile.HasExtension(".vox"))
+    {
+      return EZ_DEFAULT_NEW(ImporterMagicaVoxel);
     }
 
     return nullptr;
