@@ -1,8 +1,8 @@
 #include <ModelImporterPCH.h>
 
 #include <ModelImporter2/ImporterAssimp/ImporterAssimp.h>
-#include <ModelImporter2/ImporterSourceBSP/ImporterSourceBSP.h>
 #include <ModelImporter2/ImporterMagicaVoxel/ImporterMagicaVoxel.h>
+#include <ModelImporter2/ImporterSourceBSP/ImporterSourceBSP.h>
 #include <ModelImporter2/ModelImporter.h>
 
 namespace ezModelImporter2

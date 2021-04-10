@@ -4,9 +4,9 @@
 #include <ModelImporter2/ImporterMagicaVoxel/ImporterMagicaVoxel.h>
 
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <RendererCore/Material/MaterialResource.h>
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Logging/Log.h>
@@ -106,7 +106,7 @@ namespace ezModelImporter2
           ezVec3 pos = ezVec3(-mesh->vertices[i].pos.x, mesh->vertices[i].pos.z, mesh->vertices[i].pos.y);
           pos -= originOffset;
           positions.ExpandAndGetRef() = m_Options.m_RootTransform * pos;
-       
+
           ezVec3 norm = ezVec3(-mesh->vertices[i].normal.x, mesh->vertices[i].normal.z, mesh->vertices[i].normal.y);
           normals.ExpandAndGetRef() = m_Options.m_RootTransform.TransformDirection(norm);
 
@@ -133,7 +133,7 @@ namespace ezModelImporter2
 
     // Add triangles
     ezUInt32 uiFinalTriIdx = 0;
-    for(ezUInt32 i = 0; i < indices.GetCount(); i += 3, ++uiFinalTriIdx)
+    for (ezUInt32 i = 0; i < indices.GetCount(); i += 3, ++uiFinalTriIdx)
     {
       mb.SetTriangleIndices(uiFinalTriIdx, indices[i + 1], indices[i + 0], indices[i + 2]);
     }
