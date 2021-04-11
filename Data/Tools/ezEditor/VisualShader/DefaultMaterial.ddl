@@ -29,9 +29,6 @@ CAMERA_MODE=CAMERA_MODE_PERSPECTIVE
 
   string %CodeRenderStates { "#include <Shaders/Materials/MaterialState.h>" }
   string %CodeVertexShader { "
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
@@ -79,10 +76,6 @@ float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
 
   string %CodeGeometryShader { "
 
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
-
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 " }
@@ -95,9 +88,6 @@ float MaskThreshold @Default($prop0);
 " }
 
   string %CodePixelDefines { "
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
@@ -145,7 +135,11 @@ float3 GetBaseColor()
 
 float3 GetNormal()
 {
+#if defined(USE_TANGENT)
   return TangentToWorldSpace(ToFloat3($in1));
+#else
+  return ToFloat3($in1);
+#endif
 }
 
 float GetMetallic()

@@ -322,9 +322,20 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       }
 
       // this is optional
-      if (auto pFallback = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "DefaultValue"))
+      if (auto pDefaultValue = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "DefaultValue"))
       {
-        pin.m_sDefaultValue = pFallback->GetPrimitivesString()[0];
+        pin.m_sDefaultValue = pDefaultValue->GetPrimitivesString()[0];
+      }
+
+      if (auto pDefineWhenUsingDefaultValue = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "DefineWhenUsingDefaultValue"))
+      {
+        const ezUInt32 numElements = pDefineWhenUsingDefaultValue->GetNumPrimitives();
+        pin.m_sDefinesWhenUsingDefaultValue.Reserve(numElements);
+
+        for (ezUInt32 i = 0; i < numElements; ++i)
+        {
+          pin.m_sDefinesWhenUsingDefaultValue.PushBack(pDefineWhenUsingDefaultValue->GetPrimitivesString()[i]);
+        }
       }
 
       // this is optional

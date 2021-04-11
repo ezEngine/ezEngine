@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -16,6 +16,7 @@ struct ezVisualShaderPinDescriptor
   ezColorGammaUB m_Color;
   bool m_bExposeAsProperty = false;
   ezString m_sDefaultValue;
+  ezDynamicArray<ezString> m_sDefinesWhenUsingDefaultValue;
   ezString m_sShaderCodeInline;
   ezString m_sTooltip;
 };

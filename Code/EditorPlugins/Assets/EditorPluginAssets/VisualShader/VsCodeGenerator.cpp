@@ -221,9 +221,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   sPixelDefines = pDesc->m_sShaderCodePixelDefines;
   sPixelIncludes = pDesc->m_sShaderCodePixelIncludes;
 
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode));
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode));
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sGsBodyCode));
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode, sPixelDefines));
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode, sVsBodyCode));
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sGsBodyCode, sGsBodyCode));
 
   EZ_SUCCEED_OR_RETURN(CheckPropertyValues(pNode, pDesc));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
@@ -306,8 +306,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
   const ezUInt16 uiPinID = DeterminePinId(pOwnerNode, pPin);
 
   ezStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
+  ezStringBuilder ignore; // DefineWhenUsingDefaultValue not used for output pins
 
-  ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode);
+  ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode, ignore);
 
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
 
@@ -320,7 +321,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 
 
 ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
-  const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode)
+  const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines)
 {
   const ezArrayPtr<ezPin* const> inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
 
@@ -342,6 +343,11 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
       else
       {
         sValue = pNodeDesc->m_InputPins[i].m_sDefaultValue;
+
+        for (const auto& sDefine : pNodeDesc->m_InputPins[i].m_sDefinesWhenUsingDefaultValue)
+        {
+          sCodeForPlacingDefines.Append("#define ", sDefine, "\n");
+        }
       }
 
       if (sValue.IsEmpty())
