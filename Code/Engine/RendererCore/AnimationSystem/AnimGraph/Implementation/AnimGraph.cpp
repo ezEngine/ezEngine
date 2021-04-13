@@ -8,6 +8,9 @@
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 
+ezMutex ezAnimGraph::s_SharedDataMutex;
+ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> ezAnimGraph::s_SharedBoneWeights;
+
 ezAnimGraph::ezAnimGraph()
 {
   m_pBlackboard = &m_Blackboard;
@@ -26,8 +29,14 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
 
   m_pCurrentModelTransforms = nullptr;
 
+  m_PoseGenerator.Reset(pSkeleton.GetPointer());
+
   // reset all pin states
   {
+    m_PinDataBoneWeights.Clear();
+    m_PinDataLocalTransforms.Clear();
+    m_PinDataModelTransforms.Clear();
+
     for (auto& pin : m_TriggerInputPinStates)
     {
       pin = 0;
@@ -38,15 +47,15 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
     }
     for (auto& pin : m_BoneWeightInputPinStates)
     {
-      pin = nullptr;
+      pin = 0xFFFF;
     }
-    for (ezHybridArray<ezAnimGraphLocalTransforms*, 1>& pins : m_LocalPoseInputPinStates)
+    for (auto& pins : m_LocalPoseInputPinStates)
     {
       pins.Clear();
     }
     for (auto& pin : m_ModelPoseInputPinStates)
     {
-      pin = nullptr;
+      pin = 0xFFFF;
     }
   }
 
@@ -55,15 +64,15 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
     pNode->Step(*this, tDiff, pSkeleton.GetPointer(), pTarget);
   }
 
-  if (m_pCurrentModelTransforms == nullptr) // nothing generated
-    return;
+  if (auto newPose = GetPoseGenerator().GeneratePose(); !newPose.IsEmpty())
+  {
+    ezMsgAnimationPoseUpdated msg;
+    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+    msg.m_ModelTransforms = newPose;
 
-  ezMsgAnimationPoseUpdated msg;
-  msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-  msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-  msg.m_ModelTransforms = m_pCurrentModelTransforms->m_ModelTransforms;
-
-  pTarget->SendMessageRecursive(msg);
+    pTarget->SendMessageRecursive(msg);
+  }
 }
 
 ezVec3 ezAnimGraph::GetRootMotion() const
@@ -249,133 +258,41 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-ezAnimGraphBoneWeights* ezAnimGraph::AllocateBoneWeights(const ezSkeletonResource& skeleton)
+ezAnimGraphPinDataBoneWeights* ezAnimGraph::AddPinDataBoneWeights()
 {
-  ezAnimGraphBoneWeights* pWeights = nullptr;
-
-  if (!m_BoneWeightsFreeList.IsEmpty())
-  {
-    pWeights = m_BoneWeightsFreeList.PeekBack();
-    m_BoneWeightsFreeList.PopBack();
-  }
-  else
-  {
-    pWeights = &m_BoneWeights.ExpandAndGetRef();
-  }
-
-  pWeights->m_ozzBoneWeights.resize(skeleton.GetDescriptor().m_Skeleton.GetOzzSkeleton().num_soa_joints());
-
-  return pWeights;
+  ezAnimGraphPinDataBoneWeights* pData = &m_PinDataBoneWeights.ExpandAndGetRef();
+  pData->m_uiOwnIndex = m_PinDataBoneWeights.GetCount() - 1;
+  return pData;
 }
 
-void ezAnimGraph::FreeBoneWeights(ezAnimGraphBoneWeights*& pWeights)
+ezAnimGraphPinDataLocalTransforms* ezAnimGraph::AddPinDataLocalTransforms()
 {
-  if (pWeights == nullptr)
-    return;
-
-  m_BoneWeightsFreeList.PushBack(pWeights);
-  pWeights = nullptr;
+  ezAnimGraphPinDataLocalTransforms* pData = &m_PinDataLocalTransforms.ExpandAndGetRef();
+  pData->m_uiOwnIndex = m_PinDataLocalTransforms.GetCount() - 1;
+  return pData;
 }
 
-ezAnimGraphLocalTransforms* ezAnimGraph::AllocateLocalTransforms(const ezSkeletonResource& skeleton)
+ezAnimGraphPinDataModelTransforms* ezAnimGraph::AddPinDataModelTransforms()
 {
-  ezAnimGraphLocalTransforms* pTransforms = nullptr;
-
-  if (!m_LocalTransformsFreeList.IsEmpty())
-  {
-    pTransforms = m_LocalTransformsFreeList.PeekBack();
-    m_LocalTransformsFreeList.PopBack();
-  }
-  else
-  {
-    pTransforms = &m_LocalTransforms.ExpandAndGetRef();
-  }
-
-  pTransforms->m_ozzLocalTransforms.resize(skeleton.GetDescriptor().m_Skeleton.GetOzzSkeleton().num_soa_joints());
-
-  return pTransforms;
+  ezAnimGraphPinDataModelTransforms* pData = &m_PinDataModelTransforms.ExpandAndGetRef();
+  pData->m_uiOwnIndex = m_PinDataModelTransforms.GetCount() - 1;
+  return pData;
 }
 
-void ezAnimGraph::FreeLocalTransforms(ezAnimGraphLocalTransforms*& pTransforms)
+ezSharedPtr<ezAnimGraphSharedBoneWeights> ezAnimGraph::CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill)
 {
-  if (pTransforms == nullptr)
-    return;
+  EZ_LOCK(s_SharedDataMutex);
 
-  m_LocalTransformsFreeList.PushBack(pTransforms);
-  pTransforms = nullptr;
-}
+  ezSharedPtr<ezAnimGraphSharedBoneWeights>& bw = s_SharedBoneWeights[szUniqueName];
 
-ezAnimGraphModelTransforms* ezAnimGraph::AllocateModelTransforms(const ezSkeletonResource& skeleton)
-{
-  ezAnimGraphModelTransforms* pTransforms = nullptr;
-
-  if (!m_ModelTransformsFreeList.IsEmpty())
+  if (bw == nullptr)
   {
-    pTransforms = m_ModelTransformsFreeList.PeekBack();
-    m_ModelTransformsFreeList.PopBack();
-  }
-  else
-  {
-    pTransforms = &m_ModelTransforms.ExpandAndGetRef();
+    bw = EZ_DEFAULT_NEW(ezAnimGraphSharedBoneWeights);
+    bw->m_Weights.SetCountUninitialized(skeleton.GetDescriptor().m_Skeleton.GetOzzSkeleton().num_soa_joints());
+    ezMemoryUtils::ZeroFill<ozz::math::SimdFloat4>(bw->m_Weights.GetData(), bw->m_Weights.GetCount());
   }
 
-  pTransforms->m_ModelTransforms.SetCountUninitialized(skeleton.GetDescriptor().m_Skeleton.GetOzzSkeleton().num_joints());
+  fill(*bw);
 
-  return pTransforms;
-}
-
-void ezAnimGraph::FreeModelTransforms(ezAnimGraphModelTransforms*& pTransforms)
-{
-  if (pTransforms == nullptr)
-    return;
-
-  m_ModelTransformsFreeList.PushBack(pTransforms);
-  pTransforms = nullptr;
-}
-
-ezAnimGraphSamplingCache* ezAnimGraph::AllocateSamplingCache(const ozz::animation::Animation& animclip)
-{
-  ezAnimGraphSamplingCache* pCache = nullptr;
-
-  if (!m_SamplingCachesFreeList.IsEmpty())
-  {
-    pCache = m_SamplingCachesFreeList.PeekBack();
-    m_SamplingCachesFreeList.PopBack();
-  }
-  else
-  {
-    pCache = &m_SamplingCaches.ExpandAndGetRef();
-  }
-
-  pCache->m_pUsedForAnim = &animclip;
-  pCache->m_ozzSamplingCache.Resize(animclip.num_tracks());
-
-  return pCache;
-}
-
-void ezAnimGraph::UpdateSamplingCache(ezAnimGraphSamplingCache*& pCache, const ozz::animation::Animation& animclip)
-{
-  if (pCache == nullptr)
-  {
-    pCache = AllocateSamplingCache(animclip);
-    return;
-  }
-
-  if (pCache->m_pUsedForAnim != &animclip)
-  {
-    pCache->m_pUsedForAnim = &animclip;
-    pCache->m_ozzSamplingCache.Resize(animclip.num_tracks());
-    return;
-  }
-}
-
-void ezAnimGraph::FreeSamplingCache(ezAnimGraphSamplingCache*& pCache)
-{
-  if (pCache == nullptr)
-    return;
-
-  pCache->m_pUsedForAnim = nullptr;
-  pCache->m_ozzSamplingCache.Invalidate();
-  m_SamplingCachesFreeList.PushBack(pCache);
-  pCache = nullptr;
+  return bw;
 }

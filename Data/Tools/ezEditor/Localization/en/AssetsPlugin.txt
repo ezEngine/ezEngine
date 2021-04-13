@@ -200,8 +200,6 @@ Thickness;Thickness
 Width;Width
 Input1;Input1
 AvailableClips;Available Clips
-ezRootMotionMode::None;No Root Motion
-ezRootMotionMode::Constant;Constant Motion
 Common.Pause;Pause
 Common.Restart;Restart
 Common.Loop;Loop
@@ -239,3 +237,6 @@ ezEventAnimNode;Send Event
 ezLogicAndAnimNode;Logic AND
 ezLogicOrAnimNode;Logic OR
 ezLogicNotAnimNode;Logic NOT
+Common.Speed.Menu;Speed
+ezRootMotionSource::None;No Root Motion
+ezRootMotionSource::Constant;Constant Motion

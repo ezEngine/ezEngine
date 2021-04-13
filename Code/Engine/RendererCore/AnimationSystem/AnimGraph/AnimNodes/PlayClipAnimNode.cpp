@@ -171,26 +171,27 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
 
   const ozz::animation::Animation* pOzzAnimation = &animDesc.GetMappedOzzAnimation(*pSkeleton);
 
-  if (m_pLocalTransforms == nullptr)
+  ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+
+  void* pThis = this;
+  auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
+  cmd.m_hAnimationClip = m_hAnimationClip;
+  cmd.m_SampleTime = tLookup;
+
   {
-    m_pLocalTransforms = graph.AllocateLocalTransforms(*pSkeleton);
-    m_pSamplingCache = graph.AllocateSamplingCache(*pOzzAnimation);
-  }
+    pLocalTransforms->m_fOverallWeight = m_fCurWeight;
+    pLocalTransforms->m_pWeights = m_WeightsPin.GetWeights(graph);
 
-  SampleAnimation(*m_pLocalTransforms, *m_pSamplingCache, pOzzAnimation, tLookup.AsFloatInSeconds() / animDesc.GetDuration().AsFloatInSeconds());
-
-  {
-    m_pLocalTransforms->m_fOverallWeight = m_fCurWeight;
-    m_pLocalTransforms->m_pWeights = m_WeightsPin.GetWeights(graph);
-
-    m_pLocalTransforms->m_bUseRootMotion = m_bApplyRootMotion;
+    pLocalTransforms->m_bUseRootMotion = m_bApplyRootMotion;
 
     if (m_bApplyRootMotion)
     {
-      m_pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds();
+      pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds();
     }
 
-    m_LocalPosePin.SetPose(graph, m_pLocalTransforms);
+    pLocalTransforms->m_CommandID = cmd.GetCommandID();
+
+    m_LocalPosePin.SetPose(graph, pLocalTransforms);
   }
 }
 
@@ -224,7 +225,4 @@ void ezPlayClipAnimNode::AnimationFinished(ezAnimGraph& graph)
   m_PlaybackTime.SetZero();
 
   m_OnFinishedPin.SetTriggered(graph, true);
-
-  graph.FreeLocalTransforms(m_pLocalTransforms);
-  graph.FreeSamplingCache(m_pSamplingCache);
 }

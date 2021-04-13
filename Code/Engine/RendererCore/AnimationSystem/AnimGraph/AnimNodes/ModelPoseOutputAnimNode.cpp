@@ -52,5 +52,12 @@ void ezModelPoseOutputAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezS
   if (!m_ModelPosePin.IsConnected())
     return;
 
-  graph.m_pCurrentModelTransforms = m_ModelPosePin.GetPose(graph);
+  if (graph.m_pCurrentModelTransforms = m_ModelPosePin.GetPose(graph))
+  {
+    if (graph.m_pCurrentModelTransforms->m_CommandID != ezInvalidIndex)
+    {
+      auto& cmd = graph.GetPoseGenerator().AllocCommandModelPoseToOutput();
+      cmd.m_Inputs.PushBack(m_ModelPosePin.GetPose(graph)->m_CommandID);
+    }
+  }
 }

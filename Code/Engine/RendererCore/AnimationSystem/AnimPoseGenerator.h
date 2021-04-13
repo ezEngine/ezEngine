@@ -3,8 +3,13 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-#include <ozz/base/containers/vector.h>
+#include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <ozz/animation/runtime/sampling_job.h>
+#include <ozz/base/maths/soa_float.h>
 #include <ozz/base/maths/soa_transform.h>
+
+EZ_DEFINE_AS_POD_TYPE(ozz::math::SoaTransform);
 
 class ezSkeletonResource;
 class ezAnimPoseGenerator;
@@ -27,16 +32,10 @@ enum class ezAnimPoseGeneratorCommandType
 
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommand
 {
-  ezAnimPoseGeneratorCommand();
-  ~ezAnimPoseGeneratorCommand();
-
   ezHybridArray<ezAnimPoseGeneratorCommandID, 4> m_Inputs;
 
   ezAnimPoseGeneratorCommandID GetCommandID() const { return m_CommandID; }
   ezAnimPoseGeneratorCommandType GetType() const { return m_Type; }
-
-protected:
-  void ConfigureCmd(ezAnimPoseGeneratorCommandType type, ezAnimPoseGeneratorCommandID cmdId);
 
 private:
   friend class ezAnimPoseGenerator;
@@ -48,32 +47,22 @@ private:
 
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandSampleTrack final : public ezAnimPoseGeneratorCommand
 {
-  ezAnimPoseGeneratorCommandSampleTrack();
-  ~ezAnimPoseGeneratorCommandSampleTrack();
-
-  void Configure(ezAnimPoseGeneratorCommandID cmdId, ezAnimPoseGeneratorLocalPoseID poseID);
-  void Validate(const ezAnimPoseGenerator& queue) const;
-
   ezAnimationClipResourceHandle m_hAnimationClip;
   ezTime m_SampleTime;
 
-protected:
+private:
   friend class ezAnimPoseGenerator;
 
+  ezUInt32 m_uiUniqueID = 0;
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandCombinePoses final : public ezAnimPoseGeneratorCommand
 {
-  ezAnimPoseGeneratorCommandCombinePoses();
-  ~ezAnimPoseGeneratorCommandCombinePoses();
-
-  void Configure(ezAnimPoseGeneratorCommandID cmdId, ezAnimPoseGeneratorLocalPoseID poseID);
-  void Validate(const ezAnimPoseGenerator& queue) const;
-
   ezHybridArray<float, 4> m_InputWeights;
+  ezHybridArray<ezArrayPtr<const ozz::math::SimdFloat4>, 4> m_InputBoneWeights;
 
-protected:
+private:
   friend class ezAnimPoseGenerator;
 
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
@@ -81,12 +70,6 @@ protected:
 
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandLocalToModelPose final : public ezAnimPoseGeneratorCommand
 {
-  ezAnimPoseGeneratorCommandLocalToModelPose();
-  ~ezAnimPoseGeneratorCommandLocalToModelPose();
-
-  void Configure(ezAnimPoseGeneratorCommandID cmdId, ezAnimPoseGeneratorModelPoseID poseID);
-  void Validate(const ezAnimPoseGenerator& queue) const;
-
   ezGameObject* m_pSendLocalPoseMsgTo = nullptr;
 
 private:
@@ -97,19 +80,17 @@ private:
 
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandModelPoseToOutput final : public ezAnimPoseGeneratorCommand
 {
-  ezAnimPoseGeneratorCommandModelPoseToOutput();
-  ~ezAnimPoseGeneratorCommandModelPoseToOutput();
-
-  void Configure(ezAnimPoseGeneratorCommandID cmdId);
-  void Validate(const ezAnimPoseGenerator& queue) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimPoseGenerator final
 {
 public:
+  ezAnimPoseGenerator();
+  ~ezAnimPoseGenerator();
+
   void Reset(const ezSkeletonResource* pSkeleton);
 
-  ezAnimPoseGeneratorCommandSampleTrack& AllocCommandSampleTrack();
+  ezAnimPoseGeneratorCommandSampleTrack& AllocCommandSampleTrack(ezUInt32 uiDeterministicID);
   ezAnimPoseGeneratorCommandCombinePoses& AllocCommandCombinePoses();
   ezAnimPoseGeneratorCommandLocalToModelPose& AllocCommandLocalToModelPose();
   ezAnimPoseGeneratorCommandModelPoseToOutput& AllocCommandModelPoseToOutput();
@@ -117,7 +98,7 @@ public:
   const ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id) const;
   ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id);
 
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper>* GeneratePose();
+  ezArrayPtr<ezMat4> GeneratePose();
 
 private:
   void Validate() const;
@@ -128,26 +109,23 @@ private:
   void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput& cmd);
 
-  ozz::vector<ozz::math::SoaTransform>* AcquireLocalPoseTransforms(ezAnimPoseGeneratorLocalPoseID id);
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper>* AcquireModelPoseTransforms(ezAnimPoseGeneratorModelPoseID id);
+  ezArrayPtr<ozz::math::SoaTransform> AcquireLocalPoseTransforms(ezAnimPoseGeneratorLocalPoseID id);
+  ezArrayPtr<ezMat4> AcquireModelPoseTransforms(ezAnimPoseGeneratorModelPoseID id);
 
   const ezSkeletonResource* m_pSkeleton = nullptr;
 
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseCounter = 0;
   ezAnimPoseGeneratorModelPoseID m_ModelPoseCounter = 0;
 
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper>* m_pOutputPose = nullptr;
+  ezArrayPtr<ezMat4> m_OutputPose;
 
-  ezDeque<ozz::vector<ozz::math::SoaTransform>> m_LocalTransforms;
-  ezDynamicArray<ozz::vector<ozz::math::SoaTransform>*> m_UsedLocalTransforms;
+  ezHybridArray<ezArrayPtr<ozz::math::SoaTransform>, 8> m_UsedLocalTransforms;
+  ezHybridArray<ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper>, 2> m_UsedModelTransforms;
 
-  ezDeque<ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper>> m_ModelTransforms;
-  ezDynamicArray<ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper>*> m_UsedModelTransforms;
+  ezHybridArray<ezAnimPoseGeneratorCommandSampleTrack, 4> m_CommandsSampleTrack;
+  ezHybridArray<ezAnimPoseGeneratorCommandCombinePoses, 1> m_CommandsCombinePoses;
+  ezHybridArray<ezAnimPoseGeneratorCommandLocalToModelPose, 1> m_CommandsLocalToModelPose;
+  ezHybridArray<ezAnimPoseGeneratorCommandModelPoseToOutput, 1> m_CommandsModelPoseToOutput;
 
-  // TODO: use ezFrameAllocator::GetCurrentAllocator() ? (or pass in custom allocator?)
-  ezDynamicArray<ezAnimPoseGeneratorCommand*> m_Commands;
-  ezDeque<ezAnimPoseGeneratorCommandSampleTrack> m_CommandsSampleTrack;
-  ezDeque<ezAnimPoseGeneratorCommandCombinePoses> m_CommandsCombinePoses;
-  ezDeque<ezAnimPoseGeneratorCommandLocalToModelPose> m_CommandsLocalToModelPose;
-  ezDeque<ezAnimPoseGeneratorCommandModelPoseToOutput> m_CommandsModelPoseToOutput;
+  ezArrayMap<ezUInt32, ozz::animation::SamplingCache*> m_SamplingCaches;
 };

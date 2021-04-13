@@ -195,6 +195,8 @@ void ezLerpClipsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleto
     }
   }
 
+  const bool bWasActiveBefore = m_fCurWeight > 0.0f;
+
   float fLerpFactor = ezMath::Clamp((float)m_LerpPin.GetNumber(graph), 0.0f, (float)iMaxClip);
 
   ezInt32 iLowerClip = ezMath::Clamp((ezInt32)ezMath::Trunc(fLerpFactor), 0, iMaxClip);
@@ -212,16 +214,11 @@ void ezLerpClipsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleto
 
   if (m_fCurWeight <= 0.0f)
   {
-    if (m_pOutputTransform)
+    if (bWasActiveBefore)
     {
       m_OnFinishedPin.SetTriggered(graph, true);
 
       m_NormalizedPlaybackTime.SetZero();
-      graph.FreeLocalTransforms(m_pOutputTransform);
-      graph.FreeLocalTransforms(m_pLocalTransforms[0]);
-      graph.FreeSamplingCache(m_pSamplingCaches[0]);
-      graph.FreeLocalTransforms(m_pLocalTransforms[1]);
-      graph.FreeSamplingCache(m_pSamplingCaches[1]);
     }
     return;
   }
@@ -231,7 +228,6 @@ void ezLerpClipsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleto
     if (!m_hAnimationClips[iLowerClip].IsValid())
       return;
 
-    // TODO: could just sample one, instead we sample the same one twice atm
     iUpperClip = iLowerClip;
   }
 
@@ -247,14 +243,12 @@ void ezLerpClipsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleto
   const auto& animDescHigh = pAnimClipHigh->GetDescriptor();
   const ozz::animation::Animation* pOzzAnimHigh = &animDescHigh.GetMappedOzzAnimation(*pSkeleton);
 
-  if (m_pOutputTransform == nullptr)
-  {
-    m_pOutputTransform = graph.AllocateLocalTransforms(*pSkeleton);
-    m_pLocalTransforms[0] = graph.AllocateLocalTransforms(*pSkeleton);
-    m_pLocalTransforms[1] = graph.AllocateLocalTransforms(*pSkeleton);
-    m_pSamplingCaches[0] = graph.AllocateSamplingCache(*pOzzAnimLow);
-    m_pSamplingCaches[1] = graph.AllocateSamplingCache(*pOzzAnimHigh);
-  }
+  ezAnimGraphPinDataLocalTransforms* pLocalTransforms[2] = {};
+  ezAnimGraphPinDataLocalTransforms* pOutputTransform = nullptr;
+
+  pOutputTransform = graph.AddPinDataLocalTransforms();
+  pLocalTransforms[0] = graph.AddPinDataLocalTransforms();
+  pLocalTransforms[1] = graph.AddPinDataLocalTransforms();
 
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
   const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
@@ -285,65 +279,57 @@ void ezLerpClipsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleto
     }
   }
 
-  // sample lower anim
+  auto& poseGen = graph.GetPoseGenerator();
+
+  if (m_hAnimationClips[iLowerClip] == m_hAnimationClips[iUpperClip])
   {
-    ozz::animation::SamplingJob job;
-    job.animation = pOzzAnimLow;
-    job.cache = &m_pSamplingCaches[0]->m_ozzSamplingCache;
-    job.ratio = m_NormalizedPlaybackTime.AsFloatInSeconds();
-    job.output = make_span(m_pLocalTransforms[0]->m_ozzLocalTransforms);
-    EZ_ASSERT_DEBUG(job.Validate(), "");
-    job.Run();
+    void* pThis = this;
+    auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
+    cmd.m_hAnimationClip = m_hAnimationClips[iLowerClip];
+    cmd.m_SampleTime = m_NormalizedPlaybackTime * pAnimClipLow->GetDescriptor().GetDuration().GetSeconds();
+
+    pOutputTransform->m_CommandID = cmd.GetCommandID();
   }
-
-  // sample upper anim
+  else
   {
-    ozz::animation::SamplingJob job;
-    job.animation = pOzzAnimHigh;
-    job.cache = &m_pSamplingCaches[1]->m_ozzSamplingCache;
-    job.ratio = m_NormalizedPlaybackTime.AsFloatInSeconds();
-    job.output = make_span(m_pLocalTransforms[1]->m_ozzLocalTransforms);
-    EZ_ASSERT_DEBUG(job.Validate(), "");
-    job.Run();
-  }
+    auto& cmdCmb = graph.GetPoseGenerator().AllocCommandCombinePoses();
+    pOutputTransform->m_CommandID = cmdCmb.GetCommandID();
 
-  // blend both animations
-  {
-    ozz::animation::BlendingJob::Layer bl[2];
-
-    bl[0].transform = make_span(m_pLocalTransforms[0]->m_ozzLocalTransforms);
-    bl[1].transform = make_span(m_pLocalTransforms[1]->m_ozzLocalTransforms);
-
-    bl[0].weight = 1.0f - fLerpFactor;
-    bl[1].weight = fLerpFactor;
-
-    if (m_WeightsPin.IsConnected())
+    // sample lower anim
     {
-      bl[0].joint_weights = make_span(m_WeightsPin.GetWeights(graph)->m_ozzBoneWeights);
-      bl[1].joint_weights = make_span(m_WeightsPin.GetWeights(graph)->m_ozzBoneWeights);
+      void* pThis = this;
+      auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
+      cmd.m_hAnimationClip = m_hAnimationClips[iLowerClip];
+      cmd.m_SampleTime = m_NormalizedPlaybackTime * pAnimClipLow->GetDescriptor().GetDuration().GetSeconds();
+
+      cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
+      cmdCmb.m_InputWeights.PushBack(1.0f - fLerpFactor);
     }
 
-    ozz::animation::BlendingJob job;
-    job.threshold = 0.1f;
-    job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(bl, bl + 2);
-    job.bind_pose = pOzzSkeleton->joint_bind_poses();
-    job.output = make_span(m_pOutputTransform->m_ozzLocalTransforms);
-    EZ_ASSERT_DEBUG(job.Validate(), "");
-    job.Run();
+    // sample upper anim
+    {
+      void* pThis = this;
+      auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
+      cmd.m_hAnimationClip = m_hAnimationClips[iUpperClip];
+      cmd.m_SampleTime = m_NormalizedPlaybackTime * pAnimClipHigh->GetDescriptor().GetDuration().GetSeconds();
+
+      cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
+      cmdCmb.m_InputWeights.PushBack(fLerpFactor);
+    }
   }
 
   // send to output
   {
-    m_pOutputTransform->m_fOverallWeight = m_fCurWeight;
-    m_pOutputTransform->m_pWeights = m_WeightsPin.GetWeights(graph);
+    pOutputTransform->m_fOverallWeight = m_fCurWeight;
+    pOutputTransform->m_pWeights = m_WeightsPin.GetWeights(graph);
 
-    m_pOutputTransform->m_bUseRootMotion = m_bApplyRootMotion;
+    pOutputTransform->m_bUseRootMotion = m_bApplyRootMotion;
 
     if (m_bApplyRootMotion)
     {
-      m_pOutputTransform->m_vRootMotion = ezMath::Lerp(animDescLow.m_vConstantRootMotion, animDescHigh.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds();
+      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDescLow.m_vConstantRootMotion, animDescHigh.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds();
     }
 
-    m_LocalPosePin.SetPose(graph, m_pOutputTransform);
+    m_LocalPosePin.SetPose(graph, pOutputTransform);
   }
 }

@@ -1,5 +1,6 @@
 #include <RendererCorePCH.h>
 
+#include <AnimationSystem/AnimPoseGenerator.h>
 #include <AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/PlaySequenceAnimNode.h>
@@ -152,6 +153,67 @@ const char* ezPlaySequenceAnimNode::GetEndClip() const
   return m_hEndClip.GetResourceID();
 }
 
+int CrossfadeAnimations2(ezAnimPoseGenerator& poseGen, ezAnimPoseGeneratorCommandID& out_cmdID, const ezAnimationClipResource& animClip0, const ezAnimationClipResource& animClip1, ezTime lookupTime, ezTime crossfadeDuration, ezUInt32 uiDeterministicID)
+{
+  const ezTime duration0 = animClip0.GetDescriptor().GetDuration();
+
+  if (lookupTime <= duration0 - crossfadeDuration)
+  {
+    auto& cmd = poseGen.AllocCommandSampleTrack(uiDeterministicID);
+    cmd.m_hAnimationClip = animClip0.GetResourceHandle();
+    cmd.m_SampleTime = lookupTime;
+    out_cmdID = cmd.GetCommandID();
+
+    return -1;
+  }
+
+  const ezTime lookup2 = lookupTime - (duration0 - crossfadeDuration);
+
+  if (lookupTime >= duration0)
+  {
+    auto& cmd = poseGen.AllocCommandSampleTrack(uiDeterministicID);
+    cmd.m_hAnimationClip = animClip1.GetResourceHandle();
+    cmd.m_SampleTime = lookup2;
+    out_cmdID = cmd.GetCommandID();
+
+    const ezTime duration1 = animClip1.GetDescriptor().GetDuration();
+
+    if (lookupTime >= duration0 + duration1 - crossfadeDuration)
+      return 2;
+
+    return 1;
+  }
+
+  float fLerp = (duration0 - lookupTime).AsFloatInSeconds() / crossfadeDuration.AsFloatInSeconds();
+  fLerp = 1.0f - fLerp;
+
+  // TODO: squared cross fade ?
+  //fLerp = 1.0f - ezMath::Square(fLerp);
+
+  auto& cmdCmb = poseGen.AllocCommandCombinePoses();
+  out_cmdID = cmdCmb.GetCommandID();
+
+  {
+    auto& cmd = poseGen.AllocCommandSampleTrack(uiDeterministicID);
+    cmd.m_hAnimationClip = animClip0.GetResourceHandle();
+    cmd.m_SampleTime = lookupTime;
+
+    cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
+    cmdCmb.m_InputWeights.PushBack(1.0f - fLerp);
+  }
+
+  {
+    auto& cmd = poseGen.AllocCommandSampleTrack(uiDeterministicID + 1);
+    cmd.m_hAnimationClip = animClip1.GetResourceHandle();
+    cmd.m_SampleTime = lookup2;
+
+    cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
+    cmdCmb.m_InputWeights.PushBack(fLerp);
+  }
+
+  return 0;
+}
+
 void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
   if (!m_ActivePin.IsConnected() || !m_LocalPosePin.IsConnected() || !m_hMiddleClip.IsValid())
@@ -199,32 +261,26 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
   if (pClip1.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  if (m_pOutputTransform == nullptr)
-  {
-    m_pOutputTransform = graph.AllocateLocalTransforms(*pSkeleton);
-    m_pLocalTransforms[0] = graph.AllocateLocalTransforms(*pSkeleton);
-    m_pLocalTransforms[1] = graph.AllocateLocalTransforms(*pSkeleton);
-  }
+  ezAnimGraphPinDataLocalTransforms* pLocalTransforms[2] = {};
+  ezAnimGraphPinDataLocalTransforms* pOutputTransform = nullptr;
 
-  graph.UpdateSamplingCache(m_pSamplingCache[0], pClip0->GetDescriptor().GetMappedOzzAnimation(*pSkeleton));
-  graph.UpdateSamplingCache(m_pSamplingCache[1], pClip1->GetDescriptor().GetMappedOzzAnimation(*pSkeleton));
+  pOutputTransform = graph.AddPinDataLocalTransforms();
+  pLocalTransforms[0] = graph.AddPinDataLocalTransforms();
+  pLocalTransforms[1] = graph.AddPinDataLocalTransforms();
+
+  const void* pThis = this;
+  const ezUInt32 uiDeterministicID = ezHashingUtils::xxHash32(&pThis, sizeof(pThis));
 
   if (m_State == State::End)
   {
-    const int fadeRes = CrossfadeAnimations(*m_pOutputTransform,
-      *m_pSamplingCache[0], *pClip0.GetPointer(), *m_pLocalTransforms[0],
-      *m_pSamplingCache[1], *pClip1.GetPointer(), *m_pLocalTransforms[1],
-      *pSkeleton, m_PlaybackTime, m_MiddleToEndCrossFade);
+    ezAnimPoseGeneratorCommandID cmdID;
+    const int fadeRes = CrossfadeAnimations2(graph.GetPoseGenerator(), cmdID, *pClip0.GetPointer(), *pClip1.GetPointer(), m_PlaybackTime, m_MiddleToEndCrossFade, uiDeterministicID);
+
+    pOutputTransform->m_CommandID = cmdID;
 
     if (fadeRes == 2) // finished them all
     {
       m_State = State::Off;
-
-      graph.FreeLocalTransforms(m_pOutputTransform);
-      graph.FreeLocalTransforms(m_pLocalTransforms[0]);
-      graph.FreeLocalTransforms(m_pLocalTransforms[1]);
-      graph.FreeSamplingCache(m_pSamplingCache[0]);
-      graph.FreeSamplingCache(m_pSamplingCache[1]);
 
       m_OnFinishedPin.SetTriggered(graph, true);
 
@@ -234,10 +290,10 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
   if (m_State == State::Start || m_State == State::Middle)
   {
-    const int fadeRes = CrossfadeAnimations(*m_pOutputTransform,
-      *m_pSamplingCache[0], *pClip0.GetPointer(), *m_pLocalTransforms[0],
-      *m_pSamplingCache[1], *pClip1.GetPointer(), *m_pLocalTransforms[1],
-      *pSkeleton, m_PlaybackTime, m_State == State::Start ? m_StartToMiddleCrossFade : m_LoopCrossFade);
+    ezAnimPoseGeneratorCommandID cmdID;
+    const int fadeRes = CrossfadeAnimations2(graph.GetPoseGenerator(), cmdID, *pClip0.GetPointer(), *pClip1.GetPointer(), m_PlaybackTime, m_State == State::Start ? m_StartToMiddleCrossFade : m_LoopCrossFade, uiDeterministicID);
+
+    pOutputTransform->m_CommandID = cmdID;
 
     if (fadeRes == -1 && m_bStopWhenPossible) // not yet started the cross-fade
     {
@@ -262,17 +318,17 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
   // send to output
   {
-    m_pOutputTransform->m_fOverallWeight = m_fCurWeight;
-    m_pOutputTransform->m_pWeights = m_WeightsPin.GetWeights(graph);
+    pOutputTransform->m_fOverallWeight = m_fCurWeight;
+    pOutputTransform->m_pWeights = m_WeightsPin.GetWeights(graph);
 
-    m_pOutputTransform->m_bUseRootMotion = m_bApplyRootMotion;
+    pOutputTransform->m_bUseRootMotion = m_bApplyRootMotion;
 
     if (m_bApplyRootMotion)
     {
       // TODO: sequence root motion
-      m_pOutputTransform->m_vRootMotion.SetZero();
+      pOutputTransform->m_vRootMotion.SetZero();
     }
 
-    m_LocalPosePin.SetPose(graph, m_pOutputTransform);
+    m_LocalPosePin.SetPose(graph, pOutputTransform);
   }
 }

@@ -98,60 +98,78 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
   if (m_RootBones.IsEmpty() || (!m_WeightsPin.IsConnected() && !m_InverseWeightsPin.IsConnected()))
     return;
 
-  const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-
-  if (m_pBoneWeights == nullptr && m_pInverseBoneWeights == nullptr)
+  if (m_pSharedBoneWeights == nullptr && m_pSharedInverseBoneWeights == nullptr)
   {
-    m_pBoneWeights = graph.AllocateBoneWeights(*pSkeleton);
+    const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
 
-    ezMemoryUtils::ZeroFill<ezUInt8>((ezUInt8*)m_pBoneWeights->m_ozzBoneWeights.data(), m_pBoneWeights->m_ozzBoneWeights.size() * sizeof(ozz::math::SimdFloat4));
+    ezStringBuilder name;
+    name.Format("{}", pSkeleton->GetResourceIDHash());
 
     for (const auto& rootBone : m_RootBones)
     {
-      int iRootBone = -1;
-      for (int iBone = 0; iBone < pOzzSkeleton->num_joints(); ++iBone)
-      {
-        if (ezStringUtils::IsEqual(pOzzSkeleton->joint_names()[iBone], rootBone.GetData()))
-        {
-          iRootBone = iBone;
-          break;
-        }
-      }
-
-      const float fBoneWeight = 1.0f;
-
-      auto setBoneWeight = [&](int currentBone, int) {
-        const int iJointIdx0 = currentBone / 4;
-        const int iJointIdx1 = currentBone % 4;
-
-        ozz::math::SimdFloat4& soa_weight = m_pBoneWeights->m_ozzBoneWeights.at(iJointIdx0);
-        soa_weight = ozz::math::SetI(soa_weight, ozz::math::simd_float4::Load1(fBoneWeight), iJointIdx1);
-      };
-
-      ozz::animation::IterateJointsDF(*pOzzSkeleton, setBoneWeight, iRootBone);
+      name.AppendFormat("-{}", rootBone);
     }
 
-    m_pBoneWeights->m_fOverallWeight = m_fWeight;
+    m_pSharedBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& bw) {
+      for (const auto& rootBone : m_RootBones)
+      {
+        int iRootBone = -1;
+        for (int iBone = 0; iBone < pOzzSkeleton->num_joints(); ++iBone)
+        {
+          if (ezStringUtils::IsEqual(pOzzSkeleton->joint_names()[iBone], rootBone.GetData()))
+          {
+            iRootBone = iBone;
+            break;
+          }
+        }
+
+        const float fBoneWeight = 1.0f;
+
+        auto setBoneWeight = [&](int currentBone, int) {
+          const int iJointIdx0 = currentBone / 4;
+          const int iJointIdx1 = currentBone % 4;
+
+          ozz::math::SimdFloat4& soa_weight = bw.m_Weights[iJointIdx0];
+          soa_weight = ozz::math::SetI(soa_weight, ozz::math::simd_float4::Load1(fBoneWeight), iJointIdx1);
+        };
+
+        ozz::animation::IterateJointsDF(*pOzzSkeleton, setBoneWeight, iRootBone);
+      }
+    });
 
     if (m_InverseWeightsPin.IsConnected())
     {
-      m_pInverseBoneWeights = graph.AllocateBoneWeights(*pSkeleton);
-      m_pInverseBoneWeights->m_fOverallWeight = m_pBoneWeights->m_fOverallWeight;
+      m_pSharedInverseBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this](ezAnimGraphSharedBoneWeights& bw) {
+        const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
 
-      const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
-
-      for (size_t b = 0; b < m_pInverseBoneWeights->m_ozzBoneWeights.size(); ++b)
-      {
-        m_pInverseBoneWeights->m_ozzBoneWeights[b] = ozz::math::MSub(oneBone, oneBone, m_pBoneWeights->m_ozzBoneWeights[b]);
-      }
+        for (ezUInt32 b = 0; b < bw.m_Weights.GetCount(); ++b)
+        {
+          bw.m_Weights[b] = ozz::math::MSub(oneBone, oneBone, m_pSharedBoneWeights->m_Weights[b]);
+        }
+      });
     }
 
     if (!m_WeightsPin.IsConnected())
     {
-      graph.FreeBoneWeights(m_pBoneWeights);
+      m_pSharedBoneWeights.Clear();
     }
   }
 
-  m_WeightsPin.SetWeights(graph, m_pBoneWeights);
-  m_InverseWeightsPin.SetWeights(graph, m_pInverseBoneWeights);
+  if (m_WeightsPin.IsConnected())
+  {
+    ezAnimGraphPinDataBoneWeights* pPinData = graph.AddPinDataBoneWeights();
+    pPinData->m_fOverallWeight = m_fWeight;
+    pPinData->m_pSharedBoneWeights = m_pSharedBoneWeights.Borrow();
+
+    m_WeightsPin.SetWeights(graph, pPinData);
+  }
+
+  if (m_InverseWeightsPin.IsConnected())
+  {
+    ezAnimGraphPinDataBoneWeights* pPinData = graph.AddPinDataBoneWeights();
+    pPinData->m_fOverallWeight = m_fWeight;
+    pPinData->m_pSharedBoneWeights = m_pSharedInverseBoneWeights.Borrow();
+
+    m_InverseWeightsPin.SetWeights(graph, pPinData);
+  }
 }

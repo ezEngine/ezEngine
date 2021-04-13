@@ -9,9 +9,8 @@ class ezGameObject;
 class ezAnimGraph;
 class ezStreamWriter;
 class ezStreamReader;
-struct ezAnimGraphSamplingCache;
-struct ezAnimGraphLocalTransforms;
-struct ezAnimGraphBoneWeights;
+struct ezAnimGraphPinDataLocalTransforms;
+struct ezAnimGraphPinDataBoneWeights;
 class ezAnimationClipResource;
 using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 
@@ -40,14 +39,6 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
-
-  static void SampleAnimation(ezAnimGraphLocalTransforms& transform, ezAnimGraphSamplingCache& cache, const ozz::animation::Animation* pOzzAnimation, float lookupPos);
-
-  static void SampleAnimation(ezAnimGraphLocalTransforms& transform, ezAnimGraphSamplingCache& cache, const ezAnimationClipResource& animClip, const ezSkeletonResource& skeleton, ezTime lookupTime);
-
-  static void LerpAnimations(ezAnimGraphLocalTransforms& transform, ezAnimGraphSamplingCache& cache0, const ezAnimationClipResource& animClip0, ezTime lookupTime0, ezAnimGraphLocalTransforms& tempTransform0, ezAnimGraphSamplingCache& cache1, const ezAnimationClipResource& animClip1, ezTime lookupTime1, ezAnimGraphLocalTransforms& tempTransform1, const ezSkeletonResource& skeleton, float fLerpFactor);
-
-  static int CrossfadeAnimations(ezAnimGraphLocalTransforms& transform, ezAnimGraphSamplingCache& cache0, const ezAnimationClipResource& animClip0, ezAnimGraphLocalTransforms& tempTransform0, ezAnimGraphSamplingCache& cache1, const ezAnimationClipResource& animClip1, ezAnimGraphLocalTransforms& tempTransform1, const ezSkeletonResource& skeleton, ezTime lookupTime, ezTime crossfadeDuration);
 
   const char* GetCustomNodeTitle() const { return m_CustomNodeTitle.GetString(); }
   void SetCustomNodeTitle(const char* sz) { m_CustomNodeTitle.Assign(sz); }

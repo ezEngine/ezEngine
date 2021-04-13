@@ -44,8 +44,4 @@ private:
 
   ezTime m_NormalizedPlaybackTime;
   float m_fCurWeight = 0.0f;
-
-  ezAnimGraphSamplingCache* m_pSamplingCaches[2] = {};
-  ezAnimGraphLocalTransforms* m_pLocalTransforms[2] = {};
-  ezAnimGraphLocalTransforms* m_pOutputTransform = nullptr;
 };

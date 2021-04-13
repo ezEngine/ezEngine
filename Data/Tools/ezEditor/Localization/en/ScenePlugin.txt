@@ -295,3 +295,5 @@ ezBlackboardEntryFlags::UserFlag7;UserFlag 7
 ezRootMotionMode::Ignore;Ignore
 ezRootMotionMode::ApplyToOwner;Apply To Owner
 ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg
+ezJointOverrideComponent;Joint Override Component
+ezHeightfieldComponent;Heightfield Component

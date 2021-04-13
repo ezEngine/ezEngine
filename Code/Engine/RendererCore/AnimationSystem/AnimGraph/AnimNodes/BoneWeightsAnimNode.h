@@ -40,6 +40,6 @@ private:
 
   ezHybridArray<ezHashedString, 2> m_RootBones;
 
-  ezAnimGraphBoneWeights* m_pBoneWeights = nullptr;
-  ezAnimGraphBoneWeights* m_pInverseBoneWeights = nullptr;
+  ezSharedPtr<ezAnimGraphSharedBoneWeights> m_pSharedBoneWeights;
+  ezSharedPtr<ezAnimGraphSharedBoneWeights> m_pSharedInverseBoneWeights;
 };

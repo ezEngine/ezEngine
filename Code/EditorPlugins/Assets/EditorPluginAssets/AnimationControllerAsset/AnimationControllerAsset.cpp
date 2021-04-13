@@ -248,7 +248,7 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
 
   auto pIdxProperty = static_cast<ezAbstractMemberProperty*>(ezAnimGraphPin::GetStaticRTTI()->FindPropertyByName("PinIdx", false));
   EZ_ASSERT_DEBUG(pIdxProperty, "Missing PinIdx property");
-   auto pNumProperty = static_cast<ezAbstractMemberProperty*>(ezAnimGraphPin::GetStaticRTTI()->FindPropertyByName("NumConnections", false));
+  auto pNumProperty = static_cast<ezAbstractMemberProperty*>(ezAnimGraphPin::GetStaticRTTI()->FindPropertyByName("NumConnections", false));
   EZ_ASSERT_DEBUG(pNumProperty, "Missing NumConnections property");
 
   ezDynamicArray<ezAnimGraphNode*> newNodes;

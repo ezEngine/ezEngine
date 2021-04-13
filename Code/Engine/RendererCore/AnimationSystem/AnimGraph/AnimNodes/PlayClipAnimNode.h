@@ -46,7 +46,4 @@ private:
   float m_fCurWeight = 0.0f;
   bool m_bIsRunning = false;
   bool m_bKeepRunning = false;
-
-  ezAnimGraphSamplingCache* m_pSamplingCache = nullptr;
-  ezAnimGraphLocalTransforms* m_pLocalTransforms = nullptr;
 };

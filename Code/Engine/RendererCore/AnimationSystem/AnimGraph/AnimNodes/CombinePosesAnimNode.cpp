@@ -67,73 +67,84 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
   if (!m_LocalPosePin.IsConnected() || !m_LocalPosesPin.IsConnected())
     return;
 
-  ezHybridArray<ezAnimGraphLocalTransforms*, 16> pIn;
+  ezHybridArray<ezAnimGraphPinDataLocalTransforms*, 16> pIn;
+
   m_LocalPosesPin.GetPoses(graph, pIn);
 
   if (pIn.IsEmpty())
-  {
-    graph.FreeLocalTransforms(m_pTransforms);
     return;
-  }
 
-  if (m_pTransforms == nullptr)
-  {
-    m_pTransforms = graph.AllocateLocalTransforms(*pSkeleton);
-  }
+  ezAnimGraphPinDataLocalTransforms* pPinData = graph.AddPinDataLocalTransforms();
 
-  const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-
-
-  m_pTransforms->m_ozzLocalTransforms.resize(pOzzSkeleton->num_soa_joints());
-  m_pTransforms->m_vRootMotion.SetZero();
-
-  ezHybridArray<ozz::animation::BlendingJob::Layer, 8> bl;
+  pPinData->m_vRootMotion.SetZero();
 
   float fSummedRootMotionWeight = 0.0f;
 
+  auto& cmd = graph.GetPoseGenerator().AllocCommandCombinePoses();
+
+  struct PinWeight
+  {
+    ezUInt32 m_uiPinIdx;
+    float m_fPinWeight = 0.0f;
+  };
+
+  ezHybridArray<PinWeight, 16> pw;
+  pw.SetCount(pIn.GetCount());
+
   for (ezUInt32 i = 0; i < pIn.GetCount(); ++i)
   {
+    pw[i].m_uiPinIdx = i;
+
     if (pIn[i] != nullptr)
     {
-      auto& layer = bl.ExpandAndGetRef();
-      layer.weight = pIn[i]->m_fOverallWeight;
-      layer.transform = make_span(pIn[i]->m_ozzLocalTransforms);
+      pw[i].m_fPinWeight = pIn[i]->m_fOverallWeight;
 
       if (pIn[i]->m_pWeights)
       {
-        layer.joint_weights = make_span(pIn[i]->m_pWeights->m_ozzBoneWeights);
-        layer.weight *= pIn[i]->m_pWeights->m_fOverallWeight;
+        pw[i].m_fPinWeight *= pIn[i]->m_pWeights->m_fOverallWeight;
+      }
+    }
+  }
+
+  if (pw.GetCount() > m_uiMaxPoses)
+  {
+    pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+    pw.SetCount(m_uiMaxPoses);
+  }
+
+  for (const auto& in : pw)
+  {
+    if (in.m_fPinWeight > 0)
+    {
+      if (pIn[in.m_uiPinIdx]->m_pWeights)
+      {
+        const ezArrayPtr<const ozz::math::SimdFloat4> weights = pIn[in.m_uiPinIdx]->m_pWeights->m_pSharedBoneWeights->m_Weights;
+
+        cmd.m_InputBoneWeights.PushBack(weights);
+      }
+      else
+      {
+        cmd.m_InputBoneWeights.PushBack({});
       }
 
-      if (pIn[i]->m_bUseRootMotion)
+      if (pIn[in.m_uiPinIdx]->m_bUseRootMotion)
       {
-        fSummedRootMotionWeight += layer.weight;
-        m_pTransforms->m_vRootMotion += pIn[i]->m_vRootMotion * layer.weight;
-        m_pTransforms->m_bUseRootMotion = true;
+        fSummedRootMotionWeight += in.m_fPinWeight;
+        pPinData->m_vRootMotion += pIn[in.m_uiPinIdx]->m_vRootMotion * in.m_fPinWeight;
+        pPinData->m_bUseRootMotion = true;
       }
+
+      cmd.m_Inputs.PushBack(pIn[in.m_uiPinIdx]->m_CommandID);
+      cmd.m_InputWeights.PushBack(in.m_fPinWeight);
     }
   }
 
   if (fSummedRootMotionWeight > 1.0f) // normalize down, but not up
   {
-    m_pTransforms->m_vRootMotion /= fSummedRootMotionWeight;
+    pPinData->m_vRootMotion /= fSummedRootMotionWeight;
   }
 
-  bl.Sort([](auto& lhs, auto& rhs) { return lhs.weight > rhs.weight; });
+  pPinData->m_CommandID = cmd.GetCommandID();
 
-  // reduce the number of poses to blend to the maximum allowed number
-  if (bl.GetCount() > m_uiMaxPoses)
-  {
-    bl.SetCount(m_uiMaxPoses);
-  }
-
-  ozz::animation::BlendingJob job;
-  job.threshold = 0.1f;
-  job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(bl), end(bl));
-  job.bind_pose = pOzzSkeleton->joint_bind_poses();
-  job.output = make_span(m_pTransforms->m_ozzLocalTransforms);
-  EZ_ASSERT_DEBUG(job.Validate(), "");
-  job.Run();
-
-  m_LocalPosePin.SetPose(graph, m_pTransforms);
+  m_LocalPosePin.SetPose(graph, pPinData);
 }

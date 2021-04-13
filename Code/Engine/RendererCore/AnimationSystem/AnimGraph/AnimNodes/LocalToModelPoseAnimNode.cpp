@@ -65,26 +65,15 @@ void ezLocalToModelPoseAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ez
   if (pLocalPose == nullptr)
     return;
 
-  if (m_pModelTransform == nullptr)
-  {
-    m_pModelTransform = graph.AllocateModelTransforms(*pSkeleton);
-  }
+  ezAnimGraphPinDataModelTransforms* pModelTransform = graph.AddPinDataModelTransforms();
 
-  const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+  pModelTransform->m_bUseRootMotion = pLocalPose->m_bUseRootMotion;
+  pModelTransform->m_vRootMotion = pLocalPose->m_vRootMotion;
 
-  auto& msTrans = m_pModelTransform->m_ModelTransforms;
-  msTrans.SetCountUninitialized(pOzzSkeleton->num_joints());
+  auto& cmd = graph.GetPoseGenerator().AllocCommandLocalToModelPose();
+  cmd.m_Inputs.PushBack(m_LocalPosePin.GetPose(graph)->m_CommandID);
 
+  pModelTransform->m_CommandID = cmd.GetCommandID();
 
-  ozz::animation::LocalToModelJob job;
-  job.input = make_span(pLocalPose->m_ozzLocalTransforms);
-  job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(begin(msTrans)), reinterpret_cast<ozz::math::Float4x4*>(end(msTrans)));
-  job.skeleton = pOzzSkeleton;
-  EZ_ASSERT_DEBUG(job.Validate(), "");
-  job.Run();
-
-  m_pModelTransform->m_bUseRootMotion = pLocalPose->m_bUseRootMotion;
-  m_pModelTransform->m_vRootMotion = pLocalPose->m_vRootMotion;
-
-  m_ModelPosePin.SetPose(graph, m_pModelTransform);
+  m_ModelPosePin.SetPose(graph, pModelTransform);
 }

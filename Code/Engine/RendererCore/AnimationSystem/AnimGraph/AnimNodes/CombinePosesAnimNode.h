@@ -27,6 +27,4 @@ public:
 private:
   ezAnimGraphLocalPoseMultiInputPin m_LocalPosesPin; // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin;      // [ property ]
-
-  ezAnimGraphLocalTransforms* m_pTransforms = nullptr;
 };

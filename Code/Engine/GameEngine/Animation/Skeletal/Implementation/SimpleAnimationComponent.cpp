@@ -146,7 +146,7 @@ void ezSimpleAnimationComponent::Update()
   ezAnimPoseGenerator poseGen;
   poseGen.Reset(pSkeleton.GetPointer());
 
-  auto& cmdSample = poseGen.AllocCommandSampleTrack();
+  auto& cmdSample = poseGen.AllocCommandSampleTrack(0);
   cmdSample.m_hAnimationClip = m_hAnimationClip;
   cmdSample.m_SampleTime = m_fNormalizedPlaybackPosition * animDesc.GetDuration();
 
@@ -157,9 +157,9 @@ void ezSimpleAnimationComponent::Update()
   auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
   cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
 
-  auto* pPose = poseGen.GeneratePose();
+  auto pose = poseGen.GeneratePose();
 
-  if (pPose == nullptr)
+  if (pose.IsEmpty())
     return;
 
   // inform child nodes/components that a new pose is available
@@ -167,7 +167,7 @@ void ezSimpleAnimationComponent::Update()
     ezMsgAnimationPoseUpdated msg;
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = *pPose;
+    msg.m_ModelTransforms = pose;
 
     GetOwner()->SendMessageRecursive(msg);
   }

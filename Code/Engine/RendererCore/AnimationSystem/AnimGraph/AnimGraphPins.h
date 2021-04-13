@@ -2,14 +2,27 @@
 
 #include <RendererCore/RendererCoreDLL.h>
 
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Reflection/Reflection.h>
+
+#include <Foundation/Types/RefCounted.h>
+#include <ozz/base/maths/soa_transform.h>
 
 class ezAnimGraph;
 class ezStreamWriter;
 class ezStreamReader;
-struct ezAnimGraphBoneWeights;
-struct ezAnimGraphLocalTransforms;
-struct ezAnimGraphModelTransforms;
+struct ezAnimGraphPinDataBoneWeights;
+struct ezAnimGraphPinDataLocalTransforms;
+struct ezAnimGraphPinDataModelTransforms;
+
+struct ezAnimGraphSharedBoneWeights : public ezRefCounted
+{
+  ezDynamicArray<ozz::math::SimdFloat4, ezAlignedAllocatorWrapper> m_Weights;
+};
+
+using ezAnimPoseGeneratorLocalPoseID = ezUInt32;
+using ezAnimPoseGeneratorModelPoseID = ezUInt32;
+using ezAnimPoseGeneratorCommandID = ezUInt32;
 
 class EZ_RENDERERCORE_DLL ezAnimGraphPin : public ezReflectedClass
 {
@@ -63,8 +76,8 @@ class EZ_RENDERERCORE_DLL ezAnimGraphTriggerInputPin : public ezAnimGraphInputPi
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphTriggerInputPin, ezAnimGraphInputPin);
 
 public:
-  bool IsTriggered(ezAnimGraph& controller) const;
-  bool AreAllTriggered(ezAnimGraph& controller) const;
+  bool IsTriggered(ezAnimGraph& graph) const;
+  bool AreAllTriggered(ezAnimGraph& graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphTriggerOutputPin : public ezAnimGraphOutputPin
@@ -76,7 +89,7 @@ public:
   ///
   /// All pin states are reset before every graph update, so this only needs to be called
   /// when a pin should be set to the triggered state, but then it must be called every frame.
-  void SetTriggered(ezAnimGraph& controller, bool triggered);
+  void SetTriggered(ezAnimGraph& graph, bool triggered);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,7 +99,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphNumberInputPin : public ezAnimGraphInputPin
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberInputPin, ezAnimGraphInputPin);
 
 public:
-  double GetNumber(ezAnimGraph& controller) const;
+  double GetNumber(ezAnimGraph& graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphNumberOutputPin : public ezAnimGraphOutputPin
@@ -94,7 +107,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphNumberOutputPin : public ezAnimGraphOutputP
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetNumber(ezAnimGraph& controller, double value);
+  void SetNumber(ezAnimGraph& graph, double value);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -104,7 +117,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsInputPin : public ezAnimGraphInp
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoneWeightsInputPin, ezAnimGraphInputPin);
 
 public:
-  ezAnimGraphBoneWeights* GetWeights(ezAnimGraph& controller) const;
+  ezAnimGraphPinDataBoneWeights* GetWeights(ezAnimGraph& graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsOutputPin : public ezAnimGraphOutputPin
@@ -112,7 +125,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsOutputPin : public ezAnimGraphOu
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoneWeightsOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetWeights(ezAnimGraph& controller, ezAnimGraphBoneWeights* pWeights);
+  void SetWeights(ezAnimGraph& graph, ezAnimGraphPinDataBoneWeights* pWeights);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,7 +135,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseInputPin : public ezAnimGraphInput
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseInputPin, ezAnimGraphInputPin);
 
 public:
-  ezAnimGraphLocalTransforms* GetPose(ezAnimGraph& controller) const;
+  ezAnimGraphPinDataLocalTransforms* GetPose(ezAnimGraph& graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseMultiInputPin : public ezAnimGraphInputPin
@@ -130,7 +143,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseMultiInputPin : public ezAnimGraph
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseMultiInputPin, ezAnimGraphInputPin);
 
 public:
-  void GetPoses(ezAnimGraph& controller, ezDynamicArray<ezAnimGraphLocalTransforms*>& out_Poses) const;
+  void GetPoses(ezAnimGraph& graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_Poses) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseOutputPin : public ezAnimGraphOutputPin
@@ -138,7 +151,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseOutputPin : public ezAnimGraphOutp
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetPose(ezAnimGraph& controller, ezAnimGraphLocalTransforms* pPose);
+  void SetPose(ezAnimGraph& graph, ezAnimGraphPinDataLocalTransforms* pPose);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -148,7 +161,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphModelPoseInputPin : public ezAnimGraphInput
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphModelPoseInputPin, ezAnimGraphInputPin);
 
 public:
-  ezAnimGraphModelTransforms* GetPose(ezAnimGraph& controller) const;
+  ezAnimGraphPinDataModelTransforms* GetPose(ezAnimGraph& graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphModelPoseOutputPin : public ezAnimGraphOutputPin
@@ -156,5 +169,5 @@ class EZ_RENDERERCORE_DLL ezAnimGraphModelPoseOutputPin : public ezAnimGraphOutp
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphModelPoseOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetPose(ezAnimGraph& controller, ezAnimGraphModelTransforms* pPose);
+  void SetPose(ezAnimGraph& graph, ezAnimGraphPinDataModelTransforms* pPose);
 };

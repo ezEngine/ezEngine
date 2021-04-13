@@ -4,43 +4,44 @@
 
 #include <Core/Utils/Blackboard.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 
+#include <Foundation/Containers/HashTable.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <ozz/animation/runtime/sampling_job.h>
-#include <ozz/base/containers/vector.h>
-#include <ozz/base/maths/soa_transform.h>
 
 class ezGameObject;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-struct ezAnimGraphBoneWeights
+EZ_DEFINE_AS_POD_TYPE(ozz::math::SimdFloat4);
+
+struct ezAnimGraphPinDataBoneWeights
 {
+  ezUInt16 m_uiOwnIndex = 0xFFFF;
   float m_fOverallWeight = 1.0f;
-  ozz::vector<ozz::math::SimdFloat4> m_ozzBoneWeights;
+  const ezAnimGraphSharedBoneWeights* m_pSharedBoneWeights = nullptr;
 };
 
-struct ezAnimGraphLocalTransforms
+struct ezAnimGraphPinDataLocalTransforms
 {
-  const ezAnimGraphBoneWeights* m_pWeights = nullptr;
-  ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
+  ezUInt16 m_uiOwnIndex = 0xFFFF;
+  ezAnimPoseGeneratorCommandID m_CommandID;
+  const ezAnimGraphPinDataBoneWeights* m_pWeights = nullptr;
   float m_fOverallWeight = 1.0f;
   ezVec3 m_vRootMotion = ezVec3::ZeroVector();
   bool m_bUseRootMotion = false;
 };
 
-struct ezAnimGraphSamplingCache
+struct ezAnimGraphPinDataModelTransforms
 {
-  const ozz::animation::Animation* m_pUsedForAnim = nullptr;
-  ozz::animation::SamplingCache m_ozzSamplingCache;
-};
-
-struct ezAnimGraphModelTransforms
-{
+  ezUInt16 m_uiOwnIndex = 0xFFFF;
+  ezAnimPoseGeneratorCommandID m_CommandID;
   ezVec3 m_vRootMotion = ezVec3::ZeroVector();
   bool m_bUseRootMotion = false;
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelTransforms;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraph
@@ -72,38 +73,38 @@ public:
   // EXTEND THIS if a new type is introduced
   ezDynamicArray<ezInt8> m_TriggerInputPinStates;
   ezDynamicArray<double> m_NumberInputPinStates;
-  ezDynamicArray<ezAnimGraphBoneWeights*> m_BoneWeightInputPinStates;
-  ezDynamicArray<ezHybridArray<ezAnimGraphLocalTransforms*, 1>> m_LocalPoseInputPinStates;
-  ezDynamicArray<ezAnimGraphModelTransforms*> m_ModelPoseInputPinStates;
+  ezDynamicArray<ezUInt16> m_BoneWeightInputPinStates;
+  ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_LocalPoseInputPinStates;
+  ezDynamicArray<ezUInt16> m_ModelPoseInputPinStates;
 
-  ezAnimGraphBoneWeights* AllocateBoneWeights(const ezSkeletonResource& skeleton);
-  void FreeBoneWeights(ezAnimGraphBoneWeights*& pWeights);
+  ezAnimGraphPinDataBoneWeights* AddPinDataBoneWeights();
+  ezAnimGraphPinDataLocalTransforms* AddPinDataLocalTransforms();
+  ezAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
 
-  ezAnimGraphLocalTransforms* AllocateLocalTransforms(const ezSkeletonResource& skeleton);
-  void FreeLocalTransforms(ezAnimGraphLocalTransforms*& pTransforms);
+  ezAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
 
-  ezAnimGraphModelTransforms* AllocateModelTransforms(const ezSkeletonResource& skeleton);
-  void FreeModelTransforms(ezAnimGraphModelTransforms*& pTransforms);
+  ezAnimPoseGenerator& GetPoseGenerator() { return m_PoseGenerator; }
 
-  ezAnimGraphSamplingCache* AllocateSamplingCache(const ozz::animation::Animation& animclip);
-  void UpdateSamplingCache(ezAnimGraphSamplingCache*& pCache, const ozz::animation::Animation& animclip);
-  void FreeSamplingCache(ezAnimGraphSamplingCache*& pTransforms);
-
-  ezAnimGraphModelTransforms* m_pCurrentModelTransforms = nullptr;
+  static ezSharedPtr<ezAnimGraphSharedBoneWeights> CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill);
 
 private:
+  friend class ezAnimGraphBoneWeightsInputPin;
+  friend class ezAnimGraphBoneWeightsOutputPin;
+  friend class ezAnimGraphLocalPoseInputPin;
+  friend class ezAnimGraphLocalPoseOutputPin;
+  friend class ezAnimGraphModelPoseInputPin;
+  friend class ezAnimGraphModelPoseOutputPin;
+  friend class ezAnimGraphLocalPoseMultiInputPin;
+
   ezBlackboard* m_pBlackboard = nullptr;
   ezBlackboard m_Blackboard;
 
-  ezDeque<ezAnimGraphBoneWeights> m_BoneWeights;
-  ezHybridArray<ezAnimGraphBoneWeights*, 8> m_BoneWeightsFreeList;
+  ezAnimPoseGenerator m_PoseGenerator;
 
-  ezDeque<ezAnimGraphLocalTransforms> m_LocalTransforms;
-  ezHybridArray<ezAnimGraphLocalTransforms*, 8> m_LocalTransformsFreeList;
+  ezHybridArray<ezAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
+  ezHybridArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
+  ezHybridArray<ezAnimGraphPinDataModelTransforms, 2> m_PinDataModelTransforms;
 
-  ezDeque<ezAnimGraphModelTransforms> m_ModelTransforms;
-  ezHybridArray<ezAnimGraphModelTransforms*, 8> m_ModelTransformsFreeList;
-
-  ezDeque<ezAnimGraphSamplingCache> m_SamplingCaches;
-  ezHybridArray<ezAnimGraphSamplingCache*, 8> m_SamplingCachesFreeList;
+  static ezMutex s_SharedDataMutex;
+  static ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> s_SharedBoneWeights;
 };
