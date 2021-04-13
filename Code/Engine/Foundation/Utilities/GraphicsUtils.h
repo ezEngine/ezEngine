@@ -157,5 +157,14 @@ namespace ezGraphicsUtils
   EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir,
     const ezMat4& viewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
+  /// \brief Computes the barycentric coordinates of a point in a 3D triangle.
+  ///
+  /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
+  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& v0, const ezVec3& v1, const ezVec3& v2, const ezVec3& pos);
+
+  /// \brief Computes the barycentric coordinates of a point in a 2D triangle.
+  ///
+  /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
+  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec2& v0, const ezVec2& v1, const ezVec2& v2, const ezVec2& pos);
 
 } // namespace ezGraphicsUtils

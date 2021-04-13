@@ -512,4 +512,56 @@ void ezGraphicsUtils::DecomposeViewMatrix(ezVec3& vPosition, ezVec3& vForwardDir
   vPosition = rotation.GetTranspose() * -viewMatrix.GetTranslationVector();
 }
 
+ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& a, const ezVec3& b, const ezVec3& c, const ezVec3& p)
+{
+  // implementation copied from https://gamedev.stackexchange.com/a/49370
+
+  const ezVec3 v0 = b - a;
+  const ezVec3 v1 = c - a;
+  const ezVec3 v2 = p - a;
+
+  const float d00 = v0.Dot(v0);
+  const float d01 = v0.Dot(v1);
+  const float d11 = v1.Dot(v1);
+  const float d20 = v2.Dot(v0);
+  const float d21 = v2.Dot(v1);
+  const float denom = d00 * d11 - d01 * d01;
+
+  if (ezMath::IsZero(denom, ezMath::SmallEpsilon<float>()))
+    return EZ_FAILURE;
+
+  const float invDenom = 1.0f / denom;
+
+  const float v = (d11 * d20 - d01 * d21) * invDenom;
+  const float w = (d00 * d21 - d01 * d20) * invDenom;
+  const float u = 1.0f - v - w;
+
+  out_vCoordinates.Set(u, v, w);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec2& a, const ezVec2& b, const ezVec2& c, const ezVec2& p)
+{
+  // implementation copied from https://gamedev.stackexchange.com/a/63203
+
+  const ezVec2 v0 = b - a;
+  const ezVec2 v1 = c - a;
+  const ezVec2 v2 = p - a;
+
+  const float denom = v0.x * v1.y - v1.x * v0.y;
+
+  if (ezMath::IsZero(denom, ezMath::SmallEpsilon<float>()))
+    return EZ_FAILURE;
+
+  const float invDenom = 1.0f / denom;
+  const float v = (v2.x * v1.y - v1.x * v2.y) * invDenom;
+  const float w = (v0.x * v2.y - v2.x * v0.y) * invDenom;
+  const float u = 1.0f - v - w;
+
+  out_vCoordinates.Set(u, v, w);
+
+  return EZ_SUCCESS;
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);
