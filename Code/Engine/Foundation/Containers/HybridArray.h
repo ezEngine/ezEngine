@@ -2,11 +2,11 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 
-/// \brief Implementation a dynamically growing array.
+/// \brief A hybrid array uses in-place storage to handle the first few elements without any allocation. It dynamically resizes when more elements are needed.
 ///
-/// Best-case performance for the PushBack operation is in O(1) if the ezHybridArray does not need to be expanded.
-/// In the worst case, PushBack is in O(n).
-/// Look-up is guaranteed to always be in O(1).
+/// It is often more efficient to use a hybrid array, rather than a dynamic array, when the number of needed elements is typically low or when the array is used only temporarily. In this case costly allocations can often be prevented entirely.
+/// However, if the number of elements is unpredictable or usually very large, prefer a dynamic array, to avoid wasting (stack) memory for a hybrid array that is rarely large enough to be used.
+/// The ezHybridArray is derived from ezDynamicArray and can therefore be passed to functions that expect an ezDynamicArray, even for output.
 template <typename T, ezUInt32 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezHybridArray : public ezDynamicArray<T, AllocatorWrapper>
 {
