@@ -47,14 +47,24 @@ constexpr EZ_ALWAYS_INLINE double ezTime::GetHours() const
   return m_fTime / (60.0 * 60.0);
 }
 
-EZ_ALWAYS_INLINE void ezTime::operator-=(const ezTime& other)
+constexpr EZ_ALWAYS_INLINE void ezTime::operator-=(const ezTime& other)
 {
   m_fTime -= other.m_fTime;
 }
 
-EZ_ALWAYS_INLINE void ezTime::operator+=(const ezTime& other)
+constexpr EZ_ALWAYS_INLINE void ezTime::operator+=(const ezTime& other)
 {
   m_fTime += other.m_fTime;
+}
+
+constexpr EZ_ALWAYS_INLINE void ezTime::operator*=(double factor)
+{
+  m_fTime *= factor;
+}
+
+constexpr EZ_ALWAYS_INLINE void ezTime::operator/=(double factor)
+{
+  m_fTime /= factor;
 }
 
 constexpr EZ_ALWAYS_INLINE ezTime ezTime::operator-() const
@@ -82,6 +92,11 @@ constexpr EZ_ALWAYS_INLINE ezTime operator*(double f, ezTime t)
   return ezTime::Seconds(t.GetSeconds() * f);
 }
 
+constexpr EZ_ALWAYS_INLINE ezTime operator*(ezTime f, ezTime t)
+{
+  return ezTime::Seconds(t.GetSeconds() * f.GetSeconds());
+}
+
 constexpr EZ_ALWAYS_INLINE ezTime operator/(ezTime t, double f)
 {
   return ezTime::Seconds(t.GetSeconds() / f);
@@ -90,4 +105,9 @@ constexpr EZ_ALWAYS_INLINE ezTime operator/(ezTime t, double f)
 constexpr EZ_ALWAYS_INLINE ezTime operator/(double f, ezTime t)
 {
   return ezTime::Seconds(f / t.GetSeconds());
+}
+
+constexpr EZ_ALWAYS_INLINE ezTime operator/(ezTime f, ezTime t)
+{
+  return ezTime::Seconds(f.GetSeconds() / t.GetSeconds());
 }
