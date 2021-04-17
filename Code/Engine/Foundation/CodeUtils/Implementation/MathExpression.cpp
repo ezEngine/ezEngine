@@ -114,11 +114,23 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       {
         if (evaluationStack.GetCount() < 1)
         {
-          ezLog::Error(m_pLog, "Expected at least operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          ezLog::Error(m_pLog, "Expected at least one operand on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
           return errorOutput;
         }
 
         evaluationStack.PeekBack() = -evaluationStack.PeekBack();
+      }
+      break;
+
+      case InstructionType::Absolute:
+      {
+        if (evaluationStack.GetCount() < 1)
+        {
+          ezLog::Error(m_pLog, "Expected at least one operand on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          return errorOutput;
+        }
+
+        evaluationStack.PeekBack() = ezMath::Abs(evaluationStack.PeekBack());
       }
       break;
 
@@ -176,6 +188,7 @@ namespace
 
     // Unary
     2, // Negate
+    2, // Absolute
   };
 
   // Accept/parses binary operator.
@@ -251,6 +264,15 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
         return EZ_FAILURE;
 
       m_InstructionStream.PushBack(InstructionType::Negate);
+      return EZ_SUCCESS;
+    }
+
+    if (Accept(tokens, uiCurToken, "abs"))
+    {
+      if (ParseExpression(tokens, uiCurToken, s_operatorPrecedence[InstructionType::Absolute]).Failed())
+        return EZ_FAILURE;
+
+      m_InstructionStream.PushBack(InstructionType::Absolute);
       return EZ_SUCCESS;
     }
   }

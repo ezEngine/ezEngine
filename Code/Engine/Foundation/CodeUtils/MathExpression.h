@@ -13,9 +13,10 @@ class ezLogInterface;
 /// Valid is any functional, mathematical expression containing:
 /// - Numbers (all numbers treated as doubles): 0123456789.
 /// - Binary mathematical operators: * / - +
-/// - Unary mathematical operators: - +
+/// - Unary mathematical operators: - + abs
 /// - Parenthesis: ( )
 /// - Variables consisting of an arbitrary chain of: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 (s_szValidVariableCharacters) but
+/// - Note: 'abs' can be used like a function, e.g. "abs(-4)", though it actually is treated like a unary operator, so "abs -4" works as well.
 /// mustn't start with a number. Hard-coded to double.
 class EZ_FOUNDATION_DLL ezMathExpression
 {
@@ -75,7 +76,8 @@ public:
       Divide,   ///< Divide last two elements of evaluation stack and push result back.
 
       // Unary
-      Negate, ///< Negate top element of the evaluation stack.
+      Negate,   ///< Negate top element of the evaluation stack.
+      Absolute, ///< Make the top element of the stack an absolute value
 
       // Special
       PushConstant, ///< Instruction is followed by an integer that determines which constant should be pushed onto the evaluation stack.
