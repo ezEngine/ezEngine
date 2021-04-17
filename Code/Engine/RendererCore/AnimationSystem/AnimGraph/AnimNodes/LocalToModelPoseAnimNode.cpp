@@ -4,11 +4,6 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/LocalToModelPoseAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
-#include <ozz/animation/runtime/animation.h>
-#include <ozz/animation/runtime/local_to_model_job.h>
-#include <ozz/animation/runtime/skeleton.h>
-#include <ozz/animation/runtime/skeleton_utils.h>
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLocalToModelPoseAnimNode, 1, ezRTTIDefaultAllocator<ezLocalToModelPoseAnimNode>)
 {
@@ -21,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLocalToModelPoseAnimNode, 1, ezRTTIDefaultAllo
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Pose Processing"),
-    new ezColorAttribute(ezColor::FireBrick),
+    new ezColorAttribute(ezColor::DarkSlateBlue),
     new ezTitleAttribute("Local To Model Space"),
   }
   EZ_END_ATTRIBUTES;
@@ -67,8 +62,11 @@ void ezLocalToModelPoseAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ez
 
   ezAnimGraphPinDataModelTransforms* pModelTransform = graph.AddPinDataModelTransforms();
 
-  pModelTransform->m_bUseRootMotion = pLocalPose->m_bUseRootMotion;
-  pModelTransform->m_vRootMotion = pLocalPose->m_vRootMotion;
+  if (pLocalPose->m_bUseRootMotion)
+  {
+    pModelTransform->m_bUseRootMotion = true;
+    pModelTransform->m_vRootMotion = pLocalPose->m_vRootMotion;
+  }
 
   auto& cmd = graph.GetPoseGenerator().AllocCommandLocalToModelPose();
   cmd.m_Inputs.PushBack(m_LocalPosePin.GetPose(graph)->m_CommandID);

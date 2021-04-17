@@ -5,11 +5,6 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/CombinePosesAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
-#include <ozz/animation/runtime/animation.h>
-#include <ozz/animation/runtime/blending_job.h>
-#include <ozz/animation/runtime/skeleton.h>
-#include <ozz/animation/runtime/skeleton_utils.h>
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCombinePosesAnimNode, 1, ezRTTIDefaultAllocator<ezCombinePosesAnimNode>)
 {
@@ -23,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCombinePosesAnimNode, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Pose Processing"),
-    new ezColorAttribute(ezColor::CornflowerBlue),
+    new ezColorAttribute(ezColor::RoyalBlue),
     new ezTitleAttribute("Combine Poses"),
   }
   EZ_END_ATTRIBUTES;
@@ -80,6 +75,9 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
   float fSummedRootMotionWeight = 0.0f;
 
+  // TODO: skip blending, if only a single animation is played
+  // unless the weight is below 1.0 and the bind pose should be faded in
+
   auto& cmd = graph.GetPoseGenerator().AllocCommandCombinePoses();
 
   struct PinWeight
@@ -131,6 +129,10 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
       {
         fSummedRootMotionWeight += in.m_fPinWeight;
         pPinData->m_vRootMotion += pIn[in.m_uiPinIdx]->m_vRootMotion * in.m_fPinWeight;
+
+        // TODO: combining quaternions is mathematically tricky
+        // could maybe use multiple slerps to concatenate weighted quaternions \_(ツ)_/
+
         pPinData->m_bUseRootMotion = true;
       }
 

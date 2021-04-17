@@ -24,4 +24,5 @@ public:
 
 private:
   ezAnimGraphModelPoseInputPin m_ModelPosePin; // [ property ]
+  ezAnimGraphNumberInputPin m_RotateZPin;      // [ property ]
 };

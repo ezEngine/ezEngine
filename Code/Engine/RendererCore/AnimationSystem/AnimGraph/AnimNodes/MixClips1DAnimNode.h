@@ -2,9 +2,9 @@
 
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 
-class EZ_RENDERERCORE_DLL ezLerpClipsAnimNode : public ezAnimGraphNode
+class EZ_RENDERERCORE_DLL ezMixClips1DAnimNode : public ezAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLerpClipsAnimNode, ezAnimGraphNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMixClips1DAnimNode, ezAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
@@ -42,6 +42,5 @@ private:
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
   ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
 
-  ezTime m_NormalizedPlaybackTime;
-  float m_fCurWeight = 0.0f;
+  ezAnimState m_State;
 };

@@ -99,7 +99,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphNumberInputPin : public ezAnimGraphInputPin
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberInputPin, ezAnimGraphInputPin);
 
 public:
-  double GetNumber(ezAnimGraph& graph) const;
+  double GetNumber(ezAnimGraph& graph, double fFallback = 0.0) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphNumberOutputPin : public ezAnimGraphOutputPin

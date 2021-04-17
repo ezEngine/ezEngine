@@ -224,12 +224,10 @@ AnimRamp;Animation Fade
 RootBones;Root Bones
 ezCombinePosesAnimNode;Combine Poses
 ezSetBlackboardValueAnimNode;Blackboard: Set Value
-ezCheckBlackboardValueAnimNode;Blackboard: Compare Value
+ezCheckBlackboardValueAnimNode;Blackboard: Check Value
 ezGetBlackboardNumberAnimNode;Blackboard: Get Value
 ezControllerInputAnimNode;Controller Input
-ezLerpClipsAnimNode;Lerp Animation Clips
 ezPlayClipAnimNode;Play Animation Clip
-ezPlaySequenceAnimNode;Play Animation Clip Sequence
 ezModelPoseOutputAnimNode;Model Pose Output
 ezBoneWeightsAnimNode;Bone Weight Config
 ezLocalToModelPoseAnimNode;Local To Model Pose
@@ -240,3 +238,9 @@ ezLogicNotAnimNode;Logic NOT
 Common.Speed.Menu;Speed
 ezRootMotionSource::None;No Root Motion
 ezRootMotionSource::Constant;Constant Motion
+ezCompareNumberAnimNode;Compare Value
+ezMathExpressionAnimNode;Math Expression
+ezMixClips1DAnimNode;Mix Clips 1D
+ezMixClips2DAnimNode;Mix Clips 2D
+Clips;Clips
+ezAnimClip2D;Clip

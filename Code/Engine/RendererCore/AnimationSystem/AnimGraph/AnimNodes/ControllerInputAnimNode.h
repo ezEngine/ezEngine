@@ -21,8 +21,19 @@ private:
   ezAnimGraphTriggerOutputPin m_ButtonX; // [ property ]
   ezAnimGraphTriggerOutputPin m_ButtonY; // [ property ]
 
-  ezAnimGraphTriggerOutputPin m_StickLeft;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_StickRight; // [ property ]
-  ezAnimGraphTriggerOutputPin m_StickUp;    // [ property ]
-  ezAnimGraphTriggerOutputPin m_StickDown;  // [ property ]
+  ezAnimGraphNumberOutputPin m_LeftStickX;  // [ property ]
+  ezAnimGraphNumberOutputPin m_LeftStickY;  // [ property ]
+  ezAnimGraphNumberOutputPin m_RightStickX; // [ property ]
+  ezAnimGraphNumberOutputPin m_RightStickY; // [ property ]
+
+  ezAnimGraphNumberOutputPin m_LeftTrigger;  // [ property ]
+  ezAnimGraphNumberOutputPin m_RightTrigger; // [ property ]
+
+  ezAnimGraphTriggerOutputPin m_LeftShoulder;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_RightShoulder; // [ property ]
+
+  ezAnimGraphTriggerOutputPin m_PadLeft;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_PadRight; // [ property ]
+  ezAnimGraphTriggerOutputPin m_PadUp;    // [ property ]
+  ezAnimGraphTriggerOutputPin m_PadDown;  // [ property ]
 };

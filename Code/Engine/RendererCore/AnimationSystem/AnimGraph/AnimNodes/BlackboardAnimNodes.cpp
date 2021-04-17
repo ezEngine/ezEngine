@@ -21,6 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardValueAnimNode, 1, ezRTTIDefaultAl
   {
     new ezTitleAttribute("Set: '{BlackboardEntry}' '{ActivationValue}' '{DeactivationValue}'"),
     new ezCategoryAttribute("Blackboard"),
+    new ezColorAttribute(ezColorGammaUB(0x4D, 0x00, 0x00)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -79,8 +80,10 @@ void ezSetBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const 
   {
     m_bLastActiveState = bIsActiveNow;
 
-    // TODO: register only once
-    graph.GetBlackboard().RegisterEntry(m_sBlackboardEntry, 0.0f);
+    if (graph.GetBlackboard().GetEntry(m_sBlackboardEntry) == nullptr)
+    {
+      graph.GetBlackboard().RegisterEntry(m_sBlackboardEntry, 0.0f);
+    }
 
     if (bIsActiveNow)
     {
@@ -117,17 +120,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCheckBlackboardValueAnimNode, 1, ezRTTIDefault
   {
     new ezCategoryAttribute("Blackboard"),
     new ezTitleAttribute("Check: '{BlackboardEntry}' {Comparison} {ReferenceValue}"),
+    new ezColorAttribute(ezColorGammaUB(0x4c, 0x65, 0x1a)),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComparisonOperator, 1)
-  EZ_ENUM_CONSTANTS(ezComparisonOperator::Equal, ezComparisonOperator::NotEqual)
-  EZ_ENUM_CONSTANTS(ezComparisonOperator::Less, ezComparisonOperator::LessEqual)
-  EZ_ENUM_CONSTANTS(ezComparisonOperator::Greater, ezComparisonOperator::GreaterEqual)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 // clang-format on
 
 ezResult ezCheckBlackboardValueAnimNode::SerializeNode(ezStreamWriter& stream) const
@@ -170,29 +167,6 @@ const char* ezCheckBlackboardValueAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-static bool Compare(ezComparisonOperator::Enum cmp, float f1, float f2)
-{
-  switch (cmp)
-  {
-    case ezComparisonOperator::Equal:
-      return f1 == f2;
-    case ezComparisonOperator::NotEqual:
-      return f1 != f2;
-    case ezComparisonOperator::Less:
-      return f1 < f2;
-    case ezComparisonOperator::LessEqual:
-      return f1 <= f2;
-    case ezComparisonOperator::Greater:
-      return f1 > f2;
-    case ezComparisonOperator::GreaterEqual:
-      return f1 >= f2;
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  return false;
-}
-
 void ezCheckBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
   ezVariant value = graph.GetBlackboard().GetEntryValue(m_sBlackboardEntry);
@@ -203,7 +177,7 @@ void ezCheckBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, cons
     fValue = value.ConvertTo<float>();
   }
 
-  if (Compare(m_Comparison, fValue, m_fReferenceValue))
+  if (ezComparisonOperator::Compare(m_Comparison, fValue, m_fReferenceValue))
   {
     m_ActivePin.SetTriggered(graph, true);
   }
@@ -230,6 +204,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardNumberAnimNode, 1, ezRTTIDefaultA
   {
     new ezCategoryAttribute("Blackboard"),
     new ezTitleAttribute("Get: '{BlackboardEntry}'"),
+    new ezColorAttribute(ezColorGammaUB(0x4c, 0x65, 0x1a)),
   }
   EZ_END_ATTRIBUTES;
 }

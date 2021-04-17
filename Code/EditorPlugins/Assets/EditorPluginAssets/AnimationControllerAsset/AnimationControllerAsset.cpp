@@ -55,11 +55,11 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
   ezHybridArray<ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
-  const ezColor triggerPinColor = ezColor::DarkGoldenRod;
-  const ezColor numberPinColor = ezColor::Cyan;
-  const ezColor weightPinColor = ezColor::Teal;
-  const ezColor localPosePinColor = ezColor::LightSkyBlue;
-  const ezColor modelPosePinColor = ezColor::FireBrick;
+  const ezColor triggerPinColor = ezColorGammaUB(0xa1, 0x12, 0x6c);
+  const ezColor numberPinColor = ezColor::OliveDrab;
+  const ezColor weightPinColor = ezColor::LightSeaGreen;
+  const ezColor localPosePinColor = ezColor::SteelBlue;
+  const ezColor modelPosePinColor = ezColorGammaUB(0x52, 0x46, 0xa0);
   // EXTEND THIS if a new type is introduced
 
   for (ezAbstractProperty* pProp : properties)

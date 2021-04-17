@@ -3,9 +3,7 @@
 #include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <ozz/animation/runtime/animation.h>
-#include <ozz/animation/runtime/blending_job.h>
-#include <ozz/animation/runtime/local_to_model_job.h>
+
 #include <ozz/animation/runtime/skeleton.h>
 
 ezMutex ezAnimGraph::s_SharedDataMutex;
@@ -18,6 +16,21 @@ ezAnimGraph::ezAnimGraph()
 
 ezAnimGraph::~ezAnimGraph() = default;
 
+void ezAnimGraph::Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, ezBlackboard* pBlackboard /*= nullptr*/)
+{
+  m_hSkeleton = hSkeleton;
+  m_pPoseGenerator = &poseGenerator;
+
+  if (pBlackboard)
+  {
+    m_pBlackboard = pBlackboard;
+  }
+  else
+  {
+    m_pBlackboard = &m_Blackboard;
+  }
+}
+
 void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
 {
   if (!m_hSkeleton.IsValid())
@@ -27,9 +40,21 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
   if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
+  if (!m_bInitialized)
+  {
+    m_bInitialized = true;
+
+    EZ_LOG_BLOCK("Initializing animation controller graph");
+
+    for (const auto& pNode : m_Nodes)
+    {
+      pNode->Initialize(*this, pSkeleton.GetPointer());
+    }
+  }
+
   m_pCurrentModelTransforms = nullptr;
 
-  m_PoseGenerator.Reset(pSkeleton.GetPointer());
+  m_pPoseGenerator->Reset(pSkeleton.GetPointer());
 
   // reset all pin states
   {
@@ -75,25 +100,15 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
   }
 }
 
-ezVec3 ezAnimGraph::GetRootMotion() const
+void ezAnimGraph::GetRootMotion(ezVec3& translation, ezQuat& rotation) const
 {
-  if (m_pCurrentModelTransforms && m_pCurrentModelTransforms->m_bUseRootMotion)
-  {
-    return m_pCurrentModelTransforms->m_vRootMotion;
-  }
+  translation.SetZero();
+  rotation.SetIdentity();
 
-  return ezVec3::ZeroVector();
-}
-
-void ezAnimGraph::SetExternalBlackboard(ezBlackboard* pBlackboard)
-{
-  if (pBlackboard)
+  if (m_pCurrentModelTransforms)
   {
-    m_pBlackboard = pBlackboard;
-  }
-  else
-  {
-    m_pBlackboard = &m_Blackboard;
+    translation = m_pCurrentModelTransforms->m_vRootMotion;
+    rotation = m_pCurrentModelTransforms->m_qRootMotion;
   }
 }
 
@@ -277,6 +292,11 @@ ezAnimGraphPinDataModelTransforms* ezAnimGraph::AddPinDataModelTransforms()
   ezAnimGraphPinDataModelTransforms* pData = &m_PinDataModelTransforms.ExpandAndGetRef();
   pData->m_uiOwnIndex = m_PinDataModelTransforms.GetCount() - 1;
   return pData;
+}
+
+void ezAnimGraph::SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform)
+{
+  m_pCurrentModelTransforms = pModelTransform;
 }
 
 ezSharedPtr<ezAnimGraphSharedBoneWeights> ezAnimGraph::CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill)

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/RendererCoreDLL.h>
-
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/RendererCoreDLL.h>
+
 #include <ozz/animation/runtime/sampling_job.h>
 #include <ozz/base/maths/soa_float.h>
 #include <ozz/base/maths/soa_transform.h>
@@ -48,7 +48,7 @@ private:
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandSampleTrack final : public ezAnimPoseGeneratorCommand
 {
   ezAnimationClipResourceHandle m_hAnimationClip;
-  ezTime m_SampleTime;
+  float m_fNormalizedSamplePos;
 
 private:
   friend class ezAnimPoseGenerator;

@@ -88,3 +88,32 @@ private:
   ezAnimGraphTriggerInputPin m_ActivePin;  // [ property ]
   ezAnimGraphTriggerOutputPin m_OutputPin; // [ property ]
 };
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezCompareNumberAnimNode : public ezAnimGraphNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCompareNumberAnimNode, ezAnimGraphNode);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAnimGraphNode
+
+protected:
+  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
+  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+
+  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezCompareNumberAnimNode
+
+public:
+  float m_fReferenceValue = 1.0f;            // [ property ]
+  ezEnum<ezComparisonOperator> m_Comparison; // [ property ]
+
+private:
+  ezAnimGraphTriggerOutputPin m_ActivePin; // [ property ]
+  ezAnimGraphNumberInputPin m_NumberPin;   // [ property ]
+};

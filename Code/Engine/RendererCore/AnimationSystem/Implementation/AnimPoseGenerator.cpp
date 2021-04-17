@@ -112,7 +112,7 @@ void ezAnimPoseGenerator::Validate() const
 
   for (auto& cmd : m_CommandsCombinePoses)
   {
-    EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() >= 1, "Must combine at least one pose.");
+    //EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() >= 1, "Must combine at least one pose.");
     EZ_ASSERT_DEV(cmd.m_LocalPoseOutput != ezInvalidIndex, "Output pose not allocated.");
     EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() == cmd.m_InputWeights.GetCount(), "Number of inputs and weights must match.");
 
@@ -254,7 +254,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd)
   ozz::animation::SamplingJob job;
   job.animation = &ozzAnim;
   job.cache = pSampler;
-  job.ratio = cmd.m_SampleTime.AsFloatInSeconds() / pResource->GetDescriptor().GetDuration().AsFloatInSeconds();
+  job.ratio = cmd.m_fNormalizedSamplePos;
   job.output = ozz::span<ozz::math::SoaTransform>(transforms.GetPtr(), transforms.GetCount());
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
@@ -299,7 +299,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
   }
 
   ozz::animation::BlendingJob job;
-  job.threshold = 0.1f;
+  job.threshold = 1.0f;
   job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(bl), end(bl));
   job.bind_pose = m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_bind_poses();
   job.output = ozz::span<ozz::math::SoaTransform>(transforms.GetPtr(), transforms.GetCount());

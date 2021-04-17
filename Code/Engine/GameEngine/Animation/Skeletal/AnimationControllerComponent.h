@@ -43,4 +43,5 @@ protected:
 
   ezAnimGraphResourceHandle m_hAnimationController;
   ezAnimGraph m_AnimationGraph;
+  ezAnimPoseGenerator m_PoseGenerator;
 };

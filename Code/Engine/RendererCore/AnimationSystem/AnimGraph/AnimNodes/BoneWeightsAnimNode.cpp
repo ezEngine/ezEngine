@@ -4,8 +4,6 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/BoneWeightsAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
-#include <ozz/animation/runtime/animation.h>
-#include <ozz/animation/runtime/skeleton.h>
 #include <ozz/animation/runtime/skeleton_utils.h>
 
 // clang-format off
@@ -23,8 +21,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoneWeightsAnimNode, 1, ezRTTIDefaultAllocator
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Weights"),
-    new ezColorAttribute(ezColor::Teal),
-    new ezTitleAttribute("Bone Weights"),
+    new ezColorAttribute(ezColor::DarkCyan),
+    new ezTitleAttribute("Bone Weights '{RootBones[0]}' '{RootBones[1]}' '{RootBones[2]}'"),
   }
   EZ_END_ATTRIBUTES;
 }

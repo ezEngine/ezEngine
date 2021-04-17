@@ -51,8 +51,33 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const = 0;
   virtual ezResult DeserializeNode(ezStreamReader& stream) = 0;
 
+  virtual void Initialize(ezAnimGraph& graph, const ezSkeletonResource* pSkeleton) {}
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) = 0;
 };
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+struct ezComparisonOperator
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Equal,
+    NotEqual,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
+
+    Default = Equal
+  };
+
+  static bool Compare(ezComparisonOperator::Enum cmp, double f1, double f2);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezComparisonOperator);
 
 /// \brief Helper class for the common feature of fading in and out of an animation
 ///
@@ -70,3 +95,41 @@ struct EZ_RENDERERCORE_DLL ezAnimRampUpDown
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezAnimRampUpDown);
+
+struct EZ_RENDERERCORE_DLL ezAnimState
+{
+  enum class State
+  {
+    Off,
+    StartedRampUp,
+    RampingUp,
+    Running,
+    StartedRampDown,
+    RampingDown,
+    Finished,
+  };
+
+  bool WillStateBeOff(bool bTriggerActive) const;
+  void UpdateState(ezTime tDiff);
+
+  ezAnimRampUpDown m_AnimRamp;
+  bool m_bImmediateRampUp = true;
+  bool m_bImmediateRampDown = true;
+  bool m_bLoop = true;
+  bool m_bTriggerActive = false;
+  float m_fPlaybackSpeed = 1.0f;
+  ezTime m_Duration;
+  ezTime m_DurationOfQueued;
+
+  State GetCurrentState() const { return m_State; }
+  float GetWeight() const { return m_fCurWeight; }
+  float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
+  bool HasTransitioned() const { return m_bHasTransitioned; }
+
+private:
+  State m_State = State::Off;
+  float m_fNormalizedPlaybackPosition = 0.0f;
+  bool m_bRequireLoopForRampDown = true;
+  bool m_bHasTransitioned = false;
+  float m_fCurWeight = 0.0f;
+};

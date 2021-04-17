@@ -89,10 +89,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNumberOutputPin, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraph& graph) const
+double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraph& graph, double fFallback /*= 0.0*/) const
 {
   if (m_iPinIndex < 0)
-    return 0;
+    return fFallback;
 
   return graph.m_NumberInputPinStates[m_iPinIndex];
 }

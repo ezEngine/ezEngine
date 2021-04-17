@@ -148,7 +148,7 @@ void ezSimpleAnimationComponent::Update()
 
   auto& cmdSample = poseGen.AllocCommandSampleTrack(0);
   cmdSample.m_hAnimationClip = m_hAnimationClip;
-  cmdSample.m_SampleTime = m_fNormalizedPlaybackPosition * animDesc.GetDuration();
+  cmdSample.m_fNormalizedSamplePos = m_fNormalizedPlaybackPosition;
 
   auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
   cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
@@ -182,7 +182,7 @@ void ezSimpleAnimationComponent::Update()
       vRootMotion = -vRootMotion;
     }
 
-    ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion);
+    ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezQuat::IdentityQuaternion());
   }
 }
 

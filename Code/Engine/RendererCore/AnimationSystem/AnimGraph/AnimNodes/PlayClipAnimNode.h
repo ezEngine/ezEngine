@@ -22,28 +22,30 @@ protected:
   // ezPlayClipAnimNode
 
 public:
-  void SetAnimationClip(const char* szFile); // [ property ]
-  const char* GetAnimationClip() const;      // [ property ]
-
   ezAnimRampUpDown m_AnimRamp;        // [ property ]
   float m_fPlaybackSpeed = 1.0f;      // [ property ]
   bool m_bApplyRootMotion = false;    // [ property ]
   bool m_bLoop = false;               // [ property ]
   bool m_bCancelWhenInactive = false; // [ property ]
 
-private:
-  void AnimationFinished(ezAnimGraph& graph);
+  ezUInt32 Clips_GetCount() const;                          // [ property ]
+  const char* Clips_GetValue(ezUInt32 uiIndex) const;       // [ property ]
+  void Clips_SetValue(ezUInt32 uiIndex, const char* value); // [ property ]
+  void Clips_Insert(ezUInt32 uiIndex, const char* value);   // [ property ]
+  void Clips_Remove(ezUInt32 uiIndex);                      // [ property ]
 
-  ezAnimationClipResourceHandle m_hAnimationClip;
+private:
+  ezDynamicArray<ezAnimationClipResourceHandle> m_Clips; // [ property ]
 
   ezAnimGraphTriggerInputPin m_ActivePin;       // [ property ]
   ezAnimGraphBoneWeightsInputPin m_WeightsPin;  // [ property ]
   ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
+  ezAnimGraphNumberInputPin m_ClipIndexPin;     // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
   ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
 
-  ezTime m_PlaybackTime;
-  float m_fCurWeight = 0.0f;
-  bool m_bIsRunning = false;
-  bool m_bKeepRunning = false;
+  ezAnimState m_State;
+  ezUInt8 m_uiClipToPlay = 0xFF;
+  ezUInt8 m_uiNextClipToPlay = 0xFF;
+  ezTime m_NextClipDuration;
 };

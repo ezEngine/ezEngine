@@ -63,7 +63,7 @@ struct ezRootMotionMode
     Default = Ignore
   };
 
-  EZ_GAMEENGINE_DLL static void Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& vMotion);
+  EZ_GAMEENGINE_DLL static void Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& translation, const ezQuat& rotation);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezRootMotionMode);

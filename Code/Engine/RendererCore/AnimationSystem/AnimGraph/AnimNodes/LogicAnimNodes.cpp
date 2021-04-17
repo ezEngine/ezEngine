@@ -16,7 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicAndAnimNode, 1, ezRTTIDefaultAllocator<ez
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Logic"),
-    new ezColorAttribute(ezColor::DarkOliveGreen),
     new ezTitleAttribute("AND"),
   }
   EZ_END_ATTRIBUTES;
@@ -82,7 +81,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicOrAnimNode, 1, ezRTTIDefaultAllocator<ezL
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Logic"),
-    new ezColorAttribute(ezColor::DarkOliveGreen),
     new ezTitleAttribute("OR"),
   }
   EZ_END_ATTRIBUTES;
@@ -148,7 +146,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicNotAnimNode, 1, ezRTTIDefaultAllocator<ez
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Logic"),
-    new ezColorAttribute(ezColor::DarkOliveGreen),
     new ezTitleAttribute("NOT"),
   }
   EZ_END_ATTRIBUTES;
@@ -188,4 +185,73 @@ void ezLogicNotAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
   bool res = !m_ActivePin.IsTriggered(graph);
 
   m_OutputPin.SetTriggered(graph, res);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareNumberAnimNode, 1, ezRTTIDefaultAllocator<ezCompareNumberAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
+
+    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("Number", m_NumberPin)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic"),
+    new ezTitleAttribute("Check: Number {Comparison} {ReferenceValue}"),
+    new ezColorAttribute(ezColorGammaUB(0x4c, 0x65, 0x1a)),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezResult ezCompareNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  stream << m_fReferenceValue;
+  stream << m_Comparison;
+
+  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_NumberPin.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  stream >> m_fReferenceValue;
+  stream >> m_Comparison;
+
+  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_NumberPin.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+void ezCompareNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+{
+  if (ezComparisonOperator::Compare(m_Comparison, m_NumberPin.GetNumber(graph), m_fReferenceValue))
+  {
+    m_ActivePin.SetTriggered(graph, true);
+  }
+  else
+  {
+    m_ActivePin.SetTriggered(graph, false);
+  }
 }

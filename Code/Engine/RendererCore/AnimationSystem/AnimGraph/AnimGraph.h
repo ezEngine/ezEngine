@@ -11,7 +11,6 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <ozz/animation/runtime/sampling_job.h>
 
 class ezGameObject;
 
@@ -41,6 +40,7 @@ struct ezAnimGraphPinDataModelTransforms
   ezUInt16 m_uiOwnIndex = 0xFFFF;
   ezAnimPoseGeneratorCommandID m_CommandID;
   ezVec3 m_vRootMotion = ezVec3::ZeroVector();
+  ezQuat m_qRootMotion = ezQuat::IdentityQuaternion();
   bool m_bUseRootMotion = false;
 };
 
@@ -52,21 +52,29 @@ public:
   ezAnimGraph();
   ~ezAnimGraph();
 
+  void Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, ezBlackboard* pBlackboard = nullptr);
+
   void Update(ezTime tDiff, ezGameObject* pTarget);
-  ezVec3 GetRootMotion() const;
+  void GetRootMotion(ezVec3& translation, ezQuat& rotation) const;
 
-  ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
-
-  ezSkeletonResourceHandle m_hSkeleton;
-
-  void SetExternalBlackboard(ezBlackboard* pBlackboard);
-  ezBlackboard& GetBlackboard()
-  {
-    return *m_pBlackboard;
-  }
+  ezBlackboard& GetBlackboard() { return *m_pBlackboard; }
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
+
+  ezAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
+
+  static ezSharedPtr<ezAnimGraphSharedBoneWeights> CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill);
+
+  ezAnimGraphPinDataBoneWeights* AddPinDataBoneWeights();
+  ezAnimGraphPinDataLocalTransforms* AddPinDataLocalTransforms();
+  ezAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
+
+  void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
+
+private:
+  ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
+  ezSkeletonResourceHandle m_hSkeleton;
 
   ezDynamicArray<ezDynamicArray<ezUInt16>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
 
@@ -77,17 +85,12 @@ public:
   ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_LocalPoseInputPinStates;
   ezDynamicArray<ezUInt16> m_ModelPoseInputPinStates;
 
-  ezAnimGraphPinDataBoneWeights* AddPinDataBoneWeights();
-  ezAnimGraphPinDataLocalTransforms* AddPinDataLocalTransforms();
-  ezAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
-
   ezAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
 
-  ezAnimPoseGenerator& GetPoseGenerator() { return m_PoseGenerator; }
-
-  static ezSharedPtr<ezAnimGraphSharedBoneWeights> CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill);
-
 private:
+  friend class ezAnimationControllerAssetDocument;
+  friend class ezAnimGraphTriggerOutputPin;
+  friend class ezAnimGraphTriggerInputPin;
   friend class ezAnimGraphBoneWeightsInputPin;
   friend class ezAnimGraphBoneWeightsOutputPin;
   friend class ezAnimGraphLocalPoseInputPin;
@@ -95,11 +98,14 @@ private:
   friend class ezAnimGraphModelPoseInputPin;
   friend class ezAnimGraphModelPoseOutputPin;
   friend class ezAnimGraphLocalPoseMultiInputPin;
+  friend class ezAnimGraphNumberInputPin;
+  friend class ezAnimGraphNumberOutputPin;
 
+  bool m_bInitialized = false;
+
+  ezAnimPoseGenerator* m_pPoseGenerator = nullptr;
   ezBlackboard* m_pBlackboard = nullptr;
   ezBlackboard m_Blackboard;
-
-  ezAnimPoseGenerator m_PoseGenerator;
 
   ezHybridArray<ezAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
   ezHybridArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
