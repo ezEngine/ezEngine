@@ -1,5 +1,6 @@
 #include <GuiFoundationPCH.h>
 
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
@@ -9,7 +10,6 @@
 #include <QMenu>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <Foundation/Strings/TranslationLookup.h>
 
 ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
@@ -486,26 +486,56 @@ void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e
 
 void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
 {
-  if (m_bIgnoreSelectionChange)
-    return;
-
-  m_bIgnoreSelectionChange = true;
-
   const ezDeque<const ezDocumentObject*>& selection = GetDocument()->GetSelectionManager()->GetSelection();
 
-  clearSelection();
-
-  QList<QGraphicsItem*> qSelection;
-  for (const ezDocumentObject* pObject : selection)
+  if (!m_bIgnoreSelectionChange)
   {
-    auto it = m_Nodes.Find(pObject);
-    if (!it.IsValid())
-      continue;
+    m_bIgnoreSelectionChange = true;
 
-    it.Value()->setSelected(true);
+    clearSelection();
+
+    QList<QGraphicsItem*> qSelection;
+    for (const ezDocumentObject* pObject : selection)
+    {
+      auto it = m_Nodes.Find(pObject);
+      if (!it.IsValid())
+        continue;
+
+      it.Value()->setSelected(true);
+    }
+    m_bIgnoreSelectionChange = false;
   }
 
-  m_bIgnoreSelectionChange = false;
+  bool bAnyPaintChanges = false;
+
+  for (auto itCon : m_ConnectionsSourceTarget)
+  {
+    auto pQtCon = itCon.Value();
+    auto pCon = pQtCon->GetConnection();
+
+    const bool prev = pQtCon->m_bAdjacentNodeSelected;
+
+    pQtCon->m_bAdjacentNodeSelected = false;
+
+    for (const ezDocumentObject* pObject : selection)
+    {
+      if (pCon->GetSourcePin()->GetParent() == pObject || pCon->GetTargetPin()->GetParent() == pObject)
+      {
+        pQtCon->m_bAdjacentNodeSelected = true;
+        break;
+      }
+    }
+
+    if (prev != pQtCon->m_bAdjacentNodeSelected)
+    {
+      bAnyPaintChanges = true;
+    }
+  }
+
+  if (bAnyPaintChanges)
+  {
+    invalidate();
+  }
 }
 
 void ezQtNodeScene::GetSelection(ezDeque<const ezDocumentObject*>& selection) const

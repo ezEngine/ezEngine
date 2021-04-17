@@ -266,6 +266,8 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 
   QColor headerColor = m_HeaderColor;
 
+  const bool bBackgroundIsLight = m_HeaderColor.lightnessF() > 0.5f;
+
   if (!m_bIsActive)
     headerColor.setAlpha(50);
 
@@ -297,6 +299,13 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   // Label
   if (!m_bIsActive)
     labelColor = labelColor.darker(150);
+
+  if (bBackgroundIsLight)
+  {
+    labelColor.setRed(255 - labelColor.red());
+    labelColor.setGreen(255 - labelColor.green());
+    labelColor.setBlue(255 - labelColor.blue());
+  }
 
   m_pLabel->setDefaultTextColor(labelColor);
 
