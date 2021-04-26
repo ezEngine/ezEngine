@@ -24,9 +24,7 @@ protected:
 
 private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
-  void Restart();
-  void SetLoop(bool loop);
-  void SetSpeed(float speed);
+  void SetPlaybackPosition(double pos);
 
   ezGameObject* m_pGameObject = nullptr;
   ezString m_sAnimatedMeshToUse;

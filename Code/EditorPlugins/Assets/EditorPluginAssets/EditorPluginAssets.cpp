@@ -397,6 +397,8 @@ static void ConfigureDecalAsset()
 
 static void ConfigureAnimationClipAsset()
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
+
   // Menu Bar
   {
     ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar").IgnoreResult();
@@ -542,6 +544,7 @@ void OnUnloadPlugin(bool bReloading)
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureCubeAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMaterialAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkeletonAssetDocument::PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

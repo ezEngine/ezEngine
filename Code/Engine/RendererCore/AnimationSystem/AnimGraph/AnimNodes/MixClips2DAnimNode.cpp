@@ -23,10 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips2DAnimNode, 1, ezRTTIDefaultAllocator<
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("AnimRamp", m_AnimRamp),
-    EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
-    EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("Common", m_State),
 
     EZ_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
     EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
@@ -80,10 +77,7 @@ ezResult ezMixClips2DAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Serialize(stream));
-  stream << m_fPlaybackSpeed;
-  stream << m_bApplyRootMotion;
-  stream << m_bLoop;
+  EZ_SUCCEED_OR_RETURN(m_State.Serialize(stream));
 
   stream << m_hCenterClip;
 
@@ -111,10 +105,7 @@ ezResult ezMixClips2DAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Deserialize(stream));
-  stream >> m_fPlaybackSpeed;
-  stream >> m_bApplyRootMotion;
-  stream >> m_bLoop;
+  EZ_SUCCEED_OR_RETURN(m_State.Deserialize(stream));
 
   stream >> m_hCenterClip;
 
@@ -146,17 +137,14 @@ void ezMixClips2DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
   if (m_State.WillStateBeOff(m_ActivePin.IsTriggered(graph)))
     return;
 
-  m_State.m_AnimRamp = m_AnimRamp;
-  m_State.m_bImmediateRampDown = false;
-  m_State.m_bImmediateRampUp = false;
-  m_State.m_bLoop = m_bLoop;
   m_State.m_bTriggerActive = m_ActivePin.IsTriggered(graph);
-  m_State.m_fPlaybackSpeed = m_fPlaybackSpeed * static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
+  m_State.m_fPlaybackSpeedFactor = static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
 
+  ezUInt32 uiMaxWeightClip = 0;
   ezHybridArray<ClipToPlay, 8> clips;
-  ComputeClipsAndWeights(ezVec2(static_cast<float>(m_XCoordPin.GetNumber(graph)), static_cast<float>(m_YCoordPin.GetNumber(graph))), clips);
+  ComputeClipsAndWeights(ezVec2(static_cast<float>(m_XCoordPin.GetNumber(graph)), static_cast<float>(m_YCoordPin.GetNumber(graph))), clips, uiMaxWeightClip);
 
-  PlayClips(graph, tDiff, clips);
+  PlayClips(graph, tDiff, clips, uiMaxWeightClip);
 
   if (m_State.GetCurrentState() == ezAnimState::State::StartedRampDown)
   {
@@ -164,15 +152,18 @@ void ezMixClips2DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
   }
 }
 
-void ezMixClips2DAnimNode::ComputeClipsAndWeights(const ezVec2& p, ezDynamicArray<ClipToPlay>& clips)
+void ezMixClips2DAnimNode::ComputeClipsAndWeights(const ezVec2& p, ezDynamicArray<ClipToPlay>& clips, ezUInt32& out_uiMaxWeightClip)
 {
+  out_uiMaxWeightClip = 0;
+  float fMaxWeight = -1.0f;
+
   if (m_Clips.GetCount() == 1 && !m_hCenterClip.IsValid())
   {
     clips.ExpandAndGetRef().m_uiIndex = 0;
   }
   else
   {
-    // this algorithm is taken from http://runevision.com/thesis/ chapter 6.3 "Gradient Band Interpolation"
+    // this algorithm is taken from http://runevision.com/thesis chapter 6.3 "Gradient Band Interpolation"
     // also see http://answers.unity.com/answers/1208837/view.html
 
     float fWeightNormalization = 0.0f;
@@ -253,9 +244,17 @@ void ezMixClips2DAnimNode::ComputeClipsAndWeights(const ezVec2& p, ezDynamicArra
 
     fWeightNormalization = 1.0f / fWeightNormalization;
 
-    for (auto& c : clips)
+    for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
     {
+      auto& c = clips[i];
+
       c.m_fWeight *= fWeightNormalization;
+
+      if (c.m_fWeight > fMaxWeight)
+      {
+        fMaxWeight = c.m_fWeight;
+        out_uiMaxWeightClip = i;
+      }
     }
   }
 }
@@ -280,9 +279,9 @@ const char* ezMixClips2DAnimNode::GetCenterClipFile() const
   return m_hCenterClip.GetResourceID();
 }
 
-void ezMixClips2DAnimNode::UpdateCenterClipPlaybackTime(ezAnimGraph& graph, ezTime tDiff)
+void ezMixClips2DAnimNode::UpdateCenterClipPlaybackTime(ezAnimGraph& graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter)
 {
-  const float fSpeed = m_fPlaybackSpeed * static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
+  const float fSpeed = m_State.m_fPlaybackSpeed * static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
 
   if (m_hCenterClip.IsValid())
   {
@@ -296,15 +295,17 @@ void ezMixClips2DAnimNode::UpdateCenterClipPlaybackTime(ezAnimGraph& graph, ezTi
     while (m_CenterPlaybackTime > tDur)
     {
       m_CenterPlaybackTime -= tDur;
+      out_eventSamplingCenter = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
     }
     while (m_CenterPlaybackTime < ezTime::Zero())
     {
       m_CenterPlaybackTime += tDur;
+      out_eventSamplingCenter = ezAnimPoseEventTrackSampleMode::LoopAtStart;
     }
   }
 }
 
-void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips)
+void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip)
 {
   ezTime tAvgDuration = ezTime::Zero();
 
@@ -342,6 +343,9 @@ void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPt
     tAvgDuration = tAvgDuration / uiNumAvgClips;
   }
 
+  const ezTime fPrevCenterPlaybackPos = m_CenterPlaybackTime;
+  const float fPrevPlaybackPos = m_State.GetNormalizedPlaybackPosition();
+
   // now that we know the duration, we can finally update the playback state
   m_State.m_Duration = ezMath::Max(tAvgDuration, ezTime::Milliseconds(16));
   m_State.UpdateState(tDiff);
@@ -349,17 +353,30 @@ void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPt
   if (m_State.GetWeight() <= 0.0f)
     return;
 
-  UpdateCenterClipPlaybackTime(graph, tDiff);
+  ezAnimPoseEventTrackSampleMode eventSamplingCenter = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+  ezAnimPoseEventTrackSampleMode eventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+
+  UpdateCenterClipPlaybackTime(graph, tDiff, eventSamplingCenter);
+
+  if (m_State.HasLoopedStart())
+    eventSampling = ezAnimPoseEventTrackSampleMode::LoopAtStart;
+  else if (m_State.HasLoopedEnd())
+    eventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
 
   for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
   {
+
     if (pSampleTrack[i]->m_hAnimationClip == m_hCenterClip)
     {
+      pSampleTrack[i]->m_fPreviousNormalizedSamplePos = fPrevCenterPlaybackPos.AsFloatInSeconds() / pSampleTrack[i]->m_fNormalizedSamplePos;
       pSampleTrack[i]->m_fNormalizedSamplePos = m_CenterPlaybackTime.AsFloatInSeconds() / pSampleTrack[i]->m_fNormalizedSamplePos;
+      pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSamplingCenter : ezAnimPoseEventTrackSampleMode::None;
     }
     else
     {
+      pSampleTrack[i]->m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
       pSampleTrack[i]->m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
+      pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSampling : ezAnimPoseEventTrackSampleMode::None;
     }
   }
 
@@ -367,11 +384,11 @@ void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPt
   pOutputTransform->m_fOverallWeight = m_State.GetWeight();
   pOutputTransform->m_pWeights = m_WeightsPin.GetWeights(graph);
 
-  if (m_bApplyRootMotion)
+  if (m_State.m_bApplyRootMotion)
   {
     pOutputTransform->m_bUseRootMotion = true;
 
-    const float fSpeed = m_fPlaybackSpeed * static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
+    const float fSpeed = m_State.m_fPlaybackSpeed * static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
 
     pOutputTransform->m_vRootMotion = tDiff.AsFloatInSeconds() * vRootMotion * fSpeed;
   }

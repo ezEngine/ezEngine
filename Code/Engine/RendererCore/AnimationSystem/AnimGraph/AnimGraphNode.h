@@ -79,23 +79,6 @@ struct ezComparisonOperator
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezComparisonOperator);
 
-/// \brief Helper class for the common feature of fading in and out of an animation
-///
-/// This class will ramp up or down a weight value over time, such that an animation can be smoothly faded in or out
-/// instead of just popping on and off.
-struct EZ_RENDERERCORE_DLL ezAnimRampUpDown
-{
-  ezTime m_RampUp;   // [ property ]
-  ezTime m_RampDown; // [ property ]
-
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
-
-  void RampWeightUpOrDown(float& inout_fWeight, float fTargetWeight, ezTime tDiff) const;
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezAnimRampUpDown);
-
 struct EZ_RENDERERCORE_DLL ezAnimState
 {
   enum class State
@@ -109,27 +92,43 @@ struct EZ_RENDERERCORE_DLL ezAnimState
     Finished,
   };
 
-  bool WillStateBeOff(bool bTriggerActive) const;
-  void UpdateState(ezTime tDiff);
+  // Properties:
+  ezTime m_FadeIn;                 // [ property ]
+  ezTime m_FadeOut;                // [ property ]
+  bool m_bImmediateFadeIn = true;  // [ property ]
+  bool m_bImmediateFadeOut = true; // [ property ]
+  bool m_bLoop = true;             // [ property ]
+  float m_fPlaybackSpeed = 1.0f;   // [ property ]
+  bool m_bApplyRootMotion = false; // [ property ]
 
-  ezAnimRampUpDown m_AnimRamp;
-  bool m_bImmediateRampUp = true;
-  bool m_bImmediateRampDown = true;
-  bool m_bLoop = true;
+  // Inputs:
   bool m_bTriggerActive = false;
-  float m_fPlaybackSpeed = 1.0f;
+  float m_fPlaybackSpeedFactor = 1.0f;
   ezTime m_Duration;
   ezTime m_DurationOfQueued;
 
+  bool WillStateBeOff(bool bTriggerActive) const;
+  void UpdateState(ezTime tDiff);
   State GetCurrentState() const { return m_State; }
   float GetWeight() const { return m_fCurWeight; }
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
   bool HasTransitioned() const { return m_bHasTransitioned; }
+  bool HasLoopedStart() const { return m_bHasLoopedStart; }
+  bool HasLoopedEnd() const { return m_bHasLoopedEnd; }
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 
 private:
+  void RampWeightUpOrDown(float& inout_fWeight, float fTargetWeight, ezTime tDiff) const;
+
   State m_State = State::Off;
   float m_fNormalizedPlaybackPosition = 0.0f;
   bool m_bRequireLoopForRampDown = true;
   bool m_bHasTransitioned = false;
+  bool m_bHasLoopedStart = false;
+  bool m_bHasLoopedEnd = false;
   float m_fCurWeight = 0.0f;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezAnimState);

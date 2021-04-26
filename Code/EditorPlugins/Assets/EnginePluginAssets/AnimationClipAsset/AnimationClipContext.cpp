@@ -52,23 +52,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
   {
     if (pMsg->m_sWhatToDo == "CommonAssetUiState")
     {
-      if (pMsg->m_sPayload == "Restart")
-      {
-        Restart();
-      }
-      else if (pMsg->m_sPayload == "Loop")
-      {
-        SetLoop(pMsg->m_fPayload != 0.0f);
-      }
-      else if (pMsg->m_sPayload == "SimulationSpeed")
-      {
-        m_pWorld->GetClock().SetSpeed(pMsg->m_fPayload);
-      }
-      else if (pMsg->m_sPayload == "Pause")
-      {
-        m_pWorld->SetWorldSimulationEnabled(pMsg->m_fPayload == 0);
-      }
-      else if (pMsg->m_sPayload == "Grid")
+      if (pMsg->m_sPayload == "Grid")
       {
         m_bDisplayGrid = pMsg->m_fPayload > 0;
       }
@@ -84,11 +68,10 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
       ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
 
       ezAnimatedMeshComponent* pAnimMesh;
-      ezSimpleAnimationComponent* pAnimController;
-
       if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
         pAnimMesh->DeleteComponent();
 
+      ezSimpleAnimationComponent* pAnimController;
       if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
         pAnimController->DeleteComponent();
 
@@ -98,12 +81,37 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
       pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
       pAnimController->SetAnimationClipFile(sAnimClipGuid);
     }
-    else if (pMsg->m_sWhatToDo == "SimulationSpeed")
+    else if (pMsg->m_sWhatToDo == "PlaybackPos")
     {
-      SetSpeed((float)pMsg->m_fPayload);
+      SetPlaybackPosition(pMsg->m_fPayload);
     }
 
     return;
+  }
+
+  if (auto pMsg = ezDynamicCast<const ezViewRedrawMsgToEngine*>(pMsg0))
+  {
+    auto pWorld = m_pWorld.Borrow();
+    EZ_LOCK(pWorld->GetWriteMarker());
+
+    ezSimpleAnimationComponent* pAnimController;
+    if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+    {
+      if (pAnimController->GetAnimationClip().IsValid())
+      {
+        ezResourceLock<ezAnimationClipResource> pResource(pAnimController->GetAnimationClip(), ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+        if (pResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+        {
+          ezSimpleDocumentConfigMsgToEditor msg;
+          msg.m_DocumentGuid = pMsg->m_DocumentGuid;
+          msg.m_sName = "ClipDuration";
+          msg.m_fPayload = pResource->GetDescriptor().GetDuration().GetSeconds();
+
+          SendProcessMessage(&msg);
+        }
+      }
+    }
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg0);
@@ -191,35 +199,14 @@ void ezAnimationClipContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   SendProcessMessage(&res);
 }
 
-void ezAnimationClipContext::Restart()
+void ezAnimationClipContext::SetPlaybackPosition(double pos)
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   ezSimpleAnimationComponent* pAnimController;
   if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
   {
-    pAnimController->SetNormalizedPlaybackPosition(0.0f);
-  }
-}
-
-void ezAnimationClipContext::SetLoop(bool loop)
-{
-  EZ_LOCK(m_pWorld->GetWriteMarker());
-
-  ezSimpleAnimationComponent* pAnimController;
-  if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
-  {
-    pAnimController->m_AnimationMode = loop ? ezPropertyAnimMode::Loop : ezPropertyAnimMode::Once;
-  }
-}
-
-void ezAnimationClipContext::SetSpeed(float speed)
-{
-  EZ_LOCK(m_pWorld->GetWriteMarker());
-
-  ezSimpleAnimationComponent* pAnimController;
-  if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
-  {
-    pAnimController->m_fSpeed = speed;
+    pAnimController->SetNormalizedPlaybackPosition(static_cast<float>(pos));
+    pAnimController->m_fSpeed = 0.0f;
   }
 }

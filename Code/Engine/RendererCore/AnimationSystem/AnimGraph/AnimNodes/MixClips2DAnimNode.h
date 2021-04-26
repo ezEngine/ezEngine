@@ -1,5 +1,6 @@
 #pragma once
 
+#include <AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 
 struct EZ_RENDERERCORE_DLL ezAnimClip2D
@@ -30,11 +31,6 @@ protected:
   // ezMixClips2DAnimNode
 
 public:
-  ezAnimRampUpDown m_AnimRamp;     // [ property ]
-  float m_fPlaybackSpeed = 1.0f;   // [ property ]
-  bool m_bApplyRootMotion = false; // [ property ]
-  bool m_bLoop = true;             // [ property ]
-
   void SetCenterClipFile(const char* sz);
   const char* GetCenterClipFile() const;
 
@@ -58,10 +54,10 @@ private:
     float m_fWeight = 1.0f;
   };
 
-  void UpdateCenterClipPlaybackTime(ezAnimGraph& graph, ezTime tDiff);
-  void PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips);
-  void ComputeClipsAndWeights(const ezVec2& p, ezDynamicArray<ClipToPlay>& out_Clips);
+  void UpdateCenterClipPlaybackTime(ezAnimGraph& graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter);
+  void PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip);
+  void ComputeClipsAndWeights(const ezVec2& p, ezDynamicArray<ClipToPlay>& out_Clips, ezUInt32& out_uiMaxWeightClip);
 
   ezTime m_CenterPlaybackTime;
-  ezAnimState m_State;
+  ezAnimState m_State; // [ property ]
 };

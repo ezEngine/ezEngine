@@ -3,6 +3,7 @@
 #include <AnimationSystem/AnimationClipResource.h>
 #include <AnimationSystem/Declarations.h>
 #include <AnimationSystem/SkeletonResource.h>
+#include <Core/Messages/CommonMessages.h>
 #include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <ozz/animation/runtime/animation.h>
@@ -177,13 +178,13 @@ ezAnimPoseGeneratorCommand& ezAnimPoseGenerator::GetCommand(ezAnimPoseGeneratorC
   return m_CommandsSampleTrack[0];
 }
 
-ezArrayPtr<ezMat4> ezAnimPoseGenerator::GeneratePose()
+ezArrayPtr<ezMat4> ezAnimPoseGenerator::GeneratePose(const ezGameObject* pSendAnimationEventsTo /*= nullptr*/)
 {
   Validate();
 
   for (auto& cmd : m_CommandsModelPoseToOutput)
   {
-    Execute(cmd);
+    Execute(cmd, pSendAnimationEventsTo);
   }
 
   auto pPose = m_OutputPose;
@@ -193,16 +194,17 @@ ezArrayPtr<ezMat4> ezAnimPoseGenerator::GeneratePose()
   return pPose;
 }
 
-void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd)
+void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameObject* pSendAnimationEventsTo)
 {
   if (cmd.m_bExecuted)
     return;
 
   // TODO: validate for circular dependencies
+  cmd.m_bExecuted = true;
 
   for (auto id : cmd.m_Inputs)
   {
-    Execute(GetCommand(id));
+    Execute(GetCommand(id), pSendAnimationEventsTo);
   }
 
   // TODO: build a task graph and execute multi-threaded
@@ -210,7 +212,7 @@ void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd)
   switch (cmd.GetType())
   {
     case ezAnimPoseGeneratorCommandType::SampleTrack:
-      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandSampleTrack&>(cmd));
+      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandSampleTrack&>(cmd), pSendAnimationEventsTo);
       break;
 
     case ezAnimPoseGeneratorCommandType::CombinePoses:
@@ -227,11 +229,9 @@ void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd)
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
-
-  cmd.m_bExecuted = true;
 }
 
-void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd)
+void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd, const ezGameObject* pSendAnimationEventsTo)
 {
   ezResourceLock<ezAnimationClipResource> pResource(cmd.m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded);
 
@@ -258,6 +258,58 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd)
   job.output = ozz::span<ozz::math::SoaTransform>(transforms.GetPtr(), transforms.GetCount());
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
+
+  const auto& et = pResource->GetDescriptor().m_EventTrack;
+
+  if (cmd.m_EventSampling == ezAnimPoseEventTrackSampleMode::None || et.IsEmpty())
+    return;
+
+  const ezTime duration = pResource->GetDescriptor().GetDuration();
+
+  const ezTime tPrev = cmd.m_fPreviousNormalizedSamplePos * duration;
+  const ezTime tNow = cmd.m_fNormalizedSamplePos * duration;
+  const ezTime tStart = ezTime::Zero();
+  const ezTime tEnd = duration + ezTime::Seconds(1.0); // sampling position is EXCLUSIVE
+
+  ezHybridArray<ezHashedString, 16> events;
+
+  switch (cmd.m_EventSampling)
+  {
+    case ezAnimPoseEventTrackSampleMode::OnlyBetween:
+      et.Sample(tPrev, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::LoopAtEnd:
+      et.Sample(tPrev, tEnd, events);
+      et.Sample(tStart, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::LoopAtStart:
+      et.Sample(tPrev, tStart, events);
+      et.Sample(tStart, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::BounceAtEnd:
+      et.Sample(tPrev, tEnd, events);
+      et.Sample(tEnd, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::BounceAtStart:
+      et.Sample(tPrev, tStart, events);
+      et.Sample(tStart, tNow, events);
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  ezMsgGenericEvent msg;
+
+  for (const auto& hs : events)
+  {
+    msg.m_sMessage = hs;
+
+    pSendAnimationEventsTo->SendEventMessage(msg, nullptr);
+  }
 }
 
 void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd)

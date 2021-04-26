@@ -30,6 +30,16 @@ enum class ezAnimPoseGeneratorCommandType
   ModelPoseToOutput,
 };
 
+enum class ezAnimPoseEventTrackSampleMode : ezUInt8
+{
+  None,         ///< Don't sample the event track at all
+  OnlyBetween,  ///< Sample the event track only between PrevSamplePos and SamplePos
+  LoopAtEnd,    ///< Sample the event track between PrevSamplePos and End, then Start and SamplePos
+  LoopAtStart,  ///< Sample the event track between PrevSamplePos and Start, then End and SamplePos
+  BounceAtEnd,  ///< Sample the event track between PrevSamplePos and End, then End and SamplePos
+  BounceAtStart ///< Sample the event track between PrevSamplePos and Start, then Start and SamplePos
+};
+
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommand
 {
   ezHybridArray<ezAnimPoseGeneratorCommandID, 4> m_Inputs;
@@ -49,6 +59,10 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandSampleTrack final : public 
 {
   ezAnimationClipResourceHandle m_hAnimationClip;
   float m_fNormalizedSamplePos;
+  float m_fPreviousNormalizedSamplePos;
+
+
+  ezAnimPoseEventTrackSampleMode m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
 
 private:
   friend class ezAnimPoseGenerator;
@@ -98,13 +112,13 @@ public:
   const ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id) const;
   ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id);
 
-  ezArrayPtr<ezMat4> GeneratePose();
+  ezArrayPtr<ezMat4> GeneratePose(const ezGameObject* pSendAnimationEventsTo);
 
 private:
   void Validate() const;
 
-  void Execute(ezAnimPoseGeneratorCommand& cmd);
-  void ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd);
+  void Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameObject* pSendAnimationEventsTo);
+  void ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput& cmd);

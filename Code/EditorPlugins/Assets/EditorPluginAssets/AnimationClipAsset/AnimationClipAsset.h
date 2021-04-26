@@ -5,6 +5,7 @@
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 class ezAnimationClipAssetDocument;
+struct ezPropertyMetaStateEvent;
 
 struct ezRootMotionSource
 {
@@ -43,6 +44,8 @@ public:
   // ezString m_sJoint2;
 
   ezEventTrackData m_EventTrack;
+
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,6 +59,8 @@ public:
 
   virtual void SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value) override;
   virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const override;
+
+  ezUuid InsertEventTrackCpAt(ezInt64 tickX, const char* szValue);
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;

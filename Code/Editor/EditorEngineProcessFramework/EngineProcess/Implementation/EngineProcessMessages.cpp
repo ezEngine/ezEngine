@@ -286,6 +286,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEngine, 1, ezRTTIDefa
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEditor, 1, ezRTTIDefaultAllocator<ezSimpleDocumentConfigMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("PayloadString", m_sPayload),
+    EZ_MEMBER_PROPERTY("PayloadFloat", m_fPayload),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEngine, 1, ezRTTIDefaultAllocator<ezExportDocumentMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES

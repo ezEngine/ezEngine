@@ -5,8 +5,8 @@
 #include <Core/World/ComponentManager.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/Animation/Skeletal/AnimationControllerComponent.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <ozz/animation/runtime/sampling_job.h>
 #include <ozz/base/containers/vector.h>
 #include <ozz/base/maths/simd_math.h>
 #include <ozz/base/maths/soa_transform.h>
@@ -58,7 +58,7 @@ protected:
   ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;        // [ event ]
 
   void Update();
-  bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack);
+  bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling);
 
   ezEnum<ezRootMotionMode> m_RootMotionMode;
   float m_fNormalizedPlaybackPosition = 0.0f;
@@ -66,6 +66,5 @@ protected:
   ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
 
-  ozz::animation::SamplingCache m_ozzSamplingCache;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms; // TODO: could be frame allocated
 };

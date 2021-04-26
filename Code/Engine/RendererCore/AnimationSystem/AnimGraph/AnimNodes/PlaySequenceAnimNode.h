@@ -28,7 +28,7 @@
 //  void SetEndClip(const char* szFile); // [ property ]
 //  const char* GetEndClip() const;      // [ property ]
 //
-//  ezAnimRampUpDown m_AnimRamp;           // [ property ]
+//  ezAnimFade m_AnimFade;           // [ property ]
 //  float m_fPlaybackSpeed = 1.0f;         // [ property ]
 //  bool m_bApplyRootMotion = false;       // [ property ]
 //  bool m_bAllowLoopInterruption = false; // [ property ]

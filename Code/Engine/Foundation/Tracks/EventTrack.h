@@ -6,9 +6,9 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Time/Time.h>
 
-/// \brief An event track is a timeline that contains named events.
+/// \brief An event track is a time line that contains named events.
 ///
-/// The timeline can be sampled to query all events that occured during a time period.
+/// The time line can be sampled to query all events that occurred during a time period.
 /// There is no way to sample an event track at a fixed point in time, because events occur at specific time points and thus
 /// only range queries make sense.
 class EZ_FOUNDATION_DLL ezEventTrack

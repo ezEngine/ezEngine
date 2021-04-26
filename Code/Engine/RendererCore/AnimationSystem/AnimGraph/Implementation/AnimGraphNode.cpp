@@ -51,57 +51,46 @@ ezResult ezAnimGraphNode::DeserializeNode(ezStreamReader& stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimRampUpDown, ezNoBase, 1, ezRTTIDefaultAllocator<ezAnimRampUpDown>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimState, ezNoBase, 1, ezRTTIDefaultAllocator<ezAnimState>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RampUp", m_RampUp),
-    EZ_MEMBER_PROPERTY("RampDown", m_RampDown),
+    EZ_MEMBER_PROPERTY("Loop", m_bLoop),
+    EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
+    EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("FadeIn", m_FadeIn),
+    EZ_MEMBER_PROPERTY("FadeOut", m_FadeOut),
+    EZ_MEMBER_PROPERTY("ImmediateFadeIn", m_bImmediateFadeIn),
+    EZ_MEMBER_PROPERTY("ImmediateFadeOut", m_bImmediateFadeOut),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezAnimRampUpDown::Serialize(ezStreamWriter& stream) const
-{
-  stream << m_RampUp;
-  stream << m_RampDown;
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezAnimRampUpDown::Deserialize(ezStreamReader& stream)
-{
-  stream >> m_RampUp;
-  stream >> m_RampDown;
-
-  return EZ_SUCCESS;
-}
-
-void ezAnimRampUpDown::RampWeightUpOrDown(float& inout_fWeight, float fTargetWeight, ezTime tDiff) const
+void ezAnimState::RampWeightUpOrDown(float& inout_fWeight, float fTargetWeight, ezTime tDiff) const
 {
   if (inout_fWeight < fTargetWeight)
   {
-    if (m_RampUp.IsZeroOrNegative())
+    if (m_FadeIn.IsZeroOrNegative())
     {
       inout_fWeight = fTargetWeight;
     }
     else
     {
-      inout_fWeight += tDiff.AsFloatInSeconds() / m_RampUp.AsFloatInSeconds();
+      inout_fWeight += tDiff.AsFloatInSeconds() / m_FadeIn.AsFloatInSeconds();
       inout_fWeight = ezMath::Min(inout_fWeight, fTargetWeight);
     }
   }
   else if (inout_fWeight > fTargetWeight)
   {
-    if (m_RampDown.IsZeroOrNegative())
+    if (m_FadeOut.IsZeroOrNegative())
     {
       inout_fWeight = fTargetWeight;
     }
     else
     {
-      inout_fWeight -= tDiff.AsFloatInSeconds() / m_RampDown.AsFloatInSeconds();
+      inout_fWeight -= tDiff.AsFloatInSeconds() / m_FadeOut.AsFloatInSeconds();
       inout_fWeight = ezMath::Max(fTargetWeight, inout_fWeight);
     }
   }
@@ -117,6 +106,8 @@ void ezAnimState::UpdateState(ezTime tDiff)
   EZ_ASSERT_DEV(!m_Duration.IsZeroOrNegative(), "Invalid animation clip duration");
 
   m_bHasTransitioned = false;
+  m_bHasLoopedStart = false;
+  m_bHasLoopedEnd = false;
 
   // how much time delta to apply to the weight ramp
   ezTime tRampUpDownDiff = tDiff;
@@ -148,7 +139,7 @@ void ezAnimState::UpdateState(ezTime tDiff)
     }
 
     // already taken care of in the Running state check below
-    //if (!m_bTriggerActive && m_bImmediateRampDown)
+    //if (!m_bTriggerActive && m_bImmediateFadeOut)
     //  m_State = State::StartedRampDown;
   }
   else if (m_State == State::StartedRampDown || m_State == State::RampingDown)
@@ -163,15 +154,15 @@ void ezAnimState::UpdateState(ezTime tDiff)
       m_State = State::Finished;
 
     // can only ramp up at arbitrary times, if the animation is looped
-    if (m_bTriggerActive && m_bImmediateRampUp && m_bLoop)
+    if (m_bTriggerActive && m_bImmediateFadeIn && m_bLoop)
       m_State = State::StartedRampUp;
   }
   else if (m_State == State::Finished)
   {
     // in the finished state we can either switch off or restart
-    // if m_bImmediateRampUp is off, the Finished state should be visible for a full frame
+    // if m_bImmediateFadeIn is off, the Finished state should be visible for a full frame
 
-    if (m_bTriggerActive && m_bImmediateRampUp)
+    if (m_bTriggerActive && m_bImmediateFadeIn)
     {
       m_State = State::StartedRampUp;
     }
@@ -185,18 +176,20 @@ void ezAnimState::UpdateState(ezTime tDiff)
   // no "else if" here, because the Running state can be skipped and transition immediately to the StartedRampDown state
   if (m_State == State::Running)
   {
-    if (!m_bTriggerActive && m_bImmediateRampDown)
+    if (!m_bTriggerActive && m_bImmediateFadeOut)
     {
       m_State = State::StartedRampDown;
     }
   }
+
+  const float fSpeed = m_fPlaybackSpeed * m_fPlaybackSpeedFactor;
 
   float fInvDuration = 1.0f / m_Duration.AsFloatInSeconds();
   float fNormalizedStep = tDiff.AsFloatInSeconds() * fInvDuration;
 
   // calculate the new playback position
   {
-    m_fNormalizedPlaybackPosition += m_fPlaybackSpeed * fNormalizedStep;
+    m_fNormalizedPlaybackPosition += fSpeed * fNormalizedStep;
 
     if (m_fNormalizedPlaybackPosition > 1.0f && m_DurationOfQueued.IsPositive())
     {
@@ -214,10 +207,10 @@ void ezAnimState::UpdateState(ezTime tDiff)
   {
     bool bIsInRampDownArea = false;
 
-    const float tRampDownNorm = m_AnimRamp.m_RampDown.AsFloatInSeconds() * fInvDuration;
+    const float tRampDownNorm = m_FadeOut.AsFloatInSeconds() * fInvDuration;
     float tInRampDownArea;
 
-    if (m_fPlaybackSpeed >= 0)
+    if (fSpeed >= 0)
     {
       // ramp down area at the end of the clip
       const float tEnd = 1.0f - tRampDownNorm;
@@ -265,11 +258,11 @@ void ezAnimState::UpdateState(ezTime tDiff)
   {
     if (m_State == State::StartedRampUp || m_State == State::RampingUp)
     {
-      m_AnimRamp.RampWeightUpOrDown(m_fCurWeight, 1.0f, tRampUpDownDiff);
+      RampWeightUpOrDown(m_fCurWeight, 1.0f, tRampUpDownDiff);
     }
     else if (m_State == State::StartedRampDown || m_State == State::RampingDown)
     {
-      m_AnimRamp.RampWeightUpOrDown(m_fCurWeight, 0.0f, tRampUpDownDiff);
+      RampWeightUpOrDown(m_fCurWeight, 0.0f, tRampUpDownDiff);
     }
   }
 
@@ -281,6 +274,7 @@ void ezAnimState::UpdateState(ezTime tDiff)
     {
       m_fNormalizedPlaybackPosition -= 1.0f;
       m_bRequireLoopForRampDown = false;
+      m_bHasLoopedEnd = true;
     }
 
     // if playback speed is negative
@@ -288,6 +282,7 @@ void ezAnimState::UpdateState(ezTime tDiff)
     {
       m_fNormalizedPlaybackPosition += 1.0f;
       m_bRequireLoopForRampDown = false;
+      m_bHasLoopedStart = true;
     }
   }
   else
@@ -303,6 +298,38 @@ void ezAnimState::UpdateState(ezTime tDiff)
       m_fNormalizedPlaybackPosition = 0.0f;
     }
   }
+}
+
+ezResult ezAnimState::Serialize(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  stream << m_FadeIn;
+  stream << m_FadeOut;
+
+  stream << m_bImmediateFadeIn;
+  stream << m_bImmediateFadeOut;
+  stream << m_bLoop;
+  stream << m_fPlaybackSpeed;
+  stream << m_bApplyRootMotion;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezAnimState::Deserialize(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  stream >> m_FadeIn;
+  stream >> m_FadeOut;
+
+  stream >> m_bImmediateFadeIn;
+  stream >> m_bImmediateFadeOut;
+  stream >> m_bLoop;
+  stream >> m_fPlaybackSpeed;
+  stream >> m_bApplyRootMotion;
+
+  return EZ_SUCCESS;
 }
 
 bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, double f1, double f2)

@@ -5,10 +5,12 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Utilities/Progress.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
+#include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefault
   {
     EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", "*.fbx;*.gltf;*.glb")),
     EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
-    EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute),
+    EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezContainerAttribute(false, false, false)),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
     EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")), // TODO: need an attribute that something is 'UI only' (doesn't change the transform state, but is also not 'temporary'
@@ -31,7 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefault
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     //EZ_MEMBER_PROPERTY("Joint1", m_sJoint1),
     //EZ_MEMBER_PROPERTY("Joint2", m_sJoint2),
-    EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack),
+    EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }
@@ -43,6 +45,27 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimationClipAssetProperties::ezAnimationClipAssetProperties() = default;
 ezAnimationClipAssetProperties::~ezAnimationClipAssetProperties() = default;
+
+void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  if (e.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezAnimationClipAssetProperties>())
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+
+  const ezInt64 motionType = e.m_pObject->GetTypeAccessor().GetValue("RootMotion").ConvertTo<ezInt64>();
+
+  switch (motionType)
+  {
+    case ezRootMotionSource::Constant:
+      props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    default:
+      props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Invisible;
+      break;
+  }
+}
 
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
@@ -139,6 +162,28 @@ ezStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const ThumbnailIn
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
+}
+
+ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const char* szValue)
+{
+  ezObjectCommandAccessor accessor(GetCommandHistory());
+  ezObjectAccessorBase& acc = accessor;
+  acc.StartTransaction("Insert Event");
+
+  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
+  ezUuid trackGuid = accessor.Get<ezUuid>(GetPropertyObject(), pTrackProp);
+
+  ezUuid newObjectGuid;
+  EZ_VERIFY(
+    acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
+    "");
+  const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
+  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", tickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");
+
+  acc.FinishTransaction();
+
+  return newObjectGuid;
 }
 
 // void ezAnimationClipAssetDocument::ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const

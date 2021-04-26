@@ -28,10 +28,6 @@ public:
   void SetAnimationClip3(const char* szFile); // [ property ]
   const char* GetAnimationClip3() const;      // [ property ]
 
-  ezAnimRampUpDown m_AnimRamp;     // [ property ]
-  float m_fPlaybackSpeed = 1.0f;   // [ property ]
-  bool m_bApplyRootMotion = false; // [ property ]
-
   ezAnimationClipResourceHandle m_hAnimationClips[4];
 
 private:
@@ -42,5 +38,5 @@ private:
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
   ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
 
-  ezAnimState m_State;
+  ezAnimState m_State; // [ property ]
 };

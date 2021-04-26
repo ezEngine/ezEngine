@@ -89,7 +89,7 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
     pNode->Step(*this, tDiff, pSkeleton.GetPointer(), pTarget);
   }
 
-  if (auto newPose = GetPoseGenerator().GeneratePose(); !newPose.IsEmpty())
+  if (auto newPose = GetPoseGenerator().GeneratePose(pTarget); !newPose.IsEmpty())
   {
     ezMsgAnimationPoseUpdated msg;
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;

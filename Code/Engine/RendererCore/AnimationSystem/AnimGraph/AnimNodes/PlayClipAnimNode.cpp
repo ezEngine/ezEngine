@@ -9,12 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
   {
     EZ_BEGIN_PROPERTIES
     {
+      EZ_MEMBER_PROPERTY("Common", m_State),
       EZ_ARRAY_ACCESSOR_PROPERTY("Clips", Clips_GetCount, Clips_GetValue, Clips_SetValue, Clips_Insert, Clips_Remove)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-      EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-      EZ_MEMBER_PROPERTY("AnimRamp", m_AnimRamp),
-      EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
-      EZ_MEMBER_PROPERTY("Loop", m_bLoop),
-      EZ_MEMBER_PROPERTY("CancelWhenInactive", m_bCancelWhenInactive),
 
       EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
       EZ_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new ezHiddenAttribute()),
@@ -42,12 +38,8 @@ ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_State.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Clips));
-  stream << m_fPlaybackSpeed;
-  stream << m_bApplyRootMotion;
-  stream << m_bLoop;
-  stream << m_bCancelWhenInactive;
 
   EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Serialize(stream));
@@ -65,12 +57,8 @@ ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_State.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Clips));
-  stream >> m_fPlaybackSpeed;
-  stream >> m_bApplyRootMotion;
-  stream >> m_bLoop;
-  stream >> m_bCancelWhenInactive;
 
   EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Deserialize(stream));
@@ -118,14 +106,12 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
   if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  m_State.m_AnimRamp = m_AnimRamp;
-  m_State.m_bImmediateRampDown = m_bCancelWhenInactive;
-  m_State.m_bImmediateRampUp = false;
-  m_State.m_bLoop = m_bLoop;
+  const float fPrevPlaybackPos = m_State.GetNormalizedPlaybackPosition();
+
   m_State.m_bTriggerActive = m_ActivePin.IsTriggered(graph);
   m_State.m_Duration = pAnimClip->GetDescriptor().GetDuration();
   m_State.m_DurationOfQueued = m_NextClipDuration;
-  m_State.m_fPlaybackSpeed = m_fPlaybackSpeed * static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
+  m_State.m_fPlaybackSpeedFactor = static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
 
   m_State.UpdateState(tDiff);
 
@@ -145,6 +131,14 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
   auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
   cmd.m_hAnimationClip = m_Clips[m_uiClipToPlay];
   cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
+  cmd.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
+
+  if (m_State.HasLoopedStart())
+    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::LoopAtStart;
+  else if (m_State.HasLoopedEnd())
+    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
+  else
+    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
 
   {
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
@@ -152,7 +146,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
     pLocalTransforms->m_fOverallWeight = m_State.GetWeight();
     pLocalTransforms->m_pWeights = m_WeightsPin.GetWeights(graph);
 
-    if (m_bApplyRootMotion)
+    if (m_State.m_bApplyRootMotion)
     {
       pLocalTransforms->m_bUseRootMotion = true;
 

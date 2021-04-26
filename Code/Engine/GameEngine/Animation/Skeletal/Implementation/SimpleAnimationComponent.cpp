@@ -136,7 +136,11 @@ void ezSimpleAnimationComponent::Update()
 
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
-  if (!UpdatePlaybackTime(tDiff, animDesc.m_EventTrack))
+  const float fPrevPlaybackPos = m_fNormalizedPlaybackPosition;
+
+  ezAnimPoseEventTrackSampleMode mode = ezAnimPoseEventTrackSampleMode::None;
+
+  if (!UpdatePlaybackTime(tDiff, animDesc.m_EventTrack, mode))
     return;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
@@ -149,6 +153,8 @@ void ezSimpleAnimationComponent::Update()
   auto& cmdSample = poseGen.AllocCommandSampleTrack(0);
   cmdSample.m_hAnimationClip = m_hAnimationClip;
   cmdSample.m_fNormalizedSamplePos = m_fNormalizedPlaybackPosition;
+  cmdSample.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
+  cmdSample.m_EventSampling = mode;
 
   auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
   cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
@@ -157,7 +163,7 @@ void ezSimpleAnimationComponent::Update()
   auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
   cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
 
-  auto pose = poseGen.GeneratePose();
+  auto pose = poseGen.GeneratePose(GetOwner());
 
   if (pose.IsEmpty())
     return;
@@ -186,7 +192,7 @@ void ezSimpleAnimationComponent::Update()
   }
 }
 
-bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack)
+bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling)
 {
   if (tDiff.IsZero() || m_fSpeed == 0.0f)
   {
@@ -199,10 +205,10 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
     return false;
   }
 
+  out_trackSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+
   const float tDiffNorm = static_cast<float>(tDiff.GetSeconds() / m_Duration.GetSeconds());
   const float tPrefNorm = m_fNormalizedPlaybackPosition;
-
-  ezHybridArray<ezHashedString, 8> events;
 
   switch (m_AnimationMode)
   {
@@ -210,9 +216,6 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
     {
       m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
       m_fNormalizedPlaybackPosition = ezMath::Clamp(m_fNormalizedPlaybackPosition, 0.0f, 1.0f);
-
-      eventTrack.Sample(tPrefNorm * m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
-
       break;
     }
 
@@ -222,23 +225,15 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
 
       if (m_fNormalizedPlaybackPosition < 0.0f)
       {
-        eventTrack.Sample(tPrefNorm * m_Duration, ezTime::Zero(), events);
-
         m_fNormalizedPlaybackPosition += 1.0f;
 
-        eventTrack.Sample(m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
+        out_trackSampling = ezAnimPoseEventTrackSampleMode::LoopAtStart;
       }
       else if (m_fNormalizedPlaybackPosition > 1.0f)
       {
-        eventTrack.Sample(tPrefNorm * m_Duration, m_Duration, events);
-
         m_fNormalizedPlaybackPosition -= 1.0f;
 
-        eventTrack.Sample(ezTime::Zero(), m_fNormalizedPlaybackPosition * m_Duration, events);
-      }
-      else
-      {
-        eventTrack.Sample(tPrefNorm * m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
+        out_trackSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
       }
 
       break;
@@ -257,36 +252,21 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
       {
         SetUserFlag(0, !bReverse);
 
-        eventTrack.Sample(tPrefNorm * m_Duration, m_Duration, events);
-
         m_fNormalizedPlaybackPosition = 2.0f - m_fNormalizedPlaybackPosition;
 
-        eventTrack.Sample(m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
+        out_trackSampling = ezAnimPoseEventTrackSampleMode::BounceAtEnd;
       }
       else if (m_fNormalizedPlaybackPosition < 0.0f)
       {
         SetUserFlag(0, !bReverse);
 
-        eventTrack.Sample(tPrefNorm * m_Duration, ezTime::Zero(), events);
-
         m_fNormalizedPlaybackPosition = -m_fNormalizedPlaybackPosition;
 
-        eventTrack.Sample(ezTime::Zero(), m_fNormalizedPlaybackPosition * m_Duration, events);
-      }
-      else
-      {
-        eventTrack.Sample(tPrefNorm * m_Duration, m_fNormalizedPlaybackPosition * m_Duration, events);
+        out_trackSampling = ezAnimPoseEventTrackSampleMode::BounceAtStart;
       }
 
       break;
     }
-  }
-
-  for (const ezHashedString& sEvent : events)
-  {
-    ezMsgGenericEvent msg;
-    msg.m_sMessage = sEvent;
-    m_EventTrackMsgSender.SendEventMessage(msg, this, GetOwner());
   }
 
   return tPrefNorm != m_fNormalizedPlaybackPosition;

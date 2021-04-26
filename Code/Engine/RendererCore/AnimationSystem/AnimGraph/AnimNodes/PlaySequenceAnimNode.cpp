@@ -11,7 +11,7 @@
 //{
 //  EZ_BEGIN_PROPERTIES
 //  {
-//    EZ_MEMBER_PROPERTY("AnimRamp", m_AnimRamp),
+//    EZ_MEMBER_PROPERTY("AnimRamp", m_AnimFade),
 //    EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
 //    EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
 //
@@ -47,7 +47,7 @@
 //
 //  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 //
-//  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Serialize(stream));
+//  EZ_SUCCEED_OR_RETURN(m_AnimFade.Serialize(stream));
 //  stream << m_fPlaybackSpeed;
 //  stream << m_bApplyRootMotion;
 //  stream << m_hStartClip;
@@ -73,7 +73,7 @@
 //
 //  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 //
-//  EZ_SUCCEED_OR_RETURN(m_AnimRamp.Deserialize(stream));
+//  EZ_SUCCEED_OR_RETURN(m_AnimFade.Deserialize(stream));
 //  stream >> m_fPlaybackSpeed;
 //  stream >> m_bApplyRootMotion;
 //  stream >> m_hStartClip;
@@ -232,11 +232,11 @@
 //  //if (!m_bStopWhenPossible)
 //  {
 //    // TODO: need to know how long the remaining anim will run, to ramp down
-//    m_AnimRamp.RampWeightUpOrDown(m_fCurWeight, 1.0f, tDiff);
+//    m_AnimFade.RampWeightUpOrDown(m_fCurWeight, 1.0f, tDiff);
 //  }
 //  //else
 //  //{
-//  //  m_AnimRamp.RampWeightUpOrDown(m_fCurWeight, 0.0f, tDiff);
+//  //  m_AnimFade.RampWeightUpOrDown(m_fCurWeight, 0.0f, tDiff);
 //  //}
 //
 //  const float fSpeed = m_fPlaybackSpeed * static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));

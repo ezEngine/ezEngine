@@ -142,6 +142,16 @@ public:
   double m_fPayload;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleDocumentConfigMsgToEditor, ezEditorEngineDocumentMsg);
+
+public:
+  ezString m_sName;
+  ezString m_sPayload;
+  double m_fPayload;
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezEditorEngineDocumentMsg);

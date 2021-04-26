@@ -49,6 +49,10 @@ void ezQtEventTrackEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
   EventTrackEdit->SetScrubberPosition(uiTick / 4800.0);
 }
 
+void ezQtEventTrackEditorWidget::SetScrubberPosition(ezTime time)
+{
+  EventTrackEdit->SetScrubberPosition(time.GetSeconds());
+}
 
 void ezQtEventTrackEditorWidget::ClearSelection()
 {

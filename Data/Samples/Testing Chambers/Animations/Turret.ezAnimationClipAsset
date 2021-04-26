@@ -14,7 +14,7 @@ o
 			s{"Animations/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{2104638118018229942,5158595748246167764}}
-		u4 %Hash{918132398838007804}
+		u4 %Hash{18084344297805900816}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -36,6 +36,8 @@ o
 		VarArray %ControlPoints
 		{
 			Uuid{u4{16621699903112718977,5256481384098764508}}
+			Uuid{u4{10121562794557908913,5644865080011777502}}
+			Uuid{u4{13757036806154608024,5082052119515806391}}
 		}
 	}
 }
@@ -56,8 +58,19 @@ o
 		u3 %FirstFrame{0}
 		u3 %NumFrames{0}
 		s %PreviewMesh{"{ 9a8ebd2a-dd92-4ea9-8dbe-ad1ad6feda14 }"}
-		s %RootMotion{"ezRootMotionMode::None"}
+		s %RootMotion{"ezRootMotionSource::None"}
 		s %UseAnimationClip{"Shoot"}
+	}
+}
+o
+{
+	Uuid %id{u4{13757036806154608024,5082052119515806391}}
+	s %t{"ezEventTrackControlPointData"}
+	u3 %v{1}
+	p
+	{
+		s %Event{"Animation Cue 1"}
+		i4 %Tick{4800}
 	}
 }
 o
@@ -69,6 +82,17 @@ o
 	{
 		s %Event{"Fire"}
 		i4 %Tick{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10121562794557908913,5644865080011777502}}
+	s %t{"ezEventTrackControlPointData"}
+	u3 %v{1}
+	p
+	{
+		s %Event{"Animation Cue 1"}
+		i4 %Tick{800}
 	}
 }
 o
@@ -126,7 +150,7 @@ o
 }
 o
 {
-	Uuid %id{u4{10022539470489817186,10504778302451670329}}
+	Uuid %id{u4{16147564638840122555,14075669034321763640}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -137,7 +161,7 @@ o
 		s %ParentTypeName{"ezEnumBase"}
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
-		s %TypeName{"ezRootMotionMode"}
+		s %TypeName{"ezRootMotionSource"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

@@ -20,7 +20,7 @@ ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
 
 ezQtTimeScrubberWidget::~ezQtTimeScrubberWidget() {}
 
-void ezQtTimeScrubberWidget::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond)
+void ezQtTimeScrubberWidget::SetDuration(ezUInt64 uiNumTicks)
 {
   if (m_uiDurationTicks == uiNumTicks)
     return;
@@ -32,6 +32,11 @@ void ezQtTimeScrubberWidget::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesP
   update();
 }
 
+void ezQtTimeScrubberWidget::SetDuration(ezTime time)
+{
+  SetDuration(static_cast<ezUInt64>(time.GetSeconds() * 4800));
+}
+
 void ezQtTimeScrubberWidget::SetScrubberPosition(ezUInt64 uiTick)
 {
   if (m_uiScrubberTickPos == uiTick)
@@ -41,6 +46,11 @@ void ezQtTimeScrubberWidget::SetScrubberPosition(ezUInt64 uiTick)
   m_fNormScrubberPosition = ezMath::Clamp((double)uiTick / (double)m_uiDurationTicks, 0.0, 1.0);
 
   update();
+}
+
+void ezQtTimeScrubberWidget::SetScrubberPosition(ezTime time)
+{
+  SetScrubberPosition(static_cast<ezUInt64>(time.GetSeconds() * 4800));
 }
 
 void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
@@ -242,9 +252,9 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* parent)
   connect(m_pAdjustDurationButton, &QPushButton::clicked, this, [this](bool) { Q_EMIT AdjustDurationEvent(); });
 }
 
-void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond)
+void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks)
 {
-  m_pScrubber->SetDuration(uiNumTicks, uiFramesPerSecond);
+  m_pScrubber->SetDuration(uiNumTicks);
 
   ezQtScopedBlockSignals _1(m_pDuration);
 

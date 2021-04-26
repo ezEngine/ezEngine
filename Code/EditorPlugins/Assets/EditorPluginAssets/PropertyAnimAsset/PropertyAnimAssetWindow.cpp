@@ -267,7 +267,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   {
     const ezUInt64 uiDuration = GetPropertyAnimDocument()->GetAnimationDurationTicks();
-    m_pScrubberToolbar->SetDuration(uiDuration, GetPropertyAnimDocument()->GetProperties()->m_uiFramesPerSecond);
+    m_pScrubberToolbar->SetDuration(uiDuration);
   }
 
   UpdateCurveEditor();
@@ -356,7 +356,7 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
   {
     const ezUInt64 uiDuration = e.m_pDocument->GetAnimationDurationTicks();
 
-    m_pScrubberToolbar->SetDuration(uiDuration, e.m_pDocument->GetProperties()->m_uiFramesPerSecond);
+    m_pScrubberToolbar->SetDuration(uiDuration);
     UpdateCurveEditor();
     UpdateGradientEditor();
     UpdateEventTrackEditor();
