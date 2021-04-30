@@ -3,7 +3,7 @@ param(
 	[string]$packageName,
 	
 	[Parameter(Mandatory=$true)]
-	[string]$originalSoDir,
+	[string[]]$originalSoDir,
 	
 	[string]$arch,
 	[string]$detectArch,
@@ -317,7 +317,7 @@ else
 Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"$adb shell run-as $packageName $gdbServerRemotePath --once +$debugSocketFile --attach $appPid`"" -WindowStyle Hidden
 
 # Generate gdb config
-$gdbConfig = "set solib-search-path $debugTemp;$originalSoDir`n"
+$gdbConfig = "set solib-search-path $debugTemp;" + ($originalSoDir -join ";") + "`n"
 $gdbConfig += "set print pretty on`n"
 $gdbConfig += "file $processExecutable`n"
 $gdbConfig += "set sysroot $debugTemp`n"
