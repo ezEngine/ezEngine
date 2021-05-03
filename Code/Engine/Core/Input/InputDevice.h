@@ -49,6 +49,11 @@ public:
   /// \brief Allows to query current input values for the given slot
   float GetInputSlotState(const char* slot) const;
 
+  /// \brief Returns true, if the device was 'used' during the last frame, ie. when it generated input due to some user interaction.
+  ///
+  /// This can be used to figure out which device the user is currently using, for example whether mouse/keyboard or a controller is in use.
+  bool HasDeviceBeenUsedLastFrame() const;
+
 private:
   friend class ezInputManager;
 
@@ -99,7 +104,8 @@ protected:
 private:
   /// \brief Calls InitializeDevice() when the device is not yet initialized.
   void Initialize();
-  bool m_bInitialized;
+  bool m_bInitialized = false;
+  bool m_bGeneratedInputRecently = false;
 
   /// \brief Override this if you need to do device specific initialization before the first use.
   virtual void InitializeDevice() = 0;
