@@ -2,6 +2,17 @@
 
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 
+struct EZ_RENDERERCORE_DLL ezAnimClip1D
+{
+  ezAnimationClipResourceHandle m_hAnimation;
+  float m_fPosition;
+
+  void SetAnimationFile(const char* sz);
+  const char* GetAnimationFile() const;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezAnimClip1D);
+
 class EZ_RENDERERCORE_DLL ezMixClips1DAnimNode : public ezAnimGraphNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMixClips1DAnimNode, ezAnimGraphNode);
@@ -16,19 +27,10 @@ protected:
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLerpClipsAnimNode
+  // ezMixClips1DAnimNode
 
 public:
-  void SetAnimationClip0(const char* szFile); // [ property ]
-  const char* GetAnimationClip0() const;      // [ property ]
-  void SetAnimationClip1(const char* szFile); // [ property ]
-  const char* GetAnimationClip1() const;      // [ property ]
-  void SetAnimationClip2(const char* szFile); // [ property ]
-  const char* GetAnimationClip2() const;      // [ property ]
-  void SetAnimationClip3(const char* szFile); // [ property ]
-  const char* GetAnimationClip3() const;      // [ property ]
-
-  ezAnimationClipResourceHandle m_hAnimationClips[4];
+  ezHybridArray<ezAnimClip1D, 3> m_Clips; // [ property ]
 
 private:
   ezAnimGraphTriggerInputPin m_ActivePin;       // [ property ]
@@ -36,7 +38,7 @@ private:
   ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
   ezAnimGraphNumberInputPin m_LerpPin;          // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
-  ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;  // [ property ]
 
   ezAnimState m_State; // [ property ]
 };

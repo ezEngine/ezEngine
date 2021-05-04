@@ -2,9 +2,9 @@
 
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 
-class EZ_RENDERERCORE_DLL ezCombinePosesAnimNode : public ezAnimGraphNode
+class EZ_RENDERERCORE_DLL ezLogAnimNode : public ezAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCombinePosesAnimNode, ezAnimGraphNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLogAnimNode, ezAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
@@ -16,17 +16,15 @@ protected:
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLocalToModelPoseAnimNode
+  // ezLogAnimNode
 
 public:
-  ezCombinePosesAnimNode();
-  ~ezCombinePosesAnimNode();
-
-  ezUInt8 m_uiMaxPoses = 8; // [ property ]
+  ezString m_sText;
 
 private:
-  ezAnimGraphLocalPoseMultiInputPin m_LocalPosesPin; // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_LocalPosePin;      // [ property ]
-
-  ezDynamicArray<ozz::math::SimdFloat4, ezAlignedAllocatorWrapper> m_BlendMask;
+  ezAnimGraphTriggerInputPin m_ActivePin; // [ property ]
+  ezAnimGraphTriggerInputPin m_Input0;    // [ property ]
+  ezAnimGraphTriggerInputPin m_Input1;    // [ property ]
+  ezAnimGraphNumberInputPin m_Input2;     // [ property ]
+  ezAnimGraphNumberInputPin m_Input3;     // [ property ]
 };

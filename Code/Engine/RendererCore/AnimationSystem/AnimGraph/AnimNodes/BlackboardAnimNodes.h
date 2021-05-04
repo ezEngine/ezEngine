@@ -23,9 +23,11 @@ public:
   const char* GetBlackboardEntry() const;      // [ property ]
 
   float m_fOnActivatedValue = 1.0f;   // [ property ]
+  float m_fOnHoldValue = 1.0f;        // [ property ]
   float m_fOnDeactivatedValue = 0.0f; // [ property ]
   bool m_bSetOnActivation = true;     // [ property ]
-  bool m_bSetOnDeactivation = true;   // [ property ]
+  bool m_bSetOnHold = false;          // [ property ]
+  bool m_bSetOnDeactivation = false;  // [ property ]
 
 private:
   ezAnimGraphTriggerInputPin m_ActivePin; // [ property ]

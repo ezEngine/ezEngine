@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoneWeightsAnimNode, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(10.0)),
+    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ARRAY_ACCESSOR_PROPERTY("RootBones", RootBones_GetCount, RootBones_GetValue, RootBones_SetValue, RootBones_Insert, RootBones_Remove),
 
     EZ_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new ezHiddenAttribute()),
@@ -93,8 +93,14 @@ ezResult ezBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  if (m_RootBones.IsEmpty() || (!m_WeightsPin.IsConnected() && !m_InverseWeightsPin.IsConnected()))
+  if (!m_WeightsPin.IsConnected() && !m_InverseWeightsPin.IsConnected())
     return;
+
+  if (m_RootBones.IsEmpty())
+  {
+    ezLog::Warning("No root-bones added to bone weight node in animation controller.");
+    return;
+  }
 
   if (m_pSharedBoneWeights == nullptr && m_pSharedInverseBoneWeights == nullptr)
   {
@@ -137,6 +143,8 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
 
     if (m_InverseWeightsPin.IsConnected())
     {
+      name.Append("-inv");
+
       m_pSharedInverseBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this](ezAnimGraphSharedBoneWeights& bw) {
         const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
 

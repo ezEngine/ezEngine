@@ -11,6 +11,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardValueAnimNode, 1, ezRTTIDefaultAl
     EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
     EZ_MEMBER_PROPERTY("SetOnActivation", m_bSetOnActivation)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ActivationValue", m_fOnActivatedValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("SetOnHold", m_bSetOnHold)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("HoldValue", m_fOnHoldValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("SetOnDeactivation", m_bSetOnDeactivation)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("DeactivationValue", m_fOnDeactivatedValue)->AddAttributes(new ezDefaultValueAttribute(0.0f)),
 
@@ -19,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardValueAnimNode, 1, ezRTTIDefaultAl
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezTitleAttribute("Set: '{BlackboardEntry}' '{ActivationValue}' '{DeactivationValue}'"),
+    new ezTitleAttribute("Set: '{BlackboardEntry}' '{ActivationValue}''"),
     new ezCategoryAttribute("Blackboard"),
     new ezColorAttribute(ezColorGammaUB(0x4D, 0x00, 0x00)),
   }
@@ -36,8 +38,10 @@ ezResult ezSetBlackboardValueAnimNode::SerializeNode(ezStreamWriter& stream) con
 
   stream << m_sBlackboardEntry;
   stream << m_fOnActivatedValue;
+  stream << m_fOnHoldValue;
   stream << m_fOnDeactivatedValue;
   stream << m_bSetOnActivation;
+  stream << m_bSetOnHold;
   stream << m_bSetOnDeactivation;
 
   EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
@@ -53,8 +57,10 @@ ezResult ezSetBlackboardValueAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_sBlackboardEntry;
   stream >> m_fOnActivatedValue;
+  stream >> m_fOnHoldValue;
   stream >> m_fOnDeactivatedValue;
   stream >> m_bSetOnActivation;
+  stream >> m_bSetOnHold;
   stream >> m_bSetOnDeactivation;
 
   EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
@@ -74,31 +80,37 @@ const char* ezSetBlackboardValueAnimNode::GetBlackboardEntry() const
 
 void ezSetBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
+  auto pBlackboard = graph.GetBlackboard();
+  if (pBlackboard == nullptr)
+  {
+    ezLog::Warning("No blackboard available for the animation controller graph to use.");
+    return;
+  }
+
   const bool bIsActiveNow = m_ActivePin.IsTriggered(graph);
 
   if (bIsActiveNow != m_bLastActiveState)
   {
     m_bLastActiveState = bIsActiveNow;
 
-    if (graph.GetBlackboard().GetEntry(m_sBlackboardEntry) == nullptr)
-    {
-      graph.GetBlackboard().RegisterEntry(m_sBlackboardEntry, 0.0f);
-    }
-
     if (bIsActiveNow)
     {
       if (m_bSetOnActivation)
       {
-        graph.GetBlackboard().SetEntryValue(m_sBlackboardEntry, m_fOnActivatedValue);
+        pBlackboard->RegisterEntry(m_sBlackboardEntry, m_fOnActivatedValue);
       }
     }
     else
     {
       if (m_bSetOnDeactivation)
       {
-        graph.GetBlackboard().SetEntryValue(m_sBlackboardEntry, m_fOnDeactivatedValue);
+        pBlackboard->RegisterEntry(m_sBlackboardEntry, m_fOnDeactivatedValue);
       }
     }
+  }
+  else if (bIsActiveNow && m_bSetOnHold)
+  {
+    pBlackboard->RegisterEntry(m_sBlackboardEntry, m_fOnHoldValue);
   }
 }
 
@@ -169,7 +181,14 @@ const char* ezCheckBlackboardValueAnimNode::GetBlackboardEntry() const
 
 void ezCheckBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  ezVariant value = graph.GetBlackboard().GetEntryValue(m_sBlackboardEntry);
+  auto pBlackboard = graph.GetBlackboard();
+  if (pBlackboard == nullptr)
+  {
+    ezLog::Warning("No blackboard available for the animation controller graph to use.");
+    return;
+  }
+
+  ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
   float fValue = 0.0f;
 
   if (value.IsValid() && value.IsNumber())
@@ -249,7 +268,14 @@ const char* ezGetBlackboardNumberAnimNode::GetBlackboardEntry() const
 
 void ezGetBlackboardNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  ezVariant value = graph.GetBlackboard().GetEntryValue(m_sBlackboardEntry);
+  auto pBlackboard = graph.GetBlackboard();
+  if (pBlackboard == nullptr)
+  {
+    ezLog::Warning("No blackboard available for the animation controller graph to use.");
+    return;
+  }
+
+  ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
   double fValue = 0.0f;
 
   if (value.IsValid() && value.IsNumber())

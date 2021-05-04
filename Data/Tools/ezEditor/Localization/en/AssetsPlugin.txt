@@ -244,3 +244,7 @@ ezMixClips1DAnimNode;Mix Clips 1D
 ezMixClips2DAnimNode;Mix Clips 2D
 Clips;Clips
 ezAnimClip2D;Clip
+ezPlaySequenceAnimNode;Play Clip Sequence
+Common;Common
+MiddleClips;Middle Clips
+ezLogAnimNode;Log

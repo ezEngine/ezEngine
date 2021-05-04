@@ -44,7 +44,7 @@ private:
   ezAnimGraphNumberInputPin m_XCoordPin;        // [ property ]
   ezAnimGraphNumberInputPin m_YCoordPin;        // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
-  ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;  // [ property ]
 
   struct ClipToPlay
   {

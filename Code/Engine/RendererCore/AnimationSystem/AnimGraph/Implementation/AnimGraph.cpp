@@ -9,26 +9,14 @@
 ezMutex ezAnimGraph::s_SharedDataMutex;
 ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> ezAnimGraph::s_SharedBoneWeights;
 
-ezAnimGraph::ezAnimGraph()
-{
-  m_pBlackboard = &m_Blackboard;
-}
-
+ezAnimGraph::ezAnimGraph() = default;
 ezAnimGraph::~ezAnimGraph() = default;
 
 void ezAnimGraph::Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, ezBlackboard* pBlackboard /*= nullptr*/)
 {
   m_hSkeleton = hSkeleton;
   m_pPoseGenerator = &poseGenerator;
-
-  if (pBlackboard)
-  {
-    m_pBlackboard = pBlackboard;
-  }
-  else
-  {
-    m_pBlackboard = &m_Blackboard;
-  }
+  m_pBlackboard = pBlackboard;
 }
 
 void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
@@ -128,8 +116,6 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
 
   stream << m_hSkeleton;
 
-  EZ_SUCCEED_OR_RETURN(m_Blackboard.Serialize(stream));
-
   {
     EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_TriggerInputPinStates));
 
@@ -199,8 +185,6 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
   }
 
   stream >> m_hSkeleton;
-
-  EZ_SUCCEED_OR_RETURN(m_Blackboard.Deserialize(stream));
 
   if (uiVersion >= 2)
   {

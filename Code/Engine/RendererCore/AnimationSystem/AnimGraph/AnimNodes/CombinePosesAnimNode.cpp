@@ -4,6 +4,7 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/CombinePosesAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <ozz/animation/runtime/skeleton.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCombinePosesAnimNode, 1, ezRTTIDefaultAllocator<ezCombinePosesAnimNode>)
@@ -110,6 +111,41 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
     pw.SetCount(m_uiMaxPoses);
   }
 
+  ezArrayPtr<const ozz::math::SimdFloat4> invWeights;
+
+  for (const auto& in : pw)
+  {
+    if (in.m_fPinWeight > 0 && pIn[in.m_uiPinIdx]->m_pWeights)
+    {
+      // only initialize and use the inverse mask, when it is actually needed
+      if (invWeights.IsEmpty())
+      {
+        m_BlendMask.SetCountUninitialized(pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().num_soa_joints());
+
+        for (auto& sj : m_BlendMask)
+        {
+          sj = ozz::math::simd_float4::one();
+        }
+
+        invWeights = m_BlendMask;
+      }
+
+      const ozz::math::SimdFloat4 factor = ozz::math::simd_float4::Load1(in.m_fPinWeight);
+
+      const ezArrayPtr<const ozz::math::SimdFloat4> weights = pIn[in.m_uiPinIdx]->m_pWeights->m_pSharedBoneWeights->m_Weights;
+
+      for (ezUInt32 i = 0; i < m_BlendMask.GetCount(); ++i)
+      {
+        const auto& weight = weights[i];
+        auto& mask = m_BlendMask[i];
+
+        const auto oneMinusWeight = ozz::math::NMAdd(factor, weight, ozz::math::simd_float4::one());
+
+        mask = ozz::math::Min(mask, oneMinusWeight);
+      }
+    }
+  }
+
   for (const auto& in : pw)
   {
     if (in.m_fPinWeight > 0)
@@ -122,7 +158,7 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
       }
       else
       {
-        cmd.m_InputBoneWeights.PushBack({});
+        cmd.m_InputBoneWeights.PushBack(invWeights);
       }
 
       if (pIn[in.m_uiPinIdx]->m_bUseRootMotion)

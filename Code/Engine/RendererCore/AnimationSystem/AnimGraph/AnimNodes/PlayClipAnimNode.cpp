@@ -1,5 +1,7 @@
 #include <RendererCorePCH.h>
 
+#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/PlayClipAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
@@ -18,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
       EZ_MEMBER_PROPERTY("ClipIndex", m_ClipIndexPin)->AddAttributes(new ezHiddenAttribute()),
 
       EZ_MEMBER_PROPERTY("LocalPose", m_LocalPosePin)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OnFinished", m_OnFinishedPin)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("OnFadeOut", m_OnFadeOutPin)->AddAttributes(new ezHiddenAttribute()),
     }
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
@@ -46,7 +48,7 @@ ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(m_ClipIndexPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_WeightsPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -65,7 +67,16 @@ ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(m_ClipIndexPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_WeightsPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Deserialize(stream));
+
+  // make sure there are no invalid clips in the middle clip array
+  for (ezUInt32 i = m_Clips.GetCount(); i > 0; i--)
+  {
+    if (!m_Clips[i - 1].IsValid())
+    {
+      m_Clips.RemoveAtAndSwap(i - 1);
+    }
+  }
 
   return EZ_SUCCESS;
 }
@@ -106,7 +117,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
   if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  const float fPrevPlaybackPos = m_State.GetNormalizedPlaybackPosition();
+  float fPrevPlaybackPos = m_State.GetNormalizedPlaybackPosition();
 
   m_State.m_bTriggerActive = m_ActivePin.IsTriggered(graph);
   m_State.m_Duration = pAnimClip->GetDescriptor().GetDuration();
@@ -120,11 +131,12 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
     m_uiClipToPlay = uiNextClip; // don't use m_uiNextClipToPlay here, it can be 0xFF
     m_uiNextClipToPlay = 0xFF;
     m_NextClipDuration.SetZero();
+    fPrevPlaybackPos = 0.0f; // TODO anim event sampling ??
   }
 
   if (m_State.GetCurrentState() == ezAnimState::State::StartedRampDown)
   {
-    m_OnFinishedPin.SetTriggered(graph, true);
+    m_OnFadeOutPin.SetTriggered(graph, true);
   }
 
   void* pThis = this;

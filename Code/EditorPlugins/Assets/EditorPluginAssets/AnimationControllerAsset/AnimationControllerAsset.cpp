@@ -347,6 +347,7 @@ void ezAnimationControllerAssetDocument::SetOutputPinIndices(const ezDynamicArra
       auto pPinProp = static_cast<ezAbstractMemberProperty*>(pNewNode->GetDynamicRTTI()->FindPropertyByName(pPin->GetName()));
       EZ_ASSERT_DEBUG(pPinProp, "Pin with name '{}' has no equally named property", pPin->GetName());
 
+      // set the output index to use by this pin
       ezReflectionUtils::SetMemberPropertyValue(pIdxProperty, pPinProp->GetPropertyPointer(pNewNode), idx);
 
       // set output pin to input pin mapping

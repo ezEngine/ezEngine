@@ -93,13 +93,13 @@ struct EZ_RENDERERCORE_DLL ezAnimState
   };
 
   // Properties:
-  ezTime m_FadeIn;                 // [ property ]
-  ezTime m_FadeOut;                // [ property ]
-  bool m_bImmediateFadeIn = true;  // [ property ]
-  bool m_bImmediateFadeOut = true; // [ property ]
-  bool m_bLoop = true;             // [ property ]
-  float m_fPlaybackSpeed = 1.0f;   // [ property ]
-  bool m_bApplyRootMotion = false; // [ property ]
+  ezTime m_FadeIn;                  // [ property ]
+  ezTime m_FadeOut;                 // [ property ]
+  bool m_bImmediateFadeIn = false;  // [ property ]
+  bool m_bImmediateFadeOut = false; // [ property ]
+  bool m_bLoop = false;             // [ property ]
+  float m_fPlaybackSpeed = 1.0f;    // [ property ]
+  bool m_bApplyRootMotion = false;  // [ property ]
 
   // Inputs:
   bool m_bTriggerActive = false;

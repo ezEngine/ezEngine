@@ -26,7 +26,7 @@ public:
   ezBoneWeightsAnimNode();
   ~ezBoneWeightsAnimNode();
 
-  float m_fWeight = 10.0f; // [ property ]
+  float m_fWeight = 1.0f; // [ property ]
 
   ezUInt32 RootBones_GetCount() const;                          // [ property ]
   const char* RootBones_GetValue(ezUInt32 uiIndex) const;       // [ property ]

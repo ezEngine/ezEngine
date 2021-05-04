@@ -29,14 +29,14 @@ public:
   void Clips_Remove(ezUInt32 uiIndex);                      // [ property ]
 
 private:
-  ezDynamicArray<ezAnimationClipResourceHandle> m_Clips; // [ property ]
+  ezHybridArray<ezAnimationClipResourceHandle, 1> m_Clips; // [ property ]
 
   ezAnimGraphTriggerInputPin m_ActivePin;       // [ property ]
   ezAnimGraphBoneWeightsInputPin m_WeightsPin;  // [ property ]
   ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
   ezAnimGraphNumberInputPin m_ClipIndexPin;     // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
-  ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;  // [ property ]
 
   ezAnimState m_State; // [ property ]
   ezUInt8 m_uiClipToPlay = 0xFF;

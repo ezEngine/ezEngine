@@ -6,15 +6,24 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimClip1D, ezNoBase, 1, ezRTTIDefaultAllocator<ezAnimClip1D>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_MEMBER_PROPERTY("Position", m_fPosition),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips1DAnimNode, 1, ezRTTIDefaultAllocator<ezMixClips1DAnimNode>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Common", m_State),
-    EZ_ACCESSOR_PROPERTY("AnimationClip0", GetAnimationClip0, SetAnimationClip0)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-    EZ_ACCESSOR_PROPERTY("AnimationClip1", GetAnimationClip1, SetAnimationClip1)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-    EZ_ACCESSOR_PROPERTY("AnimationClip2", GetAnimationClip2, SetAnimationClip2)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-    EZ_ACCESSOR_PROPERTY("AnimationClip3", GetAnimationClip3, SetAnimationClip3)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+
+    EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
 
     EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new ezHiddenAttribute()),
@@ -22,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips1DAnimNode, 1, ezRTTIDefaultAllocator<
     EZ_MEMBER_PROPERTY("Lerp", m_LerpPin)->AddAttributes(new ezHiddenAttribute()),
 
     EZ_MEMBER_PROPERTY("LocalPose", m_LocalPosePin)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("OnFinished", m_OnFinishedPin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OnFadeOut", m_OnFadeOutPin)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -36,6 +45,28 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips1DAnimNode, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+void ezAnimClip1D::SetAnimationFile(const char* sz)
+{
+  ezAnimationClipResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(sz))
+  {
+    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(sz);
+  }
+
+  m_hAnimation = hResource;
+}
+
+const char* ezAnimClip1D::GetAnimationFile() const
+{
+  if (m_hAnimation.IsValid())
+  {
+    return m_hAnimation.GetResourceID();
+  }
+
+  return "";
+}
+
 ezResult ezMixClips1DAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
   stream.WriteVersion(1);
@@ -43,17 +74,20 @@ ezResult ezMixClips1DAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   EZ_SUCCEED_OR_RETURN(m_State.Serialize(stream));
-  stream << m_hAnimationClips[0];
-  stream << m_hAnimationClips[1];
-  stream << m_hAnimationClips[2];
-  stream << m_hAnimationClips[3];
+
+  stream << m_Clips.GetCount();
+  for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+  {
+    stream << m_Clips[i].m_hAnimation;
+    stream << m_Clips[i].m_fPosition;
+  }
 
   EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_WeightsPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LerpPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -65,177 +99,120 @@ ezResult ezMixClips1DAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   EZ_SUCCEED_OR_RETURN(m_State.Deserialize(stream));
-  stream >> m_hAnimationClips[0];
-  stream >> m_hAnimationClips[1];
-  stream >> m_hAnimationClips[2];
-  stream >> m_hAnimationClips[3];
+
+  ezUInt32 num = 0;
+  stream >> num;
+  m_Clips.SetCount(num);
+  for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+  {
+    stream >> m_Clips[i].m_hAnimation;
+    stream >> m_Clips[i].m_fPosition;
+  }
 
   EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_WeightsPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LerpPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezMixClips1DAnimNode::SetAnimationClip0(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  m_hAnimationClips[0] = hResource;
-}
-
-const char* ezMixClips1DAnimNode::GetAnimationClip0() const
-{
-  if (!m_hAnimationClips[0].IsValid())
-    return "";
-
-  return m_hAnimationClips[0].GetResourceID();
-}
-
-void ezMixClips1DAnimNode::SetAnimationClip1(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  m_hAnimationClips[1] = hResource;
-}
-
-const char* ezMixClips1DAnimNode::GetAnimationClip1() const
-{
-  if (!m_hAnimationClips[1].IsValid())
-    return "";
-
-  return m_hAnimationClips[1].GetResourceID();
-}
-
-void ezMixClips1DAnimNode::SetAnimationClip2(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  m_hAnimationClips[2] = hResource;
-}
-
-const char* ezMixClips1DAnimNode::GetAnimationClip2() const
-{
-  if (!m_hAnimationClips[2].IsValid())
-    return "";
-
-  return m_hAnimationClips[2].GetResourceID();
-}
-
-void ezMixClips1DAnimNode::SetAnimationClip3(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  m_hAnimationClips[3] = hResource;
-}
-
-const char* ezMixClips1DAnimNode::GetAnimationClip3() const
-{
-  if (!m_hAnimationClips[3].IsValid())
-    return "";
-
-  return m_hAnimationClips[3].GetResourceID();
-}
-
 void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  if (!m_LocalPosePin.IsConnected() || !m_LerpPin.IsConnected() || !m_hAnimationClips[0].IsValid())
+  if (!m_LocalPosePin.IsConnected() || !m_LerpPin.IsConnected() || m_Clips.IsEmpty())
     return;
 
   if (m_State.WillStateBeOff(m_ActivePin.IsTriggered(graph)))
     return;
 
-  ezInt32 iMaxClip = 0;
-  if (m_hAnimationClips[1].IsValid())
+  ezUInt32 uiClip1 = 0;
+  ezUInt32 uiClip2 = 0;
+
+  const float fLerpPos = (float)m_LerpPin.GetNumber(graph);
+
+  if (m_Clips.GetCount() > 1)
   {
-    iMaxClip = 1;
+    float fDist1 = 1000000.0f;
+    float fDist2 = 1000000.0f;
 
-    if (m_hAnimationClips[2].IsValid())
+    for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
     {
-      iMaxClip = 2;
+      const float dist = ezMath::Abs(m_Clips[i].m_fPosition - fLerpPos);
 
-      if (m_hAnimationClips[3].IsValid())
+      if (dist < fDist1)
       {
-        iMaxClip = 3;
+        fDist2 = fDist1;
+        uiClip2 = uiClip1;
+
+        fDist1 = dist;
+        uiClip1 = i;
       }
+      else if (dist < fDist2)
+      {
+        fDist2 = dist;
+        uiClip2 = i;
+      }
+    }
+
+    if (ezMath::IsZero(fDist1, ezMath::SmallEpsilon<float>()))
+    {
+      uiClip2 = uiClip1;
     }
   }
 
-  float fLerpFactor = ezMath::Clamp((float)m_LerpPin.GetNumber(graph), 0.0f, (float)iMaxClip);
+  if (!m_Clips[uiClip1].m_hAnimation.IsValid() || !m_Clips[uiClip2].m_hAnimation.IsValid())
+    return;
 
-  ezInt32 iLowerClip = ezMath::Clamp((ezInt32)ezMath::Trunc(fLerpFactor), 0, iMaxClip);
-  ezInt32 iUpperClip = ezMath::Clamp(iLowerClip + 1, 0, iMaxClip);
-  fLerpFactor = ezMath::Fraction(fLerpFactor);
+  float fLerpFactor = 0.0f;
 
-  if (iLowerClip == iUpperClip || fLerpFactor == 0.0f || !m_hAnimationClips[iUpperClip].IsValid())
+  if (uiClip1 != uiClip2)
   {
-    if (!m_hAnimationClips[iLowerClip].IsValid())
-      return;
+    const float len = m_Clips[uiClip2].m_fPosition - m_Clips[uiClip1].m_fPosition;
+    fLerpFactor = (fLerpPos - m_Clips[uiClip1].m_fPosition) / len;
 
-    iUpperClip = iLowerClip;
+    // clamp and reduce to single sample when possible
+    if (fLerpFactor <= 0.0f)
+    {
+      fLerpFactor = 0.0f;
+      uiClip2 = uiClip1;
+    }
+    else if (fLerpFactor >= 1.0f)
+    {
+      fLerpFactor = 1.0f;
+      uiClip1 = uiClip2;
+    }
   }
 
-  ezResourceLock<ezAnimationClipResource> pAnimClipLow(m_hAnimationClips[iLowerClip], ezResourceAcquireMode::BlockTillLoaded);
-  if (pAnimClipLow.GetAcquireResult() != ezResourceAcquireResult::Final)
+  ezResourceLock<ezAnimationClipResource> pAnimClip1(m_Clips[uiClip1].m_hAnimation, ezResourceAcquireMode::BlockTillLoaded);
+  ezResourceLock<ezAnimationClipResource> pAnimClip2(m_Clips[uiClip2].m_hAnimation, ezResourceAcquireMode::BlockTillLoaded);
+
+  if (pAnimClip1.GetAcquireResult() != ezResourceAcquireResult::Final || pAnimClip2.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
-  ezResourceLock<ezAnimationClipResource> pAnimClipHigh(m_hAnimationClips[iUpperClip], ezResourceAcquireMode::BlockTillLoaded);
-  if (pAnimClipHigh.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
 
-  const auto& animDescLow = pAnimClipLow->GetDescriptor();
-  const ozz::animation::Animation* pOzzAnimLow = &animDescLow.GetMappedOzzAnimation(*pSkeleton);
-  const auto& animDescHigh = pAnimClipHigh->GetDescriptor();
-  const ozz::animation::Animation* pOzzAnimHigh = &animDescHigh.GetMappedOzzAnimation(*pSkeleton);
+  const auto& animDesc1 = pAnimClip1->GetDescriptor();
+  const auto& animDesc2 = pAnimClip2->GetDescriptor();
 
-  ezAnimGraphPinDataLocalTransforms* pLocalTransforms[2] = {};
-  ezAnimGraphPinDataLocalTransforms* pOutputTransform = nullptr;
+  const ezTime avgDuration = ezMath::Lerp(animDesc1.GetDuration(), animDesc2.GetDuration(), fLerpFactor);
 
-  pOutputTransform = graph.AddPinDataLocalTransforms();
-  pLocalTransforms[0] = graph.AddPinDataLocalTransforms();
-  pLocalTransforms[1] = graph.AddPinDataLocalTransforms();
-
-  const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-  const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-
-  const ezTime avgDuration = ezMath::Lerp(animDescLow.GetDuration(), animDescHigh.GetDuration(), fLerpFactor);
   const float fPrevPlaybackPos = m_State.GetNormalizedPlaybackPosition();
 
   m_State.m_bTriggerActive = m_ActivePin.IsTriggered(graph);
-  m_State.m_Duration = avgDuration;
   m_State.m_fPlaybackSpeedFactor = static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
+  m_State.m_Duration = avgDuration;
 
   m_State.UpdateState(tDiff);
 
   if (m_State.GetCurrentState() == ezAnimState::State::StartedRampDown)
   {
-    m_OnFinishedPin.SetTriggered(graph, true);
+    m_OnFadeOutPin.SetTriggered(graph, true);
   }
 
   if (m_State.GetWeight() <= 0.0f)
     return;
+
+  ezAnimGraphPinDataLocalTransforms* pOutputTransform = graph.AddPinDataLocalTransforms();
 
   ezAnimPoseEventTrackSampleMode eventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
 
@@ -246,11 +223,11 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
 
   auto& poseGen = graph.GetPoseGenerator();
 
-  if (m_hAnimationClips[iLowerClip] == m_hAnimationClips[iUpperClip])
+  if (uiClip1 == uiClip2)
   {
     void* pThis = this;
-    auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
-    cmd.m_hAnimationClip = m_hAnimationClips[iLowerClip];
+    auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
+    cmd.m_hAnimationClip = m_Clips[uiClip1].m_hAnimation;
     cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
     cmd.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
     cmd.m_EventSampling = eventSampling;
@@ -259,14 +236,14 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
   }
   else
   {
-    auto& cmdCmb = graph.GetPoseGenerator().AllocCommandCombinePoses();
+    auto& cmdCmb = poseGen.AllocCommandCombinePoses();
     pOutputTransform->m_CommandID = cmdCmb.GetCommandID();
 
-    // sample lower anim
+    // sample animation 1
     {
       void* pThis = this;
-      auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
-      cmd.m_hAnimationClip = m_hAnimationClips[iLowerClip];
+      auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
+      cmd.m_hAnimationClip = m_Clips[uiClip1].m_hAnimation;
       cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
       cmd.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
       cmd.m_EventSampling = fLerpFactor <= 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
@@ -275,11 +252,11 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
       cmdCmb.m_InputWeights.PushBack(1.0f - fLerpFactor);
     }
 
-    // sample upper anim
+    // sample animation 2
     {
       void* pThis = this;
-      auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
-      cmd.m_hAnimationClip = m_hAnimationClips[iUpperClip];
+      auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
+      cmd.m_hAnimationClip = m_Clips[uiClip2].m_hAnimation;
       cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
       cmd.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
       cmd.m_EventSampling = fLerpFactor > 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
@@ -298,7 +275,7 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
     {
       pOutputTransform->m_bUseRootMotion = true;
 
-      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDescLow.m_vConstantRootMotion, animDescHigh.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * m_State.m_fPlaybackSpeed;
+      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * m_State.m_fPlaybackSpeed;
     }
 
     m_LocalPosePin.SetPose(graph, pOutputTransform);

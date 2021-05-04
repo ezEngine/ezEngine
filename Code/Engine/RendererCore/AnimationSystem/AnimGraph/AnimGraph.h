@@ -57,7 +57,7 @@ public:
   void Update(ezTime tDiff, ezGameObject* pTarget);
   void GetRootMotion(ezVec3& translation, ezQuat& rotation) const;
 
-  ezBlackboard& GetBlackboard() { return *m_pBlackboard; }
+  ezBlackboard* GetBlackboard() { return m_pBlackboard; }
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
@@ -105,7 +105,6 @@ private:
 
   ezAnimPoseGenerator* m_pPoseGenerator = nullptr;
   ezBlackboard* m_pBlackboard = nullptr;
-  ezBlackboard m_Blackboard;
 
   ezHybridArray<ezAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
   ezHybridArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;

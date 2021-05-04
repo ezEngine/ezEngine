@@ -35,7 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips2DAnimNode, 1, ezRTTIDefaultAllocator<
     EZ_MEMBER_PROPERTY("Y", m_YCoordPin)->AddAttributes(new ezHiddenAttribute()),
 
     EZ_MEMBER_PROPERTY("LocalPose", m_LocalPosePin)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("OnFinished", m_OnFinishedPin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OnFadeOut", m_OnFadeOutPin)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -94,7 +94,7 @@ ezResult ezMixClips2DAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(m_XCoordPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_YCoordPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -124,7 +124,7 @@ ezResult ezMixClips2DAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(m_XCoordPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_YCoordPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OnFinishedPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -148,7 +148,7 @@ void ezMixClips2DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
 
   if (m_State.GetCurrentState() == ezAnimState::State::StartedRampDown)
   {
-    m_OnFinishedPin.SetTriggered(graph, true);
+    m_OnFadeOutPin.SetTriggered(graph, true);
   }
 }
 

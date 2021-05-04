@@ -362,3 +362,14 @@ InputAction
 		float %Scale{1}
 	}
 }
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"Aim"}
+	bool %TimeScale{false}
+	Slot
+	{
+		string %Key{"mouse_button_1"}
+		float %Scale{1}
+	}
+}
