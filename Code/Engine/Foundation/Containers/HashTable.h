@@ -177,6 +177,9 @@ public:
   /// \brief Returns the value to the given key if found or creates a new entry with the given key and a default constructed value.
   ValueType& operator[](const KeyType& key); // [tested]
 
+  /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
+  ValueType& FindOrAdd(const KeyType& key, bool* bExisted); // [tested]
+
   /// \brief Returns if an entry with given key exists in the table.
   template <typename CompatibleKeyType>
   bool Contains(const CompatibleKeyType& key) const; // [tested]
