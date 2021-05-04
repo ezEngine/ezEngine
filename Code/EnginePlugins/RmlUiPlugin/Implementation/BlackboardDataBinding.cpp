@@ -90,7 +90,10 @@ namespace ezRmlUiInternal
       targetType = pEntry->m_Value.GetType();
     }
 
-    m_Blackboard.SetEntryValue(m_sName, ezRmlUiConversionUtils::ToVariant(value, targetType));
+    if (m_Blackboard.SetEntryValue(m_sName, ezRmlUiConversionUtils::ToVariant(value, targetType)).Failed())
+    {
+      ezLog::Error("RmlUI: Can't set blackboard entry '{}', because it doesn't exist.", m_sName);
+    }
   }
 
   void BlackboardDataBinding::EntryWrapper::GetValue(Rml::Variant& out_Value) const

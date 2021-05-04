@@ -26,13 +26,20 @@ void ezBlackboard::RegisterEntry(const ezHashedString& name, const ezVariant& in
 {
   EZ_ASSERT_ALWAYS(!flags.IsSet(ezBlackboardEntryFlags::Invalid), "The invalid flag is reserved for internal use.");
 
-  ++m_uiBlackboardChangeCounter;
+  bool bExisted = false;
+  Entry& entry = m_Entries.FindOrAdd(name, &bExisted);
 
-  Entry& entry = m_Entries[name];
-  entry.m_Flags = flags;
+  if (!bExisted || entry.m_Flags != flags)
+  {
+    ++m_uiBlackboardChangeCounter;
+    entry.m_Flags |= flags;
+  }
 
-  // broadcasts the change event, in case we overwrite an existing entry
-  SetEntryValue(name, initialValue);
+  if (entry.m_Value != initialValue)
+  {
+    // broadcasts the change event, in case we overwrite an existing entry
+    SetEntryValue(name, initialValue).IgnoreResult();
+  }
 }
 
 void ezBlackboard::UnregisterEntry(const ezHashedString& name)
@@ -53,20 +60,19 @@ void ezBlackboard::UnregisterAllEntries()
   m_Entries.Clear();
 }
 
-void ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force /*= false*/)
+ezResult ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force /*= false*/)
 {
   auto itEntry = m_Entries.Find(name);
 
   if (!itEntry.IsValid())
   {
-    ezLog::Error("Blackboard entry must be registered before its value can be set");
-    return;
+    return EZ_FAILURE;
   }
 
   Entry& entry = itEntry.Value();
 
   if (!force && entry.m_Value == value)
-    return;
+    return EZ_SUCCESS;
 
   ++m_uiBlackboardEntryChangeCounter;
   ++entry.m_uiChangeCounter;
@@ -86,6 +92,8 @@ void ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVariant
   {
     entry.m_Value = value;
   }
+
+  return EZ_SUCCESS;
 }
 
 const ezBlackboard::Entry* ezBlackboard::GetEntry(const ezTempHashedString& name) const

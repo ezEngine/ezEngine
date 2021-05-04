@@ -89,8 +89,8 @@ public:
 
   /// \brief Registers an entry with a name, value and flags.
   ///
-  /// If the same entry already exists, this will overwrite the existing entry (and broadcast an event if necessary).
-  /// This is currently the only time at which the entry flags can be set.
+  /// If the same entry already exists, this will act like SetEntryValue, but additionally it will add the entry flags
+  /// that hadn't been set before.
   void RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
 
   /// \brief Removes the named entry. Does nothing, if no such entry exists.
@@ -101,13 +101,13 @@ public:
 
   /// \brief Sets the value of the named entry.
   ///
-  /// The named entry has to have been registered before via RegisterEntry().
+  /// If the entry doesn't exist, EZ_FAILURE is returned.
   ///
   /// If the 'OnChangeEvent' flag is set for this entry, OnEntryEvent() will be broadcast.
   /// However, if the new value is no different to the old, no event will be broadcast, unless 'force' is set to true.
   ///
   /// Logs an error, if the named entry hasn't been registered before.
-  void SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force = false);
+  ezResult SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force = false);
 
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
   const Entry* GetEntry(const ezTempHashedString& name) const;

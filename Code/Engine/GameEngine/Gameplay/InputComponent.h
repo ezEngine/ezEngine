@@ -75,6 +75,7 @@ public:
 
   ezString m_sInputSet;                            // [ property ]
   ezEnum<ezInputMessageGranularity> m_Granularity; // [ property ]
+  bool m_bForwardToBlackboard = false;             // [ property ]
 
 protected:
   void Update();

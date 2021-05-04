@@ -246,7 +246,10 @@ const char* ezBlackboardComponent::GetBlackboardName() const
 
 void ezBlackboardComponent::SetEntryValue(const char* szName, const ezVariant& value)
 {
-  m_pBoard->SetEntryValue(ezTempHashedString(szName), value);
+  if (m_pBoard->SetEntryValue(ezTempHashedString(szName), value).Failed())
+  {
+    ezLog::Error("Can't set blackboard entry '{}', because it doesn't exist.", szName);
+  }
 }
 
 ezVariant ezBlackboardComponent::GetEntryValue(const char* szName)

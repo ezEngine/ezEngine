@@ -334,7 +334,7 @@ void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames
     out_InputSetNames.PushBack(it.Key());
 }
 
-void ezInputManager::GetAllInputActions(const char* szInputSetName, ezHybridArray<ezString, 24>& out_InputActions)
+void ezInputManager::GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions)
 {
   const auto& map = GetInternals().s_ActionMapping[szInputSetName];
 
