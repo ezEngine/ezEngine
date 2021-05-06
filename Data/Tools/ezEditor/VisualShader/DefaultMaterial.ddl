@@ -34,6 +34,16 @@ CAMERA_MODE=CAMERA_MODE_PERSPECTIVE
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
+#if INPUT_PIN_1_CONNECTED
+#if !defined(USE_NORMAL)
+  #define USE_NORMAL
+#endif
+#if !defined(USE_TANGENT)
+  #define USE_TANGENT
+#endif
+
+#endif
+
 #if INPUT_PIN_10_CONNECTED
   #define USE_OBJECT_POSITION_OFFSET
 #endif
@@ -102,6 +112,15 @@ float MaskThreshold @Default($prop0);
   #define USE_FOG
 #endif
 
+#if INPUT_PIN_1_CONNECTED
+#if !defined(USE_NORMAL)
+  #define USE_NORMAL
+#endif
+#if !defined(USE_TANGENT)
+  #define USE_TANGENT
+#endif
+#endif
+
 #if INPUT_PIN_8_CONNECTED
   #define USE_MATERIAL_REFRACTION
 #endif
@@ -135,7 +154,7 @@ float3 GetBaseColor()
 
 float3 GetNormal()
 {
-#if defined(USE_TANGENT)
+#if defined(USE_TANGENT) || defined(USE_NORMAL)
   return TangentToWorldSpace(ToFloat3($in1));
 #else
   return ToFloat3($in1);
@@ -218,7 +237,8 @@ float3 GetSubsurfaceColor()
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 128, 255 }
-    string %DefaultValue { "float3(0, 0, 1)", }
+    string %DefaultValue { "float3(0, 0, 1)" }
+    string %DefineWhenUsingDefaultValue { "USE_NORMAL" }
     string %Tooltip { "Surface normal in tangent space." }
   }
 

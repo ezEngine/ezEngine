@@ -346,7 +346,9 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
 
         for (const auto& sDefine : pNodeDesc->m_InputPins[i].m_sDefinesWhenUsingDefaultValue)
         {
-          sCodeForPlacingDefines.Append("#define ", sDefine, "\n");
+          sCodeForPlacingDefines.Append("#if !defined(", sDefine, ")\n");
+          sCodeForPlacingDefines.Append("  #define ", sDefine, "\n");
+          sCodeForPlacingDefines.Append("#endif");
         }
       }
 
@@ -387,11 +389,11 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
 
       if (pins[i]->GetConnections().IsEmpty())
       {
-        sInlineCode.ReplaceAll(sDefineName, "false");
+        sInlineCode.ReplaceAll(sDefineName, "0");
       }
       else
       {
-        sInlineCode.ReplaceAll(sDefineName, "true");
+        sInlineCode.ReplaceAll(sDefineName, "1");
       }
     }
   }
@@ -405,11 +407,11 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
 
       if (pins[i]->GetConnections().IsEmpty())
       {
-        sInlineCode.ReplaceAll(sDefineName, "false");
+        sInlineCode.ReplaceAll(sDefineName, "0");
       }
       else
       {
-        sInlineCode.ReplaceAll(sDefineName, "true");
+        sInlineCode.ReplaceAll(sDefineName, "1");
       }
     }
   }

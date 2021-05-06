@@ -165,10 +165,14 @@ ezMaterialData FillMaterialData()
   return matData;
 }
 
-#if defined(USE_NORMAL) && defined(USE_TANGENT)
+#if defined(USE_NORMAL)
   float3 TangentToWorldSpace(float3 normalTS)
   {
-    return normalTS.x * G.Input.Tangent + normalTS.y * G.Input.BiTangent + normalTS.z * G.Input.Normal;
+    #if defined(USE_TANGENT)
+	  return normalTS.x * G.Input.Tangent + normalTS.y * G.Input.BiTangent + normalTS.z * G.Input.Normal;
+	#else
+	  return normalTS.z * G.Input.Normal;
+	#endif
   }
 #endif
 
