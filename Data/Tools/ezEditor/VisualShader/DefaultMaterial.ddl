@@ -218,7 +218,8 @@ float3 GetSubsurfaceColor()
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 128, 255 }
-    string %DefaultValue { "float3(0, 0, 1)", }
+    string %DefaultValue { "G.Input.Normal" }
+    string %DefineWhenUsingDefaultValue { "USE_NORMAL" }
     string %Tooltip { "Surface normal in tangent space." }
   }
 
