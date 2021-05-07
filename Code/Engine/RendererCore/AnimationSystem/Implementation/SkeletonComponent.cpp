@@ -17,7 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 2, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
     EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("BonesToHighlight", m_sBonesToHighlight),
+    EZ_ACCESSOR_PROPERTY("BonesToHighlight", GetBonesToHighlight, SetBonesToHighlight),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -130,12 +130,17 @@ void ezSkeletonComponent::SetBonesToHighlight(const char* szFilter)
 {
   if (m_sBonesToHighlight != szFilter)
   {
-    ezStringBuilder tmp(";", szFilter, ";");
-
-    m_sBonesToHighlight = tmp;
+    m_sBonesToHighlight = szFilter;
 
     m_uiSkeletonChangeCounter = 0xFFFFFFFF;
+
+    UpdateSkeletonVis();
   }
+}
+
+const char* ezSkeletonComponent::GetBonesToHighlight() const
+{
+  return m_sBonesToHighlight;
 }
 
 void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
@@ -160,6 +165,8 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   ezHybridArray<Bone, 128> bones;
   bones.SetCount(msg.m_pSkeleton->GetJointCount());
 
+  const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
+
   auto renderBone = [&](int currentBone, int parentBone) {
     if (parentBone == ozz::animation::Skeleton::kNoParent)
       return;
@@ -174,7 +181,7 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
     auto& bone = bones[currentBone];
     bone.pos = v1;
     bone.distToParent = dirToBone.GetLength();
-    bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].TransformDirection(ezVec3(0, 1, 0));
+    bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].TransformDirection(vBoneDir);
     bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
 
     auto& pb = bones[parentBone];
@@ -203,13 +210,15 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   }
   else if (!m_sBonesToHighlight.IsEmpty())
   {
+    const ezStringBuilder mask(";", m_sBonesToHighlight, ";");
+
     for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
     {
       const ezString currentName = msg.m_pSkeleton->GetJointByIndex(b).GetName().GetString();
 
       tmp.Set(";", currentName, ";");
 
-      if (m_sBonesToHighlight.FindSubString(tmp))
+      if (mask.FindSubString(tmp))
       {
         bones[b].highlight = true;
       }

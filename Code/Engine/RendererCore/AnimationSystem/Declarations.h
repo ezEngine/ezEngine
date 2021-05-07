@@ -61,9 +61,25 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   ezArrayPtr<const ezMat4> m_ModelTransforms;
 };
 
+/// \brief The animated mesh component listens to this message and 'answers' by filling out the skeleton resource handle.
+///
+/// This can be used by components that require a skeleton, to ask the nearby components to provide it to them.
 struct EZ_RENDERERCORE_DLL ezMsgQueryAnimationSkeleton : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgQueryAnimationSkeleton, ezMessage);
 
   ezSkeletonResourceHandle m_hSkeleton;
+};
+
+/// \brief This message is sent when animation root motion data is available.
+///
+/// Listening components can use this to move a character.
+struct EZ_RENDERERCORE_DLL ezMsgApplyRootMotion : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgApplyRootMotion, ezMessage);
+
+  ezVec3 m_vTranslation;
+  ezAngle m_RotationX;
+  ezAngle m_RotationY;
+  ezAngle m_RotationZ;
 };

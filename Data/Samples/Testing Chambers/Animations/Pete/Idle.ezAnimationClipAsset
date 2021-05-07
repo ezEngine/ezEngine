@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{2104638118018229942,5158595748246167764}}
+	Uuid %id{u4{17271424536240054913,4751781227707276362}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,15 +11,15 @@ o
 		s %AssetType{"Animation Clip"}
 		VarArray %Dependencies
 		{
-			s{"Animations/Turret.glb"}
+			s{"Animations/Pete/Pete.glb"}
 		}
-		Uuid %DocumentID{u4{2104638118018229942,5158595748246167764}}
-		u4 %Hash{18084344297805900816}
+		Uuid %DocumentID{u4{17271424536240054913,4751781227707276362}}
+		u4 %Hash{2837951916266285970}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 9a8ebd2a-dd92-4ea9-8dbe-ad1ad6feda14 }"}
+			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 		}
 	}
 }
@@ -28,71 +28,45 @@ Objects
 {
 o
 {
-	Uuid %id{u4{11976828184813335794,681716553320787184}}
+	Uuid %id{u4{2638269795815974236,2205322414226194293}}
 	s %t{"ezEventTrackData"}
 	u3 %v{3}
 	p
 	{
-		VarArray %ControlPoints
-		{
-			Uuid{u4{16621699903112718977,5256481384098764508}}
-			Uuid{u4{10121562794557908913,5644865080011777502}}
-			Uuid{u4{13757036806154608024,5082052119515806391}}
-		}
+		VarArray %ControlPoints{}
 	}
 }
 o
 {
-	Uuid %id{u4{2287314479187782278,4800727455872804831}}
+	Uuid %id{u4{5834789082586126718,5086953101787603740}}
 	s %t{"ezAnimationClipAssetProperties"}
 	u3 %v{2}
 	p
 	{
 		VarArray %AvailableClips
 		{
-			s{"Shoot"}
+			s{"Gun Hold Pose"}
+			s{"Gun Point Pose"}
+			s{"Gun Shoot"}
+			s{"Idle Breath"}
+			s{"Idle_Pose"}
+			s{"Jump"}
+			s{"Rest Pose"}
+			s{"Run"}
+			s{"Step Backwards"}
+			s{"Step Left"}
+			s{"Step Right"}
+			s{"Walk"}
+			s{"Wave"}
 		}
 		Vec3 %ConstantRootMotion{f{0,0,0}}
-		Uuid %EventTrack{u4{11976828184813335794,681716553320787184}}
-		s %File{"Animations/Turret.glb"}
+		Uuid %EventTrack{u4{2638269795815974236,2205322414226194293}}
+		s %File{"Animations/Pete/Pete.glb"}
 		u3 %FirstFrame{0}
 		u3 %NumFrames{0}
-		s %PreviewMesh{"{ 9a8ebd2a-dd92-4ea9-8dbe-ad1ad6feda14 }"}
+		s %PreviewMesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 		s %RootMotion{"ezRootMotionSource::None"}
-		s %UseAnimationClip{"Shoot"}
-	}
-}
-o
-{
-	Uuid %id{u4{13757036806154608024,5082052119515806391}}
-	s %t{"ezEventTrackControlPointData"}
-	u3 %v{1}
-	p
-	{
-		s %Event{"Animation Cue 1"}
-		i4 %Tick{4800}
-	}
-}
-o
-{
-	Uuid %id{u4{16621699903112718977,5256481384098764508}}
-	s %t{"ezEventTrackControlPointData"}
-	u3 %v{1}
-	p
-	{
-		s %Event{"Fire"}
-		i4 %Tick{1}
-	}
-}
-o
-{
-	Uuid %id{u4{10121562794557908913,5644865080011777502}}
-	s %t{"ezEventTrackControlPointData"}
-	u3 %v{1}
-	p
-	{
-		s %Event{"Animation Cue 1"}
-		i4 %Tick{800}
+		s %UseAnimationClip{"Idle Breath"}
 	}
 }
 o
@@ -105,7 +79,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{2287314479187782278,4800727455872804831}}
+			Uuid{u4{5834789082586126718,5086953101787603740}}
 		}
 	}
 }

@@ -11,10 +11,10 @@ o
 		s %AssetType{"Skeleton"}
 		VarArray %Dependencies
 		{
-			s{"Animations/Turret.glb"}
+			s{"Animations/Turret/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{15670882188369860531,5160132352143365795}}
-		u4 %Hash{9384743967801378140}
+		u4 %Hash{16470260171733828658}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -69,11 +69,12 @@ o
 	u3 %v{1}
 	p
 	{
+		s %BoneDirection{"ezBasisAxis::PositiveY"}
 		VarArray %Children
 		{
 			Uuid{u4{14931631101554825868,5256831084272279943}}
 		}
-		s %File{"Animations/Turret.glb"}
+		s %File{"Animations/Turret/Turret.glb"}
 		b %FlipForwardDir{0}
 		s %RightDir{"ezBasisAxis::PositiveZ"}
 		f %UniformScaling{0x0000803F}

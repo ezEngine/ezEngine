@@ -25,6 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips2DAnimNode, 1, ezRTTIDefaultAllocator<
   {
     EZ_MEMBER_PROPERTY("Common", m_State),
 
+    EZ_MEMBER_PROPERTY("InputResponse", m_InputResponse),
     EZ_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
     EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
 
@@ -96,6 +97,8 @@ ezResult ezMixClips2DAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Serialize(stream));
 
+  stream << m_InputResponse;
+
   return EZ_SUCCESS;
 }
 
@@ -126,6 +129,8 @@ ezResult ezMixClips2DAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(m_LocalPosePin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OnFadeOutPin.Deserialize(stream));
 
+  stream >> m_InputResponse;
+
   return EZ_SUCCESS;
 }
 
@@ -140,9 +145,24 @@ void ezMixClips2DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
   m_State.m_bTriggerActive = m_ActivePin.IsTriggered(graph);
   m_State.m_fPlaybackSpeedFactor = static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
 
+  const float x = static_cast<float>(m_XCoordPin.GetNumber(graph));
+  const float y = static_cast<float>(m_YCoordPin.GetNumber(graph));
+
+  if (m_InputResponse.IsZeroOrNegative())
+  {
+    m_fLastValueX = x;
+    m_fLastValueY = y;
+  }
+  else
+  {
+    const float lerp = static_cast<float>(ezMath::Min(1.0, tDiff.GetSeconds() * (1.0 / m_InputResponse.GetSeconds())));
+    m_fLastValueX = ezMath::Lerp(m_fLastValueX, x, lerp);
+    m_fLastValueY = ezMath::Lerp(m_fLastValueY, y, lerp);
+  }
+
   ezUInt32 uiMaxWeightClip = 0;
   ezHybridArray<ClipToPlay, 8> clips;
-  ComputeClipsAndWeights(ezVec2(static_cast<float>(m_XCoordPin.GetNumber(graph)), static_cast<float>(m_YCoordPin.GetNumber(graph))), clips, uiMaxWeightClip);
+  ComputeClipsAndWeights(ezVec2(m_fLastValueX, m_fLastValueY), clips, uiMaxWeightClip);
 
   PlayClips(graph, tDiff, clips, uiMaxWeightClip);
 

@@ -52,23 +52,38 @@ ezResult ezModelPoseOutputAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezModelPoseOutputAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  if (!m_ModelPosePin.IsConnected())
-    return;
+  ezVec3 rootMotion = ezVec3::ZeroVector();
+  ezAngle rootRotationX;
+  ezAngle rootRotationY;
+  ezAngle rootRotationZ;
 
-  if (auto pCurrentModelTransforms = m_ModelPosePin.GetPose(graph))
+  if (m_ModelPosePin.IsConnected())
   {
-    if (pCurrentModelTransforms->m_CommandID != ezInvalidIndex)
+    if (auto pCurrentModelTransforms = m_ModelPosePin.GetPose(graph))
     {
-      auto& cmd = graph.GetPoseGenerator().AllocCommandModelPoseToOutput();
-      cmd.m_Inputs.PushBack(m_ModelPosePin.GetPose(graph)->m_CommandID);
-    }
+      if (pCurrentModelTransforms->m_CommandID != ezInvalidIndex)
+      {
+        auto& cmd = graph.GetPoseGenerator().AllocCommandModelPoseToOutput();
+        cmd.m_Inputs.PushBack(m_ModelPosePin.GetPose(graph)->m_CommandID);
+      }
 
-    if (m_RotateZPin.IsConnected())
-    {
-      const float rotZ = static_cast<float>(m_RotateZPin.GetNumber(graph));
-      pCurrentModelTransforms->m_qRootMotion.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(rotZ));
-    }
+      if (pCurrentModelTransforms->m_bUseRootMotion)
+      {
+        rootMotion = pCurrentModelTransforms->m_vRootMotion;
+        rootRotationX = pCurrentModelTransforms->m_RootRotationX;
+        rootRotationY = pCurrentModelTransforms->m_RootRotationY;
+        rootRotationZ = pCurrentModelTransforms->m_RootRotationZ;
+      }
 
-    graph.SetOutputModelTransform(pCurrentModelTransforms);
+      graph.SetOutputModelTransform(pCurrentModelTransforms);
+    }
   }
+
+  if (m_RotateZPin.IsConnected())
+  {
+    const float rotZ = static_cast<float>(m_RotateZPin.GetNumber(graph));
+    rootRotationZ += ezAngle::Degree(rotZ);
+  }
+
+  graph.SetRootMotion(rootMotion, rootRotationX, rootRotationY, rootRotationZ);
 }

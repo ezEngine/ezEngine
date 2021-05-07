@@ -12,6 +12,7 @@
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +68,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 6, ezComponentMode::Dy
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)
+    EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision),
+    EZ_MESSAGE_HANDLER(ezMsgApplyRootMotion, OnApplyRootMotion)
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -193,6 +195,8 @@ void ezPxCharacterControllerComponent::Update()
   const bool wantsJump = (m_InputStateBits & InputStateBits::Jump) != 0;
   m_bWantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
 
+  m_bIsTouchingGround = isOnGround;
+
   const float fGravityFactor = 1.0f;
   const float fJumpFactor = 1.0f; // 0.01f;
   const float fGravity = pModule->GetCharacterGravity().z * fGravityFactor * tDiff;
@@ -263,7 +267,7 @@ void ezPxCharacterControllerComponent::Update()
   if (isOnGround)
   {
     vNewVelocity = vIntendedMovement;
-    fAddWalkDistance = vIntendedMovement.GetLength();
+    fAddWalkDistance = vIntendedMovement.GetLength() + m_vAbsoluteRootMotion.GetLength();
   }
   else
   {
@@ -277,7 +281,7 @@ void ezPxCharacterControllerComponent::Update()
 
   {
     const ezVec3 vMoveDiff = vNewVelocity * tDiff;
-    RawMove(vMoveDiff);
+    RawMove(GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion + vMoveDiff);
   }
   auto posAfter = GetOwner()->GetGlobalPosition();
 
@@ -384,6 +388,7 @@ void ezPxCharacterControllerComponent::Update()
 
   // reset all, expect new input
   m_vRelativeMoveDirection.SetZero();
+  m_vAbsoluteRootMotion.SetZero();
   m_InputStateBits = 0;
 
   ezGameObject* pHeadObject;
@@ -403,6 +408,7 @@ void ezPxCharacterControllerComponent::Update()
 void ezPxCharacterControllerComponent::OnSimulationStarted()
 {
   m_vRelativeMoveDirection.SetZero();
+  m_vAbsoluteRootMotion.SetZero();
   m_InputStateBits = 0;
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
@@ -411,6 +417,10 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
   if (GetOwner()->TryGetComponentOfBaseType(pShape))
   {
     m_hCharacterShape = pShape->GetHandle();
+  }
+  else
+  {
+    ezLog::Error("Character controller could not find character shape component (on same parent).");
   }
 
   ezGameObject* pHeadObject;
@@ -498,6 +508,22 @@ bool ezPxCharacterControllerComponent::IsDestinationUnobstructed(const ezVec3& v
   return !pShape->TestShapeOverlap(vGlobalFootPos, fCharacterHeight);
 }
 
+bool ezPxCharacterControllerComponent::IsTouchingGround()
+{
+  return m_bIsTouchingGround;
+}
+
+bool ezPxCharacterControllerComponent::IsCrouching()
+{
+  return m_bIsCrouching;
+}
+
+void ezPxCharacterControllerComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)
+{
+  m_vAbsoluteRootMotion = msg.m_vTranslation;
+  m_RotateZ += msg.m_RotationZ;
+}
+
 void ezPxCharacterControllerComponent::RawMove(const ezVec3& vMoveDeltaGlobal)
 {
   ezPxCharacterShapeComponent* pShape = nullptr;
@@ -521,13 +547,20 @@ void ezPxCharacterControllerComponent::OnCollision(ezMsgCollision& msg)
       const ezVec3 vImpulse = msg.m_vImpulse;
       if (ezMath::Abs(vImpulse.z) < 0.01f)
       {
+        ezVec3 vAbs = m_vAbsoluteRootMotion;
+
+        if (!vAbs.IsZero())
+        {
+          vAbs /= pWorld->GetClock().GetTimeDiff().AsFloatInSeconds();
+        }
+
         ezVec3 vHitPos = msg.m_vPosition;
         ezVec3 vCenterOfMass = pDynamicActorComponent->GetGlobalCenterOfMass();
 
         // Move the hit pos closer to the center of mass in the up direction. Otherwise we tip over objects pretty easily.
         vHitPos.z = ezMath::Lerp(vCenterOfMass.z, vHitPos.z, 0.1f);
 
-        const ezVec3 vIntendedMovement = pOwner->GetGlobalRotation() * m_vRelativeMoveDirection;
+        const ezVec3 vIntendedMovement = pOwner->GetGlobalRotation() * (m_vRelativeMoveDirection + vAbs);
         const ezVec3 vForce = vIntendedMovement * m_fPushingForce;
 
         ezMsgPhysicsAddForce forceMsg;

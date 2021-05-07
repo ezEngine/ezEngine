@@ -188,12 +188,20 @@ void ezCheckBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, cons
     return;
   }
 
-  ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
   float fValue = 0.0f;
-
-  if (value.IsValid() && value.IsNumber())
+  if (!m_sBlackboardEntry.IsEmpty())
   {
-    fValue = value.ConvertTo<float>();
+    ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
+
+    if (value.IsValid() && value.IsNumber())
+    {
+      fValue = value.ConvertTo<float>();
+    }
+    else
+    {
+      ezLog::Warning("Blackboard entry '{}' doesn't exist.", m_sBlackboardEntry);
+      return;
+    }
   }
 
   if (ezComparisonOperator::Compare(m_Comparison, fValue, m_fReferenceValue))
@@ -275,12 +283,21 @@ void ezGetBlackboardNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const
     return;
   }
 
-  ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
   double fValue = 0.0f;
 
-  if (value.IsValid() && value.IsNumber())
+  if (!m_sBlackboardEntry.IsEmpty())
   {
-    fValue = value.ConvertTo<double>();
+    ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
+
+    if (value.IsValid() && value.IsNumber())
+    {
+      fValue = value.ConvertTo<double>();
+    }
+    else
+    {
+      ezLog::Warning("Blackboard entry '{}' doesn't exist.", m_sBlackboardEntry);
+      return;
+    }
   }
 
   m_NumberPin.SetNumber(graph, fValue);

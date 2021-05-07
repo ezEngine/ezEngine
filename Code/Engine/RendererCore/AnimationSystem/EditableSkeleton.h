@@ -69,6 +69,7 @@ public:
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
   bool m_bFlipForwardDir = false;
+  ezEnum<ezBasisAxis> m_BoneDirection;
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };

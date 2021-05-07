@@ -28,13 +28,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 1, ezComponentMode::Static);
   }
   EZ_END_PROPERTIES;
 
-  EZ_BEGIN_MESSAGESENDERS
-  {
-    EZ_MESSAGE_SENDER(m_EventTrackMsgSender),
-    EZ_MESSAGE_SENDER(m_ReachedEndMsgSender),
-  }
-  EZ_END_MESSAGESENDERS;
-
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
@@ -188,7 +181,8 @@ void ezSimpleAnimationComponent::Update()
       vRootMotion = -vRootMotion;
     }
 
-    ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezQuat::IdentityQuaternion());
+    // only applies positional root motion
+    ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezAngle(), ezAngle(), ezAngle());
   }
 }
 

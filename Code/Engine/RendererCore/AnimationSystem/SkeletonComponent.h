@@ -46,6 +46,7 @@ public:
   bool m_bVisualizeSkeleton = true; // [ property ]
 
   void SetBonesToHighlight(const char* szFilter);
+  const char* GetBonesToHighlight() const;
 
 protected:
   void Update();

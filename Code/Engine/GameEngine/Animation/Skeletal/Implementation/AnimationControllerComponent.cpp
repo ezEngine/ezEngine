@@ -101,10 +101,12 @@ void ezAnimationControllerComponent::Update()
   m_AnimationGraph.Update(GetWorld()->GetClock().GetTimeDiff(), GetOwner());
 
   ezVec3 translation;
-  ezQuat rotation;
-  m_AnimationGraph.GetRootMotion(translation, rotation);
+  ezAngle rotationX;
+  ezAngle rotationY;
+  ezAngle rotationZ;
+  m_AnimationGraph.GetRootMotion(translation, rotationX, rotationY, rotationZ);
 
-  ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), translation, rotation);
+  ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), translation, rotationX, rotationY, rotationZ);
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimationControllerComponent);

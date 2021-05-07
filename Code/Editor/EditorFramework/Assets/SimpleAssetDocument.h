@@ -190,14 +190,21 @@ protected:
     ezDeque<ezAbstractGraphDiffOperation> diffResult;
     graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
-    // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
-    m_ObjectMirror.Clear();
-    // Apply diff while object mirror is down.
-    this->GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
-    ezDocumentObjectConverterReader::ApplyDiffToObject(this->GetObjectAccessor(), GetPropertyObject(), diffResult);
-    this->GetObjectAccessor()->FinishTransaction();
-    // Re-apply document
-    m_ObjectMirror.SendDocument();
+    if (!diffResult.IsEmpty())
+    {
+      // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
+      m_ObjectMirror.Clear();
+
+      // Apply diff while object mirror is down.
+      this->GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
+
+      ezDocumentObjectConverterReader::ApplyDiffToObject(this->GetObjectAccessor(), GetPropertyObject(), diffResult);
+
+      // Re-apply document
+      m_ObjectMirror.SendDocument();
+
+      this->GetObjectAccessor()->FinishTransaction();
+    }
   }
 
 private:

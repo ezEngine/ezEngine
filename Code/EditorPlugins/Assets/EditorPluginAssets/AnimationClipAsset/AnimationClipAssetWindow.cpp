@@ -187,6 +187,7 @@ void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
 void ezQtAnimationClipAssetDocumentWindow::UpdateEventTrackEditor()
 {
   auto* pDoc = GetAnimationClipDocument();
+
   m_pEventTrackEditor->SetData(pDoc->GetProperties()->m_EventTrack, m_ClipDuration.GetSeconds());
 }
 
@@ -366,7 +367,8 @@ void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges()
 void ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
   if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
-      e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
+      e.m_Type == ezCommandHistoryEvent::Type::RedoEnded ||
+      e.m_Type == ezCommandHistoryEvent::Type::TransactionCanceled)
   {
     UpdateEventTrackEditor();
   }

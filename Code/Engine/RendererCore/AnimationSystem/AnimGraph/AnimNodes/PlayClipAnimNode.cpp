@@ -126,12 +126,27 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
 
   m_State.UpdateState(tDiff);
 
+  void* pThis = this;
+  auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
+
   if (m_Clips.GetCount() > 1 && m_State.HasTransitioned())
   {
+    // guarantee that all animation events from the just finished first clip get evaluated and sent
+    {
+      auto& cmdE = graph.GetPoseGenerator().AllocCommandSampleEventTrack();
+      cmdE.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
+      cmdE.m_fNormalizedSamplePos = m_State.GetFinalSpeed() > 0 ? 1.1f : -0.1f;
+      cmdE.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+      cmdE.m_hAnimationClip = m_Clips[m_uiClipToPlay];
+
+      cmd.m_Inputs.PushBack(cmdE.GetCommandID());
+    }
+
     m_uiClipToPlay = uiNextClip; // don't use m_uiNextClipToPlay here, it can be 0xFF
     m_uiNextClipToPlay = 0xFF;
     m_NextClipDuration.SetZero();
-    fPrevPlaybackPos = 0.0f; // TODO anim event sampling ??
+
+    fPrevPlaybackPos = 0.0f;
   }
 
   if (m_State.GetCurrentState() == ezAnimState::State::StartedRampDown)
@@ -139,8 +154,6 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
     m_OnFadeOutPin.SetTriggered(graph, true);
   }
 
-  void* pThis = this;
-  auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
   cmd.m_hAnimationClip = m_Clips[m_uiClipToPlay];
   cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
   cmd.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;

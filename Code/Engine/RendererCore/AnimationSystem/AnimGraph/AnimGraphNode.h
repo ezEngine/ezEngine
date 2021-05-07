@@ -115,6 +115,7 @@ struct EZ_RENDERERCORE_DLL ezAnimState
   bool HasTransitioned() const { return m_bHasTransitioned; }
   bool HasLoopedStart() const { return m_bHasLoopedStart; }
   bool HasLoopedEnd() const { return m_bHasLoopedEnd; }
+  float GetFinalSpeed() const { return m_fPlaybackSpeed * m_fPlaybackSpeedFactor; }
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);

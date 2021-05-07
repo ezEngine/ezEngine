@@ -88,16 +88,12 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
   }
 }
 
-void ezAnimGraph::GetRootMotion(ezVec3& translation, ezQuat& rotation) const
+void ezAnimGraph::GetRootMotion(ezVec3& translation, ezAngle& rotationX, ezAngle& rotationY, ezAngle& rotationZ) const
 {
-  translation.SetZero();
-  rotation.SetIdentity();
-
-  if (m_pCurrentModelTransforms)
-  {
-    translation = m_pCurrentModelTransforms->m_vRootMotion;
-    rotation = m_pCurrentModelTransforms->m_qRootMotion;
-  }
+  translation = m_vRootMotion;
+  rotationX = m_RootRotationX;
+  rotationY = m_RootRotationY;
+  rotationZ = m_RootRotationZ;
 }
 
 ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
@@ -281,6 +277,14 @@ ezAnimGraphPinDataModelTransforms* ezAnimGraph::AddPinDataModelTransforms()
 void ezAnimGraph::SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform)
 {
   m_pCurrentModelTransforms = pModelTransform;
+}
+
+void ezAnimGraph::SetRootMotion(const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
+{
+  m_vRootMotion = translation;
+  m_RootRotationX = rotationX;
+  m_RootRotationY = rotationY;
+  m_RootRotationZ = rotationZ;
 }
 
 ezSharedPtr<ezAnimGraphSharedBoneWeights> ezAnimGraph::CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill)

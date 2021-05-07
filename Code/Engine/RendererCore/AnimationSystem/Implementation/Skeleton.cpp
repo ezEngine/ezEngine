@@ -59,11 +59,10 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
 
 void ezSkeleton::Save(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(3);
+  stream.WriteVersion(4);
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
   stream << uiNumJoints;
-
 
   for (ezUInt32 i = 0; i < uiNumJoints; ++i)
   {
@@ -71,11 +70,13 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
     stream << m_Joints[i].m_uiParentIndex;
     stream << m_Joints[i].m_BindPoseLocal;
   }
+
+  stream << m_BoneDirection;
 }
 
 void ezSkeleton::Load(ezStreamReader& stream)
 {
-  const ezTypeVersion version = stream.ReadVersion(3);
+  const ezTypeVersion version = stream.ReadVersion(4);
   if (version < 3)
     return;
 
@@ -93,6 +94,11 @@ void ezSkeleton::Load(ezStreamReader& stream)
     stream >> joint.m_sName;
     stream >> joint.m_uiParentIndex;
     stream >> joint.m_BindPoseLocal;
+  }
+
+  if (version >= 4)
+  {
+    stream >> m_BoneDirection;
   }
 }
 

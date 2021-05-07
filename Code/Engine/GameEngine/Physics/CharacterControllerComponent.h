@@ -69,4 +69,10 @@ public:
   ///
   /// If a character height of 0 is passed in, the current height is used.
   virtual bool IsDestinationUnobstructed(const ezVec3& vGlobalFootPos, float fCharacterHeight) = 0; // [ scriptable ]
+
+  /// \brief Checks whether the CC is currently touching the ground.
+  virtual bool IsTouchingGround() = 0; // [ scriptable ]
+
+  /// \brief Checks whether the CC is currently in the crouch state.
+  virtual bool IsCrouching() = 0; // [ scriptable ]
 };

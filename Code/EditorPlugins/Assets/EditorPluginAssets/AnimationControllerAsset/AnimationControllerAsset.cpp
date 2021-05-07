@@ -233,6 +233,11 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
 
   SortNodesByPriority(allNodes);
 
+  if (allNodes.IsEmpty())
+  {
+    return ezStatus("Animation controller graph doesn't have any output nodes.");
+  }
+
   ezAnimGraph animController;
   animController.m_TriggerInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Trigger].m_uiInputCount);
   animController.m_NumberInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Number].m_uiInputCount);

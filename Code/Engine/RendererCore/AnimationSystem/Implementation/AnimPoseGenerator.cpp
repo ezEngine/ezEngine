@@ -88,6 +88,14 @@ ezAnimPoseGeneratorCommandModelPoseToOutput& ezAnimPoseGenerator::AllocCommandMo
   return cmd;
 }
 
+ezAnimPoseGeneratorCommandSampleEventTrack& ezAnimPoseGenerator::AllocCommandSampleEventTrack()
+{
+  auto& cmd = m_CommandsSampleEventTrack.ExpandAndGetRef();
+  cmd.m_Type = ezAnimPoseGeneratorCommandType::SampleEventTrack;
+  cmd.m_CommandID = CreateCommandID(cmd.m_Type, m_CommandsSampleEventTrack.GetCount() - 1);
+
+  return cmd;
+}
 
 ezAnimPoseGenerator::ezAnimPoseGenerator() = default;
 
@@ -107,7 +115,7 @@ void ezAnimPoseGenerator::Validate() const
   for (auto& cmd : m_CommandsSampleTrack)
   {
     EZ_ASSERT_DEV(cmd.m_hAnimationClip.IsValid(), "Invalid animation clips are not allowed.");
-    EZ_ASSERT_DEV(cmd.m_Inputs.IsEmpty(), "Track samplers can't have inputs.");
+    //EZ_ASSERT_DEV(cmd.m_Inputs.IsEmpty(), "Track samplers can't have inputs.");
     EZ_ASSERT_DEV(cmd.m_LocalPoseOutput != ezInvalidIndex, "Output pose not allocated.");
   }
 
@@ -146,6 +154,12 @@ void ezAnimPoseGenerator::Validate() const
       EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose, "Unsupported input type");
     }
   }
+
+  for (auto& cmd : m_CommandsSampleEventTrack)
+  {
+    EZ_ASSERT_DEV(cmd.m_hAnimationClip.IsValid(), "Invalid animation clips are not allowed.");
+    
+  }
 }
 
 const ezAnimPoseGeneratorCommand& ezAnimPoseGenerator::GetCommand(ezAnimPoseGeneratorCommandID id) const
@@ -170,6 +184,9 @@ ezAnimPoseGeneratorCommand& ezAnimPoseGenerator::GetCommand(ezAnimPoseGeneratorC
 
     case ezAnimPoseGeneratorCommandType::ModelPoseToOutput:
       return m_CommandsModelPoseToOutput[GetCommandIndex(id)];
+
+    case ezAnimPoseGeneratorCommandType::SampleEventTrack:
+      return m_CommandsSampleEventTrack[GetCommandIndex(id)];
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
@@ -227,6 +244,10 @@ void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameO
       ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandModelPoseToOutput&>(cmd));
       break;
 
+    case ezAnimPoseGeneratorCommandType::SampleEventTrack:
+      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandSampleEventTrack&>(cmd), pSendAnimationEventsTo);
+      break;
+
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }
@@ -259,57 +280,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd,
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
 
-  const auto& et = pResource->GetDescriptor().m_EventTrack;
-
-  if (cmd.m_EventSampling == ezAnimPoseEventTrackSampleMode::None || et.IsEmpty())
-    return;
-
-  const ezTime duration = pResource->GetDescriptor().GetDuration();
-
-  const ezTime tPrev = cmd.m_fPreviousNormalizedSamplePos * duration;
-  const ezTime tNow = cmd.m_fNormalizedSamplePos * duration;
-  const ezTime tStart = ezTime::Zero();
-  const ezTime tEnd = duration + ezTime::Seconds(1.0); // sampling position is EXCLUSIVE
-
-  ezHybridArray<ezHashedString, 16> events;
-
-  switch (cmd.m_EventSampling)
-  {
-    case ezAnimPoseEventTrackSampleMode::OnlyBetween:
-      et.Sample(tPrev, tNow, events);
-      break;
-
-    case ezAnimPoseEventTrackSampleMode::LoopAtEnd:
-      et.Sample(tPrev, tEnd, events);
-      et.Sample(tStart, tNow, events);
-      break;
-
-    case ezAnimPoseEventTrackSampleMode::LoopAtStart:
-      et.Sample(tPrev, tStart, events);
-      et.Sample(tStart, tNow, events);
-      break;
-
-    case ezAnimPoseEventTrackSampleMode::BounceAtEnd:
-      et.Sample(tPrev, tEnd, events);
-      et.Sample(tEnd, tNow, events);
-      break;
-
-    case ezAnimPoseEventTrackSampleMode::BounceAtStart:
-      et.Sample(tPrev, tStart, events);
-      et.Sample(tStart, tNow, events);
-      break;
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  ezMsgGenericEvent msg;
-
-  for (const auto& hs : events)
-  {
-    msg.m_sMessage = hs;
-
-    pSendAnimationEventsTo->SendEventMessage(msg, nullptr);
-  }
+  SampleEventTrack(pResource.GetPointer(), cmd.m_EventSampling, pSendAnimationEventsTo, cmd.m_fPreviousNormalizedSamplePos, cmd.m_fNormalizedSamplePos);
 }
 
 void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd)
@@ -320,6 +291,11 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
 
   for (ezUInt32 i = 0; i < cmd.m_Inputs.GetCount(); ++i)
   {
+    const auto& cmdIn = GetCommand(cmd.m_Inputs[i]);
+
+    if (cmdIn.GetType() == ezAnimPoseGeneratorCommandType::SampleEventTrack)
+      continue;
+
     ozz::animation::BlendingJob::Layer& layer = bl.ExpandAndGetRef();
     layer.weight = cmd.m_InputWeights[i];
 
@@ -327,8 +303,6 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
     {
       layer.joint_weights = ozz::span(cmd.m_InputBoneWeights[i].GetPtr(), cmd.m_InputBoneWeights[i].GetEndPtr());
     }
-
-    const auto& cmdIn = GetCommand(cmd.m_Inputs[i]);
 
     switch (cmdIn.GetType())
     {
@@ -412,6 +386,68 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+}
+
+void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack& cmd, const ezGameObject* pSendAnimationEventsTo)
+{
+  ezResourceLock<ezAnimationClipResource> pResource(cmd.m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded);
+
+  SampleEventTrack(pResource.GetPointer(), cmd.m_EventSampling, pSendAnimationEventsTo, cmd.m_fPreviousNormalizedSamplePos, cmd.m_fNormalizedSamplePos);
+}
+
+void ezAnimPoseGenerator::SampleEventTrack(const ezAnimationClipResource* pResource, ezAnimPoseEventTrackSampleMode mode, const ezGameObject* pSendAnimationEventsTo, float fPrevPos, float fCurPos)
+{
+  const auto& et = pResource->GetDescriptor().m_EventTrack;
+
+  if (mode == ezAnimPoseEventTrackSampleMode::None || et.IsEmpty())
+    return;
+
+  const ezTime duration = pResource->GetDescriptor().GetDuration();
+
+  const ezTime tPrev = fPrevPos * duration;
+  const ezTime tNow = fCurPos * duration;
+  const ezTime tStart = ezTime::Zero();
+  const ezTime tEnd = duration + ezTime::Seconds(1.0); // sampling position is EXCLUSIVE
+
+  ezHybridArray<ezHashedString, 16> events;
+
+  switch (mode)
+  {
+    case ezAnimPoseEventTrackSampleMode::OnlyBetween:
+      et.Sample(tPrev, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::LoopAtEnd:
+      et.Sample(tPrev, tEnd, events);
+      et.Sample(tStart, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::LoopAtStart:
+      et.Sample(tPrev, tStart, events);
+      et.Sample(tStart, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::BounceAtEnd:
+      et.Sample(tPrev, tEnd, events);
+      et.Sample(tEnd, tNow, events);
+      break;
+
+    case ezAnimPoseEventTrackSampleMode::BounceAtStart:
+      et.Sample(tPrev, tStart, events);
+      et.Sample(tStart, tNow, events);
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  ezMsgGenericEvent msg;
+
+  for (const auto& hs : events)
+  {
+    msg.m_sMessage = hs;
+
+    pSendAnimationEventsTo->SendEventMessage(msg, nullptr);
   }
 }
 

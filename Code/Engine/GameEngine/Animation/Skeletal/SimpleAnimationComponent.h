@@ -54,9 +54,6 @@ public:
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
 
 protected:
-  ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
-  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;        // [ event ]
-
   void Update();
   bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling);
 

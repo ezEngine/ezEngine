@@ -188,7 +188,7 @@ ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
   return EZ_FAILURE;
 }
 
-void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& translation, const ezQuat& rotation)
+void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
 {
   switch (mode)
   {
@@ -198,9 +198,13 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
     case ezRootMotionMode::ApplyToOwner:
     {
       ezVec3 vNewPos = pObject->GetLocalPosition();
-
       vNewPos += pObject->GetLocalRotation() * translation;
       pObject->SetLocalPosition(vNewPos);
+
+      // not tested whether this is actually correct
+      ezQuat rotation;
+      rotation.SetFromEulerAngles(rotationX, rotationY, rotationZ);
+
       pObject->SetLocalRotation(rotation * pObject->GetLocalRotation());
 
       return;
@@ -208,20 +212,17 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
 
     case ezRootMotionMode::SendMoveCharacterMsg:
     {
-      ezMsgMoveCharacterController msg;
-      msg.m_fMoveForwards = ezMath::Max(0.0f, translation.x);
-      msg.m_fMoveBackwards = ezMath::Max(0.0f, -translation.x);
-      msg.m_fStrafeLeft = ezMath::Max(0.0f, -translation.y);
-      msg.m_fStrafeRight = ezMath::Max(0.0f, translation.y);
-      //msg.m_fRotateLeft = ezMath::Max(0.0f, -fRotate);
-      //msg.m_fRotateRight = ezMath::Max(0.0f, fRotate);
+      ezMsgApplyRootMotion msg;
+      msg.m_vTranslation = translation;
+      msg.m_RotationX = rotationX;
+      msg.m_RotationY = rotationY;
+      msg.m_RotationZ = rotationZ;
 
-      while (pObject->GetParent())
+      while (pObject != nullptr)
       {
+        pObject->SendMessage(msg);
         pObject = pObject->GetParent();
       }
-
-      pObject->SendMessage(msg);
 
       return;
     }

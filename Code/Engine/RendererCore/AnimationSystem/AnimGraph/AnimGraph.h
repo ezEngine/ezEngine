@@ -40,7 +40,9 @@ struct ezAnimGraphPinDataModelTransforms
   ezUInt16 m_uiOwnIndex = 0xFFFF;
   ezAnimPoseGeneratorCommandID m_CommandID;
   ezVec3 m_vRootMotion = ezVec3::ZeroVector();
-  ezQuat m_qRootMotion = ezQuat::IdentityQuaternion();
+  ezAngle m_RootRotationX;
+  ezAngle m_RootRotationY;
+  ezAngle m_RootRotationZ;
   bool m_bUseRootMotion = false;
 };
 
@@ -55,7 +57,7 @@ public:
   void Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, ezBlackboard* pBlackboard = nullptr);
 
   void Update(ezTime tDiff, ezGameObject* pTarget);
-  void GetRootMotion(ezVec3& translation, ezQuat& rotation) const;
+  void GetRootMotion(ezVec3& translation, ezAngle& rotationX, ezAngle& rotationY, ezAngle& rotationZ) const;
 
   ezBlackboard* GetBlackboard() { return m_pBlackboard; }
 
@@ -71,6 +73,7 @@ public:
   ezAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
 
   void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
+  void SetRootMotion(const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
 
 private:
   ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
@@ -86,6 +89,11 @@ private:
   ezDynamicArray<ezUInt16> m_ModelPoseInputPinStates;
 
   ezAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
+
+  ezVec3 m_vRootMotion = ezVec3::ZeroVector();
+  ezAngle m_RootRotationX;
+  ezAngle m_RootRotationY;
+  ezAngle m_RootRotationZ;
 
 private:
   friend class ezAnimationControllerAssetDocument;

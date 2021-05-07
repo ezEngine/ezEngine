@@ -193,9 +193,11 @@ void ezAnimState::UpdateState(ezTime tDiff)
 
     if (m_fNormalizedPlaybackPosition > 1.0f && m_DurationOfQueued.IsPositive())
     {
+      m_fNormalizedPlaybackPosition -= 1.0f;
+
       m_bHasTransitioned = true;
 
-      tDiff = (m_fNormalizedPlaybackPosition - 1.0f) * m_Duration;
+      tDiff = m_fNormalizedPlaybackPosition * m_Duration;
 
       m_Duration = m_DurationOfQueued;
       fInvDuration = 1.0f / m_Duration.AsFloatInSeconds();

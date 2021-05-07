@@ -36,6 +36,7 @@ public:
 
   ezAnimationClipResourceHandle m_hCenterClip; // [ property ]
   ezHybridArray<ezAnimClip2D, 8> m_Clips;      // [ property ]
+  ezTime m_InputResponse;                      // [ property ]
 
 private:
   ezAnimGraphTriggerInputPin m_ActivePin;       // [ property ]
@@ -44,7 +45,7 @@ private:
   ezAnimGraphNumberInputPin m_XCoordPin;        // [ property ]
   ezAnimGraphNumberInputPin m_YCoordPin;        // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
-  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;   // [ property ]
 
   struct ClipToPlay
   {
@@ -60,4 +61,7 @@ private:
 
   ezTime m_CenterPlaybackTime;
   ezAnimState m_State; // [ property ]
+
+  float m_fLastValueX = 0.0f;
+  float m_fLastValueY = 0.0f;
 };

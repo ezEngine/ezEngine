@@ -5,6 +5,7 @@
 #include <PhysXPlugin/Components/PxComponent.h>
 
 struct ezMsgCollision;
+struct ezMsgApplyRootMotion;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
@@ -40,10 +41,12 @@ public:
   virtual void MoveCharacter(ezMsgMoveCharacterController& msg) override;
   virtual void TeleportCharacter(const ezVec3& vGlobalFootPos) override;
   virtual bool IsDestinationUnobstructed(const ezVec3& vGlobalFootPos, float fCharacterHeight) override;
-
+  virtual bool IsTouchingGround() override;
+  virtual bool IsCrouching() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezPxCharacterControllerComponent
+  virtual void OnApplyRootMotion(ezMsgApplyRootMotion& msg);
 
 public:
   ezPxCharacterControllerComponent();
@@ -85,7 +88,9 @@ protected:
   ezUInt8 m_InputStateBits = 0;
   ezComponentHandle m_hCharacterShape;
   ezVec3 m_vRelativeMoveDirection = ezVec3::ZeroVector();
+  ezVec3 m_vAbsoluteRootMotion = ezVec3::ZeroVector();
   ezAngle m_RotateZ;
+  bool m_bIsTouchingGround = true;
   bool m_bWantsCrouch = false;
   bool m_bIsCrouching = false;
   bool m_bWantsTeleport = false;

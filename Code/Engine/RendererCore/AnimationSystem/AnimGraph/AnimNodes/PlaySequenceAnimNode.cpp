@@ -215,6 +215,7 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
   m_State.m_bTriggerActive = m_State.m_bImmediateFadeOut ? bActive : true;
 
   ezAnimationClipResourceHandle hCurrentClip;
+  ezAnimPoseGeneratorCommandID inputCmd = 0xFFFFFFFF;
 
   if (m_Phase == Phase::Start)
   {
@@ -237,9 +238,19 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
     if (m_State.HasTransitioned())
     {
+      // guarantee that all animation events from the just finished first clip get evaluated and sent
+      {
+        auto& cmdE = graph.GetPoseGenerator().AllocCommandSampleEventTrack();
+        cmdE.m_hAnimationClip = hStartClip;
+        cmdE.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+        cmdE.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
+        cmdE.m_fNormalizedSamplePos = 1.1f;
+        inputCmd = cmdE.GetCommandID();
+      }
+
       m_Phase = Phase::Middle;
       hCurrentClip = hMiddleClip;
-      fPrevPlaybackPos = 0.0f; // TODO anim event sampling ??
+      fPrevPlaybackPos = 0.0f;
 
       m_uiClipToPlay = uiNextClip; // don't use m_uiNextClipToPlay here, it can be 0xFF
       m_uiNextClipToPlay = 0xFF;
@@ -274,7 +285,17 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
     {
       m_Phase = (bWasLooped && bActive) ? Phase::Middle : Phase::End;
 
-      fPrevPlaybackPos = 0.0f; // TODO anim event sampling ??
+      // guarantee that all animation events from the just finished first clip get evaluated and sent
+      {
+        auto& cmdE = graph.GetPoseGenerator().AllocCommandSampleEventTrack();
+        cmdE.m_hAnimationClip = m_hMiddleClips[m_uiClipToPlay];
+        cmdE.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+        cmdE.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
+        cmdE.m_fNormalizedSamplePos = 1.1f;
+        inputCmd = cmdE.GetCommandID();
+      }
+
+      fPrevPlaybackPos = 0.0f;
       hCurrentClip = hMiddleClip2;
 
       m_uiClipToPlay = uiNextClip; // don't use m_uiNextClipToPlay here, it can be 0xFF
@@ -318,6 +339,11 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
   cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
   cmd.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
   cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween; // if there is a loop or transition, we handle that manually
+
+  if (inputCmd != 0xFFFFFFFF)
+  {
+    cmd.m_Inputs.PushBack(inputCmd);
+  }
 
   switch (m_Phase)
   {

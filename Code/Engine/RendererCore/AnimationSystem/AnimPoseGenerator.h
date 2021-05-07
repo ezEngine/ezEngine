@@ -21,6 +21,7 @@ using ezAnimPoseGeneratorLocalPoseID = ezUInt32;
 using ezAnimPoseGeneratorModelPoseID = ezUInt32;
 using ezAnimPoseGeneratorCommandID = ezUInt32;
 
+/// \brief The type of ezAnimPoseGeneratorCommand
 enum class ezAnimPoseGeneratorCommandType
 {
   Invalid,
@@ -28,6 +29,7 @@ enum class ezAnimPoseGeneratorCommandType
   CombinePoses,
   LocalToModelPose,
   ModelPoseToOutput,
+  SampleEventTrack,
 };
 
 enum class ezAnimPoseEventTrackSampleMode : ezUInt8
@@ -40,6 +42,15 @@ enum class ezAnimPoseEventTrackSampleMode : ezUInt8
   BounceAtStart ///< Sample the event track between PrevSamplePos and Start, then Start and SamplePos
 };
 
+/// \brief Base class for all pose generator commands
+///
+/// All commands have a unique command ID with which they are referenced.
+/// All commands can have zero or N other commands set as *inputs*.
+/// Every type of command only accepts certain types and amount of inputs.
+///
+/// The pose generation graph is built by allocating commands on the graph and then setting up
+/// which command is an input to which other node.
+/// A command can be an input to multiple other commands. It will be evaluated only once.
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommand
 {
   ezHybridArray<ezAnimPoseGeneratorCommandID, 4> m_Inputs;
@@ -55,12 +66,20 @@ private:
   ezAnimPoseGeneratorCommandType m_Type = ezAnimPoseGeneratorCommandType::Invalid;
 };
 
+/// \brief Samples an animation clip at a given time and optionally also its event track.
+///
+/// The command has to be added as an input to one of
+/// * ezAnimPoseGeneratorCommandCombinePoses
+/// * ezAnimPoseGeneratorCommandLocalToModelPose
+///
+/// If the event track shall be sampled as well, event messages are sent to the ezGameObject for which the pose is generated.
+///
+/// This command can optionally have input commands of type ezAnimPoseGeneratorCommandSampleEventTrack.
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandSampleTrack final : public ezAnimPoseGeneratorCommand
 {
   ezAnimationClipResourceHandle m_hAnimationClip;
   float m_fNormalizedSamplePos;
   float m_fPreviousNormalizedSamplePos;
-
 
   ezAnimPoseEventTrackSampleMode m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
 
@@ -71,6 +90,14 @@ private:
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
+/// \brief Combines all the local space poses that are given as input into one local pose.
+///
+/// The input commands must be of type
+/// * ezAnimPoseGeneratorCommandSampleTrack
+/// * ezAnimPoseGeneratorCommandCombinePoses
+///
+/// Every input pose gets both an overall weight, as well as optionally a per-bone weight mask.
+/// If a per-bone mask is used, the respective input pose will only affect those bones.
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandCombinePoses final : public ezAnimPoseGeneratorCommand
 {
   ezHybridArray<float, 4> m_InputWeights;
@@ -82,6 +109,11 @@ private:
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
+/// \brief Accepts a single input in local space and converts it to model space.
+///
+/// The input command must be of type
+/// * ezAnimPoseGeneratorCommandSampleTrack
+/// * ezAnimPoseGeneratorCommandCombinePoses
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandLocalToModelPose final : public ezAnimPoseGeneratorCommand
 {
   ezGameObject* m_pSendLocalPoseMsgTo = nullptr;
@@ -92,8 +124,36 @@ private:
   ezAnimPoseGeneratorModelPoseID m_ModelPoseOutput = ezInvalidIndex;
 };
 
+/// \brief Accepts a single input command that outputs a model space pose and forwards it to the ezGameObject for which the pose is generated.
+///
+/// The input command must be of type
+/// * ezAnimPoseGeneratorCommandLocalToModelPose
+///
+/// Every graph should have exactly one of these nodes. Commands that are not (indirectly) connected to an
+/// output node will not be evaluated and won't have any effect.
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandModelPoseToOutput final : public ezAnimPoseGeneratorCommand
 {
+};
+
+/// \brief Samples the event track of an animation clip but doesn't generate an animation pose.
+///
+/// Commands of this type can be added as inputs to commands of type
+/// * ezAnimPoseGeneratorCommandSampleTrack
+/// * ezAnimPoseGeneratorCommandSampleEventTrack
+///
+/// They are used to sample event tracks only.
+struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandSampleEventTrack final : public ezAnimPoseGeneratorCommand
+{
+  ezAnimationClipResourceHandle m_hAnimationClip;
+  float m_fNormalizedSamplePos;
+  float m_fPreviousNormalizedSamplePos;
+
+  ezAnimPoseEventTrackSampleMode m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+
+private:
+  friend class ezAnimPoseGenerator;
+
+  ezUInt32 m_uiUniqueID = 0;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimPoseGenerator final
@@ -108,6 +168,7 @@ public:
   ezAnimPoseGeneratorCommandCombinePoses& AllocCommandCombinePoses();
   ezAnimPoseGeneratorCommandLocalToModelPose& AllocCommandLocalToModelPose();
   ezAnimPoseGeneratorCommandModelPoseToOutput& AllocCommandModelPoseToOutput();
+  ezAnimPoseGeneratorCommandSampleEventTrack& AllocCommandSampleEventTrack();
 
   const ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id) const;
   ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id);
@@ -122,6 +183,8 @@ private:
   void ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput& cmd);
+  void ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
+  void SampleEventTrack(const ezAnimationClipResource* pResource, ezAnimPoseEventTrackSampleMode mode, const ezGameObject* pSendAnimationEventsTo, float fPrevPos, float fCurPos);
 
   ezArrayPtr<ozz::math::SoaTransform> AcquireLocalPoseTransforms(ezAnimPoseGeneratorLocalPoseID id);
   ezArrayPtr<ezMat4> AcquireModelPoseTransforms(ezAnimPoseGeneratorModelPoseID id);
@@ -140,6 +203,7 @@ private:
   ezHybridArray<ezAnimPoseGeneratorCommandCombinePoses, 1> m_CommandsCombinePoses;
   ezHybridArray<ezAnimPoseGeneratorCommandLocalToModelPose, 1> m_CommandsLocalToModelPose;
   ezHybridArray<ezAnimPoseGeneratorCommandModelPoseToOutput, 1> m_CommandsModelPoseToOutput;
+  ezHybridArray<ezAnimPoseGeneratorCommandSampleEventTrack, 2> m_CommandsSampleEventTrack;
 
   ezArrayMap<ezUInt32, ozz::animation::SamplingCache*> m_SamplingCaches;
 };

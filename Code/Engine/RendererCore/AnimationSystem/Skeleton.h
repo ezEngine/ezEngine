@@ -77,6 +77,9 @@ public:
 
   ezUInt64 GetHeapMemoryUsage() const;
 
+  /// \brief The direction in which the bones shall point for visualization
+  ezEnum<ezBasisAxis> m_BoneDirection;
+
 protected:
   friend ezSkeletonBuilder;
 

@@ -319,8 +319,10 @@ bool ezVariant::operator==(const ezVariant& other) const
   {
     return true;
   }
-  else if (IsFloatingPoint() && other.IsNumber())
+  else if ((IsFloatingPoint() && other.IsNumber()) || (other.IsFloatingPoint() && IsNumber()))
   {
+    // if either of them is a floating point number, compare them as doubles
+
     return ConvertNumber<double>() == other.ConvertNumber<double>();
   }
   else if (IsNumber() && other.IsNumber())

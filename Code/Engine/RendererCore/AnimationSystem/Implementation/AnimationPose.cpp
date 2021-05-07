@@ -16,6 +16,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgQueryAnimationSkeleton);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgQueryAnimationSkeleton, 1, ezRTTIDefaultAllocator<ezMsgQueryAnimationSkeleton>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgApplyRootMotion);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgApplyRootMotion, 1, ezRTTIDefaultAllocator<ezMsgApplyRootMotion>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Translation", m_vTranslation),
+    EZ_MEMBER_PROPERTY("RotationX", m_RotationX),
+    EZ_MEMBER_PROPERTY("RotationY", m_RotationY),
+    EZ_MEMBER_PROPERTY("RotationZ", m_RotationZ),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSkinningSpaceAnimationPose::ezSkinningSpaceAnimationPose() = default;
