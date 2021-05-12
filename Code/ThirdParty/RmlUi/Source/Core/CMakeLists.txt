@@ -4,6 +4,8 @@ ez_build_filter_runtime()
 
 ez_requires_rmlui()
 
+get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+
 set (PROJECT_NAME "RmlCore")
 
 ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
@@ -16,7 +18,13 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_RMLUI_SUPPO
 # Don't use standard c++ rtti since it will be disabled in the project
 target_compile_definitions(${PROJECT_NAME} PUBLIC RMLUI_USE_CUSTOM_RTTI)
 
-get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+# Enable SVG support
+target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_ENABLE_SVG_PLUGIN)
+target_sources(${PROJECT_NAME} PRIVATE
+  ../SVG/ElementSVG.cpp
+  ../SVG/SVGPlugin.cpp
+)
+
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../../Include")
 
 # Freetype
@@ -38,3 +46,6 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${RMLUI_FREETYPE_LIB}/freetype.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
 endif()
+
+#lunasvg
+target_link_libraries(${PROJECT_NAME} PRIVATE lunasvg)
