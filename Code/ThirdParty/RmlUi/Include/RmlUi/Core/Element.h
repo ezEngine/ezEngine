@@ -60,6 +60,7 @@ class PropertiesIteratorView;
 class PropertyDictionary;
 class RenderInterface;
 class StyleSheet;
+class StyleSheetContainer;
 class TransformState;
 struct ElementMeta;
 struct StackingOrderedChild;
@@ -104,11 +105,7 @@ public:
 
 	/// Returns the active style sheet for this element. This may be nullptr.
 	/// @return The element's style sheet.
-	virtual const SharedPtr<StyleSheet>& GetStyleSheet() const;
-
-	/// Returns the element's definition.
-	/// @return The element's definition.
-	const ElementDefinition* GetDefinition();
+	virtual const StyleSheet* GetStyleSheet() const;
 
 	/// Fills a string with the full address of this element.
 	/// @param[in] include_pseudo_classes True if the address is to include the pseudo-classes of the leaf element.
@@ -175,7 +172,7 @@ public:
 	/// Checks if a given point in screen coordinates lies within the bordered area of this element.
 	/// @param[in] point The point to test.
 	/// @return True if the element is within this element, false otherwise.
-	virtual bool IsPointWithinElement(const Vector2f& point);
+	virtual bool IsPointWithinElement(Vector2f point);
 
 	/// Returns the visibility of the element.
 	/// @return True if the element is visible, false otherwise.
@@ -283,12 +280,12 @@ public:
 	/// @return True if the pseudo-class is set on the element, false if not.
 	bool IsPseudoClassSet(const String& pseudo_class) const;
 	/// Checks if a complete set of pseudo-classes are set on the element.
-	/// @param[in] pseudo_classes The set of pseudo-classes to check for.
+	/// @param[in] pseudo_classes The list of pseudo-classes to check for.
 	/// @return True if all of the pseudo-classes are set, false if not.
-	bool ArePseudoClassesSet(const PseudoClassList& pseudo_classes) const;
+	bool ArePseudoClassesSet(const StringList& pseudo_classes) const;
 	/// Gets a list of the current active pseudo-classes.
 	/// @return The list of active pseudo-classes.
-	const PseudoClassList& GetActivePseudoClasses() const;
+	StringList GetActivePseudoClasses() const;
 	//@}
 
 	/** @name Attributes
@@ -419,6 +416,11 @@ public:
 	/// Gets this element's parent node.
 	/// @return This element's parent.
 	Element* GetParentNode() const;
+	/// Recursively search for the first ancestor of this node matching the given selector.
+	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @return The ancestor if found, or nullptr if no ancestor could be matched.
+	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
+	Element* Closest(const String& selectors) const;
 
 	/// Gets the element immediately following this one in the tree.
 	/// @return This element's next sibling element, or nullptr if there is no sibling element.
@@ -586,11 +588,11 @@ public:
 	const ComputedValues& GetComputedValues() const;
 
 protected:
-	void Update(float dp_ratio);
+	void Update(float dp_ratio, Vector2f vp_dimensions);
 	void Render();
 
 	/// Updates definition, computed values, and runs OnPropertyChange on this element.
-	void UpdateProperties();
+	void UpdateProperties(float dp_ratio, Vector2f vp_dimensions);
 
 	/// Forces the element to generate a local stacking context, regardless of the value of its z-index property.
 	void ForceLocalStackingContext();
@@ -603,6 +605,10 @@ protected:
 	virtual void OnResize();
 	/// Called during a layout operation, when the element is being positioned and sized.
 	virtual void OnLayout();
+	/// Called when the 'dp'-ratio has been changed.
+	virtual void OnDpRatioChange();
+	/// Called when the current document's compiled style sheet has been changed. This may result in changed sprites.
+	virtual void OnStyleSheetChange();
 
 	/// Called when attributes on the element are changed.
 	/// @param[in] changed_attributes Dictionary of attributes changed on the element. Attribute value will be empty if it was unset.
@@ -610,6 +616,10 @@ protected:
 	/// Called when properties on the element are changed.
 	/// @param[in] changed_properties The properties changed on the element.
 	virtual void OnPropertyChange(const PropertyIdSet& changed_properties);
+	/// Called when a pseudo class on the element is changed.
+	/// @param[in] pseudo_class The pseudo class changed on the element.
+	/// @param[in] activate True if the pseudo class was activated.
+	virtual void OnPseudoClassChange(const String& pseudo_class, bool activate);
 
 	/// Called when a child node has been added up to two levels below us in the hierarchy.
 	/// @param[in] child The element that has been added. This may be this element.
@@ -628,7 +638,15 @@ protected:
 	/// @param[out] content The content of this element and those under it, in XML form.
 	virtual void GetRML(String& content);
 
+	/// Sets or removes an overriding pseudo-class on the element.
+	/// @param[in] target_element The element to set or remove the pseudo class on.
+	/// @param[in] pseudo_class The pseudo class to activate or deactivate.
+	/// @param[in] activate True if the pseudo-class is to be activated, false to be deactivated.
+	static void OverridePseudoClass(Element* target_element, const String& pseudo_class, bool activate);
+
 	void SetOwnerDocument(ElementDocument* document);
+
+	void OnStyleSheetChangeRecursive();
 
 	void Release() override;
 
@@ -651,6 +669,8 @@ private:
 
 	void DirtyTransformState(bool perspective_dirty, bool transform_dirty);
 	void UpdateTransformState();
+
+	void OnDpRatioChangeRecursive();
 
 	/// Start an animation, replacing any existing animations of the same property name. If start_value is null, the element's current value is used.
 	ElementAnimationList::iterator StartAnimation(PropertyId property_id, const Property * start_value, int num_iterations, bool alternate_direction, float delay, bool initiated_by_animation_property);

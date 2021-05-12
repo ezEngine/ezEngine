@@ -320,7 +320,7 @@ void ElementText::ClearLines()
 }
 
 // Adds a new line into the text element.
-void ElementText::AddLine(const Vector2f& line_position, const String& line)
+void ElementText::AddLine(Vector2f line_position, const String& line)
 {
 	FontFaceHandle font_face_handle = GetFontFaceHandle();
 
@@ -331,7 +331,7 @@ void ElementText::AddLine(const Vector2f& line_position, const String& line)
 		UpdateFontEffects();
 
 	Vector2f baseline_position = line_position + Vector2f(0.0f, (float)GetFontEngineInterface()->GetLineHeight(font_face_handle) - GetFontEngineInterface()->GetBaseline(font_face_handle));
-	lines.push_back(Line(line, baseline_position));
+	lines.emplace_back(line, baseline_position);
 
 	geometry_dirty = true;
 }
@@ -425,8 +425,12 @@ bool ElementText::UpdateFontEffects()
 
 	// Fetch the font-effect for this text element
 	const FontEffectList* font_effects = &empty_font_effects;
-	if (const FontEffects* effects = GetComputedValues().font_effect.get())
-		font_effects = &effects->list;
+	if (GetComputedValues().has_font_effect)
+	{
+		if (const Property* p = GetProperty(PropertyId::FontEffect))
+			if (FontEffectsPtr effects = p->Get<FontEffectsPtr>())
+				font_effects = &effects->list;
+	}
 
 	// Request a font layer configuration to match this set of effects. If this is different from
 	// our old configuration, then return true to indicate we'll need to regenerate geometry.

@@ -126,6 +126,11 @@ class Vector3
 		/// @return A constant pointer to the first value.
 		inline operator Type*();
 
+		/// Underlying type-cast operator.
+		/// @return A copy of the vector with another underlying type.
+		template < typename U >
+		explicit inline operator Vector3<U>() const;
+
 		// Cast to Vector2
 		explicit inline operator Vector2< Type >() const;
 
@@ -134,12 +139,10 @@ class Vector3
 		Type y;
 		Type z;
 
-#ifdef RMLUI_VECTOR3_USER_EXTRA
-	#if defined(__has_include) && __has_include(RMLUI_VECTOR3_USER_EXTRA)
-		#include RMLUI_VECTOR3_USER_EXTRA
-	#else
-		RMLUI_VECTOR3_USER_EXTRA
-	#endif
+#if defined(RMLUI_VECTOR3_USER_EXTRA)
+	RMLUI_VECTOR3_USER_EXTRA
+#elif defined(RMLUI_VECTOR3_USER_INCLUDE)
+	#include RMLUI_VECTOR3_USER_INCLUDE
 #endif
 };
 

@@ -94,11 +94,11 @@ bool ElementLog::Initialise()
 		message_content->AddEventListener(EventId::Resize, this);
 	}
 
-	SharedPtr<StyleSheet> style_sheet = Factory::InstanceStyleSheetString(String(common_rcss) + String(log_rcss));
+	SharedPtr<StyleSheetContainer> style_sheet = Factory::InstanceStyleSheetString(String(common_rcss) + String(log_rcss));
 	if (!style_sheet)
 		return false;
 
-	SetStyleSheet(std::move(style_sheet));
+	SetStyleSheetContainer(std::move(style_sheet));
 
 	AddEventListener(EventId::Click, this);
 
@@ -123,7 +123,7 @@ bool ElementLog::Initialise()
 		return false;
 	}
 
-	beacon->SetStyleSheet(style_sheet);
+	beacon->SetStyleSheetContainer(style_sheet);
 
 	return true;
 }
@@ -172,6 +172,9 @@ void ElementLog::AddLogMessage(Log::Type type, const String& message)
 					beacon_button->SetClassNames(log_types[type].class_name);
 					beacon_button->SetInnerRML(log_types[type].alert_contents);
 				}
+
+				// We need to update the document manually in case the beacon appears during context update.
+				beacon->UpdateDocument();
 			}
 		}
 	}

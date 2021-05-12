@@ -36,6 +36,7 @@
 #include "../../../Include/RmlUi/Core/GeometryUtilities.h"
 #include "../../../Include/RmlUi/Core/Input.h"
 #include "../../../Include/RmlUi/Core/Factory.h"
+#include "../../../Include/RmlUi/Core/Math.h"
 #include "../../../Include/RmlUi/Core/SystemInterface.h"
 #include "../../../Include/RmlUi/Core/StringUtilities.h"
 #include "../Clock.h"
@@ -209,6 +210,9 @@ void WidgetTextInput::UpdateSelectionColours()
 		selection_colour = colour_property->Get< Colourb >();
 	else
 		selection_colour = Colourb(255 - colour.red, 255 - colour.green, 255 - colour.blue, colour.alpha);
+
+	// Color may have changed, so we update the cursor geometry.
+	GenerateCursor();
 }
 
 // Updates the cursor, if necessary.
@@ -276,7 +280,7 @@ ElementText* WidgetTextInput::GetTextElement()
 }
 
 // Returns the input element's maximum allowed text dimensions.
-const Vector2f& WidgetTextInput::GetTextDimensions() const
+Vector2f WidgetTextInput::GetTextDimensions() const
 {
 	return internal_dimensions;
 }
@@ -1056,12 +1060,26 @@ Vector2f WidgetTextInput::FormatText()
 			line_position.x += ElementUtilities::GetStringWidth(text_element, pre_selection);
 		}
 
+		// Return the extra kerning that would result in joining two strings.
+		auto GetKerningBetween = [this](const String& left, const String& right) -> float {
+			if (left.empty() || right.empty())
+				return 0.0f;
+			// We could join the whole string, and compare the result of the joined width to the individual widths of each string. Instead, we just take the
+			// two neighboring characters from each string and compare the string width with and without kerning, which should be much faster.
+			const Character left_back = StringUtilities::ToCharacter(StringUtilities::SeekBackwardUTF8(&left.back(), &left.front()));
+			const String right_front_u8 = right.substr(0, size_t(StringUtilities::SeekForwardUTF8(right.c_str() + 1, right.c_str() + right.size()) - right.c_str()));
+			const int width_kerning = ElementUtilities::GetStringWidth(text_element, right_front_u8, left_back);
+			const int width_no_kerning = ElementUtilities::GetStringWidth(text_element, right_front_u8, Character::Null);
+			return float(width_kerning - width_no_kerning);
+		};
+
 		// If there is any selected text on this line, place it in the selected text element and
 		// generate the geometry for its background.
 		if (!selection.empty())
 		{
+			line_position.x += GetKerningBetween(pre_selection, selection);
 			selected_text_element->AddLine(line_position, selection);
-			int selection_width = ElementUtilities::GetStringWidth(selected_text_element, selection);
+			const int selection_width = ElementUtilities::GetStringWidth(selected_text_element, selection);
 
 			selection_vertices.resize(selection_vertices.size() + 4);
 			selection_indices.resize(selection_indices.size() + 6);
@@ -1073,7 +1091,10 @@ Vector2f WidgetTextInput::FormatText()
 		// If there is any unselected text after the selection on this line, place it in the
 		// standard text element after the selected text.
 		if (!post_selection.empty())
+		{
+			line_position.x += GetKerningBetween(selection, post_selection);
 			text_element->AddLine(line_position, post_selection);
+		}
 
 
 		// Update variables for the next line.
@@ -1120,9 +1141,18 @@ void WidgetTextInput::GenerateCursor()
 	Vector< int >& indices = cursor_geometry.GetIndices();
 	indices.resize(6);
 
-	cursor_size.x = ElementUtilities::GetDensityIndependentPixelRatio(text_element);
+	cursor_size.x = Math::RoundFloat( ElementUtilities::GetDensityIndependentPixelRatio(text_element) );
 	cursor_size.y = text_element->GetLineHeight() + 2.0f;
-	GeometryUtilities::GenerateQuad(&vertices[0], &indices[0], Vector2f(0, 0), cursor_size, parent->GetProperty< Colourb >("color"));
+
+	Colourb color = parent->GetComputedValues().color;
+
+	if (const Property* property = parent->GetProperty(PropertyId::CaretColor))
+	{
+		if (property->unit == Property::COLOUR)
+			color = property->Get<Colourb>();
+	}
+
+	GeometryUtilities::GenerateQuad(&vertices[0], &indices[0], Vector2f(0, 0), cursor_size, color);
 }
 
 void WidgetTextInput::UpdateCursorPosition()

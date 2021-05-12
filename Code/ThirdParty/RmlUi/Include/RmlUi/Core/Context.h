@@ -69,10 +69,10 @@ public:
 
 	/// Changes the dimensions of the context.
 	/// @param[in] dimensions The new dimensions of the context.
-	void SetDimensions(const Vector2i& dimensions);
+	void SetDimensions(Vector2i dimensions);
 	/// Returns the dimensions of the context.
 	/// @return The current dimensions of the context.
-	const Vector2i& GetDimensions() const;
+	Vector2i GetDimensions() const;
 
 	/// Changes the size ratio of 'dp' unit to 'px' unit
 	/// @param[in] dp_ratio The new density-independent pixel ratio of the context.
@@ -114,6 +114,15 @@ public:
 	/// When enabled, changes to the cursor name is transmitted through the system interface.
 	/// @param[in] show True to enable mouse cursor handling, false to disable.
 	void EnableMouseCursor(bool enable);
+
+	/// Activate or deactivate a media theme. Themes can be used in RCSS media queries.
+	/// @param theme_name[in] The name of the theme to (de)activate.
+	/// @param activate True to activate the given theme, false to deactivate.
+	void ActivateTheme(const String& theme_name, bool activate);
+	/// Check if a given media theme has been activated.
+	/// @param theme_name The name of the theme.
+	/// @return True if the theme is activated.
+	bool IsThemeActive(const String& theme_name) const;
 
 	/// Returns the first document in the context with the given id.
 	/// @param[in] id The id of the desired document.
@@ -223,7 +232,7 @@ public:
 	/// Sets the current clipping region for the render traversal
 	/// @param[out] origin The clipping origin
 	/// @param[out] dimensions The clipping dimensions
-	void SetActiveClipRegion(const Vector2i& origin, const Vector2i& dimensions);
+	void SetActiveClipRegion(Vector2i origin, Vector2i dimensions);
 
 	/// Sets the instancer to use for releasing this object.
 	/// @param[in] instancer The context's instancer.
@@ -265,6 +274,8 @@ private:
 	float density_independent_pixel_ratio;
 	String documents_base_tag = "body";
 
+	SmallUnorderedSet<String> active_themes;
+
 	ContextInstancer* instancer;
 
 	using ElementSet = SmallOrderedSet< Element* >;
@@ -281,7 +292,7 @@ private:
 
 	// Root of the element tree.
 	ElementPtr root;
-	// The element that current has input focus.
+	// The element that currently has input focus.
 	Element* focus;
 	// The top-most element being hovered over.
 	Element* hover;
@@ -339,7 +350,7 @@ private:
 	void GenerateClickEvent(Element* element);
 
 	// Updates the current hover elements, sending required events.
-	void UpdateHoverChain(const Dictionary& parameters, const Dictionary& drag_parameters, const Vector2i& old_mouse_position);
+	void UpdateHoverChain(const Dictionary& parameters, const Dictionary& drag_parameters, Vector2i old_mouse_position);
 
 	// Creates the drag clone from the given element. The old drag clone will be released if necessary.
 	void CreateDragClone(Element* element);
@@ -365,7 +376,7 @@ private:
 	static void SendEvents(const ElementSet& old_items, const ElementSet& new_items, EventId id, const Dictionary& parameters);
 
 	friend class Rml::Element;
-	friend RMLUICORE_API Context* CreateContext(const String&, const Vector2i&, RenderInterface*);
+	friend RMLUICORE_API Context* CreateContext(const String&, Vector2i, RenderInterface*);
 };
 
 } // namespace Rml

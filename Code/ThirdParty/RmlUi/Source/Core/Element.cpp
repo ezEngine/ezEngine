@@ -143,7 +143,7 @@ Element::~Element()
 	element_meta_chunk_pool.DestroyAndDeallocate(meta);
 }
 
-void Element::Update(float dp_ratio)
+void Element::Update(float dp_ratio, Vector2f vp_dimensions)
 {
 #ifdef RMLUI_ENABLE_PROFILING
 	auto name = GetAddress(false, false);
@@ -161,42 +161,33 @@ void Element::Update(float dp_ratio)
 
 	meta->scroll.Update();
 
-	UpdateProperties();
+	UpdateProperties(dp_ratio, vp_dimensions);
 
 	// Do en extra pass over the animations and properties if the 'animation' property was just changed.
 	if (dirty_animation)
 	{
 		HandleAnimationProperty();
 		AdvanceAnimations();
-		UpdateProperties();
+		UpdateProperties(dp_ratio, vp_dimensions);
 	}
 
+	meta->decoration.InstanceDecorators();
+
 	for (size_t i = 0; i < children.size(); i++)
-		children[i]->Update(dp_ratio);
+		children[i]->Update(dp_ratio, vp_dimensions);
 }
 
-
-void Element::UpdateProperties()
+void Element::UpdateProperties(const float dp_ratio, const Vector2f vp_dimensions)
 {
 	meta->style.UpdateDefinition();
 
 	if (meta->style.AnyPropertiesDirty())
 	{
-		const ComputedValues* parent_values = nullptr;
-		if (parent)
-			parent_values = &parent->GetComputedValues();
-
-		const ComputedValues* document_values = nullptr;
-		float dp_ratio = 1.0f;
-		if (auto doc = GetOwnerDocument())
-		{
-			document_values = &doc->GetComputedValues();
-			if (Context * context = doc->GetContext())
-				dp_ratio = context->GetDensityIndependentPixelRatio();
-		}
+		const ComputedValues* parent_values = parent ? &parent->GetComputedValues() : nullptr;
+		const ComputedValues* document_values = owner_document ? &owner_document->GetComputedValues() : nullptr;
 
 		// Compute values and clear dirty properties
-		PropertyIdSet dirty_properties = meta->style.ComputeValues(meta->computed_values, parent_values, document_values, computed_values_are_default_initialized, dp_ratio);
+		PropertyIdSet dirty_properties = meta->style.ComputeValues(meta->computed_values, parent_values, document_values, computed_values_are_default_initialized, dp_ratio, vp_dimensions);
 
 		computed_values_are_default_initialized = false;
 
@@ -268,6 +259,9 @@ ElementPtr Element::Clone() const
 
 	if (clone != nullptr)
 	{
+		// Set the attributes manually in case the instancer does not set them.
+		clone->SetAttributes(attributes);
+
 		String inner_rml;
 		GetInnerRML(inner_rml);
 
@@ -302,18 +296,11 @@ String Element::GetClassNames() const
 }
 
 // Returns the active style sheet for this element. This may be nullptr.
-const SharedPtr<StyleSheet>& Element::GetStyleSheet() const
+const StyleSheet* Element::GetStyleSheet() const
 {
 	if (ElementDocument * document = GetOwnerDocument())
 		return document->GetStyleSheet();
-	static SharedPtr<StyleSheet> null_style_sheet;
-	return null_style_sheet;
-}
-
-// Returns the element's definition.
-const ElementDefinition* Element::GetDefinition()
-{
-	return meta->style.GetDefinition();
+	return nullptr;
 }
 
 // Fills an String with the full address of this element.
@@ -339,11 +326,11 @@ String Element::GetAddress(bool include_pseudo_classes, bool include_parents) co
 
 	if (include_pseudo_classes)
 	{
-		const PseudoClassList& pseudo_classes = meta->style.GetActivePseudoClasses();		
-		for (PseudoClassList::const_iterator i = pseudo_classes.begin(); i != pseudo_classes.end(); ++i)
+		const PseudoClassMap& pseudo_classes = meta->style.GetActivePseudoClasses();
+		for (auto& pseudo_class : pseudo_classes)
 		{
 			address += ":";
-			address += (*i);
+			address += pseudo_class.first;
 		}
 	}
 
@@ -468,7 +455,7 @@ void Element::SetBox(const Box& box)
 
 		meta->background_border.DirtyBackground();
 		meta->background_border.DirtyBorder();
-		meta->decoration.DirtyDecorators();
+		meta->decoration.DirtyDecoratorsData();
 	}
 }
 
@@ -481,7 +468,7 @@ void Element::AddBox(const Box& box, Vector2f offset)
 
 	meta->background_border.DirtyBackground();
 	meta->background_border.DirtyBorder();
-	meta->decoration.DirtyDecorators();
+	meta->decoration.DirtyDecoratorsData();
 }
 
 // Returns one of the boxes describing the size of the element.
@@ -528,9 +515,9 @@ bool Element::GetIntrinsicDimensions(Vector2f& RMLUI_UNUSED_PARAMETER(dimensions
 }
 
 // Checks if a given point in screen coordinates lies within the bordered area of this element.
-bool Element::IsPointWithinElement(const Vector2f& point)
+bool Element::IsPointWithinElement(const Vector2f point)
 {
-	Vector2f position = GetAbsoluteOffset(Box::BORDER);
+	const Vector2f position = GetAbsoluteOffset(Box::BORDER);
 
 	for (int i = 0; i < GetNumBoxes(); ++i)
 	{
@@ -757,7 +744,8 @@ PropertiesIteratorView Element::IterateLocalProperties() const
 // Sets or removes a pseudo-class on the element.
 void Element::SetPseudoClass(const String& pseudo_class, bool activate)
 {
-	meta->style.SetPseudoClass(pseudo_class, activate);
+	if (meta->style.SetPseudoClass(pseudo_class, activate, false))
+		OnPseudoClassChange(pseudo_class, activate);
 }
 
 // Checks if a specific pseudo-class has been set on the element.
@@ -767,11 +755,11 @@ bool Element::IsPseudoClassSet(const String& pseudo_class) const
 }
 
 // Checks if a complete set of pseudo-classes are set on the element.
-bool Element::ArePseudoClassesSet(const PseudoClassList& pseudo_classes) const
+bool Element::ArePseudoClassesSet(const StringList& pseudo_classes) const
 {
-	for (PseudoClassList::const_iterator i = pseudo_classes.begin(); i != pseudo_classes.end(); ++i)
+	for (const String& pseudo_class : pseudo_classes)
 	{
-		if (!IsPseudoClassSet(*i))
+		if (!IsPseudoClassSet(pseudo_class))
 			return false;
 	}
 
@@ -779,9 +767,23 @@ bool Element::ArePseudoClassesSet(const PseudoClassList& pseudo_classes) const
 }
 
 // Gets a list of the current active pseudo classes
-const PseudoClassList& Element::GetActivePseudoClasses() const
+StringList Element::GetActivePseudoClasses() const
 {
-	return meta->style.GetActivePseudoClasses();
+	const PseudoClassMap& pseudo_classes = meta->style.GetActivePseudoClasses();
+	StringList names;
+	names.reserve(pseudo_classes.size());
+	for (auto& pseudo_class : pseudo_classes)
+	{
+		names.push_back(pseudo_class.first);
+	}
+
+	return names;
+}
+
+void Element::OverridePseudoClass(Element* element, const String& pseudo_class, bool activate)
+{
+	RMLUI_ASSERT(element);
+	element->GetStyle()->SetPseudoClass(pseudo_class, activate, true);
 }
 
 /// Get the named attribute
@@ -1017,6 +1019,36 @@ Element* Element::GetParentNode() const
 	return parent;
 }
 
+// Recursively search for a ancestor of this node matching the given selector.
+Element* Element::Closest(const String& selectors) const
+{
+	StyleSheetNode root_node;
+	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(root_node, selectors);
+
+	if (leaf_nodes.empty())
+	{
+		Log::Message(Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
+		return nullptr;
+	}
+
+	Element* parent = GetParentNode();
+
+	while(parent)
+	{
+		for (const StyleSheetNode* node : leaf_nodes)
+		{
+			if (node->IsApplicable(parent, false))
+			{
+				return parent;
+			}
+		}
+		
+		parent = parent->GetParentNode();
+	}
+
+	return nullptr;
+}
+
 // Gets the element immediately following this one in the tree.
 Element* Element::GetNextSibling() const
 {
@@ -1225,26 +1257,30 @@ void Element::ScrollIntoView(bool align_with_top)
 	Element* scroll_parent = parent;
 	while (scroll_parent != nullptr)
 	{
-		Style::Overflow overflow_x_property = scroll_parent->GetComputedValues().overflow_x;
-		Style::Overflow overflow_y_property = scroll_parent->GetComputedValues().overflow_y;
+		using Style::Overflow;
+		const ComputedValues& computed = scroll_parent->GetComputedValues();
+		const bool scrollable_box_x = (computed.overflow_x != Overflow::Visible && computed.overflow_x != Overflow::Hidden);
+		const bool scrollable_box_y = (computed.overflow_y != Overflow::Visible && computed.overflow_y != Overflow::Hidden);
 
-		if ((overflow_x_property != Style::Overflow::Visible &&
-			 scroll_parent->GetScrollWidth() > scroll_parent->GetClientWidth()) ||
-			(overflow_y_property != Style::Overflow::Visible &&
-			 scroll_parent->GetScrollHeight() > scroll_parent->GetClientHeight()))
+		const Vector2f parent_scroll_size = { scroll_parent->GetScrollWidth(), scroll_parent->GetScrollHeight() };
+		const Vector2f parent_client_size = { scroll_parent->GetClientWidth(), scroll_parent->GetClientHeight() };
+
+		if ((scrollable_box_x && parent_scroll_size.x > parent_client_size.x) ||
+			(scrollable_box_y && parent_scroll_size.y > parent_client_size.y))
 		{
-			Vector2f offset = scroll_parent->GetAbsoluteOffset(Box::BORDER) - GetAbsoluteOffset(Box::BORDER);
+			const Vector2f relative_offset = scroll_parent->GetAbsoluteOffset(Box::BORDER) - GetAbsoluteOffset(Box::BORDER);
+
 			Vector2f scroll_offset(scroll_parent->GetScrollLeft(), scroll_parent->GetScrollTop());
-			scroll_offset -= offset;
+			scroll_offset -= relative_offset;
 			scroll_offset.x += scroll_parent->GetClientLeft();
 			scroll_offset.y += scroll_parent->GetClientTop();
 
 			if (!align_with_top)
-				scroll_offset.y -= (scroll_parent->GetClientHeight() - size.y);
+				scroll_offset.y -= (parent_client_size.y - size.y);
 
-			if (overflow_x_property != Style::Overflow::Visible)
+			if (scrollable_box_x)
 				scroll_parent->SetScrollLeft(scroll_offset.x);
-			if (overflow_y_property != Style::Overflow::Visible)
+			if (scrollable_box_y)
 				scroll_parent->SetScrollTop(scroll_offset.y);
 		}
 
@@ -1457,7 +1493,9 @@ void Element::GetElementsByClassName(ElementList& elements, const String& class_
 
 static Element* QuerySelectorMatchRecursive(const StyleSheetNodeListRaw& nodes, Element* element)
 {
-	for (int i = 0; i < element->GetNumChildren(); i++)
+	const int num_children = element->GetNumChildren();
+
+	for (int i = 0; i < num_children; i++)
 	{
 		Element* child = element->GetChild(i);
 
@@ -1477,7 +1515,9 @@ static Element* QuerySelectorMatchRecursive(const StyleSheetNodeListRaw& nodes, 
 
 static void QuerySelectorAllMatchRecursive(ElementList& matching_elements, const StyleSheetNodeListRaw& nodes, Element* element)
 {
-	for (int i = 0; i < element->GetNumChildren(); i++)
+	const int num_children = element->GetNumChildren();
+
+	for (int i = 0; i < num_children; i++)
 	{
 		Element* child = element->GetChild(i);
 
@@ -1605,6 +1645,14 @@ void Element::OnResize()
 
 // Called during a layout operation, when the element is being positioned and sized.
 void Element::OnLayout()
+{
+}
+
+void Element::OnDpRatioChange()
+{
+}
+
+void Element::OnStyleSheetChange()
 {
 }
 
@@ -1786,12 +1834,17 @@ void Element::OnPropertyChange(const PropertyIdSet& changed_properties)
 	}
 	
 	// Dirty the decoration if it's changed.
+	if (changed_properties.Contains(PropertyId::Decorator))
+	{
+		meta->decoration.DirtyDecorators();
+	}
+
+	// Dirty the decoration data when its visual looks may have changed.
 	if (border_radius_changed ||
-		changed_properties.Contains(PropertyId::Decorator) ||
 		changed_properties.Contains(PropertyId::Opacity) ||
 		changed_properties.Contains(PropertyId::ImageColor))
 	{
-		meta->decoration.DirtyDecorators();
+		meta->decoration.DirtyDecoratorsData();
 	}
 
 	// Check for `perspective' and `perspective-origin' changes
@@ -1823,6 +1876,10 @@ void Element::OnPropertyChange(const PropertyIdSet& changed_properties)
 	}
 }
 
+void Element::OnPseudoClassChange(const String& /*pseudo_class*/, bool /*activate*/)
+{
+}
+
 // Called when a child node has been added somewhere in the hierarchy
 void Element::OnChildAdd(Element* /*child*/)
 {
@@ -1852,9 +1909,13 @@ bool Element::IsLayoutDirty()
 
 void Element::ProcessDefaultAction(Event& event)
 {
-	if (event == EventId::Mousedown && IsPointWithinElement(Vector2f(event.GetParameter< float >("mouse_x", 0), event.GetParameter< float >("mouse_y", 0))) &&
-		event.GetParameter< int >("button", 0) == 0)
-		SetPseudoClass("active", true);
+	if (event == EventId::Mousedown)
+	{
+		const Vector2f mouse_pos(event.GetParameter("mouse_x", 0.f), event.GetParameter("mouse_y", 0.f));
+
+		if (IsPointWithinElement(mouse_pos) && event.GetParameter("button", 0) == 0)
+			SetPseudoClass("active", true);
+	}
 
 	if (event == EventId::Mousescroll)
 	{
@@ -2483,10 +2544,10 @@ void Element::HandleAnimationProperty()
 
 		const AnimationList& animation_list = meta->computed_values.animation;
 		bool element_has_animations = (!animation_list.empty() || !animations.empty());
-		StyleSheet* stylesheet = nullptr;
+		const StyleSheet* stylesheet = nullptr;
 
 		if (element_has_animations)
-			stylesheet = GetStyleSheet().get();
+			stylesheet = GetStyleSheet();
 
 		if (stylesheet)
 		{
@@ -2743,6 +2804,31 @@ void Element::UpdateTransformState()
 	{
 		transform_state.reset();
 	}
+}
+
+void Element::OnStyleSheetChangeRecursive()
+{
+	GetElementDecoration()->DirtyDecorators();
+
+	OnStyleSheetChange();
+
+	// Now dirty all of our descendants.
+	const int num_children = GetNumChildren(true);
+	for (int i = 0; i < num_children; ++i)
+		GetChild(i)->OnStyleSheetChangeRecursive();
+}
+
+void Element::OnDpRatioChangeRecursive()
+{
+	GetElementDecoration()->DirtyDecorators();
+	GetStyle()->DirtyPropertiesWithUnits(Property::DP);
+
+	OnDpRatioChange();
+
+	// Now dirty all of our descendants.
+	const int num_children = GetNumChildren(true);
+	for (int i = 0; i < num_children; ++i)
+		GetChild(i)->OnDpRatioChangeRecursive();
 }
 
 } // namespace Rml

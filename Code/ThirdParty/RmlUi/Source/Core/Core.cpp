@@ -51,6 +51,14 @@
 #include "FontEngineDefault/FontEngineInterfaceDefault.h"
 #endif
 
+#ifdef RMLUI_ENABLE_LOTTIE_PLUGIN
+#include "../Lottie/LottiePlugin.h"
+#endif
+
+#ifdef RMLUI_ENABLE_SVG_PLUGIN
+#include "../SVG/SVGPlugin.h"
+#endif
+
 
 namespace Rml {
 
@@ -123,6 +131,14 @@ bool Initialise()
 	TemplateCache::Initialise();
 
 	Factory::Initialise();
+
+	// Initialise plugins integrated with Core.
+#ifdef RMLUI_ENABLE_LOTTIE_PLUGIN
+	Lottie::Initialise();
+#endif
+#ifdef RMLUI_ENABLE_SVG_PLUGIN
+	SVG::Initialise();
+#endif
 
 	// Notify all plugins we're starting up.
 	PluginRegistry::NotifyInitialise();
@@ -219,7 +235,7 @@ FontEngineInterface* GetFontEngineInterface()
 }
 
 // Creates a new element context.
-Context* CreateContext(const String& name, const Vector2i& dimensions, RenderInterface* custom_render_interface)
+Context* CreateContext(const String& name, const Vector2i dimensions, RenderInterface* custom_render_interface)
 {
 	if (!initialised)
 		return nullptr;

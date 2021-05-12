@@ -76,9 +76,7 @@ public:
 	/// Recursively set structural volatility.
 	bool SetStructurallyVolatileRecursive(bool ancestor_is_structurally_volatile);
 	/// Builds up a style sheet's index recursively.
-	void BuildIndex(StyleSheet::NodeIndex& styled_node_index);
-	/// Optimizes some properties recursively for faster retrieval. In particular, decorators and font effects.
-	void OptimizeProperties(const StyleSheet& style_sheet);
+	void BuildIndex(StyleSheet::NodeIndex& styled_node_index) const;
 
 	/// Imports properties from a single rule definition into the node's properties and sets the
 	/// appropriate specificity on them. Any existing attributes sharing a key with a new attribute

@@ -65,6 +65,8 @@ public:
 
 	/// Update the colours of the selected text.
 	void UpdateSelectionColours();
+	/// Generates the text cursor.
+	void GenerateCursor();
 
 	/// Updates the cursor, if necessary.
 	void OnUpdate();
@@ -78,7 +80,7 @@ public:
 	/// Returns the input element's underlying text element.
 	ElementText* GetTextElement();
 	/// Returns the input element's maximum allowed text dimensions.
-	const Vector2f& GetTextDimensions() const;
+	Vector2f GetTextDimensions() const;
 
 protected:
 	enum class CursorMovement { Begin = -4, BeginLine = -3, PreviousWord = -2, Left = -1, Right = 1, NextWord = 2, EndLine = 3, End = 4 };
@@ -154,8 +156,6 @@ private:
 	/// @return The content area of the element.
 	Vector2f FormatText();
 
-	/// Generates the text cursor.
-	void GenerateCursor();
 	/// Updates the position to render the cursor.
 	void UpdateCursorPosition();
 

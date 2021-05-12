@@ -233,6 +233,18 @@ void Variant::Set(const int64_t value)
 	SET_VARIANT(int64_t);
 }
 
+void Variant::Set(const unsigned int value)
+{
+	type = UINT;
+	SET_VARIANT(unsigned int);
+}
+
+void Variant::Set(const uint64_t value)
+{
+	type = UINT64;
+	SET_VARIANT(uint64_t);
+}
+
 void Variant::Set(const char* value) 
 {
 	Set(String(value));
@@ -244,31 +256,31 @@ void Variant::Set(void* voidptr)
 	memcpy(data, &voidptr, sizeof(void*));
 }
 
-void Variant::Set(const Vector2f& value)
+void Variant::Set(const Vector2f value)
 {
 	type = VECTOR2;
 	SET_VARIANT(Vector2f);
 }
 
-void Variant::Set(const Vector3f& value)
+void Variant::Set(const Vector3f value)
 {
 	type = VECTOR3;
 	SET_VARIANT(Vector3f);
 }
 
-void Variant::Set(const Vector4f& value)
+void Variant::Set(const Vector4f value)
 {
 	type = VECTOR4;
 	SET_VARIANT(Vector4f);
 }
 
-void Variant::Set(const Colourf& value)
+void Variant::Set(const Colourf value)
 {
 	type = COLOURF;
 	SET_VARIANT(Colourf);
 }
 
-void Variant::Set(const Colourb& value)
+void Variant::Set(const Colourb value)
 {
 	type = COLOURB;
 	SET_VARIANT(Colourb);
@@ -470,6 +482,10 @@ bool Variant::operator==(const Variant & other) const
 		return DEFAULT_VARIANT_COMPARE(int);
 	case INT64:
 		return DEFAULT_VARIANT_COMPARE(int64_t);
+	case UINT:
+		return DEFAULT_VARIANT_COMPARE(unsigned int);
+	case UINT64:
+		return DEFAULT_VARIANT_COMPARE(uint64_t);
 	case STRING:
 		return DEFAULT_VARIANT_COMPARE(String);
 	case VECTOR2:

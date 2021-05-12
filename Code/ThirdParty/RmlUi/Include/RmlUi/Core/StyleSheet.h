@@ -32,6 +32,7 @@
 #include "Traits.h"
 #include "PropertyDictionary.h"
 #include "Spritesheet.h"
+#include "StyleSheetTypes.h"
 
 namespace Rml {
 
@@ -42,26 +43,11 @@ class Decorator;
 class FontEffect;
 class SpritesheetList;
 class Stream;
+class StyleSheetContainer;
+class StyleSheetParser;
+struct PropertySource;
 struct Sprite;
 struct Spritesheet;
-
-struct KeyframeBlock {
-	KeyframeBlock(float normalized_time) : normalized_time(normalized_time) {}
-	float normalized_time;  // [0, 1]
-	PropertyDictionary properties;
-};
-struct Keyframes {
-	Vector<PropertyId> property_ids;
-	Vector<KeyframeBlock> blocks;
-};
-using KeyframesMap = UnorderedMap<String, Keyframes>;
-
-struct DecoratorSpecification {
-	String decorator_type;
-	PropertyDictionary properties;
-	SharedPtr<Decorator> decorator;
-};
-using DecoratorSpecificationMap = UnorderedMap<String, DecoratorSpecification>;
 
 /**
 	StyleSheet maintains a single stylesheet definition. A stylesheet can be combined with another stylesheet to create
@@ -70,49 +56,42 @@ using DecoratorSpecificationMap = UnorderedMap<String, DecoratorSpecification>;
 	@author Lloyd Weehuizen
  */
 
-class RMLUICORE_API StyleSheet : public NonCopyMoveable
+class RMLUICORE_API StyleSheet final : public NonCopyMoveable
 {
 public:
-	typedef Vector< StyleSheetNode* > NodeList;
-	typedef UnorderedMap< size_t, NodeList > NodeIndex;
+	~StyleSheet();
 
-	StyleSheet();
-	virtual ~StyleSheet();
-
-	/// Loads a style from a CSS definition.
-	bool LoadStyleSheet(Stream* stream, int begin_line_number = 1);
+	using NodeList = Vector< const StyleSheetNode* >;
+	using NodeIndex = UnorderedMap< size_t, NodeList >;
 
 	/// Combines this style sheet with another one, producing a new sheet.
-	SharedPtr<StyleSheet> CombineStyleSheet(const StyleSheet& sheet) const;
+	UniquePtr<StyleSheet> CombineStyleSheet(const StyleSheet& sheet) const;
+	/// Merges another style sheet into this.
+	void MergeStyleSheet(const StyleSheet& sheet);
+
 	/// Builds the node index for a combined style sheet.
 	void BuildNodeIndex();
-	/// Optimizes some properties for faster retrieval.
-	/// Specifically, converts all decorator and font-effect properties from strings to instanced decorator and font effect lists.
-	void OptimizeNodeProperties();
 
 	/// Returns the Keyframes of the given name, or null if it does not exist.
-	Keyframes* GetKeyframes(const String& name);
-
-	/// Returns the Decorator of the given name, or null if it does not exist.
-	SharedPtr<Decorator> GetDecorator(const String& name) const;
-
-	/// Parses the decorator property from a string and returns a list of instanced decorators.
-	DecoratorsPtr InstanceDecoratorsFromString(const String& decorator_string_value, const SharedPtr<const PropertySource>& source) const;
-
-	/// Parses the font-effect property from a string and returns a list of instanced font-effects.
-	FontEffectsPtr InstanceFontEffectsFromString(const String& font_effect_string_value, const SharedPtr<const PropertySource>& source) const;
+	/// @lifetime The returned pointer becomes invalidated whenever the style sheet is re-generated. Do not store this pointer or references to subobjects around.
+	const Keyframes* GetKeyframes(const String& name) const;
 
 	/// Get sprite located in any spritesheet within this stylesheet.
+	/// @lifetime The returned pointer becomes invalidated whenever the style sheet is re-generated. Do not store this pointer or references to subobjects around.
 	const Sprite* GetSprite(const String& name) const;
 
-	/// Returns the compiled element definition for a given element hierarchy. A reference count will be added for the
-	/// caller, so another should not be added. The definition should be released by removing the reference count.
+	/// Returns the compiled element definition for a given element and its hierarchy.
 	SharedPtr<ElementDefinition> GetElementDefinition(const Element* element) const;
 
 	/// Retrieve the hash key used to look-up applicable nodes in the node index.
 	static size_t NodeHash(const String& tag, const String& id);
 
+	/// Returns a list of instanced decorators from the declarations. The instances are cached for faster future retrieval.
+	const Vector<SharedPtr<const Decorator>>& InstanceDecorators(const DecoratorDeclarationList& declaration_list, const PropertySource* decorator_source) const;
+
 private:
+	StyleSheet();
+
 	// Root level node, attributes from special nodes like "body" get added to this node
 	UniquePtr<StyleSheetNode> root;
 
@@ -135,9 +114,16 @@ private:
 	// Map of all styled nodes, that is, they have one or more properties.
 	NodeIndex styled_node_index;
 
-	using ElementDefinitionCache = UnorderedMap< size_t, SharedPtr<ElementDefinition> >;
 	// Index of node sets to element definitions.
+	using ElementDefinitionCache = UnorderedMap< size_t, SharedPtr<ElementDefinition> >;
 	mutable ElementDefinitionCache node_cache;
+
+	// Cached decorator instances.
+	using DecoratorCache = UnorderedMap< String, Vector<SharedPtr<const Decorator>> >;
+	mutable DecoratorCache decorator_cache;
+
+	friend Rml::StyleSheetParser;
+	friend Rml::StyleSheetContainer;
 };
 
 } // namespace Rml
