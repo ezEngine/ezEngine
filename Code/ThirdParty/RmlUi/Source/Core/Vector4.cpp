@@ -40,14 +40,4 @@ Vector4f operator*(float lhs, const Vector4f& rhs)
 	return Vector4f(lhs * rhs.x, lhs * rhs.y, lhs * rhs.z, lhs * rhs.w);
 }
 
-template <>
-Vector4< float > Vector4< float >::Normalise() const
-{
-	float magnitude = Magnitude();
-	if (Math::IsZero(magnitude))
-		return *this;
-
-	return *this / magnitude;
-}
-
 } // namespace Rml

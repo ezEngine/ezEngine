@@ -33,6 +33,7 @@
 #include "../../Include/RmlUi/Core/Profiling.h"
 #include "../../Include/RmlUi/Core/StreamMemory.h"
 #include "../../Include/RmlUi/Core/StyleSheet.h"
+#include "../../Include/RmlUi/Core/StyleSheetContainer.h"
 #include "DocumentHeader.h"
 #include "ElementStyle.h"
 #include "EventDispatcher.h"
@@ -47,7 +48,6 @@ namespace Rml {
 
 ElementDocument::ElementDocument(const String& tag) : Element(tag)
 {
-	style_sheet = nullptr;
 	context = nullptr;
 
 	modal = false;
@@ -95,24 +95,21 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 
 	// If a style-sheet (or sheets) has been specified for this element, then we load them and set the combined sheet
 	// on the element; all of its children will inherit it by default.
-	SharedPtr<StyleSheet> new_style_sheet;
+	SharedPtr<StyleSheetContainer> new_style_sheet;
 
 	// Combine any inline sheets.
 	for (const DocumentHeader::Resource& rcss : header.rcss)
 	{
 		if (rcss.is_inline)
 		{
-			UniquePtr<StyleSheet> inline_sheet = MakeUnique<StyleSheet>();
+			auto inline_sheet = MakeShared<StyleSheetContainer>();
 			auto stream = MakeUnique<StreamMemory>((const byte*)rcss.content.c_str(), rcss.content.size());
 			stream->SetSourceURL(rcss.path);
 
-			if (inline_sheet->LoadStyleSheet(stream.get(), rcss.line))
+			if (inline_sheet->LoadStyleSheetContainer(stream.get(), rcss.line))
 			{
 				if (new_style_sheet)
-				{
-					SharedPtr<StyleSheet> combined_sheet = new_style_sheet->CombineStyleSheet(*inline_sheet);
-					new_style_sheet = combined_sheet;
-				}
+					new_style_sheet->MergeStyleSheetContainer(*inline_sheet);
 				else
 					new_style_sheet = std::move(inline_sheet);
 			}
@@ -121,27 +118,22 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 		}
 		else
 		{
-			SharedPtr<StyleSheet> sub_sheet = StyleSheetFactory::GetStyleSheet(rcss.path);
+			const StyleSheetContainer* sub_sheet = StyleSheetFactory::GetStyleSheetContainer(rcss.path);
 			if (sub_sheet)
 			{
 				if (new_style_sheet)
-				{
-					SharedPtr<StyleSheet> combined_sheet = new_style_sheet->CombineStyleSheet(*sub_sheet);
-					new_style_sheet = std::move(combined_sheet);
-				}
+					new_style_sheet->MergeStyleSheetContainer(*sub_sheet);
 				else
-					new_style_sheet = sub_sheet;
+					new_style_sheet = sub_sheet->CombineStyleSheetContainer(StyleSheetContainer());
 			}
 			else
 				Log::Message(Log::LT_ERROR, "Failed to load style sheet %s.", rcss.path.c_str());
 		}
 	}
 
-	// If a style sheet is available, set it on the document and release it.
+	// If a style sheet is available, set it on the document.
 	if (new_style_sheet)
-	{
-		SetStyleSheet(std::move(new_style_sheet));
-	}
+		SetStyleSheetContainer(std::move(new_style_sheet));
 
 	// Load scripts.
 	for (const DocumentHeader::Resource& script : header.scripts)
@@ -159,8 +151,11 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 	// Hide this document.
 	SetProperty(PropertyId::Visibility, Property(Style::Visibility::Hidden));
 
+	const float dp_ratio = (context ? context->GetDensityIndependentPixelRatio() : 1.0f);
+	const Vector2f vp_dimensions = (context ? Vector2f(context->GetDimensions()) : Vector2f(1.0f));
+
 	// Update properties so that e.g. visibility status can be queried properly immediately.
-	UpdateProperties();
+	UpdateProperties(dp_ratio, vp_dimensions);
 }
 
 // Returns the document's context.
@@ -185,29 +180,31 @@ const String& ElementDocument::GetSourceURL() const
 	return source_url;
 }
 
+// Returns the document's style sheet.
+const StyleSheet* ElementDocument::GetStyleSheet() const
+{
+	if (style_sheet_container)
+		return style_sheet_container->GetCompiledStyleSheet();
+	return nullptr;
+}
+
+// Returns the document's style sheet container.
+const StyleSheetContainer* ElementDocument::GetStyleSheetContainer() const
+{
+	return style_sheet_container.get();
+}
+
 // Sets the style sheet this document, and all of its children, uses.
-void ElementDocument::SetStyleSheet(SharedPtr<StyleSheet> _style_sheet)
+void ElementDocument::SetStyleSheetContainer(SharedPtr<StyleSheetContainer> _style_sheet_container)
 {
 	RMLUI_ZoneScoped;
 
-	if (style_sheet == _style_sheet)
+	if (style_sheet_container == _style_sheet_container)
 		return;
 
-	style_sheet = std::move(_style_sheet);
-	
-	if (style_sheet)
-	{
-		style_sheet->BuildNodeIndex();
-		style_sheet->OptimizeNodeProperties();
-	}
+	style_sheet_container = std::move(_style_sheet_container);
 
-	GetStyle()->DirtyDefinition();
-}
-
-// Returns the document's style sheet.
-const SharedPtr<StyleSheet>& ElementDocument::GetStyleSheet() const
-{
-	return style_sheet;
+	DirtyMediaQueries();
 }
 
 // Reload the document's style sheet from source files.
@@ -224,13 +221,28 @@ void ElementDocument::ReloadStyleSheet()
 	}
 
 	Factory::ClearStyleSheetCache();
+	Factory::ClearTemplateCache();
 	ElementPtr temp_doc = Factory::InstanceDocumentStream(nullptr, stream.get(), context->GetDocumentsBaseTag());
 	if (!temp_doc) {
 		Log::Message(Log::LT_WARNING, "Failed to reload style sheet, could not instance document: %s", source_url.c_str());
 		return;
 	}
 
-	SetStyleSheet(temp_doc->GetStyleSheet());
+	SetStyleSheetContainer(static_cast<ElementDocument*>(temp_doc.get())->style_sheet_container);
+}
+
+void ElementDocument::DirtyMediaQueries()
+{
+	if (context && style_sheet_container)
+	{
+		const bool changed_style_sheet = style_sheet_container->UpdateCompiledStyleSheet(context);
+
+		if (changed_style_sheet)
+		{
+			GetStyle()->DirtyDefinition();
+			OnStyleSheetChangeRecursive();
+		}
+	}
 }
 
 // Brings the document to the front of the document stack.
@@ -397,7 +409,8 @@ void ElementDocument::LoadExternalScript(const String& RMLUI_UNUSED_PARAMETER(so
 void ElementDocument::UpdateDocument()
 {
 	const float dp_ratio = (context ? context->GetDensityIndependentPixelRatio() : 1.0f);
-	Update(dp_ratio);
+	const Vector2f vp_dimensions = (context ? Vector2f(context->GetDimensions()) : Vector2f(1.0f));
+	Update(dp_ratio, vp_dimensions);
 	UpdateLayout();
 	UpdatePosition();
 }
@@ -478,9 +491,9 @@ bool ElementDocument::IsLayoutDirty()
 	return layout_dirty;
 }
 
-void ElementDocument::DirtyDpProperties()
+void ElementDocument::DirtyVwAndVhProperties()
 {
-	GetStyle()->DirtyPropertiesWithUnitRecursive(Property::DP);
+	GetStyle()->DirtyPropertiesWithUnitsRecursive(Property::VW | Property::VH);
 }
 
 // Repositions the document if necessary.
@@ -490,7 +503,7 @@ void ElementDocument::OnPropertyChange(const PropertyIdSet& changed_properties)
 
 	// If the document's font-size has been changed, we need to dirty all rem properties.
 	if (changed_properties.Contains(PropertyId::FontSize))
-		GetStyle()->DirtyPropertiesWithUnitRecursive(Property::REM);
+		GetStyle()->DirtyPropertiesWithUnitsRecursive(Property::REM);
 
 	if (changed_properties.Contains(PropertyId::Top) ||
 		changed_properties.Contains(PropertyId::Right) ||
@@ -544,13 +557,15 @@ void ElementDocument::OnResize()
 enum class CanFocus { Yes, No, NoAndNoChildren };
 static CanFocus CanFocusElement(Element* element)
 {
-	if (element->IsPseudoClassSet("disabled"))
-		return CanFocus::NoAndNoChildren;
-
 	if (!element->IsVisible())
 		return CanFocus::NoAndNoChildren;
 
-	if (element->GetComputedValues().tab_index == Style::TabIndex::Auto)
+	const ComputedValues& computed = element->GetComputedValues();
+
+	if (computed.focus == Style::Focus::None)
+		return CanFocus::NoAndNoChildren;
+
+	if (computed.tab_index == Style::TabIndex::Auto)
 		return CanFocus::Yes;
 
 	return CanFocus::No;
@@ -564,7 +579,7 @@ static CanFocus CanFocusElement(Element* element)
 // anticlock wise direction depending if you're searching forward or backward respectively
 Element* ElementDocument::FindNextTabElement(Element* current_element, bool forward)
 {
-	// If we're searching forward, check the immediate children of this node first off
+	// If we're searching forward, check the immediate children of this node first off.
 	if (forward)
 	{
 		for (int i = 0; i < current_element->GetNumChildren(); i++)
@@ -573,23 +588,19 @@ Element* ElementDocument::FindNextTabElement(Element* current_element, bool forw
 	}
 
 	// Now walk up the tree, testing either the bottom or top
-	// of the tree, depending on whether we're going forwards
-	// or backwards respectively
-	//
-	// If we make it all the way up to the document, then
-	// we search the entire tree (to loop back round)
+	// of the tree, depending on whether we're going forward
+	// or backward respectively.
 	bool search_enabled = false;
 	Element* document = current_element->GetOwnerDocument();
 	Element* child = current_element;
 	Element* parent = current_element->GetParentNode();
 	while (child != document)
 	{
-		for (int i = 0; i < parent->GetNumChildren(); i++)
+		const int num_children = parent->GetNumChildren();
+		for (int i = 0; i < num_children; i++)
 		{
 			// Calculate index into children
-			int child_index = i;
-			if (!forward)
-				child_index = parent->GetNumChildren() - i - 1;
+			const int child_index = forward ? i : (num_children - i - 1);
 			Element* search_child = parent->GetChild(child_index);
 
 			// Do a search if its enabled
@@ -605,21 +616,22 @@ Element* ElementDocument::FindNextTabElement(Element* current_element, bool forw
 		// Advance up the tree
 		child = parent;
 		parent = parent->GetParentNode();
+		search_enabled = false;
+	}
 
-		if (parent == document)
-		{
-			// When we hit the top, see if we can focus the document first.
-			if (CanFocusElement(document) == CanFocus::Yes)
-				return document;
-			
-			// Otherwise, search the entire tree to loop back around.
-			search_enabled = true;
-		}
-		else
-		{
-			// Prepare for the next iteration by disabling searching.
-			search_enabled = false;
-		}
+	// We could not find anything to focus along this direction.
+
+	// If we can focus the document, then focus that now.
+	if (current_element != document && CanFocusElement(document) == CanFocus::Yes)
+		return document;
+
+	// Otherwise, search the entire document tree. This way we will wrap around.
+	const int num_children = document->GetNumChildren();
+	for (int i = 0; i < num_children; i++)
+	{
+		const int child_index = forward ? i : (num_children - i - 1);
+		if (Element* result = SearchFocusSubtree(document->GetChild(child_index), forward))
+			return result;
 	}
 
 	return nullptr;

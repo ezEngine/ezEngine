@@ -38,6 +38,7 @@
 #include "../../Include/RmlUi/Core/PropertySpecification.h"
 #include "../../Include/RmlUi/Core/StreamMemory.h"
 #include "../../Include/RmlUi/Core/StyleSheet.h"
+#include "../../Include/RmlUi/Core/StyleSheetContainer.h"
 #include "../../Include/RmlUi/Core/StyleSheetSpecification.h"
 #include <algorithm>
 #include <string.h>
@@ -78,11 +79,12 @@ public:
 class SpritesheetPropertyParser final : public AbstractPropertyParser {
 private:
 	String image_source;
+	float image_resolution_factor = 1.f;
 	SpriteDefinitionList sprite_definitions;
 
 	PropertyDictionary properties;
 	PropertySpecification specification;
-	PropertyId id_rx, id_ry, id_rw, id_rh;
+	PropertyId id_rx, id_ry, id_rw, id_rh, id_resolution;
 	ShorthandId id_rectangle;
 
 public:
@@ -93,6 +95,7 @@ public:
 		id_rw = specification.RegisterProperty("rectangle-w", "", false, false).AddParser("length").GetId();
 		id_rh = specification.RegisterProperty("rectangle-h", "", false, false).AddParser("length").GetId();
 		id_rectangle = specification.RegisterShorthand("rectangle", "rectangle-x, rectangle-y, rectangle-w, rectangle-h", ShorthandType::FallThrough);
+		id_resolution = specification.RegisterProperty("resolution", "", false, false).AddParser("resolution").GetId();
 	}
 
 	const String& GetImageSource() const
@@ -103,8 +106,13 @@ public:
 	{
 		return sprite_definitions;
 	}
+	float GetImageResolutionFactor() const
+	{
+		return image_resolution_factor;
+	}
 
 	void Clear() {
+		image_resolution_factor = 1.f;
 		image_source.clear();
 		sprite_definitions.clear();
 	}
@@ -115,6 +123,17 @@ public:
 		{
 			image_source = value;
 		}
+		else if (name == "resolution")
+		{
+			if (!specification.ParsePropertyDeclaration(properties, id_resolution, value))
+				return false;
+
+			if (const Property* property = properties.GetProperty(id_resolution))
+			{
+				if (property->unit == Property::X)
+					image_resolution_factor = property->Get<float>();
+			}
+		}
 		else
 		{
 			if (!specification.ParseShorthandDeclaration(properties, id_rectangle, value))
@@ -122,13 +141,13 @@ public:
 
 			Rectangle rectangle;
 			if (auto property = properties.GetProperty(id_rx))
-				rectangle.x = ComputeAbsoluteLength(*property, 1.f);
+				rectangle.x = ComputeAbsoluteLength(*property, 1.f, Vector2f(1.f));
 			if (auto property = properties.GetProperty(id_ry))
-				rectangle.y = ComputeAbsoluteLength(*property, 1.f);
+				rectangle.y = ComputeAbsoluteLength(*property, 1.f, Vector2f(1.f));
 			if (auto property = properties.GetProperty(id_rw))
-				rectangle.width = ComputeAbsoluteLength(*property, 1.f);
+				rectangle.width = ComputeAbsoluteLength(*property, 1.f, Vector2f(1.f));
 			if (auto property = properties.GetProperty(id_rh))
-				rectangle.height = ComputeAbsoluteLength(*property, 1.f);
+				rectangle.height = ComputeAbsoluteLength(*property, 1.f, Vector2f(1.f));
 
 			sprite_definitions.emplace_back(name, rectangle);
 		}
@@ -139,6 +158,64 @@ public:
 
 
 static UniquePtr<SpritesheetPropertyParser> spritesheet_property_parser;
+
+/*
+ * Media queries need a special parser because they have unique properties that 
+ * aren't admissible in other property declaration contexts and the syntax of
+*/
+class MediaQueryPropertyParser final : public AbstractPropertyParser {
+private:
+	// The dictionary to store the properties in.
+	PropertyDictionary* properties;
+	PropertySpecification specification;
+
+	static inline PropertyId CastId(MediaQueryId id)
+	{
+		return static_cast<PropertyId>(id);
+	}
+
+public:
+	MediaQueryPropertyParser() : specification(14, 0) 
+	{	
+		specification.RegisterProperty("width", "", false, false, CastId(MediaQueryId::Width)).AddParser("length");
+		specification.RegisterProperty("min-width", "", false, false, CastId(MediaQueryId::MinWidth)).AddParser("length");
+		specification.RegisterProperty("max-width", "", false, false, CastId(MediaQueryId::MaxWidth)).AddParser("length");
+
+		specification.RegisterProperty("height", "", false, false, CastId(MediaQueryId::Height)).AddParser("length");
+		specification.RegisterProperty("min-height", "", false, false, CastId(MediaQueryId::MinHeight)).AddParser("length");
+		specification.RegisterProperty("max-height", "", false, false, CastId(MediaQueryId::MaxHeight)).AddParser("length");
+
+		specification.RegisterProperty("aspect-ratio", "", false, false, CastId(MediaQueryId::AspectRatio)).AddParser("ratio");
+		specification.RegisterProperty("min-aspect-ratio", "", false, false, CastId(MediaQueryId::MinAspectRatio)).AddParser("ratio");
+		specification.RegisterProperty("max-aspect-ratio", "", false, false, CastId(MediaQueryId::MaxAspectRatio)).AddParser("ratio");
+
+		specification.RegisterProperty("resolution", "", false, false, CastId(MediaQueryId::Resolution)).AddParser("resolution");
+		specification.RegisterProperty("min-resolution", "", false, false, CastId(MediaQueryId::MinResolution)).AddParser("resolution");
+		specification.RegisterProperty("max-resolution", "", false, false, CastId(MediaQueryId::MaxResolution)).AddParser("resolution");
+
+		specification.RegisterProperty("orientation", "", false, false, CastId(MediaQueryId::Orientation)).AddParser("keyword", "landscape, portrait");
+
+		specification.RegisterProperty("theme", "", false, false, CastId(MediaQueryId::Theme)).AddParser("string");
+	}
+
+	void SetTargetProperties(PropertyDictionary* _properties)
+	{
+		properties = _properties;
+	}
+
+	void Clear() {
+		properties = nullptr;
+	}
+
+	bool Parse(const String& name, const String& value) override
+	{
+		RMLUI_ASSERT(properties);
+		return specification.ParsePropertyDeclaration(*properties, name, value);
+	}
+};
+
+
+static UniquePtr<MediaQueryPropertyParser> media_query_property_parser;
 
 
 StyleSheetParser::StyleSheetParser()
@@ -155,11 +232,13 @@ StyleSheetParser::~StyleSheetParser()
 void StyleSheetParser::Initialise()
 {
 	spritesheet_property_parser = MakeUnique<SpritesheetPropertyParser>();
+	media_query_property_parser = MakeUnique<MediaQueryPropertyParser>();
 }
 
 void StyleSheetParser::Shutdown()
 {
 	spritesheet_property_parser.reset();
+	media_query_property_parser.reset();
 }
 
 static bool IsValidIdentifier(const String& str)
@@ -325,7 +404,7 @@ bool StyleSheetParser::ParseDecoratorBlock(const String& at_name, DecoratorSpeci
 	property_specification.SetPropertyDefaults(properties);
 	properties.SetSourceOfAllProperties(source);
 
-	SharedPtr<Decorator> decorator = decorator_instancer->InstanceDecorator(decorator_type, properties, DecoratorInstancerInterface(style_sheet));
+	SharedPtr<Decorator> decorator = decorator_instancer->InstanceDecorator(decorator_type, properties, DecoratorInstancerInterface(style_sheet, source.get()));
 	if (!decorator)
 	{
 		Log::Message(Log::LT_WARNING, "Could not instance decorator of type '%s' declared at %s:%d.", decorator_type.c_str(), stream_file_name.c_str(), line_number);
@@ -337,7 +416,100 @@ bool StyleSheetParser::ParseDecoratorBlock(const String& at_name, DecoratorSpeci
 	return true;
 }
 
-int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSheet& style_sheet, KeyframesMap& keyframes, DecoratorSpecificationMap& decorator_map, SpritesheetList& spritesheet_list, int begin_line_number)
+bool StyleSheetParser::ParseMediaFeatureMap(PropertyDictionary& properties, const String & rules)
+{
+	media_query_property_parser->SetTargetProperties(&properties);
+
+	enum ParseState { Global, Name, Value };
+	ParseState state = Name;
+
+	char character = 0;
+
+	size_t cursor = 0;
+
+	String name;
+
+	String current_string;
+
+	while(cursor++ < rules.length())
+	{
+		character = rules[cursor];
+
+		switch(character)
+		{
+		case '(':
+		{
+			if (state != Global)
+			{
+				Log::Message(Log::LT_WARNING, "Unexpected '(' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
+				return false;
+			}
+
+			current_string = StringUtilities::StripWhitespace(StringUtilities::ToLower(current_string));
+
+			if (current_string != "and")
+			{
+				Log::Message(Log::LT_WARNING, "Unexpected '%s' in @media query list at %s:%d. Expected 'and'.", current_string.c_str(), stream_file_name.c_str(), line_number);
+				return false;
+			}
+
+			current_string.clear();
+			state = Name;
+		}
+		break;
+		case ')':
+		{
+			if (state != Value)
+			{
+				Log::Message(Log::LT_WARNING, "Unexpected ')' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
+				return false;
+			}
+
+			current_string = StringUtilities::StripWhitespace(current_string);
+
+			if(!media_query_property_parser->Parse(name, current_string))
+				Log::Message(Log::LT_WARNING, "Syntax error parsing media-query property declaration '%s: %s;' in %s: %d.", name.c_str(), current_string.c_str(), stream_file_name.c_str(), line_number);
+
+			current_string.clear();
+			state = Global;
+		}
+		break;
+		case ':':
+		{
+			if (state != Name)
+			{
+				Log::Message(Log::LT_WARNING, "Unexpected ':' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
+				return false;
+			}
+
+			current_string = StringUtilities::StripWhitespace(StringUtilities::ToLower(current_string));
+
+			if (!IsValidIdentifier(current_string))
+			{
+				Log::Message(Log::LT_WARNING, "Malformed property name '%s' in @media query list at %s:%d.", current_string.c_str(), stream_file_name.c_str(), line_number);
+				return false;
+			}
+
+			name = current_string;
+			current_string.clear();
+
+			state = Value;
+		}
+		break;
+		default:
+			current_string += character;
+		}
+	}
+
+	if (properties.GetNumProperties() == 0)
+	{
+		Log::Message(Log::LT_WARNING, "Media query list parsing yielded no properties at %s:%d.", stream_file_name.c_str(), line_number);
+	}
+
+	return true;
+}
+
+bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int begin_line_number)
 {
 	RMLUI_ZoneScoped;
 
@@ -348,6 +520,12 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 
 	enum class State { Global, AtRuleIdentifier, KeyframeBlock, Invalid };
 	State state = State::Global;
+
+
+	MediaBlock current_block = {};
+
+	// Need to track whether currently inside a nested media block or not, since the default scope is also a media block
+	bool inside_media_block = false;
 
 	// At-rules given by the following syntax in global space: @identifier name { block }
 	String at_rule_name;
@@ -365,7 +543,13 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 			{
 				if (token == '{')
 				{
-					const int rule_line_number = (int)line_number;
+					// Initialize current block if not present
+					if (!current_block.stylesheet)
+					{
+						current_block = MediaBlock{PropertyDictionary{}, UniquePtr<StyleSheet>(new StyleSheet())};
+					}
+
+					const int rule_line_number = line_number;
 					
 					// Read the attributes
 					PropertyDictionary properties;
@@ -381,7 +565,7 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 					{
 						auto source = MakeShared<PropertySource>(stream_file_name, rule_line_number, rule_name_list[i]);
 						properties.SetSourceOfAllProperties(source);
-						ImportProperties(node, rule_name_list[i], properties, rule_count);
+						ImportProperties(current_block.stylesheet->root.get(), rule_name_list[i], properties, rule_count);
 					}
 
 					rule_count++;
@@ -389,6 +573,17 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 				else if (token == '@')
 				{
 					state = State::AtRuleIdentifier;
+				}
+				else if (inside_media_block && token == '}')
+				{
+					// Complete current block
+					PostprocessKeyframes(current_block.stylesheet->keyframes);
+					current_block.stylesheet->specificity_offset = rule_count;
+					style_sheets.push_back(std::move(current_block));
+					current_block = {};
+
+					inside_media_block = false;
+					break;
 				}
 				else
 				{
@@ -399,8 +594,14 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 			case State::AtRuleIdentifier:
 			{
 				if (token == '{')
-				{
-					String at_rule_identifier = pre_token_str.substr(0, pre_token_str.find(' '));
+				{					
+					// Initialize current block if not present
+					if (!current_block.stylesheet)
+					{
+						current_block = {PropertyDictionary{}, UniquePtr<StyleSheet>(new StyleSheet())};
+					}
+
+					const String at_rule_identifier = StringUtilities::StripWhitespace(pre_token_str.substr(0, pre_token_str.find(' ')));
 					at_rule_name = StringUtilities::StripWhitespace(pre_token_str.substr(at_rule_identifier.size()));
 
 					if (at_rule_identifier == "keyframes")
@@ -410,7 +611,7 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 					else if (at_rule_identifier == "decorator")
 					{
 						auto source = MakeShared<PropertySource>(stream_file_name, (int)line_number, pre_token_str);
-						ParseDecoratorBlock(at_rule_name, decorator_map, style_sheet, source);
+						ParseDecoratorBlock(at_rule_name, current_block.stylesheet->decorator_map, *current_block.stylesheet, source);
 						
 						at_rule_name.clear();
 						state = State::Global;
@@ -422,26 +623,47 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 
 						const String& image_source = spritesheet_property_parser->GetImageSource();
 						const SpriteDefinitionList& sprite_definitions = spritesheet_property_parser->GetSpriteDefinitions();
+						const float image_resolution_factor = spritesheet_property_parser->GetImageResolutionFactor();
 						
-						if (at_rule_name.empty())
+						if (sprite_definitions.empty())
 						{
-							Log::Message(Log::LT_WARNING, "No name given for @spritesheet at %s:%d", stream_file_name.c_str(), line_number);
-						}
-						else if (sprite_definitions.empty())
-						{
-							Log::Message(Log::LT_WARNING, "Spritesheet with name '%s' has no sprites defined, ignored. At %s:%d", at_rule_name.c_str(), stream_file_name.c_str(), line_number);
+							Log::Message(Log::LT_WARNING, "Spritesheet '%s' has no sprites defined, ignored. At %s:%d", at_rule_name.c_str(), stream_file_name.c_str(), line_number);
 						}
 						else if (image_source.empty())
 						{
 							Log::Message(Log::LT_WARNING, "No image source (property 'src') specified for spritesheet '%s'. At %s:%d", at_rule_name.c_str(), stream_file_name.c_str(), line_number);
 						}
+						else if (image_resolution_factor <= 0.0f || image_resolution_factor >= 100.f)
+						{
+							Log::Message(Log::LT_WARNING, "Spritesheet resolution (property 'resolution') value must be larger than 0.0 and smaller than 100.0, given %g. In spritesheet '%s'. At %s:%d", image_resolution_factor, at_rule_name.c_str(), stream_file_name.c_str(), line_number);
+						}
 						else
 						{
-							spritesheet_list.AddSpriteSheet(at_rule_name, image_source, stream_file_name, (int)line_number, sprite_definitions);
+							const float display_scale = 1.0f / image_resolution_factor;
+							current_block.stylesheet->spritesheet_list.AddSpriteSheet(at_rule_name, image_source, stream_file_name, (int)line_number, display_scale, sprite_definitions);
 						}
 
 						spritesheet_property_parser->Clear();
 						at_rule_name.clear();
+						state = State::Global;
+					}
+					else if (at_rule_identifier == "media")
+					{
+						// complete the current "global" block if present and start a new block
+						if (current_block.stylesheet)
+						{
+							PostprocessKeyframes(current_block.stylesheet->keyframes);
+							current_block.stylesheet->specificity_offset = rule_count;
+							style_sheets.push_back(std::move(current_block));
+							current_block = {};
+						}
+
+						// parse media query list into block
+						PropertyDictionary feature_map;
+						ParseMediaFeatureMap(feature_map, at_rule_name);
+						current_block = {std::move(feature_map), UniquePtr<StyleSheet>(new StyleSheet())};
+
+						inside_media_block = true;
 						state = State::Global;
 					}
 					else
@@ -463,14 +685,20 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 			case State::KeyframeBlock:
 			{
 				if (token == '{')
-				{
+				{	
+					// Initialize current block if not present
+					if (!current_block.stylesheet)
+					{
+						current_block = {PropertyDictionary{}, UniquePtr<StyleSheet>(new StyleSheet())};
+					}
+
 					// Each keyframe in keyframes has its own block which is processed here
 					PropertyDictionary properties;
 					PropertySpecificationParser parser(properties, StyleSheetSpecification::GetPropertySpecification());
 					if(!ReadProperties(parser))
 						continue;
 
-					if (!ParseKeyframeBlock(keyframes, at_rule_name, pre_token_str, properties))
+					if (!ParseKeyframeBlock(current_block.stylesheet->keyframes, at_rule_name, pre_token_str, properties))
 						continue;
 				}
 				else if (token == '}')
@@ -499,9 +727,15 @@ int StyleSheetParser::Parse(StyleSheetNode* node, Stream* _stream, const StyleSh
 			break;
 	}	
 
-	PostprocessKeyframes(keyframes);
+	// Complete last block if present
+	if (current_block.stylesheet)
+	{
+		PostprocessKeyframes(current_block.stylesheet->keyframes);
+		current_block.stylesheet->specificity_offset = rule_count;
+		style_sheets.push_back(std::move(current_block));
+	}
 
-	return rule_count;
+	return !style_sheets.empty();
 }
 
 bool StyleSheetParser::ParseProperties(PropertyDictionary& parsed_properties, const String& properties)

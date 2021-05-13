@@ -301,7 +301,7 @@ LayoutInlineBox* LayoutLineBox::AddBox(UniquePtr<LayoutInlineBox> box_ptr)
 
 	float available_width = -1;
 	if (wrap_content)
-		available_width = dimensions.x - (open_inline_box->GetPosition().x + open_inline_box->GetBox().GetPosition(Box::CONTENT).x);
+		available_width = Math::RoundUpFloat(dimensions.x - (open_inline_box->GetPosition().x + open_inline_box->GetBox().GetPosition(Box::CONTENT).x));
 
 	// Flow the box's content into the line.
 	UniquePtr<LayoutInlineBox> overflow_box = open_inline_box->FlowContent(first_box, available_width, right_spacing);
@@ -337,7 +337,7 @@ void LayoutLineBox::AddChainedBox(LayoutInlineBox* chained_box)
 }
 
 // Returns the position of the line box, relative to its parent's block box's content area.
-const Vector2f& LayoutLineBox::GetPosition() const
+Vector2f LayoutLineBox::GetPosition() const
 {
 	return position;
 }
@@ -349,7 +349,7 @@ Vector2f LayoutLineBox::GetRelativePosition() const
 }
 
 // Returns the dimensions of the line box.
-const Vector2f& LayoutLineBox::GetDimensions() const
+Vector2f LayoutLineBox::GetDimensions() const
 {
 	return dimensions;
 }

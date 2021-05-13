@@ -65,10 +65,8 @@ Context::Context(const String& name) : name(name), dimensions(0, 0), density_ind
 
 	cursor_proxy = Factory::InstanceElement(nullptr, documents_base_tag, documents_base_tag, XMLAttributes());
 	ElementDocument* cursor_proxy_document = rmlui_dynamic_cast< ElementDocument* >(cursor_proxy.get());
-	if (cursor_proxy_document)
-		cursor_proxy_document->context = this;
-	else
-		cursor_proxy.reset();
+	RMLUI_ASSERT(cursor_proxy_document);
+	cursor_proxy_document->context = this;
 		
 	enable_cursor = true;
 
@@ -96,9 +94,9 @@ Context::~Context()
 
 	ReleaseUnloadedDocuments();
 
-	cursor_proxy.reset();
-
 	root.reset();
+
+	cursor_proxy.reset();
 
 	instancer = nullptr;
 
@@ -112,12 +110,12 @@ const String& Context::GetName() const
 }
 
 // Changes the dimensions of the screen.
-void Context::SetDimensions(const Vector2i& _dimensions)
+void Context::SetDimensions(const Vector2i _dimensions)
 {
 	if (dimensions != _dimensions)
 	{
 		dimensions = _dimensions;
-		root->SetBox(Box(Vector2f((float) dimensions.x, (float) dimensions.y)));
+		root->SetBox(Box(Vector2f(dimensions)));
 		root->DirtyLayout();
 
 		for (int i = 0; i < root->GetNumChildren(); ++i)
@@ -125,6 +123,8 @@ void Context::SetDimensions(const Vector2i& _dimensions)
 			ElementDocument* document = root->GetChild(i)->GetOwnerDocument();
 			if (document != nullptr)
 			{
+				document->DirtyMediaQueries();
+				document->DirtyVwAndVhProperties();
 				document->DirtyLayout();
 				document->DirtyPosition();
 				document->DispatchEvent(EventId::Resize, Dictionary());
@@ -136,7 +136,7 @@ void Context::SetDimensions(const Vector2i& _dimensions)
 }
 
 // Returns the dimensions of the screen.
-const Vector2i& Context::GetDimensions() const
+Vector2i Context::GetDimensions() const
 {
 	return dimensions;
 }
@@ -147,12 +147,13 @@ void Context::SetDensityIndependentPixelRatio(float _density_independent_pixel_r
 	{
 		density_independent_pixel_ratio = _density_independent_pixel_ratio;
 
-		for (int i = 0; i < root->GetNumChildren(); ++i)
+		for (int i = 0; i < root->GetNumChildren(true); ++i)
 		{
 			ElementDocument* document = root->GetChild(i)->GetOwnerDocument();
-			if (document != nullptr)
+			if (document)
 			{
-				document->DirtyDpProperties();
+				document->DirtyMediaQueries();
+				document->OnDpRatioChangeRecursive();
 			}
 		}
 	}
@@ -172,7 +173,7 @@ bool Context::Update()
 	for (auto& data_model : data_models)
 		data_model.second->Update(true);
 
-	root->Update(density_independent_pixel_ratio);
+	root->Update(density_independent_pixel_ratio, Vector2f(dimensions));
 
 	for (int i = 0; i < root->GetNumChildren(); ++i)
 		if (auto doc = root->GetChild(i)->GetOwnerDocument())
@@ -203,8 +204,8 @@ bool Context::Render()
 
 	ElementUtilities::SetClippingRegion(nullptr, this);
 
-	// Render the cursor proxy so any elements attached the cursor will be rendered below the cursor.
-	if (cursor_proxy)
+	// Render the cursor proxy so that any attached drag clone will be rendered below the cursor.
+	if (drag_clone)
 	{
 		static_cast<ElementDocument&>(*cursor_proxy).UpdateDocument();
 		cursor_proxy->SetOffset(Vector2f((float)Math::Clamp(mouse_position.x, 0, dimensions.x),
@@ -347,6 +348,7 @@ void Context::UnloadDocument(ElementDocument* _document)
 	if (drag && drag->GetOwnerDocument() == document)
 	{
 		drag = nullptr;
+		ReleaseDragClone();
 	}
 
 	if (drag_hover && drag_hover->GetOwnerDocument() == document)
@@ -377,6 +379,30 @@ void Context::EnableMouseCursor(bool enable)
 	// The cursor is set to an invalid name so that it is forced to update in the next update loop.
 	cursor_name = ":reset:";
 	enable_cursor = enable;
+}
+
+void Context::ActivateTheme(const String& theme_name, bool activate)
+{
+	bool theme_changed = false;
+
+	if (activate)
+		theme_changed = active_themes.insert(theme_name).second;
+	else
+		theme_changed = (active_themes.erase(theme_name) > 0);
+
+	if (theme_changed)
+	{
+		for (int i = 0; i < root->GetNumChildren(true); ++i)
+		{
+			if (ElementDocument* document = root->GetChild(i)->GetOwnerDocument())
+				document->DirtyMediaQueries();
+		}
+	}
+}
+
+bool Context::IsThemeActive(const String& theme_name) const
+{
+	return active_themes.count(theme_name);
 }
 
 // Returns the first document found in the root with the given id.
@@ -810,7 +836,7 @@ bool Context::GetActiveClipRegion(Vector2i& origin, Vector2i& dimensions) const
 }
 	
 // Sets the current clipping region for the render traversal
-void Context::SetActiveClipRegion(const Vector2i& origin, const Vector2i& dimensions)
+void Context::SetActiveClipRegion(const Vector2i origin, const Vector2i dimensions)
 {
 	clip_origin = origin;
 	clip_dimensions = dimensions;
@@ -1003,9 +1029,9 @@ void Context::GenerateClickEvent(Element* element)
 }
 
 // Updates the current hover elements, sending required events.
-void Context::UpdateHoverChain(const Dictionary& parameters, const Dictionary& drag_parameters, const Vector2i& old_mouse_position)
+void Context::UpdateHoverChain(const Dictionary& parameters, const Dictionary& drag_parameters, const Vector2i old_mouse_position)
 {
-	Vector2f position((float) mouse_position.x, (float) mouse_position.y);
+	const Vector2f position(mouse_position);
 
 	// Send out drag events.
 	if (drag)
@@ -1176,11 +1202,7 @@ Element* Context::GetElementAtPoint(Vector2f point, const Element* ignore_elemen
 // Creates the drag clone from the given element.
 void Context::CreateDragClone(Element* element)
 {
-	if (!cursor_proxy)
-	{
-		Log::Message(Log::LT_ERROR, "Unable to create drag clone, no cursor proxy document.");
-		return;
-	}
+	RMLUI_ASSERTMSG(cursor_proxy, "Unable to create drag clone, no cursor proxy document.");
 
 	ReleaseDragClone();
 
@@ -1198,7 +1220,12 @@ void Context::CreateDragClone(Element* element)
 	cursor_proxy->AppendChild(std::move(element_drag_clone));
 
 	// Set the style sheet on the cursor proxy.
-	static_cast<ElementDocument&>(*cursor_proxy).SetStyleSheet(element->GetStyleSheet());
+	if (ElementDocument* document = element->GetOwnerDocument())
+	{
+		// Borrow the target document's style sheet. Sharing style sheet containers should be used with care, and
+		// only within the same context.
+		static_cast<ElementDocument&>(*cursor_proxy).SetStyleSheetContainer(document->style_sheet_container);
+	}
 
 	// Set all the required properties and pseudo-classes on the clone.
 	drag_clone->SetPseudoClass("drag", true);
@@ -1214,6 +1241,7 @@ void Context::ReleaseDragClone()
 	{
 		cursor_proxy->RemoveChild(drag_clone);
 		drag_clone = nullptr;
+		static_cast<ElementDocument&>(*cursor_proxy).SetStyleSheetContainer(nullptr);
 	}
 }
 

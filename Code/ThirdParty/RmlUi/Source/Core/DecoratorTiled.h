@@ -84,8 +84,9 @@ public:
 
 		/// Calculates the tile's dimensions from the texture and texture coordinates.
 		void CalculateDimensions(Element* element, const Texture& texture) const;
-		/// Get this tile's dimensions.
-		Vector2f GetDimensions(Element* element) const;
+		/// Get the dimensions (in px) that this tile is ideally displayed as.
+		/// Uses the dp-ratio of the current element and 'display_scale' to calculate the dimensions.
+		Vector2f GetNaturalDimensions(Element* element) const;
 
 		/// Generates geometry to render this tile across a surface.
 		/// @param[out] vertices The array to store the generated vertex data.
@@ -94,7 +95,7 @@ public:
 		/// @param[in] surface_origin The starting point of the first tile to generate.
 		/// @param[in] surface_dimensions The dimensions of the surface to be tiled.
 		/// @param[in] tile_dimensions The dimensions to render this tile at.
-		void GenerateGeometry(Vector< Vertex >& vertices, Vector< int >& indices, Element* element, const Vector2f& surface_origin, const Vector2f& surface_dimensions, const Vector2f& tile_dimensions) const;
+		void GenerateGeometry(Vector< Vertex >& vertices, Vector< int >& indices, Element* element, Vector2f surface_origin, Vector2f surface_dimensions, Vector2f tile_dimensions) const;
 
 		struct TileData
 		{
@@ -105,6 +106,9 @@ public:
 		using TileDataMap = SmallUnorderedMap< RenderInterface*, TileData >;
 
 		int texture_index;
+
+		// Scales the desired displayed size of the tile from raw pixel size. Eg. the 'display_scale' in a sprite sheet.
+		float display_scale;
 
 		// Position and size within the texture, absolute units (px)
 		Vector2f position, size;
@@ -119,11 +123,13 @@ public:
 	};
 
 protected:
+	enum class Axis { Horizontal, Vertical };
+
 	/// Scales a tile dimensions by a fixed value along one axis.
 	/// @param tile_dimensions[in, out] The tile dimensions to scale.
 	/// @param axis_value[in] The fixed value to scale against.
-	/// @param axis[in] The axis to scale against; either 0 (for x) or 1 (for y).
-	void ScaleTileDimensions(Vector2f& tile_dimensions, float axis_value, int axis) const;
+	/// @param axis[in] The axis to scale against.
+	void ScaleTileDimensions(Vector2f& tile_dimensions, float axis_value, Axis axis) const;
 };
 
 } // namespace Rml

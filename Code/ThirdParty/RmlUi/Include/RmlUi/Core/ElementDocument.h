@@ -38,6 +38,7 @@ class Stream;
 class DocumentHeader;
 class ElementText;
 class StyleSheet;
+class StyleSheetContainer;
 
 /**
 	 ModalFlag used for controlling the modal state of the document.
@@ -83,14 +84,18 @@ public:
 	/// Returns the source address of this document.
 	const String& GetSourceURL() const;
 
-	/// Sets the style sheet this document, and all of its children, uses.
-	void SetStyleSheet(SharedPtr<StyleSheet> style_sheet);
-	/// Returns the document's style sheet.
-	const SharedPtr<StyleSheet>& GetStyleSheet() const override;
+	/// Returns the document's compiled style sheet.
+	/// @note The style sheet may be regenerated when media query parameters change, invalidating the pointer.
+	const StyleSheet* GetStyleSheet() const override;
 	/// Reload the document's style sheet from source files.
 	/// Styles will be reloaded from <style> tags and external style sheets, but not inline 'style' attributes.
 	/// @note The source url originally used to load the document must still be a valid RML document.
 	void ReloadStyleSheet();
+
+	/// Returns the document's style sheet container.
+	const StyleSheetContainer* GetStyleSheetContainer() const;
+	/// Sets the style sheet this document, and all of its children, uses.
+	void SetStyleSheetContainer(SharedPtr<StyleSheetContainer> style_sheet);
 
 	/// Brings the document to the front of the document stack.
 	void PullToFront();
@@ -155,8 +160,11 @@ private:
 	/// Returns true if the document has been marked as needing a re-layout.
 	bool IsLayoutDirty() override;
 
-	/// Updates all sizes defined by the 'lp' unit.
-	void DirtyDpProperties();
+	/// Notify the document that media query related properties have changed and that style sheets need to be re-evaluated.
+	void DirtyMediaQueries();
+
+	/// Updates all sizes defined by the 'vw' and the 'vh' units.
+	void DirtyVwAndVhProperties();
 
 	/// Updates the layout if necessary.
 	void UpdateLayout();
@@ -172,8 +180,8 @@ private:
 	// The original path this document came from
 	String source_url;
 
-	// The document's style sheet.
-	SharedPtr<StyleSheet> style_sheet;
+	// The document's style sheet container.
+	SharedPtr<StyleSheetContainer> style_sheet_container;
 
 	Context* context;
 

@@ -16,9 +16,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
 
 if (EZ_COMPILE_ENGINE_AS_DLL)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE ADS_SHARED_EXPORT)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE ADS_SHARED_EXPORT)
 else()
-	target_compile_definitions(${PROJECT_NAME} PUBLIC ADS_STATIC)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC ADS_STATIC)
 endif()
 
 set (MOC_FILES

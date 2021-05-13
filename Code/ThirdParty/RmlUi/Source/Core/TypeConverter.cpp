@@ -28,9 +28,11 @@
 
 #include "../../Include/RmlUi/Core/TypeConverter.h"
 #include "../../Include/RmlUi/Core/StyleSheetSpecification.h"
+#include "../../Include/RmlUi/Core/StyleSheetTypes.h"
 #include "../../Include/RmlUi/Core/Animation.h"
 #include "../../Include/RmlUi/Core/Transform.h"
 #include "../../Include/RmlUi/Core/TransformPrimitive.h"
+#include "../../Include/RmlUi/Core/PropertyDictionary.h"
 #include "TransformUtilities.h"
 
 namespace Rml {
@@ -78,11 +80,11 @@ bool TypeConverter<TransitionList, String>::Convert(const TransitionList& src, S
 	for (size_t i = 0; i < src.transitions.size(); i++)
 	{
 		const Transition& t = src.transitions[i];
-		dest += StyleSheetSpecification::GetPropertyName(t.id) + " ";
-		dest += t.tween.to_string() + " ";
+		dest += StyleSheetSpecification::GetPropertyName(t.id) + ' ';
+		dest += t.tween.to_string() + ' ';
 		if (TypeConverter< float, String >::Convert(t.duration, tmp)) dest += tmp + "s ";
 		if (t.delay > 0.0f && TypeConverter< float, String >::Convert(t.delay, tmp)) dest += tmp + "s ";
-		if (t.reverse_adjustment_factor > 0.0f && TypeConverter< float, String >::Convert(t.delay, tmp)) dest += tmp;
+		if (t.reverse_adjustment_factor > 0.0f && TypeConverter< float, String >::Convert(t.reverse_adjustment_factor, tmp)) dest += tmp + ' ';
 		if (dest.size() > 0) dest.resize(dest.size() - 1);
 		if (i != src.transitions.size() - 1) dest += ", ";
 	}

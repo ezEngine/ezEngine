@@ -121,7 +121,7 @@ UniquePtr<StyleSheetNode> StyleSheetNode::DeepCopy(StyleSheetNode* in_parent) co
 }
 
 // Builds up a style sheet's index recursively.
-void StyleSheetNode::BuildIndex(StyleSheet::NodeIndex& styled_node_index)
+void StyleSheetNode::BuildIndex(StyleSheet::NodeIndex& styled_node_index) const
 {
 	// If this has properties defined, then we insert it into the styled node index.
 	if(properties.GetNumProperties() > 0)
@@ -137,53 +137,6 @@ void StyleSheetNode::BuildIndex(StyleSheet::NodeIndex& styled_node_index)
 	for (auto& child : children)
 	{
 		child->BuildIndex(styled_node_index);
-	}
-}
-
-// Builds up a style sheet's index recursively.
-void StyleSheetNode::OptimizeProperties(const StyleSheet& style_sheet)
-{
-	// Turn any decorator and font-effect properties from String to DecoratorList / FontEffectList.
-	// This is essentially an optimization, it will work fine to skip this step and let ElementStyle::ComputeValues() do all the work.
-	// However, when we do it here, we only need to do it once.
-	if (properties.GetNumProperties() > 0)
-	{
-		// Decorators
-		if (const Property* property = properties.GetProperty(PropertyId::Decorator))
-		{
-			if (property->unit == Property::STRING)
-			{
-				const String string_value = property->Get<String>();
-
-				if (DecoratorsPtr decorators = style_sheet.InstanceDecoratorsFromString(string_value, property->source))
-				{
-					Property new_property = *property;
-					new_property.value = std::move(decorators);
-					new_property.unit = Property::DECORATOR;
-					properties.SetProperty(PropertyId::Decorator, new_property);
-				}
-			}
-		}
-
-		// Font-effects
-		if (const Property* property = properties.GetProperty(PropertyId::FontEffect))
-		{
-			if (property->unit == Property::STRING)
-			{
-				const String string_value = property->Get<String>();
-				FontEffectsPtr font_effects = style_sheet.InstanceFontEffectsFromString(string_value, property->source);
-
-				Property new_property = *property;
-				new_property.value = std::move(font_effects);
-				new_property.unit = Property::FONTEFFECT;
-				properties.SetProperty(PropertyId::FontEffect, new_property);
-			}
-		}
-	}
-
-	for (const auto& child : children)
-	{
-		child->OptimizeProperties(style_sheet);
 	}
 }
 

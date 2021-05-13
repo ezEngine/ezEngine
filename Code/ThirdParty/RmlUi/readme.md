@@ -10,7 +10,7 @@ RmlUi - now with added boosters taking control of the rocket, targeting *your* g
 
 RmlUi is the C++ user interface package based on the HTML and CSS standards, designed as a complete solution for any project's interface needs. It is a fork of the [libRocket](https://github.com/libRocket/libRocket) project, introducing new features, bug fixes, and performance improvements. 
 
-RmlUi uses the time-tested open standards XHTML1.0 and CSS2.0 while borrowing features from HTML5 and CSS3, and extends them with features suited towards real-time applications. Because of this, you don't have to learn a whole new proprietary technology like other libraries in this space. Please have a look at the supported [RCSS properties](https://mikke89.github.io/RmlUiDoc/pages/rcss/property_index.html) and [RML elements](https://mikke89.github.io/RmlUiDoc/pages/rml/element_index.html).
+RmlUi uses the time-tested open standards XHTML1 and CSS2 while borrowing features from HTML5 and CSS3, and extends them with features suited towards real-time applications. Because of this, you don't have to learn a whole new proprietary technology like other libraries in this space. Please have a look at the supported [RCSS properties](https://mikke89.github.io/RmlUiDoc/pages/rcss/property_index.html) and [RML elements](https://mikke89.github.io/RmlUiDoc/pages/rml/element_index.html).
 
 Documentation is located at https://mikke89.github.io/RmlUiDoc/
 
@@ -45,7 +45,7 @@ Documentation is located at https://mikke89.github.io/RmlUiDoc/
 
 Here are the general steps to integrate the library into a C++ application, have a look at the [documentation](https://mikke89.github.io/RmlUiDoc/) for details.
 
-1. Build RmlUi using CMake and your favorite compiler, or fetch the Windows library binaries.
+1. Build RmlUi using CMake and your favorite compiler, fetch the Windows library binaries, or consume [the library using Conan](https://conan.io/center/rmlui).
 2. Link it up to your application.
 3. Implement the abstract [system interface](Include/RmlUi/Core/SystemInterface.h) and [render interface](Include/RmlUi/Core/RenderInterface.h).
 4. Initialize RmlUi with the interfaces, create a context, provide font files, and load a document.
@@ -60,6 +60,33 @@ Several [samples](Samples/) demonstrate everything from basic integration to mor
 - The standard library.
 
 In addition, a C++14 compatible compiler is required.
+
+## Conformance
+
+RmlUi aims to support the most common and familar features from HTML and CSS, while keeping the library light and performant. We do not aim to be fully compliant with CSS or HTML, in particular when it conflicts with lightness and performance. Users are generally expected to author documents specifically for RmlUi, but any experience and skills from web design should be transferable.
+
+RmlUi supports most of CSS2 with some CSS3 features such as
+
+- Animations and transitions
+- Transforms (with full interpolation support)
+- Media queries
+- Border radius
+
+and many of the common HTML elements including `<input>`,  `<textarea>`, and `<select>`.
+
+For details, see
+- [RCSS Property index](https://mikke89.github.io/RmlUiDoc/pages/rcss/property_index.html) for all supported properties and differences from CSS.
+- [RML Element index](https://mikke89.github.io/RmlUiDoc/pages/rml/element_index.html) for all supported elements.
+
+## Enhancements
+
+RmlUi adds features and enhancements over CSS and HTML where it makes sense, most notably the following.
+
+- [Data binding (model-view-controller)](https://mikke89.github.io/RmlUiDoc/pages/data_bindings.html). Synchronization between application data and user interface.
+- [Decorators](https://mikke89.github.io/RmlUiDoc/pages/rcss/decorators.html). Full control over the styling of [all elements](https://mikke89.github.io/RmlUiDoc/pages/style_guide.html).
+- [Sprite sheets](https://mikke89.github.io/RmlUiDoc/pages/rcss/sprite_sheets.html). Define and use sprites with easy high DPI support.
+- [Templates](https://mikke89.github.io/RmlUiDoc/pages/rml/templates.html). Making windows look consistent.
+- [Localization](https://mikke89.github.io/RmlUiDoc/pages/localisation.html). Translate all text in the document.
 
 
 ## Example: Basic document
@@ -143,7 +170,6 @@ body
 
 ## Gallery
 
-
 ![Game interface](https://github.com/mikke89/RmlUiDoc/blob/3f319d8464e73b821179ff8d20537013af5b9810/assets/gallery/invader.png)
 **Game interface from the 'invader' sample**
 
@@ -165,14 +191,22 @@ body
 ![Lottie animation](https://github.com/mikke89/RmlUiDoc/blob/086385e119f0fc6e196229b785e91ee0252fe4b4/assets/gallery/lottie.gif)  
 **Vector animations with the [Lottie plugin](https://mikke89.github.io/RmlUiDoc/pages/cpp_manual/lottie.html)**
 
-To see more examples of animations and transitions in action, have a look at the videos in the [animations documentation](https://mikke89.github.io/RmlUiDoc/pages/rcss/animations_transitions_transforms.html).
+![SVG image](https://github.com/mikke89/RmlUiDoc/blob/2908fe50acf7861e729ce113eafa8cf7610bf08a/assets/gallery/svg_plugin.png)  
+**Vector images with the [SVG plugin](https://mikke89.github.io/RmlUiDoc/pages/cpp_manual/svg.html)**
+
+See the **[full gallery](https://mikke89.github.io/RmlUiDoc/pages/gallery.html)** for more screenshots and videos of the library in action.
 
 
+## License
 
-## License (MIT)
- 
+RmlUi is published under the [MIT license](LICENSE.txt). The library includes third-party source code and assets with their own licenses, as detailed below.
+
+#### RmlUi source code and assets
+
+MIT License
+
 Copyright (c) 2008-2014 CodePoint Ltd, Shift Technology Ltd, and contributors\
-Copyright (c) 2019 The RmlUi Team, and contributors
+Copyright (c) 2019-2021 The RmlUi Team, and contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -191,3 +225,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+#### Third-party source code included in RmlUi Core
+
+See [Include/RmlUi/Core/Containers/LICENSE.txt](Include/RmlUi/Core/Containers/LICENSE.txt) - all MIT licensed.
+
+#### Third-party font assets included in RmlUi Debugger
+
+See [Source/Debugger/LICENSE.txt](Source/Debugger/LICENSE.txt) - SIL Open Font License.
+
+#### Additional sample assets *(in Samples/)*
+
+See
+- [Samples/assets/LICENSE.txt](Samples/assets/LICENSE.txt)
+- [Samples/basic/bitmapfont/data/LICENSE.txt](Samples/basic/bitmapfont/data/LICENSE.txt)
+- [Samples/basic/lottie/data/LICENSE.txt](Samples/basic/lottie/data/LICENSE.txt)
+- [Samples/basic/svg/data/LICENSE.txt](Samples/basic/svg/data/LICENSE.txt)
+
+#### Libraries included with the test suite *(in Tests/Dependencies/)*
+
+See [Tests/Dependencies/LICENSE.txt](Tests/Dependencies/LICENSE.txt).
+
+#### Additional test suite assets *(in Tests/Data/VisualTests/)*
+
+See [Tests/Data/VisualTests/LICENSE.txt](Tests/Data/VisualTests/LICENSE.txt).
