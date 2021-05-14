@@ -11,7 +11,7 @@ ez_create_target(APPLICATION ${PROJECT_NAME})
 
 ez_make_winmain_executable(${PROJECT_NAME})
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network Svg)
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE

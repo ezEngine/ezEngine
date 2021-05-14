@@ -172,6 +172,12 @@ function(ez_link_target_qt)
             "${EZ_QT_DIR}/plugins/platforms"
             "$<TARGET_FILE_DIR:${FN_ARG_TARGET}>/platforms")
 
+        # Copy 'iconengines' into the binary folder.
+        add_custom_command(TARGET ${FN_ARG_TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${EZ_QT_DIR}/plugins/iconengines"
+            "$<TARGET_FILE_DIR:${FN_ARG_TARGET}>/iconengines")
+
     endif()
 
 endfunction()

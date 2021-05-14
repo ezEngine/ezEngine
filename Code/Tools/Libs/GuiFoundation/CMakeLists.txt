@@ -13,5 +13,5 @@ target_link_libraries(${PROJECT_NAME}
   ads
 )
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras COPY_DLLS)
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras Svg COPY_DLLS)
 
