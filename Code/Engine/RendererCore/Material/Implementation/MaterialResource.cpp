@@ -778,7 +778,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
   if (m_Desc.m_hBaseMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
+    // Block till the base material has been fully loaded to ensure that all parameters have their final value once this material is loaded.
+    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
     pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
   }
 
@@ -813,6 +814,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMaterialResource, ezMaterialResourceDescripto
 
   if (m_Desc.m_hBaseMaterial.IsValid())
   {
+    // Can't block here for the base material since this would result in a deadlock
     ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
     pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
   }
@@ -936,11 +938,13 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
   {
     materialHierarchy.PushBack(pCurrentMaterial);
 
-    const ezMaterialResourceHandle& hParentMaterial = pCurrentMaterial->m_Desc.m_hBaseMaterial;
-    if (!hParentMaterial.IsValid())
+    const ezMaterialResourceHandle& hBaseMaterial = pCurrentMaterial->m_Desc.m_hBaseMaterial;
+    if (!hBaseMaterial.IsValid())
       break;
 
-    pCurrentMaterial = ezResourceManager::BeginAcquireResource(hParentMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+    // Ensure that the base material is loaded at this point.
+    // For loaded materials this will always be the case but is still necessary for runtime created materials.
+    pCurrentMaterial = ezResourceManager::BeginAcquireResource(hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
   }
 
   EZ_SCOPE_EXIT(for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 1;) {
