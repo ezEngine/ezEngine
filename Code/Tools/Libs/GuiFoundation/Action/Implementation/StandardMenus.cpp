@@ -155,6 +155,10 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
 {
   m_ButtonType = button;
 
+  if (button == ButtonType::OpenDocumentation)
+  {
+    SetIconPath(":/GuiFoundation/EZ-logo.svg");
+  }
   if (button == ButtonType::ReportProblem)
   {
     SetIconPath(":/EditorFramework/Icons/GitHub-Light.png");

@@ -8,7 +8,7 @@ EZ_IMPLEMENT_SINGLETON(ezQtSettingsTab);
 
 ezString ezQtSettingsTab::GetWindowIcon() const
 {
-  return ":/GuiFoundation/Icons/ezEditor16.png";
+  return ""; //:/GuiFoundation/EZ-logo.svg";
 }
 
 ezString ezQtSettingsTab::GetDisplayNameShort() const

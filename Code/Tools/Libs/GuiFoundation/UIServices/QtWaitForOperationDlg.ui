@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/Icons/ezEditor16.png</normaloff>:/GuiFoundation/Icons/ezEditor16.png</iconset>
+    <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
