@@ -231,6 +231,10 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
   ezMap<ezUInt8, PinCount> pinCounts;
   CountPinTypes(pNodeManager, allNodes, pinCounts);
 
+  // if the asset is entirely empty, don't complain
+  if (allNodes.IsEmpty())
+    return ezStatus(EZ_SUCCESS);
+
   SortNodesByPriority(allNodes);
 
   if (allNodes.IsEmpty())
