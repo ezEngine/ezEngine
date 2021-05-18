@@ -25,8 +25,10 @@ set (MOC_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/linux/FloatingWidgetTitleBar.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaTabBar.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaTitleBar.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaTitleBar_p.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaWidget.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockContainerWidget.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/DockFocusController.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockManager.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockOverlay.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockSplitter.h
