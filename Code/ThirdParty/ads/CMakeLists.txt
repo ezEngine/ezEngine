@@ -1,6 +1,7 @@
 ez_cmake_init()
 
 ez_build_filter_runtime()
+ez_requires_windows()
 
 ez_requires(EZ_3RDPARTY_ADS_SUPPORT)
 

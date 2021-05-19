@@ -273,7 +273,6 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
     dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
     dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
     dock->setFeature(ads::CDockWidget::NoTab, true);
-    
   }
 
   if (dock->isFloating())
