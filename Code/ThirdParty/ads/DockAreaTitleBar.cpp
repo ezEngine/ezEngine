@@ -39,6 +39,7 @@
 #include <QDebug>
 #include <QPointer>
 
+#include "DockAreaTitleBar_p.h"
 #include "ads_globals.h"
 #include "FloatingDockContainer.h"
 #include "FloatingDragPreview.h"
@@ -102,10 +103,11 @@ struct DockAreaTitleBarPrivate
 
 	/**
 	 * Returns true if the given config flag is set
+	 * Convenience function to ease config flag testing
 	 */
 	static bool testConfigFlag(CDockManager::eConfigFlag Flag)
 	{
-		return CDockManager::configFlags().testFlag(Flag);
+		return CDockManager::testConfigFlag(Flag);
 	}
 
 	/**
@@ -127,10 +129,6 @@ struct DockAreaTitleBarPrivate
 	 */
 	IFloatingWidget* makeAreaFloating(const QPoint& Offset, eDragState DragState);
 };// struct DockAreaTitleBarPrivate
-
-
-
-
 
 //============================================================================
 DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
@@ -165,7 +163,7 @@ void DockAreaTitleBarPrivate::createButtons()
 
 	// Undock button
 	UndockButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasUndockButton));
-	UndockButton->setObjectName("undockButton");
+	UndockButton->setObjectName("detachGroupButton");
 	UndockButton->setAutoRaise(true);
 	internal::setToolTip(UndockButton, QObject::tr("Detach Group"));
 	internal::setButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
@@ -175,7 +173,7 @@ void DockAreaTitleBarPrivate::createButtons()
 
 	// Close button
 	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton));
-	CloseButton->setObjectName("closeButton");
+	CloseButton->setObjectName("dockAreaCloseButton");
 	CloseButton->setAutoRaise(true);
 	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
 	if (testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
@@ -215,7 +213,7 @@ IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset,
 {
 	QSize Size = DockArea->size();
 	this->DragState = DragState;
-	bool OpaqueUndocking = CDockManager::configFlags().testFlag(CDockManager::OpaqueUndocking) ||
+	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DragState);
 	CFloatingDockContainer* FloatingDockContainer = nullptr;
 	IFloatingWidget* FloatingWidget;
@@ -271,6 +269,8 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	d->createTabBar();
 	d->Layout->addWidget(new CSpacerWidget(this));
 	d->createButtons();
+
+    setFocusPolicy(Qt::NoFocus);
 }
 
 
@@ -382,7 +382,7 @@ void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 {
 	int Index = Action->data().toInt();
 	d->TabBar->setCurrentIndex(Index);
-	emit tabBarClicked(Index);
+	Q_EMIT tabBarClicked(Index);
 }
 
 
@@ -468,6 +468,11 @@ void CDockAreaTitleBar::mousePressEvent(QMouseEvent* ev)
 		ev->accept();
 		d->DragStartMousePos = ev->pos();
 		d->DragState = DraggingMousePressed;
+
+		if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+		{
+			d->TabBar->currentTab()->setFocus(Qt::OtherFocusReason);
+		}
 		return;
 	}
 	Super::mousePressEvent(ev);
@@ -488,6 +493,7 @@ void CDockAreaTitleBar::mouseReleaseEvent(QMouseEvent* ev)
 		{
 			d->FloatingWidget->finishDragging();
 		}
+
 		return;
 	}
 	Super::mouseReleaseEvent(ev);
@@ -573,12 +579,12 @@ void CDockAreaTitleBar::contextMenuEvent(QContextMenuEvent* ev)
 	}
 
 	QMenu Menu(this);
-	auto Action = Menu.addAction(tr("Detach Area"), this, SLOT(onUndockButtonClicked()));
+	auto Action = Menu.addAction(tr("Detach Group"), this, SLOT(onUndockButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
 	Menu.addSeparator();
-	Action = Menu.addAction(tr("Close Area"), this, SLOT(onCloseButtonClicked()));
+	Action = Menu.addAction(tr("Close Group"), this, SLOT(onCloseButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
-	Menu.addAction(tr("Close Other Areas"), d->DockArea, SLOT(closeOtherAreas()));
+	Menu.addAction(tr("Close Other Groups"), d->DockArea, SLOT(closeOtherAreas()));
 	Menu.exec(ev->globalPos());
 }
 
@@ -596,24 +602,48 @@ int CDockAreaTitleBar::indexOf(QWidget *widget) const
 	return d->Layout->indexOf(widget);
 }
 
-
- CTitleBarButton::CTitleBarButton(bool visible /*= true*/, QWidget* parent /*= nullptr*/)
-  : tTitleBarButton(parent)
-  , Visible(visible)
-  , HideWhenDisabled(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideDisabledButtons))
+//============================================================================
+CTitleBarButton::CTitleBarButton(bool visible, QWidget* parent)
+	: tTitleBarButton(parent),
+	  Visible(visible),
+	  HideWhenDisabled(CDockManager::testConfigFlag(CDockManager::DockAreaHideDisabledButtons))
 {
+    setFocusPolicy(Qt::NoFocus);
 }
 
- bool CTitleBarButton::event(QEvent* ev)
+//============================================================================
+void CTitleBarButton::setVisible(bool visible)
 {
-  if (QEvent::EnabledChange == ev->type() && HideWhenDisabled)
-  {
-    // force setVisible() call
-    // Calling setVisible() directly here doesn't work well when button is expected to be shown first time
-    QMetaObject::invokeMethod(this, "setVisible", Qt::QueuedConnection, Q_ARG(bool, isEnabled()));
-  }
+	// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
+	visible = visible && this->Visible;
 
-  return Super::event(ev);
+	// 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:
+	if (visible && HideWhenDisabled)
+	{
+		visible = isEnabled();
+	}
+
+	Super::setVisible(visible);
+}
+
+//============================================================================
+bool CTitleBarButton::event(QEvent *ev)
+{
+	if (QEvent::EnabledChange == ev->type() && HideWhenDisabled)
+	{
+		// force setVisible() call 
+		// Calling setVisible() directly here doesn't work well when button is expected to be shown first time
+		QMetaObject::invokeMethod(this, "setVisible", Qt::QueuedConnection, Q_ARG(bool, isEnabled()));
+	}
+
+	return Super::event(ev);
+}
+
+//============================================================================
+CSpacerWidget::CSpacerWidget(QWidget* Parent /*= 0*/) : Super(Parent)
+{
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	setStyleSheet("border: none; background: none;");
 }
 
 } // namespace ads

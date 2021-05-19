@@ -444,7 +444,7 @@
              </property>
              <property name="icon">
               <iconset resource="../QtResources/resources.qrc">
-               <normaloff>:/EditorFramework/Icons/GitHub.png</normaloff>:/EditorFramework/Icons/GitHub.png</iconset>
+               <normaloff>:/EditorFramework/Icons/GitHub.svg</normaloff>:/EditorFramework/Icons/GitHub.svg</iconset>
              </property>
             </widget>
            </item>
@@ -461,7 +461,7 @@
              </property>
              <property name="icon">
               <iconset resource="../QtResources/resources.qrc">
-               <normaloff>:/EditorFramework/Icons/Discord.png</normaloff>:/EditorFramework/Icons/Discord.png</iconset>
+               <normaloff>:/EditorFramework/Icons/Discord.svg</normaloff>:/EditorFramework/Icons/Discord.svg</iconset>
              </property>
             </widget>
            </item>
@@ -478,7 +478,7 @@
              </property>
              <property name="icon">
               <iconset resource="../QtResources/resources.qrc">
-               <normaloff>:/EditorFramework/Icons/Twitter.png</normaloff>:/EditorFramework/Icons/Twitter.png</iconset>
+               <normaloff>:/EditorFramework/Icons/Twitter.svg</normaloff>:/EditorFramework/Icons/Twitter.svg</iconset>
              </property>
             </widget>
            </item>

@@ -1,32 +1,54 @@
 # Advanced Docking System for Qt
 
-[![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
+[![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 
 [What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) •
 [Documentation](doc/user-guide.md)
 
-Qt Advanced Docking System lets you create customizable layouts using a full 
-featured window docking system similar to what is found in many popular 
-integrated development environments (IDEs) such as Visual Studio. 
+Qt Advanced Docking System lets you create customizable layouts using a full
+featured window docking system similar to what is found in many popular
+integrated development environments (IDEs) such as Visual Studio.
 
 [![Video Advanced Docking](doc/advanced-docking_video.png)](https://www.youtube.com/watch?v=7pdNfafg3Qc)
 
-Everything is implemented with standard Qt functionality without any
-platform specific code. Basic usage of QWidgets and QLayouts and using basic 
-styles as much as possible.
+## New and Noteworthy
 
-This work is based on and inspired by the 
-[Advanced Docking System for Qt](https://github.com/mfreiholz/Qt-Advanced-Docking-System) 
-from Manuel Freiholz. I did an almost complete rewrite of his code to improve
-code quality, readibility and to fix all issues from the issue tracker 
-of his docking system project.
+The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.0)
+adds the following features:
+
+- support for **Qt6.**
+- support for [empty dock area](doc/user-guide.md#empty-dock-area)
+
+The [release 3.6](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.0)
+adds some nice new features:
+
+- support for [central widget](doc/user-guide.md#central-widget) concept
+
+![Central Widget](doc/central_widget.gif)
+
+- support for [native floating widgets](doc/user-guide.md#floatingcontainerforcenativetitlebar-linux-only) on Linux
+
+![FloatingContainerForceNativeTitleBar true](doc/cfg_flag_FloatingContainerForceNativeTitleBar_true.png)
+
+Both features are contributions from ADS users. Read the [documentation](doc/user-guide.md)
+to learn more about both new features.
+
+The [release 3.5](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.5.0)
+adds the new [focus highlighting](doc/user-guide.md#focushighlighting) feature.
+This optional feature enables highlighting of the focused dock widget like you
+know it from Visual Studio.
+
+![FocusHighlighting](doc/cfg_flag_FocusHighlighting.gif)
+
+ [learn more...](doc/user-guide.md#focushighlighting)
 
 ## Features
 
 ### Overview
 
+- [New and Noteworthy](#new-and-noteworthy)
 - [Features](#features)
   - [Overview](#overview)
   - [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
@@ -38,7 +60,9 @@ of his docking system project.
   - [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
   - [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
   - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
+  - [Python PyQt5 Bindings](#python-pyqt5-bindings)
 - [Tested Compatible Environments](#tested-compatible-environments)
+  - [Supported Qt Versions](#supported-qt-versions)
   - [Windows](#windows)
   - [macOS](#macos)
   - [Linux](#linux)
@@ -54,6 +78,9 @@ of his docking system project.
   - [Qt Creator IDE](#qt-creator-ide)
   - [Qt Design Studio](#qt-design-studio)
   - [QmixElements](#qmixelements)
+  - [ezEditor](#ezeditor)
+  - [D-Tect X](#d-tect-x)
+  - [HiveWE](#hivewe)
 
 ### Docking everywhere - no central widget
 
@@ -61,8 +88,8 @@ There is no central widget like in the Qt docking system. You can dock on every
 border of the main window or you can dock into each dock area - so you are
 free to dock almost everywhere.
 
-![Dropping widgets](doc/preview-dragndrop.png)\
-\
+![Dropping widgets](doc/preview-dragndrop.png)
+
 ![Dropping widgets](doc/preview-dragndrop_dark.png)
 
 ### Docking inside floating windows
@@ -70,8 +97,8 @@ free to dock almost everywhere.
 There is no difference between the main window and a floating window. Docking
 into floating windows is supported.
 
-![Docking inside floating windows](doc/floating-widget-dragndrop.png)\
-\
+![Docking inside floating windows](doc/floating-widget-dragndrop.png)
+
 ![Docking inside floating windows](doc/floating-widget-dragndrop_dark.png)
 
 ### Grouped dragging
@@ -80,8 +107,8 @@ When dragging the titlebar of a dock, all the tabs that are tabbed with it are
 going to be dragged. So you can move complete groups of tabbed widgets into
 a floating widget or from one dock area to another one.
 
-![Grouped dragging](doc/grouped-dragging.gif)\
-\
+![Grouped dragging](doc/grouped-dragging.gif)
+
 ![Grouped dragging](doc/grouped-dragging_dark.png)
 
 ### Perspectives for fast switching of the complete main window layout
@@ -92,13 +119,13 @@ perspective to make your own custom perspective. Later you can simply
 select a perspective from the perspective list to quickly switch the complete 
 main window layout.
 
-![Perspective](doc/perspectives.gif)\
-\
+![Perspective](doc/perspectives.gif)
+
 ![Perspective](doc/perspectives_dark.png)
 
 ### Opaque and non-opaque splitter resizing
 
-The advanced docking system uses standard QSplitters as resize separators and thus supports opaque and non-opaque resizing functionality of QSplitter. In some rare cases, for very complex widgets or on slow machines resizing via separator on the fly may cause flicking and glaring of rendered content inside a widget. The global dock manager flag `OpaqueSplitterResize` configures the resizing behaviour of the splitters. If this flag is set, then widgets are resized dynamically (opaquely) while interactively moving the splitters. 
+The advanced docking system uses standard QSplitters as resize separators and thus supports opaque and non-opaque resizing functionality of QSplitter. In some rare cases, for very complex widgets or on slow machines resizing via separator on the fly may cause flicking and glaring of rendered content inside a widget. The global dock manager flag `OpaqueSplitterResize` configures the resizing behaviour of the splitters. If this flag is set, then widgets are resized dynamically (opaquely) while interactively moving the splitters.
 
 ![Opaque resizing](doc/opaque_resizing.gif)
 
@@ -135,7 +162,25 @@ You can detach dock widgets and also dock areas in the following ways:
 
 Normally clicking the close button of a dock widget will just hide the widget and the user can show it again using the toggleView() action of the dock widget. This is meant for user interfaces with a static amount of widgets. But the advanced docking system also supports dynamic dock widgets that will get deleted on close. If you set the dock widget flag `DockWidgetDeleteOnClose` for a certain dock widget, then it will be deleted as soon as you close this dock widget. This enables the implementation of user interfaces with dynamically created editors, like in word processing applications or source code development tools.
 
+### Python PyQt5 Bindings
+
+![Python Logo](doc/python_logo.png)
+
+The Advanced Docking System comes with a complete Python integration based on
+PyQt5 bindings. The package is available via [conda-forge](https://github.com/conda-forge/pyqtads-feedstock). The python integration has been contributed to this project
+by the following people:
+
+- [n-elie](https://github.com/n-elie)
+- [Hugo Slepicka](https://github.com/hhslepicka)
+- [K Lauer](https://github.com/klauer)
+
+Latest working version: [3.5.2](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.5.2)
+
 ## Tested Compatible Environments
+
+### Supported Qt Versions
+
+The library supports **Qt5** and **Qt6**.
 
 ### Windows
 
@@ -153,15 +198,23 @@ The application can be compiled for macOS. A user reported, that the library wor
 
 ### Linux
 
-Ubuntu [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
+[![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
-The application can be compiled for Linux and has been developed and tested with **Kubuntu 18.04** and **Kubuntu 19.10**.
+Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like this is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with the following Linux distributions:
 
+- **Kubuntu 18.04 and 19.10**
+- **Ubuntu 18.04, 19.10 and 20.04**
+
+There are some requirements for the Linux distribution that have to be met:
+
+- an X server that supports ARGB visuals and a compositing window manager. This is required to display the translucent dock overlays ([https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows](https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows)). If your Linux distribution does not support this, or if you disable this feature, you will very likely see issue [#95](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/95).
+- Wayland is not properly supported by Qt yet. If you use Wayland, then you should set the session type to x11: `XDG_SESSION_TYPE=x11 ./AdvancedDockingSystemDemo`. You will find more details about this in issue [#288](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/288).
+
+Screenshot Kubuntu:
 ![Advanced Docking on Kubuntu Linux](doc/linux_kubuntu_1804.png)
 
-and with **Ubuntu 19.10**
-
+Screenshot Ubuntu:
 ![Advanced Docking on Ubuntu Linux](doc/linux_ubuntu_1910.png)
 
 ## Build
@@ -246,7 +299,13 @@ MainWindow::~MainWindow()
 ## Developers
 
 - Uwe Kindler, Project Maintainer
-- Manuel Freiholz 
+- Manuel Freiholz
+
+This work is based on and inspired by the 
+[Advanced Docking System for Qt](https://github.com/mfreiholz/Qt-Advanced-Docking-System)
+from Manuel Freiholz. I did an almost complete rewrite of his code to improve
+code quality, readibility and to fix all issues from the issue tracker
+of his docking system project.
 
 ## License information
 
@@ -287,7 +346,7 @@ If this project help you reduce time to develop or if you just like it, you can 
 From version 4.12 on, Qt Creator uses the Advanced Docking Framework for its
 Qt Quick Designer. This improves the usability when using multiple screens.
 
-![Qt Creator](doc/qtcreator.png)
+![Qt Creator](doc/showcase_qtcreator.png)
 
 ### [Qt Design Studio](https://www.qt.io/ui-design-tools)
 
@@ -295,7 +354,7 @@ Taken from the [Qt Blog](https://www.qt.io/blog/qt-design-studio-1.5-beta-releas
 
 > The most obvious change in [Qt Design Studio 1.5](https://www.qt.io/blog/qt-design-studio-1.5-beta-released) is the integration of dock widgets using the Qt Advanced Docking System. This allows the user to fully customize the workspace and also to undock any view into its own top level window. This especially improves the usability when using multiple screens.
 
-![Qt Design Studio](doc/qt_design_studio.png)
+![Qt Design Studio](doc/showcase_qt_design_studio.png)
 
 ### [QmixElements](https://www.cetoni.com/products/qmixelements/)
 
@@ -303,4 +362,32 @@ The QmixElements software from [CETONI](https://www.cetoni.com) is a comprehensi
 plugin-based and modular laboratory automation software for controlling CETONI devices using a joint graphical user interface. The software features a powerful script system to automate processes. This [blog post](https://www.cetoni.com/blog/qmixelements-advanced-docking-system/) gives a nice overview about the use of the Qt
 Advanced Docking System in the QmixElements sofware.
 
-![QmixElements](doc/qmix_elements.png)
+![QmixElements](doc/showcase_qmix_elements.png)
+
+### [ezEditor](https://github.com/ezEngine/ezEngine)
+
+The ezEditor is a full blown graphical editor used for editing scenes and
+importing and authoring assets for the [ezEngine](https://github.com/ezEngine/ezEngine) -
+an open source C++ game engine in active development.
+
+![ezEditor](doc/showcase_ezEngine_editor.png)
+
+### [D-Tect X](https://www.duerr-ndt.com/products/ndt-software/d-tect-xray-inspection-software.html)
+
+D-Tect X is a X-ray inspection software for industrial radiography. It is a state-of-the-art 64-bit application which supports GPU (Graphics Processing Unit) acceleration and takes full advantage of computers with multiple CPU cores. A large set of tools assist the user in image analysis and evaluation. Thanks to the Qt Advanced Docking System the flexible and intuitive user interface can be completely customized to  each user’s preference.
+
+[learn more...](https://www.duerr-ndt.com/products/ndt-software/d-tect-xray-inspection-software.html)
+
+![D-TectX](doc/showcase_d-tect-x.jpg)
+
+### [HiveWE](https://github.com/stijnherfst/HiveWE)
+
+HiveWE is a Warcraft III world editor. It focusses on speed and ease of use,
+especially for large maps where the regular World Editor is often too slow and clunky.
+It has a JASS editor with syntax hightlighting, tabs, code completion and more.
+The JASS editor uses the Qt Advanced Docking System for the management and layout
+of the open editor windows.
+
+[learn more...](https://github.com/stijnherfst/HiveWE)
+
+![HiveWE](doc/showcase_hivewe.png)

@@ -36,8 +36,13 @@
 #include <QWidget>
 #include <QDebug>
 #include <QStyle>
+#include <QMouseEvent>
 
-class QAbstractButton;
+#ifdef Q_OS_LINUX
+#include <xcb/xcb.h>
+#endif
+
+QT_FORWARD_DECLARE_CLASS(QAbstractButton)
 
 #ifndef ADS_STATIC
 #ifdef ADS_SHARED_EXPORT
@@ -60,17 +65,10 @@ class QAbstractButton;
 // dumps to qDebug and std::cout after layout changes
 #define ADS_DEBUG_LEVEL 0
 
-class QSplitter;
+QT_FORWARD_DECLARE_CLASS(QSplitter)
 
 namespace ads
 {
-enum eStateFileVersion
-{
-	InitialVersion = 0,
-	Version1 = 1,
-	CurrentVersion = Version1
-};
-
 class CDockSplitter;
 
 enum DockWidgetArea
@@ -129,12 +127,40 @@ enum eBitwiseOperator
 	BitwiseOr
 };
 
+
 namespace internal
 {
 static const bool RestoreTesting = true;
 static const bool Restore = false;
 static const char* const ClosedProperty = "close";
 static const char* const DirtyProperty = "dirty";
+
+#ifdef Q_OS_LINUX
+// Utils to directly communicate with the X server
+/**
+ * Get atom from cache or request it from the XServer.
+ */
+xcb_atom_t xcb_get_atom(const char *name);
+
+/**
+ * Add a property to a window. Only works on "hidden" windows.
+ */
+void xcb_add_prop(bool state, WId window, const char *type, const char *prop);
+/**
+ * Updates up to two window properties. Can be set on a visible window.
+ */
+void xcb_update_prop(bool set, WId window, const char *type, const char *prop, const char *prop2 = nullptr);
+/**
+ * Only for debugging purposes.
+ */
+bool xcb_dump_props(WId window, const char *type);
+/**
+ * Gets the active window manager from the X11 Server.
+ * Requires a EWMH conform window manager (Allmost all common used ones are).
+ * Returns "UNKNOWN" otherwise.
+ */
+QString windowManager();
+#endif
 
 /**
  * Replace the from widget in the given splitter with the To widget
@@ -154,7 +180,7 @@ void hideEmptyParentSplitters(CDockSplitter* FirstParentSplitter);
 class CDockInsertParam : public QPair<Qt::Orientation, bool>
 {
 public:
-	using QPair::QPair;
+    using QPair<Qt::Orientation, bool>::QPair;
 	Qt::Orientation orientation() const {return this->first;}
 	bool append() const {return this->second;}
 	int insertOffset() const {return append() ? 1 : 0;}
@@ -236,6 +262,19 @@ void setToolTip(QObjectPtr obj, const QString &tip)
 
 
 /**
+ * Helper function for access to mouse event global position in Qt5 and
+ */
+inline QPoint globalPositionOf(QMouseEvent* ev)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    return ev->globalPosition().toPoint();
+#else
+    return ev->globalPos();
+#endif
+}
+
+
+/**
  * Helper function to set the icon of a certain button.
  * Use this function to set the icons for the dock area and dock widget buttons.
  * The function first uses the CustomIconId to get an icon from the
@@ -250,6 +289,21 @@ void setToolTip(QObjectPtr obj, const QString &tip)
  */
 void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap,
 	ads::eIcon CustomIconId);
+
+
+enum eRepolishChildOptions
+{
+	RepolishIgnoreChildren,
+	RepolishDirectChildren,
+	RepolishChildrenRecursively
+};
+
+/**
+ * Calls unpolish() / polish for the style of the given widget to update
+ * stylesheet if a property changes
+ */
+void repolishStyle(QWidget* w, eRepolishChildOptions Options = RepolishIgnoreChildren);
+
 
 } // namespace internal
 } // namespace ads

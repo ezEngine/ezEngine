@@ -28,7 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <FloatingDragPreview.h>
+#include "FloatingDragPreview.h"
 #include "ElidingLabel.h"
 #include "DockWidgetTab.h"
 
@@ -51,7 +51,6 @@
 #include "DockManager.h"
 #include "IconProvider.h"
 
-#include <iostream>
 
 namespace ads
 {
@@ -77,6 +76,7 @@ struct DockWidgetTabPrivate
 	QAbstractButton* CloseButton = nullptr;
 	QSpacerItem* IconTextSpacer;
 	QPoint TabDragStartPosition;
+	QSize IconSize;
 
 	/**
 	 * Private data constructor
@@ -114,7 +114,7 @@ struct DockWidgetTabPrivate
 	 */
 	bool testConfigFlag(CDockManager::eConfigFlag Flag) const
 	{
-		return CDockManager::configFlags().testFlag(Flag);
+		return CDockManager::testConfigFlag(Flag);
 	}
 
 	/**
@@ -132,6 +132,31 @@ struct DockWidgetTabPrivate
 		{
 			return new QPushButton();
 		}
+	}
+
+	/**
+	 * Update the close button visibility from current feature/config
+	 */
+	void updateCloseButtonVisibility(bool active)
+	{
+		bool DockWidgetClosable = DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
+		bool ActiveTabHasCloseButton = testConfigFlag(CDockManager::ActiveTabHasCloseButton);
+		bool AllTabsHaveCloseButton = testConfigFlag(CDockManager::AllTabsHaveCloseButton);
+		bool TabHasCloseButton = (ActiveTabHasCloseButton && active) | AllTabsHaveCloseButton;
+		CloseButton->setVisible(DockWidgetClosable && TabHasCloseButton);
+	}
+
+	/**
+	 * Update the size policy of the close button depending on the
+	 * RetainTabSizeWhenCloseButtonHidden feature
+	 */
+	void updateCloseButtonSizePolicy()
+	{
+		auto Features = DockWidget->features();
+		auto SizePolicy = CloseButton->sizePolicy();
+		SizePolicy.setRetainSizeWhenHidden(Features.testFlag(CDockWidget::DockWidgetClosable)
+			&& testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
+		CloseButton->setSizePolicy(SizePolicy);
 	}
 
 	template <typename T>
@@ -160,6 +185,28 @@ struct DockWidgetTabPrivate
 		GlobalDragStartMousePosition = GlobalPos;
 		DragStartMousePosition = _this->mapFromGlobal(GlobalPos);
 	}
+
+	/**
+	 * Update the icon in case the icon size changed
+	 */
+	void updateIcon()
+	{
+		if (!IconLabel || Icon.isNull())
+		{
+			return;
+		}
+
+		if (IconSize.isValid())
+		{
+			IconLabel->setPixmap(Icon.pixmap(IconSize));
+		}
+		else
+		{
+			IconLabel->setPixmap(Icon.pixmap(_this->style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, _this)));
+		}
+		IconLabel->setVisible(true);
+	}
+
 };
 // struct DockWidgetTabPrivate
 
@@ -187,7 +234,7 @@ void DockWidgetTabPrivate::createLayout()
 	CloseButton->setObjectName("tabCloseButton");
 	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, TabCloseIcon);
     CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    _this->onDockWidgetFeaturesChanged();
+    updateCloseButtonSizePolicy();
 	internal::setToolTip(CloseButton, QObject::tr("Close Tab"));
 	_this->connect(CloseButton, SIGNAL(clicked()), SIGNAL(closeRequested()));
 
@@ -212,7 +259,7 @@ void DockWidgetTabPrivate::createLayout()
 void DockWidgetTabPrivate::moveTab(QMouseEvent* ev)
 {
     ev->accept();
-    QPoint Distance = ev->globalPos() - GlobalDragStartMousePosition;
+    QPoint Distance = internal::globalPositionOf(ev) - GlobalDragStartMousePosition;
     Distance.setY(0);
     auto TargetPos = Distance + TabDragStartPosition;
     TargetPos.rx() = qMax(TargetPos.x(), 0);
@@ -242,7 +289,7 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
     ADS_PRINT("startFloating");
 	DragState = DraggingState;
 	IFloatingWidget* FloatingWidget = nullptr;
-	bool OpaqueUndocking = CDockManager::configFlags().testFlag(CDockManager::OpaqueUndocking) ||
+	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DraggingState);
 
 	// If section widget has multiple tabs, we take only one tab
@@ -284,6 +331,10 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 	setAttribute(Qt::WA_NoMousePropagation, true);
 	d->DockWidget = DockWidget;
 	d->createLayout();
+	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+	{
+		setFocusPolicy(Qt::ClickFocus);
+	}
 }
 
 //============================================================================
@@ -300,9 +351,9 @@ void CDockWidgetTab::mousePressEvent(QMouseEvent* ev)
 	if (ev->button() == Qt::LeftButton)
 	{
 		ev->accept();
-        d->saveDragStartMousePosition(ev->globalPos());
+        d->saveDragStartMousePosition(internal::globalPositionOf(ev));
         d->DragState = DraggingMousePressed;
-        emit clicked();
+        Q_EMIT clicked();
 		return;
 	}
 	Super::mousePressEvent(ev);
@@ -326,7 +377,7 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			// End of tab moving, emit signal
 			if (d->DockArea)
 			{
-				emit moved(ev->globalPos());
+                Q_EMIT moved(internal::globalPositionOf(ev));
 			}
 			break;
 
@@ -371,7 +422,7 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     auto MappedPos = mapToParent(ev->pos());
     bool MouseOutsideBar = (MappedPos.x() < 0) || (MappedPos.x() > parentWidget()->rect().right());
     // Maybe a fixed drag distance is better here ?
-    int DragDistanceY = qAbs(d->GlobalDragStartMousePosition.y() - ev->globalPos().y());
+    int DragDistanceY = qAbs(d->GlobalDragStartMousePosition.y() - internal::globalPositionOf(ev).y());
     if (DragDistanceY >= CDockManager::startDragDistance() || MouseOutsideBar)
 	{
 		// If this is the last dock area in a dock container with only
@@ -394,7 +445,7 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
         {
         	// If we undock, we need to restore the initial position of this
         	// tab because it looks strange if it remains on its dragged position
-        	if (d->isDraggingState(DraggingTab) && !CDockManager::configFlags().testFlag(CDockManager::OpaqueUndocking))
+        	if (d->isDraggingState(DraggingTab) && !CDockManager::testConfigFlag(CDockManager::OpaqueUndocking))
 			{
         		parentWidget()->layout()->update();
 			}
@@ -403,7 +454,7 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     	return;
 	}
     else if (d->DockArea->openDockWidgetsCount() > 1
-     && (ev->globalPos() - d->GlobalDragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving
+     && (internal::globalPositionOf(ev) - d->GlobalDragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving
 	{
     	// If we start dragging the tab, we save its inital position to
     	// restore it later
@@ -456,25 +507,38 @@ bool CDockWidgetTab::isActiveTab() const
 //============================================================================
 void CDockWidgetTab::setActiveTab(bool active)
 {
-	bool DockWidgetClosable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
-	bool ActiveTabHasCloseButton = d->testConfigFlag(CDockManager::ActiveTabHasCloseButton);
-	bool AllTabsHaveCloseButton = d->testConfigFlag(CDockManager::AllTabsHaveCloseButton);
-	bool TabHasCloseButton = (ActiveTabHasCloseButton && active) | AllTabsHaveCloseButton;
-	d->CloseButton->setVisible(DockWidgetClosable && TabHasCloseButton);
-	if (d->IsActiveTab == active)
+    d->updateCloseButtonVisibility(active);
+
+	// Focus related stuff
+	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting) && !d->DockWidget->dockManager()->isRestoringState())
+	{
+		bool UpdateFocusStyle = false;
+		if (active && !hasFocus())
+		{
+			setFocus(Qt::OtherFocusReason);
+			UpdateFocusStyle = true;
+		}
+
+		if (d->IsActiveTab == active)
+		{
+			if (UpdateFocusStyle)
+			{
+				updateStyle();
+			}
+			return;
+		}
+	}
+	else if (d->IsActiveTab == active)
 	{
 		return;
 	}
 
 	d->IsActiveTab = active;
-	style()->unpolish(this);
-	style()->polish(this);
-	d->TitleLabel->style()->unpolish(d->TitleLabel);
-	d->TitleLabel->style()->polish(d->TitleLabel);
+	updateStyle();
 	update();
 	updateGeometry();
 
-	emit activeTabChanged();
+	Q_EMIT activeTabChanged();
 }
 
 
@@ -527,11 +591,7 @@ void CDockWidgetTab::setIcon(const QIcon& Icon)
 	}
 
 	d->Icon = Icon;
-	if (d->IconLabel)
-	{
-		d->IconLabel->setPixmap(Icon.pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, this)));
-		d->IconLabel->setVisible(true);
-	}
+	d->updateIcon();
 }
 
 
@@ -558,7 +618,7 @@ void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 	if ((!d->DockArea->dockContainer()->isFloating() || d->DockArea->dockWidgetsCount() > 1)
 		&& d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
 	{
-		d->saveDragStartMousePosition(event->globalPos());
+        d->saveDragStartMousePosition(internal::globalPositionOf(event));
 		d->startFloating(DraggingInactive);
 	}
 
@@ -569,8 +629,8 @@ void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 //============================================================================
 void CDockWidgetTab::setVisible(bool visible)
 {
-	// Just here for debugging to insert debug output
-	Super::setVisible(visible);
+	visible &= !d->DockWidget->features().testFlag(CDockWidget::NoTab);
+    Super::setVisible(visible);
 }
 
 
@@ -626,11 +686,8 @@ bool CDockWidgetTab::event(QEvent *e)
 //============================================================================
 void CDockWidgetTab::onDockWidgetFeaturesChanged()
 {
-	auto Features = d->DockWidget->features();
-	auto SizePolicy = d->CloseButton->sizePolicy();
-	SizePolicy.setRetainSizeWhenHidden(Features.testFlag(CDockWidget::DockWidgetClosable)
-		&& d->testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
-	d->CloseButton->setSizePolicy(SizePolicy);
+    d->updateCloseButtonSizePolicy();
+    d->updateCloseButtonVisibility(isActiveTab());
 }
 
 
@@ -638,6 +695,28 @@ void CDockWidgetTab::onDockWidgetFeaturesChanged()
 void CDockWidgetTab::setElideMode(Qt::TextElideMode mode)
 {
 	d->TitleLabel->setElideMode(mode);
+}
+
+
+//============================================================================
+void CDockWidgetTab::updateStyle()
+{
+	internal::repolishStyle(this, internal::RepolishDirectChildren);
+}
+
+
+//============================================================================
+QSize CDockWidgetTab::iconSize() const
+{
+	return d->IconSize;
+}
+
+
+//============================================================================
+void CDockWidgetTab::setIconSize(const QSize& Size)
+{
+	d->IconSize = Size;
+	d->updateIcon();
 }
 
 

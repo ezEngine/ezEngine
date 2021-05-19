@@ -49,9 +49,9 @@
     <file>Icons/PlatformAndroid16.png</file>
     <file>Icons/PlatformApple16.png</file>
     <file>Icons/CreateEmpty16.png</file>
-	<file>Icons/Discord.png</file>
-	<file>Icons/Twitter.png</file>
-	<file>Icons/GitHub.png</file>
+	<file>Icons/Discord.svg</file>
+	<file>Icons/Twitter.svg</file>
+	<file>Icons/GitHub.svg</file>
 	<file>Icons/GitHub-Light.png</file>
   </qresource>
   <qresource prefix="AssetIcons">

@@ -36,8 +36,8 @@
 #include "FloatingDockContainer.h"
 
 
-class QSettings;
-class QMenu;
+QT_FORWARD_DECLARE_CLASS(QSettings)
+QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace ads
 {
@@ -84,6 +84,7 @@ private:
 	friend struct FloatingDragPreviewPrivate;
 	friend class CDockAreaTitleBar;
 
+
 protected:
 	/**
 	 * Registers the given floating widget in the internal list of
@@ -117,6 +118,22 @@ protected:
 	 * Overlay for dock areas
 	 */
 	CDockOverlay* dockAreaOverlay() const;
+
+
+	/**
+	 * A container needs to call this function if a widget has been dropped
+	 * into it
+	 */
+	void notifyWidgetOrAreaRelocation(QWidget* RelocatedWidget);
+
+	/**
+	 * This function is called, if a floating widget has been dropped into
+	 * an new position.
+	 * When this function is called, all dock widgets of the FloatingWidget
+	 * are already inserted into its new position
+	 */
+	void notifyFloatingWidgetDrop(CFloatingDockContainer* FloatingWidget);
+
 
 	/**
 	 * Show the floating widgets that has been created floating
@@ -162,6 +179,15 @@ public:
 		HideSingleCentralWidgetTitleBar = 0x100000, //!< If there is only one single visible dock widget in the main dock container (the dock manager) and if this flag is set, then the titlebar of this dock widget will be hidden
 		                                            //!< this only makes sense for non draggable and non floatable widgets and enables the creation of some kind of "central" widget
 
+		FocusHighlighting = 0x200000, //!< enables styling of focused dock widget tabs or floating widget titlebar
+		EqualSplitOnInsertion = 0x400000, ///!< if enabled, the space is equally distributed to all widgets in a  splitter
+
+		FloatingContainerForceNativeTitleBar = 0x800000, //!< Linux only ! Forces all FloatingContainer to use the native title bar. This might break docking for FloatinContainer on some Window Managers (like Kwin/KDE).
+														 //!< If neither this nor FloatingContainerForceCustomTitleBar is set (the default) native titlebars are used except on known bad systems.
+														 //! Users can overwrite this by setting the environment variable ADS_UseNativeTitle to "1" or "0".
+        FloatingContainerForceQWidgetTitleBar = 0x1000000,//!< Linux only ! Forces all FloatingContainer to use a QWidget based title bar.
+														 //!< If neither this nor FloatingContainerForceNativeTitleBar is set (the default) native titlebars are used except on known bad systems.
+														 //! Users can overwrite this by setting the environment variable ADS_UseNativeTitle to "1" or "0".
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
 							   | DockAreaHasUndockButton
@@ -308,8 +334,12 @@ public:
 	 * If auto formatting is enabled, the output is intended and line wrapped.
 	 * The XmlMode XmlAutoFormattingDisabled is better if you would like to have
 	 * a more compact XML output - i.e. for storage in ini files.
+	 * The version number is stored as part of the data.
+	 * To restore the saved state, pass the return value and version number
+	 * to restoreState().
+	 * \see restoreState()
 	 */
-	QByteArray saveState(int version = Version1) const;
+	QByteArray saveState(int version = 0) const;
 
 	/**
 	 * Restores the state of this dockmanagers dockwidgets.
@@ -317,8 +347,9 @@ public:
 	 * not match, the dockmanager's state is left unchanged, and this function
 	 * returns false; otherwise, the state is restored, and this function
 	 * returns true.
+	 * \see saveState()
 	 */
-	bool restoreState(const QByteArray &state, int version = Version1);
+	bool restoreState(const QByteArray &state, int version = 0);
 
 	/**
 	 * Saves the current perspective to the internal list of perspectives.
@@ -355,7 +386,31 @@ public:
 	 */
 	void loadPerspectives(QSettings& Settings);
 
-	/**
+    /**
+     * This function returns managers central widget or nullptr if no central widget is set.
+     */
+    CDockWidget* centralWidget() const;
+
+    /**
+     * Adds dockwidget widget into the central area and marks it as central widget.
+     * If central widget is set, it will be the only dock widget
+     * that will resize with the dock container. A central widget if not
+     * movable, floatable or closable and the titlebar of the central
+     * dock area is not visible.
+     * If the given widget could be set as central widget, the function returns
+     * the created dock area. If the widget could not be set, because there
+     * is already a central widget, this function returns a nullptr.
+     * To clear the central widget, pass a nullptr to the function.
+     * \note Setting a central widget is only possible if no other dock widgets
+     * have been registered before. That means, this function should be the
+     * first function that you call before you add other dock widgets.
+     * \retval != 0 The dock area that contains the central widget
+     * \retval nullptr Indicates that the given widget can not be set as central
+     *         widget because there is already a central widget.
+     */
+    CDockAreaWidget* setCentralWidget(CDockWidget* widget);
+
+    /**
 	 * Adds a toggle view action to the the internal view menu.
 	 * You can either manage the insertion of the toggle view actions in your
 	 * application or you can add the actions to the internal view menu and
@@ -405,13 +460,66 @@ public:
 	 */
 	static int startDragDistance();
 
-public slots:
+	/**
+	 * Helper function to set focus depending on the configuration of the
+	 * FocusStyling flag
+	 */
+	template <class QWidgetPtr>
+	static void setWidgetFocus(QWidgetPtr widget)
+	{
+		if (!CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+		{
+			return;
+		}
+
+		widget->setFocus(Qt::OtherFocusReason);
+	}
+
+#ifdef Q_OS_LINUX
+	bool eventFilter(QObject *obj, QEvent *e) override;
+#endif
+
+	/**
+	 * Returns the dock widget that has focus style in the ui or a nullptr if
+	 * not dock widget is painted focused.
+	 * If the flag FocusHighlighting is disabled, this function always returns
+	 * nullptr.
+	 */
+	CDockWidget* focusedDockWidget() const;
+
+    /**
+     * Returns the sizes of the splitter that contains the dock area.
+     *
+     * If there is no splitter that contains the area, an empty list will be
+     * returned.
+     */
+    QList<int> splitterSizes(CDockAreaWidget *ContainedArea) const;
+
+    /**
+     * Update the sizes of a splitter
+     * Programmatically updates the sizes of a given splitter by calling
+     * QSplitter::setSizes(). The splitter will be the splitter that
+     * contains the supplied dock area widget. If there is not splitter
+     * that contains the dock area, or the sizes supplied does not match
+     * the number of children of the splitter, this method will have no
+     * effect.
+     */
+    void setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<int>& sizes);
+
+public Q_SLOTS:
 	/**
 	 * Opens the perspective with the given name.
 	 */
 	void openPerspective(const QString& PerspectiveName);
 
-signals:
+	/**
+	 * Request a focus change to the given dock widget.
+	 * This function only has an effect, if the flag CDockManager::FocusStyling
+	 * is enabled
+	 */
+	void setDockWidgetFocused(CDockWidget* DockWidget);
+
+Q_SIGNALS:
 	/**
 	 * This signal is emitted if the list of perspectives changed
 	 */
@@ -457,20 +565,26 @@ signals:
 	 * An application can use this signal to e.g. subscribe to events of
 	 * the newly created window.
 	 */
-	void floatingWidgetCreated(CFloatingDockContainer* FloatingWidget);
+	void floatingWidgetCreated(ads::CFloatingDockContainer* FloatingWidget);
 
     /**
      * This signal is emitted, if a new DockArea has been created.
      * An application can use this signal to set custom icons or custom
      * tooltips for the DockArea buttons.
      */
-    void dockAreaCreated(CDockAreaWidget* DockArea);
+    void dockAreaCreated(ads::CDockAreaWidget* DockArea);
+
+    /**
+     * This signal is emitted if a dock widget has been added to this
+     * dock manager instance.
+     */
+    void dockWidgetAdded(ads::CDockWidget* DockWidget);
 
     /**
      * This signal is emitted just before the given dock widget is removed
-     * from the
+     * from the dock manager
      */
-    void dockWidgetAboutToBeRemoved(CDockWidget* DockWidget);
+    void dockWidgetAboutToBeRemoved(ads::CDockWidget* DockWidget);
 
     /**
      * This signal is emitted if a dock widget has been removed with the remove
@@ -478,7 +592,14 @@ signals:
      * If this signal is emitted, the dock widget has been removed from the
      * docking system but it is not deleted yet.
      */
-    void dockWidgetRemoved(CDockWidget* DockWidget);
+    void dockWidgetRemoved(ads::CDockWidget* DockWidget);
+
+    /**
+     * This signal is emitted if the focused dock widget changed.
+     * Both old and now can be nullptr.
+     * The focused dock widget is the one that is highlighted in the GUI
+     */
+    void focusedDockWidgetChanged(ads::CDockWidget* old, ads::CDockWidget* now);
 }; // class DockManager
 } // namespace ads
 //-----------------------------------------------------------------------------
