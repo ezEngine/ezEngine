@@ -249,7 +249,7 @@ ezRTTI* ezRTTI::FindTypeByName(const char* szName)
     auto pTable = static_cast<ezTypeHashTable*>(GetTypeHashTable());
     EZ_LOCK(pTable->m_Mutex);
     if (pTable->m_Table.TryGetValue(szName, pInstance))
-    return pInstance;
+      return pInstance;
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
