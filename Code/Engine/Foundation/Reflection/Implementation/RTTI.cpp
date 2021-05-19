@@ -13,19 +13,6 @@ struct ezTypeHashTable
   ezHashTable<const char*, ezRTTI*, ezHashHelper<const char*>, ezStaticAllocatorWrapper> m_Table;
 };
 
-ezTypeHashTable* GetTypeHashTable()
-{
-  // Prevent static initialization hazard between first ezRTTI instance
-  // and the hash table and also make sure it is sufficiently sized before first use.
-  auto CreateTable = []() -> ezTypeHashTable* {
-    ezTypeHashTable* table = new ezTypeHashTable();
-    table->m_Table.Reserve(512);
-    return table;
-  };
-  static ezTypeHashTable* table = CreateTable();
-  return table;
-}
-
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
 
 // clang-format off
@@ -143,6 +130,19 @@ void ezRTTI::GatherDynamicMessageHandlers()
   }
 }
 
+void* ezRTTI::GetTypeHashTable()
+{
+  // Prevent static initialization hazard between first ezRTTI instance
+  // and the hash table and also make sure it is sufficiently sized before first use.
+  auto CreateTable = []() -> ezTypeHashTable* {
+    ezTypeHashTable* table = new ezTypeHashTable();
+    table->m_Table.Reserve(512);
+    return table;
+  };
+  static ezTypeHashTable* table = CreateTable();
+  return table;
+}
+
 void ezRTTI::VerifyCorrectness() const
 {
   if (m_fnVerifyParent != nullptr)
@@ -205,14 +205,14 @@ void ezRTTI::RegisterType(ezRTTI* pType)
 {
   m_uiTypeNameHash = ezHashingUtils::StringHash(m_szTypeName);
 
-  auto pTable = GetTypeHashTable();
+  auto pTable = static_cast<ezTypeHashTable*>(GetTypeHashTable());
   EZ_LOCK(pTable->m_Mutex);
   pTable->m_Table.Insert(pType->m_szTypeName, pType);
 }
 
 void ezRTTI::UnregisterType(ezRTTI* pType)
 {
-  auto pTable = GetTypeHashTable();
+  auto pTable = static_cast<ezTypeHashTable*>(GetTypeHashTable());
   EZ_LOCK(pTable->m_Mutex);
   pTable->m_Table.Insert(pType->m_szTypeName, pType);
 }
@@ -246,10 +246,10 @@ ezRTTI* ezRTTI::FindTypeByName(const char* szName)
 {
   ezRTTI* pInstance = nullptr;
   {
-    auto pTable = GetTypeHashTable();
+    auto pTable = static_cast<ezTypeHashTable*>(GetTypeHashTable());
     EZ_LOCK(pTable->m_Mutex);
     if (pTable->m_Table.TryGetValue(szName, pInstance))
-      return pInstance;
+    return pInstance;
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

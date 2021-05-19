@@ -156,6 +156,10 @@ protected:
   void UnregisterType(ezRTTI* pType);
 
   void GatherDynamicMessageHandlers();
+  /// \brief Returns a hash table that accelerates ezRTTI::FindTypeByName.
+  ///   The hash table type cannot be put in the header due to circular includes.
+  ///   Function is used by RegisterType / UnregisterType to add / remove type from table.
+  static void* GetTypeHashTable();
 
   const ezRTTI* m_pParentType;
   ezRTTIAllocator* m_pAllocator;
