@@ -16,12 +16,12 @@ ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUI
   m_szTypeName = m_sTypeNameStorage.GetData();
   m_szPluginName = m_sPluginNameStorage.GetData();
 
-  RegisterType(this);
+  RegisterType();
 }
 
 ezPhantomRTTI::~ezPhantomRTTI()
 {
-  UnregisterType(this);
+  UnregisterType();
   m_szTypeName = nullptr;
 
   for (auto pProp : m_PropertiesStorage)

@@ -152,14 +152,10 @@ protected:
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
-  void RegisterType(ezRTTI* pType);
-  void UnregisterType(ezRTTI* pType);
+  void RegisterType();
+  void UnregisterType();
 
   void GatherDynamicMessageHandlers();
-  /// \brief Returns a hash table that accelerates ezRTTI::FindTypeByName.
-  ///   The hash table type cannot be put in the header due to circular includes.
-  ///   Function is used by RegisterType / UnregisterType to add / remove type from table.
-  static void* GetTypeHashTable();
 
   const ezRTTI* m_pParentType;
   ezRTTIAllocator* m_pAllocator;

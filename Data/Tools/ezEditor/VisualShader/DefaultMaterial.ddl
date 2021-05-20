@@ -85,7 +85,6 @@ float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
 " }
 
   string %CodeGeometryShader { "
-
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 " }

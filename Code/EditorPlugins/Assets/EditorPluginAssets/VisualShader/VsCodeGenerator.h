@@ -65,7 +65,9 @@ private:
   ezStringBuilder m_sShaderPixelConstants;
   ezStringBuilder m_sShaderPixelSamplers;
   ezStringBuilder m_sShaderPixelBody;
+  ezStringBuilder m_sShaderVertexDefines;
   ezStringBuilder m_sShaderVertex;
+  ezStringBuilder m_sShaderGeometryDefines;
   ezStringBuilder m_sShaderGeometry;
   ezStringBuilder m_sShaderMaterialParam;
   ezStringBuilder m_sShaderMaterialCB;

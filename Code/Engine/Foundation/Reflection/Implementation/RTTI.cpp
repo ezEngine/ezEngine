@@ -7,7 +7,24 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/HashTable.h>
 
-typedef ezHashTable<const char*, ezRTTI*, ezHashHelper<const char*>, ezStaticAllocatorWrapper> ezTypeHashTable;
+struct ezTypeHashTable
+{
+  ezMutex m_Mutex;
+  ezHashTable<const char*, ezRTTI*, ezHashHelper<const char*>, ezStaticAllocatorWrapper> m_Table;
+};
+
+ezTypeHashTable* GetTypeHashTable()
+{
+  // Prevent static initialization hazard between first ezRTTI instance
+  // and the hash table and also make sure it is sufficiently sized before first use.
+  auto CreateTable = []() -> ezTypeHashTable* {
+    ezTypeHashTable* table = new ezTypeHashTable();
+    table->m_Table.Reserve(512);
+    return table;
+  };
+  static ezTypeHashTable* table = CreateTable();
+  return table;
+}
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
 
@@ -65,13 +82,13 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   }
 
   if (m_szTypeName)
-    RegisterType(this);
+    RegisterType();
 }
 
 ezRTTI::~ezRTTI()
 {
   if (m_szTypeName)
-    UnregisterType(this);
+    UnregisterType();
 }
 
 void ezRTTI::GatherDynamicMessageHandlers()
@@ -124,19 +141,6 @@ void ezRTTI::GatherDynamicMessageHandlers()
       pInstance = pInstance->m_pParentType;
     }
   }
-}
-
-void* ezRTTI::GetTypeHashTable()
-{
-  // Prevent static initialization hazard between first ezRTTI instance
-  // and the hash table and also make sure it is sufficiently sized before first use.
-  auto CreateTable = []() -> ezTypeHashTable* {
-    ezTypeHashTable* table = new ezTypeHashTable();
-    table->Reserve(512);
-    return table;
-  };
-  static ezTypeHashTable* table = CreateTable();
-  return table;
 }
 
 void ezRTTI::VerifyCorrectness() const
@@ -197,15 +201,20 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
   m_TypeFlags = flags;
 }
 
-void ezRTTI::RegisterType(ezRTTI* pType)
+void ezRTTI::RegisterType()
 {
   m_uiTypeNameHash = ezHashingUtils::StringHash(m_szTypeName);
-  static_cast<ezTypeHashTable*>(ezRTTI::GetTypeHashTable())->Insert(pType->m_szTypeName, pType);
+
+  auto pTable = GetTypeHashTable();
+  EZ_LOCK(pTable->m_Mutex);
+  pTable->m_Table.Insert(m_szTypeName, this);
 }
 
-void ezRTTI::UnregisterType(ezRTTI* pType)
+void ezRTTI::UnregisterType()
 {
-  static_cast<ezTypeHashTable*>(ezRTTI::GetTypeHashTable())->Remove(m_szTypeName);
+  auto pTable = GetTypeHashTable();
+  EZ_LOCK(pTable->m_Mutex);
+  pTable->m_Table.Remove(m_szTypeName);
 }
 
 bool ezRTTI::IsDerivedFrom(const ezRTTI* pBaseType) const
@@ -236,8 +245,12 @@ void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Proper
 ezRTTI* ezRTTI::FindTypeByName(const char* szName)
 {
   ezRTTI* pInstance = nullptr;
-  if (static_cast<ezTypeHashTable*>(ezRTTI::GetTypeHashTable())->TryGetValue(szName, pInstance))
-    return pInstance;
+  {
+    auto pTable = GetTypeHashTable();
+    EZ_LOCK(pTable->m_Mutex);
+    if (pTable->m_Table.TryGetValue(szName, pInstance))
+      return pInstance;
+  }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   pInstance = ezRTTI::GetFirstInstance();
