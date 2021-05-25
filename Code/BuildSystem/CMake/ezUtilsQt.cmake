@@ -121,6 +121,7 @@ function(ez_link_target_qt)
     mark_as_advanced(FORCE Qt5Gui_DIR)
     mark_as_advanced(FORCE Qt5Widgets_DIR)
     mark_as_advanced(FORCE Qt5Network_DIR)    
+    mark_as_advanced(FORCE Qt5Svg_DIR)
 
     if (EZ_CMAKE_PLATFORM_WINDOWS)
         mark_as_advanced(FORCE Qt5WinExtras_DIR)

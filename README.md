@@ -26,20 +26,20 @@ If you have a question, [contact us](https://ezengine.net/getting-started/contac
 
 ## Screenshots
 
-[ezEditor](http://ezengine.net/getting-started/editor-overview.html):
+[ezEditor](http://ezengine.net/docs/getting-started/editor-overview.html):
 
-![ezEditor](http://ezengine.net/editor/media/ezEditor.jpg)
+![ezEditor](http://ezengine.net/docs/editor/media/ezEditor.jpg)
 
-![Testing Chamber](https://ezengine.github.io/docs/samples/media/tc1.jpg)
+![Testing Chamber](http://ezengine.net/docs/samples/media/tc1.jpg)
 
-[RTS Sample](http://ezengine.net/samples/media/tc1.jpg):
+[RTS Sample](https://ezengine.net/docs/samples/rts.html):
 
-![RTS1](http://ezengine.net/samples/media/rts1.jpg)
+![RTS1](http://ezengine.net/docs/samples/media/rts1.jpg)
 
-[Asteroids Sample](http://ezengine.net/samples/asteroids.html):
+[Asteroids Sample](http://ezengine.net/docs/samples/asteroids.html):
 
-![Asteroids](http://ezengine.net/samples/media/asteroids1.jpg)
+![Asteroids](http://ezengine.net/docs/samples/media/asteroids1.jpg)
 
-[ezInspector](http://ezengine.net/tools/inspector.html):
+[ezInspector](http://ezengine.net/docs/tools/inspector.html):
 
-![ezInspector](http://ezengine.net/tools/media/inspector.jpg)
+![ezInspector](http://ezengine.net/docs/tools/media/inspector.jpg)
