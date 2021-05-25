@@ -31,7 +31,7 @@ Examples:\n\
 ezCommandLineOptionBool opt_IgnoreErrors("_ShaderCompiler", "-IgnoreErrors", "If set, a compile error won't stop other shaders from being compiled.", false);
 
 ezCommandLineOptionDoc opt_Perm("_ShaderCompiler", "-perm", "<string list>", "List of permutation variables to set to fixed values.\n\
-Spaces are used to separate multiple arguments, therefore each argument musn't use spaces.\n\
+Spaces are used to separate multiple arguments, therefore each argument mustn't use spaces.\n\
 In the form of 'SOME_VAR=VALUE'\n\
 Examples:\n\
   -perm BLEND_MODE=BLEND_MODE_OPAQUE\n\

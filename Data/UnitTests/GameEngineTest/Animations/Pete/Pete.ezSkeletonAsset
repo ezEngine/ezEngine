@@ -1,0 +1,457 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{17087301094093696646,5675691130102939231}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Skeleton"}
+		VarArray %Dependencies
+		{
+			s{"Animations/Pete/Pete.glb"}
+		}
+		Uuid %DocumentID{u4{17087301094093696646,5675691130102939231}}
+		u4 %Hash{6715721032585992865}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{6534210512022683061,4627838184400111531}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6160166430518278536,5716314543666145735}}
+		}
+		s %Name{"LowerLeg.L"}
+		Transform %Transform{f{0x9464FEB1,0x8E8BF93E,0x56FFB4B2,0x08BFB33D,0x8BB5FCBB,0x03B6103C,0x94FE7E3F,0xF0FF7F3F,0x0700803F,0xF6FF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{7043732622093320082,4642730931599854547}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6739574581322008195,5678154759966800030}}
+		}
+		s %Name{"LowerArm.R"}
+		Transform %Transform{f{0x30651533,0xF0D4AE3E,0x26FEA633,0x768D73BE,0xB80FBE3C,0x951B3D3E,0xAC0B743F,0xFEFF7F3F,0xFCFF7F3F,0xFFFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{9163310030352102831,4645013987073091442}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13918261112334074036,5049762795557410436}}
+		}
+		s %Name{"LowerArm.L"}
+		Transform %Transform{f{0x0F3A91B3,0x33D7AE3E,0x446001B4,0x7DA873BE,0x8B10BEBC,0x64263DBE,0x7609743F,0xFEFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{8146085475289626762,4652621252925853515}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{12928175699884812457,4755751082427561920}}
+		}
+		s %Name{"Neck"}
+		Transform %Transform{f{0x000080A7,0xA0C6823E,0x7C157F1C,0x35412DBD,0x55C5FF33,0x3341ADB1,0x59C57F3F,0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{17436503955016547005,4748758961918368516}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Name{"Mesh"}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{12928175699884812457,4755751082427561920}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Name{"Head"}
+		Transform %Transform{f{0xD484F525,0x95C2FD3D,0x4C5897B2,0x1D83923D,0x1958FFB3,0x1E831232,0x15587F3F,0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{8233354491543790254,4756200217223737397}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9163310030352102831,4645013987073091442}}
+		}
+		s %Name{"UpperArm.L"}
+		Transform %Transform{f{0x511A463E,0x16CE383E,0x0EF85F3B,0x76DD563F,0xC4E0EF3C,0x2554063F,0x67780EBE,0xFDFF7F3F,0x0000803F,0xFCFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{5076607062943399564,4852215909670439237}}
+	s %t{"ezEditableSkeleton"}
+	u3 %v{1}
+	p
+	{
+		s %BoneDirection{"ezBasisAxis::PositiveY"}
+		VarArray %Children
+		{
+			Uuid{u4{15084258924888821667,5630643623629525645}}
+		}
+		s %File{"Animations/Pete/Pete.glb"}
+		b %FlipForwardDir{0}
+		s %RightDir{"ezBasisAxis::NegativeX"}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveY"}
+	}
+}
+o
+{
+	Uuid %id{u4{5920870848975713456,4890734804838402716}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7043732622093320082,4642730931599854547}}
+		}
+		s %Name{"UpperArm.R"}
+		Transform %Transform{f{0x4E1A46BE,0x18CE383E,0x21F85F3B,0x51DE563F,0xA2A1EFBC,0x085406BF,0x16670EBE,0x0000803F,0x0000803F,0x0100803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{5494407782745777826,4915432213329304254}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Name{"Foot.R"}
+		Transform %Transform{f{0x533D6332,0x6C17EF3E,0x795246B1,0x236527BF,0xC884E8BB,0xB69013BC,0x56AA413F,0x2300803F,0xBEFF7F3F,0xFDFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{13918261112334074036,5049762795557410436}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Name{"Hand.L"}
+		Transform %Transform{f{0x227B0A33,0xC8A7A03E,0x9AAB0E34,0x7B2098BD,0x47B4C53D,0xEA523E3E,0x5F99793F,0x0100803F,0xFFFF7F3F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{626300937597060028,5122876349813404309}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6534210512022683061,4627838184400111531}}
+		}
+		s %Name{"UpperLeg.L"}
+		Transform %Transform{f{0xD9C7AE3D,0x303D9DBD,0xB685133A,0xC1DB7F3F,0xD4385B3C,0xCE552BBB,0x4D77F83C,0x7B00803F,0x0500803F,0x6704803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{995078348656574392,5153480874608530635}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2505669154838901386,5304464778939329370}}
+		}
+		s %Name{"UpperLeg.R"}
+		Transform %Transform{f{0xD9C7AEBD,0x303D9DBD,0xB685133A,0xC1DB7F3F,0xA6385BBC,0x52562B3B,0x5378F83C,0x7B00803F,0x0800803F,0x6904803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{2505669154838901386,5304464778939329370}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5494407782745777826,4915432213329304254}}
+		}
+		s %Name{"LowerLeg.R"}
+		Transform %Transform{f{0x7F9F8A32,0x908BF93E,0xC3524BB1,0x09BFB33D,0x8DB5FC3B,0x04B610BC,0x94FE7E3F,0xF1FF7F3F,0x0700803F,0xF7FF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{17255395219642682009,5491226659398511748}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8146085475289626762,4652621252925853515}}
+			Uuid{u4{5920870848975713456,4890734804838402716}}
+			Uuid{u4{8233354491543790254,4756200217223737397}}
+		}
+		s %Name{"Torso"}
+		Transform %Transform{f{0x00000099,0xE0103D3E,0x10000080,0x000080A7,0x0000009D,0x00000005,0x0000803F,0x0000803F,0xFFFF7F3F,0xFFFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{1374200627707597246,5608203403082720432}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7484756606415689105,5680045026938899088}}
+		}
+		s %Name{"Root"}
+		Transform %Transform{f{0,0,0,0x000000B3,0xFEFFFF33,0x0000001C,0x0000803F,0x0000803F,0xFEFF7F3F,0xFEFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{15084258924888821667,5630643623629525645}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17436503955016547005,4748758961918368516}}
+			Uuid{u4{1374200627707597246,5608203403082720432}}
+		}
+		s %Name{"Armature"}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{13888258348541423499,5647836912200250743}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17255395219642682009,5491226659398511748}}
+		}
+		s %Name{"Belly"}
+		Transform %Transform{f{0x00000099,0xA805023E,0x01000002,0x000080A7,0x01000028,0x00000011,0x0000803F,0x0000803F,0xFFFF7F3F,0xFFFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{6739574581322008195,5678154759966800030}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Name{"Hand.R"}
+		Transform %Transform{f{0xD359A4B2,0xB6A6A03E,0x346977B2,0x0C3298BD,0x77C2C5BD,0xAB4A3EBE,0x6C99793F,0xFEFF7F3F,0x0100803F,0xFCFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{7484756606415689105,5680045026938899088}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{995078348656574392,5153480874608530635}}
+			Uuid{u4{626300937597060028,5122876349813404309}}
+			Uuid{u4{13888258348541423499,5647836912200250743}}
+		}
+		s %Name{"Hip"}
+		Transform %Transform{f{0xF1D38CB0,0xBF708C3F,0xF2D38C3B,0x000080A7,0xFEFFFFB3,0x00004010,0x0000803F,0x0000803F,0xFFFF7F3F,0xFFFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{6160166430518278536,5716314543666145735}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Name{"Foot.L"}
+		Transform %Transform{f{0xAFDC63B2,0x6C17EF3E,0x68259A31,0x246527BF,0xAE84E83B,0xAB90133C,0x55AA413F,0x2300803F,0xBEFF7F3F,0xFCFF7F3F}}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5076607062943399564,4852215909670439237}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{17859901446394967209,7194868322181501778}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeletonJoint"}
+		u3 %TypeSize{112}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10395479654444300045,10796011810626369603}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeleton"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}
