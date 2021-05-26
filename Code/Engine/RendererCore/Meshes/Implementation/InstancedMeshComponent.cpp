@@ -130,6 +130,12 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
   if (m_RequireUpdate.IsEmpty())
     return;
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALPass* pGALPass = pDevice->BeginPass("Update Instanced Mesh Data");
+
+  ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
+  pRenderContext->BeginCompute(pGALPass);
+
   for (const auto& componentToUpdate : m_RequireUpdate)
   {
     ezInstancedMeshComponent* pComp = nullptr;
@@ -142,9 +148,12 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
       auto instanceData = pComp->m_pExplicitInstanceData->GetInstanceData(componentToUpdate.m_InstanceData.GetCount(), uiOffset);
       instanceData.CopyFrom(componentToUpdate.m_InstanceData);
 
-      pComp->m_pExplicitInstanceData->UpdateInstanceData(ezRenderContext::GetDefaultInstance(), instanceData.GetCount());
+      pComp->m_pExplicitInstanceData->UpdateInstanceData(pRenderContext, instanceData.GetCount());
     }
   }
+
+  pRenderContext->EndCompute();
+  pDevice->EndPass(pGALPass);
 
   m_RequireUpdate.Clear();
 }
