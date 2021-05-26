@@ -60,7 +60,7 @@ ezQtContainerWindow::ezQtContainerWindow()
   s_pContainerWindow = this;
 
   setObjectName("ezEditor");
-  setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/ezEditor16.png")));
+  setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/EZ-logo.svg")));
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));

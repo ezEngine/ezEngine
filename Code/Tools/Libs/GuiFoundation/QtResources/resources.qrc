@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+	<file>EZ-logo.svg</file>
 	<file>Icons/Add16.png</file>
     <file>Icons/No16.png</file>
     <file>Icons/CVar.png</file>
@@ -32,7 +33,6 @@
     <file>Icons/Redo16.png</file>
     <file>Icons/Copy16.png</file>
     <file>Icons/Paste16.png</file>
-    <file>Icons/ezEditor16.png</file>
     <file>Icons/Shortcuts16.png</file>
     <file>Icons/Window16.png</file>
     <file>ThumbnailLoading.png</file>
