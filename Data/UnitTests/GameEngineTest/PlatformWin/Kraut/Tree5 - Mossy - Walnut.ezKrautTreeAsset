@@ -1,0 +1,208 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{16242289591921312934,5331298968656744613}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Kraut Tree"}
+		VarArray %Dependencies
+		{
+			s{"Kraut/Tree5.tree"}
+		}
+		Uuid %DocumentID{u4{16242289591921312934,5331298968656744613}}
+		u4 %Hash{13612514439586069236}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
+			s{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{440031702117033133,4871387950543216427}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Twig 1 - Leaf"}
+		s %Material{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13221536648321646759,4964413843328666743}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 1 - Leaf"}
+		s %Material{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5101323386866554807,5138982381412055676}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Twig 1 - Stem"}
+		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4391832461624850561,5280164604799923266}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 1 - Stem"}
+		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+	}
+}
+o
+{
+	Uuid %id{u4{9980473252024396221,5330160200626627343}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Trunk 1 - Stem"}
+		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6509414412785266872,5518905210127120117}}
+	s %t{"ezKrautTreeAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		u2 %DisplayRandomSeed{10}
+		VarArray %GoodRandomSeeds
+		{
+			u2{10}
+			u2{4}
+			u2{7}
+			u2{13}
+			u2{14}
+			u2{17}
+			u2{31}
+		}
+		s %KrautFile{"Kraut/Tree5.tree"}
+		f %LodDistanceScale{0x00008040}
+		VarArray %Materials
+		{
+			Uuid{u4{9980473252024396221,5330160200626627343}}
+			Uuid{u4{4391832461624850561,5280164604799923266}}
+			Uuid{u4{13221536648321646759,4964413843328666743}}
+			Uuid{u4{5101323386866554807,5138982381412055676}}
+			Uuid{u4{440031702117033133,4871387950543216427}}
+		}
+		f %StaticColliderRadius{0x9A99193F}
+		s %Surface{""}
+		f %TreeStiffness{0x00007041}
+		f %UniformScaling{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6509414412785266872,5518905210127120117}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{9839103660623915170,1447106120747834331}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautAssetMaterial"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6793836540827978476,3094957657128336037}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautTreeAssetProperties"}
+		u3 %TypeSize{1264}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}
