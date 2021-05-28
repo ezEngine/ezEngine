@@ -2,10 +2,10 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include "KrautTest.h"
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <ParticlePlugin/Components/ParticleComponent.h>
+#  include "KrautTest.h"
+#  include <Core/WorldSerializer/WorldReader.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
+#  include <ParticlePlugin/Components/ParticleComponent.h>
 
 static ezGameEngineTestKraut s_GameEngineTestAnimations;
 
