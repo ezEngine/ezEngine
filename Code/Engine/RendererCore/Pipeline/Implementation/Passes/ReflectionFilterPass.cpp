@@ -99,11 +99,10 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   }
 
   {
-
     auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
     if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
     {
-      ezUInt32 uiNumMipMaps = pFilteredSpecularOutput->m_Desc.m_uiMipLevelCount; //pInputCubemap->GetDescription().m_uiMipLevelCount;
+      ezUInt32 uiNumMipMaps = pFilteredSpecularOutput->m_Desc.m_uiMipLevelCount;
 
       ezBoundingBoxu32 srcBox;
       srcBox.m_vMin = ezVec3U32(0);
@@ -149,53 +148,6 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   if (pIrradianceOutput != nullptr && !pIrradianceOutput->m_TextureHandle.IsInvalidated())
   {
     auto pCommandEncoder = ezRenderContext::BeginComputeScope(pGALPass, renderViewContext, "Irradiance");
-
-    static bool bla = false;
-    if (bla)
-    {
-      auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
-      auto hTexture = pFilteredSpecularOutput->m_TextureHandle;
-      auto pTexture = pDevice->GetTexture(hTexture);
-
-      bla = false;
-      pCommandEncoder->ReadbackTexture(hTexture);
-      const ezUInt32 uiNumMipMaps = pTexture->GetDescription().m_uiMipLevelCount;
-
-      ezImageHeader header;
-      header.SetImageFormat(ezImageFormat::R16G16B16A16_FLOAT);
-      header.SetWidth(pTexture->GetDescription().m_uiWidth);
-      header.SetHeight(pTexture->GetDescription().m_uiHeight);
-      header.SetNumFaces(6);
-      header.SetNumMipLevels(uiNumMipMaps);
-      ezImage image;
-      image.ResetAndAlloc(header);
-
-      ezHybridArray<ezGALTextureSubresource, 6> sourceSubResources;
-      ezHybridArray<ezGALSystemMemoryDescription, 6> memDescriptions;
-
-      for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
-      {
-        for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
-        {
-          ezGALTextureSubresource& subRes = sourceSubResources.ExpandAndGetRef();
-          subRes.m_uiArraySlice = uiFaceIndex;
-          subRes.m_uiMipLevel = uiMipMapIndex;
-
-          ezGALSystemMemoryDescription& memDesc = memDescriptions.ExpandAndGetRef();
-          memDesc.m_pData = image.GetPixelPointer<ezUInt8>(uiMipMapIndex, uiFaceIndex);
-          memDesc.m_uiRowPitch = static_cast<ezUInt32>(image.GetRowPitch(uiMipMapIndex));
-          memDesc.m_uiSlicePitch = static_cast<ezUInt32>(image.GetDepthPitch(uiMipMapIndex));
-        }
-      }
-
-      pCommandEncoder->CopyTextureReadbackResult(hTexture, sourceSubResources.GetArrayPtr(), memDescriptions.GetArrayPtr());
-
-      if (image.SaveTo("C://temp//cube3.dds").Failed())
-      {
-        printf("");
-      }
-    }
-
 
     ezGALUnorderedAccessViewHandle hIrradianceOutput;
     {

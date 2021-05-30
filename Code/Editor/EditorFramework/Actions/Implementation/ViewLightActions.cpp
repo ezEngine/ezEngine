@@ -11,6 +11,14 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewLightButtonAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewLightSliderAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezActionDescriptorHandle ezViewLightActions::s_hLightMenu;
 ezActionDescriptorHandle ezViewLightActions::s_hSkyBox;
 ezActionDescriptorHandle ezViewLightActions::s_hSkyLight;
@@ -84,11 +92,6 @@ void ezViewLightActions::MapActions(const char* szMapping, const char* szPath)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewLightButtonAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
 
 ezViewLightButtonAction::ezViewLightButtonAction(const ezActionContext& context, const char* szName, ezEngineViewLightSettingsEvent::Type button)
   : ezButtonAction(context, szName, false, "")
@@ -261,10 +264,6 @@ void ezViewLightButtonAction::UpdateAction()
   }
 }
 //////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewLightSliderAction, 1, ezRTTINoAllocator)
-  ;
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezViewLightSliderAction::ezViewLightSliderAction(const ezActionContext& context, const char* szName, ezEngineViewLightSettingsEvent::Type button)
   : ezSliderAction(context, szName)
