@@ -8,6 +8,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 2, ezComponentMode::Dynamic)

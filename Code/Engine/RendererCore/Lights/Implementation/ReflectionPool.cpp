@@ -12,6 +12,7 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
@@ -515,19 +516,35 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
 
   if (m_hDebugMaterial.IsEmpty())
   {
-    ezUInt32 uiMipLevelCount = GetMipLevels();
+    const ezUInt32 uiMipLevelCount = GetMipLevels();
+
+    ezMaterialResourceHandle hDebugMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
+      "{ 6f8067d0-ece8-44e1-af46-79b49266de41 }"); // ReflectionProbeVisualization.ezMaterialAsset
+    ezResourceLock<ezMaterialResource> pMaterial(hDebugMaterial, ezResourceAcquireMode::BlockTillLoaded);
+    if (pMaterial->GetLoadingState() != ezResourceState::Loaded)
+      return;
+
+
+    ezMaterialResourceDescriptor desc = pMaterial->GetCurrentDesc();
+    ezUInt32 uiParamIndex = desc.m_Parameters.GetCount();
+    ezTempHashedString sParamName = "MipLevel";
+    for (ezUInt32 i = 0; i < desc.m_Parameters.GetCount(); ++i)
+    {
+      if (desc.m_Parameters[i].m_Name == sParamName)
+      {
+        uiParamIndex = i;
+        break;
+      }
+    }
+
+    if (uiParamIndex >= desc.m_Parameters.GetCount())
+      return;
 
     m_hDebugMaterial.SetCount(uiMipLevelCount);
-
-    m_hDebugMaterial[0] = ezResourceManager::LoadResource<ezMaterialResource>(
-      "{ 6f8067d0-ece8-44e1-af46-79b49266de41 }"); // ReflectionProbeVisualization.ezMaterialAsset
-
-    ezResourceLock<ezMaterialResource> pMaterial(m_hDebugMaterial[0], ezResourceAcquireMode::BlockTillLoaded);
-    ezMaterialResourceDescriptor desc = pMaterial->GetCurrentDesc();
-
+    m_hDebugMaterial[0] = hDebugMaterial;
     for (ezUInt32 i = 1; i < uiMipLevelCount; i++)
     {
-      desc.m_Parameters[0].m_Value = i;
+      desc.m_Parameters[uiParamIndex].m_Value = i;
       ezStringBuilder sMaterialName;
       sMaterialName.Format("ReflectionProbeVisualization - MipLevel {}", i);
 
