@@ -262,7 +262,7 @@ void ezEngineViewLightSettings::UpdateForEngine(ezWorld* pWorld)
   if (ezGameObject* pParent = SyncGameObject(m_pWorld, m_hGameObject, bNeedGameObject))
   {
     ezQuat rot;
-    rot.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), m_DirectionalLightAngle);
+    rot.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), m_DirectionalLightAngle + ezAngle::Degree(90.0));
     pParent->SetLocalRotation(rot);
 
     if (ezDirectionalLightComponent* pDirLight = SyncComponent<ezDirectionalLightComponent>(m_pWorld, pParent, m_hDirLight, m_bDirectionalLight))

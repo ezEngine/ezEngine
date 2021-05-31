@@ -25,12 +25,12 @@ public:
   bool m_bBackgroundAssetProcessing = false;
   bool m_bAssetFilterCombobox = true;
 
-  bool m_bSkyBox = false;
+  bool m_bSkyBox = true;
   bool m_bSkyLight = true;
   ezString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
   float m_fSkyLightIntensity = 1.0f;
   bool m_bDirectionalLight = true;
-  ezAngle m_DirectionalLightAngle = ezAngle::Degree(60.0f);
+  ezAngle m_DirectionalLightAngle = ezAngle::Degree(30.0f);
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
   bool m_bFog = false;
