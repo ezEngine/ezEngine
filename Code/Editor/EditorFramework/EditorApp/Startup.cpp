@@ -166,7 +166,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   if (!IsInHeadlessMode())
   {
     SetupAndShowSplashScreen();
-    
+
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
     m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
 
