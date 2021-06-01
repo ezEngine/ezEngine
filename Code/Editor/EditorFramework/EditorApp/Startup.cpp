@@ -58,6 +58,7 @@
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <QClipboard>
+#include <QSplashScreen>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <ads/DockManager.h>
@@ -164,6 +165,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   if (!IsInHeadlessMode())
   {
+    SetupAndShowSplashScreen();
+    
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
     m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
 
@@ -413,4 +416,27 @@ void ezQtEditorApp::CreatePanels()
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLongOpsPanel);
 
   pAssetBrowserPanel->raise();
+}
+
+
+void ezQtEditorApp::SetupAndShowSplashScreen()
+{
+  EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
+
+  QPixmap splashPixmap(":/Splash/Splash/splash.png");
+
+  m_pSplashScreen = new QSplashScreen(splashPixmap);
+  m_pSplashScreen->setMask(splashPixmap.mask());
+  m_pSplashScreen->setWindowFlag(Qt::WindowStaysOnTopHint, true);
+
+  m_pSplashScreen->show();
+}
+
+void ezQtEditorApp::CloseSplashScreen()
+{
+  if (!m_pSplashScreen)
+    return;
+
+  m_pSplashScreen->deleteLater();
+  m_pSplashScreen = nullptr;
 }

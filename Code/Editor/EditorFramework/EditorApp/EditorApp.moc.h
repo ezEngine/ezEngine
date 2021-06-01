@@ -27,6 +27,7 @@ class ezQtEditorApp;
 class QStringList;
 class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
+class QSplashScreen;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -248,6 +249,9 @@ private:
   void SetStyleSheet();
   void CreatePanels();
 
+  void SetupAndShowSplashScreen();
+  void CloseSplashScreen();
+
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
 
@@ -270,6 +274,8 @@ private:
   ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
   QTimer* m_pTimer;
+
+  QSplashScreen* m_pSplashScreen;
 
   ezLogWriter::HTML m_LogHTML;
 

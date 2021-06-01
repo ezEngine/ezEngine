@@ -28,12 +28,16 @@ ezQtEditorApp::ezQtEditorApp()
   s_pEngineViewProcess = nullptr;
 
   m_pTimer = new QTimer(nullptr);
+
+  m_pSplashScreen = nullptr;
 }
 
 ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
+
+  CloseSplashScreen();
 }
 
 ezInt32 ezQtEditorApp::RunEditor()
@@ -52,6 +56,9 @@ void ezQtEditorApp::SlotTimedUpdate()
     ezAssetCurator::GetSingleton()->MainThreadTick(true);
   }
   ezTaskSystem::FinishFrameTasks();
+
+  // Close the splash screen when we get to the first idle event
+  CloseSplashScreen();
 
   Q_EMIT IdleEvent();
 
