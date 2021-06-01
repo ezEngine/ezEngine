@@ -75,7 +75,8 @@ ezSceneViewPerspective::Perspective;Perspective
 ezViewRenderMode::None;Default
 ezViewRenderMode::WireframeColor;Wireframe Color
 ezViewRenderMode::WireframeMonochrome;Wireframe Monochrome
-ezViewRenderMode::LitOnly;Lit Only
+ezViewRenderMode::DiffuseLitOnly;Diffuse Lit Only
+ezViewRenderMode::SpecularLitOnly;Specular Lit Only
 ezViewRenderMode::LightCount;Light Count
 ezViewRenderMode::DecalCount;Decal Count
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)

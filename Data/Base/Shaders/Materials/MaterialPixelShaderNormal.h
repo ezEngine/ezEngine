@@ -68,10 +68,9 @@ PS_OUT main(PS_IN Input)
   #endif
 
   #if RENDER_PASS == RENDER_PASS_EDITOR
-    if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
+    if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
     {
       matData.diffuseColor = 0.5;
-      matData.specularColor = 0.0;
     }
   #endif
 
@@ -113,9 +112,13 @@ PS_OUT main(PS_IN Input)
     Output.Color = float4(litColor, matData.opacity);
 
   #elif RENDER_PASS == RENDER_PASS_EDITOR
-    if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
+    if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
     {
-      Output.Color = float4(SrgbToLinear(litColor * Exposure), matData.opacity);
+      Output.Color = float4(SrgbToLinear(light.diffuseLight * Exposure), matData.opacity);
+    }
+    else if (RenderPass == EDITOR_RENDER_PASS_SPECULAR_LIT_ONLY)
+    {
+      Output.Color = float4(SrgbToLinear(light.specularLight * Exposure), matData.opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT || RenderPass == EDITOR_RENDER_PASS_DECAL_COUNT)
     {
