@@ -80,6 +80,7 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 }
 
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -145,6 +146,7 @@ void OnLoadPlugin(bool bReloading)
 
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin(bool bReloading)
@@ -152,6 +154,7 @@ void OnUnloadPlugin(bool bReloading)
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
 
 
@@ -178,4 +181,21 @@ void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e
   props["RenderTarget"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
   props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+}
+
+void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSkyLightComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  const ezInt64 iReflectionProbeMode = e.m_pObject->GetTypeAccessor().GetValue("ReflectionProbeMode").ConvertTo<ezInt64>();
+  const bool bIsStatic = (iReflectionProbeMode == 0); // ezReflectionProbeMode::Static
+
+  auto& props = *e.m_pPropertyStates;
+
+  props["CubeMap"].m_Visibility = bIsStatic ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  //props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  //props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 }
