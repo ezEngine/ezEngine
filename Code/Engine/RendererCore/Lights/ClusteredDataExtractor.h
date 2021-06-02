@@ -33,6 +33,7 @@ public:
   float m_fFogHeightFalloff = 0.0f;
   float m_fFogDensityAtCameraPos = 0.0f;
   float m_fFogDensity = 0.0f;
+  float m_fFogInvSkyDistance = 0.0f;
   ezColor m_FogColor = ezColor::Black;
 };
 

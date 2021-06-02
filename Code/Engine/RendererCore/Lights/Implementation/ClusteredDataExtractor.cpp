@@ -251,6 +251,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
           pData->m_fFogHeightFalloff = fogHeightFalloff;
           pData->m_fFogDensityAtCameraPos = ezMath::Exp(ezMath::Clamp(fogAtCameraPos, -80.0f, 80.0f)); // Prevent infs
           pData->m_fFogDensity = pFogRenderData->m_fDensity;
+          pData->m_fFogInvSkyDistance = pFogRenderData->m_fInvSkyDistance;
 
           pData->m_FogColor = pFogRenderData->m_Color;
         }
