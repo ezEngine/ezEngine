@@ -178,8 +178,10 @@ void ProbeUpdateInfo::operator=(ProbeUpdateInfo&& other)
   m_uiLastActiveFrame = other.m_uiLastActiveFrame;
   m_uiLastUpdatedFrame = other.m_uiLastUpdatedFrame;
   m_pWorld = other.m_pWorld;
+  m_fPriority = other.m_fPriority;
+  m_Mode = other.m_Mode;
+  m_uiIndexInUpdateQueue = other.m_uiIndexInUpdateQueue;
   m_LastUpdateStep = other.m_LastUpdateStep;
-
   m_UpdateSteps = std::move(other.m_UpdateSteps);
 
   m_hCubemap = other.m_hCubemap;
@@ -660,6 +662,7 @@ void ezReflectionPool::RegisterReflectionProbe(ezReflectionProbeData& data, ezWo
   ProbeUpdateInfo updateInfo;
   updateInfo.m_pWorld = pWorld;
   updateInfo.m_fPriority = ezMath::Clamp(fPriority, ezMath::DefaultEpsilon<float>(), 100.0f);
+  updateInfo.m_Mode = data.m_Mode;
 
   EZ_LOCK(s_pData->m_Mutex);
 
@@ -774,12 +777,11 @@ void ezReflectionPool::ExtractReflectionProbe(
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (data.m_bShowDebugInfo)
+  ezUInt32 uiMipLevels = GetMipLevels();
+  if (data.m_bShowDebugInfo && s_pData->m_hDebugMaterial.GetCount() == uiMipLevels)
   {
     const ezGameObject* pOwner = pComponent->GetOwner();
 
-
-    ezUInt32 uiMipLevels = GetMipLevels();
     for (ezUInt32 i = 0; i < uiMipLevels; i++)
     {
       ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
