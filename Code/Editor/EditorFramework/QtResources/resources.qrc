@@ -49,10 +49,10 @@
     <file>Icons/PlatformAndroid16.png</file>
     <file>Icons/PlatformApple16.png</file>
     <file>Icons/CreateEmpty16.png</file>
-	<file>Icons/Discord.svg</file>
-	<file>Icons/Twitter.svg</file>
-	<file>Icons/GitHub.svg</file>
-	<file>Icons/GitHub-Light.png</file>
+    <file>Icons/Discord.svg</file>
+    <file>Icons/Twitter.svg</file>
+    <file>Icons/GitHub.svg</file>
+    <file>Icons/GitHub-Light.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>
@@ -62,5 +62,8 @@
     <file>ezRotateGizmoEditTool.png</file>
     <file>ezScaleGizmoEditTool.png</file>
     <file>ezTranslateGizmoEditTool.png</file>
+  </qresource>
+  <qresource prefix="Splash">
+    <file>Splash/splash.svg</file>
   </qresource>
 </RCC>

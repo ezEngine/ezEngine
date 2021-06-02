@@ -58,6 +58,8 @@
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <QClipboard>
+#include <QSplashScreen>
+#include <QSvgRenderer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <ads/DockManager.h>
@@ -164,6 +166,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   if (!IsInHeadlessMode())
   {
+    SetupAndShowSplashScreen();
+
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
     m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
 
@@ -413,4 +417,42 @@ void ezQtEditorApp::CreatePanels()
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLongOpsPanel);
 
   pAssetBrowserPanel->raise();
+}
+
+
+void ezQtEditorApp::SetupAndShowSplashScreen()
+{
+  EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
+
+  QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
+
+  const qreal PixelRatio = qApp->primaryScreen()->devicePixelRatio();
+
+  // TODO: When migrating to Qt 5.15 or newer this should have a fixed square size and
+  // let the aspect ratio mode of the svg renderer handle the difference
+  QPixmap splashPixmap(QSize(187, 256) * PixelRatio);
+  splashPixmap.fill(Qt::transparent);
+  {
+    QPainter painter;
+    painter.begin(&splashPixmap);
+    svgRenderer.render(&painter);
+    painter.end();
+  }
+
+  splashPixmap.setDevicePixelRatio(PixelRatio);
+
+  m_pSplashScreen = new QSplashScreen(splashPixmap);
+  m_pSplashScreen->setMask(splashPixmap.mask());
+  m_pSplashScreen->setWindowFlag(Qt::WindowStaysOnTopHint, true);
+
+  m_pSplashScreen->show();
+}
+
+void ezQtEditorApp::CloseSplashScreen()
+{
+  if (!m_pSplashScreen)
+    return;
+
+  m_pSplashScreen->deleteLater();
+  m_pSplashScreen = nullptr;
 }

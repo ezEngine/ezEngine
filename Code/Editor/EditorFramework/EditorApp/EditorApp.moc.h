@@ -27,6 +27,7 @@ class ezQtEditorApp;
 class QStringList;
 class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
+class QSplashScreen;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -248,6 +249,9 @@ private:
   void SetStyleSheet();
   void CreatePanels();
 
+  void SetupAndShowSplashScreen();
+  void CloseSplashScreen();
+
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
 
@@ -266,10 +270,12 @@ private:
   ezRecentFilesList s_RecentProjects;
   ezRecentFilesList s_RecentDocuments;
 
-  QApplication* s_pQtApplication;
+  QApplication* s_pQtApplication = nullptr;
   ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
-  QTimer* m_pTimer;
+  QTimer* m_pTimer = nullptr;
+
+  QSplashScreen* m_pSplashScreen = nullptr;
 
   ezLogWriter::HTML m_LogHTML;
 
@@ -287,8 +293,8 @@ public:
   bool IsProgressBarProcessingEvents() const;
 
 private:
-  ezProgress* m_pProgressbar;
-  ezQtProgressbar* m_pQtProgressbar;
+  ezProgress* m_pProgressbar = nullptr;
+  ezQtProgressbar* m_pQtProgressbar = nullptr;
 
   // *** Localization ***
   ezTranslatorFromFiles* m_pTranslatorFromFiles = nullptr;

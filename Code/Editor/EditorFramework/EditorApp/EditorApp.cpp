@@ -19,13 +19,9 @@ ezQtEditorApp::ezQtEditorApp()
   , s_RecentProjects(5)
   , s_RecentDocuments(50)
 {
-  m_pProgressbar = nullptr;
-  m_pQtProgressbar = nullptr;
   m_bSavePreferencesAfterOpenProject = false;
 
   ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");
-  s_pQtApplication = nullptr;
-  s_pEngineViewProcess = nullptr;
 
   m_pTimer = new QTimer(nullptr);
 }
@@ -34,6 +30,8 @@ ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
+
+  CloseSplashScreen();
 }
 
 ezInt32 ezQtEditorApp::RunEditor()
@@ -52,6 +50,9 @@ void ezQtEditorApp::SlotTimedUpdate()
     ezAssetCurator::GetSingleton()->MainThreadTick(true);
   }
   ezTaskSystem::FinishFrameTasks();
+
+  // Close the splash screen when we get to the first idle event
+  CloseSplashScreen();
 
   Q_EMIT IdleEvent();
 
