@@ -19,17 +19,11 @@ ezQtEditorApp::ezQtEditorApp()
   , s_RecentProjects(5)
   , s_RecentDocuments(50)
 {
-  m_pProgressbar = nullptr;
-  m_pQtProgressbar = nullptr;
   m_bSavePreferencesAfterOpenProject = false;
 
   ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");
-  s_pQtApplication = nullptr;
-  s_pEngineViewProcess = nullptr;
 
   m_pTimer = new QTimer(nullptr);
-
-  m_pSplashScreen = nullptr;
 }
 
 ezQtEditorApp::~ezQtEditorApp()

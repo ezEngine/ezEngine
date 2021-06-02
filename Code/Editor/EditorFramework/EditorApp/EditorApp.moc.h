@@ -270,12 +270,12 @@ private:
   ezRecentFilesList s_RecentProjects;
   ezRecentFilesList s_RecentDocuments;
 
-  QApplication* s_pQtApplication;
+  QApplication* s_pQtApplication = nullptr;
   ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
-  QTimer* m_pTimer;
+  QTimer* m_pTimer = nullptr;
 
-  QSplashScreen* m_pSplashScreen;
+  QSplashScreen* m_pSplashScreen = nullptr;
 
   ezLogWriter::HTML m_LogHTML;
 
@@ -293,8 +293,8 @@ public:
   bool IsProgressBarProcessingEvents() const;
 
 private:
-  ezProgress* m_pProgressbar;
-  ezQtProgressbar* m_pQtProgressbar;
+  ezProgress* m_pProgressbar = nullptr;
+  ezQtProgressbar* m_pQtProgressbar = nullptr;
 
   // *** Localization ***
   ezTranslatorFromFiles* m_pTranslatorFromFiles = nullptr;

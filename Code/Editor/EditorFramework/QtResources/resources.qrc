@@ -64,6 +64,6 @@
     <file>ezTranslateGizmoEditTool.png</file>
   </qresource>
   <qresource prefix="Splash">
-    <file>Splash/splash.png</file>
+    <file>Splash/splash.svg</file>
   </qresource>
 </RCC>
