@@ -707,7 +707,25 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
   switch (pType->GetVariantType())
   {
     case ezVariant::Type::Invalid:
+    {
+      if (ezStringUtils::IsEqual(pType->GetTypeName(), "ezVariant"))
+      {
+        switch (duk_get_type(duk.GetContext(), iObjIdx))
+        {
+          case DUK_TYPE_BOOLEAN:
+            return duk.GetBoolValue(iObjIdx);
+          case DUK_TYPE_NUMBER:
+            return duk.GetFloatValue(iObjIdx);
+          case DUK_TYPE_STRING:
+            return duk.GetStringValue(iObjIdx);
+
+          default:
+            return ezVariant();
+        }
+      }
+
       return ezVariant();
+    }
 
     case ezVariant::Type::Bool:
       return duk.GetBoolValue(iObjIdx);

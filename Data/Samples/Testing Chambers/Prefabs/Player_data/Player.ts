@@ -30,6 +30,7 @@ export class Player extends ez.TickedTypescriptComponent {
     weaponUnlocked: boolean[] = [];
     grabObject: ez.PxGrabObjectComponent = null;
     requireNoShoot: boolean = false;
+    blackboard: ez.BlackboardComponent = null;
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
@@ -45,6 +46,7 @@ export class Player extends ez.TickedTypescriptComponent {
         this.guns[_ge.Weapon.MachineGun] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("MachineGun", true));
         this.guns[_ge.Weapon.PlasmaRifle] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("PlasmaRifle", true));
         this.guns[_ge.Weapon.RocketLauncher] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("RocketLauncher", true));
+        this.blackboard = owner.TryGetComponentOfBaseType(ez.BlackboardComponent);
 
         this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.PxGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
@@ -95,6 +97,20 @@ export class Player extends ez.TickedTypescriptComponent {
                 msg.Crouch = this.input.GetCurrentInputState("Crouch", false) > 0.5;
 
                 this.characterController.SendMessage(msg);
+
+                if (this.blackboard)
+                {
+                    // this is used to control the animation playback on the 'shadow proxy' mesh
+                    // currently we only sync basic movement
+                    // also note that the character mesh currently doesn't have crouch animations
+                    // so we can't have a proper shadow there
+
+                    this.blackboard.SetEntryValue("MoveForwards", msg.MoveForwards);
+                    this.blackboard.SetEntryValue("MoveBackwards", msg.MoveBackwards);
+                    this.blackboard.SetEntryValue("StrafeLeft", msg.StrafeLeft);
+                    this.blackboard.SetEntryValue("StrafeRight", msg.StrafeRight);
+                    this.blackboard.SetEntryValue("TouchingGround", this.characterController.IsTouchingGround());
+                }
             }
 
             // look up / down

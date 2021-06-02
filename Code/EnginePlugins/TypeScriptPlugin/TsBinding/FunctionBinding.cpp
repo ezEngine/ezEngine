@@ -77,6 +77,14 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
 
   switch (pRtti->GetVariantType())
   {
+    case ezVariant::Type::Invalid:
+    {
+      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezVariant"))
+        return "any";
+
+      return nullptr;
+    }
+
     case ezVariant::Type::Angle:
       return "number";
 
