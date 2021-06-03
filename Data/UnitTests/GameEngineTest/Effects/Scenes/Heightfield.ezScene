@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11043133426184831420,5486137700909168270}}
-		u4 %Hash{727742803822723311}
+		u4 %Hash{9953052521933771121}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -31,12 +31,14 @@ o
 {
 	Uuid %id{u4{14190353121988234124,4689851060038338728}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		s %CubeMap{""}
 		f %Intensity{0xCDCCCC3D}
 		Uuid %ReflectionData{u4{6303698740046377541,17464799417758442153}}
+		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
 		f %Saturation{0x9A99993E}
 	}
 }
@@ -510,7 +512,7 @@ o
 {
 	Uuid %id{u4{6303698740046377541,17464799417758442153}}
 	s %t{"ezReflectionProbeData"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %ExcludeTags{}
@@ -557,6 +559,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12741513019009579696,2118083688060841630}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectionProbeMode"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -628,7 +648,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRaycastComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{2}
 	}
 }
@@ -779,8 +799,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionProbeData"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -980,8 +1000,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeSize{112}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{2}
 	}
 }
 o
