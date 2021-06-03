@@ -112,6 +112,8 @@ ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
 ezSkyLightComponent;Sky Light
+ezReflectionProbeMode::Static;Static
+ezReflectionProbeMode::Dynamic;Dynamic
 ezSkyBoxComponent;Sky Box
 ezFogComponent;Fog
 ezSpriteComponent;Sprite

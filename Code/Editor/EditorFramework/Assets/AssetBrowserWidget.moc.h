@@ -59,6 +59,7 @@ private Q_SLOTS:
   void OnTransform();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
+  void OnListFindAllUses(bool transitive);
   void OnSelectionTimer();
   void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void OnAssetSelectionCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
@@ -77,6 +78,7 @@ private:
 
   bool m_bDialogMode;
   ezUInt32 m_uiKnownAssetFolderCount;
+  bool m_bTreeSelectionChangeInProgress = false;
 
   ezQtToolBarActionMapView* m_pToolbar;
   ezString m_sAllTypesFilter;

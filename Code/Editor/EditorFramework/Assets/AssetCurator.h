@@ -223,7 +223,7 @@ private:
 
 public:
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
-  void TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
+  ezStatus TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();
   ezStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   ezStatus CreateThumbnail(const ezUuid& assetGuid);
@@ -273,6 +273,15 @@ public:
   ///   File name (may include a path) to search for. Will be modified both on success and failure to give a 'reasonable' result.
   ezResult FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr<ezString> AllowedFileExtensions) const;
 
+  /// \brief Finds all uses, either as references or dependencies to a given asset.
+  /// \param assetGuid
+  ///   The asset to find use cases for.
+  /// \param uses
+  ///   List of assets that use 'assetGuid'.
+  /// \param transitive
+  ///   If set, will also find indirect uses of the asset.
+  void FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool transitive) const;
+
   ///@}
   /// \name Manual and Automatic Change Notification
   ///@{
@@ -303,6 +312,8 @@ private:
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
+  const ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid) const;
+
   ezSubAsset* GetSubAssetInternal(const ezUuid& assetGuid);
 
   /// \brief Returns the asset info for the asset with the given (stringyfied) GUID or nullptr if no such asset exists.

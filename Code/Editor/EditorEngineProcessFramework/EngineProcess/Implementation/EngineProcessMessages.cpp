@@ -326,6 +326,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCreateThumbnailMsgToEngine, 1, ezRTTIDefaultAl
   {
     EZ_MEMBER_PROPERTY("Width", m_uiWidth),
     EZ_MEMBER_PROPERTY("Height", m_uiHeight),
+    EZ_ARRAY_MEMBER_PROPERTY("ViewExcludeTags", m_ViewExcludeTags),
   }
   EZ_END_PROPERTIES;
 }

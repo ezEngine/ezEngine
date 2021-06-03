@@ -22,3 +22,9 @@ DataDir
 	string %RootName{""}
 	bool %Writable{false}
 }
+DataDir
+{
+	string %Path{">sdk/Data/Content"}
+	string %RootName{""}
+	bool %Writable{false}
+}
