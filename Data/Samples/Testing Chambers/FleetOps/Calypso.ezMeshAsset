@@ -14,7 +14,7 @@ o
 			s{"FleetOps/Calypso_data/calypso.obj"}
 		}
 		Uuid %DocumentID{u4{8574195382367338661,4621612236654238203}}
-		u4 %Hash{3612039562039548313}
+		u4 %Hash{13336303717155525120}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -38,7 +38,7 @@ o
 		b %Cap2{0}
 		u2 %Detail{0}
 		u2 %Detail2{0}
-		b %FlipForwardDir{0}
+		b %FlipForwardDir{1}
 		f %Height{0}
 		b %ImportMaterials{1}
 		VarArray %Materials

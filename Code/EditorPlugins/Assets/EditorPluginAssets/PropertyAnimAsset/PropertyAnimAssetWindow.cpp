@@ -88,7 +88,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   {
     ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
     pPanel->setObjectName("PropertyAnimAssetDockWidget");
-    pPanel->setWindowTitle("Properties");
+    pPanel->setWindowTitle("Object Properties");
     pPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument);
@@ -101,7 +101,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   {
     ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
     pPanel->setObjectName("PropertyAnimPropertiesDockWidget");
-    pPanel->setWindowTitle("Properties");
+    pPanel->setWindowTitle("Animated Properties");
     pPanel->show();
 
     m_pPropertyTreeView = new ezQtPropertyAnimAssetTreeView(pPanel);
