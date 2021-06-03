@@ -3,6 +3,7 @@
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -46,7 +47,8 @@ void OnLoadPlugin(bool bReloading)
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar").IgnoreResult();
-      // ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", false, true, false);
+      ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+      ezViewLightActions::MapActions("ParticleEffectAssetViewToolBar", "");
     }
 
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);

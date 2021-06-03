@@ -21,7 +21,6 @@
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
-
 BEGIN_SUBSYSTEM_DEPENDENCIES
 "Foundation",
 "Core",

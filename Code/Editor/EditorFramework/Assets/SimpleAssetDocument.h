@@ -1,6 +1,8 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
@@ -102,14 +104,20 @@ template <typename PropertyType, typename BaseClass = ezAssetDocument>
 class ezSimpleAssetDocument : public BaseClass
 {
 public:
-  ezSimpleAssetDocument(const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType)
+  ezSimpleAssetDocument(const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
     : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
+    , m_LightSettings(bEnableDefaultLighting)
   {
+    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    pPreferences->ApplyDefaultValues(m_LightSettings);
   }
 
-  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType)
+  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
     : BaseClass(szDocumentPath, pObjectManager, engineConnectionType)
+    , m_LightSettings(bEnableDefaultLighting)
   {
+    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    pPreferences->ApplyDefaultValues(m_LightSettings);
   }
 
   ~ezSimpleAssetDocument()
@@ -140,6 +148,8 @@ protected:
     m_ObjectMirror.SendDocument();
 
     BaseClass::InitializeAfterLoading(bFirstTimeCreation);
+
+    this->AddSyncObject(&m_LightSettings);
   }
 
   virtual ezStatus InternalLoadDocument() override
@@ -223,4 +233,5 @@ protected:
 
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
+  ezEngineViewLightSettings m_LightSettings;
 };

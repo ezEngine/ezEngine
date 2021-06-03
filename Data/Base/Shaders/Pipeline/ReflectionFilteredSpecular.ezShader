@@ -1,0 +1,167 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthTestFunc = CompareFunc_Less
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/BRDF.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/ObjectConstants.h>
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include "ReflectionFilteredSpecularConstants.h"
+
+TextureCube InputCubemap;
+
+// http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+float radicalInverse_VdC(uint bits) {
+     bits = (bits << 16u) | (bits >> 16u);
+     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+     return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+ }
+
+float2 hammersley2d(uint i, uint N) {
+     return float2(float(i)/float(N), radicalInverse_VdC(i));
+ }
+
+// https://github.com/TwoTailsGames/Unity-Built-in-Shaders/blob/master/CGIncludes/UnityImageBasedLighting.cginc
+void GetLocalFrame(float3 N, out float3 tangentX, out float3 tangentY)
+{
+    float3 upVector     = abs(N.z) < 0.999f ? float3(0.0f, 0.0f, 1.0f) : float3(1.0f, 0.0f, 0.0f);
+    tangentX            = normalize(cross(upVector, N));
+    tangentY            = cross(N, tangentX);
+}
+
+void importanceSampleGGXDir(float2 u,
+                            float3 V,
+                            float3 N,
+                            float3 tangentX,
+                            float3 tangentY,
+                            float roughness,
+                            out float3 H,
+                            out float3 L)
+{
+    // GGX NDF sampling
+    float cosThetaH = sqrt((1.0f - u.x) / (1.0f + (roughness * roughness - 1.0f) * u.x));
+    float sinThetaH = sqrt(max(0.0f, 1.0f - cosThetaH * cosThetaH));
+    float phiH      = PI * 2.0f * u.y;
+
+    // Transform from spherical into cartesian
+    H = float3(sinThetaH * cos(phiH), sinThetaH * sin(phiH), cosThetaH);
+    // Local to world
+    H = tangentX * H.x + tangentY * H.y + N * H.z;
+
+    // Convert sample from half angle to incident angle
+    L = 2.0f * dot(V, H) * H - V;
+}
+
+
+inline float D_GGX_Divide_Pi (float NdotH, float roughness)
+{
+  const float invPi = 1.0f / PI;
+  return SpecularGGX(roughness, NdotH) *  invPi;
+}
+
+// Ref: Listing 19 in "Moving Frostbite to PBR"
+float3  integrateCubeLDOnly(in float3 V,in float3 N,in float roughness)
+{
+  uint sampleCount = 64;
+  float width, height, mipCount;
+  InputCubemap.GetDimensions(0, width, height, mipCount);
+
+  float3 tangentX, tangentY;
+  GetLocalFrame(N, tangentX, tangentY);
+
+  float3  accBrdf = 0;
+  float   accBrdfWeight = 0;
+  for (uint i=0; i<sampleCount; ++i)
+  {
+    float2  eta = hammersley2d(i, sampleCount);
+    float3 L;
+    float3 H;
+    importanceSampleGGXDir(eta , V, N, tangentX, tangentY, roughness , H, L);
+    float  NdotL = dot(N, L);
+    if (NdotL > 0)
+    {
+      // Use pre -filtered  importance  sampling (i.e use  lower  mipmap
+      // level  for  fetching  sample  with  low  probability  in  order
+      // to  reduce  the  variance).
+      // (Reference: GPU  Gem3)
+      //
+      // Since we pre -integrate  the  result  for  normal  direction ,
+      // N == V and  then  NdotH ==  LdotH. This is why the  BRDF  pdf
+      // can be  simplifed  from:
+      //     pdf = D_GGX_Divide_Pi(NdotH , roughness)*NdotH /(4* LdotH);
+      // to
+      //     pdf = D_GGX_Divide_Pi(NdotH , roughness) / 4;
+      //
+      // The  mipmap  level is  clamped  to  something  lower  than 8x8
+      // in  order to  avoid   cubemap  filtering  issues
+      //
+      //   - OmegaS: Solid  angle  associated  to a sample
+      //   - OmegaP: Solid  angle  associated  to a pixel  of the  cubemap
+      float  NdotH = saturate(dot(N, H));
+      float  LdotH = saturate(dot(L, H));
+      
+      float  pdf = D_GGX_Divide_Pi(NdotH , roughness) / 4;
+      float  omegaS = 1.0 / (sampleCount * pdf);
+      float  omegaP = 4.0 * PI / (6.0 * width * width);
+      float  mipLevel = 0.5 * log2(omegaS / omegaP);
+ 
+      float4  Li = InputCubemap.SampleLevel(LinearSampler, L, mipLevel);
+
+      accBrdf  += Li.rgb * NdotL;
+      accBrdfWeight  += NdotL;
+    }
+  }
+  return  accBrdf * (1.0f / accBrdfWeight);
+}
+
+float4 main(PS_IN input) : SV_Target
+{
+  float3 Right = cross(Forward.xyz, Up2.xyz);
+  float3 dir = Right.xyz * (input.TexCoord0.x * -2.0f + 1.0f);
+  dir += Up2.xyz * (input.TexCoord0.y * -2.0f + 1.0f) + Forward.xyz;
+  dir = normalize(dir);
+
+  float roughness = RoughnessFromMipLevel(MipLevel, 6);
+
+  float3 inputColor;
+  if (MipLevel == 0)
+  {
+    inputColor = InputCubemap.Sample(LinearSampler, CubeMapDirection(dir));
+  }
+  else
+  {
+    inputColor = integrateCubeLDOnly(CubeMapDirection(dir), CubeMapDirection(dir), roughness);
+  }
+
+  float luminance = GetLuminance(inputColor);
+  inputColor = lerp(luminance, inputColor, Saturation) * Intensity;
+
+  float4 res = float4(inputColor, (float)OutputIndex);
+  return res;
+}

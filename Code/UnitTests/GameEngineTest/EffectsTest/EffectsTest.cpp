@@ -44,7 +44,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::Heightfield)
   {
-    m_ImgCompFrames.PushBack(10);
+    m_ImgCompFrames.PushBack(20);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Heightfield.ezObjectGraph"));
     return EZ_SUCCESS;
@@ -62,7 +62,7 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
 
   if (m_ImgCompFrames[m_iImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_iImgCompIdx, 200);
+    EZ_TEST_IMAGE(m_iImgCompIdx, 250);
     ++m_iImgCompIdx;
 
     if (m_iImgCompIdx >= m_ImgCompFrames.GetCount())

@@ -167,20 +167,6 @@ void ezDecalContext::OnInitialize()
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
   }
-
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
-
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-  }
 }
 
 ezEngineProcessViewContext* ezDecalContext::CreateViewContext()

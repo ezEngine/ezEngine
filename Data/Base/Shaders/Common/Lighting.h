@@ -391,6 +391,13 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, matData.worldNormal).rgb;
   totalLight.diffuseLight += matData.diffuseColor * skyLight * occlusion;
   
+  // indirect specular
+  float3 reflectionDir = CubeMapDirection(reflect(-viewVector, matData.worldNormal));
+  float4 coord = float4(reflectionDir, 0);
+  float mipLevel = MipLevelFromRoughness(matData.roughness, 6);
+  float3 indirectLight = ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel).rgb;
+  totalLight.specularLight += matData.specularColor * indirectLight * occlusion;
+
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
     skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, -matData.worldNormal).rgb;

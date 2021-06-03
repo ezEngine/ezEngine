@@ -50,8 +50,7 @@ public:
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) = 0;
 
-  /// \todo add parameters for mip level & count selection?
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) = 0;
+  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData) = 0;
 
   virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) = 0;
 

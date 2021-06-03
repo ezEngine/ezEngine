@@ -367,35 +367,56 @@ void ezGALCommandEncoderImplDX11::ReadbackTexturePlatform(const ezGALTexture* pT
   }
 }
 
-void ezGALCommandEncoderImplDX11::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
+ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
+{
+  for (ezUInt32 i = 0; i < uiMipLevel; i++)
+  {
+    uiSize = uiSize / 2;
+  }
+  return ezMath::Max(1u, uiSize);
+}
+
+void ezGALCommandEncoderImplDX11::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData)
 {
   const ezGALTextureDX11* pDXTexture = static_cast<const ezGALTextureDX11*>(pTexture);
 
   EZ_ASSERT_DEV(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
+  EZ_ASSERT_DEV(SourceSubResource.GetCount() == TargetData.GetCount(), "Source and target arrays must be of the same size.");
 
-  D3D11_MAPPED_SUBRESOURCE Mapped;
-  if (SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))
+  const ezUInt32 uiSubResources = SourceSubResource.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
   {
-    if (Mapped.RowPitch == (*pData)[0].m_uiRowPitch)
+    const ezGALTextureSubresource& subRes = SourceSubResource[i];
+    const ezGALSystemMemoryDescription& memDesc = TargetData[i];
+    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+
+    D3D11_MAPPED_SUBRESOURCE Mapped;
+    if (SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), uiSubResourceIndex, D3D11_MAP_READ, 0, &Mapped)))
     {
-      const ezUInt32 uiMemorySize = ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) *
-                                    pDXTexture->GetDescription().m_uiWidth * pDXTexture->GetDescription().m_uiHeight / 8;
-      memcpy((*pData)[0].m_pData, Mapped.pData, uiMemorySize);
-    }
-    else
-    {
-      // Copy row by row
-      for (ezUInt32 y = 0; y < pDXTexture->GetDescription().m_uiHeight; ++y)
+      // TODO: Depth pitch
+      if (Mapped.RowPitch == memDesc.m_uiRowPitch)
       {
-        const void* pSource = ezMemoryUtils::AddByteOffset(Mapped.pData, y * Mapped.RowPitch);
-        void* pDest = ezMemoryUtils::AddByteOffset((*pData)[0].m_pData, y * (*pData)[0].m_uiRowPitch);
-
-        memcpy(
-          pDest, pSource, ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) * pDXTexture->GetDescription().m_uiWidth / 8);
+        const ezUInt32 uiMemorySize = ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) *
+                                      GetMipSize(pDXTexture->GetDescription().m_uiWidth, subRes.m_uiMipLevel) *
+                                      GetMipSize(pDXTexture->GetDescription().m_uiHeight, subRes.m_uiMipLevel) / 8;
+        memcpy(memDesc.m_pData, Mapped.pData, uiMemorySize);
       }
-    }
+      else
+      {
+        // Copy row by row
+        const ezUInt32 uiHeight = GetMipSize(pDXTexture->GetDescription().m_uiHeight, subRes.m_uiMipLevel);
+        for (ezUInt32 y = 0; y < uiHeight; ++y)
+        {
+          const void* pSource = ezMemoryUtils::AddByteOffset(Mapped.pData, y * Mapped.RowPitch);
+          void* pDest = ezMemoryUtils::AddByteOffset(memDesc.m_pData, y * memDesc.m_uiRowPitch);
 
-    m_pDXContext->Unmap(pDXTexture->GetDXStagingTexture(), 0);
+          memcpy(
+            pDest, pSource, ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) * GetMipSize(pDXTexture->GetDescription().m_uiWidth, subRes.m_uiMipLevel) / 8);
+        }
+      }
+
+      m_pDXContext->Unmap(pDXTexture->GetDXStagingTexture(), uiSubResourceIndex);
+    }
   }
 }
 

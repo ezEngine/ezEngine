@@ -203,6 +203,7 @@ AvailableClips;Available Clips
 Common.Pause;Pause
 Common.Restart;Restart
 Common.Loop;Loop
+Common.Grid;Grid
 Common.Speed.01;10%
 Common.Speed.025;25%
 Common.Speed.05;50%

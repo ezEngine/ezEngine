@@ -47,6 +47,17 @@ View.CameraUsageHint;Camera Usage Hint
 View.RenderPipeline;Render Pipeline
 View.ActivateRemoteProcess;Activate Remote Process
 View.LinkDeviceCamera;Link Camera on Remote Process
+View.LightMenu;Light Settings
+View.SkyBox;Enable Sky Box
+View.SkyLight;Enable Sky Light
+View.SkyLightCubeMap;Select Sky Light CubeMap...
+View.SkyLightIntensity;Sky Light Intensity
+View.DirectionalLight;Enable Directional Light
+View.DirLightAngle;Directional Light Angle
+View.DirectionalLightShadows;Directional Light Shadows
+View.DirLightIntensity;Directional Light Intensity
+View.Fog;Enable Fog
+View.SetAsDefault;Set As Default...
 Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
 Asset.ResaveAll;Resave All Assets;Opens every document and saves it. Used to get all documents to the latest version.
@@ -64,7 +75,8 @@ ezSceneViewPerspective::Perspective;Perspective
 ezViewRenderMode::None;Default
 ezViewRenderMode::WireframeColor;Wireframe Color
 ezViewRenderMode::WireframeMonochrome;Wireframe Monochrome
-ezViewRenderMode::LitOnly;Lit Only
+ezViewRenderMode::DiffuseLitOnly;Diffuse Lit Only
+ezViewRenderMode::SpecularLitOnly;Specular Lit Only
 ezViewRenderMode::LightCount;Light Count
 ezViewRenderMode::DecalCount;Decal Count
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)

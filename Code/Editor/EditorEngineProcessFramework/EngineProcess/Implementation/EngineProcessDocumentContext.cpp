@@ -226,6 +226,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     ezResourceManager::ReloadAllResources(false);
+    UpdateSyncObjects();
     const ezCreateThumbnailMsgToEngine* pMsg2 = static_cast<const ezCreateThumbnailMsgToEngine*>(pMsg);
     // As long as the thumbnail context is alive, we will trigger UpdateThumbnailViewContext
     // inside the UpdateDocumentContext function until the thumbnail rendering has converged and
@@ -464,7 +465,11 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
         MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, &SysMemDescs);
+
+        ezGALTextureSubresource sourceSubResource;
+        ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+
+        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
 
         ezImage imageSwap;
         ezImage* pImage = &image;
@@ -553,6 +558,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
     pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
     pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
     pView->SetRenderPassProperty("EditorPickingPass", "Active", false);
+    pView->m_ExcludeTags.SetByName("SkyLight");
   }
 
   m_pThumbnailViewContext->Redraw(false);

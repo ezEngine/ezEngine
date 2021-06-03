@@ -14,9 +14,8 @@
 
 #endif
 
-//include <Shaders/Common/Lighting.h>
+#include <Shaders/Common/LightingSimplified.h>
 #include <Shaders/Materials/MaterialHelper.h>
-
 
 struct PS_OUT
 {
@@ -49,54 +48,24 @@ PS_OUT main(PS_IN Input)
   #endif
 
   ezMaterialData matData = FillMaterialData();
-
-  Output.Color = float4(matData.diffuseColor, 1.0f);
-
-  return Output;
-
-  // TODO
-/*
-
-  float opacity = 1.0f;
-
-  #if BLEND_MODE == BLEND_MODE_MASKED
-
-    #if defined(USE_ALPHA_TEST)
-      uint coverage = CalculateCoverage(Input);
-      if (coverage == 0)
-      {
-        discard;
-      }
-    #endif
-
-  #elif BLEND_MODE != BLEND_MODE_OPAQUE
-    opacity = GetOpacity(Input);
-  #endif
-
-  ezMaterialData matData = FillMaterialData();
-
-  #if defined(USE_DECALS)
-    ApplyDecals(matData, clusterData);
-  #endif
-
-  #if RENDER_PASS == RENDER_PASS_EDITOR
-    if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
-    {
-      matData.diffuseColor = 0.5;
-      matData.specularColor = 0.0;
-    }
-  #endif
-
-  #if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
-    float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw);  // TODO
+  
+  #if SHADING_MODE == SHADING_MODE_LIT
+    AccumulatedLight light = CalculateLightingSimplified(matData);
   #else
-    float3 litColor = matData.diffuseColor;
+    AccumulatedLight light = InitializeLight(matData.diffuseColor, 0.0f);
   #endif
 
+  float3 litColor = light.diffuseLight + light.specularLight;
   litColor += matData.emissiveColor;
 
-  Output.Color = float4(litColor, opacity);
+  #if RENDER_PASS == RENDER_PASS_FORWARD
+
+    Output.Color = float4(litColor, matData.opacity);
+
+  #else
+    Output.Color = float4(litColor, matData.opacity);
+    #error "RENDER_PASS uses undefined value."
+  #endif
 
   return Output;
-*/
 }

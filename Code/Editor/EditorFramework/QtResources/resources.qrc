@@ -53,6 +53,7 @@
     <file>Icons/Twitter.svg</file>
     <file>Icons/GitHub.svg</file>
     <file>Icons/GitHub-Light.png</file>
+    <file>Icons/ViewLightMenu.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

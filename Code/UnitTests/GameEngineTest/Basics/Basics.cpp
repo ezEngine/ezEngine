@@ -78,12 +78,26 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   sBinPath.AppendPath("EditorProcessor.exe");
   sBinPath.MakeCleanPath();
 
+  ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  {
+    ezStringView sProjectPath = ezPathUtils::GetFileDirectory(szProjectPath);
+    sProjectPath.Trim("\\/");
+    ezStringView sProjectName = ezPathUtils::GetFileName(sProjectPath.GetStartPointer(), sProjectPath.GetEndPointer());
+    sOutputPath.AppendPath("Transform");
+    sOutputPath.Append(sProjectName);
+    if (ezOSFile::CreateDirectoryStructure(sOutputPath).Failed())
+      ezLog::Error("Failed to create output directory: {}", sOutputPath);
+  }
+
   ezProcessOptions opt;
   opt.m_sProcess = sBinPath;
   opt.m_Arguments.PushBack("-project");
   opt.AddArgument("\"{0}\"", sProjectDir);
   opt.m_Arguments.PushBack("-transform");
   opt.m_Arguments.PushBack("PC");
+  opt.m_Arguments.PushBack("-outputDir");
+  opt.AddArgument("\"{0}\"", sOutputPath);
+  opt.m_Arguments.PushBack("-debug");
 
   ezProcess proc;
   ezLog::Info("Launching: '{0}'", sBinPath);
@@ -94,7 +108,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
 
-  ezTime timeout = ezTime::Minutes(8);
+  ezTime timeout = ezTime::Minutes(15);
   res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {

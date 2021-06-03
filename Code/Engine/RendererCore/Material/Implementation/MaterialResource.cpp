@@ -1060,4 +1060,9 @@ void ezMaterialResource::ClearCache()
   s_FreeMaterialCacheEntries.Clear();
 }
 
+const ezMaterialResourceDescriptor& ezMaterialResource::GetCurrentDesc() const
+{
+  return m_Desc;
+}
+
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);

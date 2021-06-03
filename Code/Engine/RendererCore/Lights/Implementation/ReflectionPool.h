@@ -20,13 +20,13 @@ public:
   static void DeregisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld);
 
   static void ExtractReflectionProbe(
-    ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority = 1.0f);
+    ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, bool& bStatesDirty, float fPriority = 1.0f);
 
   static void SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance);
   static void ResetConstantSkyIrradiance(const ezWorld* pWorld);
 
   static ezUInt32 GetReflectionCubeMapSize();
-  static ezGALTextureHandle GetReflectionSpecularTexture();
+  static ezGALTextureHandle GetReflectionSpecularTexture(ezUInt32 uiWorldIndex);
   static ezGALTextureHandle GetSkyIrradianceTexture();
 
   // static ezGALBufferHandle GetShadowDataBuffer();

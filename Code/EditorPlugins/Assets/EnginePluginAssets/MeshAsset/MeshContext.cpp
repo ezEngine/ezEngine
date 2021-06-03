@@ -105,23 +105,11 @@ void ezMeshContext::OnInitialize()
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
     m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
     pMesh->SetMesh(m_hMesh);
-  }
 
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
+    {
+      ezResourceLock<ezMeshResource> pMeshRes(m_hMesh, ezResourceAcquireMode::PointerOnly);
+      pMeshRes->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMeshContext::OnResourceEvent, this), m_meshResourceEventSubscriber);
+    }
   }
 }
 
@@ -137,6 +125,14 @@ void ezMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
+  if (m_boundsDirty)
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    m_pMeshObject->UpdateLocalBounds();
+    m_pMeshObject->UpdateGlobalTransformAndBounds();
+    m_boundsDirty = false;
+  }
   ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
   ezMeshViewContext* pMeshViewContext = static_cast<ezMeshViewContext*>(pThumbnailViewContext);
@@ -157,6 +153,7 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
+    m_boundsDirty = false;
     const auto& b = m_pMeshObject->GetGlobalBounds();
 
     if (b.IsValid())
@@ -173,4 +170,12 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);
+}
+
+void ezMeshContext::OnResourceEvent(const ezResourceEvent& e)
+{
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
+  {
+    m_boundsDirty = true;
+  }
 }

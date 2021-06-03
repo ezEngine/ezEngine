@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2725015508337577781,9195918795680669165}}
-		u4 %Hash{10242087949782402665}
+		u4 %Hash{6634956646078361606}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -125,6 +125,19 @@ o
 		s %Name{""}
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x6372A6C3,0x4C03A7C3}}
+	}
+}
+o
+{
+	Uuid %id{u4{1056635579702913958,5139642192178427092}}
+	s %t{"ezSimplifiedDataExtractor"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Name{""}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0xC95E5EC4,0x42B1ECC3}}
 	}
 }
 o
@@ -263,6 +276,7 @@ o
 			Uuid{u4{15649058976570388889,5389223864839047716}}
 			Uuid{u4{11020058938254816927,5242302963001579302}}
 			Uuid{u4{6729344220346715180,10497512716873575548}}
+			Uuid{u4{1056635579702913958,5139642192178427092}}
 		}
 	}
 }
@@ -711,6 +725,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeOutputPin"}
 		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12628239637010395728,16501515285336527887}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezExtractor"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSimplifiedDataExtractor"}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }

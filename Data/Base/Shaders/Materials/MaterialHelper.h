@@ -3,6 +3,7 @@
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
+#include <Shaders/Common/BRDF.h>
 #include <Shaders/Materials/MaterialData.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
@@ -25,6 +26,7 @@ float3 GetNormal();
   float4 GetRefractionColor();
 #endif
 
+// Note that this function actually returns perceptualRoughness.
 float GetRoughness();
 float GetOpacity();
 
@@ -129,7 +131,8 @@ ezMaterialData FillMaterialData()
     matData.refractionColor = float4(0, 0, 0, 1);
   #endif
 
-  matData.roughness = max(GetRoughness(), 0.04f);
+  matData.perceptualRoughness = max(GetRoughness(), MIN_PERCEPTUAL_ROUGHNESS);
+  matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
 
   #if defined(USE_MATERIAL_OCCLUSION)
     #if defined(USE_NORMAL)

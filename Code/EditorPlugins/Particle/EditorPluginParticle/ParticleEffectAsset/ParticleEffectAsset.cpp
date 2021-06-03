@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
   ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_bRenderVisualizers);
 }

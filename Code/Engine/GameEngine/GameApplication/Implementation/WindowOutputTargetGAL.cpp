@@ -58,7 +58,9 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   /// \todo Make this more efficient
   MemDesc.m_pData = backbufferData.GetData();
   ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-  pGALCommandEncoder->CopyTextureReadbackResult(hBackbuffer, &SysMemDescsDepth);
+  ezGALTextureSubresource sourceSubResource;
+  ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+  pGALCommandEncoder->CopyTextureReadbackResult(hBackbuffer, sourceSubResources, SysMemDescsDepth);
 
   ezImageHeader header;
   header.SetWidth(uiWidth);
