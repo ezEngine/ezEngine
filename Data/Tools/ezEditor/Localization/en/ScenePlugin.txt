@@ -297,3 +297,80 @@ ezRootMotionMode::ApplyToOwner;Apply To Owner
 ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg
 ezJointOverrideComponent;Joint Override Component
 ezHeightfieldComponent;Heightfield Component
+ezRenderComponent;Render Component
+ezReflectionProbeMode::Static;Static
+ezReflectionProbeMode::Dynamic;Dynamic
+ConstantColor;Constant Color
+Constant1;Constant1
+Constant2;Constant2
+Constant3;Constant3
+Constant4;Constant4
+Split;Split
+MergeFloat2;Merge to Float2
+MergeFloat3;Merge to Float3
+MergeFloat4;Merge to Float4
+MaterialOutput;Material Output
+Time;Time
+UV;UV
+UV2;UV 2
+Scroll;Scroll
+VertexPosition;Vertex Position
+VertexWorldPosition;Vertex WorldPosition
+VertexNormal;Vertex Normal
+VertexTangent;Vertex Tangent
+VertexColor;Vertex Color
+Camera;Camera
+Lerp;Lerp
+Add;Add
+Subtract;Subtract
+Multiply;Multiply
+Divide;Divide
+Fraction;Fraction
+Abs;Abs
+Sign;Sign
+Sqrt;Sqrt
+Negate;Negate
+Max;Max
+Min;Min
+Saturate;Saturate
+Clamp;Clamp
+Floor;Floor
+Ceil;Ceil
+Round;Round
+Truncate;Truncate
+Sine;Sine
+Cosine;Cosine
+Exp;Exp
+Exp2;Exp2
+Log;Log
+Log2;Log2
+Log10;Log10
+Pow;Pow
+Distance;Distance
+Dot;Dot
+Cross;Cross
+Normalize;Normalize
+FromCameraSpace;From CameraSpace
+FromScreenSpace;From ScreenSpace
+FromWorldSpace;From WorldSpace
+TangentToWorldSpace;Tangent To WorldSpace
+Parameter1f;Parameter 1f
+Parameter2f;Parameter 2f
+Parameter3f;Parameter 3f
+Parameter4f;Parameter 4f
+ParameterColor;Parameter Color
+PointSampler;Point Sampler
+LinearSampler;Linear Sampler
+PointClampSampler;Point Clamp Sampler
+LinearClampSampler;Linear Clamp Sampler
+EmissiveTexture;Emissive Texture
+Texture2D;Texture 2D
+Texture3Way;Texture 3-Way
+BlendNormals;Blend Normals
+SceneColor;Scene Color
+SceneDepth;Scene Depth
+ScenePosition;Scene Position
+DepthFade;Depth Fade
+Fresnel;Fresnel
+Refraction;Refraction
+SetColorMode;Set Color Mode
