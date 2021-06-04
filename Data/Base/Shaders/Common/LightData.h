@@ -121,6 +121,7 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
   FLOAT1(FogDensityAtCameraPos);
   FLOAT1(FogDensity);
   COLOR4F(FogColor);
+  FLOAT1(FogInvSkyDistance);
 };
 
 #define NUM_CLUSTERS_X 16
