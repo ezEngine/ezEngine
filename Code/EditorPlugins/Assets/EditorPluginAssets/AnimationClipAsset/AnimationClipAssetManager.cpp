@@ -21,9 +21,9 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezAnimationClip";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
+  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
 }
 
 ezAnimationClipAssetDocumentManager::~ezAnimationClipAssetDocumentManager()

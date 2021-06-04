@@ -19,7 +19,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionSource, 1)
   EZ_ENUM_CONSTANTS(ezRootMotionSource::None, ezRootMotionSource::Constant)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -160,6 +160,17 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
 ezStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
+  // the preview mesh is an editor side only option, so the thumbnail context doesn't know anything about this
+  // until we explicitly tell it about the mesh
+  // without sending this here, thumbnails would remain black for assets transformed in the background
+  if (!GetProperties()->m_sPreviewMesh.IsEmpty())
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewMesh";
+    msg.m_sPayload = GetProperties()->m_sPreviewMesh;
+    SendMessageToEngine(&msg);
+  }
+
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
