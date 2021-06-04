@@ -200,8 +200,8 @@ void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMip
   };
 
   auto constants = ezRenderContext::GetConstantBufferData<ezReflectionFilteredSpecularConstants>(m_hFilteredSpecularConstantBuffer);
-  constants->Forward = vForward[outputIndex % 6].GetAsVec4(0.0f);
-  constants->Up2 = vUp[outputIndex % 6].GetAsVec4(0.0f);
+  constants->Forward = vForward[outputIndex % 6].GetAsDirectionVec4();
+  constants->Up2 = vUp[outputIndex % 6].GetAsDirectionVec4();
   constants->MipLevel = uiMipMapIndex;
   constants->Intensity = m_fIntensity;
   constants->Saturation = m_fSaturation;

@@ -274,6 +274,9 @@ public:
   ezResult FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr<ezString> AllowedFileExtensions) const;
 
   /// \brief Finds all uses, either as references or dependencies to a given asset.
+  ///
+  /// Technically this finds all references and dependencies to this asset but in practice there are no uses of transform dependencies between assets right now so the result is a list of references and can be referred to as such.
+  ///
   /// \param assetGuid
   ///   The asset to find use cases for.
   /// \param uses

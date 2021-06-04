@@ -642,8 +642,8 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct uses of this asset"), this, [&]() { OnListFindAllUses(false); });
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect uses of this asset"), this, [&]() { OnListFindAllUses(true); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
@@ -729,7 +729,7 @@ void ezQtAssetBrowserWidget::OnListCopyAssetGuid()
 }
 
 
-void ezQtAssetBrowserWidget::OnListFindAllUses(bool transitive)
+void ezQtAssetBrowserWidget::OnListFindAllReferences(bool transitive)
 {
   if (!ListAssets->selectionModel()->hasSelection())
     return;
@@ -739,7 +739,7 @@ void ezQtAssetBrowserWidget::OnListFindAllUses(bool transitive)
   ezConversionUtils::ToString(guid, sAssetGuid);
 
   ezStringBuilder sFilter;
-  sFilter.Format("{}:{}", transitive ? "uses2" : "uses", sAssetGuid);
+  sFilter.Format("{}:{}", transitive ? "ref-all" : "ref", sAssetGuid);
   m_pFilter->SetTextFilter(sFilter);
   m_pFilter->SetPathFilter("");
 }

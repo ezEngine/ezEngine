@@ -59,7 +59,7 @@ private Q_SLOTS:
   void OnTransform();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
-  void OnListFindAllUses(bool transitive);
+  void OnListFindAllReferences(bool transitive);
   void OnSelectionTimer();
   void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void OnAssetSelectionCurrentChanged(const QModelIndex& current, const QModelIndex& previous);

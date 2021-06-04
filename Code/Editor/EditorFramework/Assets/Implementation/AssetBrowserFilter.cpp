@@ -66,12 +66,12 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
   m_bTransitive = false;
   m_uses.Clear();
 
-  const char* szUsesGuid = ezStringUtils::FindSubString_NoCase(szText, "uses:");
-  const char* szUses2Guid = ezStringUtils::FindSubString_NoCase(szText, "uses2:");
-  if (szUsesGuid || szUses2Guid)
+  const char* szRefGuid = ezStringUtils::FindSubString_NoCase(szText, "ref:");
+  const char* szRefAllGuid = ezStringUtils::FindSubString_NoCase(szText, "ref-all:");
+  if (szRefGuid || szRefAllGuid)
   {
-    bool bTransitive = szUses2Guid != nullptr;
-    const char* szGuid = szUses2Guid ? szUses2Guid + strlen("uses2:") : szUsesGuid + strlen("uses:");
+    bool bTransitive = szRefAllGuid != nullptr;
+    const char* szGuid = szRefAllGuid ? szRefAllGuid + strlen("ref-all:") : szRefGuid + strlen("ref:");
     if (ezConversionUtils::IsStringUuid(szGuid))
     {
       m_bUsesSearchActive = true;
