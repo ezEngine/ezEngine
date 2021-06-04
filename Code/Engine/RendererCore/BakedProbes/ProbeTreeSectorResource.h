@@ -18,7 +18,7 @@ struct EZ_RENDERERCORE_DLL ezProbeTreeSectorResourceDescriptor
   ezDynamicArray<ezAmbientCube<ezUInt8>> m_SkyVisibility;
 
   void Clear();
-  ezUInt32 GetHeapMemoryUsage() const;
+  ezUInt64 GetHeapMemoryUsage() const;
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);

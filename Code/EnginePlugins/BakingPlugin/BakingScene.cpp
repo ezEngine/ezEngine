@@ -8,7 +8,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <RendererCore/Lights/ProbeTreeSectorResource.h>
+#include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 namespace
@@ -122,7 +122,7 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 
   ezAssetFileHeader header;
   header.SetFileHashAndVersion(1, 1);
-  header.Write(file);
+  EZ_SUCCEED_OR_RETURN(header.Write(file));
 
   ezProbeTreeSectorResourceDescriptor desc;
   desc.m_ProbePositions = placeProbesTask.GetProbePositions();
@@ -166,7 +166,7 @@ ezResult ezBakingScene::RenderDebugView(const ezMat4& InverseViewProjection, ezU
       ezUInt32 y = uiHeight - (uiPixelIndex / uiWidth) - 1;
 
       auto& ray = rays[i];
-      ezGraphicsUtils::ConvertScreenPosToWorldPos(InverseViewProjection, 0, 0, uiWidth, uiHeight, ezVec3(x, y, 0), ray.m_vStartPos, &ray.m_vDir);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(InverseViewProjection, 0, 0, uiWidth, uiHeight, ezVec3(float(x), float(y), 0), ray.m_vStartPos, &ray.m_vDir).IgnoreResult();
       ray.m_fDistance = 1000.0f;
     }
 

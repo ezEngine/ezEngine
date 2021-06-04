@@ -2,7 +2,7 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <RendererCore/Lights/ProbeTreeSectorResource.h>
+#include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 
 ezProbeTreeSectorResourceDescriptor::ezProbeTreeSectorResourceDescriptor() = default;
 ezProbeTreeSectorResourceDescriptor::~ezProbeTreeSectorResourceDescriptor() = default;
@@ -19,9 +19,9 @@ void ezProbeTreeSectorResourceDescriptor::Clear()
   m_SkyVisibility.Clear();
 }
 
-ezUInt32 ezProbeTreeSectorResourceDescriptor::GetHeapMemoryUsage() const
+ezUInt64 ezProbeTreeSectorResourceDescriptor::GetHeapMemoryUsage() const
 {
-  ezUInt32 uiMemUsage = 0;
+  ezUInt64 uiMemUsage = 0;
   uiMemUsage += m_ProbePositions.GetHeapMemoryUsage();
   uiMemUsage += m_SkyVisibility.GetHeapMemoryUsage();
   return uiMemUsage;
@@ -97,10 +97,14 @@ ezResourceLoadDesc ezProbeTreeSectorResource::UpdateContent(ezStreamReader* Stre
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   ezProbeTreeSectorResourceDescriptor descriptor;
-  descriptor.Deserialize(*Stream);
+  if (descriptor.Deserialize(*Stream).Failed())
+  {
+    res.m_State = ezResourceState::LoadedResourceMissing;
+    return res;
+  }
 
   return CreateResource(std::move(descriptor));
 }
