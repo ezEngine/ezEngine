@@ -1,20 +1,12 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <QKeyEvent>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {

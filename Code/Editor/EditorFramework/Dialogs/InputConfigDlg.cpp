@@ -2,22 +2,9 @@
 
 #include <EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Dialogs/InputConfigDlg.moc.h>
-#include <Foundation/Containers/Set.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Strings/String.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QSpinBox>
-#include <QTreeWidget>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <qevent.h>
 
 void UpdateInputDynamicEnumValues()
 {

@@ -1,33 +1,17 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/Prefabs/PrefabReferenceComponent.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/WorldSerializer/WorldWriter.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Memory/MemoryUtils.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)

@@ -1,9 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/CommonAssetActions.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommonAssetAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

@@ -2,11 +2,7 @@
 
 #include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
-#include <Foundation/Reflection/Implementation/StaticRTTI.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <ToolsFoundation/Document/Document.h>
 
 ezQtGameObjectAdapter::ezQtGameObjectAdapter(ezGameObjectDocument* pDocument)
   : ezQtNameableAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children", "Name")

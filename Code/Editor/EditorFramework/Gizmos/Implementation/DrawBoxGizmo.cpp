@@ -1,16 +1,10 @@
 #include <EditorFrameworkPCH.h>
 
-#include <Core/Graphics/Camera.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/DrawBoxGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Math/Mat4.h>
-#include <Foundation/Strings/Implementation/FormatStringArgs.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDrawBoxGizmo, 1, ezRTTINoAllocator)
   ;

@@ -1,15 +1,9 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Time/Timestamp.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
   : ezQtDocumentWindow(pDocument)

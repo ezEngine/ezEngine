@@ -3,8 +3,6 @@
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QPushButton>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* parent)

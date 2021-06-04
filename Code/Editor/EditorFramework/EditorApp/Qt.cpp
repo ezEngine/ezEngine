@@ -1,8 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <QStyleFactory>
-#include <QtGlobal>
 
 void ezQtEditorApp::SetStyleSheet()
 {

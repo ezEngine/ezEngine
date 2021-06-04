@@ -2,7 +2,6 @@
 
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <Foundation/Communication/IpcChannel.h>
-#include <Foundation/Logging/Log.h>
 
 ezProcessCommunicationChannel::ezProcessCommunicationChannel() {}
 

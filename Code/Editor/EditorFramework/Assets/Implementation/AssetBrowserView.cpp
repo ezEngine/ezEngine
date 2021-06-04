@@ -5,7 +5,6 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-#include <QPainter>
 
 ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent)
   : ezQtItemView<QListView>(parent)

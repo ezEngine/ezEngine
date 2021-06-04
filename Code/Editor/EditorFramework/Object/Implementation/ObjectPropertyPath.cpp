@@ -4,7 +4,6 @@
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop,
   ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath)

@@ -3,9 +3,6 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

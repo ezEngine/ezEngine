@@ -1,6 +1,5 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
 void ezWorldRttiConverterContext::Clear()

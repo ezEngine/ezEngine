@@ -2,9 +2,6 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 
 ezActionDescriptorHandle ezAssetActions::s_hAssetCategory;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAsset;

@@ -1,16 +1,10 @@
 #include <EditorFrameworkPCH.h>
 
-#include <Core/World/GameObject.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
-#include <QBoxLayout>
-#include <QMenu>
-#include <QSortFilterProxyModel>
 
 ezQtGameObjectPanel::ezQtGameObjectPanel(
   QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)

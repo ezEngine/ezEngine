@@ -1,14 +1,8 @@
 #include <EditorFrameworkPCH.h>
 
-#include <Core/Graphics/Camera.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/BoxGizmo.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Math/Mat4.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

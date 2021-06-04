@@ -6,7 +6,6 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(
   ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* pParameterSourceProp)

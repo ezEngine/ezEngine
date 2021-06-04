@@ -2,12 +2,7 @@
 
 #include "DocumentWindow/EngineViewWidget.moc.h"
 #include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <Foundation/Logging/Log.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
-#include <QApplication>
-#include <QCursor>
-#include <QDesktopWidget>
-#include <QKeyEvent>
 
 ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
 

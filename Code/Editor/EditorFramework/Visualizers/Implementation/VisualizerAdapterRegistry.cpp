@@ -1,7 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
-#include <Foundation/Configuration/Startup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualizerAdapterRegistry);

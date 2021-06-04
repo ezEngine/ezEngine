@@ -22,7 +22,6 @@
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
-#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <EditorFramework/Panels/LongOpsPanel/LongOpsPanel.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
@@ -40,29 +39,17 @@
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
-#include <Foundation/Utilities/CommandLineUtils.h>
-#include <Foundation/Utilities/Progress.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
-#include <QClipboard>
-#include <QSplashScreen>
 #include <QSvgRenderer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <ads/DockManager.h>
 
 // clang-format off

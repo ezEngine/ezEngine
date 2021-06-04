@@ -3,15 +3,9 @@
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
 #include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
-#include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <QClipboard>
-#include <QMenu>
-#include <QMimeData>
-#include <QToolButton>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()

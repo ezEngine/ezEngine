@@ -2,7 +2,6 @@
 
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Resources/Texture.h>

@@ -1,7 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <QFileDialog>
 
 void ezQtEditorApp::GuiOpenDashboard()
 {

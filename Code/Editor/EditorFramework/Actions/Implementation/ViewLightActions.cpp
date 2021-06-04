@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -8,10 +7,6 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorFramework/Preferences/ProjectPreferences.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <RendererCore/Pipeline/Declarations.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewLightButtonAction, 1, ezRTTINoAllocator);

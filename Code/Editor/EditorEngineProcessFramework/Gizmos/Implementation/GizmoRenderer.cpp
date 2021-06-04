@@ -4,13 +4,8 @@
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Foundation/Types/ScopeExit.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/RenderDataBatch.h>
-#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Shader/ConstantBufferStorage.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Editor/GizmoConstants.h>
 

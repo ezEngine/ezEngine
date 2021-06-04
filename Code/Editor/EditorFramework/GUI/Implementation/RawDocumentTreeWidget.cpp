@@ -2,10 +2,6 @@
 
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
-#include <QKeyEvent>
-#include <QSortFilterProxyModel>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Document/Document.h>
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
   : QTreeView(parent)

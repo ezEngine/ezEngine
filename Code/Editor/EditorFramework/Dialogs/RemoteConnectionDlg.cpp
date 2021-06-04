@@ -2,9 +2,6 @@
 
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QSettings>
 
 ezQtRemoteConnectionDlg::Address::Address()
 {

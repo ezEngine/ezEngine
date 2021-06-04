@@ -4,10 +4,6 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
-#include <QBoxLayout>
-#include <QPainter>
-#include <QTimer>
-#include <QToolButton>
 
 ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
   : QWidget(pParent)

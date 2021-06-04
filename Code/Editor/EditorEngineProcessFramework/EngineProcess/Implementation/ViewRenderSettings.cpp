@@ -1,6 +1,5 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Components/SkyBoxComponent.h>

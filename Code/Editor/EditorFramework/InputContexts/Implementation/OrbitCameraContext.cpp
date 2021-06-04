@@ -1,14 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
 #include <Core/Graphics/Camera.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
-#include <EditorFramework/Preferences/Preferences.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <QDesktopWidget>
-#include <QKeyEvent>
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {

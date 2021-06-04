@@ -9,13 +9,9 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSceneDocumentManager* ezSceneDocumentManager::s_pSingleton = nullptr;
-
 
 ezSceneDocumentManager::ezSceneDocumentManager()
 {
-  s_pSingleton = this;
-
   {
     m_DocTypeDesc.m_sDocumentTypeName = "Scene";
     m_DocTypeDesc.m_sFileExtension = "ezScene";

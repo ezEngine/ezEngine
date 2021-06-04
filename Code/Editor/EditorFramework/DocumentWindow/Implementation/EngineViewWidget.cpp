@@ -7,9 +7,6 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <Preferences/EditorPreferences.h>
-#include <QHBoxLayout>
-#include <QPaintEvent>
-#include <QPushButton>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 

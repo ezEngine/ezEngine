@@ -2,8 +2,6 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::SaveRecentFiles()

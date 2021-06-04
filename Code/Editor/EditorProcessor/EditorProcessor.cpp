@@ -8,12 +8,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
-#include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <QApplication>
-#include <QSettings>
-#include <QtNetwork/QHostInfo>
 
 ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
 ezCommandLineOptionBool opt_Debug("_EditorProcessor", "-debug", "Writes various debug logs into the output folder.", false);

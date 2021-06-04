@@ -8,9 +8,7 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QNetworkReply>
-#include <QNetworkRequest>
 
 PageDownloader::PageDownloader(QUrl url)
 {

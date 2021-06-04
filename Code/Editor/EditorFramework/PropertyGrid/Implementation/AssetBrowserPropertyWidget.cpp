@@ -2,16 +2,10 @@
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <QClipboard>
-#include <QFileDialog>
-#include <QMenu>
-#include <QMimeData>
-#include <QToolButton>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()

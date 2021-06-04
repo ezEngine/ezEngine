@@ -7,7 +7,6 @@
 #include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>

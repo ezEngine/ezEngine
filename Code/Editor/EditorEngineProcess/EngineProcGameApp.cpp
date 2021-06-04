@@ -2,20 +2,13 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
-#include <Core/Prefabs/PrefabReferenceComponent.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", nullptr)

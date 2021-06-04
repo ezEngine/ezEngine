@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

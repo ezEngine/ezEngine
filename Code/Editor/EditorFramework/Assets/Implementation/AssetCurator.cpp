@@ -2,22 +2,15 @@
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetWatcher.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
-#include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Utilities/Progress.h>
-#include <QDir>
-#include <atomic>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
