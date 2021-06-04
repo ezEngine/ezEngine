@@ -19,6 +19,8 @@ void ezSkinnedMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRT
 
 void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const
 {
+  // Don't call base class implementation here since the state will be overwritten in this method anyways.
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 
