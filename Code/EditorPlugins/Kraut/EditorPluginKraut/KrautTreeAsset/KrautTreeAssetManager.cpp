@@ -1,10 +1,7 @@
 #include <EditorPluginKrautPCH.h>
 
-#include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetManager.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

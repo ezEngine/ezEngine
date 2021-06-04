@@ -1,6 +1,5 @@
 #include <EditorPluginKrautPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 
 // clang-format off

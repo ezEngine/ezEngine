@@ -6,24 +6,16 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
-#include <Core/WorldSerializer/WorldWriter.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
-#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <SharedPluginScene/Common/Messages.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)

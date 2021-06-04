@@ -1,17 +1,10 @@
 #include <EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/RenderPipeline/EditorSelectedObjectsExtractor.h>
-#include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezEditorSelectedObjectsExtractor>)

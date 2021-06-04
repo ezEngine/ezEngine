@@ -1,22 +1,9 @@
 #include <EnginePluginPhysXPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Core/World/Component.h>
-#include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshContext.h>
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshView.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezCollisionMeshViewContext::ezCollisionMeshViewContext(ezCollisionMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)

@@ -1,10 +1,7 @@
 #include <EditorPluginRmlUiPCH.h>
 
-#include <EditorPluginRmlUi/RmlUiAsset/RmlUiAsset.h>
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetManager.h>
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezRmlUiAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

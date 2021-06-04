@@ -1,10 +1,7 @@
 #include <EditorPluginPhysXPCH.h>
 
-#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetManager.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

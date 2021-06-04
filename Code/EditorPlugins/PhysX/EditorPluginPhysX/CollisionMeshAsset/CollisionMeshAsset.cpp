@@ -1,20 +1,10 @@
 #include <EditorPluginPhysXPCH.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
-#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetManager.h>
-#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ModelImporter2/ModelImporter.h>
-#include <PhysXCooking/PhysXCooking.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>

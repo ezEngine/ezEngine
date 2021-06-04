@@ -1,7 +1,5 @@
 #include <EnginePluginScenePCH.h>
 
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/WorldSerializer/WorldWriter.h>
 #include <EnginePluginScene/Components/ShapeIconComponent.h>
 
 // clang-format off

@@ -1,17 +1,13 @@
 #include <EditorPluginScenePCH.h>
 
 #include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <QFileDialog>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, 1, ezRTTINoAllocator)

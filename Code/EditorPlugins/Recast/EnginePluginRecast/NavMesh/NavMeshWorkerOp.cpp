@@ -6,7 +6,6 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BuildNavMesh, 1, ezRTTIDefaultAllocator<ezLongOpWorker_BuildNavMesh>)

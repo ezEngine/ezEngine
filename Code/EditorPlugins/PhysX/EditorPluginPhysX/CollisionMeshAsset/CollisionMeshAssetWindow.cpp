@@ -1,18 +1,12 @@
 #include <EditorPluginPhysXPCH.h>
 
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
 
 ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)

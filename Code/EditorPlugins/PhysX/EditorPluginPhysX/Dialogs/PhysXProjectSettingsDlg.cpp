@@ -1,13 +1,8 @@
 #include <EditorPluginPhysXPCH.h>
 
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QCheckBox>
-#include <QDialogButtonBox>
 #include <QInputDialog>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
 

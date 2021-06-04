@@ -3,7 +3,6 @@
 #include <EditorPluginParticle/Actions/ParticleActions.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

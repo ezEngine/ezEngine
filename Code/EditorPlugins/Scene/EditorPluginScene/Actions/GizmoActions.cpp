@@ -1,8 +1,6 @@
 #include <EditorPluginScenePCH.h>
 
 #include <EditorFramework/Actions/TransformGizmoActions.h>
-#include <EditorFramework/EditTools/StandardGizmoEditTools.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/EditTools/GreyBoxEditTool.h>
 #include <GuiFoundation/Action/ActionManager.h>

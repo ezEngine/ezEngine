@@ -1,14 +1,10 @@
 #include <EditorPluginFmodPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
 #include <FmodPlugin/FmodIncludes.h>
 #include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)

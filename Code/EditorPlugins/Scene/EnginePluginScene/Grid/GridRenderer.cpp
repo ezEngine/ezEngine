@@ -1,14 +1,8 @@
 #include <EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/Grid/GridRenderer.h>
-#include <EnginePluginScene/SceneContext/SceneContext.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridRenderData, 1, ezRTTINoAllocator)

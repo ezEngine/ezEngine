@@ -1,11 +1,7 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Strings/PathUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocument, 1, ezRTTINoAllocator)

@@ -1,8 +1,6 @@
 #include <EditorPluginFileservePCH.h>
 
 #include <EditorPluginFileserve/FileserveUI/AllFilesModel.moc.h>
-#include <QTimer>
-#include <QWidget>
 
 ezQtFileserveAllFilesModel::ezQtFileserveAllFilesModel(QWidget* parent)
   : QAbstractListModel(parent)

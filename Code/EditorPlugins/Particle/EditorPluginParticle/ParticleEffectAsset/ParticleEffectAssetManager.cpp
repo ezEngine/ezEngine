@@ -1,9 +1,7 @@
 #include <EditorPluginParticlePCH.h>
 
-#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetManager.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezParticleEffectAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

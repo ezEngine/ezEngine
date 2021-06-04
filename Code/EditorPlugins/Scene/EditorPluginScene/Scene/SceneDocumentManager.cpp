@@ -2,8 +2,6 @@
 
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
-#include <Foundation/IO/ChunkStream.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>)

@@ -10,9 +10,6 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
-#include <SharedPluginAssets/Common/Messages.h>
 
 ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)

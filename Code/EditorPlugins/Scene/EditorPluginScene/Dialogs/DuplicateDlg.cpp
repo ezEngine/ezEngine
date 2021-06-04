@@ -1,7 +1,6 @@
 #include <EditorPluginScenePCH.h>
 
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
-#include <QDialogButtonBox>
 #include <QPushButton>
 
 ezUInt32 ezQtDuplicateDlg::s_uiNumberOfCopies = 1;

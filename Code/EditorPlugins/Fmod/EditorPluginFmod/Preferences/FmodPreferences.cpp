@@ -1,7 +1,5 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
 // clang-format off

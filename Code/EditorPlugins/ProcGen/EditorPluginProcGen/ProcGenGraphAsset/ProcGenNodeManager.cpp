@@ -4,8 +4,6 @@
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 #include <Foundation/Configuration/Startup.h>
-#include <RendererCore/Pipeline/RenderPipelineNode.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPin, 1, ezRTTINoAllocator)
