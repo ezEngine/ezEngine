@@ -86,7 +86,11 @@ ezResult ezBakingScene::Extract()
     meshObject.m_GlobalTransform = it->GetGlobalTransformSimd();
     meshObject.m_MeshResourceId.Assign(pMeshComponent->GetMeshFile());
 
-    m_BoundingBox.ExpandToInclude(it->GetGlobalBounds().GetBox());
+    auto globalBounds = it->GetGlobalBounds();
+    if (globalBounds.IsValid())
+    {
+      m_BoundingBox.ExpandToInclude(globalBounds.GetBox());
+    }
   }
 
   return EZ_SUCCESS;
