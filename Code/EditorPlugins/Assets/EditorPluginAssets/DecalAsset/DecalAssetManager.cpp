@@ -1,17 +1,11 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
 #include <Texture/Utils/TextureAtlasDesc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 

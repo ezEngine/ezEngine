@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <Foundation/Serialization/GraphPatch.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>

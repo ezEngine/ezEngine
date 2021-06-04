@@ -1,11 +1,8 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
-#include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off

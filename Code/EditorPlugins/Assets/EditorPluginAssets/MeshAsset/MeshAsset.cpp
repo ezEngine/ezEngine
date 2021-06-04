@@ -1,12 +1,9 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Core/Graphics/Geometry.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ModelImporter2/Importer/Importer.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 

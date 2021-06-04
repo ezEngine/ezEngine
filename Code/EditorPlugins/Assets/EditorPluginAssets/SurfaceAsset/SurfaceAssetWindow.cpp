@@ -5,10 +5,6 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
-#include <Texture/Image/ImageConversion.h>
 
 ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocument)
   : ezQtDocumentWindow(pDocument)

@@ -1,16 +1,11 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
-#include <EditorPluginAssets/ImageDataAsset/ImageDataAssetObjects.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetWindow.moc.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezQtImageDataAssetDocumentWindow

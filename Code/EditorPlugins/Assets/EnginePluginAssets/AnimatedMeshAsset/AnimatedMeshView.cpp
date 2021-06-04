@@ -1,14 +1,9 @@
 #include <EnginePluginAssetsPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginAssets/AnimatedMeshAsset/AnimatedMeshContext.h>
 #include <EnginePluginAssets/AnimatedMeshAsset/AnimatedMeshView.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
 ezAnimatedMeshViewContext::ezAnimatedMeshViewContext(ezAnimatedMeshContext* pAnimatedMeshContext)

@@ -1,9 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OSFile.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 EZ_IMPLEMENT_SINGLETON(ezShaderTypeRegistry);

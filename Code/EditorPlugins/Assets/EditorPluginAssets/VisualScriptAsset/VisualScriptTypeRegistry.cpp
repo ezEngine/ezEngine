@@ -1,20 +1,12 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Core/Messages/EventMessage.h>
-#include <Core/World/Component.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
-#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 namespace
 {

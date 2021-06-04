@@ -2,7 +2,6 @@
 
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
-#include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
 ezActionDescriptorHandle ezVisualShaderActions::s_hCleanGraph;

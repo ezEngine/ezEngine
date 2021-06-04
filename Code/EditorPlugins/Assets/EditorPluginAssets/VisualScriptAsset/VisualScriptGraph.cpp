@@ -3,7 +3,6 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptPin
