@@ -12,7 +12,7 @@ set (EZ_BUILD_PHYSX ON CACHE BOOL "Whether support for nVidia PhysX should be ad
 
 macro(ez_requires_physx)
 
-	ez_requires_windows_desktop()
+	ez_requires_windows()
 	ez_requires(EZ_BUILD_PHYSX)
     # While counter-intuitive, we need to find the package here so that the PUBLIC inherited
     # target_sources using generator expressions can be resolved in the dependant projects.
