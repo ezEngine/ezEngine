@@ -1471,7 +1471,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const c
 
 ezStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo, {});
 
   // if we were to do this BEFORE making the screenshot, the scene would be killed, but not immediately restored
   // and the screenshot would end up empty

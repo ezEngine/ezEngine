@@ -61,6 +61,25 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
     return;
 
   m_sTextFilter = sCleanText;
+  // Clear uses search cache
+  m_bUsesSearchActive = false;
+  m_bTransitive = false;
+  m_uses.Clear();
+
+  const char* szRefGuid = ezStringUtils::FindSubString_NoCase(szText, "ref:");
+  const char* szRefAllGuid = ezStringUtils::FindSubString_NoCase(szText, "ref-all:");
+  if (szRefGuid || szRefAllGuid)
+  {
+    bool bTransitive = szRefAllGuid != nullptr;
+    const char* szGuid = szRefAllGuid ? szRefAllGuid + strlen("ref-all:") : szRefGuid + strlen("ref:");
+    if (ezConversionUtils::IsStringUuid(szGuid))
+    {
+      m_bUsesSearchActive = true;
+      m_bTransitive = bTransitive;
+      ezUuid guid = ezConversionUtils::ConvertStringToUuid(szGuid);
+      ezAssetCurator::GetSingleton()->FindAllUses(guid, m_uses, m_bTransitive);
+    }
+  }
 
   Q_EMIT FilterChanged();
   Q_EMIT TextFilterChanged();
@@ -117,16 +136,24 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 
   if (!m_sTextFilter.IsEmpty())
   {
-    // if the string is not found in the path, ignore this asset
-    if (pInfo->m_pAssetInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
+    if (m_bUsesSearchActive)
     {
-      if (pInfo->GetName().FindSubString_NoCase(m_sTextFilter) == nullptr)
+      if (!m_uses.Contains(pInfo->m_Data.m_Guid))
+        return true;
+    }
+    else
+    {
+      // if the string is not found in the path, ignore this asset
+      if (pInfo->m_pAssetInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
       {
-        ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
-        if (m_sTemp.FindSubString_NoCase(m_sTextFilter) == nullptr)
-          return true;
+        if (pInfo->GetName().FindSubString_NoCase(m_sTextFilter) == nullptr)
+        {
+          ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
+          if (m_sTemp.FindSubString_NoCase(m_sTextFilter) == nullptr)
+            return true;
 
-        // we could actually (partially) match the GUID
+          // we could actually (partially) match the GUID
+        }
       }
     }
   }

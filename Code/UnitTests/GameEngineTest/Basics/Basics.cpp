@@ -116,6 +116,11 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
     return EZ_FAILURE;
   }
+  if (proc.GetExitCode() != 0)
+  {
+    ezLog::Error("Process failure ({0}): ExitCode: '{1}'", sBinPath, proc.GetExitCode());
+    return EZ_FAILURE;
+  }
 
   ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
   return EZ_SUCCESS;

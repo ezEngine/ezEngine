@@ -315,6 +315,7 @@ public:
   }
   ezUInt16 m_uiWidth;
   ezUInt16 m_uiHeight;
+  ezHybridArray<ezString, 1> m_ViewExcludeTags;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEditor : public ezEditorEngineDocumentMsg

@@ -179,11 +179,6 @@ void ezReflectionFilterPass::SetInputCubemap(ezUInt32 uiCubemapHandle)
   m_hInputCubemap = ezGALTextureHandle(ezGAL::ez18_14Id(uiCubemapHandle));
 }
 
-ezVec4 GetV4(ezVec3 data)
-{
-  return ezVec4(data.x, data.y, data.z, 0.0f);
-}
-
 void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps, ezUInt32 outputIndex)
 {
   ezVec3 vForward[6] = {
@@ -205,8 +200,8 @@ void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMip
   };
 
   auto constants = ezRenderContext::GetConstantBufferData<ezReflectionFilteredSpecularConstants>(m_hFilteredSpecularConstantBuffer);
-  constants->Forward = GetV4(vForward[outputIndex % 6]);
-  constants->Up2 = GetV4(vUp[outputIndex % 6]);
+  constants->Forward = vForward[outputIndex % 6].GetAsDirectionVec4();
+  constants->Up2 = vUp[outputIndex % 6].GetAsDirectionVec4();
   constants->MipLevel = uiMipMapIndex;
   constants->Intensity = m_fIntensity;
   constants->Saturation = m_fSaturation;

@@ -612,7 +612,7 @@ ezStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnail
   return ezStatus("Not implemented");
 }
 
-ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const
+ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, ezArrayPtr<ezStringView> viewExclusionTags) const
 {
   ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
 
@@ -633,6 +633,10 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
 
   SyncObjectsToEngine();
   ezCreateThumbnailMsgToEngine msg;
+  for (const ezStringView& tag : viewExclusionTags)
+  {
+    msg.m_ViewExcludeTags.PushBack(tag);
+  }
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
