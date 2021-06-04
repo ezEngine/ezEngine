@@ -184,6 +184,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->FogDensityAtCameraPos = pData->m_fFogDensityAtCameraPos;
     pConstants->FogDensity = pData->m_fFogDensity;
     pConstants->FogColor = pData->m_FogColor;
+    pConstants->FogInvSkyDistance = pData->m_fFogInvSkyDistance;
   }
 
   return &m_Data;

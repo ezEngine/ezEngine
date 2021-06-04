@@ -542,7 +542,11 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
     pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
     pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
     pView->SetRenderPassProperty("EditorPickingPass", "Active", false);
-    pView->m_ExcludeTags.SetByName("SkyLight");
+
+    for (const ezString& sTag : pMsg->m_ViewExcludeTags)
+    {
+      pView->m_ExcludeTags.SetByName(sTag);
+    }
   }
 
   m_pThumbnailViewContext->Redraw(false);

@@ -324,7 +324,7 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
 // ezAssetCurator High Level Functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
+ezStatus ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   EZ_PROFILE_SCOPE("TransformAllAssets");
 
@@ -339,6 +339,7 @@ void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFl
   }
   ezUInt32 uiNumStepsLeft = assets.GetCount();
 
+  ezUInt32 uiNumFailedSteps = 0;
   ezProgressRange range("Transforming Assets", 1 + uiNumStepsLeft, true);
   for (const ezUuid& assetGuid : assets)
   {
@@ -365,6 +366,7 @@ void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFl
     auto res = ProcessAsset(pAssetInfo, pAssetProfile, transformFlags);
     if (res.m_Result.Failed())
     {
+      uiNumFailedSteps++;
       ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
     }
   }
@@ -372,6 +374,11 @@ void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFl
   range.BeginNextStep("Writing Lookup Tables");
 
   ezAssetCurator::GetSingleton()->WriteAssetTables(pAssetProfile).IgnoreResult();
+
+  if (uiNumFailedSteps > 0)
+    return ezStatus(ezFmt("Transform all assets failed on {0} assets.", uiNumFailedSteps));
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezAssetCurator::ResaveAllAssets()
@@ -972,6 +979,43 @@ found:
   return EZ_FAILURE;
 }
 
+void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool transitive) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezSet<ezUuid> todoList;
+  todoList.Insert(assetGuid);
+
+  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset) {
+    auto it = inverseTracker.Find(sAsset);
+    if (it.IsValid())
+    {
+      for (const ezUuid& guid : it.Value())
+      {
+        if (!uses.Contains(guid))
+          todoList.Insert(guid);
+
+        uses.Insert(guid);
+      }
+    }
+  };
+
+  ezStringBuilder sCurrentAsset;
+  do
+  {
+    auto itFirst = todoList.GetIterator();
+    const ezAssetInfo* pInfo = GetAssetInfo(itFirst.Key());
+    todoList.Remove(itFirst);
+
+    if (pInfo)
+    {
+      sCurrentAsset = pInfo->m_sAbsolutePath;
+      GatherReferences(m_InverseReferences, sCurrentAsset);
+      GatherReferences(m_InverseDependency, sCurrentAsset);
+    }
+  } while (transitive && !todoList.IsEmpty());
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Manual and Automatic Change Notification
 ////////////////////////////////////////////////////////////////////////
@@ -1182,6 +1226,14 @@ ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
 }
 
 ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid)
+{
+  ezAssetInfo* pAssetInfo = nullptr;
+  if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
+    return pAssetInfo;
+  return nullptr;
+}
+
+const ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
 {
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))

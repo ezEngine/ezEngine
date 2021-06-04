@@ -165,7 +165,12 @@ public:
         }
         else
         {
-          ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+          ezStatus status = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+          if (status.Failed())
+          {
+            status.LogFailure();
+            SetReturnCode(1);
+          }
 
           if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
           {
@@ -178,7 +183,8 @@ public:
       });
 
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
-      SetReturnCode(iReturnCode);
+      if (iReturnCode != 0)
+        SetReturnCode(iReturnCode);
     }
     else
     {

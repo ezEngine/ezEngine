@@ -1,7 +1,11 @@
 #include <EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetManager.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimationClipAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -17,9 +21,9 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezAnimationClip";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
+  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
 }
 
 ezAnimationClipAssetDocumentManager::~ezAnimationClipAssetDocumentManager()

@@ -126,6 +126,22 @@ bool ezAnimationClipContext::UpdateThumbnailViewContext(ezEngineProcessViewConte
 {
   ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
+  if (!m_hAnimControllerComponent.IsInvalidated())
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    ezSimpleAnimationComponent* pAnimController;
+    if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+    {
+      pAnimController->SetNormalizedPlaybackPosition(0.5f);
+      pAnimController->m_fSpeed = 0.0f;
+
+      m_pWorld->SetWorldSimulationEnabled(true);
+      m_pWorld->Update();
+      m_pWorld->SetWorldSimulationEnabled(false);
+    }
+  }
+
   ezAnimationClipViewContext* pMeshViewContext = static_cast<ezAnimationClipViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
 }

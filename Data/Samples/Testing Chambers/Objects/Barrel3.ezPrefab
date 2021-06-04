@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7091474377204956574,5696179680206719867}}
-		u4 %Hash{13049237454382675582}
+		u4 %Hash{511943647891884799}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15583615315017844661,5944906185326250077}}
@@ -19,6 +19,7 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 0afb67de-55a8-4d36-8eb0-c5cee5d4c18d }"}
 			s{"{ 8ad58edd-f5ae-44ff-a9ea-a3e541bc3e08 }"}
 			s{"{ 8cf1538a-b0b5-4a34-ba93-436e1609c204 }"}
 		}
@@ -48,7 +49,7 @@ o
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{"{ 8ad58edd-f5ae-44ff-a9ea-a3e541bc3e08 }"}
 		s %OnContact{""}
-		s %Surface{""}
+		s %Surface{"{ 0afb67de-55a8-4d36-8eb0-c5cee5d4c18d }"}
 	}
 }
 o

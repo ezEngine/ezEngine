@@ -537,6 +537,9 @@ godown:
 
 void ezQtAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
 {
+  if (m_bTreeSelectionChangeInProgress)
+    return;
+
   ezStringBuilder sCurPath;
 
   if (!TreeFolderFilter->selectedItems().isEmpty())
@@ -631,6 +634,8 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
@@ -715,6 +720,21 @@ void ezQtAssetBrowserWidget::OnListCopyAssetGuid()
   ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", tmp), ezTime::Seconds(5));
 }
 
+
+void ezQtAssetBrowserWidget::OnListFindAllReferences(bool transitive)
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  ezUuid guid = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
+  ezStringBuilder sAssetGuid;
+  ezConversionUtils::ToString(guid, sAssetGuid);
+
+  ezStringBuilder sFilter;
+  sFilter.Format("{}:{}", transitive ? "ref-all" : "ref", sAssetGuid);
+  m_pFilter->SetTextFilter(sFilter);
+  m_pFilter->SetPathFilter("");
+}
 
 void ezQtAssetBrowserWidget::OnSelectionTimer()
 {
@@ -827,7 +847,15 @@ void ezQtAssetBrowserWidget::OnPathFilterChanged()
   const QString sPath = QString::fromUtf8(m_pFilter->GetPathFilter());
 
   if (TreeFolderFilter->topLevelItemCount() == 1)
+  {
+    if (m_bTreeSelectionChangeInProgress)
+      return;
+
+    m_bTreeSelectionChangeInProgress = true;
+    TreeFolderFilter->clearSelection();
     SelectPathFilter(TreeFolderFilter->topLevelItem(0), sPath);
+    m_bTreeSelectionChangeInProgress = false;
+  }
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }

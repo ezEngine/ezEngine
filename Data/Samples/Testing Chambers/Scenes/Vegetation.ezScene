@@ -11,15 +11,15 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{6807755752627347053}
+		u4 %Hash{7640144229664083965}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
-			s{"{ ab742a84-3700-40e3-84b3-0ad04f05e636 }"}
 			s{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
+			s{"{ ebd75409-6534-49dc-a7a3-ef5bfab657ec }"}
 			s{"{ f1b42973-eff4-405c-bab5-9174aedb999b }"}
 		}
 	}
@@ -158,7 +158,7 @@ o
 		Vec2 %HalfExtents{f{0x00004843,0x00004843}}
 		f %Height{0x00004842}
 		s %HeightfieldImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
-		s %Material{"{ ab742a84-3700-40e3-84b3-0ad04f05e636 }"}
+		s %Material{"{ ebd75409-6534-49dc-a7a3-ef5bfab657ec }"}
 		Vec2u %Tesselation{u3{256,256}}
 		Vec2 %TexCoordOffset{f{0,0}}
 		Vec2 %TexCoordScale{f{0x0000803F,0x0000803F}}
@@ -306,12 +306,14 @@ o
 {
 	Uuid %id{u4{17111430926857678529,5389560250686610601}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		s %CubeMap{""}
 		f %Intensity{0xCDCCCC3D}
 		Uuid %ReflectionData{u4{14614855608879498340,8567936598705449987}}
+		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
 		f %Saturation{0x9A99993E}
 	}
 }
@@ -473,7 +475,7 @@ o
 {
 	Uuid %id{u4{14614855608879498340,8567936598705449987}}
 	s %t{"ezReflectionProbeData"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %ExcludeTags{}
@@ -520,6 +522,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12741513019009579696,2118083688060841630}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectionProbeMode"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -717,8 +737,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionProbeData"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -861,8 +881,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeSize{112}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{2}
 	}
 }
 o

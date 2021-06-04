@@ -14,13 +14,13 @@ o
 			s{"Kraut/Tree5.tree"}
 		}
 		Uuid %DocumentID{u4{16242289591921312934,5331298968656744613}}
-		u4 %Hash{13612514439586069236}
+		u4 %Hash{17603592893689842636}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
-			s{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+			s{"{ cd481b5a-3099-4984-bffd-4a3ba64eddf6 }"}
 		}
 	}
 }
@@ -57,7 +57,7 @@ o
 	p
 	{
 		s %Label{"Twig 1 - Stem"}
-		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		s %Material{"{ cd481b5a-3099-4984-bffd-4a3ba64eddf6 }"}
 	}
 }
 o
@@ -68,7 +68,7 @@ o
 	p
 	{
 		s %Label{"Branch 1 - Stem"}
-		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		s %Material{"{ cd481b5a-3099-4984-bffd-4a3ba64eddf6 }"}
 	}
 }
 o
@@ -79,7 +79,7 @@ o
 	p
 	{
 		s %Label{"Trunk 1 - Stem"}
-		s %Material{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		s %Material{"{ cd481b5a-3099-4984-bffd-4a3ba64eddf6 }"}
 	}
 }
 o

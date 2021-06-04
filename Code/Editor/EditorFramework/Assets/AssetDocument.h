@@ -218,7 +218,7 @@ protected:
   void InvalidateAssetThumbnail() const;
 
   /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
-  ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const;
+  ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, ezArrayPtr<ezStringView> viewExclusionTags = {&ezStringView("SkyLight"), 1}) const;
 
   /// \brief Saves the given image as the new thumbnail for the asset
   ezStatus SaveThumbnail(const ezImage& img, const ThumbnailInfo& thumbnailInfo) const;
