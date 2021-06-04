@@ -3,6 +3,7 @@
 #include <BakingPlugin/BakingPluginDLL.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
@@ -60,7 +61,7 @@ private:
   bool m_bShowDebugProbes = false;
 
   struct RenderDebugViewTask;
-  ezUniquePtr<RenderDebugViewTask> m_pRenderDebugViewTask;
+  ezSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;
 
   ezGALTextureHandle m_hDebugViewTexture;
 };

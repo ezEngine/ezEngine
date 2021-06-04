@@ -13,15 +13,16 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 struct ezBakingSettingsComponent::RenderDebugViewTask : public ezTask
 {
   RenderDebugViewTask()
-    : ezTask("BakingDebugView")
   {
+    ConfigureTask("BakingDebugView", ezTaskNesting::Never);
   }
 
   virtual void Execute() override
@@ -40,9 +41,10 @@ struct ezBakingSettingsComponent::RenderDebugViewTask : public ezTask
       }
     });
 
-    m_pBakingScene->RenderDebugView(m_InverseViewProjection, m_uiWidth, m_uiHeight, m_PixelData, progress);
-
-    m_bHasNewData = true;
+    if (m_pBakingScene->RenderDebugView(m_InverseViewProjection, m_uiWidth, m_uiHeight, m_PixelData, progress).Succeeded())
+    {
+      m_bHasNewData = true;
+    }
   }
 
   ezBakingScene* m_pBakingScene = nullptr;
@@ -106,7 +108,9 @@ void ezBakingSettingsComponentManager::OnRenderEvent(const ezRenderWorldRenderEv
     {
       task->m_bHasNewData = false;
 
-      ezGALContext* pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+      ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
+      ezGALPass* pGALPass = pGALDevice->BeginPass("BakingDebugViewUpdate");
+      auto pCommandEncoder = pGALPass->BeginCompute();
 
       ezBoundingBoxu32 destBox;
       destBox.m_vMin.SetZero();
@@ -116,7 +120,10 @@ void ezBakingSettingsComponentManager::OnRenderEvent(const ezRenderWorldRenderEv
       sourceData.m_pData = task->m_PixelData.GetData();
       sourceData.m_uiRowPitch = task->m_uiWidth * sizeof(ezColorGammaUB);
 
-      pContext->UpdateTexture(pComponent->m_hDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
+      pCommandEncoder->UpdateTexture(pComponent->m_hDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
+
+      pGALPass->EndCompute(pCommandEncoder);
+      pGALDevice->EndPass(pGALPass);
     }
   }
 }
@@ -206,7 +213,7 @@ void ezBakingSettingsComponent::OnDeactivated()
 {
   if (m_pRenderDebugViewTask != nullptr)
   {
-    ezTaskSystem::WaitForTask(m_pRenderDebugViewTask.Borrow());
+    ezTaskSystem::CancelTask(m_pRenderDebugViewTask).IgnoreResult();
   }
 
   GetOwner()->UpdateLocalBounds();
@@ -313,8 +320,8 @@ void ezBakingSettingsComponent::RenderDebugOverlay()
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezRectFloat viewport = pView->GetViewport();
-  ezUInt32 uiWidth = ezMath::Ceil(viewport.width / 3.0f);
-  ezUInt32 uiHeight = ezMath::Ceil(viewport.height / 3.0f);
+  ezUInt32 uiWidth = static_cast<ezUInt32>(ezMath::Ceil(viewport.width / 3.0f));
+  ezUInt32 uiHeight = static_cast<ezUInt32>(ezMath::Ceil(viewport.height / 3.0f));
 
   ezBakingScene* pBakingScene = ezBakingScene::Get(*GetWorld());
   if (pBakingScene != nullptr && pBakingScene->IsBaked())
@@ -324,7 +331,7 @@ void ezBakingSettingsComponent::RenderDebugOverlay()
     if (m_pRenderDebugViewTask->m_InverseViewProjection != inverseViewProjection ||
         m_pRenderDebugViewTask->m_uiWidth != uiWidth || m_pRenderDebugViewTask->m_uiHeight != uiHeight)
     {
-      ezTaskSystem::CancelTask(m_pRenderDebugViewTask.Borrow());
+      ezTaskSystem::CancelTask(m_pRenderDebugViewTask).IgnoreResult();
 
       m_pRenderDebugViewTask->m_pBakingScene = pBakingScene;
       m_pRenderDebugViewTask->m_InverseViewProjection = inverseViewProjection;
@@ -333,7 +340,7 @@ void ezBakingSettingsComponent::RenderDebugOverlay()
       m_pRenderDebugViewTask->m_PixelData.SetCount(uiWidth * uiHeight, ezColor::Red);
       m_pRenderDebugViewTask->m_bHasNewData = false;
 
-      ezTaskSystem::StartSingleTask(m_pRenderDebugViewTask.Borrow(), ezTaskPriority::LongRunning);
+      ezTaskSystem::StartSingleTask(m_pRenderDebugViewTask, ezTaskPriority::LongRunning);
     }
   }
 
@@ -361,7 +368,7 @@ void ezBakingSettingsComponent::RenderDebugOverlay()
     m_hDebugViewTexture = pDevice->CreateTexture(desc);
   }
 
-  ezRectFloat rectInPixel = ezRectFloat(10.0f, 10.0f, uiWidth, uiHeight);
+  ezRectFloat rectInPixel = ezRectFloat(10.0f, 10.0f, static_cast<float>(uiWidth), static_cast<float>(uiHeight));
 
   ezDebugRenderer::Draw2DRectangle(pView->GetHandle(), rectInPixel, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hDebugViewTexture));
 }

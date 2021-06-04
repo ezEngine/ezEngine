@@ -47,7 +47,7 @@ EZ_ALWAYS_INLINE void ezVec3Template<Type>::Set(Type X, Type Y, Type Z)
 template <typename Type>
 EZ_ALWAYS_INLINE void ezVec3Template<Type>::SetZero()
 {
-  x = y = z = 0.0f;
+  x = y = z = 0;
 }
 
 template <typename Type>
