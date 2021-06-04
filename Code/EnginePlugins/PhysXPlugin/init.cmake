@@ -2,7 +2,7 @@
 ### PhysX support
 ######################################
 
-set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
+set (EZ_BUILD_PHYSX ON CACHE BOOL "Whether support for nVidia PhysX should be added")
 
 # set (EZ_VCPKG_INSTALL_PHYSX OFF CACHE BOOL "Whether to install PhysX 4 via vcpkg.")
 
@@ -12,7 +12,7 @@ set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be a
 
 macro(ez_requires_physx)
 
-	ez_requires_windows()
+	ez_requires_windows_desktop()
 	ez_requires(EZ_BUILD_PHYSX)
     # While counter-intuitive, we need to find the package here so that the PUBLIC inherited
     # target_sources using generator expressions can be resolved in the dependant projects.
