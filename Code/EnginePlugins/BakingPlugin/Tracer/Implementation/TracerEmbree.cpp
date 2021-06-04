@@ -7,6 +7,7 @@
 #include <RendererCore/Meshes/CpuMeshResource.h>
 
 #include <embree3/rtcore.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 
 namespace
 {
@@ -95,7 +96,8 @@ namespace
       const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetData();
 
       const ezVec3* pPositions = nullptr;
-      const ezVec3* pNormals = nullptr;
+      const ezUInt8* pNormals = nullptr;
+      ezGALResourceFormat::Enum normalFormat = ezGALResourceFormat::Invalid;
 
       for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
       {
@@ -111,19 +113,22 @@ namespace
         }
         else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
         {
-          if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
-          {
-            ezLog::Warning("Unsupported CPU mesh vertex normal format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
-            return nullptr; // other normal formats are not supported
-          }
-
-          pNormals = reinterpret_cast<const ezVec3*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+          pNormals = pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset;
+          normalFormat = vdi.m_VertexStreams[vs].m_Format;
         }
       }
 
       if (pPositions == nullptr || pNormals == nullptr)
       {
         ezLog::Warning("No position and normal stream found in CPU mesh");
+        return nullptr;
+      }
+
+      ezUInt8 dummySource[16] = {};
+      ezVec3 vNormal;
+      if (ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(dummySource), normalFormat, vNormal).Failed())
+      {
+        ezLog::Error("Unsupported CPU mesh vertex normal format {0}", normalFormat);
         return nullptr;
       }
 
@@ -139,8 +144,10 @@ namespace
       // write out all vertices
       for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
       {
+        ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();
+
         rtcPositions[i] = *pPositions;
-        rtcNormals[i] = *pNormals;
+        rtcNormals[i] = vNormal;
 
         pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
         pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
