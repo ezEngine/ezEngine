@@ -1,7 +1,6 @@
 #include <EditorPluginParticlePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetWindow.moc.h>

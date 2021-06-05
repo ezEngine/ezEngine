@@ -1,7 +1,6 @@
 #include <EditorPluginScenePCH.h>
 
 #include <Core/Utils/WorldGeoExtractionUtil.h>
-#include <Core/World/GameObject.h>
 #include <EditorPluginScene/Dialogs/ExtractGeometryDlg.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QFileDialog>

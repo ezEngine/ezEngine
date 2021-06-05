@@ -1,16 +1,13 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <Gizmos/SnapProvider.h>
 #include <Gizmos/TranslateGizmo.h>
-#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <Manipulators/ManipulatorAdapterRegistry.h>
 #include <Preferences/EditorPreferences.h>
-#include <Preferences/ScenePreferences.h>
 
 ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)

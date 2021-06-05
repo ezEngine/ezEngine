@@ -3,8 +3,6 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <QStatusBar>
 
 EZ_IMPLEMENT_SINGLETON(ezQtAssetBrowserPanel);
 

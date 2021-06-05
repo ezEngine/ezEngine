@@ -8,12 +8,7 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <Texture/Image/ImageConversion.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
 
-#include <QLabel>
-#include <QLayout>
 
 ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocument)
   : ezQtDocumentWindow(pDocument)

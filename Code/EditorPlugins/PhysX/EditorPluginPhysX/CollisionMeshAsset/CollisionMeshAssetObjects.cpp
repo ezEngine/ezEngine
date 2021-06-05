@@ -1,6 +1,5 @@
 #include <EditorPluginPhysXPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
@@ -105,7 +104,6 @@ void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
 class ezCollisionMeshAssetPropertiesPatch_1_2 : public ezGraphPatch

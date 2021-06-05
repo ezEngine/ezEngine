@@ -3,14 +3,9 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
-#include <Foundation/Logging/Log.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
 

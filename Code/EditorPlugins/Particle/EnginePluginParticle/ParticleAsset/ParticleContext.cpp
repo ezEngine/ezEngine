@@ -1,25 +1,10 @@
 #include <EnginePluginParticlePCH.h>
 
-#include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
-#include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <RendererCore/Components/FogComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <SharedPluginAssets/Common/Messages.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezParticleContext>)

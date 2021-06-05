@@ -2,12 +2,6 @@
 
 #include <Core/Curves/Curve1DResource.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
-#include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Tracks/Curve1D.h>
-#include <QPaintEngine>
-#include <QPainter>
-#include <Texture/Image/Image.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

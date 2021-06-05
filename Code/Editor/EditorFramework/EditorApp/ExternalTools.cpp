@@ -1,11 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <QProcess>
-#include <QTextStream>
-#include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)

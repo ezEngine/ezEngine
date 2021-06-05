@@ -3,8 +3,6 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetManager.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezPropertyAnimAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

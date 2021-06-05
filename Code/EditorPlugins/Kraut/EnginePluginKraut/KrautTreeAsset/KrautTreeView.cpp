@@ -1,24 +1,9 @@
 #include <EnginePluginKrautPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Core/World/Component.h>
-#include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeContext.h>
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeView.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <KrautPlugin/Resources/KrautGeneratorResource.h>
-#include <KrautPlugin/Resources/KrautTreeResource.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezKrautTreeViewContext::ezKrautTreeViewContext(ezKrautTreeContext* pKrautTreeContext)
   : ezEngineProcessViewContext(pKrautTreeContext)

@@ -1,10 +1,8 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetManager.h>
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSurfaceAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

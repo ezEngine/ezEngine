@@ -1,19 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
-#include <QStringList>
-#include <QTextStream>
-#include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/ImageConversion.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator)

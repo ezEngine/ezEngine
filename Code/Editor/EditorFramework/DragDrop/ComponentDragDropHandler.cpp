@@ -5,10 +5,6 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
-#include <QDataStream>
-#include <QMimeData>
-#include <ToolsFoundation/Document/DocumentManager.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

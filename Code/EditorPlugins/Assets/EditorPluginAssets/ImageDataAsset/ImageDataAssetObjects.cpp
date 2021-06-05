@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetObjects.h>
 
 // clang-format off

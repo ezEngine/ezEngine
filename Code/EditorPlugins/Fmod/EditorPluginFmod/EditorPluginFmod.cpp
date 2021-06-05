@@ -2,18 +2,12 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
-#include <GuiFoundation/UIServices/DynamicEnums.h>
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 

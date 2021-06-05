@@ -1,17 +1,10 @@
 #include <EditorPluginKrautPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
-#include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetManager.h>
-#include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/Progress.h>
-#include <KrautGenerator/Description/LodDesc.h>
-#include <KrautGenerator/Description/TreeStructureDesc.h>
 #include <KrautGenerator/Serialization/SerializeTree.h>
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
-#include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 
 using namespace AE_NS_FOUNDATION;

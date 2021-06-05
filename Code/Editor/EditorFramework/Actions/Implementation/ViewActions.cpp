@@ -1,14 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/Actions/ViewActions.h>
-#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Preferences/ProjectPreferences.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <RendererCore/Pipeline/Declarations.h>
 
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;

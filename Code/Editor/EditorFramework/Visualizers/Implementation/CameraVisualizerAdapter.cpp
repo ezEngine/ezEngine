@@ -1,7 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <Core/Graphics/Camera.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>

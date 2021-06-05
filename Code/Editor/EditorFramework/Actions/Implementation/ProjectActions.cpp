@@ -13,20 +13,8 @@
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QFileDialog>
-#include <QProcess>
-#include <QStandardPaths>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
 

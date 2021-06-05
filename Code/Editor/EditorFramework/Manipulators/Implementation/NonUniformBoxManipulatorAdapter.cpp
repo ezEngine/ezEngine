@@ -1,10 +1,8 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezNonUniformBoxManipulatorAdapter::ezNonUniformBoxManipulatorAdapter() = default;

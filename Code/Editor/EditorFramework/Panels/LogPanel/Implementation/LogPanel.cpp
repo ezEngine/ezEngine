@@ -1,11 +1,8 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 
-#include <QSettings>
 
 EZ_IMPLEMENT_SINGLETON(ezQtLogPanel);
 

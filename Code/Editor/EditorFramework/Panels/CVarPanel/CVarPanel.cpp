@@ -2,10 +2,7 @@
 
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <Foundation/Configuration/CVar.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/Widgets/CVarWidget.moc.h>
-#include <QTimer>
 
 EZ_IMPLEMENT_SINGLETON(ezQtCVarPanel);
 

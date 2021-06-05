@@ -3,8 +3,6 @@
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAsset.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAssetManager.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationControllerAssetManager, 1, ezRTTIDefaultAllocator<ezAnimationControllerAssetManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

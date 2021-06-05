@@ -2,7 +2,6 @@
 
 #include <Core/World/GameObject.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettings, 1, ezRTTIDefaultAllocator<ezSceneDocumentSettings>)

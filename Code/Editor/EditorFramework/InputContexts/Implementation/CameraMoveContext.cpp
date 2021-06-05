@@ -6,7 +6,6 @@
 #include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <QKeyEvent>
 
 static const float s_fMoveSpeed[25] = {
   0.5f,

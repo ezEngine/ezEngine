@@ -2,11 +2,7 @@
 
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
-#include <EditorFramework/Preferences/ProjectPreferences.h>
-#include <Foundation/Serialization/BinarySerializer.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 class ezPreferencesObjectManager : public ezDocumentObjectManager

@@ -1,12 +1,8 @@
 #include <EnginePluginParticlePCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext)
   : ezEngineProcessViewContext(pParticleContext)

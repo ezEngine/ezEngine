@@ -2,7 +2,6 @@
 
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <QFileDialog>
 
 void ezQtEditorApp::InternalGuiOpenDashboard()
 {

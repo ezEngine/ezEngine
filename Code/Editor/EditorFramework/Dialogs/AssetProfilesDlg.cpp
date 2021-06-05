@@ -1,15 +1,8 @@
 #include <EditorFrameworkPCH.h>
 
-#include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
-#include <EditorFramework/Preferences/Preferences.h>
-#include <EditorFramework/Preferences/ProjectPreferences.h>
-#include <Foundation/Serialization/BinarySerializer.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <QInputDialog>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 

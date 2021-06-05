@@ -3,18 +3,7 @@
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
 #include <EditorPluginFileserve/FileserveUI/AllFilesModel.moc.h>
 #include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
-#include <FileservePlugin/Fileserver/Fileserver.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <QAbstractSocket>
-#include <QHostAddress>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QNetworkInterface>
-#include <QSettings>
-#include <QTableWidget>
-#include <QTimer>
 
 ezQtFileserveWidget::ezQtFileserveWidget(QWidget* parent /*= nullptr*/)
 {

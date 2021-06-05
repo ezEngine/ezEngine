@@ -1,12 +1,8 @@
 #include <EditorPluginScenePCH.h>
 
 #include <Commands/SceneCommands.h>
-#include <Core/Assets/AssetFileHeader.h>
-#include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
@@ -15,20 +11,12 @@
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
-#include <QApplication>
 #include <QClipboard>
 #include <RendererCore/Components/CameraComponent.h>
-#include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 6, ezRTTINoAllocator)

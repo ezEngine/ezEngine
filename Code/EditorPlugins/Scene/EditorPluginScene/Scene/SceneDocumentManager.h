@@ -12,8 +12,6 @@ class ezSceneDocumentManager : public ezAssetDocumentManager
 public:
   ezSceneDocumentManager();
 
-  static ezSceneDocumentManager* s_pSingleton;
-
 private:
   virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;

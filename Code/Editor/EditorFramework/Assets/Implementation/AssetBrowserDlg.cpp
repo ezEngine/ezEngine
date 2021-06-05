@@ -2,11 +2,8 @@
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
-#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-#include <QFileDialog>
-#include <QSettings>
 
 bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
 bool ezQtAssetBrowserDlg::s_bShowItemsInHiddenFolder = false;

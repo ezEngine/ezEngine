@@ -1,19 +1,8 @@
 #include <EnginePluginAssetsPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Core/World/Component.h>
-#include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialView.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/SwapChain.h>
 
 ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext)
   : ezEngineProcessViewContext(pMaterialContext)

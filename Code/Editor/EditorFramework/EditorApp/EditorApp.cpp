@@ -1,15 +1,9 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <QProcess>
-#include <QTextStream>
-#include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);

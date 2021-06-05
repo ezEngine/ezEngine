@@ -1,14 +1,6 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAsset.h>
-#include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
-#include <Foundation/IO/ChunkStream.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventAssetDocument, 1, ezRTTINoAllocator)

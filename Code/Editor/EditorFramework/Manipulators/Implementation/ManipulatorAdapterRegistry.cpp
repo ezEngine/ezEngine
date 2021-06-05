@@ -1,7 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
-#include <Foundation/Configuration/Startup.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezManipulatorAdapterRegistry);

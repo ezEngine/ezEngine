@@ -1,16 +1,11 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
 ezRemoteEngineProcessViewContext* ezRemoteEngineProcessViewContext::s_pActiveRemoteViewContext = nullptr;

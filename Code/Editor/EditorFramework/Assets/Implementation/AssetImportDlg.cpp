@@ -2,11 +2,6 @@
 
 #include <EditorFramework/Assets/AssetImportDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <QComboBox>
-#include <QFileDialog>
-#include <QTableWidget>
-#include <QToolButton>
 
 enum Columns
 {

@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 

@@ -1,15 +1,10 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
-#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
-#include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 //////////////////////////////////////////////////////////////////////////

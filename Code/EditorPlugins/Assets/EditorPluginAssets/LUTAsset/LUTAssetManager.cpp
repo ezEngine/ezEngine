@@ -3,7 +3,6 @@
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetManager.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 //////////////////////////////////////////////////////////////////////////

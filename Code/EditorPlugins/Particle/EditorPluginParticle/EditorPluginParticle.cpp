@@ -4,18 +4,12 @@
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ParticleEffectAsset/ParticleEffectAsset.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 void OnLoadPlugin(bool bReloading)
 {

@@ -1,12 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
-#include <Foundation/Math/Transform.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezVisualizerAdapter::ezVisualizerAdapter()
 {

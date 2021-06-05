@@ -4,10 +4,6 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Communication/IpcChannel.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/StringUtils.h>
-#include <Foundation/Utilities/CommandLineUtils.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 
 bool ezEngineProcessCommunicationChannel::IsHostAlive() const
 {

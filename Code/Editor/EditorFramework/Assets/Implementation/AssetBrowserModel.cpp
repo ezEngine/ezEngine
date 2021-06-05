@@ -2,11 +2,8 @@
 
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QMimeData>
-#include <QUrl>
 
 ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
   : QObject(pParent)

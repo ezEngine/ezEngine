@@ -1,16 +1,10 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
-#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetManager.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Serialization/BinarySerializer.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator)

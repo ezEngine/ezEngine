@@ -2,10 +2,7 @@
 
 #include <EditorPluginScene/Commands/SceneCommands.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Math/Random.h>
-#include <Foundation/Math/Transform.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 

@@ -3,14 +3,6 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
 
-#include <QDropEvent>
-#include <QFileDialog>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QMenu>
-#include <QMimeData>
-#include <QToolButton>
-#include <QUrl>
 
 ezQtFilePropertyWidget::ezQtFilePropertyWidget()
   : ezQtStandardPropertyWidget()

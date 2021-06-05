@@ -1,9 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/Manipulators/ConeLengthManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezConeLengthManipulatorAdapter::ezConeLengthManipulatorAdapter() {}

@@ -1,11 +1,9 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ModelImporter2/ModelImporter.h>
-#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 //////////////////////////////////////////////////////////////////////////

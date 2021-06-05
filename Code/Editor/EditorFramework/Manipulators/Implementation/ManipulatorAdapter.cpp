@@ -1,13 +1,8 @@
 #include <EditorFrameworkPCH.h>
 
-#include <Core/World/GameObject.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezManipulatorAdapter::ezManipulatorAdapter()

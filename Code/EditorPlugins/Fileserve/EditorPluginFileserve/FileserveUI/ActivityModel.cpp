@@ -1,8 +1,6 @@
 #include <EditorPluginFileservePCH.h>
 
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
-#include <QTimer>
-#include <QWidget>
 
 ezQtFileserveActivityModel::ezQtFileserveActivityModel(QWidget* parent)
   : QAbstractListModel(parent)

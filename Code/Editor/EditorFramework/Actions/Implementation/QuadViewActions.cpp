@@ -3,8 +3,6 @@
 #include <DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Actions/QuadViewActions.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 
 ezActionDescriptorHandle ezQuadViewActions::s_hToggleViews;
 ezActionDescriptorHandle ezQuadViewActions::s_hSpawnView;

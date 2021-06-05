@@ -2,11 +2,6 @@
 
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QProcess>
 
 ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* parent)
   : QDialog(parent)

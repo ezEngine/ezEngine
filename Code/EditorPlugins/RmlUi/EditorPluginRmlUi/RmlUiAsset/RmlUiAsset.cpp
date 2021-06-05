@@ -1,12 +1,7 @@
 #include <EditorPluginRmlUiPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAsset.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Math/Random.h>
-#include <Foundation/Utilities/Progress.h>
-#include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 ezStringView FindRCSSReference(ezStringView& sRml)
 {

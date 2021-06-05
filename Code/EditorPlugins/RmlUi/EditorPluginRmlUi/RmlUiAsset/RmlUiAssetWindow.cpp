@@ -2,15 +2,11 @@
 
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetObjects.h>
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
 
 ezQtRmlUiAssetDocumentWindow::ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)

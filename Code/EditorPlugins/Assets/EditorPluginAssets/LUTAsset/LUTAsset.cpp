@@ -1,28 +1,16 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 
-#include <RendererCore/Textures/Texture3DResource.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 #include <EditorPluginAssets/LUTAsset/AdobeCUBEReader.h>
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
-#include <EditorPluginAssets/LUTAsset/LUTAssetManager.h>
-#include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 
 #include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/Image.h>
-#include <Texture/Image/ImageConversion.h>
-#include <Texture/Image/ImageHeader.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 
 // clang-format off

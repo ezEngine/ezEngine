@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
 
 ezIPCObjectMirrorEditor::ezIPCObjectMirrorEditor()

@@ -1,19 +1,8 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAsset.h>
-#include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAssetManager.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerGraphQt.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/BinarySerializer.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Foundation/Serialization/RttiConverter.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
-#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
-#include <RendererCore/Pipeline/RenderPipelineNode.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 

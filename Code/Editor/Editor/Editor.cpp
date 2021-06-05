@@ -1,16 +1,7 @@
 #include <EditorPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Application/Application.h>
-#include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <QApplication>
-#include <QSettings>
-#include <QtNetwork/QHostInfo>
-#include <corecrt_io.h>
-#include <fcntl.h>
 
 class ezEditorApplication : public ezApplication
 {

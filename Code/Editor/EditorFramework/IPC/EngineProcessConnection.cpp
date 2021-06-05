@@ -5,18 +5,9 @@
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
-#include <Foundation/Communication/Implementation/IpcChannelEnet.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
-#include <QProcess>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 

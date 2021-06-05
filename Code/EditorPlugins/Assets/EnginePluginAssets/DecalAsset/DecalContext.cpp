@@ -1,13 +1,9 @@
 #include <EnginePluginAssetsPCH.h>
 
-#include <Core/Graphics/Geometry.h>
 #include <EnginePluginAssets/DecalAsset/DecalContext.h>
 #include <EnginePluginAssets/DecalAsset/DecalView.h>
 #include <RendererCore/Decals/DecalComponent.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDecalContext>)

@@ -1,20 +1,11 @@
 #include <EditorPluginProcGenPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 
-#include <QAction>
 #include <QMenu>
 #include <QPainter>
-#include <QTimer>
 
 namespace
 {

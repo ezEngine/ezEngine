@@ -1,12 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetManager.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetWindow.moc.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimatedMeshAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

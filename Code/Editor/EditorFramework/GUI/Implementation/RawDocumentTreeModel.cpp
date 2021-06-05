@@ -4,13 +4,7 @@
 #include <DragDrop/DragDropInfo.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QMessageBox>
-#include <QMimeData>
-#include <QStringList>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 ezQtDocumentTreeModelAdapter::ezQtDocumentTreeModelAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* sChildProperty)
   : m_pTree(pTree)

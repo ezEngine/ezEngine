@@ -1,12 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
-#include <EditorPluginAssets/ImageDataAsset/ImageDataAssetManager.h>
-#include <EditorPluginAssets/ImageDataAsset/ImageDataAssetObjects.h>
-#include <Texture/Image/ImageConversion.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataAssetDocument, 1, ezRTTINoAllocator)

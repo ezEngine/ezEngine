@@ -3,8 +3,6 @@
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetManager.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 //////////////////////////////////////////////////////////////////////////
 

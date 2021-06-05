@@ -1,20 +1,11 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Serialization/BinarySerializer.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <VisualShader/VisualShaderTypeRegistry.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument

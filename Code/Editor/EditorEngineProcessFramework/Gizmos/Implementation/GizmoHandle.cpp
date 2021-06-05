@@ -1,11 +1,8 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
 #include <Core/Graphics/Geometry.h>
-#include <Core/World/World.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator)

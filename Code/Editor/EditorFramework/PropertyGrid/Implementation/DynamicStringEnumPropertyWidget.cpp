@@ -3,8 +3,6 @@
 #include <EditorFramework/Dialogs/EditDynamicEnumsDlg.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <QBoxLayout>
-#include <QComboBox>
 
 ezQtDynamicStringEnumPropertyWidget::ezQtDynamicStringEnumPropertyWidget()
   : ezQtStandardPropertyWidget()

@@ -1,13 +1,8 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QFileDialog>
 #include <QInputDialog>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent)
   : QDialog(parent)

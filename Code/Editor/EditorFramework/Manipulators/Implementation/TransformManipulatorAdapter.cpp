@@ -1,10 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
-#include "InputContexts/OrthoGizmoContext.h"
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezTransformManipulatorAdapter::ezTransformManipulatorAdapter() {}

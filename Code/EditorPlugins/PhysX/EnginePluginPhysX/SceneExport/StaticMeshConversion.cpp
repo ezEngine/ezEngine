@@ -1,8 +1,6 @@
 #include <EnginePluginPhysXPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/Interfaces/PhysicsWorldModule.h>
-#include <Core/World/World.h>
 #include <EnginePluginPhysX/SceneExport/StaticMeshConversion.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>

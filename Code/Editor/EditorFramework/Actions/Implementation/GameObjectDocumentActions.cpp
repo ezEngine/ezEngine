@@ -1,16 +1,8 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Logging/Log.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <QProcess>
-#include <ToolsFoundation/Application/ApplicationServices.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocumentAction, 1, ezRTTINoAllocator)
