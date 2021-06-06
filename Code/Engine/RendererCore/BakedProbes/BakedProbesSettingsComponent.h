@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BakingPlugin/BakingPluginDLL.h>
+#include <RendererCore/Declarations.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 #include <Foundation/Types/SharedPtr.h>
@@ -12,11 +12,13 @@ struct ezMsgExtractRenderData;
 struct ezRenderWorldRenderEvent;
 class ezAbstractObjectNode;
 
-class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponentManager : public ezSettingsComponentManager<class ezBakingSettingsComponent>
+using ezProbeTreeSectorResourceHandle = ezTypedResourceHandle<class ezProbeTreeSectorResource>;
+
+class EZ_RENDERERCORE_DLL ezBakedProbesSettingsComponentManager : public ezSettingsComponentManager<class ezBakedProbesSettingsComponent>
 {
 public:
-  ezBakingSettingsComponentManager(ezWorld* pWorld);
-  ~ezBakingSettingsComponentManager();
+  ezBakedProbesSettingsComponentManager(ezWorld* pWorld);
+  ~ezBakedProbesSettingsComponentManager();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
@@ -30,13 +32,13 @@ private:
   void CreateDebugResources();
 };
 
-class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponent : public ezSettingsComponent
+class EZ_RENDERERCORE_DLL ezBakedProbesSettingsComponent : public ezSettingsComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezBakingSettingsComponent, ezSettingsComponent, ezBakingSettingsComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezBakedProbesSettingsComponent, ezSettingsComponent, ezBakedProbesSettingsComponentManager);
 
 public:
-  ezBakingSettingsComponent();
-  ~ezBakingSettingsComponent();
+  ezBakedProbesSettingsComponent();
+  ~ezBakedProbesSettingsComponent();
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
@@ -64,4 +66,6 @@ private:
   ezSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;
 
   ezGALTextureHandle m_hDebugViewTexture;
+
+  ezProbeTreeSectorResourceHandle m_hProbeTree;
 };

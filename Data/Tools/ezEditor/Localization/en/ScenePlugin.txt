@@ -380,6 +380,7 @@ DepthFade;Depth Fade
 Fresnel;Fresnel
 Refraction;Refraction
 SetColorMode;Set Color Mode
+ezBakedProbesSettingsComponent;Baked Probes Settings
 ezRopeRenderComponent;Rope Renderer;;https://ezengine.net/pages/docs/effects/rope-render-component.html
 ezFakeRopeComponent;Fake Rope Simulation;;https://ezengine.net/pages/docs/effects/fake-rope-component.html
 ezClothSheetComponent;Cloth Sheet;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
