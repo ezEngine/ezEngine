@@ -46,7 +46,8 @@ ezStatus ezCommandTransaction::AddCommandTransaction(ezCommand* pCommand)
 ////////////////////////////////////////////////////////////////////////
 
 ezCommandHistory::ezCommandHistory(ezDocument* pDocument)
-  : m_pDocument(pDocument)
+  : m_pHistoryStorage(EZ_DEFAULT_NEW(Storage))
+  , m_pDocument(pDocument)
 {
   m_bTemporaryMode = false;
   m_bIsInUndoRedo = false;
@@ -54,8 +55,8 @@ ezCommandHistory::ezCommandHistory(ezDocument* pDocument)
 
 ezCommandHistory::~ezCommandHistory()
 {
-  EZ_ASSERT_ALWAYS(m_UndoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
-  EZ_ASSERT_ALWAYS(m_RedoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
+  EZ_ASSERT_ALWAYS(m_pHistoryStorage->m_UndoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
+  EZ_ASSERT_ALWAYS(m_pHistoryStorage->m_RedoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
 }
 
 void ezCommandHistory::BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands)
@@ -66,7 +67,7 @@ void ezCommandHistory::BeginTemporaryCommands(const char* szDisplayString, bool 
 
   m_bFireEventsWhenUndoingTempCommands = bFireEventsWhenUndoingTempCommands;
   m_bTemporaryMode = true;
-  m_iTemporaryDepth = (ezInt32)m_TransactionStack.GetCount();
+  m_iTemporaryDepth = (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount();
 }
 
 void ezCommandHistory::CancelTemporaryCommands()
@@ -89,9 +90,9 @@ bool ezCommandHistory::InTemporaryTransaction() const
 
 void ezCommandHistory::SuspendTemporaryTransaction()
 {
-  m_iPreSuspendTemporaryDepth = (ezInt32)m_TransactionStack.GetCount();
+  m_iPreSuspendTemporaryDepth = (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount();
   EZ_ASSERT_DEV(m_bTemporaryMode, "No temporary transaction active.");
-  while (m_iTemporaryDepth < (ezInt32)m_TransactionStack.GetCount())
+  while (m_iTemporaryDepth < (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount())
   {
     EndTransaction(true);
   }
@@ -100,20 +101,20 @@ void ezCommandHistory::SuspendTemporaryTransaction()
 
 void ezCommandHistory::ResumeTemporaryTransaction()
 {
-  EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_TransactionStack.GetCount() + 1, "Can't resume temporary, not before temporary depth.");
-  while (m_iPreSuspendTemporaryDepth > (ezInt32)m_TransactionStack.GetCount())
+  EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount() + 1, "Can't resume temporary, not before temporary depth.");
+  while (m_iPreSuspendTemporaryDepth > (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount())
   {
     StartTransaction("[Temporary]");
   }
   m_bTemporaryMode = true;
-  EZ_ASSERT_DEV(m_iPreSuspendTemporaryDepth == (ezInt32)m_TransactionStack.GetCount(), "");
+  EZ_ASSERT_DEV(m_iPreSuspendTemporaryDepth == (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount(), "");
 }
 
 void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 {
   EZ_ASSERT_DEV(m_bTemporaryMode, "Temporary Mode was not enabled");
-  EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_TransactionStack.GetCount(), "Transaction stack is at depth {0} but temporary is at {1}",
-    m_TransactionStack.GetCount(), m_iTemporaryDepth);
+  EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount(), "Transaction stack is at depth {0} but temporary is at {1}",
+    m_pHistoryStorage->m_TransactionStack.GetCount(), m_iTemporaryDepth);
   m_bTemporaryMode = false;
 
   EndTransaction(bCancel);
@@ -122,8 +123,8 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 ezStatus ezCommandHistory::UndoInternal()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "invalidly nested undo/redo");
-  EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't undo with active transaction!");
-  EZ_ASSERT_DEV(!m_UndoHistory.IsEmpty(), "Can't undo with empty undo queue!");
+  EZ_ASSERT_DEV(m_pHistoryStorage->m_TransactionStack.IsEmpty(), "Can't undo with active transaction!");
+  EZ_ASSERT_DEV(!m_pHistoryStorage->m_UndoHistory.IsEmpty(), "Can't undo with empty undo queue!");
 
   m_bIsInUndoRedo = true;
   {
@@ -133,13 +134,13 @@ ezStatus ezCommandHistory::UndoInternal()
     m_Events.Broadcast(e);
   }
 
-  ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
+  ezCommandTransaction* pTransaction = m_pHistoryStorage->m_UndoHistory.PeekBack();
 
   ezStatus status = pTransaction->Undo(true);
   if (status.m_Result == EZ_SUCCESS)
   {
-    m_UndoHistory.PopBack();
-    m_RedoHistory.PushBack(pTransaction);
+    m_pHistoryStorage->m_UndoHistory.PopBack();
+    m_pHistoryStorage->m_RedoHistory.PushBack(pTransaction);
 
     m_pDocument->SetModified(true);
 
@@ -169,8 +170,8 @@ ezStatus ezCommandHistory::Undo(ezUInt32 uiNumEntries)
 ezStatus ezCommandHistory::RedoInternal()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "invalidly nested undo/redo");
-  EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't redo with active transaction!");
-  EZ_ASSERT_DEV(!m_RedoHistory.IsEmpty(), "Can't redo with empty undo queue!");
+  EZ_ASSERT_DEV(m_pHistoryStorage->m_TransactionStack.IsEmpty(), "Can't redo with active transaction!");
+  EZ_ASSERT_DEV(!m_pHistoryStorage->m_RedoHistory.IsEmpty(), "Can't redo with empty undo queue!");
 
   m_bIsInUndoRedo = true;
   {
@@ -180,13 +181,13 @@ ezStatus ezCommandHistory::RedoInternal()
     m_Events.Broadcast(e);
   }
 
-  ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();
+  ezCommandTransaction* pTransaction = m_pHistoryStorage->m_RedoHistory.PeekBack();
 
   ezStatus status(EZ_FAILURE);
   if (pTransaction->Do(true).m_Result == EZ_SUCCESS)
   {
-    m_RedoHistory.PopBack();
-    m_UndoHistory.PushBack(pTransaction);
+    m_pHistoryStorage->m_RedoHistory.PopBack();
+    m_pHistoryStorage->m_UndoHistory.PushBack(pTransaction);
 
     m_pDocument->SetModified(true);
 
@@ -215,36 +216,36 @@ ezStatus ezCommandHistory::Redo(ezUInt32 uiNumEntries)
 
 bool ezCommandHistory::CanUndo() const
 {
-  if (!m_TransactionStack.IsEmpty())
+  if (!m_pHistoryStorage->m_TransactionStack.IsEmpty())
     return false;
 
-  return !m_UndoHistory.IsEmpty();
+  return !m_pHistoryStorage->m_UndoHistory.IsEmpty();
 }
 
 bool ezCommandHistory::CanRedo() const
 {
-  if (!m_TransactionStack.IsEmpty())
+  if (!m_pHistoryStorage->m_TransactionStack.IsEmpty())
     return false;
 
-  return !m_RedoHistory.IsEmpty();
+  return !m_pHistoryStorage->m_RedoHistory.IsEmpty();
 }
 
 
 const char* ezCommandHistory::GetUndoDisplayString() const
 {
-  if (m_UndoHistory.IsEmpty())
+  if (m_pHistoryStorage->m_UndoHistory.IsEmpty())
     return "";
 
-  return m_UndoHistory.PeekBack()->m_sDisplayString;
+  return m_pHistoryStorage->m_UndoHistory.PeekBack()->m_sDisplayString;
 }
 
 
 const char* ezCommandHistory::GetRedoDisplayString() const
 {
-  if (m_RedoHistory.IsEmpty())
+  if (m_pHistoryStorage->m_RedoHistory.IsEmpty())
     return "";
 
-  return m_RedoHistory.PeekBack()->m_sDisplayString;
+  return m_pHistoryStorage->m_RedoHistory.PeekBack()->m_sDisplayString;
 }
 
 void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
@@ -255,13 +256,13 @@ void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
 
   ezCommandTransaction* pTransaction;
 
-  if (m_bTemporaryMode && !m_TransactionStack.IsEmpty())
+  if (m_bTemporaryMode && !m_pHistoryStorage->m_TransactionStack.IsEmpty())
   {
-    pTransaction = m_TransactionStack.PeekBack();
+    pTransaction = m_pHistoryStorage->m_TransactionStack.PeekBack();
     pTransaction->Undo(m_bFireEventsWhenUndoingTempCommands);
     pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
-    m_TransactionStack.PushBack(pTransaction);
-    m_ActiveCommandStack.PushBack(pTransaction);
+    m_pHistoryStorage->m_TransactionStack.PushBack(pTransaction);
+    m_pHistoryStorage->m_ActiveCommandStack.PushBack(pTransaction);
     return;
   }
 
@@ -271,18 +272,18 @@ void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
   pTransaction->m_pDocument = m_pDocument;
   pTransaction->m_sDisplayString = sDisplayString.GetText(tmp);
 
-  if (!m_TransactionStack.IsEmpty())
+  if (!m_pHistoryStorage->m_TransactionStack.IsEmpty())
   {
     // Stacked transaction
-    m_TransactionStack.PeekBack()->AddCommandTransaction(pTransaction);
-    m_TransactionStack.PushBack(pTransaction);
-    m_ActiveCommandStack.PushBack(pTransaction);
+    m_pHistoryStorage->m_TransactionStack.PeekBack()->AddCommandTransaction(pTransaction);
+    m_pHistoryStorage->m_TransactionStack.PushBack(pTransaction);
+    m_pHistoryStorage->m_ActiveCommandStack.PushBack(pTransaction);
   }
   else
   {
     // Initial transaction
-    m_TransactionStack.PushBack(pTransaction);
-    m_ActiveCommandStack.PushBack(pTransaction);
+    m_pHistoryStorage->m_TransactionStack.PushBack(pTransaction);
+    m_pHistoryStorage->m_ActiveCommandStack.PushBack(pTransaction);
     {
       ezCommandHistoryEvent e;
       e.m_pDocument = m_pDocument;
@@ -295,13 +296,13 @@ void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
 
 void ezCommandHistory::EndTransaction(bool bCancel)
 {
-  EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
+  EZ_ASSERT_DEV(!m_pHistoryStorage->m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
 
-  if (m_TransactionStack.GetCount() == 1)
+  if (m_pHistoryStorage->m_TransactionStack.GetCount() == 1)
   {
     /// Empty transactions are always canceled, so that they do not create an unnecessary undo action and clear the redo stack
 
-    const bool bDidAnything = m_TransactionStack.PeekBack()->HasChildActions();
+    const bool bDidAnything = m_pHistoryStorage->m_TransactionStack.PeekBack()->HasChildActions();
     if (!bDidAnything)
       bCancel = true;
 
@@ -313,17 +314,17 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 
   if (!bCancel)
   {
-    if (m_TransactionStack.GetCount() > 1)
+    if (m_pHistoryStorage->m_TransactionStack.GetCount() > 1)
     {
-      m_TransactionStack.PopBack();
-      m_ActiveCommandStack.PopBack();
+      m_pHistoryStorage->m_TransactionStack.PopBack();
+      m_pHistoryStorage->m_ActiveCommandStack.PopBack();
     }
     else
     {
-      const bool bDidModifyDoc = m_TransactionStack.PeekBack()->HasModifiedDocument();
-      m_UndoHistory.PushBack(m_TransactionStack.PeekBack());
-      m_TransactionStack.PopBack();
-      m_ActiveCommandStack.PopBack();
+      const bool bDidModifyDoc = m_pHistoryStorage->m_TransactionStack.PeekBack()->HasModifiedDocument();
+      m_pHistoryStorage->m_UndoHistory.PushBack(m_pHistoryStorage->m_TransactionStack.PeekBack());
+      m_pHistoryStorage->m_TransactionStack.PopBack();
+      m_pHistoryStorage->m_ActiveCommandStack.PopBack();
       ClearRedoHistory();
 
       if (bDidModifyDoc)
@@ -334,20 +335,20 @@ void ezCommandHistory::EndTransaction(bool bCancel)
   }
   else
   {
-    ezCommandTransaction* pTransaction = m_TransactionStack.PeekBack();
+    ezCommandTransaction* pTransaction = m_pHistoryStorage->m_TransactionStack.PeekBack();
 
     pTransaction->Undo(true);
-    m_TransactionStack.PopBack();
-    m_ActiveCommandStack.PopBack();
+    m_pHistoryStorage->m_TransactionStack.PopBack();
+    m_pHistoryStorage->m_ActiveCommandStack.PopBack();
 
-    if (m_TransactionStack.IsEmpty())
+    if (m_pHistoryStorage->m_TransactionStack.IsEmpty())
     {
       pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
       pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
     }
   }
 
-  if (m_TransactionStack.IsEmpty())
+  if (m_pHistoryStorage->m_TransactionStack.IsEmpty())
   {
     // All transactions done
     ezCommandHistoryEvent e;
@@ -359,10 +360,10 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 
 ezStatus ezCommandHistory::AddCommand(ezCommand& command)
 {
-  EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
-  EZ_ASSERT_DEV(!m_ActiveCommandStack.IsEmpty(), "Transaction stack is not synced anymore with m_ActiveCommandStack");
+  EZ_ASSERT_DEV(!m_pHistoryStorage->m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
+  EZ_ASSERT_DEV(!m_pHistoryStorage->m_ActiveCommandStack.IsEmpty(), "Transaction stack is not synced anymore with m_ActiveCommandStack");
 
-  auto res = m_ActiveCommandStack.PeekBack()->AddSubCommand(command);
+  auto res = m_pHistoryStorage->m_ActiveCommandStack.PeekBack()->AddSubCommand(command);
 
   // Error handling should be on the caller side.
   // if (res.Failed() && !res.m_sMessage.IsEmpty())
@@ -376,28 +377,28 @@ ezStatus ezCommandHistory::AddCommand(ezCommand& command)
 void ezCommandHistory::ClearUndoHistory()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "Cannot clear undo/redo history while redoing/undoing.");
-  while (!m_UndoHistory.IsEmpty())
+  while (!m_pHistoryStorage->m_UndoHistory.IsEmpty())
   {
-    ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
+    ezCommandTransaction* pTransaction = m_pHistoryStorage->m_UndoHistory.PeekBack();
 
     pTransaction->Cleanup(ezCommand::CommandState::WasDone);
     pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
 
-    m_UndoHistory.PopBack();
+    m_pHistoryStorage->m_UndoHistory.PopBack();
   }
 }
 
 void ezCommandHistory::ClearRedoHistory()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "Cannot clear undo/redo history while redoing/undoing.");
-  while (!m_RedoHistory.IsEmpty())
+  while (!m_pHistoryStorage->m_RedoHistory.IsEmpty())
   {
-    ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();
+    ezCommandTransaction* pTransaction = m_pHistoryStorage->m_RedoHistory.PeekBack();
 
     pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
     pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
 
-    m_RedoHistory.PopBack();
+    m_pHistoryStorage->m_RedoHistory.PopBack();
   }
 }
 
@@ -405,13 +406,13 @@ void ezCommandHistory::MergeLastTwoTransactions()
 {
   /// \todo This would not be necessary, if hierarchical transactions would not crash
 
-  EZ_ASSERT_DEV(m_RedoHistory.IsEmpty(), "This can only be called directly after EndTransaction, when the redo history is empty");
-  EZ_ASSERT_DEV(m_UndoHistory.GetCount() >= 2, "Can only do this when at least two transcations are in the queue");
+  EZ_ASSERT_DEV(m_pHistoryStorage->m_RedoHistory.IsEmpty(), "This can only be called directly after EndTransaction, when the redo history is empty");
+  EZ_ASSERT_DEV(m_pHistoryStorage->m_UndoHistory.GetCount() >= 2, "Can only do this when at least two transcations are in the queue");
 
-  ezCommandTransaction* pLast = m_UndoHistory.PeekBack();
-  m_UndoHistory.PopBack();
+  ezCommandTransaction* pLast = m_pHistoryStorage->m_UndoHistory.PeekBack();
+  m_pHistoryStorage->m_UndoHistory.PopBack();
 
-  ezCommandTransaction* pNowLast = m_UndoHistory.PeekBack();
+  ezCommandTransaction* pNowLast = m_pHistoryStorage->m_UndoHistory.PeekBack();
   pNowLast->m_ChildActions.PushBackRange(pLast->m_ChildActions);
 
   pLast->m_ChildActions.Clear();
@@ -421,20 +422,33 @@ void ezCommandHistory::MergeLastTwoTransactions()
 
 ezUInt32 ezCommandHistory::GetUndoStackSize() const
 {
-  return m_UndoHistory.GetCount();
+  return m_pHistoryStorage->m_UndoHistory.GetCount();
 }
 
 ezUInt32 ezCommandHistory::GetRedoStackSize() const
 {
-  return m_RedoHistory.GetCount();
+  return m_pHistoryStorage->m_RedoHistory.GetCount();
 }
 
 const ezCommandTransaction* ezCommandHistory::GetUndoStackEntry(ezUInt32 iIndex) const
 {
-  return m_UndoHistory[GetUndoStackSize() - 1 - iIndex];
+  return m_pHistoryStorage->m_UndoHistory[GetUndoStackSize() - 1 - iIndex];
 }
 
 const ezCommandTransaction* ezCommandHistory::GetRedoStackEntry(ezUInt32 iIndex) const
 {
-  return m_RedoHistory[GetRedoStackSize() - 1 - iIndex];
+  return m_pHistoryStorage->m_RedoHistory[GetRedoStackSize() - 1 - iIndex];
+}
+
+ezSharedPtr<ezCommandHistory::Storage> ezCommandHistory::SwapStorage(ezSharedPtr<ezCommandHistory::Storage> pNewStorage)
+{
+  EZ_ASSERT_ALWAYS(pNewStorage != nullptr, "Need a valid history storage object");
+
+  EZ_ASSERT_DEV(!m_bIsInUndoRedo, "Can't be in Undo/Redo when swapping storage.");
+
+  auto retVal = m_pHistoryStorage;
+
+  m_pHistoryStorage = pNewStorage;
+
+  return retVal;
 }

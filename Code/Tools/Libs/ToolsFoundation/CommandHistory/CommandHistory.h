@@ -2,6 +2,8 @@
 
 #include <ToolsFoundation/Command/Command.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
+#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
 
 class ezCommandHistory;
 
@@ -49,6 +51,16 @@ class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 public:
   ezEvent<const ezCommandHistoryEvent&, ezMutex> m_Events;
 
+  // \brief Storage for the command history so it can be swapped when using multiple sub documents
+  class Storage : public ezRefCounted
+  {
+  public:
+    ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;
+    ezHybridArray<ezCommand*, 4> m_ActiveCommandStack;
+    ezDeque<ezCommandTransaction*> m_UndoHistory;
+    ezDeque<ezCommandTransaction*> m_RedoHistory;
+  };
+
 public:
   ezCommandHistory(ezDocument* pDocument);
   ~ezCommandHistory();
@@ -69,11 +81,11 @@ public:
   void FinishTransaction() { EndTransaction(false); }
 
   /// \brief Returns true, if between StartTransaction / EndTransaction. False during Undo/Redo.
-  bool IsInTransaction() const { return !m_TransactionStack.IsEmpty(); }
+  bool IsInTransaction() const { return !m_pHistoryStorage->m_TransactionStack.IsEmpty(); }
   bool IsInUndoRedo() const { return m_bIsInUndoRedo; }
 
-  /// \brief Call this to start a serious of transactions that typically change the same value over and over (e.g. dragging an object to a position).
-  /// Every time a new transaction is started, the previous one is undone first. At the end of a serious of temporary transactions, only the last
+  /// \brief Call this to start a series of transactions that typically change the same value over and over (e.g. dragging an object to a position).
+  /// Every time a new transaction is started, the previous one is undone first. At the end of a series of temporary transactions, only the last
   /// transaction will be stored as a single undo step. Call this first and then start a transaction inside it.
   void BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands = false);
   void CancelTemporaryCommands();
@@ -95,6 +107,9 @@ public:
   const ezCommandTransaction* GetUndoStackEntry(ezUInt32 iIndex) const;
   const ezCommandTransaction* GetRedoStackEntry(ezUInt32 iIndex) const;
 
+  ezSharedPtr<ezCommandHistory::Storage> SwapStorage(ezSharedPtr<ezCommandHistory::Storage> pNewStorage);
+  ezCommandHistory::Storage* GetStorage() { return m_pHistoryStorage; }
+
 private:
   friend class ezCommand;
 
@@ -104,15 +119,13 @@ private:
   void EndTransaction(bool bCancel);
   void EndTemporaryCommands(bool bCancel);
 
+  ezSharedPtr<ezCommandHistory::Storage> m_pHistoryStorage;
+
   bool m_bFireEventsWhenUndoingTempCommands = false;
   bool m_bTemporaryMode = false;
   ezInt32 m_iTemporaryDepth = -1;
   ezInt32 m_iPreSuspendTemporaryDepth = -1;
   bool m_bIsInUndoRedo = false;
 
-  ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;
-  ezHybridArray<ezCommand*, 4> m_ActiveCommandStack;
-  ezDeque<ezCommandTransaction*> m_UndoHistory;
-  ezDeque<ezCommandTransaction*> m_RedoHistory;
   ezDocument* m_pDocument;
 };
