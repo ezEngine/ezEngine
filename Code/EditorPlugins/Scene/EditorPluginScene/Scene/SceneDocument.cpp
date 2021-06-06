@@ -22,12 +22,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
+ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType DocumentType)
   : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
-  m_bIsPrefab = bIsPrefab;
+  m_DocumentType = DocumentType;
   m_GameMode = GameMode::Off;
-  SetAddAmbientLight(bIsPrefab);
+  SetAddAmbientLight(IsPrefab());
 
   m_GameModeData[GameMode::Off].m_bRenderSelectionOverlay = true;
   m_GameModeData[GameMode::Off].m_bRenderShapeIcons = true;
@@ -1297,7 +1297,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
   // scenes do not have exposed parameters
-  if (!m_bIsPrefab)
+  if (!IsPrefab())
     return;
 
   ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);

@@ -238,8 +238,8 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  // TODO const cast
-  m_pSceneDocument = const_cast<ezSceneDocument*>(static_cast<const ezSceneDocument*>(context.m_pDocument));
+
+  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
   m_pSceneDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
 
   switch (m_Type)

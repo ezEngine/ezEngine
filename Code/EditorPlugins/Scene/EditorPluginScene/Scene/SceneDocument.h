@@ -21,7 +21,16 @@ class ezSceneDocument : public ezGameObjectDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument, ezGameObjectDocument);
 
 public:
-  ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
+
+  enum class DocumentType
+  {
+    Scene,
+    Prefab,
+    Layer
+  };
+
+public:
+  ezSceneDocument(const char* szDocumentPath, DocumentType DocumentType);
   ~ezSceneDocument();
 
   enum class ShowOrHide
@@ -29,7 +38,6 @@ public:
     Show,
     Hide
   };
-
 
   void GroupSelection();
 
@@ -62,7 +70,7 @@ public:
   void HideUnselectedObjects();
 
   /// \brief Whether this document represents a prefab or a scene
-  bool IsPrefab() const { return m_bIsPrefab; }
+  bool IsPrefab() const { return m_DocumentType == DocumentType::Prefab; }
 
   /// \brief Determines whether the given object is an editor prefab
   bool IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
@@ -195,7 +203,7 @@ private:
   /// the runtime.
   void UpdateObjectDebugTargets();
 
-  bool m_bIsPrefab;
+  DocumentType m_DocumentType = DocumentType::Scene;  
 
   GameMode::Enum m_GameMode;
 

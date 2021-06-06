@@ -2,6 +2,7 @@
 
 #include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
@@ -20,6 +21,6 @@ private:
 
   void SetupDefaultScene(ezDocument* pDocument);
 
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc2;
+
+  ezStaticArray<ezAssetDocumentTypeDescriptor, 4> m_DocTypeDescs;
 };

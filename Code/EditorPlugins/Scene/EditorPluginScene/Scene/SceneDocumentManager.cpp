@@ -10,35 +10,69 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSceneDocumentManager::ezSceneDocumentManager()
 {
+  // Document type descriptor for a standard EZ scene
   {
-    m_DocTypeDesc.m_sDocumentTypeName = "Scene";
-    m_DocTypeDesc.m_sFileExtension = "ezScene";
-    m_DocTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
-    m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
-    m_DocTypeDesc.m_pManager = this;
-
-    m_DocTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
-    m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
+    auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
+    docTypeDesc.m_sDocumentTypeName = "Scene";
+    docTypeDesc.m_sFileExtension = "ezScene";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
+    docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    docTypeDesc.m_pManager = this;
+    
+    docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
+    docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
   }
 
+  // Document type descriptor for a prefab
   {
-    m_DocTypeDesc2.m_sDocumentTypeName = "Prefab";
-    m_DocTypeDesc2.m_sFileExtension = "ezPrefab";
-    m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Prefab.png";
-    m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
-    m_DocTypeDesc2.m_pManager = this;
+    auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
 
-    m_DocTypeDesc2.m_sResourceFileExtension = "ezObjectGraph";
-    m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
+    docTypeDesc.m_sDocumentTypeName = "Prefab";
+    docTypeDesc.m_sFileExtension = "ezPrefab";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Prefab.png";
+    docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    docTypeDesc.m_pManager = this;
+
+    docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
+    docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
+  }
+
+  // Document type descriptor for a scene with layers
+  {
+    auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
+    docTypeDesc.m_sDocumentTypeName = "Scene2";
+    docTypeDesc.m_sFileExtension = "ezScene2";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
+    docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    docTypeDesc.m_pManager = this;
+
+    // We currently serialize all layers into one final runtime scene
+    docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
+    docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
+  }
+
+  // Document type descriptor for a layer (similar to a normal scene) as it holds a scene object graph
+  {
+    auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
+    docTypeDesc.m_sDocumentTypeName = "Layer";
+    docTypeDesc.m_sFileExtension = "ezSceneLayer";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Layer.png";
+    docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    docTypeDesc.m_pManager = this;
+
+    docTypeDesc.m_sResourceFileExtension = "";
+    // A layer can not be transformed individually (at least at the moment)
+    // all layers for a scene are gathered and put into one cohesive runtime scene
+    docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::DisableTransform; // TODO: Disable creation in "New Document"?
   }
 }
 
 void ezSceneDocumentManager::InternalCreateDocument(
   const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Scene"))
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "Scene") || ezStringUtils::IsEqual(szDocumentTypeName, "Scene2"))
   {
-    out_pDocument = new ezSceneDocument(szPath, false);
+    out_pDocument = new ezSceneDocument(szPath, ezSceneDocument::DocumentType::Scene);
 
     if (bCreateNewDocument)
     {
@@ -47,14 +81,20 @@ void ezSceneDocumentManager::InternalCreateDocument(
   }
   else if (ezStringUtils::IsEqual(szDocumentTypeName, "Prefab"))
   {
-    out_pDocument = new ezSceneDocument(szPath, true);
+    out_pDocument = new ezSceneDocument(szPath, ezSceneDocument::DocumentType::Prefab);
+  }
+  else if (ezStringUtils::IsEqual(szDocumentTypeName, "Layer"))
+  {
+    out_pDocument = new ezSceneDocument(szPath, ezSceneDocument::DocumentType::Layer);
   }
 }
 
 void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
-  inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
+  for (auto& docTypeDesc : m_DocTypeDescs)
+  {
+    inout_DocumentTypes.PushBack(&docTypeDesc);
+  }
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
