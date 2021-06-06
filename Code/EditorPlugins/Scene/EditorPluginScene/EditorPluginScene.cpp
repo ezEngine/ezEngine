@@ -12,6 +12,8 @@
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
+#include <EditorPluginScene/Scene/Scene2DocumentWindow.moc.h>
+#include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
@@ -32,7 +34,11 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
   {
     case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezScene2Document>())
+      {
+        ezQtDocumentWindow* pDocWnd = new ezQtScene2DocumentWindow(static_cast<ezScene2Document*>(e.m_pDocument));
+      }
+      else if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
       {
         ezQtDocumentWindow* pDocWnd = new ezQtSceneDocumentWindow(static_cast<ezSceneDocument*>(e.m_pDocument));
       }
