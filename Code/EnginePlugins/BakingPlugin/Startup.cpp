@@ -1,7 +1,10 @@
 #include <BakingPluginPCH.h>
 
+#include <BakingPlugin/BakingScene.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>
+
+static ezUniquePtr<ezBaking> s_Baking;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Baking, BakingPlugin)
@@ -12,27 +15,23 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Baking, BakingPlugin)
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
-  {
-    //ezResourceManager::RegisterResourceForAssetType("ProcGen Graph", ezGetStaticRTTI<ezProcGenGraphResource>());
-
-    //ezProcGenGraphResourceDescriptor desc;
-    //ezProcGenGraphResourceHandle hResource = ezResourceManager::CreateResource<ezProcGenGraphResource>("ProcGenGraphMissing", std::move(desc), "Fallback for missing ProcGen Graph Resource");
-    //ezResourceManager::SetResourceTypeMissingFallback<ezProcGenGraphResource>(hResource);
-
-    //ezExpressionVM::Test();
+  { 
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    //ezProcGenGraphResource::CleanupDynamicPluginReferences();
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
+    s_Baking = EZ_DEFAULT_NEW(ezBaking);
+    s_Baking->Startup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
+    s_Baking->Shutdown();
+    s_Baking = nullptr;
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
