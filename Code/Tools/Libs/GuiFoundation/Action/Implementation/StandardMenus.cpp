@@ -175,7 +175,7 @@ void ezHelpActions::Execute(const ezVariant& value)
   }
   if (m_ButtonType == ButtonType::OpenReleaseNotes)
   {
-    QDesktopServices::openUrl(QUrl("http://ezengine.net/releases/release-notes.html"));
+    QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/releases/releases.html"));
   }
   if (m_ButtonType == ButtonType::ReportProblem)
   {
