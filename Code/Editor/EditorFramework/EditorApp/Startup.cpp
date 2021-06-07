@@ -414,22 +414,24 @@ void ezQtEditorApp::SetupAndShowSplashScreen()
 {
   EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
 
-  QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
+  //QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
 
-  const qreal PixelRatio = qApp->primaryScreen()->devicePixelRatio();
+  //const qreal PixelRatio = qApp->primaryScreen()->devicePixelRatio();
 
-  // TODO: When migrating to Qt 5.15 or newer this should have a fixed square size and
-  // let the aspect ratio mode of the svg renderer handle the difference
-  QPixmap splashPixmap(QSize(187, 256) * PixelRatio);
-  splashPixmap.fill(Qt::transparent);
-  {
-    QPainter painter;
-    painter.begin(&splashPixmap);
-    svgRenderer.render(&painter);
-    painter.end();
-  }
+  //// TODO: When migrating to Qt 5.15 or newer this should have a fixed square size and
+  //// let the aspect ratio mode of the svg renderer handle the difference
+  //QPixmap splashPixmap(QSize(187, 256) * PixelRatio);
+  //splashPixmap.fill(Qt::transparent);
+  //{
+  //  QPainter painter;
+  //  painter.begin(&splashPixmap);
+  //  svgRenderer.render(&painter);
+  //  painter.end();
+  //}
 
-  splashPixmap.setDevicePixelRatio(PixelRatio);
+  QPixmap splashPixmap(QString(":/Splash/Splash/splash.png"));
+
+  //splashPixmap.setDevicePixelRatio(PixelRatio);
 
   m_pSplashScreen = new QSplashScreen(splashPixmap);
   m_pSplashScreen->setMask(splashPixmap.mask());
