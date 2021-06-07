@@ -22,7 +22,7 @@ ezResult ezLongOpWorker_BakeScene::InitializeExecution(ezStreamReader& config, c
   config >> m_sOutputPath;
 
   {
-    m_pScene = ezBakingScene::GetOrCreate(*pDocContext->GetWorld());
+    m_pScene = ezBaking::GetSingleton()->GetOrCreateScene(*pDocContext->GetWorld());
 
     EZ_SUCCEED_OR_RETURN(m_pScene->Extract());
   }

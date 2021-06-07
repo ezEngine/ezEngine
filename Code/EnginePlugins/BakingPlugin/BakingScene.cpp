@@ -11,41 +11,6 @@
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
-namespace
-{
-  static ezDynamicArray<ezUniquePtr<ezBakingScene>, ezStaticAllocatorWrapper> s_BakingScenes;
-}
-
-// static
-ezBakingScene* ezBakingScene::GetOrCreate(const ezWorld& world)
-{
-  const ezUInt32 uiWorldIndex = world.GetIndex();
-
-  s_BakingScenes.EnsureCount(uiWorldIndex + 1);
-  if (s_BakingScenes[uiWorldIndex] == nullptr)
-  {
-    auto pScene = EZ_DEFAULT_NEW(ezBakingScene);
-    pScene->m_uiWorldIndex = uiWorldIndex;
-
-    s_BakingScenes[uiWorldIndex] = pScene;
-  }
-
-  return s_BakingScenes[uiWorldIndex].Borrow();
-}
-
-// static
-ezBakingScene* ezBakingScene::Get(const ezWorld& world)
-{
-  const ezUInt32 uiWorldIndex = world.GetIndex();
-
-  if (uiWorldIndex < s_BakingScenes.GetCount())
-  {
-    return s_BakingScenes[uiWorldIndex].Borrow();
-  }
-
-  return nullptr;
-}
-
 ezResult ezBakingScene::Extract()
 {
   if (m_pTracer == nullptr)
@@ -204,3 +169,76 @@ ezResult ezBakingScene::RenderDebugView(const ezMat4& InverseViewProjection, ezU
 
 ezBakingScene::ezBakingScene() = default;
 ezBakingScene::~ezBakingScene() = default;
+
+//////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+  static ezDynamicArray<ezUniquePtr<ezBakingScene>, ezStaticAllocatorWrapper> s_BakingScenes;
+}
+
+EZ_IMPLEMENT_SINGLETON(ezBaking);
+
+ezBaking::ezBaking()
+  : m_SingletonRegistrar(this)
+{
+}
+
+void ezBaking::Startup()
+{
+}
+
+void ezBaking::Shutdown()
+{
+  s_BakingScenes.Clear();
+}
+
+ezBakingScene* ezBaking::GetOrCreateScene(const ezWorld& world)
+{
+  const ezUInt32 uiWorldIndex = world.GetIndex();
+
+  s_BakingScenes.EnsureCount(uiWorldIndex + 1);
+  if (s_BakingScenes[uiWorldIndex] == nullptr)
+  {
+    auto pScene = EZ_DEFAULT_NEW(ezBakingScene);
+    pScene->m_uiWorldIndex = uiWorldIndex;
+
+    s_BakingScenes[uiWorldIndex] = pScene;
+  }
+
+  return s_BakingScenes[uiWorldIndex].Borrow();
+}
+
+ezBakingScene* ezBaking::GetScene(const ezWorld& world)
+{
+  const ezUInt32 uiWorldIndex = world.GetIndex();
+
+  if (uiWorldIndex < s_BakingScenes.GetCount())
+  {
+    return s_BakingScenes[uiWorldIndex].Borrow();
+  }
+
+  return nullptr;
+}
+
+const ezBakingScene* ezBaking::GetScene(const ezWorld& world) const
+{
+  const ezUInt32 uiWorldIndex = world.GetIndex();
+
+  if (uiWorldIndex < s_BakingScenes.GetCount())
+  {
+    return s_BakingScenes[uiWorldIndex].Borrow();
+  }
+
+  return nullptr;
+}
+
+ezResult ezBaking::RenderDebugView(const ezWorld& world, const ezMat4& InverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_Pixels, ezProgress& progress) const
+{
+  if (const ezBakingScene* pScene = GetScene(world))
+  {
+    return pScene->RenderDebugView(InverseViewProjection, uiWidth, uiHeight, out_Pixels, progress);
+  }
+
+  return EZ_FAILURE;
+}

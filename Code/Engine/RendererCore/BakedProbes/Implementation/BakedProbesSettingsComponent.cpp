@@ -42,7 +42,7 @@ struct ezBakedProbesSettingsComponent::RenderDebugViewTask : public ezTask
       }
     });
 
-    if (m_pBakingInterface->RenderDebugView(m_InverseViewProjection, m_uiWidth, m_uiHeight, m_PixelData, progress).Succeeded())
+    if (m_pBakingInterface->RenderDebugView(*m_pWorld, m_InverseViewProjection, m_uiWidth, m_uiHeight, m_PixelData, progress).Succeeded())
     {
       m_bHasNewData = true;
     }
@@ -50,6 +50,7 @@ struct ezBakedProbesSettingsComponent::RenderDebugViewTask : public ezTask
 
   ezBakingInterface* m_pBakingInterface = nullptr;
 
+  const ezWorld* m_pWorld = nullptr;
   ezMat4 m_InverseViewProjection = ezMat4::IdentityMatrix();
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
@@ -342,6 +343,7 @@ void ezBakedProbesSettingsComponent::RenderDebugOverlay()
     ezTaskSystem::CancelTask(m_pRenderDebugViewTask).IgnoreResult();
 
     m_pRenderDebugViewTask->m_pBakingInterface = pBakingInterface;
+    m_pRenderDebugViewTask->m_pWorld = GetWorld();
     m_pRenderDebugViewTask->m_InverseViewProjection = inverseViewProjection;
     m_pRenderDebugViewTask->m_uiWidth = uiWidth;
     m_pRenderDebugViewTask->m_uiHeight = uiHeight;
