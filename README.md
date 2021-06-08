@@ -21,25 +21,25 @@ If you have a question, [contact us](https://ezengine.net/getting-started/contac
 | Android-x86     | ![Android-x86](https://img.shields.io/azure-devops/build/ezEngineCI/3be75850-43b5-4a0a-a9b3-9b1693a5beed/5/dev?style=flat-square) |
 
 > **Note:**
-> 
+>
 > Please be aware that features such as rendering and the editor are only available on Windows-x64. On all other platforms we only compile and test the core engine functionality.
 
 ## Screenshots
 
-[ezEditor](http://ezengine.net/docs/getting-started/editor-overview.html):
+[ezEditor](https://ezengine.net/pages/getting-started/editor-overview.html):
 
-![ezEditor](http://ezengine.net/docs/editor/media/ezEditor.jpg)
+![ezEditor](https://ezengine.net/pages/docs/editor/media/ezEditor.jpg)
 
-![Testing Chamber](http://ezengine.net/docs/samples/media/tc1.jpg)
+![Testing Chamber](https://ezengine.net/pages/samples/media/tc1.jpg)
 
-[RTS Sample](https://ezengine.net/docs/samples/rts.html):
+[RTS Sample](https://ezengine.net/pages/samples/rts.html):
 
-![RTS1](http://ezengine.net/docs/samples/media/rts1.jpg)
+![RTS1](https://ezengine.net/pages/samples/media/rts1.jpg)
 
-[Asteroids Sample](http://ezengine.net/docs/samples/asteroids.html):
+[Asteroids Sample](https://ezengine.net/pages/samples/asteroids.html):
 
-![Asteroids](http://ezengine.net/docs/samples/media/asteroids1.jpg)
+![Asteroids](https://ezengine.net/pages/samples/media/asteroids1.jpg)
 
-[ezInspector](http://ezengine.net/docs/tools/inspector.html):
+[ezInspector](https://ezengine.net/pages/docs/tools/inspector.html):
 
-![ezInspector](http://ezengine.net/docs/tools/media/inspector.jpg)
+![ezInspector](https://ezengine.net/pages/docs/tools/media/inspector.jpg)
