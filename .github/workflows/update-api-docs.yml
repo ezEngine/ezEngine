@@ -1,0 +1,59 @@
+name: Update API Docs
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y graphviz
+          sudo apt-get install -y doxygen
+
+      - name: Run Doxygen
+        run: |
+          mkdir Output
+          cd Documentation
+          doxygen Doxyfile
+
+      - name: Checkout host repository
+        uses: actions/checkout@v2
+        with:
+          repository: ezEngine/api-docs
+          path: _generated
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Copy to host repository
+        run: |
+          rm -rf _generated/docs/*
+          cp -r Output/Doxygen/html/* _generated/docs
+
+      - name: Commit
+        run: |
+          export GIT_COMMITTER_NAME=$(git show -s --format='%cn')
+          export GIT_COMMITTER_EMAIL=$(git show -s --format='%ce')
+          export GIT_AUTHOR_NAME=$(git show -s --format='%an')
+          export GIT_AUTHOR_EMAIL=$(git show -s --format='%ae')
+          export COMMIT_HASH=$(git show -s --format='%H')
+          export SUBJECT=$(git show -s --format='%s')
+          cd _generated
+          git add .
+          git commit -m "$SUBJECT" -m "Original commit: $COMMIT_HASH"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.API_TOKEN_GITHUB }}
+          branch: main
+          directory: _generated
+          repository: ezEngine/api-docs
+          force: true
