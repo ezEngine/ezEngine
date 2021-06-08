@@ -1,28 +1,16 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
-#include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
-#include <Foundation/IO/DirectoryWatcher.h>
-#include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <QSplitter>
-#include <QTextEdit>
-#include <QTimer>
-#include <SharedPluginAssets/Common/Messages.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <VisualShader/VisualShaderScene.moc.h>
 
@@ -66,11 +54,11 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(ezVec3(+1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90, 0.01f, 100.0f);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(-0.2, 0, 0));
+    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(+0.2, 0, 0));
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
@@ -156,11 +144,9 @@ ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
   RestoreResource();
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
-  const bool bCustom =
-    GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
   if (bCustom)
   {
@@ -224,8 +210,7 @@ void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 {
   ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)GetMaterialDocument()->GetDocumentManager();
 
-  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(),
-    GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(), GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   if (ezOSFile::ExistsFile(sAutoGenShader))
   {
@@ -262,7 +247,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetMaterialDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
-  AssetHeader.Write(memoryWriter);
+  AssetHeader.Write(memoryWriter).IgnoreResult();
   // Write Asset Data
   GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false);
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
@@ -317,8 +302,7 @@ void ezQtMaterialAssetDocumentWindow::RestoreResource()
 
 void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
-  const bool bCustom =
-    GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
   m_pVsePanel->setVisible(bCustom);
 

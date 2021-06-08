@@ -1,6 +1,7 @@
 #pragma once
 
-#include <GameEngine/Interfaces/WindWorldModule.h>
+#include <Core/Interfaces/WindWorldModule.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class EZ_GAMEENGINE_DLL ezSimpleWindWorldModule : public ezWindWorldModuleInterface
 {
@@ -11,7 +12,7 @@ public:
   ezSimpleWindWorldModule(ezWorld* pWorld);
   ~ezSimpleWindWorldModule();
 
-  virtual ezVec3 GetWindAt(const ezVec3& vPosition) override;
+  virtual ezVec3 GetWindAt(const ezVec3& vPosition) const override;
 
   void SetFallbackWind(const ezVec3& vWind);
 

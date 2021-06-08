@@ -11,6 +11,7 @@ class ezProfilingId;
 class ezView;
 class ezRenderPipelinePass;
 class ezFrameDataProviderBase;
+struct ezPermutationVar;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
 {
@@ -136,4 +137,6 @@ private: // Member data
   // Data Providers
   mutable ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
   mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
+
+  ezDynamicArray<ezPermutationVar> m_PermutationVars;
 };

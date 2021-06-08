@@ -1,23 +1,18 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
-#include <GameEngine/ActorSystem/ActorPluginWindow.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
-#include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/Image.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
@@ -59,9 +54,9 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   {
     ezImage img;
     ezActorPluginWindow* pWindow = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
-    pWindow->GetOutputTarget()->CaptureImage(img);
+    pWindow->GetOutputTarget()->CaptureImage(img).IgnoreResult();
 
-    img.SaveTo(msg->m_sOutputFile);
+    img.SaveTo(msg->m_sOutputFile).IgnoreResult();
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
@@ -274,4 +269,94 @@ ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPi
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
 {
   return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
+}
+
+void ezEngineProcessViewContext::DrawSimpleGrid() const
+{
+  ezDynamicArray<ezDebugRenderer::Line> lines;
+  lines.Reserve(2 * (10 + 1 + 10) + 4);
+
+  // arrows
+
+  const float f = 1.0f;
+
+  {
+    auto& l = lines.ExpandAndGetRef();
+    l.m_start.Set(f, 0.0f, 0.0f);
+    l.m_end.Set(f - 0.25f, 0.25f, 0.0f);
+    l.m_startColor = ezColor(0.5f, 0, 0);
+    l.m_endColor = l.m_startColor;
+  }
+
+  {
+    auto& l = lines.ExpandAndGetRef();
+    l.m_start.Set(f, 0.0f, 0.0f);
+    l.m_end.Set(f - 0.25f, -0.25f, 0.0f);
+    l.m_startColor = ezColor(0.5f, 0, 0);
+    l.m_endColor = l.m_startColor;
+  }
+
+  {
+    auto& l = lines.ExpandAndGetRef();
+    l.m_start.Set(0.0f, f, 0.0f);
+    l.m_end.Set(0.25f, f - 0.25f, 0.0f);
+    l.m_startColor = ezColor(0, 0.5f, 0);
+    l.m_endColor = l.m_startColor;
+  }
+
+  {
+    auto& l = lines.ExpandAndGetRef();
+    l.m_start.Set(0.0f, f, 0.0f);
+    l.m_end.Set(-0.25f, f - 0.25f, 0.0f);
+    l.m_startColor = ezColor(0, 0.5f, 0);
+    l.m_endColor = l.m_startColor;
+  }
+
+  {
+    const float x = 10.0f;
+
+    for (ezInt32 y = -10; y <= +10; ++y)
+    {
+      auto& line = lines.ExpandAndGetRef();
+
+      line.m_start.Set((float)-x, (float)y, 0.0f);
+      line.m_end.Set((float)+x, (float)y, 0.0f);
+
+      if (y == 0)
+      {
+        line.m_startColor = ezColor(0.5f, 0, 0);
+      }
+      else
+      {
+        line.m_startColor = ezColor(0.3f, 0.3f, 0.3f);
+      }
+
+      line.m_endColor = line.m_startColor;
+    }
+  }
+
+  {
+    const float y = 10.0f;
+
+    for (ezInt32 x = -10; x <= +10; ++x)
+    {
+      auto& line = lines.ExpandAndGetRef();
+
+      line.m_start.Set((float)x, (float)-y, 0.0f);
+      line.m_end.Set((float)x, (float)+y, 0.0f);
+
+      if (x == 0)
+      {
+        line.m_startColor = ezColor(0, 0.5f, 0);
+      }
+      else
+      {
+        line.m_startColor = ezColor(0.3f, 0.3f, 0.3f);
+      }
+
+      line.m_endColor = line.m_startColor;
+    }
+  }
+
+  ezDebugRenderer::DrawLines(m_hView, lines, ezColor::White);
 }

@@ -150,7 +150,7 @@ public:
   /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
   static void InitializeGPUData();
 
-  /// \brief Adds a Gpu profiling scope in the internal event ringbuffer.
+  /// \brief Adds a GPU profiling scope in the internal event ringbuffer.
   static void AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime);
 };
 
@@ -178,7 +178,7 @@ public:
 ///
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_NEXT_SECTION
-#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName)                                                                                      \
+#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) \
     ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szListName, szFirstSectionName, EZ_SOURCE_FUNCTION)
 
 /// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE

@@ -3,7 +3,6 @@
 #include <EditorPluginProcGen/Actions/ProcGenActions.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 
 ezActionDescriptorHandle ezProcGenActions::s_hCategory;
 ezActionDescriptorHandle ezProcGenActions::s_hDumpAST;

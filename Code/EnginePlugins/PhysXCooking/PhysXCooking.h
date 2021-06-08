@@ -29,16 +29,27 @@ public:
   static void Startup();
   static void Shutdown();
 
+  enum class MeshType
+  {
+    Triangle,
+    ConvexHull,
+    ConvexDecomposition
+  };
+
   static ezResult CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
   static ezResult CookConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
   static ezResult ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhysXCookingMesh& outMesh);
-  static ezStatus WriteResourceToStream(
-    ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, bool bConvexMesh);
+  static ezStatus WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, MeshType meshType, ezUInt32 uiMaxConvexPieces = 1);
+
+#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
+  static ezResult CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces);
+#endif
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXCooking);
 
   static void CreateMeshDesc(const ezPhysXCookingMesh& mesh, physx::PxSimpleTriangleMesh& desc, ezDynamicArray<ezUInt32>& TriangleIndices);
+  static ezResult CookSingleConvexPxMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
 
   static PxCooking* s_pCooking;
   static ezPhysXInterface* s_pPhysX;

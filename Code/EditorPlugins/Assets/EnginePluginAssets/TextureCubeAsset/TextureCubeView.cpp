@@ -3,10 +3,7 @@
 #include <EnginePluginAssets/TextureCubeAsset/TextureCubeContext.h>
 #include <EnginePluginAssets/TextureCubeAsset/TextureCubeView.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezTextureCubeViewContext::ezTextureCubeViewContext(ezTextureCubeContext* pContext)

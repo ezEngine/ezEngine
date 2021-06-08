@@ -26,8 +26,9 @@ public:
   /// \brief Returns the bounds of this mesh.
   const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
-  /// \brief Returns the skeleton for this mesh. Will be an invalid handle for static meshes.
-  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
+  // TODO: clean up
+  ezSkeletonResourceHandle m_hDefaultSkeleton;
+  ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData> m_Bones;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -37,7 +38,6 @@ private:
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
-  ezSkeletonResourceHandle m_hSkeleton;
 
   ezBoundingBoxSphere m_Bounds;
 

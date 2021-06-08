@@ -2,9 +2,6 @@
 
 #include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QMessageBox>
 
 ezQtEnginePluginConfigDlg::ezQtEnginePluginConfigDlg(QWidget* parent)
   : QDialog(parent)

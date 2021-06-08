@@ -1,6 +1,6 @@
 #pragma once
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
 
 // For stereo support, set this at the beginning of the shader to access the correct values in all camera getters.
 static uint s_ActiveCameraEyeIndex = 0;

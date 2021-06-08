@@ -36,6 +36,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     s.ExpandToInclude(ezSimdVec4f(3, 0, 0));
 
     EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(0, 0, 0, 3)).AllSet());
+
+    s.SetInvalid();
+
+    s.ExpandToInclude(ezSimdVec4f(0.25, 0, 0));
+
+    EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(0, 0, 0, 0.25)).AllSet());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(array)")

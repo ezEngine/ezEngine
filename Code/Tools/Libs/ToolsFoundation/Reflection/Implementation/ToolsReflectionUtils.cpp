@@ -4,6 +4,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -100,6 +101,8 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
 
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
+
   switch (pProperty->GetCategory())
   {
     case ezPropertyCategory::Member:
@@ -110,7 +113,7 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
     case ezPropertyCategory::Array:
     case ezPropertyCategory::Set:
     {
-      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType) && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
+      if (bIsValueType && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
       {
         const ezVariantArray& value = pAttrib->GetValue().Get<ezVariantArray>();
         ezVariantArray ret;
@@ -264,27 +267,6 @@ static void GatherObjectTypesInternal(const ezDocumentObject* pObject, ezSet<con
 void ezToolsReflectionUtils::GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types)
 {
   GatherObjectTypesInternal(pObject, inout_types);
-}
-
-void ezToolsReflectionUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph)
-{
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&typesGraph, &context, true, true);
-  for (const ezRTTI* pType : types)
-  {
-    ezReflectedTypeDescriptor desc;
-    if (pType->GetTypeFlags().IsSet(ezTypeFlags::Phantom))
-    {
-      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, desc);
-    }
-    else
-    {
-      ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pType, desc);
-    }
-
-    context.RegisterObject(ezUuid::StableUuidForString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-    rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-  }
 }
 
 bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors)

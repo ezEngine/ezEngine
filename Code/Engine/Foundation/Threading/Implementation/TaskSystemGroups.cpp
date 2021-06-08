@@ -54,8 +54,7 @@ void ezTaskSystem::AddTaskToGroup(ezTaskGroupID groupID, const ezSharedPtr<ezTas
 void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID groupID, ezTaskGroupID DependsOn)
 {
   EZ_ASSERT_DEBUG(DependsOn.IsValid(), "Invalid dependency");
-  EZ_ASSERT_DEBUG(
-    groupID.m_pTaskGroup != DependsOn.m_pTaskGroup || groupID.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
+  EZ_ASSERT_DEBUG(groupID.m_pTaskGroup != DependsOn.m_pTaskGroup || groupID.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
@@ -77,8 +76,7 @@ void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDepen
 
 void ezTaskSystem::StartTaskGroup(ezTaskGroupID groupID)
 {
-  if (s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].GetCount() == 0)
-    SetWorkerThreadCount(-1, -1); // set the default number of threads, if none are started yet
+  EZ_ASSERT_DEV(s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].GetCount() > 0, "No worker threads started.");
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
@@ -266,7 +264,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
     // now cancel the tasks in the group again, this time wait for those that are already running
     for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)
     {
-      CancelTask(TasksCopy[task], ezOnTaskRunning::WaitTillFinished);
+      CancelTask(TasksCopy[task], ezOnTaskRunning::WaitTillFinished).IgnoreResult();
     }
   }
 
@@ -277,9 +275,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
 {
   EZ_PROFILE_SCOPE("WaitForGroup");
 
-  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks,
-    "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.",
-    tl_TaskWorkerInfo.m_szTaskName);
+  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
 
   const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
   const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
@@ -290,8 +286,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
     {
       if (bAllowSleep)
       {
-        const ezWorkerThreadType::Enum typeToWakeUp =
-          (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
+        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
         if (tl_TaskWorkerInfo.m_pWorkerState)
         {
@@ -321,9 +316,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
 {
   EZ_PROFILE_SCOPE("WaitForCondition");
 
-  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks,
-    "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.",
-    tl_TaskWorkerInfo.m_szTaskName);
+  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
 
   const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
   const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
@@ -334,8 +327,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
     {
       if (bAllowSleep)
       {
-        const ezWorkerThreadType::Enum typeToWakeUp =
-          (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
+        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
         if (tl_TaskWorkerInfo.m_pWorkerState)
         {

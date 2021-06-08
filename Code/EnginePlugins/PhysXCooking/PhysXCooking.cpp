@@ -10,6 +10,9 @@
 #include <PhysXCooking/PhysXCooking.h>
 #include <PxPhysicsAPI.h>
 
+#include <vhacd/public/VHACD.h>
+using namespace VHACD;
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
@@ -134,12 +137,23 @@ ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStre
 
 ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStreamWriter& OutputStream)
 {
-  ezProgressRange range("Cooking Convex Mesh", 4, false);
+  ezProgressRange range("Cooking Convex Mesh", 2, false);
 
   range.BeginNextStep("Computing Convex Hull");
 
   ezPhysXCookingMesh mesh;
   EZ_SUCCEED_OR_RETURN(ComputeConvexHull(mesh0, mesh));
+
+  range.BeginNextStep("Cooking Convex Hull");
+
+  EZ_SUCCEED_OR_RETURN(CookSingleConvexPxMesh(mesh, OutputStream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPhysXCooking::CookSingleConvexPxMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream)
+{
+  ezProgressRange range("Cooking Convex PhysX Mesh", 3, false);
 
   if (mesh.m_PolygonIndices.IsEmpty() || mesh.m_Vertices.IsEmpty())
   {
@@ -311,8 +325,7 @@ void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTria
   EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
 }
 
-ezStatus ezPhysXCooking::WriteResourceToStream(
-  ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
+ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, MeshType meshType, ezUInt32 uiMaxConvexPieces)
 {
   ezResult resCooking = EZ_FAILURE;
 
@@ -340,7 +353,7 @@ ezStatus ezPhysXCooking::WriteResourceToStream(
     stream.EndChunk();
   }
 
-  if (!bConvexMesh)
+  if (meshType == MeshType::Triangle)
   {
     stream.BeginChunk("TriangleMesh", 1);
 
@@ -352,13 +365,32 @@ ezStatus ezPhysXCooking::WriteResourceToStream(
   }
   else
   {
-    stream.BeginChunk("ConvexMesh", 1);
+    if (meshType == MeshType::ConvexDecomposition)
+    {
+#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
+      stream.BeginChunk("ConvexDecompositionMesh", 1);
 
-    ezStopwatch timer;
-    resCooking = ezPhysXCooking::CookConvexMesh(mesh, stream);
-    ezLog::Dev("Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+      ezStopwatch timer;
+      resCooking = ezPhysXCooking::CookDecomposedConvexMesh(mesh, stream, uiMaxConvexPieces);
+      ezLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
-    stream.EndChunk();
+      stream.EndChunk();
+#else
+      meshType = MeshType::ConvexHull;
+      ezLog::SeriousWarning("Convex decomposition support is not available. Computing convex hull instead.");
+#endif
+    }
+
+    if (meshType == MeshType::ConvexHull)
+    {
+      stream.BeginChunk("ConvexMesh", 1);
+
+      ezStopwatch timer;
+      resCooking = ezPhysXCooking::CookConvexMesh(mesh, stream);
+      ezLog::Dev("Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+
+      stream.EndChunk();
+    }
   }
 
   if (resCooking.Failed())
@@ -367,5 +399,102 @@ ezStatus ezPhysXCooking::WriteResourceToStream(
 
   return ezStatus(EZ_SUCCESS);
 }
+
+#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
+ezResult ezPhysXCooking::CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces)
+{
+  EZ_LOG_BLOCK("Decomposing Mesh");
+
+  IVHACD* pConDec = CreateVHACD();
+  IVHACD::Parameters params;
+  params.Init();
+  params.m_maxConvexHulls = ezMath::Max(1u, uiMaxConvexPieces);
+
+  if (uiMaxConvexPieces <= 2)
+  {
+    params.m_resolution = 10 * 10 * 10;
+  }
+  else if (uiMaxConvexPieces <= 5)
+  {
+    params.m_resolution = 20 * 20 * 20;
+  }
+  else if (uiMaxConvexPieces <= 10)
+  {
+    params.m_resolution = 40 * 40 * 40;
+  }
+  else if (uiMaxConvexPieces <= 25)
+  {
+    params.m_resolution = 60 * 60 * 60;
+  }
+  else if (uiMaxConvexPieces <= 50)
+  {
+    params.m_resolution = 80 * 80 * 80;
+  }
+  else
+  {
+    params.m_resolution = 100 * 100 * 100;
+  }
+
+  if (!pConDec->Compute(mesh.m_Vertices.GetData()->GetData(), mesh.m_Vertices.GetCount(), mesh.m_PolygonIndices.GetData(), mesh.m_VerticesInPolygon.GetCount(), params))
+  {
+    ezLog::Error("Failed to compute convex decomposition");
+    return EZ_FAILURE;
+  }
+
+  ezUInt16 uiNumParts = 0;
+
+  for (ezUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
+  {
+    IVHACD::ConvexHull ch;
+    pConDec->GetConvexHull(i, ch);
+
+    if (ch.m_nTriangles == 0)
+      continue;
+
+    ++uiNumParts;
+  }
+
+  ezLog::Dev("Convex mesh parts: {}", uiNumParts);
+
+  OutputStream << uiNumParts;
+
+  for (ezUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
+  {
+    IVHACD::ConvexHull ch;
+    pConDec->GetConvexHull(i, ch);
+
+    if (ch.m_nTriangles == 0)
+      continue;
+
+    ezPhysXCookingMesh chm;
+
+    chm.m_Vertices.SetCount(ch.m_nPoints);
+
+    for (ezUInt32 v = 0; v < ch.m_nPoints; ++v)
+    {
+      chm.m_Vertices[v].Set((float)ch.m_points[v * 3 + 0], (float)ch.m_points[v * 3 + 1], (float)ch.m_points[v * 3 + 2]);
+    }
+
+    chm.m_VerticesInPolygon.SetCount(ch.m_nTriangles);
+    chm.m_PolygonSurfaceID.SetCount(ch.m_nTriangles);
+    chm.m_PolygonIndices.SetCount(ch.m_nTriangles * 3);
+
+    for (ezUInt32 t = 0; t < ch.m_nTriangles; ++t)
+    {
+      chm.m_VerticesInPolygon[t] = 3;
+      chm.m_PolygonSurfaceID[t] = 0;
+
+      chm.m_PolygonIndices[t * 3 + 0] = ch.m_triangles[t * 3 + 0];
+      chm.m_PolygonIndices[t * 3 + 1] = ch.m_triangles[t * 3 + 1];
+      chm.m_PolygonIndices[t * 3 + 2] = ch.m_triangles[t * 3 + 2];
+    }
+
+    EZ_SUCCEED_OR_RETURN(CookSingleConvexPxMesh(chm, OutputStream));
+  }
+
+  return EZ_SUCCESS;
+}
+
+#endif
 
 EZ_STATICLINK_FILE(PhysXCooking, PhysXCooking_PhysXCooking);

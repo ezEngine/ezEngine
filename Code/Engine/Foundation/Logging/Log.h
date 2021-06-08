@@ -2,6 +2,7 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Time/Time.h>
@@ -11,8 +12,8 @@
 #define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
 /// \brief Use this helper macro to easily mute all logging in a scope.
-#define EZ_LOG_BLOCK_MUTE()                                                                                                                          \
-  ezMuteLog EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE);                                                                                               \
+#define EZ_LOG_BLOCK_MUTE()                            \
+  ezMuteLog EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE); \
   ezLogSystemScope EZ_CONCAT(_logscope_, EZ_SOURCE_LINE)(&EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE))
 
 // Forward declaration, class is at the end of this file
@@ -26,7 +27,8 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 
   enum Enum : ezInt8
   {
-    Flush = -3,            ///< The user explicitly called ezLog::Flush() to instruct log writers to flush any cached output
+    GlobalDefault = -4,    ///< Takes the log level from the ezLog default value. See ezLog::SetDefaultLogLevel().
+    Flush = -3,            ///< The user explicitly called ezLog::Flush() to instruct log writers to flush any cached output.
     BeginGroup = -2,       ///< A logging group has been opened.
     EndGroup = -1,         ///< A logging group has been closed.
     None = 0,              ///< Can be used to disable all log message types.
@@ -88,7 +90,7 @@ private:
   friend class ezLog;
   friend class ezLogBlock;
   ezLogBlock* m_pCurrentBlock = nullptr;
-  ezLogMsgType::Enum m_LogLevel = ezLogMsgType::All;
+  ezLogMsgType::Enum m_LogLevel = ezLogMsgType::GlobalDefault;
   ezUInt32 m_uiLoggedMsgsSinceFlush = 0;
   ezTime m_LastFlushTime;
 };
@@ -99,6 +101,11 @@ private:
 class ezMuteLog : public ezLogInterface
 {
 public:
+  ezMuteLog()
+  {
+    SetLogLevel(ezLogMsgType::None);
+  }
+
   virtual void HandleLogMessage(const ezLoggingEventData&) override {}
 };
 
@@ -168,10 +175,11 @@ public:
   /// \brief Returns the currently set default logging system, or a thread local instance of ezGlobalLog, if nothing else was set.
   static ezLogInterface* GetThreadLocalLogSystem();
 
-  /// \brief Sets the default log level which is used when new per thread logging systems are created on demand.
-  ///
-  /// Note that changes using this method will not affect already created log systems.
+  /// \brief Sets the default log level which is used by all ezLogInterface's that have their log level set to ezLogMsgType::GlobalDefault
   static void SetDefaultLogLevel(ezLogMsgType::Enum LogLevel);
+
+  /// \brief Returns the currently set default log level.
+  static ezLogMsgType::Enum GetDefaultLogLevel();
 
   /// \brief An error that needs to be fixed as soon as possible.
   static void Error(ezLogInterface* pInterface, const ezFormatString& string);
@@ -316,8 +324,7 @@ public:
   /// However, a flush is always ignored if not a single message was logged in between.
   ///
   /// \return Returns true if the flush is executed.
-  static bool Flush(
-    ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::Seconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
+  static bool Flush(ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::Seconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
 
   /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
   /// pInterface must be != nullptr.
@@ -335,6 +342,11 @@ public:
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
   /// \sa ezLog::Print
   static void Printf(const char* szFormat, ...);
+
+  /// \brief Shows a simple message box using the OS functionality.
+  ///
+  /// This should only be used for critical information that can't be conveyed in another way.
+  static void OsMessageBox(const ezFormatString& text);
 
   /// \brief This enum is used in context of outputting timestamp information to indicate a formatting for said timestamps.
   enum class TimestampMode
@@ -418,6 +430,36 @@ protected:
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezLogSystemScope);
+};
+
+
+/// \brief A simple log interface implementation that gathers all messages in a string buffer.
+class ezLogSystemToBuffer : public ezLogInterface
+{
+public:
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override
+  {
+    switch (le.m_EventType)
+    {
+      case ezLogMsgType::ErrorMsg:
+        m_sBuffer.Append("Error: ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::SeriousWarningMsg:
+      case ezLogMsgType::WarningMsg:
+        m_sBuffer.Append("Warning: ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::SuccessMsg:
+      case ezLogMsgType::InfoMsg:
+      case ezLogMsgType::DevMsg:
+      case ezLogMsgType::DebugMsg:
+        m_sBuffer.Append(le.m_szText, "\n");
+        break;
+      default:
+        break;
+    }
+  }
+
+  ezStringBuilder m_sBuffer;
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>

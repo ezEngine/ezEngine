@@ -104,6 +104,6 @@ void ezDynamicStringEnum::SaveToStorage()
   for (const auto& val : m_ValidValues)
   {
     tmp.Set(val, "\n");
-    file.WriteBytes(tmp.GetData(), tmp.GetElementCount());
+    file.WriteBytes(tmp.GetData(), tmp.GetElementCount()).IgnoreResult();
   }
 }

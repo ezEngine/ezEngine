@@ -35,10 +35,7 @@ public:
   // ezString m_sSharedInstanceName;
 
   virtual void CreateRequiredStreams() override;
-  virtual void ExtractTypeRenderData(
-    const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override
-  {
-  }
+  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const override;
 
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return m_fMaxEffectRadius; }
 

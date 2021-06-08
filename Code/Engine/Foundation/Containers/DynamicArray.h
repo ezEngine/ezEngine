@@ -4,17 +4,17 @@
 #include <Foundation/Memory/AllocatorWrapper.h>
 #include <Foundation/Types/PointerWithFlags.h>
 
-/// \brief Implementation a dynamically growing array.
+/// \brief Implementation of a dynamically growing array.
 ///
-/// Best-case performance for the PushBack operation is in O(1) if the ezDynamicArray does not need to be expanded.
-/// In the worst case, PushBack is in O(n).
-/// Look-up is guaranteed to always be in O(1).
+/// Best-case performance for the PushBack operation is O(1) if the ezDynamicArray doesn't need to be expanded.
+/// In the worst case, PushBack is O(n).
+/// Look-up is guaranteed to always be O(1).
 template <typename T>
 class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T>>
 {
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
-  ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
 
   ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator); // [tested]
 
@@ -84,7 +84,7 @@ public:
 
 
   ezDynamicArray();
-  ezDynamicArray(ezAllocatorBase* pAllocator);
+  explicit ezDynamicArray(ezAllocatorBase* pAllocator);
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);

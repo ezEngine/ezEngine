@@ -127,19 +127,17 @@ public:
   EZ_ALWAYS_INLINE iterator_base operator+(ptrdiff_t rhs) const { return iterator_base(*this->m_Array, this->m_iIndex + rhs); }
   EZ_ALWAYS_INLINE iterator_base operator-(ptrdiff_t rhs) const { return iterator_base(*this->m_Array, this->m_iIndex - rhs); }
 
-  using const_iterator_base<ARRAY, T, reverse>::operator*;
-  inline T& operator*()
+  inline T& operator*() const
   {
     if (reverse)
       return (*this->m_Array)[this->m_Array->GetCount() - (ezUInt32)this->m_iIndex - 1];
     else
       return (*this->m_Array)[(ezUInt32)this->m_iIndex];
   }
-  using const_iterator_base<ARRAY, T, reverse>::operator->;
-  EZ_ALWAYS_INLINE T* operator->() { return &(**this); }
 
-  using const_iterator_base<ARRAY, T, reverse>::operator[];
-  EZ_ALWAYS_INLINE T& operator[](size_t index)
+  EZ_ALWAYS_INLINE T* operator->() const { return &(**this); }
+
+  EZ_ALWAYS_INLINE T& operator[](size_t index) const
   {
     if (reverse)
       return (*this->m_Array)[this->m_Array->GetCount() - static_cast<ezUInt32>(this->m_iIndex + index) - 1];
@@ -254,11 +252,7 @@ public:
   EZ_ALWAYS_INLINE reverse_pointer_iterator operator+(ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_ptr - rhs); }
   EZ_ALWAYS_INLINE reverse_pointer_iterator operator-(ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_ptr + rhs); }
 
-  using const_reverse_pointer_iterator<T>::operator*;
-  EZ_ALWAYS_INLINE T& operator*() { return *(this->m_ptr); }
-  using const_reverse_pointer_iterator<T>::operator->;
-  EZ_ALWAYS_INLINE T* operator->() { return this->m_ptr; }
-
-  using const_reverse_pointer_iterator<T>::operator[];
-  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t index) { return *(this->m_ptr - index); }
+  EZ_ALWAYS_INLINE T& operator*() const { return *(this->m_ptr); }
+  EZ_ALWAYS_INLINE T* operator->() const { return this->m_ptr; }
+  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t index) const { return *(this->m_ptr - index); }
 };

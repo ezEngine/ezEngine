@@ -2,8 +2,6 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::SaveRecentFiles()
@@ -80,7 +78,7 @@ void ezQtEditorApp::SaveSettings()
     ezPreferences::SaveProjectPreferences();
     SaveOpenDocumentsList();
 
-    m_FileSystemConfig.Save();
-    m_EnginePluginConfig.Save();
+    m_FileSystemConfig.Save().IgnoreResult();
+    m_EnginePluginConfig.Save().IgnoreResult();
   }
 }

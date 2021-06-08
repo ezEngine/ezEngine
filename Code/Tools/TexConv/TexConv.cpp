@@ -4,81 +4,12 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <TexConv/TexConv.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/StbImageFileFormats.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 ezTexConv::ezTexConv()
   : ezApplication("TexConv")
 {
-  // texture types
-  {
-    m_AllowedOutputTypes.PushBack({"2D", ezTexConvOutputType::Texture2D});
-    m_AllowedOutputTypes.PushBack({"Volume", ezTexConvOutputType::Volume});
-    m_AllowedOutputTypes.PushBack({"Cubemap", ezTexConvOutputType::Cubemap});
-    m_AllowedOutputTypes.PushBack({"Atlas", ezTexConvOutputType::Atlas});
-  }
-
-  // texture usages
-  {
-    m_AllowedUsages.PushBack({"Auto", ezTexConvUsage::Auto});
-    m_AllowedUsages.PushBack({"Color", ezTexConvUsage::Color});
-    m_AllowedUsages.PushBack({"Linear", ezTexConvUsage::Linear});
-    m_AllowedUsages.PushBack({"Hdr", ezTexConvUsage::Hdr});
-    m_AllowedUsages.PushBack({"NormalMap", ezTexConvUsage::NormalMap});
-    m_AllowedUsages.PushBack({"NormalMap_Inverted", ezTexConvUsage::NormalMap_Inverted});
-    m_AllowedUsages.PushBack({"BumpMap", ezTexConvUsage::BumpMap});
-  }
-
-  // mipmap modes
-  {
-    m_AllowedMimapModes.PushBack({"Linear", ezTexConvMipmapMode::Linear});
-    m_AllowedMimapModes.PushBack({"Kaiser", ezTexConvMipmapMode::Kaiser});
-    m_AllowedMimapModes.PushBack({"None", ezTexConvMipmapMode::None});
-  }
-
-  // platforms
-  {
-    m_AllowedPlatforms.PushBack({"PC", ezTexConvTargetPlatform::PC});
-    m_AllowedPlatforms.PushBack({"Android", ezTexConvTargetPlatform::Android});
-  }
-
-  // compression modes
-  {
-    m_AllowedCompressionModes.PushBack({"Medium", ezTexConvCompressionMode::Medium});
-    m_AllowedCompressionModes.PushBack({"High", ezTexConvCompressionMode::High});
-    m_AllowedCompressionModes.PushBack({"None", ezTexConvCompressionMode::None});
-  }
-
-  // wrap modes
-  {
-    m_AllowedWrapModes.PushBack({"Repeat", ezImageAddressMode::Repeat});
-    m_AllowedWrapModes.PushBack({"Clamp", ezImageAddressMode::Clamp});
-    m_AllowedWrapModes.PushBack({"ClampBorder", ezImageAddressMode::ClampBorder});
-    m_AllowedWrapModes.PushBack({"Mirror", ezImageAddressMode::Mirror});
-  }
-
-  // filter modes
-  {
-    m_AllowedFilterModes.PushBack({"Default", ezTextureFilterSetting::DefaultQuality});
-    m_AllowedFilterModes.PushBack({"Lowest", ezTextureFilterSetting::LowestQuality});
-    m_AllowedFilterModes.PushBack({"Low", ezTextureFilterSetting::LowQuality});
-    m_AllowedFilterModes.PushBack({"High", ezTextureFilterSetting::HighQuality});
-    m_AllowedFilterModes.PushBack({"Highest", ezTextureFilterSetting::HighestQuality});
-
-    m_AllowedFilterModes.PushBack({"Nearest", ezTextureFilterSetting::FixedNearest});
-    m_AllowedFilterModes.PushBack({"Bilinear", ezTextureFilterSetting::FixedBilinear});
-    m_AllowedFilterModes.PushBack({"Trilinear", ezTextureFilterSetting::FixedTrilinear});
-    m_AllowedFilterModes.PushBack({"Aniso2x", ezTextureFilterSetting::FixedAnisotropic2x});
-    m_AllowedFilterModes.PushBack({"Aniso4x", ezTextureFilterSetting::FixedAnisotropic4x});
-    m_AllowedFilterModes.PushBack({"Aniso8x", ezTextureFilterSetting::FixedAnisotropic8x});
-    m_AllowedFilterModes.PushBack({"Aniso16x", ezTextureFilterSetting::FixedAnisotropic16x});
-  }
-
-  // bump map modes
-  {
-    m_AllowedBumpMapFilters.PushBack({"Finite", ezTexConvBumpMapFilter::Finite});
-    m_AllowedBumpMapFilters.PushBack({"Sobel", ezTexConvBumpMapFilter::Sobel});
-    m_AllowedBumpMapFilters.PushBack({"Scharr", ezTexConvBumpMapFilter::Scharr});
-  }
 }
 
 ezResult ezTexConv::BeforeCoreSystemsStartup()
@@ -91,7 +22,7 @@ ezResult ezTexConv::BeforeCoreSystemsStartup()
 
 void ezTexConv::AfterCoreSystemsStartup()
 {
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -182,6 +113,17 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
+  if (sExt == "EZIMAGEDATA")
+  {
+    m_bOutputSupports2D = true;
+    m_bOutputSupports3D = false;
+    m_bOutputSupportsCube = false;
+    m_bOutputSupportsAtlas = false;
+    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsFiltering = false;
+    m_bOutputSupportsCompression = false;
+    return EZ_SUCCESS;
+  }
 
   ezLog::Error("Output file uses unsupported file format '{}'", sExt);
   return EZ_FAILURE;
@@ -199,7 +141,7 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
   ezAssetFileHeader asset;
   asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
-  asset.Write(stream);
+  EZ_SUCCEED_OR_RETURN(asset.Write(stream));
 
   ezTexFormat texFormat;
   texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
@@ -222,12 +164,41 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
 
 ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
 {
-  if (IsTexFormat())
+  if (ezPathUtils::HasExtension(szFile, "ezImageData"))
   {
     ezDeferredFileWriter file;
     file.SetOutput(szFile);
 
-    WriteTexFile(file, image);
+    ezAssetFileHeader asset;
+    asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
+
+    if (asset.Write(file).Failed())
+    {
+      ezLog::Error("Failed to write asset header to file.");
+      return EZ_FAILURE;
+    }
+
+    ezUInt8 uiVersion = 1;
+    file << uiVersion;
+
+    ezUInt8 uiFormat = 1; // 1 == PNG
+    file << uiFormat;
+
+    ezStbImageFileFormats pngWriter;
+    if (pngWriter.WriteImage(file, image, ezLog::GetThreadLocalLogSystem(), "png").Failed())
+    {
+      ezLog::Error("Failed to write data as PNG to ezImageData file.");
+      return EZ_FAILURE;
+    }
+
+    return file.Close();
+  }
+  else if (IsTexFormat())
+  {
+    ezDeferredFileWriter file;
+    file.SetOutput(szFile);
+
+    EZ_SUCCEED_OR_RETURN(WriteTexFile(file, image));
 
     return file.Close();
   }
@@ -237,15 +208,15 @@ ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
   }
 }
 
-ezApplication::ApplicationExecution ezTexConv::Run()
+ezApplication::Execution ezTexConv::Run()
 {
   SetReturnCode(-1);
 
   if (ParseCommandLine().Failed())
-    return ezApplication::ApplicationExecution::Quit;
+    return ezApplication::Execution::Quit;
 
   if (m_Processor.Process().Failed())
-    return ezApplication::ApplicationExecution::Quit;
+    return ezApplication::Execution::Quit;
 
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
   {
@@ -255,9 +226,9 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     ezAssetFileHeader header;
     header.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
-    header.Write(file);
+    header.Write(file).IgnoreResult();
 
-    file.WriteBytes(m_Processor.m_TextureAtlas.GetData(), m_Processor.m_TextureAtlas.GetStorageSize());
+    file.WriteBytes(m_Processor.m_TextureAtlas.GetData(), m_Processor.m_TextureAtlas.GetStorageSize()).IgnoreResult();
 
     if (file.Close().Succeeded())
     {
@@ -268,7 +239,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
       ezLog::Error("Failed to write atlas output image.");
     }
 
-    return ezApplication::ApplicationExecution::Quit;
+    return ezApplication::Execution::Quit;
   }
 
   if (!m_sOutputFile.IsEmpty() && m_Processor.m_OutputImage.IsValid())
@@ -276,7 +247,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
     {
       ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
-      return ezApplication::ApplicationExecution::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
@@ -287,7 +258,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
     {
       ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
-      return ezApplication::ApplicationExecution::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
@@ -296,14 +267,14 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   if (!m_sOutputLowResFile.IsEmpty())
   {
     // the image may not exist, if we do not have enough mips, so make sure any old low-res file is cleaned up
-    ezOSFile::DeleteFile(m_sOutputLowResFile);
+    ezOSFile::DeleteFile(m_sOutputLowResFile).IgnoreResult();
 
     if (m_Processor.m_LowResOutputImage.IsValid())
     {
       if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
       {
         ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
-        return ezApplication::ApplicationExecution::Quit;
+        return ezApplication::Execution::Quit;
       }
 
       ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
@@ -311,7 +282,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   }
 
   SetReturnCode(0);
-  return ezApplication::ApplicationExecution::Quit;
+  return ezApplication::Execution::Quit;
 }
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv);

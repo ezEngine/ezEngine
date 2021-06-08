@@ -330,8 +330,7 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompClamp(const ezVec4Te
   EZ_NAN_ASSERT(&low);
   EZ_NAN_ASSERT(&high);
 
-  return ezVec4Template<Type>(
-    ezMath::Clamp(x, low.x, high.x), ezMath::Clamp(y, low.y, high.y), ezMath::Clamp(z, low.z, high.z), ezMath::Clamp(w, low.w, high.w));
+  return ezVec4Template<Type>(ezMath::Clamp(x, low.x, high.x), ezMath::Clamp(y, low.y, high.y), ezMath::Clamp(z, low.z, high.z), ezMath::Clamp(w, low.w, high.w));
 }
 
 template <typename Type>
@@ -422,8 +421,7 @@ inline bool ezVec4Template<Type>::IsEqual(const ezVec4Template<Type>& rhs, Type 
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && ezMath::IsEqual(y, rhs.y, fEpsilon) && ezMath::IsEqual(z, rhs.z, fEpsilon) &&
-          ezMath::IsEqual(w, rhs.w, fEpsilon));
+  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && ezMath::IsEqual(y, rhs.y, fEpsilon) && ezMath::IsEqual(z, rhs.z, fEpsilon) && ezMath::IsEqual(w, rhs.w, fEpsilon));
 }
 
 template <typename Type>

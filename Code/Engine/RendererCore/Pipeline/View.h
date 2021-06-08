@@ -4,8 +4,8 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/TagSet.h>
-#include <Foundation/Utilities/Node.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/RenderPipelineNode.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
@@ -16,9 +16,9 @@ class ezRenderPipeline;
 
 /// \brief Encapsulates a view on the given world through the given camera
 /// and rendered with the specified RenderPipeline into the given render target setup.
-class EZ_RENDERERCORE_DLL ezView : public ezNode
+class EZ_RENDERERCORE_DLL ezView : public ezRenderPipelineNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezRenderPipelineNode);
 
 private:
   /// \brief Use ezRenderLoop::CreateView to create a view.
@@ -46,9 +46,11 @@ public:
   ezCamera* GetCamera();
   const ezCamera* GetCamera() const;
 
-  void SetCullingCamera(ezCamera* pCamera);
-  ezCamera* GetCullingCamera();
+  void SetCullingCamera(const ezCamera* pCamera);
   const ezCamera* GetCullingCamera() const;
+
+  void SetLodCamera(const ezCamera* pCamera);
+  const ezCamera* GetLodCamera() const;
 
   /// \brief Returns the camera usage hint for the view.
   ezEnum<ezCameraUsageHint> GetCameraUsageHint() const;
@@ -102,6 +104,8 @@ public:
   /// \brief Returns the frustum that should be used for determine visible objects for this view.
   void ComputeCullingFrustum(ezFrustum& out_Frustum) const;
 
+  void SetShaderPermutationVariable(const char* szName, const char* szValue);
+
   void SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
   void SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
 
@@ -127,21 +131,22 @@ private:
 
   ezSharedPtr<ezTask> m_pExtractTask;
 
-  ezWorld* m_pWorld;
+  ezWorld* m_pWorld = nullptr;
 
   ezGALRenderTargetSetup m_RenderTargetSetup;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
-  ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
+  ezUInt32 m_uiRenderPipelineResourceDescriptionCounter = 0;
   ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;
-  ezCamera* m_pCamera;
-  ezCamera* m_pCullingCamera;
+  ezCamera* m_pCamera = nullptr;
+  const ezCamera* m_pCullingCamera = nullptr;
+  const ezCamera* m_pLodCamera = nullptr;
 
 private:
-  ezInputNodePin m_PinRenderTarget0;
-  ezInputNodePin m_PinRenderTarget1;
-  ezInputNodePin m_PinRenderTarget2;
-  ezInputNodePin m_PinRenderTarget3;
-  ezInputNodePin m_PinDepthStencil;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget0;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget1;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget2;
+  ezRenderPipelineNodeInputPin m_PinRenderTarget3;
+  ezRenderPipelineNodeInputPin m_PinDepthStencil;
 
 private:
   void UpdateCachedMatrices() const;
@@ -149,13 +154,18 @@ private:
   /// \brief Rebuilds pipeline if necessary and pushes double-buffered settings into the pipeline.
   void EnsureUpToDate();
 
-  mutable ezUInt32 m_uiLastCameraSettingsModification;
-  mutable ezUInt32 m_uiLastCameraOrientationModification;
-  mutable float m_fLastViewportAspectRatio;
+  mutable ezUInt32 m_uiLastCameraSettingsModification = 0;
+  mutable ezUInt32 m_uiLastCameraOrientationModification = 0;
+  mutable float m_fLastViewportAspectRatio = 1.0f;
 
   mutable ezViewData m_Data;
 
-  ezInternal::RenderDataCache* m_pRenderDataCache;
+  ezInternal::RenderDataCache* m_pRenderDataCache = nullptr;
+
+  ezDynamicArray<ezPermutationVar> m_PermutationVars;
+  bool m_bPermutationVarsDirty = false;
+
+  void ApplyPermutationVars();
 
   struct PropertyValue
   {

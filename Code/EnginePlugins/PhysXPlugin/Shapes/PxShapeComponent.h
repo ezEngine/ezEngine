@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <PhysXPlugin/PhysXInterface.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
@@ -42,7 +42,7 @@ public:
   ezBitflags<ezOnPhysXContact> m_OnContact; // [ property ]
 
 protected:
-  virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) = 0;
+  virtual void CreateShapes(ezDynamicArray<physx::PxShape*>& out_Shapes, physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) = 0;
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;

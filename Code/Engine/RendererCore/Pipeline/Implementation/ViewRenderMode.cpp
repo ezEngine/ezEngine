@@ -9,7 +9,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
   EZ_ENUM_CONSTANT(ezViewRenderMode::None)->AddAttributes(new ezGroupAttribute("Default")),
   EZ_ENUM_CONSTANT(ezViewRenderMode::WireframeColor)->AddAttributes(new ezGroupAttribute("Wireframe")),
   EZ_ENUM_CONSTANT(ezViewRenderMode::WireframeMonochrome),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::LitOnly)->AddAttributes(new ezGroupAttribute("Lighting")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::DiffuseLitOnly)->AddAttributes(new ezGroupAttribute("Lighting")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::SpecularLitOnly),
   EZ_ENUM_CONSTANT(ezViewRenderMode::LightCount)->AddAttributes(new ezGroupAttribute("Performance")),
   EZ_ENUM_CONSTANT(ezViewRenderMode::DecalCount),
   EZ_ENUM_CONSTANT(ezViewRenderMode::StaticVsDynamic),
@@ -38,7 +39,7 @@ ezTempHashedString ezViewRenderMode::GetPermutationValue(Enum renderMode)
   {
     return "RENDER_PASS_WIREFRAME";
   }
-  else if (renderMode >= LitOnly && renderMode < ENUM_COUNT)
+  else if (renderMode >= DiffuseLitOnly && renderMode < ENUM_COUNT)
   {
     return "RENDER_PASS_EDITOR";
   }
@@ -60,8 +61,11 @@ int ezViewRenderMode::GetRenderPassForShader(Enum renderMode)
     case ezViewRenderMode::WireframeMonochrome:
       return WIREFRAME_RENDER_PASS_MONOCHROME;
 
-    case ezViewRenderMode::LitOnly:
-      return EDITOR_RENDER_PASS_LIT_ONLY;
+    case ezViewRenderMode::DiffuseLitOnly:
+      return EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY;
+
+    case ezViewRenderMode::SpecularLitOnly:
+      return EDITOR_RENDER_PASS_SPECULAR_LIT_ONLY;
 
     case ezViewRenderMode::LightCount:
       return EDITOR_RENDER_PASS_LIGHT_COUNT;

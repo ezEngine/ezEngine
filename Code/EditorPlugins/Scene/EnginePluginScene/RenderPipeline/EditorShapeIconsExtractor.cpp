@@ -1,10 +1,8 @@
 #include <EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
-#include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <RendererCore/Components/SpriteComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off

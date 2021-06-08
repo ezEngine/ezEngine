@@ -1,6 +1,7 @@
 #include <GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -398,7 +399,8 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   m_pObjectAccessor->StartTransaction("Add Element");
 
   ezStatus res;
-  if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::StandardType))
+  const bool bIsValueType = ezReflectionUtils::IsValueType(m_pProp);
+  if (bIsValueType)
   {
     for (auto& item : m_Items)
     {

@@ -3,6 +3,7 @@
 #include "Basics.h"
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/System/Process.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
@@ -10,8 +11,11 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-ezResult TranformProject(const char* szProjectPath)
+ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 {
+  ezGlobalLog::AddLogWriter(&ezLogWriter::Console::LogMessageHandler);
+  EZ_SCOPE_EXIT(ezGlobalLog::RemoveLogWriter(&ezLogWriter::Console::LogMessageHandler));
+
   ezStringBuilder sBinPath = ezOSFile::GetApplicationDirectory();
 
   ezStringBuilder sProjectDir;
@@ -29,8 +33,61 @@ ezResult TranformProject(const char* szProjectPath)
     sProjectDir.MakeCleanPath();
   }
 
+  ezLog::Info("Transforming assets for project '{}'", sProjectDir);
+
+  {
+    ezStringBuilder sProjectAssetDir = sProjectDir;
+    sProjectAssetDir.PathParentDirectory();
+    sProjectAssetDir.AppendPath("AssetCache");
+
+    ezStringBuilder sCleanFile = sProjectAssetDir;
+    sCleanFile.AppendPath("CleanVersion.dat");
+
+    ezUInt32 uiTargetVersion = 0;
+    ezOSFile f;
+
+    if (f.Open(sCleanFile, ezFileOpenMode::Read, ezFileShareMode::Default).Succeeded())
+    {
+      f.Read(&uiTargetVersion, sizeof(ezUInt32));
+      f.Close();
+
+      ezLog::Info("CleanVersion.dat exists -> project has been transformed before.");
+    }
+
+    if (uiTargetVersion != uiCleanVersion)
+    {
+      ezLog::Info("Clean version {} != {} -> deleting asset cache.", uiTargetVersion, uiCleanVersion);
+
+      if (ezOSFile::DeleteFolder(sProjectAssetDir).Failed())
+      {
+        ezLog::Warning("Deleting the asset cache folder failed.");
+      }
+
+      if (f.Open(sCleanFile, ezFileOpenMode::Write, ezFileShareMode::Default).Succeeded())
+      {
+        f.Write(&uiCleanVersion, sizeof(ezUInt32)).IgnoreResult();
+        f.Close();
+      }
+    }
+    else
+    {
+      ezLog::Info("Clean version {} == {}.", uiTargetVersion, uiCleanVersion);
+    }
+  }
+
   sBinPath.AppendPath("EditorProcessor.exe");
   sBinPath.MakeCleanPath();
+
+  ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  {
+    ezStringView sProjectPath = ezPathUtils::GetFileDirectory(szProjectPath);
+    sProjectPath.Trim("\\/");
+    ezStringView sProjectName = ezPathUtils::GetFileName(sProjectPath.GetStartPointer(), sProjectPath.GetEndPointer());
+    sOutputPath.AppendPath("Transform");
+    sOutputPath.Append(sProjectName);
+    if (ezOSFile::CreateDirectoryStructure(sOutputPath).Failed())
+      ezLog::Error("Failed to create output directory: {}", sOutputPath);
+  }
 
   ezProcessOptions opt;
   opt.m_sProcess = sBinPath;
@@ -38,22 +95,30 @@ ezResult TranformProject(const char* szProjectPath)
   opt.AddArgument("\"{0}\"", sProjectDir);
   opt.m_Arguments.PushBack("-transform");
   opt.m_Arguments.PushBack("PC");
+  opt.m_Arguments.PushBack("-outputDir");
+  opt.AddArgument("\"{0}\"", sOutputPath);
+  opt.m_Arguments.PushBack("-debug");
 
   ezProcess proc;
   ezLog::Info("Launching: '{0}'", sBinPath);
   ezResult res = proc.Launch(opt);
   if (res.Failed())
   {
-    proc.Terminate();
+    proc.Terminate().IgnoreResult();
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
 
-  ezTime timeout = ezTime::Minutes(8);
+  ezTime timeout = ezTime::Minutes(15);
   res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {
-    proc.Terminate();
+    proc.Terminate().IgnoreResult();
     ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
+    return EZ_FAILURE;
+  }
+  if (proc.GetExitCode() != 0)
+  {
+    ezLog::Error("Process failure ({0}): ExitCode: '{1}'", sBinPath, proc.GetExitCode());
     return EZ_FAILURE;
   }
 
@@ -67,27 +132,37 @@ EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
 {
-  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 1).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject", 1).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject").Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 3).Succeeded());
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformAnimations)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 3).Succeeded());
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 3).Succeeded());
 }
 
 #endif
@@ -116,7 +191,7 @@ void ezGameEngineTestBasics::SetupSubTests()
 
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
-  SUPER::InitializeSubTest(iIdentifier);
+  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
 
@@ -217,7 +292,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
 
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   if (iCurFrame > 3)
@@ -292,7 +367,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
   pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   pCamera->RotateGlobally(ezAngle::Degree(0), ezAngle::Degree(0), ezAngle::Degree(iCurFrame * 80.0f));
 
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   if (iCurFrame < 5)
@@ -397,7 +472,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezDebugRenderer::DrawSolidTriangles(m_pWorld.Borrow(), tris, ezColor::Gainsboro);
   }
 
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   // first frame no image is captured yet
@@ -416,12 +491,12 @@ void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph");
+  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)

@@ -5,18 +5,9 @@
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
-#include <Foundation/Communication/Implementation/IpcChannelEnet.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
-#include <QProcess>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -46,7 +37,7 @@ void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* 
 
   // it is important to have up-to-date lookup tables in the engine process, because document contexts might try to
   // load resources, and if the file redirection does not happen correctly, derived resource types may not be created as they should
-  ezAssetCurator::GetSingleton()->WriteAssetTables();
+  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
 
   ezDocumentOpenMsgToEngine m;
   m.m_DocumentGuid = pDocument->GetGuid();
@@ -115,6 +106,12 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   if (m_bProcessShouldWaitForDebugger)
   {
     args << "-debug";
+  }
+
+  if (!m_sRenderer.IsEmpty())
+  {
+    args << "-renderer";
+    args << m_sRenderer.GetData();
   }
 
   {
@@ -188,7 +185,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
     return false;
 
   m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessRemoteCommunicationChannel);
-  m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data());
+  m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).IgnoreResult();
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
   waitDialog.m_OnIdle = [this]() -> bool {
@@ -257,22 +254,19 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   }
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(
-  const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
   EZ_PROFILE_SCOPE(pMessageType->GetTypeName());
   return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout,
-  ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
+ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
   if (!m_bProcessShouldBeRunning)
   {
     return EZ_FAILURE; // if the process is not running, we can't wait for a message
   }
-  EZ_ASSERT_DEBUG(
-    pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
+  EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
   struct WaitData
   {
     ezUuid m_AssetGuid;

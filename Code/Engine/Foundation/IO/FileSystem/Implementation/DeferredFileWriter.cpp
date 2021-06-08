@@ -51,7 +51,7 @@ ezResult ezDeferredFileWriter::Close()
 
         readLeft -= toRead;
 
-        if (ezMemoryUtils::RawByteCompare(tmp, pData, readBytes) != 0)
+        if (ezMemoryUtils::RawByteCompare(tmp, pData, ezMath::SafeConvertToSizeT(readBytes)) != 0)
           goto write_data;
 
         pData += readBytes;

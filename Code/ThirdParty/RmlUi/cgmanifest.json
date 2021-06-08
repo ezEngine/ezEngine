@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/ezEngine/RmlUi.git",
+          "commitHash": "c46df8aad3cb393bdd48544887694e96101ef654"
+        }
+      }
+    }
+  ]
+}

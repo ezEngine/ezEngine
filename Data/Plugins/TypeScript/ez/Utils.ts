@@ -49,6 +49,14 @@ export namespace Utils {
     }
 
     /**
+     * Returns the linear interpolation between f0 and f1. 
+     * @param lerpFactor Factor between 0 and 1 that specifies how much to interpolate.
+     */
+    export function LerpNumbers(f0: number, f1: number, lerpFactor: number): number {
+        return f0 + (f1 - f0) * lerpFactor;
+    }
+
+    /**
      * Returns the root-node inside a prefab hierarchy, which is typically the node one wants to send messages to to interact with the prefab.
      * 
      * When a prefab is put into the world, there is a node that represents the prefab, which may have a name or global key to find it by,

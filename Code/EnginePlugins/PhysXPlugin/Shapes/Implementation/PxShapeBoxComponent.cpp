@@ -78,14 +78,14 @@ void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
   }
 }
 
-PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
+void ezPxShapeBoxComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& out_Shapes, physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform)
 {
   ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
 
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMul(vScale) * 0.5f);
 
-  return PxRigidActorExt::createExclusiveShape(*pActor, box, *GetPxMaterial());
+  out_Shapes.PushBack(PxRigidActorExt::createExclusiveShape(*pActor, box, *GetPxMaterial()));
 }
 
 

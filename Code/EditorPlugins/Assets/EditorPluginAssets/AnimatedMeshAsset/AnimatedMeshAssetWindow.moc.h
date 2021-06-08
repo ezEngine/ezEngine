@@ -14,6 +14,7 @@ class ezQtAnimatedMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 
 public:
   ezQtAnimatedMeshAssetDocumentWindow(ezAnimatedMeshAssetDocument* pDocument);
+  ~ezQtAnimatedMeshAssetDocumentWindow();
 
   ezAnimatedMeshAssetDocument* GetMeshDocument();
   virtual const char* GetWindowLayoutGroupName() const override { return "AnimatedMeshAsset"; }
@@ -22,10 +23,17 @@ protected:
   virtual void InternalRedraw() override;
   virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
 
+protected Q_SLOTS:
+  void HighlightTimer();
+
 private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose);
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  bool UpdatePreview();
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
+  ezUInt32 m_uiHighlightSlots = 0;
+  QPointer<QTimer> m_HighlightTimer;
 };

@@ -55,7 +55,7 @@ void ezGameEngineTestParticles::SetupSubTests()
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
 {
-  SUPER::InitializeSubTest(iIdentifier);
+  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
 
@@ -143,12 +143,12 @@ ezGameEngineTestApplication_Particles::ezGameEngineTestApplication_Particles()
 
 void ezGameEngineTestApplication_Particles::SetupSceneSubTest(const char* szFile)
 {
-  LoadScene(szFile);
+  LoadScene(szFile).IgnoreResult();
 }
 
 void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szFile)
 {
-  LoadScene("Particles/AssetCache/Common/Particles1.ezObjectGraph");
+  LoadScene("Particles/AssetCache/Common/Particles1.ezObjectGraph").IgnoreResult();
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
@@ -163,7 +163,7 @@ void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szF
 
 ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)

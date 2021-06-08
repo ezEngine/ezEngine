@@ -14,7 +14,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       EZ_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr(nullptr, nullptr);
+      ezMathExpression expr(nullptr);
       EZ_TEST_BOOL(!expr.IsValid());
 
       expr.Reset(nullptr);
@@ -45,6 +45,26 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
+    {
+      ezMathExpression expr("abs -1");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 1.0, 0.0);
+    }
+    {
+      ezMathExpression expr("abs(-3)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+    }
+    {
+      ezMathExpression expr("sqrt(4)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
+    }
+    {
+      ezMathExpression expr("13 % 6");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 1.0, 0.0);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operator Priority")
@@ -63,6 +83,16 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       ezMathExpression expr("1 - 2 / 4");
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 0.5, 0.0);
+    }
+    {
+      ezMathExpression expr("abs -4 + 2");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 6.0, 0.0);
+    }
+    {
+      ezMathExpression expr("abs (-4 + 2)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
   }
 
@@ -145,21 +175,22 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invalid Expressions")
   {
     ezMuteLog logErrorSink;
+    ezLogSystemScope ls(&logErrorSink);
 
     {
-      ezMathExpression expr("1+", &logErrorSink);
+      ezMathExpression expr("1+");
       EZ_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("1+/1", &logErrorSink);
+      ezMathExpression expr("1+/1");
       EZ_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("(((((0))))", &logErrorSink);
+      ezMathExpression expr("(((((0))))");
       EZ_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("_va£r + asdf", &logErrorSink);
+      ezMathExpression expr("_va£r + asdf");
       EZ_TEST_BOOL(!expr.IsValid());
     }
   }

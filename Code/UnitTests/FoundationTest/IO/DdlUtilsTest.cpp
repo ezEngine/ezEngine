@@ -566,7 +566,7 @@ Angle $v12 { float { 45.23 } }\
       const auto pVarElem = doc.GetRootElement()->FindChild("bla");
 
       ezVariant result;
-      ezOpenDdlUtils::ConvertToVariant(pVarElem, result);
+      ezOpenDdlUtils::ConvertToVariant(pVarElem, result).IgnoreResult();
 
       EZ_TEST_BOOL(var == result);
     }

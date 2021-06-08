@@ -46,6 +46,10 @@ public:
   /// \brief Returns whether this component is registered as a global event handler.
   bool GetGlobalEventHandlerMode() const { return m_bIsGlobalEventHandler; } // [ property ]
 
+  /// \brief Sets whether unhandled event messages should be passed to parent objects or not.
+  void SetPassThroughUnhandledEvents(bool bPassThrough);                               // [ property ]
+  bool GetPassThroughUnhandledEvents() const { return m_bPassThroughUnhandledEvents; } // [ property ]
+
   /// \brief Returns whether the given EventMessage is handled by this component.
   ///   If it is handled the sender will cache this component as receiver, if not the sender will not send this message anymore.
   virtual bool HandlesEventMessage(const ezEventMessage& msg) const;
@@ -56,4 +60,5 @@ public:
 private:
   bool m_bDebugOutput = false;
   bool m_bIsGlobalEventHandler = false;
+  bool m_bPassThroughUnhandledEvents = false;
 };

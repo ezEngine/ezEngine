@@ -5,9 +5,6 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

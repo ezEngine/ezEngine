@@ -151,7 +151,17 @@ void ezQtNode::UpdateGeometry()
 
 void ezQtNode::UpdateState()
 {
-  m_pLabel->setPlainText(m_pObject->GetTypeAccessor().GetType()->GetTypeName());
+  auto& typeAccessor = m_pObject->GetTypeAccessor();
+
+  ezVariant name = typeAccessor.GetValue("Name");
+  if (name.IsA<ezString>() && name.Get<ezString>().IsEmpty() == false)
+  {
+    m_pLabel->setPlainText(name.Get<ezString>().GetData());
+  }
+  else
+  {
+    m_pLabel->setPlainText(typeAccessor.GetType()->GetTypeName());
+  }
 }
 
 void ezQtNode::SetActive(bool active)
@@ -256,6 +266,8 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 
   QColor headerColor = m_HeaderColor;
 
+  const bool bBackgroundIsLight = m_HeaderColor.lightnessF() > 0.5f;
+
   if (!m_bIsActive)
     headerColor.setAlpha(50);
 
@@ -287,6 +299,13 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   // Label
   if (!m_bIsActive)
     labelColor = labelColor.darker(150);
+
+  if (bBackgroundIsLight)
+  {
+    labelColor.setRed(255 - labelColor.red());
+    labelColor.setGreen(255 - labelColor.green());
+    labelColor.setBlue(255 - labelColor.blue());
+  }
 
   m_pLabel->setDefaultTextColor(labelColor);
 

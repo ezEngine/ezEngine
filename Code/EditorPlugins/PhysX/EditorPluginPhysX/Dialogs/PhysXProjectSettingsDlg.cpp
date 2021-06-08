@@ -1,13 +1,8 @@
 #include <EditorPluginPhysXPCH.h>
 
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QCheckBox>
-#include <QDialogButtonBox>
 #include <QInputDialog>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
 
@@ -19,7 +14,7 @@ ezQtPhysxProjectSettingsDlg::ezQtPhysxProjectSettingsDlg(QWidget* parent)
   ButtonRemoveLayer->setEnabled(false);
   ButtonRenameLayer->setEnabled(false);
 
-  Load();
+  Load().IgnoreResult();
   SetupTable();
 }
 
@@ -237,8 +232,7 @@ void ezQtPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
 
 void ezQtPhysxProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
 {
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?",
-        QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
     return;
 
   const auto sel = FilterTable->selectionModel()->selectedRows();
@@ -270,8 +264,7 @@ void ezQtPhysxProjectSettingsDlg::on_ButtonRenameLayer_clicked()
   while (true)
   {
     bool ok;
-    QString result = QInputDialog::getText(
-      this, QStringLiteral("Rename Layer"), QStringLiteral("Name:"), QLineEdit::Normal, QString::fromUtf8(sOldName.GetData()), &ok);
+    QString result = QInputDialog::getText(this, QStringLiteral("Rename Layer"), QStringLiteral("Name:"), QLineEdit::Normal, QString::fromUtf8(sOldName.GetData()), &ok);
 
     if (!ok)
     {

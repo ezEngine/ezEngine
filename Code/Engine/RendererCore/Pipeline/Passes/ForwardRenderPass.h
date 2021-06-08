@@ -27,21 +27,18 @@ public:
   ezForwardRenderPass(const char* szName = "ForwardRenderPass");
   ~ezForwardRenderPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-  virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
+  virtual void SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext);
   virtual void SetupLighting(const ezRenderViewContext& renderViewContext);
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) = 0;
 
-  ezPassThroughNodePin m_PinColor;
-  ezPassThroughNodePin m_PinDepthStencil;
+  ezRenderPipelineNodePassThrougPin m_PinColor;
+  ezRenderPipelineNodePassThrougPin m_PinDepthStencil;
 
   ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality;
 };

@@ -87,10 +87,16 @@ public:
   constexpr double GetHours() const;
 
   /// \brief Subtracts the time value of "other" from this instances value.
-  void operator-=(const ezTime& other);
+  constexpr void operator-=(const ezTime& other);
 
   /// \brief Adds the time value of "other" to this instances value.
-  void operator+=(const ezTime& other);
+  constexpr void operator+=(const ezTime& other);
+
+  /// \brief Multiplies the time by the given factor
+  constexpr void operator*=(double factor);
+
+  /// \brief Divides the time by the given factor
+  constexpr void operator/=(double factor);
 
   /// \brief Returns the difference: "this instance - other"
   constexpr ezTime operator-(const ezTime& other) const;
@@ -122,9 +128,11 @@ private:
 
 constexpr ezTime operator*(ezTime t, double f);
 constexpr ezTime operator*(double f, ezTime t);
+constexpr ezTime operator*(ezTime f, ezTime t); // not physically correct, but useful (should result in seconds squared)
 
 constexpr ezTime operator/(ezTime t, double f);
 constexpr ezTime operator/(double f, ezTime t);
+constexpr ezTime operator/(ezTime f, ezTime t); // not physically correct, but useful (should result in a value without a unit)
 
 
 #include <Foundation/Time/Implementation/Time_inl.h>

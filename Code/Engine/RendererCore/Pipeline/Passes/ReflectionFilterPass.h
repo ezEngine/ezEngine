@@ -13,27 +13,30 @@ public:
   ezReflectionFilterPass();
   ~ezReflectionFilterPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
   ezUInt32 GetInputCubemap() const;
   void SetInputCubemap(ezUInt32 uiCubemapHandle);
 
 protected:
+  void UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps, ezUInt32 outputIndex);
   void UpdateIrradianceConstantBuffer();
 
-  ezOutputNodePin m_PinFilteredSpecular;
-  ezOutputNodePin m_PinAvgLuminance;
-  ezOutputNodePin m_PinIrradianceData;
+  ezRenderPipelineNodeOutputPin m_PinFilteredSpecular;
+  ezRenderPipelineNodeOutputPin m_PinAvgLuminance;
+  ezRenderPipelineNodeOutputPin m_PinIrradianceData;
 
   float m_fIntensity;
   float m_fSaturation;
-  ezUInt32 m_uiOutputIndex;
+  ezUInt32 m_uiSpecularOutputIndex;
+  ezUInt32 m_uiIrradianceOutputIndex;
 
   ezGALTextureHandle m_hInputCubemap;
+
+  ezConstantBufferStorageHandle m_hFilteredSpecularConstantBuffer;
+  ezShaderResourceHandle m_hFilteredSpecularShader;
 
   ezConstantBufferStorageHandle m_hIrradianceConstantBuffer;
   ezShaderResourceHandle m_hIrradianceShader;

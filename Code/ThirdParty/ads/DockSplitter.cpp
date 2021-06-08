@@ -31,7 +31,7 @@
 
 #include <QDebug>
 #include <QChildEvent>
-
+#include <QVariant>
 #include "DockAreaWidget.h"
 
 namespace ads
@@ -52,7 +52,7 @@ CDockSplitter::CDockSplitter(QWidget *parent)
 	: QSplitter(parent),
 	  d(new DockSplitterPrivate(this))
 {
-	setProperty("ads-splitter", true);
+    setProperty("ads-splitter", QVariant(true));
 	setChildrenCollapsible(false);
 }
 
@@ -100,6 +100,20 @@ QWidget* CDockSplitter::firstWidget() const
 QWidget* CDockSplitter::lastWidget() const
 {
 	return (count() > 0) ? widget(count() - 1) : nullptr;
+}
+
+//============================================================================
+bool CDockSplitter::isResizingWithContainer() const
+{
+    for (auto area : findChildren<CDockAreaWidget*>())
+    {
+        if(area->isCentralWidgetArea())
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 } // namespace ads

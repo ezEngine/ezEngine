@@ -3,6 +3,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
+#include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 class EZ_RENDERERCORE_DLL ezShaderManager
 {
@@ -21,11 +22,11 @@ public:
 
   /// \brief If the given permutation variable is an enum variable, this returns the possible values.
   /// Returns an empty array for other types of permutation variables.
-  static ezArrayPtr<const ezHashedString> GetPermutationEnumValues(const ezHashedString& sName);
+  static ezArrayPtr<const ezShaderParser::EnumValue> GetPermutationEnumValues(const ezHashedString& sName);
 
   /// \brief Same as GetPermutationEnumValues() but also returns values for other types of variables.
   /// E.g. returns TRUE and FALSE for boolean variables.
-  static void GetPermutationValues(const ezHashedString& sName, ezHybridArray<ezHashedString, 4>& out_Values);
+  static void GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_Values);
 
   static void PreloadPermutations(
     ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn);
@@ -36,7 +37,7 @@ private:
   static ezUInt32 FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars,
     ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables);
   static ezShaderPermutationResourceHandle PreloadSinglePermutationInternal(
-    const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables);
+    const char* szResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables);
 
   static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;

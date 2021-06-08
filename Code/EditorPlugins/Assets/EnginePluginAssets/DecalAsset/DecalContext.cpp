@@ -1,13 +1,9 @@
 #include <EnginePluginAssetsPCH.h>
 
-#include <Core/Graphics/Geometry.h>
 #include <EnginePluginAssets/DecalAsset/DecalContext.h>
 #include <EnginePluginAssets/DecalAsset/DecalView.h>
 #include <RendererCore/Decals/DecalComponent.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDecalContext>)
@@ -166,20 +162,6 @@ void ezDecalContext::OnInitialize()
       pDecal->SetExtents(ezVec3(2));
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
-  }
-
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
-
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
 }
 

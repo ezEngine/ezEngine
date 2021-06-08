@@ -1,0 +1,21 @@
+#include <RendererVulkanPCH.h>
+
+EZ_STATICLINK_LIBRARY(RendererVulkan)
+{
+  if (bReturn)
+    return;
+
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Context_Implementation_ContextVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Device_Implementation_DeviceVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Device_Implementation_SwapChainVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_BufferVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_FenceVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_QueryVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_RenderTargetViewVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_ResourceViewVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_TextureVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_UnorderedAccessViewVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Shader_Implementation_ShaderVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_Shader_Implementation_VertexDeclarationVulkan);
+  EZ_STATICLINK_REFERENCE(RendererVulkan_State_Implementation_StateVulkan);
+}

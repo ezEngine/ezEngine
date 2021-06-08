@@ -1,8 +1,8 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/Console/ConsoleFunction.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/Console/ConsoleFunction.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -155,7 +155,7 @@ static int __CPP_Debug_Draw2DText(duk_context* pDuk)
   const float fSize = duk.GetFloatValue(3, 16.0f);
   ezDebugRenderer::HorizontalAlignment::Enum halign = (ezDebugRenderer::HorizontalAlignment::Enum)duk.GetIntValue(4);
 
-  ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, fSize, halign, ezDebugRenderer::VerticalAlignment::Top);
+  ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, (ezUInt32)fSize, halign, ezDebugRenderer::VerticalAlignment::Top);
 
   return duk.ReturnVoid();
 }
@@ -170,8 +170,7 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk)
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
   const float fSize = duk.GetFloatValue(3, 16.0f);
 
-  ezDebugRenderer::Draw3DText(
-    pWorld, szText, vPos, color, fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
+  ezDebugRenderer::Draw3DText(pWorld, szText, vPos, color, (ezUInt32)fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
 
   return duk.ReturnVoid();
 }
@@ -432,7 +431,7 @@ void ezTypeScriptBinding::ExecuteConsoleFuncs()
   for (auto& call : m_CFuncCalls)
   {
     TsConsoleFunc* pFunc = static_cast<TsConsoleFunc*>(call.m_pFunc);
-    pFunc->DoCall(call.m_Arguments.GetArrayPtr());
+    pFunc->DoCall(call.m_Arguments.GetArrayPtr()).IgnoreResult();
   }
 
   m_CFuncCalls.Clear();

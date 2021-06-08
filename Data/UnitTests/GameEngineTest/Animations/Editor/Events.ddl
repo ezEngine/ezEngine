@@ -1,0 +1,1 @@
+Event %gun.shoot{}

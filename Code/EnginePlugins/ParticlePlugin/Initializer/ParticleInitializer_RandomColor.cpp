@@ -1,11 +1,10 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
+#include <Core/Curves/ColorGradientResource.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomColor.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 

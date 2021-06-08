@@ -1,12 +1,12 @@
 #pragma once
 
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameEngineDLL.h>
-
 struct ezMsgSetPlaying;
 
 typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;

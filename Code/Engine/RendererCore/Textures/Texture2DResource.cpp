@@ -82,6 +82,12 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
   td.m_DescGAL.m_uiMipLevelCount = uiNumMipLevels;
   td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
 
+  if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+  {
+    td.m_DescGAL.m_uiWidth = ezMath::RoundUp(td.m_DescGAL.m_uiWidth, 4);
+    td.m_DescGAL.m_uiHeight = ezMath::RoundUp(td.m_DescGAL.m_uiHeight, 4);
+  }
+
   if (td.m_DescGAL.m_uiDepth > 1)
     td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
 

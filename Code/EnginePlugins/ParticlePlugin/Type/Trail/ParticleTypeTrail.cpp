@@ -1,21 +1,11 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/World/GameObject.h>
-#include <Core/World/World.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeTrailFactory>)
@@ -188,8 +178,7 @@ void ezParticleTypeTrail::CreateRequiredStreams()
   }
 }
 
-void ezParticleTypeTrail::ExtractTypeRenderData(
-  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
   EZ_PROFILE_SCOPE("PFX: Trail");
 
@@ -202,9 +191,9 @@ void ezParticleTypeTrail::ExtractTypeRenderData(
     return;
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
-  if (m_uiLastExtractedFrame != uiExtractedFrame)
+  if (m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
   {
-    m_uiLastExtractedFrame = uiExtractedFrame;
+    m_uiLastExtractedFrame = ezRenderWorld::GetFrameCounter();
 
     const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
@@ -257,9 +246,8 @@ void ezParticleTypeTrail::ExtractTypeRenderData(
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr);
 
-  /// \todo Is this batch ID correct?
-  pRenderData->m_uiBatchId = m_hTexture.GetResourceIDHash() + m_uiMaxPoints;
-  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode);
+  pRenderData->m_uiBatchId = ezHashingUtils::StringHashTo32(m_hTexture.GetResourceIDHash()) + m_uiMaxPoints;
+  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, pRenderData->m_uiBatchId);
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
@@ -300,7 +288,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(
       break;
   }
 
-  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
 }
 
 void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

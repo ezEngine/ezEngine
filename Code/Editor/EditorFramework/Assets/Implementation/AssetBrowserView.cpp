@@ -5,7 +5,6 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-#include <QPainter>
 
 ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent)
   : ezQtItemView<QListView>(parent)
@@ -130,7 +129,7 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
     }
     else
     {
-      ezAssetCurator::GetSingleton()->WriteAssetTables();
+      ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
     }
 
     event->accept();
@@ -241,8 +240,7 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
   // Draw caption.
   {
     painter->setFont(GetFont());
-    QRect textRect =
-      opt.rect.adjusted(ItemSideMargin, ItemSideMargin + uiThumbnailSize + TextSpacing, -ItemSideMargin, -ItemSideMargin - TextSpacing);
+    QRect textRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin + uiThumbnailSize + TextSpacing, -ItemSideMargin, -ItemSideMargin - TextSpacing);
 
     QString caption = qvariant_cast<QString>(index.data(Qt::DisplayRole));
     painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWrapAnywhere, caption);

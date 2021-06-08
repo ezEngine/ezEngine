@@ -166,13 +166,13 @@ ezResourceLoadDesc ezCollectionResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_Collection.Load(*Stream);
 
@@ -184,8 +184,7 @@ void ezCollectionResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   EZ_LOCK(m_preloadMutex);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU =
-    static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
+  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
 }
 
 

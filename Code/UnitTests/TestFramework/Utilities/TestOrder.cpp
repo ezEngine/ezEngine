@@ -117,6 +117,18 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests)
     return;
   }
 
+  // If we do load a test order file only tests enabled in the file should be enabled.
+  // Otherwise newly added tests would be enabled by default and carefully crafted
+  // test order files would start running other tests they were not meant to run.
+  for (ezTestEntry& test : AllTests)
+  {
+    test.m_bEnableTest = false;
+    for (ezSubTestEntry& subTest : test.m_SubTests)
+    {
+      subTest.m_bEnableTest = false;
+    }
+  }
+
   ezInt32 iLastMainTest = 0;
 
   while (!feof(pFile))

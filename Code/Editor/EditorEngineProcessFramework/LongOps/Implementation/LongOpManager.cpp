@@ -1,6 +1,5 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <EditorEngineProcessFramework/LongOps/Implementation/LongOpManager.h>
 
 void ezLongOpManager::Startup(ezProcessCommunicationChannel* pCommunicationChannel)

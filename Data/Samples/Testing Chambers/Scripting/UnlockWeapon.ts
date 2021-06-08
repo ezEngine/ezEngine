@@ -18,7 +18,7 @@ export class UnlockWeapon extends ez.TypescriptComponent {
 
     OnMsgTriggerTriggered(msg: ez.MsgTriggerTriggered): void {
 
-        if (msg.TriggerState == ez.TriggerState.Activated && msg.MsgStringHash == ez.Utils.StringToHash("Pickup")) {
+        if (msg.TriggerState == ez.TriggerState.Activated && msg.Message == "Pickup") {
 
             // TODO: need GO handles in messages to identify who entered the trigger
             let player = ez.World.TryGetObjectWithGlobalKey("Player");

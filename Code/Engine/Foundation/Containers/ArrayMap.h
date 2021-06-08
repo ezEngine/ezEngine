@@ -28,7 +28,7 @@ public:
   };
 
   /// \brief Constructor.
-  ezArrayMapBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezArrayMapBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copy-Constructor.
   ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -46,8 +46,9 @@ public:
   void Clear(); // [tested]
 
   /// \brief Always inserts a new value under the given key. Duplicates are allowed.
+  /// Returns the index of the newly added element.
   template <typename CompatibleKeyType, typename CompatibleValueType>
-  void Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
+  ezUInt32 Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// \brief Ensures the internal data structure is sorted. This is done automatically every time a lookup needs to be made.
   void Sort() const; // [tested]
@@ -150,7 +151,7 @@ class ezArrayMap : public ezArrayMapBase<KEY, VALUE>
 
 public:
   ezArrayMap();
-  ezArrayMap(ezAllocatorBase* pAllocator);
+  explicit ezArrayMap(ezAllocatorBase* pAllocator);
 
   ezArrayMap(const ezArrayMap<KEY, VALUE, AllocatorWrapper>& rhs);
   ezArrayMap(const ezArrayMapBase<KEY, VALUE>& rhs);

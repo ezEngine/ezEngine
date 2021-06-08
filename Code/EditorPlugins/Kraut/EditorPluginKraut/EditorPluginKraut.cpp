@@ -1,20 +1,12 @@
 #include <EditorPluginKrautPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
-#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
-#include <GuiFoundation/UIServices/DynamicEnums.h>
-#include <PhysXCooking/PhysXCooking.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -26,17 +18,16 @@ void OnLoadPlugin(bool bReloading)
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar").IgnoreResult();
       ezProjectActions::MapActions("KrautTreeAssetMenuBar");
-      ezStandardMenus::MapActions(
-        "KrautTreeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("KrautTreeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("KrautTreeAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("KrautTreeAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar");
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("KrautTreeAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("KrautTreeAssetToolBar", "");
       ezAssetActions::MapActions("KrautTreeAssetToolBar", true);

@@ -154,11 +154,13 @@ ezSkeletonJointGeometryType::None;None
 ezSkeletonJointGeometryType::Capsule;Capsule
 ezSkeletonJointGeometryType::Sphere;Sphere
 ezSkeletonJointGeometryType::Box;Box
-ezVisualizeSkeletonComponent;Visualize Skeleton
+ezSkeletonComponent;Skeleton
 BoolParameters;Bool Variables
 NumberParameters;Number Variables
+StringParameters;String Variables
 ezVisualScriptParameterNumber;Number Variable
 ezVisualScriptParameterBool;Bool Variable
+ezVisualScriptParameterString;String Variable
 ezRootMotionExtractionMode::None;None
 ezRootMotionExtractionMode::Custom;Custom
 ezRootMotionExtractionMode::FromFeet;From Feet
@@ -197,3 +199,53 @@ Length;Length
 Thickness;Thickness
 Width;Width
 Input1;Input1
+AvailableClips;Available Clips
+Common.Pause;Pause
+Common.Restart;Restart
+Common.Loop;Loop
+Common.Grid;Grid
+Common.Speed.01;10%
+Common.Speed.025;25%
+Common.Speed.05;50%
+Common.Speed.1;100%
+Common.Speed.15;150%
+Common.Speed.2;200%
+Common.Speed.3;300%
+Common.Speed.4;400%
+Common.Speed.5;500%
+Common.Speed.10;1000%
+Common.Grid;Grid
+ezComparisonOperator::Equal;=
+ezComparisonOperator::NotEqual;<>
+ezComparisonOperator::Less;<
+ezComparisonOperator::LessEqual;<=
+ezComparisonOperator::Greater;>
+ezComparisonOperator::GreaterEqual;>=
+AnimRamp;Animation Fade
+RootBones;Root Bones
+ezCombinePosesAnimNode;Combine Poses
+ezSetBlackboardValueAnimNode;Blackboard: Set Value
+ezCheckBlackboardValueAnimNode;Blackboard: Check Value
+ezGetBlackboardNumberAnimNode;Blackboard: Get Value
+ezControllerInputAnimNode;Controller Input
+ezPlayClipAnimNode;Play Animation Clip
+ezModelPoseOutputAnimNode;Model Pose Output
+ezBoneWeightsAnimNode;Bone Weight Config
+ezLocalToModelPoseAnimNode;Local To Model Pose
+ezEventAnimNode;Send Event
+ezLogicAndAnimNode;Logic AND
+ezLogicOrAnimNode;Logic OR
+ezLogicNotAnimNode;Logic NOT
+Common.Speed.Menu;Speed
+ezRootMotionSource::None;No Root Motion
+ezRootMotionSource::Constant;Constant Motion
+ezCompareNumberAnimNode;Compare Value
+ezMathExpressionAnimNode;Math Expression
+ezMixClips1DAnimNode;Mix Clips 1D
+ezMixClips2DAnimNode;Mix Clips 2D
+Clips;Clips
+ezAnimClip2D;Clip
+ezPlaySequenceAnimNode;Play Clip Sequence
+Common;Common
+MiddleClips;Middle Clips
+ezLogAnimNode;Log

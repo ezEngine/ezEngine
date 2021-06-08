@@ -98,7 +98,7 @@ static int __CPP_World_CreateComponent(duk_context* pDuk)
 
   const ezUInt32 uiTypeNameHash = duk.GetUIntValue(1);
 
-  const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash(uiTypeNameHash);
+  const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash32(uiTypeNameHash);
   if (pRtti == nullptr)
   {
     duk.Error(ezFmt("Invalid component type name hash: {}", uiTypeNameHash));

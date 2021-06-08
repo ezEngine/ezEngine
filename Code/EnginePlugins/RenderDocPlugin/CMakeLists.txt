@@ -1,6 +1,8 @@
 ez_cmake_init()
 
- ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+ez_build_filter_runtime()
+
+ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 
 ez_requires(EZ_3RDPARTY_RENDERDOC_SUPPORT)
 

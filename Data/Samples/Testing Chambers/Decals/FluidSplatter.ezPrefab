@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{461123999447594638,5082581369277237587}}
-		u4 %Hash{13467205231730001196}
+		u4 %Hash{15066095890965577157}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15326392167220872290,7003734197688376450}}
@@ -50,18 +50,29 @@ o
 {
 	Uuid %id{u4{2865244803724125099,4911421178238675471}}
 	s %t{"ezDecalComponent"}
-	u3 %v{3}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB0CC583F,0x2CDBB33B,0x2CDBB33B,0x0000803F}}
-		s %Decal{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
+		s %ApplyToDynamic{""}
+		ColorGamma %Color{u1{237,17,17,255}}
+		VarArray %Decals
+		{
+			s{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
+		}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{12298040369686573503,9274952840960247315}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
 		Time %FadeOutDuration{d{0x0000000000001440}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
 		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
 		b %WrapAround{1}
@@ -74,6 +85,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -106,17 +118,6 @@ o
 			Uuid{u4{18191056182369684637,5149837717071852925}}
 		}
 		Uuid %Settings{u4{2614034082190730,4658677634159330172}}
-	}
-}
-o
-{
-	Uuid %id{u4{12298040369686573503,9274952840960247315}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x0000000000001440}}
-		f %Variance{0x9A99993E}
 	}
 }
 }
@@ -154,8 +155,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{160}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{8}
 	}
 }
 o
@@ -226,7 +227,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -352,6 +353,24 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

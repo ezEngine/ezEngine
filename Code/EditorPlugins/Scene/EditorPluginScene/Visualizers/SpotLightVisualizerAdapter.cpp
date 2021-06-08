@@ -1,6 +1,5 @@
 #include <EditorPluginScenePCH.h>
 
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
 #include <RendererCore/Lights/SpotLightComponent.h>

@@ -28,7 +28,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     {
       // skip the asset header
       ezAssetFileHeader header;
-      header.Read(SoundBankAssetFile);
+      header.Read(SoundBankAssetFile).IgnoreResult();
 
       ezUInt8 uiVersion = 0;
       SoundBankAssetFile >> uiVersion;
@@ -47,8 +47,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     {
       pData->m_pSoundbankData = EZ_DEFAULT_NEW(ezDataBuffer);
       pData->m_pSoundbankData->SetCountUninitialized(uiSoundBankSize + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
-      ezUInt8* pAlignedData =
-        ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+      ezUInt8* pAlignedData = ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
 
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 
@@ -59,8 +58,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
       if (pStudio == nullptr)
         return res;
 
-      auto fmodRes = pStudio->loadBankMemory(
-        (const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
+      auto fmodRes = pStudio->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
 
       // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using fmod are running and both have the
       // FMOD_STUDIO_INIT_LIVEUPDATE flag set somehow fmod cannot handle this and bank loading then fails
@@ -90,8 +88,8 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
 
   ezMemoryStreamWriter w(&pData->m_Storage);
 
-  w.WriteBytes(&pData->m_pSoundBank, sizeof(FMOD::Studio::Bank*));
-  w.WriteBytes(&pData->m_pSoundbankData, sizeof(ezDataBuffer*));
+  w.WriteBytes(&pData->m_pSoundBank, sizeof(FMOD::Studio::Bank*)).IgnoreResult();
+  w.WriteBytes(&pData->m_pSoundbankData, sizeof(ezDataBuffer*)).IgnoreResult();
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;

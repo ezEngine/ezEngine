@@ -40,7 +40,7 @@ template <typename ArrayType, typename ValueType>
 ezResult ezDeduplicationWriteContext::WriteArray(ezStreamWriter& stream, const ezArrayBase<ValueType, ArrayType>& Array)
 {
   const ezUInt64 uiCount = Array.GetCount();
-  stream.WriteQWordValue(&uiCount);
+  EZ_SUCCEED_OR_RETURN(stream.WriteQWordValue(&uiCount));
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
   {
@@ -54,7 +54,7 @@ template <typename KeyType, typename Comparer>
 ezResult ezDeduplicationWriteContext::WriteSet(ezStreamWriter& stream, const ezSetBase<KeyType, Comparer>& Set)
 {
   const ezUInt64 uiWriteSize = Set.GetCount();
-  stream.WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(stream.WriteQWordValue(&uiWriteSize));
 
   for (const auto& item : Set)
   {
@@ -68,7 +68,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 ezResult ezDeduplicationWriteContext::WriteMap(ezStreamWriter& stream, const ezMapBase<KeyType, ValueType, Comparer>& Map, WriteMapMode mode)
 {
   const ezUInt64 uiWriteSize = Map.GetCount();
-  stream.WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(stream.WriteQWordValue(&uiWriteSize));
 
   if (mode == WriteMapMode::DedupKey)
   {

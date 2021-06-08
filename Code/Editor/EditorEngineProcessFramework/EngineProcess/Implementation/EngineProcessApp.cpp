@@ -1,17 +1,14 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
-#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
-#include <GameEngine/ActorSystem/ActorPluginWindow.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessApp);
 
@@ -54,7 +51,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
     desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
     desc.m_Title = "Engine View";
 
-    pWindow->Initialize(desc);
+    pWindow->Initialize(desc).IgnoreResult();
 
     ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
     pWindowPlugin->m_pWindow = std::move(pWindow);

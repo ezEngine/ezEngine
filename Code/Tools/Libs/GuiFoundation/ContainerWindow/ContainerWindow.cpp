@@ -60,7 +60,7 @@ ezQtContainerWindow::ezQtContainerWindow()
   s_pContainerWindow = this;
 
   setObjectName("ezEditor");
-  setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/ezEditor16.png")));
+  setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/EZ-logo.svg")));
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
@@ -266,11 +266,13 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
   dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
   dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
 
+  // this is a hacky way to detect the ezQtSettingsTab
   if (pDocWindow->GetDisplayNameShort().IsEmpty())
   {
     dock->setFeature(ads::CDockWidget::DockWidgetClosable, false);
     dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
     dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+    dock->setFeature(ads::CDockWidget::NoTab, true);
   }
 
   if (dock->isFloating())

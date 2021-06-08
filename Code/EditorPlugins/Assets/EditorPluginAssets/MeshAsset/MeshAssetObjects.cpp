@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <Foundation/Serialization/GraphPatch.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
@@ -11,27 +10,24 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("PrimitiveType", ezMeshPrimitive, m_PrimitiveType),
-    EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
+    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.gltf;*.glb")),
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
-    EZ_MEMBER_PROPERTY("InvertNormals", m_bInvertNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
+    EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
+    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
+    EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals),
+    EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTrangents)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ENUM_MEMBER_PROPERTY("NormalPrecision", ezMeshNormalPrecision, m_NormalPrecision),
     EZ_ENUM_MEMBER_PROPERTY("TexCoordPrecision", ezMeshTexCoordPrecision, m_TexCoordPrecision),
-    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
-    EZ_MEMBER_PROPERTY("NonUniformScaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.0001f), ezVec3(10000.0f))),
-    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.ply;*.pbrt;*.bsp;*.blend")),
-    EZ_MEMBER_PROPERTY("SubmeshName", m_sSubMeshName),
+    EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 128)),
-    EZ_MEMBER_PROPERTY("Detail2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 128)),
+    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 128)),
+    EZ_MEMBER_PROPERTY("Detail2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 128)),
     EZ_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Cap2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(360.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(360.0f))),
-    EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("UseSubfolderForMaterialImport", m_bUseSubFolderForImportedMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, true, true)),
   }
   EZ_END_PROPERTIES;
@@ -56,42 +52,21 @@ public:
     pNode->RenameProperty("Uniform Scaling", "UniformScaling");
     pNode->RenameProperty("Non-Uniform Scaling", "NonUniformScaling");
     pNode->RenameProperty("Mesh File", "MeshFile");
-    pNode->RenameProperty("Submesh Name", "SubmeshName");
     pNode->RenameProperty("Radius 2", "Radius2");
     pNode->RenameProperty("Detail 2", "Detail2");
     pNode->RenameProperty("Cap 2", "Cap2");
     pNode->RenameProperty("Import Materials", "ImportMaterials");
-    pNode->RenameProperty("Use Subfolder for Material Import", "UseSubfolderForMaterialImport");
   }
 };
 
 ezMeshAssetPropertiesPatch_1_2 g_MeshAssetPropertiesPatch_1_2;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::File), EZ_ENUM_CONSTANT(ezMeshPrimitive::Box), EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect),
-    EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone), EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid),
-    EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
-    EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule), EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::File), EZ_ENUM_CONSTANT(ezMeshPrimitive::Box), EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone), EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid), EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule), EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
 EZ_END_STATIC_REFLECTED_ENUM;
 
-ezMeshAssetProperties::ezMeshAssetProperties()
-{
-  m_uiVertices = 0;
-  m_uiTriangles = 0;
-  m_ForwardDir = ezBasisAxis::PositiveX;
-  m_RightDir = ezBasisAxis::PositiveY;
-  m_UpDir = ezBasisAxis::PositiveZ;
-  m_fUniformScaling = 1.0f;
-  m_fRadius = 0.5f;
-  m_fRadius2 = 0.5f;
-  m_fHeight = 1.0f;
-  m_uiDetail = 1;
-  m_uiDetail2 = 1;
-  m_bCap = true;
-  m_bCap2 = true;
-  m_Angle = ezAngle::Degree(360.0f);
-  m_bImportMaterials = true;
-}
+ezMeshAssetProperties::ezMeshAssetProperties() = default;
+ezMeshAssetProperties::~ezMeshAssetProperties() = default;
 
 
 void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)

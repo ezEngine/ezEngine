@@ -56,7 +56,7 @@ o
 o
 {
 	Uuid %id{u4{16022574163100033457,5294328694667094755}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -144,7 +144,7 @@ o
 o
 {
 	Uuid %id{u4{15325108621188027952,9882272678014743600}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -156,7 +156,7 @@ o
 o
 {
 	Uuid %id{u4{8710347430923893658,10296975047607620666}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -206,7 +206,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
 	}
 }
 o
@@ -289,10 +289,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
+		i3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"SHADING_MODE::SHADING_MODE_LIT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -390,10 +390,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{2}
+		i3 %ConstantValue{2}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -513,10 +513,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
+		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_MASKED"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -545,10 +545,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{4}
+		i3 %ConstantValue{4}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_MODULATE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -630,10 +630,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{3}
+		i3 %ConstantValue{3}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_ADDITIVE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -645,10 +645,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
+		i3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_OPAQUE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -706,10 +706,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
+		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"SHADING_MODE::SHADING_MODE_FULLBRIGHT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o

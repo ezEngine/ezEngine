@@ -184,7 +184,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
         v2 = m_Positions[face.m_Vertices[1].m_uiPositionID];
         v3 = m_Positions[face.m_Vertices[2].m_uiPositionID];
 
-        face.m_vNormal.CalculateNormal(v1, v2, v3);
+        face.m_vNormal.CalculateNormal(v1, v2, v3).IgnoreResult();
 
         // done reading the face, store it
         m_Faces.PushBack(face);

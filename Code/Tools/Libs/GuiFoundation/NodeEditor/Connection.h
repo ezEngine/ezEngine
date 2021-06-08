@@ -26,6 +26,8 @@ public:
 
   const QPointF& GetOutPos() const { return m_OutPoint; }
 
+  bool m_bAdjacentNodeSelected = false;
+
 protected:
   const ezConnection* m_pConnection;
   QPointF m_InPoint;

@@ -25,9 +25,15 @@ public:
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, ezInt64 value) = 0;
 
-  virtual void GetValuePtr(const void* pInstance, void* pObject) const override{EZ_ASSERT_NOT_IMPLEMENTED};
+  virtual void GetValuePtr(const void* pInstance, void* pObject) const override
+  {
+    *static_cast<ezInt64*>(pObject) = GetValue(pInstance);
+  }
 
-  virtual void SetValuePtr(void* pInstance, void* pObject) override{EZ_ASSERT_NOT_IMPLEMENTED};
+  virtual void SetValuePtr(void* pInstance, const void* pObject) override
+  {
+    SetValue(pInstance, *static_cast<const ezInt64*>(pObject));
+  }
 };
 
 

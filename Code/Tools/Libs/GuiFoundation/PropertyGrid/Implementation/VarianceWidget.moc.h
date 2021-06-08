@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/VarianceTypes.h>
@@ -7,7 +7,7 @@
 
 class QSlider;
 
-class ezQtVarianceTypeWidget : public ezQtEmbeddedClassPropertyWidget
+class ezQtVarianceTypeWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -24,11 +24,12 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void DoPrepareToDie() override;
-  virtual void OnPropertyChanged(const ezString& sProperty) override;
+  virtual void InternalSetValue(const ezVariant& value) override;
 
+  bool m_bTemporaryCommand = false;
   QHBoxLayout* m_pLayout = nullptr;
   ezQtDoubleSpinBox* m_pValueWidget = nullptr;
   QSlider* m_pVarianceWidget = nullptr;
-  const ezRTTI* m_pValueType = nullptr;
+  ezAbstractMemberProperty* m_pValueProp = nullptr;
+  ezAbstractMemberProperty* m_pVarianceProp = nullptr;
 };

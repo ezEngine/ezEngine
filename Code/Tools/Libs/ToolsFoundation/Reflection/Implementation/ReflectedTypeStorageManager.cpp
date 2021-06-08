@@ -2,6 +2,7 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -239,11 +240,14 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
 ezVariantType::Enum ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::GetStorageType(const ezAbstractProperty* pProperty)
 {
   ezVariantType::Enum type = ezVariantType::Uuid;
+
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
+
   switch (pProperty->GetCategory())
   {
     case ezPropertyCategory::Member:
     {
-      if (pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
+      if (bIsValueType)
         type = pProperty->GetSpecificType()->GetVariantType();
       else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         type = ezVariantType::Int64;

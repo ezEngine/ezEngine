@@ -1,7 +1,6 @@
 #include <EditorPluginParticlePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetWindow.moc.h>
@@ -25,10 +24,8 @@
 ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
 
 
   // Menu Bar
@@ -262,10 +259,8 @@ ezQtParticleEffectAssetDocumentWindow::~ezQtParticleEffectAssetDocumentWindow()
 
   RestoreResource();
 
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 const char* ezQtParticleEffectAssetDocumentWindow::GetWindowLayoutGroupName() const
@@ -653,7 +648,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetParticleDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetParticleDocument()->GetAssetTypeVersion());
-  AssetHeader.Write(memoryWriter);
+  AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
   GetParticleDocument()->WriteResource(memoryWriter);

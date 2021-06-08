@@ -1,13 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
+#include <Core/Curves/Curve1DResource.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
-#include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Tracks/Curve1D.h>
-#include <GameEngine/Curves/Curve1DResource.h>
-#include <QPaintEngine>
-#include <QPainter>
-#include <Texture/Image/Image.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -47,8 +41,7 @@ void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& stream) const
   desc.Save(stream);
 }
 
-ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   WriteResource(stream);
   return ezStatus(EZ_SUCCESS);
@@ -184,10 +177,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
-  {
-    pNode->RenameProperty("Control Points", "ControlPoints");
-  }
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Control Points", "ControlPoints"); }
 };
 
 ezCurve1DDataPatch_1_2 g_ezCurve1DDataPatch_1_2;

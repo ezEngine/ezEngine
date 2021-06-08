@@ -1,6 +1,7 @@
 ez_cmake_init()
 
-ez_build_filter_everything()
+ez_build_filter_runtime()
+ez_requires_windows()
 
 ez_requires(EZ_3RDPARTY_ADS_SUPPORT)
 
@@ -11,20 +12,24 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg)
 
 if (EZ_COMPILE_ENGINE_AS_DLL)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE ADS_SHARED_EXPORT)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE ADS_SHARED_EXPORT)
 else()
-	target_compile_definitions(${PROJECT_NAME} PUBLIC ADS_STATIC)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC ADS_STATIC)
 endif()
 
 set (MOC_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/linux/FloatingWidgetTitleBar.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaTabBar.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaTitleBar.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaTitleBar_p.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockAreaWidget.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockContainerWidget.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/DockFocusController.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockManager.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockOverlay.h
   ${CMAKE_CURRENT_SOURCE_DIR}/DockSplitter.h

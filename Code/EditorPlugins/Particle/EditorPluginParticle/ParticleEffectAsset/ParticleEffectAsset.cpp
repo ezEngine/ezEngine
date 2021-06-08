@@ -1,29 +1,23 @@
 #include <EditorPluginParticlePCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
-#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetManager.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
-#include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
   ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_bRenderVisualizers);
 }

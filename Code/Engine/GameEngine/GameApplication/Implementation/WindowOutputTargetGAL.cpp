@@ -1,8 +1,9 @@
 #include <GameEnginePCH.h>
 
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
@@ -32,9 +33,16 @@ void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
 ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  auto pGALPass = pDevice->BeginPass("CaptureImage");
+  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
+
+  auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
+  EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
+
   ezGALTextureHandle hBackbuffer = pDevice->GetBackBufferTextureFromSwapChain(m_hSwapChain);
 
-  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(hBackbuffer);
+  pGALCommandEncoder->ReadbackTexture(hBackbuffer);
 
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
   const ezUInt32 uiWidth = pBackbuffer->GetDescription().m_uiWidth;
@@ -50,7 +58,9 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   /// \todo Make this more efficient
   MemDesc.m_pData = backbufferData.GetData();
   ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(hBackbuffer, &SysMemDescsDepth);
+  ezGALTextureSubresource sourceSubResource;
+  ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+  pGALCommandEncoder->CopyTextureReadbackResult(hBackbuffer, sourceSubResources, SysMemDescsDepth);
 
   ezImageHeader header;
   header.SetWidth(uiWidth);

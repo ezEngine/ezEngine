@@ -14,6 +14,10 @@ public:
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
+  ezSkeletonResourceHandle GetSkeleton() const { return m_hSkeleton; }
+
+  bool m_bDisplayGrid = true;
+
 protected:
   virtual void OnInitialize() override;
 
@@ -25,5 +29,6 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
 
   ezGameObject* m_pGameObject = nullptr;
-  ezSkeletonResourceHandle m_hMesh;
+  ezSkeletonResourceHandle m_hSkeleton;
+  ezComponentHandle m_hSkeletonComponent;
 };

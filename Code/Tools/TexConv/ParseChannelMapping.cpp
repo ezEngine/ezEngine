@@ -209,7 +209,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mappi
     // valid index after the 'in'
     if (num >= 0 && num < (ezInt32)m_Processor.m_Descriptor.m_InputFiles.GetCount())
     {
-      out_Mapping.m_iInputImageIndex = num;
+      out_Mapping.m_iInputImageIndex = (ezInt8)num;
     }
     else
     {

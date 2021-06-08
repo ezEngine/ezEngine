@@ -1,16 +1,10 @@
 #include <EditorFrameworkPCH.h>
 
-#include <Core/Graphics/Camera.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/DrawBoxGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Math/Mat4.h>
-#include <Foundation/Strings/Implementation/FormatStringArgs.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDrawBoxGizmo, 1, ezRTTINoAllocator)
   ;
@@ -67,9 +61,7 @@ bool ezDrawBoxGizmo::PickPosition(QMouseEvent* e)
   }
   else
   {
-    if (GetOwnerView()
-          ->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition)
-          .Failed())
+    if (GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition).Failed())
     {
       return false;
     }
@@ -135,7 +127,7 @@ ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
     ezPlane plane;
     plane.SetFromNormalAndPoint(m_vUpAxis, m_vFirstCorner);
 
-    GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition);
+    GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition).IgnoreResult();
 
     ezSnapProvider::SnapTranslation(m_vCurrentPosition);
   }
@@ -300,8 +292,7 @@ void ezDrawBoxGizmo::UpdateGrid(QMouseEvent* e)
   }
 }
 
-void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY,
-  float& out_fSizeNegZ, float& out_fSizePosZ) const
+void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const
 {
   out_Origin = m_vFirstCorner;
 
@@ -373,8 +364,7 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
       diff.x = ezMath::Abs(diff.x);
       diff.y = ezMath::Abs(diff.y);
 
-      pWindow->SetPermanentStatusBarMsg(ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Release the mouse to finish the base. ESC to cancel.",
-        ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
+      pWindow->SetPermanentStatusBarMsg(ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Release the mouse to finish the base. ESC to cancel.", ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
       break;
     }
 
@@ -384,9 +374,7 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
       diff.x = ezMath::Abs(diff.x);
       diff.y = ezMath::Abs(diff.y);
 
-      pWindow->SetPermanentStatusBarMsg(
-        ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Draw up/down to specify the box height. Click to finish, ESC to cancel.",
-          ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
+      pWindow->SetPermanentStatusBarMsg(ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Draw up/down to specify the box height. Click to finish, ESC to cancel.", ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
       break;
     }
   }

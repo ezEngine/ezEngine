@@ -106,4 +106,9 @@ float ezInputDevice::GetInputSlotState(const char* slot) const
   return m_InputSlotValues.GetValueOrDefault(slot, 0.f);
 }
 
+bool ezInputDevice::HasDeviceBeenUsedLastFrame() const
+{
+  return m_bGeneratedInputRecently;
+}
+
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputDevice);

@@ -1,8 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetManager.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
 #include <RendererCore/Meshes/MeshComponent.h>

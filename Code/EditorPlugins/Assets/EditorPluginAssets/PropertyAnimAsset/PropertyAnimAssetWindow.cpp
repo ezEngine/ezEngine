@@ -2,37 +2,21 @@
 
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
-#include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
-#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetWindow.moc.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <GuiFoundation/Widgets/EventTrackEditorWidget.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
-#include <QInputDialog>
-#include <QItemSelectionModel>
-#include <QLabel>
-#include <QLayout>
-#include <QPushButton>
-#include <QTimer>
-#include <QToolBar>
-#include <Texture/Image/ImageConversion.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
-#include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
-#include <qevent.h>
 
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument)
   : ezQtGameObjectDocumentWindow(pDocument)
@@ -88,7 +72,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   {
     ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
     pPanel->setObjectName("PropertyAnimAssetDockWidget");
-    pPanel->setWindowTitle("Properties");
+    pPanel->setWindowTitle("Object Properties");
     pPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument);
@@ -101,7 +85,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   {
     ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
     pPanel->setObjectName("PropertyAnimPropertiesDockWidget");
-    pPanel->setWindowTitle("Properties");
+    pPanel->setWindowTitle("Animated Properties");
     pPanel->show();
 
     m_pPropertyTreeView = new ezQtPropertyAnimAssetTreeView(pPanel);
@@ -267,7 +251,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   {
     const ezUInt64 uiDuration = GetPropertyAnimDocument()->GetAnimationDurationTicks();
-    m_pScrubberToolbar->SetDuration(uiDuration, GetPropertyAnimDocument()->GetProperties()->m_uiFramesPerSecond);
+    m_pScrubberToolbar->SetDuration(uiDuration);
   }
 
   UpdateCurveEditor();
@@ -356,7 +340,7 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
   {
     const ezUInt64 uiDuration = e.m_pDocument->GetAnimationDurationTicks();
 
-    m_pScrubberToolbar->SetDuration(uiDuration, e.m_pDocument->GetProperties()->m_uiFramesPerSecond);
+    m_pScrubberToolbar->SetDuration(uiDuration);
     UpdateCurveEditor();
     UpdateGradientEditor();
     UpdateEventTrackEditor();

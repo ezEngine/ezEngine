@@ -2,18 +2,12 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
-#include <GuiFoundation/UIServices/DynamicEnums.h>
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
@@ -26,16 +20,15 @@ void OnLoadPlugin(bool bReloading)
   // Mesh
   {
     // Menu Bar
-    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("SoundBankAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar");
+      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("SoundBankAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
       ezAssetActions::MapActions("SoundBankAssetToolBar", true);

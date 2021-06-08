@@ -8,6 +8,9 @@
 #include <ads/DockContainerWidget.h>
 #include <ads/DockWidgetTab.h>
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezQtApplicationPanel, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
 ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName)
@@ -36,7 +39,7 @@ ezQtApplicationPanel::~ezQtApplicationPanel()
 
 void ezQtApplicationPanel::EnsureVisible()
 {
-  m_pContainerWindow->EnsureVisible(this);
+  m_pContainerWindow->EnsureVisible(this).IgnoreResult();
 
   QWidget* pThis = this;
 

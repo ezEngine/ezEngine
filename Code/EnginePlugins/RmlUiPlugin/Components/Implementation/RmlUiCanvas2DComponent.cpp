@@ -3,15 +3,17 @@
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Gameplay/BlackboardComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -20,6 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezSuffixAttribute("px"), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),    
     EZ_ACCESSOR_PROPERTY("PassInput", GetPassInput, SetPassInput)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -45,32 +48,27 @@ void ezRmlUiCanvas2DComponent::Initialize()
 {
   SUPER::Initialize();
 
-  ezStringBuilder sName = "Context_";
-  if (m_hResource.IsValid())
-  {
-    sName.Append(m_hResource.GetResourceID().GetView());
-  }
-  sName.AppendFormat("_{}", ezArgP(this));
-
-  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
-  m_pContext->LoadDocumentFromResource(m_hResource);
-
-  UpdateCachedValues();
+  UpdateAutobinding();
 }
 
 void ezRmlUiCanvas2DComponent::Deinitialize()
 {
   SUPER::Deinitialize();
 
-  ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
-  m_pContext = nullptr;
+  if (m_pContext != nullptr)
+  {
+    ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
+    m_pContext = nullptr;
+  }
+
+  m_DataBindings.Clear();
 }
 
 void ezRmlUiCanvas2DComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_pContext->ShowDocument();
+  GetOrCreateRmlContext()->ShowDocument();
 }
 
 void ezRmlUiCanvas2DComponent::OnDeactivated()
@@ -98,7 +96,7 @@ void ezRmlUiCanvas2DComponent::Update()
     fScale = viewSize.y / m_ReferenceResolution.y;
   }
 
-  ezVec2 size = ezVec2(m_Size.x, m_Size.y) * fScale;
+  ezVec2 size = ezVec2(static_cast<float>(m_Size.x), static_cast<float>(m_Size.y)) * fScale;
   if (size.x <= 0.0f)
   {
     size.x = viewSize.x;
@@ -109,7 +107,7 @@ void ezRmlUiCanvas2DComponent::Update()
   }
   m_pContext->SetSize(ezVec2U32(static_cast<ezUInt32>(size.x), static_cast<ezUInt32>(size.y)));
 
-  ezVec2 offset = ezVec2(m_Offset.x, m_Offset.y) * fScale;
+  ezVec2 offset = ezVec2(static_cast<float>(m_Offset.x), static_cast<float>(m_Offset.y)) * fScale;
   offset = (viewSize - size).CompMul(m_AnchorPoint) - offset.CompMul(m_AnchorPoint * 2.0f - ezVec2(1.0f));
   m_pContext->SetOffset(ezVec2I32(static_cast<int>(offset.x), static_cast<int>(offset.y)));
 
@@ -123,6 +121,14 @@ void ezRmlUiCanvas2DComponent::Update()
 
     mousePos = mousePos.CompMul(viewSize) - offset;
     m_pContext->UpdateInput(mousePos);
+  }
+
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    if (pDataBinding != nullptr)
+    {
+      pDataBinding->Update();
+    }
   }
 
   m_pContext->Update();
@@ -157,8 +163,7 @@ void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
 
     if (m_pContext != nullptr)
     {
-      m_pContext->LoadDocumentFromResource(m_hResource);
-      if (IsActive())
+      if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
       {
         m_pContext->ShowDocument();
       }
@@ -196,6 +201,95 @@ void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
   m_bPassInput = bPassInput;
 }
 
+void ezRmlUiCanvas2DComponent::SetAutobindBlackboards(bool bAutobind)
+{
+  if (m_bAutobindBlackboards != bAutobind)
+  {
+    m_bAutobindBlackboards = bAutobind;
+
+    UpdateAutobinding();
+  }
+}
+
+ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding)
+{
+  // Document needs to be loaded again since data bindings have to be set before document load
+  if (m_pContext != nullptr)
+  {
+    if (dataBinding->Initialize(*m_pContext).Succeeded())
+    {
+      if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
+      {
+        m_pContext->ShowDocument();
+      }
+    }
+  }
+
+  for (ezUInt32 i = 0; i < m_DataBindings.GetCount(); ++i)
+  {
+    if (dataBinding == nullptr)
+    {
+      m_DataBindings[i] = std::move(dataBinding);
+      return i;
+    }
+  }
+
+  ezUInt32 uiDataBindingIndex = m_DataBindings.GetCount();
+  m_DataBindings.PushBack(std::move(dataBinding));
+  return uiDataBindingIndex;
+}
+
+void ezRmlUiCanvas2DComponent::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
+{
+  auto& pDataBinding = m_DataBindings[uiDataBindingIndex];
+
+  if (m_pContext != nullptr)
+  {
+    pDataBinding->Deinitialize(*m_pContext);
+  }
+
+  m_DataBindings[uiDataBindingIndex] = nullptr;
+}
+
+ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard)
+{
+  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, blackboard);
+  return AddDataBinding(pDataBinding);
+}
+
+void ezRmlUiCanvas2DComponent::RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex)
+{
+  RemoveDataBinding(uiDataBindingIndex);
+}
+
+ezRmlUiContext* ezRmlUiCanvas2DComponent::GetOrCreateRmlContext()
+{
+  if (m_pContext != nullptr)
+  {
+    return m_pContext;
+  }
+
+  ezStringBuilder sName = "Context_";
+  if (m_hResource.IsValid())
+  {
+    sName.Append(m_hResource.GetResourceID().GetView());
+  }
+  sName.AppendFormat("_{}", ezArgP(this));
+
+  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
+
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    pDataBinding->Initialize(*m_pContext).IgnoreResult();
+  }
+
+  m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
+
+  UpdateCachedValues();
+
+  return m_pContext;
+}
+
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -207,6 +301,7 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Size;
   s << m_AnchorPoint;
   s << m_bPassInput;
+  s << m_bAutobindBlackboards;
 }
 
 void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
@@ -220,6 +315,11 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Size;
   s >> m_AnchorPoint;
   s >> m_bPassInput;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bAutobindBlackboards;
+  }
 }
 
 ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -230,8 +330,7 @@ ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
 
 void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView &&
-      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
+  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
     return;
 
   // Don't extract render data for selection.
@@ -248,7 +347,7 @@ void ezRmlUiCanvas2DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
 {
   if (m_pContext != nullptr)
   {
-    m_pContext->ReloadDocumentFromResource(m_hResource);
+    m_pContext->ReloadDocumentFromResource(m_hResource).IgnoreResult();
     m_pContext->ShowDocument();
 
     UpdateCachedValues();
@@ -282,6 +381,33 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
           }
         },
         m_ResourceEventUnsubscriber);
+    }
+  }
+}
+
+void ezRmlUiCanvas2DComponent::UpdateAutobinding()
+{
+  for (ezUInt32 uiIndex : m_AutoBindings)
+  {
+    RemoveDataBinding(uiIndex);
+  }
+
+  m_AutoBindings.Clear();
+
+  if (m_bAutobindBlackboards)
+  {
+    ezHybridArray<ezBlackboardComponent*, 4> blackboardComponents;
+
+    ezGameObject* pObject = GetOwner();
+    while (pObject != nullptr)
+    {
+      pObject->TryGetComponentsOfBaseType(blackboardComponents);
+      for (auto pBlackboardComponent : blackboardComponents)
+      {
+        m_AutoBindings.PushBack(AddBlackboardBinding(pBlackboardComponent->GetBoard()));
+      }
+
+      pObject = pObject->GetParent();
     }
   }
 }

@@ -96,6 +96,7 @@ private:
   friend class ezOpenXRInputDevice;
   friend class ezOpenXRSpatialAnchors;
   friend class ezOpenXRHandTracking;
+  friend class ezOpenXRRemoting;
 
   struct Extensions
   {
@@ -114,22 +115,31 @@ private:
     bool m_bHandInteraction = false;
 
     bool m_bHandTracking = false;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-    PFN_xrCreateHandTrackerMSFT pfn_xrCreateHandTrackerMSFT;
-    PFN_xrDestroyHandTrackerMSFT pfn_xrDestroyHandTrackerMSFT;
-    PFN_xrGetHandTrackerStateMSFT pfn_xrGetHandTrackerStateMSFT;
-    PFN_xrCreateHandJointSpaceMSFT pfn_xrCreateHandJointSpaceMSFT;
-#endif
+    PFN_xrCreateHandTrackerEXT pfn_xrCreateHandTrackerEXT;
+    PFN_xrDestroyHandTrackerEXT pfn_xrDestroyHandTrackerEXT;
+    PFN_xrLocateHandJointsEXT pfn_xrLocateHandJointsEXT;
+
     bool m_bHandTrackingMesh = false;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
     PFN_xrCreateHandMeshSpaceMSFT pfn_xrCreateHandMeshSpaceMSFT;
     PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT;
+
+    bool m_bHolographicWindowAttachment = false;
+
+    bool m_bRemoting = false;
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+    PFN_xrRemotingSetContextPropertiesMSFT pfn_xrRemotingSetContextPropertiesMSFT;
+    PFN_xrRemotingConnectMSFT pfn_xrRemotingConnectMSFT;
+    PFN_xrRemotingDisconnectMSFT pfn_xrRemotingDisconnectMSFT;
+    PFN_xrRemotingGetConnectionStateMSFT pfn_xrRemotingGetConnectionStateMSFT;
 #endif
   };
 
   // Instance
   XrInstance m_instance = XR_NULL_HANDLE;
   Extensions m_extensions;
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
+  ezUniquePtr<class ezOpenXRRemoting> m_remoting;
+#endif
 
   // System
   uint64_t m_systemId = XR_NULL_SYSTEM_ID;
@@ -169,8 +179,6 @@ private:
   bool m_renderInProgress = false;
   XrSessionState m_sessionState{XR_SESSION_STATE_UNKNOWN};
 
-  ezInt32 m_updateFrame = 0;
-  ezInt32 m_renderFrame = 1;
   XrFrameWaitInfo m_frameWaitInfo{XR_TYPE_FRAME_WAIT_INFO};
   XrFrameState m_frameState{XR_TYPE_FRAME_STATE};
   XrFrameBeginInfo m_frameBeginInfo{XR_TYPE_FRAME_BEGIN_INFO};

@@ -6,6 +6,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Gameplay/InputComponent.h>
+#include <Gameplay/BlackboardComponent.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
@@ -19,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InputActionHash", m_uiInputActionHash),
+    EZ_ACCESSOR_PROPERTY("InputAction", GetInputAction, SetInputAction),
     EZ_MEMBER_PROPERTY("KeyPressValue", m_fKeyPressValue),
     EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
   }
@@ -27,12 +28,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("InputSet", m_sInputSet)->AddAttributes(new ezDynamicStringEnumAttribute("InputSet")),
     EZ_ENUM_MEMBER_PROPERTY("Granularity", ezInputMessageGranularity, m_Granularity),
+    EZ_MEMBER_PROPERTY("ForwardToBlackboard", m_bForwardToBlackboard),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -82,10 +84,18 @@ void ezInputComponent::Update()
 
   ezMsgInputActionTriggered msg;
 
+  ezBlackboard* pBlackboard = m_bForwardToBlackboard ? ezBlackboardComponent::FindBlackboard(GetOwner()) : nullptr;
+
   for (const ezString& actionName : AllActions)
   {
     float fValue = 0.0f;
     const ezKeyState::Enum state = ezInputManager::GetInputActionState(m_sInputSet, actionName, &fValue);
+
+    if (pBlackboard)
+    {
+      // we don't mind if the entry doesn't exist, that just means nobody is interested in reading the value
+      pBlackboard->SetEntryValue(ezTempHashedString(actionName), fValue).IgnoreResult();
+    }
 
     if (state == ezKeyState::Up)
       continue;
@@ -95,7 +105,7 @@ void ezInputComponent::Update()
       continue;
 
     msg.m_TriggerState = ToTriggerState(state);
-    msg.m_uiInputActionHash = ezTempHashedString::ComputeHash(actionName.GetData());
+    msg.m_sInputAction.Assign(actionName);
     msg.m_fKeyPressValue = fValue;
 
     m_InputEventSender.SendEventMessage(msg, this, GetOwner());
@@ -128,17 +138,25 @@ void ezInputComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_sInputSet;
   s << m_Granularity;
+
+  // version 3
+  s << m_bForwardToBlackboard;
 }
 
 void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
 
   s >> m_sInputSet;
   s >> m_Granularity;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bForwardToBlackboard;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

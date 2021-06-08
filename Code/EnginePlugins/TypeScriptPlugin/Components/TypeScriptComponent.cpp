@@ -150,8 +150,8 @@ bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
 
   if (duk.PrepareMethodCall(szFuncName).Succeeded()) // [ comp func comp ]
   {
-    duk.CallPreparedMethod(); // [ comp result ]
-    duk.PopStack(2);          // [ ]
+    duk.CallPreparedMethod().IgnoreResult(); // [ comp result ]
+    duk.PopStack(2);                         // [ ]
 
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
   }
@@ -216,9 +216,6 @@ void ezTypeScriptComponent::Deinitialize()
   }
 
   SetUserFlag(UserFlag::InitializedTS, false);
-
-  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
-  binding.DeleteTsComponent(GetHandle());
 }
 
 void ezTypeScriptComponent::OnActivated()
@@ -301,8 +298,8 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   if (duk.PrepareMethodCall("Tick").Succeeded()) // [ comp func comp ]
   {
-    duk.CallPreparedMethod(); // [ comp result ]
-    duk.PopStack(2);          // [ ]
+    duk.CallPreparedMethod().IgnoreResult(); // [ comp result ]
+    duk.PopStack(2);                         // [ ]
   }
   else
   {
@@ -360,8 +357,7 @@ void ezTypeScriptComponent::OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg
 
 const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

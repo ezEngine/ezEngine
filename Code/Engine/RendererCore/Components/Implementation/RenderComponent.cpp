@@ -82,7 +82,7 @@ ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent* pComponen
   ezUInt32 uniqueId = pComponent->GetUniqueID();
   if (uniqueId == ezInvalidIndex)
   {
-    uniqueId = pComponent->GetOwner()->GetHandle().GetInternalID().m_Data;
+    uniqueId = pComponent->GetOwner()->GetHandle().GetInternalID().m_InstanceIndex;
   }
   else
   {

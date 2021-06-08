@@ -14,7 +14,7 @@ o
 			s{"Objects/Asteroid_data/Asteroid.obj"}
 		}
 		Uuid %DocumentID{u4{7441637599104838787,5759301948652838931}}
-		u4 %Hash{3165322401449290271}
+		u4 %Hash{16599697659688238192}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -35,15 +35,14 @@ o
 	{
 		s %ConvexMeshType{"ezConvexCollisionMeshType::ConvexHull"}
 		u1 %Detail{1}
-		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{1}
+		u2 %MaxConvexPieces{2}
 		s %MeshFile{"Objects/Asteroid_data/Asteroid.obj"}
-		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
-		s %SubmeshName{""}
 		VarArray %Surfaces
 		{
 			Uuid{u4{10938424574240140204,5618365910006552981}}
@@ -184,7 +183,7 @@ o
 		s %PluginName{"ezEditorPluginPhysX"}
 		VarArray %Properties{}
 		s %TypeName{"ezCollisionMeshAssetProperties"}
-		u3 %TypeSize{1232}
+		u3 %TypeSize{1160}
 		u3 %TypeVersion{2}
 	}
 }

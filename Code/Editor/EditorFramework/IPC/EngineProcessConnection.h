@@ -55,6 +55,9 @@ public:
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
 
+  void SetRenderer(const char* szRenderer) { m_sRenderer = szRenderer; }
+  const char* GetRenderer() const { return m_sRenderer; }
+
   bool IsEngineSetup() const { return m_bClientIsConfigured; }
 
   /// /brief Sends a message that the document has been opened or closed. Resends all document data.
@@ -99,6 +102,7 @@ private:
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
+  ezString m_sRenderer;
   ezEditorProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorProcessRemoteCommunicationChannel> m_pRemoteProcess;
   ezApplicationFileSystemConfig m_FileSystemConfig;

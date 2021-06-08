@@ -51,25 +51,30 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
   ezGALTextureHandle hSceneColor = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
+
+  SetupResources(pGALPass, renderViewContext, inputs, outputs);
+  SetupPermutationVars(renderViewContext);
+  SetupLighting(renderViewContext);
+
+  UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
+
   ezGALResourceViewHandle colorResourceViewHandle = pDevice->GetDefaultResourceView(hSceneColor);
   renderViewContext.m_pRenderContext->BindTexture2D("SceneColor", colorResourceViewHandle);
   renderViewContext.m_pRenderContext->BindSamplerState("SceneColorSampler", m_hSceneColorSamplerState);
 
-  UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
-
-  SetupResources(renderViewContext, inputs, outputs);
-  SetupPermutationVars(renderViewContext);
-  SetupLighting(renderViewContext);
-
   RenderObjects(renderViewContext);
+
+  renderViewContext.m_pRenderContext->EndRendering();
+  pDevice->EndPass(pGALPass);
 
   ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hSceneColor);
 }
 
-void ezTransparentForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext,
+void ezTransparentForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SUPER::SetupResources(renderViewContext, inputs, outputs);
+  SUPER::SetupResources(pGALPass, renderViewContext, inputs, outputs);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -94,13 +99,11 @@ void ezTransparentForwardRenderPass::RenderObjects(const ezRenderViewContext& re
 void ezTransparentForwardRenderPass::UpdateSceneColorTexture(
   const ezRenderViewContext& renderViewContext, ezGALTextureHandle hSceneColorTexture, ezGALTextureHandle hCurrentColorTexture)
 {
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-
   ezGALTextureSubresource subresource;
   subresource.m_uiMipLevel = 0;
   subresource.m_uiArraySlice = 0;
 
-  pGALContext->ResolveTexture(hSceneColorTexture, subresource, hCurrentColorTexture, subresource);
+  renderViewContext.m_pRenderContext->GetCommandEncoder()->ResolveTexture(hSceneColorTexture, subresource, hCurrentColorTexture, subresource);
 }
 
 void ezTransparentForwardRenderPass::CreateSamplerState()

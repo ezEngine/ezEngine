@@ -49,7 +49,9 @@ ezResult ezOSFile::Open(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFil
     ezStringBuilder sFolder = m_sFileName.GetFileDirectory();
 
     if (OpenMode == ezFileOpenMode::Write || OpenMode == ezFileOpenMode::Append)
-      CreateDirectoryStructure(sFolder.GetData());
+    {
+      EZ_SUCCEED_OR_RETURN(CreateDirectoryStructure(sFolder.GetData()));
+    }
   }
 
   if (InternalOpen(m_sFileName.GetData(), OpenMode, FileShareMode) == EZ_SUCCESS)
@@ -497,23 +499,23 @@ ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& ou
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
-void ezOSFile::GatherAllItemsInFolder(
-  ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
+void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   out_ItemList.Clear();
 
   ezFileSystemIterator iterator;
-  if (iterator.StartSearch(szFolder, flags).Failed())
+  iterator.StartSearch(szFolder, flags);
+
+  if (!iterator.IsValid())
     return;
 
   out_ItemList.Reserve(128);
 
-  while (true)
+  while (iterator.IsValid())
   {
     out_ItemList.PushBack(iterator.GetStats());
 
-    if (iterator.Next().Failed())
-      break;
+    iterator.Next();
   }
 }
 
@@ -575,21 +577,22 @@ ezResult ezOSFile::DeleteFolder(const char* szFolder)
       return EZ_FAILURE;
   }
 
-  // not worth the effort at the moment to implement all the details,
-  // it is likely that this implementation will use std::filesystem soon
+  for (ezUInt32 i = items.GetCount(); i > 0; --i)
+  {
+    const auto& item = items[i - 1];
 
-  // for (ezUInt32 i = items.GetCount(); i > 0; --i)
-  //{
-  //  const auto& item = items[i - 1];
+    if (!item.m_bIsDirectory)
+      continue;
 
-  //  if (!item.m_bIsDirectory)
-  //    continue;
+    fullPath = item.m_sParentPath;
+    fullPath.AppendPath(item.m_sName);
 
-  //  fullPath = item.m_sParentPath;
-  //  fullPath.AppendPath(item.m_sName);
+    if (ezOSFile::InternalDeleteDirectory(fullPath).Failed())
+      return EZ_FAILURE;
+  }
 
-  //  // TODO: delete empty folders now
-  //}
+  if (ezOSFile::InternalDeleteDirectory(szFolder).Failed())
+    return EZ_FAILURE;
 
   return EZ_SUCCESS;
 }

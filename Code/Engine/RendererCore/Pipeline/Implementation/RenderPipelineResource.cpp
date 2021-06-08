@@ -107,7 +107,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
     ezStringBuilder sTemp, sTemp2;
 
     ezAssetFileHeader AssetHash;
-    AssetHash.Read(*Stream);
+    AssetHash.Read(*Stream).IgnoreResult();
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;

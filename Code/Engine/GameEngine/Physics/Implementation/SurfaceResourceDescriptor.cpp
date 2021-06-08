@@ -1,8 +1,8 @@
 #include <GameEnginePCH.h>
 
+#include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Physics/SurfaceResource.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 2)
@@ -65,8 +65,7 @@ const char* ezSurfaceInteraction::GetPrefab() const
 
 const ezRangeView<const char*, ezUInt32> ezSurfaceInteraction::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezSurfaceInteraction::SetParameter(const char* szKey, const ezVariant& value)
@@ -153,7 +152,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
         ezHashedString key;
         ezVariant value;
 
-        for (ezUInt32 i = 0; i < uiNumParams; ++i)
+        for (ezUInt32 i2 = 0; i2 < uiNumParams; ++i2)
         {
           stream >> key;
           stream >> value;

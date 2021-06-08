@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>

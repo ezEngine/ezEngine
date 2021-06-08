@@ -10,9 +10,6 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
-#include <SharedPluginAssets/Common/Messages.h>
 
 ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -66,8 +63,7 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
 
 ezProcGenGraphAssetDocumentWindow::~ezProcGenGraphAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
 
   RestoreResource();
 }
@@ -99,7 +95,7 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetProcGenGraphDocument()->GetAssetTypeVersion());
-  AssetHeader.Write(memoryWriter);
+  AssetHeader.Write(memoryWriter).IgnoreResult();
   // Write Asset Data
   if (GetProcGenGraphDocument()->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile()).Succeeded())
   {

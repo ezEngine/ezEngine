@@ -1,7 +1,5 @@
 ez_cmake_init()
 
-ez_build_filter_foundation()
-
 ez_requires(EZ_3RDPARTY_ENET_SUPPORT)
 
 # Get the name of this folder as the project name
@@ -14,21 +12,14 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ENET_SUPPOR
 if(EZ_CMAKE_PLATFORM_WINDOWS)
   target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32 _WINSOCK_DEPRECATED_NO_WARNINGS)
 
-  if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-
-    target_link_libraries(${PROJECT_NAME}
-      PRIVATE
-      OneCore.lib
-    )
-
-  else()
+  if(NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
     target_link_libraries(${PROJECT_NAME}
       PRIVATE
       ws2_32.lib
       Kernel32.lib
       runtimeobject.lib
-      winmm.lib
+	    winmm.lib
     )
 
   endif()

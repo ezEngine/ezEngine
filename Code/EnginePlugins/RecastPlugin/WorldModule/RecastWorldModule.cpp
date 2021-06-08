@@ -59,8 +59,11 @@ void ezRecastWorldModule::UpdateNavMesh(const UpdateContext& ctxt)
 
     m_pDetourNavMesh = pNavMesh->GetNavMesh();
 
-    m_pNavMeshPointsOfInterest = EZ_DEFAULT_NEW(ezNavMeshPointOfInterestGraph);
-    m_pNavMeshPointsOfInterest->ExtractInterestPointsFromMesh(*pNavMesh->GetNavMeshPolygons());
+    if (m_pDetourNavMesh)
+    {
+      m_pNavMeshPointsOfInterest = EZ_DEFAULT_NEW(ezNavMeshPointOfInterestGraph);
+      m_pNavMeshPointsOfInterest->ExtractInterestPointsFromMesh(*pNavMesh->GetNavMeshPolygons());
+    }
   }
 
   if (m_pNavMeshPointsOfInterest)

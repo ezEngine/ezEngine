@@ -30,6 +30,7 @@ export class Player extends ez.TickedTypescriptComponent {
     weaponUnlocked: boolean[] = [];
     grabObject: ez.PxGrabObjectComponent = null;
     requireNoShoot: boolean = false;
+    blackboard: ez.BlackboardComponent = null;
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
@@ -45,6 +46,7 @@ export class Player extends ez.TickedTypescriptComponent {
         this.guns[_ge.Weapon.MachineGun] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("MachineGun", true));
         this.guns[_ge.Weapon.PlasmaRifle] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("PlasmaRifle", true));
         this.guns[_ge.Weapon.RocketLauncher] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("RocketLauncher", true));
+        this.blackboard = owner.TryGetComponentOfBaseType(ez.BlackboardComponent);
 
         this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.PxGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
@@ -95,6 +97,20 @@ export class Player extends ez.TickedTypescriptComponent {
                 msg.Crouch = this.input.GetCurrentInputState("Crouch", false) > 0.5;
 
                 this.characterController.SendMessage(msg);
+
+                if (this.blackboard)
+                {
+                    // this is used to control the animation playback on the 'shadow proxy' mesh
+                    // currently we only sync basic movement
+                    // also note that the character mesh currently doesn't have crouch animations
+                    // so we can't have a proper shadow there
+
+                    this.blackboard.SetEntryValue("MoveForwards", msg.MoveForwards);
+                    this.blackboard.SetEntryValue("MoveBackwards", msg.MoveBackwards);
+                    this.blackboard.SetEntryValue("StrafeLeft", msg.StrafeLeft);
+                    this.blackboard.SetEntryValue("StrafeRight", msg.StrafeRight);
+                    this.blackboard.SetEntryValue("TouchingGround", this.characterController.IsTouchingGround());
+                }
             }
 
             // look up / down
@@ -145,33 +161,33 @@ export class Player extends ez.TickedTypescriptComponent {
 
         if (msg.TriggerState == ez.TriggerState.Activated) {
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("Flashlight")) {
+            if (msg.InputAction == "Flashlight") {
                 this.flashlight.SetActiveFlag(!this.flashlight.GetActiveFlag());
             }
 
             if (!this.grabObject.HasObjectGrabbed()) {
 
-                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon0"))
+                if (msg.InputAction == "SwitchWeapon0")
                     this.SwitchToWeapon(_ge.Weapon.None);
 
-                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon1"))
+                if (msg.InputAction == "SwitchWeapon1")
                     this.SwitchToWeapon(_ge.Weapon.Pistol);
 
-                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon2"))
+                if (msg.InputAction == "SwitchWeapon2")
                     this.SwitchToWeapon(_ge.Weapon.Shotgun);
 
-                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon3"))
+                if (msg.InputAction == "SwitchWeapon3")
                     this.SwitchToWeapon(_ge.Weapon.MachineGun);
 
-                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon4"))
+                if (msg.InputAction == "SwitchWeapon4")
                     this.SwitchToWeapon(_ge.Weapon.PlasmaRifle);
 
-                if (msg.InputActionHash == ez.Utils.StringToHash("SwitchWeapon5"))
+                if (msg.InputAction == "SwitchWeapon5")
                     this.SwitchToWeapon(_ge.Weapon.RocketLauncher);
 
             }
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("Use")) {
+            if (msg.InputAction == "Use") {
 
                 if (this.grabObject.HasObjectGrabbed()) {
                     this.grabObject.DropGrabbedObject();
@@ -195,7 +211,7 @@ export class Player extends ez.TickedTypescriptComponent {
                 }
             }
 
-            if (msg.InputActionHash == ez.Utils.StringToHash("Teleport")) {
+            if (msg.InputAction == "Teleport") {
                 let owner = this.characterController.GetOwner();
                 let pos = owner.GetGlobalPosition();
                 let dir = owner.GetGlobalDirForwards();
@@ -210,7 +226,7 @@ export class Player extends ez.TickedTypescriptComponent {
             }
         }
 
-        if (msg.InputActionHash == ez.Utils.StringToHash("Shoot")) {
+        if (msg.InputAction == "Shoot") {
 
             if (this.requireNoShoot) {
                 if (msg.TriggerState == ez.TriggerState.Activated) {
@@ -237,7 +253,7 @@ export class Player extends ez.TickedTypescriptComponent {
             }
         }
 
-        if (msg.InputActionHash == ez.Utils.StringToHash("Reload")) {
+        if (msg.InputAction == "Reload") {
 
             if (this.guns[this.activeWeapon]) {
 

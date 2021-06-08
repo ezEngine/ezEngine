@@ -47,4 +47,9 @@ private:
   bool m_bShowItemsInHiddenFolders = false;
   bool m_bSortByRecentUse = false;
   mutable ezStringBuilder m_sTemp; // stored here to reduce unnecessary allocations
+
+  // Cache for uses search
+  bool m_bUsesSearchActive = false;
+  bool m_bTransitive = false;
+  ezSet<ezUuid> m_uses;
 };

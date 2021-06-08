@@ -91,6 +91,23 @@ public:
   /// \brief Same as GetExistingResourceByType() but allows to specify the resource type as an ezRTTI.
   static ezTypelessResourceHandle GetExistingResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
 
+  template <typename ResourceType>
+  static ezTypedResourceHandle<ResourceType> GetExistingResourceOrCreateAsync(const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader, ezTypedResourceHandle<ResourceType> hLoadingFallback = {})
+  {
+    ezTypelessResourceHandle hTypeless = GetExistingResourceOrCreateAsync(ezGetStaticRTTI<ResourceType>(), szResourceID, std::move(loader));
+
+    auto hTyped = ezTypedResourceHandle<ResourceType>((ResourceType*)hTypeless.m_pResource);
+
+    if (hLoadingFallback.IsValid())
+    {
+      ((ResourceType*)hTypeless.m_pResource)->SetLoadingFallbackResource(hLoadingFallback);
+    }
+
+    return hTyped;
+  }
+
+  static ezTypelessResourceHandle GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader);
+
   /// \brief Triggers loading of the given resource. tShouldBeAvailableIn specifies how long the resource is not yet needed, thus allowing
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
   static void PreloadResource(const ezTypelessResourceHandle& hResource);

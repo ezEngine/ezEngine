@@ -1,5 +1,6 @@
 #include <FmodPluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/ResourceManager/Resource.h>
@@ -10,7 +11,6 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
@@ -54,10 +54,7 @@ struct ezFmodEventComponentManager::OcclusionState
   float m_fRadius = 0.0f;
   float m_fLastOcclusionValue = -1.0f;
 
-  float GetOcclusionValue(float fThreshold) const
-  {
-    return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f);
-  }
+  float GetOcclusionValue(float fThreshold) const { return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
 };
 
 ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
@@ -81,13 +78,15 @@ ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
 
       float fRadius = ezMath::Pow((float)rng.DoubleZeroToOneExclusive(), 1.0f / 3.0f);
       fRadius = fRadius * 0.5f + 0.5f;
-      pos.SetLength(fRadius);
+      pos.SetLength(fRadius).IgnoreResult();
     }
   }
 }
 
 void ezFmodEventComponentManager::Initialize()
 {
+  SUPER::Initialize();
+
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateOcclusion, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
@@ -110,6 +109,8 @@ void ezFmodEventComponentManager::Initialize()
 void ezFmodEventComponentManager::Deinitialize()
 {
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+
+  SUPER::Deinitialize();
 }
 
 ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius)
@@ -556,8 +557,7 @@ void ezFmodEventComponent::StartOneShot()
   // do not start sounds that will not terminate
   if (!bIsOneShot)
   {
-    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.",
-      pEvent->GetResourceID(), pEvent->GetResourceDescription());
+    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.", pEvent->GetResourceID(), pEvent->GetResourceDescription());
     return;
   }
 
@@ -727,12 +727,12 @@ void ezFmodEventComponent::Update()
       }
 
       ezStringBuilder sb;
-      sb.Format("{}\\n{}", path, szCurrentState);
+      sb.Format("{}\n{}", path, szCurrentState);
 
       if (GetUseOcclusion())
       {
         auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
-        sb.AppendFormat("\\nOcclusion: {}", occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
+        sb.AppendFormat("\nOcclusion: {}", occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
 
         ezVec3 centerPos = GetOwner()->GetGlobalPosition();
         for (ezUInt32 uiRayIndex = 0; uiRayIndex < EZ_ARRAY_SIZE(s_InSpherePositions); ++uiRayIndex)
@@ -743,8 +743,7 @@ void ezFmodEventComponent::Update()
         }
       }
 
-      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16, ezDebugRenderer::HorizontalAlignment::Center,
-        ezDebugRenderer::VerticalAlignment::Bottom);
+      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
     }
   }
 #endif

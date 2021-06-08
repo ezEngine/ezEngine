@@ -470,7 +470,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       change.GetGraph(graph);
       ezRttiConverterReader reader(&graph, m_pContext);
       const ezAbstractObjectNode* pNode = graph.GetNodeByName("Object");
-
+      const ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
       void* pValue = reader.CreateObjectFromNode(pNode);
       if (!pValue)
       {
@@ -512,7 +512,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       {
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(pValue));
+        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(pValue, pType));
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
@@ -564,7 +564,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
         auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(valueObject.m_pObject));
+        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(valueObject.m_pObject, valueObject.m_pType));
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
@@ -609,7 +609,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-        value = valueObject.m_pObject;
+        value = ezTypedPointer(valueObject.m_pObject, valueObject.m_pType);
       }
 
       if (pProp->GetCategory() == ezPropertyCategory::Array)
@@ -642,7 +642,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-          value = valueObject.m_pObject;
+          value = ezTypedPointer(valueObject.m_pObject, valueObject.m_pType);
         }
 
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);

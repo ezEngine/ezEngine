@@ -3,7 +3,6 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptPin
@@ -103,7 +102,7 @@ ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, con
     return ezStatus("Cannot connect data pins with execution pins.");
   }
 
-  if (pPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data &&
+  if (pPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Data &&
       pPinSource->GetDescriptor()->m_DataType != pPinTarget->GetDescriptor()->m_DataType)
   {
     ezVisualScriptInstance::SetupPinDataTypeConversions();
@@ -123,14 +122,14 @@ ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, con
   }
 
   // only one connection is allowed on DATA input pins, execution input pins may have multiple incoming connections
-  if (pPinTarget->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data && !pPinTarget->GetConnections().IsEmpty())
+  if (pPinTarget->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Data && !pPinTarget->GetConnections().IsEmpty())
   {
     out_Result = CanConnectResult::ConnectNto1;
     return ezStatus(EZ_FAILURE);
   }
 
   // only one outgoing connection is allowed on EXECUTION pins, data pins may have multiple outgoing connections
-  if (pPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Execution && !pPinSource->GetConnections().IsEmpty())
+  if (pPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Execution && !pPinSource->GetConnections().IsEmpty())
   {
     out_Result = CanConnectResult::Connect1toN;
     return ezStatus(EZ_FAILURE);

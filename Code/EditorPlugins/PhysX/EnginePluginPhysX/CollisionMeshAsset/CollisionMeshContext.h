@@ -18,6 +18,8 @@ public:
 
   const ezPxMeshResourceHandle& GetMesh() const { return m_hMesh; }
 
+  bool m_bDisplayGrid = true;
+
 protected:
   virtual void OnInitialize() override;
 

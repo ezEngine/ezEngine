@@ -38,9 +38,17 @@ public:
   void SetSaturation(float fSaturation); // [ property ]
   float GetSaturation() const;           // [ property ]
 
+  void SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode); // [ property ]
+  ezEnum<ezReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
+
+  void SetCubeMapFile(const char* szFile); // [ property ]
+  const char* GetCubeMapFile() const;      // [ property ]
+
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezReflectionProbeData m_ReflectionProbeData;
+  // Tracks if any changes where made to the settings. Reset ezReflectionPool::ExtractReflectionProbe once a filter pass is done.
+  mutable bool m_bStatesDirty = true;
 };

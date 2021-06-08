@@ -1,9 +1,6 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <ToolsFoundation/Document/Document.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, 1, ezRTTINoAllocator)

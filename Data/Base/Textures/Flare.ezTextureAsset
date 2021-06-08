@@ -14,7 +14,7 @@ o
 			s{"Textures/Flare.tga"}
 		}
 		Uuid %DocumentID{u4{104150515546721672,4824860388845839080}}
-		u4 %Hash{3401009087255139936}
+		u4 %Hash{10250390293104299793}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -37,6 +37,7 @@ o
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
+		b %DilateColor{0}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		f %HdrExposureBias{0}

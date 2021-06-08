@@ -22,7 +22,7 @@ ezUInt32 ezArchiveTOC::FindEntry(const char* szFile) const
 
   ezUInt32 uiIndex;
 
-  ezArchiveLookupString lookup(ezTempHashedString::ComputeHash(sLowerCasePath.GetData()), sLowerCasePath, m_AllPathStrings);
+  ezArchiveLookupString lookup(ezHashingUtils::StringHash(sLowerCasePath.GetData()), sLowerCasePath, m_AllPathStrings);
 
   if (!m_PathToEntryIndex.TryGetValue(lookup, uiIndex))
     return ezInvalidIndex;
@@ -42,7 +42,10 @@ ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Entries));
 
-  // version 2 changed the way the hash table is generated
+  // write the hash of a known string to the archive, to detect hash function changes
+  ezUInt64 uiStringHash = ezHashingUtils::StringHash("ezArchive");
+  stream << uiStringHash;
+
   EZ_SUCCEED_OR_RETURN(stream.WriteHashTable(m_PathToEntryIndex));
 
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_AllPathStrings));
@@ -50,33 +53,55 @@ ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
   return EZ_SUCCESS;
 }
 
-ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream)
+ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVersion)
 {
-  ezTypeVersion version = stream.ReadVersion(2);
+  EZ_ASSERT_ALWAYS(uiArchiveVersion <= 4, "Unsupported archive version {}", uiArchiveVersion);
+
+  // we don't use the TOC version anymore, but the archive version instead
+  const ezTypeVersion version = stream.ReadVersion(2);
 
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Entries));
 
+  bool bRecreateStringHashes = true;
+
   if (version == 1)
   {
-    // TODO: we should consider removing this code path
-
     // read and discard the data, it is regenerated below
     ezHashTable<ezTempHashedString, ezUInt32> m_PathToIndex;
     EZ_SUCCEED_OR_RETURN(stream.ReadHashTable(m_PathToIndex));
   }
   else
   {
+    if (uiArchiveVersion >= 4)
+    {
+      // read the hash of a known string from the archive, to detect hash function changes
+      ezUInt64 uiStringHash = 0;
+      stream >> uiStringHash;
+
+      if (uiStringHash == ezHashingUtils::StringHash("ezArchive"))
+      {
+        bRecreateStringHashes = false;
+      }
+    }
+
     EZ_SUCCEED_OR_RETURN(stream.ReadHashTable(m_PathToEntryIndex));
   }
 
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_AllPathStrings));
 
-  if (version == 1)
+  if (bRecreateStringHashes)
   {
+    ezLog::Info("Archive uses older string hashing, recomputing hashes.");
+
     // version 1 stores an older way for the path/hash -> entry lookup table, which is prone to hash collisions
     // in this case, rebuild the new hash table on the fly
+    //
+    // version 2 used MurmurHash
+    // version 3 switched to 32 bit xxHash
+    // version 4 switched to 64 bit hashes
 
     const ezUInt32 uiNumEntries = m_Entries.GetCount();
+    m_PathToEntryIndex.Clear();
     m_PathToEntryIndex.Reserve(uiNumEntries);
 
     ezStringBuilder sLowerCasePath;
@@ -90,7 +115,8 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream)
       sLowerCasePath = szEntryString;
       sLowerCasePath.ToLower();
 
-      const ezUInt32 uiLowerCaseHash = ezTempHashedString::ComputeHash(sLowerCasePath.GetData());
+      // cut off the upper 32 bit, we don't need them here
+      const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32((ezUInt64)ezHashingUtils::StringHash(sLowerCasePath.GetData()) & 0xFFFFFFFFllu);
 
       m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
 

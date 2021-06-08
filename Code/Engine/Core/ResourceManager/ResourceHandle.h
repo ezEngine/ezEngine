@@ -22,7 +22,9 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOw
 #if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
 EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner);
 #else
-EZ_ALWAYS_INLINE void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner) {}
+EZ_ALWAYS_INLINE void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner)
+{
+}
 #endif
 
 /// \brief The typeless implementation of resource handles. A typed interface is provided by ezTypedResourceHandle.
@@ -68,7 +70,7 @@ public:
 
   /// \brief Returns the Resource ID hash of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  ezUInt32 GetResourceIDHash() const;
+  ezUInt64 GetResourceIDHash() const;
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
@@ -149,8 +151,7 @@ public:
   ezTypedResourceHandle(const ezTypedResourceHandle<BaseOrDerivedType>& rhs)
     : m_Typeless(rhs.m_Typeless)
   {
-    static_assert(std::is_base_of<ResourceType, BaseOrDerivedType>::value || std::is_base_of<BaseOrDerivedType, ResourceType>::value,
-      "Only related types can be assigned to handles of this type");
+    static_assert(std::is_base_of<ResourceType, BaseOrDerivedType>::value || std::is_base_of<BaseOrDerivedType, ResourceType>::value, "Only related types can be assigned to handles of this type");
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (std::is_base_of<BaseOrDerivedType, ResourceType>::value)
@@ -201,7 +202,7 @@ public:
 
   /// \brief Returns the Resource ID hash of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  EZ_ALWAYS_INLINE ezUInt32 GetResourceIDHash() const { return m_Typeless.GetResourceIDHash(); }
+  EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_Typeless.GetResourceIDHash(); }
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
@@ -227,3 +228,40 @@ struct ezHashHelper<ezTypedResourceHandle<T>>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezTypedResourceHandle<T>& a, const ezTypedResourceHandle<T>& b) { return a == b; }
 };
+
+// Stream operations
+class ezResource;
+
+class EZ_CORE_DLL ezResourceHandleStreamOperations
+{
+public:
+  template <typename ResourceType>
+  static void WriteHandle(ezStreamWriter& Stream, const ezTypedResourceHandle<ResourceType>& hResource)
+  {
+    WriteHandle(Stream, hResource.m_Typeless.m_pResource);
+  }
+
+  template <typename ResourceType>
+  static void ReadHandle(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& ResourceHandle)
+  {
+    ReadHandle(Stream, ResourceHandle.m_Typeless);
+  }
+
+private:
+  static void WriteHandle(ezStreamWriter& Stream, const ezResource* pResource);
+  static void ReadHandle(ezStreamReader& Stream, ezTypelessResourceHandle& ResourceHandle);
+};
+
+/// \brief Operator to serialize resource handles
+template <typename ResourceType>
+void operator<<(ezStreamWriter& Stream, const ezTypedResourceHandle<ResourceType>& Value)
+{
+  ezResourceHandleStreamOperations::WriteHandle(Stream, Value);
+}
+
+/// \brief Operator to deserialize resource handles
+template <typename ResourceType>
+void operator>>(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Value)
+{
+  ezResourceHandleStreamOperations::ReadHandle(Stream, Value);
+}

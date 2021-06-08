@@ -1,7 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
-#include <Foundation/Types/ScopeExit.h>
 
 static ezString ToShaderString(const ezVariant& value)
 {
@@ -172,8 +171,10 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
   m_sFinalShaderCode.Append("[PERMUTATIONS]\n\n", m_sShaderPermutations, "\n");
   m_sFinalShaderCode.Append("[MATERIALPARAMETER]\n\n", m_sShaderMaterialParam, "\n");
   m_sFinalShaderCode.Append("[RENDERSTATE]\n\n", m_sShaderRenderState, "\n");
-  m_sFinalShaderCode.Append("[VERTEXSHADER]\n\n", sMaterialCBDefine, "\n\n", m_sShaderVertex, "\n");
-  m_sFinalShaderCode.Append("[GEOMETRYSHADER]\n\n", sMaterialCBDefine, "\n\n", m_sShaderGeometry, "\n");
+  m_sFinalShaderCode.Append("[VERTEXSHADER]\n\n", sMaterialCBDefine, "\n\n");
+  m_sFinalShaderCode.Append(m_sShaderVertexDefines, "\n", m_sShaderVertex, "\n");
+  m_sFinalShaderCode.Append("[GEOMETRYSHADER]\n\n", sMaterialCBDefine, "\n\n");
+  m_sFinalShaderCode.Append(m_sShaderGeometryDefines, "\n", m_sShaderGeometry, "\n");
   m_sFinalShaderCode.Append("[PIXELSHADER]\n\n", sMaterialCBDefine, "\n\n");
   m_sFinalShaderCode.Append(m_sShaderPixelDefines, "\n", m_sShaderPixelIncludes, "\n");
   m_sFinalShaderCode.Append(m_sShaderPixelConstants, "\n", m_sShaderPixelSamplers, "\n", m_sShaderPixelBody, "\n");
@@ -207,7 +208,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
 
   ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sPixelSamplersCode, sVsBodyCode, sGsBodyCode, sMaterialCB, sPermutations,
-    sRenderStates, sPixelDefines, sPixelIncludes;
+    sRenderStates, sPixelDefines, sPixelIncludes, sVertexDefines, sGeometryDefines;
 
   sConstantsCode = pDesc->m_sShaderCodePixelConstants;
   sPsBodyCode = pDesc->m_sShaderCodePixelBody;
@@ -221,9 +222,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   sPixelDefines = pDesc->m_sShaderCodePixelDefines;
   sPixelIncludes = pDesc->m_sShaderCodePixelIncludes;
 
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode));
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode));
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sGsBodyCode));
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode, sPixelDefines));
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode, sVertexDefines));
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sGsBodyCode, sGeometryDefines));
 
   EZ_SUCCEED_OR_RETURN(CheckPropertyValues(pNode, pDesc));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
@@ -250,7 +251,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   {
     AppendStringIfUnique(m_sShaderPermutations, sPermutations);
     AppendStringIfUnique(m_sShaderRenderState, sRenderStates);
+    AppendStringIfUnique(m_sShaderVertexDefines, sVertexDefines);
     AppendStringIfUnique(m_sShaderVertex, sVsBodyCode);
+    AppendStringIfUnique(m_sShaderGeometryDefines, sGeometryDefines);
     AppendStringIfUnique(m_sShaderGeometry, sGsBodyCode);
     AppendStringIfUnique(m_sShaderMaterialParam, sMaterialParamCode);
     AppendStringIfUnique(m_sShaderPixelDefines, sPixelDefines);
@@ -306,8 +309,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
   const ezUInt16 uiPinID = DeterminePinId(pOwnerNode, pPin);
 
   ezStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
+  ezStringBuilder ignore; // DefineWhenUsingDefaultValue not used for output pins
 
-  ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode);
+  ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode, ignore);
 
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
 
@@ -320,7 +324,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 
 
 ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
-  const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode)
+  const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines)
 {
   const ezArrayPtr<ezPin* const> inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
 
@@ -342,6 +346,13 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
       else
       {
         sValue = pNodeDesc->m_InputPins[i].m_sDefaultValue;
+
+        for (const auto& sDefine : pNodeDesc->m_InputPins[i].m_sDefinesWhenUsingDefaultValue)
+        {
+          sCodeForPlacingDefines.Append("#if !defined(", sDefine, ")\n");
+          sCodeForPlacingDefines.Append("  #define ", sDefine, "\n");
+          sCodeForPlacingDefines.Append("#endif\n");
+        }
       }
 
       if (sValue.IsEmpty())
@@ -381,11 +392,11 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
 
       if (pins[i]->GetConnections().IsEmpty())
       {
-        sInlineCode.ReplaceAll(sDefineName, "false");
+        sInlineCode.ReplaceAll(sDefineName, "0");
       }
       else
       {
-        sInlineCode.ReplaceAll(sDefineName, "true");
+        sInlineCode.ReplaceAll(sDefineName, "1");
       }
     }
   }
@@ -399,11 +410,11 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
 
       if (pins[i]->GetConnections().IsEmpty())
       {
-        sInlineCode.ReplaceAll(sDefineName, "false");
+        sInlineCode.ReplaceAll(sDefineName, "0");
       }
       else
       {
-        sInlineCode.ReplaceAll(sDefineName, "true");
+        sInlineCode.ReplaceAll(sDefineName, "1");
       }
     }
   }

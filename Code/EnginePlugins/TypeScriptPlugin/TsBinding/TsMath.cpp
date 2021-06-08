@@ -50,10 +50,10 @@ ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ez
   ezVec2 res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.x = duk_get_number_default(pDuk, -1, fallback.x);
+  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.y = duk_get_number_default(pDuk, -1, fallback.y);
+  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.y));
   duk_pop(pDuk);
 
   return res;
@@ -121,13 +121,13 @@ ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ez
   ezVec3 res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.x = duk_get_number_default(pDuk, -1, fallback.x);
+  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.y = duk_get_number_default(pDuk, -1, fallback.y);
+  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.y));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.z = duk_get_number_default(pDuk, -1, fallback.z);
+  res.z = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.z));
   duk_pop(pDuk);
 
   return res;
@@ -406,16 +406,16 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat f
   ezQuat res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.v.x = duk_get_number_default(pDuk, -1, fallback.v.x);
+  res.v.x = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.v.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.v.y = duk_get_number_default(pDuk, -1, fallback.v.y);
+  res.v.y = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.v.y));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.v.z = duk_get_number_default(pDuk, -1, fallback.v.z);
+  res.v.z = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.v.z));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
-  res.w = duk_get_number_default(pDuk, -1, fallback.w);
+  res.w = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.w));
   duk_pop(pDuk);
 
   return res;
@@ -707,7 +707,25 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
   switch (pType->GetVariantType())
   {
     case ezVariant::Type::Invalid:
+    {
+      if (ezStringUtils::IsEqual(pType->GetTypeName(), "ezVariant"))
+      {
+        switch (duk_get_type(duk.GetContext(), iObjIdx))
+        {
+          case DUK_TYPE_BOOLEAN:
+            return duk.GetBoolValue(iObjIdx);
+          case DUK_TYPE_NUMBER:
+            return duk.GetFloatValue(iObjIdx);
+          case DUK_TYPE_STRING:
+            return duk.GetStringValue(iObjIdx);
+
+          default:
+            return ezVariant();
+        }
+      }
+
       return ezVariant();
+    }
 
     case ezVariant::Type::Bool:
       return duk.GetBoolValue(iObjIdx);

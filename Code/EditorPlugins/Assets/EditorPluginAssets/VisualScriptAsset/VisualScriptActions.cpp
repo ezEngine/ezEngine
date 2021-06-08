@@ -1,9 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
-#include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAction, 1, ezRTTINoAllocator)

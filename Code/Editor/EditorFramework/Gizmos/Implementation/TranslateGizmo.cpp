@@ -3,13 +3,9 @@
 #include <Core/Graphics/Camera.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <QDesktopWidget>
-#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -188,11 +184,11 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (m_Mode == TranslateMode::Axis)
   {
-    GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot);
+    GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
   }
   else if (m_Mode == TranslateMode::Plane)
   {
-    GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot);
+    GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
   }
 
   m_fStartScale = (m_vInteractionPivot - m_pCamera->GetPosition()).GetLength() * 0.125;
@@ -224,9 +220,7 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(
-        m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir)
-        .Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   ezPlane Plane;
@@ -245,9 +239,7 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(
-        m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir)
-        .Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   const ezVec3 vPlaneTangent = m_vMoveAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();

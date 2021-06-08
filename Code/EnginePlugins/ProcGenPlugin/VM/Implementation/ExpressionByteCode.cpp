@@ -60,15 +60,12 @@ namespace
     "Call",
   };
 
-  EZ_CHECK_AT_COMPILETIME_MSG(
-    EZ_ARRAY_SIZE(s_szOpCodeNames) == ezExpressionByteCode::OpCode::Count, "OpCode name array size does not match OpCode type count");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szOpCodeNames) == ezExpressionByteCode::OpCode::Count, "OpCode name array size does not match OpCode type count");
 
   static bool FirstArgIsConstant(ezExpressionByteCode::OpCode::Enum opCode)
   {
-    return opCode == ezExpressionByteCode::OpCode::Mov_C || opCode == ezExpressionByteCode::OpCode::Add_CR ||
-           opCode == ezExpressionByteCode::OpCode::Sub_CR || opCode == ezExpressionByteCode::OpCode::Mul_CR ||
-           opCode == ezExpressionByteCode::OpCode::Div_CR || opCode == ezExpressionByteCode::OpCode::Min_CR ||
-           opCode == ezExpressionByteCode::OpCode::Max_CR;
+    return opCode == ezExpressionByteCode::OpCode::Mov_C || opCode == ezExpressionByteCode::OpCode::Add_CR || opCode == ezExpressionByteCode::OpCode::Sub_CR || opCode == ezExpressionByteCode::OpCode::Mul_CR || opCode == ezExpressionByteCode::OpCode::Div_CR ||
+           opCode == ezExpressionByteCode::OpCode::Min_CR || opCode == ezExpressionByteCode::OpCode::Max_CR;
   }
 } // namespace
 
@@ -179,6 +176,11 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
   }
 }
 
+const char* ezExpressionByteCode::GetOpCodeName(OpCode::Enum opCode)
+{
+  return s_szOpCodeNames[opCode];
+}
+
 void ezExpressionByteCode::Save(ezStreamWriter& stream) const
 {
   ezChunkStreamWriter chunk(stream);
@@ -190,9 +192,9 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
 
     chunk << m_uiNumInstructions;
     chunk << m_uiNumTempRegisters;
-    chunk.WriteArray(m_Inputs);
-    chunk.WriteArray(m_Outputs);
-    chunk.WriteArray(m_Functions);
+    chunk.WriteArray(m_Inputs).IgnoreResult();
+    chunk.WriteArray(m_Outputs).IgnoreResult();
+    chunk.WriteArray(m_Functions).IgnoreResult();
 
     chunk.EndChunk();
   }
@@ -201,7 +203,7 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
     chunk.BeginChunk("Code", 2);
 
     chunk << m_ByteCode.GetCount();
-    chunk.WriteBytes(m_ByteCode.GetData(), m_ByteCode.GetCount() * sizeof(StorageType));
+    chunk.WriteBytes(m_ByteCode.GetData(), m_ByteCode.GetCount() * sizeof(StorageType)).IgnoreResult();
 
     chunk.EndChunk();
   }

@@ -18,7 +18,7 @@ ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
 }
 
 void ezQGridBarWidget::SetConfig(
-  const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc)
+  const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPointF(const QPointF&)> mapFromSceneFunc)
 {
   MapFromSceneFunc = mapFromSceneFunc;
 
@@ -79,7 +79,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
     // some overcompensation for the case that the GraphicsView displays a scrollbar at the side
     for (double x = fSceneMinX; x <= fSceneMaxX + m_fTextGridStops; x += m_fFineGridStops)
     {
-      const QPoint pos = MapFromSceneFunc(QPointF(x, 0));
+      const QPointF pos = MapFromSceneFunc(QPointF(x, 0));
 
       QLine& l = lines.ExpandAndGetRef();
       l.setLine(pos.x(), areaRect.bottom() - 3, pos.x(), areaRect.bottom());
@@ -103,7 +103,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 
     for (double x = fSceneMinX; x <= fSceneMaxX; x += m_fTextGridStops)
     {
-      const QPoint pos = MapFromSceneFunc(QPointF(x, 0));
+      const QPointF pos = MapFromSceneFunc(QPointF(x, 0));
 
       textRect.setRect(pos.x() - 50, areaRect.top(), 99, areaRect.height());
       tmp.Format("{0}", ezArgF(x));

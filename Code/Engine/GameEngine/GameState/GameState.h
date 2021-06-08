@@ -1,12 +1,12 @@
 #pragma once
 
-#include <GameEngine/GameState/GameStateBase.h>
-
+#include <Core/GameState/GameStateBase.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Math/Size.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
@@ -15,6 +15,7 @@ class ezWindowOutputTargetBase;
 class ezView;
 struct ezActorEvent;
 class ezWindowOutputTargetGAL;
+class ezActor;
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -91,6 +92,9 @@ protected:
   /// Returns EZ_SUCCESS if a prefab was spawned, EZ_FAILURE if nothing was done.
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
 
+  /// \brief Creates an XR Actor if XR is configured and available for the project.
+  ezUniquePtr<ezActor> CreateXRActor();
+
   /// \brief Creates a default main view with the given render pipeline.
   ezView* CreateMainView(ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 
@@ -120,4 +124,5 @@ protected:
   ezCamera m_MainCamera;
   bool m_bStateWantsToQuit = false;
   bool m_bXREnabled = false;
+  bool m_bXRRemotingEnabled = false;
 };

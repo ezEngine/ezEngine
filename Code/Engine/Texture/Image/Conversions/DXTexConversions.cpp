@@ -187,7 +187,7 @@ namespace
       if (SUCCEEDED(hr))
       {
         ezStringUtf8 sDesc(desc.Description);
-        ezLog::Info("Using DirectCompute on \"{0}\"", sDesc.GetData());
+        ezLog::Dev("Using DirectCompute on \"{0}\"", sDesc.GetData());
       }
 
       return deviceType;
@@ -313,8 +313,8 @@ public:
     Image srcImg;
     srcImg.width = targetWidth;
     srcImg.height = targetHeight;
-    srcImg.rowPitch = ezImageFormat::GetRowPitch(sourceFormat, targetWidth);
-    srcImg.slicePitch = ezImageFormat::GetDepthPitch(sourceFormat, targetWidth, targetHeight);
+    srcImg.rowPitch = static_cast<size_t>(ezImageFormat::GetRowPitch(sourceFormat, targetWidth));
+    srcImg.slicePitch = static_cast<size_t>(ezImageFormat::GetDepthPitch(sourceFormat, targetWidth, targetHeight));
 
     // We don't trust anyone to handle sRGB correctly, so pretend we always want to compress linear -> linear even when it's actually sRGB -> sRGB.
     srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(ezImageFormat::AsLinear(sourceFormat));

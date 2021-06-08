@@ -14,16 +14,14 @@ public:
   ezTonemapPass();
   ~ezTonemapPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-  ezInputNodePin m_PinColorInput;
-  ezInputNodePin m_PinBloomInput;
-  ezOutputNodePin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinColorInput;
+  ezRenderPipelineNodeInputPin m_PinBloomInput;
+  ezRenderPipelineNodeOutputPin m_PinOutput;
 
   void SetVignettingTextureFile(const char* szFile);
   const char* GetVignettingTextureFile() const;

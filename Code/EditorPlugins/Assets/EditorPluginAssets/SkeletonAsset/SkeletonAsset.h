@@ -10,7 +10,7 @@ struct ezPropertyMetaStateEvent;
 
 class ezSkeletonAssetDocument : public ezSimpleAssetDocument<ezEditableSkeleton>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAssetDocument, ezSimpleAssetDocument<ezSkeletonAssetDocument>);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAssetDocument, ezSimpleAssetDocument<ezEditableSkeleton>);
 
 public:
   ezSkeletonAssetDocument(const char* szDocumentPath);

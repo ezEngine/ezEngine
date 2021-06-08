@@ -2,17 +2,17 @@
 
 #include <Foundation/Math/Math.h>
 
-#define REDUCE_SIZE(iReduction)                                                                                                                      \
-  m_iReduceSizeTimer -= iReduction;                                                                                                                  \
-  if (m_iReduceSizeTimer <= 0)                                                                                                                       \
+#define REDUCE_SIZE(iReduction)     \
+  m_iReduceSizeTimer -= iReduction; \
+  if (m_iReduceSizeTimer <= 0)      \
     ReduceSize(0);
 
-#define RESERVE(uiCount)                                                                                                                             \
-  if (uiCount > m_uiCount)                                                                                                                           \
-  {                                                                                                                                                  \
-    m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount);                                                                                               \
-    if ((m_uiFirstElement <= 0) || (GetCurMaxCount() < uiCount))                                                                                     \
-      Reserve(uiCount);                                                                                                                              \
+#define RESERVE(uiCount)                                         \
+  if (uiCount > m_uiCount)                                       \
+  {                                                              \
+    m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount);           \
+    if ((m_uiFirstElement <= 0) || (GetCurMaxCount() < uiCount)) \
+      Reserve(uiCount);                                          \
   }
 
 #define CHUNK_SIZE(Type) (4096 / sizeof(Type) < 32 ? 32 : 4096 / sizeof(Type))
@@ -391,8 +391,8 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 
 template <typename T, bool Construct>
 template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger
-                    // early.
-                    void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
+// early.
+void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
 {
   static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
 

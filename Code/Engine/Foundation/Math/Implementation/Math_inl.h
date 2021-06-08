@@ -13,7 +13,8 @@ namespace ezMath
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Sign(T f)
   {
-    return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
+    return (f < 0 ? T(-1) : f > 0 ? T(1)
+                                  : 0);
   }
 
   template <typename T>
@@ -213,7 +214,7 @@ namespace ezMath
   inline ezUInt8 ColorFloatToByte(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -227,7 +228,7 @@ namespace ezMath
   inline ezUInt16 ColorFloatToShort(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -241,7 +242,7 @@ namespace ezMath
   inline ezInt8 ColorFloatToSignedByte(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -264,7 +265,7 @@ namespace ezMath
   inline ezInt16 ColorFloatToSignedShort(float value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
     {
       return 0;
@@ -287,28 +288,28 @@ namespace ezMath
   constexpr inline float ColorByteToFloat(ezUInt8 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return value * (1.0f / 255.0f);
   }
 
   constexpr inline float ColorShortToFloat(ezUInt16 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return value * (1.0f / 65535.0f);
   }
 
   constexpr inline float ColorSignedByteToFloat(ezInt8 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return (value == -128) ? -1.0f : value * (1.0f / 127.0f);
   }
 
   constexpr inline float ColorSignedShortToFloat(ezInt16 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return (value == -32768) ? -1.0f : value * (1.0f / 32767.0f);
   }
 
@@ -341,5 +342,28 @@ constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt(float value)
 constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
 {
   return static_cast<ezInt64>(value);
+}
+#endif
+
+EZ_ALWAYS_INLINE ezResult ezMath::TryConvertToSizeT(size_t& out_Result, ezUInt64 uiValue)
+{
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  if (uiValue <= MaxValue<size_t>())
+  {
+    out_Result = static_cast<size_t>(uiValue);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+#else
+  out_Result = static_cast<size_t>(uiValue);
+  return EZ_SUCCESS;
+#endif
+}
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
+{
+  return uiValue;
 }
 #endif

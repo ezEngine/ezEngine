@@ -1,16 +1,17 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
+#include <Core/Curves/Curve1DResource.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GameEngine/Curves/Curve1DResource.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomSize.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -104,23 +105,49 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
   {
     ezResourceLock<ezCurve1DResource> pResource(m_hCurve, ezResourceAcquireMode::BlockTillLoaded);
 
-    const ezCurve1D& curve = pResource->GetDescriptor().m_Curves[0];
-
-    double fMinX, fMaxX;
-    curve.QueryExtents(fMinX, fMaxX);
-
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    if (!pResource->GetDescriptor().m_Curves.IsEmpty())
     {
-      const double f = rng.DoubleMinMax(fMinX, fMaxX);
+      const ezCurve1D& curve = pResource->GetDescriptor().m_Curves[0];
 
-      double val = curve.Evaluate(f);
-      val = curve.NormalizeValue(val);
+      double fMinX, fMaxX;
+      curve.QueryExtents(fMinX, fMaxX);
 
-      pSize[i] = (float)(val * rng.DoubleVariance(m_Size.m_Value, m_Size.m_fVariance));
+      for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+      {
+        const double f = rng.DoubleMinMax(fMinX, fMaxX);
+
+        double val = curve.Evaluate(f);
+        val = curve.NormalizeValue(val);
+
+        pSize[i] = (float)(val * rng.DoubleVariance(m_Size.m_Value, m_Size.m_fVariance));
+      }
+    }
+    else
+    {
+      for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+      {
+        pSize[i] = 1.0f;
+      }
     }
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+class ezParticleInitializerFactory_RandomSize_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleInitializerFactory_RandomSize_1_2()
+    : ezGraphPatch("ezParticleInitializerFactory_RandomSize", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->InlineProperty("Size").IgnoreResult();
+  }
+};
+
+ezParticleInitializerFactory_RandomSize_1_2 g_ezParticleInitializerFactory_RandomSize_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomSize);

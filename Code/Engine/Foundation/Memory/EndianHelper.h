@@ -123,17 +123,19 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
 #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* /*pWords*/, ezUInt32 /*uiCount*/)
+  {
+  }
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* pWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt32* /*pDWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt32* pDWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt32* /*pDWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt64* /*pQWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt64* pQWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt64* /*pQWords*/, ezUInt32 /*uiCount*/) {}
 
   static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
 
@@ -149,7 +151,10 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
 #elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
+  {
+    SwitchWords(pWords, uiCount);
+  }
 
   static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
 
@@ -161,17 +166,17 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
   static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt64* pQWords, ezUInt32 uiCount) { SwitchQWords(pQWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt16* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt16* pWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt16* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt32* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt32* pDWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt32* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt64* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt64* pQWords, ezUInt32 uiCount) {}
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt64* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
 #endif
 

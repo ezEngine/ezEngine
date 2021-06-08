@@ -1,9 +1,9 @@
 #include <RecastPluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/AI/AgentSteeringComponent.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <Recast/DetourCrowd.h>
 #include <RecastPlugin/Components/SoldierComponent.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>

@@ -12,6 +12,5 @@ struct EZ_PROCGENPLUGIN_DLL ezProcGenExpressionFunctions
 
 namespace ezProcGenInternal
 {
-  void ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output,
-    ezDynamicArray<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData);
+  void ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData);
 }

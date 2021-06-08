@@ -1,9 +1,9 @@
 #include <RendererCorePCH.h>
 
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 
@@ -181,7 +181,7 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
 
     ezMeshRenderData* pRenderData = CreateRenderData();
     {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform() * pRenderData->m_GlobalTransform;
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;

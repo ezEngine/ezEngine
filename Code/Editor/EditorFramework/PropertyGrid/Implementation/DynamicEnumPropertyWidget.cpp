@@ -2,8 +2,6 @@
 
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
-#include <QBoxLayout>
-#include <QComboBox>
 
 ezQtDynamicEnumPropertyWidget::ezQtDynamicEnumPropertyWidget()
   : ezQtStandardPropertyWidget()

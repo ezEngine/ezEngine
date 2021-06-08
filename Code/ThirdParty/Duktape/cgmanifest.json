@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/svaarala/duktape",
+          "commitHash": "6001888049cb42656f8649db020e804bcdeca6a7"
+        }
+      }
+    } 
+  ]
+}

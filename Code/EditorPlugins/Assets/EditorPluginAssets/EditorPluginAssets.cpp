@@ -1,6 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
@@ -8,9 +9,7 @@
 #include <EditorFramework/Actions/QuadViewActions.h>
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/Actions/EditorPluginAssetsActions.h>
-#include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
+#include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
@@ -23,17 +22,34 @@
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <SkeletonAsset/SkeletonAsset.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+
+static void ConfigureAnimationControllerAsset()
+{
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("AnimationControllerAssetMenuBar").IgnoreResult();
+
+    ezProjectActions::MapActions("AnimationControllerAssetMenuBar");
+    ezStandardMenus::MapActions("AnimationControllerAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezDocumentActions::MapActions("AnimationControllerAssetMenuBar", "Menu.File", false);
+    ezCommandHistoryActions::MapActions("AnimationControllerAssetMenuBar", "Menu.Edit");
+    ezEditActions::MapActions("AnimationControllerAssetMenuBar", "Menu.Edit", false, false);
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("AnimationControllerAssetToolBar").IgnoreResult();
+    ezDocumentActions::MapActions("AnimationControllerAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("AnimationControllerAssetToolBar", "");
+    ezAssetActions::MapActions("AnimationControllerAssetToolBar", true);
+  }
+}
 
 static void ConfigureTexture2DAsset()
 {
@@ -43,17 +59,16 @@ static void ConfigureTexture2DAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("TextureAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("TextureAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("TextureAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "TextureAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("TextureAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("TextureAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("TextureAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("TextureAssetToolBar");
+    ezActionMapManager::RegisterActionMap("TextureAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("TextureAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("TextureAssetToolBar", "");
     ezAssetActions::MapActions("TextureAssetToolBar", true);
@@ -69,17 +84,16 @@ static void ConfigureTextureCubeAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("TextureCubeAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("TextureCubeAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("TextureCubeAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "TextureCubeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("TextureCubeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("TextureCubeAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("TextureCubeAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("TextureCubeAssetToolBar");
+    ezActionMapManager::RegisterActionMap("TextureCubeAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("TextureCubeAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("TextureCubeAssetToolBar", "");
     ezAssetActions::MapActions("TextureCubeAssetToolBar", true);
@@ -95,17 +109,16 @@ static void ConfigureLUTAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("LUTAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("LUTAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("LUTAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "LUTAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("LUTAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("LUTAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("LUTAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("LUTAssetToolBar");
+    ezActionMapManager::RegisterActionMap("LUTAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("LUTAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("LUTAssetToolBar", "");
     ezAssetActions::MapActions("LUTAssetToolBar", true);
@@ -118,10 +131,9 @@ static void ConfigureMaterialAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("MaterialAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("MaterialAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("MaterialAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "MaterialAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("MaterialAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("MaterialAssetMenuBar", "Menu.File", false);
     ezDocumentActions::MapToolsActions("MaterialAssetMenuBar", "Menu.Tools");
     ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "Menu.Edit");
@@ -130,7 +142,7 @@ static void ConfigureMaterialAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("MaterialAssetToolBar");
+    ezActionMapManager::RegisterActionMap("MaterialAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("MaterialAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("MaterialAssetToolBar", "");
     ezAssetActions::MapActions("MaterialAssetToolBar", true);
@@ -141,8 +153,9 @@ static void ConfigureMaterialAsset()
 
   // View Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar");
+    ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("MaterialAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("MaterialAssetViewToolBar", "");
   }
 }
 
@@ -150,11 +163,10 @@ static void ConfigureRenderPipelineAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("RenderPipelineAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("RenderPipelineAssetMenuBar").IgnoreResult();
 
     ezProjectActions::MapActions("RenderPipelineAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "RenderPipelineAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("RenderPipelineAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("RenderPipelineAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("RenderPipelineAssetMenuBar", "Menu.Edit");
     ezEditActions::MapActions("RenderPipelineAssetMenuBar", "Menu.Edit", false, false);
@@ -162,7 +174,7 @@ static void ConfigureRenderPipelineAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("RenderPipelineAssetToolBar");
+    ezActionMapManager::RegisterActionMap("RenderPipelineAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("RenderPipelineAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("RenderPipelineAssetToolBar", "");
     ezAssetActions::MapActions("RenderPipelineAssetToolBar", true);
@@ -175,26 +187,27 @@ static void ConfigureMeshAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("MeshAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("MeshAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("MeshAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "MeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("MeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("MeshAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("MeshAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("MeshAssetToolBar");
+    ezActionMapManager::RegisterActionMap("MeshAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("MeshAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("MeshAssetToolBar", "");
     ezAssetActions::MapActions("MeshAssetToolBar", true);
+    ezCommonAssetActions::MapActions("MeshAssetToolBar", "", ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("MeshAssetViewToolBar");
+    ezActionMapManager::RegisterActionMap("MeshAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("MeshAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("MeshAssetViewToolBar", "");
   }
 }
 
@@ -202,10 +215,9 @@ static void ConfigureSurfaceAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("SurfaceAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("SurfaceAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("SurfaceAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "SurfaceAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("SurfaceAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("SurfaceAssetMenuBar", "Menu.File", false);
     ezDocumentActions::MapToolsActions("SurfaceAssetMenuBar", "Menu.Tools");
     ezCommandHistoryActions::MapActions("SurfaceAssetMenuBar", "Menu.Edit");
@@ -213,7 +225,7 @@ static void ConfigureSurfaceAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("SurfaceAssetToolBar");
+    ezActionMapManager::RegisterActionMap("SurfaceAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("SurfaceAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("SurfaceAssetToolBar", "");
     ezAssetActions::MapActions("SurfaceAssetToolBar", true);
@@ -224,10 +236,9 @@ static void ConfigureCollectionAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("CollectionAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("CollectionAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("CollectionAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "CollectionAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("CollectionAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("CollectionAssetMenuBar", "Menu.File", false);
     ezDocumentActions::MapToolsActions("CollectionAssetMenuBar", "Menu.Tools");
     ezCommandHistoryActions::MapActions("CollectionAssetMenuBar", "Menu.Edit");
@@ -235,7 +246,7 @@ static void ConfigureCollectionAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("CollectionAssetToolBar");
+    ezActionMapManager::RegisterActionMap("CollectionAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("CollectionAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("CollectionAssetToolBar", "");
     ezAssetActions::MapActions("CollectionAssetToolBar", true);
@@ -246,10 +257,9 @@ static void ConfigureColorGradientAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("ColorGradientAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("ColorGradientAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("ColorGradientAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "ColorGradientAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("ColorGradientAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("ColorGradientAssetMenuBar", "Menu.File", false);
     ezDocumentActions::MapToolsActions("ColorGradientAssetMenuBar", "Menu.Tools");
     ezCommandHistoryActions::MapActions("ColorGradientAssetMenuBar", "Menu.Edit");
@@ -257,7 +267,7 @@ static void ConfigureColorGradientAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("ColorGradientAssetToolBar");
+    ezActionMapManager::RegisterActionMap("ColorGradientAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("ColorGradientAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("ColorGradientAssetToolBar", "");
     ezAssetActions::MapActions("ColorGradientAssetToolBar", true);
@@ -268,10 +278,9 @@ static void ConfigureCurve1DAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("Curve1DAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("Curve1DAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("Curve1DAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "Curve1DAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("Curve1DAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("Curve1DAssetMenuBar", "Menu.File", false);
     ezDocumentActions::MapToolsActions("Curve1DAssetMenuBar", "Menu.Tools");
     ezCommandHistoryActions::MapActions("Curve1DAssetMenuBar", "Menu.Edit");
@@ -279,7 +288,7 @@ static void ConfigureCurve1DAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("Curve1DAssetToolBar");
+    ezActionMapManager::RegisterActionMap("Curve1DAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("Curve1DAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("Curve1DAssetToolBar", "");
     ezAssetActions::MapActions("Curve1DAssetToolBar", true);
@@ -290,10 +299,9 @@ static void ConfigurePropertyAnimAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("PropertyAnimAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("PropertyAnimAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("PropertyAnimAssetMenuBar");
-    ezStandardMenus::MapActions("PropertyAnimAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels |
-                                                              ezStandardMenuTypes::Scene | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("PropertyAnimAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Scene | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("PropertyAnimAssetMenuBar", "Menu.File", false);
     ezDocumentActions::MapToolsActions("PropertyAnimAssetMenuBar", "Menu.Tools");
     ezCommandHistoryActions::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit");
@@ -306,7 +314,7 @@ static void ConfigurePropertyAnimAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("PropertyAnimAssetToolBar");
+    ezActionMapManager::RegisterActionMap("PropertyAnimAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("PropertyAnimAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("PropertyAnimAssetToolBar", "");
     ezAssetActions::MapActions("PropertyAnimAssetToolBar", true);
@@ -317,15 +325,14 @@ static void ConfigurePropertyAnimAsset()
 
   // View Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("PropertyAnimAssetViewToolBar");
-    ezViewActions::MapActions(
-      "PropertyAnimAssetViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezActionMapManager::RegisterActionMap("PropertyAnimAssetViewToolBar").IgnoreResult();
+    ezViewActions::MapActions("PropertyAnimAssetViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
     ezQuadViewActions::MapActions("PropertyAnimAssetViewToolBar", "");
   }
 
   // SceneGraph Context Menu
   {
-    ezActionMapManager::RegisterActionMap("PropertyAnimAsset_ScenegraphContextMenu");
+    ezActionMapManager::RegisterActionMap("PropertyAnimAsset_ScenegraphContextMenu").IgnoreResult();
     ezGameObjectSelectionActions::MapContextMenuActions("PropertyAnimAsset_ScenegraphContextMenu", "");
     ezGameObjectContextActions::MapContextMenuActions("PropertyAnimAsset_ScenegraphContextMenu", "");
   }
@@ -337,10 +344,9 @@ static void ConfigureVisualScriptAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("VisualScriptAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "VisualScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("VisualScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("VisualScriptAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit");
     ezEditActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit", false, false);
@@ -348,7 +354,7 @@ static void ConfigureVisualScriptAsset()
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar");
+    ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("VisualScriptAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar", "");
     ezAssetActions::MapActions("VisualScriptAssetToolBar", true);
@@ -362,17 +368,16 @@ static void ConfigureDecalAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("DecalAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("DecalAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("DecalAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "DecalAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("DecalAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("DecalAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("DecalAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("DecalAssetToolBar");
+    ezActionMapManager::RegisterActionMap("DecalAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("DecalAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("DecalAssetToolBar", "");
     ezAssetActions::MapActions("DecalAssetToolBar", true);
@@ -380,35 +385,39 @@ static void ConfigureDecalAsset()
 
   // View Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("DecalAssetViewToolBar");
+    ezActionMapManager::RegisterActionMap("DecalAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("DecalAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("DecalAssetViewToolBar", "");
   }
 }
 
 static void ConfigureAnimationClipAsset()
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
+
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("AnimationClipAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "AnimationClipAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("AnimationClipAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("AnimationClipAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("AnimationClipAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimationClipAssetToolBar");
+    ezActionMapManager::RegisterActionMap("AnimationClipAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("AnimationClipAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("AnimationClipAssetToolBar", "");
     ezAssetActions::MapActions("AnimationClipAssetToolBar", true);
+    ezCommonAssetActions::MapActions("AnimationClipAssetToolBar", "", ezCommonAssetUiState::Loop | ezCommonAssetUiState::Pause | ezCommonAssetUiState::Restart | ezCommonAssetUiState::SimulationSpeed | ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimationClipAssetViewToolBar");
+    ezActionMapManager::RegisterActionMap("AnimationClipAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("AnimationClipAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("AnimationClipAssetViewToolBar", "");
   }
 }
 
@@ -418,26 +427,27 @@ static void ConfigureSkeletonAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("SkeletonAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("SkeletonAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("SkeletonAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "SkeletonAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("SkeletonAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("SkeletonAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("SkeletonAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("SkeletonAssetToolBar");
+    ezActionMapManager::RegisterActionMap("SkeletonAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("SkeletonAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("SkeletonAssetToolBar", "");
     ezAssetActions::MapActions("SkeletonAssetToolBar", true);
+    ezCommonAssetActions::MapActions("SkeletonAssetToolBar", "", ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("SkeletonAssetViewToolBar");
+    ezActionMapManager::RegisterActionMap("SkeletonAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("SkeletonAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("SkeletonAssetViewToolBar", "");
   }
 }
 
@@ -445,26 +455,54 @@ static void ConfigureAnimatedMeshAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimatedMeshAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("AnimatedMeshAssetMenuBar").IgnoreResult();
     ezProjectActions::MapActions("AnimatedMeshAssetMenuBar");
-    ezStandardMenus::MapActions(
-      "AnimatedMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("AnimatedMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("AnimatedMeshAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("AnimatedMeshAssetMenuBar", "Menu.Edit");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimatedMeshAssetToolBar");
+    ezActionMapManager::RegisterActionMap("AnimatedMeshAssetToolBar").IgnoreResult();
     ezDocumentActions::MapActions("AnimatedMeshAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("AnimatedMeshAssetToolBar", "");
     ezAssetActions::MapActions("AnimatedMeshAssetToolBar", true);
+    ezCommonAssetActions::MapActions("AnimatedMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
   }
 
   // View Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimatedMeshAssetViewToolBar");
+    ezActionMapManager::RegisterActionMap("AnimatedMeshAssetViewToolBar").IgnoreResult();
     ezViewActions::MapActions("AnimatedMeshAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("AnimatedMeshAssetViewToolBar", "");
+  }
+}
+
+static void ConfigureImageDataAsset()
+{
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("ImageDataAssetMenuBar").IgnoreResult();
+    ezProjectActions::MapActions("ImageDataAssetMenuBar");
+    ezStandardMenus::MapActions("ImageDataAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezDocumentActions::MapActions("ImageDataAssetMenuBar", "Menu.File", false);
+    ezCommandHistoryActions::MapActions("ImageDataAssetMenuBar", "Menu.Edit");
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("ImageDataAssetToolBar").IgnoreResult();
+    ezDocumentActions::MapActions("ImageDataAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("ImageDataAssetToolBar", "");
+    ezAssetActions::MapActions("ImageDataAssetToolBar", true);
+  }
+
+  // View Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("ImageDataAssetViewToolBar").IgnoreResult();
+    ezViewActions::MapActions("ImageDataAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    ezViewLightActions::MapActions("ImageDataAssetViewToolBar", "");
   }
 }
 
@@ -472,6 +510,7 @@ void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
 
+  ConfigureAnimationControllerAsset();
   ConfigureTexture2DAsset();
   ConfigureTextureCubeAsset();
   ConfigureLUTAsset();
@@ -488,12 +527,7 @@ void OnLoadPlugin(bool bReloading)
   ConfigureAnimationClipAsset();
   ConfigureSkeletonAsset();
   ConfigureAnimatedMeshAsset();
-
-  // General editor plugin actions
-  {
-    ezAssetPluginActions::RegisterActions();
-    ezAssetPluginActions::MapActions("SettingsTabMenuBar");
-  }
+  ConfigureImageDataAsset();
 }
 
 void OnUnloadPlugin(bool bReloading)
@@ -502,10 +536,7 @@ void OnUnloadPlugin(bool bReloading)
   ezTextureCubeAssetActions::UnregisterActions();
   ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
-  ezAssetPluginActions::UnregisterActions();
   ezVisualScriptActions::UnregisterActions();
-
-
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
@@ -513,6 +544,7 @@ void OnUnloadPlugin(bool bReloading)
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureCubeAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMaterialAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkeletonAssetDocument::PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

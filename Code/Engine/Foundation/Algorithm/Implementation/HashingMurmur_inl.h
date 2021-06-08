@@ -83,7 +83,7 @@ constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::MurmurHash32String(const cha
     15);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::MurmurHash32String(StringWrapper str, ezUInt32 uiSeed)
+EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::MurmurHash32String(ezStringView str, ezUInt32 uiSeed)
 {
-  return MurmurHash32(str.m_str, std::strlen(str.m_str), uiSeed);
+  return MurmurHash32(str.GetStartPointer(), str.GetElementCount(), uiSeed);
 }

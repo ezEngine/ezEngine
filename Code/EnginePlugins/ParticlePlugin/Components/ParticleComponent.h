@@ -28,7 +28,8 @@ public:
   virtual void Initialize() override;
 
   void Update(const ezWorldModule::UpdateContext& context);
-  void UpdateTransforms(const ezWorldModule::UpdateContext& context);
+
+  void UpdatePfxTransformsAndBounds();
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleComponent final : public ezRenderComponent
@@ -101,8 +102,8 @@ public:
 
 protected:
   void Update();
-  void UpdateTransform();
-  void SetPfxTransform();
+  ezTransform GetPfxTransform() const;
+  void UpdatePfxTransform();
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
@@ -111,9 +112,6 @@ protected:
 
   ezParticleEffectResourceHandle m_hEffectResource;
   ezTime m_RestartTime;
-
-  void CheckBVolumeUpdate();
-  ezUInt32 m_uiBVolumeUpdateCounter = 0;
 
   // Exposed Parameters
   friend class ezParticleEventReaction_Effect;

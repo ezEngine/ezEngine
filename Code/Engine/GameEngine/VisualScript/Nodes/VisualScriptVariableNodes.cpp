@@ -16,9 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetNumberProperty, 1, ezRTTID
     new ezTitleAttribute("Get Number Property '{Name}'"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Number),
   }
@@ -72,12 +72,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTID
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Set Number Property '{Name}'"),
+    new ezTitleAttribute("Set Number Property '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
@@ -133,9 +133,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetBoolProperty, 1, ezRTTIDef
     new ezTitleAttribute("Get Bool Property '{Name}'"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Boolean),
   }
@@ -188,12 +188,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDef
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Set Bool Property '{Name}'"),
+    new ezTitleAttribute("Set Bool Property '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
@@ -241,6 +241,122 @@ void* ezVisualScriptNode_SetBoolProperty::GetInputPinDataPointer(ezUInt8 uiPin)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetStringProperty, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GetStringProperty>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Properties"),
+    new ezTitleAttribute("Get String Property '{Name}'"),
+  }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
+    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
+    EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::String),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_GetStringProperty::ezVisualScriptNode_GetStringProperty() {}
+ezVisualScriptNode_GetStringProperty::~ezVisualScriptNode_GetStringProperty() {}
+
+void ezVisualScriptNode_GetStringProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  ezString value;
+
+  ezComponent* pComponent = nullptr;
+  if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+  {
+    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+
+    if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
+    {
+      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
+
+      ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pMember, pComponent);
+
+      if (var.CanConvertTo<ezString>())
+      {
+        value = var.ConvertTo<ezString>();
+        pInstance->SetOutputPinValue(this, 0, &value);
+        return;
+      }
+    }
+  }
+
+  ezLog::Warning("Script: String Property '{0}' could not be found on the given component.", m_sVariable);
+}
+
+
+void* ezVisualScriptNode_GetStringProperty::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  return &m_hComponent;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetStringProperty, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SetStringProperty>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Properties"),
+    new ezTitleAttribute("Set String Property '{Name}' = {Value}"),
+  }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("then", 0),
+    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 1, ezVisualScriptDataPinType::String, m_sValue),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_SetStringProperty::ezVisualScriptNode_SetStringProperty() {}
+ezVisualScriptNode_SetStringProperty::~ezVisualScriptNode_SetStringProperty() {}
+
+void ezVisualScriptNode_SetStringProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  ezComponent* pComponent = nullptr;
+  if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+  {
+    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+
+    if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
+    {
+      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
+
+      ezReflectionUtils::SetMemberPropertyValue(pMember, pComponent, m_sValue);
+    }
+  }
+
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+void* ezVisualScriptNode_SetStringProperty::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+    case 0:
+      return &m_hComponent;
+    case 1:
+      return &m_sValue;
+  }
+
+  return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Number>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -249,9 +365,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAlloc
     new ezTitleAttribute("Number '{Name}'"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Number),
   }
   EZ_END_PROPERTIES;
@@ -264,13 +380,9 @@ ezVisualScriptNode_Number::~ezVisualScriptNode_Number() {}
 
 void ezVisualScriptNode_Number::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
-  {
-    m_VarName = m_sVariable.GetData();
-  }
-
-  pInstance->GetLocalVariables().RetrieveDouble(m_VarName, m_CurrentValue, 0.0);
-  pInstance->SetOutputPinValue(this, 0, &m_CurrentValue);
+  double fCurrentValue = 0.0;
+  pInstance->GetLocalVariables().RetrieveDouble(m_sVariable, fCurrentValue, 0.0);
+  pInstance->SetOutputPinValue(this, 0, &fCurrentValue);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -281,15 +393,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Store Number '{Name}'"),
+    new ezTitleAttribute("Store Number '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Number, m_Value),
+    EZ_OUTPUT_DATA_PIN("StoredValue", 0, ezVisualScriptDataPinType::Number)
   }
   EZ_END_PROPERTIES;
 }
@@ -301,12 +414,8 @@ ezVisualScriptNode_StoreNumber::~ezVisualScriptNode_StoreNumber() {}
 
 void ezVisualScriptNode_StoreNumber::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
-  {
-    m_VarName = m_sVariable.GetData();
-  }
-
-  pInstance->GetLocalVariables().StoreDouble(m_VarName, m_Value);
+  pInstance->GetLocalVariables().StoreDouble(m_sVariable, m_Value);
+  pInstance->SetOutputPinValue(this, 0, &m_Value);
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
@@ -326,9 +435,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocat
     new ezTitleAttribute("Bool '{Name}'"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Boolean),
   }
   EZ_END_PROPERTIES;
@@ -341,13 +450,9 @@ ezVisualScriptNode_Bool::~ezVisualScriptNode_Bool() {}
 
 void ezVisualScriptNode_Bool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
-  {
-    m_VarName = m_sVariable.GetData();
-  }
-
-  pInstance->GetLocalVariables().RetrieveBool(m_VarName, m_CurrentValue, false);
-  pInstance->SetOutputPinValue(this, 0, &m_CurrentValue);
+  bool bCurrentValue = false;
+  pInstance->GetLocalVariables().RetrieveBool(m_sVariable, bCurrentValue, false);
+  pInstance->SetOutputPinValue(this, 0, &bCurrentValue);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -358,15 +463,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Store Bool '{Name}'"),
+    new ezTitleAttribute("Store Bool '{Name}' = {Value}"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Boolean, m_Value),
+    EZ_OUTPUT_DATA_PIN("StoredValue", 0, ezVisualScriptDataPinType::Boolean)
   }
   EZ_END_PROPERTIES;
 }
@@ -378,12 +484,8 @@ ezVisualScriptNode_StoreBool::~ezVisualScriptNode_StoreBool() {}
 
 void ezVisualScriptNode_StoreBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
-  {
-    m_VarName = m_sVariable.GetData();
-  }
-
-  pInstance->GetLocalVariables().StoreBool(m_VarName, m_Value);
+  pInstance->GetLocalVariables().StoreBool(m_sVariable, m_Value);
+  pInstance->SetOutputPinValue(this, 0, &m_Value);
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
@@ -403,9 +505,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultA
     new ezTitleAttribute("Toggle Bool '{Name}'"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("OnTrue", 0),
     EZ_OUTPUT_EXECUTION_PIN("OnFalse", 1),
@@ -421,18 +523,84 @@ ezVisualScriptNode_ToggleBool::~ezVisualScriptNode_ToggleBool() {}
 
 void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_VarName.GetHash() == 0)
+  bool bCurrentValue = false;
+  pInstance->GetLocalVariables().RetrieveBool(m_sVariable, bCurrentValue, false);
+  bCurrentValue = !bCurrentValue;
+
+  pInstance->GetLocalVariables().StoreBool(m_sVariable, bCurrentValue);
+  pInstance->SetOutputPinValue(this, 0, &bCurrentValue);
+
+  pInstance->ExecuteConnectedNodes(this, bCurrentValue ? 0 : 1);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_String, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_String>)
+{
+  EZ_BEGIN_ATTRIBUTES
   {
-    m_VarName = m_sVariable.GetData();
+    new ezCategoryAttribute("Variables"),
+    new ezTitleAttribute("String '{Name}'"),
   }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
+    EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::String),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-  pInstance->GetLocalVariables().RetrieveBool(m_VarName, m_CurrentValue, false);
-  m_CurrentValue = !m_CurrentValue;
+ezVisualScriptNode_String::ezVisualScriptNode_String() {}
+ezVisualScriptNode_String::~ezVisualScriptNode_String() {}
 
-  pInstance->GetLocalVariables().StoreBool(m_VarName, m_CurrentValue);
-  pInstance->SetOutputPinValue(this, 0, &m_CurrentValue);
+void ezVisualScriptNode_String::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  ezString sCurrentValue;
+  pInstance->GetLocalVariables().RetrieveString(m_sVariable, sCurrentValue, "");
+  pInstance->SetOutputPinValue(this, 0, &sCurrentValue);
+}
 
-  pInstance->ExecuteConnectedNodes(this, m_CurrentValue ? 0 : 1);
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreString, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_StoreString>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Variables"),
+    new ezTitleAttribute("Store String '{Name}' = {Value}"),
+  }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Name", GetVariable, SetVariable),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("then", 0),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::String, m_sValue),
+    EZ_OUTPUT_DATA_PIN("StoredValue", 0, ezVisualScriptDataPinType::String)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_StoreString::ezVisualScriptNode_StoreString() {}
+ezVisualScriptNode_StoreString::~ezVisualScriptNode_StoreString() {}
+
+void ezVisualScriptNode_StoreString::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  pInstance->GetLocalVariables().StoreString(m_sVariable, m_sValue);
+  pInstance->SetOutputPinValue(this, 0, &m_sValue);
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+void* ezVisualScriptNode_StoreString::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  return &m_sValue;
 }
 
 //////////////////////////////////////////////////////////////////////////

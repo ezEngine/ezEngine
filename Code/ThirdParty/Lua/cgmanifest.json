@@ -1,0 +1,14 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "other",
+        "Other": {
+          "Name": "Lua",
+          "Version": "5.3.5",
+          "DownloadUrl": "http://www.lua.org/ftp/lua-5.3.5.tar.gz"
+        }
+      }
+    }
+  ]
+}

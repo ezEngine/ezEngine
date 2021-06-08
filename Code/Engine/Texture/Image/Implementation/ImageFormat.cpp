@@ -1,5 +1,6 @@
 #include <TexturePCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Texture/Image/ImageFormat.h>
 
@@ -327,7 +328,7 @@ static void SetupImageFormatTable()
   INIT_FORMAT_LINEAR(R10G10B10A2_UINT, UINT, 32, 10, 10, 10, 2, 4);
   INIT_FORMAT_LINEAR(R10G10B10A2_UNORM, UNORM, 32, 10, 10, 10, 2, 4);
 
-  // msdn.microsoft.com/en-us/library/windows/desktop/bb943991(v=vs.85).aspx documents R10G10B10A2 as having an alpha mask of 0
+  // msdn.microsoft.com/library/windows/desktop/bb943991(v=vs.85).aspx documents R10G10B10A2 as having an alpha mask of 0
   s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x000003FF;
   s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x000FFC00;
   s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x3FF00000;
@@ -393,6 +394,21 @@ static const EZ_ALWAYS_INLINE ezImageFormatMetaData& GetImageFormatMetaData(ezIm
 
   return s_formatMetaData[format];
 }
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Image, ImageFormats)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    SetupImageFormatTable();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezUInt32 ezImageFormat::GetBitsPerPixel(Enum format)
 {

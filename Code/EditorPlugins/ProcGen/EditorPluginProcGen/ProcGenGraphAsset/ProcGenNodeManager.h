@@ -6,6 +6,14 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
+class ezProcGenPin : public ezPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPin, ezPin);
+
+public:
+  using ezPin::ezPin;
+};
+
 class ezProcGenNodeManager : public ezDocumentNodeManager
 {
 public:
@@ -13,7 +21,7 @@ public:
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
   virtual void InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
-  // virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
+  virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
 
   virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const override;
 

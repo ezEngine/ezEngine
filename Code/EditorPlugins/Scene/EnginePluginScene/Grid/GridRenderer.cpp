@@ -1,14 +1,8 @@
 #include <EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/Grid/GridRenderer.h>
-#include <EnginePluginScene/SceneContext/SceneContext.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridRenderData, 1, ezRTTINoAllocator)
@@ -174,8 +168,7 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd) const
   }
 }
 
-void ezGridRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   for (auto it = batch.GetIterator<ezGridRenderData>(); it.IsValid(); ++it)
   {
@@ -185,7 +178,6 @@ void ezGridRenderer::RenderBatch(
       return;
 
     ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-    ezGALContext* pGALContext = pRenderContext->GetGALContext();
 
     pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
     pRenderContext->BindShader(m_hShader);
@@ -198,11 +190,10 @@ void ezGridRenderer::RenderBatch(
       const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LineVerticesPerBatch);
       EZ_ASSERT_DEBUG(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
 
-      pGALContext->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
+      pRenderContext->GetCommandEncoder()->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
 
-      pRenderContext->BindMeshBuffer(
-        m_hVertexBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
-      pRenderContext->DrawMeshBuffer();
+      pRenderContext->BindMeshBuffer(m_hVertexBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+      pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       uiNumLineVertices -= uiNumLineVerticesInBatch;
       pLineData += LineVerticesPerBatch;
@@ -230,8 +221,7 @@ float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX
   return fNewDensity;
 }
 
-void ezEditorGridExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() == 0.0f)
     return;

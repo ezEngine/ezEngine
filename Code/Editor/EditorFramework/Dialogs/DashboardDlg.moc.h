@@ -40,7 +40,7 @@ private Q_SLOTS:
   void on_OpenApiDocs_clicked();
   void on_OpenReleaseNotes_clicked();
   void on_ReportProblem_clicked();
-  void on_OpenGitter_clicked();
+  void on_OpenDiscord_clicked();
   void on_OpenTwitter_clicked();
 
 protected:

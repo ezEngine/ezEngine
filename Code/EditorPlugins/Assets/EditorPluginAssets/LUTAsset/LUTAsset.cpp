@@ -1,28 +1,16 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 
-#include <RendererCore/Textures/Texture3DResource.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 #include <EditorPluginAssets/LUTAsset/AdobeCUBEReader.h>
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
-#include <EditorPluginAssets/LUTAsset/LUTAssetManager.h>
-#include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 
 #include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/Image.h>
-#include <Texture/Image/ImageConversion.h>
-#include <Texture/Image/ImageHeader.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 
 // clang-format off
@@ -35,8 +23,7 @@ ezLUTAssetDocument::ezLUTAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto props = GetProperties();
 
@@ -94,7 +81,7 @@ ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, co
 
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
-  AssetHeader.Write(file);
+  EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
 
   ezTexFormat texFormat;
   texFormat.m_bSRGB = true;
@@ -127,8 +114,7 @@ ezLUTAssetDocumentGenerator::ezLUTAssetDocumentGenerator()
 
 ezLUTAssetDocumentGenerator::~ezLUTAssetDocumentGenerator() = default;
 
-void ezLUTAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -144,8 +130,7 @@ void ezLUTAssetDocumentGenerator::GetImportModes(
   info.m_sIcon = ":/AssetIcons/LUT.png";
 }
 
-ezStatus ezLUTAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezLUTAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

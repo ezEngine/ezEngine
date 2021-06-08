@@ -1,13 +1,15 @@
 #include <GameEngineTestPCH.h>
 
-#include "TypeScriptTest.h"
-#include <Core/Messages/CommonMessages.h>
-#include <Core/Messages/EventMessage.h>
-#include <Core/Scripting/DuktapeFunction.h>
-#include <Core/Scripting/DuktapeHelper.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
+#ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
+
+#  include "TypeScriptTest.h"
+#  include <Core/Messages/CommonMessages.h>
+#  include <Core/Messages/EventMessage.h>
+#  include <Core/Scripting/DuktapeFunction.h>
+#  include <Core/Scripting/DuktapeHelper.h>
+#  include <Core/WorldSerializer/WorldReader.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
+#  include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
 static ezGameEngineTestTypeScript s_GameEngineTestTypeScript;
 
@@ -76,7 +78,7 @@ static int Duk_TestFailure(duk_context* pDuk)
 
 void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
 {
-  LoadScene("TypeScript/AssetCache/Common/Scenes/TypeScripting.ezObjectGraph");
+  LoadScene("TypeScript/AssetCache/Common/Scenes/TypeScripting.ezObjectGraph").IgnoreResult();
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
   ezTypeScriptComponentManager* pMan = m_pWorld->GetOrCreateComponentManager<ezTypeScriptComponentManager>();
@@ -86,7 +88,7 @@ void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
 
 ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(const char* szSubTestName)
 {
-  if (Run() == ezApplication::Quit)
+  if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
@@ -101,13 +103,15 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(const char
   const ezStringBuilder sMsg("Test", szSubTestName);
 
   ezMsgGenericEvent msg;
-  msg.m_sMessage = sMsg;
+  msg.m_sMessage.Assign(sMsg);
   pTests->SendMessageRecursive(msg);
 
-  if (msg.m_sMessage == "repeat")
+  if (msg.m_sMessage == ezTempHashedString("repeat"))
     return ezTestAppRun::Continue;
 
   EZ_TEST_STRING(msg.m_sMessage, "done");
 
   return ezTestAppRun::Quit;
 }
+
+#endif

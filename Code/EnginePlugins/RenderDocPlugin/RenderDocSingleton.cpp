@@ -2,21 +2,23 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RenderDocPlugin/RenderDocSingleton.h>
 #include <RenderDocPlugin/ThirdParty/renderdoc_app.h>
 
 EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
 
-static ezRenderDoc g_RenderDocSingleton;
+static ezCommandLineOptionBool opt_NoCaptures("RenderDoc", "-NoCaptures", "Disables RenderDoc capture support.", false);
 
+static ezRenderDoc g_RenderDocSingleton;
 
 ezRenderDoc::ezRenderDoc()
   : m_SingletonRegistrar(this)
 {
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-NoCaptures"))
+  if (opt_NoCaptures.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
-    ezLog::Warning("RenderDoc plugin initialization suppressed via command line");
+    ezLog::Info("RenderDoc plugin: Initialization suppressed via command-line.");
     return;
   }
 
@@ -29,7 +31,7 @@ ezRenderDoc::ezRenderDoc()
 
   if (!dllHandle)
   {
-    ezLog::Warning("Unable to find RenderDoc dll - frame captures are not supported!");
+    ezLog::Info("RenderDoc plugin: 'renderdoc.dll' could not be found. Frame captures aren't possible.");
     return;
   }
 
@@ -42,15 +44,13 @@ ezRenderDoc::ezRenderDoc()
 
   if (m_pRenderDocAPI)
   {
-    ezLog::Success("RenderDoc dll found - frame captures supported");
-
     m_pRenderDocAPI->SetCaptureKeys(nullptr, 0);
     m_pRenderDocAPI->SetFocusToggleKeys(nullptr, 0);
     m_pRenderDocAPI->MaskOverlayBits(0, 0);
   }
   else
   {
-    ezLog::Warning("Unable to retrieve API pointer from RenderDoc dll - frame captures are not supported!");
+    ezLog::Warning("RenderDoc plugin: Unable to retrieve API pointer from DLL. Potentially outdated version. Frame captures aren't possible.");
   }
 }
 

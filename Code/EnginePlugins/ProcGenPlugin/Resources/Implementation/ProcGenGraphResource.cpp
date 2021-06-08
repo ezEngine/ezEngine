@@ -1,11 +1,11 @@
 #include <ProcGenPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Physics/SurfaceResource.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
@@ -71,12 +71,12 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   ezUniquePtr<ezStringDeduplicationReadContext> pStringDedupReadContext;
   if (AssetHash.GetFileVersion() >= 5)
@@ -129,7 +129,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
-          chunk.ReadArray(pOutput->m_VolumeTagSetIndices);
+          chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
 
           ezUInt64 uiNumObjectsToPlace = 0;
           chunk >> uiNumObjectsToPlace;
@@ -196,7 +196,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
-          chunk.ReadArray(pOutput->m_VolumeTagSetIndices);
+          chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
 
           m_VertexColorOutputs.PushBack(pOutput);
         }

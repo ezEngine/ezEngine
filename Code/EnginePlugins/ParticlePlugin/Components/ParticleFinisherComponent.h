@@ -8,7 +8,15 @@
 
 struct ezMsgExtractRenderData;
 
-typedef ezComponentManagerSimple<class ezParticleFinisherComponent, ezComponentUpdateType::WhenSimulating> ezParticleFinisherComponentManager;
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponentManager final : public ezComponentManager<class ezParticleFinisherComponent, ezBlockStorageType::Compact>
+{
+  using SUPER = ezComponentManager<class ezParticleFinisherComponent, ezBlockStorageType::Compact>;
+
+public:
+  ezParticleFinisherComponentManager(ezWorld* pWorld);
+
+  void UpdateBounds();
+};
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponent final : public ezRenderComponent
 {
@@ -40,7 +48,5 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  void Update();
-  void CheckBVolumeUpdate();
-  ezUInt32 m_uiBVolumeUpdateCounter = 0;
+  void UpdateBounds();
 };

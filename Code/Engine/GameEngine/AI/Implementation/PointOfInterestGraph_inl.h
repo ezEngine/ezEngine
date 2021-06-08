@@ -15,7 +15,7 @@ POINTTYPE& ezPointOfInterestGraph<POINTTYPE>::AddPoint(const ezVec3& position)
   const ezUInt32 id = m_Points.GetCount();
   auto& pt = m_Points.ExpandAndGetRef();
 
-  m_Octree.InsertObject(position, ezVec3::ZeroVector(), 0, id, nullptr, true);
+  m_Octree.InsertObject(position, ezVec3::ZeroVector(), 0, id, nullptr, true).IgnoreResult();
 
   return pt;
 }

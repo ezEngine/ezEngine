@@ -19,7 +19,7 @@ namespace ezInternal
     else
     {
       ezMat3 mInverse = objectToWorld.GetRotationalPart();
-      mInverse.Invert(0.0f);
+      mInverse.Invert(0.0f).IgnoreResult();
       // we explicitly ignore the return value here (success / failure)
       // because when we have a scale of 0 (which happens temporarily during editing) that would be annoying
 

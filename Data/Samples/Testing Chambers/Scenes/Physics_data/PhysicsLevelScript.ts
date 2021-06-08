@@ -20,7 +20,7 @@ export class PhysicsLevelScript extends ez.TypescriptComponent {
 
     OnMsgTriggerTriggered(msg: ez.MsgTriggerTriggered): void {
 
-        if (msg.MsgStringHash == ez.Utils.StringToHash("ActivatePaddleWheel")) {
+        if (msg.Message == "ActivatePaddleWheel") {
 
             if (msg.TriggerState == ez.TriggerState.Activated) {
 
@@ -40,7 +40,7 @@ export class PhysicsLevelScript extends ez.TypescriptComponent {
             }
         }
 
-        if (msg.MsgStringHash == ez.Utils.StringToHash("ActivateSwing")) {
+        if (msg.Message == "ActivateSwing") {
 
             if (msg.TriggerState == ez.TriggerState.Activated) {
 

@@ -3,25 +3,7 @@
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshContext.h>
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshView.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
 #include <PhysXPlugin/Components/PxVisColMeshComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshContext, 1, ezRTTIDefaultAllocator<ezCollisionMeshContext>)
@@ -40,15 +22,27 @@ ezCollisionMeshContext::ezCollisionMeshContext()
   m_pMeshObject = nullptr;
 }
 
-void ezCollisionMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezCollisionMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  {
+    if (pMsg->m_sWhatToDo == "CommonAssetUiState")
+    {
+      if (pMsg->m_sPayload == "Grid")
+      {
+        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        return;
+      }
+    }
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
 void ezCollisionMeshContext::OnInitialize()
@@ -72,23 +66,6 @@ void ezCollisionMeshContext::OnInitialize()
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
     m_hMesh = ezResourceManager::LoadResource<ezPxMeshResource>(sMeshGuid);
     pMesh->SetMesh(m_hMesh);
-  }
-
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
   }
 }
 

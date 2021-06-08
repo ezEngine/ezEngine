@@ -3,8 +3,6 @@
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollectionAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

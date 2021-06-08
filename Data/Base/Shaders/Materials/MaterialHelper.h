@@ -3,6 +3,7 @@
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
+#include <Shaders/Common/BRDF.h>
 #include <Shaders/Materials/MaterialData.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
@@ -25,6 +26,7 @@ float3 GetNormal();
   float4 GetRefractionColor();
 #endif
 
+// Note that this function actually returns perceptualRoughness.
 float GetRoughness();
 float GetOpacity();
 
@@ -129,7 +131,8 @@ ezMaterialData FillMaterialData()
     matData.refractionColor = float4(0, 0, 0, 1);
   #endif
 
-  matData.roughness = max(GetRoughness(), 0.04f);
+  matData.perceptualRoughness = max(GetRoughness(), MIN_PERCEPTUAL_ROUGHNESS);
+  matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
 
   #if defined(USE_MATERIAL_OCCLUSION)
     #if defined(USE_NORMAL)
@@ -165,10 +168,14 @@ ezMaterialData FillMaterialData()
   return matData;
 }
 
-#if defined(USE_NORMAL) && defined(USE_TANGENT)
+#if defined(USE_NORMAL)
   float3 TangentToWorldSpace(float3 normalTS)
   {
-    return normalTS.x * G.Input.Tangent + normalTS.y * G.Input.BiTangent + normalTS.z * G.Input.Normal;
+    #if defined(USE_TANGENT)
+	  return normalTS.x * G.Input.Tangent + normalTS.y * G.Input.BiTangent + normalTS.z * G.Input.Normal;
+	#else
+	  return normalTS.z * G.Input.Normal;
+	#endif
   }
 #endif
 

@@ -8,13 +8,13 @@ o
 	s %n{"Header"}
 	p
 	{
-		s %AssetType{"Collision Mesh (Convex)"}
+		s %AssetType{"Collision Mesh"}
 		VarArray %Dependencies
 		{
 			s{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
 		}
 		Uuid %DocumentID{u4{7314763331493852315,5607304442640664776}}
-		u4 %Hash{4562130234056530791}
+		u4 %Hash{12687359294086245294}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -35,15 +35,14 @@ o
 	{
 		s %ConvexMeshType{"ezConvexCollisionMeshType::ConvexHull"}
 		u1 %Detail{1}
-		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{1}
+		u2 %MaxConvexPieces{2}
 		s %MeshFile{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
-		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
-		s %SubmeshName{""}
 		VarArray %Surfaces
 		{
 			Uuid{u4{3271707025375621303,17276307397593255433}}
@@ -184,7 +183,7 @@ o
 		s %PluginName{"ezEditorPluginPhysX"}
 		VarArray %Properties{}
 		s %TypeName{"ezCollisionMeshAssetProperties"}
-		u3 %TypeSize{1232}
+		u3 %TypeSize{1160}
 		u3 %TypeVersion{2}
 	}
 }

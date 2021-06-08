@@ -1,20 +1,12 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <QKeyEvent>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {
@@ -196,8 +188,8 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 
   ezVec3 vPosOnNearPlane0, vRayDir0;
   ezVec3 vPosOnNearPlane1, vRayDir1;
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0).IgnoreResult();
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1).IgnoreResult();
 
   ezTransform t;
   t.SetIdentity();
@@ -313,8 +305,7 @@ ezEditorInput ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
   return ezEditorInput::MayBeHandledByOthers;
 }
 
-static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject,
-  const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
+static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject, const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
 {
   if (pObject == pRootObject)
     return false;

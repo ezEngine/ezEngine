@@ -332,7 +332,6 @@ public:
   virtual ~ezQtVariantPropertyWidget();
 
   virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
-  virtual bool HasLabel() const override { return false; }
   virtual void ExtendContextMenu(QMenu& menu) override;
 
 protected:

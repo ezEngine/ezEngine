@@ -18,10 +18,10 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
   sOutputFolder.MakeCleanPath();
 
   // make sure it is empty
-  ezOSFile::DeleteFolder(sOutputFolder);
-  ezOSFile::CreateDirectoryStructure(sOutputFolder);
+  ezOSFile::DeleteFolder(sOutputFolder).IgnoreResult();
+  ezOSFile::CreateDirectoryStructure(sOutputFolder).IgnoreResult();
 
-  if (EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS).Failed())
+  if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezFileSystem::AllowWrites).Succeeded()))
     return;
 
   const char* szTestData = "TestData";
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
       fileName.Set(":output/", szTestData, "/", szFileList[uiFileIdx]);
 
       ezFileWriter file;
-      if (EZ_TEST_BOOL(file.Open(fileName).Succeeded()).Failed())
+      if (!EZ_TEST_BOOL(file.Open(fileName).Succeeded()))
         return;
 
       for (ezUInt32 i = 0; i < uiMinFileSize * uiFileIdx; ++i)
@@ -80,7 +80,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
     ezInt32 iReturnValue = 1;
 
     ezProcess ArchiveToolProc;
-    if (EZ_TEST_BOOL(ArchiveToolProc.Execute(opt, &iReturnValue).Succeeded()).Failed())
+    if (!EZ_TEST_BOOL(ArchiveToolProc.Execute(opt, &iReturnValue).Succeeded()))
       return;
 
     EZ_TEST_INT(iReturnValue, 0);
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
     ezInt32 iReturnValue = 1;
 
     ezProcess ArchiveToolProc;
-    if (EZ_TEST_BOOL(ArchiveToolProc.Execute(opt, &iReturnValue).Succeeded()).Failed())
+    if (!EZ_TEST_BOOL(ArchiveToolProc.Execute(opt, &iReturnValue).Succeeded()))
       return;
 
     EZ_TEST_INT(iReturnValue, 0);
@@ -123,7 +123,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mount as Data Dir")
   {
-    if (EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive", ezFileSystem::ReadOnly) == EZ_SUCCESS).Failed())
+    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive", ezFileSystem::ReadOnly) == EZ_SUCCESS))
       return;
 
     ezStringBuilder sFileSrc;
@@ -147,6 +147,10 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
       EZ_TEST_FILES(sFileSrc, sFileDst, "Unpacked file should be identical");
     }
+
+    // mount a second time
+    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive2", ezFileSystem::ReadOnly) == EZ_SUCCESS))
+      return;
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("Clear");

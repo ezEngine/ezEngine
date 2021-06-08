@@ -28,19 +28,10 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
   friend class ezParticleEffectUpdateTask;
 
 public:
-  struct SharedInstance
-  {
-    const void* m_pSharedInstanceOwner = nullptr;
-    ezTransform m_Transform[2] = {ezTransform::IdentityTransform(), ezTransform::IdentityTransform()};
-  };
-
-public:
   ezParticleEffectInstance();
   ~ezParticleEffectInstance();
 
-  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
-    ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-    ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
   void Destruct();
 
   void Interrupt();
@@ -76,11 +67,15 @@ public:
   /// \brief Whether the effect is simulated around the origin and thus not affected by instance position and rotation
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
-  /// \brief Sets the transformation of the main or shared instance
-  void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity, const void* pSharedInstanceOwner = nullptr);
+  /// \brief Sets the transformation of this instance
+  void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
 
-  /// \brief Returns the transform of the main or shared instance
-  const ezTransform& GetTransform(const void* pSharedInstanceOwner = nullptr) const;
+  /// \brief Sets the transformation of this instance that should be used next frame.
+  /// This function is typically used to set the transformation while the particle simulation is running to prevent race conditions.
+  void SetTransformForNextFrame(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
+
+  /// \brief Returns the transform of the main or shared instance.
+  const ezTransform& GetTransform() const { return m_Transform; }
 
   /// \brief For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
@@ -88,8 +83,11 @@ public:
 private:
   void PassTransformToSystems();
 
-  ezTransform m_Transform[2];
+  ezTransform m_Transform;
+  ezTransform m_TransformForNextFrame;
+
   ezVec3 m_vVelocity;
+  ezVec3 m_vVelocityForNextFrame;
 
   /// @}
   /// @name Updates
@@ -136,10 +134,6 @@ private: // friend ezParticleWorldModule
   void AddSharedInstance(const void* pSharedInstanceOwner);
   void RemoveSharedInstance(const void* pSharedInstanceOwner);
 
-
-private: // friend ezParticleWorldModule
-  const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
-
 private:
   bool m_bIsSharedEffect = false;
 
@@ -156,21 +150,13 @@ public:
   /// \brief Whether the effect has been marked as visible recently.
   bool IsVisible() const;
 
-  /// \brief Returns true when the last bounding volume update was too long ago.
-  bool NeedsBoundingVolumeUpdate() const;
-
-  /// \brief Will enforce that the next update does a full bounding volume update
-  void ForceBoundingVolumeUpdate();
-
-  /// \brief Returns the bounding volume of the effect and the update counter.
+  /// \brief Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
-  ezUInt32 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
 private:
   void CombineSystemBoundingVolumes();
 
-  ezTime m_UpdateBVolumeTime;
-  ezUInt32 m_uiBVolumeUpdateCounter = 0;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
   ezParticleEffectInstance* m_pVisibleIf = nullptr;
@@ -197,14 +183,14 @@ private:
   struct FloatParameter
   {
     EZ_DECLARE_POD_TYPE();
-    ezUInt32 m_uiNameHash;
+    ezUInt64 m_uiNameHash;
     float m_fValue;
   };
 
   struct ColorParameter
   {
     EZ_DECLARE_POD_TYPE();
-    ezUInt32 m_uiNameHash;
+    ezUInt64 m_uiNameHash;
     ezColor m_Value;
   };
 
@@ -222,15 +208,13 @@ private:
   // for deterministic randomness
   ezRandom m_Random;
 
-  ezDynamicArray<SharedInstance> m_SharedInstances;
+  ezHashSet<const void*> m_SharedInstances;
   ezParticleEffectHandle m_hEffectHandle;
   bool m_bEmitterEnabled = true;
   bool m_bSimulateInLocalSpace = false;
   bool m_bIsFinishing = false;
   ezUInt8 m_uiReviveTimeout = 3;
   ezInt8 m_iMinSimStepsToDo = 0;
-  ezUInt8 m_uiDoubleBufferReadIdx = 0;
-  ezUInt8 m_uiDoubleBufferWriteIdx = 1;
   float m_fApplyInstanceVelocity = 0;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;

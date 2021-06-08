@@ -6,10 +6,8 @@
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
-#include <QGridLayout>
 
-ezQtQuadViewWidget::ezQtQuadViewWidget(
-  ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping)
+ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping)
 {
   m_pDocument = pDocument;
   m_pWindow = pWindow;
@@ -55,9 +53,9 @@ void ezQtQuadViewWidget::LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPre
     cfg.ApplyPerspectiveSetting(pref.m_fFov);
   }
 
-  pref.m_vCamDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+  pref.m_vCamDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
   pref.m_vCamUp.MakeOrthogonalTo(pref.m_vCamDir);
-  pref.m_vCamUp.NormalizeIfNotZero(pref.m_vCamDir.GetOrthogonalVector().GetNormalized());
+  pref.m_vCamUp.NormalizeIfNotZero(pref.m_vCamDir.GetOrthogonalVector().GetNormalized()).IgnoreResult();
 
   cfg.m_Camera.LookAt(pref.m_vCamPos, pref.m_vCamPos + pref.m_vCamDir, pref.m_vCamUp);
 }

@@ -8,7 +8,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALQuery : public ezGALResource<ezGALQueryCrea
 public:
 protected:
   friend class ezGALDevice;
-  friend class ezGALContext;
+  friend class ezGALCommandEncoder;
 
   ezGALQuery(const ezGALQueryCreationDescription& Description);
 

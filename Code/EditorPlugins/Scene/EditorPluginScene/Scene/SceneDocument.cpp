@@ -1,12 +1,8 @@
 #include <EditorPluginScenePCH.h>
 
 #include <Commands/SceneCommands.h>
-#include <Core/Assets/AssetFileHeader.h>
-#include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
@@ -15,20 +11,12 @@
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
-#include <QApplication>
 #include <QClipboard>
 #include <RendererCore/Components/CameraComponent.h>
-#include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 6, ezRTTINoAllocator)
@@ -58,13 +46,9 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool {
-    return GetObjectManager()->IsUnderRootProperty("Settings", pObject, szProperty);
-  });
+  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool { return GetObjectManager()->IsUnderRootProperty("Settings", pObject, szProperty); });
   // (Remote IPC mirror only sends scene)
-  m_Mirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool {
-    return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty);
-  });
+  m_Mirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool { return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty); });
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   EnsureSettingsObjectExist();
@@ -188,7 +172,7 @@ void ezSceneDocument::DuplicateSpecial()
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
-  memoryWriter.WriteBytes("\0", 1); // null terminate
+  memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
 
   ezDuplicateObjectsCommand cmd;
   cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
@@ -452,7 +436,7 @@ void ezSceneDocument::DuplicateSelection()
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
-  memoryWriter.WriteBytes("\0", 1); // null terminate
+  memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
 
   ezDuplicateObjectsCommand cmd;
   cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
@@ -542,9 +526,8 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
-  ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */,
-  ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
+  const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
 {
   EZ_ASSERT_DEV(!AdjustGraphNodeCB.IsValid(), "Not allowed");
   EZ_ASSERT_DEV(!AdjustNewNodesCB.IsValid(), "Not allowed");
@@ -634,7 +617,7 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
 
         ezVec3 vPickDir = ctxt.m_pLastPickingResult->m_vPickedPosition - ctxt.m_pLastPickingResult->m_vPickingRayStart;
         vPickDir.z = 0;
-        vPickDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+        vPickDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
 
         msg.m_vStartDirection = vPickDir;
       }
@@ -787,8 +770,7 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
@@ -863,8 +845,7 @@ void ezSceneDocument::EnsureSettingsObjectExist()
   ezUuid id = value.Get<ezUuid>();
   if (!id.IsValid())
   {
-    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id).Succeeded(),
-      "Adding scene settings object to root failed.");
+    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id).Succeeded(), "Adding scene settings object to root failed.");
   }
 }
 
@@ -882,8 +863,7 @@ const ezSceneDocumentSettings* ezSceneDocument::GetSettings() const
   return static_cast<const ezSceneDocumentSettings*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 }
 
-ezStatus ezSceneDocument::CreateExposedProperty(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
+ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
 {
   const ezDocumentObject* pNodeComponent = ezObjectPropertyPath::FindParentNodeComponent(pObject);
   if (!pObject)
@@ -901,8 +881,7 @@ ezStatus ezSceneDocument::CreateExposedProperty(
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSceneDocument::AddExposedParameter(
-  const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
 {
   if (FindExposedParameter(pObject, pProperty, index) != -1)
     return ezStatus("Exposed parameter already exists.");
@@ -1238,8 +1217,7 @@ void ezSceneDocument::HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgT
 
     if (pObject)
     {
-      SetGlobalTransform(
-        pObject, ezTransform(state.m_vPosition, state.m_qRotation), TransformationChanges::Translation | TransformationChanges::Rotation);
+      SetGlobalTransform(pObject, ezTransform(state.m_vPosition, state.m_qRotation), TransformationChanges::Translation | TransformationChanges::Rotation);
     }
   }
 
@@ -1352,8 +1330,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
       if (const ezExposedParametersAttribute* pAttrib = key.m_pProperty->GetAttributeByType<ezExposedParametersAttribute>())
       {
         const ezAbstractProperty* pParameterSourceProp = pLeafObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
-        EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(),
-          pLeafObject->GetType()->GetTypeName());
+        EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
 
         ezExposedParameterCommandAccessor proxy(context.m_pAccessor, key.m_pProperty, pParameterSourceProp);
         res = proxy.GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);
@@ -1455,8 +1432,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSceneDocumentSettings* pSettings = GetSettings();
 
@@ -1472,8 +1448,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 
@@ -1484,7 +1459,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const c
 
 ezStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo, {});
 
   // if we were to do this BEFORE making the screenshot, the scene would be killed, but not immediately restored
   // and the screenshot would end up empty
@@ -1530,8 +1505,7 @@ void ezSceneDocument::UpdateObjectDebugTargets()
     ezObjectsForDebugVisMsgToEngine msgToEngine;
     msgToEngine.m_Objects.SetCountUninitialized(sizeof(ezUuid) * msg.m_Objects.GetCount());
 
-    ezMemoryUtils::Copy<ezUInt8>(
-      msgToEngine.m_Objects.GetData(), reinterpret_cast<ezUInt8*>(msg.m_Objects.GetData()), msgToEngine.m_Objects.GetCount());
+    ezMemoryUtils::Copy<ezUInt8>(msgToEngine.m_Objects.GetData(), reinterpret_cast<ezUInt8*>(msg.m_Objects.GetData()), msgToEngine.m_Objects.GetCount());
 
     GetEditorEngineConnection()->SendMessage(&msgToEngine);
   }

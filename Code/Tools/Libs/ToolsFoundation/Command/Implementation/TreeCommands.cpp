@@ -248,7 +248,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     {
       // Deserialize
       ezRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
-      ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
+      EZ_SUCCEED_OR_RETURN(ezAbstractGraphDdlSerializer::Read(memoryReader, &graph));
     }
 
     // Remap
@@ -715,6 +715,13 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     {
       return ezStatus(ezFmt("Set Property: The property '{0}' is a PointerOwner, use ezAddObjectCommand instead", m_sProperty));
     }
+
+    if (pProp->GetAttributeByType<ezTemporaryAttribute>())
+    {
+      // if we modify a 'temporary' property, ie. one that is not serialized,
+      // don't mark the document as modified
+      m_bModifiedDocument = false;
+    }
   }
 
   return pDocument->GetObjectManager()->SetValue(m_pObject, m_sProperty, m_NewValue, m_Index);
@@ -886,8 +893,7 @@ ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
     if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
     {
-      return ezStatus(
-        ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
+      return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
     }
   }
   return ezStatus(EZ_SUCCESS);

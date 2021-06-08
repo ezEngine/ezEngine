@@ -29,17 +29,17 @@ Only concrete and clocks.\n\
   szOutputFolder.MakeCleanPath();
 
   ezStringBuilder sOutputFolderResolved;
-  ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved);
+  ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved).IgnoreResult();
 
   ezStringBuilder sOutputFolder1 = szOutputFolder;
   sOutputFolder1.AppendPath("IO", "SubFolder");
   ezStringBuilder sOutputFolder1Resolved;
-  ezFileSystem::ResolveSpecialDirectory(sOutputFolder1, sOutputFolder1Resolved);
+  ezFileSystem::ResolveSpecialDirectory(sOutputFolder1, sOutputFolder1Resolved).IgnoreResult();
 
   ezStringBuilder sOutputFolder2 = szOutputFolder;
   sOutputFolder2.AppendPath("IO", "SubFolder2");
   ezStringBuilder sOutputFolder2Resolved;
-  ezFileSystem::ResolveSpecialDirectory(sOutputFolder2, sOutputFolder2Resolved);
+  ezFileSystem::ResolveSpecialDirectory(sOutputFolder2, sOutputFolder2Resolved).IgnoreResult();
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setup Data Dirs")
   {
@@ -121,7 +121,7 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(FileOut.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount()) == EZ_SUCCESS);
 
-    FileOut.Flush();
+    FileOut.Flush().IgnoreResult();
     EZ_TEST_INT(FileOut.GetFileSize(), sFileContent.GetElementCount());
 
     FileOut.Close();
@@ -215,7 +215,7 @@ Only concrete and clocks.\n\
       ezStringBuilder sAbs = sOutputFolder1Resolved;
       sAbs.AppendPath("FileSystemTest.txt");
       EZ_TEST_BOOL(FileOut.Open(szPath) == EZ_SUCCESS);
-      FileOut.WriteBytes("Test", 4);
+      FileOut.WriteBytes("Test", 4).IgnoreResult();
     }
 
     ezFileStats stat;
@@ -310,7 +310,7 @@ Only concrete and clocks.\n\
       StartPath.Set(sOutputFolder1Resolved, "/SubSub", "/Irrelevant");
       SubPath.Set("DoesNotExist");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Failed());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Failed());
     }
 
     {
@@ -318,7 +318,7 @@ Only concrete and clocks.\n\
       SubPath.Set("SubFolder2");
       expected.Set(sOutputFolderResolved, "/IO/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -327,7 +327,7 @@ Only concrete and clocks.\n\
       SubPath.Set("IO/SubFolder2");
       expected.Set(sOutputFolderResolved, "/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -336,7 +336,7 @@ Only concrete and clocks.\n\
       SubPath.Set("IO/SubFolder2");
       expected.Set(sOutputFolderResolved, "/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -345,7 +345,7 @@ Only concrete and clocks.\n\
       SubPath.Set("SubFolder2/FileSystemTest2.txt");
       expected.Set(sOutputFolderResolved, "/IO/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
@@ -354,7 +354,7 @@ Only concrete and clocks.\n\
       SubPath.Set("IO/SubFolder2");
       expected.Set(":toplevel/");
 
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(result, StartPath, SubPath).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 

@@ -48,7 +48,7 @@ public:
   ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.
   ezUInt32 m_uiSortingKey = 0;
 
-  ezTransform m_GlobalTransform;
+  ezTransform m_GlobalTransform = ezTransform::IdentityTransform();
   ezBoundingBoxSphere m_GlobalBounds;
 
   ezGameObjectHandle m_hOwner;
@@ -118,7 +118,14 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
 private:
   friend class ezExtractor;
 
-  ezHybridArray<ezInternal::RenderDataCacheEntry, 16> m_ExtractedRenderData;
+  struct Data
+  {
+    const ezRenderData* m_pRenderData = nullptr;
+    ezUInt16 m_uiCategory = 0;
+  };
+
+  ezHybridArray<Data, 16> m_ExtractedRenderData;
+  ezUInt32 m_uiNumCacheIfStatic = 0;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

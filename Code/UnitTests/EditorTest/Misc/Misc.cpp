@@ -47,19 +47,19 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
   {
     m_pDocument = SUPER::OpenDocument("Scenes/GameObjectReferences.ezScene");
 
-    if (EZ_TEST_BOOL(m_pDocument != nullptr).Failed())
+    if (!EZ_TEST_BOOL(m_pDocument != nullptr))
       return ezTestAppRun::Quit;
 
     ezAssetCurator::GetSingleton()->TransformAsset(m_pDocument->GetGuid(), ezTransformFlags::Default);
 
     ezQtEngineDocumentWindow* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(ezQtDocumentWindow::FindWindowByDocument(m_pDocument));
 
-    if (EZ_TEST_BOOL(pWindow != nullptr).Failed())
+    if (!EZ_TEST_BOOL(pWindow != nullptr))
       return ezTestAppRun::Quit;
 
     auto viewWidgets = pWindow->GetViewWidgets();
 
-    if (EZ_TEST_BOOL(!viewWidgets.IsEmpty()).Failed())
+    if (!EZ_TEST_BOOL(!viewWidgets.IsEmpty()))
       return ezTestAppRun::Quit;
 
     ezQtEngineViewWidget::InteractionContext ctxt;

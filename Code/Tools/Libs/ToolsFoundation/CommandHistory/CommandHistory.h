@@ -10,7 +10,7 @@ class EZ_TOOLSFOUNDATION_DLL ezCommandTransaction : public ezCommand
   EZ_ADD_DYNAMIC_REFLECTION(ezCommandTransaction, ezCommand);
 
 public:
-  ezCommandTransaction() {}
+  ezCommandTransaction();
   ~ezCommandTransaction();
 
   ezString m_sDisplayString;
@@ -47,7 +47,7 @@ struct ezCommandHistoryEvent
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 {
 public:
-  ezCopyOnBroadcastEvent<const ezCommandHistoryEvent&> m_Events;
+  ezEvent<const ezCommandHistoryEvent&, ezMutex> m_Events;
 
 public:
   ezCommandHistory(ezDocument* pDocument);

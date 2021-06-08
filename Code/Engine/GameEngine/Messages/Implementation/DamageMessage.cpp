@@ -16,7 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDamage, 1, ezRTTIDefaultAllocator<ezMsgDama
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender,
-    new ezAutoGenVisScriptMsgHandler
   }
   EZ_END_ATTRIBUTES;
 }
@@ -28,15 +27,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnDamage, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Events/Gameplay")
+    new ezCategoryAttribute("Event Handler"),
+    new ezTitleAttribute("OnDamageEvent"),
   }
-    EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
     EZ_OUTPUT_EXECUTION_PIN("OnEvent", 0),
     // Data Pins
-    EZ_OUTPUT_DATA_PIN("Damage", 0, ezVisualScriptDataPinType::Number)
+    EZ_OUTPUT_DATA_PIN("Damage", 0, ezVisualScriptDataPinType::Number),
+    EZ_OUTPUT_DATA_PIN("HitObjectName", 1, ezVisualScriptDataPinType::String)
   }
   EZ_END_PROPERTIES;
 }
@@ -51,6 +52,7 @@ void ezVisualScriptNode_OnDamage::Execute(ezVisualScriptInstance* pInstance, ezU
   EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Msg.m_fDamage) == 8, "The damage value is directly used by a visual script node, so it must be a double.");
 
   pInstance->SetOutputPinValue(this, 0, &m_Msg.m_fDamage);
+  pInstance->SetOutputPinValue(this, 1, &m_Msg.m_sHitObjectName);
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 

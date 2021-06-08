@@ -40,6 +40,10 @@ public:
 
   void RenameProperty(const char* szOldName, const char* szNewName);
 
+  // \brief Inlines a custom variant type. Use to patch properties that have been turned into custom variant type.
+  // \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE, EZ_DECLARE_CUSTOM_VARIANT_TYPE
+  ezResult InlineProperty(const char* szName);
+
   const ezUuid& GetGuid() const { return m_Guid; }
   ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
   void SetTypeVersion(ezUInt32 uiTypeVersion) { m_uiTypeVersion = uiTypeVersion; }
@@ -156,16 +160,14 @@ public:
 
   void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
 
-  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs,
-    ezDeque<ezAbstractGraphDiffOperation>& out) const;
+  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);
 
   void RemapVariant(ezVariant& value, const ezHashTable<ezUuid, ezUuid>& guidMap);
   void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray, ezVariantArray& out) const;
-  void ReMapNodeGuidsToMatchGraphRecursive(
-    ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs);
+  void ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs);
 
   ezSet<ezString> m_Strings;
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;

@@ -3,6 +3,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 void ezRttiConverterContext::Clear()
 {
@@ -177,6 +178,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
   ezVariant vTemp;
   ezStringBuilder sTemp;
   const ezRTTI* pPropType = pProp->GetSpecificType();
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
 
   switch (pProp->GetCategory())
   {
@@ -210,7 +212,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
           pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        else if (bIsValueType)
         {
           pNode->AddProperty(pProp->GetPropertyName(), ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject));
         }
@@ -274,7 +276,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else
       {
-        if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (bIsValueType)
         {
           for (ezUInt32 i = 0; i < uiCount; ++i)
           {
@@ -332,7 +334,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else
       {
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (bIsValueType)
         {
           pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
         }
@@ -372,7 +374,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else
       {
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (bIsValueType)
         {
           for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
           {

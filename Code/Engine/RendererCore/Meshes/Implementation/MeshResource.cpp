@@ -30,8 +30,14 @@ ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
   // if (WhatToUnload == Unload::AllQualityLevels)
   {
     m_SubMeshes.Clear();
-    m_hMeshBuffer.Invalidate();
+    m_SubMeshes.Compact();
     m_Materials.Clear();
+    m_Materials.Compact();
+    m_Bones.Clear();
+    m_Bones.Compact();
+
+    m_hMeshBuffer.Invalidate();
+    m_hDefaultSkeleton.Invalidate();
 
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
@@ -56,12 +62,12 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   if (desc.Load(*Stream).Failed())
   {
@@ -82,6 +88,9 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor)
 {
   // if there is an existing mesh buffer to use, take that
   m_hMeshBuffer = descriptor.GetExistingMeshBuffer();
+
+  m_hDefaultSkeleton = descriptor.m_hDefaultSkeleton;
+  m_Bones = descriptor.m_Bones;
 
   // otherwise create a new mesh buffer from the descriptor
   if (!m_hMeshBuffer.IsValid())
@@ -114,9 +123,6 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor)
 
   m_Bounds = descriptor.GetBounds();
   EZ_ASSERT_DEV(m_Bounds.IsValid(), "The mesh bounds are invalid. Make sure to call ezMeshResourceDescriptor::ComputeBounds()");
-
-  // copy the skeleton handle over, will be an invalid handle for static meshes
-  m_hSkeleton = descriptor.GetSkeleton();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

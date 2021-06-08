@@ -1,18 +1,7 @@
 #include <EditorPluginScenePCH.h>
 
-#include <Actions/SelectionActions.h>
-#include <Core/World/GameObject.h>
-#include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/EditActions.h>
-#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
-#include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
-#include <GuiFoundation/Widgets/SearchWidget.moc.h>
-#include <QBoxLayout>
-#include <QMenu>
-#include <QSortFilterProxyModel>
 
 namespace
 {

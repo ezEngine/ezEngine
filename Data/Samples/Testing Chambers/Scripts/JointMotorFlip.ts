@@ -19,7 +19,7 @@ export class JointMotorFlip extends ez.TypescriptComponent {
     OnSimulationStarted(): void {
 
         let msg = new ez.MsgComponentInternalTrigger();
-        msg.UsageStringHash = ez.Utils.StringToHash("FlipMotor");
+        msg.Message = "FlipMotor";
 
         this.PostMessage(msg, this.Seconds);
 

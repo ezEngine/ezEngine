@@ -5,10 +5,28 @@ EZ_STATICLINK_LIBRARY(Core)
   if (bReturn)
     return;
 
+  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_Actor);
+  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorApiService);
+  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorManager);
+  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPlugin);
+  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPluginWindow);
   EZ_STATICLINK_REFERENCE(Core_Assets_Implementation_AssetFileHeader);
   EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionComponent);
   EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionResource);
   EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionUtils);
+  EZ_STATICLINK_REFERENCE(Core_Configuration_Implementation_PlatformProfile);
+  EZ_STATICLINK_REFERENCE(Core_Console_Implementation_Autocomplete);
+  EZ_STATICLINK_REFERENCE(Core_Console_Implementation_Commands);
+  EZ_STATICLINK_REFERENCE(Core_Console_Implementation_Console);
+  EZ_STATICLINK_REFERENCE(Core_Console_Implementation_Input);
+  EZ_STATICLINK_REFERENCE(Core_Console_Implementation_LuaInterpreter);
+  EZ_STATICLINK_REFERENCE(Core_Curves_Implementation_ColorGradientResource);
+  EZ_STATICLINK_REFERENCE(Core_Curves_Implementation_Curve1DResource);
+  EZ_STATICLINK_REFERENCE(Core_GameApplication_Implementation_GameApplicationBase);
+  EZ_STATICLINK_REFERENCE(Core_GameApplication_Implementation_GameApplicationBaseInit);
+  EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_GameStateBase);
+  EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_GameStateWindow);
+  EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_StateMap);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_AmbientCubeBasis);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Camera);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_ConvexHull);
@@ -20,8 +38,14 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_ScancodeTable);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_Startup);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_VirtualThumbStick);
+  EZ_STATICLINK_REFERENCE(Core_Interfaces_PhysicsWorldModule);
+  EZ_STATICLINK_REFERENCE(Core_Interfaces_WindWorldModule);
+  EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_ApplyOnlyToMessage);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_EventMessage);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_Messages);
+  EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_SetColorMessage);
+  EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabReferenceComponent);
+  EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabResource);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_Resource);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceHandle);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceLoading);
@@ -35,8 +59,9 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Initialize);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Tables);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Variables);
+  EZ_STATICLINK_REFERENCE(Core_System_Implementation_Window);
+  EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_Blackboard);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_WorldGeoExtractionUtil);
-  EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleStreamOperations);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldReader);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldWriter);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_Component);

@@ -1,12 +1,8 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/World/GameObject.h>
-#include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectAccessor.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrack>)

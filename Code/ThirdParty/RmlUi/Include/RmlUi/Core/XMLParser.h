@@ -26,15 +26,14 @@
  *
  */
 
-#ifndef RMLUICOREXMLPARSER_H
-#define RMLUICOREXMLPARSER_H
+#ifndef RMLUI_CORE_XMLPARSER_H
+#define RMLUI_CORE_XMLPARSER_H
 
 #include <stack>
 #include "Header.h"
 #include "BaseXMLParser.h"
 
 namespace Rml {
-namespace Core {
 
 class DocumentHeader;
 class Element;
@@ -58,15 +57,16 @@ public:
 	/// @param[in] handler The custom handler.
 	/// @return The registered XML node handler.
 	static XMLNodeHandler* RegisterNodeHandler(const String& tag, SharedPtr<XMLNodeHandler> handler);
+	/// Retrieve a registered node handler.
+	/// @param[in] tag The tag the custom parser handles.
+	/// @return The registered XML node handler or nullptr if it does not exist for the given tag.
+	static XMLNodeHandler* GetNodeHandler(const String& tag);
 	/// Releases all registered node handlers. This is called internally.
 	static void ReleaseHandlers();
 
 	/// Returns the XML document's header.
 	/// @return The document header.
 	DocumentHeader* GetDocumentHeader();
-	/// Returns the source URL of this parse.
-	/// @return The URL of the parsing stream.
-	const URL& GetSourceURL() const;
 
 	// The parse stack.
 	struct ParseFrame
@@ -75,13 +75,13 @@ public:
 		String tag;
 
 		// Element representing this frame.
-		Element* element;
+		Element* element = nullptr;
 
 		// Handler used for this frame.
-		XMLNodeHandler* node_handler;
+		XMLNodeHandler* node_handler = nullptr;
 
 		// The default handler used for this frame's children.
-		XMLNodeHandler* child_handler;
+		XMLNodeHandler* child_handler = nullptr;
 	};
 
 	/// Pushes an element handler onto the parse stack for parsing child elements.
@@ -92,8 +92,10 @@ public:
 	void PushDefaultHandler();
 
 	/// Access the current parse frame.
-	/// @return The parser's current parse frame.
 	const ParseFrame* GetParseFrame() const;
+
+	/// Returns the source URL of this parse.
+	const URL& GetSourceURL() const;
 
 protected:
 	/// Called when the parser finds the beginning of an element tag.
@@ -101,21 +103,19 @@ protected:
 	/// Called when the parser finds the end of an element tag.
 	void HandleElementEnd(const String& name) override;
 	/// Called when the parser encounters data.
-	void HandleData(const String& data) override;
+	void HandleData(const String& data, XMLDataType type) override;
 
 private:
 	// The header of the document being parsed.
-	DocumentHeader* header;
+	UniquePtr<DocumentHeader> header;
 
 	// The active node handler.
 	XMLNodeHandler* active_handler;
 
 	// The parser stack.
-	using ParserStack = std::stack< ParseFrame >;
+	using ParserStack = Stack< ParseFrame >;
 	ParserStack stack;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

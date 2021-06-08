@@ -21,6 +21,8 @@ void ezProcVertexColorRenderer::GetSupportedRenderDataTypes(ezHybridArray<const 
 
 void ezProcVertexColorRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const
 {
+  SUPER::SetAdditionalData(renderViewContext, pRenderData);
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 

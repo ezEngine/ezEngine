@@ -3,6 +3,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext)
 {
@@ -53,6 +54,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
 
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+
   switch (pProp->GetCategory())
   {
     case ezPropertyCategory::Member:
@@ -94,7 +97,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
       else
       {
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
           ezReflectionUtils::SetMemberPropertyValue(pSpecific, pObject, pSource->m_Value);
         }
@@ -179,7 +182,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
       else
       {
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+        if (bIsValueType)
         {
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
           {
@@ -263,7 +266,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
       else
       {
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+        if (bIsValueType)
         {
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
           {
@@ -351,7 +354,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
       else
       {
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+        if (bIsValueType)
         {
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {

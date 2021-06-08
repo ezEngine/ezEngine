@@ -105,7 +105,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSurfaceResourceDescriptor"}
-		u3 %TypeSize{1472}
+		u3 %TypeSize{1984}
 		u3 %TypeVersion{2}
 	}
 }
@@ -177,7 +177,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSurfaceInteraction"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
 	}
 }

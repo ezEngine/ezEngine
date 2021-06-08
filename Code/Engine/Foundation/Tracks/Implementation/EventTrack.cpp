@@ -53,44 +53,18 @@ void ezEventTrack::AddControlPoint(ezTime time, const char* szEvent)
 
 ezUInt32 ezEventTrack::FindControlPointAfter(ezTime x) const
 {
+  // searches for a control point after OR AT x
+
+  EZ_ASSERT_DEBUG(!m_ControlPoints.IsEmpty(), "");
+
   ezUInt32 uiLowIdx = 0;
-  ezUInt32 uiHighIdx = m_ControlPoints.GetCount();
+  ezUInt32 uiHighIdx = m_ControlPoints.GetCount() - 1;
 
   // do a binary search to reduce the search space
   while (uiHighIdx - uiLowIdx > 8)
   {
     const ezUInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
 
-    // doesn't matter whether to use > or >=
-    if (m_ControlPoints[uiMidIdx].m_Time > x)
-      uiHighIdx = uiMidIdx;
-    else
-      uiLowIdx = uiMidIdx;
-  }
-
-  // now do a linear search to find the final item
-  for (ezUInt32 idx = uiLowIdx; idx < uiHighIdx; ++idx)
-  {
-    if (m_ControlPoints[idx].m_Time >= x)
-    {
-      return idx;
-    }
-  }
-
-  return m_ControlPoints.GetCount();
-}
-
-ezInt32 ezEventTrack::FindControlPointBefore(ezTime x) const
-{
-  ezInt32 uiLowIdx = 0;
-  ezInt32 uiHighIdx = (ezInt32)m_ControlPoints.GetCount();
-
-  // do a binary search to reduce the search space
-  while (uiHighIdx - uiLowIdx > 8)
-  {
-    const ezInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
-
-    // doesn't matter whether to use > or >=
     if (m_ControlPoints[uiMidIdx].m_Time >= x)
       uiHighIdx = uiMidIdx;
     else
@@ -98,20 +72,55 @@ ezInt32 ezEventTrack::FindControlPointBefore(ezTime x) const
   }
 
   // now do a linear search to find the final item
-  for (ezInt32 idx = uiHighIdx; idx > uiLowIdx; --idx)
+  for (ezUInt32 idx = uiLowIdx; idx <= uiHighIdx; ++idx)
   {
-    if (m_ControlPoints[idx - 1].m_Time <= x)
+    if (m_ControlPoints[idx].m_Time >= x)
     {
-      return idx - 1;
+      return idx;
     }
   }
 
+  EZ_ASSERT_DEBUG(uiHighIdx + 1 == m_ControlPoints.GetCount(), "Unexpected event track entry index");
+  return m_ControlPoints.GetCount();
+}
+
+ezInt32 ezEventTrack::FindControlPointBefore(ezTime x) const
+{
+  // searches for a control point before OR AT x
+
+  EZ_ASSERT_DEBUG(!m_ControlPoints.IsEmpty(), "");
+
+  ezInt32 iLowIdx = 0;
+  ezInt32 iHighIdx = (ezInt32)m_ControlPoints.GetCount() - 1;
+
+  // do a binary search to reduce the search space
+  while (iHighIdx - iLowIdx > 8)
+  {
+    const ezInt32 uiMidIdx = iLowIdx + ((iHighIdx - iLowIdx) >> 1); // lerp
+
+    if (m_ControlPoints[uiMidIdx].m_Time >= x)
+      iHighIdx = uiMidIdx;
+    else
+      iLowIdx = uiMidIdx;
+  }
+
+  // now do a linear search to find the final item
+  for (ezInt32 idx = iHighIdx; idx >= iLowIdx; --idx)
+  {
+    if (m_ControlPoints[idx].m_Time <= x)
+    {
+      return idx;
+    }
+  }
+
+  EZ_ASSERT_DEBUG(iLowIdx == 0, "Unexpected event track entry index");
   return -1;
 }
 
-void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezHybridArray<ezHashedString, 8>& out_Events) const
+void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezHashedString>& out_Events) const
 {
-  out_Events.Clear();
+  if (m_ControlPoints.IsEmpty())
+    return;
 
   if (m_bSort)
   {
@@ -122,14 +131,6 @@ void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezHybridArray<ezHa
   if (rangeStart <= rangeEnd)
   {
     ezUInt32 curCpIdx = FindControlPointAfter(rangeStart);
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (curCpIdx > 0)
-    {
-      // make sure we didn't accidentally skip an important control point
-      EZ_ASSERT_DEBUG(m_ControlPoints[curCpIdx - 1].m_Time < rangeStart, "Invalid control point computation");
-    }
-#endif
 
     const ezUInt32 uiNumCPs = m_ControlPoints.GetCount();
     while (curCpIdx < uiNumCPs && m_ControlPoints[curCpIdx].m_Time < rangeEnd)

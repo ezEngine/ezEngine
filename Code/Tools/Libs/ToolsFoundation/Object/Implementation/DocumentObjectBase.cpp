@@ -164,6 +164,8 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
 
     if (pProperty->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       continue;
+    if (pProperty->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
 
     if (pProperty->GetCategory() == ezPropertyCategory::Member)
     {

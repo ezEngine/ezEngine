@@ -7,11 +7,11 @@ namespace ezProcGenInternal
 {
   static Pattern::Point s_BayerPoints[64];
 
-  static ezHashTable<ezUInt32, Pattern, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> s_Patterns;
+  static ezHashTable<ezUInt64, Pattern, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> s_Patterns;
 
   bool FillPatterns()
   {
-    // generate bayer pattern
+    // generate Bayer pattern
     const ezUInt32 M = 3;
     const ezUInt32 n = 1 << M;
 

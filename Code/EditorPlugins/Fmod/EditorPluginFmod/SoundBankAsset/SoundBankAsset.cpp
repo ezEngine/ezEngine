@@ -1,11 +1,7 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Strings/PathUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocument, 1, ezRTTINoAllocator)
@@ -36,8 +32,7 @@ void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInf
   pInfo->m_AssetTransformDependencies.Insert(pProp->m_sSoundBank);
 }
 
-ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSoundBankAssetProperties* pProp = GetProperties();
 
@@ -76,7 +71,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
       if (uiRead == 0)
         break;
 
-      writer.WriteBytes(Temp, uiRead);
+      writer.WriteBytes(Temp, uiRead).IgnoreResult();
     }
   }
 
@@ -86,7 +81,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   // now store the entire file in our asset output
   {
     stream << storage.GetStorageSize();
-    stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+    stream.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
   }
 
   return ezStatus(EZ_SUCCESS);

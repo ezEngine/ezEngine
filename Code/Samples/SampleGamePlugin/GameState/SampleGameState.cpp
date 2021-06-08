@@ -1,13 +1,13 @@
 #include <SampleGamePluginPCH.h>
 
 #include <Core/Input/InputManager.h>
+#include <Core/System/Window.h>
 #include <Core/World/World.h>
 #include <Foundation/Logging/Log.h>
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <SampleGamePlugin/GameState/SampleGameState.h>
-#include <System/Window/Window.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleGameState, 1, ezRTTIDefaultAllocator<SampleGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -94,8 +94,7 @@ void SampleGameState::BeforeWorldUpdate()
     ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
     // END-DOCS-CODE-SNIPPET
 
-    ezImgui::GetSingleton()->SetPassInputToImgui(
-      false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
+    ezImgui::GetSingleton()->SetPassInputToImgui(false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
 
     // BEGIN-DOCS-CODE-SNIPPET: imgui-panel
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);

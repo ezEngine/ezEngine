@@ -1,12 +1,7 @@
 #include <EditorPluginRmlUiPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAsset.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Math/Random.h>
-#include <Foundation/Utilities/Progress.h>
-#include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 ezStringView FindRCSSReference(ezStringView& sRml)
 {
@@ -56,8 +51,7 @@ ezRmlUiAssetDocument::ezRmlUiAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezRmlUiAssetProperties* pProp = GetProperties();
 
@@ -109,7 +103,7 @@ ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, co
     }
   }
 
-  desc.Save(stream);
+  EZ_SUCCEED_OR_RETURN(desc.Save(stream));
 
   return ezStatus(EZ_SUCCESS);
 }

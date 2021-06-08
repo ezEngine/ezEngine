@@ -2,11 +2,6 @@
 
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QProcess>
 
 ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* parent)
   : QDialog(parent)
@@ -109,8 +104,7 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
     sPreviousFolder = QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectFile().GetData());
   }
 
-  QString sFolder = QFileDialog::getExistingDirectory(
-    this, QLatin1String("Select Directory"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
+  QString sFolder = QFileDialog::getExistingDirectory(this, QLatin1String("Select Directory"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
 
   if (sFolder.isEmpty())
     return;
@@ -120,7 +114,7 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
   ezStringBuilder sRootPath = ezFileSystem::GetSdkRootDirectory();
 
   ezStringBuilder sRelPath = sFolder.toUtf8().data();
-  sRelPath.MakeRelativeTo(sRootPath);
+  sRelPath.MakeRelativeTo(sRootPath).IgnoreResult();
   sRelPath.Prepend(">sdk/");
   sRelPath.MakeCleanPath();
 
@@ -161,7 +155,7 @@ void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
     return;
 
   ezStringBuilder sPath;
-  ezFileSystem::ResolveSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath);
+  ezFileSystem::ResolveSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath).IgnoreResult();
 
   QStringList args;
   args << "/select," << QDir::toNativeSeparators(sPath.GetData());

@@ -1,11 +1,8 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/Stream.h>
 
 EZ_IMPLEMENT_SINGLETON(ezLongOpControllerManager);
 

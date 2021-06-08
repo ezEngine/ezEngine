@@ -107,7 +107,7 @@ InputAction
 	Slot
 	{
 		string %Key{"controller0_rightstick_negx"}
-		float %Scale{1}
+		float %Scale{3}
 	}
 	Slot
 	{
@@ -128,7 +128,7 @@ InputAction
 	Slot
 	{
 		string %Key{"controller0_rightstick_posx"}
-		float %Scale{1}
+		float %Scale{3}
 	}
 	Slot
 	{
@@ -359,6 +359,22 @@ InputAction
 	Slot
 	{
 		string %Key{"keyboard_q"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"Aim"}
+	bool %TimeScale{false}
+	Slot
+	{
+		string %Key{"mouse_button_1"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"controller0_left_trigger"}
 		float %Scale{1}
 	}
 }

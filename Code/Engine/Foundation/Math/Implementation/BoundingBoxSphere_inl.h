@@ -48,7 +48,7 @@ template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxSphereTemplate<Type>::SetInvalid()
 {
   m_vCenter.SetZero();
-  m_fSphereRadius = -1.0f;
+  m_fSphereRadius = -ezMath::SmallEpsilon<Type>();
   m_vBoxHalfExtends.Set(-ezMath::MaxValue<Type>());
 }
 

@@ -1,5 +1,6 @@
 #include <ToolsFoundationPCH.h>
 
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Document/Document.h>
@@ -36,11 +37,13 @@ ezString ezApplicationServices::GetApplicationUserDataFolder() const
 
 ezString ezApplicationServices::GetApplicationDataFolder() const
 {
-  ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("../../../Data/Tools", m_sApplicationName);
-  sAppDir.MakeCleanPath();
+  ezStringBuilder sAppDir(">sdk/Data/Tools/", m_sApplicationName);
 
-  return sAppDir;
+  ezStringBuilder result;
+  ezFileSystem::ResolveSpecialDirectory(sAppDir, result).IgnoreResult();
+  result.MakeCleanPath();
+
+  return result;
 }
 
 ezString ezApplicationServices::GetApplicationPreferencesFolder() const
@@ -57,7 +60,7 @@ ezString ezApplicationServices::GetProjectPreferencesFolder() const
   ezStringBuilder ProjectPath = ProjectName;
   ProjectPath.PathParentDirectory();
 
-  const ezUInt32 uiPathHash = ezTempHashedString::ComputeHash(ProjectPath.GetData());
+  const ezUInt64 uiPathHash = ezHashingUtils::StringHash(ProjectPath.GetData());
 
   ProjectName = ProjectName.GetFileName();
 

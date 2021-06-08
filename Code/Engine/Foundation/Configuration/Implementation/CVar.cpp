@@ -5,8 +5,9 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Utilities/CommandLineUtils.h>
-#include <Utilities/ConversionUtils.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 // clang-format off
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCVar);
@@ -140,9 +141,15 @@ void ezCVar::SetStorageFolder(const char* szFolder)
   s_StorageFolder = szFolder;
 }
 
+ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
+
 void ezCVar::SaveCVars()
 {
   if (s_StorageFolder.IsEmpty())
+    return;
+
+  // this command line disables loading and saving CVars to and from files
+  if (opt_NoFileCVars.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified))
     return;
 
   // first gather all the cvars by plugin
@@ -215,7 +222,7 @@ void ezCVar::SaveCVars()
         }
 
         // add the one line for that cvar to the config file
-        File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
+        File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
       }
     }
 
@@ -314,6 +321,10 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
 void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 {
   if (s_StorageFolder.IsEmpty())
+    return;
+
+  // this command line disables loading and saving CVars to and from files
+  if (opt_NoFileCVars.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified))
     return;
 
   ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
@@ -427,6 +438,14 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
     }
   }
 }
+
+ezCommandLineOptionDoc opt_CVar("cvar", "-CVarName", "<value>", "Forces a CVar to the given value.\n\
+Overrides persisted settings.\n\
+Examples:\n\
+-MyIntVar 42\n\
+-MyStringVar \"Hello\"\n\
+",
+  nullptr);
 
 void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/)
 {

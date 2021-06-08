@@ -49,7 +49,7 @@ EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 ///       // Close log file, etc.
 ///     }
 ///
-///     virtual ezApplication::ApplicationExecution Run() override
+///     virtual ezApplication::Execution Run() override
 ///     {
 ///       // Either run a one-time application (e.g. console script) and return ezApplication::Quit
 ///       // Or run one update (frame) of your game loop and return ezApplication::Continue
@@ -66,7 +66,7 @@ class EZ_FOUNDATION_DLL ezApplication
 
 public:
   /// \brief Defines the possible return values for the ezApplication::Run() function.
-  enum ApplicationExecution
+  enum class Execution
   {
     Continue, ///< The 'Run' function should return this to keep the application running
     Quit,     ///< The 'Run' function should return this to quit the application
@@ -139,8 +139,8 @@ public:
 
   /// \brief Main run function which is called periodically. This function must be overridden.
   ///
-  /// Return ApplicationExecution::Quit when the application should quit. You may set a return code via SetReturnCode() beforehand.
-  virtual ApplicationExecution Run() = 0;
+  /// Return Execution::Quit when the application should quit. You may set a return code via SetReturnCode() beforehand.
+  virtual Execution Run() = 0;
 
   /// \brief Sets the value that the application will return to the OS.
   /// You can call this function at any point during execution to update the return value of the application.

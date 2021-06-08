@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13866531672342165670,5069180305038368071}}
-		u4 %Hash{12185272774187154072}
+		u4 %Hash{14183346053254406691}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14476465963710459611,14284432995905516631}}
@@ -64,6 +64,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -151,7 +152,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }

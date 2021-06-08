@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Foundation/Types/ArrayPtr.h>
+#include <Foundation/Basics.h>
 
 /// \brief This class encapsulates a blob's storage and it's size. It is recommended to use this class instead of directly working on the void* of the
 /// blob.
@@ -161,7 +161,7 @@ public:
     if (GetPtr() == other.GetPtr())
       return true;
 
-    return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
+    return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), static_cast<size_t>(GetCount()));
   }
 
   /// \brief Compares the two arrays for inequality.
@@ -173,10 +173,9 @@ public:
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezBlobPtr<const T>& other) // [tested]
   {
-    EZ_ASSERT_DEV(
-      GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
+    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
 
-    ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
+    ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), static_cast<size_t>(GetCount()));
   }
 
   EZ_ALWAYS_INLINE void Swap(ezBlobPtr<T>& other)

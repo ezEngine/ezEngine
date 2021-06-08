@@ -18,7 +18,7 @@ public:
     LessIndentation, ///< Saves some space by using less space for indentation
     NoIndentation,   ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
     NewlinesOnly,    ///< All unnecessary whitespace, except for newlines, is not output.
-    None, ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
+    None,            ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
   };
 
   /// \brief Modes to configure how arrays are written.

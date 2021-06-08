@@ -1,15 +1,8 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Core/Curves/ColorGradientResource.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
-#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetManager.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Tracks/ColorGradient.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
-#include <Texture/Image/Image.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorControlPoint, 2, ezRTTIDefaultAllocator<ezColorControlPoint>)
@@ -185,8 +178,7 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
   return color;
 }
 
-ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   WriteResource(stream);
   return ezStatus(EZ_SUCCESS);

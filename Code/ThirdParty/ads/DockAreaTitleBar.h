@@ -33,9 +33,8 @@
 #include <QFrame>
 
 #include "ads_globals.h"
-#include <QToolButton>
 
-class QAbstractButton;
+QT_FORWARD_DECLARE_CLASS(QAbstractButton)
 
 namespace ads
 {
@@ -55,7 +54,7 @@ private:
 	DockAreaTitleBarPrivate* d; ///< private data (pimpl)
 	friend struct DockAreaTitleBarPrivate;
 
-private slots:
+private Q_SLOTS:
 	void onTabsMenuAboutToShow();
 	void onCloseButtonClicked();
 	void onUndockButtonClicked();
@@ -87,9 +86,9 @@ protected:
 	/**
 	 * Show context menu
 	 */
-	virtual void contextMenuEvent(QContextMenuEvent *event);
+	virtual void contextMenuEvent(QContextMenuEvent *event) override;
 
-public slots:
+public Q_SLOTS:
 	/**
 	 * Call this slot to tell the title bar that it should update the tabs menu
 	 * the next time it is shown.
@@ -149,79 +148,13 @@ public:
 	 */
 	int indexOf(QWidget *widget) const;
 
-signals:
+Q_SIGNALS:
 	/**
 	 * This signal is emitted if a tab in the tab bar is clicked by the user
 	 * or if the user clicks on a tab item in the title bar tab menu.
 	 */
 	void tabBarClicked(int index);
 }; // class name
-
-using tTitleBarButton = QToolButton;
-
-   /**
-   * Title bar button of a dock area that customizes tTitleBarButton appearance/behaviour
-   * according to various config flags such as:
-   * CDockManager::DockAreaHas_xxx_Button - if set to 'false' keeps the button always invisible
-   * CDockManager::DockAreaHideDisabledButtons - if set to 'true' hides button when it is disabled
-   */
-class CTitleBarButton : public tTitleBarButton
-{
-  Q_OBJECT
-    bool Visible = true;
-  bool HideWhenDisabled = false;
-public:
-  using Super = tTitleBarButton;
-  CTitleBarButton(bool visible = true, QWidget* parent = nullptr);
-
-
-  /**
-  * Adjust this visibility change request with our internal settings:
-  */
-  virtual void setVisible(bool visible) override
-  {
-    // 'visible' can stay 'true' if and only if this button is configured to generaly visible:
-    visible = visible && this->Visible;
-
-    // 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:
-    if(visible && HideWhenDisabled)
-    {
-      visible = isEnabled();
-    }
-
-    Super::setVisible(visible);
-  }
-
-protected:
-  /**
-  * Handle EnabledChanged signal to set button invisible if the configured
-  */
-  bool event(QEvent *ev) override;
-};
-
-
-/**
-* This spacer widget is here because of the following problem.
-* The dock area title bar handles mouse dragging and moving the floating widget.
-* The  problem is, that if the title bar becomes invisible, i.e. if the dock
-* area contains only one single dock widget and the dock area is moved
-* into a floating widget, then mouse events are not handled anymore and dragging
-* of the floating widget stops.
-*/
-class CSpacerWidget : public QWidget
-{
-  Q_OBJECT
-public:
-  using Super = QWidget;
-  CSpacerWidget(QWidget* Parent = 0)
-    : Super(Parent)
-  {
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setStyleSheet("border: none; background: none;");
-  }
-  virtual QSize sizeHint() const override {return QSize(0, 0);}
-  virtual QSize minimumSizeHint() const override {return QSize(0, 0);}
-};
 
 }
  // namespace ads

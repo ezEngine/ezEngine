@@ -6,11 +6,8 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/DeviceFactory.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <RendererDX11/Device/DeviceDX11.h>
-#endif
 
 ezEditorTestApplication::ezEditorTestApplication()
   : ezApplication("ezEditor")
@@ -41,10 +38,10 @@ void ezEditorTestApplication::AfterCoreSystemsShutdown()
   m_pEditorApp = nullptr;
 }
 
-ezApplication::ApplicationExecution ezEditorTestApplication::Run()
+ezApplication::Execution ezEditorTestApplication::Run()
 {
   qApp->processEvents();
-  return ezApplication::Continue;
+  return ezApplication::Execution::Continue;
 }
 
 void ezEditorTestApplication::AfterCoreSystemsStartup()
@@ -55,13 +52,12 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   userDataDir.AppendPath("ezEngine Project", "EditorTest");
   userDataDir.MakeCleanPath();
 
-  ezQtEditorApp::GetSingleton()->StartupEditor(
-    ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
+  ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
   // Disable msg boxes.
   ezQtUiServices::SetHeadless(true);
   ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
-  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
 }
 
 void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()
@@ -101,7 +97,7 @@ ezResult ezEditorTest::InitializeTest()
   if (m_pApplication == nullptr)
     return EZ_FAILURE;
 
-  ezRun_Startup(m_pApplication);
+  EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
   static bool s_bCheckedReferenceDriver = false;
   static bool s_bIsReferenceDriver = false;
@@ -115,16 +111,16 @@ ezResult ezEditorTest::InitializeTest()
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bCreatePrimarySwapChain = false;
 
-    pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
+    pDevice = ezGALDeviceFactory::CreateDevice("DX11", ezFoundation::GetDefaultAllocator(), DeviceInit);
 
-    pDevice->Init();
+    EZ_SUCCEED_OR_RETURN(pDevice->Init());
 
-    if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+    if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
     {
       s_bIsReferenceDriver = true;
     }
 
-    pDevice->Shutdown();
+    EZ_SUCCEED_OR_RETURN(pDevice->Shutdown());
     pDevice.Clear();
 #endif
   }
@@ -261,19 +257,21 @@ void ezEditorTest::ExecuteDocumentAction(const char* szActionName, ezDocument* p
 
 ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szImageName)
 {
-  ezStringBuilder sImgPath;
-  // TODO: fix this
-  sImgPath.Format("D:/{}.tga", szImageName);
+  ezStringBuilder sImgPath = ezOSFile::GetUserDataFolder("EditorTests");
+  sImgPath.AppendFormat("/{}.tga", szImageName);
 
-  ezOSFile::DeleteFile(sImgPath);
+  ezOSFile::DeleteFile(sImgPath).IgnoreResult();
 
   pWindow->CreateImageCapture(sImgPath);
 
-  // TODO: fix this
   for (int i = 0; i < 10; ++i)
   {
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
     ProcessEvents();
+
+    if (ezOSFile::ExistsFile(sImgPath))
+      break;
+
+    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
   }
 
   if (!ezOSFile::ExistsFile(sImgPath))
@@ -298,7 +296,7 @@ void ezEditorTest::SafeProfilingData()
   {
     ezProfilingSystem::ProfilingData profilingData;
     ezProfilingSystem::Capture(profilingData);
-    profilingData.Write(fileWriter);
+    profilingData.Write(fileWriter).IgnoreResult();
   }
 }
 

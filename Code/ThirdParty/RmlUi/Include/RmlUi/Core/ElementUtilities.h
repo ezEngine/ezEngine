@@ -26,14 +26,13 @@
  *
  */
 
-#ifndef RMLUICOREELEMENTUTILITIES_H
-#define RMLUICOREELEMENTUTILITIES_H
+#ifndef RMLUI_CORE_ELEMENTUTILITIES_H
+#define RMLUI_CORE_ELEMENTUTILITIES_H
 
 #include "Header.h"
 #include "Types.h"
 
 namespace Rml {
-namespace Core {
 
 class Box;
 class Context;
@@ -84,8 +83,9 @@ public:
 	/// Returns the width of a string rendered within the context of the given element.
 	/// @param[in] element The element to measure the string from.
 	/// @param[in] string The string to measure.
+	/// @param[in] prior_character The character placed just before this string, used for kerning.
 	/// @return The string width, in pixels.
-	static int GetStringWidth(Element* element, const String& string);
+	static int GetStringWidth(Element* element, const String& string, Character prior_character = Character::Null);
 
 	/// Bind and instance all event attributes on the given element onto the element
 	/// @param element Element to bind events on
@@ -111,30 +111,38 @@ public:
 	/// for non-DOM elements of custom elements.
 	/// @param[in] element The element to lay out.
 	/// @param[in] containing_block The size of the element's containing block.
-	static bool FormatElement(Element* element, const Vector2f& containing_block);
+	static void FormatElement(Element* element, Vector2f containing_block);
 
 	/// Generates the box for an element.
 	/// @param[out] box The box to be built.
 	/// @param[in] containing_block The dimensions of the content area of the block containing the element.
 	/// @param[in] element The element to build the box for.
 	/// @param[in] inline_element True if the element is placed in an inline context, false if not.
-	static void BuildBox(Box& box, const Vector2f& containing_block, Element* element, bool inline_element = false);
+	static void BuildBox(Box& box, Vector2f containing_block, Element* element, bool inline_element = false);
 
 	/// Sizes an element, and positions it within its parent offset from the borders of its content area. Any relative
 	/// values will be evaluated against the size of the element parent's content area.
 	/// @param element[in] The element to size and position.
 	/// @param offset[in] The offset from the parent's borders.
 	/// @param anchor[in] Defines which corner or edge the border is to be positioned relative to.
-	static bool PositionElement(Element* element, const Vector2f& offset, PositionAnchor anchor);
+	static bool PositionElement(Element* element, Vector2f offset, PositionAnchor anchor);
 
 	/// Applies an element's accumulated transform matrix, determined from its and ancestor's `perspective' and `transform' properties.
 	/// Note: All calls to RenderInterface::SetTransform must go through here.
 	/// @param[in] element		The element whose transform to apply.
 	/// @return true if a render interface is available to set the transform.
-	static bool ApplyTransform(Element &element);
+	static bool ApplyTransform(Element& element);
+
+	/// Creates data views and data controllers if a data model applies to the element.
+	/// Attributes such as 'data-' are used to create the views and controllers.
+	/// @return True if a data view or controller was constructed.
+	static bool ApplyDataViewsControllers(Element* element);
+
+	/// Creates data views that use a raw inner xml content string to construct child elements.
+	/// Right now, this only applies to the 'data-for' view.
+	/// @return True if a data view was constructed.
+	static bool ApplyStructuralDataViews(Element* element, const String& inner_rml);
 };
 
-}
-}
-
+} // namespace Rml
 #endif

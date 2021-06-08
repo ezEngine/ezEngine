@@ -34,8 +34,7 @@ ezMsaaResolvePass::ezMsaaResolvePass()
 
 ezMsaaResolvePass::~ezMsaaResolvePass() {}
 
-bool ezMsaaResolvePass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -65,8 +64,7 @@ bool ezMsaaResolvePass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -76,16 +74,15 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   if (m_bIsDepth)
   {
     // Setup render target
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
     // Bind render target and viewport
-    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName());
 
     auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
     globals.NumMsaaSamples = m_MsaaSampleCount;
@@ -94,15 +91,17 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
   else
   {
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, ezGALRenderingSetup(), GetName());
+
     ezGALTextureSubresource subresource;
     subresource.m_uiMipLevel = 0;
     subresource.m_uiArraySlice = 0;
 
-    pGALContext->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+    pCommandEncoder->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
   }
 }
 

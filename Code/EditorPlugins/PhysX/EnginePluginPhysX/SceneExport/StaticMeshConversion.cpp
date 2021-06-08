@@ -1,11 +1,9 @@
 #include <EnginePluginPhysXPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/World/World.h>
 #include <EnginePluginPhysX/SceneExport/StaticMeshConversion.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXCooking/PhysXCooking.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 
@@ -91,12 +89,12 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
   file.SetOutput(sOutputFile);
 
   ezAssetFileHeader header;
-  header.Write(file);
+  header.Write(file).IgnoreResult();
 
   ezChunkStreamWriter chunk(file);
   chunk.BeginStream(1);
 
-  ezPhysXCooking::WriteResourceToStream(chunk, xMesh, surfaces, false);
+  ezPhysXCooking::WriteResourceToStream(chunk, xMesh, surfaces, ezPhysXCooking::MeshType::Triangle);
 
   chunk.EndStream();
 

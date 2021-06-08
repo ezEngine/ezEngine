@@ -64,7 +64,9 @@ namespace ezGraphicsUtils
   EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovX, ezAngle& out_fFovY); // [tested]
 
   /// \brief Computes the distances of the near and far clip planes from the given perspective projection matrix.
-  EZ_FOUNDATION_DLL void ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix,
+  ///
+  /// Returns EZ_FAILURE when one of the values could not be computed, because it would result in a "division by zero".
+  EZ_FOUNDATION_DLL ezResult ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix,
     ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default); // [tested]
 
 
@@ -155,5 +157,14 @@ namespace ezGraphicsUtils
   EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir,
     const ezMat4& viewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
+  /// \brief Computes the barycentric coordinates of a point in a 3D triangle.
+  ///
+  /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
+  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& v0, const ezVec3& v1, const ezVec3& v2, const ezVec3& pos);
+
+  /// \brief Computes the barycentric coordinates of a point in a 2D triangle.
+  ///
+  /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
+  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec2& v0, const ezVec2& v1, const ezVec2& v2, const ezVec2& pos);
 
 } // namespace ezGraphicsUtils

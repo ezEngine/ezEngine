@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       DynamicArray.PushBack(5);
       DynamicArray.PushBack(0);
 
-      StreamWriter.WriteArray(DynamicArray);
+      StreamWriter.WriteArray(DynamicArray).IgnoreResult();
     }
 
     // Create reader
@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       // This element will be removed by the ReadArray function
       ReadBackDynamicArray.PushBack(0xAAu);
 
-      StreamReader.ReadArray(ReadBackDynamicArray);
+      StreamReader.ReadArray(ReadBackDynamicArray).IgnoreResult();
 
       EZ_TEST_INT(ReadBackDynamicArray.GetCount(), 5);
 
@@ -158,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       WriteArray.ExpandAndGetRef().m_uiMember1 = 0x5;
       WriteArray.ExpandAndGetRef().m_uiMember1 = 0x6;
 
-      StreamWriter.WriteArray(WriteArray);
+      StreamWriter.WriteArray(WriteArray).IgnoreResult();
     }
 
     // Read back in
@@ -170,7 +170,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       // to verify that it is a) compatible and b) all arrays are somewhat tested
       ezHybridArray<SerializableStructWithMethods, 1> ReadArray;
 
-      StreamReader.ReadArray(ReadArray);
+      StreamReader.ReadArray(ReadArray).IgnoreResult();
 
       EZ_TEST_INT(ReadArray.GetCount(), 2);
 
@@ -194,7 +194,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
     TestSet.Insert("World");
     TestSet.Insert("!");
 
-    StreamWriter.WriteSet(TestSet);
+    StreamWriter.WriteSet(TestSet).IgnoreResult();
 
     ezSet<ezString> TestSetReadBack;
 
@@ -202,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
     ezMemoryStreamReader StreamReader(&StreamStorage);
 
-    StreamReader.ReadSet(TestSetReadBack);
+    StreamReader.ReadSet(TestSetReadBack).IgnoreResult();
 
     EZ_TEST_INT(TestSetReadBack.GetCount(), 3);
 
@@ -223,7 +223,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
     TestMap.Insert(23, "World");
     TestMap.Insert(5, "!");
 
-    StreamWriter.WriteMap(TestMap);
+    StreamWriter.WriteMap(TestMap).IgnoreResult();
 
     ezMap<ezUInt64, ezString> TestMapReadBack;
 
@@ -231,7 +231,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
     ezMemoryStreamReader StreamReader(&StreamStorage);
 
-    StreamReader.ReadMap(TestMapReadBack);
+    StreamReader.ReadMap(TestMapReadBack).IgnoreResult();
 
     EZ_TEST_INT(TestMapReadBack.GetCount(), 3);
 
@@ -256,7 +256,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
     TestHashTable.Insert(23, "World");
     TestHashTable.Insert(5, "!");
 
-    StreamWriter.WriteHashTable(TestHashTable);
+    StreamWriter.WriteHashTable(TestHashTable).IgnoreResult();
 
     ezMap<ezUInt64, ezString> TestHashTableReadBack;
 
@@ -264,7 +264,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
     ezMemoryStreamReader StreamReader(&StreamStorage);
 
-    StreamReader.ReadMap(TestHashTableReadBack);
+    StreamReader.ReadMap(TestHashTableReadBack).IgnoreResult();
 
     EZ_TEST_INT(TestHashTableReadBack.GetCount(), 3);
 
@@ -312,7 +312,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       DeduplicationWriter << str1;
       DeduplicationWriter << str2;
 
-      StringDeduplicationContext.End();
+      StringDeduplicationContext.End().IgnoreResult();
 
       EZ_TEST_INT(StringDeduplicationContext.GetUniqueStringCount(), 3);
     }

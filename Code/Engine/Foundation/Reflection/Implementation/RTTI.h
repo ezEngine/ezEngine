@@ -51,13 +51,13 @@ public:
   EZ_ALWAYS_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
 
   /// \brief Returns the hash of the name of this type.
-  EZ_ALWAYS_INLINE ezUInt32 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
+  EZ_ALWAYS_INLINE ezUInt64 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
 
   /// \brief Returns the type that is the base class of this type. May be nullptr if this type has no base class.
   EZ_ALWAYS_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
   /// \brief Returns the corresponding variant type for this type or Invalid if there is none.
-  EZ_ALWAYS_INLINE ezVariant::Type::Enum GetVariantType() const { return static_cast<ezVariant::Type::Enum>(m_uiVariantType); }
+  EZ_ALWAYS_INLINE ezVariantType::Enum GetVariantType() const { return static_cast<ezVariantType::Enum>(m_uiVariantType); }
 
   /// \brief Returns true if this type is derived from the given type.
   bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
@@ -99,7 +99,8 @@ public:
   static ezRTTI* FindTypeByName(const char* szName); // [tested]
 
   /// \brief Searches all ezRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
-  static ezRTTI* FindTypeByNameHash(ezUInt32 uiNameHash); // [tested]
+  static ezRTTI* FindTypeByNameHash(ezUInt64 uiNameHash); // [tested]
+  static ezRTTI* FindTypeByNameHash32(ezUInt32 uiNameHash);
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
   ezAbstractProperty* FindPropertyByName(const char* szName, bool bSearchBaseTypes = true) const; // [tested]
@@ -151,14 +152,10 @@ protected:
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
-  void RegisterType(ezRTTI* pType);
-  void UnregisterType(ezRTTI* pType);
+  void RegisterType();
+  void UnregisterType();
 
   void GatherDynamicMessageHandlers();
-  /// \brief Returns a hash table that accelerates ezRTTI::FindTypeByName.
-  ///   The hash table type cannot be put in the header due to circular includes.
-  ///   Function is used by RegisterType / UnregisterType to add / remove type from table.
-  static void* GetTypeHashTable();
 
   const ezRTTI* m_pParentType;
   ezRTTIAllocator* m_pAllocator;
@@ -166,7 +163,7 @@ protected:
   ezUInt32 m_uiVariantType;
   ezUInt32 m_uiTypeSize;
   ezUInt32 m_uiTypeVersion = 0;
-  ezUInt32 m_uiTypeNameHash = 0;
+  ezUInt64 m_uiTypeNameHash = 0;
   ezBitflags<ezTypeFlags> m_TypeFlags;
   ezUInt32 m_uiMsgIdOffset;
 

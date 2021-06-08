@@ -23,7 +23,7 @@ namespace ezProcGenInternal
 
     ezDynamicArray<ezSimdMat4f, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
 
-    ezDynamicArray<ezVolumeCollection> m_VolumeCollections;
+    ezDeque<ezVolumeCollection> m_VolumeCollections;
     ezExpression::GlobalData m_GlobalData;
   };
 } // namespace ezProcGenInternal

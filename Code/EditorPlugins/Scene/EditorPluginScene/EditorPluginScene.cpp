@@ -1,8 +1,6 @@
 #include <EditorPluginScenePCH.h>
 
 #include <Actions/SceneActions.h>
-#include <Core/World/GameObject.h>
-#include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
@@ -12,12 +10,10 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
-#include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
@@ -26,7 +22,6 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
@@ -80,6 +75,7 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 }
 
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -103,11 +99,9 @@ void OnLoadPlugin(bool bReloading)
   ezSceneActions::RegisterActions();
 
   // Menu Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar").IgnoreResult();
   ezProjectActions::MapActions("EditorPluginScene_DocumentMenuBar");
-  ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
-                                                                     ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels |
-                                                                     ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
+  ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.File", false);
   ezDocumentActions::MapToolsActions("EditorPluginScene_DocumentMenuBar", "Menu.Tools");
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
@@ -122,7 +116,7 @@ void OnLoadPlugin(bool bReloading)
   ezSceneActions::MapMenuActions();
 
   // Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar").IgnoreResult();
   ezDocumentActions::MapActions("EditorPluginScene_DocumentToolBar", "", true);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezTransformGizmoActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
@@ -131,25 +125,23 @@ void OnLoadPlugin(bool bReloading)
   ezSceneActions::MapToolbarActions();
 
   // View Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
-  ezViewActions::MapActions(
-    "EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar").IgnoreResult();
+  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
   ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(),
-    [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(),
-    [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); }).IgnoreResult();
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); }).IgnoreResult();
 
   // SceneGraph Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").IgnoreResult();
   ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
   ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
   ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
 
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin(bool bReloading)
@@ -157,6 +149,7 @@ void OnUnloadPlugin(bool bReloading)
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
 
 
@@ -183,4 +176,21 @@ void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e
   props["RenderTarget"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
   props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+}
+
+void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSkyLightComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  const ezInt64 iReflectionProbeMode = e.m_pObject->GetTypeAccessor().GetValue("ReflectionProbeMode").ConvertTo<ezInt64>();
+  const bool bIsStatic = (iReflectionProbeMode == 0); // ezReflectionProbeMode::Static
+
+  auto& props = *e.m_pPropertyStates;
+
+  props["CubeMap"].m_Visibility = bIsStatic ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  //props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  //props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 }

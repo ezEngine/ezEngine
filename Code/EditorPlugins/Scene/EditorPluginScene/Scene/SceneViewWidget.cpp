@@ -3,24 +3,13 @@
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorFramework/InputContexts/OrthoGizmoContext.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
-#include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Serialization/RttiConverter.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
-#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QKeyEvent>
-#include <QMimeData>
-#include <QVBoxLayout>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 
 
@@ -52,7 +41,7 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
   {
     s_bContextMenuInitialized = true;
 
-    ezActionMapManager::RegisterActionMap("SceneViewContextMenu");
+    ezActionMapManager::RegisterActionMap("SceneViewContextMenu").IgnoreResult();
 
     ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
     ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");

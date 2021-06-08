@@ -6,6 +6,7 @@
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Versioning);
@@ -184,7 +185,7 @@ namespace
       ezSet<const ezRTTI*> types;
       types.Insert(pRtti);
       ezReflectionUtils::GatherDependentTypes(pRtti, types);
-      ezToolsReflectionUtils::SerializeTypes(types, typesGraph);
+      ezToolsSerializationUtils::SerializeTypes(types, typesGraph);
     }
     return pNode;
   }

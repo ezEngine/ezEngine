@@ -21,7 +21,7 @@ o
 			s{":app/VisualShader/Utils.ddl"}
 		}
 		Uuid %DocumentID{u4{8992525633171979923,5481807051897566660}}
-		u4 %Hash{16664088883829236303}
+		u4 %Hash{12091091982340480275}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -36,7 +36,7 @@ Objects
 o
 {
 	Uuid %id{u4{11850615991904483913,267698858428571841}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -48,7 +48,7 @@ o
 o
 {
 	Uuid %id{u4{13796171642935263774,1429460087305450777}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -60,7 +60,7 @@ o
 o
 {
 	Uuid %id{u4{11728869853888177348,2529864430365311667}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -72,7 +72,7 @@ o
 o
 {
 	Uuid %id{u4{10036314210832522883,3077979919761883110}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -84,7 +84,7 @@ o
 o
 {
 	Uuid %id{u4{13093256988195353671,4324333480524272033}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -125,7 +125,7 @@ o
 o
 {
 	Uuid %id{u4{2243226086478644257,4833755020446808129}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -395,6 +395,7 @@ o
 		f %Reflectance{0x0000003F}
 		Vec4 %RefractionColor{f{0,0,0,0x0000803F}}
 		f %Roughness{0x0000003F}
+		Vec3 %SubsurfaceColor{f{0,0,0}}
 	}
 }
 o
@@ -431,7 +432,7 @@ o
 o
 {
 	Uuid %id{u4{10715539405601225177,9068528980339248462}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -443,7 +444,7 @@ o
 o
 {
 	Uuid %id{u4{11844329845965038905,10548327861372394574}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -455,7 +456,7 @@ o
 o
 {
 	Uuid %id{u4{17927154087571357451,11330460988417031989}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -467,7 +468,7 @@ o
 o
 {
 	Uuid %id{u4{6684454682469994506,11616517815494405034}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -479,7 +480,7 @@ o
 o
 {
 	Uuid %id{u4{4463586384533718169,12381549831653283644}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -491,7 +492,7 @@ o
 o
 {
 	Uuid %id{u4{4881482300295057180,13682611056417426639}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -503,7 +504,7 @@ o
 o
 {
 	Uuid %id{u4{4075054060071301787,14161793990986936851}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -515,7 +516,7 @@ o
 o
 {
 	Uuid %id{u4{4611383479019793886,14778212521384624258}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -527,7 +528,7 @@ o
 o
 {
 	Uuid %id{u4{5683524269890203313,16570161436738452466}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -539,7 +540,7 @@ o
 o
 {
 	Uuid %id{u4{8326483594914289158,17008589237786548062}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -551,7 +552,7 @@ o
 o
 {
 	Uuid %id{u4{7870429177023847062,17966032571864483203}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -621,6 +622,7 @@ o
 			Uuid{u4{15388913065968328453,11188089115316402371}}
 			Uuid{u4{13652862081152275637,1931931446829192038}}
 			Uuid{u4{4737060376990519197,5534452074735684677}}
+			Uuid{u4{17888293823252574217,5278584362329602531}}
 		}
 		s %TypeName{"ShaderNode::MaterialOutput"}
 		u3 %TypeSize{0}
@@ -714,10 +716,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
+		i3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"SHADING_MODE::SHADING_MODE_LIT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -776,10 +778,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{2}
+		i3 %ConstantValue{2}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -897,6 +899,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17888293823252574217,5278584362329602531}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{13542406804441022416,9548951225033578222}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"SubsurfaceColor"}
+		s %Type{"ezVec3"}
+	}
+}
+o
+{
 	Uuid %id{u4{4737060376990519197,5534452074735684677}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -921,10 +940,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
+		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_MASKED"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -953,10 +972,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{4}
+		i3 %ConstantValue{4}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_MODULATE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -1146,10 +1165,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{3}
+		i3 %ConstantValue{3}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_ADDITIVE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -1161,10 +1180,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
+		i3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_OPAQUE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -1221,10 +1240,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
+		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"SHADING_MODE::SHADING_MODE_FULLBRIGHT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -1243,6 +1262,16 @@ o
 		s %TypeName{"ezShaderTypeBase"}
 		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{13542406804441022416,9548951225033578222}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Value{f{0,0,0}}
 	}
 }
 o

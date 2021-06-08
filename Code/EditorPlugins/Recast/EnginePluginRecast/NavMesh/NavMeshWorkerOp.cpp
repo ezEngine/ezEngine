@@ -6,7 +6,6 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BuildNavMesh, 1, ezRTTIDefaultAllocator<ezLongOpWorker_BuildNavMesh>)
@@ -21,13 +20,13 @@ ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(ezStreamReader& config
     return EZ_FAILURE;
 
   config >> m_sOutputPath;
-  m_NavMeshConfig.Deserialize(config);
+  EZ_SUCCEED_OR_RETURN(m_NavMeshConfig.Deserialize(config));
 
   pDocContext->GetWorld();
 
   EZ_LOCK(pDocContext->GetWorld()->GetWriteMarker());
 
-  ezRecastNavMeshBuilder::ExtractWorldGeometry(*pDocContext->GetWorld(), m_ExtractedWorldGeometry);
+  EZ_SUCCEED_OR_RETURN(ezRecastNavMeshBuilder::ExtractWorldGeometry(*pDocContext->GetWorld(), m_ExtractedWorldGeometry));
 
   return EZ_SUCCESS;
 }
@@ -56,7 +55,7 @@ ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress, ezStreamWrit
   // thus the scene hash and document version are irrelevant and should just stay static for now
   ezAssetFileHeader header;
   header.SetFileHashAndVersion(1, 1);
-  header.Write(file);
+  EZ_SUCCEED_OR_RETURN(header.Write(file));
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(file));
 

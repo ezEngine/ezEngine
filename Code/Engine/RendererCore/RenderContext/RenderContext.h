@@ -2,20 +2,24 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Math/Rect.h>
 #include <Foundation/Strings/String.h>
-#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
-#include <RendererFoundation/Context/Context.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Shader/Shader.h>
-
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
+#include <RendererFoundation/Shader/Shader.h>
+
+#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 
 struct ezRenderWorldRenderEvent;
 
@@ -38,9 +42,6 @@ public:
   static ezRenderContext* CreateInstance();
   static void DestroyInstance(ezRenderContext* pRenderer);
 
-  void SetGALContext(ezGALContext* pContext);
-  ezGALContext* GetGALContext() const { return m_pGALContext; }
-
 public:
   struct Statistics
   {
@@ -52,6 +53,91 @@ public:
 
   Statistics GetAndResetStatistics();
 
+  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "");
+  void EndRendering();
+
+  ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName = "");
+  void EndCompute();
+
+  // Helper class to automatically end rendering or compute on scope exit
+  template <typename T>
+  class CommandEncoderScope
+  {
+    EZ_DISALLOW_COPY_AND_ASSIGN(CommandEncoderScope);
+
+  public:
+    EZ_ALWAYS_INLINE ~CommandEncoderScope()
+    {
+      m_RenderContext.EndCommandEncoder(m_pGALCommandEncoder);
+
+      if (m_pGALPass != nullptr)
+      {
+        ezGALDevice::GetDefaultDevice()->EndPass(m_pGALPass);
+      }
+    }
+
+    EZ_ALWAYS_INLINE T* operator->() { return m_pGALCommandEncoder; }
+    EZ_ALWAYS_INLINE operator const T*() { return m_pGALCommandEncoder; }
+
+  private:
+    friend class ezRenderContext;
+
+    EZ_ALWAYS_INLINE CommandEncoderScope(ezRenderContext& renderContext, ezGALPass* pGALPass, T* pGALCommandEncoder)
+      : m_RenderContext(renderContext)
+      , m_pGALPass(pGALPass)
+      , m_pGALCommandEncoder(pGALCommandEncoder)
+    {
+    }
+
+    ezRenderContext& m_RenderContext;
+    ezGALPass* m_pGALPass;
+    T* m_pGALCommandEncoder;
+  };
+
+  using RenderingScope = CommandEncoderScope<ezGALRenderCommandEncoder>;
+  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "")
+  {
+    return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName));
+  }
+
+  EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName)
+  {
+    ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
+
+    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect));
+  }
+
+  using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
+  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const char* szName = "")
+  {
+    return ComputeScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginCompute(pGALPass, szName));
+  }
+
+  EZ_ALWAYS_INLINE static ComputeScope BeginPassAndComputeScope(const ezRenderViewContext& viewContext, const char* szName)
+  {
+    ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
+
+    return ComputeScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginCompute(pGALPass));
+  }
+
+  EZ_ALWAYS_INLINE ezGALCommandEncoder* GetCommandEncoder()
+  {
+    EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr, "BeginRendering/Compute has not been called");
+    return m_pGALCommandEncoder;
+  }
+
+  EZ_ALWAYS_INLINE ezGALRenderCommandEncoder* GetRenderCommandEncoder()
+  {
+    EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr && !m_bCompute, "BeginRendering has not been called");
+    return static_cast<ezGALRenderCommandEncoder*>(m_pGALCommandEncoder);
+  }
+
+  EZ_ALWAYS_INLINE ezGALComputeCommandEncoder* GetComputeCommandEncoder()
+  {
+    EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr && m_bCompute, "BeginCompute has not been called");
+    return static_cast<ezGALComputeCommandEncoder*>(m_pGALCommandEncoder);
+  }
+
 
   // Member Functions
   void SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sValue);
@@ -59,12 +145,9 @@ public:
 
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
-    ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-  void BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture,
-    ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-  void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
-    ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
+  void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
+  void BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
+  void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
 
   void BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
   void BindTexture3D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
@@ -86,8 +169,12 @@ public:
   void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
-  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo,
-    ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
+  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
+  EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
+  {
+    BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, topology, uiPrimitiveCount);
+  }
+
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   ezResult Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY = 1, ezUInt32 uiThreadGroupCountZ = 1);
@@ -97,8 +184,6 @@ public:
 
   ezGlobalConstants& WriteGlobalConstants();
   const ezGlobalConstants& ReadGlobalConstants() const;
-
-  void SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTargetSetup& renderTargetSetup);
 
   /// \brief Sets the texture filter mode that is used by default for texture resources.
   ///
@@ -119,6 +204,10 @@ public:
 
   /// \brief Set async shader loading. During runtime all shaders should be preloaded so this is off by default.
   void SetAllowAsyncShaderLoading(bool bAllow);
+
+  /// \brief Returns async shader loading. During runtime all shaders should be preloaded so this is off by default.
+  bool GetAllowAsyncShaderLoading();
+
 
   // Static Functions
 public:
@@ -178,8 +267,6 @@ private:
 
   static void OnEngineShutdown();
 
-  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
-
 private:
   Statistics m_Statistics;
   ezBitflags<ezRenderContextFlags> m_StateFlags;
@@ -202,12 +289,12 @@ private:
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
   bool m_bAllowAsyncShaderLoading;
 
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures2D;
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures3D;
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTexturesCube;
-  ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
-  ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers;
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures2D;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures3D;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTexturesCube;
+  ezHashTable<ezUInt64, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
+  ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
+  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundBuffer;
 
   struct BoundConstantBuffer
   {
@@ -227,7 +314,7 @@ private:
     ezConstantBufferStorageHandle m_hConstantBufferStorage;
   };
 
-  ezHashTable<ezUInt32, BoundConstantBuffer> m_BoundConstantBuffers;
+  ezHashTable<ezUInt64, BoundConstantBuffer> m_BoundConstantBuffers;
 
   ezConstantBufferStorageHandle m_hGlobalConstantBufferStorage;
 
@@ -251,8 +338,7 @@ private:
     }
   };
 
-  static ezResult BuildVertexDeclaration(
-    ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
+  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
 
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
 
@@ -263,7 +349,14 @@ private:
   static ezGALSamplerStateHandle s_hDefaultSamplerStates[4];
 
 private: // Per Renderer States
-  ezGALContext* m_pGALContext;
+  friend RenderingScope;
+  friend ComputeScope;
+  EZ_ALWAYS_INLINE void EndCommandEncoder(ezGALRenderCommandEncoder*) { EndRendering(); }
+  EZ_ALWAYS_INLINE void EndCommandEncoder(ezGALComputeCommandEncoder*) { EndCompute(); }
+
+  ezGALPass* m_pGALPass = nullptr;
+  ezGALCommandEncoder* m_pGALCommandEncoder = nullptr;
+  bool m_bCompute = false;
 
   // Member Functions
   void UploadConstants();

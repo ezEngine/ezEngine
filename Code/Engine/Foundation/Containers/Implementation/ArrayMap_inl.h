@@ -43,12 +43,13 @@ inline void ezArrayMapBase<KEY, VALUE>::Clear()
 
 template <typename KEY, typename VALUE>
 template <typename CompatibleKeyType, typename CompatibleValueType>
-inline void ezArrayMapBase<KEY, VALUE>::Insert(CompatibleKeyType&& key, CompatibleValueType&& value)
+inline ezUInt32 ezArrayMapBase<KEY, VALUE>::Insert(CompatibleKeyType&& key, CompatibleValueType&& value)
 {
   Pair& ref = m_Data.ExpandAndGetRef();
   ref.key = std::forward<CompatibleKeyType>(key);
   ref.value = std::forward<CompatibleValueType>(value);
   m_bSorted = false;
+  return m_Data.GetCount() - 1;
 }
 
 template <typename KEY, typename VALUE>
@@ -203,8 +204,7 @@ VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const CompatibleKeyType& key, bool*
 
   if (index == ezInvalidIndex)
   {
-    Insert(key, VALUE());
-    index = m_Data.GetCount() - 1;
+    index = Insert(key, VALUE());
   }
 
   return GetValue(index);

@@ -67,6 +67,10 @@ public:
   template <typename ByteIterator>
   static ezUInt32 DecodeUtf8ToUtf32(ByteIterator& szUtf8Iterator); // [tested]
 
+  /// \brief Characters that cannot be represented in a single utf16 code point need to be split up into two surrogate pairs to form unicode characters beyond the \uFFFF range.
+  template <typename UInt16Iterator>
+  static bool IsUtf16Surrogate(UInt16Iterator& szUtf16Iterator); // [tested]
+
   /// \brief Decodes the next character from the given Utf16 sequence to Utf32 and increments the iterator as far as necessary.
   template <typename UInt16Iterator>
   static ezUInt32 DecodeUtf16ToUtf32(UInt16Iterator& szUtf16Iterator); // [tested]

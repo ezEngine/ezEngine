@@ -1,12 +1,12 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
@@ -60,7 +60,7 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 void ezTimedDeathComponent::OnSimulationStarted()
 {
   ezMsgComponentInternalTrigger msg;
-  msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
+  msg.m_sMessage.Assign("Suicide");
 
   ezWorld* pWorld = GetWorld();
 
@@ -77,15 +77,17 @@ void ezTimedDeathComponent::OnSimulationStarted()
 
 void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
+  if (msg.m_sMessage != ezTempHashedString("Suicide"))
     return;
 
   if (m_hTimeoutPrefab.IsValid())
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
-    pPrefab->InstantiatePrefab(
-      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
+    ezPrefabInstantiationOptions options;
+    options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
+
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), options);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

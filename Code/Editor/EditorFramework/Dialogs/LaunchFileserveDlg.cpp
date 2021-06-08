@@ -2,8 +2,6 @@
 
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QSettings>
 
 ezQtLaunchFileserveDlg::ezQtLaunchFileserveDlg(QWidget* parent)
   : QDialog(parent)

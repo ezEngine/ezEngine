@@ -1,11 +1,11 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Core/Messages/SetColorMessage.h>
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <Core/World/World.h>
 #include <Foundation/SimdMath/SimdConversion.h>
-#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 
 using namespace ezProcGenInternal;
 
@@ -74,12 +74,7 @@ ezArrayPtr<const ezGameObjectHandle> PlacementTile::GetPlacedObjects() const
 
 ezBoundingBox PlacementTile::GetBoundingBox() const
 {
-  float fTileSize = m_pOutput->GetTileSize();
-  ezVec2 vCenter = ezVec2(m_Desc.m_iPosX * fTileSize, m_Desc.m_iPosY * fTileSize);
-  ezVec3 vMin = (vCenter - ezVec2(fTileSize * 0.5f)).GetAsVec3(m_Desc.m_fMinZ);
-  ezVec3 vMax = (vCenter + ezVec2(fTileSize * 0.5f)).GetAsVec3(m_Desc.m_fMaxZ);
-
-  return ezBoundingBox(vMin, vMax);
+  return m_Desc.GetBoundingBox();
 }
 
 ezColor PlacementTile::GetDebugColor() const
@@ -112,6 +107,8 @@ void PlacementTile::PreparePlacementData(const ezPhysicsWorldModuleInterface* pP
 
 ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementTransform> objectTransforms)
 {
+  EZ_PROFILE_SCOPE("PlacementTile::PlaceObjects");
+
   ezGameObjectDesc desc;
   auto& objectsToPlace = m_pOutput->m_ObjectsToPlace;
 
@@ -131,7 +128,11 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
 
     ezTransform transform = ezSimdConversion::ToTransform(objectTransform.m_Transform);
     ezHybridArray<ezGameObject*, 8> rootObjects;
-    pPrefab->InstantiatePrefab(world, transform, ezGameObjectHandle(), &rootObjects, nullptr, nullptr, false);
+
+    ezPrefabInstantiationOptions options;
+    options.m_pCreatedRootObjectsOut = &rootObjects;
+
+    pPrefab->InstantiatePrefab(world, transform, options);
 
     for (auto pRootObject : rootObjects)
     {

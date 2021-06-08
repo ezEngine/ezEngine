@@ -9,8 +9,78 @@
 
 ezEvent<const ezVisualScriptComponentActivityEvent&> ezVisualScriptComponent::s_ActivityEvents;
 
+//////////////////////////////////////////////////////////////////////////
+
+ezVisualScriptComponentManager::ezVisualScriptComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+{
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezVisualScriptComponentManager::ResourceEventHandler, this));
+}
+
+ezVisualScriptComponentManager::~ezVisualScriptComponentManager()
+{
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezVisualScriptComponentManager::ResourceEventHandler, this));
+}
+
+void ezVisualScriptComponentManager::Initialize()
+{
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezVisualScriptComponentManager::Update, this);
+
+  RegisterUpdateFunction(desc);
+}
+
+void ezVisualScriptComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  // Don't handle resource reload events during play the game since that would mess up script state
+  if (GetWorld()->GetWorldSimulationEnabled())
+    return;
+
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezVisualScriptResource>())
+  {
+    ezVisualScriptResourceHandle hScript((ezVisualScriptResource*)(e.m_pResource));
+
+    for (auto it = GetComponents(); it.IsValid(); it.Next())
+    {
+      if (it->m_hResource == hScript)
+      {
+        m_ComponentsToUpdate.Insert(it->GetHandle());
+      }
+    }
+  }
+}
+
+void ezVisualScriptComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  {
+    for (auto hComp : m_ComponentsToUpdate)
+    {
+      ezVisualScriptComponent* pComponent = nullptr;
+      if (!TryGetComponent(hComp, pComponent))
+        continue;
+
+      pComponent->InitScriptInstance();
+    }
+
+    m_ComponentsToUpdate.Clear();
+  }
+
+  if (GetWorld()->GetWorldSimulationEnabled())
+  {
+    for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+    {
+      ComponentType* pComponent = it;
+      if (pComponent->IsActiveAndInitialized())
+      {
+        pComponent->Update();
+      }
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 4, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 5, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -28,7 +98,10 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezVisualScriptComponent::ezVisualScriptComponent() = default;
+ezVisualScriptComponent::ezVisualScriptComponent(ezVisualScriptComponent&& other) = default;
 ezVisualScriptComponent::~ezVisualScriptComponent() = default;
+
+ezVisualScriptComponent& ezVisualScriptComponent::operator=(ezVisualScriptComponent&& other) = default;
 
 void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -38,18 +111,12 @@ void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hResource;
   /// \todo Store the current script state
 
-  // Version 3
-  s << m_NumberParams.GetCount();
-  for (ezUInt32 i = 0; i < m_NumberParams.GetCount(); ++i)
+  // Version 5
+  s << m_Params.GetCount();
+  for (ezUInt32 i = 0; i < m_Params.GetCount(); ++i)
   {
-    s << m_NumberParams[i].m_sName;
-    s << m_NumberParams[i].m_Value;
-  }
-  s << m_BoolParams.GetCount();
-  for (ezUInt32 i = 0; i < m_BoolParams.GetCount(); ++i)
-  {
-    s << m_BoolParams[i].m_sName;
-    s << m_BoolParams[i].m_Value;
+    s << m_Params[i].m_sName;
+    s << m_Params[i].m_Value;
   }
 }
 
@@ -68,31 +135,48 @@ void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& stream)
     SetGlobalEventHandlerMode(globalEventHandler);
   }
 
-  if (uiVersion >= 3)
+  if (uiVersion >= 3 && uiVersion < 5)
   {
+    m_Params.Clear();
+
     ezUInt32 numNums, numBools;
 
     s >> numNums;
-    m_NumberParams.SetCount(numNums);
-
-    for (ezUInt32 i = 0; i < m_NumberParams.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < numNums; ++i)
     {
-      s >> m_NumberParams[i].m_sName;
-      s >> m_NumberParams[i].m_Value;
-    }
+      auto& param = m_Params.ExpandAndGetRef();
+      s >> param.m_sName;
 
-    m_bNumberParamsChanged = numNums > 0;
+      double value;
+      s >> value;
+      param.m_Value = value;
+    }
 
     s >> numBools;
-    m_BoolParams.SetCount(numBools);
-
-    for (ezUInt32 i = 0; i < m_BoolParams.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < numBools; ++i)
     {
-      s >> m_BoolParams[i].m_sName;
-      s >> m_BoolParams[i].m_Value;
+      auto& param = m_Params.ExpandAndGetRef();
+      s >> param.m_sName;
+
+      bool value;
+      s >> value;
+      param.m_Value = value;
     }
 
-    m_bBoolParamsChanged = numBools > 0;
+    m_bParamsChanged = !m_Params.IsEmpty();
+  }
+
+  if (uiVersion >= 5)
+  {
+    ezUInt32 numParams = 0;
+    s >> numParams;
+    m_Params.SetCount(numParams);
+
+    for (ezUInt32 i = 0; i < m_Params.GetCount(); ++i)
+    {
+      s >> m_Params[i].m_sName;
+      s >> m_Params[i].m_Value;
+    }
   }
 
   /// \todo Read script state
@@ -121,13 +205,18 @@ const char* ezVisualScriptComponent::GetScriptFile() const
 void ezVisualScriptComponent::SetScript(const ezVisualScriptResourceHandle& hResource)
 {
   m_hResource = hResource;
+
+  if (m_pScriptInstance != nullptr)
+  {
+    InitScriptInstance();
+  }
 }
 
 bool ezVisualScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
 {
-  if (m_Script)
+  if (m_pScriptInstance)
   {
-    return m_Script->HandlesEventMessage(msg);
+    return m_pScriptInstance->HandlesEventMessage(msg);
   }
 
   return false;
@@ -137,17 +226,7 @@ void ezVisualScriptComponent::Update()
 {
   /// \todo Do we really need to tick scripts every frame?
 
-  if (m_Script == nullptr)
-  {
-    EnableUnhandledMessageHandler(true);
-
-    m_Script = EZ_DEFAULT_NEW(ezVisualScriptInstance);
-
-    if (m_hResource.IsValid())
-    {
-      m_Script->Configure(m_hResource, GetOwner());
-    }
-  }
+  EZ_ASSERT_DEV(m_pScriptInstance != nullptr, "Script instance should have been created at this point");
 
   const bool bEnableDebugOutput = GetDebugOutput();
 
@@ -161,40 +240,38 @@ void ezVisualScriptComponent::Update()
 
   // Script Parameters
   {
-    if (m_bNumberParamsChanged)
+    if (m_bParamsChanged)
     {
-      m_bNumberParamsChanged = false;
+      m_bParamsChanged = false;
 
-      for (ezUInt32 i = 0; i < m_NumberParams.GetCount(); ++i)
+      for (auto& param : m_Params)
       {
-        const auto& e = m_NumberParams[i];
-        m_Script->GetLocalVariables().StoreDouble(e.m_sName, e.m_Value);
+        if (param.m_Value.IsA<bool>())
+        {
+          m_pScriptInstance->GetLocalVariables().StoreBool(param.m_sName, param.m_Value.Get<bool>());
+        }
+        else if (param.m_Value.IsA<ezString>())
+        {
+          m_pScriptInstance->GetLocalVariables().StoreString(param.m_sName, param.m_Value.Get<ezString>());
+        }
+        else if (param.m_Value.IsNumber())
+        {
+          m_pScriptInstance->GetLocalVariables().StoreDouble(param.m_sName, param.m_Value.ConvertTo<double>());
+        }
+        else
+        {
+          EZ_ASSERT_NOT_IMPLEMENTED;
+        }
       }
 
       // TODO: atm we clear this, because it stores only the initial state, and any mutated state is stored
       // in the VS instance, which we do not sync with
-      // thefore if we don't clear, modifying ANY value would reset ALL values to the start value
-      m_NumberParams.Clear();
-    }
-
-    if (m_bBoolParamsChanged)
-    {
-      m_bBoolParamsChanged = false;
-
-      for (ezUInt32 i = 0; i < m_BoolParams.GetCount(); ++i)
-      {
-        const auto& e = m_BoolParams[i];
-        m_Script->GetLocalVariables().StoreBool(e.m_sName, e.m_Value);
-      }
-
-      // TODO: atm we clear this, because it stores only the initial state, and any mutated state is stored
-      // in the VS instance, which we do not sync with
-      // thefore if we don't clear, modifying ANY value would reset ALL values to the start value
-      m_BoolParams.Clear();
+      // therefore if we don't clear, modifying ANY value would reset ALL values to the start value
+      m_Params.Clear();
     }
   }
 
-  m_Script->ExecuteScript(m_pActivity.Borrow());
+  m_pScriptInstance->ExecuteScript(m_pActivity.Borrow());
 
   if (bEnableDebugOutput && (!m_pActivity->IsEmpty() || !m_bHadEmptyActivity))
   {
@@ -209,100 +286,76 @@ void ezVisualScriptComponent::Update()
   }
 }
 
+void ezVisualScriptComponent::InitScriptInstance()
+{
+  m_pScriptInstance = EZ_DEFAULT_NEW(ezVisualScriptInstance);
+
+  if (m_hResource.IsValid())
+  {
+    m_pScriptInstance->Configure(m_hResource, this);
+  }
+
+  m_bParamsChanged = true;
+}
+
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
-  return m_Script->HandleMessage(msg);
+  return m_pScriptInstance->HandleMessage(msg);
 }
 
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
-  return m_Script->HandleMessage(msg);
+  return m_pScriptInstance->HandleMessage(msg);
+}
+
+void ezVisualScriptComponent::Initialize()
+{
+  SUPER::Initialize();
+
+  EnableUnhandledMessageHandler(true);
+
+  InitScriptInstance();
 }
 
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_NumberParams.GetCount() + m_BoolParams.GetCount(); }, [](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* {
-      if (it < m_NumberParams.GetCount())
-        return m_NumberParams[it].m_sName.GetData();
-      else
-        return m_BoolParams[it - m_NumberParams.GetCount()].m_sName.GetData();
-    });
+    [this]() -> ezUInt32 { return m_Params.GetCount(); }, [](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it) -> const char* { return m_Params[it].m_sName.GetData(); });
 }
 
-void ezVisualScriptComponent::SetParameter(const char* szKey, const ezVariant& var)
+void ezVisualScriptComponent::SetParameter(const char* szKey, const ezVariant& value)
 {
   const ezTempHashedString th(szKey);
-  if (var.CanConvertTo<float>())
+
+  for (auto& param : m_Params)
   {
-    float value = var.ConvertTo<float>();
-
-    for (ezUInt32 i = 0; i < m_NumberParams.GetCount(); ++i)
+    if (param.m_sName == th)
     {
-      if (m_NumberParams[i].m_sName == th)
+      if (param.m_Value != value)
       {
-        if (m_NumberParams[i].m_Value != value)
-        {
-          m_bNumberParamsChanged = true;
-          m_NumberParams[i].m_Value = value;
-        }
-        return;
+        m_bParamsChanged = true;
+        param.m_Value = value;
       }
+      return;
     }
-
-    m_bNumberParamsChanged = true;
-    auto& e = m_NumberParams.ExpandAndGetRef();
-    e.m_sName.Assign(szKey);
-    e.m_Value = value;
-
-    return;
   }
 
-  if (var.CanConvertTo<bool>())
-  {
-    bool value = var.ConvertTo<bool>();
-
-    for (ezUInt32 i = 0; i < m_BoolParams.GetCount(); ++i)
-    {
-      if (m_BoolParams[i].m_sName == th)
-      {
-        if (m_BoolParams[i].m_Value != value)
-        {
-          m_bBoolParamsChanged = true;
-          m_BoolParams[i].m_Value = value;
-        }
-        return;
-      }
-    }
-
-    m_bBoolParamsChanged = true;
-    auto& e = m_BoolParams.ExpandAndGetRef();
-    e.m_sName.Assign(szKey);
-    e.m_Value = value;
-
-    return;
-  }
+  m_bParamsChanged = true;
+  auto& param = m_Params.ExpandAndGetRef();
+  param.m_sName.Assign(szKey);
+  param.m_Value = value;
 }
 
 void ezVisualScriptComponent::RemoveParameter(const char* szKey)
 {
   const ezTempHashedString th(szKey);
 
-  for (ezUInt32 i = 0; i < m_NumberParams.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_Params.GetCount(); ++i)
   {
-    if (m_NumberParams[i].m_sName == th)
+    if (m_Params[i].m_sName == th)
     {
-      m_NumberParams.RemoveAtAndSwap(i);
-      return;
-    }
-  }
-
-  for (ezUInt32 i = 0; i < m_BoolParams.GetCount(); ++i)
-  {
-    if (m_BoolParams[i].m_sName == th)
-    {
-      m_BoolParams.RemoveAtAndSwap(i);
+      m_Params.RemoveAtAndSwap(i);
       return;
     }
   }
@@ -312,22 +365,15 @@ bool ezVisualScriptComponent::GetParameter(const char* szKey, ezVariant& out_val
 {
   const ezTempHashedString th(szKey);
 
-  for (const auto& e : m_NumberParams)
+  for (const auto& param : m_Params)
   {
-    if (e.m_sName == th)
+    if (param.m_sName == th)
     {
-      out_value = e.m_Value;
+      out_value = param.m_Value;
       return true;
     }
   }
-  for (const auto& e : m_BoolParams)
-  {
-    if (e.m_sName == th)
-    {
-      out_value = e.m_Value;
-      return true;
-    }
-  }
+
   return false;
 }
 

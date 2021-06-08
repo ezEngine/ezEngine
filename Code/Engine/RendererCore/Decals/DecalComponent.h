@@ -126,7 +126,6 @@ protected:
   void SetApplyToRef(const char* szReference); // [ property ]
   void UpdateApplyTo();
 
-  void OnObjectCreated(const ezAbstractObjectNode& node);
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
   void OnMsgOnlyApplyToObject(ezMsgOnlyApplyToObject& msg);
@@ -149,8 +148,7 @@ protected:
   ezUInt32 m_uiApplyOnlyToId = 0;
 
   ezTime m_StartFadeOutTime;
-  ezUInt32 m_uiInternalSortKey;
-  static ezUInt16 s_uiNextSortKey;
+  ezUInt32 m_uiInternalSortKey = 0;
 
 private:
   const char* DummyGetter() const { return nullptr; }

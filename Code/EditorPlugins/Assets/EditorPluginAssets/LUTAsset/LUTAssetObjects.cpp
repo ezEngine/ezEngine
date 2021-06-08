@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 
 // clang-format off

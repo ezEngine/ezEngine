@@ -42,7 +42,7 @@ void ezTranslationLookup::AddTranslator(ezUniquePtr<ezTranslator> pTranslator)
 }
 
 
-const char* ezTranslationLookup::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
+const char* ezTranslationLookup::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
   for (ezUInt32 i = s_pTranslators.GetCount(); i > 0; --i)
   {
@@ -52,7 +52,7 @@ const char* ezTranslationLookup::Translate(const char* szString, ezUInt32 uiStri
       return szResult;
   }
 
-  return nullptr;
+  return szString;
 }
 
 
@@ -80,16 +80,19 @@ void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
   ezStringBuilder fullpath;
 
   ezFileSystemIterator it;
-  if (it.StartSearch(startPath, ezFileSystemIteratorFlags::ReportFilesRecursive).Succeeded())
-  {
-    do
-    {
-      fullpath = it.GetCurrentPath();
-      fullpath.AppendPath(it.GetStats().m_sName);
+  it.StartSearch(startPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
 
-      LoadTranslationFile(fullpath);
-    } while (it.Next().Succeeded());
+
+  while (it.IsValid())
+  {
+    fullpath = it.GetCurrentPath();
+    fullpath.AppendPath(it.GetStats().m_sName);
+
+    LoadTranslationFile(fullpath);
+
+    it.Next();
   }
+
 #endif
 }
 
@@ -157,19 +160,19 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sKey.Trim(" \t\r\n");
     sValue.Trim(" \t\r\n");
 
-    StoreTranslation(sValue, ezHashHelper<const char*>::Hash(sKey.GetData()), ezTranslationUsage::Default);
-    StoreTranslation(sTooltip, ezHashHelper<const char*>::Hash(sKey.GetData()), ezTranslationUsage::Tooltip);
+    StoreTranslation(sValue, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Default);
+    StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Tooltip);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezTranslatorStorage::StoreTranslation(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
+void ezTranslatorStorage::StoreTranslation(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
   m_Translations[(ezUInt32)usage][uiStringHash] = szString;
 }
 
-const char* ezTranslatorStorage::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
+const char* ezTranslatorStorage::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
   auto it = m_Translations[(ezUInt32)usage].Find(uiStringHash);
   if (it.IsValid())
@@ -195,7 +198,7 @@ void ezTranslatorStorage::Reload()
 
 bool ezTranslatorLogMissing::s_bActive = true;
 
-const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
+const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
   const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 

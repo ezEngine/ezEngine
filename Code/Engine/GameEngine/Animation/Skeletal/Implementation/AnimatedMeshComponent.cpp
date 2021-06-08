@@ -3,32 +3,40 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
-#include <Interfaces/PhysicsWorldModule.h>
-#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererFoundation/Device/Device.h>
 
-// clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 10, ezComponentMode::Dynamic);
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-    EZ_ACCESSOR_PROPERTY("Loop", GetLoopAnimation, SetLoopAnimation),
-    EZ_ACCESSOR_PROPERTY("Speed", GetAnimationSpeed, SetAnimationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
-    EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton),
-  }
-  EZ_END_PROPERTIES;
+#include <Physics/CharacterControllerComponent.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <ozz/animation/runtime/local_to_model_job.h>
+#include <ozz/animation/runtime/skeleton.h>
+#include <ozz/base/containers/vector.h>
+#include <ozz/base/maths/simd_math.h>
+#include <ozz/base/maths/soa_transform.h>
+#include <ozz/base/span.h>
 
+// clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ? (I guess because the overridden CreateRenderData() has to be called every frame)
+{
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
   }
   EZ_END_ATTRIBUTES;
+
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
+    EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
+  }
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionMode, 1)
+  EZ_ENUM_CONSTANTS(ezRootMotionMode::Ignore, ezRootMotionMode::ApplyToOwner, ezRootMotionMode::SendMoveCharacterMsg)
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezAnimatedMeshComponent::ezAnimatedMeshComponent() = default;
@@ -38,11 +46,6 @@ void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
-
-  s << m_bApplyRootMotion;
-  m_AnimationClipSampler.Save(s);
-
-  s << m_bVisualizeSkeleton;
 }
 
 void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
@@ -51,188 +54,179 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  EZ_ASSERT_DEV(uiVersion >= 9, "Unsupported version, delete the file and reexport it");
-
-  s >> m_bApplyRootMotion;
-  m_AnimationClipSampler.Load(s);
-
-  s >> m_bVisualizeSkeleton;
+  EZ_ASSERT_DEV(uiVersion >= 13, "Unsupported version, delete the file and reexport it");
 }
 
-void ezAnimatedMeshComponent::OnSimulationStarted()
+void ezAnimatedMeshComponent::OnActivated()
 {
-  SUPER::OnSimulationStarted();
+  SUPER::OnActivated();
 
   // make sure the skinning buffer is deleted
   EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
 
+  InitializeAnimationPose();
+}
+
+void ezAnimatedMeshComponent::OnDeactivated()
+{
+  m_SkinningSpacePose.Clear();
+
+  SUPER::OnDeactivated();
+}
+
+void ezAnimatedMeshComponent::InitializeAnimationPose()
+{
+  if (!m_hMesh.IsValid())
+    return;
+
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  const auto hSkeleton = pMesh->m_hDefaultSkeleton;
+
+  if (!hSkeleton.IsValid())
+    return;
+
+  ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  {
+    const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+    const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
+
+    ezArrayPtr<ezMat4> pPoseMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, uiNumSkeletonJoints);
+
+    {
+      ozz::animation::LocalToModelJob job;
+      job.input = pOzzSkeleton->joint_bind_poses();
+      job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
+      job.skeleton = pOzzSkeleton;
+      job.Run();
+    }
+
+    ezMsgAnimationPoseUpdated msg;
+    msg.m_ModelTransforms = pPoseMatrices;
+    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+
+    OnAnimationPoseUpdated(msg);
+  }
+
+  // Create the buffer for the skinning matrices
+  CreateSkinningTransformBuffer(m_SkinningSpacePose.m_Transforms);
+
+  TriggerLocalBoundsUpdate();
+}
+
+ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
+{
+  if (!m_SkinningSpacePose.IsEmpty())
+  {
+    // this copy is necessary for the multi-threaded renderer to not access m_SkinningSpacePose while we update it
+    ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_SkinningSpacePose.GetTransformCount());
+    pRenderMatrices.CopyFrom(m_SkinningSpacePose.m_Transforms);
+
+    m_SkinningMatrices = pRenderMatrices;
+  }
+
+  ezMeshRenderData* pData = SUPER::CreateRenderData();
+  pData->m_GlobalTransform = m_RootTransform;
+
+  return pData;
+}
+
+void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
+{
+  if (!m_hMesh.IsValid())
+    return;
+
+  m_RootTransform = *msg.m_pRootTransform;
+
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+
+  m_SkinningSpacePose.MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms);
+}
+
+void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
+{
+  if (!msg.m_hSkeleton.IsValid() && m_hMesh.IsValid())
+  {
+    // only overwrite, if no one else had a better skeleton (e.g. the ezSkeletonComponent)
+
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+    if (pMesh.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      msg.m_hSkeleton = pMesh->m_hDefaultSkeleton;
+    }
+  }
+}
+
+ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+{
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-    m_hSkeleton = pMesh->GetSkeleton();
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+    bounds = pMesh->GetBounds();
+
+    const auto hSkeleton = pMesh->m_hDefaultSkeleton;
+
+    if (hSkeleton.IsValid())
+    {
+      ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+      if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::Final)
+      {
+        m_RootTransform = pSkeleton->GetDescriptor().m_RootTransform;
+      }
+    }
+
+    bounds.Transform(m_RootTransform.GetAsMat4());
+    return EZ_SUCCESS;
   }
 
-  if (m_hSkeleton.IsValid())
+  return EZ_FAILURE;
+}
+
+void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
+{
+  switch (mode)
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+    case ezRootMotionMode::Ignore:
+      return;
 
-    const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-    m_AnimationPose.Configure(skeleton);
-    m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+    case ezRootMotionMode::ApplyToOwner:
+    {
+      ezVec3 vNewPos = pObject->GetLocalPosition();
+      vNewPos += pObject->GetLocalRotation() * translation;
+      pObject->SetLocalPosition(vNewPos);
 
-    CreatePhysicsShapes(pSkeleton->GetDescriptor(), m_AnimationPose);
+      // not tested whether this is actually correct
+      ezQuat rotation;
+      rotation.SetFromEulerAngles(rotationX, rotationY, rotationZ);
 
-    m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
+      pObject->SetLocalRotation(rotation * pObject->GetLocalRotation());
 
-    // m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
+      return;
+    }
 
-    // Create the buffer for the skinning matrices
-    ezGALBufferCreationDescription BufferDesc;
-    BufferDesc.m_uiStructSize = sizeof(ezMat4);
-    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_AnimationPose.GetTransformCount();
-    BufferDesc.m_bUseAsStructuredBuffer = true;
-    BufferDesc.m_bAllowShaderResourceView = true;
-    BufferDesc.m_ResourceAccess.m_bImmutable = false;
+    case ezRootMotionMode::SendMoveCharacterMsg:
+    {
+      ezMsgApplyRootMotion msg;
+      msg.m_vTranslation = translation;
+      msg.m_RotationX = rotationX;
+      msg.m_RotationY = rotationY;
+      msg.m_RotationZ = rotationZ;
 
-    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-      BufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
-  }
+      while (pObject != nullptr)
+      {
+        pObject->SendMessage(msg);
+        pObject = pObject->GetParent();
+      }
 
-  m_AnimationClipSampler.RestartAnimation();
-}
-
-void ezAnimatedMeshComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
-{
-  m_AnimationClipSampler.SetAnimationClip(hResource);
-}
-
-const ezAnimationClipResourceHandle& ezAnimatedMeshComponent::GetAnimationClip() const
-{
-  return m_AnimationClipSampler.GetAnimationClip();
-}
-
-void ezAnimatedMeshComponent::SetAnimationClipFile(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  SetAnimationClip(hResource);
-}
-
-const char* ezAnimatedMeshComponent::GetAnimationClipFile() const
-{
-  if (!m_AnimationClipSampler.GetAnimationClip().IsValid())
-    return "";
-
-  return m_AnimationClipSampler.GetAnimationClip().GetResourceID();
-}
-
-bool ezAnimatedMeshComponent::GetLoopAnimation() const
-{
-  return m_AnimationClipSampler.GetLooping();
-}
-
-void ezAnimatedMeshComponent::SetLoopAnimation(bool loop)
-{
-  m_AnimationClipSampler.SetLooping(loop);
-}
-
-
-float ezAnimatedMeshComponent::GetAnimationSpeed() const
-{
-  return m_AnimationClipSampler.GetPlaybackSpeed();
-}
-
-void ezAnimatedMeshComponent::SetAnimationSpeed(float speed)
-{
-  m_AnimationClipSampler.SetPlaybackSpeed(speed);
-}
-
-void ezAnimatedMeshComponent::Update()
-{
-  if (!m_AnimationClipSampler.GetAnimationClip().IsValid() || !m_hSkeleton.IsValid())
-    return;
-
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback);
-  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-
-  ezTransform rootMotion;
-  rootMotion.SetIdentity();
-
-  m_AnimationPose.SetToBindPoseInLocalSpace(skeleton);
-  m_AnimationClipSampler.Step(GetWorld()->GetClock().GetTimeDiff());
-  m_AnimationClipSampler.Execute(skeleton, m_AnimationPose, &rootMotion);
-
-  m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
-
-  if (m_bVisualizeSkeleton)
-  {
-    m_AnimationPose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform());
-  }
-
-  // inform child nodes/components that a new skinning pose is available
-  // do this before the pose is transformed into skinning space
-  {
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_pSkeleton = &skeleton;
-    msg.m_pPose = &m_AnimationPose;
-
-    GetOwner()->SendMessageRecursive(msg);
-  }
-
-  m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
-
-  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimationPose.GetTransformCount());
-  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
-
-  m_SkinningMatrices = pRenderMatrices;
-
-  if (m_bApplyRootMotion)
-  {
-    auto* pOwner = GetOwner();
-
-    const ezQuat qOldRot = pOwner->GetLocalRotation();
-    const ezVec3 vNewPos = qOldRot * (rootMotion.m_vPosition * pOwner->GetGlobalScaling().x) + pOwner->GetLocalPosition();
-    const ezQuat qNewRot = rootMotion.m_qRotation * qOldRot;
-
-    pOwner->SetLocalPosition(vNewPos);
-    pOwner->SetLocalRotation(qNewRot);
+      return;
+    }
   }
 }
-
-void ezAnimatedMeshComponent::CreatePhysicsShapes(const ezSkeletonResourceDescriptor& skeleton, const ezAnimationPose& pose)
-{
-  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
-
-  if (pPhysicsInterface == nullptr)
-    return;
-
-  // m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-#include <Foundation/Serialization/GraphPatch.h>
-
-class ezAnimatedMeshComponentPatch_4_5 : public ezGraphPatch
-{
-public:
-  ezAnimatedMeshComponentPatch_4_5()
-    : ezGraphPatch("ezSimpleAnimationComponent", 5)
-  {
-  }
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
-  {
-    context.RenameClass("ezAnimatedMeshComponent");
-  }
-};
-
-ezAnimatedMeshComponentPatch_4_5 g_ezAnimatedMeshComponentPatch_4_5;
-
-
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);

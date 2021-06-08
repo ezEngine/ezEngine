@@ -1,32 +1,17 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Memory/MemoryUtils.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <Texture/Image/Image.h>
+#include <RendererFoundation/Device/Pass.h>
 #include <Texture/Image/ImageUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
@@ -42,8 +27,7 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(
-  ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
@@ -177,7 +161,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
       ezGameObject* pObject = static_cast<ezGameObject*>(target.m_pObject);
       if (pObject != nullptr && pObject->IsStatic())
       {
-        ezRenderWorld::DeleteCachedRenderDataRecursive(pObject);
+        ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(pObject);
       }
     }
     else if (target.m_pType->IsDerivedFrom<ezComponent>())
@@ -226,6 +210,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     ezResourceManager::ReloadAllResources(false);
+    UpdateSyncObjects();
     const ezCreateThumbnailMsgToEngine* pMsg2 = static_cast<const ezCreateThumbnailMsgToEngine*>(pMsg);
     // As long as the thumbnail context is alive, we will trigger UpdateThumbnailViewContext
     // inside the UpdateDocumentContext function until the thumbnail rendering has converged and
@@ -440,7 +425,13 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
       // Download image
       {
-        ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
+        auto pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass("Thumbnail Readback");
+        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndPass(pGALPass));
+
+        auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
+        EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
+
+        pGALCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
 
         ezGALSystemMemoryDescription MemDesc;
         {
@@ -454,25 +445,27 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         header.SetHeight(m_uiThumbnailHeight);
         ezImage image;
         image.ResetAndAlloc(header);
-        EZ_ASSERT_DEV(static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(),
-          "Thumbnail ezImage has different size than data buffer!");
+        EZ_ASSERT_DEV(static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
 
         MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-        ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hThumbnailColorRT, &SysMemDescs);
+
+        ezGALTextureSubresource sourceSubResource;
+        ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+
+        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
 
         ezImage imageSwap;
         ezImage* pImage = &image;
         ezImage* pImageSwap = &imageSwap;
         for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
         {
-          ezImageUtils::Scale(*pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2);
+          ezImageUtils::Scale(*pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2).IgnoreResult();
           ezMath::Swap(pImage, pImageSwap);
         }
 
 
-        ret.m_ThumbnailData.SetCountUninitialized(
-          (m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
+        ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
         ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
       }
 
@@ -533,8 +526,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
-  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT))
-    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
+  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
@@ -550,6 +542,11 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
     pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
     pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
     pView->SetRenderPassProperty("EditorPickingPass", "Active", false);
+
+    for (const ezString& sTag : pMsg->m_ViewExcludeTags)
+    {
+      pView->m_ExcludeTags.SetByName(sTag);
+    }
   }
 
   m_pThumbnailViewContext->Redraw(false);
@@ -726,8 +723,7 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 ///     These are needed to fix up references during undo/redo when objects get deleted and recreated.
 ///     Ie. when an object that has references or is referenced gets deleted and then undo restores it, the references should appear as well.
 ///
-ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(
-  const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
+ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
 {
   const char* szTargetGuid = reinterpret_cast<const char*>(pData);
 
@@ -867,8 +863,7 @@ ref_to_is_updated:
 
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid &&
-            ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
         {
           referencedBy.RemoveAtAndSwap(i);
           break;
@@ -884,8 +879,7 @@ ref_to_is_updated:
       // this loop is currently only to validate that no bugs creeped in
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid &&
-            ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
         {
           EZ_REPORT_FAILURE("Go-reference was not updated correctly");
         }

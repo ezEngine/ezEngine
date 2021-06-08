@@ -25,14 +25,13 @@
  *
  */
 
-#ifndef RMLUICORECOMPUTEDVALUES_H
-#define RMLUICORECOMPUTEDVALUES_H
+#ifndef RMLUI_CORE_COMPUTEDVALUES_H
+#define RMLUI_CORE_COMPUTEDVALUES_H
 
 #include "Types.h"
 #include "Animation.h"
 
 namespace Rml {
-namespace Core {
 
 namespace Style
 {
@@ -61,7 +60,7 @@ struct NumberAuto {
 using Margin = LengthPercentageAuto;
 using Padding = LengthPercentage;
 
-enum class Display : uint8_t { None, Block, Inline, InlineBlock };
+enum class Display : uint8_t { None, Block, Inline, InlineBlock, Table, TableRow, TableRowGroup, TableColumn, TableColumnGroup, TableCell };
 enum class Position : uint8_t { Static, Relative, Absolute, Fixed };
 
 using Top = LengthPercentageAuto;
@@ -71,6 +70,8 @@ using Left = LengthPercentageAuto;
 
 enum class Float : uint8_t { None, Left, Right };
 enum class Clear : uint8_t { None, Left, Right, Both };
+
+enum class BoxSizing : uint8_t { ContentBox, BorderBox };
 
 using ZIndex = NumberAuto;
 
@@ -114,6 +115,7 @@ enum class TextAlign : uint8_t { Left, Right, Center, Justify };
 enum class TextDecoration : uint8_t { None, Underline, Overline, LineThrough };
 enum class TextTransform : uint8_t { None, Capitalize, Uppercase, Lowercase };
 enum class WhiteSpace : uint8_t { Normal, Pre, Nowrap, Prewrap, Preline };
+enum class WordBreak : uint8_t { Normal, BreakAll, BreakWord };
 
 enum class Drag : uint8_t { None, Drag, DragDrop, Block, Clone };
 enum class TabIndex : uint8_t { None, Auto };
@@ -139,6 +141,7 @@ struct ComputedValues
 	Padding padding_top, padding_right, padding_bottom, padding_left;
 	float border_top_width = 0, border_right_width = 0, border_bottom_width = 0, border_left_width = 0;
 	Colourb border_top_color{ 255, 255, 255 }, border_right_color{ 255, 255, 255 }, border_bottom_color{ 255, 255, 255 }, border_left_color{ 255, 255, 255 };
+	float border_top_left_radius = 0, border_top_right_radius = 0, border_bottom_right_radius = 0, border_bottom_left_radius = 0;
 
 	Display display = Display::Inline;
 	Position position = Position::Static;
@@ -150,6 +153,8 @@ struct ComputedValues
 
 	Float float_ = Float::None;
 	Clear clear = Clear::None;
+
+	BoxSizing box_sizing = BoxSizing::ContentBox;
 
 	ZIndex z_index = { ZIndex::Auto };
 
@@ -185,6 +190,9 @@ struct ComputedValues
 	TextDecoration text_decoration = TextDecoration::None;
 	TextTransform text_transform = TextTransform::None;
 	WhiteSpace white_space = WhiteSpace::Normal;
+	WordBreak word_break = WordBreak::Normal;
+
+	LengthPercentage row_gap, column_gap;
 
 	String cursor;
 
@@ -206,8 +214,8 @@ struct ComputedValues
 	TransitionList transition;
 	AnimationList animation;
 
-	DecoratorsPtr decorator;
-	FontEffectsPtr font_effect; // Sorted by layer first (back then front), then by declaration order.
+	bool has_decorator = false;
+	bool has_font_effect = false;
 };
 }
 
@@ -221,7 +229,5 @@ RMLUICORE_API float ResolveValue(Style::LengthPercentage length, float base_valu
 
 using ComputedValues = Style::ComputedValues;
 
-}
-}
-
+} // namespace Rml
 #endif

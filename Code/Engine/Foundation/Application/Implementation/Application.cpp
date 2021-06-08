@@ -6,6 +6,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 
 ezApplication::ezApplication(const char* szAppName)
   : m_iReturnCode(0)
@@ -23,6 +24,8 @@ void ezApplication::SetApplicationName(const char* szAppName)
   m_sAppName = szAppName;
 }
 
+ezCommandLineOptionBool opt_WaitForDebugger("app", "-WaitForDebugger", "If specified, the application will wait at startup until a debugger is attached.", false);
+
 ezResult ezApplication::BeforeCoreSystemsStartup()
 {
   if (ezFileSystem::DetectSdkRootDirectory().Failed())
@@ -34,7 +37,7 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
   ezRTTI::VerifyCorrectnessForAllTypes();
 #endif
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-WaitForDebugger"))
+  if (opt_WaitForDebugger.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
     while (!ezSystemInformation::IsDebuggerAttached())
     {

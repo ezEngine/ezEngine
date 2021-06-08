@@ -3,6 +3,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <RendererCore/Textures/Texture2DResource.h>
@@ -57,12 +58,12 @@ ezResourceLoadDesc ezKrautTreeResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   if (desc.Load(*Stream).Failed())
   {
@@ -85,75 +86,18 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
   m_TreeLODs.Clear();
   m_Details = descriptor.m_Details;
 
-  ezHybridArray<ezMaterialResourceHandle, 16> allMaterials;
-
-  ezStringBuilder sMatName;
-
-  for (const auto& mat : descriptor.m_Materials)
-  {
-    ezUInt32 uiTexHash = static_cast<ezUInt32>(mat.m_MaterialType);
-    uiTexHash = ezHashingUtils::xxHash32(&mat.m_VariationColor, sizeof(mat.m_VariationColor), uiTexHash);
-    uiTexHash = ezHashingUtils::xxHash32(mat.m_sDiffuseTexture.GetData(), mat.m_sDiffuseTexture.GetElementCount(), uiTexHash);
-    uiTexHash = ezHashingUtils::xxHash32(mat.m_sNormalMapTexture.GetData(), mat.m_sNormalMapTexture.GetElementCount(), uiTexHash);
-
-    sMatName.Format("KrautMaterial_{0}", uiTexHash);
-
-    auto hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMatName);
-
-    if (!hMaterial.IsValid())
-    {
-      ezMaterialResourceDescriptor md;
-
-      switch (mat.m_MaterialType)
-      {
-        case ezKrautMaterialType::Branch:
-          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Branch.ezMaterial");
-          break;
-
-        case ezKrautMaterialType::Frond:
-          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Frond.ezMaterial");
-          break;
-
-        case ezKrautMaterialType::Leaf:
-          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Leaf.ezMaterial");
-          break;
-
-        case ezKrautMaterialType::StaticImpostor:
-          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/StaticImpostor.ezMaterial");
-          break;
-
-        case ezKrautMaterialType::BillboardImpostor:
-          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/BillboardImpostor.ezMaterial");
-          break;
-
-        case ezKrautMaterialType::None:
-          EZ_ASSERT_NOT_IMPLEMENTED;
-          break;
-      }
-
-      auto& m1 = md.m_Texture2DBindings.ExpandAndGetRef();
-      m1.m_Name.Assign("BaseTexture");
-      m1.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(mat.m_sDiffuseTexture);
-
-      auto& m2 = md.m_Texture2DBindings.ExpandAndGetRef();
-      m2.m_Name.Assign("NormalTexture");
-      m2.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(mat.m_sNormalMapTexture);
-
-      auto& p1 = md.m_Parameters.ExpandAndGetRef();
-      p1.m_Name.Assign("BaseColor");
-      p1.m_Value = mat.m_VariationColor;
-
-      hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMatName, std::move(md), mat.m_sDiffuseTexture);
-    }
-
-    allMaterials.PushBack(hMaterial);
-  }
-
   ezStringBuilder sResName, sResDesc;
 
   for (ezUInt32 lodIdx = 0; lodIdx < descriptor.m_Lods.GetCount(); ++lodIdx)
   {
     const auto& lodSrc = descriptor.m_Lods[lodIdx];
+
+    if (lodSrc.m_LodType != ezKrautLodType::Mesh)
+    {
+      // ignore impostor LODs
+      break;
+    }
+
     auto& lodDst = m_TreeLODs.ExpandAndGetRef();
 
     lodDst.m_LodType = lodSrc.m_LodType;
@@ -167,12 +111,13 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
     const ezUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
     const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
 
-    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat);
-    buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-    buffer.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
-    buffer.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);                                                // 0
+    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);                                                // 1
+    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat);                                                // 2
+    buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit));   // 3
+    buffer.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit)); // 4
+    buffer.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::XYZWFloat);                                                 // 5 TODO: better packing
+    buffer.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::XYZWFloat);                                                 // 6 TODO: better packing
     buffer.AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
     for (ezUInt32 v = 0; v < uiNumVertices; ++v)
@@ -182,9 +127,18 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
       buffer.SetVertexData<ezVec3>(0, v, vtx.m_vPosition);
       buffer.SetVertexData<ezVec2>(1, v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
       buffer.SetVertexData<ezVec2>(2, v, ezVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
-      buffer.SetVertexData<ezVec3>(3, v, vtx.m_vNormal);
-      buffer.SetVertexData<ezVec3>(4, v, vtx.m_vTangent);
-      buffer.SetVertexData<ezColorGammaUB>(5, v, vtx.m_VariationColor);
+      ezMeshBufferUtils::EncodeNormal(vtx.m_vNormal, buffer.GetVertexData(3, v), ezMeshNormalPrecision::_10Bit).IgnoreResult();
+      ezMeshBufferUtils::EncodeTangent(vtx.m_vTangent, 1.0f, buffer.GetVertexData(4, v), ezMeshNormalPrecision::_10Bit).IgnoreResult();
+
+      ezColor color;
+      color.r = vtx.m_fBendAndFlutterStrength;
+      color.g = (float)vtx.m_uiBranchLevel;
+      color.b = ezMath::ColorByteToFloat(vtx.m_uiFlutterPhase);
+      color.a = ezMath::ColorByteToFloat(vtx.m_uiColorVariation);
+
+      buffer.SetVertexData<ezColor>(5, v, color);
+
+      buffer.SetVertexData<ezVec4>(6, v, vtx.m_vBendAnchor.GetAsVec4(vtx.m_fAnchorBendStrength));
     }
 
     for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
@@ -205,11 +159,19 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
 
     for (ezUInt32 mat = 0; mat < descriptor.m_Materials.GetCount(); ++mat)
     {
-      md.SetMaterial(mat, allMaterials[mat].GetResourceID());
+      md.SetMaterial(mat, descriptor.m_Materials[mat].m_sMaterial);
     }
 
     sResName.Format("{0}_{1}_LOD{2}", GetResourceID(), GetCurrentResourceChangeCounter(), lodIdx);
-    sResDesc.Format("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), lodIdx);
+
+    if (GetResourceDescription().IsEmpty())
+    {
+      sResDesc = sResName;
+    }
+    else
+    {
+      sResDesc.Format("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), lodIdx);
+    }
 
     lodDst.m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResName);
 
@@ -231,7 +193,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
 {
-  ezUInt8 uiVersion = 12;
+  ezUInt8 uiVersion = 15;
 
   stream0 << uiVersion;
 
@@ -266,8 +228,13 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
       stream << vtx.m_vTexCoord;
       stream << vtx.m_vNormal;
       stream << vtx.m_vTangent;
-      stream << vtx.m_VariationColor;
       stream << vtx.m_fAmbientOcclusion;
+      stream << vtx.m_uiColorVariation;
+      stream << vtx.m_uiBranchLevel;
+      stream << vtx.m_vBendAnchor;
+      stream << vtx.m_fAnchorBendStrength;
+      stream << vtx.m_fBendAndFlutterStrength;
+      stream << vtx.m_uiFlutterPhase;
     }
 
     for (const auto& tri : lod.m_Triangles)
@@ -291,8 +258,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
   for (const auto& mat : m_Materials)
   {
     stream << static_cast<ezUInt8>(mat.m_MaterialType);
-    stream << mat.m_sDiffuseTexture;
-    stream << mat.m_sNormalMapTexture;
+    stream << mat.m_sMaterial;
     stream << mat.m_VariationColor;
   }
 
@@ -302,10 +268,9 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
   stream << m_Details.m_sSurfaceResource;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  stream.FinishCompressedStream();
+  stream.FinishCompressedStream().IgnoreResult();
 
-  ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
-    ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+  ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
 #endif
 }
 
@@ -315,7 +280,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
 
   stream0 >> uiVersion;
 
-  if (uiVersion != 12)
+  if (uiVersion < 15)
     return EZ_FAILURE;
 
   ezUInt8 uiCompressionMode = 0;
@@ -378,8 +343,13 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
       stream >> vtx.m_vTexCoord;
       stream >> vtx.m_vNormal;
       stream >> vtx.m_vTangent;
-      stream >> vtx.m_VariationColor;
       stream >> vtx.m_fAmbientOcclusion;
+      stream >> vtx.m_uiColorVariation;
+      stream >> vtx.m_uiBranchLevel;
+      stream >> vtx.m_vBendAnchor;
+      stream >> vtx.m_fAnchorBendStrength;
+      stream >> vtx.m_fBendAndFlutterStrength;
+      stream >> vtx.m_uiFlutterPhase;
     }
 
     for (auto& tri : lod.m_Triangles)
@@ -398,7 +368,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
   }
 
   ezUInt8 uiNumMats = 0;
-  ;
+
   stream >> uiNumMats;
   m_Materials.SetCount(uiNumMats);
 
@@ -407,8 +377,18 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
     ezUInt8 matType = 0;
     stream >> matType;
     mat.m_MaterialType = static_cast<ezKrautMaterialType>(matType);
-    stream >> mat.m_sDiffuseTexture;
-    stream >> mat.m_sNormalMapTexture;
+
+    if (uiVersion >= 14)
+    {
+      stream >> mat.m_sMaterial;
+    }
+    else
+    {
+      ezStringBuilder tmp;
+      stream >> tmp;
+      stream >> tmp;
+    }
+
     stream >> mat.m_VariationColor;
   }
 
@@ -416,6 +396,16 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
   stream >> m_Details.m_vLeafCenter;
   stream >> m_Details.m_fStaticColliderRadius;
   stream >> m_Details.m_sSurfaceResource;
+
+  if (uiVersion == 13)
+  {
+    stream >> uiNumMats;
+
+    for (ezUInt32 i = 0; i < uiNumMats; ++i)
+    {
+      stream >> m_Materials[i].m_sMaterial;
+    }
+  }
 
   return EZ_SUCCESS;
 }

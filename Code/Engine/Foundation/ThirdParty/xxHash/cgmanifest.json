@@ -1,0 +1,13 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Cyan4973/xxHash",
+                    "commitHash": "061753e16c61bae5c8494f2e2d2b1a766377d3bc"
+                }
+            }
+        }
+    ]
+}

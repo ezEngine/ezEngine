@@ -61,12 +61,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>(), QtDynamicMenuProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>(), QtDynamicActionAndMenuProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator);
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator).IgnoreResult();
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator).IgnoreResult();
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>(), QtDynamicMenuProxyCreator).IgnoreResult();
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>(), QtDynamicActionAndMenuProxyCreator).IgnoreResult();
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator).IgnoreResult();
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator).IgnoreResult();
     ezQtProxy::s_pSignalProxy = new QObject;
   }
 

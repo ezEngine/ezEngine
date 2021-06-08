@@ -2,8 +2,6 @@
 
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <QInputDialog>
-#include <QTreeWidget>
 
 ezQtTagsDlg::ezQtTagsDlg(QWidget* parent)
   : QDialog(parent)

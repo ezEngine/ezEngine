@@ -1,8 +1,8 @@
 #include <EditorPluginScenePCH.h>
 
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 
@@ -81,8 +81,7 @@ void ezSceneDocument::UpdatePrefabs()
 }
 
 
-ezUuid ezSceneDocument::ReplaceByPrefab(
-  const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab)
+ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab)
 {
   ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed, bEnginePrefab);
   if (newGuid.IsValid())

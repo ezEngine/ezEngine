@@ -30,9 +30,7 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
   Destruct();
 }
 
-void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
-  ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-  ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_hEffectHandle = hEffectHandle;
   m_pWorld = pWorld;
@@ -41,14 +39,14 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bIsSharedEffect = bIsShared;
   m_bEmitterEnabled = true;
   m_bIsFinishing = false;
-  m_UpdateBVolumeTime.SetZero();
-  m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
+  m_BoundingVolume.SetInvalid();
   m_ElapsedTimeSinceUpdate.SetZero();
   m_EffectIsVisible.SetZero();
   m_iMinSimStepsToDo = 4;
-  m_Transform[0].SetIdentity();
-  m_Transform[1].SetIdentity();
+  m_Transform.SetIdentity();
+  m_TransformForNextFrame.SetIdentity();
   m_vVelocity.SetZero();
+  m_vVelocityForNextFrame.SetZero();
   m_TotalEffectLifeTime.SetZero();
   m_pVisibleIf = nullptr;
   m_uiRandomSeed = uiRandomSeed;
@@ -68,8 +66,8 @@ void ezParticleEffectInstance::Destruct()
   m_SharedInstances.Clear();
   m_hEffectHandle.Invalidate();
 
-  m_Transform[0].SetIdentity();
-  m_Transform[1].SetIdentity();
+  m_Transform.SetIdentity();
+  m_TransformForNextFrame.SetIdentity();
   m_bIsSharedEffect = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
@@ -244,8 +242,7 @@ bool ezParticleEffectInstance::IsVisible() const
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(
-  bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   if (!m_hResource.IsValid())
   {
@@ -258,9 +255,10 @@ void ezParticleEffectInstance::Reconfigure(
   const auto& desc = pResource->GetDescriptor().m_Effect;
   const auto& systems = desc.GetParticleSystems();
 
-  m_Transform[0].SetIdentity();
-  m_Transform[1].SetIdentity();
+  m_Transform.SetIdentity();
+  m_TransformForNextFrame.SetIdentity();
   m_vVelocity.SetZero();
+  m_vVelocityForNextFrame.SetZero();
   m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
@@ -272,12 +270,12 @@ void ezParticleEffectInstance::Reconfigure(
 
     for (auto it = desc.m_FloatParameters.GetIterator(); it.IsValid(); ++it)
     {
-      SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
+      SetParameter(ezTempHashedString(it.Key().GetData()), it.Value());
     }
 
     for (auto it = desc.m_ColorParameters.GetIterator(); it.IsValid(); ++it)
     {
-      SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
+      SetParameter(ezTempHashedString(it.Key().GetData()), it.Value());
     }
 
     // shared effects do not support per-instance parameters
@@ -373,8 +371,7 @@ void ezParticleEffectInstance::Reconfigure(
     {
       if (m_ParticleSystems[i] == nullptr)
       {
-        m_ParticleSystems[i] =
-          m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
+        m_ParticleSystems[i] = m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
       }
     }
   }
@@ -384,7 +381,7 @@ void ezParticleEffectInstance::Reconfigure(
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
-    m_ParticleSystems[i]->SetTransform(m_Transform[m_uiDoubleBufferReadIdx], vStartVelocity);
+    m_ParticleSystems[i]->SetTransform(m_Transform, vStartVelocity);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
@@ -504,10 +501,7 @@ bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
     }
   }
 
-  if (NeedsBoundingVolumeUpdate())
-  {
-    CombineSystemBoundingVolumes();
-  }
+  CombineSystemBoundingVolumes();
 
   m_iMinSimStepsToDo = ezMath::Max<ezInt8>(m_iMinSimStepsToDo - 1, 0);
 
@@ -525,42 +519,20 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
   m_EventQueue.PushBack(pe);
 }
 
-void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity, const void* pSharedInstanceOwner)
+void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
 {
-  if (pSharedInstanceOwner == nullptr)
-  {
-    m_Transform[m_uiDoubleBufferWriteIdx] = transform;
-    m_vVelocity = vParticleStartVelocity;
-  }
-  else
-  {
-    for (auto& info : m_SharedInstances)
-    {
-      if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
-      {
-        info.m_Transform[m_uiDoubleBufferWriteIdx] = transform;
-        return;
-      }
-    }
-  }
+  m_Transform = transform;
+  m_TransformForNextFrame = transform;
+
+  m_vVelocity = vParticleStartVelocity;
+  m_vVelocityForNextFrame = vParticleStartVelocity;
 }
 
-const ezTransform& ezParticleEffectInstance::GetTransform(const void* pSharedInstanceOwner) const
+void ezParticleEffectInstance::SetTransformForNextFrame(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
 {
-  if (pSharedInstanceOwner == nullptr)
-    return m_Transform[m_uiDoubleBufferReadIdx];
-
-  for (auto& info : m_SharedInstances)
-  {
-    if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
-    {
-      return info.m_Transform[m_uiDoubleBufferReadIdx];
-    }
-  }
-
-  return m_Transform[m_uiDoubleBufferReadIdx];
+  m_TransformForNextFrame = transform;
+  m_vVelocityForNextFrame = vParticleStartVelocity;
 }
-
 
 void ezParticleEffectInstance::PassTransformToSystems()
 {
@@ -572,7 +544,7 @@ void ezParticleEffectInstance::PassTransformToSystems()
     {
       if (m_ParticleSystems[i] != nullptr)
       {
-        m_ParticleSystems[i]->SetTransform(m_Transform[m_uiDoubleBufferReadIdx], vStartVel);
+        m_ParticleSystems[i]->SetTransform(m_Transform, vStartVel);
       }
     }
   }
@@ -580,27 +552,12 @@ void ezParticleEffectInstance::PassTransformToSystems()
 
 void ezParticleEffectInstance::AddSharedInstance(const void* pSharedInstanceOwner)
 {
-  for (auto& info : m_SharedInstances)
-  {
-    if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
-      return;
-  }
-
-  auto& info = m_SharedInstances.ExpandAndGetRef();
-  info.m_pSharedInstanceOwner = pSharedInstanceOwner;
-  info.m_Transform[m_uiDoubleBufferWriteIdx].SetIdentity();
+  m_SharedInstances.Insert(pSharedInstanceOwner);
 }
 
 void ezParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceOwner)
 {
-  for (ezUInt32 i = 0; i < m_SharedInstances.GetCount(); ++i)
-  {
-    if (m_SharedInstances[i].m_pSharedInstanceOwner == pSharedInstanceOwner)
-    {
-      m_SharedInstances.RemoveAtAndSwap(i);
-      return;
-    }
-  }
+  m_SharedInstances.Remove(pSharedInstanceOwner);
 }
 
 bool ezParticleEffectInstance::ShouldBeUpdated() const
@@ -615,15 +572,22 @@ bool ezParticleEffectInstance::ShouldBeUpdated() const
   return true;
 }
 
-
-bool ezParticleEffectInstance::NeedsBoundingVolumeUpdate() const
+void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
-  return m_UpdateBVolumeTime <= m_TotalEffectLifeTime;
-}
+  if (!m_BoundingVolume.IsValid())
+  {
+    volume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
+    return;
+  }
 
-void ezParticleEffectInstance::ForceBoundingVolumeUpdate()
-{
-  m_UpdateBVolumeTime = m_TotalEffectLifeTime;
+  volume = m_BoundingVolume;
+
+  if (!m_bSimulateInLocalSpace)
+  {
+    // transform the bounding volume to local space, unless it was already created there
+    const ezMat4 invTrans = GetTransform().GetAsMat4().GetInverse();
+    volume.Transform(invTrans);
+  }
 }
 
 void ezParticleEffectInstance::CombineSystemBoundingVolumes()
@@ -631,16 +595,11 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
   ezBoundingBoxSphere effectVolume;
   effectVolume.SetInvalid();
 
-  ezBoundingBoxSphere systemVolume;
-
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
-      systemVolume.SetInvalid();
-
-      m_ParticleSystems[i]->GetBoundingVolume(systemVolume);
-
+      const ezBoundingBoxSphere& systemVolume = m_ParticleSystems[i]->GetBoundingVolume();
       if (systemVolume.IsValid())
       {
         effectVolume.ExpandToInclude(systemVolume);
@@ -648,32 +607,13 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
     }
   }
 
-  if (!effectVolume.IsValid())
-  {
-    effectVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
-  }
-  else if (!m_bSimulateInLocalSpace)
-  {
-    // transform the bounding volume to local space, unless it was already created there
-
-    const ezTransform invTrans = GetTransform().GetInverse();
-    effectVolume.Transform(invTrans.GetAsMat4());
-  }
-
   m_BoundingVolume = effectVolume;
-  m_uiBVolumeUpdateCounter++;
-  m_UpdateBVolumeTime = m_TotalEffectLifeTime + ezTime::Seconds(0.1);
-}
-
-ezUInt32 ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
-{
-  volume = m_BoundingVolume;
-  return m_uiBVolumeUpdateCounter;
 }
 
 void ezParticleEffectInstance::ProcessEventQueues()
 {
-  ezMath::Swap(m_uiDoubleBufferReadIdx, m_uiDoubleBufferWriteIdx);
+  m_Transform = m_TransformForNextFrame;
+  m_vVelocity = m_vVelocityForNextFrame;
 
   if (m_EventQueue.IsEmpty())
     return;

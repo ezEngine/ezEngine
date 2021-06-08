@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Types/TagSet.h>
-#include <Foundation/Utilities/Node.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 #include <ProcGenPlugin/VM/ExpressionAST.h>
+#include <RendererCore/Pipeline/RenderPipelineNode.h>
 
 class ezProcGenNodeBase : public ezReflectedClass
 {
@@ -16,8 +16,7 @@ public:
     ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
   };
 
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) = 0;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,13 +37,12 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenPlacementOutput : public ezProcGenOutput
+class ezProcGen_PlacementOutput : public ezProcGenOutput
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPlacementOutput, ezProcGenOutput);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_PlacementOutput, ezProcGenOutput);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   void Save(ezStreamWriter& stream);
 
@@ -68,46 +66,44 @@ public:
 
   ezString m_sColorGradient;
 
-  ezInputNodePin m_DensityPin;
-  ezInputNodePin m_ScalePin;
-  ezInputNodePin m_ColorIndexPin;
-  ezInputNodePin m_ObjectIndexPin;
+  ezRenderPipelineNodeInputPin m_DensityPin;
+  ezRenderPipelineNodeInputPin m_ScalePin;
+  ezRenderPipelineNodeInputPin m_ColorIndexPin;
+  ezRenderPipelineNodeInputPin m_ObjectIndexPin;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenVertexColorOutput : public ezProcGenOutput
+class ezProcGen_VertexColorOutput : public ezProcGenOutput
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenVertexColorOutput, ezProcGenOutput);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_VertexColorOutput, ezProcGenOutput);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   void Save(ezStreamWriter& stream);
 
-  ezInputNodePin m_RPin;
-  ezInputNodePin m_GPin;
-  ezInputNodePin m_BPin;
-  ezInputNodePin m_APin;
+  ezRenderPipelineNodeInputPin m_RPin;
+  ezRenderPipelineNodeInputPin m_GPin;
+  ezRenderPipelineNodeInputPin m_BPin;
+  ezRenderPipelineNodeInputPin m_APin;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenRandom : public ezProcGenNodeBase
+class ezProcGen_Random : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenRandom, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Random, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   ezInt32 m_iSeed = -1;
 
   float m_fOutputMin = 0.0f;
   float m_fOutputMax = 1.0f;
 
-  ezOutputNodePin m_OutputValuePin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
 
 private:
   void OnObjectCreated(const ezAbstractObjectNode& node);
@@ -117,13 +113,12 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenPerlinNoise : public ezProcGenNodeBase
+class ezProcGen_PerlinNoise : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPerlinNoise, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_PerlinNoise, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   ezVec3 m_Scale = ezVec3(10);
   ezVec3 m_Offset = ezVec3::ZeroVector();
@@ -132,95 +127,90 @@ public:
   float m_fOutputMin = 0.0f;
   float m_fOutputMax = 1.0f;
 
-  ezOutputNodePin m_OutputValuePin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenBlend : public ezProcGenNodeBase
+class ezProcGen_Blend : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenBlend, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Blend, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   ezEnum<ezProcGenBlendMode> m_BlendMode;
   float m_fInputValueA = 1.0f;
   float m_fInputValueB = 1.0f;
   bool m_bClampOutput = false;
 
-  ezInputNodePin m_InputValueAPin;
-  ezInputNodePin m_InputValueBPin;
-  ezOutputNodePin m_OutputValuePin;
+  ezRenderPipelineNodeInputPin m_InputValueAPin;
+  ezRenderPipelineNodeInputPin m_InputValueBPin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenHeight : public ezProcGenNodeBase
+class ezProcGen_Height : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenHeight, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Height, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   float m_fMinHeight = 0.0f;
   float m_fMaxHeight = 1000.0f;
   float m_fLowerFade = 0.2f;
   float m_fUpperFade = 0.2f;
 
-  ezOutputNodePin m_OutputValuePin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenSlope : public ezProcGenNodeBase
+class ezProcGen_Slope : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenSlope, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Slope, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   ezAngle m_MinSlope = ezAngle::Degree(0.0f);
   ezAngle m_MaxSlope = ezAngle::Degree(30.0f);
   float m_fLowerFade = 0.0f;
   float m_fUpperFade = 0.2f;
 
-  ezOutputNodePin m_OutputValuePin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenMeshVertexColor : public ezProcGenNodeBase
+class ezProcGen_MeshVertexColor : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenMeshVertexColor, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_MeshVertexColor, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
-  ezOutputNodePin m_RPin;
-  ezOutputNodePin m_GPin;
-  ezOutputNodePin m_BPin;
-  ezOutputNodePin m_APin;
+  ezRenderPipelineNodeOutputPin m_RPin;
+  ezRenderPipelineNodeOutputPin m_GPin;
+  ezRenderPipelineNodeOutputPin m_BPin;
+  ezRenderPipelineNodeOutputPin m_APin;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenApplyVolumes : public ezProcGenNodeBase
+class ezProcGen_ApplyVolumes : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenApplyVolumes, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_ApplyVolumes, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(
-    ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   float m_fInputValue = 0.0f;
 
   ezTagSet m_IncludeTags;
 
-  ezInputNodePin m_InputValuePin;
-  ezOutputNodePin m_OutputValuePin;
+  ezRenderPipelineNodeInputPin m_InputValuePin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
 };

@@ -2,21 +2,17 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
+#include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <GameEngine/Physics/CollisionFilter.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
-#include <PhysXCooking/PhysXCooking.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
 
@@ -35,20 +31,20 @@ void OnLoadPlugin(bool bReloading)
 
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar").IgnoreResult();
       ezProjectActions::MapActions("CollisionMeshAssetMenuBar");
-      ezStandardMenus::MapActions(
-        "CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("CollisionMeshAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("CollisionMeshAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("CollisionMeshAssetToolBar");
+      ezActionMapManager::RegisterActionMap("CollisionMeshAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("CollisionMeshAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("CollisionMeshAssetToolBar", "");
       ezAssetActions::MapActions("CollisionMeshAssetToolBar", true);
+      ezCommonAssetActions::MapActions("CollisionMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
     }
   }
 

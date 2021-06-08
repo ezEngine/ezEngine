@@ -10,9 +10,13 @@
 
 class ezStreamWriter;
 class ezStreamReader;
-class ezAnimationPose;
 class ezSkeletonBuilder;
 class ezSkeleton;
+
+namespace ozz::animation
+{
+  class Skeleton;
+}
 
 /// \brief Describes a single joint.
 /// The transforms of the joints are in their local space and thus need to be correctly multiplied with their parent transforms to get the
@@ -21,7 +25,6 @@ class EZ_RENDERERCORE_DLL ezSkeletonJoint
 {
 public:
   const ezTransform& GetBindPoseLocalTransform() const { return m_BindPoseLocal; }
-  const ezTransform& GetInverseBindPoseGlobalTransform() const { return m_InverseBindPoseGlobal; }
 
   /// \brief Returns ezInvalidJointIndex if no parent
   ezUInt16 GetParentIndex() const { return m_uiParentIndex; }
@@ -34,7 +37,6 @@ protected:
   friend ezSkeletonBuilder;
 
   ezTransform m_BindPoseLocal;
-  ezTransform m_InverseBindPoseGlobal;
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 };
@@ -42,9 +44,14 @@ protected:
 /// \brief The skeleton class encapsulates the information about the joint structure for a model.
 class EZ_RENDERERCORE_DLL ezSkeleton
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezSkeleton);
+
 public:
   ezSkeleton();
+  ezSkeleton(ezSkeleton&& rhs);
   ~ezSkeleton();
+
+  void operator=(ezSkeleton&& rhs);
 
   /// \brief Returns the number of joints in the skeleton.
   ezUInt16 GetJointCount() const { return m_Joints.GetCount(); }
@@ -56,7 +63,7 @@ public:
   ezUInt16 FindJointByName(const ezTempHashedString& sName) const;
 
   /// \brief Checks if two skeletons are compatible (same joint count and hierarchy)
-  bool IsCompatibleWith(const ezSkeleton& other) const;
+  //bool IsCompatibleWith(const ezSkeleton& other) const;
 
   /// \brief Saves the skeleton in a given stream.
   void Save(ezStreamWriter& stream) const;
@@ -66,11 +73,16 @@ public:
 
   bool IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const;
 
-  /// \brief Applies a global transform to the skeleton (used by the importer to correct scale and up-axis)
-  // void ApplyGlobalTransform(const ezMat3& transform);
+  const ozz::animation::Skeleton& GetOzzSkeleton() const;
+
+  ezUInt64 GetHeapMemoryUsage() const;
+
+  /// \brief The direction in which the bones shall point for visualization
+  ezEnum<ezBasisAxis> m_BoneDirection;
 
 protected:
   friend ezSkeletonBuilder;
 
   ezDynamicArray<ezSkeletonJoint> m_Joints;
+  mutable ezUniquePtr<ozz::animation::Skeleton> m_pOzzSkeleton;
 };

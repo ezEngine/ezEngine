@@ -32,8 +32,12 @@ Gizmo.Translate.Snap.Menu;Position Snap
 Gizmo.Translate.Snap.PivotToGrid;Snap Pivot To Grid
 Gizmo.Translate.Snap.ObjectsToGrid;Snap Each Object To Grid
 Gizmo.Translate.Snap.0;No Position Snap
+Gizmo.Translate.Snap.16;16
 Gizmo.Translate.Snap.10;10
+Gizmo.Translate.Snap.8;8
 Gizmo.Translate.Snap.5;5
+Gizmo.Translate.Snap.4;4
+Gizmo.Translate.Snap.2;2
 Gizmo.Translate.Snap.1;1
 Gizmo.Translate.Snap.0_5;0.5
 Gizmo.Translate.Snap.0_25;0.25
@@ -108,6 +112,8 @@ ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
 ezSkyLightComponent;Sky Light
+ezReflectionProbeMode::Static;Static
+ezReflectionProbeMode::Dynamic;Dynamic
 ezSkyBoxComponent;Sky Box
 ezFogComponent;Fog
 ezSpriteComponent;Sprite
@@ -268,3 +274,105 @@ InstanceData;Instance Data
 Scene.Render.PickTransparent;Select Transparent
 ezGrabbableItemComponent;Grabbable Item
 ezVisualizeHandComponent;Visualize Hand
+ezSimpleAnimationComponent;Simple Animation
+ezAnimationControllerComponent;Animation Controller
+ezWindStrength::Calm;Calm
+ezWindStrength::LightBreeze;Light Breeze
+ezWindStrength::GentleBreeze;Gentle Breeze
+ezWindStrength::ModerateBreeze;Moderate Breeze
+ezWindStrength::StrongBreeze;Strong Breeze
+ezWindStrength::Storm;Storm
+ezBlackboardComponent;Blackboard
+ezBlackboardEntry;Entry
+ezBlackboardEntryFlags::Save;Save
+ezBlackboardEntryFlags::OnChangeEvent;OnChangeEvent
+ezBlackboardEntryFlags::UserFlag0;UserFlag 0
+ezBlackboardEntryFlags::UserFlag1;UserFlag 1
+ezBlackboardEntryFlags::UserFlag2;UserFlag 2
+ezBlackboardEntryFlags::UserFlag3;UserFlag 3
+ezBlackboardEntryFlags::UserFlag4;UserFlag 4
+ezBlackboardEntryFlags::UserFlag5;UserFlag 5
+ezBlackboardEntryFlags::UserFlag6;UserFlag 6
+ezBlackboardEntryFlags::UserFlag7;UserFlag 7
+ezRootMotionMode::Ignore;Ignore
+ezRootMotionMode::ApplyToOwner;Apply To Owner
+ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg
+ezJointOverrideComponent;Joint Override Component
+ezHeightfieldComponent;Heightfield Component
+ezRenderComponent;Render Component
+ezReflectionProbeMode::Static;Static
+ezReflectionProbeMode::Dynamic;Dynamic
+ConstantColor;Constant Color
+Constant1;Constant1
+Constant2;Constant2
+Constant3;Constant3
+Constant4;Constant4
+Split;Split
+MergeFloat2;Merge to Float2
+MergeFloat3;Merge to Float3
+MergeFloat4;Merge to Float4
+MaterialOutput;Material Output
+Time;Time
+UV;UV
+UV2;UV 2
+Scroll;Scroll
+VertexPosition;Vertex Position
+VertexWorldPosition;Vertex WorldPosition
+VertexNormal;Vertex Normal
+VertexTangent;Vertex Tangent
+VertexColor;Vertex Color
+Camera;Camera
+Lerp;Lerp
+Add;Add
+Subtract;Subtract
+Multiply;Multiply
+Divide;Divide
+Fraction;Fraction
+Abs;Abs
+Sign;Sign
+Sqrt;Sqrt
+Negate;Negate
+Max;Max
+Min;Min
+Saturate;Saturate
+Clamp;Clamp
+Floor;Floor
+Ceil;Ceil
+Round;Round
+Truncate;Truncate
+Sine;Sine
+Cosine;Cosine
+Exp;Exp
+Exp2;Exp2
+Log;Log
+Log2;Log2
+Log10;Log10
+Pow;Pow
+Distance;Distance
+Dot;Dot
+Cross;Cross
+Normalize;Normalize
+FromCameraSpace;From CameraSpace
+FromScreenSpace;From ScreenSpace
+FromWorldSpace;From WorldSpace
+TangentToWorldSpace;Tangent To WorldSpace
+Parameter1f;Parameter 1f
+Parameter2f;Parameter 2f
+Parameter3f;Parameter 3f
+Parameter4f;Parameter 4f
+ParameterColor;Parameter Color
+PointSampler;Point Sampler
+LinearSampler;Linear Sampler
+PointClampSampler;Point Clamp Sampler
+LinearClampSampler;Linear Clamp Sampler
+EmissiveTexture;Emissive Texture
+Texture2D;Texture 2D
+Texture3Way;Texture 3-Way
+BlendNormals;Blend Normals
+SceneColor;Scene Color
+SceneDepth;Scene Depth
+ScenePosition;Scene Position
+DepthFade;Depth Fade
+Fresnel;Fresnel
+Refraction;Refraction
+SetColorMode;Set Color Mode

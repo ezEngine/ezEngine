@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -21,15 +20,12 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
     sSearch.AppendPath("ezEditorPlugin*.dll");
 
     ezFileSystemIterator fsit;
-    if (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles).Succeeded())
+    for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
     {
-      do
-      {
-        ezStringBuilder sPlugin = fsit.GetStats().m_sName;
-        sPlugin.RemoveFileExtension();
+      ezStringBuilder sPlugin = fsit.GetStats().m_sName;
+      sPlugin.RemoveFileExtension();
 
-        s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
-      } while (fsit.Next().Succeeded());
+      s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
     }
   }
 #else
@@ -154,7 +150,7 @@ void ezQtEditorApp::UnloadEditorPlugins()
   {
     if (it.Value().m_bActive)
     {
-      ezPlugin::UnloadPlugin(it.Key().GetData());
+      ezPlugin::UnloadPlugin(it.Key().GetData()).IgnoreResult();
       it.Value().m_bActive = false;
     }
   }

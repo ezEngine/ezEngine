@@ -4,9 +4,9 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/Utilities/EnvironmentVariableUtils.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -51,7 +51,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 
   if (ezEnvironmentVariableUtils::IsVariableSet("EZ_SILENT_ASSERTS"))
   {
-    ezConversionUtils::StringToBool(ezEnvironmentVariableUtils::GetValueString("EZ_SILENT_ASSERTS"), bSilentAsserts);
+    ezConversionUtils::StringToBool(ezEnvironmentVariableUtils::GetValueString("EZ_SILENT_ASSERTS"), bSilentAsserts).IgnoreResult();
   }
 
   if (bSilentAsserts)

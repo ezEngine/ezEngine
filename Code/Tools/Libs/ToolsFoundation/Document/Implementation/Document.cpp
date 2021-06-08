@@ -18,6 +18,7 @@
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Serialization/ToolsSerializationUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
@@ -200,7 +201,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
     {
       ezSet<const ezRTTI*> types;
       ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
-      ezToolsReflectionUtils::SerializeTypes(types, saveTask->typesGraph);
+      ezToolsSerializationUtils::SerializeTypes(types, saveTask->typesGraph);
     }
   }
 

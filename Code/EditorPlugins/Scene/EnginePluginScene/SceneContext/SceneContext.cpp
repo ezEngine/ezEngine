@@ -4,26 +4,18 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/Interfaces/SoundInterface.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
-#include <Core/WorldSerializer/WorldWriter.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
-#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <SharedPluginScene/Common/Messages.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
@@ -472,7 +464,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition);
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition).IgnoreResult();
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -619,10 +611,10 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     {
       ezAssetFileHeader header;
       header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
-      header.Write(file);
+      header.Write(file).IgnoreResult();
 
       const char* szSceneTag = "[ezBinaryScene]";
-      file.WriteBytes(szSceneTag, sizeof(char) * 16);
+      file.WriteBytes(szSceneTag, sizeof(char) * 16).IgnoreResult();
     }
 
     const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
@@ -717,9 +709,7 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool {
-    return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash();
-  });
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
 
@@ -811,16 +801,6 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
       pDirLight->SetCastShadows(true);
     }
   }
-
-  // the actual ambient light component is dangerous to add, because it is a singleton and you cannot have more than one in a scene
-  // which means if the user added one, this makes trouble
-  // also the Remove/Add pattern doesn't work, because components are always delayed deleted, and the singleton lives longer than it should
-  // ezAmbientLightComponent* pAmbLight = nullptr;
-  // ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-  // if (pAmbLight != nullptr)
-  //{
-  //  pLight->AttachComponent(pAmbLight);
-  //}
 }
 
 void ezSceneContext::RemoveAmbientLight()
@@ -851,11 +831,9 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
   excludeTags.SetByName("Editor");
 
   if (pMsg->m_bSelectionOnly)
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(
-      geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
   else
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(
-      geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
 
   ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, pMsg->m_Transform);
 }

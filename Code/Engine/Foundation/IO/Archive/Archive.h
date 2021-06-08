@@ -41,8 +41,8 @@ public:
 
   ezArchiveStoredString() = default;
 
-  ezArchiveStoredString(ezUInt32 uiLowerCaseHash, ezUInt32 uiSrcStringOffset)
-    : m_uiLowerCaseHash(uiLowerCaseHash)
+  ezArchiveStoredString(ezUInt64 uiLowerCaseHash, ezUInt32 uiSrcStringOffset)
+    : m_uiLowerCaseHash(ezHashingUtils::StringHashTo32(uiLowerCaseHash))
     , m_uiSrcStringOffset(uiSrcStringOffset)
   {
   }
@@ -64,8 +64,8 @@ class ezArchiveLookupString
 public:
   EZ_DECLARE_POD_TYPE();
 
-  ezArchiveLookupString(ezUInt32 uiLowerCaseHash, const char* string, const ezDynamicArray<ezUInt8>& ArchiveAllPathStrings)
-    : m_uiLowerCaseHash(uiLowerCaseHash)
+  ezArchiveLookupString(ezUInt64 uiLowerCaseHash, const char* string, const ezDynamicArray<ezUInt8>& ArchiveAllPathStrings)
+    : m_uiLowerCaseHash(ezHashingUtils::StringHashTo32(uiLowerCaseHash))
     , m_szString(string)
     , m_ArchiveAllPathStrings(ArchiveAllPathStrings)
   {
@@ -83,10 +83,7 @@ struct ezHashHelper<ezArchiveStoredString>
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezArchiveStoredString& hs) { return hs.m_uiLowerCaseHash; }
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezArchiveLookupString& hs) { return hs.m_uiLowerCaseHash; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezArchiveStoredString& a, const ezArchiveStoredString& b)
-  {
-    return a.m_uiSrcStringOffset == b.m_uiSrcStringOffset;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(const ezArchiveStoredString& a, const ezArchiveStoredString& b) { return a.m_uiSrcStringOffset == b.m_uiSrcStringOffset; }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezArchiveStoredString& a, const ezArchiveLookupString& b)
   {
@@ -113,5 +110,5 @@ public:
   const char* GetEntryPathString(ezUInt32 uiEntryIdx) const;
 
   ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVersion);
 };

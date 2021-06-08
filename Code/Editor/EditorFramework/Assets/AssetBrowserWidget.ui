@@ -41,9 +41,12 @@
       <bool>false</bool>
      </property>
      <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
        <item>
         <widget class="ezQtSearchWidget" name="SearchWidget" native="true"/>
+       </item>
+       <item>
+        <widget class="QComboBox" name="TypeFilter"/>
        </item>
        <item>
         <widget class="QSplitter" name="LeftSplitter">

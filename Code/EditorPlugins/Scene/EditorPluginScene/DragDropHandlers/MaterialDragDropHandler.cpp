@@ -6,7 +6,6 @@
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialDragDropHandler, 1, ezRTTIDefaultAllocator<ezMaterialDragDropHandler>)

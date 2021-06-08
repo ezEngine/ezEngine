@@ -15,7 +15,7 @@ o
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{14031833484675528879,4725601891482844220}}
-		u4 %Hash{14341915859776977863}
+		u4 %Hash{15201603453379310668}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -28,9 +28,10 @@ o
 {
 	Uuid %id{u4{6495231244770066334,4897024430174306877}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
+		s %AlphaMask{""}
 		s %BaseColor{"Decals/Splatter.png"}
 		b %BlendModeColorize{0}
 		s %Emissive{""}
@@ -70,8 +71,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
-		u3 %TypeSize{272}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{336}
+		u3 %TypeVersion{3}
 	}
 }
 o

@@ -31,7 +31,7 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform
   cb.TextureAtlasFlipbookFramesX = uiNumFlipbookAnimsX;
   cb.TextureAtlasFlipbookFramesY = uiNumFlipbookAnimsY;
   cb.DistortionStrength = fDistortionStrength;
-  cb.TotalEffectLifeTime = effectLifeTime.GetSeconds();
+  cb.TotalEffectLifeTime = effectLifeTime.AsFloatInSeconds();
 
   if (bApplyObjectTransform)
     cb.ObjectToWorldMatrix = ObjectTransform.GetAsMat4();

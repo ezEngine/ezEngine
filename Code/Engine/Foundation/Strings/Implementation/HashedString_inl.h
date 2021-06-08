@@ -62,20 +62,20 @@ EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
   HashedType tmp = m_Data;
 #endif
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString, ezHashingUtils::xxHash32String(szString));
+  m_Data = AddHashedString(szString, ezHashingUtils::StringHash(szString));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();
 #endif
 }
 
-EZ_FORCE_INLINE void ezHashedString::Assign(ezHashingUtils::StringWrapper szString)
+EZ_FORCE_INLINE void ezHashedString::Assign(ezStringView szString)
 {
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   HashedType tmp = m_Data;
 #endif
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString.m_str, ezHashingUtils::xxHash32String(szString));
+  m_Data = AddHashedString(szString, ezHashingUtils::StringHash(szString));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();
@@ -122,7 +122,7 @@ EZ_ALWAYS_INLINE const char* ezHashedString::GetData() const
   return m_Data.Value().m_sString.GetData();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezHashedString::GetHash() const
+EZ_ALWAYS_INLINE ezUInt64 ezHashedString::GetHash() const
 {
   return m_Data.Key();
 }
@@ -139,18 +139,19 @@ EZ_FORCE_INLINE ezHashedString ezMakeHashedString(const char (&szString)[N])
 
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString()
 {
-  m_uiHash = ezHashingUtils::xxHash32String("");
+  constexpr ezUInt64 uiEmptyHash = ezHashingUtils::StringHash("");
+  m_uiHash = uiEmptyHash;
 }
 
 template <size_t N>
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&szString)[N])
 {
-  m_uiHash = ezHashingUtils::xxHash32String<N>(szString);
+  m_uiHash = ezHashingUtils::StringHash<N>(szString);
 }
 
-EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezHashingUtils::StringWrapper szString)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezStringView szString)
 {
-  m_uiHash = ezHashingUtils::xxHash32String(szString);
+  m_uiHash = ezHashingUtils::StringHash(szString);
 }
 
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
@@ -163,7 +164,7 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const ezHashedString& rh
   m_uiHash = rhs.GetHash();
 }
 
-EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezUInt64 uiHash)
 {
   m_uiHash = uiHash;
 }
@@ -171,12 +172,12 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
 template <size_t N>
 EZ_ALWAYS_INLINE void ezTempHashedString::operator=(const char (&szString)[N])
 {
-  m_uiHash = ezHashingUtils::xxHash32String<N>(szString);
+  m_uiHash = ezHashingUtils::StringHash<N>(szString);
 }
 
-EZ_ALWAYS_INLINE void ezTempHashedString::operator=(ezHashingUtils::StringWrapper szString)
+EZ_ALWAYS_INLINE void ezTempHashedString::operator=(ezStringView szString)
 {
-  m_uiHash = ezHashingUtils::xxHash32String(szString);
+  m_uiHash = ezHashingUtils::StringHash(szString);
 }
 
 EZ_ALWAYS_INLINE void ezTempHashedString::operator=(const ezTempHashedString& rhs)
@@ -206,7 +207,8 @@ EZ_ALWAYS_INLINE bool ezTempHashedString::operator<(const ezTempHashedString& rh
 
 EZ_ALWAYS_INLINE bool ezTempHashedString::IsEmpty() const
 {
-  return m_uiHash == ezHashingUtils::xxHash32String("");
+  constexpr ezUInt64 uiEmptyHash = ezHashingUtils::StringHash("");
+  return m_uiHash == uiEmptyHash;
 }
 
 EZ_ALWAYS_INLINE void ezTempHashedString::Clear()
@@ -214,20 +216,9 @@ EZ_ALWAYS_INLINE void ezTempHashedString::Clear()
   *this = ezTempHashedString();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::GetHash() const
+EZ_ALWAYS_INLINE ezUInt64 ezTempHashedString::GetHash() const
 {
   return m_uiHash;
-}
-
-template <size_t N>
-EZ_ALWAYS_INLINE constexpr ezUInt32 ezTempHashedString::ComputeHash(const char (&szString)[N])
-{
-  return ezHashingUtils::xxHash32String<N>(szString);
-}
-
-EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::ComputeHash(ezHashingUtils::StringWrapper szString)
-{
-  return ezHashingUtils::xxHash32String(szString.m_str);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -235,9 +226,15 @@ EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::ComputeHash(ezHashingUtils::String
 template <>
 struct ezHashHelper<ezHashedString>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezHashedString& value) { return value.GetHash(); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezHashedString& value)
+  {
+    return ezHashingUtils::StringHashTo32(value.GetHash());
+  }
 
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTempHashedString& value) { return value.GetHash(); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
+  {
+    return ezHashingUtils::StringHashTo32(value.GetHash());
+  }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezHashedString& a, const ezHashedString& b) { return a == b; }
 
@@ -247,7 +244,10 @@ struct ezHashHelper<ezHashedString>
 template <>
 struct ezHashHelper<ezTempHashedString>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTempHashedString& value) { return value.GetHash(); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
+  {
+    return ezHashingUtils::StringHashTo32(value.GetHash());
+  }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezTempHashedString& a, const ezTempHashedString& b) { return a == b; }
 };

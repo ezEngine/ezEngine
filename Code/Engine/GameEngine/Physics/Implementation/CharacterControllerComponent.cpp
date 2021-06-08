@@ -45,6 +45,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
     EZ_SCRIPT_FUNCTION_PROPERTY(RawMove, In, "moveDeltaGlobal"),
     EZ_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsTouchingGround),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS

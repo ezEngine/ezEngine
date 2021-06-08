@@ -2,26 +2,27 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <GuiFoundation/Widgets/EventTrackEditData.h>
 
-struct ezAnimationClipResourceDescriptor;
-class ezSkeleton;
+class ezAnimationClipAssetDocument;
+struct ezPropertyMetaStateEvent;
 
-struct ezRootMotionExtractionMode
+struct ezRootMotionSource
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
     None,
-    Custom,
-    FromFeet,
-    AvgFromFeet,
+    Constant,
+    // FromFeet,
+    // AvgFromFeet,
 
     Default = None
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionExtractionMode);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionSource);
 
 class ezAnimationClipAssetProperties : public ezReflectedClass
 {
@@ -29,33 +30,48 @@ class ezAnimationClipAssetProperties : public ezReflectedClass
 
 public:
   ezAnimationClipAssetProperties();
+  ~ezAnimationClipAssetProperties();
 
-  ezString m_sAnimationFile;
+  ezString m_sSourceFile;
+  ezString m_sAnimationClipToExtract;
+  ezDynamicArray<ezString> m_AvailableClips;
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
-  ezEnum<ezRootMotionExtractionMode> m_RootMotionExtraction;
-  ezVec3 m_vCustomRootMotion;
-  ezString m_sJoint1;
-  ezString m_sJoint2;
+  ezString m_sPreviewMesh;
+  ezEnum<ezRootMotionSource> m_RootMotionMode;
+  ezVec3 m_vConstantRootMotion;
+  // ezString m_sJoint1;
+  // ezString m_sJoint2;
+
+  ezEventTrackData m_EventTrack;
+
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 class ezAnimationClipAssetDocument : public ezSimpleAssetDocument<ezAnimationClipAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetDocument, ezSimpleAssetDocument<ezAnimationClipAssetDocument>);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetDocument, ezSimpleAssetDocument<ezAnimationClipAssetProperties>);
 
 public:
   ezAnimationClipAssetDocument(const char* szDocumentPath);
 
+  virtual void SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value) override;
+  virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const override;
+
+  ezUuid InsertEventTrackCpAt(ezInt64 tickX, const char* szValue);
+
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
-  void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
-  void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
+  // void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
+  // void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
+  // void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
+
+private:
+  float m_fSimulationSpeed = 1.0f;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,8 +85,7 @@ public:
   ~ezAnimationClipAssetDocumentGenerator();
 
   virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-  virtual ezStatus Generate(
-    const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
   virtual const char* GetDocumentExtension() const override { return "ezAnimationClipAsset"; }
   virtual const char* GetGeneratorGroup() const override { return "AnimationClipGroup"; }
 };

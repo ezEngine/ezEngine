@@ -1,6 +1,6 @@
 #include <FileservePCH.h>
 
-#include <Fileserve/Main.h>
+#include <Fileserve/Fileserve.h>
 
 #ifdef EZ_USE_QT
 
@@ -38,7 +38,7 @@ ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent)
 
 void ezQtFileserveMainWnd::UpdateNetworkSlot()
 {
-  if (m_pApp->Run() == ezApplication::Continue)
+  if (m_pApp->Run() == ezApplication::Execution::Continue)
   {
     QTimer::singleShot(0, this, &ezQtFileserveMainWnd::UpdateNetworkSlot);
   }

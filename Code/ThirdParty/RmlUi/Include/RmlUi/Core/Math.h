@@ -26,13 +26,16 @@
  *
  */
 
-#ifndef RMLUICOREMATH_H
-#define RMLUICOREMATH_H
+#ifndef RMLUI_CORE_MATH_H
+#define RMLUI_CORE_MATH_H
 
 #include "Header.h"
 
 namespace Rml {
-namespace Core {
+
+template <typename Type> class Vector2;
+using Vector2f = Vector2< float >;
+
 namespace Math {
 
 // The constant PI.
@@ -66,6 +69,12 @@ template< typename Type >
 Type Clamp(Type value, Type min, Type max)
 {
 	return (value < min) ? min : (value > max) ? max : value;
+}
+
+template< typename Type >
+Type Lerp(float t, Type v0, Type v1)
+{
+	return v0 * (1.0f - t) + v1 * t;
 }
 
 /// Evaluates if a number is, or close to, zero.
@@ -138,6 +147,18 @@ RMLUICORE_API float SquareRoot(float value);
 RMLUICORE_API float RoundFloat(float value);
 /// Rounds a floating-point value to the nearest integer.
 /// @param[in] value The value to round.
+/// @return The rounded integer as double.
+RMLUICORE_API double RoundFloat(double value);
+/// Rounds a floating-point value up to the nearest integer.
+/// @param[in] value The value to round.
+/// @return The rounded integer as float.
+RMLUICORE_API float RoundUpFloat(float value);
+/// Rounds a floating-point value down to the nearest integer.
+/// @param[in] value The value to round.
+/// @return The rounded integer as float.
+RMLUICORE_API float RoundDownFloat(float value);
+/// Rounds a floating-point value to the nearest integer.
+/// @param[in] value The value to round.
 /// @return The rounded integer.
 RMLUICORE_API int RoundToInteger(float value);
 /// Rounds a floating-point value up to the nearest integer.
@@ -153,6 +174,19 @@ RMLUICORE_API int RoundDownToInteger(float value);
 /// @param[in] value The value to truncate.
 /// @return The truncated value as a signed integer.
 RMLUICORE_API int RealToInteger(float value);
+
+/// Round the position and width of a line segment to the pixel grid while minimizing movement of the edges.
+/// @param[inout] x The position, which will use normal rounding.
+/// @param[inout] width The width, which is rounded such that movement of the right edge is minimized.
+RMLUICORE_API void SnapToPixelGrid(float& x, float& width);
+/// Round the position and size of a rectangle to the pixel grid while minimizing movement of the edges.
+/// @param[inout] position The position, which will use normal rounding.
+/// @param[inout] size The size, which is rounded such that movement of the right and bottom edges is minimized.
+RMLUICORE_API void SnapToPixelGrid(Vector2f& position, Vector2f& size);
+/// Round the position and size of a rectangle to the pixel grid such that it fully covers the original rectangle.
+/// @param[inout] position The position, which will be rounded down.
+/// @param[inout] size The size, which is rounded such that the right and bottom edges are rounded up.
+RMLUICORE_API void ExpandToPixelGrid(Vector2f& position, Vector2f& size);
 
 /// Converts a number to the nearest power of two, rounding up if necessary.
 /// @param[in] value The value to convert to a power-of-two.
@@ -177,7 +211,5 @@ RMLUICORE_API int RandomInteger(int max_value);
 RMLUICORE_API bool RandomBool();
 
 }
-}
-}
-
+} // namespace Rml
 #endif

@@ -4,6 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 
 class ezVariant;
+class ezAbstractProperty;
 
 /// \brief Helper functions for handling reflection related operations.
 class EZ_FOUNDATION_DLL ezReflectionUtils
@@ -13,6 +14,9 @@ public:
 
   /// \brief Returns whether a type can be stored directly inside a ezVariant.
   static bool IsBasicType(const ezRTTI* pRtti);
+
+  /// \brief Returns whether the property is a non-ptr basic type or custom type.
+  static bool IsValueType(const ezAbstractProperty* pProp);
 
   /// \brief Returns the RTTI type matching the variant's type.
   static const ezRTTI* GetTypeFromVariant(const ezVariant& value);
@@ -25,9 +29,8 @@ public:
   static void SetComponent(ezVariant& vector, ezUInt32 iComponent, double fValue); // [tested]
   static double GetComponent(const ezVariant& vector, ezUInt32 iComponent);
 
-  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation
-  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject,
-    const ezVariant& value); // [tested] via ToolsFoundation
+  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject);        // [tested] via ToolsFoundation
+  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
   static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
@@ -85,11 +88,19 @@ public:
 
   /// \brief Helper template to shorten the call for ezEnums
   template <typename T>
-  static bool EnumerationToString(
-    ezEnum<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
+  static bool EnumerationToString(ezEnum<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
   {
     return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
   }
+
+  struct EnumKeyValuePair
+  {
+    ezString m_sKey;
+    ezInt32 m_iValue = 0;
+  };
+
+  /// \brief If the given type is an enum, \a entries will be filled with all available keys (strings) and values (integers).
+  static void GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezDynamicArray<EnumKeyValuePair>& entries, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default);
 
   /// \brief Converts an enum or bitfield in its string representation to its value.
   ///

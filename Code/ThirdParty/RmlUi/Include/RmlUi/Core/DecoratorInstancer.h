@@ -26,17 +26,17 @@
  *
  */
 
-#ifndef RMLUICOREDECORATORINSTANCER_H
-#define RMLUICOREDECORATORINSTANCER_H
+#ifndef RMLUI_CORE_DECORATORINSTANCER_H
+#define RMLUI_CORE_DECORATORINSTANCER_H
 
 #include "Header.h"
 #include "PropertyDictionary.h"
 #include "PropertySpecification.h"
 
 namespace Rml {
-namespace Core {
 
 struct Sprite;
+struct Texture;
 class StyleSheet;
 class Decorator;
 class DecoratorInstancerInterface;
@@ -60,9 +60,9 @@ public:
 	/// Instances a decorator given the property tag and attributes from the RCSS file.
 	/// @param[in] name The type of decorator desired. For example, "decorator: simple(...);" is declared as type "simple".
 	/// @param[in] properties All RCSS properties associated with the decorator.
-	/// @param[in] interface An interface for querying the active style sheet.
+	/// @param[in] instancer_interface An interface for querying the active style sheet.
 	/// @return A shared_ptr to the decorator if it was instanced successfully.
-	virtual SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties, const DecoratorInstancerInterface& interface) = 0;
+	virtual SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties, const DecoratorInstancerInterface& instancer_interface) = 0;
 
 	/// Returns the property specification associated with the instancer.
 	const PropertySpecification& GetPropertySpecification() const;
@@ -87,16 +87,19 @@ private:
 
 class RMLUICORE_API DecoratorInstancerInterface {
 public:
-	DecoratorInstancerInterface(const StyleSheet& style_sheet) : style_sheet(style_sheet) {}
+	DecoratorInstancerInterface(const StyleSheet& style_sheet, const PropertySource* property_source) : style_sheet(style_sheet), property_source(property_source) {}
 
 	/// Get a sprite from any @spritesheet in the style sheet the decorator is being instanced on.
 	const Sprite* GetSprite(const String& name) const;
 
+	/// Get a texture using the given filename.
+	/// This will use the document path where the 'decorator' property was declared to locate relative files, if available.
+	Texture GetTexture(const String& filename) const;
+
 private:
 	const StyleSheet& style_sheet;
+	const PropertySource* property_source;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

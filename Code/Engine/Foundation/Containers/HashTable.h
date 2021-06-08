@@ -3,7 +3,6 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
-#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Implementation of a hashtable which stores key/value pairs.
 ///
@@ -88,7 +87,7 @@ public:
 
 protected:
   /// \brief Creates an empty hashtable. Does not allocate any data yet.
-  ezHashTableBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezHashTableBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given hashtable.
   ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -147,17 +146,17 @@ public:
   /// \brief Cannot remove an element with just a ConstIterator
   void Remove(const ConstIterator& pos) = delete;
 
-  /// \brief Returns if an entry with the given key was found and if found writes out the corresponding value to out_value.
+  /// \brief Returns whether an entry with the given key was found and if found writes out the corresponding value to out_value.
   template <typename CompatibleKeyType>
   bool TryGetValue(const CompatibleKeyType& key, ValueType& out_value) const; // [tested]
 
-  /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
   bool TryGetValue(const CompatibleKeyType& key, const ValueType*& out_pValue) const; // [tested]
 
-  /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
-  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue); // [tested]
+  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue) const; // [tested]
 
   /// \brief Searches for key, returns a ConstIterator to it or an invalid iterator, if no such key is found. O(1) operation.
   template <typename CompatibleKeyType>
@@ -177,6 +176,9 @@ public:
 
   /// \brief Returns the value to the given key if found or creates a new entry with the given key and a default constructed value.
   ValueType& operator[](const KeyType& key); // [tested]
+
+  /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
+  ValueType& FindOrAdd(const KeyType& key, bool* bExisted); // [tested]
 
   /// \brief Returns if an entry with given key exists in the table.
   template <typename CompatibleKeyType>
@@ -256,7 +258,7 @@ class ezHashTable : public ezHashTableBase<KeyType, ValueType, Hasher>
 {
 public:
   ezHashTable();
-  ezHashTable(ezAllocatorBase* pAllocator);
+  explicit ezHashTable(ezAllocatorBase* pAllocator);
 
   ezHashTable(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& other);
   ezHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& other);

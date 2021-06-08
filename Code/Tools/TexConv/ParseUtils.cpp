@@ -2,23 +2,6 @@
 
 #include <TexConv/TexConv.h>
 
-ezResult ezTexConv::ParseBoolOption(const char* szOption, bool& bResult) const
-{
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
-  if (pCmd->GetOptionIndex(szOption) == -1)
-  {
-    ezLog::Info("Using default '{}': '{}'.", szOption, bResult ? "on" : "off");
-    return EZ_SUCCESS;
-  }
-
-  bResult = pCmd->GetBoolOption(szOption, bResult);
-
-  ezLog::Info("Selected '{}': '{}'.", szOption, bResult ? "on" : "off");
-
-  return EZ_SUCCESS;
-}
-
 ezResult ezTexConv::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
@@ -41,32 +24,6 @@ ezResult ezTexConv::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezI
   }
 
   ezLog::Info("Selected '{}': '{}'.", szOption, uiResult);
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezTexConv::ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const
-{
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-  float fDefault = fResult;
-
-  const float val = static_cast<float>(pCmd->GetFloatOption(szOption, fResult));
-
-  if (!ezMath::IsInRange(val, fMinValue, fMaxValue))
-  {
-    ezLog::Error("'{}' value {} is out of valid range [{}; {}]", szOption, val, fMinValue, fMaxValue);
-    return EZ_FAILURE;
-  }
-
-  fResult = val;
-
-  if (fResult == fDefault)
-  {
-    ezLog::Info("Using default '{}': '{}'.", szOption, fResult);
-    return EZ_SUCCESS;
-  }
-
-  ezLog::Info("Selected '{}': '{}'.", szOption, fResult);
 
   return EZ_SUCCESS;
 }

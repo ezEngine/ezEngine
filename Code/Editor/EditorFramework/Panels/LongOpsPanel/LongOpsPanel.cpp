@@ -3,14 +3,8 @@
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Panels/LongOpsPanel/LongOpsPanel.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
 
-#include <QProgressBar>
-#include <QPushButton>
-#include <QSettings>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtLongOpsPanel);
 

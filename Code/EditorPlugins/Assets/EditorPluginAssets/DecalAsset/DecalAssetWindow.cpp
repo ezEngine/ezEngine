@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>

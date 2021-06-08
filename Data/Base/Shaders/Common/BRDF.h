@@ -34,36 +34,56 @@ void AccumulateLight(inout AccumulatedLight result, AccumulatedLight light, floa
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+float RoughnessFromMipLevel(uint mipLevel, uint mipCount)
+{
+  return pow(mipLevel / (float)(mipCount - 1), 2.0f);
+}
+
+float MipLevelFromRoughness(float roughness, uint mipCount)
+{
+  return (mipCount - 1) * sqrt(roughness);
+}
+
+float RoughnessFromPerceptualRoughness(float perceptualRoughness)
+{
+    return perceptualRoughness * perceptualRoughness;
+}
+
+float PerceptualRoughnessFromRoughness(float roughness)
+{
+    return sqrt(roughness);
+}
+
 float3 DiffuseLambert( float3 diffuseColor )
 {
   return diffuseColor;
 }
 
+// divide by PI postponed
 float SpecularGGX( float roughness, float NdotH )
 {
   // mad friendly reformulation of:
   //
-  //              m^2
+  //              a^2
   // --------------------------------
-  // PI * ((N.H)^2 * (m^2 - 1) + 1)^2
+  // PI * ((N.H)^2 * (a^2 - 1) + 1)^2
 
-  float m = roughness * roughness;
-  float m2 = m * m;
-  float f = ( NdotH * m2 - NdotH ) * NdotH + 1.0f;
-  return m2 / ( f * f );
+  float a2 = roughness * roughness;
+  float f = ( NdotH * a2 - NdotH ) * NdotH + 1.0f;
+  return a2 / ( f * f );
 }
 
 float VisibilitySmithCorrelated( float roughness, float NdotV, float NdotL )
 {
-  float a = roughness * roughness;
-  float lambdaV = NdotL * sqrt((-NdotV * a + NdotV) * NdotV + a);
-  float lambdaL = NdotV * sqrt((-NdotL * a + NdotL) * NdotL + a);
+  float a2 = roughness * roughness;
+  float lambdaV = NdotL * sqrt((-NdotV * a2 + NdotV) * NdotV + a2);
+  float lambdaL = NdotV * sqrt((-NdotL * a2 + NdotL) * NdotL + a2);
   return 0.5f / ( lambdaV + lambdaL );
 }
 
 float VisibilitySmithJointApprox( float roughness, float NdotV, float NdotL )
 {
-  float a = roughness * roughness;
+  float a = roughness;
   float b = 1.0f - a;
   float lambdaV = NdotL * ( NdotV * b + a );
   float lambdaL = NdotV * ( NdotL * b + a );

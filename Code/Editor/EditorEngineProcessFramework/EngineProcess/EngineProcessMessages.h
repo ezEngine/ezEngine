@@ -90,6 +90,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleConfigMsgToEngine : public ezE
 public:
   ezString m_sWhatToDo;
   ezString m_sPayload;
+  double m_fPayload;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
@@ -129,6 +130,26 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezP
 
 public:
   ezUuid m_DocumentGuid;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleDocumentConfigMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezString m_sWhatToDo;
+  ezString m_sPayload;
+  double m_fPayload;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleDocumentConfigMsgToEditor, ezEditorEngineDocumentMsg);
+
+public:
+  ezString m_sName;
+  ezString m_sPayload;
+  double m_fPayload;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezEditorEngineDocumentMsg
@@ -294,6 +315,7 @@ public:
   }
   ezUInt16 m_uiWidth;
   ezUInt16 m_uiHeight;
+  ezHybridArray<ezString, 1> m_ViewExcludeTags;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEditor : public ezEditorEngineDocumentMsg

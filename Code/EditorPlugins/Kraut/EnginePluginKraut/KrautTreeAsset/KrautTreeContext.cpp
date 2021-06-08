@@ -3,27 +3,9 @@
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeContext.h>
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeView.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
-#include <KrautPlugin/Components/KrautTreeComponent.h>
-#include <KrautPlugin/Resources/KrautTreeResource.h>
+#include <GameEngine/Effects/Wind/SimpleWindComponent.h>
+#include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeContext, 1, ezRTTIDefaultAllocator<ezKrautTreeContext>)
@@ -42,15 +24,36 @@ ezKrautTreeContext::ezKrautTreeContext()
   m_pMainObject = nullptr;
 }
 
-void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg0))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pMsg0))
+  {
+    if (pMsg->m_sWhatToDo == "UpdateTree" && !m_hKrautComponent.IsInvalidated())
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezKrautTreeComponent* pTree = nullptr;
+      if (!m_pWorld->TryGetComponent(m_hKrautComponent, pTree))
+        return;
+
+      if (pMsg->m_sPayload == "DisplayRandomSeed")
+      {
+        m_uiDisplayRandomSeed = static_cast<ezUInt32>(pMsg->m_fPayload);
+
+        pTree->SetCustomRandomSeed(m_uiDisplayRandomSeed);
+      }
+    }
+
+    return;
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pMsg0);
 }
 
 void ezKrautTreeContext::OnInitialize()
@@ -76,45 +79,29 @@ void ezKrautTreeContext::OnInitialize()
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
     m_pMainObject->GetTags().Set(tagCastShadows);
 
-    ezKrautTreeComponent::CreateComponent(m_pMainObject, pTree);
+    m_hKrautComponent = ezKrautTreeComponent::CreateComponent(m_pMainObject, pTree);
     ezStringBuilder sMeshGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
-    m_hMainResource = ezResourceManager::LoadResource<ezKrautTreeResource>(sMeshGuid);
-    pTree->SetKrautTree(m_hMainResource);
+    m_hMainResource = ezResourceManager::LoadResource<ezKrautGeneratorResource>(sMeshGuid);
+    pTree->SetVariationIndex(0xFFFF); // takes the 'display seed'
+    pTree->SetKrautGeneratorResource(m_hMainResource);
   }
 
-  // Lights
+
+  // Wind
   {
     ezGameObjectDesc obj;
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-    obj.m_LocalPosition = obj.m_LocalRotation * ezVec3(-5, 0, 0);
+    obj.m_sName.Assign("Wind");
 
     ezGameObject* pObj;
     pWorld->CreateObject(obj, pObj);
 
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
+    ezSimpleWindComponent* pWind = nullptr;
+    ezSimpleWindComponent::CreateComponent(pObj, pWind);
 
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
-  }
-
-  // Sky
-  {
-    ezGameObjectDesc obj;
-    obj.m_sName.Assign("Sky");
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezSkyBoxComponent* pSkybox = nullptr;
-    ezSkyBoxComponent::CreateComponent(pObj, pSkybox);
-
-    pSkybox->SetExposureBias(1.0f);
-    pSkybox->SetCubeMapFile("{ 0b202e08-a64f-465d-b38e-15b81d161822 }");
+    pWind->m_Deviation = ezAngle::Degree(180);
+    pWind->m_MinWindStrength = ezWindStrength::Calm;
+    pWind->m_MaxWindStrength = ezWindStrength::ModerateBreeze;
   }
 
   // ground

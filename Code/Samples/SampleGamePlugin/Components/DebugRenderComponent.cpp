@@ -1,10 +1,10 @@
 #include <SampleGamePluginPCH.h>
 
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <SampleGamePlugin/Components/DebugRenderComponent.h>
 
@@ -117,9 +117,9 @@ void DebugRenderComponent::SetRandomColor()
 {
   ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
 
-  m_Color.r = rng.DoubleMinMax(0.2f, 1.0f);
-  m_Color.g = rng.DoubleMinMax(0.2f, 1.0f);
-  m_Color.b = rng.DoubleMinMax(0.2f, 1.0f);
+  m_Color.r = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
+  m_Color.g = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
+  m_Color.b = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
 }
 
 void DebugRenderComponent::Update()

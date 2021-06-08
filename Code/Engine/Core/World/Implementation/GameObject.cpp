@@ -109,9 +109,9 @@ void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
   }
 }
 
-const ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS>& ezGameObject::Reflection_GetComponents() const
+ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS> ezGameObject::Reflection_GetComponents() const
 {
-  return m_Components;
+  return ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS>(m_Components);
 }
 
 ezObjectMode::Enum ezGameObject::Reflection_GetMode() const
@@ -244,6 +244,13 @@ void ezGameObject::ConstChildIterator::Next()
   m_pObject = m_pWorld->GetObjectUnchecked(m_pObject->m_NextSiblingIndex);
 }
 
+ezGameObject::~ezGameObject()
+{
+  // Since we are using the small array base class for components we have to cleanup ourself with the correct allocator.
+  m_Components.Clear();
+  m_Components.Compact(GetWorld()->GetAllocator());
+}
+
 void ezGameObject::operator=(const ezGameObject& other)
 {
   EZ_ASSERT_DEV(m_InternalId.m_WorldIndex == other.m_InternalId.m_WorldIndex, "Cannot copy between worlds.");
@@ -275,10 +282,9 @@ void ezGameObject::operator=(const ezGameObject& other)
     }
   }
 
-  m_Components = other.m_Components;
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  m_Components.CopyFrom(other.m_Components, GetWorld()->GetAllocator());
+  for (ezComponent* pComponent : m_Components)
   {
-    ezComponent* pComponent = m_Components[i];
     EZ_ASSERT_DEV(pComponent->m_pOwner == &other, "");
     pComponent->m_pOwner = this;
   }
@@ -441,12 +447,12 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
     return this;
 
   const char* szSep = ezStringUtils::FindSubString(path, "/");
-  ezUInt32 uiNameHash = 0;
+  ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
-    uiNameHash = ezHashingUtils::xxHash32String(path);
+    uiNameHash = ezHashingUtils::StringHash(path);
   else
-    uiNameHash = ezHashingUtils::xxHash32(path, szSep - path);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(path, szSep));
 
   ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash), false);
 
@@ -476,17 +482,17 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
 
   const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
   const char* szNextSequence = nullptr;
-  ezUInt32 uiNameHash = 0;
+  ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, len);
+    const ezUInt32 len = ezStringUtils::GetStringElementCount(szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, len));
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, static_cast<ezUInt32>(szSep - szObjectSequence)));
     szNextSequence = szSep + 1;
   }
 
@@ -542,17 +548,17 @@ void ezGameObject::SearchForChildrenByNameSequence(
 
   const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
   const char* szNextSequence = nullptr;
-  ezUInt32 uiNameHash = 0;
+  ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, len);
+    const ezUInt32 len = ezStringUtils::GetStringElementCount(szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, len));
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashingUtils::xxHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, static_cast<ezUInt32>(szSep - szObjectSequence)));
     szNextSequence = szSep + 1;
   }
 
@@ -632,20 +638,19 @@ void ezGameObject::UpdateLocalBounds()
 
   if (IsStatic())
   {
-    if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
-    {
-      m_pTransformationData->UpdateGlobalBoundsAndSpatialData(*pSpatialSystem);
-    }
-    else
-    {
-      m_pTransformationData->UpdateGlobalBounds();
-    }
+    m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
   }
 }
 
 void ezGameObject::UpdateGlobalTransformAndBounds()
 {
-  m_pTransformationData->ConditionalUpdateGlobalBounds(GetWorld()->GetSpatialSystem());
+  m_pTransformationData->ConditionalUpdateGlobalTransform();
+  m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
+}
+
+void ezGameObject::UpdateGlobalBounds()
+{
+  m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
 bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent)
@@ -681,7 +686,7 @@ bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, const ezCompon
 }
 
 
-void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components)
+void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<ezComponent*>& out_components)
 {
   out_components.Clear();
 
@@ -695,7 +700,7 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray
   }
 }
 
-void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<const ezComponent*, 8>& out_components) const
+void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<const ezComponent*>& out_components) const
 {
   out_components.Clear();
 
@@ -720,7 +725,8 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
   EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(), "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
-  m_Components.PushBack(pComponent);
+  m_Components.PushBack(pComponent, GetWorld()->GetAllocator());
+  m_Components.GetUserData<ComponentUserData>().m_uiVersion++;
 
   pComponent->UpdateActiveState(IsActive());
 
@@ -742,6 +748,7 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
 
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtAndSwap(uiIndex);
+  m_Components.GetUserData<ComponentUserData>().m_uiVersion++;
 
   if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
   {
@@ -786,7 +793,8 @@ bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    // forward only to 'const' message handlers
+    const ezComponent* pComponent = m_Components[i];
     bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
@@ -839,7 +847,8 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    // forward only to 'const' message handlers
+    const ezComponent* pComponent = m_Components[i];
     bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
@@ -872,44 +881,52 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
 {
-  if (ezComponent* pReceiver = const_cast<ezComponent*>(GetWorld()->FindEventMsgHandler(msg, this)))
-  {
-    if (pSenderComponent)
-    {
-      msg.m_hSenderComponent = pSenderComponent->GetHandle();
-      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
-    }
+  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
 
-    pReceiver->SendMessage(msg);
+  if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
+  {
+    msg.m_hSenderComponent = pSenderComponent->GetHandle();
+    msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+  }
+
+  for (auto pEventMsgHandler : eventMsgHandlers)
+  {
+    const_cast<ezComponent*>(pEventMsgHandler)->SendMessage(msg);
   }
 }
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const
 {
-  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
-  {
-    if (pSenderComponent)
-    {
-      msg.m_hSenderComponent = pSenderComponent->GetHandle();
-      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
-    }
+  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
 
-    pReceiver->SendMessage(msg);
+  if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
+  {
+    msg.m_hSenderComponent = pSenderComponent->GetHandle();
+    msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+  }
+
+  for (auto pEventMsgHandler : eventMsgHandlers)
+  {
+    pEventMsgHandler->SendMessage(msg);
   }
 }
 
-void ezGameObject::PostEventMessage(
-  ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
-  {
-    if (pSenderComponent)
-    {
-      msg.m_hSenderComponent = pSenderComponent->GetHandle();
-      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
-    }
+  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
 
-    pReceiver->PostMessage(msg, delay, queueType);
+  if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
+  {
+    msg.m_hSenderComponent = pSenderComponent->GetHandle();
+    msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+  }
+
+  for (auto pEventMsgHandler : eventMsgHandlers)
+  {
+    pEventMsgHandler->PostMessage(msg);
   }
 }
 
@@ -965,11 +982,8 @@ void ezGameObject::TransformationData::ConditionalUpdateGlobalTransform()
   }
 }
 
-void ezGameObject::TransformationData::ConditionalUpdateGlobalBounds(ezSpatialSystem* pSpatialSytem)
+void ezGameObject::TransformationData::UpdateGlobalBounds(ezSpatialSystem* pSpatialSytem)
 {
-  // Ensure that global transform is updated
-  ConditionalUpdateGlobalTransform();
-
   if (pSpatialSytem == nullptr)
   {
     UpdateGlobalBounds();

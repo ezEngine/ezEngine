@@ -21,7 +21,7 @@ EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetCount() const
 template <class Container>
 template <typename> // Second template needed so that the compiler only instantiates it when called. Needed to prevent errors with containers that do
                     // not support this.
-                    void ezBitfield<Container>::SetCountUninitialized(ezUInt32 uiBitCount)
+void ezBitfield<Container>::SetCountUninitialized(ezUInt32 uiBitCount)
 {
   const ezUInt32 uiInts = (uiBitCount + 31) >> 5;
   m_Container.SetCountUninitialized(uiInts);
@@ -77,29 +77,31 @@ bool ezBitfield<Container>::IsAnyBitSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 ui
         return true;
     }
   }
-
-  const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
-
-  // check the bits in the first int individually
-  for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+  else
   {
-    if (IsBitSet(i))
-      return true;
-  }
+    const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+    const ezUInt32 uiPrevIntBit = uiLastInt * 32;
 
-  // check the bits in the ints in between with one operation
-  for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
-  {
-    if ((m_Container[i] & 0xFFFFFFFF) != 0)
-      return true;
-  }
+    // check the bits in the first int individually
+    for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+    {
+      if (IsBitSet(i))
+        return true;
+    }
 
-  // check the bits in the last int individually
-  for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
-  {
-    if (IsBitSet(i))
-      return true;
+    // check the bits in the ints in between with one operation
+    for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+    {
+      if ((m_Container[i] & 0xFFFFFFFF) != 0)
+        return true;
+    }
+
+    // check the bits in the last int individually
+    for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+    {
+      if (IsBitSet(i))
+        return true;
+    }
   }
 
   return false;
@@ -109,6 +111,58 @@ template <class Container>
 EZ_ALWAYS_INLINE bool ezBitfield<Container>::IsNoBitSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 uiLastBit /*= 0xFFFFFFFF*/) const
 {
   return !IsAnyBitSet(uiFirstBit, uiLastBit);
+}
+
+template <class Container>
+bool ezBitfield<Container>::AreAllBitsSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 uiNumBits /*= 0xFFFFFFFF*/) const
+{
+  if (m_uiCount == 0 || uiNumBits == 0)
+    return false;
+
+  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+
+  const ezUInt32 uiLastBit = ezMath::Min<ezUInt32>(uiFirstBit + uiNumBits, m_uiCount - 1);
+
+  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+
+  // all within the same int
+  if (uiFirstInt == uiLastInt)
+  {
+    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+    {
+      if (!IsBitSet(i))
+        return false;
+    }
+  }
+  else
+  {
+    const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+    const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+
+    // check the bits in the first int individually
+    for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+    {
+      if (!IsBitSet(i))
+        return false;
+    }
+
+    // check the bits in the ints in between with one operation
+    for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+    {
+      if (m_Container[i] != 0xFFFFFFFF)
+        return false;
+    }
+
+    // check the bits in the last int individually
+    for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+    {
+      if (!IsBitSet(i))
+        return false;
+    }
+  }
+
+  return true;
 }
 
 template <class Container>
@@ -258,6 +312,13 @@ template <typename T>
 EZ_ALWAYS_INLINE bool ezStaticBitfield<T>::IsNoBitSet() const
 {
   return m_Storage == 0;
+}
+
+template <typename T>
+bool ezStaticBitfield<T>::AreAllBitsSet() const
+{
+  const T inv = ~m_Storage;
+  return inv == 0;
 }
 
 template <typename T>

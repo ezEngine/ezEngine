@@ -96,15 +96,14 @@ ezRmlUi::ezRmlUi()
 {
   m_pData = EZ_DEFAULT_NEW(Data);
 
-  Rml::Core::SetRenderInterface(&m_pData->m_Extractor);
-  Rml::Core::SetFileInterface(&m_pData->m_FileInterface);
-  Rml::Core::SetSystemInterface(&m_pData->m_SystemInterface);
+  Rml::SetRenderInterface(&m_pData->m_Extractor);
+  Rml::SetFileInterface(&m_pData->m_FileInterface);
+  Rml::SetSystemInterface(&m_pData->m_SystemInterface);
 
-  Rml::Core::Initialise();
-  Rml::Controls::Initialise();
+  Rml::Initialise();
 
-  Rml::Core::Factory::RegisterContextInstancer(&m_pData->m_ContextInstancer);
-  Rml::Core::Factory::RegisterEventListenerInstancer(&m_pData->m_EventListenerInstancer);
+  Rml::Factory::RegisterContextInstancer(&m_pData->m_ContextInstancer);
+  Rml::Factory::RegisterEventListenerInstancer(&m_pData->m_EventListenerInstancer);
 
   const char* szFile = ":project/RmlUiConfig.ddl";
   if (m_pData->m_Config.Load(szFile).Failed())
@@ -115,7 +114,7 @@ ezRmlUi::ezRmlUi()
 
   for (auto& font : m_pData->m_Config.m_Fonts)
   {
-    if (Rml::Core::LoadFontFace(font.GetData()) == false)
+    if (Rml::LoadFontFace(font.GetData()) == false)
     {
       ezLog::Warning("Failed to load font face '{0}'.", font);
     }
@@ -124,12 +123,12 @@ ezRmlUi::ezRmlUi()
 
 ezRmlUi::~ezRmlUi()
 {
-  Rml::Core::Shutdown();
+  Rml::Shutdown();
 }
 
 ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& initialSize)
 {
-  ezRmlUiContext* pContext = static_cast<ezRmlUiContext*>(Rml::Core::CreateContext(szName, Rml::Core::Vector2i(initialSize.x, initialSize.y)));
+  ezRmlUiContext* pContext = static_cast<ezRmlUiContext*>(Rml::CreateContext(szName, Rml::Vector2i(initialSize.x, initialSize.y)));
 
   m_pData->m_Contexts.PushBack(pContext);
 
@@ -140,7 +139,7 @@ void ezRmlUi::DeleteContext(ezRmlUiContext* pContext)
 {
   m_pData->m_Contexts.RemoveAndCopy(pContext);
 
-  Rml::Core::RemoveContext(pContext->GetName());
+  Rml::RemoveContext(pContext->GetName());
 }
 
 bool ezRmlUi::AnyContextWantsInput()

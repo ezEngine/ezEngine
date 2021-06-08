@@ -53,6 +53,7 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
 #  endif
     else
     {
+      ezLog::Error("Unknown archive file extension '{}'", extension);
       return EZ_FAILURE;
     }
   }

@@ -18,7 +18,7 @@ ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& stream)
 {
   // write this at the beginning so that the file can be read as an ezDependencyFile
   m_DependencyFile.StoreCurrentTimeStamp();
-  m_DependencyFile.WriteDependencyFile(stream);
+  EZ_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(stream));
 
   stream.WriteVersion(s_RmlUiDescVersion);
 
@@ -31,7 +31,7 @@ ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& stream)
 
 ezResult ezRmlUiResourceDescriptor::Load(ezStreamReader& stream)
 {
-  m_DependencyFile.ReadDependencyFile(stream);
+  EZ_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(stream));
 
   ezTypeVersion uiVersion = stream.ReadVersion(s_RmlUiDescVersion);
 
@@ -92,7 +92,7 @@ ezResourceLoadDesc ezRmlUiResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader assetHeader;
-  assetHeader.Read(*Stream);
+  assetHeader.Read(*Stream).IgnoreResult();
 
   if (desc.Load(*Stream).Failed())
   {
@@ -140,7 +140,7 @@ bool ezRmlUiResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 
   // skip asset header
   ezAssetFileHeader assetHeader;
-  assetHeader.Read(stream);
+  assetHeader.Read(stream).IgnoreResult();
 
   ezDependencyFile dep;
   if (dep.ReadDependencyFile(stream).Failed())

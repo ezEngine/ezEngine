@@ -1,10 +1,7 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorPluginFmod/SoundEventAsset/SoundEventAsset.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundEventAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

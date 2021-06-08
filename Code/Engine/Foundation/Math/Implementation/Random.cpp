@@ -43,7 +43,7 @@ void ezRandom::Save(ezStreamWriter& stream) const
 {
   stream << m_uiIndex;
 
-  stream.WriteBytes(&m_uiState[0], sizeof(ezUInt32) * 16);
+  stream.WriteBytes(&m_uiState[0], sizeof(ezUInt32) * 16).IgnoreResult();
 }
 
 
@@ -170,8 +170,7 @@ void ezRandomGauss::SetupTable(ezUInt32 uiMaxValue, float fSigma)
   m_fSigma = fSigma;
   m_GaussAreaSum.SetCountUninitialized(uiMaxValue);
 
-  const double fBase2 =
-    Gauss(UsefulRange, fSigma); // we clamp to zero at uiMaxValue, so we need the Gauss value there to subtract it from all other values
+  const double fBase2 = Gauss(UsefulRange, fSigma); // we clamp to zero at uiMaxValue, so we need the Gauss value there to subtract it from all other values
 
   m_fAreaSum = 0;
 

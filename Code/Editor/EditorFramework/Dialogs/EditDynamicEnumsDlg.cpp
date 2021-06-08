@@ -1,7 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Dialogs/EditDynamicEnumsDlg.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 ezQtEditDynamicEnumsDlg::ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* parent)

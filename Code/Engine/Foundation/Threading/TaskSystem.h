@@ -96,9 +96,9 @@ private:
   /// \brief Moves all 'next frame' tasks into the 'this frame' queues.
   static void ReprioritizeFrameTasks();
 
-  /// \brief Executes up to uiSomeFrameTasks tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than
-  /// fSmoothFrameMS.
-  static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, ezTime smoothFrameTime);
+  /// \brief Executes tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than fSmoothFrameMS.
+  static void ExecuteSomeFrameTasks(ezTime smoothFrameTime);
+
 
   /// \brief Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
   static bool HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup);

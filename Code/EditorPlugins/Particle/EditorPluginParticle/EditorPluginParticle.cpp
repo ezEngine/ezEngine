@@ -3,18 +3,13 @@
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ParticleEffectAsset/ParticleEffectAsset.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -27,17 +22,16 @@ void OnLoadPlugin(bool bReloading)
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar").IgnoreResult();
       ezProjectActions::MapActions("ParticleEffectAssetMenuBar");
-      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar",
-        ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("ParticleEffectAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("ParticleEffectAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar");
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("ParticleEffectAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("ParticleEffectAssetToolBar", "");
       ezAssetActions::MapActions("ParticleEffectAssetToolBar", true);
@@ -46,8 +40,9 @@ void OnLoadPlugin(bool bReloading)
 
     // View Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar");
-      // ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", false, true, false);
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar").IgnoreResult();
+      ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+      ezViewLightActions::MapActions("ParticleEffectAssetViewToolBar", "");
     }
 
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);

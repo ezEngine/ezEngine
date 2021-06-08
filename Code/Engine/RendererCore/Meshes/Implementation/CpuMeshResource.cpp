@@ -50,12 +50,12 @@ ezResourceLoadDesc ezCpuMeshResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   if (m_Descriptor.Load(*Stream).Failed())
   {

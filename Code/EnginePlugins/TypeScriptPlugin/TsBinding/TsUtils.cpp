@@ -20,7 +20,7 @@ static int __CPP_Utils_StringToHash(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
-  return duk.ReturnUInt(ezTempHashedString::ComputeHash(duk.GetStringValue(0)));
+  return duk.ReturnUInt(ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(duk.GetStringValue(0))));
 }
 
 static int __CPP_Utils_FindPrefabRootNode(duk_context* pDuk)

@@ -122,7 +122,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     uiHeader[14] = static_cast<ezUInt8>(image.GetHeight(0) % 256);
     uiHeader[16] = static_cast<ezUInt8>(ezImageFormat::GetBitsPerPixel(image.GetImageFormat()));
 
-    stream.WriteBytes(uiHeader, 18);
+    stream.WriteBytes(uiHeader, 18).IgnoreResult();
   }
 
   const bool bAlpha = image.GetImageFormat() != ezImageFormat::B8G8R8_UNORM;
@@ -302,11 +302,9 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   const ezUInt32 uiBytesPerPixel = Header.m_iBitsPerPixel / 8;
 
   // check whether width, height an BitsPerPixel are valid
-  if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) ||
-      (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
+  if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
   {
-    ezLog::Error(pLog, "TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", Header.m_iImageWidth,
-      Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
+    ezLog::Error(pLog, "TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
     return EZ_FAILURE;
   }
 

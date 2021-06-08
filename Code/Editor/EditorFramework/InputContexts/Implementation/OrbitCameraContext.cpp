@@ -1,17 +1,11 @@
 #include <EditorFrameworkPCH.h>
 
 #include <Core/Graphics/Camera.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
-#include <EditorFramework/Preferences/Preferences.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <QDesktopWidget>
-#include <QKeyEvent>
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
+  m_Volume.SetInvalid();
   m_pCamera = nullptr;
 
   m_Mode = Mode::Off;
@@ -37,9 +31,13 @@ ezCamera* ezOrbitCameraContext::GetCamera() const
   return m_pCamera;
 }
 
-void ezOrbitCameraContext::SetOrbitVolume(
-  const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat)
+void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat)
 {
+  if (!m_Volume.GetCenter().IsEqual(vCenterPos, 0.01f) || !m_Volume.GetHalfExtents().IsEqual(vHalfBoxSize, 0.01f))
+  {
+    bSetCamLookat = true;
+  }
+
   m_vOrbitPoint = vCenterPos;
   m_Volume.SetCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
   m_vDefaultCameraPosition = vDefaultCameraPosition;
@@ -216,7 +214,7 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
     ezVec3 vNewPos = m_vOrbitPoint + fSensitivity * diff.x * vRight - fSensitivity * diff.y * vForward;
 
-    vNewPos = m_Volume.GetClampedPoint(vNewPos);
+    //vNewPos = m_Volume.GetClampedPoint(vNewPos);
     const ezVec3 vCamDiff = vNewPos - m_vOrbitPoint;
 
     m_vOrbitPoint = vNewPos;
@@ -230,7 +228,7 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
     ezVec3 vNewPos = m_vOrbitPoint + fSensitivity * diff.x * vRight - fSensitivity * diff.y * vUp;
 
-    vNewPos = m_Volume.GetClampedPoint(vNewPos);
+    //vNewPos = m_Volume.GetClampedPoint(vNewPos);
     const ezVec3 vCamDiff = vNewPos - m_vOrbitPoint;
 
     m_vOrbitPoint = vNewPos;
@@ -243,7 +241,7 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
     ezVec3 vNewPos = m_vOrbitPoint - fSensitivity * diff.y * vUp;
 
-    vNewPos = m_Volume.GetClampedPoint(vNewPos);
+    //vNewPos = m_Volume.GetClampedPoint(vNewPos);
     const ezVec3 vCamDiff = vNewPos - m_vOrbitPoint;
 
     m_vOrbitPoint = vNewPos;

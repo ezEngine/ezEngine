@@ -1,8 +1,8 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
 #include <GameEngine/Physics/SurfaceResourceDescriptor.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/Events/ParticleEventReaction_Prefab.h>
@@ -287,11 +287,14 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
   ezQuat qRot;
   qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Radian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
 
-  vAlignDir.NormalizeIfNotZero(ezVec3::UnitXAxis());
+  vAlignDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
 
   trans.m_qRotation.SetShortestRotation(ezVec3(1, 0, 0), vAlignDir);
   trans.m_qRotation = trans.m_qRotation * qRot;
 
   ezResourceLock<ezPrefabResource> pPrefab(m_hPrefab, ezResourceAcquireMode::BlockTillLoaded);
-  pPrefab->InstantiatePrefab(*m_pOwnerEffect->GetWorld(), trans, ezGameObjectHandle(), nullptr, nullptr, nullptr, false);
+
+  ezPrefabInstantiationOptions options;
+
+  pPrefab->InstantiatePrefab(*m_pOwnerEffect->GetWorld(), trans, options);
 }

@@ -1,16 +1,10 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
-#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetManager.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Serialization/BinarySerializer.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator)
@@ -36,7 +30,7 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    if (!pProp->GetSpecificType()->IsDerivedFrom<ezNodePin>())
+    if (!pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePin>())
       continue;
 
     ezColor pinColor = ezColor::Grey;
@@ -45,17 +39,17 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
       pinColor = pAttr->GetColor();
     }
 
-    if (pProp->GetSpecificType()->IsDerivedFrom<ezInputNodePin>())
+    if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
       ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezOutputNodePin>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
       ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezPassThroughNodePin>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePassThrougPin>())
     {
       ezPin* pPinIn = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPinIn);
@@ -100,7 +94,7 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin* pSource, c
   out_Result = CanConnectResult::ConnectNto1;
 
   if (!pTarget->GetConnections().IsEmpty())
-    return ezStatus("Only one connection can be made to in input pin!");
+    return ezStatus("Only one connection can be made to an input pin!");
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -110,15 +104,12 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 {
 }
 
-ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
   ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
   ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager());
 
   auto& children = GetObjectManager()->GetRootObject()->GetChildren();
@@ -144,7 +135,7 @@ ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& s
 
   ezUInt32 uiSize = storage.GetStorageSize();
   stream << uiSize;
-  stream.WriteBytes(storage.GetData(), uiSize);
+  EZ_SUCCEED_OR_RETURN(stream.WriteBytes(storage.GetData(), uiSize));
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -213,8 +204,7 @@ bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
   return true;
 }
 
-bool ezRenderPipelineAssetDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

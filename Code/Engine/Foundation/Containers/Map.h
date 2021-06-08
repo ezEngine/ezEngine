@@ -56,16 +56,10 @@ public:
     EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
-    EZ_ALWAYS_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const
-    {
-      return (m_pElement == it2.m_pElement);
-    }
+    EZ_ALWAYS_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement == it2.m_pElement); }
 
     /// \brief Checks whether the two iterators point to the same element.
-    EZ_ALWAYS_INLINE bool operator!=(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const
-    {
-      return (m_pElement != it2.m_pElement);
-    }
+    EZ_ALWAYS_INLINE bool operator!=(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType& Key() const
@@ -203,6 +197,18 @@ public:
   template <typename CompatibleKeyType>
   ValueType& operator[](const CompatibleKeyType& key); // [tested]
 
+  /// \brief Returns whether an entry with the given key was found and if found writes out the corresponding value to out_value.
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, ValueType& out_value) const; // [tested]
+
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, const ValueType*& out_pValue) const; // [tested]
+
+  /// \brief Returns whether an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue) const; // [tested]
+
   /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
   template <typename CompatibleKeyType>
   const ValueType* GetValue(const CompatibleKeyType& key) const; // [tested]
@@ -322,7 +328,7 @@ class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:
   ezMap();
-  ezMap(ezAllocatorBase* pAllocator);
+  explicit ezMap(ezAllocatorBase* pAllocator);
   ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator);
 
   ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);

@@ -1,19 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
-#include <QStringList>
-#include <QTextStream>
-#include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/ImageConversion.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator)
@@ -72,7 +60,7 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   {
     // Thumbnail
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    ezOSFile::CreateDirectoryStructure(sDir);
+    ezOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
 
     arguments << "-thumbnailRes";
     arguments << "256";
@@ -162,13 +150,7 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
     arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
   }
 
-  ezStringBuilder cmd;
-  for (ezInt32 i = 0; i < arguments.size(); ++i)
-    cmd.Append(" ", arguments[i].toUtf8().data());
-
-  ezLog::Debug("TexConv.exe{0}", cmd);
-
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
@@ -211,8 +193,7 @@ void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
   }
 }
 
-ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
@@ -224,7 +205,7 @@ ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTarget
   {
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
-    ezOSFile::DeleteFile(szTargetFile);
+    ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
     result.m_Result = EZ_FAILURE;
   }
 
@@ -251,8 +232,7 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 
 ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() {}
 
-void ezTextureCubeAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -286,8 +266,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

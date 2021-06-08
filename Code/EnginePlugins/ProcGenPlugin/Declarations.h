@@ -202,8 +202,22 @@ namespace ezProcGenInternal
     ezInt32 m_iPosY;
     float m_fMinZ;
     float m_fMaxZ;
-    float m_fPatternSize;
+    float m_fTileSize;
     float m_fDistanceToCamera;
+
+    bool operator==(const PlacementTileDesc& other) const
+    {
+      return m_hComponent == other.m_hComponent && m_uiOutputIndex == other.m_uiOutputIndex && m_iPosX == other.m_iPosX && m_iPosY == other.m_iPosY;
+    }
+
+    ezBoundingBox GetBoundingBox() const
+    {
+      ezVec2 vCenter = ezVec2(m_iPosX * m_fTileSize, m_iPosY * m_fTileSize);
+      ezVec3 vMin = (vCenter - ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMinZ);
+      ezVec3 vMax = (vCenter + ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMaxZ);
+
+      return ezBoundingBox(vMin, vMax);
+    }
 
     ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
   };

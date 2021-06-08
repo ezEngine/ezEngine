@@ -73,11 +73,11 @@ public:
   ezProjectileComponent();
   ~ezProjectileComponent();
 
-  float m_fMetersPerSecond;                   ///< [ property ] The speed at which the projectile flies
-  float m_fGravityMultiplier;                 ///< [ property ] If 0, the projectile is not affected by gravity.
-  ezUInt8 m_uiCollisionLayer;                 ///< [ property ]
-  ezTime m_MaxLifetime;                       ///< [ property ] After this time the projectile is killed, if it didn't die already
-  ezSurfaceResourceHandle m_hFallbackSurface; ///< [ property ]
+  float m_fMetersPerSecond;                                                ///< [ property ] The speed at which the projectile flies
+  float m_fGravityMultiplier;                                              ///< [ property ] If 0, the projectile is not affected by gravity.
+  ezUInt8 m_uiCollisionLayer;                                              ///< [ property ]
+  ezTime m_MaxLifetime;                                                    ///< [ property ] After this time the projectile is killed, if it didn't die already
+  ezSurfaceResourceHandle m_hFallbackSurface;                              ///< [ property ]
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; ///< [ property ]
 
   void SetTimeoutPrefab(const char* szPrefab); // [ property ]
@@ -95,8 +95,7 @@ private:
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;
 
-  void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal,
-    const ezVec3& vDirection, const char* szInteraction);
+  void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
 
   ezVec3 m_vVelocity;
 };

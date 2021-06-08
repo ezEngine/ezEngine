@@ -5,9 +5,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -119,7 +117,7 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
     const ezVec3 vGizmoPosWS = GetTransformation().m_vPosition;
 
     ezVec3 vPosOnNearPlane, vRayDir;
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vMousePos, vPosOnNearPlane, &vRayDir);
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vMousePos, vPosOnNearPlane, &vRayDir).IgnoreResult();
 
     ezPlane plane;
     plane.SetFromNormalAndPoint(vAxisWS, vGizmoPosWS);
@@ -132,7 +130,7 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
     }
 
     ezVec3 vDirWS = vPointOnGizmoWS - vGizmoPosWS;
-    vDirWS.NormalizeIfNotZero(ezVec3(1, 0, 0));
+    vDirWS.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
 
     ezVec3 vTangentWS = vAxisWS.CrossRH(vDirWS);
     vTangentWS.Normalize();
@@ -141,12 +139,12 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
 
     // compute the screen space position of the end point of the tangent vector, so that we can then compute the tangent in screen space
     ezVec3 vTangentEndSS;
-    ezGraphicsUtils::ConvertWorldPosToScreenPos(mViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vTangentEndWS, vTangentEndSS);
+    ezGraphicsUtils::ConvertWorldPosToScreenPos(mViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vTangentEndWS, vTangentEndSS).IgnoreResult();
     vTangentEndSS.z = 0;
 
     const ezVec3 vTangentSS = vTangentEndSS - vMousePos;
     m_vScreenTangent.Set(vTangentSS.x, vTangentSS.y);
-    m_vScreenTangent.NormalizeIfNotZero(ezVec2(1, 0));
+    m_vScreenTangent.NormalizeIfNotZero(ezVec2(1, 0)).IgnoreResult();
 
     // because window coordinates are flipped along Y
     m_vScreenTangent.y = -m_vScreenTangent.y;

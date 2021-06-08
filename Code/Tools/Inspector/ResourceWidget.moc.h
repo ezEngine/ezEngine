@@ -63,5 +63,5 @@ private:
 
   bool m_bUpdateTypeBox;
   ezSet<ezString> m_ResourceTypes;
-  ezHashTable<ezUInt32, ResourceData> m_Resources;
+  ezHashTable<ezUInt64, ResourceData> m_Resources;
 };

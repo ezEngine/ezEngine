@@ -8,6 +8,8 @@ class ezDocumentObject;
 class ezAbstractObjectGraph;
 
 /// \brief Helper functions for handling reflection related operations.
+///
+/// Also check out ezToolsSerializationUtils for related functionality.
 class EZ_TOOLSFOUNDATION_DLL ezToolsReflectionUtils
 {
 public:
@@ -22,7 +24,6 @@ public:
   static void GetMinimalReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc);
 
   static void GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types);
-  static void SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph);
 
   static bool DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors);
 };

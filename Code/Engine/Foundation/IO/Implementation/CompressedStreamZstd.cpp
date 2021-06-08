@@ -69,15 +69,14 @@ ezUInt64 ezCompressedStreamReaderZstd::ReadBytes(void* pReadBuffer, ezUInt64 uiB
   ZSTD_outBuffer outBuffer;
   outBuffer.dst = pReadBuffer;
   outBuffer.pos = 0;
-  outBuffer.size = uiBytesToRead;
+  outBuffer.size = ezMath::SafeConvertToSizeT(uiBytesToRead);
 
   while (outBuffer.pos < outBuffer.size)
   {
     if (RefillReadCache().Failed())
       return outBuffer.pos;
 
-    const size_t res =
-      ZSTD_decompressStream(reinterpret_cast<ZSTD_DStream*>(m_pZstdDStream), &outBuffer, reinterpret_cast<ZSTD_inBuffer*>(&m_InBuffer));
+    const size_t res = ZSTD_decompressStream(reinterpret_cast<ZSTD_DStream*>(m_pZstdDStream), &outBuffer, reinterpret_cast<ZSTD_inBuffer*>(&m_InBuffer));
     EZ_ASSERT_DEV(!ZSTD_isError(res), "Decompressing the stream failed: '{0}'", ZSTD_getErrorName(res));
   }
 
@@ -86,7 +85,7 @@ ezUInt64 ezCompressedStreamReaderZstd::ReadBytes(void* pReadBuffer, ezUInt64 uiB
     // if we have reached the end, we have not yet read the zero-terminator
     // do this now, so that data that comes after the compressed stream can be read properly
 
-    RefillReadCache();
+    RefillReadCache().IgnoreResult();
   }
 
   return outBuffer.pos;
@@ -98,8 +97,7 @@ ezResult ezCompressedStreamReaderZstd::RefillReadCache()
   if (m_InBuffer.pos == m_InBuffer.size)
   {
     ezUInt16 uiCompressedSize = 0;
-    EZ_VERIFY(m_pInputStream->ReadBytes(&uiCompressedSize, sizeof(ezUInt16)) == sizeof(ezUInt16),
-      "Reading the compressed chunk size from the input stream failed.");
+    EZ_VERIFY(m_pInputStream->ReadBytes(&uiCompressedSize, sizeof(ezUInt16)) == sizeof(ezUInt16), "Reading the compressed chunk size from the input stream failed.");
 
     m_InBuffer.pos = 0;
     m_InBuffer.size = uiCompressedSize;
@@ -113,8 +111,7 @@ ezResult ezCompressedStreamReaderZstd::RefillReadCache()
         m_InBuffer.src = m_CompressedCache.GetData();
       }
 
-      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize,
-        "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
+      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize, "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
     }
   }
 
@@ -151,7 +148,7 @@ ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
     // EZ_ASSERT_DEV(m_uiWrittenBytes > 0, "Output stream was set, but not a single byte was written to the compressed stream before destruction.
     // Incorrect usage?");
 
-    FinishCompressedStream();
+    FinishCompressedStream().IgnoreResult();
   }
 
   if (m_pZstdCStream)
@@ -161,14 +158,13 @@ ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
   }
 }
 
-void ezCompressedStreamWriterZstd::SetOutputStream(
-  ezStreamWriter* pOutputStream, Compression Ratio /*= Compression::Default*/, ezUInt32 uiCompressionCacheSizeKB /*= 4*/)
+void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream, Compression Ratio /*= Compression::Default*/, ezUInt32 uiCompressionCacheSizeKB /*= 4*/)
 {
   if (m_pOutputStream == pOutputStream)
     return;
 
   // finish anything done on a previous output stream
-  FinishCompressedStream();
+  FinishCompressedStream().IgnoreResult();
 
   m_uiUncompressedSize = 0;
   m_uiCompressedSize = 0;
@@ -280,8 +276,7 @@ ezResult ezCompressedStreamWriterZstd::WriteBytes(const void* pWriteBuffer, ezUI
         return EZ_FAILURE;
     }
 
-    const size_t res =
-      ZSTD_compressStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer), &inBuffer);
+    const size_t res = ZSTD_compressStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer), &inBuffer);
 
     EZ_VERIFY(!ZSTD_isError(res), "Compressing the zstd stream failed: '{0}'", ZSTD_getErrorName(res));
   }

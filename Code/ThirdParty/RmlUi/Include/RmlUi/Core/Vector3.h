@@ -26,14 +26,13 @@
  *
  */
 
-#ifndef RMLUICOREVECTOR3_H
-#define RMLUICOREVECTOR3_H
+#ifndef RMLUI_CORE_VECTOR3_H
+#define RMLUI_CORE_VECTOR3_H
 
 #include "Debug.h"
 #include "Math.h"
 
 namespace Rml {
-namespace Core {
 
 /**
 	Templated class for a generic three-component vector.
@@ -127,6 +126,11 @@ class Vector3
 		/// @return A constant pointer to the first value.
 		inline operator Type*();
 
+		/// Underlying type-cast operator.
+		/// @return A copy of the vector with another underlying type.
+		template < typename U >
+		explicit inline operator Vector3<U>() const;
+
 		// Cast to Vector2
 		explicit inline operator Vector2< Type >() const;
 
@@ -134,10 +138,15 @@ class Vector3
 		Type x;
 		Type y;
 		Type z;
+
+#if defined(RMLUI_VECTOR3_USER_EXTRA)
+	RMLUI_VECTOR3_USER_EXTRA
+#elif defined(RMLUI_VECTOR3_USER_INCLUDE)
+	#include RMLUI_VECTOR3_USER_INCLUDE
+#endif
 };
 
-}
-}
+} // namespace Rml
 
 #include "Vector3.inl"
 

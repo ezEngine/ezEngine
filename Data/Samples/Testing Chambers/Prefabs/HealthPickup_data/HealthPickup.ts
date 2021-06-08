@@ -32,7 +32,7 @@ export class HealthPickup extends ez.TypescriptComponent {
 
     OnMsgTriggerTriggered(msg: ez.MsgTriggerTriggered): void {
 
-        if (msg.TriggerState == ez.TriggerState.Activated && msg.MsgStringHash == ez.Utils.StringToHash("Pickup")) {
+        if (msg.TriggerState == ez.TriggerState.Activated && msg.Message == "Pickup") {
 
             this.pfxPickup.StartEffect();
 

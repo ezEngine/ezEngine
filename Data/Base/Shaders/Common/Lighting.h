@@ -21,6 +21,7 @@ SamplerState DecalAtlasSampler;
 
 TextureCubeArray ReflectionSpecularTexture;
 Texture2D SkyIrradianceTexture;
+#define NUM_REFLECTION_MIPS 6
 
 Texture2D SceneDepth;
 Texture2D SceneColor;
@@ -391,6 +392,13 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, matData.worldNormal).rgb;
   totalLight.diffuseLight += matData.diffuseColor * skyLight * occlusion;
   
+  // indirect specular
+  float3 reflectionDir = CubeMapDirection(reflect(-viewVector, matData.worldNormal));
+  float4 coord = float4(reflectionDir, 0);
+  float mipLevel = MipLevelFromRoughness(matData.roughness, NUM_REFLECTION_MIPS);
+  float3 indirectLight = ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel).rgb;
+  totalLight.specularLight += matData.specularColor * indirectLight * occlusion;
+
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
     skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, -matData.worldNormal).rgb;
@@ -581,16 +589,26 @@ float GetFogAmount(float3 worldPosition)
   return saturate(exp(-fogDensity * length(cameraToWorldPos)));
 }
 
-float3 ApplyFog(float3 color, float fogAmount)
+float3 ApplyFog(float3 color, float3 worldPosition, float fogAmount)
 {
-  return lerp(FogColor.xyz, color, fogAmount);
+  float3 fogColor = FogColor.rgb;
+  if (FogInvSkyDistance > 0.0)
+  {
+    float distance = 0;
+    float3 viewVector = NormalizeAndGetLength(worldPosition - GetCameraPosition(), distance);
+    float4 coord = float4(CubeMapDirection(viewVector), 0);
+    float mipLevel = saturate(1.0 - distance * FogInvSkyDistance) * NUM_REFLECTION_MIPS;
+    fogColor *= ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel).rgb * 2.0;
+  }
+  
+  return lerp(fogColor, color, fogAmount);
 }
 
 float3 ApplyFog(float3 color, float3 worldPosition)
 {
   if (FogDensity > 0.0)
   {
-    return ApplyFog(color, GetFogAmount(worldPosition));
+    return ApplyFog(color, worldPosition, GetFogAmount(worldPosition));
   }
 
   return color;

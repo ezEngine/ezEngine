@@ -13,11 +13,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     for (ezUInt32 i = 0; i < 1000; ++i)
       m[i] = i + 1;
 
-    // EZ_TEST_INT(std::find(begin(m), end(m), 500).Key(), 499);
+    //EZ_TEST_INT(std::find(begin(m), end(m), 500).Key(), 499);
 
     auto itfound = std::find_if(begin(m), end(m), [](ezMap<ezUInt32, ezUInt32>::ConstIterator val) { return val.Value() == 500; });
 
-    // EZ_TEST_BOOL(std::find(begin(m), end(m), 500) == itfound);
+    //EZ_TEST_BOOL(std::find(begin(m), end(m), 500) == itfound);
 
     ezUInt32 prev = begin(m).Key();
     for (auto it : m)
@@ -155,7 +155,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(m.Find(i).Value(), i * 10);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue/TryGetValue")
   {
     ezMap<ezUInt32, ezUInt32> m;
 
@@ -163,12 +163,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       m[i] = i * 10;
 
     for (ezInt32 i = 100 - 1; i >= 0; --i)
+    {
       EZ_TEST_INT(*m.GetValue(i), i * 10);
 
+      ezUInt32 v = 0;      
+      EZ_TEST_BOOL(m.TryGetValue(i, v));
+      EZ_TEST_INT(v, i * 10);
+
+      ezUInt32* pV = nullptr;
+      EZ_TEST_BOOL(m.TryGetValue(i, pV));
+      EZ_TEST_INT(*pV, i * 10);
+    }
+
     EZ_TEST_BOOL(m.GetValue(101) == nullptr);
+
+    ezUInt32 v = 0;
+    EZ_TEST_BOOL(m.TryGetValue(101, v) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue (const)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue/TryGetValue (const)")
   {
     ezMap<ezUInt32, ezUInt32> m;
 
@@ -178,9 +191,22 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     const ezMap<ezUInt32, ezUInt32>& mConst = m;
 
     for (ezInt32 i = 100 - 1; i >= 0; --i)
+    {
       EZ_TEST_INT(*mConst.GetValue(i), i * 10);
 
+      ezUInt32 v = 0;
+      EZ_TEST_BOOL(m.TryGetValue(i, v));
+      EZ_TEST_INT(v, i * 10);
+
+      ezUInt32* pV = nullptr;
+      EZ_TEST_BOOL(m.TryGetValue(i, pV));
+      EZ_TEST_INT(*pV, i * 10);
+    }
+
     EZ_TEST_BOOL(mConst.GetValue(101) == nullptr);
+
+    ezUInt32 v = 0;
+    EZ_TEST_BOOL(mConst.TryGetValue(101, v) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValueOrDefault")
@@ -585,7 +611,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     // test iterators after swap
     {
-      for (auto it : *map1)
+      for (auto it: *map1)
       {
         EZ_TEST_BOOL(!map2->Contains(it.Key()));
       }
@@ -600,7 +626,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     // seems to be fixed in VS 2019 though
 
     map1->~ezMap<ezString, ezInt32>();
-    // ezMemoryUtils::PatternFill(map1Mem, 0xBA, uiSetSize);
+    //ezMemoryUtils::PatternFill(map1Mem, 0xBA, uiSetSize);
 
     map2->~ezMap<ezString, ezInt32>();
     ezMemoryUtils::PatternFill(map2Mem, 0xBA, uiMapSize);
@@ -647,4 +673,5 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     map2->~ezMap<ezString, ezInt32>();
     ezMemoryUtils::PatternFill(map2Mem, 0xBA, uiMapSize);
   }
+
 }

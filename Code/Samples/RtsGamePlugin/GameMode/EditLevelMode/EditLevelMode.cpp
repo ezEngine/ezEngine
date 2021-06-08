@@ -1,12 +1,11 @@
 #include <RtsGamePluginPCH.h>
 
-#include <RendererCore/Messages/SetColorMessage.h>
+#include <Core/Messages/SetColorMessage.h>
+#include <Core/Utils/Blackboard.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
-
-#include <RmlUi/Controls/ElementFormControlSelect.h>
 
 const char* g_BuildItemTypes[] = {
   "FederationShip1",
@@ -17,7 +16,24 @@ const char* g_BuildItemTypes[] = {
   "KlingonShip3",
 };
 
-RtsEditLevelMode::RtsEditLevelMode() = default;
+static ezHashedString s_sTeam = ezMakeHashedString("Team");
+static ezHashedString s_sShipType = ezMakeHashedString("ShipType");
+static ezHashedString s_sSelectKey = ezMakeHashedString("SelectKey");
+static ezHashedString s_sCreateKey = ezMakeHashedString("CreateKey");
+static ezHashedString s_sRemoveKey = ezMakeHashedString("RemoveKey");
+
+RtsEditLevelMode::RtsEditLevelMode()
+{
+  m_pBlackboard = EZ_DEFAULT_NEW(ezBlackboard);
+  m_pBlackboard->SetName("EditLevelModel");
+
+  m_pBlackboard->RegisterEntry(s_sTeam, 0);
+  m_pBlackboard->RegisterEntry(s_sShipType, 0);
+  m_pBlackboard->RegisterEntry(s_sSelectKey, ezVariant());
+  m_pBlackboard->RegisterEntry(s_sCreateKey, ezVariant());
+  m_pBlackboard->RegisterEntry(s_sRemoveKey, ezVariant());
+}
+
 RtsEditLevelMode::~RtsEditLevelMode() = default;
 
 void RtsEditLevelMode::OnActivateMode()
@@ -46,63 +62,27 @@ void RtsEditLevelMode::OnBeforeWorldUpdate()
 
 void RtsEditLevelMode::SetupEditUI()
 {
-  ezGameObject* pEditUIObject = nullptr;
-  if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("EditUI"), pEditUIObject))
-    return;
-
-  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
-  if (!pEditUIObject->TryGetComponentOfBaseType(pUiComponent))
-    return;
-
-  pUiComponent->EnsureInitialized();
-
-  auto pDocument = pUiComponent->GetRmlContext()->GetDocument(0);
-
-  if (auto pElement = pDocument->GetElementById("build"))
+  // Set blackboard values
   {
-    // should be rmlui_dynamic_cast but ElementFormControlSelect has no rtti
-    if (auto pSelectElement = static_cast<Rml::Controls::ElementFormControlSelect*>(pElement))
-    {
-      if (pSelectElement->GetNumOptions() == 0)
-      {
-        ezStringBuilder sValue;
-
-        for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(g_BuildItemTypes); ++i)
-        {
-          sValue.Format("{}", i);
-          pSelectElement->Add(g_BuildItemTypes[i], sValue.GetData());
-        }
-      }
-    }
+    m_pBlackboard->SetEntryValue(s_sSelectKey, ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0)).IgnoreResult();
+    m_pBlackboard->SetEntryValue(s_sCreateKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject")).IgnoreResult();
+    m_pBlackboard->SetEntryValue(s_sRemoveKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject")).IgnoreResult();
   }
 
-  if (auto pElement = pDocument->GetElementById("selectkey"))
+  if (m_hEditUIComponent.IsInvalidated())
   {
-    ezStringBuilder s;
-    s.Format("Select: {}", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
-    pElement->SetInnerRML(s.GetData());
+    ezGameObject* pEditUIObject = nullptr;
+    if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("EditUI"), pEditUIObject))
+      return;
+
+    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    if (!pEditUIObject->TryGetComponentOfBaseType(pUiComponent))
+      return;
+
+    pUiComponent->AddBlackboardBinding(*m_pBlackboard);
+
+    m_hEditUIComponent = pUiComponent->GetHandle();
   }
-
-  if (auto pElement = pDocument->GetElementById("createkey"))
-  {
-    ezStringBuilder s;
-    s.Format("Create: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
-    pElement->SetInnerRML(s.GetData());
-  }
-
-  if (auto pElement = pDocument->GetElementById("removekey"))
-  {
-    ezStringBuilder s;
-    s.Format("Remove: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
-    pElement->SetInnerRML(s.GetData());
-  }
-
-  pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged",
-    [this](Rml::Core::Event& e) { m_uiTeam = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
-  pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged",
-    [this](Rml::Core::Event& e) { m_iShipType = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection(); });
-
-  m_hEditUIComponent = pUiComponent->GetHandle();
 }
 
 void RtsEditLevelMode::DisplayEditUI()
@@ -113,21 +93,7 @@ void RtsEditLevelMode::DisplayEditUI()
     pUiComponent->SetActiveFlag(s_bUseRmlUi);
   }
 
-  if (s_bUseRmlUi && pUiComponent != nullptr)
-  {
-    auto pDocument = pUiComponent->GetRmlContext()->GetDocument(0);
-
-    if (auto pElement = pDocument->GetElementById("team"))
-    {
-      static_cast<Rml::Controls::ElementFormControlSelect*>(pElement)->SetSelection(m_uiTeam);
-    }
-
-    if (auto pElement = pDocument->GetElementById("build"))
-    {
-      static_cast<Rml::Controls::ElementFormControlSelect*>(pElement)->SetSelection(m_iShipType);
-    }
-  }
-  else
+  if (!s_bUseRmlUi)
   {
     ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
 
@@ -137,17 +103,18 @@ void RtsEditLevelMode::DisplayEditUI()
 
     ImGui::SetNextWindowPos(ImVec2((float)resolution.width - ww - 10, 10));
     ImGui::SetNextWindowSize(ImVec2(ww, 150));
-    ImGui::Begin(
-      "Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin("Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
-    int iTeam = m_uiTeam;
+    int iTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<int>();
     if (ImGui::Combo("Team", &iTeam, "Red\0Green\0Blue\0Yellow\0\0", 4))
     {
-      m_uiTeam = iTeam;
+      m_pBlackboard->SetEntryValue(s_sTeam, iTeam).IgnoreResult();
     }
 
-    if (ImGui::Combo("Build", &m_iShipType, g_BuildItemTypes, EZ_ARRAY_SIZE(g_BuildItemTypes)))
+    int iShipType = m_pBlackboard->GetEntryValue(s_sShipType).Get<int>();
+    if (ImGui::Combo("Build", &iShipType, g_BuildItemTypes, EZ_ARRAY_SIZE(g_BuildItemTypes)))
     {
+      m_pBlackboard->SetEntryValue(s_sShipType, iShipType).IgnoreResult();
     }
 
     ImGui::Text("Select: %s", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
@@ -184,11 +151,12 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     ezGameObject* pSpawned = nullptr;
 
-    pSpawned =
-      m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[m_iShipType], m_uiTeam);
+    int iTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<int>();
+    int iShipType = m_pBlackboard->GetEntryValue(s_sShipType).Get<int>();
+    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[iShipType], iTeam);
 
     ezMsgSetColor msg;
-    msg.m_Color = RtsGameMode::GetTeamColor(m_uiTeam);
+    msg.m_Color = RtsGameMode::GetTeamColor(iTeam);
 
     pSpawned->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 

@@ -1,6 +1,6 @@
 #include <FileservePCH.h>
 
-#include <Fileserve/Main.h>
+#include <Fileserve/Fileserve.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -15,7 +15,7 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   // Add the empty data directory to access files via absolute paths
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
 
   EZ_DEFAULT_NEW(ezFileserver);
 
@@ -26,6 +26,7 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezFileserver::GetSingleton()->StartServer();
 #endif
 
+  // TODO: CommandLine Option
   m_CloseAppTimeout = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));
   m_TimeTillClosing = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_wait_timeout", 0));
 
@@ -51,12 +52,12 @@ void ezFileserverApp::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-ezApplication::ApplicationExecution ezFileserverApp::Run()
+ezApplication::Execution ezFileserverApp::Run()
 {
   // if there are no more connections, and we have a timeout to close when no connections are left, we return Quit
   if (m_uiConnections == 0 && m_TimeTillClosing > ezTime::Seconds(0) && ezTime::Now() > m_TimeTillClosing)
   {
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 
   if (ezFileserver::GetSingleton()->UpdateServer() == false)
@@ -79,5 +80,5 @@ ezApplication::ApplicationExecution ezFileserverApp::Run()
     m_uiSleepCounter = 0;
   }
 
-  return ezApplication::Continue;
+  return ezApplication::Execution::Continue;
 }

@@ -1,14 +1,10 @@
 #include <EditorPluginFmodPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
 #include <FmodPlugin/FmodIncludes.h>
 #include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
@@ -115,19 +111,16 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       // and if there are multiple, which one is the correct one
       // so we just load everything that we can find
       ezFileSystemIterator fsIt;
-      if (fsIt.StartSearch(sStringsBank, ezFileSystemIteratorFlags::ReportFiles).Succeeded())
+      for (fsIt.StartSearch(sStringsBank, ezFileSystemIteratorFlags::ReportFiles); fsIt.IsValid(); fsIt.Next())
       {
-        do
-        {
-          sStringsBank = fsIt.GetCurrentPath();
-          sStringsBank.AppendPath(fsIt.GetStats().m_sName);
+        sStringsBank = fsIt.GetCurrentPath();
+        sStringsBank.AppendPath(fsIt.GetStats().m_sName);
 
-          FMOD::Studio::Bank* pStringsBank = nullptr;
-          if (pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank) == FMOD_OK && pStringsBank != nullptr)
-          {
-            loadedBanks.PushBack(pStringsBank);
-          }
-        } while (fsIt.Next().Succeeded());
+        FMOD::Studio::Bank* pStringsBank = nullptr;
+        if (pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank) == FMOD_OK && pStringsBank != nullptr)
+        {
+          loadedBanks.PushBack(pStringsBank);
+        }
       }
 
       int iEvents = 0;
@@ -188,8 +181,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
   }
 }
 
-ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(
-  const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
   // instead we reference the source fmod sound bank file
@@ -218,8 +210,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(
   return ezString();
 }
 
-ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(
-  const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   if (pSubAsset->m_bMainAsset)
   {
@@ -253,8 +244,7 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezSoundBankAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundBankAssetDocument(szPath);
 }

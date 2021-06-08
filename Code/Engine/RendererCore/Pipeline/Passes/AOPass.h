@@ -13,13 +13,10 @@ public:
   ezAOPass();
   ~ezAOPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
-  virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
   void SetFadeOutStart(float fStart);
   float GetFadeOutStart() const;
@@ -30,8 +27,8 @@ public:
 protected:
   void CreateSamplerState();
 
-  ezInputNodePin m_PinDepthInput;
-  ezOutputNodePin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinDepthInput;
+  ezRenderPipelineNodeOutputPin m_PinOutput;
 
   float m_fRadius;
   float m_fMaxScreenSpaceRadius;

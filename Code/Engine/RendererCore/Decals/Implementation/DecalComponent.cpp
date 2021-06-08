@@ -1,7 +1,9 @@
 #include <RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -9,8 +11,6 @@
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalResource.h>
-#include <RendererCore/Messages/ApplyOnlyToMessage.h>
-#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
@@ -32,7 +32,7 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -61,11 +61,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
     new ezBoxVisualizerAttribute("Extents"),
   }
   EZ_END_ATTRIBUTES;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
-  }
-  EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
@@ -79,12 +74,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezUInt16 ezDecalComponent::s_uiNextSortKey = 0;
-
-ezDecalComponent::ezDecalComponent()
-  : m_uiInternalSortKey(s_uiNextSortKey++)
-{
-}
+ezDecalComponent::ezDecalComponent() {}
 
 ezDecalComponent::~ezDecalComponent() = default;
 
@@ -99,7 +89,6 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_InnerFadeAngle;
   s << m_OuterFadeAngle;
   s << m_fSortOrder;
-  s << m_uiInternalSortKey;
   s << m_FadeOutDelay.m_Value;
   s << m_FadeOutDelay.m_fVariance;
   s << m_FadeOutDuration;
@@ -117,7 +106,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // version 7
   s << m_uiRandomDecalIdx;
-  s.WriteArray(m_hDecals);
+  s.WriteArray(m_hDecals).IgnoreResult();
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -144,7 +133,15 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_InnerFadeAngle;
   s >> m_OuterFadeAngle;
   s >> m_fSortOrder;
-  s >> m_uiInternalSortKey;
+
+  if (uiVersion <= 7)
+  {
+    ezUInt32 dummy;
+    s >> dummy;
+  }
+
+  m_uiInternalSortKey = GetOwner()->GetStableRandomSeed();
+  m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
 
   if (uiVersion < 7)
   {
@@ -182,7 +179,7 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 7)
   {
     s >> m_uiRandomDecalIdx;
-    s.ReadArray(m_hDecals);
+    s.ReadArray(m_hDecals).IgnoreResult();
   }
 }
 
@@ -190,6 +187,8 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
 {
   if (m_hDecals.IsEmpty())
     return EZ_FAILURE;
+
+  m_uiRandomDecalIdx = GetOwner()->GetStableRandomSeed() % m_hDecals.GetCount();
 
   const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
 
@@ -203,12 +202,12 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
+    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_hDecals[uiDecalIndex].GetResourceIDHash()));
 
     if (decalIdx != ezInvalidIndex)
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
-      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
     }
   }
 
@@ -408,7 +407,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
+    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_hDecals[uiDecalIndex].GetResourceIDHash()));
 
     if (decalIdx != ezInvalidIndex)
     {
@@ -428,7 +427,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
       ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
 
-      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
     }
   }
 
@@ -466,9 +465,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   ezShaderUtils::Float4ToRGBA16F(normalAtlasScaleOffset, pRenderData->m_uiNormalAtlasScale, pRenderData->m_uiNormalAtlasOffset);
   ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);
 
-  ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
-                                          ? ezRenderData::Caching::Never
-                                          : ezRenderData::Caching::IfStatic;
+  ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, caching);
 }
 
@@ -523,11 +520,7 @@ void ezDecalComponent::UpdateApplyTo()
   }
 }
 
-void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
-{
-  m_uiInternalSortKey = ezHashHelper<ezUuid>::Hash(node.GetGuid());
-  m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
-}
+static ezHashedString s_sSuicide = ezMakeHashedString("Suicide");
 
 void ezDecalComponent::OnSimulationStarted()
 {
@@ -536,18 +529,17 @@ void ezDecalComponent::OnSimulationStarted()
   ezWorld* pWorld = GetWorld();
 
   // no fade out -> fade out pretty late
-  m_StartFadeOutTime = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+  m_StartFadeOutTime = ezTime::Hours(24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
-    const ezTime tFadeOutDelay =
-      ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
+    const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
     m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
 
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
     {
       ezMsgComponentInternalTrigger msg;
-      msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
+      msg.m_sMessage = s_sSuicide;
 
       const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
 
@@ -562,23 +554,21 @@ void ezDecalComponent::OnSimulationStarted()
 
     TriggerLocalBoundsUpdate();
   }
-
-  if (m_uiRandomDecalIdx == 0xFF && !m_hDecals.IsEmpty())
-  {
-    m_uiRandomDecalIdx = GetWorld()->GetRandomNumberGenerator().UIntInRange(m_hDecals.GetCount());
-  }
 }
 
 void ezDecalComponent::OnActivated()
 {
   SUPER::OnActivated();
 
+  m_uiInternalSortKey = GetOwner()->GetStableRandomSeed();
+  m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
+
   UpdateApplyTo();
 }
 
 void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
+  if (msg.m_sMessage != s_sSuicide)
     return;
 
   ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);

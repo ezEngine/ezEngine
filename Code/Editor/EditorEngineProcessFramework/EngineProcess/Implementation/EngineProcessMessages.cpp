@@ -93,6 +93,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
     EZ_MEMBER_PROPERTY("Payload", m_sPayload),
+    EZ_MEMBER_PROPERTY("PayloadValue", m_fPayload),
   }
   EZ_END_PROPERTIES;
 }
@@ -273,6 +274,30 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEngine, 1, ezRTTIDefaultAllocator<ezSimpleDocumentConfigMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    EZ_MEMBER_PROPERTY("Payload", m_sPayload),
+    EZ_MEMBER_PROPERTY("PayloadValue", m_fPayload),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEditor, 1, ezRTTIDefaultAllocator<ezSimpleDocumentConfigMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("PayloadString", m_sPayload),
+    EZ_MEMBER_PROPERTY("PayloadFloat", m_fPayload),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEngine, 1, ezRTTIDefaultAllocator<ezExportDocumentMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES
@@ -301,6 +326,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCreateThumbnailMsgToEngine, 1, ezRTTIDefaultAl
   {
     EZ_MEMBER_PROPERTY("Width", m_uiWidth),
     EZ_MEMBER_PROPERTY("Height", m_uiHeight),
+    EZ_ARRAY_MEMBER_PROPERTY("ViewExcludeTags", m_ViewExcludeTags),
   }
   EZ_END_PROPERTIES;
 }

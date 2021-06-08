@@ -6,7 +6,6 @@
 #include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <QKeyEvent>
 
 static const float s_fMoveSpeed[25] = {
   0.5f,
@@ -103,7 +102,7 @@ void ezCameraMoveContext::DoFocusLost(bool bCancel)
 
 void ezCameraMoveContext::LoadState()
 {
-  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
+  const ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
   SetMoveSpeed(pPreferences->GetCameraSpeed());
 }
 
@@ -134,13 +133,14 @@ void ezCameraMoveContext::UpdateContext()
     m_pCamera->MoveGlobally(0, 0, 1 * fSpeedFactor);
   if (m_bMoveDown)
     m_pCamera->MoveGlobally(0, 0, -1 * fSpeedFactor);
+
   if (m_bMoveForwardsInPlane)
   {
     if (m_pCamera->IsPerspective())
     {
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
       m_pCamera->MoveGlobally(vDir.x * fSpeedFactor, vDir.y * fSpeedFactor, vDir.z * fSpeedFactor);
     }
     else
@@ -148,13 +148,14 @@ void ezCameraMoveContext::UpdateContext()
       m_pCamera->MoveLocally(0, 0, fSpeedFactor);
     }
   }
+
   if (m_bMoveBackwardsInPlane)
   {
     if (m_pCamera->IsPerspective())
     {
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
       m_pCamera->MoveGlobally(vDir.x * -fSpeedFactor, vDir.y * -fSpeedFactor, vDir.z * -fSpeedFactor);
     }
     else
@@ -166,8 +167,7 @@ void ezCameraMoveContext::UpdateContext()
 
 void ezCameraMoveContext::DeactivateIfLast()
 {
-  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bSlideForwards || m_bPanOrbitPoint || m_bMoveForwards ||
-      m_bMoveBackwards || m_bMoveRight || m_bMoveLeft || m_bMoveUp || m_bMoveDown || m_bMoveForwardsInPlane || m_bMoveBackwardsInPlane)
+  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bSlideForwards || m_bPanOrbitPoint || m_bMoveForwards || m_bMoveBackwards || m_bMoveRight || m_bMoveLeft || m_bMoveUp || m_bMoveDown || m_bMoveForwardsInPlane || m_bMoveBackwardsInPlane)
     return;
 
   FocusLost(false);
@@ -234,7 +234,6 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
     return ezEditorInput::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
-  // m_bSlowDown = false;
 
   switch (e->key())
   {
@@ -505,7 +504,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInput::MayBeHandledByOthers;
 
-  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
+  const ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
 
   float fBoost = 1.0f;
   float fRotateBoost = 1.0f;
@@ -619,7 +618,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
 
       m_vOrbitPoint += vDir * fMoveForward;
       m_pCamera->MoveGlobally(vDir.x * fMoveForward, vDir.y * fMoveForward, vDir.z * fMoveForward);
@@ -648,8 +647,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       ezMat4 mvp = projectionMatrix * viewMatrix;
 
       ezVec3 vScreenPos(0);
-      if (ezGraphicsUtils::ConvertWorldPosToScreenPos(mvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), m_vOrbitPoint, vScreenPos)
-            .Succeeded())
+      if (ezGraphicsUtils::ConvertWorldPosToScreenPos(mvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), m_vOrbitPoint, vScreenPos).Succeeded())
       {
         ezMat4 invMvp = mvp.GetInverse();
 
@@ -657,8 +655,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
         vScreenPos.y += diff.y;
 
         ezVec3 vNewPoint(0);
-        if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos, vNewPoint)
-              .Succeeded())
+        if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos, vNewPoint).Succeeded())
         {
           const ezVec3 vDiff = vNewPoint - m_vOrbitPoint;
 
@@ -689,7 +686,7 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
   if (m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bRotateCamera)
     return ezEditorInput::WasExclusivelyHandled; // ignore it, but others should not handle it either
 
-  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
+  const ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
 
   if (m_pCamera->IsOrthographic())
   {
@@ -714,7 +711,6 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
   {
     if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
     {
-
       if (e->delta() > 0)
       {
         SetMoveSpeed(pPreferences->GetCameraSpeed() + 1);

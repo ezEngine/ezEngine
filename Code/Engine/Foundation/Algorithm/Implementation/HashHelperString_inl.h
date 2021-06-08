@@ -6,7 +6,8 @@ ezUInt32 ezHashHelperString_NoCase::Hash(const ezStringBase<Derived>& value)
   temp.SetCountUninitialized(value.InternalGetElementCount());
   ezMemoryUtils::Copy(temp.GetData(), value.InternalGetData(), value.InternalGetElementCount());
   const ezUInt32 uiElemCount = ezStringUtils::ToLowerString(temp.GetData(), temp.GetData() + value.InternalGetElementCount());
-  return ezHashingUtils::xxHash32((void*)temp.GetData(), uiElemCount);
+
+  return ezHashingUtils::StringHashTo32(ezHashingUtils::xxHash64((void*)temp.GetData(), uiElemCount));
 }
 
 template <typename DerivedLhs, typename DerivedRhs>

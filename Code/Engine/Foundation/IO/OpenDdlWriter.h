@@ -16,8 +16,8 @@ public:
   {
     Compliant,            ///< All primitive types are written as the OpenDDL standard defines them (very verbose)
     ShortenedUnsignedInt, ///< unsigned_intX is shortened to uintX
-    Shortest ///< All primitive type names are shortened to one or two characters: i1, i2, i3, i4, u1, u2, u3, u4, b, s, f, d (int, uint, bool,
-             ///< string, float, double)
+    Shortest              ///< All primitive type names are shortened to one or two characters: i1, i2, i3, i4, u1, u2, u3, u4, b, s, f, d (int, uint, bool,
+                          ///< string, float, double)
   };
 
   enum class FloatPrecisionMode
@@ -136,8 +136,8 @@ protected:
     bool m_bPrimitivesWritten;
   };
 
-  EZ_ALWAYS_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)); }
-  EZ_ALWAYS_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount); }
+  EZ_ALWAYS_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)).IgnoreResult(); }
+  EZ_ALWAYS_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount).IgnoreResult(); }
   void OutputEscapedString(const ezStringView& string);
   void OutputIndentation();
   void OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType type);

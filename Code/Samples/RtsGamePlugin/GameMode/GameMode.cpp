@@ -154,10 +154,10 @@ void RtsGameMode::SetupSelectModeUI()
   if (!pSelectModeUIObject->TryGetComponentOfBaseType(pUiComponent))
     return;
 
-  pUiComponent->EnsureInitialized();
+  ezRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
 
-  pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) { s_bUseRmlUi = false; });
-  pUiComponent->GetRmlContext()->RegisterEventHandler("switchMode", [](Rml::Core::Event& e) {
+  pRmlContext->RegisterEventHandler("switchToImGui", [](Rml::Event& e) { s_bUseRmlUi = false; });
+  pRmlContext->RegisterEventHandler("switchMode", [](Rml::Event& e) {
     auto& sValue = e.GetTargetElement()->GetId();
     if (sValue == "battle")
     {

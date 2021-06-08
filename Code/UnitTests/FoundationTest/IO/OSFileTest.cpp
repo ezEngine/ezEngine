@@ -26,6 +26,11 @@ Only concrete and clocks.\n\
   sOutputFile2.AppendPath("IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
+  ezStringBuilder sOutputFile3 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile3.MakeCleanPath();
+  sOutputFile3.AppendPath("IO", "SubFolder2", "SubSubFolder");
+  sOutputFile3.AppendPath("RandomFile.txt");
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
   {
     ezOSFile f;
@@ -82,7 +87,7 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy File")
   {
-    ezOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData());
+    ezOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData()).IgnoreResult();
 
     ezOSFile f;
     EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Read) == EZ_SUCCESS);
@@ -169,35 +174,34 @@ Only concrete and clocks.\n\
     ezUInt32 uiFolders = 0;
     ezUInt32 uiFiles = 0;
 
+    bool bSkipFolder = true;
+
     ezFileSystemIterator it;
-    if (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive) == EZ_SUCCESS)
+    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid(); )
     {
-      int SkipFolder = 0;
+      sFullPath = it.GetCurrentPath();
+      sFullPath.AppendPath(it.GetStats().m_sName.GetData());
 
-      do
+      it.GetStats();
+      it.GetCurrentPath();
+
+      if (it.GetStats().m_bIsDirectory)
       {
-        sFullPath = it.GetCurrentPath();
-        sFullPath.AppendPath(it.GetStats().m_sName.GetData());
+        ++uiFolders;
+        bSkipFolder = !bSkipFolder;
 
-        it.GetStats();
-        it.GetCurrentPath();
-
-        if (it.GetStats().m_bIsDirectory)
+        if (bSkipFolder)
         {
-          ++uiFolders;
-
-          SkipFolder++;
-
-          if ((SkipFolder % 2 == 0) && (it.SkipFolder() == EZ_FAILURE))
-            break;
+          it.SkipFolder(); // replaces the 'Next' call
+          continue;
         }
-        else
-        {
-          ++uiFiles;
-        }
+      }
+      else
+      {
+        ++uiFiles;
+      }
 
-        // printf("%s: '%s'\n", it.GetStats().m_bIsDirectory ? "[Dir] " : "[File]", sFullPath.GetData());
-      } while (it.Next() == EZ_SUCCESS);
+      it.Next();
     }
 
     EZ_TEST_BOOL(uiFolders > 0);
@@ -284,4 +288,23 @@ Only concrete and clocks.\n\
     const char* szAppDir = ezOSFile::GetApplicationDirectory();
     EZ_IGNORE_UNUSED(szAppDir);
   }
+
+#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeleteFolder")
+  {
+    {
+      ezOSFile f;
+      EZ_TEST_BOOL(f.Open(sOutputFile3.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
+    }
+
+    ezStringBuilder SubFolder2 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    SubFolder2.MakeCleanPath();
+    SubFolder2.AppendPath("IO", "SubFolder2");
+
+    EZ_TEST_BOOL(ezOSFile::DeleteFolder(SubFolder2).Succeeded());
+    EZ_TEST_BOOL(!ezOSFile::ExistsDirectory(SubFolder2));
+  }
+
+#endif
 }

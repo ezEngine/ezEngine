@@ -2,10 +2,8 @@
 
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
@@ -48,23 +46,20 @@ ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
   return m_hPickingDepthRT;
 }
 
-bool ezPickingRenderPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezPickingRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   m_TargetRect = view.GetViewport();
 
   return true;
 }
 
-void ezPickingRenderPass::InitRenderPipelinePass(
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   DestroyTarget();
   CreateTarget();
 }
 
-void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
   m_uiWindowWidth = (ezUInt32)viewPortRect.width;
@@ -74,10 +69,13 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
-  renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(viewPortRect, m_RenderTargetSetup);
+  ezGALRenderingSetup renderingSetup;
+  renderingSetup.m_RenderTargetSetup = m_RenderTargetSetup;
+  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+  renderingSetup.m_bClearDepth = true;
+  renderingSetup.m_bClearStencil = true;
 
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
+  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
 
   ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
   if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
@@ -144,7 +142,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   {
     if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
     {
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(GetPickingDepthRT());
+      pCommandEncoder->ReadbackTexture(GetPickingDepthRT());
 
       ezMat4 mProj;
       renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
@@ -188,7 +186,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
       MemDesc.m_pData = m_PickingResultsDepth.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(GetPickingDepthRT(), &SysMemDescsDepth);
+      ezGALTextureSubresource sourceSubResource;
+      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+      pCommandEncoder->CopyTextureReadbackResult(GetPickingDepthRT(), sourceSubResources, SysMemDescsDepth);
     }
   }
 
@@ -196,7 +196,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     // download the picking information from the GPU
     if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
     {
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(GetPickingIdRT());
+      pCommandEncoder->ReadbackTexture(GetPickingIdRT());
 
       ezMat4 mProj;
       renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
@@ -240,7 +240,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
       MemDesc.m_pData = m_PickingResultsID.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(GetPickingIdRT(), &SysMemDescs);
+      ezGALTextureSubresource sourceSubResource;
+      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+      pCommandEncoder->CopyTextureReadbackResult(GetPickingIdRT(), sourceSubResources, SysMemDescs);
     }
   }
 }
@@ -274,8 +276,7 @@ void ezPickingRenderPass::CreateTarget()
 
   m_hPickingDepthRT = pDevice->CreateTexture(tcd);
 
-  m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT))
-    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
+  m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
 }
 
 void ezPickingRenderPass::DestroyTarget()
@@ -316,10 +317,8 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
   ezVec3 vPickedPosition(0);
   {
     const float fDepth = m_PickingResultsDepth[uiIndex];
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight,
-      ezVec3((float)x, (float)(m_uiWindowHeight - y), fDepth), vPickedPosition);
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight,
-      ezVec3((float)x, (float)(m_uiWindowHeight - y), 0), vPickingRayStartPosition);
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - y), fDepth), vPickedPosition).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - y), 0), vPickingRayStartPosition).IgnoreResult();
 
     float fOtherDepths[4] = {fDepth, fDepth, fDepth, fDepth};
     ezVec3 vOtherPos[4];
@@ -334,14 +333,10 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
     if (y > 0)
       fOtherDepths[3] = m_PickingResultsDepth[((y - 1) * m_uiWindowWidth) + x];
 
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight,
-      ezVec3((float)(x + 1), (float)(m_uiWindowHeight - y), fOtherDepths[0]), vOtherPos[0]);
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight,
-      ezVec3((float)(x - 1), (float)(m_uiWindowHeight - y), fOtherDepths[1]), vOtherPos[1]);
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight,
-      ezVec3((float)x, (float)(m_uiWindowHeight - (y + 1)), fOtherDepths[2]), vOtherPos[2]);
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight,
-      ezVec3((float)x, (float)(m_uiWindowHeight - (y - 1)), fOtherDepths[3]), vOtherPos[3]);
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)(x + 1), (float)(m_uiWindowHeight - y), fOtherDepths[0]), vOtherPos[0]).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)(x - 1), (float)(m_uiWindowHeight - y), fOtherDepths[1]), vOtherPos[1]).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - (y + 1)), fOtherDepths[2]), vOtherPos[2]).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - (y - 1)), fOtherDepths[3]), vOtherPos[3]).IgnoreResult();
 
     vNormals[0] = ezPlane(vPickedPosition, vOtherPos[0], vOtherPos[2]).m_vNormal;
     vNormals[1] = ezPlane(vPickedPosition, vOtherPos[2], vOtherPos[1]).m_vNormal;
@@ -402,8 +397,7 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
   const ezUInt32 uiIndex1 = (y0 * m_uiWindowWidth) + x0;
   const ezUInt32 uiIndex2 = (y0 * m_uiWindowWidth) + x0;
 
-  if ((uiIndex1 >= m_PickingResultsDepth.GetCount() || x0 >= m_uiWindowWidth || y0 >= m_uiWindowHeight) ||
-      (uiIndex2 >= m_PickingResultsDepth.GetCount() || x1 >= m_uiWindowWidth || y1 >= m_uiWindowHeight))
+  if ((uiIndex1 >= m_PickingResultsDepth.GetCount() || x0 >= m_uiWindowWidth || y0 >= m_uiWindowHeight) || (uiIndex2 >= m_PickingResultsDepth.GetCount() || x1 >= m_uiWindowWidth || y1 >= m_uiWindowHeight))
   {
     return;
   }

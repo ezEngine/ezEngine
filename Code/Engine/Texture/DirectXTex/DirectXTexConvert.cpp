@@ -1283,7 +1283,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
                 unsigned int a = sPtr->w;
                 ++sPtr;
 
-                // http://msdn.microsoft.com/en-us/library/windows/desktop/dd206750.aspx
+                // http://msdn.microsoft.com/library/windows/desktop/dd206750.aspx
 
                 // Y'  = Y - 16
                 // Cb' = Cb - 128
@@ -1319,7 +1319,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
                 unsigned int a = sPtr->w;
                 ++sPtr;
 
-                // http://msdn.microsoft.com/en-us/library/windows/desktop/bb970578.aspx
+                // http://msdn.microsoft.com/library/windows/desktop/bb970578.aspx
 
                 // Y'  = Y - 64
                 // Cb' = Cb - 512
@@ -1355,7 +1355,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
                 auto a = static_cast<int>(sPtr->w);
                 ++sPtr;
 
-                // http://msdn.microsoft.com/en-us/library/windows/desktop/bb970578.aspx
+                // http://msdn.microsoft.com/library/windows/desktop/bb970578.aspx
 
                 // Y'  = Y - 4096
                 // Cb' = Cb - 32768
@@ -2133,7 +2133,7 @@ bool DirectX::_StoreScanline(
                 XMUBYTEN4 rgba;
                 XMStoreUByteN4(&rgba, *sPtr++);
 
-                // http://msdn.microsoft.com/en-us/library/windows/desktop/dd206750.aspx
+                // http://msdn.microsoft.com/library/windows/desktop/dd206750.aspx
 
                 // Y  =  0.2568R + 0.5041G + 0.1001B + 16
                 // Cb = -0.1482R - 0.2910G + 0.4392B + 128
@@ -2164,7 +2164,7 @@ bool DirectX::_StoreScanline(
                 XMUDECN4 rgba;
                 XMStoreUDecN4(&rgba, *sPtr++);
 
-                // http://msdn.microsoft.com/en-us/library/windows/desktop/bb970578.aspx
+                // http://msdn.microsoft.com/library/windows/desktop/bb970578.aspx
 
                 // Y  =  0.2560R + 0.5027G + 0.0998B + 64
                 // Cb = -0.1478R - 0.2902G + 0.4379B + 512
@@ -2199,7 +2199,7 @@ bool DirectX::_StoreScanline(
                 XMUSHORTN4 rgba;
                 XMStoreUShortN4(&rgba, *sPtr++);
 
-                // http://msdn.microsoft.com/en-us/library/windows/desktop/bb970578.aspx
+                // http://msdn.microsoft.com/library/windows/desktop/bb970578.aspx
 
                 // Y  =  0.2558R + 0.5022G + 0.0998B + 4096
                 // Cb = -0.1476R - 0.2899G + 0.4375B + 32768

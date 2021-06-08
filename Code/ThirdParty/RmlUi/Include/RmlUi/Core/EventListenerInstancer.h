@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef RMLUICOREEVENTLISTENERINSTANCER_H
-#define RMLUICOREEVENTLISTENERINSTANCER_H
+#ifndef RMLUI_CORE_EVENTLISTENERINSTANCER_H
+#define RMLUI_CORE_EVENTLISTENERINSTANCER_H
 
 #include "Traits.h"
 #include "Types.h"
@@ -35,7 +35,6 @@
 #include "Element.h"
 
 namespace Rml {
-namespace Core {
 
 class EventListener;
 
@@ -52,12 +51,14 @@ public:
 	virtual ~EventListenerInstancer();
 
 	/// Instance an event listener object.
-	/// @param value Value of the event.
-	/// @param element Element that triggers the events.
+	/// @param value Value of the inline event.
+	/// @param element Element that triggers this call to the instancer.
+	/// @return An event listener which will be attached to the element.
+	/// @lifetime The returned event listener must be kept alive until the call to `EventListener::OnDetach` on the
+	///           returned listener, and then cleaned up by the user. The detach function is called when the listener
+	///           is detached manually, or automatically when the element is destroyed.
 	virtual EventListener* InstanceEventListener(const String& value, Element* element) = 0;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

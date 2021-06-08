@@ -1,14 +1,9 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorFramework/IPC/EngineProcessConnection.h>
-#include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
-#include <Foundation/Configuration/CVar.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

@@ -1,10 +1,10 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/CommonMessages.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <GameEngine/Physics/SurfaceResource.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
-#include <RendererCore/Messages/ApplyOnlyToMessage.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>)
@@ -18,7 +18,6 @@ ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
 ezSurfaceResource::ezSurfaceResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
 {
-  m_pPhysicsMaterial = nullptr;
 }
 
 ezSurfaceResource::~ezSurfaceResource()
@@ -59,13 +58,13 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   {
     ezSurfaceResourceDescriptor dummy;
@@ -120,8 +119,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
   return res;
 }
 
-const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(
-  const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
+const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt64 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
 {
   while (true)
   {
@@ -166,8 +164,7 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(
   return nullptr;
 }
 
-bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal,
-  const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
+bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
 {
   float fImpulseParam = 0;
   const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr, fImpulseParam);
@@ -257,8 +254,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         break;
     }
 
-    const ezAngle deviation =
-      ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
+    const ezAngle deviation = ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
 
     // tilt around the tangent (we don't want to compute another random rotation here)
     ezMat3 matTilt;
@@ -292,7 +288,13 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   }
 
   ezHybridArray<ezGameObject*, 8> rootObjects;
-  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID, &pIA->m_Parameters, false);
+
+  ezPrefabInstantiationOptions options;
+  options.m_hParent = hParent;
+  options.m_pCreatedRootObjectsOut = &rootObjects;
+  options.m_pOverrideTeamID = pOverrideTeamID;
+
+  pPrefab->InstantiatePrefab(*pWorld, t, options, &pIA->m_Parameters);
 
   {
     ezMsgSetFloatParameter msgSetFloat;

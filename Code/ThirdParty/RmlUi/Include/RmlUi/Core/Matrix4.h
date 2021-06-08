@@ -26,15 +26,14 @@
  *
  */
 
-#ifndef RMLUICOREMATRIX4_H
-#define RMLUICOREMATRIX4_H
+#ifndef RMLUI_CORE_MATRIX4_H
+#define RMLUI_CORE_MATRIX4_H
 
 #include "Debug.h"
 #include "Math.h"
 #include "Vector4.h"
 
 namespace Rml {
-namespace Core {
 
 /**
 	Templated class that acts as base strategy for vectors access patterns of matrices.
@@ -250,7 +249,7 @@ class Matrix4
 
 		typedef typename StorageType::TransposeType TransposeStorageType;
 		typedef Matrix4< ComponentType, TransposeStorageType > TransposeType;
-		friend class Matrix4< ComponentType, TransposeStorageType >;
+		friend class Rml::Matrix4< ComponentType, TransposeStorageType >;
 
 	private:
 		// The components of the matrix.
@@ -500,9 +499,14 @@ class Matrix4
 		static ThisType Compose(const Vector3< Component >& translation, const Vector3< Component >& scale,
 			const Vector3< Component >& skew, const Vector4< Component >& perspective, const Vector4< Component >& quaternion) noexcept;
 
+#if defined(RMLUI_MATRIX4_USER_EXTRA)
+	RMLUI_MATRIX4_USER_EXTRA
+#elif defined(RMLUI_MATRIX4_USER_INCLUDE)
+	#include RMLUI_MATRIX4_USER_INCLUDE
+#endif
 };
-}
-}
+
+} // namespace Rml
 
 #include "Matrix4.inl"
 

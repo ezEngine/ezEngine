@@ -22,6 +22,8 @@ namespace ezInternal
     WorldData(ezWorldDesc& desc);
     ~WorldData();
 
+    void Clear();
+
     ezHashedString m_sName;
     mutable ezProxyAllocator m_Allocator;
     ezLocalAllocatorWrapper m_AllocatorWrapper;
@@ -40,6 +42,7 @@ namespace ezInternal
     ObjectStorage m_ObjectStorage;
 
     ezSet<ezGameObject*, ezCompareHelper<ezGameObject*>, ezLocalAllocatorWrapper> m_DeadObjects;
+    ezEvent<const ezGameObject*> m_ObjectDeletionEvent;
 
   public:
     class EZ_CORE_DLL ConstObjectIterator
@@ -48,7 +51,7 @@ namespace ezInternal
       const ezGameObject& operator*() const;
       const ezGameObject* operator->() const;
 
-      operator const ezGameObject *() const;
+      operator const ezGameObject*() const;
 
       /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();
@@ -133,15 +136,13 @@ namespace ezInternal
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
 
-    static void UpdateGlobalTransformAndSpatialData(
-      ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
-    static void UpdateGlobalTransformWithParentAndSpatialData(
-      ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
 
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
     // game object lookups
-    ezHashTable<ezUInt32, ezGameObjectId, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
+    ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
     ezHashTable<ezUInt64, ezHashedString, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
 
     // modules

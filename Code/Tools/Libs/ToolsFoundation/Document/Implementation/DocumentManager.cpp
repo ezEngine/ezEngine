@@ -380,6 +380,21 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
     header->ReMapNodeGuids(seedGuid);
     objects->ReMapNodeGuids(seedGuid);
     documentIdProp->m_Value = inout_cloneGuid;
+
+    // Fix cloning of docs containing prefabs.
+    // TODO: generalize this for other doc features?
+    auto& AllNodes = objects->GetAllNodes();
+    for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+    {
+      auto* pNode = it.Value();
+      ezAbstractObjectNode::Property* pProp = pNode->FindProperty("MetaPrefabSeed");
+      if (pProp && pProp->m_Value.IsA<ezUuid>())
+      {
+        ezUuid prefabSeed = pProp->m_Value.Get<ezUuid>();
+        prefabSeed.CombineWithSeed(seedGuid);
+        pProp->m_Value = prefabSeed;
+      }
+    }
   }
 
   {

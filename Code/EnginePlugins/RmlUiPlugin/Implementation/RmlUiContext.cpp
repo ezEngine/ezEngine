@@ -12,16 +12,16 @@ namespace
     ezInputSlot_KeyPageUp, ezInputSlot_KeyPageDown, ezInputSlot_KeyHome, ezInputSlot_KeyEnd, ezInputSlot_KeyDelete, ezInputSlot_KeyBackspace,
     ezInputSlot_KeyReturn, ezInputSlot_KeyNumpadEnter, ezInputSlot_KeyEscape};
 
-  static Rml::Core::Input::KeyIdentifier s_rmlKeys[] = {Rml::Core::Input::KI_TAB, Rml::Core::Input::KI_LEFT, Rml::Core::Input::KI_UP,
-    Rml::Core::Input::KI_RIGHT, Rml::Core::Input::KI_DOWN, Rml::Core::Input::KI_PRIOR, Rml::Core::Input::KI_NEXT, Rml::Core::Input::KI_HOME,
-    Rml::Core::Input::KI_END, Rml::Core::Input::KI_DELETE, Rml::Core::Input::KI_BACK, Rml::Core::Input::KI_RETURN, Rml::Core::Input::KI_RETURN,
-    Rml::Core::Input::KI_ESCAPE};
+  static Rml::Input::KeyIdentifier s_rmlKeys[] = {Rml::Input::KI_TAB, Rml::Input::KI_LEFT, Rml::Input::KI_UP,
+    Rml::Input::KI_RIGHT, Rml::Input::KI_DOWN, Rml::Input::KI_PRIOR, Rml::Input::KI_NEXT, Rml::Input::KI_HOME,
+    Rml::Input::KI_END, Rml::Input::KI_DELETE, Rml::Input::KI_BACK, Rml::Input::KI_RETURN, Rml::Input::KI_RETURN,
+    Rml::Input::KI_ESCAPE};
 
   EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
 } // namespace
 
-ezRmlUiContext::ezRmlUiContext(const Rml::Core::String& name)
-  : Rml::Core::Context(name)
+ezRmlUiContext::ezRmlUiContext(const Rml::String& name)
+  : Rml::Context(name)
 {
 }
 
@@ -49,7 +49,7 @@ ezResult ezRmlUiContext::LoadDocumentFromString(const ezStringView& sContent)
 
   if (!sContent.IsEmpty())
   {
-    Rml::Core::String sRmlContent = Rml::Core::String(sContent.GetStartPointer(), sContent.GetElementCount());
+    Rml::String sRmlContent = Rml::String(sContent.GetStartPointer(), sContent.GetElementCount());
 
     LoadDocumentFromMemory(sRmlContent);
   }
@@ -61,14 +61,14 @@ void ezRmlUiContext::UnloadDocument()
 {
   if (HasDocument())
   {
-    Rml::Core::Context::UnloadDocument(GetDocument(0));
+    Rml::Context::UnloadDocument(GetDocument(0));
   }
 }
 
 ezResult ezRmlUiContext::ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
 {
-  Rml::Core::Factory::ClearStyleSheetCache();
-  Rml::Core::Factory::ClearTemplateCache();
+  Rml::Factory::ClearStyleSheetCache();
+  Rml::Factory::ClearTemplateCache();
 
   return LoadDocumentFromResource(hResource);
 }
@@ -91,8 +91,8 @@ void ezRmlUiContext::HideDocument()
 
 void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 {
-  float width = GetDimensions().x;
-  float height = GetDimensions().y;
+  float width = static_cast<float>(GetDimensions().x);
+  float height = static_cast<float>(GetDimensions().y);
 
   m_bWantsInput = mousePos.x >= 0.0f && mousePos.x <= width && mousePos.y >= 0.0f && mousePos.y <= height;
 
@@ -104,13 +104,13 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
                            ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
 
   int modifierState = 0;
-  modifierState |= bCtrlPressed ? Rml::Core::Input::KM_CTRL : 0;
-  modifierState |= bShiftPressed ? Rml::Core::Input::KM_SHIFT : 0;
-  modifierState |= bAltPressed ? Rml::Core::Input::KM_ALT : 0;
+  modifierState |= bCtrlPressed ? Rml::Input::KM_CTRL : 0;
+  modifierState |= bShiftPressed ? Rml::Input::KM_SHIFT : 0;
+  modifierState |= bAltPressed ? Rml::Input::KM_ALT : 0;
 
   // Mouse
   {
-    ProcessMouseMove(mousePos.x, mousePos.y, modifierState);
+    ProcessMouseMove(static_cast<int>(mousePos.x), static_cast<int>(mousePos.y), modifierState);
 
     static const char* szMouseButtons[] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(szMouseButtons); ++i)
@@ -172,7 +172,7 @@ void ezRmlUiContext::SetOffset(const ezVec2I32& offset)
 
 void ezRmlUiContext::SetSize(const ezVec2U32& size)
 {
-  SetDimensions(Rml::Core::Vector2i(size.x, size.y));
+  SetDimensions(Rml::Vector2i(size.x, size.y));
 }
 
 void ezRmlUiContext::SetDpiScale(float fScale)
@@ -208,7 +208,7 @@ void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
   }
 }
 
-void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Core::Event& event)
+void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Event& event)
 {
   EventHandler* pEventHandler = nullptr;
   if (m_EventHandler.TryGetValue(sIdentifier, pEventHandler))
@@ -219,12 +219,12 @@ void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Core::
 
 //////////////////////////////////////////////////////////////////////////
 
-Rml::Core::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::Core::String& name)
+Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& name)
 {
-  return Rml::Core::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, name));
+  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, name));
 }
 
-void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Core::Context* context)
+void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Context* context)
 {
   EZ_DEFAULT_DELETE(context);
 }

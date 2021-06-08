@@ -26,7 +26,7 @@ void ezDuktapeContext::EnableModuleSupport(duk_c_function pModuleSearchFunction)
   {
     // we need an 'exports' object for the transpiled TypeScript files to load
     // (they access this object to define the '__esModule' property on it)
-    ExecuteString("var exports = {}");
+    ExecuteString("var exports = {}").IgnoreResult();
 
     m_bInitializedModuleSupport = true;
     duk_module_duktape_init(m_pContext);

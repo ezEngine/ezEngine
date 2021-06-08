@@ -29,7 +29,7 @@ ezUInt32 ezDuktapeFunction::GetNumVarArgFunctionParameters() const
 
 ezInt16 ezDuktapeFunction::GetFunctionMagicValue() const
 {
-  return duk_get_current_magic(GetContext());
+  return static_cast<ezInt16>(duk_get_current_magic(GetContext()));
 }
 
 ezInt32 ezDuktapeFunction::ReturnVoid()

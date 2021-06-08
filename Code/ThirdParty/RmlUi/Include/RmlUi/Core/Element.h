@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef RMLUICOREELEMENT_H
-#define RMLUICOREELEMENT_H
+#ifndef RMLUI_CORE_ELEMENT_H
+#define RMLUI_CORE_ELEMENT_H
 
 #include "ScriptInterface.h"
 #include "Header.h"
@@ -41,27 +41,29 @@
 #include "Tween.h"
 
 namespace Rml {
-namespace Core {
 
 class Context;
+class DataModel;
 class Decorator;
 class ElementInstancer;
 class EventDispatcher;
 class EventListener;
-class ElementBackground;
-class ElementBorder;
 class ElementDecoration;
 class ElementDefinition;
 class ElementDocument;
 class ElementScroll;
 class ElementStyle;
+class LayoutEngine;
+class LayoutInlineBox;
+class LayoutBlockBox;
 class PropertiesIteratorView;
-class FontFaceHandleDefault;
 class PropertyDictionary;
 class RenderInterface;
-class TransformState;
 class StyleSheet;
+class StyleSheetContainer;
+class TransformState;
 struct ElementMeta;
+struct StackingOrderedChild;
 
 /**
 	A generic element in the DOM tree.
@@ -103,11 +105,7 @@ public:
 
 	/// Returns the active style sheet for this element. This may be nullptr.
 	/// @return The element's style sheet.
-	virtual const SharedPtr<StyleSheet>& GetStyleSheet() const;
-
-	/// Returns the element's definition.
-	/// @return The element's definition.
-	const ElementDefinition* GetDefinition();
+	virtual const StyleSheet* GetStyleSheet() const;
 
 	/// Fills a string with the full address of this element.
 	/// @param[in] include_pseudo_classes True if the address is to include the pseudo-classes of the leaf element.
@@ -118,7 +116,7 @@ public:
 	/// @param[in] offset The offset (in pixels) of our primary box's top-left border corner from our offset parent's top-left border corner.
 	/// @param[in] offset_parent The element this element is being positioned relative to.
 	/// @param[in] offset_fixed True if the element is fixed in place (and will not scroll), false if not.
-	void SetOffset(const Vector2f& offset, Element* offset_parent, bool offset_fixed = false);
+	void SetOffset(Vector2f offset, Element* offset_parent, bool offset_fixed = false);
 	/// Returns the position of the top-left corner of one of the areas of this element's primary box, relative to its
 	/// offset parent's top-left border corner.
 	/// @param[in] area The desired area position.
@@ -141,20 +139,22 @@ public:
 	/// this element's logical children, plus the element's padding.
 	/// @param[in] content_offset The offset of the box's internal content.
 	/// @param[in] content_box The dimensions of the box's internal content.
-	void SetContentBox(const Vector2f& content_offset, const Vector2f& content_box);
+	void SetContentBox(Vector2f content_offset, Vector2f content_box);
 	/// Sets the box describing the size of the element, and removes all others.
 	/// @param[in] box The new dimensions box for the element.
 	void SetBox(const Box& box);
 	/// Adds a box to the end of the list describing this element's geometry.
 	/// @param[in] box The auxiliary box for the element.
-	void AddBox(const Box& box);
+	/// @param[in] offset The offset of the box relative to the top left border corner of the element.
+	void AddBox(const Box& box, Vector2f offset);
 	/// Returns the main box describing the size of the element.
 	/// @return The box.
 	const Box& GetBox();
 	/// Returns one of the boxes describing the size of the element.
 	/// @param[in] index The index of the desired box, with 0 being the main box. If outside of bounds, the main box will be returned.
+	/// @param[out] offset The offset of the box relative to the element's border box.
 	/// @return The requested box.
-	const Box& GetBox(int index);
+	const Box& GetBox(int index, Vector2f& offset);
 	/// Returns the number of boxes making up this element's geometry.
 	/// @return the number of boxes making up this element's geometry.
 	int GetNumBoxes();
@@ -164,14 +164,15 @@ public:
 	virtual float GetBaseline() const;
 	/// Gets the intrinsic dimensions of this element, if it is of a type that has an inherent size. This size will
 	/// only be overriden by a styled width or height.
-	/// @param[in] dimensions The dimensions to size, if appropriate.
+	/// @param[out] dimensions The dimensions to size, if appropriate.
+	/// @param[out] ratio The intrinsic ratio (width/height), if appropriate.
 	/// @return True if the element has intrinsic dimensions, false otherwise. The default element will return false.
-	virtual bool GetIntrinsicDimensions(Vector2f& dimensions);
+	virtual bool GetIntrinsicDimensions(Vector2f& dimensions, float& ratio);
 
 	/// Checks if a given point in screen coordinates lies within the bordered area of this element.
 	/// @param[in] point The point to test.
 	/// @return True if the element is within this element, false otherwise.
-	virtual bool IsPointWithinElement(const Vector2f& point);
+	virtual bool IsPointWithinElement(Vector2f point);
 
 	/// Returns the visibility of the element.
 	/// @return True if the element is visible, false otherwise.
@@ -245,8 +246,6 @@ public:
 	/// Returns 'line-height' property value from element's computed values.
 	float GetLineHeight();
 
-	/// Returns this element's TransformState
-	const TransformState *GetTransformState() const noexcept;
 	/// Project a 2D point in pixel coordinates onto the element's plane.
 	/// @param[in-out] point The point to project in, and the resulting projected point out.
 	/// @return True on success, false if transformation matrix is singular.
@@ -281,12 +280,12 @@ public:
 	/// @return True if the pseudo-class is set on the element, false if not.
 	bool IsPseudoClassSet(const String& pseudo_class) const;
 	/// Checks if a complete set of pseudo-classes are set on the element.
-	/// @param[in] pseudo_classes The set of pseudo-classes to check for.
+	/// @param[in] pseudo_classes The list of pseudo-classes to check for.
 	/// @return True if all of the pseudo-classes are set, false if not.
-	bool ArePseudoClassesSet(const PseudoClassList& pseudo_classes) const;
+	bool ArePseudoClassesSet(const StringList& pseudo_classes) const;
 	/// Gets a list of the current active pseudo-classes.
 	/// @return The list of active pseudo-classes.
-	const PseudoClassList& GetActivePseudoClasses() const;
+	StringList GetActivePseudoClasses() const;
 	//@}
 
 	/** @name Attributes
@@ -417,6 +416,11 @@ public:
 	/// Gets this element's parent node.
 	/// @return This element's parent.
 	Element* GetParentNode() const;
+	/// Recursively search for the first ancestor of this node matching the given selector.
+	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @return The ancestor if found, or nullptr if no ancestor could be matched.
+	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
+	Element* Closest(const String& selectors) const;
 
 	/// Gets the element immediately following this one in the tree.
 	/// @return This element's next sibling element, or nullptr if there is no sibling element.
@@ -468,8 +472,12 @@ public:
 	/// @param[in] event Event to attach to.
 	/// @param[in] listener The listener object to be attached.
 	/// @param[in] in_capture_phase True to attach in the capture phase, false in bubble phase.
+	/// @lifetime The added listener must stay alive until after the dispatched call from EventListener::OnDetach(). This occurs
+	///     eg. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
 	void AddEventListener(const String& event, EventListener* listener, bool in_capture_phase = false);
 	/// Adds an event listener to this element by id.
+	/// @lifetime The added listener must stay alive until after the dispatched call from EventListener::OnDetach(). This occurs
+	///     eg. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
 	void AddEventListener(EventId id, EventListener* listener, bool in_capture_phase = false);
 	/// Removes an event listener from this element.
 	/// @param[in] event Event to detach from.
@@ -526,6 +534,18 @@ public:
 	/// @param[out] elements Resulting elements.
 	/// @param[in] tag Tag to search for.
 	void GetElementsByClassName(ElementList& elements, const String& class_name);
+	/// Returns the first descendent element matching the RCSS selector query.
+	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @return The first matching element during a depth-first traversal.
+	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
+	Element* QuerySelector(const String& selector);
+	/// Returns all descendent elements matching the RCSS selector query.
+	/// @param[out] elements The list of matching elements.
+	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
+	void QuerySelectorAll(ElementList& elements, const String& selectors);
+
+
 	//@}
 
 	/**
@@ -533,23 +553,17 @@ public:
 	 */
 	//@{
 	/// Access the event dispatcher for this element.
-	/// @return The element's dispatcher.
 	EventDispatcher* GetEventDispatcher() const;
 	/// Returns event types with number of listeners for debugging.
-	/// @return Summary of attached listeners.
 	String GetEventDispatcherSummary() const;
-	/// Access the element background.
-	/// @return The element's background.
-	ElementBackground* GetElementBackground() const;
-	/// Access the element border.
-	/// @return The element's boder.
-	ElementBorder* GetElementBorder() const;
 	/// Access the element decorators.
-	/// @return The element decoration.
 	ElementDecoration* GetElementDecoration() const;
 	/// Returns the element's scrollbar functionality.
-	/// @return The element's scrolling functionality.
 	ElementScroll* GetElementScroll() const;
+	/// Returns the element's transform state.
+	const TransformState* GetTransformState() const noexcept;
+	/// Returns the data model of this element.
+	DataModel* GetDataModel() const;
 	//@}
 	
 	/// Returns true if this element requires clipping
@@ -574,11 +588,11 @@ public:
 	const ComputedValues& GetComputedValues() const;
 
 protected:
-	void Update(float dp_ratio);
+	void Update(float dp_ratio, Vector2f vp_dimensions);
 	void Render();
 
 	/// Updates definition, computed values, and runs OnPropertyChange on this element.
-	void UpdateProperties();
+	void UpdateProperties(float dp_ratio, Vector2f vp_dimensions);
 
 	/// Forces the element to generate a local stacking context, regardless of the value of its z-index property.
 	void ForceLocalStackingContext();
@@ -591,6 +605,10 @@ protected:
 	virtual void OnResize();
 	/// Called during a layout operation, when the element is being positioned and sized.
 	virtual void OnLayout();
+	/// Called when the 'dp'-ratio has been changed.
+	virtual void OnDpRatioChange();
+	/// Called when the current document's compiled style sheet has been changed. This may result in changed sprites.
+	virtual void OnStyleSheetChange();
 
 	/// Called when attributes on the element are changed.
 	/// @param[in] changed_attributes Dictionary of attributes changed on the element. Attribute value will be empty if it was unset.
@@ -598,6 +616,10 @@ protected:
 	/// Called when properties on the element are changed.
 	/// @param[in] changed_properties The properties changed on the element.
 	virtual void OnPropertyChange(const PropertyIdSet& changed_properties);
+	/// Called when a pseudo class on the element is changed.
+	/// @param[in] pseudo_class The pseudo class changed on the element.
+	/// @param[in] activate True if the pseudo class was activated.
+	virtual void OnPseudoClassChange(const String& pseudo_class, bool activate);
 
 	/// Called when a child node has been added up to two levels below us in the hierarchy.
 	/// @param[in] child The element that has been added. This may be this element.
@@ -616,18 +638,30 @@ protected:
 	/// @param[out] content The content of this element and those under it, in XML form.
 	virtual void GetRML(String& content);
 
+	/// Sets or removes an overriding pseudo-class on the element.
+	/// @param[in] target_element The element to set or remove the pseudo class on.
+	/// @param[in] pseudo_class The pseudo class to activate or deactivate.
+	/// @param[in] activate True if the pseudo-class is to be activated, false to be deactivated.
+	static void OverridePseudoClass(Element* target_element, const String& pseudo_class, bool activate);
+
 	void SetOwnerDocument(ElementDocument* document);
+
+	void OnStyleSheetChangeRecursive();
 
 	void Release() override;
 
 private:
 	void SetParent(Element* parent);
+	
+	void SetDataModel(DataModel* new_data_model);
 
 	void DirtyOffset();
 	void UpdateOffset();
+	void SetBaseline(float baseline);
 
 	void BuildLocalStackingContext();
 	void BuildStackingContext(ElementList* stacking_context);
+	static void BuildStackingContextForTable(Vector<StackingOrderedChild>& ordered_children, Element* child);
 	void DirtyStackingContext();
 
 	void DirtyStructure();
@@ -635,6 +669,8 @@ private:
 
 	void DirtyTransformState(bool perspective_dirty, bool transform_dirty);
 	void UpdateTransformState();
+
+	void OnDpRatioChangeRecursive();
 
 	/// Start an animation, replacing any existing animations of the same property name. If start_value is null, the element's current value is used.
 	ElementAnimationList::iterator StartAnimation(PropertyId property_id, const Property * start_value, int num_iterations, bool alternate_direction, float delay, bool initiated_by_animation_property);
@@ -672,6 +708,8 @@ private:
 	// The owning document
 	ElementDocument* owner_document;
 
+	// Active data model for this element.
+	DataModel* data_model;
 	// Attributes on this element.
 	ElementAttributes attributes;
 
@@ -688,9 +726,13 @@ private:
 	Vector2f scroll_offset;
 
 	// The size of the element.
-	using BoxList = std::vector< Box >;
+	struct PositionedBox {
+		Box box;
+		Vector2f offset;
+	};
+	using PositionedBoxList = Vector< PositionedBox >;
 	Box main_box;
-	BoxList additional_boxes;
+	PositionedBoxList additional_boxes;
 
 	// And of the element's internal content.
 	Vector2f content_offset;
@@ -698,6 +740,8 @@ private:
 
 	// Defines what box area represents the element's client area; this is usually padding, but may be content.
 	Box::Area client_area;
+
+	float baseline;
 
 	// True if the element is visible and active.
 	bool visible;
@@ -716,11 +760,6 @@ private:
 
 	bool computed_values_are_default_initialized;
 
-	// Cached rendering information
-	int clipping_ignore_depth;
-	bool clipping_enabled;
-	bool clipping_state_dirty;
-
 	// Transform state
 	UniquePtr< TransformState > transform_state;
 	bool dirty_transform;
@@ -732,16 +771,15 @@ private:
 
 	ElementMeta* meta;
 
-	friend class Context;
-	friend class ElementStyle;
-	friend class LayoutEngine;
-	friend class LayoutInlineBox;
-	friend struct ElementDeleter;
-	friend class ElementScroll;
+	friend class Rml::Context;
+	friend class Rml::ElementStyle;
+	friend class Rml::LayoutEngine;
+	friend class Rml::LayoutBlockBox;
+	friend class Rml::LayoutInlineBox;
+	friend class Rml::ElementScroll;
 };
 
-}
-}
+} // namespace Rml
 
 #include "Element.inl"
 

@@ -1,26 +1,28 @@
 
 #include <GameEnginePCH.h>
 
-#include <ActorSystem/ActorPluginWindow.h>
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
+#include <Core/ActorSystem/ActorPluginWindow.h>
+#include <Core/GameState/GameStateWindow.h>
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/System/Screen.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameApplication/WindowOutputTarget.h>
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/Configuration/XRConfig.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/XR/XRInterface.h>
+#include <GameEngine/XR/XRRemotingInterface.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <System/Screen/Screen.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator)
@@ -44,7 +46,7 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
 
   ConfigureInputActions();
 
-  SpawnPlayer(pStartPosition);
+  SpawnPlayer(pStartPosition).IgnoreResult();
 }
 
 void ezGameState::OnDeactivation()
@@ -55,6 +57,14 @@ void ezGameState::OnDeactivation()
     ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
     ezActorManager::GetSingleton()->DestroyAllActors(pXRInterface);
     pXRInterface->Deinitialize();
+
+    if (ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>())
+    {
+      if (pXRRemotingInterface->Deinitialize().Failed())
+      {
+        ezLog::Error("Failed to deinitialize ezXRRemotingInterface, make sure all actors are destroyed and ezXRInterface deinitialized.");
+      }
+    }
   }
 
   ezRenderWorld::DeleteView(m_hMainView);
@@ -65,78 +75,107 @@ void ezGameState::ScheduleRendering()
   ezRenderWorld::AddMainView(m_hMainView);
 }
 
-void ezGameState::CreateActors()
+ezUniquePtr<ezActor> ezGameState::CreateXRActor()
 {
-  EZ_LOG_BLOCK("CreateActors");
-
-  // TODO: MR support
-  //#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  //  if (m_bMixedRealityMode)
-  //  {
-  //    m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc(), [this]() { RequestQuit(); });
-  //    GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
-  //    return;
-  //  }
-  //#endif
-
+  EZ_LOG_BLOCK("CreateXRActor");
   // Init XR
   const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
-  ezXRInterface* pXRInterface = nullptr;
-  if (pConfig && pConfig->m_bEnableXR)
+  if (!pConfig)
+    return nullptr;
+
+  if (!pConfig->m_bEnableXR)
+    return nullptr;
+
+  ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
+  if (!pXRInterface)
   {
-    if (ezXRInterface* pXR = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>())
+    ezLog::Error("No ezXRInterface interface found. Please load a XR plugin to enable XR.");
+    return nullptr;
+  }
+
+  ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>();
+  if (ezXRRemotingInterface::s_CVarXrRemoting)
+  {
+    if (pXRRemotingInterface)
     {
-      if (pXR->Initialize().Succeeded())
+      if (pXRRemotingInterface->Initialize().Failed())
       {
-        pXRInterface = pXR;
-        m_bXREnabled = true;
+        ezLog::Error("ezXRRemotingInterface could not be initialized. See log for details.");
       }
       else
       {
-        ezLog::Error("ezXRInterface could not be initialized. Make sure the XR plugin runtime is installed.");
+        m_bXRRemotingEnabled = true;
       }
     }
     else
     {
-      ezLog::Error("No ezXRInterface interface found. Please load a XR plugin to enable XR.");
+      ezLog::Error("No ezXRRemotingInterface interface found. Please load a XR remoting plugin to enable XR Remoting.");
     }
   }
 
-  if (m_bXREnabled && !pXRInterface->SupportsCompanionView())
+  if (pXRInterface->Initialize().Failed())
   {
-    // XR Window (no companion window)
-    SetupMainView(nullptr, {});
-    ezView* pView = nullptr;
-    EZ_VERIFY(ezRenderWorld::TryGetView(m_hMainView, pView), "");
-    ezUniquePtr<ezActor> pXRActor = pXRInterface->CreateActor(pView, ezGALMSAASampleCount::Default);
-    ezActorManager::GetSingleton()->AddActor(std::move(pXRActor));
+    ezLog::Error("ezXRInterface could not be initialized. See log for details.");
+    return nullptr;
+  }
+  m_bXREnabled = true;
+
+  ezUniquePtr<ezWindow> pMainWindow;
+  ezUniquePtr<ezWindowOutputTargetBase> pOutput;
+
+  if (pXRInterface->SupportsCompanionView())
+  {
+    // XR Window with added companion window (allows keyboard / mouse input).
+    pMainWindow = CreateMainWindow();
+    EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
+    pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
+    ConfigureMainWindowInputDevices(pMainWindow.Borrow());
+    SetupMainView(pOutput.Borrow(), pMainWindow->GetClientAreaSize());
   }
   else
   {
-    ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
-    EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
-    ezUniquePtr<ezWindowOutputTargetBase> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
-    ConfigureMainWindowInputDevices(pMainWindow.Borrow());
-    SetupMainView(pOutput.Borrow(), pMainWindow->GetClientAreaSize());
+    // XR Window (no companion window)
+    SetupMainView(nullptr, {});
+  }
 
-    if (m_bXREnabled)
+  if (m_bXRRemotingEnabled)
+  {
+    if (pXRRemotingInterface->Connect(ezXRRemotingInterface::s_CVarXrRemotingHostName.GetValue().GetData()).Failed())
     {
-      // XR Window with added companion window (allows keyboard / mouse input).
-      ezView* pView = nullptr;
-      EZ_VERIFY(ezRenderWorld::TryGetView(m_hMainView, pView), "");
-      ezUniquePtr<ezActor> pXRActor = pXRInterface->CreateActor(pView, ezGALMSAASampleCount::Default, std::move(pMainWindow), std::move(pOutput));
-      ezActorManager::GetSingleton()->AddActor(std::move(pXRActor));
+      ezLog::Error("Failed to connect XR Remoting.");
     }
-    else
-    {
-      // Default flat window
-      ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
-      pWindowPlugin->m_pWindow = std::move(pMainWindow);
-      pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
-      ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
-      pActor->AddPlugin(std::move(pWindowPlugin));
-      ezActorManager::GetSingleton()->AddActor(std::move(pActor));
-    }
+  }
+
+  ezView* pView = nullptr;
+  EZ_VERIFY(ezRenderWorld::TryGetView(m_hMainView, pView), "");
+  ezUniquePtr<ezActor> pXRActor = pXRInterface->CreateActor(pView, ezGALMSAASampleCount::Default, std::move(pMainWindow), std::move(pOutput));
+  return std::move(pXRActor);
+}
+
+void ezGameState::CreateActors()
+{
+  EZ_LOG_BLOCK("CreateActors");
+  ezUniquePtr<ezActor> pXRActor = CreateXRActor();
+  if (pXRActor != nullptr)
+  {
+    ezActorManager::GetSingleton()->AddActor(std::move(pXRActor));
+    return;
+  }
+
+  ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
+  EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
+  ezUniquePtr<ezWindowOutputTargetBase> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
+  ConfigureMainWindowInputDevices(pMainWindow.Borrow());
+  SetupMainView(pOutput.Borrow(), pMainWindow->GetClientAreaSize());
+
+  {
+    // Default flat window
+    ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
+    pWindowPlugin->m_pWindow = std::move(pMainWindow);
+    pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
+    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
+    pActor->AddPlugin(std::move(pWindowPlugin));
+    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
   }
 }
 
@@ -157,8 +196,7 @@ void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU
   }
   else
   {
-    const auto* pConfig =
-      ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
+    const auto* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline);
     ezView* pView = CreateMainView(renderPipeline);
 
@@ -205,7 +243,7 @@ ezResult ezGameState::SpawnPlayer(const ezTransform* pStartPosition)
 
   for (auto it = pMan->GetComponents(); it.IsValid(); ++it)
   {
-    if (it->GetPlayerPrefab().IsValid())
+    if (it->IsActive() && it->GetPlayerPrefab().IsValid())
     {
       ezResourceLock<ezPrefabResource> pPrefab(it->GetPlayerPrefab(), ezResourceAcquireMode::BlockTillLoaded);
 
@@ -221,7 +259,10 @@ ezResult ezGameState::SpawnPlayer(const ezTransform* pStartPosition)
           startPos.m_vPosition.z += 1.0f; // do not spawn player prefabs on the ground, they may not have their origin there
         }
 
-        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, ezGameObjectHandle(), nullptr, &uiTeamID, &(it->m_Parameters), false);
+        ezPrefabInstantiationOptions options;
+        options.m_pOverrideTeamID = &uiTeamID;
+
+        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, options, &(it->m_Parameters));
 
         return EZ_SUCCESS;
       }
@@ -267,16 +308,18 @@ void ezGameState::ConfigureMainCamera()
   }
 }
 
+ezCommandLineOptionPath opt_Window("GameState", "-wnd", "Path to the window configuration file to use.", "");
+
 ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 {
   if (false)
   {
     ezHybridArray<ezScreenInfo, 2> screens;
-    ezScreen::EnumerateScreens(screens);
+    ezScreen::EnumerateScreens(screens).IgnoreResult();
     ezScreen::PrintScreenInfo(screens);
   }
 
-  ezStringBuilder sWndCfg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-wnd", 0, "");
+  ezStringBuilder sWndCfg = opt_Window.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
 
   if (!sWndCfg.IsEmpty() && !ezFileSystem::ExistsFile(sWndCfg))
   {
@@ -293,7 +336,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   }
 
   ezWindowCreationDesc wndDesc;
-  wndDesc.LoadFromDDL(sWndCfg);
+  wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
 
   if (m_bXREnabled)
   {
@@ -303,7 +346,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   }
 
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
-  pWindow->ResetOnClickClose([]() { ezGameApplicationBase::GetGameApplicationBaseInstance()->RequestQuit(); });
+  pWindow->ResetOnClickClose([this]() { this->RequestQuit(); });
   if (pWindow->GetInputDevice())
     pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 

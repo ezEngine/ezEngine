@@ -2,10 +2,6 @@
 
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QTimer>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezQtPropertyAnimModel::ezQtPropertyAnimModel(ezPropertyAnimAssetDocument* pDocument, QObject* pParent)
   : QAbstractItemModel(pParent)

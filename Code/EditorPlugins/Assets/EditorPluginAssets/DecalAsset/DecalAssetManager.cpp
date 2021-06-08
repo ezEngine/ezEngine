@@ -1,17 +1,11 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
 #include <Texture/Utils/TextureAtlasDesc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
@@ -46,8 +40,7 @@ ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(
-  const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const
 {
   ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   projectDir.MakeCleanPath();
@@ -59,8 +52,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(
   }
 }
 
-ezString ezDecalAssetDocumentManager::GetAssetTableEntry(
-  const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection
   return ezString();
@@ -84,8 +76,7 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
   }
 }
 
-void ezDecalAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezDecalAssetDocument(szPath);
 }
@@ -166,7 +157,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
 
         // store the GUID as the decal identifier
         ezConversionUtils::ToString(pDecalAsset->GetGuid(), sAbsPath);
-        item.m_uiUniqueID = ezHashingUtils::xxHash32(sAbsPath.GetData(), sAbsPath.GetElementCount());
+        item.m_uiUniqueID = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sAbsPath));
 
         auto pDecalProps = pDecalAsset->GetProperties();
         item.m_uiFlags = 0;
@@ -264,7 +255,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   {
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
-    ezOSFile::DeleteFile(decalFile);
+    ezOSFile::DeleteFile(decalFile).IgnoreResult();
     result.m_Result = EZ_FAILURE;
   }
 
@@ -277,7 +268,7 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
   if (file.Open(szDecalFile).Succeeded())
   {
     ezAssetFileHeader header;
-    header.Read(file);
+    header.Read(file).IgnoreResult();
 
     // file still valid
     if (header.GetFileHash() == uiAssetHash)
@@ -338,13 +329,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);
 
-  ezStringBuilder cmd;
-  for (ezInt32 i = 0; i < arguments.size(); ++i)
-    cmd.Append(" ", arguments[i].toUtf8().data());
-
-  ezLog::Debug("TexConv.exe{0}", cmd);
-
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   return ezStatus(EZ_SUCCESS);
 }

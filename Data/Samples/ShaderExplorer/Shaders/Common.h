@@ -5,7 +5,7 @@ CONSTANT_BUFFER(ezMaterialConstants, 0)
   MAT4(ViewMatrix);
 };
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
 
 struct VS_IN
 {

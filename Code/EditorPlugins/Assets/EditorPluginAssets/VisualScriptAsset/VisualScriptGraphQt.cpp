@@ -1,17 +1,10 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QPainter>
-#include <QTimer>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 ezQtVisualScriptAssetScene::ezQtVisualScriptAssetScene(QObject* parent)
   : ezQtNodeScene(parent)
@@ -220,7 +213,7 @@ void ezQtVisualScriptPin::paint(QPainter* painter, const QStyleOptionGraphicsIte
   painter->setBrush(brush());
   painter->setPen(pen());
 
-  if (pVsPin->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data)
+  if (pVsPin->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Data)
   {
     painter->drawRect(this->path().boundingRect());
   }

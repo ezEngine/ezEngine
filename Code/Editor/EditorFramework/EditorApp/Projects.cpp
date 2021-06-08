@@ -4,9 +4,6 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorFramework/Preferences/Preferences.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -44,7 +41,7 @@ ezResult ezQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= f
 
 void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 {
-  CreateOrOpenProject(false, sProject.toUtf8().data());
+  CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
 
@@ -177,9 +174,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-      if (m_StartupFlags.AreNoneSet(
-            ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) &&
-          pPreferences->m_bBackgroundAssetProcessing)
+      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) && pPreferences->m_bBackgroundAssetProcessing)
       {
         QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
       }

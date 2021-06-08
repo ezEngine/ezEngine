@@ -1,13 +1,8 @@
 #include <EditorPluginFmodPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QFileDialog>
 #include <QInputDialog>
-#include <ToolsFoundation/Project/ToolsProject.h>
 
 ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent)
   : QDialog(parent)
@@ -51,7 +46,7 @@ ezResult ezQtFmodProjectSettingsDlg::Save()
 
 void ezQtFmodProjectSettingsDlg::Load()
 {
-  m_Configs.Load(":project/FmodConfig.ddl");
+  m_Configs.Load(":project/FmodConfig.ddl").IgnoreResult();
 
   m_ConfigsOld = m_Configs;
 }
@@ -143,9 +138,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
 
     if (m_ConfigsOld.m_AssetProfiles != m_Configs.m_AssetProfiles)
     {
-      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
-            "Save the changes to the Fmod configuration?\nYou need to reload the project for the changes to take effect.",
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the Fmod configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
       {
         ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("Fmod configuration was modified.");
 
@@ -213,8 +206,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonRemove_clicked()
 void ezQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
 {
   static QString sLastPath = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
-  const QString sFile = QFileDialog::getOpenFileName(
-    this, QLatin1String("Select Master Sound Bank"), sLastPath, "Sound Banks (*.bank)", nullptr, QFileDialog::Option::DontResolveSymlinks);
+  const QString sFile = QFileDialog::getOpenFileName(this, QLatin1String("Select Master Sound Bank"), sLastPath, "Sound Banks (*.bank)", nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
     return;

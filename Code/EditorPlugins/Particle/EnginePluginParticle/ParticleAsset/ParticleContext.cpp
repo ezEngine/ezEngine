@@ -1,25 +1,10 @@
 #include <EnginePluginParticlePCH.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
-#include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <RendererCore/Components/FogComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <SharedPluginAssets/Common/Messages.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezParticleContext>)
@@ -86,32 +71,6 @@ void ezParticleContext::OnInitialize()
     m_hParticle = ezResourceManager::LoadResource<ezParticleEffectResource>(sParticleGuid);
 
     m_pComponent->SetParticleEffect(m_hParticle);
-  }
-
-  // Lights
-  {
-    ezGameObjectDesc obj;
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetTopColor(ezColor(0.2f, 0.2f, 0.2f));
-    pAmbLight->SetBottomColor(ezColor(0.1f, 0.1f, 0.1f));
-    pAmbLight->SetIntensity(5.0f);
-
-    ezFogComponent* pFog;
-    ezFogComponent::CreateComponent(pObj, pFog);
-    pFog->SetColor(ezColor(0.02f, 0.02f, 0.02f));
-    pFog->SetDensity(5.0f);
-    pFog->SetHeightFalloff(0);
   }
 
   const char* szMeshName = "ParticlePreviewBackgroundMesh";
@@ -249,8 +208,6 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
 
       for (ezUInt32 step = 0; step < 30; ++step)
       {
-        m_pComponent->m_EffectController.ForceBoundingVolumeUpdate();
-        m_pComponent->m_EffectController.SetIsInView();
         m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
 
         if (!m_pComponent->m_EffectController.IsAlive())
@@ -299,8 +256,6 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
 
       for (ezUInt32 step = 0; step <= uiSimStepsNeeded; ++step)
       {
-        m_pComponent->m_EffectController.ForceBoundingVolumeUpdate();
-        m_pComponent->m_EffectController.SetIsInView();
         m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
 
         if (m_pComponent->m_EffectController.IsAlive())

@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/jpaver/opengametools/",
+          "commitHash": "9f3ecbf65cdfcb26b6c5ea11c9a9af67e036a8c0"
+        }
+      }
+    }
+  ]
+}

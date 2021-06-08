@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/Icons/ezEditor16.png</normaloff>:/GuiFoundation/Icons/ezEditor16.png</iconset>
+    <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
@@ -403,6 +403,10 @@
              <property name="text">
               <string>Open Documentation</string>
              </property>
+             <property name="icon">
+              <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+               <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+             </property>
             </widget>
            </item>
            <item>
@@ -442,10 +446,14 @@
              <property name="text">
               <string>Report a Problem</string>
              </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/GitHub.svg</normaloff>:/EditorFramework/Icons/GitHub.svg</iconset>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="OpenGitter">
+            <widget class="QPushButton" name="OpenDiscord">
              <property name="minimumSize">
               <size>
                <width>200</width>
@@ -453,7 +461,11 @@
               </size>
              </property>
              <property name="text">
-              <string>Open Gitter Chat</string>
+              <string>Join Discord Server</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/Discord.svg</normaloff>:/EditorFramework/Icons/Discord.svg</iconset>
              </property>
             </widget>
            </item>
@@ -467,6 +479,10 @@
              </property>
              <property name="text">
               <string>Open Twitter</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/Twitter.svg</normaloff>:/EditorFramework/Icons/Twitter.svg</iconset>
              </property>
             </widget>
            </item>

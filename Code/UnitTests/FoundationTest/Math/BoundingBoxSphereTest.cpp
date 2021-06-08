@@ -85,6 +85,12 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     EZ_TEST_BOOL(b1.m_vBoxHalfExtends == ezVec3T(2, 2, 2));
     EZ_TEST_FLOAT(b1.m_fSphereRadius, ezMath::Sqrt(ezMathTestType(3)) * 2, 0.00001f);
     EZ_TEST_BOOL(b1.m_fSphereRadius <= b1.m_vBoxHalfExtends.GetLength());
+
+    b1.SetInvalid();
+    b2 = ezBoundingBoxT(ezVec3T(0.25, 0.25, 0.25), ezVec3T(0.5, 0.5, 0.5));
+
+    b1.ExpandToInclude(b2);
+    EZ_TEST_BOOL(b1 == b2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform")

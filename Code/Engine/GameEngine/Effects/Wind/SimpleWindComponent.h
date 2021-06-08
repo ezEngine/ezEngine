@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Interfaces/WindWorldModule.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
@@ -30,9 +31,10 @@ public:
   ezSimpleWindComponent();
   ~ezSimpleWindComponent();
 
-  float m_fWindStrengthMin = 0; // [ property ]
-  float m_fWindStrengthMax = 0; // [ property ]
-  ezAngle m_Deviation;          // [ property ]
+  ezEnum<ezWindStrength> m_MinWindStrength; // [ property ]
+  ezEnum<ezWindStrength> m_MaxWindStrength; // [ property ]
+
+  ezAngle m_Deviation; // [ property ]
 
 protected:
   void Update();

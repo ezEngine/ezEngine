@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/microsoft/DirectXShaderCompiler",
+          "commitHash": "b640fa4ba4afb8eb9f15b4a34ab5187c7d94de97"
+        }
+      }
+    } 
+  ]
+}

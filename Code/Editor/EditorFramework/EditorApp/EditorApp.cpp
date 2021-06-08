@@ -1,15 +1,9 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <QProcess>
-#include <QTextStream>
-#include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
@@ -19,13 +13,9 @@ ezQtEditorApp::ezQtEditorApp()
   , s_RecentProjects(5)
   , s_RecentDocuments(50)
 {
-  m_pProgressbar = nullptr;
-  m_pQtProgressbar = nullptr;
   m_bSavePreferencesAfterOpenProject = false;
 
   ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");
-  s_pQtApplication = nullptr;
-  s_pEngineViewProcess = nullptr;
 
   m_pTimer = new QTimer(nullptr);
 }
@@ -34,6 +24,8 @@ ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
+
+  CloseSplashScreen();
 }
 
 ezInt32 ezQtEditorApp::RunEditor()
@@ -53,6 +45,9 @@ void ezQtEditorApp::SlotTimedUpdate()
   }
   ezTaskSystem::FinishFrameTasks();
 
+  // Close the splash screen when we get to the first idle event
+  CloseSplashScreen();
+
   Q_EMIT IdleEvent();
 
   m_pTimer->start(1);
@@ -71,7 +66,7 @@ void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bFo
     {
       ezQtUiServices::GetSingleton()->MessageBoxInformation(
         ezFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A "
-              "href=\"http://ezengine.net/releases/release-notes.html\">Release Notes</A> for details.</html>",
+              "href=\"https://ezengine.net/pages/releases/releases.html\">Release Notes</A> for details.</html>",
           m_VersionChecker.GetKnownLatestVersion(), m_VersionChecker.GetOwnVersion()));
     }
     else

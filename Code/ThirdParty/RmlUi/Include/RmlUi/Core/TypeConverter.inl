@@ -27,7 +27,6 @@
  */
 
 namespace Rml {
-namespace Core {
 
 template <typename SourceType, typename DestType>
 bool TypeConverter<SourceType, DestType>::Convert(const SourceType& /*src*/, DestType& /*dest*/)
@@ -35,6 +34,13 @@ bool TypeConverter<SourceType, DestType>::Convert(const SourceType& /*src*/, Des
 	RMLUI_ERRORMSG("No converter specified.");
 	return false;
 }
+
+#if defined(RMLUI_PLATFORM_WIN32) && defined(__MINGW32__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-extra-args"
+#endif
 
 ///
 /// Full Specialisations
@@ -72,7 +78,10 @@ public: \
 /////////////////////////////////////////////////
 PASS_THROUGH(int);
 PASS_THROUGH(unsigned int);
+PASS_THROUGH(int64_t);
+PASS_THROUGH(uint64_t);
 PASS_THROUGH(float);
+PASS_THROUGH(double);
 PASS_THROUGH(bool);
 PASS_THROUGH(char);
 PASS_THROUGH(Character);
@@ -98,15 +107,51 @@ PASS_THROUGH(voidPtr);
 /////////////////////////////////////////////////
 BASIC_CONVERTER(bool, int);
 BASIC_CONVERTER(bool, unsigned int);
+BASIC_CONVERTER(bool, int64_t);
+BASIC_CONVERTER(bool, uint64_t);
 BASIC_CONVERTER(bool, float);
+BASIC_CONVERTER(bool, double);
 
-BASIC_CONVERTER(int, unsigned int);
 BASIC_CONVERTER_BOOL(int, bool);
+BASIC_CONVERTER(int, unsigned int);
+BASIC_CONVERTER(int, int64_t);
+BASIC_CONVERTER(int, uint64_t);
 BASIC_CONVERTER(int, float);
+BASIC_CONVERTER(int, double);
+
+BASIC_CONVERTER_BOOL(unsigned int, bool);
+BASIC_CONVERTER(unsigned int, int);
+BASIC_CONVERTER(unsigned int, int64_t);
+BASIC_CONVERTER(unsigned int, uint64_t);
+BASIC_CONVERTER(unsigned int, float);
+BASIC_CONVERTER(unsigned int, double);
+
+BASIC_CONVERTER_BOOL(int64_t, bool);
+BASIC_CONVERTER(int64_t, int);
+BASIC_CONVERTER(int64_t, float);
+BASIC_CONVERTER(int64_t, double);
+BASIC_CONVERTER(int64_t, unsigned int);
+
+BASIC_CONVERTER_BOOL(uint64_t, bool);
+BASIC_CONVERTER(uint64_t, int);
+BASIC_CONVERTER(uint64_t, float);
+BASIC_CONVERTER(uint64_t, double);
+BASIC_CONVERTER(uint64_t, unsigned int);
+BASIC_CONVERTER(uint64_t, int64_t);
 
 BASIC_CONVERTER_BOOL(float, bool);
 BASIC_CONVERTER(float, int);
+BASIC_CONVERTER(float, int64_t);
+BASIC_CONVERTER(float, uint64_t);
+BASIC_CONVERTER(float, double);
 BASIC_CONVERTER(float, unsigned int);
+
+BASIC_CONVERTER_BOOL(double, bool);
+BASIC_CONVERTER(double, int);
+BASIC_CONVERTER(double, int64_t);
+BASIC_CONVERTER(double, uint64_t);
+BASIC_CONVERTER(double, float);
+BASIC_CONVERTER(double, unsigned int);
 
 BASIC_CONVERTER(char, Character);
 
@@ -149,15 +194,32 @@ public:
 };
 
 template<>
+class TypeConverter< String, uint64_t >
+{
+public:
+	static bool Convert(const String& src, uint64_t& dest)
+	{
+		return sscanf(src.c_str(), "%" SCNu64, &dest) == 1;
+	}
+};
+
+template<>
+class TypeConverter< String, int64_t >
+{
+public:
+	static bool Convert(const String& src, int64_t& dest)
+	{
+		return sscanf(src.c_str(), "%" SCNd64, &dest) == 1;
+	}
+};
+
+template<>
 class TypeConverter< String, byte >
 {
 public:
 	static bool Convert(const String& src, byte& dest)
 	{
-		int value;
-		bool ret = sscanf(src.c_str(), "%d", &value) == 1;
-		dest = (byte) value;
-		return ret && (value <= 255);
+		return sscanf(src.c_str(), "%hhu", &dest) == 1;
 	}
 };
 
@@ -232,7 +294,10 @@ class TypeConverter< type, String > \
 public: \
 	static bool Convert(const type& src, String& dest) \
 	{ \
-		return FormatString(dest, 32, "%.4f", src) > 0; \
+		if(FormatString(dest, 32, "%.3f", src) == 0) \
+			return false; \
+		StringUtilities::TrimTrailingDotZeros(dest); \
+		return true; \
 	} \
 }
 FLOAT_STRING_CONVERTER(float);
@@ -259,12 +324,32 @@ public:
 };
 
 template<>
+class TypeConverter< int64_t, String >
+{
+public:
+	static bool Convert(const int64_t& src, String& dest)
+	{
+		return FormatString(dest, 32, "%" PRId64, src) > 0;
+	}
+};
+
+template<>
+class TypeConverter< uint64_t, String >
+{
+public:
+	static bool Convert(const uint64_t& src, String& dest)
+	{
+		return FormatString(dest, 32, "%" PRIu64, src) > 0;
+	}
+};
+
+template<>
 class TypeConverter< byte, String >
 {
 public:
 	static bool Convert(const byte& src, String& dest)
 	{
-		return FormatString(dest, 32, "%u", src) > 0;
+		return FormatString(dest, 32, "%hhu", src) > 0;
 	}
 };
 
@@ -333,8 +418,14 @@ VECTOR_STRING_CONVERTER(Colourb, byte, 4);
 #undef PASS_THROUGH
 #undef BASIC_CONVERTER
 #undef BASIC_CONVERTER_BOOL
+#undef FLOAT_STRING_CONVERTER
+#undef STRING_FLOAT_CONVERTER
 #undef STRING_VECTOR_CONVERTER
 #undef VECTOR_STRING_CONVERTER
 
-}
-}
+#if defined(RMLUI_PLATFORM_WIN32) && defined(__MINGW32__)
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
+#endif
+
+} // namespace Rml

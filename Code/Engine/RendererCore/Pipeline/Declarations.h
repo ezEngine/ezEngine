@@ -14,11 +14,10 @@ class ezRenderData;
 class ezRenderDataBatch;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
-class ezGALContext;
 class ezRenderContext;
 class ezDebugRendererContext;
 
-struct ezNodePin;
+struct ezRenderPipelineNodePin;
 struct ezRenderPipelinePassConnection;
 struct ezViewData;
 
@@ -30,17 +29,28 @@ namespace ezInternal
   {
     EZ_DECLARE_POD_TYPE();
 
-    const ezRenderData* m_pRenderData;
-    ezUInt32 m_uiSortingKey;
-    ezUInt16 m_uiCategory;
-    ezUInt16 m_uiComponentIndex : 15;
-    ezUInt16 m_uiCacheIfStatic : 1;
+    const ezRenderData* m_pRenderData = nullptr;
+    ezUInt16 m_uiCategory = 0;
+    ezUInt16 m_uiComponentIndex = 0;
+    ezUInt16 m_uiPartIndex = 0;
+
+    EZ_ALWAYS_INLINE bool operator==(const RenderDataCacheEntry& other) const { return m_pRenderData == other.m_pRenderData && m_uiCategory == other.m_uiCategory && m_uiComponentIndex == other.m_uiComponentIndex && m_uiPartIndex == other.m_uiPartIndex; }
+
+    // Cache entries need to be sorted by component index and then by part index
+    EZ_ALWAYS_INLINE bool operator<(const RenderDataCacheEntry& other) const
+    {
+      if (m_uiComponentIndex == other.m_uiComponentIndex)
+        return m_uiPartIndex < other.m_uiPartIndex;
+
+      return m_uiComponentIndex < other.m_uiComponentIndex;
+    }
   };
 } // namespace ezInternal
 
 struct ezRenderViewContext
 {
   const ezCamera* m_pCamera;
+  const ezCamera* m_pLodCamera;
   const ezViewData* m_pViewData;
   ezRenderContext* m_pRenderContext;
 

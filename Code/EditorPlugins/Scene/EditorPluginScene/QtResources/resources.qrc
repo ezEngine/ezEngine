@@ -48,7 +48,7 @@
     <file>ezDebugTextComponent.png</file>
     <file>ezRaycastComponent.png</file>
     <file>ezBeamComponent.png</file>
-	<file>ezVisualizeSkeletonComponent.png</file>
+	<file>ezSkeletonComponent.png</file>
 	<file>ezSimpleWindComponent.png</file>
 	<file>ezPlayerStartPointComponent.png</file>
 	<file>ezColorAnimationComponent.png</file>
@@ -65,6 +65,9 @@
 	<file>ezStageSpaceComponent.png</file>
 	<file>ezSrmRenderComponent.png</file>
 	<file>ezMotionMatchingComponent.png</file>
+	<file>ezAnimationControllerComponent.png</file>
+	<file>ezSimpleAnimationComponent.png</file>
+	<file>ezHeightfieldComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

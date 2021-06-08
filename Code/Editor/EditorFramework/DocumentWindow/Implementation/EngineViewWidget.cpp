@@ -7,9 +7,6 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <Preferences/EditorPreferences.h>
-#include <QHBoxLayout>
-#include <QPaintEvent>
-#include <QPushButton>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
@@ -107,8 +104,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowWidth = width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
-  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() ||
-                                                                         ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
   cam.m_bEnablePickTransparent = m_bPickTransparent;
 
   if (s_FixedResolution.HasNonZeroArea())
@@ -158,8 +154,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
   cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
-void ezQtEngineViewWidget::InterpolateCameraTo(
-  const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection /*= nullptr*/, bool bImmediate /*= false*/)
+void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection /*= nullptr*/, bool bImmediate /*= false*/)
 {
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
@@ -185,8 +180,7 @@ void ezQtEngineViewWidget::InterpolateCameraTo(
 
   EZ_ASSERT_DEV(m_fCameraTargetFovOrDim > 0, "Invalid FOV or ortho dimension");
 
-  if (m_vCameraStartPosition == m_vCameraTargetPosition && m_vCameraStartDirection == m_vCameraTargetDirection &&
-      m_fCameraStartFovOrDim == m_fCameraTargetFovOrDim)
+  if (m_vCameraStartPosition == m_vCameraTargetPosition && m_vCameraStartDirection == m_vCameraTargetDirection && m_fCameraStartFovOrDim == m_fCameraTargetFovOrDim)
     return;
 
   m_LastCameraUpdate = ezTime::Now();
@@ -668,7 +662,7 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 
 void ezQtEngineViewWidget::SlotRestartEngineProcess()
 {
-  ezEditorEngineProcessConnection::GetSingleton()->RestartProcess();
+  ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().IgnoreResult();
 }
 
 

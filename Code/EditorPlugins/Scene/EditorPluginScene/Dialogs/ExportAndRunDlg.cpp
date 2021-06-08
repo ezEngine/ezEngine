@@ -1,6 +1,5 @@
 #include <EditorPluginScenePCH.h>
 
-#include <Core/World/GameObject.h>
 #include <EditorPluginScene/Dialogs/ExportAndRunDlg.moc.h>
 
 bool ezQtExportAndRunDlg::s_bTransformAll = true;

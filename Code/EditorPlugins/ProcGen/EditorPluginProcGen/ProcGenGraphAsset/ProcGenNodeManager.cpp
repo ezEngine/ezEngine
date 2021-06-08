@@ -4,10 +4,11 @@
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Utilities/Node.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPin, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -19,8 +20,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
   {
     const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProcGenNode(); });
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezProcGenPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); }).IgnoreResult();
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProcGenNode(); }).IgnoreResult();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -54,7 +55,7 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
       continue;
 
     const ezRTTI* pPropType = pProp->GetSpecificType();
-    if (!pPropType->IsDerivedFrom<ezNodePin>())
+    if (!pPropType->IsDerivedFrom<ezRenderPipelineNodePin>())
       continue;
 
     ezColor pinColor = ezColor::Grey;
@@ -63,14 +64,14 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
       pinColor = pAttr->GetColor();
     }
 
-    if (pPropType->IsDerivedFrom<ezInputNodePin>())
+    if (pPropType->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      ezPin* pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
-    else if (pPropType->IsDerivedFrom<ezOutputNodePin>())
+    else if (pPropType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      ezPin* pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);
     }
   }
@@ -102,12 +103,22 @@ void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
   }
 }
 
+const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
+{
+  if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+  {
+    return pAttr->GetCategory();
+  }
+
+  return nullptr;
+}
+
 ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
 {
   out_Result = CanConnectResult::ConnectNto1;
 
   if (!pTarget->GetConnections().IsEmpty())
-    return ezStatus("Only one connection can be made to in input pin!");
+    return ezStatus("Only one connection can be made to an input pin!");
 
   return ezStatus(EZ_SUCCESS);
 }

@@ -81,6 +81,7 @@ public:
   static ezUInt32 GetFunctionArgCount(const StorageType*& pByteCode);
 
   void Disassemble(ezStringBuilder& out_sDisassembly) const;
+  static const char* GetOpCodeName(OpCode::Enum opCode);
 
   void Save(ezStreamWriter& stream) const;
   ezResult Load(ezStreamReader& stream);

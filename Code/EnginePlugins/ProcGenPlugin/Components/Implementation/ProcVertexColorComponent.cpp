@@ -9,8 +9,9 @@
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcVertexColorRenderData, 1, ezRTTIDefaultAllocator<ezProcVertexColorRenderData>)
@@ -43,6 +44,8 @@ ezProcVertexColorComponentManager::~ezProcVertexColorComponentManager() = defaul
 
 void ezProcVertexColorComponentManager::Initialize()
 {
+  SUPER::Initialize();
+
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezUInt32);
@@ -82,6 +85,8 @@ void ezProcVertexColorComponentManager::Deinitialize()
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
   ezProcVolumeComponent::GetAreaInvalidatedEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
+
+  SUPER::Deinitialize();
 }
 
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
@@ -182,8 +187,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   taskName.Append(pCpuMesh->GetResourceDescription().GetView());
   pUpdateTask->ConfigureTask(taskName, ezTaskNesting::Never);
 
-  pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs, outputMappings,
-    m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
+  pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs, outputMappings, m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask);
 
@@ -216,12 +220,17 @@ void ezProcVertexColorComponentManager::OnRenderEvent(const ezRenderWorldRenderE
   auto& dataCopy = m_DataCopy[ezRenderWorld::GetDataIndexForRendering()];
   if (!dataCopy.m_Data.IsEmpty())
   {
-    ezGALContext* pGALContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+    ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
+    ezGALPass* pGALPass = pGALDevice->BeginPass("ProcVertexUpdate");
+    ezGALComputeCommandEncoder* pGALCommandEncoder = pGALPass->BeginCompute();
 
     ezUInt32 uiByteOffset = dataCopy.m_uiStart * sizeof(ezUInt32);
-    pGALContext->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
+    pGALCommandEncoder->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
 
     dataCopy = DataCopy();
+
+    pGALPass->EndCompute(pGALCommandEncoder);
+    pGALDevice->EndPass(pGALPass);
   }
 }
 
@@ -433,7 +442,7 @@ void ezProcVertexColorComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
-  s.WriteArray(m_OutputDescs);
+  s.WriteArray(m_OutputDescs).IgnoreResult();
 }
 
 void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -445,12 +454,12 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hResource;
   if (uiVersion >= 2)
   {
-    s.ReadArray(m_OutputDescs);
+    s.ReadArray(m_OutputDescs).IgnoreResult();
   }
   else
   {
     ezHybridArray<ezHashedString, 2> outputNames;
-    s.ReadArray(outputNames);
+    s.ReadArray(outputNames).IgnoreResult();
 
     for (auto& outputName : outputNames)
     {

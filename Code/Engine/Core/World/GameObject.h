@@ -3,6 +3,7 @@
 /// \file
 
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/TagSet.h>
@@ -36,7 +37,7 @@ private:
   enum
   {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    NUM_INPLACE_COMPONENTS = 14
+    NUM_INPLACE_COMPONENTS = 12
 #else
     NUM_INPLACE_COMPONENTS = 6
 #endif
@@ -60,7 +61,7 @@ public:
     const ezGameObject& operator*() const;
     const ezGameObject* operator->() const;
 
-    operator const ezGameObject *() const;
+    operator const ezGameObject*() const;
 
     /// \brief Advances the iterator to the next child object. The iterator will not be valid anymore, if the last child is reached.
     void Next();
@@ -173,15 +174,13 @@ public:
   void AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects.
-  void AddChildren(
-    const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
-  void DetachChildren(
-    const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -322,6 +321,10 @@ public:
   /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
   void UpdateLocalBounds();
 
+  /// \brief Updates the global bounds immediately. Usually this done during the world update after the "Post-async" phase.
+  /// Note that this function does not ensure that the global transform is up-to-date. Use UpdateGlobalTransformAndBounds if you want to update both.
+  void UpdateGlobalBounds();
+
   /// \brief Updates the global transform and bounds immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransformAndBounds();
 
@@ -350,23 +353,27 @@ public:
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
-  void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components);
+  void TryGetComponentsOfBaseType(ezDynamicArray<T*>& out_components);
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
-  void TryGetComponentsOfBaseType(ezHybridArray<const T*, 8>& out_components) const;
+  void TryGetComponentsOfBaseType(ezDynamicArray<const T*>& out_components) const;
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
-  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components);
+  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<ezComponent*>& out_components);
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
-  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<const ezComponent*, 8>& out_components) const;
+  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<const ezComponent*>& out_components) const;
 
   /// \brief Returns a list of all components attached to this object.
   ezArrayPtr<ezComponent* const> GetComponents();
 
   /// \brief Returns a list of all components attached to this object.
   ezArrayPtr<const ezComponent* const> GetComponents() const;
+
+  /// \brief Returns the current version of components attached to this object.
+  /// This version is increased whenever components are added or removed and can be used for cache validation.
+  ezUInt16 GetComponentVersion() const;
 
 
   /// \brief Sends a message to all components of this object.
@@ -420,8 +427,7 @@ public:
   ///
   /// \param queueType In which update phase to deliver the message.
   /// \param delay An optional delay before delivering the message.
-  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay,
-    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
 
   /// \brief Returns the tag set associated with this object.
@@ -436,6 +442,26 @@ public:
 
   /// \brief Changes the team ID for this object and all children recursively.
   void SetTeamID(ezUInt16 id);
+
+  /// \brief Returns a random value that is chosen once during object creation and remains stable even throughout serialization.
+  ///
+  /// This value is intended to be used for choosing random variations of components. For instance, if a component has two
+  /// different meshes it can use for variation, this seed should be used to decide which one to use.
+  ///
+  /// The stable random seed can also be set from the outside, which is what the editor does, to assign a truly stable seed value.
+  /// Therefore, each object placed in the editor will always have the same seed value, and objects won't change their appearance
+  /// on every run of the game.
+  ///
+  /// The stable seed is also propagated through prefab instances, such that every prefab instance gets a different value, but
+  /// in a deterministic fashion.
+  ezUInt32 GetStableRandomSeed() const { return m_pTransformationData->m_uiStableRandomSeed; }
+
+  /// \brief OVerwrites the object's random seed value.
+  ///
+  /// See \a GetStableRandomSeed() for details.
+  ///
+  /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
+  void SetStableRandomSeed(ezUInt32 seed) { m_pTransformationData->m_uiStableRandomSeed = seed; }
 
 private:
   friend class ezComponentManagerBase;
@@ -455,7 +481,7 @@ private:
   ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
   void Reflection_AddComponent(ezComponent* pComponent);
   void Reflection_RemoveComponent(ezComponent* pComponent);
-  const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const;
+  ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> Reflection_GetComponents() const;
 
   ezObjectMode::Enum Reflection_GetMode() const;
   void Reflection_SetMode(ezObjectMode::Enum mode);
@@ -505,7 +531,9 @@ private:
     ezSpatialDataHandle m_hSpatialData;
     ezUInt32 m_uiSpatialDataCategoryBitmask;
 
-    ezUInt32 m_uiPadding2[2];
+    ezUInt32 m_uiStableRandomSeed = 0;
+
+    ezUInt32 m_uiPadding2[1];
 
     void UpdateLocalTransform();
 
@@ -513,7 +541,7 @@ private:
     void UpdateGlobalTransform();
     void UpdateGlobalTransformWithParent();
 
-    void ConditionalUpdateGlobalBounds(ezSpatialSystem* pSpatialSytem);
+    void UpdateGlobalBounds(ezSpatialSystem* pSpatialSytem);
     void UpdateGlobalBounds();
     void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSytem);
 
@@ -550,14 +578,14 @@ private:
   ezUInt32 m_uiPadding = 0;
 #endif
 
-  /// \todo small array class to reduce memory overhead
-  ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
+  ezSmallArrayBase<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-  ezUInt64 m_uiPadding2 = 0;
-#endif
+  struct ComponentUserData
+  {
+    ezUInt16 m_uiVersion;
+    ezUInt16 m_uiUnused;
+  };
 
-  /// \todo somehow make this more compact
   ezTagSet m_Tags;
 };
 

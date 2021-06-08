@@ -1,18 +1,12 @@
 #include <EditorPluginKrautPCH.h>
 
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
 
 ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -74,8 +68,14 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
   FinishWindowCreation();
 
   QueryObjectBBox(0);
+
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler, this));
 }
 
+ezQtKrautTreeAssetDocumentWindow::~ezQtKrautTreeAssetDocumentWindow()
+{
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler, this));
+}
 
 void ezQtKrautTreeAssetDocumentWindow::SendRedrawMsg()
 {
@@ -90,7 +90,7 @@ void ezQtKrautTreeAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(1);
+  QueryObjectBBox(-1);
 }
 
 void ezQtKrautTreeAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
@@ -114,11 +114,11 @@ void ezQtKrautTreeAssetDocumentWindow::ProcessMessageEventHandler(const ezEditor
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 &&
-        pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f,
-        pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
+      const ezVec3 vHalfExtents = pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f));
+
+      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }
     else if (pMessage->m_iPurpose == 0)
     {
@@ -130,4 +130,17 @@ void ezQtKrautTreeAssetDocumentWindow::ProcessMessageEventHandler(const ezEditor
   }
 
   ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+}
+
+void ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (e.m_sProperty == "DisplayRandomSeed")
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "UpdateTree";
+    msg.m_sPayload = "DisplayRandomSeed";
+    msg.m_fPayload = static_cast<ezKrautTreeAssetDocument*>(GetDocument())->GetProperties()->m_uiRandomSeedForDisplay;
+
+    GetDocument()->SendMessageToEngine(&msg);
+  }
 }

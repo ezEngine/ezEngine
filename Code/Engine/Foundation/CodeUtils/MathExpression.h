@@ -13,9 +13,10 @@ class ezLogInterface;
 /// Valid is any functional, mathematical expression containing:
 /// - Numbers (all numbers treated as doubles): 0123456789.
 /// - Binary mathematical operators: * / - +
-/// - Unary mathematical operators: - +
+/// - Unary mathematical operators: - + abs
 /// - Parenthesis: ( )
 /// - Variables consisting of an arbitrary chain of: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 (s_szValidVariableCharacters) but
+/// - Note: 'abs' can be used like a function, e.g. "abs(-4)", though it actually is treated like a unary operator, so "abs -4" works as well.
 /// mustn't start with a number. Hard-coded to double.
 class EZ_FOUNDATION_DLL ezMathExpression
 {
@@ -25,14 +26,14 @@ public:
   /// \brief Creates a new invalid math expression.
   ///
   /// Need to call Reset before you can do anything with it.
-  explicit ezMathExpression(ezLogInterface* pLog = nullptr);
+  ezMathExpression();
 
   /// \brief Initializes using a given expression.
   ///
   /// If anything goes wrong it is logged and the math expression is in an invalid state.
   /// \param log
   ///   If null, default log interface will be used.
-  ezMathExpression(const char* szExpressionString, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()); // [tested]
+  explicit ezMathExpression(const char* szExpressionString); // [tested]
 
   /// \brief Reinitializes using the given expression.
   ///
@@ -59,8 +60,7 @@ private:
   ezResult ParseExpression(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken, int precedence = 0);
   ezResult ParseFactor(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken);
 
-  ezLogInterface* const m_pLog;
-  ezString m_OriginalExpression;
+  ezHashedString m_OriginalExpression;
 
   // Instruction stream.
 public:
@@ -73,9 +73,12 @@ public:
       Subtract, ///< Subtract last two elements of evaluation stack and push result back.
       Multiply, ///< Multiply last two elements of evaluation stack and push result back.
       Divide,   ///< Divide last two elements of evaluation stack and push result back.
+      Modulo,   ///< Compute the remainder of the division for the last two elements of the stack and push result back.
 
       // Unary
-      Negate, ///< Negate top element of the evaluation stack.
+      Negate,   ///< Negate top element of the evaluation stack.
+      Absolute, ///< Make the top element of the stack an absolute value.
+      Sqrt,     ///< Compute the square root of the top element of the stack.
 
       // Special
       PushConstant, ///< Instruction is followed by an integer that determines which constant should be pushed onto the evaluation stack.
@@ -89,5 +92,5 @@ private:
   ezDynamicArray<ezUInt32> m_InstructionStream;
   ezDynamicArray<double> m_Constants;
 
-  bool m_bIsValid;
+  bool m_bIsValid = false;
 };

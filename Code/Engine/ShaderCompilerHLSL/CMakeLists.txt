@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_everything()
+ez_build_filter_renderer()
 ez_requires_d3d()
 
 # Get the name of this folder as the project name

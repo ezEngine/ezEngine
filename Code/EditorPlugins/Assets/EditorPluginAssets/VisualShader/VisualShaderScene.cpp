@@ -2,10 +2,6 @@
 
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
-#include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QPainter>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 
 ezQtVisualShaderScene::ezQtVisualShaderScene(QObject* parent)

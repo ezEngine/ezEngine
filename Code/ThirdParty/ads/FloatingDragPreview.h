@@ -32,18 +32,13 @@ private:
 	FloatingDragPreviewPrivate* d;
 	friend struct FloatingDragPreviewPrivate;
 
-private slots:
+private Q_SLOTS:
 	/**
 	 * Cancel non opaque undocking if application becomes inactive
 	 */
 	void onApplicationStateChanged(Qt::ApplicationState state);
 
 protected:
-	/**
-	 * Updates the drop overlays
-	 */
-	virtual void moveEvent(QMoveEvent *event) override;
-
 	/**
 	 * Cares about painting the
 	 */
@@ -97,7 +92,7 @@ public: // implements IFloatingWidget -----------------------------------------
 	 */
 	virtual void finishDragging() override;
 
-signals:
+Q_SIGNALS:
 	/**
 	 * This signal is emitted, if dragging has been canceled by escape key
 	 * or by active application switching via task manager

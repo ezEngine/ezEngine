@@ -56,8 +56,7 @@ private:
 
     if (!isDecodable)
     {
-      EZ_TEST_BOOL_MSG(false, "Format %s can be encoded from %s but not decoded - add a decoder for this format please",
-        ezImageFormat::GetName(format), ezImageFormat::GetName(defaultFormat));
+      EZ_TEST_BOOL_MSG(false, "Format %s can be encoded from %s but not decoded - add a decoder for this format please", ezImageFormat::GetName(format), ezImageFormat::GetName(defaultFormat));
 
       return ezTestAppRun::Quit;
     }
@@ -65,28 +64,26 @@ private:
     {
       ezHybridArray<ezImageConversion::ConversionPathNode, 16> decodingPath;
       ezUInt32 decodingPathScratchBuffers;
-      ezImageConversion::BuildPath(format, defaultFormat, false, decodingPath, decodingPathScratchBuffers);
+      ezImageConversion::BuildPath(format, defaultFormat, false, decodingPath, decodingPathScratchBuffers).IgnoreResult();
 
       // the [test] tag tells the test framework to output the log message in the GUI
       ezLog::Info("[test]Default decoding Path:");
       for (ezUInt32 i = 0; i < decodingPath.GetCount(); ++i)
       {
-        ezLog::Info(
-          "[test]  {} -> {}", ezImageFormat::GetName(decodingPath[i].m_sourceFormat), ezImageFormat::GetName(decodingPath[i].m_targetFormat));
+        ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(decodingPath[i].m_sourceFormat), ezImageFormat::GetName(decodingPath[i].m_targetFormat));
       }
     }
 
     {
       ezHybridArray<ezImageConversion::ConversionPathNode, 16> encodingPath;
       ezUInt32 encodingPathScratchBuffers;
-      ezImageConversion::BuildPath(defaultFormat, format, false, encodingPath, encodingPathScratchBuffers);
+      ezImageConversion::BuildPath(defaultFormat, format, false, encodingPath, encodingPathScratchBuffers).IgnoreResult();
 
       // the [test] tag tells the test framework to output the log message in the GUI
       ezLog::Info("[test]Default encoding Path:");
       for (ezUInt32 i = 0; i < encodingPath.GetCount(); ++i)
       {
-        ezLog::Info(
-          "[test]  {} -> {}", ezImageFormat::GetName(encodingPath[i].m_sourceFormat), ezImageFormat::GetName(encodingPath[i].m_targetFormat));
+        ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(encodingPath[i].m_sourceFormat), ezImageFormat::GetName(encodingPath[i].m_targetFormat));
       }
     }
 
@@ -204,7 +201,7 @@ private:
       return EZ_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
 
     return EZ_SUCCESS;
   }

@@ -103,7 +103,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(45.0f)), 1.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(-45.0f)), -1.0f, 0.000001f);
     EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(90.00001f)) < 1000000.0f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(89.99999f)) > 1000000.0f);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(89.9999f)) > 100000.0f);
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
     ezAngle angle = ezAngle::Degree(-89.0f);
@@ -115,8 +115,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
       float fSin = ezMath::Sin(angle);
       float fCos = ezMath::Cos(angle);
 
-      EZ_TEST_FLOAT(fTan - fTanPrev, 0.0f, 0.001f);
-      EZ_TEST_FLOAT(fTan - fTanNext, 0.0f, 0.001f);
+      EZ_TEST_FLOAT(fTan - fTanPrev, 0.0f, 0.002f);
+      EZ_TEST_FLOAT(fTan - fTanNext, 0.0f, 0.002f);
       EZ_TEST_FLOAT(fTan - (fSin / fCos), 0.0f, 0.0005f);
       angle += ezAngle::Degree(1.234f);
     }
@@ -846,5 +846,24 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
     res = 0;
     EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0xFFFFFFFF, 0xFFFFFFFF, 2).Failed());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TryConvertToSizeT")
+  {
+    ezUInt64 x = ezMath::MaxValue<ezUInt32>();
+    ezUInt64 y = x + 1;
+
+    size_t res = 0;
+
+    EZ_TEST_BOOL(ezMath::TryConvertToSizeT(res, x).Succeeded());
+    EZ_TEST_BOOL(res == x);
+
+    res = 0;
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    EZ_TEST_BOOL(ezMath::TryConvertToSizeT(res, y).Failed());
+#else
+    EZ_TEST_BOOL(ezMath::TryConvertToSizeT(res, y).Succeeded());
+    EZ_TEST_BOOL(res == y);
+#endif
   }
 }

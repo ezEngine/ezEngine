@@ -15,6 +15,9 @@ void ezPermutationGenerator::RemovePermutations(const ezHashedString& sPermVarNa
 
 void ezPermutationGenerator::AddPermutation(const ezHashedString& sName, const ezHashedString& sValue)
 {
+  EZ_ASSERT_DEV(!sName.IsEmpty(), "");
+  EZ_ASSERT_DEV(!sValue.IsEmpty(), "");
+
   m_Permutations[sName].Insert(sValue);
 }
 

@@ -48,6 +48,7 @@ private Q_SLOTS:
   void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
   void on_TreeFolderFilter_itemSelectionChanged();
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
+  void on_TypeFilter_currentIndexChanged(int index);
   void OnScrollToItem(ezUuid preselectedAsset);
   void OnTreeOpenExplorer();
   void OnShowSubFolderItemsToggled();
@@ -58,6 +59,7 @@ private Q_SLOTS:
   void OnTransform();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
+  void OnListFindAllReferences(bool transitive);
   void OnSelectionTimer();
   void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void OnAssetSelectionCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
@@ -76,6 +78,7 @@ private:
 
   bool m_bDialogMode;
   ezUInt32 m_uiKnownAssetFolderCount;
+  bool m_bTreeSelectionChangeInProgress = false;
 
   ezQtToolBarActionMapView* m_pToolbar;
   ezString m_sAllTypesFilter;

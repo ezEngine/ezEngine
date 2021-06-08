@@ -1,5 +1,6 @@
 ez_cmake_init()
 
+ez_build_filter_renderer()
 ez_requires_openxr()
 
 # Get the name of this folder as the project name
@@ -12,9 +13,12 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
 )
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_OPENXR_SUPPORT)
 if (NOT EZ_OPENXR_PREVIEW_DIR STREQUAL "")
 	target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT)
+endif()
+
+if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT)
 endif()
     
 ez_link_target_openxr(${PROJECT_NAME})

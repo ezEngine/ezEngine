@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>
@@ -8,7 +7,6 @@
 #include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/InputContexts/OrthoGizmoContext.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
-#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoEditTool, 1, ezRTTIDefaultAllocator<ezTranslateGizmoEditTool>)

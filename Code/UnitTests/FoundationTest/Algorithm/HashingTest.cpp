@@ -27,21 +27,49 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     EZ_TEST_INT(uiHashRT, uiHashCT);
 
     // Static assert to ensure this is happening at compile time!
-    static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4),
-      "Error in compile time murmur hash calculation!");
+    static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
 
-    // Test short inputs (< 16 characthers) of xx hash at compile time
-    ezUInt32 uixxHashRT = ezHashingUtils::xxHash32("Test string", 11, 0);
-    ezUInt32 uixxHashCT = ezHashingUtils::xxHash32String("Test string", 0);
-    EZ_TEST_INT(uixxHashRT, uixxHashCT);
-    static_assert(ezHashingUtils::xxHash32String("Test string") == 0x1b50ee03);
+    {
+      // Test short inputs (< 16 characters) of xx hash at compile time
+      ezUInt32 uixxHashRT = ezHashingUtils::xxHash32("Test string", 11, 0);
+      ezUInt32 uixxHashCT = ezHashingUtils::xxHash32String("Test string", 0);
+      EZ_TEST_INT(uixxHashRT, uixxHashCT);
+      static_assert(ezHashingUtils::xxHash32String("Test string") == 0x1b50ee03);
 
-    // Test long inputs ( > 16 characters) of xx hash at compile time
-    ezUInt32 uixxHashRTLong = ezHashingUtils::xxHash32String(sb.GetData());
-    ezUInt32 uixxHashCTLong = ezHashingUtils::xxHash32String("This is a test string. 1234");
-    EZ_TEST_INT(uixxHashRTLong, uixxHashCTLong);
-    static_assert(ezHashingUtils::xxHash32String("This is a test string. 1234") == 0xff35b049);
+      // Test long inputs ( > 16 characters) of xx hash at compile time
+      ezUInt32 uixxHashRTLong = ezHashingUtils::xxHash32String(sb.GetData());
+      ezUInt32 uixxHashCTLong = ezHashingUtils::xxHash32String("This is a test string. 1234");
+      EZ_TEST_INT(uixxHashRTLong, uixxHashCTLong);
+      static_assert(ezHashingUtils::xxHash32String("This is a test string. 1234") == 0xff35b049);
+    }
 
+    {
+      // Test short inputs (< 32 characters) of xx hash 64 at compile time
+      ezUInt64 uixxHash64RT = ezHashingUtils::xxHash64("Test string", 11, 0);
+      ezUInt64 uixxHash64CT = ezHashingUtils::xxHash64String("Test string", 0);
+      EZ_TEST_INT(uixxHash64RT, uixxHash64CT);
+      static_assert(ezHashingUtils::xxHash64String("Test string") == 0xcf0f91eece7c88feULL);
+
+      // Test long inputs ( > 32 characters) of xx hash 64 at compile time
+      ezUInt64 uixxHash64RTLong = ezHashingUtils::xxHash64String(ezStringView("This is a longer test string for 64-bit. 123456"));
+      ezUInt64 uixxHash64CTLong = ezHashingUtils::xxHash64String("This is a longer test string for 64-bit. 123456");
+      EZ_TEST_INT(uixxHash64RTLong, uixxHash64CTLong);
+      static_assert(ezHashingUtils::xxHash64String("This is a longer test string for 64-bit. 123456") == 0xb85d007925299bacULL);
+    }
+
+    {
+      // Test short inputs (< 32 characters) of xx hash 64 at compile time
+      ezUInt64 uixxHash64RT = ezHashingUtils::StringHash(ezStringView("Test string"));
+      ezUInt64 uixxHash64CT = ezHashingUtils::StringHash("Test string");
+      EZ_TEST_INT(uixxHash64RT, uixxHash64CT);
+      static_assert(ezHashingUtils::StringHash("Test string") == 0xcf0f91eece7c88feULL);
+
+      // Test long inputs ( > 32 characters) of xx hash 64 at compile time
+      ezUInt64 uixxHash64RTLong = ezHashingUtils::StringHash(ezStringView("This is a longer test string for 64-bit. 123456"));
+      ezUInt64 uixxHash64CTLong = ezHashingUtils::StringHash("This is a longer test string for 64-bit. 123456");
+      EZ_TEST_INT(uixxHash64RTLong, uixxHash64CTLong);
+      static_assert(ezHashingUtils::StringHash("This is a longer test string for 64-bit. 123456") == 0xb85d007925299bacULL);
+    }
 
     // Check MurmurHash for unaligned inputs
     const char* alignmentTestString = "12345678_12345678__12345678___12345678";
@@ -103,33 +131,41 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     EZ_TEST_INT(uiHash1_64, uiHash2_64);
     EZ_TEST_INT(uiHash1_64, uiHash3_64);
     EZ_TEST_INT(uiHash1_64, uiHash4_64);
+
+    ezUInt32 uixxHash32RTEmpty = ezHashingUtils::xxHash32("", 0, 0);
+    ezUInt32 uixxHash32CTEmpty = ezHashingUtils::xxHash32String("", 0);
+    EZ_TEST_BOOL(uixxHash32RTEmpty == uixxHash32CTEmpty);
+
+    ezUInt64 uixxHash64RTEmpty = ezHashingUtils::xxHash64("", 0, 0);
+    ezUInt64 uixxHash64CTEmpty = ezHashingUtils::xxHash64String("", 0);
+    EZ_TEST_BOOL(uixxHash64RTEmpty == uixxHash64CTEmpty);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelper")
   {
     ezUInt32 uiHash = ezHashHelper<ezStringBuilder>::Hash(sb);
-    EZ_TEST_INT(uiHash, 0xff35b049);
+    EZ_TEST_INT(uiHash, 0x0bf32020);
 
     const char* szTest = "This is a test string. 1234";
     uiHash = ezHashHelper<const char*>::Hash(szTest);
-    EZ_TEST_INT(uiHash, 0xff35b049);
+    EZ_TEST_INT(uiHash, 0x0bf32020);
     EZ_TEST_BOOL(ezHashHelper<const char*>::Equal(szTest, sb.GetData()));
 
     ezHashedString hs;
     hs.Assign(szTest);
     uiHash = ezHashHelper<ezHashedString>::Hash(hs);
-    EZ_TEST_INT(uiHash, 0xff35b049);
+    EZ_TEST_INT(uiHash, 0x0bf32020);
 
     ezTempHashedString ths(szTest);
     uiHash = ezHashHelper<ezHashedString>::Hash(ths);
-    EZ_TEST_INT(uiHash, 0xff35b049);
+    EZ_TEST_INT(uiHash, 0x0bf32020);
     EZ_TEST_BOOL(ezHashHelper<ezHashedString>::Equal(hs, ths));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelperString_NoCase")
   {
     const ezUInt32 uiHash = ezHashHelper<const char*>::Hash(szStringLower);
-    EZ_TEST_INT(uiHash, 0x61482cce);
+    EZ_TEST_INT(uiHash, 0x19404167);
     EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szString));
     EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szStringLower));
     EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szString2));
@@ -167,26 +203,38 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
 
     auto test = [szTest, szTestHalf1, szTestHalf2](bool flush, ezUInt32* outHash) {
       ezHashStreamWriter32 writer1;
-      writer1.WriteBytes(szTest, std::strlen(szTest));
+      writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
       if (flush)
-        writer1.Flush();
+      {
+        writer1.Flush().IgnoreResult();
+      }
+
       const ezUInt32 uiHash1 = writer1.GetHashValue();
 
       ezHashStreamWriter32 writer2;
-      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1));
+      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1)).IgnoreResult();
       if (flush)
-        writer2.Flush();
-      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2));
+      {
+        writer2.Flush().IgnoreResult();
+      }
+
+      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2)).IgnoreResult();
       if (flush)
-        writer2.Flush();
+      {
+        writer2.Flush().IgnoreResult();
+      }
+
       const ezUInt32 uiHash2 = writer2.GetHashValue();
 
       ezHashStreamWriter32 writer3;
       for (ezUInt64 i = 0; szTest[i] != 0; ++i)
       {
-        writer3.WriteBytes(szTest + i, 1);
+        writer3.WriteBytes(szTest + i, 1).IgnoreResult();
+
         if (flush)
-          writer3.Flush();
+        {
+          writer3.Flush().IgnoreResult();
+        }
       }
       const ezUInt32 uiHash3 = writer3.GetHashValue();
 
@@ -213,26 +261,31 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
 
     auto test = [szTest, szTestHalf1, szTestHalf2](bool flush, ezUInt64* outHash) {
       ezHashStreamWriter64 writer1;
-      writer1.WriteBytes(szTest, std::strlen(szTest));
+      writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
+
       if (flush)
-        writer1.Flush();
+      {
+        writer1.Flush().IgnoreResult();
+      }
+
       const ezUInt64 uiHash1 = writer1.GetHashValue();
 
       ezHashStreamWriter64 writer2;
-      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1));
+      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1)).IgnoreResult();
       if (flush)
-        writer2.Flush();
-      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2));
+        writer2.Flush().IgnoreResult();
+      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2)).IgnoreResult();
       if (flush)
-        writer2.Flush();
+        writer2.Flush().IgnoreResult();
+
       const ezUInt64 uiHash2 = writer2.GetHashValue();
 
       ezHashStreamWriter64 writer3;
       for (ezUInt64 i = 0; szTest[i] != 0; ++i)
       {
-        writer3.WriteBytes(szTest + i, 1);
+        writer3.WriteBytes(szTest + i, 1).IgnoreResult();
         if (flush)
-          writer3.Flush();
+          writer3.Flush().IgnoreResult();
       }
       const ezUInt64 uiHash3 = writer3.GetHashValue();
 

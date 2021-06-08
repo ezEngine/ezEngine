@@ -17,11 +17,9 @@ public:
   ezSeparatedBilateralBlurPass();
   ~ezSeparatedBilateralBlurPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
   void SetRadius(ezUInt32 uiRadius);
   ezUInt32 GetRadius() const;
@@ -33,9 +31,9 @@ public:
   float GetSharpness() const;
 
 protected:
-  ezInputNodePin m_PinBlurSourceInput;
-  ezInputNodePin m_PinDepthInput;
-  ezOutputNodePin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinBlurSourceInput;
+  ezRenderPipelineNodeInputPin m_PinDepthInput;
+  ezRenderPipelineNodeOutputPin m_PinOutput;
 
   ezUInt32 m_uiRadius;
   float m_fGaussianSigma;

@@ -48,5 +48,5 @@ protected:
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
 
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezArrayPtr<const ezMat4> m_SkinningMatrices;
+  mutable ezArrayPtr<const ezMat4> m_SkinningMatrices;
 };

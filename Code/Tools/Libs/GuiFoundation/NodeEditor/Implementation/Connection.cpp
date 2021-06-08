@@ -73,9 +73,17 @@ QPen ezQtConnection::DeterminePen() const
     color = ezMath::Lerp(sourceColor, targetColor, 0.5f);
   }
 
-  QPen pen(QBrush(qRgb(color.r, color.g, color.b)), 3, Qt::SolidLine);
+  if (m_bAdjacentNodeSelected)
+  {
+    QRectF r = boundingRect();
 
-  return pen;
+    color = ezMath::Lerp(color, ezColorGammaUB(255, 255, 255), 0.1f);
+    return QPen(QBrush(qRgb(color.r, color.g, color.b)), 3, Qt::DashLine);
+  }
+  else
+  {
+    return QPen(QBrush(qRgb(color.r, color.g, color.b)), 2, Qt::SolidLine);
+  }
 }
 
 void ezQtConnection::UpdateConnection()

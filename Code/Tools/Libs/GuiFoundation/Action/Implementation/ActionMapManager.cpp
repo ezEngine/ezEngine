@@ -67,17 +67,18 @@ ezActionMap* ezActionMapManager::GetActionMap(const char* szMapping)
 
 void ezActionMapManager::Startup()
 {
-  ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
+  ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu").IgnoreResult();
   ezDocumentActions::MapActions("DocumentWindowTabMenu", "", false);
 }
 
 void ezActionMapManager::Shutdown()
 {
-  ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu");
+  ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu").IgnoreResult();
 
   while (!s_Mappings.IsEmpty())
   {
     ezResult res = UnregisterActionMap(s_Mappings.GetIterator().Key());
     EZ_ASSERT_DEV(res == EZ_SUCCESS, "Failed to call UnregisterActionMap successfully!");
+    res.IgnoreResult();
   }
 }

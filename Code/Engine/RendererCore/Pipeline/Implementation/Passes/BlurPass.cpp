@@ -42,8 +42,7 @@ ezBlurPass::~ezBlurPass()
   m_hBlurCB.Invalidate();
 }
 
-bool ezBlurPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
@@ -65,22 +64,21 @@ bool ezBlurPass::GetRenderTargetDescriptions(
   return true;
 }
 
-void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
     // Setup render target
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.m_uiRenderTargetClearMask = ezInvalidIndex;
+    renderingSetup.m_ClearColor = ezColor(1.0f, 0.0f, 0.0f);
 
     // Bind render target and viewport
-    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
 
-    pGALContext->Clear(ezColor(1.0f, 0.0f, 0.0f));
     // Setup input view and sampler
     ezGALResourceViewCreationDescription rvcd;
     rvcd.m_hTexture = inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle;
@@ -92,7 +90,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindTexture2D("Input", hResourceView);
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 }
 

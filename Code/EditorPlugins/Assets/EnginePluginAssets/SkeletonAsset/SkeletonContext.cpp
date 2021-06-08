@@ -3,25 +3,7 @@
 #include <EnginePluginAssets/SkeletonAsset/SkeletonContext.h>
 #include <EnginePluginAssets/SkeletonAsset/SkeletonView.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
-#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <SharedPluginAssets/Common/Messages.h>
+#include <RendererCore/AnimationSystem/SkeletonComponent.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonContext, 1, ezRTTIDefaultAllocator<ezSkeletonContext>)
@@ -37,15 +19,37 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonContext::ezSkeletonContext() {}
 
-void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  {
+    if (pMsg->m_sWhatToDo == "CommonAssetUiState")
+    {
+      if (pMsg->m_sPayload == "Grid")
+      {
+        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        return;
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "HighlightBones")
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSkeletonComponent* pSkeleton;
+      if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
+      {
+        pSkeleton->SetBonesToHighlight(pMsg->m_sPayload);
+      }
+    }
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
 void ezSkeletonContext::OnInitialize()
@@ -54,38 +58,19 @@ void ezSkeletonContext::OnInitialize()
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
-  ezVisualizeSkeletonComponent* pMesh;
+  ezSkeletonComponent* pVisSkeleton;
 
   // Preview Mesh
   {
     obj.m_sName.Assign("SkeletonPreview");
     pWorld->CreateObject(obj, m_pGameObject);
 
-    // const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    // m_pGameObject->GetTags().Set(tagCastShadows);
-
-    ezVisualizeSkeletonComponent::CreateComponent(m_pGameObject, pMesh);
+    m_hSkeletonComponent = ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
     ezStringBuilder sSkeletonGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
-    ezSkeletonResourceHandle hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
-    pMesh->SetSkeleton(hSkeleton);
-  }
-
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
+    m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
+    pVisSkeleton->SetSkeleton(m_hSkeleton);
+    pVisSkeleton->m_bVisualizeSkeleton = true;
   }
 }
 

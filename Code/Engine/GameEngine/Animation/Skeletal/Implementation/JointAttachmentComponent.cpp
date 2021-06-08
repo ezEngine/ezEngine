@@ -5,13 +5,16 @@
 #include <GameEngine/Animation/Skeletal/JointAttachmentComponent.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 2, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 1, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("JointName", GetJointName, SetJointName),
+    EZ_MEMBER_PROPERTY("PositionOffset", m_vLocalPositionOffset),
+    EZ_MEMBER_PROPERTY("RotationOffset", m_vLocalRotationOffset),
   }
   EZ_END_PROPERTIES;
 
@@ -39,6 +42,8 @@ void ezJointAttachmentComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_sJointToAttachTo;
+  s << m_vLocalPositionOffset;
+  s << m_vLocalRotationOffset;
 }
 
 void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& stream)
@@ -47,10 +52,9 @@ void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  if (uiVersion >= 2)
-  {
-    s >> m_sJointToAttachTo;
-  }
+  s >> m_sJointToAttachTo;
+  s >> m_vLocalPositionOffset;
+  s >> m_vLocalRotationOffset;
 
   m_uiJointIndex = ezInvalidJointIndex;
 }
@@ -76,13 +80,27 @@ void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
   if (m_uiJointIndex == ezInvalidJointIndex)
     return;
 
-  const ezMat4 m = msg.m_pPose->GetTransform(m_uiJointIndex);
-  ezTransform t;
-  t.SetFromMat4(m);
+  const ezMat4 bone = msg.m_pRootTransform->GetAsMat4() * msg.m_ModelTransforms[m_uiJointIndex];
+  ezQuat boneRot;
+
+  // the bone might contain (non-uniform) scaling and mirroring, which the quaternion can't represent
+  // so reconstruct a representable rotation matrix
+  {
+    const ezVec3 x = bone.TransformDirection(ezVec3(1, 0, 0)).GetNormalized();
+    const ezVec3 y = bone.TransformDirection(ezVec3(0, 1, 0)).GetNormalized();
+    const ezVec3 z = x.CrossRH(y);
+
+    ezMat3 m;
+    m.SetColumn(0, x);
+    m.SetColumn(1, y);
+    m.SetColumn(2, z);
+
+    boneRot.SetFromMat3(m);
+  }
 
   ezGameObject* pOwner = GetOwner();
-  pOwner->SetLocalPosition(t.m_vPosition);
-  pOwner->SetLocalRotation(t.m_qRotation);
+  pOwner->SetLocalPosition(bone.GetTranslationVector() + bone.TransformDirection(m_vLocalPositionOffset));
+  pOwner->SetLocalRotation(boneRot * m_vLocalRotationOffset);
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointAttachmentComponent);

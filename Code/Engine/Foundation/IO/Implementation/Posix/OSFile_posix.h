@@ -226,6 +226,20 @@ ezResult ezOSFile::InternalDeleteFile(const char* szFile)
   return EZ_FAILURE;
 }
 
+ezResult ezOSFile::InternalDeleteDirectory(const char* szDirectory)
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  int iRes = _rmdir(szDirectory);
+#else
+  int iRes = rmdir(szDirectory);
+#endif
+
+  if (iRes == 0 || (iRes == -1 && errno == ENOENT))
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
 {
   // handle drive letters as always successful

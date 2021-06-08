@@ -1,15 +1,11 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
-#include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
 
 
 const ezPlatformProfile* ezAssetCurator::GetDevelopmentAssetProfile() const

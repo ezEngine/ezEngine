@@ -14,10 +14,10 @@ struct EZ_RENDERERCORE_DLL ezLSAODepthCompareFunction
 
   enum Enum
   {
-    Depth,  ///< A hard cutoff function between the linear depth values. Samples with an absolute distance greater than
-            ///< ezLSAOPass::SetDepthCutoffDistance are ignored.
-    Normal, ///< Samples that are on the same plane as constructed by the center position and normal will be weighted higher than those samples that
-            ///< are above or below the plane.
+    Depth,                   ///< A hard cutoff function between the linear depth values. Samples with an absolute distance greater than
+                             ///< ezLSAOPass::SetDepthCutoffDistance are ignored.
+    Normal,                  ///< Samples that are on the same plane as constructed by the center position and normal will be weighted higher than those samples that
+                             ///< are above or below the plane.
     NormalAndSampleDistance, ///< Same as Normal, but if two samples are tested, their distance to the center position is is inversely multiplied as
                              ///< well, giving closer matches a higher weight.
     Default = NormalAndSampleDistance
@@ -43,15 +43,11 @@ public:
   ezLSAOPass();
   ~ezLSAOPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-  virtual void InitRenderPipelinePass(
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
-  virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
   ezUInt32 GetLineToLinePixelOffset() const { return m_uiLineToLinePixelOffset; }
   void SetLineToLinePixelOffset(ezUInt32 uiPixelOffset);
@@ -73,11 +69,10 @@ protected:
   void SetupLineSweepData(const ezVec2I32& imageResolution);
 
 
-  void AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex,
-    ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples);
+  void AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples);
 
-  ezInputNodePin m_PinDepthInput;
-  ezOutputNodePin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinDepthInput;
+  ezRenderPipelineNodeOutputPin m_PinOutput;
 
   ezConstantBufferStorageHandle m_hLineSweepCB;
 

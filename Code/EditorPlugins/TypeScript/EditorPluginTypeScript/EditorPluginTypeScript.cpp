@@ -26,17 +26,16 @@ void OnLoadPlugin(bool bReloading)
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("TypeScriptAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("TypeScriptAssetMenuBar").IgnoreResult();
       ezProjectActions::MapActions("TypeScriptAssetMenuBar");
-      ezStandardMenus::MapActions(
-        "TypeScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("TypeScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("TypeScriptAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("TypeScriptAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("TypeScriptAssetToolBar");
+      ezActionMapManager::RegisterActionMap("TypeScriptAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("TypeScriptAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("TypeScriptAssetToolBar", "");
       ezAssetActions::MapActions("TypeScriptAssetToolBar", true);

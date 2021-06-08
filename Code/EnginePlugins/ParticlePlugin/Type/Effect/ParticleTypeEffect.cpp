@@ -108,6 +108,31 @@ void ezParticleTypeEffect::CreateRequiredStreams()
   CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID, false);
 }
 
+void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+{
+  EZ_PROFILE_SCOPE("PFX: Effect");
+
+  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+
+  if (numParticles == 0)
+    return;
+
+  const ezUInt32* pEffectID = m_pStreamEffectID->GetData<ezUInt32>();
+
+  const ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+
+  for (ezUInt32 i = 0; i < numParticles; ++i)
+  {
+    ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[i]));
+
+    const ezParticleEffectInstance* pEffect = nullptr;
+    if (pWorldModule->TryGetEffectInstance(hInstance, pEffect))
+    {
+      pWorldModule->ExtractEffectRenderData(pEffect, msg, pEffect->GetTransform());
+    }
+  }
+}
+
 void ezParticleTypeEffect::OnReset()
 {
   ClearEffects(true);
@@ -134,8 +159,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
     if (pEffectID[i] == 0) // always an invalid ID
     {
       const void* pDummy = nullptr;
-      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy,
-        ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
+      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
@@ -152,7 +176,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 
       // TODO: pass through velocity
       pEffect->SetVisibleIf(GetOwnerEffect());
-      pEffect->SetTransform(t, ezVec3::ZeroVector(), nullptr);
+      pEffect->SetTransformForNextFrame(t, ezVec3::ZeroVector());
 
       ezBoundingBoxSphere bounds;
       pEffect->GetBoundingVolume(bounds);

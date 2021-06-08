@@ -2,9 +2,11 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
+#include <GameEngine/Animation/PropertyAnimResource.h>
 
 typedef ezComponentManagerSimple<class ezColorAnimationComponent, ezComponentUpdateType::WhenSimulating> ezColorAnimationComponentManager;
 
@@ -26,6 +28,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+protected:
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezColorAnimationComponent
@@ -39,6 +43,15 @@ public:
 
   void SetColorGradient(const ezColorGradientResourceHandle& hResource);
   EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
+
+  ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
+  ezEnum<ezSetColorMode> m_SetColorMode;      // [ property ]
+
+  bool GetApplyRecursive() const;     // [ property ]
+  void SetApplyRecursive(bool value); // [ property ]
+
+  bool GetRandomStartOffset() const;     // [ property ]
+  void SetRandomStartOffset(bool value); // [ property ]
 
 protected:
   void Update();

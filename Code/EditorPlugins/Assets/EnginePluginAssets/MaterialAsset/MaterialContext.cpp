@@ -1,16 +1,9 @@
 #include <EnginePluginAssetsPCH.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialView.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <SharedPluginAssets/Common/Messages.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezMaterialContext>)
@@ -38,7 +31,6 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezMaterialContext::OnInitialize()
 {
-
   const char* szMeshName = "DefaultMaterialPreviewMesh";
   m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 
@@ -60,6 +52,7 @@ void ezMaterialContext::OnInitialize()
       desc.AddCommonStreams();
       desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
       desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+      desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -102,20 +95,6 @@ void ezMaterialContext::OnInitialize()
     {
       pMesh->SetMaterial(i, m_hMaterial);
     }
-  }
-
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
-
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
 }
 

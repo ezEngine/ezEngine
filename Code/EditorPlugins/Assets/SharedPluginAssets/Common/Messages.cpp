@@ -15,4 +15,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineLoopAnimationMsg, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSetMaterialsMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineSetMaterialsMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Materials),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

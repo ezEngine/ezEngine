@@ -3,32 +3,14 @@
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <EnginePluginAssets/MeshAsset/MeshView.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <SharedPluginAssets/Common/Messages.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshContext, 1, ezRTTIDefaultAllocator<ezMeshContext>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh;Animated Mesh"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh"),
   }
   EZ_END_PROPERTIES;
 }
@@ -40,15 +22,48 @@ ezMeshContext::ezMeshContext()
   m_pMeshObject = nullptr;
 }
 
-void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto* pMsg = ezDynamicCast<const ezEditorEngineSetMaterialsMsg*>(pDocMsg))
+  {
+    ezMeshComponent* pMesh;
+    if (m_pMeshObject && m_pMeshObject->TryGetComponentOfBaseType(pMesh))
+    {
+      for (ezUInt32 i = 0; i < pMsg->m_Materials.GetCount(); ++i)
+      {
+        ezMaterialResourceHandle hMat;
+
+        if (!pMsg->m_Materials[i].IsEmpty())
+        {
+          hMat = ezResourceManager::LoadResource<ezMaterialResource>(pMsg->m_Materials[i]);
+        }
+
+        pMesh->SetMaterial(i, hMat);
+      }
+    }
+
+    return;
+  }
+
+  if (auto* pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  {
+    if (pMsg->m_sWhatToDo == "CommonAssetUiState")
+    {
+      if (pMsg->m_sPayload == "Grid")
+      {
+        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        return;
+      }
+    }
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
 void ezMeshContext::OnInitialize()
@@ -72,23 +87,11 @@ void ezMeshContext::OnInitialize()
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
     m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
     pMesh->SetMesh(m_hMesh);
-  }
 
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
+    {
+      ezResourceLock<ezMeshResource> pMeshRes(m_hMesh, ezResourceAcquireMode::PointerOnly);
+      pMeshRes->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMeshContext::OnResourceEvent, this), m_meshResourceEventSubscriber);
+    }
   }
 }
 
@@ -104,6 +107,14 @@ void ezMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
+  if (m_boundsDirty)
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    m_pMeshObject->UpdateLocalBounds();
+    m_pMeshObject->UpdateGlobalTransformAndBounds();
+    m_boundsDirty = false;
+  }
   ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
   ezMeshViewContext* pMeshViewContext = static_cast<ezMeshViewContext*>(pThumbnailViewContext);
@@ -124,6 +135,7 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
+    m_boundsDirty = false;
     const auto& b = m_pMeshObject->GetGlobalBounds();
 
     if (b.IsValid())
@@ -140,4 +152,12 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);
+}
+
+void ezMeshContext::OnResourceEvent(const ezResourceEvent& e)
+{
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
+  {
+    m_boundsDirty = true;
+  }
 }

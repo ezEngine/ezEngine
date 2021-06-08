@@ -1,9 +1,9 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Curves/Curve1DResource.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
-#include <GameEngine/Curves/Curve1DResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimResource, 1, ezRTTIDefaultAllocator<ezPropertyAnimResource>)
@@ -67,13 +67,13 @@ ezResourceLoadDesc ezPropertyAnimResource::UpdateContent(ezStreamReader* Stream)
 
   // skip the absolute file path data that the standard file reader writes into the stream
   {
-    ezString sAbsFilePath;
+    ezStringBuilder sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+  AssetHash.Read(*Stream).IgnoreResult();
 
   m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
   m_pDescriptor->Load(*Stream);

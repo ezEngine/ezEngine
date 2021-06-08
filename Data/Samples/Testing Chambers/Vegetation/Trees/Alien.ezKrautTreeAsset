@@ -1,0 +1,168 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{15484710852909599622,5114518352703152825}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Kraut Tree"}
+		VarArray %Dependencies
+		{
+			s{"Vegetation/EvilTree.tree"}
+		}
+		Uuid %DocumentID{u4{15484710852909599622,5114518352703152825}}
+		u4 %Hash{5831590393308480861}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{2827247052075688083,4920526041434263049}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Trunk 1 - Stem"}
+		s %Material{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8782542419344429227,5037326744637561341}}
+	s %t{"ezKrautTreeAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		u2 %DisplayRandomSeed{10}
+		VarArray %GoodRandomSeeds
+		{
+			u2{0}
+			u2{3}
+			u2{7}
+			u2{10}
+		}
+		s %KrautFile{"Vegetation/EvilTree.tree"}
+		f %LodDistanceScale{0x00004040}
+		VarArray %Materials
+		{
+			Uuid{u4{2827247052075688083,4920526041434263049}}
+			Uuid{u4{3947201826041457029,5632508763184264959}}
+		}
+		f %StaticColliderRadius{0xCDCCCC3E}
+		s %Surface{""}
+		f %TreeStiffness{0x0000C842}
+		f %UniformScaling{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{3947201826041457029,5632508763184264959}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 1 - Stem"}
+		s %Material{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8782542419344429227,5037326744637561341}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{9839103660623915170,1447106120747834331}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautAssetMaterial"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6793836540827978476,3094957657128336037}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautTreeAssetProperties"}
+		u3 %TypeSize{1264}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}

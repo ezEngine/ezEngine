@@ -2,15 +2,11 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginProcGen/Actions/ProcGenActions.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
@@ -25,10 +21,9 @@ void OnLoadPlugin(bool bReloading)
   {// Menu Bar
     {const char* szMenuBar = "ProcGenAssetMenuBar";
 
-  ezActionMapManager::RegisterActionMap(szMenuBar);
+  ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
   ezProjectActions::MapActions(szMenuBar);
-  ezStandardMenus::MapActions(
-    szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+  ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
   ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
 
@@ -38,7 +33,7 @@ void OnLoadPlugin(bool bReloading)
 // Tool Bar
 {
   const char* szToolBar = "ProcGenAssetToolBar";
-  ezActionMapManager::RegisterActionMap(szToolBar);
+  ezActionMapManager::RegisterActionMap(szToolBar).IgnoreResult();
   ezDocumentActions::MapActions(szToolBar, "", true);
   ezCommandHistoryActions::MapActions(szToolBar, "");
   ezAssetActions::MapActions(szToolBar, true);

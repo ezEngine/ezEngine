@@ -10,43 +10,104 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 
-/* ezArchiveTool command line options:
+/* ArchiveTool command line options:
 
-Options to be specific:
+-out <path>
+    Path to a file or folder.
+    
+    -out specifies the target to pack or unpack things to.
+    For packing mode it has to be a file. The file will be overwritten, if it already exists.
+    For unpacking, the target should be a folder (may or may not exist) into which the archives get extracted.
+    
+    If no -out is specified, it is determined to be where the input file is located.
 
--pack "path/to/folder" "path/to/another/folder" ...
--unpack "path/to/file.ezArchive" "another/file.ezArchive"
--out "path/to/file/or/folder"
+-unpack <paths>
+    One or multiple paths to ezArchive files that shall be extracted.
+    
+    Example:
+      -unpack "path/to/file.ezArchive" "another/file.ezArchive"
 
--pack and -unpack can take multiple inputs to either aggregate multiple folders into one archive (pack)
-or to unpack multiple archives at the same time.
+-pack <paths>
+    One or multiple paths to folders that shall be packed.
+    
+    Example:
+      -pack "path/to/folder" "path/to/another/folder"
 
--out specifies the target to pack or unpack things to. For packing mode it has to be a file.
-The file will be overwritten, if it already exists.
-For unpacking the target should be a folder (may or may not exist) into which the archives get extracted.
-
-If no -out is specified, it is determined to be where the input file is located.
-
-If neither -pack nor -unpack is specified, the mode is detected automatically from the list of inputs.
-If all inputs are folders, mode is going to be 'pack'.
-If all inputs are files, mode is going to be 'unpack'.
+Description:
+    -pack and -unpack can take multiple inputs to either aggregate multiple folders into one archive (pack)
+    or to unpack multiple archives at the same time.
+    
+    If neither -pack nor -unpack is specified, the mode is detected automatically from the list of inputs.
+    If all inputs are folders, the mode is 'pack'.
+    If all inputs are files, the mode is 'unpack'.
 
 Examples:
-
-ezArchiveTool.exe "C:\Stuff"
-  will pack all data in "C:\Stuff" into "C:\Stuff.ezArchive"
-
-ezArchiveTool.exe "C:\Stuff" -out "C:\MyStuff.ezArchive"
-  will pack all data in "C:\Stuff" into "C:\MyStuff.ezArchive"
-
-ezArchiveTool.exe "C:\Stuff.ezArchive"
-  will unpack all data from the archive into "C:\Stuff"
-
-ezArchiveTool.exe "C:\Stuff.ezArchive" -out "C:\MyStuff"
-  will unpack all data from the archive into "C:\MyStuff"
-
+    ArchiveTool.exe "C:/Stuff"
+      Packs all data in "C:/Stuff" into "C:/Stuff.ezArchive"
+    
+    ArchiveTool.exe "C:/Stuff" -out "C:/MyStuff.ezArchive"
+      Packs all data in "C:/Stuff" into "C:/MyStuff.ezArchive"
+    
+    ArchiveTool.exe "C:/Stuff.ezArchive"
+      Unpacks all data from the archive into "C:/Stuff"
+    
+    ArchiveTool.exe "C:/Stuff.ezArchive" -out "C:/MyStuff"
+      Unpacks all data from the archive into "C:/MyStuff"
 */
+
+ezCommandLineOptionPath opt_Out("_ArchiveTool", "-out", "\
+Path to a file or folder.\n\
+\n\
+-out specifies the target to pack or unpack things to.\n\
+For packing mode it has to be a file. The file will be overwritten, if it already exists.\n\
+For unpacking, the target should be a folder (may or may not exist) into which the archives get extracted.\n\
+\n\
+If no -out is specified, it is determined to be where the input file is located.\n\
+",
+  "");
+
+ezCommandLineOptionDoc opt_Unpack("_ArchiveTool", "-unpack", "<paths>", "\
+One or multiple paths to ezArchive files that shall be extracted.\n\
+\n\
+Example:\n\
+  -unpack \"path/to/file.ezArchive\" \"another/file.ezArchive\"\n\
+",
+  "");
+
+ezCommandLineOptionDoc opt_Pack("_ArchiveTool", "-pack", "<paths>", "\
+One or multiple paths to folders that shall be packed.\n\
+\n\
+Example:\n\
+  -pack \"path/to/folder\" \"path/to/another/folder\"\n\
+",
+  "");
+
+ezCommandLineOptionDoc opt_Desc("_ArchiveTool", "Description:", "", "\
+-pack and -unpack can take multiple inputs to either aggregate multiple folders into one archive (pack)\n\
+or to unpack multiple archives at the same time.\n\
+\n\
+If neither -pack nor -unpack is specified, the mode is detected automatically from the list of inputs.\n\
+If all inputs are folders, the mode is 'pack'.\n\
+If all inputs are files, the mode is 'unpack'.\n\
+",
+  "");
+
+ezCommandLineOptionDoc opt_Examples("_ArchiveTool", "Examples:", "", "\
+ArchiveTool.exe \"C:/Stuff\"\n\
+  Packs all data in \"C:/Stuff\" into \"C:/Stuff.ezArchive\"\n\
+\n\
+ArchiveTool.exe \"C:/Stuff\" -out \"C:/MyStuff.ezArchive\"\n\
+  Packs all data in \"C:/Stuff\" into \"C:/MyStuff.ezArchive\"\n\
+\n\
+ArchiveTool.exe \"C:/Stuff.ezArchive\"\n\
+  Unpacks all data from the archive into \"C:/Stuff\"\n\
+\n\
+ArchiveTool.exe \"C:/Stuff.ezArchive\" -out \"C:/MyStuff\"\n\
+  Unpacks all data from the archive into \"C:/MyStuff\"\n\
+",
+  "");
 
 class ezArchiveBuilderImpl : public ezArchiveBuilder
 {
@@ -116,7 +177,7 @@ public:
 
     ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
 
-    m_sOutput = cmd.GetStringOption("-out");
+    m_sOutput = opt_Out.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
     ezStringBuilder path;
 
@@ -216,7 +277,7 @@ public:
   virtual void AfterCoreSystemsStartup() override
   {
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -311,12 +372,21 @@ public:
     return EZ_SUCCESS;
   }
 
-  virtual ApplicationExecution Run() override
+  virtual Execution Run() override
   {
+    {
+      ezStringBuilder cmdHelp;
+      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_ArchiveTool"))
+      {
+        ezLog::Print(cmdHelp);
+        return ezApplication::Execution::Quit;
+      }
+    }
+
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     if (m_Mode == ArchiveMode::Pack)
@@ -327,7 +397,7 @@ public:
         SetReturnCode(2);
       }
 
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     if (m_Mode == ArchiveMode::Unpack)
@@ -338,11 +408,11 @@ public:
         SetReturnCode(3);
       }
 
-      return ezApplication::Quit;
+      return ezApplication::Execution::Quit;
     }
 
     ezLog::Error("Unknown mode");
-    return ezApplication::Quit;
+    return ezApplication::Execution::Quit;
   }
 };
 

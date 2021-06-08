@@ -28,7 +28,7 @@ struct EZ_ALIGN_16(ezPerLightData)
   UINT1(reserved);
 };
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerLightData> perLightDataBuffer;
 #else
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLightData) == 48);
@@ -65,7 +65,7 @@ struct EZ_ALIGN_16(ezDirShadowData)
 #define GET_CASCADE_OFFSET_INDEX(baseOffset, index) (baseOffset + 8 + 2 * (index))
 #define GET_ATLAS_SCALE_OFFSET_INDEX(baseOffset, index) (baseOffset + 13 + (index))
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<float4> shadowDataBuffer;
 #endif
 
@@ -98,7 +98,7 @@ struct EZ_ALIGN_16(ezPerDecalData)
   UINT1(ormAtlasOffset); // xy as 16 bit floats
 };
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
 #else // C++
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
@@ -121,6 +121,7 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
   FLOAT1(FogDensityAtCameraPos);
   FLOAT1(FogDensity);
   COLOR4F(FogColor);
+  FLOAT1(FogInvSkyDistance);
 };
 
 #define NUM_CLUSTERS_X 16
@@ -142,7 +143,7 @@ struct ezPerClusterData
   UINT1(counts);
 };
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerClusterData> perClusterDataBuffer;
   StructuredBuffer<uint> clusterItemBuffer;
 #endif

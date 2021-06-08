@@ -1,0 +1,14 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "other",
+        "Other": {
+          "Name": "Mikktspace",
+          "Version": "1.0",
+          "DownloadUrl": "http://www.metalliandy.com/mikktspace/downloads/mikktspace/mikktspace.h"
+        }
+      }
+    }
+  ]
+}

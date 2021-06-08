@@ -26,9 +26,9 @@ ezResult ezGameEngineTest::InitializeTest()
   if (m_pApplication == nullptr)
     return EZ_FAILURE;
 
-  ezRun_Startup(m_pApplication);
+  EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  if (ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics")))
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
@@ -48,7 +48,7 @@ ezResult ezGameEngineTest::DeInitializeTest()
     m_pApplication->RequestQuit();
 
     ezInt32 iSteps = 2;
-    while (m_pApplication->Run() == ezApplication::Continue && iSteps > 0)
+    while (m_pApplication->Run() == ezApplication::Execution::Continue && iSteps > 0)
     {
       --iSteps;
     }
@@ -66,7 +66,7 @@ ezResult ezGameEngineTest::DeInitializeTest()
 
 ezResult ezGameEngineTest::InitializeSubTest(ezInt32 iIdentifier)
 {
-  SUPER::InitializeSubTest(iIdentifier);
+  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
 
@@ -107,7 +107,7 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
     // File Header
     {
       ezAssetFileHeader header;
-      header.Read(file);
+      EZ_SUCCEED_OR_RETURN(header.Read(file));
 
       char szSceneTag[16];
       file.ReadBytes(szSceneTag, sizeof(char) * 16);
@@ -116,7 +116,7 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
     }
 
     ezWorldReader reader;
-    reader.ReadWorldDescription(file);
+    EZ_SUCCEED_OR_RETURN(reader.ReadWorldDescription(file));
     reader.InstantiateWorld(*m_pWorld, nullptr);
 
     return EZ_SUCCESS;
@@ -133,7 +133,7 @@ ezResult ezGameEngineTestApplication::BeforeCoreSystemsStartup()
   EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   ezStringBuilder sProject;
-  ezFileSystem::ResolveSpecialDirectory(GetProjectDataDirectoryPath(), sProject);
+  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(GetProjectDataDirectoryPath(), sProject));
   m_sAppProjectPath = sProject;
 
   return EZ_SUCCESS;
@@ -150,7 +150,7 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::Seconds(1.0 / 30.0));
 
-  ActivateGameState(m_pWorld.Borrow());
+  ActivateGameState(m_pWorld.Borrow()).IgnoreResult();
 }
 
 void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
@@ -178,8 +178,8 @@ void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites);
-    ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir");
+    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
   }
 }
 

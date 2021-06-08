@@ -25,6 +25,18 @@ Node %UV
   string %Category { "Input" }
   unsigned_int8 %Color { 38, 105, 0 }
 
+  string %CodeVertexShader { "
+#define USE_TEXCOORD0
+" }
+
+  string %CodeGeometryShader { "
+#define USE_TEXCOORD0
+" }
+
+  string %CodePixelDefines { "
+#define USE_TEXCOORD0
+" }
+
   OutputPin %UV
   {
     string %Type { "float2" }
@@ -111,6 +123,18 @@ Node %VertexNormal
   string %Category { "Input" }
   unsigned_int8 %Color { 38, 105, 0 }
 
+  string %CodeVertexShader { "
+#define USE_NORMAL
+" }
+
+  string %CodeGeometryShader { "
+#define USE_NORMAL
+" }
+
+  string %CodePixelDefines { "
+#define USE_NORMAL
+" }
+
   OutputPin %Normal
   {
     string %Type { "float3" }
@@ -124,6 +148,18 @@ Node %VertexTangent
 {
   string %Category { "Input" }
   unsigned_int8 %Color { 38, 105, 0 }
+
+  string %CodeVertexShader { "
+#define USE_TANGENT
+" }
+
+  string %CodeGeometryShader { "
+#define USE_TANGENT
+" }
+
+  string %CodePixelDefines { "
+#define USE_TANGENT
+" }
 
   OutputPin %Tangent
   {

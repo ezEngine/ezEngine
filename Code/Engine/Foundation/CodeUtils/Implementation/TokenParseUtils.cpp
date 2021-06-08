@@ -7,17 +7,13 @@ namespace ezTokenParseUtils
 {
   void SkipWhitespace(const TokenStream& Tokens, ezUInt32& uiCurToken)
   {
-    while (uiCurToken < Tokens.GetCount() &&
-           ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) || (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) ||
-             (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
+    while (uiCurToken < Tokens.GetCount() && ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) || (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) || (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
       ++uiCurToken;
   }
 
   void SkipWhitespaceAndNewline(const TokenStream& Tokens, ezUInt32& uiCurToken)
   {
-    while (uiCurToken < Tokens.GetCount() &&
-           ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) || (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) ||
-             (Tokens[uiCurToken]->m_iType == ezTokenType::Newline) || (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
+    while (uiCurToken < Tokens.GetCount() && ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) || (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) || (Tokens[uiCurToken]->m_iType == ezTokenType::Newline) || (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
       ++uiCurToken;
   }
 
@@ -44,8 +40,7 @@ namespace ezTokenParseUtils
       // add all the relevant tokens to the definition
       for (; i < Source.GetCount(); ++i)
       {
-        if (Source[i]->m_iType == ezTokenType::BlockComment || Source[i]->m_iType == ezTokenType::LineComment ||
-            Source[i]->m_iType == ezTokenType::EndOfFile || (!bPreserveNewLines && Source[i]->m_iType == ezTokenType::Newline))
+        if (Source[i]->m_iType == ezTokenType::BlockComment || Source[i]->m_iType == ezTokenType::LineComment || Source[i]->m_iType == ezTokenType::EndOfFile || (!bPreserveNewLines && Source[i]->m_iType == ezTokenType::Newline))
           continue;
 
         Destination.PushBack(Source[i]);
@@ -140,8 +135,7 @@ namespace ezTokenParseUtils
 
     for (ezUInt32 t = uiCurToken; t < Tokens.GetCount(); ++t)
     {
-      if ((Tokens[t]->m_iType == ezTokenType::LineComment) || (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
-          (Tokens[t]->m_iType == ezTokenType::Newline) || (Tokens[t]->m_iType == ezTokenType::EndOfFile))
+      if ((Tokens[t]->m_iType == ezTokenType::LineComment) || (Tokens[t]->m_iType == ezTokenType::BlockComment) || (Tokens[t]->m_iType == ezTokenType::Newline) || (Tokens[t]->m_iType == ezTokenType::EndOfFile))
         continue;
 
       sTemp = Tokens[t]->m_DataView;
@@ -170,8 +164,7 @@ namespace ezTokenParseUtils
     }
   }
 
-  void CombineTokensToString(
-    const TokenStream& Tokens0, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
+  void CombineTokensToString(const TokenStream& Tokens0, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
   {
     TokenStream Tokens;
 

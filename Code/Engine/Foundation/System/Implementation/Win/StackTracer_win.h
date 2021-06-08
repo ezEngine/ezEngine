@@ -190,7 +190,7 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
   if (pContext && s_pImplementation->stackWalk)
   {
     // in order not to destroy the pContext handed in we need to make a copy of it
-    // see StackWalk/StackWalk64 docs https://docs.microsoft.com/en-us/windows/win32/api/dbghelp/nf-dbghelp-stackwalk
+    // see StackWalk/StackWalk64 docs https://docs.microsoft.com/windows/win32/api/dbghelp/nf-dbghelp-stackwalk
     PCONTEXT originalContext = static_cast<PCONTEXT>(pContext);
     PCONTEXT copiedContext = nullptr;
 

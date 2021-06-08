@@ -142,8 +142,8 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 
 ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion uiExpectedMaxVersion)
 {
-  ezTypeVersion v;
-  ReadWordValue(&v);
+  ezTypeVersion v = 0;
+  ReadWordValue(&v).IgnoreResult();
 
   EZ_ASSERT_ALWAYS(v <= uiExpectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, uiExpectedMaxVersion);
   EZ_ASSERT_ALWAYS(v > 0, "Invalid version.");
@@ -155,7 +155,7 @@ void ezStreamWriter::WriteVersion(ezTypeVersion uiVersion)
 {
   EZ_ASSERT_ALWAYS(uiVersion > 0, "Version cannot be zero.");
 
-  WriteWordValue(&uiVersion);
+  WriteWordValue(&uiVersion).IgnoreResult();
 }
 
 
@@ -170,19 +170,19 @@ namespace ezStreamWriterUtil
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, long) -> decltype(Obj.Serialize(Stream), ezResult(EZ_SUCCESS))
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, long) -> decltype(Obj.Serialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Serialize(Stream));
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, float) -> decltype(Obj.serialize(Stream), ezResult(EZ_SUCCESS))
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, float) -> decltype(Obj.serialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.serialize(Stream));
   }
 
   template <class T>
-  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj, 0), ezResult(EZ_SUCCESS))
+  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return SerializeImpl(Stream, Obj, 0);
   }
@@ -192,7 +192,7 @@ template <typename ArrayType, typename ValueType>
 ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Array)
 {
   const ezUInt64 uiCount = Array.GetCount();
-  WriteQWordValue(&uiCount);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiCount));
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
   {
@@ -206,7 +206,7 @@ template <typename ValueType, ezUInt32 uiSize>
 ezResult ezStreamWriter::WriteArray(const ValueType (&Array)[uiSize])
 {
   const ezUInt64 uiWriteSize = uiSize;
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiSize); ++i)
   {
@@ -220,7 +220,7 @@ template <typename KeyType, typename Comparer>
 ezResult ezStreamWriter::WriteSet(const ezSetBase<KeyType, Comparer>& Set)
 {
   const ezUInt64 uiWriteSize = Set.GetCount();
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (const auto& item : Set)
   {
@@ -234,7 +234,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 ezResult ezStreamWriter::WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map)
 {
   const ezUInt64 uiWriteSize = Map.GetCount();
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (auto It = Map.GetIterator(); It.IsValid(); ++It)
   {
@@ -249,7 +249,7 @@ template <typename KeyType, typename ValueType, typename Hasher>
 ezResult ezStreamWriter::WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& HashTable)
 {
   const ezUInt64 uiWriteSize = HashTable.GetCount();
-  WriteQWordValue(&uiWriteSize);
+  EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
   for (auto It = HashTable.GetIterator(); It.IsValid(); ++It)
   {
@@ -271,19 +271,19 @@ namespace ezStreamReaderUtil
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, long) -> decltype(Obj.Deserialize(Stream), ezResult(EZ_SUCCESS))
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, long) -> decltype(Obj.Deserialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Deserialize(Stream));
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, float) -> decltype(Obj.deserialize(Stream), ezResult(EZ_SUCCESS))
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, float) -> decltype(Obj.deserialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.deserialize(Stream));
   }
 
   template <class T>
-  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj, 0), ezResult(EZ_SUCCESS))
+  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return DeserializeImpl(Stream, Obj, 0);
   }

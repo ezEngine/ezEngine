@@ -3,7 +3,6 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>)
@@ -34,13 +33,12 @@ ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory,
-  const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
+ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {
     ezStringBuilder sRelativePath(szDocumentPath);
-    sRelativePath.MakeRelativeTo(szDataDirectory);
+    sRelativePath.MakeRelativeTo(szDataDirectory).IgnoreResult();
     ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "autogen.ezShader", false);
     return sRelativePath;
   }
@@ -49,8 +47,7 @@ ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAsset
 }
 
 
-bool ezMaterialAssetDocumentManager::IsOutputUpToDate(
-  const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
+bool ezMaterialAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {
@@ -96,8 +93,7 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
   }
 }
 
-void ezMaterialAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezMaterialAssetDocument(szPath);
 }

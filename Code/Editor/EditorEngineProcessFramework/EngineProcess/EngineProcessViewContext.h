@@ -2,9 +2,9 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/System/Window.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <System/Window/Window.h>
 
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
@@ -57,6 +57,8 @@ public:
   static bool FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
 
   ezViewHandle GetViewHandle() const { return m_hView; }
+
+  void DrawSimpleGrid() const;
 
 protected:
   void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);

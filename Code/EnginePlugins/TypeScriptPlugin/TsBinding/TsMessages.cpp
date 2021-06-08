@@ -58,7 +58,7 @@ import Flags = require("./AllFlags")
   ezDeferredFileWriter file;
   file.SetOutput(szFile, true);
 
-  file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount());
+  file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount()).IgnoreResult();
 
   if (file.Close().Failed())
   {
@@ -114,8 +114,8 @@ void ezTypeScriptBinding::GenerateMessageCode(ezStringBuilder& out_Code, const e
 
   out_Code.AppendFormat("export class {0} extends {1}\n", sType, sParentType);
   out_Code.Append("{\n");
-  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", pRtti->GetTypeNameHash());
-  out_Code.AppendFormat("  constructor() { super(); this.TypeNameHash = {}; }\n", pRtti->GetTypeNameHash());
+  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()));
+  out_Code.AppendFormat("  constructor() { super(); this.TypeNameHash = {}; }\n", ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()));
   GenerateMessagePropertiesCode(out_Code, pRtti);
   out_Code.Append("}\n\n");
 }
@@ -191,7 +191,7 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
 
     for (pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
     {
-      if (pRtti->GetTypeNameHash() == uiTypeHash)
+      if (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiTypeHash)
       {
         MessageTypes[uiTypeHash] = pRtti;
         break;
@@ -267,12 +267,12 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
   ezStringBuilder sMsgName = pRtti->GetTypeName();
   sMsgName.TrimWordStart("ez");
 
-  duk.PushGlobalObject();                           // [ global ]
-  duk.PushLocalObject("__AllMessages");             // [ global __AllMessages ]
-  duk_get_prop_string(duk, -1, sMsgName.GetData()); // [ global __AllMessages msgname ]
-  duk_new(duk, 0);                                  // [ global __AllMessages msg ]
-  duk_remove(duk, -2);                              // [ global msg ]
-  duk_remove(duk, -2);                              // [ msg ]
+  duk.PushGlobalObject();                              // [ global ]
+  duk.PushLocalObject("__AllMessages").IgnoreResult(); // [ global __AllMessages ]
+  duk_get_prop_string(duk, -1, sMsgName.GetData());    // [ global __AllMessages msgname ]
+  duk_new(duk, 0);                                     // [ global __AllMessages msg ]
+  duk_remove(duk, -2);                                 // [ global msg ]
+  duk_remove(duk, -2);                                 // [ msg ]
 
   SyncEzObjectToTsObject(pDuk, pRtti, &msg, -1);
 
@@ -294,8 +294,8 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
     {
       if (duk.PrepareObjectFunctionCall("RegisterMessageHandlers").Succeeded()) // [ global __CompModule obj func ]
       {
-        duk.CallPreparedFunction(); // [ global __CompModule obj result ]
-        duk.PopStack();             // [ global __CompModule obj ]
+        duk.CallPreparedFunction().IgnoreResult(); // [ global __CompModule obj result ]
+        duk.PopStack();                            // [ global __CompModule obj ]
       }
 
       duk.PopStack(); // [ global __CompModule ]
@@ -315,15 +315,14 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
 {
   ezTypeScriptBinding* tsb = ezTypeScriptBinding::RetrieveBinding(pDuk);
 
-  EZ_ASSERT_DEV(tsb->m_CurrentTsMsgHandlerRegistrator.IsValid(),
-    "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
+  EZ_ASSERT_DEV(tsb->m_CurrentTsMsgHandlerRegistrator.IsValid(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
 
   ezDuktapeFunction duk(pDuk);
 
   ezUInt32 uiMsgTypeHash = duk.GetUIntValue(0);
   const char* szMsgHandler = duk.GetStringValue(1);
 
-  const ezRTTI* pMsgType = ezRTTI::FindTypeByNameHash(uiMsgTypeHash);
+  const ezRTTI* pMsgType = ezRTTI::FindTypeByNameHash32(uiMsgTypeHash);
 
   // this happens for pure TypeScript messages
   // if (pMsgType == nullptr)
@@ -358,8 +357,7 @@ bool ezTypeScriptBinding::HasMessageHandler(const TsComponentTypeInfo& typeInfo,
   return false;
 }
 
-bool ezTypeScriptBinding::DeliverMessage(
-  const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards)
+bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards)
 {
   if (!typeInfo.IsValid())
     return false;
@@ -398,9 +396,9 @@ bool ezTypeScriptBinding::DeliverMessage(
           duk_pop(duk);                                // [ ... ]
         }
 
-        duk.PushCustom();         // [ comp func comp msg ]
-        duk.CallPreparedMethod(); // [ comp result ]
-        duk.PopStack(2);          // [ ]
+        duk.PushCustom();                        // [ comp func comp msg ]
+        duk.CallPreparedMethod().IgnoreResult(); // [ comp result ]
+        duk.PopStack(2);                         // [ ]
 
         if (bSynchronizeAfterwards)
         {
@@ -452,7 +450,7 @@ bool ezTypeScriptBinding::DeliverTsMessage(const TsComponentTypeInfo& typeInfo, 
       {
         DukPushStashObject(duk, msg.m_uiStashIndex); // [ comp func comp msg ]
         duk.PushCustom();                            // [ comp func comp msg ]
-        duk.CallPreparedMethod();                    // [ comp result ]
+        duk.CallPreparedMethod().IgnoreResult();     // [ comp result ]
         duk.PopStack(2);                             // [ ]
 
         EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);

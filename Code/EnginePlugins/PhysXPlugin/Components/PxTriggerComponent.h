@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
-#include <GameEngine/Messages/TriggerTriggeredMessage.h>
+#include <Core/Messages/TriggerMessage.h>
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 

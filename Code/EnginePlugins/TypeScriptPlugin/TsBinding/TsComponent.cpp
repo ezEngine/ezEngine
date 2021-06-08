@@ -102,27 +102,6 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_SUCCESS, 0);
 }
 
-void ezTypeScriptBinding::DukPutComponentObject(const ezComponentHandle& hComponent)
-{
-  ezDuktapeHelper duk(m_Duk);
-
-  duk_push_global_stash(duk); // [ stash ]
-
-  const ezUInt32 uiComponentReference = hComponent.GetInternalID().m_Data;
-  duk_push_uint(duk, uiComponentReference); // [ stash key ]
-  if (!duk_get_prop(duk, -2))               // [ stash obj/undef ]
-  {
-    duk_pop_2(duk);     // [ ]
-    duk_push_null(duk); // [ null ]
-  }
-  else // [ stash obj ]
-  {
-    duk_replace(duk, -2); // [ obj ]
-  }
-
-  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, +1);
-}
-
 void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
 {
   if (pComponent == nullptr)
@@ -140,18 +119,6 @@ void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
 
     DukPushStashObject(m_Duk, uiStashIdx);
   }
-}
-
-void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppComponent)
-{
-  const ezUInt32 uiComponentReference = hCppComponent.GetInternalID().m_Data;
-
-  ezDuktapeHelper validator(m_Duk);
-
-  m_Duk.PushGlobalStash();
-  duk_push_uint(m_Duk, uiComponentReference);
-  duk_del_prop(m_Duk, -2);
-  m_Duk.PopStack();
 }
 
 ezComponentHandle ezTypeScriptBinding::RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)

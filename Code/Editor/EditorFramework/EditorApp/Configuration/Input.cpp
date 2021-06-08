@@ -17,30 +17,27 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
   sSearchDir.AppendPath("InputSlots/*.txt");
 
   ezFileSystemIterator it;
-  if (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles).Succeeded())
+  for (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
   {
-    do
+    sFile = it.GetCurrentPath();
+    sFile.AppendPath(it.GetStats().m_sName);
+
+    ezFileReader reader;
+    if (reader.Open(sFile).Succeeded())
     {
-      sFile = it.GetCurrentPath();
-      sFile.AppendPath(it.GetStats().m_sName);
+      sFile.ReadAll(reader);
 
-      ezFileReader reader;
-      if (reader.Open(sFile).Succeeded())
+      Lines.Clear();
+      sFile.Split(false, Lines, "\n", "\r");
+
+      ezString sSlot;
+      for (ezUInt32 s = 0; s < Lines.GetCount(); ++s)
       {
-        sFile.ReadAll(reader);
+        sSlot = Lines[s];
 
-        Lines.Clear();
-        sFile.Split(false, Lines, "\n", "\r");
-
-        ezString sSlot;
-        for (ezUInt32 s = 0; s < Lines.GetCount(); ++s)
-        {
-          sSlot = Lines[s];
-
-          if (slotList.IndexOf(sSlot) == ezInvalidIndex)
-            slotList.PushBack(sSlot);
-        }
+        if (slotList.IndexOf(sSlot) == ezInvalidIndex)
+          slotList.PushBack(sSlot);
       }
-    } while (it.Next().Succeeded());
+    }
   }
 }

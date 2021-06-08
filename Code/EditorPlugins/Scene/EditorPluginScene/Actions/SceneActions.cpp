@@ -1,23 +1,16 @@
 #include <EditorPluginScenePCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/Preferences/QuadViewPreferences.h>
-#include <EditorFramework/Preferences/ScenePreferences.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Dialogs/ExportAndRunDlg.moc.h>
 #include <EditorPluginScene/Dialogs/ExtractGeometryDlg.moc.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Logging/Log.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-#include <QFileDialog>
 #include <QProcess>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator)

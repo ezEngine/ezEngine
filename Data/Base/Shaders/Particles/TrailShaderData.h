@@ -30,7 +30,7 @@ struct EZ_ALIGN_16(ezTrailParticlePointsData64)
 };
 
 // this is only defined during shader compilation
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
 
 StructuredBuffer<ezTrailParticleShaderData> particleTrailData;
 

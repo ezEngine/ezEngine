@@ -1,13 +1,11 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/GameState/GameState.h>
 
+#include <Core/Console/ConsoleFunction.h>
+#include <Core/GameApplication/GameApplicationBase.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <GameEngine/Console/ConsoleFunction.h>
-
-#include <GameEngine/GameApplication/GameApplicationBase.h>
 
 class ezConsole;
 
@@ -62,8 +60,6 @@ public:
   void ReinitializeInputConfig();
 
 protected:
-  virtual ezResult BeforeCoreSystemsStartup() override;
-
   virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;
   virtual void Init_LoadRequiredPlugins() override;
@@ -80,6 +76,7 @@ protected:
 
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
+  bool m_bIgnoreErrors = false;
 
 protected:
   static ezGameApplication* s_pGameApplicationInstance;
@@ -94,8 +91,4 @@ protected:
 
   bool m_bShowConsole = false;
   ezUniquePtr<ezConsole> m_pConsole;
-
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;
-#endif
 };

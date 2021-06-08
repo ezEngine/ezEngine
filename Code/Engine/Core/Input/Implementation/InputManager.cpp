@@ -214,6 +214,8 @@ void ezInputManager::GatherDeviceInputSlotValues()
 {
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
+    pDevice->m_bGeneratedInputRecently = false;
+
     // iterate over all the input slots that this device provides
     for (auto it = pDevice->m_InputSlotValues.GetIterator(); it.IsValid(); it.Next())
     {
@@ -223,7 +225,11 @@ void ezInputManager::GatherDeviceInputSlotValues()
 
         // do not store a value larger than 0 unless it exceeds the dead-zone threshold
         if (it.Value() > Slot.m_fDeadZone)
+        {
           Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
+
+          pDevice->m_bGeneratedInputRecently = true;
+        }
       }
     }
   }

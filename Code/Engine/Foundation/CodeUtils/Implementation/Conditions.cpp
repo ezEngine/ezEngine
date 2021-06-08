@@ -17,8 +17,7 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
     // add all the relevant tokens to the definition
     while (uiCurToken < Source.GetCount())
     {
-      if (Source[uiCurToken]->m_iType == ezTokenType::BlockComment || Source[uiCurToken]->m_iType == ezTokenType::LineComment ||
-          Source[uiCurToken]->m_iType == ezTokenType::EndOfFile || Source[uiCurToken]->m_iType == ezTokenType::Newline)
+      if (Source[uiCurToken]->m_iType == ezTokenType::BlockComment || Source[uiCurToken]->m_iType == ezTokenType::LineComment || Source[uiCurToken]->m_iType == ezTokenType::EndOfFile || Source[uiCurToken]->m_iType == ezTokenType::Newline)
       {
         ++uiCurToken;
         continue;

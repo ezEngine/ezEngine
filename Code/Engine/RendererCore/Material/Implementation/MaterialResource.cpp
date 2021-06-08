@@ -32,9 +32,7 @@ void ezMaterialResourceDescriptor::Clear()
 
 bool ezMaterialResourceDescriptor::operator==(const ezMaterialResourceDescriptor& other) const
 {
-  return m_hBaseMaterial == other.m_hBaseMaterial && m_hShader == other.m_hShader && m_PermutationVars == other.m_PermutationVars &&
-         m_Parameters == other.m_Parameters && m_Texture2DBindings == other.m_Texture2DBindings &&
-         m_TextureCubeBindings == other.m_TextureCubeBindings;
+  return m_hBaseMaterial == other.m_hBaseMaterial && m_hShader == other.m_hShader && m_PermutationVars == other.m_PermutationVars && m_Parameters == other.m_Parameters && m_Texture2DBindings == other.m_Texture2DBindings && m_TextureCubeBindings == other.m_TextureCubeBindings;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -486,7 +484,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     ezStringBuilder sTemp, sTemp2;
 
     ezAssetFileHeader AssetHash;
-    AssetHash.Read(*Stream);
+    AssetHash.Read(*Stream).IgnoreResult();
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
@@ -658,7 +656,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         ezUInt32 dataSize = 0;
         s >> dataSize;
 
-        ezTextureResourceLoader::LoadTexFile(s, embedded);
+        ezTextureResourceLoader::LoadTexFile(s, embedded).IgnoreResult();
         embedded.m_bIsFallback = true;
 
         ezMemoryStreamStorage storage;
@@ -780,7 +778,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
   if (m_Desc.m_hBaseMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
+    // Block till the base material has been fully loaded to ensure that all parameters have their final value once this material is loaded.
+    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
     pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
   }
 
@@ -797,11 +796,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU =
-    sizeof(ezMaterialResource) +
-    (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() + m_Desc.m_Parameters.GetHeapMemoryUsage() +
-               m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() + m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+    sizeof(ezMaterialResource) + (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() + m_Desc.m_Parameters.GetHeapMemoryUsage() + m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() + m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() +
+                                            m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
@@ -818,6 +814,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMaterialResource, ezMaterialResourceDescripto
 
   if (m_Desc.m_hBaseMaterial.IsValid())
   {
+    // Can't block here for the base material since this would result in a deadlock
     ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
     pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
   }
@@ -880,8 +877,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
     return;
 
   ezTempHashedString sConstantBufferName("ezMaterialConstants");
-  const ezShaderResourceBinding* pBinding =
-    pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
+  const ezShaderResourceBinding* pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
   if (pBinding == nullptr)
   {
     pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::VertexShader)->GetShaderResourceBinding(sConstantBufferName);
@@ -942,11 +938,13 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
   {
     materialHierarchy.PushBack(pCurrentMaterial);
 
-    const ezMaterialResourceHandle& hParentMaterial = pCurrentMaterial->m_Desc.m_hBaseMaterial;
-    if (!hParentMaterial.IsValid())
+    const ezMaterialResourceHandle& hBaseMaterial = pCurrentMaterial->m_Desc.m_hBaseMaterial;
+    if (!hBaseMaterial.IsValid())
       break;
 
-    pCurrentMaterial = ezResourceManager::BeginAcquireResource(hParentMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+    // Ensure that the base material is loaded at this point.
+    // For loaded materials this will always be the case but is still necessary for runtime created materials.
+    pCurrentMaterial = ezResourceManager::BeginAcquireResource(hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
   }
 
   EZ_SCOPE_EXIT(for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 1;) {
@@ -1060,6 +1058,11 @@ void ezMaterialResource::ClearCache()
 
   s_CachedValues.Clear();
   s_FreeMaterialCacheEntries.Clear();
+}
+
+const ezMaterialResourceDescriptor& ezMaterialResource::GetCurrentDesc() const
+{
+  return m_Desc;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);

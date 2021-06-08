@@ -13,6 +13,8 @@ public:
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
+  bool m_bDisplayGrid = true;
+
 protected:
   virtual void OnInitialize() override;
 
@@ -22,7 +24,10 @@ protected:
 
 private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+  void SetPlaybackPosition(double pos);
 
   ezGameObject* m_pGameObject = nullptr;
-  // ezAnimationClipResourceHandle m_hMesh;
+  ezString m_sAnimatedMeshToUse;
+  ezComponentHandle m_hAnimMeshComponent;
+  ezComponentHandle m_hAnimControllerComponent;
 };

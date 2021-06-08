@@ -8,9 +8,7 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QNetworkReply>
-#include <QNetworkRequest>
 
 PageDownloader::PageDownloader(QUrl url)
 {
@@ -113,7 +111,7 @@ bool ezQtVersionChecker::Check(bool bForce)
   }
 
   m_bCheckInProgresss = true;
-  m_VersionPage = new PageDownloader(QUrl("http://ezengine.net/releases/release-notes.html"));
+  m_VersionPage = new PageDownloader(QUrl("http://ezengine.net/pages/releases/releases.html"));
 
   connect(m_VersionPage.data(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
 
@@ -186,7 +184,7 @@ void ezQtVersionChecker::PageDownloaded()
 
   if (sPage.IsEmpty())
   {
-    ezLog::Dev("Could not download release notes page.");
+    ezLog::Warning("Could not download release notes page.");
     return;
   }
 
@@ -196,14 +194,9 @@ void ezQtVersionChecker::PageDownloaded()
   const char* pVersionStart = sPage.FindSubString(szVersionStartTag);
   const char* pVersionEnd = sPage.FindSubString(szVersionEndTag, pVersionStart);
 
-  if (pVersionStart == nullptr)
+  if (pVersionStart == nullptr || pVersionEnd == nullptr)
   {
-    ezLog::Dev("Release notes page does not contain a proper '{}' start tag.", szVersionStartTag);
-    return;
-  }
-  if (pVersionEnd == nullptr)
-  {
-    ezLog::Dev("Release notes page does not contain a proper '{}' end tag.", szVersionEndTag);
+    ezLog::Warning("Version check failed.");
     return;
   }
 

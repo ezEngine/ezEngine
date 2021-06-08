@@ -41,7 +41,7 @@ void DemoComponent::OnSimulationStarted()
 void DemoComponent::Update()
 {
   const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
-  const ezAngle curAngle = curTime.GetSeconds() * m_Speed;
+  const ezAngle curAngle = curTime.AsFloatInSeconds() * m_Speed;
   const float curHeight = ezMath::Sin(curAngle) * m_fAmplitude;
 
   GetOwner()->SetLocalPosition(ezVec3(0, 0, curHeight));

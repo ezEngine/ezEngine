@@ -129,14 +129,20 @@ public:
 
   /// \brief Searches for a directory to use as the "Sdk" special directory
   ///
-  /// It does so by starting at the directory where the application binary is located and then going up until it finds
-  /// a folder that contains the given sub-folder.
-  /// The sub-folder is usually where the engine loads the most basic data from, so it should exist.
+  /// It does so by starting at the directory where the application binary is located and then goes up
+  /// until it finds a folder that contains the given sub-folder. The sub-folder is usually where the
+  /// engine loads the most basic data from, so it should exist.
+  ///
+  /// Additionally the 'redirection file' feature of ezFileSystem::FindFolderWithSubPath() is used
+  /// to allow finding a relocated SDK folder. To do that, place a file called 'ezSdkRoot.txt'
+  /// in your top level folder. It should contain the relative path pointing to the SDK folder.
   ///
   /// Upon success SetSdkRootDirectory() is called with the resulting path.
   ///
   /// \note If the Sdk root directory has been set before, this function does nothing!
   /// It will not override a previously set value. If that is desired, call SetSdkRootDirectory("") first.
+  ///
+  /// \sa ezFileSystem::FindFolderWithSubPath()
   static ezResult DetectSdkRootDirectory(const char* szExpectedSubFolder = "Data/Base");
 
   /// \brief the special directory ">Sdk" is the root folder of the SDK data, it is often used as the main reference
@@ -214,18 +220,26 @@ public:
   /// If the path is relative, it is attempted to open the specified file, which means it is searched in all available
   /// data directories. The path to the file that is found will be returned.
   ///
-  /// \param out_sAbsolutePath will contain the absolute path to the file. Might be nullptr.
-  /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be
-  /// nullptr. \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data
-  /// directory that would handle it. \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
+  /// \param out_sAbsolutePath will contain the absolute path to the file. Can be nullptr.
+  /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Can be
+  /// nullptr.
+  /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data
+  /// directory that would handle it.
+  /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
   ///
   /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
   static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath,
     ezDataDirectoryType** out_ppDataDir = nullptr); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
+  ///
   /// Returns EZ_FAILURE if nothing is found. Otherwise \a result is the absolute path to the existing folder that has a given sub-folder.
-  static ezResult FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath, ezStringBuilder& result); // [tested]
+  ///
+  /// \param result If successful, this contains the folder path in which szSubPath exists.
+  /// \param szStartDirectory The directory in which to start the search and iterate upwards.
+  /// \param szSubPath the relative path to look for in each visited directory. The function succeeds if such a file or folder is found.
+  /// \param szRedirectionFileName An optional file name for a redirection file. If in any visited folder a file with this name is found, it will be opened, read entirely, and appended to the current search path, and it is checked whether \a szSubPath can be found there. This step is not recursive and can't result in an endless loop. It allows to relocate the SDK folder and still have it found, by placing such a redirection file. A common use case, is when ezEngine is used as a Git submodule and therefore the overall file structure is slightly different.
+  static ezResult FindFolderWithSubPath(ezStringBuilder& result, const char* szStartDirectory, const char* szSubPath, const char* szRedirectionFileName = nullptr); // [tested]
 
   /// \brief Returns true, if any data directory knows how to redirect the given path. Otherwise the original string is returned in out_sRedirection.
   static bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection);
@@ -320,9 +334,9 @@ struct ezFileSystem::FileEventType
     CloseFile,                 ///< A file was closed.
     AddDataDirectorySucceeded, ///< A data directory was successfully added.
     AddDataDirectoryFailed,    ///< Adding a data directory failed. No factory could handle it (or there were none).
-    RemoveDataDirectory, ///< A data directory was removed. IMPORTANT: This is where ResourceManagers should check if some loaded resources need to be
-                         ///< purged.
-    DeleteFile           ///< A file is about to be deleted.
+    RemoveDataDirectory,       ///< A data directory was removed. IMPORTANT: This is where ResourceManagers should check if some loaded resources need to be
+                               ///< purged.
+    DeleteFile                 ///< A file is about to be deleted.
   };
 };
 

@@ -48,7 +48,7 @@ private:
   ezStatus InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString);
   ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin* pPinSource);
 
-  ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode);
+  ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines);
   void SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder& sInlineCode);
   static void AppendStringIfUnique(ezStringBuilder& inout_String, const char* szAppend);
 
@@ -65,7 +65,9 @@ private:
   ezStringBuilder m_sShaderPixelConstants;
   ezStringBuilder m_sShaderPixelSamplers;
   ezStringBuilder m_sShaderPixelBody;
+  ezStringBuilder m_sShaderVertexDefines;
   ezStringBuilder m_sShaderVertex;
+  ezStringBuilder m_sShaderGeometryDefines;
   ezStringBuilder m_sShaderGeometry;
   ezStringBuilder m_sShaderMaterialParam;
   ezStringBuilder m_sShaderMaterialCB;

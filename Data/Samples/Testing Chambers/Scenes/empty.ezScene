@@ -522,7 +522,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -594,7 +594,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionProbeData"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -648,7 +648,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{552}
+		u3 %TypeSize{504}
 		u3 %TypeVersion{9}
 	}
 }
@@ -756,7 +756,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeSize{160}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }

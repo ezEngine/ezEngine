@@ -1,30 +1,73 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
-#include <Foundation/Math/Random.h>
-#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/ModelImporter.h>
-#include <ModelImporter/Scene.h>
-#include <RendererCore/AnimationSystem/EditableSkeleton.h>
+#include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 1, ezRTTINoAllocator)
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp)
+{
+  const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+
+  const ezBasisAxis::Enum rightDir = pProp->m_RightDir;
+  const ezBasisAxis::Enum upDir = pProp->m_UpDir;
+  ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !pProp->m_bFlipForwardDir);
+
+  ezTransform t;
+  t.SetIdentity();
+  t.m_vScale.Set(us);
+
+  if (!pProp->m_bFlipForwardDir)
+  {
+    switch (forwardDir)
+    {
+      case ezBasisAxis::PositiveX:
+        forwardDir = ezBasisAxis::NegativeX;
+        t.m_vScale.x *= -1;
+        break;
+      case ezBasisAxis::PositiveY:
+        forwardDir = ezBasisAxis::NegativeY;
+        t.m_vScale.y *= -1;
+        break;
+      case ezBasisAxis::PositiveZ:
+        forwardDir = ezBasisAxis::NegativeZ;
+        t.m_vScale.z *= -1;
+        break;
+      case ezBasisAxis::NegativeX:
+        forwardDir = ezBasisAxis::PositiveX;
+        t.m_vScale.x *= -1;
+        break;
+      case ezBasisAxis::NegativeY:
+        forwardDir = ezBasisAxis::PositiveY;
+        t.m_vScale.y *= -1;
+        break;
+      case ezBasisAxis::NegativeZ:
+        forwardDir = ezBasisAxis::PositiveZ;
+        t.m_vScale.z *= -1;
+        break;
+    }
+  }
+
+  ezMat3 rot = ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, 1.0f);
+  t.m_qRotation.SetFromMat3(rot);
+
+  return t;
+}
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
 ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
-
 
 void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
@@ -32,8 +75,7 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
   {
     auto& props = *e.m_pPropertyStates;
 
-    const ezSkeletonJointGeometryType::Enum geomType =
-      (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
+    const ezSkeletonJointGeometryType::Enum geomType = (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
 
     props["Length"].m_Visibility = ezPropertyUiState::Invisible;
     props["Width"].m_Visibility = ezPropertyUiState::Invisible;
@@ -64,63 +106,54 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
   }
 }
 
-using namespace ezModelImporter;
-
-static ezStatus ImportSkeleton(const char* filename, ezSharedPtr<ezModelImporter::Scene>& outScene)
+ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezStringBuilder sAbsFilename = filename;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
-  {
-    return ezStatus(ezFmt("Could not make path absolute: '{0};", sAbsFilename));
-  }
-
-  outScene = Importer::GetSingleton()->ImportScene(sAbsFilename, ImportFlags::Skeleton);
-
-  if (outScene == nullptr)
-    return ezStatus(ezFmt("Input file '{0}' could not be imported", filename));
-
-  if (outScene->m_Skeleton.GetJointCount() == 0)
-    return ezStatus("Mesh does not contain skeleton information");
-
-  return ezStatus(EZ_SUCCESS);
-}
-
-ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
-{
-  ezProgressRange range("Transforming Asset", 2, false);
-
-  range.SetStepWeighting(0, 0.9);
-  range.BeginNextStep("Importing Skeleton");
+  ezProgressRange range("Transforming Asset", 4, false);
 
   ezEditableSkeleton* pProp = GetProperties();
 
-  // const float fScale = 1.0f;
-  // ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
-  // ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
-  // ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
+  {
+    ezStringBuilder sAbsFilename = pProp->m_sAnimationFile;
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+    {
+      return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+    }
 
-  // mTransformation.SetIdentity();
-  // mTransformRotations.SetIdentity();
+    ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+    if (pImporter == nullptr)
+      return ezStatus("No known importer for this file type.");
 
-  ezSharedPtr<Scene> scene;
-  EZ_SUCCEED_OR_RETURN(ImportSkeleton(pProp->m_sAnimationFile, scene));
+    range.BeginNextStep("Importing Source File");
 
-  ezEditableSkeleton newSkeleton;
-  ezModelImporter::Importer::ImportSkeleton(newSkeleton, scene);
+    ezEditableSkeleton newSkeleton;
 
-  // synchronize the old data (collision geometry etc.) with the new hierarchy
-  MergeWithNewSkeleton(newSkeleton);
+    ezModelImporter2::ImportOptions opt;
+    opt.m_sSourceFile = sAbsFilename;
+    opt.m_pSkeletonOutput = &newSkeleton;
+    //opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+
+    if (pImporter->Import(opt).Failed())
+      return ezStatus("Model importer was unable to read this asset.");
+
+    range.BeginNextStep("Importing Skeleton Data");
+
+    // synchronize the old data (collision geometry etc.) with the new hierarchy
+    MergeWithNewSkeleton(newSkeleton);
+  }
 
   // merge the new data with the actual asset document
   ApplyNativePropertyChangesToObjectManager(true);
+  pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
+
+  range.BeginNextStep("Processing Skeleton Data");
+
+  ezSkeletonResourceDescriptor desc;
+  pProp->FillResourceDescriptor(desc);
+  desc.m_RootTransform = CalculateTransformationMatrix(pProp);
 
   range.BeginNextStep("Writing Result");
 
-  ezSkeletonResourceDescriptor desc;
-  GetProperties()->FillResourceDescriptor(desc);
-
-  desc.Save(stream);
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -191,12 +224,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 {
   AddSupportedFileType("fbx");
+  AddSupportedFileType("gltf");
+  AddSupportedFileType("glb");
 }
 
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
-void ezSkeletonAssetDocumentGenerator::GetImportModes(
-  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -210,8 +244,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(
-  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezSkeletonAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

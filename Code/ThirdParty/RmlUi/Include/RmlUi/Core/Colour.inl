@@ -27,7 +27,6 @@
  */
 
 namespace Rml {
-namespace Core {
 
 // Lightweight, non-initialising constructor.
 template < typename ColourType, int AlphaDefault >
@@ -45,14 +44,14 @@ Colour< ColourType, AlphaDefault >::Colour(ColourType red, ColourType green, Col
 
 // Returns the sum of this colour and another. This does not saturate the channels.
 template < typename ColourType, int AlphaDefault >
-Colour< ColourType, AlphaDefault > Colour< ColourType, AlphaDefault >::operator+(const Colour< ColourType, AlphaDefault >& rhs) const
+Colour< ColourType, AlphaDefault > Colour< ColourType, AlphaDefault >::operator+(const Colour< ColourType, AlphaDefault > rhs) const
 {
 	return Colour< ColourType, AlphaDefault >(red + rhs.red, green + rhs.green, blue + rhs.blue, alpha + rhs.alpha);
 }
 
 // Returns the result of subtracting another colour from this colour.
 template < typename ColourType, int AlphaDefault >
-Colour< ColourType, AlphaDefault > Colour< ColourType, AlphaDefault >::operator-(const Colour< ColourType, AlphaDefault >& rhs) const
+Colour< ColourType, AlphaDefault > Colour< ColourType, AlphaDefault >::operator-(const Colour< ColourType, AlphaDefault > rhs) const
 {
 	return Colour< ColourType, AlphaDefault >(red - rhs.red, green - rhs.green, blue - rhs.blue, alpha - rhs.alpha);
 }
@@ -73,7 +72,7 @@ Colour< ColourType, AlphaDefault > Colour< ColourType, AlphaDefault >::operator/
 
 // Adds another colour to this in-place. This does not saturate the channels.
 template < typename ColourType, int AlphaDefault >
-void Colour< ColourType, AlphaDefault >::operator+=(const Colour& rhs)
+void Colour< ColourType, AlphaDefault >::operator+=(const Colour rhs)
 {
 	red += rhs.red;
 	green += rhs.green;
@@ -83,7 +82,7 @@ void Colour< ColourType, AlphaDefault >::operator+=(const Colour& rhs)
 
 // Subtracts another colour from this in-place.
 template < typename ColourType, int AlphaDefault >
-void Colour< ColourType, AlphaDefault >::operator-=(const Colour& rhs)
+void Colour< ColourType, AlphaDefault >::operator-=(const Colour rhs)
 {
 	red -= rhs.red;
 	green -= rhs.green;
@@ -108,17 +107,4 @@ void Colour< ColourType, AlphaDefault >::operator/=(float rhs)
 	*this *= (1.0f / rhs);
 }
 
-template < >
-Colour< float, 1 > RMLUICORE_API Colour< float, 1 >::operator*(const Colour< float, 1 >& rhs) const;
-
-template < >
-Colour< byte, 255 > RMLUICORE_API Colour< byte, 255 >::operator*(const Colour< byte, 255 >& rhs) const;
-
-template < >
-void RMLUICORE_API Colour< float, 1 >::operator*=(const Colour& rhs);
-
-template < >
-void RMLUICORE_API Colour< byte, 255 >::operator*=(const Colour& rhs);
-
-}
-}
+} // namespace Rml

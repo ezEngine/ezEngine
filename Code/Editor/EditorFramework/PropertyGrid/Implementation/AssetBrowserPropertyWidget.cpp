@@ -2,16 +2,10 @@
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <QClipboard>
-#include <QFileDialog>
-#include <QMenu>
-#include <QMimeData>
-#include <QToolButton>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
@@ -35,7 +29,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
     "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
-  m_pButton->setText(QStringLiteral("..."));
+  m_pButton->setText(QStringLiteral("... "));
   m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
   m_pButton->setPopupMode(QToolButton::InstantPopup);
 
@@ -47,13 +41,10 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
 
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(
-    connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr,
-    "signal/slot connection failed");
+    connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
 }
-
 
 bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) const
 {

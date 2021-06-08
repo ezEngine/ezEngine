@@ -3,16 +3,9 @@
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Utilities/Progress.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <QClipboard>
-#include <QFileDialog>
-#include <QMenu>
-#include <QMimeData>
-#include <QSettings>
-#include <QTimer>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
   : QWidget(parent)
@@ -24,6 +17,11 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
 
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
+
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+  ListTypeFilter->setVisible(!pPreferences->m_bAssetFilterCombobox);
+  TypeFilter->setVisible(pPreferences->m_bAssetFilterCombobox);
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
@@ -57,12 +55,8 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
-              SLOT(OnAssetSelectionChanged(const QItemSelection&, const QItemSelection&))) != nullptr,
-    "signal/slot connection failed");
-  EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this,
-              SLOT(OnAssetSelectionCurrentChanged(const QModelIndex&, const QModelIndex&))) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(OnAssetSelectionChanged(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(OnAssetSelectionCurrentChanged(const QModelIndex&, const QModelIndex&))) != nullptr, "signal/slot connection failed");
   connect(SearchWidget, &ezQtSearchWidget::textChanged, this, &ezQtAssetBrowserWidget::OnSearchWidgetTextChanged);
 
   UpdateAssetTypes();
@@ -104,6 +98,20 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
       pItem->setCheckState(Qt::CheckState::Unchecked);
 
       ListTypeFilter->addItem(pItem);
+    }
+  }
+
+  {
+    ezQtScopedBlockSignals block(TypeFilter);
+
+    TypeFilter->clear();
+
+    // 'All' Filter
+    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
+
+    for (const auto& it : assetTypes)
+    {
+      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key()));
     }
   }
 
@@ -196,9 +204,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     pMan->GetSupportedDocumentTypes(documentTypes);
   }
 
-  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool {
-    return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0;
-  });
+  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
 
   for (const ezDocumentTypeDescriptor* desc : documentTypes)
   {
@@ -218,16 +224,12 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
 
 void ezQtAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex& index)
 {
-  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(),
-    m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
-    m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_activated(const QModelIndex& index)
 {
-  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(),
-    m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
-    m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
@@ -239,8 +241,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& inde
     ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
   }
 
-  Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
-    m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+  Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezQtAssetBrowserWidget::on_ButtonListMode_clicked()
@@ -294,21 +295,49 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
   ezStringBuilder sTemp;
   const ezStringBuilder sFilter(";", m_pFilter->GetTypeFilter(), ";");
 
-  bool bAnyChecked = false;
 
-  for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
   {
-    sTemp.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+    ezQtScopedBlockSignals _(ListTypeFilter);
 
-    const bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
+    bool bNoneChecked = true;
 
-    ListTypeFilter->item(i)->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
+    for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+    {
+      sTemp.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
 
-    if (bChecked)
-      bAnyChecked = true;
+      const bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
+
+      ListTypeFilter->item(i)->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
+
+      if (bChecked)
+        bNoneChecked = false;
+    }
+
+    ListTypeFilter->item(0)->setCheckState(bNoneChecked ? Qt::Checked : Qt::Unchecked);
   }
 
-  ListTypeFilter->item(0)->setCheckState(bAnyChecked ? Qt::Unchecked : Qt::Checked);
+  {
+    ezQtScopedBlockSignals _(TypeFilter);
+
+    ezInt32 iCheckedFilter = 0;
+    ezInt32 iNumChecked = 0;
+
+    for (ezInt32 i = 1; i < TypeFilter->count(); ++i)
+    {
+      sTemp.Set(";", TypeFilter->itemText(i).toUtf8().data(), ";");
+
+      if (sFilter.FindSubString(sTemp) != nullptr)
+      {
+        ++iNumChecked;
+        iCheckedFilter = i;
+      }
+    }
+
+    if (iNumChecked == 1)
+      TypeFilter->setCurrentIndex(iCheckedFilter);
+    else
+      TypeFilter->setCurrentIndex(0);
+  }
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
@@ -508,6 +537,9 @@ godown:
 
 void ezQtAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
 {
+  if (m_bTreeSelectionChangeInProgress)
+    return;
+
   ezStringBuilder sCurPath;
 
   if (!TreeFolderFilter->selectedItems().isEmpty())
@@ -544,6 +576,26 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
   m.exec(TreeFolderFilter->viewport()->mapToGlobal(pt));
 }
 
+void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
+{
+  ezQtScopedBlockSignals block(TypeFilter);
+
+  ezStringBuilder sFilter;
+
+  if (index > 0)
+  {
+    sFilter.Set(";", TypeFilter->itemText(index).toUtf8().data(), ";");
+  }
+  else
+  {
+    // all filters enabled
+    // might be different for dialogs
+    sFilter = m_sAllTypesFilter;
+  }
+
+  m_pFilter->SetTypeFilter(sFilter);
+}
+
 void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
 {
   m_pFilter->SetShowItemsInSubFolders(!m_pFilter->GetShowItemsInSubFolders());
@@ -574,16 +626,16 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
   if (ListAssets->selectionModel()->hasSelection())
   {
     if (!m_bDialogMode)
-      m.setDefaultAction(m.addAction(
-        QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
+      m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
     else
       m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
 
     m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform16.png")), QLatin1String("Transform"), this, SLOT(OnTransform()));
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
-    m.addAction(
-      QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
@@ -611,8 +663,7 @@ void ezQtAssetBrowserWidget::OnListOpenAssetDocument()
       ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
     }
 
-    Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
-      m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+    Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
   }
 }
 
@@ -640,7 +691,7 @@ void ezQtAssetBrowserWidget::OnTransform()
 
   range.BeginNextStep("Writing Lookup Tables");
 
-  ezAssetCurator::GetSingleton()->WriteAssetTables();
+  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
 }
 
 void ezQtAssetBrowserWidget::OnListOpenExplorer()
@@ -670,6 +721,21 @@ void ezQtAssetBrowserWidget::OnListCopyAssetGuid()
 }
 
 
+void ezQtAssetBrowserWidget::OnListFindAllReferences(bool transitive)
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  ezUuid guid = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
+  ezStringBuilder sAssetGuid;
+  ezConversionUtils::ToString(guid, sAssetGuid);
+
+  ezStringBuilder sFilter;
+  sFilter.Format("{}:{}", transitive ? "ref-all" : "ref", sAssetGuid);
+  m_pFilter->SetTextFilter(sFilter);
+  m_pFilter->SetPathFilter("");
+}
+
 void ezQtAssetBrowserWidget::OnSelectionTimer()
 {
   if (m_pModel->rowCount() == 1)
@@ -692,8 +758,7 @@ void ezQtAssetBrowserWidget::OnAssetSelectionChanged(const QItemSelection& selec
     QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
 
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
-    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
-      m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
   }
 }
 
@@ -708,8 +773,7 @@ void ezQtAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& c
     QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
 
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
-    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
-      m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
   }
 }
 
@@ -761,17 +825,13 @@ void ezQtAssetBrowserWidget::OnNewAsset()
   sFilter.Format("{0} (*.{1})", sAssetType, sExtension);
 
   QString sSelectedFilter = sFilter.GetData();
-  ezStringBuilder sOutput = QFileDialog::getSaveFileName(
-    QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks)
-                              .toUtf8()
-                              .data();
+  ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
 
   if (sOutput.IsEmpty())
     return;
 
   ezDocument* pDoc;
-  if (pManager->CreateDocument(sAssetType, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList)
-        .m_Result.Succeeded())
+  if (pManager->CreateDocument(sAssetType, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList).m_Result.Succeeded())
   {
     pDoc->EnsureVisible();
   }
@@ -787,7 +847,15 @@ void ezQtAssetBrowserWidget::OnPathFilterChanged()
   const QString sPath = QString::fromUtf8(m_pFilter->GetPathFilter());
 
   if (TreeFolderFilter->topLevelItemCount() == 1)
+  {
+    if (m_bTreeSelectionChangeInProgress)
+      return;
+
+    m_bTreeSelectionChangeInProgress = true;
+    TreeFolderFilter->clearSelection();
     SelectPathFilter(TreeFolderFilter->topLevelItem(0), sPath);
+    m_bTreeSelectionChangeInProgress = false;
+  }
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
@@ -844,20 +912,39 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 
   if (!ezStringUtils::IsNullOrEmpty(szFilters))
   {
-    ezQtScopedBlockSignals block(ListTypeFilter);
-
     ezStringBuilder sFilter;
     const ezStringBuilder sAllFilters(";", szFilters, ";");
 
     m_sAllTypesFilter = sAllFilters;
 
-    for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
     {
-      sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+      ezQtScopedBlockSignals block(ListTypeFilter);
 
-      if (sAllFilters.FindSubString(sFilter) == nullptr)
-        ListTypeFilter->item(i)->setHidden(true);
-      // ListTypeFilter->item(i)->setFlags(Qt::ItemFlag::ItemIsUserCheckable);
+      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+      {
+        sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+
+        if (sAllFilters.FindSubString(sFilter) == nullptr)
+        {
+          ListTypeFilter->item(i)->setHidden(true);
+        }
+      }
+    }
+
+    {
+      ezQtScopedBlockSignals block(TypeFilter);
+
+      for (ezInt32 i = TypeFilter->count(); i > 1; --i)
+      {
+        const ezInt32 idx = i - 1;
+
+        sFilter.Set(";", TypeFilter->itemText(idx).toUtf8().data(), ";");
+
+        if (sAllFilters.FindSubString(sFilter) == nullptr)
+        {
+          TypeFilter->removeItem(idx);
+        }
+      }
     }
   }
 

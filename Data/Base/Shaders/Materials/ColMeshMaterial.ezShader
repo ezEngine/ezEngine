@@ -105,8 +105,12 @@ float3 GetDiffuseColor()
 {
   float3 color = lerp(0.2, 0.5, edgeFactor());
 
+#ifdef USE_NORMAL
   float light = clamp(dot(G.Input.Normal.xyz, normalize(float3(1, 0.5, 2))), 0.2, 0.9);
   return color * light;
+#else
+  return color;
+#endif
 }
 
 float3 GetSpecularColor()

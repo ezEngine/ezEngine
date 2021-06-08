@@ -16,8 +16,7 @@ ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
   return &g_pCmdLineInstance;
 }
 
-void ezCommandLineUtils::SplitCommandLineString(
-  const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV)
+void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV)
 {
   // Add application dir as first argument as customary on other platforms.
   if (addExecutableDir)
@@ -206,8 +205,7 @@ const char* ezCommandLineUtils::GetStringOption(const char* szOption, ezUInt32 u
   return szDefault;
 }
 
-const ezString ezCommandLineUtils::GetAbsolutePathOption(
-  const char* szOption, ezUInt32 uiArgument /*= 0*/, const char* szDefault /*= ""*/, bool bCaseSensitive /*= false*/)
+const ezString ezCommandLineUtils::GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument /*= 0*/, const char* szDefault /*= ""*/, bool bCaseSensitive /*= false*/) const
 {
   const char* szPath = GetStringOption(szOption, uiArgument, szDefault, bCaseSensitive);
 
@@ -232,7 +230,7 @@ bool ezCommandLineUtils::GetBoolOption(const char* szOption, bool bDefault, bool
 
   // otherwise try to convert the next option to a boolean
   bool bRes = bDefault;
-  ezConversionUtils::StringToBool(m_Commands[iIndex + 1].GetData(), bRes);
+  ezConversionUtils::StringToBool(m_Commands[iIndex + 1].GetData(), bRes).IgnoreResult();
 
   return bRes;
 }
@@ -249,7 +247,7 @@ ezInt32 ezCommandLineUtils::GetIntOption(const char* szOption, ezInt32 iDefault,
 
   // try to convert the next option to a number
   ezInt32 iRes = iDefault;
-  ezConversionUtils::StringToInt(m_Commands[iIndex + 1].GetData(), iRes);
+  ezConversionUtils::StringToInt(m_Commands[iIndex + 1].GetData(), iRes).IgnoreResult();
 
   return iRes;
 }
@@ -266,7 +264,7 @@ ezUInt32 ezCommandLineUtils::GetUIntOption(const char* szOption, ezUInt32 uiDefa
 
   // try to convert the next option to a number
   ezUInt32 uiRes = uiDefault;
-  ezConversionUtils::StringToUInt(m_Commands[iIndex + 1].GetData(), uiRes);
+  ezConversionUtils::StringToUInt(m_Commands[iIndex + 1].GetData(), uiRes).IgnoreResult();
 
   return uiRes;
 }
@@ -283,7 +281,7 @@ double ezCommandLineUtils::GetFloatOption(const char* szOption, double fDefault,
 
   // try to convert the next option to a number
   double fRes = fDefault;
-  ezConversionUtils::StringToFloat(m_Commands[iIndex + 1].GetData(), fRes);
+  ezConversionUtils::StringToFloat(m_Commands[iIndex + 1].GetData(), fRes).IgnoreResult();
 
   return fRes;
 }

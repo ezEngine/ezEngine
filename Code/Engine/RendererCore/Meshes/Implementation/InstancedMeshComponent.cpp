@@ -130,6 +130,12 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
   if (m_RequireUpdate.IsEmpty())
     return;
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALPass* pGALPass = pDevice->BeginPass("Update Instanced Mesh Data");
+
+  ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
+  pRenderContext->BeginCompute(pGALPass);
+
   for (const auto& componentToUpdate : m_RequireUpdate)
   {
     ezInstancedMeshComponent* pComp = nullptr;
@@ -142,9 +148,12 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
       auto instanceData = pComp->m_pExplicitInstanceData->GetInstanceData(componentToUpdate.m_InstanceData.GetCount(), uiOffset);
       instanceData.CopyFrom(componentToUpdate.m_InstanceData);
 
-      pComp->m_pExplicitInstanceData->UpdateInstanceData(ezRenderContext::GetDefaultInstance(), instanceData.GetCount());
+      pComp->m_pExplicitInstanceData->UpdateInstanceData(pRenderContext, instanceData.GetCount());
     }
   }
+
+  pRenderContext->EndCompute();
+  pDevice->EndPass(pGALPass);
 
   m_RequireUpdate.Clear();
 }
@@ -194,14 +203,14 @@ void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
-  stream.GetStream().WriteArray(m_rawInstancedData);
+  stream.GetStream().WriteArray(m_rawInstancedData).IgnoreResult();
 }
 
 void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
 
-  stream.GetStream().ReadArray(m_rawInstancedData);
+  stream.GetStream().ReadArray(m_rawInstancedData).IgnoreResult();
 }
 
 void ezInstancedMeshComponent::OnActivated()
@@ -329,7 +338,7 @@ ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const
     else
     {
       ezMat3 mInverse = objectToWorld.GetRotationalPart();
-      mInverse.Invert(0.0f);
+      mInverse.Invert(0.0f).IgnoreResult();
       // we explicitly ignore the return value here (success / failure)
       // because when we have a scale of 0 (which happens temporarily during editing) that would be annoying
 

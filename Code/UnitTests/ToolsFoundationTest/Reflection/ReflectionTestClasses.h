@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/VarianceTypes.h>
 
 struct ezIntegerStruct
 {
@@ -82,6 +83,7 @@ public:
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
     m_Buffer.PushBack(0xCD);
+    m_VarianceAngle = {0.1f, ezAngle::Degree(90.0f)};
   }
 
   ezIntegerStruct m_IntegerStruct;
@@ -97,11 +99,15 @@ public:
   const ezDataBuffer& GetBuffer() const { return m_Buffer; }
   void SetBuffer(const ezDataBuffer& data) { m_Buffer = data; }
 
+  ezVarianceTypeAngle GetCustom() const { return m_VarianceAngle; }
+  void SetCustom(ezVarianceTypeAngle value) { m_VarianceAngle = value; }
+
 private:
   bool m_bBool;
   ezColor m_Color;
   ezString m_sString;
   ezDataBuffer m_Buffer;
+  ezVarianceTypeAngle m_VarianceAngle;
 };
 
 

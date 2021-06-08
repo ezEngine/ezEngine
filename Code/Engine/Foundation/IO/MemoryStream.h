@@ -37,7 +37,7 @@ public:
   virtual const ezUInt8* GetData() const = 0;
 
   /// \brief Copies all data from the given stream into the storage.
-  void ReadAll(ezStreamReader& Stream);
+  void ReadAll(ezStreamReader& Stream, ezUInt64 uiMaxBytes = 0xFFFFFFFFFFFFFFFFllu);
 
   /// \brief Reserves N bytes of storage.
   virtual void Reserve(ezUInt64 uiBytes) = 0;
@@ -162,13 +162,13 @@ class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezStreamReader
 public:
   /// \brief Pass the memory storage object from which to read from.
   /// Pass nullptr if you are going to set the storage stream later via SetStorage().
-  ezMemoryStreamReader(ezMemoryStreamStorageInterface* pStreamStorage = nullptr);
+  ezMemoryStreamReader(const ezMemoryStreamStorageInterface* pStreamStorage = nullptr);
 
   ~ezMemoryStreamReader();
 
   /// \brief Sets the storage object upon which to operate. Resets the read position to zero.
   /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
-  void SetStorage(ezMemoryStreamStorageInterface* pStreamStorage)
+  void SetStorage(const ezMemoryStreamStorageInterface* pStreamStorage)
   {
     m_pStreamStorage = pStreamStorage;
     m_uiReadPosition = 0;
@@ -195,7 +195,7 @@ public:
   void SetDebugSourceInformation(const char* szDebugSourceInformation);
 
 private:
-  ezScopedRefPointer<ezMemoryStreamStorageInterface> m_pStreamStorage;
+  ezScopedRefPointer<const ezMemoryStreamStorageInterface> m_pStreamStorage;
 
   ezString m_DebugSourceInformation;
 
@@ -235,6 +235,9 @@ public:
 
   /// \brief Sets the write position to be used
   void SetWritePosition(ezUInt32 uiReadPosition); // [tested]
+
+  /// \brief Returns the current write position
+  ezUInt32 GetWritePosition() const { return m_uiWritePosition; }
 
   /// \brief Returns the total stored bytes in the memory stream
   ezUInt32 GetByteCount() const; // [tested]

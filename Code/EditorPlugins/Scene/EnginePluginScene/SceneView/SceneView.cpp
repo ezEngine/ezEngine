@@ -1,18 +1,10 @@
 #include <EnginePluginScenePCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/Interfaces/SoundInterface.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
-#include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
-#include <Foundation/Configuration/Singleton.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
 #include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -94,8 +86,7 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
 
       if (pCamComp->GetUsageHint() == ezCameraUsageHint::Thumbnail)
       {
-        m_Camera.LookAt(pCamComp->GetOwner()->GetGlobalPosition(),
-          pCamComp->GetOwner()->GetGlobalPosition() + pCamComp->GetOwner()->GetGlobalDirForwards(), pCamComp->GetOwner()->GetGlobalDirUp());
+        m_Camera.LookAt(pCamComp->GetOwner()->GetGlobalPosition(), pCamComp->GetOwner()->GetGlobalPosition() + pCamComp->GetOwner()->GetGlobalDirForwards(), pCamComp->GetOwner()->GetGlobalDirUp());
 
         m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 70.0f, 0.1f, 100.0f);
 
@@ -274,8 +265,7 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
     if (pMsg->m_uiWhatToDo == 0xFF)
       return;
 
-    if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") ||
-        pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
+    if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") || pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
       return;
 
     res.m_uiActionIdentifier = pMsg->m_uiActionIdentifier;

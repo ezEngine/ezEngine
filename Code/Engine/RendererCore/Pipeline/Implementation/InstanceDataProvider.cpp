@@ -49,13 +49,13 @@ void ezInstanceData::UpdateInstanceData(ezRenderContext* pRenderContext, ezUInt3
 {
   EZ_ASSERT_DEV(m_uiBufferOffset + uiCount <= m_uiBufferSize, "Implementation error");
 
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   ezUInt32 uiDestOffset = m_uiBufferOffset * sizeof(ezPerInstanceData);
   auto pSourceData = m_perInstanceData.GetArrayPtr().GetSubArray(m_uiBufferOffset, uiCount);
   ezGALUpdateMode::Enum updateMode = (m_uiBufferOffset == 0) ? ezGALUpdateMode::Discard : ezGALUpdateMode::NoOverwrite;
 
-  pGALContext->UpdateBuffer(m_hInstanceDataBuffer, uiDestOffset, pSourceData.ToByteArray(), updateMode);
+  pGALCommandEncoder->UpdateBuffer(m_hInstanceDataBuffer, uiDestOffset, pSourceData.ToByteArray(), updateMode);
 
 
   ezObjectConstants* pConstants = pRenderContext->GetConstantBufferData<ezObjectConstants>(m_hConstantBuffer);

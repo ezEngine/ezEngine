@@ -1,7 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
 {

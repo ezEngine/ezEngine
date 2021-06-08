@@ -15,7 +15,7 @@ struct EZ_ALIGN_16(ezPerInstanceData)
   COLOR4F(Color);
 };
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerInstanceData> perInstanceData;
 
   #if defined(USE_SKINNING)
@@ -38,7 +38,7 @@ CONSTANT_BUFFER(ezObjectConstants, 2)
 
 
 
-#if EZ_ENABLED(PLATFORM_DX11)
+#if EZ_ENABLED(PLATFORM_SHADER)
 
   // Access to instance should usually go through this macro!
   // It's a macro so it can work with arbitrary input structs (for VS/GS/PS...)

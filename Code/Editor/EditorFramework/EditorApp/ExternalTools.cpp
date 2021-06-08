@@ -1,11 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <QProcess>
-#include <QTextStream>
-#include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
@@ -32,13 +28,25 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
   return szToolName;
 }
 
-ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout,
-  ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/)
+ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/, const char* szCWD /*= nullptr*/)
 {
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
 
+  ezStringBuilder cmd;
+  for (ezInt32 i = 0; i < arguments.size(); ++i)
+    cmd.Append(" ", arguments[i].toUtf8().data());
+
+  ezLog::Debug("{}{}", szTool, cmd);
+
+
   QProcess proc;
+
+  if (szCWD != nullptr)
+  {
+    proc.setWorkingDirectory(szCWD);
+  }
+
   QString logoutput;
   proc.setProcessChannelMode(QProcess::MergedChannels);
   proc.setReadChannel(QProcess::StandardOutput);
@@ -119,6 +127,8 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
       {
         szMsg = &tmp.GetData()[0];
         msgType = ezLogMsgType::InfoMsg;
+
+        // TODO: output all logged data in one big message, if the tool failed
       }
 
       if (msgType > LogLevel || szMsg == nullptr)

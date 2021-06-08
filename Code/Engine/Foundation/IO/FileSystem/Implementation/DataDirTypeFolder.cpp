@@ -86,7 +86,7 @@ namespace ezDataDirectory
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
     sPath.AppendPath(szFile);
 
-    ezOSFile::DeleteFile(sPath.GetData());
+    ezOSFile::DeleteFile(sPath.GetData()).IgnoreResult();
   }
 
   FolderType::~FolderType()

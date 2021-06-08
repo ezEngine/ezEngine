@@ -12,9 +12,9 @@ DataDir
 }
 DataDir
 {
-	string %Path{">project/"}
-	string %RootName{"project"}
-	bool %Writable{true}
+	string %Path{">sdk/Data/Content"}
+	string %RootName{""}
+	bool %Writable{false}
 }
 DataDir
 {
@@ -24,7 +24,7 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/Content"}
-	string %RootName{""}
-	bool %Writable{false}
+	string %Path{">project/"}
+	string %RootName{"project"}
+	bool %Writable{true}
 }

@@ -6,7 +6,6 @@
 #include <GameEngine/GameEngineDLL.h>
 
 class ezVisualScriptInstance;
-struct ezMsgCollision;
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode : public ezReflectedClass
 {
@@ -52,58 +51,43 @@ private:
 #define EZ_OUTPUT_EXECUTION_PIN(name, slot) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(slot))
 #define EZ_INPUT_DATA_PIN(name, slot, type) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptDataPinInAttribute(slot, type))
 #define EZ_OUTPUT_DATA_PIN(name, slot, type) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(slot, type))
-#define EZ_INPUT_DATA_PIN_AND_PROPERTY(name, slot, type, member)                                                                                     \
+#define EZ_INPUT_DATA_PIN_AND_PROPERTY(name, slot, type, member) \
   EZ_MEMBER_PROPERTY(name, member)->AddAttributes(new ezVisScriptDataPinInAttribute(slot, type))
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_MessageSender : public ezVisualScriptNode
+struct EZ_GAMEENGINE_DLL ezVisualScriptDataPinType
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_MessageSender, ezVisualScriptNode);
+  typedef ezUInt8 StorageType;
 
-public:
-  ezVisualScriptNode_MessageSender();
-  ~ezVisualScriptNode_MessageSender();
+  enum Enum
+  {
+    None,
+    Number, ///< Numbers are represented as doubles
+    Boolean,
+    Vec3,
+    String,
+    GameObjectHandle, ///< ezGameObjectHandle
+    ComponentHandle,  ///< ezComponentHandle
+    // ResourceHandle, ///< ezTypelessResourceHandle ?
+    Variant,
+    Default = None,
+  };
 
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
-  virtual bool IsManuallyStepped() const override { return true; }
+  /// \brief Returns the corresponding data pin type for the given type or None if the type is not supported
+  static Enum GetDataPinTypeForType(const ezRTTI* pType);
 
-  ezGameObjectHandle m_hObject;
-  ezComponentHandle m_hComponent;
-  ezTime m_Delay;
-  bool m_bRecursive;
-  ezMessage* m_pMessageToSend = nullptr;
+  /// \brief Returns whether the given type is supported by visual script
+  EZ_ALWAYS_INLINE static bool IsTypeSupported(const ezRTTI* pType) { return GetDataPinTypeForType(pType) != None; }
+
+  /// \brief Enforces the given variant to be a supported type, ie. mostly doubles for number types
+  static void EnforceSupportedType(ezVariant& var);
+
+  /// \brief Returns how much storage an object of the given type would need
+  static ezUInt32 GetStorageByteSize(Enum dataPinType);
 };
 
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_FunctionCall : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FunctionCall, ezVisualScriptNode);
-
-public:
-  ezVisualScriptNode_FunctionCall();
-  ~ezVisualScriptNode_FunctionCall();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
-  virtual bool IsManuallyStepped() const override { return true; }
-
-  static ezResult ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type);
-
-  /// \brief Enforces m_ReturnValue and m_Arguments to be supported types, ie. mostly doubles for number types
-  static void EnforceVariantTypeForInputPins(ezVariant& var);
-
-  const ezRTTI* m_pExpectedType = nullptr;
-  const ezAbstractFunctionProperty* m_pFunctionToCall = nullptr;
-  ezGameObjectHandle m_hObject;
-  ezComponentHandle m_hComponent;
-  ezVariant m_ReturnValue;
-  ezHybridArray<ezVariant, 4> m_Arguments;
-  ezUInt16 m_ArgumentIsOutParamMask = 0; // the n-th EZ_BIT is set if m_Arguments[n] represents an out or inout parameter
-};
-
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezVisualScriptDataPinType);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -126,25 +110,6 @@ public:
 
   ezUInt8 m_uiPinSlot;
 };
-
-struct EZ_GAMEENGINE_DLL ezVisualScriptDataPinType
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    None,
-    Number, ///< Numbers are represented as doubles
-    Boolean,
-    Vec3,
-    GameObjectHandle, ///< ezGameObjectHandle
-    ComponentHandle,  ///< ezComponentHandle
-    // ResourceHandle, ///< ezTypelessResourceHandle ?
-    Default = None,
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezVisualScriptDataPinType);
 
 class EZ_GAMEENGINE_DLL ezVisScriptDataPinInAttribute : public ezPropertyAttribute
 {
@@ -184,22 +149,4 @@ public:
 
   ezUInt8 m_uiPinSlot;
   ezEnum<ezVisualScriptDataPinType> m_DataType;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_Log : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Log, ezVisualScriptNode);
-
-public:
-  ezVisualScriptNode_Log();
-  ~ezVisualScriptNode_Log();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
-
-  ezString m_sLog;
-  double m_Value1 = 0;
-  double m_Value2 = 0;
 };

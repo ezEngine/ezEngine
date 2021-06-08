@@ -121,6 +121,7 @@ function(ez_link_target_qt)
     mark_as_advanced(FORCE Qt5Gui_DIR)
     mark_as_advanced(FORCE Qt5Widgets_DIR)
     mark_as_advanced(FORCE Qt5Network_DIR)    
+    mark_as_advanced(FORCE Qt5Svg_DIR)
 
     if (EZ_CMAKE_PLATFORM_WINDOWS)
         mark_as_advanced(FORCE Qt5WinExtras_DIR)
@@ -171,6 +172,12 @@ function(ez_link_target_qt)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${EZ_QT_DIR}/plugins/platforms"
             "$<TARGET_FILE_DIR:${FN_ARG_TARGET}>/platforms")
+
+        # Copy 'iconengines' into the binary folder.
+        add_custom_command(TARGET ${FN_ARG_TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${EZ_QT_DIR}/plugins/iconengines"
+            "$<TARGET_FILE_DIR:${FN_ARG_TARGET}>/iconengines")
 
     endif()
 

@@ -25,8 +25,6 @@ public:
 
   EZ_ALWAYS_INLINE const ezString& GetTagString() const; // [tested]
 
-  EZ_ALWAYS_INLINE ezUInt32 GetTagHash() const; // [tested]
-
   EZ_ALWAYS_INLINE bool IsValid() const; // [tested]
 
 private:
@@ -38,9 +36,6 @@ private:
 
   ezUInt32 m_uiBitIndex;
   ezUInt32 m_uiBlockIndex;
-
-  /// Stores a pre-shifted version of 1u << uiBitIndex
-  ezTagSetBlockStorage m_uiPreshiftedBit;
 };
 
 #include <Foundation/Types/TagSet.h>

@@ -65,11 +65,27 @@ struct ezStringIterator
   /// \brief Returns the address the iterator currently points to.
   EZ_ALWAYS_INLINE const char* operator->() const { return GetData(); }
 
+  /// \brief Advances the iterated to the next character, same as operator++, but returns how many bytes were consumed in the source string.
+  EZ_ALWAYS_INLINE ezUInt32 Advance()
+  {
+    const char* pPrevElement = m_pElement;
+
+    if (m_pElement < m_String->InternalGetDataEnd())
+    {
+      ezUnicodeUtils::MoveToNextUtf8(m_pElement);
+    }
+
+    return static_cast<ezUInt32>(m_pElement - pPrevElement);
+  }
+
   /// \brief Move to the next Utf8 character
   EZ_ALWAYS_INLINE ezStringIterator<STRING>& operator++() // [tested]
   {
     if (m_pElement < m_String->InternalGetDataEnd())
+    {
       ezUnicodeUtils::MoveToNextUtf8(m_pElement);
+    }
+
     return *this;
   }
 
@@ -77,7 +93,10 @@ struct ezStringIterator
   EZ_ALWAYS_INLINE ezStringIterator<STRING>& operator--() // [tested]
   {
     if (m_String->InternalGetData() < m_pElement)
+    {
       ezUnicodeUtils::MoveToPriorUtf8(m_pElement);
+    }
+
     return *this;
   }
 

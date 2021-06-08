@@ -31,7 +31,7 @@ void ezWorldWriter::WriteWorld(ezStreamWriter& stream, ezWorld& world, const ezT
 
   world.Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
 
-  WriteToStream();
+  WriteToStream().IgnoreResult();
 }
 
 void ezWorldWriter::WriteObjects(ezStreamWriter& stream, const ezDeque<const ezGameObject*>& rootObjects)
@@ -46,7 +46,7 @@ void ezWorldWriter::WriteObjects(ezStreamWriter& stream, const ezDeque<const ezG
     Traverse(const_cast<ezGameObject*>(pObject));
   }
 
-  WriteToStream();
+  WriteToStream().IgnoreResult();
 }
 
 void ezWorldWriter::WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGameObject*> rootObjects)
@@ -61,12 +61,12 @@ void ezWorldWriter::WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGame
     Traverse(const_cast<ezGameObject*>(pObject));
   }
 
-  WriteToStream();
+  WriteToStream().IgnoreResult();
 }
 
 ezResult ezWorldWriter::WriteToStream()
 {
-  const ezUInt8 uiVersion = 9;
+  const ezUInt8 uiVersion = 10;
   *m_pStream << uiVersion;
 
   // version 8: use string dedup instead of handle writer
@@ -277,6 +277,7 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->IsDynamic();
   pObject->GetTags().Save(s);
   s << pObject->GetTeamID();
+  s << pObject->GetStableRandomSeed();
 }
 
 void ezWorldWriter::WriteComponentTypeInfo(const ezRTTI* pRtti)
@@ -329,7 +330,7 @@ void ezWorldWriter::WriteComponentCreationData(const ezDeque<const ezComponent*>
     ezStreamWriter& s = *m_pStream;
     s << storage.GetStorageSize();
 
-    s.WriteBytes(storage.GetData(), storage.GetStorageSize());
+    s.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
   }
 }
 
@@ -354,7 +355,7 @@ void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezCompon
     ezStreamWriter& s = *m_pStream;
     s << storage.GetStorageSize();
 
-    s.WriteBytes(storage.GetData(), storage.GetStorageSize());
+    s.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
   }
 }
 

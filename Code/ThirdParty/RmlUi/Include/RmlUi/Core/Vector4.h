@@ -26,15 +26,14 @@
  *
  */
 
-#ifndef RMLUICOREVECTOR4_H
-#define RMLUICOREVECTOR4_H
+#ifndef RMLUI_CORE_VECTOR4_H
+#define RMLUI_CORE_VECTOR4_H
 
 #include "Debug.h"
 #include "Math.h"
 #include "Vector3.h"
 
 namespace Rml {
-namespace Core {
 
 /**
 	Templated class for a generic four-component vector.
@@ -71,6 +70,9 @@ class Vector4
 		/// @param[in] rhs The other vector to use in the dot-product.
 		/// @return The computed dot-product between the two vectors.
 		inline Type DotProduct(const Vector4& rhs) const;
+
+		/// Return a Vector3 after perspective divide
+		inline Vector3< Type > PerspectiveDivide() const;
 
 		/// Returns the negation of this vector.
 		/// @return The negation of this vector.
@@ -126,8 +128,10 @@ class Vector4
 		/// @return A constant pointer to the first value.
 		inline operator Type*();
 
-		/// Return a Vector3 after perspective divide
-		inline Vector3< Type > PerspectiveDivide() const;
+		/// Underlying type-cast operator.
+		/// @return A copy of the vector with another underlying type.
+		template < typename U >
+		explicit inline operator Vector4<U>() const;
 
 		/// Cast to Vector3
 		explicit inline operator Vector3< Type >() const;
@@ -139,10 +143,15 @@ class Vector4
 		Type y;
 		Type z;
 		Type w;
+
+#if defined(RMLUI_VECTOR4_USER_EXTRA)
+	RMLUI_VECTOR4_USER_EXTRA
+#elif defined(RMLUI_VECTOR4_USER_INCLUDE)
+	#include RMLUI_VECTOR4_USER_INCLUDE
+#endif
 };
 
-}
-}
+} // namespace Rml
 
 #include "Vector4.inl"
 

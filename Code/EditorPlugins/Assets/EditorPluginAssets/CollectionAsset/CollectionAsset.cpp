@@ -1,12 +1,7 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
-#include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Texture/Image/Image.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetEntry, 1, ezRTTIDefaultAllocator<ezCollectionAssetEntry>)

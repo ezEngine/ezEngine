@@ -171,11 +171,20 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
   auto getNiceName = [](const ezString& dep) -> ezStringBuilder {
     if (ezConversionUtils::IsStringUuid(dep))
     {
-      auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(ezConversionUtils::ConvertStringToUuid(dep));
+      ezUuid guid = ezConversionUtils::ConvertStringToUuid(dep);
+      auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
       if (assetInfoDep)
       {
         return assetInfoDep->m_pAssetInfo->m_sDataDirRelativePath;
       }
+
+      ezUInt64 uiLow;
+      ezUInt64 uiHigh;
+      guid.GetValues(uiLow, uiHigh);
+      ezStringBuilder sTmp;
+      sTmp.Format("{} - u4{{},{}}", dep, uiLow, uiHigh);
+
+      return sTmp;
     }
 
     return dep;

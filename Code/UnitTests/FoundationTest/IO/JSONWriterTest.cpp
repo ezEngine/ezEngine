@@ -167,7 +167,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableAngle("var1", ezAngle::Degree(90.0f));
+    // vs2019 is so imprecise, that the degree->radian conversion introduces differences in the final output
+    js.AddVariableAngle("var1", ezAngle::Radian(1.5707963267f));
     js.AddVariableAngle("var2", ezAngle::Radian(1.0f * ezMath::Pi<float>()));
   }
 

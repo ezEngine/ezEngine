@@ -53,8 +53,8 @@
 #endif
 
 /// \brief Disallow the copy constructor and the assignment operator for this type.
-#define EZ_DISALLOW_COPY_AND_ASSIGN(type)                                                                                                            \
-  type(const type&) = delete;                                                                                                                        \
+#define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
+  type(const type&) = delete;             \
   void operator=(const type&) = delete
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -76,16 +76,16 @@
 
 #define EZ_WINCHECK_1 1          // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ defined (stringyfied to nothing)
 #define EZ_WINCHECK_1_WINDOWS_ 1 // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
-#define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H                                                                                                            \
+#define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H \
   0 // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ defined (stringyfied to nothing)
-#define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H_WINDOWS_                                                                                                   \
+#define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H_WINDOWS_ \
   1 // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
 
 /// \brief Checks whether Windows.h has been included directly instead of through 'IncludeWindows.h'
 ///
 /// Does this by stringifying the available defines, concatenating them into one long word, which is a known #define that evaluates to 0 or 1
-#define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                                                                                    \
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_CONCAT(EZ_WINCHECK_, EZ_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1,                                              \
+#define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                                       \
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_CONCAT(EZ_WINCHECK_, EZ_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
     "Windows.h has been included but not through ez. #include <Foundation/Basics/Platform/Win/IncludeWindows.h> instead of Windows.h");
 
 
@@ -130,15 +130,15 @@ struct ezStaticLinkHelper
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
 /// they then end up in the final application, where they will do what they are meant for.
-#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)                                                                                                \
-    void ezReferenceFunction_##UniqueName(bool bReturn) {}                                                                                           \
-    void ezReferenceFunction_##LibraryName(bool bReturn);                                                                                            \
+#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)      \
+    void ezReferenceFunction_##UniqueName(bool bReturn) {} \
+    void ezReferenceFunction_##LibraryName(bool bReturn);  \
     static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
 
 /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
 /// files inside a library. \see EZ_STATICLINK_FILE
-#  define EZ_STATICLINK_REFERENCE(UniqueName)                                                                                                        \
-    void ezReferenceFunction_##UniqueName(bool bReturn = true);                                                                                      \
+#  define EZ_STATICLINK_REFERENCE(UniqueName)                   \
+    void ezReferenceFunction_##UniqueName(bool bReturn = true); \
     ezReferenceFunction_##UniqueName()
 
 /// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.

@@ -1,11 +1,11 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <Module/ParticleModule.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>
@@ -25,7 +25,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
   : ezWorldModule(pWorld)
 {
-  m_uiExtractedFrame = 0;
 }
 
 ezParticleWorldModule::~ezParticleWorldModule()
@@ -51,9 +50,6 @@ void ezParticleWorldModule::Initialize()
     finishDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
     finishDesc.m_bOnlyUpdateWhenSimulating = true;
     finishDesc.m_fPriority = -1000.0f; // sync with particle tasks as late as possible
-
-    // make sure this function is called AFTER the components have done their final transform update
-    finishDesc.m_DependsOn.PushBack(ezMakeHashedString("ezParticleComponentManager::UpdateTransforms"));
 
     RegisterUpdateFunction(finishDesc);
   }
@@ -93,6 +89,18 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
   {
     EZ_LOCK(m_Mutex);
 
+    // The simulation tasks are done and the game objects have their global transform updated at this point, so we can push the transform
+    // to the particle effects for the next simulation step and also ensure that the bounding volumes are correct for culling and rendering.
+    if (ezParticleComponentManager* pManager = GetWorld()->GetComponentManager<ezParticleComponentManager>())
+    {
+      pManager->UpdatePfxTransformsAndBounds();
+    }
+
+    if (ezParticleFinisherComponentManager* pManager = GetWorld()->GetComponentManager<ezParticleFinisherComponentManager>())
+    {
+      pManager->UpdateBounds();
+    }
+
     for (ezUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
     {
       CreateFinisherComponent(m_NeedFinisherComponent[i]);
@@ -102,53 +110,11 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
   }
 }
 
-void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData) const
+void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const
 {
-  EZ_ASSERT_RELEASE(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
+  EZ_ASSERT_DEBUG(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
 
   EZ_LOCK(m_Mutex);
-
-  // increase frame count to identify which system has been updated in this frame already
-  ++m_uiExtractedFrame;
-
-  for (auto it = m_ActiveEffects.GetIterator(); it.IsValid(); ++it)
-  {
-    ezParticleEffectInstance* pEffect = it.Value();
-
-    if (pEffect->IsSharedEffect())
-    {
-      const auto& shared = pEffect->GetAllSharedInstances();
-
-      for (ezUInt32 shi = 0; shi < shared.GetCount(); ++shi)
-      {
-        ExtractEffectRenderData(pEffect, view, extractedRenderData, pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner));
-      }
-    }
-    else
-    {
-      ExtractEffectRenderData(pEffect, view, extractedRenderData, pEffect->GetTransform(nullptr));
-    }
-  }
-}
-
-
-void ezParticleWorldModule::ExtractEffectRenderData(
-  const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& systemTransform) const
-{
-  if (!pEffect->IsVisible())
-    return;
-
-  {
-    // we know that at this point no one will modify the transform, as all threaded updates have been waited for
-    // this will move the latest transform into the variable that is read by the renderer and thus the shaders will get the latest value
-    // which is especially useful for effects that use local space simulation
-    // this fixes the 'lag one frame behind' issue
-    // however, we can't swap m_uiDoubleBufferReadIdx and m_uiDoubleBufferWriteIdx here, as this function is called on demand,
-    // ie. it may be called 0 to N times (per active view)
-
-    ezParticleEffectInstance* pEffect0 = const_cast<ezParticleEffectInstance*>(pEffect);
-    pEffect0->m_Transform[pEffect->m_uiDoubleBufferReadIdx] = pEffect->m_Transform[pEffect->m_uiDoubleBufferWriteIdx];
-  }
 
   for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
   {
@@ -160,7 +126,7 @@ void ezParticleWorldModule::ExtractEffectRenderData(
     if (!pSystem->HasActiveParticles() || !pSystem->IsVisible())
       continue;
 
-    pSystem->ExtractSystemRenderData(view, extractedRenderData, systemTransform, m_uiExtractedFrame);
+    pSystem->ExtractSystemRenderData(msg, systemTransform);
   }
 }
 

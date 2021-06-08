@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10551485956599081379,4726986834568871887}}
-		u4 %Hash{16064443302361731562}
+		u4 %Hash{14455007151115928800}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{772350352167168163,5346113143026811922}}
@@ -19,8 +19,6 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 916dbc80-6776-44b0-9de6-f93e3dc37050 }"}
-			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ e0769934-7587-4225-8eb1-48c0a47f656e }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
@@ -43,10 +41,14 @@ o
 {
 	Uuid %id{u4{17615328122416346509,4794417773240945749}}
 	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %DegreesPerSecond{u4{7693948244904057042,12126846953439213937}}
+		ezVarianceTypeAngle %DegreesPerSecond
+		{
+			f %Variance{0x48E1FA3E}
+			Angle %Value{f{0xDB0F4940}}
+		}
 		b %RandomStartAngle{1}
 	}
 }
@@ -87,7 +89,7 @@ o
 {
 	Uuid %id{u4{4640506145466473397,4929771257271492951}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -106,13 +108,16 @@ o
 			Uuid{u4{17615328122416346509,4794417773240945749}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{4093568118756306902,8918917187519216892}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0xF628DC3E}
+			Time %Value{d{0x666666666666E63F}}
+		}
 		s %Name{"Steam"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
 			Uuid{u4{8677534265329257136,4999644753518478860}}
-			Uuid{u4{17469903882937640893,5515865645708500415}}
 		}
 		b %Visible{1}
 	}
@@ -153,11 +158,15 @@ o
 {
 	Uuid %id{u4{6151575721505504182,5411908325529261159}}
 	s %t{"ezParticleInitializerFactory_VelocityCone"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Angle %Angle{f{0x95FFA73D}}
-		Uuid %Speed{u4{12568112433740495554,17582250905824238677}}
+		ezVarianceTypeFloat %Speed
+		{
+			f %Variance{0x0AD7233D}
+			f %Value{0x00008040}
+		}
 	}
 }
 o
@@ -173,26 +182,6 @@ o
 		u3 %SpawnCountPerSecRange{0}
 		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
-	}
-}
-o
-{
-	Uuid %id{u4{17469903882937640893,5515865645708500415}}
-	s %t{"ezParticleTypeQuadFactory"}
-	u3 %v{2}
-	p
-	{
-		Angle %Deviation{f{0}}
-		f %DistortionStrength{0x0000F041}
-		s %DistortionTexture{"{ 916dbc80-6776-44b0-9de6-f93e3dc37050 }"}
-		u1 %NumSpritesX{1}
-		u1 %NumSpritesY{1}
-		s %Orientation{"ezQuadParticleOrientation::Billboard"}
-		f %ParticleStretch{0x0000803F}
-		s %RenderMode{"ezParticleTypeRenderMode::Distortion"}
-		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
-		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
-		s %TintColorParam{""}
 	}
 }
 o
@@ -218,39 +207,6 @@ o
 		{
 			Uuid{u4{443230711805523597,4822775189740591338}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{4093568118756306902,8918917187519216892}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x666666666666E63F}}
-		f %Variance{0xF628DC3E}
-	}
-}
-o
-{
-	Uuid %id{u4{7693948244904057042,12126846953439213937}}
-	s %t{"ezVarianceTypeAngle"}
-	u3 %v{1}
-	p
-	{
-		Angle %Value{f{0xDB0F4940}}
-		f %Variance{0x48E1FA3E}
-	}
-}
-o
-{
-	Uuid %id{u4{12568112433740495554,17582250905824238677}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x00008040}
-		f %Variance{0x0AD7233D}
 	}
 }
 }
@@ -289,7 +245,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_VelocityCone"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -451,7 +407,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -649,7 +605,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomRotationSpeed"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

@@ -1,14 +1,40 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Time/Time.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezStringDeduplicationReadContext;
 class ezProgress;
 class ezProgressRange;
+
+struct ezPrefabInstantiationOptions
+{
+  ezGameObjectHandle m_hParent;
+
+  ezHybridArray<ezGameObject*, 8>* m_pCreatedRootObjectsOut = nullptr;
+  ezHybridArray<ezGameObject*, 8>* m_pCreatedChildObjectsOut = nullptr;
+  const ezUInt16* m_pOverrideTeamID = nullptr;
+
+  bool bForceDynamic = false;
+
+  enum class RandomSeedMode
+  {
+    DeterministicFromParent,
+    CompletelyRandom,
+    FixedFromSerialization,
+    CustomRootValue,
+  };
+
+  RandomSeedMode m_RandomSeedMode = RandomSeedMode::DeterministicFromParent;
+  ezUInt32 m_uiCustomRandomSeedRootValue = 0;
+
+  ezTime m_MaxStepTime = ezTime::Zero();
+
+  ezProgress* m_pProgress = nullptr;
+};
 
 /// \brief Reads a world description from a stream. Allows to instantiate that world multiple times
 ///        in different locations and different ezWorld's.
@@ -25,10 +51,18 @@ public:
   class InstantiationContextBase
   {
   public:
+    enum class StepResult
+    {
+      Continue,
+      ContinueNextFrame,
+      Finished,
+    };
+
     virtual ~InstantiationContextBase() {}
 
-    /// \Brief Advance the instantiation by one step and return true if instantiation is done.
-    virtual bool Step() = 0;
+    /// \Brief Advance the instantiation by one step
+    /// \return Whether the operation is finished or needs to be repeated.
+    virtual StepResult Step() = 0;
 
     /// \Brief Cancel the instantiation. This might lead to inconsistent states and must be used with care.
     virtual void Cancel() = 0;
@@ -59,8 +93,7 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiateWorld(
-    ezWorld& world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
+  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -77,9 +110,7 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-    ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
-    const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
+  ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const { return *m_pStream; }
@@ -128,9 +159,7 @@ private:
   void ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentDataToMemStream();
   void ClearHandles();
-  ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-    ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
-    const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress);
+  ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
   ezStreamReader* m_pStream = nullptr;
   ezWorld* m_pWorld = nullptr;
@@ -159,17 +188,14 @@ private:
   class InstantiationContext : public InstantiationContextBase
   {
   public:
-    InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-      ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
-      const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress);
+    InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
     ~InstantiationContext();
 
-    virtual bool Step() override;
+    virtual StepResult Step() override;
     virtual void Cancel() override;
 
     template <bool UseTransform>
-    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
-      ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime);
+    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime);
 
     bool CreateComponents(ezTime endTime);
     bool DeserializeComponents(ezTime endTime);
@@ -183,13 +209,10 @@ private:
     ezWorldReader& m_WorldReader;
 
     bool m_bUseTransform = false;
-    bool m_bForceDynamic = false;
     ezTransform m_RootTransform;
-    ezGameObjectHandle m_hParent;
-    ezHybridArray<ezGameObject*, 8>* m_pCreatedRootObjects;
-    ezHybridArray<ezGameObject*, 8>* m_pCreatedChildObjects;
-    const ezUInt16* m_pOverrideTeamID = nullptr;
-    ezTime m_MaxStepTime;
+
+    ezPrefabInstantiationOptions m_Options;
+
     ezComponentInitBatchHandle m_hComponentInitBatch;
 
     // Current state

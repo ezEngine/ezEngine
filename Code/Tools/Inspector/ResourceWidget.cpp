@@ -462,7 +462,7 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
   {
     s_pWidget->m_bUpdateTable = true;
 
-    ezUInt32 uiResourceNameHash = 0;
+    ezUInt64 uiResourceNameHash = 0;
     Msg.GetReader() >> uiResourceNameHash;
 
     ResourceData& rd = s_pWidget->m_Resources[uiResourceNameHash];

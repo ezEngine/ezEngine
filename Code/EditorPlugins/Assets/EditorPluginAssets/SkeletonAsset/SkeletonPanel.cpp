@@ -1,15 +1,11 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
-#include <QLayout>
-#include <QTreeView>
-#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 
 ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* pDocument)
   : ezQtDocumentPanel(pParent)

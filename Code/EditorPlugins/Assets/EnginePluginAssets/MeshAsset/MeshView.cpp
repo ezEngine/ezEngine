@@ -1,20 +1,15 @@
 #include <EnginePluginAssetsPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <EnginePluginAssets/MeshAsset/MeshView.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
 ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)
 {
-  m_pMeshContext = pMeshContext;
+  m_pContext = pMeshContext;
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
@@ -44,11 +39,16 @@ ezViewHandle ezMeshViewContext::CreateView()
 
 void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
+  if (m_pContext->m_bDisplayGrid)
+  {
+    ezEngineProcessViewContext::DrawSimpleGrid();
+  }
+
   ezEngineProcessViewContext::SetCamera(pMsg);
 
   const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
-  auto hMesh = m_pMeshContext->GetMesh();
+  auto hMesh = m_pContext->GetMesh();
   if (hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
@@ -75,11 +75,11 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     }
 
     ezStringBuilder sText;
-    sText.AppendFormat("Triangles: {}\\n", uiNumTriangles);
-    sText.AppendFormat("Vertices: {}\\n", uiNumVertices);
-    sText.AppendFormat("UV Channels: {}\\n", uiNumUVs);
-    sText.AppendFormat("Color Channels: {}\\n", uiNumColors);
-    sText.AppendFormat("Bytes Per Vertex: {}\\n", bufferDesc.m_uiStructSize);
+    sText.AppendFormat("Triangles: {}\n", uiNumTriangles);
+    sText.AppendFormat("Vertices: {}\n", uiNumVertices);
+    sText.AppendFormat("UV Channels: {}\n", uiNumUVs);
+    sText.AppendFormat("Color Channels: {}\n", uiNumColors);
+    sText.AppendFormat("Bytes Per Vertex: {}\n", bufferDesc.m_uiStructSize);
     sText.AppendFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 

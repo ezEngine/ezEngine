@@ -19,7 +19,7 @@ ezUInt32 ezTypeScriptBinding::ComputeFunctionBindingHash(const ezRTTI* pType, ez
 
   sFuncName.Set(pType->GetTypeName(), "::", pFunc->GetPropertyName());
 
-  return ezTempHashedString::ComputeHash(sFuncName.GetData());
+  return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sFuncName.GetData()));
 }
 
 void ezTypeScriptBinding::SetupRttiFunctionBindings()
@@ -77,6 +77,14 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
 
   switch (pRtti->GetVariantType())
   {
+    case ezVariant::Type::Invalid:
+    {
+      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezVariant"))
+        return "any";
+
+      return nullptr;
+    }
+
     case ezVariant::Type::Angle:
       return "number";
 

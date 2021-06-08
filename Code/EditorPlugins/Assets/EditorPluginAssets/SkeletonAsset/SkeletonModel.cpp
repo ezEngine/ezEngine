@@ -2,8 +2,6 @@
 
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QIcon>
 
 ezQtJointAdapter::ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument)
   : ezQtNamedAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezEditableSkeletonJoint>(), "Children", "Name")

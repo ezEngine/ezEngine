@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <Foundation/Serialization/GraphPatch.h>
 

@@ -113,9 +113,7 @@ namespace
   {
     DoubleBufferedPerContextData& doubleBufferedData = s_PerContextData[context];
 
-    const ezUInt32 uiDataIndex = ezRenderWorld::IsRenderingThread() && (doubleBufferedData.m_uiLastRenderedFrame != ezRenderWorld::GetFrameCounter())
-                                   ? ezRenderWorld::GetDataIndexForRendering()
-                                   : ezRenderWorld::GetDataIndexForExtraction();
+    const ezUInt32 uiDataIndex = ezRenderWorld::IsRenderingThread() && (doubleBufferedData.m_uiLastRenderedFrame != ezRenderWorld::GetFrameCounter()) ? ezRenderWorld::GetDataIndexForRendering() : ezRenderWorld::GetDataIndexForExtraction();
 
     ezUniquePtr<PerContextData>& pData = doubleBufferedData.m_pData[uiDataIndex];
     if (pData == nullptr)
@@ -241,8 +239,7 @@ namespace
   }
 
   template <typename AddFunc>
-  static void AddTextLines(const ezDebugRendererContext& context, ezStringView text, const ezVec2I32& positionInPixel, float fSizeInPixel,
-    ezDebugRenderer::HorizontalAlignment::Enum horizontalAlignment, ezDebugRenderer::VerticalAlignment::Enum verticalAlignment, AddFunc func)
+  static void AddTextLines(const ezDebugRendererContext& context, ezStringView text, const ezVec2I32& positionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment::Enum horizontalAlignment, ezDebugRenderer::VerticalAlignment::Enum verticalAlignment, AddFunc func)
   {
     if (text.IsEmpty())
       return;
@@ -251,10 +248,10 @@ namespace
     ezUInt32 maxLineLength = 0;
 
     ezStringBuilder sb;
-    if (text.FindSubString("\\n"))
+    if (text.FindSubString("\n"))
     {
       sb = text;
-      sb.Split(false, lines, "\\n");
+      sb.Split(false, lines, "\n");
 
       for (auto& line : lines)
       {
@@ -341,7 +338,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 // static
-void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
+void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   if (lines.IsEmpty())
     return;
@@ -352,18 +349,19 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
 
   for (auto& line : lines)
   {
-    ezVec3* pPositions = &line.m_start;
+    const ezVec3* pPositions = &line.m_start;
+    const ezColor* pColors = &line.m_startColor;
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
       auto& vertex = data.m_lineVertices.ExpandAndGetRef();
-      vertex.m_position = pPositions[i];
-      vertex.m_color = color;
+      vertex.m_position = transform.TransformPosition(pPositions[i]);
+      vertex.m_color = pColors[i] * color;
     }
   }
 }
 
-void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
+void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color)
 {
   if (lines.IsEmpty())
     return;
@@ -374,7 +372,7 @@ void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArray
 
   for (auto& line : lines)
   {
-    ezVec3* pPositions = &line.m_start;
+    const ezVec3* pPositions = &line.m_start;
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
@@ -386,8 +384,7 @@ void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArray
 }
 
 // static
-void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color,
-  const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   if (fLineLength <= 0.0f)
     return;
@@ -397,8 +394,7 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
   const ezVec3 yAxis = ezVec3::UnitYAxis() * fHalfLineLength;
   const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
 
-  Line lines[3] = {{transform.TransformPosition(globalPosition - xAxis), transform.TransformPosition(globalPosition + xAxis)},
-    {transform.TransformPosition(globalPosition - yAxis), transform.TransformPosition(globalPosition + yAxis)},
+  Line lines[3] = {{transform.TransformPosition(globalPosition - xAxis), transform.TransformPosition(globalPosition + xAxis)}, {transform.TransformPosition(globalPosition - yAxis), transform.TransformPosition(globalPosition + yAxis)},
     {transform.TransformPosition(globalPosition - zAxis), transform.TransformPosition(globalPosition + zAxis)}};
 
   DrawLines(context, lines, color);
@@ -420,8 +416,7 @@ void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const e
 }
 
 // static
-void ezDebugRenderer::DrawLineBoxCorners(
-  const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
+void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
 {
   fCornerFraction = ezMath::Clamp(fCornerFraction, 0.0f, 1.0f) * 0.5f;
 
@@ -465,8 +460,7 @@ void ezDebugRenderer::DrawLineBoxCorners(
 }
 
 // static
-void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color,
-  const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   enum
   {
@@ -503,8 +497,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 }
 
 
-void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color,
-  const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   enum
   {
@@ -595,8 +588,7 @@ void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, fl
 }
 
 // static
-void ezDebugRenderer::DrawLineFrustum(
-  const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals /*= false*/)
+void ezDebugRenderer::DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals /*= false*/)
 {
   ezVec3 cornerPoints[8];
   frustum.ComputeCornerPoints(cornerPoints);
@@ -669,8 +661,7 @@ void ezDebugRenderer::DrawLineFrustum(
 }
 
 // static
-void ezDebugRenderer::DrawSolidBox(
-  const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
+void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
 {
   EZ_LOCK(s_Mutex);
 
@@ -705,8 +696,7 @@ void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, 
   }
 }
 
-void ezDebugRenderer::DrawTexturedTriangles(
-  const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
+void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
 {
   if (triangles.IsEmpty())
     return;
@@ -751,8 +741,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color,
-  const ezTexture2DResourceHandle& hTexture)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
 {
   TexVertex vertices[6];
 
@@ -782,34 +771,30 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel,
-  const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
   VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment,
-    [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-      auto& textLine = data.m_textLines2D.ExpandAndGetRef();
-      textLine.m_text = line;
-      textLine.m_topLeftCorner = topLeftCorner;
-      textLine.m_color = color;
-      textLine.m_uiSizeInPixel = uiSizeInPixel;
-    });
+  AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
+    auto& textLine = data.m_textLines2D.ExpandAndGetRef();
+    textLine.m_text = line;
+    textLine.m_topLeftCorner = topLeftCorner;
+    textLine.m_color = color;
+    textLine.m_uiSizeInPixel = uiSizeInPixel;
+  });
 }
 
 
-void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color,
-  ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
   VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment,
-    [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-      auto& textLine = data.m_textLines3D.ExpandAndGetRef();
-      textLine.m_text = line;
-      textLine.m_topLeftCorner = topLeftCorner;
-      textLine.m_color = color;
-      textLine.m_uiSizeInPixel = uiSizeInPixel;
-      textLine.m_position = globalPosition;
-    });
+  AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
+    auto& textLine = data.m_textLines3D.ExpandAndGetRef();
+    textLine.m_text = line;
+    textLine.m_topLeftCorner = topLeftCorner;
+    textLine.m_color = color;
+    textLine.m_uiSizeInPixel = uiSizeInPixel;
+    textLine.m_position = globalPosition;
+  });
 }
 
 // static
@@ -844,7 +829,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+  ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
 
   // SolidBoxes
   {
@@ -861,13 +846,13 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       while (uiNumSolidBoxes > 0)
       {
         const ezUInt32 uiNumSolidBoxesInBatch = ezMath::Min<ezUInt32>(uiNumSolidBoxes, BOXES_PER_BATCH);
-        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::SolidBoxes], 0, ezMakeArrayPtr(pSolidBoxData, uiNumSolidBoxesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::SolidBoxes], 0, ezMakeArrayPtr(pSolidBoxData, uiNumSolidBoxesInBatch).ToByteArray());
 
         unsigned int uiRenderedInstances = uiNumSolidBoxesInBatch;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumSolidBoxes -= uiNumSolidBoxesInBatch;
         pSolidBoxData += BOXES_PER_BATCH;
@@ -890,17 +875,15 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       {
         const ezUInt32 uiNumTriangleVerticesInBatch = ezMath::Min<ezUInt32>(uiNumTriangleVertices, TRIANGLE_VERTICES_PER_BATCH);
         EZ_ASSERT_DEV(uiNumTriangleVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
-        pGALContext->UpdateBuffer(
-          s_hDataBuffer[BufferType::Triangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumTriangleVerticesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::Triangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumTriangleVerticesInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles3D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
-          ezGALPrimitiveTopology::Triangles, uiNumTriangleVerticesInBatch / 3);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles3D], ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumTriangleVerticesInBatch / 3);
 
         unsigned int uiRenderedInstances = 1;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumTriangleVertices -= uiNumTriangleVerticesInBatch;
         pTriangleData += TRIANGLE_VERTICES_PER_BATCH;
@@ -923,16 +906,15 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       {
         const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
         EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
-        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Lines], 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::Lines], 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), &s_VertexDeclarationInfo,
-          ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
 
         unsigned int uiRenderedInstances = 1;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumLineVertices -= uiNumLineVerticesInBatch;
         pLineData += LINE_VERTICES_PER_BATCH;
@@ -955,16 +937,15 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       {
         const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
         EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
-        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Lines2D], 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::Lines2D], 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines2D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
-          ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines2D], ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
 
         unsigned int uiRenderedInstances = 1;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumLineVertices -= uiNumLineVerticesInBatch;
         pLineData += LINE_VERTICES_PER_BATCH;
@@ -987,13 +968,13 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       while (uiNumLineBoxes > 0)
       {
         const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
-        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::LineBoxes], 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::LineBoxes], 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray());
 
         unsigned int uiRenderedInstances = uiNumLineBoxesInBatch;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumLineBoxes -= uiNumLineBoxesInBatch;
         pLineBoxData += BOXES_PER_BATCH;
@@ -1016,16 +997,15 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       {
         const ezUInt32 uiNum2DVerticesInBatch = ezMath::Min<ezUInt32>(uiNum2DVertices, TRIANGLE_VERTICES_PER_BATCH);
         EZ_ASSERT_DEV(uiNum2DVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
-        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Triangles2D], 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::Triangles2D], 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles2D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
-          ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles2D], ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
 
         unsigned int uiRenderedInstances = 1;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNum2DVertices -= uiNum2DVerticesInBatch;
         pTriangleData += TRIANGLE_VERTICES_PER_BATCH;
@@ -1054,17 +1034,15 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         {
           const ezUInt32 uiNum2DVerticesInBatch = ezMath::Min<ezUInt32>(uiNum2DVertices, TEX_TRIANGLE_VERTICES_PER_BATCH);
           EZ_ASSERT_DEV(uiNum2DVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
-          pGALContext->UpdateBuffer(
-            s_hDataBuffer[BufferType::TexTriangles2D], 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray());
+          pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles2D], 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray());
 
-          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles2D], ezGALBufferHandle(),
-            &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
+          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles2D], ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
 
           unsigned int uiRenderedInstances = 1;
           if (renderViewContext.m_pCamera->IsStereoscopic())
             uiRenderedInstances *= 2;
 
-          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
           uiNum2DVertices -= uiNum2DVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
@@ -1094,16 +1072,15 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         {
           const ezUInt32 uiNumVerticesInBatch = ezMath::Min<ezUInt32>(uiNumVertices, TEX_TRIANGLE_VERTICES_PER_BATCH);
           EZ_ASSERT_DEV(uiNumVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
-          pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumVerticesInBatch).ToByteArray());
+          pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumVerticesInBatch).ToByteArray());
 
-          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles3D], ezGALBufferHandle(),
-            &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
+          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles3D], ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
 
           unsigned int uiRenderedInstances = 1;
           if (renderViewContext.m_pCamera->IsStereoscopic())
             uiRenderedInstances *= 2;
 
-          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
           uiNumVertices -= uiNumVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
@@ -1147,16 +1124,15 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       while (uiNumGlyphs > 0)
       {
         const ezUInt32 uiNumGlyphsInBatch = ezMath::Min<ezUInt32>(uiNumGlyphs, GLYPHS_PER_BATCH);
-        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Glyphs], 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::Glyphs], 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(
-          ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
 
         unsigned int uiRenderedInstances = 1;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
         uiNumGlyphs -= uiNumGlyphsInBatch;
         pGlyphData += GLYPHS_PER_BATCH;
@@ -1175,8 +1151,7 @@ void ezDebugRenderer::OnEngineStartup()
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Lines);
 
-    s_hLineBoxMeshBuffer =
-      ezResourceManager::CreateResource<ezMeshBufferResource>("DebugLineBox", std::move(desc), "Mesh for Rendering Debug Line Boxes");
+    s_hLineBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugLineBox", std::move(desc), "Mesh for Rendering Debug Line Boxes");
   }
 
   {
@@ -1187,8 +1162,7 @@ void ezDebugRenderer::OnEngineStartup()
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-    s_hSolidBoxMeshBuffer =
-      ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", std::move(desc), "Mesh for Rendering Debug Solid Boxes");
+    s_hSolidBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", std::move(desc), "Mesh for Rendering Debug Solid Boxes");
   }
 
   {

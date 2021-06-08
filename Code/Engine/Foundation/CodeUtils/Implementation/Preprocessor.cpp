@@ -181,16 +181,14 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 
   if (!m_sCurrentFileStack.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'",
-      m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName);
+    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'", m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName);
     return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::Process(
-  const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
+ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
 {
   sOutput.Clear();
 
@@ -259,10 +257,8 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
   if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     // check that the following command is valid, even if it is ignored
-    if (Accept(Tokens, uiCurToken, "line", &uiAccepted) || Accept(Tokens, uiCurToken, "include", &uiAccepted) ||
-        Accept(Tokens, uiCurToken, "define") || Accept(Tokens, uiCurToken, "undef", &uiAccepted) ||
-        Accept(Tokens, uiCurToken, "error", &uiAccepted) || Accept(Tokens, uiCurToken, "warning", &uiAccepted) ||
-        Accept(Tokens, uiCurToken, "pragma"))
+    if (Accept(Tokens, uiCurToken, "line", &uiAccepted) || Accept(Tokens, uiCurToken, "include", &uiAccepted) || Accept(Tokens, uiCurToken, "define") || Accept(Tokens, uiCurToken, "undef", &uiAccepted) || Accept(Tokens, uiCurToken, "error", &uiAccepted) ||
+        Accept(Tokens, uiCurToken, "warning", &uiAccepted) || Accept(Tokens, uiCurToken, "pragma"))
       return EZ_SUCCESS;
 
     if (m_PassThroughUnknownCmdCB.IsValid())
@@ -480,7 +476,7 @@ ezResult ezPreprocessor::HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurTo
 {
   SkipWhitespace(Tokens, uiCurToken);
 
-  ExpectEndOfLine(Tokens, uiCurToken);
+  EZ_SUCCEED_OR_RETURN(ExpectEndOfLine(Tokens, uiCurToken));
 
   m_IfdefActiveStack.PopBack();
 
@@ -511,9 +507,8 @@ ezResult ezPreprocessor::HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurTo
     return EZ_SUCCESS;
   }
 
-
   // this is an error, but not one that will cause it to fail
-  ExpectEndOfLine(Tokens, uiCurToken);
+  ExpectEndOfLine(Tokens, uiCurToken).IgnoreResult();
 
   return EZ_SUCCESS;
 }

@@ -1,6 +1,5 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -16,18 +15,15 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
     sSearch.AppendPath("*.dll");
 
     ezFileSystemIterator fsit;
-    if (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles).Succeeded())
+    for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
     {
-      do
-      {
-        ezStringBuilder sPlugin = fsit.GetStats().m_sName;
-        sPlugin.RemoveFileExtension();
+      ezStringBuilder sPlugin = fsit.GetStats().m_sName;
+      sPlugin.RemoveFileExtension();
 
-        if (sPlugin.FindSubString_NoCase("EnginePlugin") != nullptr || sPlugin.EndsWith_NoCase("Plugin"))
-        {
-          s_EnginePlugins.m_Plugins[sPlugin].m_bAvailable = true;
-        }
-      } while (fsit.Next().Succeeded());
+      if (sPlugin.FindSubString_NoCase("EnginePlugin") != nullptr || sPlugin.EndsWith_NoCase("Plugin"))
+      {
+        s_EnginePlugins.m_Plugins[sPlugin].m_bAvailable = true;
+      }
     }
   }
 #endif
@@ -71,7 +67,7 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
   if (bChange)
   {
     AddReloadProjectRequiredReason("The set of active engine plugins was changed.");
-    m_EnginePluginConfig.Save();
+    m_EnginePluginConfig.Save().IgnoreResult();
   }
 }
 
@@ -118,7 +114,7 @@ void ezQtEditorApp::ReadEnginePluginConfig()
   }
 
   // save new state again
-  m_EnginePluginConfig.Save();
+  m_EnginePluginConfig.Save().IgnoreResult();
 
   DetectAvailableEnginePlugins();
 

@@ -1,6 +1,5 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
 void ezWorldRttiConverterContext::Clear()
@@ -61,6 +60,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
 
     ezGameObjectDesc d;
     d.m_sName.Assign(ezConversionUtils::ToString(guid, tmp).GetData());
+    d.m_uiStableRandomSeed = ezHashingUtils::xxHash32(tmp.GetData(), tmp.GetElementCount());
 
     ezGameObjectHandle hObject = m_pWorld->CreateObject(d);
     ezGameObject* pObject;

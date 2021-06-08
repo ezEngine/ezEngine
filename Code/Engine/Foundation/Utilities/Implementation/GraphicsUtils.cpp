@@ -2,9 +2,7 @@
 
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY,
-  const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
-  ezClipSpaceDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos, ezClipSpaceDepthRange::Enum DepthRange)
 {
   const ezVec4 vToProject = vPoint.GetAsVec4(1.0f);
 
@@ -30,9 +28,8 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProj
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY,
-  const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection,
-  ezClipSpaceDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(
+  const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection, ezClipSpaceDepthRange::Enum DepthRange)
 {
   ezVec3 vClipSpace = vScreenPos;
 
@@ -63,8 +60,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelV
 
     const ezVec4 vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
 
-    EZ_ASSERT_DEV(
-      vWorldSpacePoint2.w != 0.0f, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
+    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0f, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3 vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
@@ -74,9 +70,8 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelV
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModelViewProjection, const ezUInt32 uiViewportX,
-  const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
-  ezVec3* out_vDirection /*= nullptr*/, ezClipSpaceDepthRange::Enum DepthRange /*= ezClipSpaceDepthRange::Default*/)
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection /*= nullptr*/,
+  ezClipSpaceDepthRange::Enum DepthRange /*= ezClipSpaceDepthRange::Default*/)
 {
   ezVec3 vClipSpace = vScreenPos;
 
@@ -108,8 +103,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModel
 
     const ezVec4d vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
 
-    EZ_ASSERT_DEV(
-      vWorldSpacePoint2.w != 0.0, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
+    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3d vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
@@ -125,8 +119,7 @@ bool ezGraphicsUtils::IsTriangleFlipRequired(const ezMat3& mTransformation)
   return (mTransformation.GetColumn(0).CrossRH(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 }
 
-void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(
-  ezMat4& inout_Matrix, ezClipSpaceDepthRange::Enum SrcDepthRange, ezClipSpaceDepthRange::Enum DstDepthRange)
+void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ezMat4& inout_Matrix, ezClipSpaceDepthRange::Enum SrcDepthRange, ezClipSpaceDepthRange::Enum DstDepthRange)
 {
   // exclude identity transformations
   if (SrcDepthRange == DstDepthRange)
@@ -169,8 +162,7 @@ void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& Projecti
   out_fFovY = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
 }
 
-void ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(
-  float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
 {
   const ezVec4 row2 = ProjectionMatrix.GetRow(2);
   const ezVec4 row3 = ProjectionMatrix.GetRow(3);
@@ -182,14 +174,23 @@ void ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(
     nearPlane += row3;
   }
 
-  out_fNear = ezMath::Abs(nearPlane.w / nearPlane.GetAsVec3().GetLength());
-
   const ezVec4 farPlane = row3 - row2;
-  out_fFar = farPlane.w / farPlane.GetAsVec3().GetLength();
+
+  const float nearLength = nearPlane.GetAsVec3().GetLength();
+  const float farLength = farPlane.GetAsVec3().GetLength();
+
+  if (nearLength < ezMath::SmallEpsilon<float>() || farLength < ezMath::SmallEpsilon<float>())
+  {
+    return EZ_FAILURE;
+  }
+
+  out_fNear = ezMath::Abs(nearPlane.w / nearLength);
+  out_fFar = farPlane.w / farLength;
+
+  return EZ_SUCCESS;
 }
 
-ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
-  FrustumPlaneInterpolation direction, float fLerpFactor, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
+ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolation direction, float fLerpFactor, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
 {
   ezVec4 rowA;
   ezVec4 rowB = ProjectionMatrix.GetRow(3);
@@ -228,8 +229,7 @@ ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
-  ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
   const float vw = fViewWidth * 0.5f;
   const float vh = fViewHeight * 0.5f;
@@ -237,33 +237,32 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, floa
   return CreatePerspectiveProjectionMatrix(-vw, vw, -vh, vh, fNearZ, fFarZ, DepthRange, yRange, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ,
-  ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
-  const float xm = fNearZ * ezMath::Tan(fieldOfViewX * 0.5f);
+  // Taking the minimum allows the function to be used to create
+  // inverse z matrices (fNearZ > fFarZ) as well.
+  const float xm = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewX * 0.5f);
   const float ym = xm / fAspectRatioWidthDivHeight;
 
   return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange, yRange, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ,
-  ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
-  const float ym = fNearZ * ezMath::Tan(fieldOfViewY * 0.5);
+  // Taking the minimum allows the function to be used to create
+  // inverse z matrices (fNearZ > fFarZ) as well.
+  const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5);
   const float xm = ym * fAspectRatioWidthDivHeight;
 
   return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange, yRange, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
-  ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
-  return CreateOrthographicProjectionMatrix(
-    -fViewWidth * 0.5f, fViewWidth * 0.5f, -fViewHeight * 0.5f, fViewHeight * 0.5f, fNearZ, fFarZ, depthRange, yRange, handedness);
+  return CreateOrthographicProjectionMatrix(-fViewWidth * 0.5f, fViewWidth * 0.5f, -fViewHeight * 0.5f, fViewHeight * 0.5f, fNearZ, fFarZ, depthRange, yRange, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
-  ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
   ezMat4 res;
   res.SetIdentity();
@@ -293,8 +292,8 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fR
   }
   else
   {
-    // The Left-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixorthooffcenterlh
-    // The Right-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixorthooffcenterrh
+    // The Left-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixorthooffcenterlh
+    // The Right-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixorthooffcenterrh
 
     res.Element(2, 2) = -1.0f * fOneDivFarMinusNear;
     res.Element(3, 2) = -fNearZ * fOneDivFarMinusNear;
@@ -308,8 +307,7 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fR
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
-  ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
   ezMat4 res;
   res.SetZero();
@@ -319,7 +317,13 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
     ezMath::Swap(fBottom, fTop);
   }
 
-  const float fTwoNearZ = fNearZ + fNearZ;
+  // Taking the minimum of the two plane values allows
+  // this function to also be used to create inverse-z
+  // matrices by specifying values of fNearZ > fFarZ.
+  // Otherwise the x and y scaling values will be wrong
+  // in the final matrix.
+  const float fMinPlane = ezMath::Min(fNearZ, fFarZ);
+  const float fTwoNearZ = fMinPlane + fMinPlane;
   const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
   const float fOneDivRightMinusLeft = 1.0f / (fRight - fLeft);
   const float fOneDivTopMinusBottom = 1.0f / (fTop - fBottom);
@@ -340,8 +344,8 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   }
   else
   {
-    // The Left-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
-    // The Right-Handed Direct3D Way: https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterrh
+    // The Left-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
+    // The Right-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterrh
     res.Element(2, 2) = fFarZ * fOneDivNearMinusFar;
     res.Element(3, 2) = fFarZ * fNearZ * fOneDivNearMinusFar;
   }
@@ -359,7 +363,7 @@ ezMat3 ezGraphicsUtils::CreateLookAtViewMatrix(const ezVec3& vTarget, const ezVe
   EZ_ASSERT_DEBUG(!vTarget.IsZero(), "The target must not be at the origin.");
 
   ezVec3 vLookDir = vTarget;
-  vLookDir.NormalizeIfNotZero(ezVec3::UnitXAxis());
+  vLookDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
 
   ezVec3 vNormalizedUpDir = vUpDir.GetNormalized();
 
@@ -387,7 +391,7 @@ ezMat3 ezGraphicsUtils::CreateInverseLookAtViewMatrix(const ezVec3& vTarget, con
   EZ_ASSERT_DEBUG(!vTarget.IsZero(), "The target must not be at the origin.");
 
   ezVec3 vLookDir = vTarget;
-  vLookDir.NormalizeIfNotZero(ezVec3::UnitXAxis());
+  vLookDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
 
   ezVec3 vNormalizedUpDir = vUpDir.GetNormalized();
 
@@ -421,8 +425,7 @@ ezMat4 ezGraphicsUtils::CreateLookAtViewMatrix(const ezVec3& vEyePos, const ezVe
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreateInverseLookAtViewMatrix(
-  const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateInverseLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir, ezHandedness::Enum handedness)
 {
   const ezMat3 rotation = CreateInverseLookAtViewMatrix(vLookAtPos - vEyePos, vUpDir, handedness);
 
@@ -433,8 +436,7 @@ ezMat4 ezGraphicsUtils::CreateInverseLookAtViewMatrix(
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreateViewMatrix(
-  const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness)
 {
   ezMat4 res;
   res.SetIdentity();
@@ -462,8 +464,7 @@ ezMat4 ezGraphicsUtils::CreateViewMatrix(
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreateInverseViewMatrix(
-  const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateInverseViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness)
 {
   ezMat4 res;
   res.SetIdentity();
@@ -491,8 +492,7 @@ ezMat4 ezGraphicsUtils::CreateInverseViewMatrix(
   return res;
 }
 
-void ezGraphicsUtils::DecomposeViewMatrix(
-  ezVec3& vPosition, ezVec3& vForwardDir, ezVec3& vRightDir, ezVec3& vUpDir, const ezMat4& viewMatrix, ezHandedness::Enum handedness)
+void ezGraphicsUtils::DecomposeViewMatrix(ezVec3& vPosition, ezVec3& vForwardDir, ezVec3& vRightDir, ezVec3& vUpDir, const ezMat4& viewMatrix, ezHandedness::Enum handedness)
 {
   const ezMat3 rotation = viewMatrix.GetRotationalPart();
 
@@ -510,6 +510,58 @@ void ezGraphicsUtils::DecomposeViewMatrix(
   }
 
   vPosition = rotation.GetTranspose() * -viewMatrix.GetTranslationVector();
+}
+
+ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& a, const ezVec3& b, const ezVec3& c, const ezVec3& p)
+{
+  // implementation copied from https://gamedev.stackexchange.com/a/49370
+
+  const ezVec3 v0 = b - a;
+  const ezVec3 v1 = c - a;
+  const ezVec3 v2 = p - a;
+
+  const float d00 = v0.Dot(v0);
+  const float d01 = v0.Dot(v1);
+  const float d11 = v1.Dot(v1);
+  const float d20 = v2.Dot(v0);
+  const float d21 = v2.Dot(v1);
+  const float denom = d00 * d11 - d01 * d01;
+
+  if (ezMath::IsZero(denom, ezMath::SmallEpsilon<float>()))
+    return EZ_FAILURE;
+
+  const float invDenom = 1.0f / denom;
+
+  const float v = (d11 * d20 - d01 * d21) * invDenom;
+  const float w = (d00 * d21 - d01 * d20) * invDenom;
+  const float u = 1.0f - v - w;
+
+  out_vCoordinates.Set(u, v, w);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec2& a, const ezVec2& b, const ezVec2& c, const ezVec2& p)
+{
+  // implementation copied from https://gamedev.stackexchange.com/a/63203
+
+  const ezVec2 v0 = b - a;
+  const ezVec2 v1 = c - a;
+  const ezVec2 v2 = p - a;
+
+  const float denom = v0.x * v1.y - v1.x * v0.y;
+
+  if (ezMath::IsZero(denom, ezMath::SmallEpsilon<float>()))
+    return EZ_FAILURE;
+
+  const float invDenom = 1.0f / denom;
+  const float v = (v2.x * v1.y - v1.x * v2.y) * invDenom;
+  const float w = (v0.x * v2.y - v2.x * v0.y) * invDenom;
+  const float u = 1.0f - v - w;
+
+  out_vCoordinates.Set(u, v, w);
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);

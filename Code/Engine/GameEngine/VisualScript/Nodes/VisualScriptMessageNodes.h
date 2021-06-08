@@ -5,27 +5,34 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-struct ezMsgInputActionTriggered;
+
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_SimpleUserEvent : public ezVisualScriptNode
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_ScriptStartEvent : public ezVisualScriptNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_SimpleUserEvent, ezVisualScriptNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ScriptStartEvent, ezVisualScriptNode);
 
 public:
-  ezVisualScriptNode_SimpleUserEvent();
-  ~ezVisualScriptNode_SimpleUserEvent();
+  ezVisualScriptNode_ScriptStartEvent();
+  ~ezVisualScriptNode_ScriptStartEvent();
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-  virtual ezInt32 HandlesMessagesWithID() const override;
-  virtual void HandleMessage(ezMessage* pMsg) override;
+};
 
-  const char* GetMessage() const { return m_sMessage.GetData(); }
-  void SetMessage(const char* s) { m_sMessage = s; }
+//////////////////////////////////////////////////////////////////////////
 
-  ezString m_sMessage;
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_ScriptUpdateEvent : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ScriptUpdateEvent, ezVisualScriptNode);
+
+public:
+  ezVisualScriptNode_ScriptUpdateEvent();
+  ~ezVisualScriptNode_ScriptUpdateEvent();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -43,24 +50,12 @@ public:
   virtual ezInt32 HandlesMessagesWithID() const override;
   virtual void HandleMessage(ezMessage* pMsg) override;
 
-  const char* GetEventType() const { return m_sEventType.GetData(); }
-  void SetEventType(const char* s) { m_sEventType = s; }
+  const char* GetMessage() const { return m_sMessage; }
+  void SetMessage(const char* s) { m_sMessage.Assign(s); }
 
-  ezString m_sEventType;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_ScriptUpdateEvent : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ScriptUpdateEvent, ezVisualScriptNode);
-
-public:
-  ezVisualScriptNode_ScriptUpdateEvent();
-  ~ezVisualScriptNode_ScriptUpdateEvent();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+private:
+  ezHashedString m_sMessage;
+  ezVariant m_Value;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -12,15 +12,15 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
-
 BEGIN_SUBSYSTEM_DEPENDENCIES
 "Foundation",
 "Core",
@@ -308,14 +308,14 @@ struct ezShadowPool::Data
     if (ezRenderWorld::TryGetView(shadowView.m_hView, out_pView))
     {
       out_pView->SetCamera(&shadowView.m_Camera);
+      out_pView->SetLodCamera(nullptr);
     }
 
     m_uiUsedViews++;
     return shadowView;
   }
 
-  bool GetDataForExtraction(
-    const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale, ezUInt32 uiPackedDataSizeInBytes, ShadowData*& out_pData)
+  bool GetDataForExtraction(const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale, ezUInt32 uiPackedDataSizeInBytes, ShadowData*& out_pData)
   {
     EZ_LOCK(m_ShadowDataMutex);
 
@@ -446,6 +446,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     {
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
+      pView->SetLodCamera(pReferenceCamera);
     }
 
     // Setup camera
@@ -947,31 +948,29 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
     return;
 
+  if (s_pData->m_hShadowAtlasTexture.IsInvalidated() || s_pData->m_hShadowDataBuffer.IsInvalidated())
+    return;
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = pDevice->GetPrimaryContext();
+  ezGALPass* pGALPass = pDevice->BeginPass("Shadow Atlas");
 
-  if (!s_pData->m_hShadowAtlasTexture.IsInvalidated())
+  ezGALRenderingSetup renderingSetup;
+  renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pData->m_hShadowAtlasTexture));
+  renderingSetup.m_bClearDepth = true;
+
+  auto pCommandEncoder = pGALPass->BeginRendering(renderingSetup);
+
+  ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
+  auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
+  if (!packedShadowData.IsEmpty())
   {
-    EZ_PROFILE_SCOPE("Shadow Atlas Texture Clear");
+    EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
 
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pData->m_hShadowAtlasTexture));
-
-    pGALContext->SetRenderTargetSetup(renderTargetSetup);
-    pGALContext->Clear(ezColor::White);
+    pCommandEncoder->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
   }
 
-  if (!s_pData->m_hShadowDataBuffer.IsInvalidated())
-  {
-    ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
-    auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
-    if (!packedShadowData.IsEmpty())
-    {
-      EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
-
-      pGALContext->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
-    }
-  }
+  pGALPass->EndRendering(pCommandEncoder);
+  pDevice->EndPass(pGALPass);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ShadowPool);

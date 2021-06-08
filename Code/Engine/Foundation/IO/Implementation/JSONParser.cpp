@@ -606,9 +606,57 @@ void ezJSONParser::ReadString()
           m_TempString.PushBack('\t');
           break;
         case 'u':
-          ParsingError("Unicode literals are not supported.", false);
-          /// \todo Support escaped Unicode literals? (\u1234)
+        {
+          ezUInt16 cpt[2];
+          auto ReadUtf16CodePoint = [&](ezUInt16& uiCodePoint) -> bool {
+            // Unicode literal are utf16 in the format \uFFFF. The hex number FFFF can be upper or lower case but must be 4 characters long.
+            ezUInt8 unicodeLiteral[5] = {0, 0, 0, 0, 0};
+            ezUInt32 i = 0;
+            for (; i < 4; i++)
+            {
+              if (m_uiNextByte == '\0' || m_uiNextByte == '\"')
+              {
+                ParsingError("Unicode literal is too short, must be 4 hex characters.", false);
+                return false;
+              }
+              if ((m_uiNextByte < '0' || m_uiNextByte > '9') && (m_uiNextByte < 'A' || m_uiNextByte > 'F') && (m_uiNextByte < 'a' || m_uiNextByte > 'f'))
+              {
+                ParsingError("Unicode literal contains an invalid character.", false);
+                return false;
+              }
+              ReadCharacter(false);
+
+              unicodeLiteral[i] = m_uiCurByte;
+            }
+            uiCodePoint = static_cast<ezUInt16>(ezConversionUtils::ConvertHexStringToUInt32((const char*)&unicodeLiteral[0]));
+            return true;
+          };
+          if (ReadUtf16CodePoint(cpt[0]))
+          {
+            ezUInt16* start = &cpt[0];
+            if (ezUnicodeUtils::IsUtf16Surrogate(start))
+            {
+              if (m_uiNextByte != '\\' || !ReadCharacter(false))
+              {
+                ParsingError("Unicode surrogate must be followed by another unicode escape sequence", false);
+                break;
+              }
+              if (m_uiNextByte != 'u' || !ReadCharacter(false))
+              {
+                ParsingError("Unicode surrogate must be followed by another unicode escape sequence", false);
+                break;
+              }
+              if (!ReadUtf16CodePoint(cpt[1]))
+              {
+                break;
+              }
+            }
+            ezUInt32 uiCodePoint = ezUnicodeUtils::DecodeUtf16ToUtf32(start);
+            ezUnicodeUtils::UtfInserter<char, ezHybridArray<ezUInt8, 4096>> tempInserter(&m_TempString);
+            ezUnicodeUtils::EncodeUtf32ToUtf8(uiCodePoint, tempInserter);
+          }
           break;
+        }
         default:
         {
           ezStringBuilder s;

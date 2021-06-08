@@ -1,10 +1,10 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Core/Curves/ColorGradientResource.h>
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
@@ -70,7 +70,7 @@ void PlacementTask::FindPlacementPoints()
     ezSimdVec4f patternCoords = ezSimdConversion::ToVec3(patternPoint.m_Coordinates.GetAsVec3(0.0f));
 
     ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
-    rayStart += ezSimdRandom::FloatMinMax(seed + ezSimdVec4u(i), vMinOffset, vMaxOffset);
+    rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);
     rayStart.SetZ(fZStart);
 
     ezPhysicsCastResult hitResult;
@@ -220,7 +220,7 @@ void PlacementTask::ExecuteVM()
     auto& placementPoint = m_InputPoints[uiInputPointIndex];
     auto& placementTransform = m_OutputTransforms[i];
 
-    ezSimdVec4f random = ezSimdRandom::FloatMinMax(seed + ezSimdVec4u(placementPoint.m_uiPointIndex), vMinValue, vMaxValue);
+    ezSimdVec4f random = ezSimdRandom::FloatMinMax(ezSimdVec4i(placementPoint.m_uiPointIndex), vMinValue, vMaxValue, seed);
 
     placementTransform.m_Transform.SetIdentity();
 

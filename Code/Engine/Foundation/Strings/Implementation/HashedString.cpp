@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
@@ -17,7 +18,7 @@ EZ_MSVC_ANALYSIS_WARNING_PUSH
 EZ_MSVC_ANALYSIS_WARNING_DISABLE(6011) // Disable warning for null pointer dereference as InitHashedString() will ensure that s_pHSData is set
 
 // static
-ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString, ezUInt32 uiHash)
+ezHashedString::HashedType ezHashedString::AddHashedString(ezStringView szString, ezUInt64 uiHash)
 {
   if (s_pHSData == nullptr)
     InitHashedString();
@@ -31,6 +32,14 @@ ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString,
   // if it already exists, just increase the refcount
   if (bExisted)
   {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (ret.Value().m_sString != szString)
+    {
+      // TODO: I think this should be a more serious issue
+      ezLog::Error("Hash collision encountered: Strings \"{}\" and \"{}\" both hash to {}.", ezArgSensitive(ret.Value().m_sString), ezArgSensitive(szString), uiHash);
+    }
+#endif
+
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
     ret.Value().m_iRefCount.Increment();
 #endif
@@ -59,7 +68,7 @@ void ezHashedString::InitHashedString()
   s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
   // makes sure the empty string exists for the default constructor to use
-  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::xxHash32String(""));
+  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::StringHash(""));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // this one should never get deleted, so make sure its refcount is 2

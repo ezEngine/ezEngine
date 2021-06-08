@@ -12,6 +12,8 @@ public:
   ezClusteredDataGPU();
   ~ezClusteredDataGPU();
 
+  ezUInt32 m_uiSkyIrradianceIndex = 0;
+
   ezGALBufferHandle m_hLightDataBuffer;
   ezGALBufferHandle m_hDecalDataBuffer;
   ezGALBufferHandle m_hClusterDataBuffer;

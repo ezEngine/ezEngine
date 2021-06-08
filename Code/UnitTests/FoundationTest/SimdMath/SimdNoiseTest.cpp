@@ -39,8 +39,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       {
         for (ezUInt32 x = 0; x < uiSize / 4; ++x)
         {
-          ezSimdVec4f sX = (ezSimdVec4f(x * 4) + xOffset) / scale;
-          ezSimdVec4f sY = ezSimdVec4f(y) / scale;
+          ezSimdVec4f sX = (ezSimdVec4f(x * 4.0f) + xOffset) / scale;
+          ezSimdVec4f sY = ezSimdVec4f(y * 1.0f) / scale;
 
           ezSimdVec4f noise = perlin.NoiseZeroToOne(sX, sY, ezSimdVec4f::ZeroVector(), uiNumOctaves);
           float p[4];
@@ -76,8 +76,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
 
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      ezSimdVec4u seed = ezSimdVec4u(i * 4) + ezSimdVec4u(0, 1, 2, 3);
-      ezSimdVec4f randomValues = ezSimdRandom::FloatMinMax(seed, ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f));
+      ezSimdVec4u seed = ezSimdVec4u(i);
+      ezSimdVec4f randomValues = ezSimdRandom::FloatMinMax(ezSimdVec4i(0, 1, 2, 3), ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f), seed);
       ezSimdVec4i randomValuesAsInt = ezSimdVec4i::Truncate(randomValues);
 
       ++histogram[randomValuesAsInt.x()];
@@ -95,7 +95,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(histogram); ++i)
       {
         sLine.Format("{},\n", histogram[i]);
-        fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount());
+        fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount()).IgnoreResult();
       }
     }
 

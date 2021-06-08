@@ -39,6 +39,14 @@ public:
   double m_DefaultValue = 0;
 };
 
+class ezVisualScriptParameterString : public ezVisualScriptParameter
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptParameterString, ezVisualScriptParameter);
+
+public:
+  ezString m_DefaultValue;
+};
+
 class ezVisualScriptAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptAssetProperties, ezReflectedClass);
@@ -46,6 +54,7 @@ class ezVisualScriptAssetProperties : public ezReflectedClass
 public:
   ezDynamicArray<ezVisualScriptParameterBool> m_BoolParameters;
   ezDynamicArray<ezVisualScriptParameterNumber> m_NumberParameters;
+  ezDynamicArray<ezVisualScriptParameterString> m_StringParameters;
 };
 
 class ezVisualScriptAssetDocument : public ezSimpleAssetDocument<ezVisualScriptAssetProperties>
@@ -62,14 +71,12 @@ public:
   ezEvent<ezReflectedClass*> m_InterDocumentMessages;
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
-  virtual bool Paste(
-    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
 
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;

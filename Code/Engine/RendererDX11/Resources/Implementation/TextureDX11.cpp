@@ -234,6 +234,8 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
       static_cast<ID3D11Texture2D*>(m_pDXTexture)->GetDesc(&Desc);
       Desc.BindFlags = 0;
       Desc.CPUAccessFlags = 0;
+      // Need to remove this flag on the staging resource or texture readback no longer works.
+      Desc.MiscFlags &= ~D3D11_RESOURCE_MISC_GENERATE_MIPS;
       Desc.Usage = D3D11_USAGE_STAGING;
       Desc.SampleDesc.Count = 1; // We need to disable MSAA for the readback texture, the conversion needs to happen during readback!
 

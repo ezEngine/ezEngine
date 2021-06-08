@@ -10,25 +10,10 @@ ez_create_target(LIBRARY ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
 
-  Foundation
-  Core
-  Texture
-  RendererFoundation
-  RendererCore
-  System
-  GameEngine
 )
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   ToolsFoundation
+  GameEngine
 )
-
-# if (EZ_CMAKE_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
-# 
-#   target_link_libraries(${PROJECT_NAME}
-#     PRIVATE
-#     WindowsMixedReality
-#   )
-# 
-# endif()

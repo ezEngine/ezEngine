@@ -1,6 +1,6 @@
 #include <FoundationTestPCH.h>
 
-#include <Foundation/Utilities/EnvironmentVariableUtils.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
@@ -39,13 +39,13 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
 
     EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE");
+    ezEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE").IgnoreResult();
     EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 
     EZ_TEST_STRING(ezEnvironmentVariableUtils::GetValueString(szVarName), "NOW_IT_SHOULD_BE");
 
     // Test overwriting the same value again
-    ezEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE_SOMETHING_ELSE");
+    ezEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE_SOMETHING_ELSE").IgnoreResult();
     EZ_TEST_STRING(ezEnvironmentVariableUtils::GetValueString(szVarName), "NOW_IT_SHOULD_BE_SOMETHING_ELSE");
   }
 
@@ -61,7 +61,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
 
     EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::SetValueString(szVarName, szLongVariable);
+    ezEnvironmentVariableUtils::SetValueString(szVarName, szLongVariable).IgnoreResult();
     EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 
     EZ_TEST_STRING(ezEnvironmentVariableUtils::GetValueString(szVarName), szLongVariable);
@@ -72,11 +72,11 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
     const char* szVarName = "EZ_TEST_HELLO_WORLD";
     EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::SetValueString(szVarName, "TEST");
+    ezEnvironmentVariableUtils::SetValueString(szVarName, "TEST").IgnoreResult();
 
     EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::UnsetVariable(szVarName);
+    ezEnvironmentVariableUtils::UnsetVariable(szVarName).IgnoreResult();
     EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
   }
 }

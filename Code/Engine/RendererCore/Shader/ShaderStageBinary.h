@@ -38,6 +38,7 @@ public:
         Mat4x4,
         Transform,
         Bool,
+        Struct,
         ENUM_COUNT
       };
     };
@@ -79,33 +80,22 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
 
   enum ResourceType
   {
-    Unknown,
+    Unknown = 0,
 
-    Texture1D,
-    Texture1DArray,
-    Texture2D,
-    Texture2DArray,
-    Texture2DMS,
-    Texture2DMSArray,
-    Texture3D,
-    TextureCube,
-    TextureCubeArray,
+    Texture1D = 1,
+    Texture1DArray = 2,
+    Texture2D = 3,
+    Texture2DArray = 4,
+    Texture2DMS = 5,
+    Texture2DMSArray = 6,
+    Texture3D = 7,
+    TextureCube = 8,
+    TextureCubeArray = 9,
 
-    RWTexture1D,
-    RWTexture1DArray,
-    RWTexture2D,
-    RWTexture2DArray,
-
-    RWBuffer,
-    RWStructuredBuffer,
-    RWRawBuffer,
-    RWAppendBuffer,
-    RWConsumeBuffer,
-    RWStructuredBufferWithCounter,
-
-    ConstantBuffer,
-    GenericBuffer, ///< A read only (structured) buffer
-    Sampler
+    UAV = 10,            ///< RW textures and buffers
+    ConstantBuffer = 20, ///< Constant buffers
+    GenericBuffer = 21,  ///< Read only (structured) buffers
+    Sampler = 22,        ///< Separate sampler states
   };
 
   ezShaderResourceBinding();
@@ -127,6 +117,7 @@ public:
     Version2,
     Version3, // Added Material Parameters
     Version4, // Constant buffer layouts
+    Version5, // Debug flag
 
     ENUM_COUNT,
     VersionCurrent = ENUM_COUNT - 1
@@ -152,11 +143,12 @@ private:
   friend class ezShaderPermutationResource;
   friend class ezShaderPermutationResourceLoader;
 
-  ezUInt32 m_uiSourceHash;
-  ezGALShaderStage::Enum m_Stage;
+  ezUInt32 m_uiSourceHash = 0;
+  ezGALShaderStage::Enum m_Stage = ezGALShaderStage::ENUM_COUNT;
   ezDynamicArray<ezUInt8> m_ByteCode;
   ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
   ezHybridArray<ezShaderResourceBinding, 8> m_ShaderResourceBindings;
+  bool m_bWasCompiledWithDebug = false;
 
   ezResult WriteStageBinary(ezLogInterface* pLog) const;
   static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);

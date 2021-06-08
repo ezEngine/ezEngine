@@ -63,23 +63,24 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   // Setup render target
-  ezGALRenderTargetSetup renderTargetSetup;
+  ezGALRenderingSetup renderingSetup;
+  renderingSetup.m_ClearColor = m_ClearColor;
+  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+  renderingSetup.m_bClearDepth = true;
+  renderingSetup.m_bClearStencil = true;
+
   if (ezGALResourceFormat::IsDepthFormat(m_Format))
   {
-    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
   }
   else
   {
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
   }
 
-  pGALContext->SetRenderTargetSetup(renderTargetSetup);
-
-  // Clear color or depth stencil
-  pGALContext->Clear(m_ClearColor);
+  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
 }
 
 //////////////////////////////////////////////////////////////////////////

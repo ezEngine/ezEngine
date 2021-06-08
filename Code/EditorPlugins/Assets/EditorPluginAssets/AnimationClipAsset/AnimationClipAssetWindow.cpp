@@ -1,24 +1,19 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
-#include <Texture/Image/ImageConversion.h>
+#include <GuiFoundation/Widgets/EventTrackEditorWidget.moc.h>
+#include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
+#include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
+  , m_Clock("AssetClip")
 {
   // Menu Bar
   {
@@ -72,9 +67,55 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
+  // Time Scrubber
+  {
+    m_pTimeScrubber = new ezQtTimeScrubberWidget(pContainer);
+    m_pTimeScrubber->SetDuration(ezTime::Seconds(1));
+
+    pContainer->GetLayout()->addWidget(m_pTimeScrubber);
+
+    connect(m_pTimeScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this, &ezQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent);
+  }
+
+  // Event Track Panel
+  {
+    m_pEventTrackPanel = new ezQtDocumentPanel(this);
+    m_pEventTrackPanel->setObjectName("AnimClipEventTrackDockWidget");
+    m_pEventTrackPanel->setWindowTitle("Event Track");
+    m_pEventTrackPanel->show();
+
+    m_pEventTrackEditor = new ezQtEventTrackEditorWidget(m_pEventTrackPanel);
+    m_pEventTrackPanel->setWidget(m_pEventTrackEditor);
+
+    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pEventTrackPanel);
+
+    UpdateEventTrackEditor();
+  }
+
+  // Event track editor events
+  {
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::InsertCpEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackCpMoved);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted);
+
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginOperation);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackEndOperation);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginCpChanges);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges);
+  }
+
   FinishWindowCreation();
 
   QueryObjectBBox(0);
+
+  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
+}
+
+ezQtAnimationClipAssetDocumentWindow::~ezQtAnimationClipAssetDocumentWindow()
+{
+  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
 }
 
 ezAnimationClipAssetDocument* ezQtAnimationClipAssetDocumentWindow::GetAnimationClipDocument()
@@ -88,12 +129,40 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PlaybackPos";
+    msg.m_fPayload = m_PlaybackPosition.GetSeconds() / m_ClipDuration.GetSeconds();
+    GetDocument()->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewMesh";
+    msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewMesh;
+    GetDocument()->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "SimulationSpeed";
+
+    if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Pause) != 0.0f)
+      msg.m_fPayload = 0.0;
+    else
+      msg.m_fPayload = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
+
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
+
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(false);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }
+
+  QueryObjectBBox(-1);
 }
 
 void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
@@ -104,24 +173,62 @@ void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   GetDocument()->SendMessageToEngine(&msg);
 }
 
+void ezQtAnimationClipAssetDocumentWindow::UpdateEventTrackEditor()
+{
+  auto* pDoc = GetAnimationClipDocument();
+
+  m_pEventTrackEditor->SetData(pDoc->GetProperties()->m_EventTrack, m_ClipDuration.GetSeconds());
+}
+
 void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
 {
+  if (m_pTimeScrubber == nullptr)
+    return;
+
+  if (m_ClipDuration.IsPositive())
+  {
+    m_Clock.Update();
+
+    const double fSpeed = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
+
+    if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Pause) == 0)
+    {
+      m_PlaybackPosition += m_Clock.GetTimeDiff() * fSpeed;
+    }
+
+    if (m_PlaybackPosition > m_ClipDuration)
+    {
+      if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Loop) != 0)
+      {
+        m_PlaybackPosition -= m_ClipDuration;
+      }
+      else
+      {
+        m_PlaybackPosition = m_ClipDuration;
+      }
+    }
+  }
+
+  m_PlaybackPosition = ezMath::Clamp(m_PlaybackPosition, ezTime::Zero(), m_ClipDuration);
+  m_pTimeScrubber->SetScrubberPosition(m_PlaybackPosition);
+  m_pEventTrackEditor->SetScrubberPosition(m_PlaybackPosition);
+
   ezEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
   ezQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg0)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg0))
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 &&
-        pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f,
-        pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
+      const ezVec3 vHalfExtents = pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f));
+
+      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }
     else if (pMessage->m_iPurpose == 0)
     {
@@ -132,5 +239,126 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
     return;
   }
 
-  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEditor*>(pMsg0))
+  {
+    if (pMsg->m_sName == "ClipDuration")
+    {
+      const ezTime newDuration = ezTime::Seconds(pMsg->m_fPayload);
+
+      if (m_ClipDuration != newDuration)
+      {
+        m_ClipDuration = newDuration;
+
+        m_pTimeScrubber->SetDuration(m_ClipDuration);
+
+        UpdateEventTrackEditor();
+      }
+    }
+  }
+
+  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg0);
+}
+
+void ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler(const ezCommonAssetUiState& e)
+{
+  ezQtEngineDocumentWindow::CommonAssetUiEventHandler(e);
+
+  if (e.m_State == ezCommonAssetUiState::Restart)
+  {
+    m_PlaybackPosition = ezTime::Seconds(-1);
+  }
+}
+
+void ezQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos)
+{
+  if (m_pTimeScrubber == nullptr || m_ClipDuration.IsZeroOrNegative())
+    return;
+
+  m_PlaybackPosition = ezTime::Seconds(uiNewScrubberTickPos / 4800.0);
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, QString value)
+{
+  auto* pDoc = GetAnimationClipDocument();
+  pDoc->InsertEventTrackCpAt(tickX, value.toUtf8().data());
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ezInt64 iTickX)
+{
+  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+
+  auto* pDoc = GetAnimationClipDocument();
+
+  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+
+  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
+  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+
+  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = iTickX;
+  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
+{
+  auto* pDoc = GetAnimationClipDocument();
+
+  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+
+  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
+  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+
+  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  if (!cpGuid.IsValid())
+    return;
+
+  ezRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginOperation(QString name)
+{
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  history->BeginTemporaryCommands("Modify Events");
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndOperation(bool commit)
+{
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+
+  if (commit)
+    history->FinishTemporaryCommands();
+  else
+    history->CancelTemporaryCommands();
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginCpChanges(QString name)
+{
+  GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges()
+{
+  GetDocument()->GetCommandHistory()->FinishTransaction();
+
+  UpdateEventTrackEditor();
+}
+
+void ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+{
+  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
+      e.m_Type == ezCommandHistoryEvent::Type::RedoEnded ||
+      e.m_Type == ezCommandHistoryEvent::Type::TransactionCanceled)
+  {
+    UpdateEventTrackEditor();
+  }
 }

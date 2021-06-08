@@ -49,6 +49,10 @@ void ezQtEventTrackEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
   EventTrackEdit->SetScrubberPosition(uiTick / 4800.0);
 }
 
+void ezQtEventTrackEditorWidget::SetScrubberPosition(ezTime time)
+{
+  EventTrackEdit->SetScrubberPosition(time.GetSeconds());
+}
 
 void ezQtEventTrackEditorWidget::ClearSelection()
 {
@@ -68,7 +72,7 @@ void ezQtEventTrackEditorWidget::on_AddEventButton_clicked()
 
   if (m_EventSet.IsModified())
   {
-    m_EventSet.WriteToDDL(":project/Editor/Events.ddl");
+    m_EventSet.WriteToDDL(":project/Editor/Events.ddl").IgnoreResult();
 
     FillEventComboBox(name.toUtf8().data());
   }
@@ -251,7 +255,7 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
 
 void ezQtEventTrackEditorWidget::DetermineAvailableEvents()
 {
-  m_EventSet.ReadFromDDL(":project/Editor/Events.ddl");
+  m_EventSet.ReadFromDDL(":project/Editor/Events.ddl").IgnoreResult();
 
   FillEventComboBox(nullptr);
 }

@@ -18,7 +18,7 @@ namespace
   {
     ezHashedString m_sName;
     ezVariant m_DefaultValue;
-    ezDynamicArray<ezHashedString, ezStaticAllocatorWrapper> m_EnumValues;
+    ezDynamicArray<ezShaderParser::EnumValue, ezStaticAllocatorWrapper> m_EnumValues;
   };
 
   static ezDeque<PermutationVarConfig, ezStaticAllocatorWrapper> s_PermutationVarConfigsStorage;
@@ -60,13 +60,13 @@ namespace
   {
     if (config.m_DefaultValue.IsA<bool>())
     {
-      if (sValue == ezTempHashedString("TRUE"))
+      if (sValue == s_sTrue)
       {
         out_sValue = s_sTrue;
         return true;
       }
 
-      if (sValue == ezTempHashedString("FALSE"))
+      if (sValue == s_sFalse)
       {
         out_sValue = s_sFalse;
         return true;
@@ -76,9 +76,9 @@ namespace
     {
       for (auto& enumValue : config.m_EnumValues)
       {
-        if (enumValue == sValue)
+        if (enumValue.m_sValueName == sValue)
         {
-          out_sValue = enumValue;
+          out_sValue = enumValue.m_sValueName;
           return true;
         }
       }
@@ -91,13 +91,13 @@ namespace
   {
     if (config.m_DefaultValue.IsA<bool>())
     {
-      return sValue == ezTempHashedString("TRUE") || sValue == ezTempHashedString("FALSE");
+      return sValue == s_sTrue || sValue == s_sFalse;
     }
     else
     {
       for (auto& enumValue : config.m_EnumValues)
       {
-        if (enumValue == sValue)
+        if (enumValue.m_sValueName == sValue)
           return true;
       }
     }
@@ -110,8 +110,7 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezShaderManager::Configure(
-  const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
+void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
 {
   s_ShaderCacheDirectory = szShaderCacheDirectory;
   s_sPermVarSubDir = szPermVarSubDirectory;
@@ -142,7 +141,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
-  pp.AddCustomDefine(sTemp.GetData());
+  pp.AddCustomDefine(sTemp.GetData()).IgnoreResult();
 
   if (pp.Process(sPath, sTemp, false).Failed())
   {
@@ -166,8 +165,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   }
 }
 
-bool ezShaderManager::IsPermutationValueAllowed(
-  const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue, ezHashedString& out_sName, ezHashedString& out_sValue)
+bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue, ezHashedString& out_sName, ezHashedString& out_sValue)
 {
   const PermutationVarConfig* pConfig = FindConfig(szName, sHashedName);
   if (pConfig == nullptr)
@@ -227,7 +225,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
   return true;
 }
 
-void ezShaderManager::GetPermutationValues(const ezHashedString& sName, ezHybridArray<ezHashedString, 4>& out_Values)
+void ezShaderManager::GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_Values)
 {
   out_Values.Clear();
 
@@ -244,12 +242,12 @@ void ezShaderManager::GetPermutationValues(const ezHashedString& sName, ezHybrid
   {
     for (const auto& val : pConfig->m_EnumValues)
     {
-      out_Values.PushBack(val);
+      out_Values.PushBack(val.m_sValueName);
     }
   }
 }
 
-ezArrayPtr<const ezHashedString> ezShaderManager::GetPermutationEnumValues(const ezHashedString& sName)
+ezArrayPtr<const ezShaderParser::EnumValue> ezShaderManager::GetPermutationEnumValues(const ezHashedString& sName)
 {
   const PermutationVarConfig* pConfig = FindConfig(sName);
   if (pConfig != nullptr)
@@ -257,11 +255,10 @@ ezArrayPtr<const ezHashedString> ezShaderManager::GetPermutationEnumValues(const
     return pConfig->m_EnumValues;
   }
 
-  return ezArrayPtr<ezHashedString>();
+  return {};
 }
 
-void ezShaderManager::PreloadPermutations(
-  ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn)
+void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 #if 0
@@ -286,11 +283,9 @@ void ezShaderManager::PreloadPermutations(
 #endif
 }
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(
-  ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback)
 {
-  ezResourceLock<ezShaderResource> pShader(
-    hShader, bAllowFallback ? ezResourceAcquireMode::AllowLoadingFallback : ezResourceAcquireMode::BlockTillLoaded);
+  ezResourceLock<ezShaderResource> pShader(hShader, bAllowFallback ? ezResourceAcquireMode::AllowLoadingFallback : ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pShader->IsShaderValid())
     return ezShaderPermutationResourceHandle();
@@ -302,8 +297,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(
 }
 
 
-ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars,
-  const ezHashTable<ezHashedString, ezHashedString>& permVars, ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables)
+ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables)
 {
   for (auto& sName : usedVars)
   {
@@ -319,12 +313,12 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
       const ezVariant& defaultValue = pConfig->m_DefaultValue;
       if (defaultValue.IsA<bool>())
       {
-        var.m_sValue.Assign(defaultValue.Get<bool>() ? "TRUE" : "FALSE");
+        var.m_sValue = defaultValue.Get<bool>() ? s_sTrue : s_sFalse;
       }
       else
       {
         ezUInt32 uiDefaultValue = defaultValue.Get<ezUInt32>();
-        var.m_sValue = pConfig->m_EnumValues[uiDefaultValue];
+        var.m_sValue = pConfig->m_EnumValues[uiDefaultValue].m_sValueName;
       }
     }
   }
@@ -334,10 +328,9 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(
-  const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
-  const ezUInt64 uiPermutationKey = (ezUInt64)uiResourceIdHash << 32 | uiPermutationHash;
+  const ezUInt64 uiPermutationKey = (ezUInt64)ezHashingUtils::StringHashTo32(uiResourceIdHash) << 32 | uiPermutationHash;
 
   ezString* pPermutationPath = &s_PermutationPaths[uiPermutationKey];
   if (pPermutationPath->IsEmpty())

@@ -41,7 +41,7 @@ void SendMsgComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s.WriteArray(m_TextArray);
+  s.WriteArray(m_TextArray).IgnoreResult();
 }
 
 void SendMsgComponent::DeserializeComponent(ezWorldReader& stream)
@@ -49,8 +49,10 @@ void SendMsgComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s.ReadArray(m_TextArray);
+  s.ReadArray(m_TextArray).IgnoreResult();
 }
+
+static ezHashedString s_sSendNextString = ezMakeHashedString("SendNextString");
 
 void SendMsgComponent::OnSimulationStarted()
 {
@@ -58,7 +60,7 @@ void SendMsgComponent::OnSimulationStarted()
 
   // start sending strings shortly
   ezMsgComponentInternalTrigger msg;
-  msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("SendNextString");
+  msg.m_sMessage = s_sSendNextString;
   PostMessage(msg, ezTime::Milliseconds(100));
 }
 
@@ -72,7 +74,7 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
   // if (!IsActiveAndSimulating())
   //  return;
 
-  if (msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("SendNextString"))
+  if (msg.m_sMessage == s_sSendNextString)
   {
     if (!m_TextArray.IsEmpty())
     {

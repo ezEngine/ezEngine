@@ -10,8 +10,8 @@ class ezQtManipulatorLabel : public QLabel
 {
   Q_OBJECT
 public:
-  explicit ezQtManipulatorLabel(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
-  explicit ezQtManipulatorLabel(const QString& text, QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+  explicit ezQtManipulatorLabel(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+  explicit ezQtManipulatorLabel(const QString& text, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
   const ezManipulatorAttribute* GetManipulator() const;
   void SetManipulator(const ezManipulatorAttribute* pManipulator);

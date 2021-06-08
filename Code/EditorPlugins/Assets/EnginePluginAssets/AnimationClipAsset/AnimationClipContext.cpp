@@ -3,24 +3,8 @@
 #include <EnginePluginAssets/AnimationClipAsset/AnimationClipContext.h>
 #include <EnginePluginAssets/AnimationClipAsset/AnimationClipView.h>
 
-#include <Core/Graphics/Geometry.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <SharedPluginAssets/Common/Messages.h>
+#include <GameEngine/Animation/Skeletal/SimpleAnimationComponent.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipContext, 1, ezRTTIDefaultAllocator<ezAnimationClipContext>)
@@ -36,15 +20,81 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimationClipContext::ezAnimationClipContext() {}
 
-void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg0))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pMsg0))
+  {
+    if (pMsg->m_sWhatToDo == "CommonAssetUiState")
+    {
+      if (pMsg->m_sPayload == "Grid")
+      {
+        m_bDisplayGrid = pMsg->m_fPayload > 0;
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "PreviewMesh" && m_sAnimatedMeshToUse != pMsg->m_sPayload)
+    {
+      m_sAnimatedMeshToUse = pMsg->m_sPayload;
+
+      auto pWorld = m_pWorld.Borrow();
+      EZ_LOCK(pWorld->GetWriteMarker());
+
+      ezStringBuilder sAnimClipGuid;
+      ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
+
+      ezAnimatedMeshComponent* pAnimMesh;
+      if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
+        pAnimMesh->DeleteComponent();
+
+      ezSimpleAnimationComponent* pAnimController;
+      if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+        pAnimController->DeleteComponent();
+
+      m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+      m_hAnimControllerComponent = ezSimpleAnimationComponent::CreateComponent(m_pGameObject, pAnimController);
+
+      pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
+      pAnimController->SetAnimationClipFile(sAnimClipGuid);
+    }
+    else if (pMsg->m_sWhatToDo == "PlaybackPos")
+    {
+      SetPlaybackPosition(pMsg->m_fPayload);
+    }
+
+    return;
+  }
+
+  if (auto pMsg = ezDynamicCast<const ezViewRedrawMsgToEngine*>(pMsg0))
+  {
+    auto pWorld = m_pWorld.Borrow();
+    EZ_LOCK(pWorld->GetWriteMarker());
+
+    ezSimpleAnimationComponent* pAnimController;
+    if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+    {
+      if (pAnimController->GetAnimationClip().IsValid())
+      {
+        ezResourceLock<ezAnimationClipResource> pResource(pAnimController->GetAnimationClip(), ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+        if (pResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+        {
+          ezSimpleDocumentConfigMsgToEditor msg;
+          msg.m_DocumentGuid = pMsg->m_DocumentGuid;
+          msg.m_sName = "ClipDuration";
+          msg.m_fPayload = pResource->GetDescriptor().GetDuration().GetSeconds();
+
+          SendProcessMessage(&msg);
+        }
+      }
+    }
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pMsg0);
 }
 
 void ezAnimationClipContext::OnInitialize()
@@ -53,38 +103,12 @@ void ezAnimationClipContext::OnInitialize()
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
-  ezMeshComponent* pMesh;
 
-  // Preview Mesh
+  // Preview
   {
-    obj.m_sName.Assign("MeshPreview");
+    obj.m_bDynamic = true;
+    obj.m_sName.Assign("SkeletonPreview");
     pWorld->CreateObject(obj, m_pGameObject);
-
-    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pGameObject->GetTags().Set(tagCastShadows);
-
-    ezMeshComponent::CreateComponent(m_pGameObject, pMesh);
-    ezStringBuilder sAnimationClipGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sAnimationClipGuid);
-    // ezAnimationClipResourceHandle hAnimationClip = ezResourceManager::LoadResource<ezAnimationClipResource>(sAnimationClipGuid);
-    // pMesh->SetMesh(hAnimationClip);
-  }
-
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
-
-    ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
-
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
-    pDirLight->SetCastShadows(true);
-
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-    pAmbLight->SetIntensity(5.0f);
   }
 }
 
@@ -101,6 +125,22 @@ void ezAnimationClipContext::DestroyViewContext(ezEngineProcessViewContext* pCon
 bool ezAnimationClipContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
   ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
+
+  if (!m_hAnimControllerComponent.IsInvalidated())
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    ezSimpleAnimationComponent* pAnimController;
+    if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+    {
+      pAnimController->SetNormalizedPlaybackPosition(0.5f);
+      pAnimController->m_fSpeed = 0.0f;
+
+      m_pWorld->SetWorldSimulationEnabled(true);
+      m_pWorld->Update();
+      m_pWorld->SetWorldSimulationEnabled(false);
+    }
+  }
 
   ezAnimationClipViewContext* pMeshViewContext = static_cast<ezAnimationClipViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
@@ -136,4 +176,16 @@ void ezAnimationClipContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);
+}
+
+void ezAnimationClipContext::SetPlaybackPosition(double pos)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezSimpleAnimationComponent* pAnimController;
+  if (m_pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+  {
+    pAnimController->SetNormalizedPlaybackPosition(static_cast<float>(pos));
+    pAnimController->m_fSpeed = 0.0f;
+  }
 }

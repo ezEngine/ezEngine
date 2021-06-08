@@ -205,6 +205,21 @@ ezUInt64 ezMath::SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
   return 0;
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
+{
+  size_t result = 0;
+  if (TryConvertToSizeT(result, uiValue).Succeeded())
+  {
+    return result;
+  }
+
+  EZ_REPORT_FAILURE("Given value ({}) can't be converted to size_t because it is too big.", uiValue);
+  std::terminate();
+  return 0;
+}
+#endif
+
 void ezAngle::NormalizeRange()
 {
   const float fTwoPi = 2.0f * Pi<float>();
@@ -255,8 +270,7 @@ ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
   }
 }
 
-ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum upDir, float fUniformScale /*= 1.0f*/,
-  float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
+ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum upDir, float fUniformScale /*= 1.0f*/, float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
 {
   ezMat3 mResult;
   mResult.SetRow(0, ezBasisAxis::GetBasisVector(forwardDir) * fUniformScale * fScaleX);
@@ -345,5 +359,34 @@ ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
 
   return rotAxis * rotId;
 }
+
+ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool flip)
+{
+  const ezVec3 a1 = ezBasisAxis::GetBasisVector(axis1);
+  const ezVec3 a2 = ezBasisAxis::GetBasisVector(axis2);
+
+  ezVec3 c = a1.CrossRH(a2);
+
+  if (flip)
+    c = -c;
+
+  if (c.IsEqual(ezVec3::UnitXAxis(), 0.01f))
+    return ezBasisAxis::PositiveX;
+  if (c.IsEqual(-ezVec3::UnitXAxis(), 0.01f))
+    return ezBasisAxis::NegativeX;
+
+  if (c.IsEqual(ezVec3::UnitYAxis(), 0.01f))
+    return ezBasisAxis::PositiveY;
+  if (c.IsEqual(-ezVec3::UnitYAxis(), 0.01f))
+    return ezBasisAxis::NegativeY;
+
+  if (c.IsEqual(ezVec3::UnitZAxis(), 0.01f))
+    return ezBasisAxis::PositiveZ;
+  if (c.IsEqual(-ezVec3::UnitZAxis(), 0.01f))
+    return ezBasisAxis::NegativeZ;
+
+  return axis1;
+}
+
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

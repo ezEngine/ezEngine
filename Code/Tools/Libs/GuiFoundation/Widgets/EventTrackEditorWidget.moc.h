@@ -15,6 +15,7 @@ public:
 
   void SetData(const ezEventTrackData& data, double fMinCurveLength);
   void SetScrubberPosition(ezUInt64 uiTick);
+  void SetScrubberPosition(ezTime time);
   void ClearSelection();
 
   void FrameCurve();

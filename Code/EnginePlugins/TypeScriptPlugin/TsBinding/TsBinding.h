@@ -2,6 +2,7 @@
 
 #include <TypeScriptPlugin/TypeScriptPluginDLL.h>
 
+#include <Core/Console/ConsoleFunction.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Declarations.h>
@@ -10,7 +11,6 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Types/Uuid.h>
-#include <GameEngine/Console/ConsoleFunction.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
@@ -205,10 +205,8 @@ private:
   /// \name ezGameObject
   ///@{
 public:
-  static ezGameObjectHandle RetrieveGameObjectHandle(
-    duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
-  static ezGameObject* ExpectGameObject(
-    duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
+  static ezGameObjectHandle RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
+  static ezGameObject* ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
   bool DukPutGameObject(const ezGameObjectHandle& hObject);
   void DukPutGameObject(const ezGameObject* pObject);
 
@@ -216,15 +214,11 @@ public:
   /// \name Components
   ///@{
 public:
-  void DukPutComponentObject(const ezComponentHandle& hComponent);
   void DukPutComponentObject(ezComponent* pComponent);
-  void DeleteTsComponent(const ezComponentHandle& hCppComponent);
-  static ezComponentHandle RetrieveComponentHandle(
-    duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
+  static ezComponentHandle RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
 
   template <typename ComponentType>
-  static ComponentType* ExpectComponent(
-    duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
+  static ComponentType* ExpectComponent(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
 
   ///@}
   /// \name Math
@@ -270,8 +264,7 @@ public:
   static void SetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& value);
   static void SetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& value);
   static ezTransform GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
-  static ezTransform GetTransformProperty(
-    duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
+  static ezTransform GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
 
   static void PushVariant(duk_context* pDuk, const ezVariant& value);
   static void SetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVariant& value);

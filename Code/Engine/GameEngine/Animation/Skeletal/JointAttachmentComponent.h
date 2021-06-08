@@ -4,7 +4,7 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 
-typedef ezComponentManager<class ezJointAttachmentComponent, ezBlockStorageType::FreeList> ezJointAttachmentComponentManager;
+using ezJointAttachmentComponentManager = ezComponentManager<class ezJointAttachmentComponent, ezBlockStorageType::FreeList>;
 
 class EZ_GAMEENGINE_DLL ezJointAttachmentComponent : public ezComponent
 {
@@ -26,6 +26,9 @@ public:
 
   void SetJointName(const char* szName); // [ property ]
   const char* GetJointName() const;      // [ property ]
+
+  ezVec3 m_vLocalPositionOffset = ezVec3::ZeroVector();         // [ property ]
+  ezQuat m_vLocalRotationOffset = ezQuat::IdentityQuaternion(); // [ property ]
 
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]

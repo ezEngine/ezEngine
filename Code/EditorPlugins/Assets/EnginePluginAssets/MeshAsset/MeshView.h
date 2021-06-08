@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
@@ -16,5 +16,5 @@ protected:
   virtual ezViewHandle CreateView() override;
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
 
-  ezMeshContext* m_pMeshContext;
+  ezMeshContext* m_pContext = nullptr;
 };

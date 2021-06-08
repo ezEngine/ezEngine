@@ -3,7 +3,6 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
-#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Implementation of a hashset.
 ///
@@ -58,7 +57,7 @@ public:
 
 protected:
   /// \brief Creates an empty hashset. Does not allocate any data yet.
-  ezHashSetBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezHashSetBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given hashset.
   ezHashSetBase(const ezHashSetBase<KeyType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -184,7 +183,7 @@ class ezHashSet : public ezHashSetBase<KeyType, Hasher>
 {
 public:
   ezHashSet();
-  ezHashSet(ezAllocatorBase* pAllocator);
+  explicit ezHashSet(ezAllocatorBase* pAllocator);
 
   ezHashSet(const ezHashSet<KeyType, Hasher, AllocatorWrapper>& other);
   ezHashSet(const ezHashSetBase<KeyType, Hasher>& other);

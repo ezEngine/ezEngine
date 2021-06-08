@@ -27,6 +27,7 @@ class ezQtEditorApp;
 class QStringList;
 class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
+class QSplashScreen;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -54,8 +55,7 @@ public:
     {
       Headless = EZ_BIT(0), ///< The app does not do any rendering.
       SafeMode = EZ_BIT(1), ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
-      NoRecent =
-        EZ_BIT(2), ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
+      NoRecent = EZ_BIT(2), ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
       Debug = EZ_BIT(3),    ///< '-debug' : Tell the engine process to wait for a debugger to attach.
       UnitTest = EZ_BIT(4), ///< Specified when the process is running as a unit test
       Default = 0,
@@ -93,8 +93,7 @@ public:
   ///
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
-  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr,
-    ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
+  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg, const char* szCWD = nullptr);
 
   /// \brief Creates the string with which to run Fileserve for the currently open project.
   ezString BuildFileserveCommandLine() const;
@@ -250,6 +249,9 @@ private:
   void SetStyleSheet();
   void CreatePanels();
 
+  void SetupAndShowSplashScreen();
+  void CloseSplashScreen();
+
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
 
@@ -268,10 +270,12 @@ private:
   ezRecentFilesList s_RecentProjects;
   ezRecentFilesList s_RecentDocuments;
 
-  QApplication* s_pQtApplication;
+  QApplication* s_pQtApplication = nullptr;
   ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
-  QTimer* m_pTimer;
+  QTimer* m_pTimer = nullptr;
+
+  QSplashScreen* m_pSplashScreen = nullptr;
 
   ezLogWriter::HTML m_LogHTML;
 
@@ -289,8 +293,8 @@ public:
   bool IsProgressBarProcessingEvents() const;
 
 private:
-  ezProgress* m_pProgressbar;
-  ezQtProgressbar* m_pQtProgressbar;
+  ezProgress* m_pProgressbar = nullptr;
+  ezQtProgressbar* m_pQtProgressbar = nullptr;
 
   // *** Localization ***
   ezTranslatorFromFiles* m_pTranslatorFromFiles = nullptr;

@@ -19,6 +19,8 @@ void ezSkinnedMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRT
 
 void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const
 {
+  // Don't call base class implementation here since the state will be overwritten in this method anyways.
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 
@@ -34,9 +36,12 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
 
     if (!pSkinnedRenderData->m_pNewSkinningMatricesData.IsEmpty())
     {
-      pContext->GetGALContext()->UpdateBuffer(pSkinnedRenderData->m_hSkinningMatrices, 0, pSkinnedRenderData->m_pNewSkinningMatricesData);
+      pContext->GetCommandEncoder()->UpdateBuffer(pSkinnedRenderData->m_hSkinningMatrices, 0, pSkinnedRenderData->m_pNewSkinningMatricesData);
     }
 
     pContext->BindBuffer("skinningMatrices", pDevice->GetDefaultResourceView(pSkinnedRenderData->m_hSkinningMatrices));
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_SkinnedMeshRenderer);

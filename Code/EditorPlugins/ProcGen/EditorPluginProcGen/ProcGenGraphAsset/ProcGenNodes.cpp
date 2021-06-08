@@ -1,7 +1,6 @@
 #include <EditorPluginProcGenPCH.h>
 
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
-#include <Foundation/Math/Random.h>
 
 namespace
 {
@@ -36,10 +35,9 @@ namespace
     auto pPointIndex = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPointIndex);
     auto pSeedConstant = out_Ast.CreateConstant(fSeed);
 
-    auto pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPointIndex, pSeedConstant);
-
     auto pFunctionCall = out_Ast.CreateFunctionCall(s_sRandom);
-    pFunctionCall->m_Arguments.PushBack(pSeed);
+    pFunctionCall->m_Arguments.PushBack(pPointIndex);
+    pFunctionCall->m_Arguments.PushBack(pSeedConstant);
 
     return pFunctionCall;
   }
@@ -55,17 +53,29 @@ namespace
     return pValue;
   }
 
-  ezExpressionAST::Node* CreateRemapTo01WithFadeout(
-    ezExpressionAST::Node* pInput, float fMin, float fMax, float fLowerFade, float fUpperFade, ezExpressionAST& out_Ast)
+  ezExpressionAST::Node* CreateRemapTo01WithFadeout(ezExpressionAST::Node* pInput, float fMin, float fMax, float fLowerFade, float fUpperFade, ezExpressionAST& out_Ast)
   {
+    // Note that we need to clamp the scale if it is below eps or we would end up with a division by 0.
+    // To counter the clamp we move the lower and upper bounds by eps.
+    // If no fade out is specified we would get a value of 0 for inputs that are exactly on the bounds otherwise which is not the expected behavior.
+
+    const float eps = ezMath::DefaultEpsilon<float>();
+    const float fLowerScale = ezMath::Max((fMax - fMin), 0.0f) * fLowerFade;
+    const float fUpperScale = ezMath::Max((fMax - fMin), 0.0f) * fUpperFade;
+
+    if (fLowerScale < eps)
+      fMin = fMin - eps;
+    if (fUpperScale < eps)
+      fMax = fMax + eps;
+
     auto pLowerOffset = out_Ast.CreateConstant(fMin);
     auto pLowerValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pInput, pLowerOffset);
-    auto pLowerScale = out_Ast.CreateConstant(ezMath::Max(fMax - fMin, 0.0f) * fLowerFade);
+    auto pLowerScale = out_Ast.CreateConstant(ezMath::Max(fLowerScale, eps));
     pLowerValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pLowerValue, pLowerScale);
 
     auto pUpperOffset = out_Ast.CreateConstant(fMax);
     auto pUpperValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pUpperOffset, pInput);
-    auto pUpperScale = out_Ast.CreateConstant(ezMath::Max(fMax - fMin, 0.0f) * fUpperFade);
+    auto pUpperScale = out_Ast.CreateConstant(ezMath::Max(fUpperScale, eps));
     pUpperValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pUpperValue, pUpperScale);
 
     auto pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, pLowerValue, pUpperValue);
@@ -106,13 +116,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 void ezProcGenOutput::Save(ezStreamWriter& stream)
 {
   stream << m_sName;
-  stream.WriteArray(m_VolumeTagSetIndices);
+  stream.WriteArray(m_VolumeTagSetIndices).IgnoreResult();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPlacementOutput, 1, ezRTTIDefaultAllocator<ezProcGenPlacementOutput>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAllocator<ezProcGen_PlacementOutput>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -145,8 +155,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPlacementOutput, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenPlacementOutput::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "", "Implementation error");
 
@@ -199,11 +208,11 @@ ezExpressionAST::Node* ezProcGenPlacementOutput::GenerateExpressionASTNode(
   return nullptr;
 }
 
-void ezProcGenPlacementOutput::Save(ezStreamWriter& stream)
+void ezProcGen_PlacementOutput::Save(ezStreamWriter& stream)
 {
   SUPER::Save(stream);
 
-  stream.WriteArray(m_ObjectsToPlace);
+  stream.WriteArray(m_ObjectsToPlace).IgnoreResult();
 
   stream << m_fFootprint;
 
@@ -228,7 +237,7 @@ void ezProcGenPlacementOutput::Save(ezStreamWriter& stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenVertexColorOutput, 1, ezRTTIDefaultAllocator<ezProcGenVertexColorOutput>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_VertexColorOutput, 1, ezRTTIDefaultAllocator<ezProcGen_VertexColorOutput>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -249,15 +258,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenVertexColorOutput, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenVertexColorOutput::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_VertexColorOutput::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "", "Implementation error");
 
   out_Ast.m_OutputNodes.Clear();
 
-  ezHashedString sOutputNames[4] = {ezProcGenInternal::ExpressionOutputs::s_sR, ezProcGenInternal::ExpressionOutputs::s_sG,
-    ezProcGenInternal::ExpressionOutputs::s_sB, ezProcGenInternal::ExpressionOutputs::s_sA};
+  ezHashedString sOutputNames[4] = {ezProcGenInternal::ExpressionOutputs::s_sR, ezProcGenInternal::ExpressionOutputs::s_sG, ezProcGenInternal::ExpressionOutputs::s_sB, ezProcGenInternal::ExpressionOutputs::s_sA};
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(sOutputNames); ++i)
   {
@@ -273,7 +280,7 @@ ezExpressionAST::Node* ezProcGenVertexColorOutput::GenerateExpressionASTNode(
   return nullptr;
 }
 
-void ezProcGenVertexColorOutput::Save(ezStreamWriter& stream)
+void ezProcGen_VertexColorOutput::Save(ezStreamWriter& stream)
 {
   SUPER::Save(stream);
 }
@@ -281,7 +288,7 @@ void ezProcGenVertexColorOutput::Save(ezStreamWriter& stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenRandom, 1, ezRTTIDefaultAllocator<ezProcGenRandom>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Random, 1, ezRTTIDefaultAllocator<ezProcGen_Random>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -300,26 +307,24 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenRandom, 1, ezRTTIDefaultAllocator<ezPro
   EZ_BEGIN_ATTRIBUTES
   {
     new ezTitleAttribute("Random: {Seed}"),
-    new ezCategoryAttribute("Input"),
+    new ezCategoryAttribute("Math"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenRandom::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_Random::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
-  ezRandom rnd;
-  rnd.Initialize(m_iSeed < 0 ? m_uiAutoSeed : m_iSeed);
+  float fSeed = m_iSeed < 0 ? m_uiAutoSeed : m_iSeed;
 
-  auto pRandom = CreateRandom(rnd.FloatMinMax(0.0f, 100000.0f), out_Ast);
+  auto pRandom = CreateRandom(fSeed, out_Ast);
   return CreateRemapFrom01(pRandom, m_fOutputMin, m_fOutputMax, out_Ast);
 }
 
-void ezProcGenRandom::OnObjectCreated(const ezAbstractObjectNode& node)
+void ezProcGen_Random::OnObjectCreated(const ezAbstractObjectNode& node)
 {
   m_uiAutoSeed = ezHashHelper<ezUuid>::Hash(node.GetGuid());
 }
@@ -327,7 +332,7 @@ void ezProcGenRandom::OnObjectCreated(const ezAbstractObjectNode& node)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPerlinNoise, 1, ezRTTIDefaultAllocator<ezProcGenPerlinNoise>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PerlinNoise, 1, ezRTTIDefaultAllocator<ezProcGen_PerlinNoise>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -343,15 +348,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPerlinNoise, 1, ezRTTIDefaultAllocator<
   EZ_BEGIN_ATTRIBUTES
   {
     new ezTitleAttribute("Perlin Noise"),
-    new ezCategoryAttribute("Input"),
+    new ezCategoryAttribute("Math"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenPerlinNoise::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_PerlinNoise::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
@@ -381,7 +385,7 @@ ezExpressionAST::Node* ezProcGenPerlinNoise::GenerateExpressionASTNode(
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenBlend, 1, ezRTTIDefaultAllocator<ezProcGenBlend>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 1, ezRTTIDefaultAllocator<ezProcGen_Blend>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -405,8 +409,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenBlend, 1, ezRTTIDefaultAllocator<ezProc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenBlend::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_Blend::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
@@ -436,7 +439,7 @@ ezExpressionAST::Node* ezProcGenBlend::GenerateExpressionASTNode(
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenHeight, 1, ezRTTIDefaultAllocator<ezProcGenHeight>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Height, 1, ezRTTIDefaultAllocator<ezProcGen_Height>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -458,8 +461,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenHeight, 1, ezRTTIDefaultAllocator<ezPro
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenHeight::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_Height::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
@@ -470,7 +472,7 @@ ezExpressionAST::Node* ezProcGenHeight::GenerateExpressionASTNode(
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenSlope, 1, ezRTTIDefaultAllocator<ezProcGenSlope>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Slope, 1, ezRTTIDefaultAllocator<ezProcGen_Slope>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -493,20 +495,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenSlope, 1, ezRTTIDefaultAllocator<ezProc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenSlope::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_Slope::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
   auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ);
-  auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pNormalZ);
+  // acos explodes for values slightly larger than 1 so make sure to clamp before
+  auto pClampedNormalZ = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, out_Ast.CreateConstant(1.0f), pNormalZ);
+  auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pClampedNormalZ);
   return CreateRemapTo01WithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fLowerFade, m_fUpperFade, out_Ast);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenMeshVertexColor, 1, ezRTTIDefaultAllocator<ezProcGenMeshVertexColor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_MeshVertexColor, 1, ezRTTIDefaultAllocator<ezProcGen_MeshVertexColor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -526,8 +529,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenMeshVertexColor, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenMeshVertexColor::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_MeshVertexColor::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   if (sOutputName == "R")
   {
@@ -551,7 +553,7 @@ ezExpressionAST::Node* ezProcGenMeshVertexColor::GenerateExpressionASTNode(
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenApplyVolumes, 1, ezRTTIDefaultAllocator<ezProcGenApplyVolumes>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 1, ezRTTIDefaultAllocator<ezProcGen_ApplyVolumes>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -572,8 +574,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenApplyVolumes, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenApplyVolumes::GenerateExpressionASTNode(
-  ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
+ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 

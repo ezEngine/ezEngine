@@ -227,11 +227,18 @@ struct EZ_FOUNDATION_DLL ezBasisAxis
 
   /// \brief Returns the vector for the given axis. E.g. (1, 0, 0) or (0, -1, 0), etc.
   static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis);
+
   /// \brief Computes a matrix representing the transformation. 'Forward' represents the X axis, 'Right' the Y axis and 'Up' the Z axis.
-  static ezMat3 CalculateTransformationMatrix(ezBasisAxis::Enum forwardDir, ezBasisAxis::Enum rightDir, ezBasisAxis::Enum upDir,
-    float fUniformScale = 1.0f, float fScaleX = 1.0f, float fScaleY = 1.0f, float fScaleZ = 1.0f);
+  static ezMat3 CalculateTransformationMatrix(ezBasisAxis::Enum forwardDir, ezBasisAxis::Enum rightDir, ezBasisAxis::Enum upDir, float fUniformScale = 1.0f, float fScaleX = 1.0f, float fScaleY = 1.0f, float fScaleZ = 1.0f);
+
   /// \brief Returns a quaternion that rotates from 'identity' to 'axis'
   static ezQuat GetBasisRotation(ezBasisAxis::Enum identity, ezBasisAxis::Enum axis);
+
   /// \brief Returns a quaternion that rotates from 'PositiveX' to 'axis'
   static ezQuat GetBasisRotation_PosX(ezBasisAxis::Enum axis);
+
+  /// \brief Returns the axis that is orthogonal to axis1 and axis2. If 'flip' is set, it returns the negated axis.
+  ///
+  /// If axis1 and axis2 are not orthogonal to each other, the value of axis1 is returned as the result.
+  static ezBasisAxis::Enum GetOrthogonalAxis(ezBasisAxis::Enum axis1, ezBasisAxis::Enum axis2, bool flip);
 };

@@ -154,6 +154,15 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
   : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
+
+  if (button == ButtonType::OpenDocumentation)
+  {
+    SetIconPath(":/GuiFoundation/EZ-logo.svg");
+  }
+  if (button == ButtonType::ReportProblem)
+  {
+    SetIconPath(":/EditorFramework/Icons/GitHub-Light.png");
+  }
 }
 
 ezHelpActions::~ezHelpActions() = default;
@@ -166,7 +175,7 @@ void ezHelpActions::Execute(const ezVariant& value)
   }
   if (m_ButtonType == ButtonType::OpenReleaseNotes)
   {
-    QDesktopServices::openUrl(QUrl("http://ezengine.net/releases/release-notes.html"));
+    QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/releases/releases.html"));
   }
   if (m_ButtonType == ButtonType::ReportProblem)
   {

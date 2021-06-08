@@ -2,22 +2,15 @@
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetWatcher.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
-#include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Utilities/Progress.h>
-#include <QDir>
-#include <atomic>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
@@ -70,7 +63,7 @@ EZ_END_STATIC_REFLECTED_TYPE;
 
 inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezFileStatus& uiValue)
 {
-  Stream.WriteBytes(&uiValue, sizeof(ezFileStatus));
+  Stream.WriteBytes(&uiValue, sizeof(ezFileStatus)).IgnoreResult();
   return Stream;
 }
 
@@ -99,8 +92,7 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 ezStringView ezSubAsset::GetName() const
 {
   if (m_bMainAsset)
-    return ezPathUtils::GetFileName(m_pAssetInfo->m_sDataDirRelativePath.GetData(),
-      m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_pAssetInfo->m_sDataDirRelativePath.GetElementCount());
+    return ezPathUtils::GetFileName(m_pAssetInfo->m_sDataDirRelativePath.GetData(), m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_pAssetInfo->m_sDataDirRelativePath.GetElementCount());
   else
     return m_Data.m_sName;
 }
@@ -141,7 +133,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     if (LoadAssetProfiles().Failed())
     {
       ezLog::Warning("Asset profiles file does not exist or contains invalid data. Setting up default profiles.");
-      SaveAssetProfiles();
+      SaveAssetProfiles().IgnoreResult();
     }
   }
 
@@ -210,7 +202,7 @@ void ezAssetCurator::Deinitialize()
 {
   EZ_PROFILE_SCOPE("Deinitialize");
 
-  SaveAssetProfiles();
+  SaveAssetProfiles().IgnoreResult();
 
   ShutdownUpdateTask();
   ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
@@ -321,7 +313,7 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
     if (bTopLevel && m_bNeedToReloadResources && ezTime::Now() > m_NextReloadResources)
     {
       m_bNeedToReloadResources = false;
-      WriteAssetTables();
+      WriteAssetTables().IgnoreResult();
     }
   }
 
@@ -332,7 +324,7 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
 // ezAssetCurator High Level Functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
+ezStatus ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   EZ_PROFILE_SCOPE("TransformAllAssets");
 
@@ -347,6 +339,7 @@ void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFl
   }
   ezUInt32 uiNumStepsLeft = assets.GetCount();
 
+  ezUInt32 uiNumFailedSteps = 0;
   ezProgressRange range("Transforming Assets", 1 + uiNumStepsLeft, true);
   for (const ezUuid& assetGuid : assets)
   {
@@ -373,13 +366,19 @@ void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFl
     auto res = ProcessAsset(pAssetInfo, pAssetProfile, transformFlags);
     if (res.m_Result.Failed())
     {
+      uiNumFailedSteps++;
       ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
     }
   }
 
   range.BeginNextStep("Writing Lookup Tables");
 
-  ezAssetCurator::GetSingleton()->WriteAssetTables(pAssetProfile);
+  ezAssetCurator::GetSingleton()->WriteAssetTables(pAssetProfile).IgnoreResult();
+
+  if (uiNumFailedSteps > 0)
+    return ezStatus(ezFmt("Transform all assets failed on {0} assets.", uiNumFailedSteps));
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezAssetCurator::ResaveAllAssets()
@@ -500,14 +499,14 @@ ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile
 
   ezResult res = EZ_SUCCESS;
 
-  ezStringBuilder s;
+  ezStringBuilder sd;
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, s);
-    s.Append("/");
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sd));
+    sd.Append("/");
 
-    if (WriteAssetTable(s, pAssetProfile).Failed())
+    if (WriteAssetTable(sd, pAssetProfile).Failed())
       res = EZ_FAILURE;
   }
 
@@ -567,7 +566,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
     for (const auto& dd : m_FileSystemConfig.m_DataDirs)
     {
       ezStringBuilder sDataDir;
-      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).IgnoreResult();
       sDataDir.PathParentDirectory();
       sDataDir.AppendPath(mainAsset);
       it = m_ReferencedFiles.Find(sDataDir);
@@ -581,7 +580,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
       for (const auto& dd : m_FileSystemConfig.m_DataDirs)
       {
         ezStringBuilder sDataDir;
-        ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+        ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).IgnoreResult();
         sDataDir.AppendPath(mainAsset);
         it = m_ReferencedFiles.Find(sDataDir);
         if (it.IsValid())
@@ -731,8 +730,7 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return thumbHash;
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*,
-  const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
   ezAssetInfo::TransformState res = ezAssetCurator::UpdateAssetTransformState(assetGuid, out_AssetHash, out_ThumbHash, bForce);
   return res;
@@ -810,10 +808,8 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezSet<ezString> missingReferences;
   // Compute final state and hashes.
   {
-    state = HashAsset(
-      uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
-    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference,
-      "Unhandled case of HashAsset return value.");
+    state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
+    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
 
     if (state == ezAssetInfo::Unknown)
     {
@@ -894,7 +890,7 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).IgnoreResult();
 
     if (sAssetPath.IsPathBelowFolder(sDataDir))
       return sDataDir;
@@ -934,7 +930,7 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
   {
     // not much we can do here, if the filename is already invalid, we will probably not find it in out known files list
 
-    ezPathUtils::MakeValidFilename(testName, '_', sFile);
+    ezPathUtils::MakeValidFilename(testName, '_', sFile).IgnoreResult();
     return EZ_FAILURE;
   }
 
@@ -981,6 +977,43 @@ found:
   }
 
   return EZ_FAILURE;
+}
+
+void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool transitive) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezSet<ezUuid> todoList;
+  todoList.Insert(assetGuid);
+
+  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset) {
+    auto it = inverseTracker.Find(sAsset);
+    if (it.IsValid())
+    {
+      for (const ezUuid& guid : it.Value())
+      {
+        if (!uses.Contains(guid))
+          todoList.Insert(guid);
+
+        uses.Insert(guid);
+      }
+    }
+  };
+
+  ezStringBuilder sCurrentAsset;
+  do
+  {
+    auto itFirst = todoList.GetIterator();
+    const ezAssetInfo* pInfo = GetAssetInfo(itFirst.Key());
+    todoList.Remove(itFirst);
+
+    if (pInfo)
+    {
+      sCurrentAsset = pInfo->m_sAbsolutePath;
+      GatherReferences(m_InverseReferences, sCurrentAsset);
+      GatherReferences(m_InverseDependency, sCurrentAsset);
+    }
+  } while (transitive && !todoList.IsEmpty());
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1030,7 +1063,7 @@ void ezAssetCurator::CheckFileSystem()
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sTemp;
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp);
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).IgnoreResult();
 
     if (ezThreadUtils::IsMainThread())
       range->BeginNextStep(dd.m_sDataDirSpecialPath);
@@ -1099,8 +1132,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
 
-  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')",
-    pAssetInfo->m_sDataDirRelativePath);
+  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
 
   auto assetFlags = pTypeDesc->m_AssetDocumentFlags;
 
@@ -1151,8 +1183,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
-  if (state == ezAssetInfo::TransformState::NeedsTransform ||
-      (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)))
+  if (state == ezAssetInfo::TransformState::NeedsTransform || (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)))
   {
     ret = pAsset->TransformAsset(transformFlags, pAssetProfile);
   }
@@ -1162,8 +1193,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     return ezStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath));
   }
 
-  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) &&
-      !resReferences.m_Result.Failed())
+  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.m_Result.Failed())
   {
     if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
     {
@@ -1196,6 +1226,14 @@ ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
 }
 
 ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid)
+{
+  ezAssetInfo* pAssetInfo = nullptr;
+  if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
+    return pAssetInfo;
+  return nullptr;
+}
+
+const ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
 {
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
@@ -1362,7 +1400,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezFil
   }
 
   // This will update the timestamp for assets.
-  EnsureAssetInfoUpdated(sAbsolutePath);
+  EnsureAssetInfoUpdated(sAbsolutePath).IgnoreResult();
 }
 
 ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile0 /*= nullptr*/)
@@ -1438,10 +1476,10 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPl
     const ezString& guid = it.Key();
     const ezString& path = it.Value();
 
-    file.WriteBytes(guid.GetData(), guid.GetElementCount());
-    file.WriteBytes(";", 1);
-    file.WriteBytes(path.GetData(), path.GetElementCount());
-    file.WriteBytes("\n", 1);
+    file.WriteBytes(guid.GetData(), guid.GetElementCount()).IgnoreResult();
+    file.WriteBytes(";", 1).IgnoreResult();
+    file.WriteBytes(path.GetData(), path.GetElementCount()).IgnoreResult();
+    file.WriteBytes("\n", 1).IgnoreResult();
   }
 
   if (file.Close().Failed())
@@ -1466,7 +1504,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sCoreCollectionPath;
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sCoreCollectionPath);
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sCoreCollectionPath).IgnoreResult();
 
     ezStringBuilder sName = sCoreCollectionPath.GetFileName();
     sName.Append(".ezCollectionAsset");
@@ -1491,7 +1529,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
           {
             if (ezAssetInfo* pInfo = GetAssetInfo(ref))
             {
-              if (name.GetHash() == 0 || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
+              if (name.GetHash() == 0ull || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
               {
                 resReferences = ProcessAsset(pInfo, pAssetProfile, ezTransformFlags::TriggeredManually);
                 if (resReferences.m_Result.Failed())
@@ -1660,23 +1698,15 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, ezSet<ezString>
     return;
 
   ezFileSystemIterator iterator;
-  if (iterator.StartSearch(sDataDir, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive).Failed())
+  iterator.StartSearch(sDataDir, ezFileSystemIteratorFlags::ReportFilesRecursive);
+
+  if (!iterator.IsValid())
     return;
 
   ezStringBuilder sPath;
 
-  while (true)
+  for (; iterator.IsValid(); iterator.Next())
   {
-    // we do not want to recurse into the AssetCache folder
-    if (iterator.GetStats().m_bIsDirectory)
-    {
-      if (iterator.Next().Failed())
-        break;
-
-
-      continue;
-    }
-
     sPath = iterator.GetCurrentPath();
     sPath.AppendPath(iterator.GetStats().m_sName);
     sPath.MakeCleanPath();
@@ -1686,9 +1716,6 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, ezSet<ezString>
     {
       pFoundFiles->Insert(sPath);
     }
-
-    if (iterator.Next().Failed())
-      break;
   }
 }
 
@@ -1701,7 +1728,7 @@ void ezAssetCurator::LoadCaches()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).IgnoreResult();
 
     ezStringBuilder sCacheFile = sDataDir;
     sCacheFile.AppendPath("AssetCache", "AssetCurator.ezCache");
@@ -1799,7 +1826,7 @@ void ezAssetCurator::SaveCaches()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).IgnoreResult();
 
     ezStringBuilder sCacheFile = sDataDir;
     sCacheFile.AppendPath("AssetCache", "AssetCurator.ezCache");
@@ -1860,7 +1887,7 @@ void ezAssetCurator::SaveCaches()
         }
       }
     }
-    writer.Close();
+    writer.Close().IgnoreResult();
   }
 
   ezLog::Debug("Asset Curator SaveCaches: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));

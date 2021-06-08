@@ -1,8 +1,12 @@
 #include <RendererCorePCH.h>
 
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
+#include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <ozz/animation/offline/raw_skeleton.h>
+#include <ozz/animation/offline/skeleton_builder.h>
+#include <ozz/animation/runtime/skeleton.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointGeometryType, 1)
@@ -16,10 +20,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocat
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_MEMBER_PROPERTY("Transform", m_Transform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::IdentityTransform())),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
-    EZ_MEMBER_PROPERTY("Length", m_fLength),
-    EZ_MEMBER_PROPERTY("Width", m_fWidth),
-    EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
+    //EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
+    //EZ_MEMBER_PROPERTY("Length", m_fLength),
+    //EZ_MEMBER_PROPERTY("Width", m_fWidth),
+    //EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
   }
   EZ_END_PROPERTIES;
 }
@@ -29,11 +33,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
-    EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
+    EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx;*.gltf;*.glb")),
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
+    EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
+    EZ_ENUM_MEMBER_PROPERTY("BoneDirection", ezBasisAxis, m_BoneDirection)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
 
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
   }
@@ -58,23 +63,22 @@ void ezEditableSkeleton::ClearJoints()
   m_Children.Clear();
 }
 
-static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc, const ezEditableSkeletonJoint* pParentJoint,
-  const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx)
+static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx)
 {
-  if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
-  {
-    auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
-    geo.m_Type = pJoint->m_Geometry;
-    geo.m_uiAttachedToJoint = uiJointIdx;
-    geo.m_Transform.SetIdentity();
-    geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
+  //if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
+  //{
+  //  auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
+  //  geo.m_Type = pJoint->m_Geometry;
+  //  geo.m_uiAttachedToJoint = uiJointIdx;
+  //  geo.m_Transform.SetIdentity();
+  //  geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
 
-    if (pParentJoint)
-    {
-      const float fBoneLength = (pParentJoint->m_Transform.m_vPosition - pJoint->m_Transform.m_vPosition).GetLength();
-      // geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
-    }
-  }
+  //  if (pParentJoint)
+  //  {
+  //    const float fBoneLength = (pParentJoint->m_Transform.m_vPosition - pJoint->m_Transform.m_vPosition).GetLength();
+  //    geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
+  //  }
+  //}
 
   for (const auto* pChildJoint : pJoint->m_Children)
   {
@@ -84,33 +88,65 @@ static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* 
   }
 }
 
-void ezEditableSkeleton::GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc) const
+void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const
 {
+  // desc.m_Geometry.Clear();
+
+  ezSkeletonBuilder sb;
   for (const auto* pJoint : m_Children)
   {
     const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
 
-    AddChildJoints(sb, pDesc, nullptr, pJoint, idx);
+    AddChildJoints(sb, &desc, nullptr, pJoint, idx);
+  }
+  sb.BuildSkeleton(desc.m_Skeleton);
+  desc.m_Skeleton.m_BoneDirection = m_BoneDirection;
+}
+
+static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::animation::offline::RawSkeleton::Joint& dstJoint)
+{
+  dstJoint.name = srcJoint.m_sName.GetString();
+  dstJoint.transform.translation.x = srcJoint.m_Transform.m_vPosition.x;
+  dstJoint.transform.translation.y = srcJoint.m_Transform.m_vPosition.y;
+  dstJoint.transform.translation.z = srcJoint.m_Transform.m_vPosition.z;
+  dstJoint.transform.rotation.x = srcJoint.m_Transform.m_qRotation.v.x;
+  dstJoint.transform.rotation.y = srcJoint.m_Transform.m_qRotation.v.y;
+  dstJoint.transform.rotation.z = srcJoint.m_Transform.m_qRotation.v.z;
+  dstJoint.transform.rotation.w = srcJoint.m_Transform.m_qRotation.w;
+  dstJoint.transform.scale.x = srcJoint.m_Transform.m_vScale.x;
+  dstJoint.transform.scale.y = srcJoint.m_Transform.m_vScale.y;
+  dstJoint.transform.scale.z = srcJoint.m_Transform.m_vScale.z;
+
+  dstJoint.children.resize((size_t)srcJoint.m_Children.GetCount());
+
+  for (ezUInt32 b = 0; b < srcJoint.m_Children.GetCount(); ++b)
+  {
+    BuildOzzRawSkeleton(*srcJoint.m_Children[b], dstJoint.children[b]);
   }
 }
 
-void ezEditableSkeleton::GenerateSkeleton(ezSkeleton& skeleton, ezSkeletonResourceDescriptor* pDesc) const
+void ezEditableSkeleton::GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const
 {
-  ezSkeletonBuilder sb;
-  GenerateSkeleton(sb, pDesc);
-  sb.BuildSkeleton(skeleton);
+  out_Skeleton.roots.resize((size_t)m_Children.GetCount());
+
+  for (ezUInt32 b = 0; b < m_Children.GetCount(); ++b)
+  {
+    BuildOzzRawSkeleton(*m_Children[b], out_Skeleton.roots[b]);
+  }
 }
 
-void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const
+void ezEditableSkeleton::GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const
 {
-  desc.m_Geometry.Clear();
-  GenerateSkeleton(desc.m_Skeleton, &desc);
+  ozz::animation::offline::RawSkeleton rawSkeleton;
+  GenerateRawOzzSkeleton(rawSkeleton);
+
+  ozz::animation::offline::SkeletonBuilder skeletonBuilder;
+  auto pNewOzzSkeleton = skeletonBuilder(rawSkeleton);
+
+  ezOzzUtils::CopySkeleton(&out_Skeleton, pNewOzzSkeleton.get());
 }
 
-ezEditableSkeletonJoint::ezEditableSkeletonJoint()
-{
-  m_Transform.SetIdentity();
-}
+ezEditableSkeletonJoint::ezEditableSkeletonJoint() = default;
 
 ezEditableSkeletonJoint::~ezEditableSkeletonJoint()
 {
@@ -144,10 +180,10 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   //  transform
   //  children
 
-  m_Geometry = pJoint->m_Geometry;
-  m_fLength = pJoint->m_fLength;
-  m_fWidth = pJoint->m_fWidth;
-  m_fThickness = pJoint->m_fThickness;
+  // m_Geometry = pJoint->m_Geometry;
+  // m_fLength = pJoint->m_fLength;
+  // m_fWidth = pJoint->m_fWidth;
+  // m_fThickness = pJoint->m_fThickness;
 }
 
 

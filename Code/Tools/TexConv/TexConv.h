@@ -24,7 +24,7 @@ public:
   ezTexConv();
 
 public:
-  virtual ApplicationExecution Run() override;
+  virtual Execution Run() override;
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
@@ -49,8 +49,6 @@ public:
   ezResult ParseBumpMapFilter();
 
   ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const;
-  ezResult ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const;
-  ezResult ParseBoolOption(const char* szOption, bool& bResult) const;
   ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const;
   void PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
   void PrintOptionValuesHelp(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
@@ -74,13 +72,4 @@ private:
   bool m_bOutputSupportsCompression = false;
 
   ezTexConvProcessor m_Processor;
-
-  ezDynamicArray<KeyEnumValuePair> m_AllowedOutputTypes;
-  ezDynamicArray<KeyEnumValuePair> m_AllowedUsages;
-  ezDynamicArray<KeyEnumValuePair> m_AllowedMimapModes;
-  ezDynamicArray<KeyEnumValuePair> m_AllowedPlatforms;
-  ezDynamicArray<KeyEnumValuePair> m_AllowedCompressionModes;
-  ezDynamicArray<KeyEnumValuePair> m_AllowedWrapModes;
-  ezDynamicArray<KeyEnumValuePair> m_AllowedFilterModes;
-  ezDynamicArray<KeyEnumValuePair> m_AllowedBumpMapFilters;
 };

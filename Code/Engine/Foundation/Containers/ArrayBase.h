@@ -9,7 +9,7 @@
 #  define ezInvalidIndex 0xFFFFFFFF
 #endif
 
-/// \brief Base class for all array containers. Implements all the basic functionality that only requires a pointer and the element count.
+/// \brief Base class for all array containers. Implements all the basic functionality that only require a pointer and the element count.
 template <typename T, typename Derived>
 class ezArrayBase
 {

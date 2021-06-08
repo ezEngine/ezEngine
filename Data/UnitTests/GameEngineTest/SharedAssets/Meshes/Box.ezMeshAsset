@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15841622493537707177,4840074449575320627}}
-		u4 %Hash{13350161939097453475}
+		u4 %Hash{2958673002167918703}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -27,33 +27,32 @@ o
 {
 	Uuid %id{u4{4769963782572300209,5035539102098998344}}
 	s %t{"ezMeshAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		f %Angle{0x0000B443}
+		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
 		u2 %Detail{1}
 		u2 %Detail2{1}
-		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %ImportMaterials{1}
-		b %InvertNormals{0}
 		VarArray %Materials
 		{
 			Uuid{u4{853543881016998014,17754238859012131237}}
 		}
 		s %MeshFile{""}
-		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::Box"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		b %RecalculateNormals{0}
+		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
-		s %SubmeshName{""}
+		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
-		b %UseSubfolderForMaterialImport{1}
 	}
 }
 o
@@ -116,8 +115,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshAssetProperties"}
-		u3 %TypeSize{1248}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{1240}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -152,7 +151,43 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialResourceSlot"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3437852327385397451,11533535376753039907}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshTexCoordPrecision"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3566230308987241816,14467924040829974905}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshNormalPrecision"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

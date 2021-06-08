@@ -18,7 +18,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{15903596662049351313,5036358118506951106}}
-		u4 %Hash{2241821228784416094}
+		u4 %Hash{3254109762824256517}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -53,6 +53,7 @@ o
 		f %Reflectance{0x0000003F}
 		Vec4 %RefractionColor{f{0,0,0,0x0000803F}}
 		f %Roughness{0xCDCC4C3F}
+		Vec3 %SubsurfaceColor{f{0,0,0}}
 	}
 }
 o
@@ -199,7 +200,7 @@ o
 o
 {
 	Uuid %id{u4{4621767142623945123,5648856785741510955}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -211,7 +212,7 @@ o
 o
 {
 	Uuid %id{u4{16050512794762190800,6396831345760543178}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -245,7 +246,7 @@ o
 o
 {
 	Uuid %id{u4{13457631019404919852,8677627788689998313}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -257,7 +258,7 @@ o
 o
 {
 	Uuid %id{u4{14713574262087237956,12437427312570701526}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -269,7 +270,7 @@ o
 o
 {
 	Uuid %id{u4{9025827153296289056,13226448189294005741}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -281,7 +282,7 @@ o
 o
 {
 	Uuid %id{u4{17436442999209593634,14267827503017821187}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -293,7 +294,7 @@ o
 o
 {
 	Uuid %id{u4{13190383498449873539,14868678697096349761}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -305,7 +306,7 @@ o
 o
 {
 	Uuid %id{u4{8543877488325215620,14907302241143551820}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -317,7 +318,7 @@ o
 o
 {
 	Uuid %id{u4{13095783436914304055,15838254224446796153}}
-	s %t{"ConnectionInternal"}
+	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
 	{
@@ -336,7 +337,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
 	}
 }
 o
@@ -363,6 +364,7 @@ o
 			Uuid{u4{15388913065968328453,11188089115316402371}}
 			Uuid{u4{13652862081152275637,1931931446829192038}}
 			Uuid{u4{4737060376990519197,5534452074735684677}}
+			Uuid{u4{17888293823252574217,5278584362329602531}}
 		}
 		s %TypeName{"ShaderNode::MaterialOutput"}
 		u3 %TypeSize{0}
@@ -466,10 +468,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
+		i3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"SHADING_MODE::SHADING_MODE_LIT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -589,10 +591,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{2}
+		i3 %ConstantValue{2}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -686,6 +688,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17888293823252574217,5278584362329602531}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{13542406804441022416,9548951225033578222}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"SubsurfaceColor"}
+		s %Type{"ezVec3"}
+	}
+}
+o
+{
 	Uuid %id{u4{4737060376990519197,5534452074735684677}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -710,10 +729,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
+		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_MASKED"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -752,10 +771,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{4}
+		i3 %ConstantValue{4}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_MODULATE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -805,7 +824,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0}
+		i4 %Value{0}
 	}
 }
 o
@@ -902,10 +921,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{3}
+		i3 %ConstantValue{3}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_ADDITIVE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -915,7 +934,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000C842}
+		i4 %Value{100}
 	}
 }
 o
@@ -927,10 +946,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
+		i3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_OPAQUE"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -970,10 +989,10 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
+		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"SHADING_MODE::SHADING_MODE_FULLBRIGHT"}
-		s %Type{"ezUInt32"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -983,7 +1002,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
 	}
 }
 o
@@ -1002,6 +1021,16 @@ o
 		s %TypeName{"ezShaderTypeBase"}
 		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{13542406804441022416,9548951225033578222}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Value{f{0,0,0}}
 	}
 }
 o
@@ -1533,7 +1562,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{320}
+		u3 %TypeSize{328}
 		u3 %TypeVersion{4}
 	}
 }

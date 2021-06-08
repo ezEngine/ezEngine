@@ -1,10 +1,10 @@
 #include <GameEnginePCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Gameplay/AreaDamageComponent.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/Messages/DamageMessage.h>
 
 // clang-format off

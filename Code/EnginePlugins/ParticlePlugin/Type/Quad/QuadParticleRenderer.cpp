@@ -34,12 +34,11 @@ void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezR
   types.PushBack(ezGetStaticRTTI<ezParticleQuadRenderData>());
 }
 
-void ezParticleQuadRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   TempSystemCB systemConstants(pRenderContext);
 
@@ -69,9 +68,8 @@ void ezParticleQuadRenderer::RenderBatch(
 
     ConfigureRenderMode(pRenderData, pRenderContext);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime,
-      pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX,
-      pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
+    systemConstants.SetGenericData(
+      pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
 
     pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", pRenderData->m_QuadModePermutation);
 
@@ -81,23 +79,23 @@ void ezParticleQuadRenderer::RenderBatch(
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
       pParticleBaseData += uiNumParticlesInBatch;
 
       if (pParticleBillboardData != nullptr)
       {
-        pGALContext->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
         pParticleBillboardData += uiNumParticlesInBatch;
       }
 
       if (pParticleTangentData != nullptr)
       {
-        pGALContext->UpdateBuffer(m_hTangentDataBuffer, 0, ezMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(m_hTangentDataBuffer, 0, ezMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray());
         pParticleTangentData += uiNumParticlesInBatch;
       }
 
       // do one drawcall
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * 2);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * 2).IgnoreResult();
     }
   }
 }

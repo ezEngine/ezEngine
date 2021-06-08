@@ -1,23 +1,9 @@
 #include <EnginePluginKrautPCH.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Core/World/Component.h>
-#include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeContext.h>
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeView.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <KrautPlugin/Resources/KrautTreeResource.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezKrautTreeViewContext::ezKrautTreeViewContext(ezKrautTreeContext* pKrautTreeContext)
   : ezEngineProcessViewContext(pKrautTreeContext)
@@ -62,17 +48,19 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   auto hResource = m_pKrautTreeContext->GetResource();
   if (hResource.IsValid())
   {
-    ezResourceLock<ezKrautTreeResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
+    //ezResourceLock<ezKrautGeneratorResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
 
-    if (pResource->GetDetails().m_Bounds.IsValid())
-    {
-      bbox = pResource->GetDetails().m_Bounds.GetBox();
+    // TODO
 
-      ezStringBuilder sText;
-      sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
-        ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+    //if (pResource->GetDetails().m_Bounds.IsValid())
+    //{
+    //  bbox = pResource->GetDetails().m_Bounds.GetBox();
 
-      ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
-    }
+    //  ezStringBuilder sText;
+    //  sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
+    //    ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+
+    //  ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+    //}
   }
 }

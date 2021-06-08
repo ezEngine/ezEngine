@@ -20,6 +20,23 @@ enum class ezAssetDocEngineConnection : ezUInt8
   FullObjectMirroring
 };
 
+/// \brief Frequently needed asset document states, to prevent code duplication
+struct ezCommonAssetUiState
+{
+  enum Enum : ezUInt32
+  {
+    Pause = EZ_BIT(0),
+    Restart = EZ_BIT(1),
+    Loop = EZ_BIT(2),
+    SimulationSpeed = EZ_BIT(3),
+    Grid = EZ_BIT(4),
+    Visualizers = EZ_BIT(5),
+  };
+
+  Enum m_State;
+  double m_fValue = 0;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument, ezDocument);
@@ -117,8 +134,11 @@ public:
   /// \brief Returns the sync object registered under the given guid.
   ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid) const;
 
+  /// \brief Returns the first sync object registered with the given type.
+  ezEditorEngineSyncObject* FindSyncObject(const ezRTTI* pType) const;
+
   /// \brief Sends messages to sync all sync objects to the engine process side.
-  void SyncObjectsToEngine();
+  void SyncObjectsToEngine() const;
 
   ///@}
 
@@ -198,7 +218,7 @@ protected:
   void InvalidateAssetThumbnail() const;
 
   /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
-  ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const;
+  ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, ezArrayPtr<ezStringView> viewExclusionTags = {&ezStringView("SkyLight"), 1}) const;
 
   /// \brief Saves the given image as the new thumbnail for the asset
   ezStatus SaveThumbnail(const ezImage& img, const ThumbnailInfo& thumbnailInfo) const;
@@ -208,6 +228,26 @@ protected:
 
   /// \brief Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
   void AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
+
+  ///@}
+  /// \name Common Asset States
+  ///@{
+
+public:
+  /// \brief Override this to handle a change to a common asset state differently.
+  ///
+  /// By default an on-off flag for every state is tracked, but nothing else.
+  /// Also this automatically broadcasts the m_CommonAssetUiChangeEvent event.
+  virtual void SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value);
+
+  /// \brief Override this to return custom values for a common asset state.
+  virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const;
+
+  /// \brief Used to broadcast state change events for common asset states.
+  ezEvent<const ezCommonAssetUiState&> m_CommonAssetUiChangeEvent;
+
+protected:
+  ezUInt32 m_uiCommonAssetStateFlags = 0;
 
   ///@}
 

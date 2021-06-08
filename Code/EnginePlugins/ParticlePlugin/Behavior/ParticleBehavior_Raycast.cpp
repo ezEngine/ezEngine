@@ -1,11 +1,11 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Raycast.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
@@ -53,8 +53,7 @@ void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_sOnCollideEvent = ezTempHashedString(m_sOnCollideEvent.GetData());
   pBehavior->m_fBounceFactor = m_fBounceFactor;
 
-  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(
-    ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 }
 
 enum class BehaviorRaycastVersion

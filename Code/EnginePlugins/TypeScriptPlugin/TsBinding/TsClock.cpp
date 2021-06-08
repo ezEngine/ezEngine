@@ -24,13 +24,13 @@ static int __CPP_Clock_Get(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0:
-      duk.ReturnFloat(pWorld->GetClock().GetSpeed());
+      duk.ReturnFloat(static_cast<float>(pWorld->GetClock().GetSpeed()));
       break;
     case 1:
-      duk.ReturnFloat(pWorld->GetClock().GetTimeDiff().GetSeconds());
+      duk.ReturnFloat(pWorld->GetClock().GetTimeDiff().AsFloatInSeconds());
       break;
     case 2:
-      duk.ReturnFloat(pWorld->GetClock().GetAccumulatedTime().GetSeconds());
+      duk.ReturnFloat(pWorld->GetClock().GetAccumulatedTime().AsFloatInSeconds());
       break;
 
     default:

@@ -1,9 +1,8 @@
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\Foundation
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\Core
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\Texture
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\GameEngine
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\RendererFoundation
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\RendererCore
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\System
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\TestFramework
-..\Output\Bin\WinVs2017Debug64\StaticLinkUtil.exe D:\GitHub\ezMS\Code\Engine\Utilities
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\Engine\Core
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\Engine\Foundation
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\Engine\GameEngine
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\Engine\RendererCore
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\Engine\RendererFoundation
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\Engine\Texture
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\Engine\Utilities
+..\Output\Bin\WinVs2019Debug64\StaticLinkUtil.exe ..\Code\UnitTests\TestFramework

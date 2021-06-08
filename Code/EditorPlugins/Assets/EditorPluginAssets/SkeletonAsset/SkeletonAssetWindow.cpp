@@ -1,22 +1,12 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
-#include <Texture/Image/ImageConversion.h>
 
 ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -81,9 +71,16 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
   }
 
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
+
   FinishWindowCreation();
 
   QueryObjectBBox(0);
+}
+
+ezQtSkeletonAssetDocumentWindow::~ezQtSkeletonAssetDocumentWindow()
+{
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
 }
 
 ezSkeletonAssetDocument* ezQtSkeletonAssetDocumentWindow::GetSkeletonDocument()
@@ -104,7 +101,7 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(1);
+  QueryObjectBBox(-1);
 }
 
 void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
@@ -113,6 +110,39 @@ void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
+}
+
+
+void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+{
+  ezStringBuilder filter;
+
+  switch (e.m_Type)
+  {
+    case ezSelectionManagerEvent::Type::SelectionCleared:
+    case ezSelectionManagerEvent::Type::SelectionSet:
+    case ezSelectionManagerEvent::Type::ObjectAdded:
+    case ezSelectionManagerEvent::Type::ObjectRemoved:
+    {
+      const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
+
+      for (auto pObj : sel)
+      {
+        ezVariant name = pObj->GetTypeAccessor().GetValue("Name");
+        if (name.IsValid() && name.CanConvertTo<ezString>())
+        {
+          filter.Append(name.ConvertTo<ezString>().GetData(), ";");
+        }
+      }
+
+      ezSimpleDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "HighlightBones";
+      msg.m_sPayload = filter;
+
+      GetDocument()->SendMessageToEngine(&msg);
+    }
+    break;
+  }
 }
 
 void ezQtSkeletonAssetDocumentWindow::InternalRedraw()
@@ -128,11 +158,11 @@ void ezQtSkeletonAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorE
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 &&
-        pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f,
-        pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
+      const ezVec3 vHalfExtents = pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f));
+
+      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }
     else if (pMessage->m_iPurpose == 0)
     {

@@ -1,13 +1,9 @@
 #include <EditorPluginProcGenPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
-#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetManager.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
-#include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 #include <ProcGenPlugin/VM/ExpressionCompiler.h>
@@ -130,7 +126,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
         CachedNode cachedNode;
         EZ_VERIFY(nodeCache.TryGetValue(pPlacementNode, cachedNode), "Implementation error");
-        auto pPlacementOutput = ezStaticCast<ezProcGenPlacementOutput*>(cachedNode.m_pPPNode);
+        auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(cachedNode.m_pPPNode);
 
         pPlacementOutput->m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
         pPlacementOutput->Save(chunk);
@@ -172,7 +168,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
       CachedNode cachedNode;
       EZ_VERIFY(nodeCache.TryGetValue(pVertexColorNode, cachedNode), "Implementation error");
-      auto pVertexColorOutput = ezStaticCast<ezProcGenVertexColorOutput*>(cachedNode.m_pPPNode);
+      auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(cachedNode.m_pPPNode);
 
       pVertexColorOutput->m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
       pVertexColorOutput->Save(chunk);
@@ -190,7 +186,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   }
 
   chunk.EndStream();
-  stringDedupContext.End();
+  EZ_SUCCEED_OR_RETURN(stringDedupContext.End());
 
   for (auto it = nodeCache.GetIterator(); it.IsValid(); ++it)
   {
@@ -238,8 +234,7 @@ void ezProcGenGraphAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
   }
 }
 
-ezStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
@@ -275,8 +270,7 @@ bool ezProcGenGraphAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
   return true;
 }
 
-bool ezProcGenGraphAssetDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezProcGenGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 
@@ -344,11 +338,10 @@ void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezProcGenGraphAssetDocument::GetAllOutputNodes(
-  ezDynamicArray<const ezDocumentObject*>& placementNodes, ezDynamicArray<const ezDocumentObject*>& vertexColorNodes) const
+void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& placementNodes, ezDynamicArray<const ezDocumentObject*>& vertexColorNodes) const
 {
-  const ezRTTI* pPlacementOutputRtti = ezGetStaticRTTI<ezProcGenPlacementOutput>();
-  const ezRTTI* pVertexColorOutputRtti = ezGetStaticRTTI<ezProcGenVertexColorOutput>();
+  const ezRTTI* pPlacementOutputRtti = ezGetStaticRTTI<ezProcGen_PlacementOutput>();
+  const ezRTTI* pVertexColorOutputRtti = ezGetStaticRTTI<ezProcGen_VertexColorOutput>();
 
   placementNodes.Clear();
   vertexColorNodes.Clear();
@@ -371,9 +364,8 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(
   }
 }
 
-ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
-  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast,
-  ezProcGenNodeBase::GenerateASTContext& context) const
+ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(
+  const ezDocumentObject* outputNode, const char* szOutputName, ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
@@ -394,8 +386,7 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     EZ_ASSERT_DEBUG(pPinSource != nullptr, "Invalid connection");
 
     // recursively generate all dependent code
-    inputAstNodes[i] =
-      GenerateExpressionAST(pPinSource->GetParent(), pPinSource->GetName(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
+    inputAstNodes[i] = GenerateExpressionAST(pPinSource->GetParent(), pPinSource->GetName(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
   }
 
   CachedNode cachedNode;
@@ -410,8 +401,7 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
   return cachedNode.m_pPPNode->GenerateExpressionASTNode(ezTempHashedString(szOutputName), inputAstNodes, out_Ast, context);
 }
 
-ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter,
-  ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const
+ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const
 {
   EZ_ASSERT_DEV(m_pDebugPin != nullptr, "");
 
@@ -494,7 +484,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
       ezFileWriter fileWriter;
       if (fileWriter.Open(sFileName).Succeeded())
       {
-        fileWriter.WriteBytes(sDisassembly.GetData(), sDisassembly.GetElementCount());
+        fileWriter.WriteBytes(sDisassembly.GetData(), sDisassembly.GetElementCount()).IgnoreResult();
 
         ezLog::Info("Disassembly was dumped to: {0}", sFileName);
       }
@@ -520,7 +510,7 @@ void ezProcGenGraphAssetDocument::CreateDebugNode()
   if (m_pDebugNode != nullptr)
     return;
 
-  m_pDebugNode = EZ_DEFAULT_NEW(ezProcGenPlacementOutput);
+  m_pDebugNode = EZ_DEFAULT_NEW(ezProcGen_PlacementOutput);
   m_pDebugNode->m_sName = "Debug";
   m_pDebugNode->m_ObjectsToPlace.PushBack(s_szSphereAssetId);
   m_pDebugNode->m_sColorGradient = s_szBWGradientAssetId;

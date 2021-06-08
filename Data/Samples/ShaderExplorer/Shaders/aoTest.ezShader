@@ -11,8 +11,6 @@ CullMode = CullMode_None
 
 #include "Common.h"
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
@@ -22,14 +20,10 @@ VS_OUT main(VS_IN Input)
   return RetVal;
 }
 
-#endif
-
 
 [PIXELSHADER]
 
 #include "Common.h"
-
-#if EZ_ENABLED(PLATFORM_DX11)
 
 #include <Shaders/Common/GlobalConstants.h>
 
@@ -161,5 +155,5 @@ float4 main(PS_IN Input) : SV_Target
     return float4( col, 1.0 );
 }
 
-#endif
+
 

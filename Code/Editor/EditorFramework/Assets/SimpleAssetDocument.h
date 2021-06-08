@@ -1,6 +1,8 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
@@ -102,14 +104,20 @@ template <typename PropertyType, typename BaseClass = ezAssetDocument>
 class ezSimpleAssetDocument : public BaseClass
 {
 public:
-  ezSimpleAssetDocument(const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType)
+  ezSimpleAssetDocument(const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
     : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
+    , m_LightSettings(bEnableDefaultLighting)
   {
+    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    pPreferences->ApplyDefaultValues(m_LightSettings);
   }
 
-  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType)
+  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
     : BaseClass(szDocumentPath, pObjectManager, engineConnectionType)
+    , m_LightSettings(bEnableDefaultLighting)
   {
+    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    pPreferences->ApplyDefaultValues(m_LightSettings);
   }
 
   ~ezSimpleAssetDocument()
@@ -140,6 +148,8 @@ protected:
     m_ObjectMirror.SendDocument();
 
     BaseClass::InitializeAfterLoading(bFirstTimeCreation);
+
+    this->AddSyncObject(&m_LightSettings);
   }
 
   virtual ezStatus InternalLoadDocument() override
@@ -190,14 +200,21 @@ protected:
     ezDeque<ezAbstractGraphDiffOperation> diffResult;
     graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
-    // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
-    m_ObjectMirror.Clear();
-    // Apply diff while object mirror is down.
-    this->GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
-    ezDocumentObjectConverterReader::ApplyDiffToObject(this->GetObjectAccessor(), GetPropertyObject(), diffResult);
-    this->GetObjectAccessor()->FinishTransaction();
-    // Re-apply document
-    m_ObjectMirror.SendDocument();
+    if (!diffResult.IsEmpty())
+    {
+      // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
+      m_ObjectMirror.Clear();
+
+      // Apply diff while object mirror is down.
+      this->GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
+
+      ezDocumentObjectConverterReader::ApplyDiffToObject(this->GetObjectAccessor(), GetPropertyObject(), diffResult);
+
+      // Re-apply document
+      m_ObjectMirror.SendDocument();
+
+      this->GetObjectAccessor()->FinishTransaction();
+    }
   }
 
 private:
@@ -216,4 +233,5 @@ protected:
 
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
+  ezEngineViewLightSettings m_LightSettings;
 };

@@ -118,8 +118,8 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   }
 
   XrActionSetCreateInfo actionSetInfo{XR_TYPE_ACTION_SET_CREATE_INFO};
-  strcpy(actionSetInfo.actionSetName, "gameplay");
-  strcpy(actionSetInfo.localizedActionSetName, "Gameplay");
+  ezStringUtils::Copy(actionSetInfo.actionSetName, XR_MAX_ACTION_SET_NAME_SIZE, "gameplay");
+  ezStringUtils::Copy(actionSetInfo.localizedActionSetName, XR_MAX_LOCALIZED_ACTION_SET_NAME_SIZE, "Gameplay");
   actionSetInfo.priority = 0;
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateActionSet(m_instance, &actionSetInfo, &m_ActionSet), DestroyActions);
 
@@ -492,7 +492,7 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       getInfo.action = action.m_Action;
       getInfo.subactionPath = m_subActionPath[uiSide];
       XR_SUCCEED_OR_RETURN_LOG(xrGetActionStateBoolean(m_session, &getInfo, &state));
-      m_InputSlotValues[action.m_sKey[uiSide]] = state.currentState;
+      m_InputSlotValues[action.m_sKey[uiSide]] = state.currentState ? 1.0f : 0.0f;
       m_SupportedFeatures[uiControllerId].AddOrRemove(action.m_Feature, state.isActive);
     }
 

@@ -70,6 +70,19 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
+  
+  <Type Name="ezSmallArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+      <Item Name="userdata">m_uiUserData</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>(m_uiCapacity &lt;= $T2) ? ($T1*)((intptr_t)(m_StaticData)) : m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 	
 	<Type Name="ezStaticArray&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
@@ -171,6 +184,8 @@
 
 	<!-- Basic Types -->
 	<Type Name="ezVariant">
+		<DisplayString Condition="m_Type == Type::TypedObject &amp;&amp; m_bIsShared">({m_Data.shared->m_pType->m_szTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)}</DisplayString>
+		<DisplayString Condition="m_Type == Type::TypedObject &amp;&amp; !m_bIsShared">({m_Data.inlined.m_pType->m_szTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(&amp;m_Data)}</DisplayString>
 		<Expand>
 			<Item Name="Type">(Type::Enum) m_Type</Item>
 			<Item Name="Value" Condition="m_Type == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
@@ -206,9 +221,13 @@
 			<Item Name="Value" Condition="m_Type == Type::Angle">*reinterpret_cast&lt;ezAngle*&gt;(&amp;m_Data)</Item>
 			<Item Name="Value" Condition="m_Type == Type::ColorGamma">*reinterpret_cast&lt;ezColorGammaUB*&gt;(&amp;m_Data)</Item>
 			
-			<Item Name="Value" Condition="m_Type == Type::VoidPointer">*reinterpret_cast&lt;void**&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::ReflectedPointer">*reinterpret_cast&lt;ezReflectedClass**&gt;(&amp;m_Data)</Item>     
-			
+			<Item Name="Value" Condition="m_Type == Type::TypedPointer">*reinterpret_cast&lt;ezTypedPointer*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::TypedObject &amp;&amp; m_bIsShared">reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::TypedObject &amp;&amp; !m_bIsShared">reinterpret_cast&lt;void*&gt;(&amp;m_Data)</Item>
+			<Item Name="ReflectedType" Condition="m_Type == Type::TypedObject &amp;&amp; !m_bIsShared">m_Data.inlined.m_pType</Item>
+			<Item Name="ReflectedType" Condition="m_Type == Type::TypedObject &amp;&amp; m_bIsShared">m_Data.shared->m_pType</Item>
+
+
 			<Item Name="Value" Condition="m_Type == Type::VariantArray">*reinterpret_cast&lt;ezDynamicArray&lt;ezVariant,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
 			<Item Name="Value" Condition="m_Type == Type::VariantDictionary">*reinterpret_cast&lt;ezHashTable&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt;,ezVariant,ezHashHelper&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt; &gt;,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8464864066885685894,5738673529103748961}}
-		u4 %Hash{7738366369232482238}
+		u4 %Hash{7731206656829613017}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7733054106453483602,16089986760246323274}}
@@ -37,17 +37,6 @@ o
 }
 Objects
 {
-o
-{
-	Uuid %id{u4{12515589128983238090,1004085011138947693}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0}
-		f %Variance{0}
-	}
-}
 o
 {
 	Uuid %id{u4{11483350087019018657,4683427463973184246}}
@@ -76,10 +65,14 @@ o
 {
 	Uuid %id{u4{8334311564942044588,4994296155396099496}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %Size{u4{14037814983661455625,8330548856722067694}}
+		ezVarianceTypeFloat %Size
+		{
+			f %Variance{0xE17A143F}
+			f %Value{0x0AD7233D}
+		}
 		s %SizeCurve{""}
 	}
 }
@@ -135,6 +128,7 @@ o
 	p
 	{
 		Vec3 %BoxExtents{f{0x00008041,0x00008041,0x00007A44}}
+		s %OutOfBoundsMode{"ezParticleOutOfBoundsMode::Teleport"}
 		Vec3 %PositionOffset{f{0,0,0}}
 	}
 }
@@ -142,7 +136,7 @@ o
 {
 	Uuid %id{u4{12473441368742699430,5096370048097755958}}
 	s %t{"ezParticleInitializerFactory_CylinderPosition"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %Height{0}
@@ -152,7 +146,11 @@ o
 		s %ScaleHeightParam{""}
 		s %ScaleRadiusParam{""}
 		b %SetVelocity{0}
-		Uuid %Speed{u4{12515589128983238090,1004085011138947693}}
+		ezVarianceTypeFloat %Speed
+		{
+			f %Variance{0}
+			f %Value{0}
+		}
 	}
 }
 o
@@ -192,14 +190,14 @@ o
 	{
 		f %Friction{0}
 		f %RiseSpeed{0}
-		f %WindInfluence{0x0000803F}
+		f %WindInfluence{0x9A99993E}
 	}
 }
 o
 {
 	Uuid %id{u4{3490689055456393639,5709501697680352805}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -219,7 +217,11 @@ o
 			Uuid{u4{8334311564942044588,4994296155396099496}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{13556410845210635175,8432013069660010770}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0x5C8F423E}
+			Time %Value{d{0x0000000000001040}}
+		}
 		s %Name{"rain"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -241,28 +243,6 @@ o
 		{
 			Uuid{u4{8428869120109563276,5010254082098335471}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{14037814983661455625,8330548856722067694}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x0AD7233D}
-		f %Variance{0xE17A143F}
-	}
-}
-o
-{
-	Uuid %id{u4{13556410845210635175,8432013069660010770}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x0000000000001040}}
-		f %Variance{0x5C8F423E}
 	}
 }
 }
@@ -427,7 +407,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_CylinderPosition"}
 		u3 %TypeSize{168}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -468,6 +448,24 @@ o
 }
 o
 {
+	Uuid %id{u4{7129353828469269043,9550674789382787445}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleOutOfBoundsMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10573817996783288085,10146871902693530054}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -499,7 +497,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -517,7 +515,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -552,7 +550,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_Bounds"}
-		u3 %TypeSize{32}
+		u3 %TypeSize{40}
 		u3 %TypeVersion{1}
 	}
 }

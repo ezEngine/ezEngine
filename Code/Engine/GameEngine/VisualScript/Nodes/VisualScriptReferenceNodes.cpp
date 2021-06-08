@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetScriptOwner, 2, ezRTTIDefa
   {
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+    EZ_OUTPUT_DATA_PIN("Component", 1, ezVisualScriptDataPinType::ComponentHandle),
   }
   EZ_END_PROPERTIES;
 }
@@ -36,6 +37,9 @@ void ezVisualScriptNode_GetScriptOwner::Execute(ezVisualScriptInstance* pInstanc
   {
     ezGameObjectHandle hObject = pInstance->GetOwner();
     pInstance->SetOutputPinValue(this, 0, &hObject);
+
+    ezComponentHandle hComponent = pInstance->GetOwnerComponent();
+    pInstance->SetOutputPinValue(this, 1, &hComponent);
   }
 }
 
@@ -245,12 +249,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
     new ezTitleAttribute("Global Object '{Name}'"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
+  EZ_BEGIN_PROPERTIES
   {
+    // Data Pins (Input)
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Name", 0, ezVisualScriptDataPinType::String, m_sObjectName),
     // Data Pins (Output)
-    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
-    // Exposed Properties
-    EZ_MEMBER_PROPERTY("Name", m_sObjectName),
+    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),    
   }
   EZ_END_PROPERTIES;
 }
@@ -276,6 +280,17 @@ void ezVisualScriptNode_QueryGlobalObject::Execute(ezVisualScriptInstance* pInst
     ezGameObjectHandle hResult = pObject->GetHandle();
     pInstance->SetOutputPinValue(this, 0, &hResult);
   }
+}
+
+void* ezVisualScriptNode_QueryGlobalObject::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+    case 0:
+      return &m_sObjectName;
+  }
+
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

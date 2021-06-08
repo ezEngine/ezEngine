@@ -134,6 +134,7 @@ void DockWidgetPrivate::showDockWidget()
 	{
 		CFloatingDockContainer* FloatingWidget = new CFloatingDockContainer(_this);
 		FloatingWidget->resize(_this->size());
+		TabWidget->show();
 		FloatingWidget->show();
 	}
 	else
@@ -235,6 +236,11 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	connect(d->ToggleViewAction, SIGNAL(triggered(bool)), this,
 		SLOT(toggleView(bool)));
 	setToolbarFloatingStyle(false);
+
+	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+	{
+		setFocusPolicy(Qt::ClickFocus);
+	}
 }
 
 //============================================================================
@@ -293,6 +299,7 @@ QWidget* CDockWidget::takeWidget()
 		w = d->ScrollArea->takeWidget();
 		delete d->ScrollArea;
 		d->ScrollArea = nullptr;
+		d->Widget = nullptr;
 	}
 	else if (d->Widget)
 	{
@@ -331,8 +338,10 @@ void CDockWidget::setFeatures(DockWidgetFeatures features)
 		return;
 	}
 	d->Features = features;
-	emit featuresChanged(d->Features);
+	Q_EMIT featuresChanged(d->Features);
 	d->TabWidget->onDockWidgetFeaturesChanged();
+	if(CDockAreaWidget* DockArea = dockAreaWidget())
+		DockArea->onDockWidgetFeaturesChanged();
 }
 
 
@@ -455,6 +464,13 @@ void CDockWidget::setMinimumSizeHintMode(eMinimumSizeHintMode Mode)
 
 
 //============================================================================
+bool CDockWidget::isCentralWidget() const
+{
+    return dockManager()->centralWidget() == this;
+}
+
+
+//============================================================================
 void CDockWidget::toggleView(bool Open)
 {
 	// If the toggle view action mode is ActionModeShow, then Open is always
@@ -522,9 +538,9 @@ void CDockWidget::toggleViewInternal(bool Open)
 
 	if (!Open)
 	{
-		emit closed();
+		Q_EMIT closed();
 	}
-	emit viewToggled(Open);
+	Q_EMIT viewToggled(Open);
 }
 
 
@@ -533,6 +549,7 @@ void CDockWidget::setDockArea(CDockAreaWidget* DockArea)
 {
 	d->DockArea = DockArea;
 	d->ToggleViewAction->setChecked(DockArea != nullptr && !this->isClosed());
+	setParent(DockArea);
 }
 
 
@@ -563,11 +580,11 @@ bool CDockWidget::event(QEvent *e)
 	switch (e->type())
 	{
 	case QEvent::Hide:
-		emit visibilityChanged(false);
+		Q_EMIT visibilityChanged(false);
 		break;
 
 	case QEvent::Show:
-		emit visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
+		Q_EMIT visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
         break;
 
 	case QEvent::WindowTitleChange :
@@ -585,7 +602,7 @@ bool CDockWidget::event(QEvent *e)
 			{
 				d->DockArea->markTitleBarMenuOutdated();//update tabs menu
 			}
-			emit titleChanged(title);
+			Q_EMIT titleChanged(title);
 		}
 		break;
 
@@ -768,7 +785,7 @@ void CDockWidget::emitTopLevelChanged(bool Floating)
 	if (Floating != d->IsFloatingTopLevel)
 	{
 		d->IsFloatingTopLevel = Floating;
-		emit topLevelChanged(d->IsFloatingTopLevel);
+		Q_EMIT topLevelChanged(d->IsFloatingTopLevel);
 	}
 }
 
@@ -826,7 +843,7 @@ bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
 {
 	if (!ForceClose)
 	{
-		emit closeRequested();
+		Q_EMIT closeRequested();
 	}
 
 	if (!ForceClose && features().testFlag(CDockWidget::CustomCloseHandling))
@@ -852,7 +869,7 @@ bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
 			}
 		}
 		deleteDockWidget();
-		emit closed();
+		Q_EMIT closed();
     }
     else
     {

@@ -6,9 +6,9 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Time/Time.h>
 
-/// \brief An event track is a timeline that contains named events.
+/// \brief An event track is a time line that contains named events.
 ///
-/// The timeline can be sampled to query all events that occured during a time period.
+/// The time line can be sampled to query all events that occurred during a time period.
 /// There is no way to sample an event track at a fixed point in time, because events occur at specific time points and thus
 /// only range queries make sense.
 class EZ_FOUNDATION_DLL ezEventTrack
@@ -26,10 +26,12 @@ public:
   /// \brief Adds a named event into the track at the given time.
   void AddControlPoint(ezTime time, const char* szEvent);
 
-  /// \brief Samples the event track from range [start; end) and returns all events that occured in that time period.
+  /// \brief Samples the event track from range [start; end) and adds all events that occured in that time period to the array.
   ///
   /// Note that the range is inclusive for the start time, and exclusive for the end time.
-  void Sample(ezTime rangeStart, ezTime rangeEnd, ezHybridArray<ezHashedString, 8>& out_Events) const;
+  ///
+  /// If rangeStart is larger than rangeEnd, the events are returned in reverse order (backwards traversal).
+  void Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezHashedString>& out_Events) const;
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);

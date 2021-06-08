@@ -17,7 +17,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
   // generate test data
   {
     ezOSFile file;
-    if (EZ_TEST_BOOL_MSG(file.Open(sOutputFile, ezFileOpenMode::Write).Succeeded(), "File for memory mapping could not be created").Failed())
+    if (!EZ_TEST_BOOL_MSG(file.Open(sOutputFile, ezFileOpenMode::Write).Succeeded(), "File for memory mapping could not be created"))
       return;
 
     ezDynamicArray<ezUInt32> data;
@@ -28,7 +28,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
       data[i] = i;
     }
 
-    file.Write(data.GetData(), data.GetCount() * sizeof(ezUInt32));
+    file.Write(data.GetData(), data.GetCount() * sizeof(ezUInt32)).IgnoreResult();
     file.Close();
   }
 
@@ -36,7 +36,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
   {
     ezMemoryMappedFile memFile;
 
-    if (EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadWrite).Succeeded(), "Memory mapping a file failed").Failed())
+    if (!EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadWrite).Succeeded(), "Memory mapping a file failed"))
       return;
 
     EZ_TEST_BOOL(memFile.GetWritePointer() != nullptr);
@@ -55,7 +55,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
   {
     ezMemoryMappedFile memFile;
 
-    if (EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file failed").Failed())
+    if (!EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file failed"))
       return;
 
     EZ_TEST_BOOL(memFile.GetReadPointer() != nullptr);
@@ -67,8 +67,14 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
     {
       EZ_TEST_INT(ptr[i], i + 1);
     }
+
+    // try to map it a second time
+    ezMemoryMappedFile memFile2;
+
+    if (!EZ_TEST_BOOL_MSG(memFile2.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file twice failed"))
+      return;
   }
 
-  ezOSFile::DeleteFile(sOutputFile);
+  ezOSFile::DeleteFile(sOutputFile).IgnoreResult();
 }
 #endif

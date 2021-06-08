@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1963943614568449723,5254779954610790953}}
-		u4 %Hash{218077286508502497}
+		u4 %Hash{10846653446151210916}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3088743919244770240,5032094294612909939}}
@@ -40,11 +40,12 @@ o
 {
 	Uuid %id{u4{10602080308803202490,4757566281242295085}}
 	s %t{"ezKrautTreeComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %KrautTree{"{ d16f8af4-ee4f-41f7-b0ef-c4d7e3c5f36d }"}
+		u2 %VariationIndex{65535}
 	}
 }
 o
@@ -54,6 +55,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -151,7 +153,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -259,8 +261,8 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeComponent"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{3}
 	}
 }
 o

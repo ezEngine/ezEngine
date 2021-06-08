@@ -34,8 +34,8 @@
 
 #include "ads_globals.h"
 
-class QToolBar;
-class QXmlStreamWriter;
+QT_FORWARD_DECLARE_CLASS(QToolBar)
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
 namespace ads
 {
@@ -58,7 +58,7 @@ private:
     DockWidgetPrivate* d; ///< private data (pimpl)
     friend struct DockWidgetPrivate;
 
-private slots:
+private Q_SLOTS:
     /**
      * Adjusts the toolbar icon sizes according to the floating state
      */
@@ -149,11 +149,15 @@ public:
     {
         DockWidgetClosable = 0x01,///< dock widget has a close button
         DockWidgetMovable = 0x02,///< dock widget is movable and can be moved to a new position in the current dock container
-        DockWidgetFloatable = 0x04,
+        DockWidgetFloatable = 0x04,///< dock widget can be dragged into a floating window
         DockWidgetDeleteOnClose = 0x08, ///< deletes the dock widget when it is closed
-        CustomCloseHandling = 0x10,
-        DefaultDockWidgetFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable,
+        CustomCloseHandling = 0x10, ///< clicking the close button will not close the dock widget but emits the closeRequested() signal instead
+        DockWidgetFocusable = 0x20, ///< if this is enabled, a dock widget can get focus highlighting
+        DockWidgetForceCloseWithArea = 0x40, ///< dock widget will be closed when the dock area hosting it is closed
+        NoTab = 0x80, ///< dock widget tab will never be shown if this flag is set
+        DefaultDockWidgetFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable | DockWidgetFocusable,
         AllDockWidgetFeatures = DefaultDockWidgetFeatures | DockWidgetDeleteOnClose | CustomCloseHandling,
+        DockWidgetAlwaysCloseAndDelete = DockWidgetForceCloseWithArea | DockWidgetDeleteOnClose,
         NoDockWidgetFeatures = 0x00
     };
     Q_DECLARE_FLAGS(DockWidgetFeatures, DockWidgetFeature)
@@ -196,7 +200,7 @@ public:
      * To ensure, that a dock widget does not block resizing, the dock widget
      * reimplements minimumSizeHint() function to return a very small minimum
      * size hint. If you would like to adhere the minimumSizeHint() from the
-     * content widget, the set the minimumSizeHintMode() to
+     * content widget, then set the minimumSizeHintMode() to
      * MinimumSizeHintFromContent.
      */
     enum eMinimumSizeHintMode
@@ -360,6 +364,11 @@ public:
     void setMinimumSizeHintMode(eMinimumSizeHintMode Mode);
 
     /**
+     * Returns true if the dock widget is set as central widget of it's dock manager
+     */
+    bool isCentralWidget() const;
+
+    /**
      * Sets the dock widget icon that is shown in tabs and in toggle view
      * actions
      */
@@ -475,7 +484,7 @@ public: // reimplements QFrame -----------------------------------------------
      */
     virtual bool event(QEvent *e) override;
 
-public slots:
+public Q_SLOTS:
     /**
      * This property controls whether the dock widget is open or closed.
      * The toogleViewAction triggers this slot
@@ -536,7 +545,7 @@ public slots:
     void showNormal();
 
 
-signals:
+Q_SIGNALS:
     /**
      * This signal is emitted if the dock widget is opened or closed
      */
@@ -576,7 +585,7 @@ signals:
      * This signal is emitted when the features property changes.
      * The features parameter gives the new value of the property.
      */
-    void featuresChanged(DockWidgetFeatures features);
+    void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
 }; // class DockWidget
 }
  // namespace ads

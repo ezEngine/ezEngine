@@ -1,4 +1,168 @@
 
+
+// for some reason MSVC does not accept the template keyword here
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
+#  define CALL_FUNCTOR(functor, type) return functor.operator()<type>(std::forward<Args>(args)...)
+#else
+#  define CALL_FUNCTOR(functor, type) return functor.template operator()<type>(std::forward<Args>(args)...)
+#endif
+
+template <typename Functor, class... Args>
+auto ezVariant::DispatchTo(Functor& functor, Type::Enum type, Args&&... args)
+{
+  switch (type)
+  {
+    case Type::Bool:
+      CALL_FUNCTOR(functor, bool);
+      break;
+
+    case Type::Int8:
+      CALL_FUNCTOR(functor, ezInt8);
+      break;
+
+    case Type::UInt8:
+      CALL_FUNCTOR(functor, ezUInt8);
+      break;
+
+    case Type::Int16:
+      CALL_FUNCTOR(functor, ezInt16);
+      break;
+
+    case Type::UInt16:
+      CALL_FUNCTOR(functor, ezUInt16);
+      break;
+
+    case Type::Int32:
+      CALL_FUNCTOR(functor, ezInt32);
+      break;
+
+    case Type::UInt32:
+      CALL_FUNCTOR(functor, ezUInt32);
+      break;
+
+    case Type::Int64:
+      CALL_FUNCTOR(functor, ezInt64);
+      break;
+
+    case Type::UInt64:
+      CALL_FUNCTOR(functor, ezUInt64);
+      break;
+
+    case Type::Float:
+      CALL_FUNCTOR(functor, float);
+      break;
+
+    case Type::Double:
+      CALL_FUNCTOR(functor, double);
+      break;
+
+    case Type::Color:
+      CALL_FUNCTOR(functor, ezColor);
+      break;
+
+    case Type::ColorGamma:
+      CALL_FUNCTOR(functor, ezColorGammaUB);
+      break;
+
+    case Type::Vector2:
+      CALL_FUNCTOR(functor, ezVec2);
+      break;
+
+    case Type::Vector3:
+      CALL_FUNCTOR(functor, ezVec3);
+      break;
+
+    case Type::Vector4:
+      CALL_FUNCTOR(functor, ezVec4);
+      break;
+
+    case Type::Vector2I:
+      CALL_FUNCTOR(functor, ezVec2I32);
+      break;
+
+    case Type::Vector3I:
+      CALL_FUNCTOR(functor, ezVec3I32);
+      break;
+
+    case Type::Vector4I:
+      CALL_FUNCTOR(functor, ezVec4I32);
+      break;
+
+    case Type::Vector2U:
+      CALL_FUNCTOR(functor, ezVec2U32);
+      break;
+
+    case Type::Vector3U:
+      CALL_FUNCTOR(functor, ezVec3U32);
+      break;
+
+    case Type::Vector4U:
+      CALL_FUNCTOR(functor, ezVec4U32);
+      break;
+
+    case Type::Quaternion:
+      CALL_FUNCTOR(functor, ezQuat);
+      break;
+
+    case Type::Matrix3:
+      CALL_FUNCTOR(functor, ezMat3);
+      break;
+
+    case Type::Matrix4:
+      CALL_FUNCTOR(functor, ezMat4);
+      break;
+
+    case Type::Transform:
+      CALL_FUNCTOR(functor, ezTransform);
+      break;
+
+    case Type::String:
+      CALL_FUNCTOR(functor, ezString);
+      break;
+
+    case Type::StringView:
+      CALL_FUNCTOR(functor, ezStringView);
+      break;
+
+    case Type::DataBuffer:
+      CALL_FUNCTOR(functor, ezDataBuffer);
+      break;
+
+    case Type::Time:
+      CALL_FUNCTOR(functor, ezTime);
+      break;
+
+    case Type::Uuid:
+      CALL_FUNCTOR(functor, ezUuid);
+      break;
+
+    case Type::Angle:
+      CALL_FUNCTOR(functor, ezAngle);
+      break;
+
+    case Type::VariantArray:
+      CALL_FUNCTOR(functor, ezVariantArray);
+      break;
+
+    case Type::VariantDictionary:
+      CALL_FUNCTOR(functor, ezVariantDictionary);
+      break;
+
+    case Type::TypedObject:
+      CALL_FUNCTOR(functor, ezTypedObject);
+      break;
+
+    default:
+      EZ_REPORT_FAILURE("Could not dispatch type '{0}'", type);
+      // Intended fall through to disable warning.
+    case Type::TypedPointer:
+      CALL_FUNCTOR(functor, ezTypedPointer);
+      break;
+  }
+}
+
+#undef CALL_FUNCTOR
+
 class ezVariantHelper
 {
   friend class ezVariant;
@@ -30,6 +194,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, bool& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt32>() != 0;
     else if (value.GetType() == ezVariant::Type::String)
@@ -74,6 +240,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezInt32& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt32>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -90,6 +258,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezUInt32& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezUInt32>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -109,6 +279,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezInt64& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt64>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -125,6 +297,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezUInt64& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezUInt64>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -144,6 +318,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, float& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<float>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -163,6 +339,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, double& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<double>();
     else if (value.GetType() == ezVariant::Type::String)
@@ -179,6 +357,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezString& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     ToStringFunc toStringFunc;
     toStringFunc.m_pThis = &value;
     toStringFunc.m_pResult = &result;
@@ -187,16 +367,17 @@ class ezVariantHelper
     bSuccessful = true;
   }
 
-  static void To(const ezVariant& value, void*& result, bool& bSuccessful)
+  static void To(const ezVariant& value, ezTypedPointer& result, bool& bSuccessful)
   {
-    EZ_ASSERT_DEBUG(
-      value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer, "Only ptr can be converted to void*!");
-    result = value.GetType() == ezVariant::Type::VoidPointer ? value.Get<void*>() : value.Get<ezReflectedClass*>();
     bSuccessful = true;
+    EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::TypedPointer, "Only ptr can be converted to void*!");
+    result = value.Get<ezTypedPointer>();
   }
 
   static void To(const ezVariant& value, ezColor& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() == ezVariant::Type::ColorGamma)
       result = value.Get<ezColorGammaUB>();
     else
@@ -205,6 +386,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezColorGammaUB& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.GetType() == ezVariant::Type::Color)
       result = value.Get<ezColor>();
     else
@@ -214,6 +397,8 @@ class ezVariantHelper
   template <typename T, typename V1, typename V2>
   static void ToVec2X(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
@@ -240,6 +425,8 @@ class ezVariantHelper
   template <typename T, typename V1, typename V2>
   static void ToVec3X(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
@@ -268,6 +455,8 @@ class ezVariantHelper
   template <typename T, typename V1, typename V2>
   static void ToVec4X(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    bSuccessful = true;
+
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();

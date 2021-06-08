@@ -80,6 +80,9 @@ public:
       Clear();
     }
 
+    /// \brief Checks whether this unsubscriber has a valid subscription.
+    bool IsSubscribed() const { return m_SubscriptionID != 0; }
+
     /// \brief Resets the unsubscriber. Use when the target ezEvent may have been destroyed and automatic unsubscription cannot be executed
     /// anymore.
     void Clear()
@@ -98,7 +101,7 @@ public:
   /// \brief Implementation specific constants.
   enum
   {
-    /// If the uiMaxRecursionDepth parameter to Broadcast is supported in this implementation or not.
+    /// Whether the uiMaxRecursionDepth parameter to Broadcast() is supported in this implementation or not.
     RecursionDepthSupported = (EventType == ezEventType::Default || ezConversionTest<MutexType, ezNoMutex>::sameType == 1) ? 1 : 0,
 
     /// Default value for the maximum recursion depth of Broadcast.
@@ -141,7 +144,7 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 
 private:
-  /// \brief Used to detect recursive broadcasts and then throw asserts at you.
+  // Used to detect recursive broadcasts and then throw asserts at you.
   ezUInt8 m_uiRecursionDepth = 0;
   mutable ezEventSubscriptionID m_NextSubscriptionID = 0;
 
@@ -149,7 +152,6 @@ private:
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const void* m_pSelf = nullptr;
-  bool m_bCurrentlyBroadcasting = false;
 #endif
 
   struct HandlerData
@@ -162,9 +164,13 @@ private:
   mutable ezDynamicArray<HandlerData> m_EventHandlers;
 };
 
+/// \brief Can be used when ezEvent is used without any additional data
+struct ezNoEventData
+{
+};
+
 /// \brief \see ezEventBase
-template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper,
-  ezEventType EventType = ezEventType::Default>
+template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper, ezEventType EventType = ezEventType::Default>
 class ezEvent : public ezEventBase<EventData, MutexType, EventType>
 {
 public:

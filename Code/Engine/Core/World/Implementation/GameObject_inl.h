@@ -15,7 +15,7 @@ EZ_ALWAYS_INLINE const ezGameObject* ezGameObject::ConstChildIterator::operator-
   return m_pObject;
 }
 
-EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject *() const
+EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject*() const
 {
   return m_pObject;
 }
@@ -60,8 +60,6 @@ EZ_ALWAYS_INLINE ezGameObject::ezGameObject(const ezGameObject& other)
 {
   *this = other;
 }
-
-EZ_ALWAYS_INLINE ezGameObject::~ezGameObject() {}
 
 EZ_ALWAYS_INLINE ezGameObjectHandle ezGameObject::GetHandle() const
 {
@@ -462,7 +460,7 @@ EZ_ALWAYS_INLINE bool ezGameObject::TryGetComponentOfBaseType(const T*& out_pCom
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components)
+void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<T*>& out_components)
 {
   out_components.Clear();
 
@@ -477,7 +475,7 @@ void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_componen
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<const T*, 8>& out_components) const
+void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<const T*>& out_components) const
 {
   out_components.Clear();
 
@@ -499,6 +497,11 @@ EZ_ALWAYS_INLINE ezArrayPtr<ezComponent* const> ezGameObject::GetComponents()
 EZ_ALWAYS_INLINE ezArrayPtr<const ezComponent* const> ezGameObject::GetComponents() const
 {
   return ezMakeArrayPtr(const_cast<const ezComponent* const*>(m_Components.GetData()), m_Components.GetCount());
+}
+
+EZ_ALWAYS_INLINE ezUInt16 ezGameObject::GetComponentVersion() const
+{
+  return m_Components.GetUserData<ComponentUserData>().m_uiVersion;
 }
 
 EZ_ALWAYS_INLINE ezTagSet& ezGameObject::GetTags()

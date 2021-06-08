@@ -6,8 +6,7 @@
 #include <RendererCore/Shader/Types.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 
-ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0, sizeof(float) * 1, sizeof(float) * 2, sizeof(float) * 3,
-  sizeof(float) * 4, sizeof(int) * 1, sizeof(int) * 2, sizeof(int) * 3, sizeof(int) * 4, sizeof(ezUInt32) * 1, sizeof(ezUInt32) * 2,
+ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0, sizeof(float) * 1, sizeof(float) * 2, sizeof(float) * 3, sizeof(float) * 4, sizeof(int) * 1, sizeof(int) * 2, sizeof(int) * 3, sizeof(int) * 4, sizeof(ezUInt32) * 1, sizeof(ezUInt32) * 2,
   sizeof(ezUInt32) * 3, sizeof(ezUInt32) * 4, sizeof(ezShaderMat3), sizeof(ezMat4), sizeof(ezShaderTransform), sizeof(ezShaderBool)};
 
 void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) const
@@ -156,12 +155,7 @@ ezShaderResourceBinding::~ezShaderResourceBinding() {}
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 
-ezShaderStageBinary::ezShaderStageBinary()
-{
-  m_uiSourceHash = 0;
-  m_Stage = ezGALShaderStage::ENUM_COUNT;
-  m_pGALByteCode = nullptr;
-}
+ezShaderStageBinary::ezShaderStageBinary() = default;
 
 ezShaderStageBinary::~ezShaderStageBinary()
 {
@@ -221,9 +215,11 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
 
     if (r.m_Type == ezShaderResourceBinding::ConstantBuffer)
     {
-      r.m_pLayout->Write(stream);
+      EZ_SUCCEED_OR_RETURN(r.m_pLayout->Write(stream));
     }
   }
+
+  stream << m_bWasCompiledWithDebug;
 
   return EZ_SUCCESS;
 }
@@ -279,11 +275,16 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
       if (r.m_Type == ezShaderResourceBinding::ConstantBuffer && uiVersion >= ezShaderStageBinary::Version4)
       {
         auto pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
-        pLayout->Read(stream);
+        EZ_SUCCEED_OR_RETURN(pLayout->Read(stream));
 
         r.m_pLayout = pLayout;
       }
     }
+  }
+
+  if (uiVersion >= ezShaderStageBinary::Version5)
+  {
+    stream >> m_bWasCompiledWithDebug;
   }
 
   return EZ_SUCCESS;

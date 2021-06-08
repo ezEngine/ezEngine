@@ -10,22 +10,16 @@ using namespace ezTokenParseUtils;
 
 const char* ezMathExpression::s_szValidVariableCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
 
-ezMathExpression::ezMathExpression(ezLogInterface* pLog)
-  : m_pLog(pLog ? pLog : ezLog::GetThreadLocalLogSystem())
-  , m_bIsValid(false)
-{
-}
+ezMathExpression::ezMathExpression() = default;
 
-
-ezMathExpression::ezMathExpression(const char* szExpressionString, ezLogInterface* pLog)
-  : m_pLog(pLog)
+ezMathExpression::ezMathExpression(const char* szExpressionString)
 {
   Reset(szExpressionString);
 }
 
 void ezMathExpression::Reset(const char* szExpressionString)
 {
-  m_OriginalExpression = szExpressionString;
+  m_OriginalExpression.Assign(szExpressionString);
   m_InstructionStream.Clear();
   m_Constants.Clear();
   m_bIsValid = false;
@@ -34,25 +28,23 @@ void ezMathExpression::Reset(const char* szExpressionString)
     return;
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezMakeArrayPtr<ezUInt8>(const_cast<ezUInt8*>(reinterpret_cast<const ezUInt8*>(m_OriginalExpression.GetData())),
-                       m_OriginalExpression.GetElementCount()),
-    m_pLog);
+  tokenizer.Tokenize(ezMakeArrayPtr<ezUInt8>(const_cast<ezUInt8*>(reinterpret_cast<const ezUInt8*>(m_OriginalExpression.GetData())), m_OriginalExpression.GetString().GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
   ezUInt32 readTokens = 0;
   TokenStream tokenStream;
-  tokenizer.GetNextLine(readTokens, tokenStream);
+  tokenizer.GetNextLine(readTokens, tokenStream).IgnoreResult();
 
   ezUInt32 curToken = 0;
   m_bIsValid = ParseExpression(tokenStream, curToken).Succeeded();
   if (curToken != readTokens)
   {
-    ezLog::Error(m_pLog, "Did not parse the entire math expression. This can happen if the last recognized token is followed by an unknown token.");
+    ezLog::Error("Did not parse the entire math expression. This can happen if the last recognized token is followed by an unknown token.");
     m_bIsValid = false;
   }
 
   tokenStream.Clear();
   if (tokenizer.GetNextLine(readTokens, tokenStream).Succeeded() && !tokenStream.IsEmpty())
-    ezLog::Warning(m_pLog, "Only the first line of a math expression is parsed, all following lines are ignored!");
+    ezLog::Warning("Only the first line of a math expression is parsed, all following lines are ignored!");
 }
 
 double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>& variableResolveFunction) const
@@ -61,7 +53,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 
   if (!IsValid() || m_InstructionStream.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Can't evaluate invalid math expression '{0}'", m_OriginalExpression);
+    ezLog::Error("Can't evaluate invalid math expression '{0}'", m_OriginalExpression);
     return errorOutput;
   }
 
@@ -78,10 +70,11 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       case InstructionType::Subtract:
       case InstructionType::Multiply:
       case InstructionType::Divide:
+      case InstructionType::Modulo:
       {
         if (evaluationStack.GetCount() < 2)
         {
-          ezLog::Error(m_pLog, "Expected at least two operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          ezLog::Error("Expected at least two operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
           return errorOutput;
         }
 
@@ -104,6 +97,9 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
           case InstructionType::Divide:
             evaluationStack.PeekBack() = operand0 / operand1;
             break;
+          case InstructionType::Modulo:
+            evaluationStack.PeekBack() = ezMath::Mod(operand0, operand1);
+            break;
 
           default:
             break;
@@ -116,7 +112,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       {
         if (evaluationStack.GetCount() < 1)
         {
-          ezLog::Error(m_pLog, "Expected at least operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          ezLog::Error("Expected at least one operand on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
           return errorOutput;
         }
 
@@ -124,11 +120,34 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       }
       break;
 
+      case InstructionType::Absolute:
+      {
+        if (evaluationStack.GetCount() < 1)
+        {
+          ezLog::Error("Expected at least one operand on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          return errorOutput;
+        }
+
+        evaluationStack.PeekBack() = ezMath::Abs(evaluationStack.PeekBack());
+      }
+      break;
+
+      case InstructionType::Sqrt:
+      {
+        if (evaluationStack.GetCount() < 1)
+        {
+          ezLog::Error("Expected at least one operand on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          return errorOutput;
+        }
+
+        evaluationStack.PeekBack() = ezMath::Sqrt(evaluationStack.PeekBack());
+      }
+      break;
+
       // Push Constant.
       case InstructionType::PushConstant:
       {
-        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 1,
-          "ezMathExpression::InstructionType::PushConstant should always be followed by another integer in the instruction stream.");
+        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 1, "ezMathExpression::InstructionType::PushConstant should always be followed by another integer in the instruction stream.");
 
         ++instructionIdx;
         ezUInt32 constantIndex = m_InstructionStream[instructionIdx];
@@ -139,8 +158,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       // Push Variable.
       case InstructionType::PushVariable:
       {
-        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 2,
-          "ezMathExpression::InstructionType::PushVariable should always be followed by two more integers in the instruction stream.");
+        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 2, "ezMathExpression::InstructionType::PushVariable should always be followed by two more integers in the instruction stream.");
 
         ezUInt32 variableSubstringStart = m_InstructionStream[instructionIdx + 1];
         ezUInt32 variableSubstringEnd = m_InstructionStream[instructionIdx + 2];
@@ -164,7 +182,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
   }
   else
   {
-    ezLog::Error(m_pLog, "Evaluation of '{0}' yielded more than one value on the evaluation stack.", m_OriginalExpression);
+    ezLog::Error("Evaluation of '{0}' yielded more than one value on the evaluation stack.", m_OriginalExpression);
     return errorOutput;
   }
 }
@@ -177,9 +195,12 @@ namespace
     1, // Subtract
     2, // Multiply
     2, // Divide
+    2, // Modulo
 
     // Unary
     2, // Negate
+    2, // Absolute
+    2, // Sqrt
   };
 
   // Accept/parses binary operator.
@@ -209,6 +230,9 @@ namespace
         break;
       case '/':
         outOperator = ezMathExpression::InstructionType::Divide;
+        break;
+      case '%':
+        outOperator = ezMathExpression::InstructionType::Modulo;
         break;
 
       default:
@@ -257,6 +281,24 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
       m_InstructionStream.PushBack(InstructionType::Negate);
       return EZ_SUCCESS;
     }
+
+    if (Accept(tokens, uiCurToken, "abs"))
+    {
+      if (ParseExpression(tokens, uiCurToken, s_operatorPrecedence[InstructionType::Absolute]).Failed())
+        return EZ_FAILURE;
+
+      m_InstructionStream.PushBack(InstructionType::Absolute);
+      return EZ_SUCCESS;
+    }
+
+    if (Accept(tokens, uiCurToken, "sqrt"))
+    {
+      if (ParseExpression(tokens, uiCurToken, s_operatorPrecedence[InstructionType::Sqrt]).Failed())
+        return EZ_FAILURE;
+
+      m_InstructionStream.PushBack(InstructionType::Sqrt);
+      return EZ_SUCCESS;
+    }
   }
 
   // Consume constant or variable.
@@ -266,7 +308,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
     const ezString sVal = tokens[uiValueToken]->m_DataView;
 
     double fConstant = 0;
-    ezConversionUtils::StringToFloat(sVal, fConstant);
+    ezConversionUtils::StringToFloat(sVal, fConstant).IgnoreResult();
 
     m_InstructionStream.PushBack(InstructionType::PushConstant);
     m_InstructionStream.PushBack(m_Constants.GetCount());
@@ -289,7 +331,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
       }
       if (*validChar == '\0') // Walked to the end, so the varChar was not any of the valid chars!
       {
-        ezLog::Error(m_pLog, "Invalid character {0} in variable name: {1}", varChar, sVal);
+        ezLog::Error("Invalid character {0} in variable name: {1}", varChar, sVal);
         return EZ_FAILURE;
       }
     }
@@ -304,19 +346,17 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
   else if (Accept(tokens, uiCurToken, "("))
   {
     // A new expression!
-    ParseExpression(tokens, uiCurToken);
+    EZ_SUCCEED_OR_RETURN(ParseExpression(tokens, uiCurToken));
 
     if (!Accept(tokens, uiCurToken, ")"))
     {
       if (uiCurToken >= tokens.GetCount())
       {
-        ezLog::Error(
-          m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
+        ezLog::Error("Syntax error, expected ')' after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
         return EZ_FAILURE;
       }
 
-      ezLog::Error(
-        m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
+      ezLog::Error("Syntax error, expected ')' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
       return EZ_FAILURE;
     }
     else
@@ -325,13 +365,11 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
   if (uiCurToken >= tokens.GetCount())
   {
-    ezLog::Error(m_pLog, "Syntax error, unexpected end of expression after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView,
-      tokens.PeekBack()->m_uiColumn);
+    ezLog::Error("Syntax error, unexpected end of expression after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
     return EZ_FAILURE;
   }
 
-  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView,
-    tokens[uiCurToken]->m_uiColumn);
+  ezLog::Error("Syntax error, expected identifier, number or '(' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
   return EZ_FAILURE;
 }
 

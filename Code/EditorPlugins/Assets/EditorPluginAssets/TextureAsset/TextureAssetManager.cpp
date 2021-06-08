@@ -3,7 +3,6 @@
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 //////////////////////////////////////////////////////////////////////////

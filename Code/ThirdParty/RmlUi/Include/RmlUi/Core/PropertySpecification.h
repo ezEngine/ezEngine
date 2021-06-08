@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef RMLUICOREPROPERTYSPECIFICATION_H
-#define RMLUICOREPROPERTYSPECIFICATION_H
+#ifndef RMLUI_CORE_PROPERTYSPECIFICATION_H
+#define RMLUI_CORE_PROPERTYSPECIFICATION_H
 
 #include "Header.h"
 #include "Types.h"
@@ -35,7 +35,6 @@
 #include "ID.h"
 
 namespace Rml {
-namespace Core {
 
 class StyleSheetSpecification;
 class PropertyDefinition;
@@ -122,8 +121,8 @@ public:
 	String PropertiesToString(const PropertyDictionary& dictionary) const;
 
 private:
-	using Properties = std::vector< UniquePtr<PropertyDefinition> >;
-	using Shorthands = std::vector< UniquePtr<ShorthandDefinition> >;
+	using Properties = Vector< UniquePtr<PropertyDefinition> >;
+	using Shorthands = Vector< UniquePtr<ShorthandDefinition> >;
 
 	Properties properties;
 	Shorthands shorthands;
@@ -137,10 +136,8 @@ private:
 
 	bool ParsePropertyValues(StringList& values_list, const String& values, bool split_values) const;
 
-	friend class StyleSheetSpecification;
+	friend class Rml::StyleSheetSpecification;
 };
 
-}
-}
-
+} // namespace Rml
 #endif

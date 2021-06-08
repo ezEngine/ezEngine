@@ -61,8 +61,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
-    EZ_ASSERT_DEV(
-      m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic {0} is already used by a previous stream", Semantic);
+    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic {0} is already used by a previous stream", Semantic);
   }
 
   ezVertexStreamInfo si;
@@ -91,7 +90,7 @@ void ezMeshBufferResourceDescriptor::AddCommonStreams()
   AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::Default));
 }
 
-void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiNumPrimitives)
+void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiNumPrimitives, bool bZeroFill /*= false*/)
 {
   EZ_ASSERT_DEV(!m_VertexDeclaration.m_VertexStreams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
 
@@ -99,7 +98,14 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezG
   m_uiVertexCount = uiNumVertices;
   const ezUInt32 uiVertexStreamSize = m_uiVertexSize * uiNumVertices;
 
-  m_VertexStreamData.SetCountUninitialized(uiVertexStreamSize);
+  if (bZeroFill)
+  {
+    m_VertexStreamData.SetCount(uiVertexStreamSize);
+  }
+  else
+  {
+    m_VertexStreamData.SetCountUninitialized(uiVertexStreamSize);
+  }
 
   if (uiNumPrimitives > 0)
   {
@@ -124,7 +130,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
   ezLogBlock _("Allocate Streams From Geometry");
 
   // Index Buffer Generation
-  ezDynamicArray<ezUInt16> Indices;
+  ezDynamicArray<ezUInt32> Indices;
 
   if (topology == ezGALPrimitiveTopology::Points)
   {
@@ -195,9 +201,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       {
         for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
         {
-          if (ezMeshBufferUtils::EncodeTangent(
-                geom.GetVertices()[v].m_vTangent, geom.GetVertices()[v].m_fBiTangentSign, GetVertexData(s, v), si.m_Format)
-                .Failed())
+          if (ezMeshBufferUtils::EncodeTangent(geom.GetVertices()[v].m_vTangent, geom.GetVertices()[v].m_fBiTangentSign, GetVertexData(s, v), si.m_Format).Failed())
           {
             ezLog::Error("Tangent stream with format '{0}' is not supported.", (int)si.m_Format);
             break;
@@ -401,6 +405,81 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
   return bounds;
 }
 
+ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
+{
+  if (m_Topology != ezGALPrimitiveTopology::Triangles)
+    return EZ_FAILURE; // normals not needed
+
+  const ezUInt32 uiVertexSize = m_uiVertexSize;
+  const ezUInt8* pPositions = nullptr;
+  ezUInt8* pNormals = nullptr;
+  ezGALResourceFormat::Enum normalsFormat;
+
+  for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
+  {
+    if (m_VertexDeclaration.m_VertexStreams[i].m_Semantic == ezGALVertexAttributeSemantic::Position && m_VertexDeclaration.m_VertexStreams[i].m_Format == ezGALResourceFormat::XYZFloat)
+    {
+      pPositions = GetVertexData(i, 0).GetPtr();
+    }
+
+    if (m_VertexDeclaration.m_VertexStreams[i].m_Semantic == ezGALVertexAttributeSemantic::Normal)
+    {
+      normalsFormat = m_VertexDeclaration.m_VertexStreams[i].m_Format;
+      pNormals = GetVertexData(i, 0).GetPtr();
+    }
+  }
+
+  if (pPositions == nullptr || pNormals == nullptr)
+    return EZ_FAILURE; // there are no normals that could be recomputed
+
+  ezDynamicArray<ezVec3> newNormals;
+  newNormals.SetCountUninitialized(m_uiVertexCount);
+
+  for (auto& n : newNormals)
+  {
+    n.SetZero();
+  }
+
+  ezResult res = EZ_SUCCESS;
+
+  const ezUInt16* pIndices16 = reinterpret_cast<const ezUInt16*>(m_IndexBufferData.GetData());
+  const ezUInt32* pIndices32 = reinterpret_cast<const ezUInt32*>(m_IndexBufferData.GetData());
+  const bool bUseIndices32 = Uses32BitIndices();
+
+  // Compute unnormalized triangle normals and add them to all vertices.
+  // This way large triangles have an higher influence on the vertex normal.
+  for (ezUInt32 triIdx = 0; triIdx < GetPrimitiveCount(); ++triIdx)
+  {
+    const ezUInt32 v0 = bUseIndices32 ? pIndices32[triIdx * 3 + 0] : pIndices16[triIdx * 3 + 0];
+    const ezUInt32 v1 = bUseIndices32 ? pIndices32[triIdx * 3 + 1] : pIndices16[triIdx * 3 + 1];
+    const ezUInt32 v2 = bUseIndices32 ? pIndices32[triIdx * 3 + 2] : pIndices16[triIdx * 3 + 2];
+
+    const ezVec3 p0 = *reinterpret_cast<const ezVec3*>(pPositions + ezMath::SafeMultiply64(uiVertexSize, v0));
+    const ezVec3 p1 = *reinterpret_cast<const ezVec3*>(pPositions + ezMath::SafeMultiply64(uiVertexSize, v1));
+    const ezVec3 p2 = *reinterpret_cast<const ezVec3*>(pPositions + ezMath::SafeMultiply64(uiVertexSize, v2));
+
+    const ezVec3 d01 = p1 - p0;
+    const ezVec3 d02 = p2 - p0;
+
+    const ezVec3 triNormal = d01.CrossRH(d02);
+    newNormals[v0] += triNormal;
+    newNormals[v1] += triNormal;
+    newNormals[v2] += triNormal;
+  }
+
+  for (ezUInt32 i = 0; i < newNormals.GetCount(); ++i)
+  {
+    // normalize the new normal
+    if (newNormals[i].NormalizeIfNotZero(ezVec3::UnitXAxis()).Failed())
+      res = EZ_FAILURE;
+
+    // then encode it in the target format precision and write it back to the buffer
+    EZ_SUCCEED_OR_RETURN(ezMeshBufferUtils::EncodeNormal(newNormals[i], ezByteArrayPtr(pNormals + ezMath::SafeMultiply64(uiVertexSize, i), sizeof(ezVec3)), normalsFormat));
+  }
+
+  return res;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -480,8 +559,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
 
   if (descriptor.HasIndexBuffer())
   {
-    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort,
-      m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
+    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
 
     sName.Format("{0} Index Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);

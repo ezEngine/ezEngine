@@ -36,7 +36,7 @@ namespace ezCompressionUtils
 
   static ezResult DecompressZStd(ezArrayPtr<const ezUInt8> pCompressedData, ezDynamicArray<ezUInt8>& out_Data)
   {
-    size_t uiSize = ZSTD_findDecompressedSize(pCompressedData.GetPtr(), pCompressedData.GetCount());
+    ezUInt64 uiSize = ZSTD_findDecompressedSize(pCompressedData.GetPtr(), pCompressedData.GetCount());
 
     if (uiSize == ZSTD_CONTENTSIZE_ERROR)
     {
@@ -51,13 +51,13 @@ namespace ezCompressionUtils
 
     if (uiSize > ezMath::MaxValue<ezUInt32>())
     {
-      ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", static_cast<ezUInt64>(uiSize));
+      ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", uiSize);
       return EZ_FAILURE;
     }
 
     out_Data.SetCountUninitialized(static_cast<ezUInt32>(uiSize));
 
-    size_t const uiActualSize = ZSTD_decompress(out_Data.GetData(), uiSize, pCompressedData.GetPtr(), pCompressedData.GetCount());
+    size_t const uiActualSize = ZSTD_decompress(out_Data.GetData(), ezMath::SafeConvertToSizeT(uiSize), pCompressedData.GetPtr(), pCompressedData.GetCount());
 
     if (uiActualSize != uiSize)
     {

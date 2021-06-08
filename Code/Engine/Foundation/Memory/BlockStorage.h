@@ -22,7 +22,7 @@ public:
     const T& operator*() const;
     const T* operator->() const;
 
-    operator const T *() const;
+    operator const T*() const;
 
     void Next();
     bool IsValid() const;
@@ -57,6 +57,8 @@ public:
 
   ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocatorBase* pAllocator);
   ~ezBlockStorage();
+
+  void Clear();
 
   T* Create();
   void Delete(T* pObject);
