@@ -15,7 +15,6 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
   EditorFramework
   GameEngine
-  KrautPlugin
   EditorPluginAssets
   TypeScriptPlugin
 )
