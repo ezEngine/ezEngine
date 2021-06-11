@@ -4,7 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       push-to-dev:
-        description: 'Push to dev'
+        description: 'Push to repo'
+        required: true
+        default: 'true'
+      full-binaries-artifact:
+        description: 'Create full binaries artifact'
+        required: true
+        default: 'false'
+      new-binaries-artifact:
+        description: 'Create new binaries artifact'
+        required: true
+        default: 'false'
+      test-build:
+        description: 'Minimal build for testing'
         required: true
         default: 'false'
 
@@ -13,11 +25,6 @@ jobs:
     runs-on: windows-2019
 
     steps:
-      - name: Push to dev
-        if: github.event.inputs.push-to-dev == 'true'
-        run: |
-          echo "Push to dev enabled"
-
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
@@ -34,13 +41,15 @@ jobs:
       # These commands should NOT use 'rebuild', as that wastes a lot of time
       # But MSVC on GitHub is currently broken and doesn't build without it at all
 
-      #- name: Build Way Too Much
-      #  run:  msbuild build/solution.sln /p:Configuration=Release
+      - name: Build Way Too Much
+        if: github.event.inputs.test-build == 'false'
+        run:  msbuild build/solution.sln /p:Configuration=Release
 
       #- name: Build ShaderCompiler
       #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\ShaderCompiler:rebuild
 #
       - name: Build ArchiveTool
+        if: github.event.inputs.test-build == 'true'
         run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\ArchiveTool:rebuild
 
       #- name: Build Fileserve
@@ -65,10 +74,12 @@ jobs:
       #    path: repo/Output/Bin/
 
       - name: Artifact - Full Binaries
+        if: github.event.inputs.full-binaries-artifact == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: full-binaries
           path: repo\Output\Bin\WinVs2019Release64
+          retention-days: 3
 
       - name: Checkout Precompiled Tools Repository
         uses: actions/checkout@v2
@@ -83,16 +94,20 @@ jobs:
           xcopy repo\Output\Bin\WinVs2019Release64 _tools /s /u /y
 
       - name: Artifact - New Precompiled Tools
+        if: github.event.inputs.new-binaries-artifact == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: new-precompiled-tools
           path: _tools
+          retention-days: 3
 
       - name: Commit
         run: |
           cd _tools
+          git config --global user.email "ezEngineProject@gmail.com"
+          git config --global user.name "ezEngine Automation"
           git add .
-          git commit --amend -m "Updated Precompiled Tools"
+          git commit -m "Updated Precompiled Tools"
 
       - name: Push changes
         if: github.event.inputs.push-to-dev == 'true'
@@ -103,3 +118,7 @@ jobs:
           directory: _tools
           repository: ezEngine/precompiled-tools
           force: true
+
+      # in theory we could now also update the submodule in the ezEngine repository 
+      # and do an automated commit there as well
+      # however, maybe it's better to have some user validation there
