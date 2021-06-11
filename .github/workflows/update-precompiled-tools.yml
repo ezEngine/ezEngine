@@ -1,0 +1,105 @@
+name: Update Precompiled Tools
+
+on: 
+  workflow_dispatch:
+    inputs:
+      push-to-dev:
+        description: 'Push to dev'
+        required: true
+        default: 'false'
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+      - name: Push to dev
+        if: github.event.inputs.push-to-dev == 'true'
+        run: |
+          echo "Push to dev enabled"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          path: repo
+          submodules: 'false'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Run CMake
+        run: |
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=OFF -DEZ_BUILD_SAMPLES:BOOL=OFF -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=OFF -DEZ_BUILD_RMLUI:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
+
+      # These commands should NOT use 'rebuild', as that wastes a lot of time
+      # But MSVC on GitHub is currently broken and doesn't build without it at all
+
+      #- name: Build Way Too Much
+      #  run:  msbuild build/solution.sln /p:Configuration=Release
+
+      #- name: Build ShaderCompiler
+      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\ShaderCompiler:rebuild
+#
+      - name: Build ArchiveTool
+        run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\ArchiveTool:rebuild
+
+      #- name: Build Fileserve
+      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\Fileserve:rebuild
+
+      #- name: Build GdbProxy
+      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\GdbProxy:rebuild
+#
+      #- name: Build Inspector
+      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\Inspector:rebuild
+#
+      #- name: Build MiniDumpTool
+      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\MiniDumpTool:rebuild
+#
+      #- name: Build TexConv
+      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\TexConv:rebuild
+      
+      #- name: Upload Artifact
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: precompiled-tools
+      #    path: repo/Output/Bin/
+
+      - name: Artifact - Full Binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: full-binaries
+          path: repo\Output\Bin\WinVs2019Release64
+
+      - name: Checkout Precompiled Tools Repository
+        uses: actions/checkout@v2
+        with:
+          repository: ezEngine/precompiled-tools
+          path: _tools
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Copy Precompiled Binaries
+        run: |
+          xcopy repo\Output\Bin\WinVs2019Release64 _tools /s /u /y
+
+      - name: Artifact - New Precompiled Tools
+        uses: actions/upload-artifact@v2
+        with:
+          name: new-precompiled-tools
+          path: _tools
+
+      - name: Commit
+        run: |
+          cd _tools
+          git add .
+          git commit --amend -m "Updated Precompiled Tools"
+
+      - name: Push changes
+        if: github.event.inputs.push-to-dev == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.API_TOKEN_GITHUB }}
+          branch: main
+          directory: _tools
+          repository: ezEngine/precompiled-tools
+          force: true
