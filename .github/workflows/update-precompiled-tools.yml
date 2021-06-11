@@ -85,6 +85,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: ezEngine/precompiled-tools
+          ref: main
           path: _tools
           fetch-depth: 1
           persist-credentials: false
