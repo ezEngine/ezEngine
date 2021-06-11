@@ -1,0 +1,83 @@
+name: Build Release Package
+
+on: 
+  workflow_dispatch:
+    inputs:
+      src-branch:
+        description: 'Source Branch'
+        required: true
+        default: 'dev'
+      test-build:
+        description: 'Minimal build for testing'
+        required: true
+        default: 'true'
+      full-binaries-artifact:
+        description: 'Create full binaries artifact'
+        required: true
+        default: 'false'
+      release-artifact:
+        description: 'Create release artifact'
+        required: true
+        default: 'true'
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          path: repo
+          ref: ${{ github.event.inputs.src-branch }}
+          submodules: 'recursive'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Run CMake
+        run: |
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=ON -DEZ_BUILD_SAMPLES:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=ON -DEZ_BUILD_RMLUI:BOOL=ON -DEZ_SOLUTION_NAME:string="solution"
+
+      - name: Build Full Solution
+        if: github.event.inputs.test-build == 'false'
+        run:  msbuild build/solution.sln /p:Configuration=Release
+
+      - name: Build ArchiveTool
+        if: github.event.inputs.test-build == 'true'
+        run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\ArchiveTool:rebuild
+
+      #- name: Build Inspector
+      #  if: github.event.inputs.test-build == 'true'
+      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\Inspector:rebuild
+      
+      - name: Artifact - Full Binaries
+        if: github.event.inputs.full-binaries-artifact == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: full-binaries
+          path: repo\Output\Bin\WinVs2019Release64
+          retention-days: 3
+      
+      - name: Generate Package
+        run: |
+          mkdir _package
+
+          mkdir _package\Output
+          mkdir _package\Output\Bin
+          mkdir _package\Output\Bin\WinVs2019Release64
+
+          del repo\Output\Bin\*.pdb /s
+          xcopy repo\Output\Bin\WinVs2019Release64 _package\Output\Bin\WinVs2019Release64 /s
+
+          mkdir _package\Data
+          xcopy repo\Data _package\Data /s
+          rd _package\Data\UnitTests /s /q
+          rd _package\Data\Tools\Precompiled /s /q
+
+      - name: Artifact - Release Package
+        if: github.event.inputs.release-artifact == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ez-release-package
+          path: _package
+          retention-days: 3

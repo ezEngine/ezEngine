@@ -66,12 +66,6 @@ jobs:
 #
       #- name: Build TexConv
       #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\TexConv:rebuild
-      
-      #- name: Upload Artifact
-      #  uses: actions/upload-artifact@v2
-      #  with:
-      #    name: precompiled-tools
-      #    path: repo/Output/Bin/
 
       - name: Artifact - Full Binaries
         if: github.event.inputs.full-binaries-artifact == 'true'
