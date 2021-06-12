@@ -7,6 +7,7 @@
 #include <memory>
 
 class ezQtTreeSearchFilterModel;
+class ezSelectionManager;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeView : public QTreeView
 {
@@ -14,10 +15,10 @@ class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeView : public QTreeView
 
 public:
   ezQtDocumentTreeView(QWidget* pParent);
-  ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
+  ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection = nullptr);
   ~ezQtDocumentTreeView();
 
-  void Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
+  void Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection = nullptr);
 
   void EnsureLastSelectedItemVisible();
 
@@ -38,6 +39,7 @@ private:
 private:
   std::unique_ptr<ezQtDocumentTreeModel> m_pModel;
   std::unique_ptr<ezQtTreeSearchFilterModel> m_pFilterModel;
+  ezSelectionManager* m_pSelectionManager = nullptr;
   ezDocument* m_pDocument = nullptr;
   bool m_bBlockSelectionSignal = false;
   bool m_bAllowDeleteObjects = false;

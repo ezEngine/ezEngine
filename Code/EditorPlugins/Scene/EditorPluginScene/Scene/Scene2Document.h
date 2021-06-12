@@ -22,7 +22,13 @@ class ezScene2Document : public ezSceneDocument
 public:
   ezScene2Document(const char* szDocumentPath);
   ~ezScene2Document();
+  ezSelectionManager* GetLayerSelectionManager() const { return &m_LayerSelection; }
+
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
 public:
   mutable ezEvent<const ezScene2LayerEvent&> m_LayerEvents;
+
+private:
+  mutable ezSelectionManager m_LayerSelection;
 };

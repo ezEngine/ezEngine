@@ -8,16 +8,22 @@ ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
 {
 }
 
-ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel)
+ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
   : QTreeView(pParent)
 {
-  Initialize(pDocument, std::move(pModel));
+  Initialize(pDocument, std::move(pModel), pSelection);
 }
 
-void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel)
+void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
 {
   m_pDocument = pDocument;
   m_pModel = std::move(pModel);
+  m_pSelectionManager = pSelection;
+  if (m_pSelectionManager == nullptr)
+  {
+    // If no selection manager is provided, fall back to the default selection.
+    m_pSelectionManager = m_pDocument->GetSelectionManager();
+  }
 
   m_pFilterModel.reset(new ezQtTreeSearchFilterModel(this));
   m_pFilterModel->setSourceModel(m_pModel.get());
@@ -36,12 +42,12 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
   EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
               SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr,
     "signal/slot connection failed");
-  pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
+  m_pSelectionManager->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
 }
 
 ezQtDocumentTreeView::~ezQtDocumentTreeView()
 {
-  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
+  m_pSelectionManager->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
 }
 
 void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected)
@@ -65,7 +71,7 @@ void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& s
   }
 
   // TODO const cast
-  ((ezSelectionManager*)m_pDocument->GetSelectionManager())->SetSelection(sel);
+  ((ezSelectionManager*)m_pSelectionManager)->SetSelection(sel);
 }
 
 void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& e)
@@ -88,7 +94,7 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
       m_bBlockSelectionSignal = true;
       QItemSelection selection;
 
-      for (const ezDocumentObject* pObject : m_pDocument->GetSelectionManager()->GetSelection())
+      for (const ezDocumentObject* pObject : m_pSelectionManager->GetSelection())
       {
         auto index = m_pModel->ComputeModelIndex(pObject);
         index = m_pFilterModel->mapFromSource(index);
@@ -105,10 +111,10 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
 
 void ezQtDocumentTreeView::EnsureLastSelectedItemVisible()
 {
-  if (m_pDocument->GetSelectionManager()->GetSelection().IsEmpty())
+  if (m_pSelectionManager->GetSelection().IsEmpty())
     return;
 
-  const ezDocumentObject* pObject = m_pDocument->GetSelectionManager()->GetSelection().PeekBack();
+  const ezDocumentObject* pObject = m_pSelectionManager->GetSelection().PeekBack();
 
   auto index = m_pModel->ComputeModelIndex(pObject);
   index = m_pFilterModel->mapFromSource(index);

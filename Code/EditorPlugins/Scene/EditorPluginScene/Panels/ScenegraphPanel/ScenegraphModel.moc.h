@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
@@ -12,7 +12,7 @@ class ezQtScenegraphModel : public ezQtGameObjectModel
   Q_OBJECT
 
 public:
-  ezQtScenegraphModel(ezSceneDocument* pDocument);
+  ezQtScenegraphModel(ezSceneDocument* pDocument, const ezUuid& root = ezUuid());
   ~ezQtScenegraphModel();
 
 private:

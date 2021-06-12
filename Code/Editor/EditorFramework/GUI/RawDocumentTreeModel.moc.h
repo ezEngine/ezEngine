@@ -82,7 +82,7 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeModel : public QAbstractItemModel
 {
 public:
-  ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree);
+  ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezUuid& root = ezUuid());
   ~ezQtDocumentTreeModel();
 
   const ezDocumentObjectManager* GetDocumentTree() const { return m_pDocumentTree; }
@@ -120,11 +120,14 @@ protected:
 private:
   QModelIndex ComputeParent(const ezDocumentObject* pObject) const;
   ezInt32 ComputeIndex(const ezDocumentObject* pObject) const;
+  const ezDocumentObject* GetRoot() const;
+  bool IsUnderRoot(const ezDocumentObject* pObject) const;
 
   const ezQtDocumentTreeModelAdapter* GetAdapter(const ezRTTI* pType) const;
 
 protected:
   const ezDocumentObjectManager* m_pDocumentTree = nullptr;
+  const ezUuid m_root;
   ezHashTable<const ezRTTI*, ezQtDocumentTreeModelAdapter*> m_Adapters;
   bool m_bAllowDragDrop = false;
 };

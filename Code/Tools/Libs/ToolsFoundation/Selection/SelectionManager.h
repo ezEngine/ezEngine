@@ -29,6 +29,8 @@ public:
 public:
   ezSelectionManager();
 
+  // Should be called after construction. Can only be called once.
+  void SetOwner(const ezDocument* pDocument);
 
   void SetSelection(const ezDocumentObject* pSingleObject)
   {
@@ -69,7 +71,6 @@ private:
 
   friend class ezDocument;
 
-  void SetOwner(const ezDocument* pDocument);
 
   ezDeque<const ezDocumentObject*> m_SelectionList;
   ezSet<ezUuid> m_SelectionSet;

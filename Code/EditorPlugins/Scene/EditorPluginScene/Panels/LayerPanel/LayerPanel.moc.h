@@ -15,4 +15,6 @@ public:
 
 private:
   ezScene2Document* m_pSceneDocument;
+  ezQtDocumentTreeView* m_pTreeWidget;
+  ezString m_sContextMenuMapping;
 };

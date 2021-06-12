@@ -2,19 +2,60 @@
 
 #include <Core/World/GameObject.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
+#include "Foundation/Serialization/GraphPatch.h"
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettings, 1, ezRTTIDefaultAllocator<ezSceneDocumentSettings>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneLayerBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("ExposedProperties", m_ExposedProperties)
+    EZ_MEMBER_PROPERTY("Name", m_sName),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentRoot, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneLayer, 1, ezRTTIDefaultAllocator<ezSceneLayer>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Layer", m_Layer)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettingsBase, 1, ezRTTINoAllocator)
+{
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettings, 2, ezRTTIDefaultAllocator<ezSceneDocumentSettings>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("Layers", m_Layers)->AddFlags(ezPropertyFlags::PointerOwner)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabDocumentSettings, 1, ezRTTIDefaultAllocator<ezPrefabDocumentSettings>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("ExposedProperties", m_ExposedProperties),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerDocumentSettings, 1, ezRTTIDefaultAllocator<ezLayerDocumentSettings>)
+{
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentRoot, 2, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -24,6 +65,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentRoot, 1, ezRTTINoAllocator)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+
+ezSceneDocumentSettings::~ezSceneDocumentSettings()
+{
+  for (ezSceneLayerBase* pLayer : m_Layers)
+  {
+    EZ_DEFAULT_DELETE(pLayer);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 ezSceneObjectManager::ezSceneObjectManager()
   : ezDocumentObjectManager(ezGetStaticRTTI<ezSceneDocumentRoot>())
@@ -106,10 +158,31 @@ ezStatus ezSceneObjectManager::InternalCanMove(
 
 ezStatus ezSceneObjectManager::InternalCanSelect(const ezDocumentObject* pObject) const
 {
-  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
+  /*if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
     return ezStatus(
       ezFmt("Object of type '{0}' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName()));
-  }
+  }*/
   return ezStatus(EZ_SUCCESS);
 }
+
+namespace
+{
+  /// Patch class
+  class ezSceneDocumentSettings_1_2 : public ezGraphPatch
+  {
+  public:
+    ezSceneDocumentSettings_1_2()
+      : ezGraphPatch("ezSceneDocumentSettings", 2)
+    {
+    }
+    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    {
+      // Previously, ezSceneDocumentSettings only contained prefab settings. As these only apply to prefab documents, we switch the old version to prefab.
+      context.RenameClass("ezPrefabDocumentSettings", 1);
+      ezVersionKey bases[] = {{"ezSceneDocumentSettingsBase", 1}, {"ezReflectedClass", 1}};
+      context.ChangeBaseClass(bases);
+    }
+  };
+  ezSceneDocumentSettings_1_2 g_ezSceneDocumentSettings_1_2;
+} // namespace

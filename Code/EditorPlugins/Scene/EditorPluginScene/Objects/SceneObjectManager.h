@@ -6,18 +6,57 @@
 
 class ezDocument;
 
-class ezSceneDocumentSettings : public ezReflectedClass
+class ezSceneLayerBase : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettings, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneLayerBase, ezReflectedClass);
 
+public:
+  ezString m_sName;
+};
+
+class ezSceneLayer : public ezSceneLayerBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneLayer, ezSceneLayerBase);
+
+public:
+  ezUuid m_Layer;
+};
+
+class ezSceneDocumentSettingsBase : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettingsBase, ezReflectedClass);
+};
+
+class ezSceneDocumentSettings : public ezSceneDocumentSettingsBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettings, ezSceneDocumentSettingsBase);
+
+public:
+  ezSceneDocumentSettings() = default;
+  ~ezSceneDocumentSettings();
+
+  ezDynamicArray<ezSceneLayerBase*> m_Layers;
+};
+
+class ezPrefabDocumentSettings : public ezSceneDocumentSettingsBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPrefabDocumentSettings, ezSceneDocumentSettingsBase);
+
+public:
   ezDynamicArray<ezExposedSceneProperty> m_ExposedProperties;
+};
+
+class ezLayerDocumentSettings : public ezSceneDocumentSettingsBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLayerDocumentSettings, ezSceneDocumentSettingsBase);
 };
 
 class ezSceneDocumentRoot : public ezDocumentRoot
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentRoot, ezDocumentRoot);
 
-  ezSceneDocumentSettings* m_pSettings;
+public:
+  ezSceneDocumentSettingsBase* m_pSettings;
 };
 
 class ezSceneObjectManager : public ezDocumentObjectManager

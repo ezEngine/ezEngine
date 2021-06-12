@@ -30,6 +30,6 @@ class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectModel : public ezQtDocumentTreeModel
   Q_OBJECT
 
 public:
-  ezQtGameObjectModel(ezGameObjectDocument* pDocument);
+  ezQtGameObjectModel(ezGameObjectDocument* pDocument, const ezUuid& root = ezUuid());
   ~ezQtGameObjectModel();
 };

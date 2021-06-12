@@ -158,10 +158,10 @@ Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int ro
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree)
+ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezUuid& root)
   : QAbstractItemModel(nullptr)
   , m_pDocumentTree(pTree)
-
+  , m_root(root)
 {
   m_pDocumentTree->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreeEventHandler, this));
 }
@@ -216,6 +216,8 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
       break;
   }
   EZ_ASSERT_DEV(pParent != nullptr, "Each structure event should have a parent set.");
+  if (!IsUnderRoot(pParent))
+    return;
   auto pType = pParent->GetTypeAccessor().GetType();
   auto pAdapter = GetAdapter(pType);
   if (!pAdapter)
@@ -231,7 +233,7 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
     case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     {
       ezInt32 iIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
-      if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
+      if (e.m_pNewParent == GetRoot())
         beginInsertRows(QModelIndex(), iIndex, iIndex);
       else
         beginInsertRows(ComputeModelIndex(e.m_pNewParent), iIndex, iIndex);
@@ -276,7 +278,7 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
   const ezDocumentObject* pObject = nullptr;
   if (!parent.isValid())
   {
-    pObject = m_pDocumentTree->GetRootObject();
+    pObject = GetRoot();
   }
   else
   {
@@ -302,11 +304,33 @@ ezInt32 ezQtDocumentTreeModel::ComputeIndex(const ezDocumentObject* pObject) con
   return iIndex;
 }
 
+const ezDocumentObject* ezQtDocumentTreeModel::GetRoot() const
+{
+  if (m_root.IsValid())
+  {
+    return m_pDocumentTree->GetObject(m_root);
+  }
+  return m_pDocumentTree->GetRootObject();
+}
+
+bool ezQtDocumentTreeModel::IsUnderRoot(const ezDocumentObject* pObject) const
+{
+  const ezDocumentObject* pRoot = GetRoot();
+  while (pObject)
+  {
+    if (pRoot == pObject)
+      return true;
+
+    pObject = pObject->GetParent();
+  }
+  return false;
+}
+
 QModelIndex ezQtDocumentTreeModel::ComputeModelIndex(const ezDocumentObject* pObject) const
 {
   // Filter out objects that are not under the child property of the
   // parents adapter.
-  if (pObject == m_pDocumentTree->GetRootObject())
+  if (pObject == GetRoot())
     return QModelIndex();
 
   auto pType = pObject->GetParent()->GetTypeAccessor().GetType();
@@ -330,7 +354,7 @@ QModelIndex ezQtDocumentTreeModel::ComputeParent(const ezDocumentObject* pObject
 {
   const ezDocumentObject* pParent = pObject->GetParent();
 
-  if (pParent == m_pDocumentTree->GetRootObject())
+  if (pParent == GetRoot())
     return QModelIndex();
 
   ezInt32 iIndex = ComputeIndex(pParent);
@@ -351,7 +375,7 @@ int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
   const ezDocumentObject* pObject = nullptr;
   if (!parent.isValid())
   {
-    pObject = m_pDocumentTree->GetRootObject();
+    pObject = GetRoot();
   }
   else
   {
@@ -462,7 +486,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
   {
     const ezDocumentObject* pNewParent = (const ezDocumentObject*)parent.internalPointer();
     if (!pNewParent)
-      pNewParent = m_pDocumentTree->GetRootObject();
+      pNewParent = GetRoot();
     ezHybridArray<const ezDocumentObject*, 32> Dragged;
 
     QByteArray encodedData = data->data("application/ezEditor.ObjectSelection");

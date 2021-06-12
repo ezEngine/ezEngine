@@ -3,7 +3,7 @@
 #include <EditorFramework/Document/GameObjectDocument.h>
 
 class ezExposedSceneProperty;
-class ezSceneDocumentSettings;
+class ezSceneDocumentSettingsBase;
 class ezPushObjectStateMsgToEditor;
 
 struct GameMode
@@ -134,7 +134,12 @@ public:
   ///@{
 
   const ezDocumentObject* GetSettingsObject() const;
-  const ezSceneDocumentSettings* GetSettings() const;
+  const ezSceneDocumentSettingsBase* GetSettingsBase() const;
+  template<typename T>
+  const T* GetSettings() const
+  {
+    return ezDynamicCast<const T*>(GetSettingsBase());
+  }
 
   ezStatus CreateExposedProperty(
     const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;

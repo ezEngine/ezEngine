@@ -2,8 +2,8 @@
 
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 
-ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument)
-  : ezQtGameObjectModel(pDocument)
+ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument, const ezUuid& root)
+  : ezQtGameObjectModel(pDocument, root)
 {
   m_pSceneDocument = pDocument;
 }

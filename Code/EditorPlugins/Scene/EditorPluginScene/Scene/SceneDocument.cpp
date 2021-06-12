@@ -836,6 +836,21 @@ bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info
 
 void ezSceneDocument::EnsureSettingsObjectExist()
 {
+  // Settings object was changed to have a base class and each document type has a different implementation.
+  const ezRTTI* pSettingsType = nullptr;
+  switch (m_DocumentType)
+  {
+    case ezSceneDocument::DocumentType::Scene:
+      pSettingsType = ezGetStaticRTTI<ezSceneDocumentSettings>();
+      break;
+    case ezSceneDocument::DocumentType::Prefab:
+      pSettingsType = ezGetStaticRTTI<ezPrefabDocumentSettings>();
+      break;
+    case ezSceneDocument::DocumentType::Layer:
+      pSettingsType = ezGetStaticRTTI<ezLayerDocumentSettings>();
+      break;
+  }
+
   auto pRoot = GetObjectManager()->GetRootObject();
   // Use the ezObjectDirectAccessor instead of calling GetObjectAccessor because we do not want
   // undo ops for this operation.
@@ -845,7 +860,18 @@ void ezSceneDocument::EnsureSettingsObjectExist()
   ezUuid id = value.Get<ezUuid>();
   if (!id.IsValid())
   {
-    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id).Succeeded(), "Adding scene settings object to root failed.");
+    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+  }
+  else
+  {
+    ezDocumentObject* pSettings = GetObjectManager()->GetObject(id);
+    EZ_VERIFY(pSettings, "Document corrupt, root references a non-existing object");
+    if (pSettings->GetType() != pSettingsType)
+    {
+      accessor.RemoveObject(pSettings);
+      GetObjectManager()->DestroyObject(pSettings);
+      EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+    }
   }
 }
 
@@ -858,7 +884,7 @@ const ezDocumentObject* ezSceneDocument::GetSettingsObject() const
   return GetObjectManager()->GetObject(id);
 }
 
-const ezSceneDocumentSettings* ezSceneDocument::GetSettings() const
+const ezSceneDocumentSettingsBase* ezSceneDocument::GetSettingsBase() const
 {
   return static_cast<const ezSceneDocumentSettings*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 }
@@ -883,6 +909,9 @@ ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject,
 
 ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
 {
+  if (m_DocumentType != DocumentType::Prefab)
+    return ezStatus("Exposed parameters are only supported in prefab documents.");
+
   if (FindExposedParameter(pObject, pProperty, index) != -1)
     return ezStatus("Exposed parameter already exists.");
 
@@ -904,12 +933,14 @@ ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocume
 
 ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
 {
+  EZ_ASSERT_DEV(m_DocumentType == DocumentType::Prefab, "Exposed properties are only supported in prefab documents.");
+
   ezExposedSceneProperty key;
   ezStatus res = CreateExposedProperty(pObject, pProperty, index, key);
   if (res.Failed())
     return -1;
 
-  const ezSceneDocumentSettings* settings = GetSettings();
+  const ezPrefabDocumentSettings* settings = GetSettings<ezPrefabDocumentSettings>();
   for (ezUInt32 i = 0; i < settings->m_ExposedProperties.GetCount(); i++)
   {
     const auto& param = settings->m_ExposedProperties[i];
@@ -1302,10 +1333,11 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 
   ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
 
+  if (m_DocumentType == DocumentType::Prefab)
   {
     ezSet<ezString> alreadyExposed;
 
-    auto pSettings = GetSettings();
+    auto pSettings = GetSettings<ezPrefabDocumentSettings>();
     for (auto prop : pSettings->m_ExposedProperties)
     {
       auto pRootObject = GetObjectManager()->GetObject(prop.m_Object);
@@ -1434,16 +1466,18 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  const ezSceneDocumentSettings* pSettings = GetSettings();
-
-  if (GetEditorEngineConnection() != nullptr)
+  if (m_DocumentType == DocumentType::Prefab)
   {
-    ezExposedDocumentObjectPropertiesMsgToEngine msg;
-    msg.m_Properties = pSettings->m_ExposedProperties;
+    const ezPrefabDocumentSettings* pSettings = GetSettings<ezPrefabDocumentSettings>();
 
-    SendMessageToEngine(&msg);
+    if (GetEditorEngineConnection() != nullptr)
+    {
+      ezExposedDocumentObjectPropertiesMsgToEngine msg;
+      msg.m_Properties = pSettings->m_ExposedProperties;
+
+      SendMessageToEngine(&msg);
+    }
   }
-
   return RequestExportScene(szTargetFile, AssetHeader);
 }
 

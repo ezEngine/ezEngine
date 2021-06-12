@@ -203,8 +203,8 @@ void ezQtGameObjectAdapter::GameObjectMetaDataEventHandler(const ezObjectMetaDat
   dataChanged(pObject, v);
 }
 
-ezQtGameObjectModel::ezQtGameObjectModel(ezGameObjectDocument* pDocument)
-  : ezQtDocumentTreeModel(pDocument->GetObjectManager())
+ezQtGameObjectModel::ezQtGameObjectModel(ezGameObjectDocument* pDocument, const ezUuid& root)
+  : ezQtDocumentTreeModel(pDocument->GetObjectManager(), root)
 {
 }
 
