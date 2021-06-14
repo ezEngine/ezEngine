@@ -97,6 +97,8 @@ export class AnimationControllerComponent extends Component
   public static GetTypeNameHash(): number { return 1449604100; }
   get AnimController(): string { return __CPP_ComponentProperty_get(this, 1763743819); }
   set AnimController(value: string) { __CPP_ComponentProperty_set(this, 1763743819, value); }
+  get RootMotionMode(): Enum.RootMotionMode { return __CPP_ComponentProperty_get(this, 1675822524); }
+  set RootMotionMode(value: Enum.RootMotionMode) { __CPP_ComponentProperty_set(this, 1675822524, value); }
 }
 
 export class AreaDamageComponent extends Component
@@ -133,10 +135,14 @@ export class BeamComponent extends RenderComponent
 export class BlackboardComponent extends Component
 {
   public static GetTypeNameHash(): number { return 4004595404; }
-  get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 3507638090); }
-  set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 3507638090, value); }
+  SetEntryValue(Name: string, Value: any): void { __CPP_ComponentFunction_Call(this, 1770691434, Name, Value); }
+  GetEntryValue(Name: string): any { return __CPP_ComponentFunction_Call(this, 3444662205, Name); }
   get BlackboardName(): string { return __CPP_ComponentProperty_get(this, 1957444071); }
   set BlackboardName(value: string) { __CPP_ComponentProperty_set(this, 1957444071, value); }
+  get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 3507638090); }
+  set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 3507638090, value); }
+  get SendEntryChangedMessage(): boolean { return __CPP_ComponentProperty_get(this, 251987862); }
+  set SendEntryChangedMessage(value: boolean) { __CPP_ComponentProperty_set(this, 251987862, value); }
 }
 
 export class BreakableSheetComponent extends RenderComponent
@@ -217,6 +223,8 @@ export class CharacterControllerComponent extends Component
   RawMove(moveDeltaGlobal: Vec3): void { __CPP_ComponentFunction_Call(this, 2989659834, moveDeltaGlobal); }
   TeleportCharacter(globalFootPosition: Vec3): void { __CPP_ComponentFunction_Call(this, 3942687383, globalFootPosition); }
   IsDestinationUnobstructed(globalFootPosition: Vec3, characterHeight: number): boolean { return __CPP_ComponentFunction_Call(this, 1759721276, globalFootPosition, characterHeight); }
+  IsTouchingGround(): boolean { return __CPP_ComponentFunction_Call(this, 199969770); }
+  IsCrouching(): boolean { return __CPP_ComponentFunction_Call(this, 2211445420); }
 }
 
 export class CollectionComponent extends Component
@@ -343,6 +351,8 @@ export class EventMessageHandlerComponent extends Component
   public static GetTypeNameHash(): number { return 2410982864; }
   get HandleGlobalEvents(): boolean { return __CPP_ComponentProperty_get(this, 363574155); }
   set HandleGlobalEvents(value: boolean) { __CPP_ComponentProperty_set(this, 363574155, value); }
+  get PassThroughUnhandledEvents(): boolean { return __CPP_ComponentProperty_get(this, 527316798); }
+  set PassThroughUnhandledEvents(value: boolean) { __CPP_ComponentProperty_set(this, 527316798, value); }
 }
 
 export class FmodComponent extends Component
@@ -394,6 +404,10 @@ export class FogComponent extends SettingsComponent
   set Density(value: number) { __CPP_ComponentProperty_set(this, 3233698728, value); }
   get HeightFalloff(): number { return __CPP_ComponentProperty_get(this, 1854481097); }
   set HeightFalloff(value: number) { __CPP_ComponentProperty_set(this, 1854481097, value); }
+  get ModulateWithSkyColor(): boolean { return __CPP_ComponentProperty_get(this, 992867426); }
+  set ModulateWithSkyColor(value: boolean) { __CPP_ComponentProperty_set(this, 992867426, value); }
+  get SkyDistance(): number { return __CPP_ComponentProperty_get(this, 645510939); }
+  set SkyDistance(value: number) { __CPP_ComponentProperty_set(this, 645510939, value); }
 }
 
 export class MeshComponent extends MeshComponentBase
@@ -457,6 +471,27 @@ export class HeadBoneComponent extends Component
   set VerticalRotation(value: number) { __CPP_ComponentProperty_set(this, 3837909370, value); }
 }
 
+export class HeightfieldComponent extends RenderComponent
+{
+  public static GetTypeNameHash(): number { return 3986520107; }
+  get HeightfieldImage(): string { return __CPP_ComponentProperty_get(this, 1169546898); }
+  set HeightfieldImage(value: string) { __CPP_ComponentProperty_set(this, 1169546898, value); }
+  get Material(): string { return __CPP_ComponentProperty_get(this, 230112871); }
+  set Material(value: string) { __CPP_ComponentProperty_set(this, 230112871, value); }
+  get HalfExtents(): Vec2 { return __CPP_ComponentProperty_get(this, 1611289218); }
+  set HalfExtents(value: Vec2) { __CPP_ComponentProperty_set(this, 1611289218, value); }
+  get Height(): number { return __CPP_ComponentProperty_get(this, 999591926); }
+  set Height(value: number) { __CPP_ComponentProperty_set(this, 999591926, value); }
+  get Tesselation(): Vec2 { return __CPP_ComponentProperty_get(this, 1937881886); }
+  set Tesselation(value: Vec2) { __CPP_ComponentProperty_set(this, 1937881886, value); }
+  get TexCoordOffset(): Vec2 { return __CPP_ComponentProperty_get(this, 38715340); }
+  set TexCoordOffset(value: Vec2) { __CPP_ComponentProperty_set(this, 38715340, value); }
+  get TexCoordScale(): Vec2 { return __CPP_ComponentProperty_get(this, 331654594); }
+  set TexCoordScale(value: Vec2) { __CPP_ComponentProperty_set(this, 331654594, value); }
+  get ColMeshTesselation(): Vec2 { return __CPP_ComponentProperty_get(this, 2760201197); }
+  set ColMeshTesselation(value: Vec2) { __CPP_ComponentProperty_set(this, 2760201197, value); }
+}
+
 export class InputComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3356365986; }
@@ -465,6 +500,8 @@ export class InputComponent extends Component
   set InputSet(value: string) { __CPP_ComponentProperty_set(this, 3122856233, value); }
   get Granularity(): Enum.InputMessageGranularity { return __CPP_ComponentProperty_get(this, 4138318112); }
   set Granularity(value: Enum.InputMessageGranularity) { __CPP_ComponentProperty_set(this, 4138318112, value); }
+  get ForwardToBlackboard(): boolean { return __CPP_ComponentProperty_get(this, 37629567); }
+  set ForwardToBlackboard(value: boolean) { __CPP_ComponentProperty_set(this, 37629567, value); }
 }
 
 export class InstancedMeshComponent extends MeshComponentBase
@@ -481,6 +518,23 @@ export class JointAttachmentComponent extends Component
   public static GetTypeNameHash(): number { return 2994552942; }
   get JointName(): string { return __CPP_ComponentProperty_get(this, 3084471528); }
   set JointName(value: string) { __CPP_ComponentProperty_set(this, 3084471528, value); }
+  get PositionOffset(): Vec3 { return __CPP_ComponentProperty_get(this, 513472167); }
+  set PositionOffset(value: Vec3) { __CPP_ComponentProperty_set(this, 513472167, value); }
+  get RotationOffset(): Quat { return __CPP_ComponentProperty_get(this, 1197051065); }
+  set RotationOffset(value: Quat) { __CPP_ComponentProperty_set(this, 1197051065, value); }
+}
+
+export class JointOverrideComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 1611350560; }
+  get JointName(): string { return __CPP_ComponentProperty_get(this, 2457458788); }
+  set JointName(value: string) { __CPP_ComponentProperty_set(this, 2457458788, value); }
+  get OverridePosition(): boolean { return __CPP_ComponentProperty_get(this, 1635931413); }
+  set OverridePosition(value: boolean) { __CPP_ComponentProperty_set(this, 1635931413, value); }
+  get OverrideRotation(): boolean { return __CPP_ComponentProperty_get(this, 2171188702); }
+  set OverrideRotation(value: boolean) { __CPP_ComponentProperty_set(this, 2171188702, value); }
+  get OverrideScale(): boolean { return __CPP_ComponentProperty_get(this, 1486447761); }
+  set OverrideScale(value: boolean) { __CPP_ComponentProperty_set(this, 1486447761, value); }
 }
 
 export class KrautTreeComponent extends RenderComponent
@@ -1121,6 +1175,8 @@ export class SimpleAnimationComponent extends Component
   set AnimationMode(value: Enum.PropertyAnimMode) { __CPP_ComponentProperty_set(this, 2854264169, value); }
   get Speed(): number { return __CPP_ComponentProperty_get(this, 2330469972); }
   set Speed(value: number) { __CPP_ComponentProperty_set(this, 2330469972, value); }
+  get RootMotionMode(): Enum.RootMotionMode { return __CPP_ComponentProperty_get(this, 3939232860); }
+  set RootMotionMode(value: Enum.RootMotionMode) { __CPP_ComponentProperty_set(this, 3939232860, value); }
 }
 
 export class SimpleWindComponent extends Component
@@ -1141,6 +1197,8 @@ export class SkeletonComponent extends RenderComponent
   set Skeleton(value: string) { __CPP_ComponentProperty_set(this, 1515066319, value); }
   get VisualizeSkeleton(): boolean { return __CPP_ComponentProperty_get(this, 4113161467); }
   set VisualizeSkeleton(value: boolean) { __CPP_ComponentProperty_set(this, 4113161467, value); }
+  get BonesToHighlight(): string { return __CPP_ComponentProperty_get(this, 2710454113); }
+  set BonesToHighlight(value: string) { __CPP_ComponentProperty_set(this, 2710454113, value); }
 }
 
 export class SkyBoxComponent extends RenderComponent
@@ -1165,6 +1223,10 @@ export class SkyLightComponent extends SettingsComponent
   set Intensity(value: number) { __CPP_ComponentProperty_set(this, 821218387, value); }
   get Saturation(): number { return __CPP_ComponentProperty_get(this, 4010581560); }
   set Saturation(value: number) { __CPP_ComponentProperty_set(this, 4010581560, value); }
+  get ReflectionProbeMode(): Enum.ReflectionProbeMode { return __CPP_ComponentProperty_get(this, 852024994); }
+  set ReflectionProbeMode(value: Enum.ReflectionProbeMode) { __CPP_ComponentProperty_set(this, 852024994, value); }
+  get CubeMap(): string { return __CPP_ComponentProperty_get(this, 575541439); }
+  set CubeMap(value: string) { __CPP_ComponentProperty_set(this, 575541439, value); }
 }
 
 export class SliderComponent extends TransformComponent

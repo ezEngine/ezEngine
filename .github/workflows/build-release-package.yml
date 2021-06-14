@@ -15,8 +15,8 @@ on:
         description: 'Create release artifact'
         required: true
         default: 'true'
-      transform-assets:
-        description: 'Transform Assets'
+      transform-projects:
+        description: 'Transform Projects'
         required: true
         default: 'true'
       compile-shaders:
@@ -69,38 +69,6 @@ jobs:
           path: repo\Output\Bin\WinVs2019Release64
           retention-days: 3
 
-      - name: Transform Assets Base
-        if: github.event.inputs.transform-assets == 'true'
-        run: |
-          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Base" -transform PC | Out-Null
-
-      - name: Transform Assets Asteroids
-        if: github.event.inputs.transform-assets == 'true'
-        run: |
-          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\Asteroids" -transform PC | Out-Null
-
-      - name: Transform Assets RTS
-        if: github.event.inputs.transform-assets == 'true'
-        run: |
-          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\RTS" -transform PC | Out-Null
-
-      - name: Transform Assets SampleGame
-        if: github.event.inputs.transform-assets == 'true'
-        run: |
-          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\SampleGame" -transform PC | Out-Null
-
-      - name: Transform Assets Testing Chambers
-        if: github.event.inputs.transform-assets == 'true'
-        run: |
-          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\Testing Chambers" -transform PC | Out-Null
-
-      - name: Compile Shaders
-        if: github.event.inputs.compile-shaders == 'true'
-        run: |
-          repo\Data\Tools\Precompiled\ShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
-          New-Item -path "D:" -Name "repo\Output\Bin\WinVs2019Release64\ShaderCache" -ItemType "directory" -force
-          xcopy repo\Data\Tools\Precompiled\ShaderCache repo\Output\Bin\WinVs2019Release64\ShaderCache /s
-
       - name: Remove Unwanted Files
         run: |
           Get-ChildItem * -Include *.pdb -Recurse | Remove-Item
@@ -110,13 +78,25 @@ jobs:
           rm -r -fo repo\Data\UnitTests
           rm -r -fo repo\Data\Tools\Precompiled
 
+      - name: Compile Shaders
+        if: github.event.inputs.compile-shaders == 'true'
+        run: |
+          repo\Output\Bin\WinVs2019Release64\ShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
+
+      - name: Transform All Projects
+        if: github.event.inputs.transform-projects == 'true'
+        shell: pwsh
+        run: repo\Utilities\Scripts\transform-all-projects.ps1
+
       - name: Generate Package
         run: |
           mkdir _package
-          xcopy repo\Output _package /s
-          xcopy repo\Data _package /s
+          mkdir _package\Output
+          mkdir _package\Data
+          xcopy repo\Output _package\Output /s
+          xcopy repo\Data _package\Data /s
 
-          xcopy template_repo\package repo /s
+          xcopy template_repo\package _package /s /y
 
       - name: Artifact - Release Package
         if: github.event.inputs.release-artifact == 'true'

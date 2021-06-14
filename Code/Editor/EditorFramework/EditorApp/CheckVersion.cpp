@@ -120,7 +120,7 @@ bool ezQtVersionChecker::Check(bool bForce)
 
 const char* ezQtVersionChecker::GetOwnVersion() const
 {
-  return BUILDSYSTEM_VERSION_MAJOR "." BUILDSYSTEM_VERSION_MINOR "." BUILDSYSTEM_VERSION_PATCH;
+  return BUILDSYSTEM_SDKVERSION_MAJOR "." BUILDSYSTEM_SDKVERSION_MINOR "." BUILDSYSTEM_SDKVERSION_PATCH;
 }
 
 const char* ezQtVersionChecker::GetKnownLatestVersion() const

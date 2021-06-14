@@ -12,6 +12,8 @@ export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
 export enum PxJointDriveMode {  NoDrive = 0, DriveAndSpin = 1, DriveAndBrake = 2 }
 export enum PxJointLimitMode {  NoLimit = 0, HardLimit = 1, SoftLimit = 2 }
 export enum PxSteppingMode {  Variable = 0, Fixed = 1, SemiFixed = 2 }
+export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
+export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }
 export enum SetColorMode {  SetRGBA = 0, SetRGB = 1, SetAlpha = 2, AlphaBlend = 3, Additive = 4, Modulate = 5 }
 export enum SpriteBlendMode {  Masked = 0, Transparent = 1, Additive = 2 }
 export enum TriggerState {  Activated = 0, Continuing = 1, Deactivated = 2 }
