@@ -257,7 +257,7 @@ void ezQtDashboardDlg::on_OpenApiDocs_clicked()
 
 void ezQtDashboardDlg::on_OpenReleaseNotes_clicked()
 {
-  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/releases/releases.html"));
+  QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/releases"));
 }
 
 void ezQtDashboardDlg::on_ReportProblem_clicked()
