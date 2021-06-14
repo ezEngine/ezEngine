@@ -71,7 +71,10 @@ void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bFo
     }
     else
     {
-      ezQtUiServices::GetSingleton()->MessageBoxInformation("You have the latest version.");
+      ezStringBuilder tmp("You have the latest version: \n");
+      tmp.Append(m_VersionChecker.GetOwnVersion()); 
+
+      ezQtUiServices::GetSingleton()->MessageBoxInformation(tmp);
     }
   }
 

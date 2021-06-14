@@ -120,10 +120,7 @@ bool ezQtVersionChecker::Check(bool bForce)
 
 const char* ezQtVersionChecker::GetOwnVersion() const
 {
-  // TODO: this has to be updated for every release!
-  // could this be made more data driven ?
-
-  return "21.6";
+  return BUILDSYSTEM_VERSION_MAJOR "." BUILDSYSTEM_VERSION_MINOR "." BUILDSYSTEM_VERSION_PATCH;
 }
 
 const char* ezQtVersionChecker::GetKnownLatestVersion() const

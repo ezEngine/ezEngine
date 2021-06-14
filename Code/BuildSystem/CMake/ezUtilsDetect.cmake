@@ -476,8 +476,77 @@ macro(ez_pull_all_vars)
 
 	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
+	ez_pull_version()
 	ez_pull_compiler_and_architecture_vars()
 	ez_pull_generator_vars()
 	ez_pull_platform_vars()
+
+endmacro()
+
+######################################
+### ez_get_version(<VERSIONFILE> <OUT_MAJOR> <OUT_MINOR> <OUT_PATCH>)
+######################################
+
+function(ez_get_version VERSIONFILE OUT_MAJOR OUT_MINOR OUT_PATCH)
+
+	file(READ ${VERSIONFILE} VERSION_STRING)
+
+	string(STRIP ${VERSION_STRING} VERSION_STRING)
+
+	if ( VERSION_STRING MATCHES "([0-9]+).([0-9]+).([0-9+])" )
+
+		STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" ARR_VERSION_MAJOR "${VERSION_STRING}")
+		STRING(REGEX REPLACE "^[0-9]+\\.([0-9])+\\.[0-9]+" "\\1" ARR_VERSION_MINOR "${VERSION_STRING}")
+		STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" ARR_VERSION_PATCH "${VERSION_STRING}")
+
+		string(STRIP ${ARR_VERSION_MAJOR} VERSION_MAJOR)
+		string(STRIP ${ARR_VERSION_MINOR} VERSION_MINOR)
+		string(STRIP ${ARR_VERSION_PATCH} VERSION_PATCH)
+
+		set(${OUT_MAJOR} ${VERSION_MAJOR} PARENT_SCOPE)
+		set(${OUT_MINOR} ${VERSION_MINOR} PARENT_SCOPE)
+		set(${OUT_PATCH} ${VERSION_PATCH} PARENT_SCOPE)
+
+	else()
+		message (FATAL_ERROR "Invalid version string '${VERSION_STRING}'")
+	endif()
+
+endfunction()
+
+######################################
+### ez_detect_version()
+######################################
+
+function(ez_detect_version)
+
+	get_property(VERSION_MAJOR GLOBAL PROPERTY EZ_CMAKE_VERSION_MAJOR)
+		
+	if (VERSION_MAJOR)
+		# has already run before and EZ_CMAKE_VERSION_MAJOR is already set
+		return()
+	endif()
+
+	ez_get_version("${CMAKE_SOURCE_DIR}/version.txt" VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+
+	set_property(GLOBAL PROPERTY EZ_CMAKE_VERSION_MAJOR "${VERSION_MAJOR}")
+	set_property(GLOBAL PROPERTY EZ_CMAKE_VERSION_MINOR "${VERSION_MINOR}")
+	set_property(GLOBAL PROPERTY EZ_CMAKE_VERSION_PATCH "${VERSION_PATCH}")
+
+	message(STATUS "SDK version: Major = '${VERSION_MAJOR}', Minor = '${VERSION_MINOR}', Patch = '${VERSION_PATCH}'")
+
+endfunction()
+
+
+######################################
+### ez_pull_version()
+######################################
+
+macro(ez_pull_version)
+
+	ez_detect_version()
+
+	get_property(EZ_CMAKE_VERSION_MAJOR GLOBAL PROPERTY EZ_CMAKE_VERSION_MAJOR)
+	get_property(EZ_CMAKE_VERSION_MINOR GLOBAL PROPERTY EZ_CMAKE_VERSION_MINOR)
+	get_property(EZ_CMAKE_VERSION_PATCH GLOBAL PROPERTY EZ_CMAKE_VERSION_PATCH)
 
 endmacro()

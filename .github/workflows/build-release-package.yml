@@ -7,10 +7,6 @@ on:
         description: 'Source Branch'
         required: true
         default: 'dev'
-      test-build:
-        description: 'Minimal build for testing'
-        required: true
-        default: 'true'
       full-binaries-artifact:
         description: 'Create full binaries artifact'
         required: true
@@ -19,37 +15,52 @@ on:
         description: 'Create release artifact'
         required: true
         default: 'true'
+      transform-assets:
+        description: 'Transform Assets'
+        required: true
+        default: 'true'
+      compile-shaders:
+        description: 'Compile Shaders'
+        required: true
+        default: 'true'
 jobs:
   build:
     runs-on: windows-2019
 
     steps:
-      - name: Checkout repository
+      - name: Checkout ezEngine repository
         uses: actions/checkout@v2
         with:
           path: repo
           ref: ${{ github.event.inputs.src-branch }}
           submodules: 'recursive'
 
+      - name: Read SDK Version
+        id: sdk-version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: repo/version.txt
+
+      - name: Echo SDK Version
+        run: echo "SDK Version is ${{ steps.sdk-version.outputs.content }}"
+
+      - name: Checkout template repository
+        uses: actions/checkout@v2
+        with:
+          repository: ezEngine/release-template
+          path: template_repo
+          token: ${{ secrets.API_TOKEN_GITHUB }} 
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Run CMake
         run: |
-          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=ON -DEZ_BUILD_SAMPLES:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=ON -DEZ_BUILD_RMLUI:BOOL=ON -DEZ_SOLUTION_NAME:string="solution"
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=ON -DEZ_BUILD_SAMPLES:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=ON -DEZ_BUILD_RMLUI:BOOL=ON -DEZ_BUILD_FMOD:BOOL=ON -DEZ_FMOD_DIR:STRING="D:\a\ezEngine\ezEngine\template_repo\build\FMOD Studio API Windows" -DEZ_SOLUTION_NAME:string="solution"
 
       - name: Build Full Solution
-        if: github.event.inputs.test-build == 'false'
         run:  msbuild build/solution.sln /p:Configuration=Release
 
-      - name: Build ArchiveTool
-        if: github.event.inputs.test-build == 'true'
-        run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\ArchiveTool:rebuild
-
-      #- name: Build Inspector
-      #  if: github.event.inputs.test-build == 'true'
-      #  run:  msbuild build/solution.sln /p:Configuration=Release /target:Tools\Inspector:rebuild
-      
       - name: Artifact - Full Binaries
         if: github.event.inputs.full-binaries-artifact == 'true'
         uses: actions/upload-artifact@v2
@@ -57,27 +68,60 @@ jobs:
           name: full-binaries
           path: repo\Output\Bin\WinVs2019Release64
           retention-days: 3
-      
+
+      - name: Transform Assets Base
+        if: github.event.inputs.transform-assets == 'true'
+        run: |
+          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Base" -transform PC | Out-Null
+
+      - name: Transform Assets Asteroids
+        if: github.event.inputs.transform-assets == 'true'
+        run: |
+          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\Asteroids" -transform PC | Out-Null
+
+      - name: Transform Assets RTS
+        if: github.event.inputs.transform-assets == 'true'
+        run: |
+          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\RTS" -transform PC | Out-Null
+
+      - name: Transform Assets SampleGame
+        if: github.event.inputs.transform-assets == 'true'
+        run: |
+          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\SampleGame" -transform PC | Out-Null
+
+      - name: Transform Assets Testing Chambers
+        if: github.event.inputs.transform-assets == 'true'
+        run: |
+          repo\Output\Bin\WinVs2019Release64\EditorProcessor.exe -project "repo\Data\Samples\Testing Chambers" -transform PC | Out-Null
+
+      - name: Compile Shaders
+        if: github.event.inputs.compile-shaders == 'true'
+        run: |
+          repo\Data\Tools\Precompiled\ShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
+          New-Item -path "D:" -Name "repo\Output\Bin\WinVs2019Release64\ShaderCache" -ItemType "directory" -force
+          xcopy repo\Data\Tools\Precompiled\ShaderCache repo\Output\Bin\WinVs2019Release64\ShaderCache /s
+
+      - name: Remove Unwanted Files
+        run: |
+          Get-ChildItem * -Include *.pdb -Recurse | Remove-Item
+
+          rm -r -fo repo\Output\lib
+          rm -r -fo repo\Data\Platform
+          rm -r -fo repo\Data\UnitTests
+          rm -r -fo repo\Data\Tools\Precompiled
+
       - name: Generate Package
         run: |
           mkdir _package
+          xcopy repo\Output _package /s
+          xcopy repo\Data _package /s
 
-          mkdir _package\Output
-          mkdir _package\Output\Bin
-          mkdir _package\Output\Bin\WinVs2019Release64
-
-          del repo\Output\Bin\*.pdb /s
-          xcopy repo\Output\Bin\WinVs2019Release64 _package\Output\Bin\WinVs2019Release64 /s
-
-          mkdir _package\Data
-          xcopy repo\Data _package\Data /s
-          rd _package\Data\UnitTests /s /q
-          rd _package\Data\Tools\Precompiled /s /q
+          xcopy template_repo\package repo /s
 
       - name: Artifact - Release Package
         if: github.event.inputs.release-artifact == 'true'
         uses: actions/upload-artifact@v2
         with:
-          name: ez-release-package
+          name: ezEngine.Release.${{ steps.sdk-version.outputs.content }}
           path: _package
           retention-days: 3
