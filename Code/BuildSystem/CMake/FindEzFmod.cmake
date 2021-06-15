@@ -13,17 +13,19 @@ if (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
 	find_path(EZ_FMOD_DIR api/core/inc/fmod.h
 		PATHS
 		[HKEY_CURRENT_USER\\Software\\FMOD\ Studio\ API\ Universal\ Windows\ Platform]
-	)
-
-	set(FMOD_DLL_SUFFIX ".dll")
-	set(FMOD_LIB_SUFFIX ".lib")
-
-else()
-	# Desktop Windows builds
-
-	find_path(EZ_FMOD_DIR api/core/inc/fmod.h
+		${CMAKE_SOURCE_DIR}/Code/ThirdParty/fmod/windows-uwp
+		)
+		
+		set(FMOD_DLL_SUFFIX ".dll")
+		set(FMOD_LIB_SUFFIX ".lib")
+		
+		else()
+		# Desktop Windows builds
+		
+		find_path(EZ_FMOD_DIR api/core/inc/fmod.h
 		PATHS
 		[HKEY_CURRENT_USER\\Software\\FMOD\ Studio\ API\ Windows]
+		${CMAKE_SOURCE_DIR}/Code/ThirdParty/fmod/windows
 	)
 
 	set(FMOD_DLL_SUFFIX ".dll")
@@ -37,7 +39,7 @@ set (FMOD_DIR_CORE "${EZ_FMOD_DIR}/api/core")
 
 if (EZ_CMAKE_ARCHITECTURE_ARM)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		message(FATAL_ERROR "Fmod does not support arm64, or support needs to be added to ez once binaries available")
+		message(FATAL_ERROR "Fmod does not support arm64, or support needs to be added to EZ once binaries become available")
 	else()
 		set(FMOD_LIB_ARCH "arm")
 	endif()
