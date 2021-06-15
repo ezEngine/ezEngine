@@ -2,7 +2,7 @@
 ### Fmod support
 ######################################
 
-set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
+set (EZ_BUILD_FMOD ON CACHE BOOL "Whether support for FMOD should be added")
 
 ######################################
 ### ez_requires_fmod()
