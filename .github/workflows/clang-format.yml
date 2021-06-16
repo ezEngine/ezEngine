@@ -65,6 +65,12 @@ jobs:
             echo "No formatting changes necessary"
           }
 
+      - name: Content of Patch
+        if: ${{ steps.format_files.outputs.push == 'true' }}
+        shell: pwsh
+        run: |
+          Get-Content -Path "${env:GITHUB_WORKSPACE}/clangFormat.patch"
+
       - name: Upload Patch File
         if: ${{ steps.format_files.outputs.push == 'true' }}
         uses: actions/upload-artifact@v2
@@ -84,7 +90,7 @@ jobs:
           force: false
 
       - name: Forked Repo Instructions
-        if: github.event.pull_request.head.repo.full_name != github.repository
+        if: ${{ steps.format_files.outputs.push == 'true' && github.event.pull_request.head.repo.full_name != github.repository }}
         run: |
           echo "This PR comes from the forked repository '${{ github.event.pull_request.head.repo.full_name }}'"
           echo "Formatting changes can't be applied automatically."
