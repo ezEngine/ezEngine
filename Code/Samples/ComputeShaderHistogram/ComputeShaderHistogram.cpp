@@ -21,8 +21,8 @@ static ezUInt32 g_uiComputeThreadGroupSize = 32;
 ezComputeShaderHistogramApp::ezComputeShaderHistogramApp()
   : ezGameApplication("ComputeShaderHistogram", "Data/Samples/ComputeShaderHistogram")
 {
-//test
-	int a=34 ;
+  //test
+  int a = 34;
 }
 
 ezComputeShaderHistogramApp::~ezComputeShaderHistogramApp() = default;
