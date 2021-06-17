@@ -19,13 +19,13 @@ ezJniAttachment::ezJniAttachment()
   else
   {
     JNIEnv* env = nullptr;
-    jint envStatus = ezAndroidUtils::GetAndroidApp()->activity->vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+    jint envStatus = ezAndroidUtils::GetAndroidJavaVM()->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
     bool ownsEnv = (envStatus != JNI_OK);
     if (ownsEnv)
     {
       // Assign name to attachment since ART complains about it not being set.
       JavaVMAttachArgs args = {JNI_VERSION_1_6, "EZ JNI", nullptr};
-      ezAndroidUtils::GetAndroidApp()->activity->vm->AttachCurrentThread(&env, &args);
+      ezAndroidUtils::GetAndroidJavaVM()->AttachCurrentThread(&env, &args);
     }
     else
     {
@@ -51,7 +51,7 @@ ezJniAttachment::~ezJniAttachment()
 
     if (s_ownsEnv)
     {
-      ezAndroidUtils::GetAndroidApp()->activity->vm->DetachCurrentThread();
+      ezAndroidUtils::GetAndroidJavaVM()->DetachCurrentThread();
     }
     else
     {
@@ -78,7 +78,7 @@ JNIEnv* ezJniAttachment::GetEnv()
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   void* unused;
-  EZ_ASSERT_DEBUG(ezAndroidUtils::GetAndroidApp()->activity->vm->GetEnv(&unused, JNI_VERSION_1_6) == JNI_OK,
+  EZ_ASSERT_DEBUG(ezAndroidUtils::GetAndroidJavaVM()->GetEnv(&unused, JNI_VERSION_1_6) == JNI_OK,
     "Current thread has lost its attachment to the JVM - some OS calls can cause this to happen. Try to reduce the attachment to a smaller scope.");
 #  endif
 
