@@ -7,13 +7,14 @@
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Strings/StringConversion.h>
 
+// Disable warning produced by CppWinRT
+#  pragma warning(disable : 5205)
 #  include <winrt/Windows.ApplicationModel.Activation.h>
 #  include <winrt/Windows.ApplicationModel.Core.h>
 #  include <winrt/Windows.Foundation.Collections.h>
 #  include <winrt/Windows.Foundation.h>
 #  include <winrt/Windows.UI.Core.h>
 
-using namespace std::placeholders;
 using namespace winrt::Windows::ApplicationModel::Core;
 
 ezUwpApplication::ezUwpApplication(ezApplication* application)

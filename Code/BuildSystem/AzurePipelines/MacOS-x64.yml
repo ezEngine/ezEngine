@@ -1,0 +1,150 @@
+# Variable 'Configuration' was defined in the Variables tab
+# Variable 'P12password' was defined in the Variables tab
+# Variable 'SDK' was defined in the Variables tab
+# Variable 'TestConfiguration' was defined in the Variables tab
+# Variable 'TestSDK' was defined in the Variables tab
+# Variable 'unityfiles' was defined in the Variables tab
+variables:
+- name: BuildParameters.xcWorkspacePath
+  value: '**/*.xcodeproj/project.xcworkspace'
+- name: BuildParameters.scheme
+  value: ''
+- name: BuildParameters.xcodeVersion
+  value: default
+- name: BuildParameters.xcodeDeveloperDir
+  value: ''
+trigger:
+  branches:
+    include:
+    - dev
+name: $(date:yyyyMMdd)$(rev:.r)
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: dev
+jobs:
+- job: Job_1
+  displayName: MacOS-x64
+  pool:
+    name: Hosted macOS
+  steps:
+  - checkout: self
+  - task: InstallAppleCertificate@2
+    displayName: Install an Apple certificate
+    enabled: False
+    inputs:
+      certPwd: $(P12password)
+      deleteCert: false
+      deleteCustomKeychain: false
+  - task: InstallAppleProvisioningProfile@1
+    displayName: Install an Apple provisioning profile
+    enabled: False
+  - task: Xcode@5
+    displayName: Xcode test
+    enabled: False
+    inputs:
+      actions: test
+      configuration: $(TestConfiguration)
+      sdk: $(TestSDK)
+      xcWorkspacePath: $(BuildParameters.xcWorkspacePath)
+      scheme: $(BuildParameters.scheme)
+      xcodeVersion: $(BuildParameters.xcodeVersion)
+      xcodeDeveloperDir: $(BuildParameters.xcodeDeveloperDir)
+      signingOption: default
+      destinationPlatformOption: iOS
+      destinationSimulators: iPhone 7
+      publishJUnitResults: true
+  - task: Bash@3
+    displayName: Bash Script
+    inputs:
+      targetType: inline
+      filePath: brew install Caskroom/cask/xquartz
+      script: >-
+        brew update
+
+        brew pull https://github.com/Homebrew/homebrew-core/pull/49913
+
+        brew install Caskroom/cask/xquartz
+
+        brew install qt5
+
+        brew install sfml
+  - task: CMake@1
+    displayName: CMake
+    inputs:
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt@5/5.15.2/;/usr/local/Cellar/sfml/2.5.1/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
+  - task: Xcode@5
+    displayName: Xcode build
+    inputs:
+      xcWorkspacePath: $(BuildParameters.xcWorkspacePath)
+      scheme: $(BuildParameters.scheme)
+      xcodeVersion: $(BuildParameters.xcodeVersion)
+      xcodeDeveloperDir: $(BuildParameters.xcodeDeveloperDir)
+      destinationPlatformOption: macOS
+      destinationSimulators: iPhone 7
+      args: -scheme ALL_BUILD
+  - task: PowerShell@2
+    displayName: PowerShell Script
+    inputs:
+      targetType: inline
+      script: Write-Host "##vso[task.setvariable variable=task.MSBuild.status]success"
+  - task: Bash@3
+    displayName: FoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: ./Output/Bin//OsxXcodeClangRelDeb64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
+  - task: Bash@3
+    displayName: CoreTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: ./Output/Bin//OsxXcodeClangRelDeb64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+  - task: Bash@3
+    displayName: ToolsFoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: ./Output/Bin//OsxXcodeClangRelDeb64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    condition: succeededOrFailed()
+  - task: Bash@3
+    displayName: List output
+    condition: succeededOrFailed()
+    enabled: False
+    inputs:
+      targetType: inline
+      script: >
+        find ./Output/Bin/ -type f
+
+        find /usr/local/Cellar/sfml/2.5.1 -type f
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    condition: succeededOrFailed()
+    enabled: False
+    inputs:
+      SourceFolder: $(system.defaultworkingdirectory)
+      Contents: '**/*.ipa'
+      TargetFolder: $(build.artifactstagingdirectory)
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    condition: succeededOrFailed()
+    enabled: False
+    inputs:
+      PathtoPublish: $(build.artifactstagingdirectory)
+  - task: AppCenterTest@1
+    displayName: Test with Visual Studio App Center
+    condition: succeededOrFailed()
+    enabled: False
+    inputs:
+      app: '**/*.ipa'
+  - task: AppCenterDistribute@2
+    displayName: Deploy **/*.ipa to Visual Studio App Center
+    condition: succeededOrFailed()
+    enabled: False
+    inputs:
+      app: '**/*.ipa'
+      packParentFolder: false
+...
