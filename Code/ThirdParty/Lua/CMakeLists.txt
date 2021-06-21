@@ -15,3 +15,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_LUA_SUPPORT
 if(EZ_CMAKE_PLATFORM_POSIX)
   target_compile_definitions(${PROJECT_NAME} PRIVATE LUA_USE_POSIX)
 endif()
+
+# Disable warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4334)
+endif()

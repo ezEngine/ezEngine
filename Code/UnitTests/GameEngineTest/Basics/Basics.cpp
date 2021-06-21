@@ -5,6 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Strings/StringConversion.h>
+#include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/Process.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -112,6 +113,11 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    ezStringBuilder sDumpFile = sOutputPath;
+    sDumpFile.AppendPath("Timeout.dmp");
+    ezMiniDumpUtils::WriteExternalProcessMiniDump(sDumpFile, proc.GetProcessID()).LogFailure();
+#  endif
     proc.Terminate().IgnoreResult();
     ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
     return EZ_FAILURE;

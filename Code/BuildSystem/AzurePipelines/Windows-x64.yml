@@ -1,0 +1,204 @@
+# Variable 'task.MSBuild.status' was defined in the Variables tab
+trigger:
+  branches:
+    include:
+    - dev
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: dev
+jobs:
+- job: Job_3
+  displayName: StartVM
+  pool:
+    name: Hosted VS2017
+  steps:
+  - checkout: self
+    submodules: true
+    lfs: true
+    clean: false
+  - task: AzureKeyVault@1
+    displayName: 'Azure Key Vault: ezKeys'
+    inputs:
+      ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
+      KeyVaultName: ezKeys
+      SecretsFilter: AzureFunctionCode
+  - task: PowerShell@2
+    displayName: StartVM
+    continueOnError: true
+    inputs:
+      targetType: inline
+      script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartWindowsVM?code=$(AzureFunctionCode)&vmname=Windows10-1809"
+- job: Job_1
+  displayName: Windows-x64
+  timeoutInMinutes: 180
+  pool:
+    name: Default
+  steps:
+  - checkout: self
+    submodules: true
+    lfs: true
+    clean: false
+  - task: AzureKeyVault@1
+    displayName: 'Azure Key Vault: ezKeys'
+    inputs:
+      ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
+      KeyVaultName: ezKeys
+      SecretsFilter: AzureBlobPW,ThirdPartyWinx64
+  - task: PowerShell@2
+    displayName: Download ThirdParty
+    inputs:
+      targetType: inline
+      script: >-
+        if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
+        {
+          if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
+          {
+            & mkdir $(System.DefaultWorkingDirectory)\ThirdPartyWinx64
+          }
+          if (!(Test-Path $(System.DefaultWorkingDirectory)\build))
+          {
+            & mkdir $(System.DefaultWorkingDirectory)\build
+          }
+          & compact /c /s /i /f $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\
+          & compact /c /s /i /f $(System.DefaultWorkingDirectory)\build\
+          & compact /c /s /i /f $(Build.ArtifactStagingDirectory)\
+          $url7zip = "https://vstsagenttools.blob.core.windows.net/tools/7zip/1/7zip.zip"
+          $output7zip = "./7zip.zip"
+          $urlThirdParty = "$(ThirdPartyWinx64)"
+          $outputThirdParty = "$(System.DefaultWorkingDirectory)\ThirdParty.7z"
+          $output = "$(System.DefaultWorkingDirectory)"
+          wget $url7zip -OutFile $output7zip
+          Expand-Archive -Path $output7zip -DestinationPath $output -Force
+          # Start-BitsTransfer -Source $urlThirdParty -Destination $outputThirdParty
+          wget $urlThirdParty -OutFile $outputThirdParty
+          & "$output/7zip/7z.exe" x -p$(AzureBlobPW) $outputThirdParty
+          & del $outputThirdParty
+        }
+  - task: PowerShell@2
+    displayName: Delete old crash dumps
+    inputs:
+      targetType: inline
+      script: >-
+        if ((Test-Path $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2019RelDeb64))
+        {
+            Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2019RelDeb64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
+        }
+  - task: CMake@1
+    displayName: CMake Step
+    inputs:
+      cmakeArgs: -DCMAKE_PREFIX_PATH=$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qtvs141x64;"$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\FMOD Studio API Windows" -DEZ_QT_DIR="$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qtvs141x64" -DEZ_ENABLE_FOLDER_UNITY_FILES=0 -DEZ_BUILD_OPENXR=1 -DEZ_BUILD_PHYSX=1 -DEZ_BUILD_FMOD=1 -DEZ_BUILD_GAMES=1 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_SYSTEM_VERSION=10.0.18362.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.18362.0 -A "x64" -G "Visual Studio 16 2019" ../
+  - task: MSBuild@1
+    displayName: Build solution build/ezVs2019.sln
+    inputs:
+      solution: build/ezVs2019.sln
+      msbuildArchitecture: x64
+      platform: x64
+      configuration: RelWithDebInfo
+  - task: PowerShell@2
+    displayName: PowerShell Script
+    inputs:
+      targetType: inline
+      filePath: Write-Host "##vso[task.setvariable variable=task.MSBuild.status]success"
+      script: Write-Host "##vso[task.setvariable variable=task.MSBuild.status]success"
+  - task: CmdLine@2
+    displayName: HeaderCheck
+    condition: succeededOrFailed()
+    inputs:
+      script: Output\Bin\WinVs2019RelDeb64\HeaderCheck.exe $(System.DefaultWorkingDirectory)\Code\Engine\Foundation -i $(System.DefaultWorkingDirectory)\Code\Engine -f $(System.DefaultWorkingDirectory)\Code\Engine\Foundation\headerCheckerIgnore.json
+  - task: CmdLine@2
+    displayName: FoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      script: Output\Bin\WinVs2019RelDeb64\FoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\FoundationTest
+  - task: CmdLine@2
+    displayName: CoreTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      script: Output\Bin\WinVs2019RelDeb64\CoreTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\CoreTest
+  - task: CmdLine@2
+    displayName: ToolsFoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      script: Output\Bin\WinVs2019RelDeb64\ToolsFoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\ToolsFoundationTest
+  - task: CmdLine@2
+    displayName: RendererTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      script: Output\Bin\WinVs2019RelDeb64\RendererTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
+  - task: CmdLine@2
+    displayName: EditorTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      script: >-
+        set QT_PLUGIN_PATH=Output\Bin\WinVs2019RelDeb64
+
+        Output\Bin\WinVs2019RelDeb64\EditorTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
+  - task: CmdLine@2
+    displayName: GameEngineTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      script: Output\Bin\WinVs2019RelDeb64\GameEngineTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
+  - task: CmdLine@2
+    displayName: List files
+    condition: always()
+    inputs:
+      script: dir /s /o $(System.DefaultWorkingDirectory)\Output
+  - task: CmdLine@2
+    displayName: Copy Bin
+    condition: failed()
+    inputs:
+      script: >-
+        REM rmdir /S /Q $(System.DefaultWorkingDirectory)\build
+
+        xcopy Output\Bin\WinVs2019RelDeb64\*.dll $(Build.ArtifactStagingDirectory)\Bin\WinVs2019RelDeb64\ /C/D/Y
+
+        xcopy Output\Bin\WinVs2019RelDeb64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2019RelDeb64\ /C/D/Y
+
+        xcopy Output\Bin\WinVs2019RelDeb64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2019RelDeb64\ /C/D/Y
+  - task: PowerShell@2
+    displayName: Copy AssetCaches
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: >-
+        $RootDir = "$(System.DefaultWorkingDirectory)"
+
+        $TargetDir = "$(Build.ArtifactStagingDirectory)\AssetCache"
+
+
+        Set-Location $RootDir
+
+        $AssetCaches = (Get-ChildItem $RootDir -Directory -include AssetCache -recurse)
+
+
+        foreach($Dir in $AssetCaches)
+
+        {
+            Write-Host "Dir: $Dir"
+            $relativePath = Get-Item $Dir | Resolve-Path -Relative
+            $targetPath = Join-Path -Path $TargetDir -ChildPath $relativePath
+            Write-Host "targetPath: $targetPath"
+            New-Item -ItemType Directory -Force -Path $targetPath
+            Copy-Item $Dir\* -Filter * -Destination $targetPath -Recurse -Force
+        }
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: TestResults'
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)\Test
+      ArtifactName: TestResults
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Bin'
+    condition: failed()
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)\Bin
+      ArtifactName: Bin
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: AssetCache'
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)\AssetCache
+      ArtifactName: AssetCache
+...

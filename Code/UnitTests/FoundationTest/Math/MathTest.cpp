@@ -739,7 +739,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     for (int i = 0; i < EZ_ARRAY_SIZE(res); ++i)
     {
       const ezVec2 r = ezMath::EvaluateBezierCurve<ezVec2>(step * i, ezVec2(1, 5), ezVec2(0, 3), ezVec2(6, 3), ezVec2(3, 1));
-      EZ_TEST_VEC2(r, res[i], 0.001f);
+      EZ_TEST_VEC2(r, res[i], 0.0011f);
     }
   }
 
