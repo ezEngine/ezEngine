@@ -102,7 +102,7 @@ protected:
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
 
   ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) override;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pResource) override;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView) override;
 
   // Other rendering creation functions
 
