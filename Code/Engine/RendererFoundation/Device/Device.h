@@ -285,7 +285,7 @@ protected:
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;
 
   virtual ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) = 0;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pRenderTargetView) = 0;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
 
   // Other rendering creation functions
 

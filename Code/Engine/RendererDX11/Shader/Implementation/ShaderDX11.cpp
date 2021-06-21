@@ -70,7 +70,7 @@ ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::HullShader))
   {
-    if (FAILED(pD3D11Device->CreateHullShader(m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetByteCode(),
+    if (FAILED(pD3D11Device->CreateHullShader(m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetByteCode(),
           m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetSize(), nullptr, &m_pHullShader)))
     {
       ezLog::Error("Couldn't create native hull shader from bytecode!");
