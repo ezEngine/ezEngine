@@ -86,6 +86,7 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandSampleTrack final : public 
 private:
   friend class ezAnimPoseGenerator;
 
+  bool m_bAdditive = false;
   ezUInt32 m_uiUniqueID = 0;
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };

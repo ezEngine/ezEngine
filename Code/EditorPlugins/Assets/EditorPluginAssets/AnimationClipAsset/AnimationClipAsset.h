@@ -35,6 +35,7 @@ public:
   ezString m_sSourceFile;
   ezString m_sAnimationClipToExtract;
   ezDynamicArray<ezString> m_AvailableClips;
+  bool m_bAdditive = false;
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
   ezString m_sPreviewMesh;

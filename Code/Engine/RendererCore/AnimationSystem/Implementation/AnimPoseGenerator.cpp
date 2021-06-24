@@ -158,7 +158,6 @@ void ezAnimPoseGenerator::Validate() const
   for (auto& cmd : m_CommandsSampleEventTrack)
   {
     EZ_ASSERT_DEV(cmd.m_hAnimationClip.IsValid(), "Invalid animation clips are not allowed.");
-    
   }
 }
 
@@ -258,6 +257,8 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd,
 
   const ozz::animation::Animation& ozzAnim = pResource->GetDescriptor().GetMappedOzzAnimation(*m_pSkeleton);
 
+  cmd.m_bAdditive = pResource->GetDescriptor().m_bAdditive;
+
   auto transforms = AcquireLocalPoseTransforms(cmd.m_LocalPoseOutput);
 
   auto& pSampler = m_SamplingCaches[cmd.m_uiUniqueID];
@@ -292,6 +293,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
   auto transforms = AcquireLocalPoseTransforms(cmd.m_LocalPoseOutput);
 
   ezHybridArray<ozz::animation::BlendingJob::Layer, 8> bl;
+  ezHybridArray<ozz::animation::BlendingJob::Layer, 8> blAdd;
 
   for (ezUInt32 i = 0; i < cmd.m_Inputs.GetCount(); ++i)
   {
@@ -300,37 +302,50 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
     if (cmdIn.GetType() == ezAnimPoseGeneratorCommandType::SampleEventTrack)
       continue;
 
-    ozz::animation::BlendingJob::Layer& layer = bl.ExpandAndGetRef();
-    layer.weight = cmd.m_InputWeights[i];
-
-    if (cmd.m_InputBoneWeights.GetCount() > i && !cmd.m_InputBoneWeights[i].IsEmpty())
-    {
-      layer.joint_weights = ozz::span(cmd.m_InputBoneWeights[i].GetPtr(), cmd.m_InputBoneWeights[i].GetEndPtr());
-    }
+    ozz::animation::BlendingJob::Layer* layer = nullptr;
 
     switch (cmdIn.GetType())
     {
       case ezAnimPoseGeneratorCommandType::SampleTrack:
       {
+        if (static_cast<const ezAnimPoseGeneratorCommandSampleTrack&>(cmdIn).m_bAdditive)
+        {
+          layer = &blAdd.ExpandAndGetRef();
+        }
+        else
+        {
+          layer = &bl.ExpandAndGetRef();
+        }
+
         auto transform = AcquireLocalPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandSampleTrack&>(cmdIn).m_LocalPoseOutput);
-        layer.transform = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
+        layer->transform = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
       }
       break;
 
       case ezAnimPoseGeneratorCommandType::CombinePoses:
       {
+        layer = &bl.ExpandAndGetRef();
+
         auto transform = AcquireLocalPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandCombinePoses&>(cmdIn).m_LocalPoseOutput);
-        layer.transform = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
+        layer->transform = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
       }
       break;
 
         EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+    }
+
+    layer->weight = cmd.m_InputWeights[i];
+
+    if (cmd.m_InputBoneWeights.GetCount() > i && !cmd.m_InputBoneWeights[i].IsEmpty())
+    {
+      layer->joint_weights = ozz::span(cmd.m_InputBoneWeights[i].GetPtr(), cmd.m_InputBoneWeights[i].GetEndPtr());
     }
   }
 
   ozz::animation::BlendingJob job;
   job.threshold = 1.0f;
   job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(bl), end(bl));
+  job.additive_layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(blAdd), end(blAdd));
   job.bind_pose = m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_bind_poses();
   job.output = ozz::span<ozz::math::SoaTransform>(transforms.GetPtr(), transforms.GetCount());
   EZ_ASSERT_DEBUG(job.Validate(), "");

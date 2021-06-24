@@ -20,6 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
   {
     EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", "*.fbx;*.gltf;*.glb")),
     EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
+    EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
     EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezContainerAttribute(false, false, false)),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
@@ -114,6 +115,7 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   ezModelImporter2::ImportOptions opt;
   opt.m_sSourceFile = sAbsFilename;
   opt.m_pAnimationOutput = &desc;
+  opt.m_bAdditiveAnimation = pProp->m_bAdditive;
   opt.m_sAnimationToImport = pProp->m_sAnimationClipToExtract;
   opt.m_uiFirstAnimKeyframe = pProp->m_uiFirstFrame;
   opt.m_uiNumAnimKeyframes = pProp->m_uiNumFrames;

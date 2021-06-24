@@ -50,6 +50,8 @@ namespace ezModelImporter2
     if (m_aiScene->mNumAnimations == 0)
       return EZ_FAILURE;
 
+    pAnimOut->m_bAdditive = m_Options.m_bAdditiveAnimation;
+
     m_OutputAnimationNames.SetCount(m_aiScene->mNumAnimations);
     for (ezUInt32 animIdx = 0; animIdx < m_aiScene->mNumAnimations; ++animIdx)
     {
@@ -110,6 +112,38 @@ namespace ezModelImporter2
         {
           orgRawAnim.tracks[channelIdx].scales[i].time = (float)(pChannel->mScalingKeys[i].mTime * fOneDivTicksPerSec);
           ai2ozz(pChannel->mScalingKeys[i].mValue, orgRawAnim.tracks[channelIdx].scales[i].value);
+        }
+
+        if (m_Options.m_bAdditiveAnimation)
+        {
+          auto refPos = orgRawAnim.tracks[channelIdx].translations[0].value;
+          auto refRot = Conjugate(orgRawAnim.tracks[channelIdx].rotations[0].value);
+          auto refScale = orgRawAnim.tracks[channelIdx].scales[0].value;
+          refScale.x = 1.0f / refScale.x;
+          refScale.y = 1.0f / refScale.y;
+          refScale.z = 1.0f / refScale.z;
+
+          for (ezUInt32 i = 0; i < pChannel->mNumPositionKeys; ++i)
+          {
+            auto& val = orgRawAnim.tracks[channelIdx].translations[i].value;
+            val.x -= refPos.x;
+            val.y -= refPos.y;
+            val.z -= refPos.z;
+          }
+
+          for (ezUInt32 i = 0; i < pChannel->mNumRotationKeys; ++i)
+          {
+            auto& val = orgRawAnim.tracks[channelIdx].rotations[i].value;
+            val = refRot * val;
+          }
+
+          for (ezUInt32 i = 0; i < pChannel->mNumScalingKeys; ++i)
+          {
+            auto& val = orgRawAnim.tracks[channelIdx].scales[i].value;
+            val.x *= refScale.x;
+            val.y *= refScale.y;
+            val.z *= refScale.z;
+          }
         }
       }
 
