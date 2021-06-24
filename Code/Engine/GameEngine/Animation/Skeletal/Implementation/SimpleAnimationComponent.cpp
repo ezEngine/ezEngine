@@ -150,8 +150,20 @@ void ezSimpleAnimationComponent::Update()
   cmdSample.m_EventSampling = mode;
 
   auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
-  cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
   cmdL2M.m_pSendLocalPoseMsgTo = GetOwner();
+
+  if (animDesc.m_bAdditive)
+  {
+    auto& cmdComb = poseGen.AllocCommandCombinePoses();
+    cmdComb.m_Inputs.PushBack(cmdSample.GetCommandID());
+    cmdComb.m_InputWeights.PushBack(1.0f);
+
+    cmdL2M.m_Inputs.PushBack(cmdComb.GetCommandID());
+  }
+  else
+  {
+    cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
+  }
 
   auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
   cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
