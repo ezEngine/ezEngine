@@ -3,6 +3,8 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 
+struct ezMsgAnimationPoseUpdated;
+
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
 using ezPxBoneColliderComponentManager = ezComponentManager<class ezPxBoneColliderComponent, ezBlockStorageType::Compact>;

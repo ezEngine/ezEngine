@@ -5,9 +5,12 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxBoneColliderComponent.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <Shapes/PxShapeBoxComponent.h>
 #include <Shapes/PxShapeCapsuleComponent.h>
 #include <Shapes/PxShapeSphereComponent.h>
+#include <WorldModule/PhysXWorldModule.h>
 
 using namespace physx;
 
