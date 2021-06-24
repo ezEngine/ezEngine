@@ -200,10 +200,10 @@ protected:
     ezDeque<ezAbstractGraphDiffOperation> diffResult;
     graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
-	// if index-based remapping is used, we MUST send a change event of some kind
-	// since the underlying data structures (memory locations) might have been changed,
-	// even if there is no actual change to the content
-	// the command history will detect that there was no change and actually send a "TransactionCanceled" event, but that is enough for other code to react to
+    // if index-based remapping is used, we MUST send a change event of some kind
+    // since the underlying data structures (memory locations) might have been changed,
+    // even if there is no actual change to the content
+    // the command history will detect that there was no change and actually send a "TransactionCanceled" event, but that is enough for other code to react to
     if (!diffResult.IsEmpty() || bForceIndexBasedRemapping)
     {
       // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
