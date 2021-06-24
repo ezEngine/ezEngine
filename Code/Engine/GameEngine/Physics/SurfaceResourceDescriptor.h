@@ -9,8 +9,8 @@
 #include <Foundation/Types/RangeView.h>
 #include <Foundation/Types/Variant.h>
 
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 
 struct ezSurfaceInteractionAlignment

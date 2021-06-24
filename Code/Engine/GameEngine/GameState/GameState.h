@@ -17,7 +17,7 @@ struct ezActorEvent;
 class ezWindowOutputTargetGAL;
 class ezActor;
 
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
 ///

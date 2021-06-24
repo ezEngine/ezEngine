@@ -88,8 +88,8 @@ void ezPxShapeCapsuleComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& ou
   out_ShapeTransform.q = PxQuat(ezAngle::Degree(90.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f));
 
   PxCapsuleGeometry capsule;
-  capsule.radius = m_fRadius * fScale;
-  capsule.halfHeight = m_fHeight * 0.5f * fScale;
+  capsule.radius = ezMath::Max(m_fRadius * fScale, 0.01f);
+  capsule.halfHeight = ezMath::Max(m_fHeight * 0.5f * fScale, 0.0001f);
 
   out_Shapes.PushBack(PxRigidActorExt::createExclusiveShape(*pActor, capsule, *GetPxMaterial()));
 }

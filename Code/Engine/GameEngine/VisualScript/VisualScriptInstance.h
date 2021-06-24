@@ -21,7 +21,7 @@ struct ezEventMessage;
 
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
-typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
+using ezVisualScriptResourceHandle = ezTypedResourceHandle<class ezVisualScriptResource>;
 
 typedef bool (*ezVisualScriptDataPinAssignFunc)(const void* src, void* dst);
 

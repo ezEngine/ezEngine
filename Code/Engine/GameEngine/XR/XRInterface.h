@@ -7,7 +7,7 @@
 #include <GameEngine/XR/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 class ezViewHandle;
 class ezCamera;
 class ezGALTextureHandle;

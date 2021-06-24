@@ -12,7 +12,7 @@
 #  include <RendererCore/Pipeline/Renderer.h>
 
 class ezRenderDataBatch;
-typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
 struct EZ_ALIGN_16(ezImguiVertex)
 {

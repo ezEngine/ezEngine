@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -71,19 +71,44 @@ ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 
 void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonJoint>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonBoneShape>())
   {
     auto& props = *e.m_pPropertyStates;
 
     const ezSkeletonJointGeometryType::Enum geomType = (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
 
+    const bool overrideName = e.m_pObject->GetTypeAccessor().GetValue("OverrideName").ConvertTo<bool>();
+    const bool overrideSurface = e.m_pObject->GetTypeAccessor().GetValue("OverrideSurface").ConvertTo<bool>();
+    const bool overrideCollisionLayer = e.m_pObject->GetTypeAccessor().GetValue("OverrideCollisionLayer").ConvertTo<bool>();
+
+    props["Offset"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Rotation"].m_Visibility = ezPropertyUiState::Invisible;
     props["Length"].m_Visibility = ezPropertyUiState::Invisible;
     props["Width"].m_Visibility = ezPropertyUiState::Invisible;
     props["Thickness"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Name"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Surface"].m_Visibility = ezPropertyUiState::Invisible;
+    props["CollisionLayer"].m_Visibility = ezPropertyUiState::Invisible;
+    props["OverrideName"].m_Visibility = ezPropertyUiState::Invisible;
+    props["OverrideSurface"].m_Visibility = ezPropertyUiState::Invisible;
+    props["OverrideCollisionLayer"].m_Visibility = ezPropertyUiState::Invisible;
+
+    if (geomType == ezSkeletonJointGeometryType::None)
+      return;
 
     props["Length"].m_sNewLabelText = "Length";
     props["Width"].m_sNewLabelText = "Width";
     props["Thickness"].m_sNewLabelText = "Thickness";
+
+    props["Offset"].m_Visibility = ezPropertyUiState::Default;
+    props["Rotation"].m_Visibility = ezPropertyUiState::Default;
+    props["OverrideName"].m_Visibility = ezPropertyUiState::Default;
+    props["OverrideSurface"].m_Visibility = ezPropertyUiState::Default;
+    props["OverrideCollisionLayer"].m_Visibility = ezPropertyUiState::Default;
+
+    props["Name"].m_Visibility = overrideName ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["Surface"].m_Visibility = overrideSurface ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["CollisionLayer"].m_Visibility = overrideCollisionLayer ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
     if (geomType == ezSkeletonJointGeometryType::Box)
     {
@@ -106,9 +131,22 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
   }
 }
 
+ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
+{
+  auto pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
+
+  ezSkeletonResourceDescriptor desc;
+  pProp->FillResourceDescriptor(desc);
+  desc.m_RootTransform = CalculateTransformationMatrix(pProp);
+
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+
+  return ezStatus(EZ_SUCCESS);
+}
+
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezProgressRange range("Transforming Asset", 4, false);
+  ezProgressRange range("Transforming Asset", 3, false);
 
   ezEditableSkeleton* pProp = GetProperties();
 
@@ -143,17 +181,10 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   // merge the new data with the actual asset document
   ApplyNativePropertyChangesToObjectManager(true);
-  pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
-
-  range.BeginNextStep("Processing Skeleton Data");
-
-  ezSkeletonResourceDescriptor desc;
-  pProp->FillResourceDescriptor(desc);
-  desc.m_RootTransform = CalculateTransformationMatrix(pProp);
 
   range.BeginNextStep("Writing Result");
 
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(WriteResource(stream));
 
   return ezStatus(EZ_SUCCESS);
 }

@@ -7,7 +7,7 @@
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 class ezParticleEffectInstance;
 struct ezResourceEvent;
 class ezTaskGroupID;

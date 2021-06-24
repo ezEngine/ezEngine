@@ -4,7 +4,7 @@
 #include <ParticlePlugin/Type/Quad/QuadParticleRenderer.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
 struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
 {

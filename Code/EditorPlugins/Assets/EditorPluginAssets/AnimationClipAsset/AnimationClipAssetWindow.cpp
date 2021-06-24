@@ -355,6 +355,8 @@ void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges()
 
 void ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
+  // also listen to TransactionCanceled, which is sent when a no-op happens (e.g. asset transform with no change)
+  // because the event track data object may still get replaced, and we have to get the new pointer
   if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
       e.m_Type == ezCommandHistoryEvent::Type::RedoEnded ||
       e.m_Type == ezCommandHistoryEvent::Type::TransactionCanceled)

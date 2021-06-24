@@ -113,6 +113,12 @@ PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, 
     return PxQueryHitType::eNONE;
   }
 
+  if (m_bIncludeQueryShapes == false && actor->getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION))
+  {
+    // ignore all shapes that don't participate in the simulation
+    return PxQueryHitType::eNONE;
+  }
+
   const PxFilterData& shapeFilterData = shape->getQueryFilterData();
 
   queryFlags = (PxHitFlags)0;

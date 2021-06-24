@@ -12,7 +12,7 @@ struct EZ_CORE_DLL ezCurve1DResourceDescriptor
   void Load(ezStreamReader& stream);
 };
 
-typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
+using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
 
 /// \brief A resource that stores 1D curves. The curves are stored in the descriptor.
 class EZ_CORE_DLL ezCurve1DResource : public ezResource

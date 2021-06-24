@@ -30,7 +30,7 @@ class ezRenderPipelinePass;
 class ezParticleFinalizer;
 class ezParticleFinalizerFactory;
 
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
 typedef ezGenericId<22, 10> ezParticleEffectId;
 

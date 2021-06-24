@@ -12,8 +12,8 @@ class ezGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
-typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
-typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
 typedef ezComponentManager<class ezGreyBoxComponent, ezBlockStorageType::Compact> ezGreyBoxComponentManager;
 

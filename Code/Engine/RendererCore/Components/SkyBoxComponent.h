@@ -4,7 +4,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 
 typedef ezComponentManager<class ezSkyBoxComponent, ezBlockStorageType::Compact> ezSkyBoxComponentManager;
-typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
+using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 
 class EZ_RENDERERCORE_DLL ezSkyBoxComponent : public ezRenderComponent
 {

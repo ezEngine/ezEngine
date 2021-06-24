@@ -277,6 +277,10 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd,
   job.cache = pSampler;
   job.ratio = cmd.m_fNormalizedSamplePos;
   job.output = ozz::span<ozz::math::SoaTransform>(transforms.GetPtr(), transforms.GetCount());
+
+  if (!job.Validate())
+    return;
+
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
 

@@ -9,7 +9,7 @@
 class ezRenderDataBatch;
 class ezSceneContext;
 
-typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
 class ezGridRenderData : public ezRenderData
 {

@@ -1,5 +1,6 @@
 #include <PhysXPluginPCH.h>
 
+#include <Components/PxQueryShapeActorComponent.h>
 #include <Components/PxStaticActorComponent.h>
 #include <Components/PxTriggerComponent.h>
 #include <Core/Messages/CollisionMessage.h>
@@ -752,6 +753,7 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
 
   ezPxRaycastCallback closestHit;
   ezPxQueryFilter queryFilter;
+  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -790,6 +792,7 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
   PxRaycastBuffer allHits(raycastHits.GetPtr(), raycastHits.GetCount());
 
   ezPxQueryFilter queryFilter;
+  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -1050,6 +1053,7 @@ bool ezPhysXWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const physx:
 
   ezPxSweepCallback closestHit;
   ezPxQueryFilter queryFilter;
+  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -1109,6 +1113,7 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
 
   ezPxOverlapCallback closestHit;
   ezPxQueryFilter queryFilter;
+  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -1138,6 +1143,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   }
 
   ezPxQueryFilter queryFilter;
+  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
 
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
@@ -1192,6 +1198,7 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
 {
   ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>();
   ezPxTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezPxTriggerComponentManager>();
+  ezPxQueryShapeActorComponentManager* pQueryShapesManager = GetWorld()->GetComponentManager<ezPxQueryShapeActorComponentManager>();
 
   EZ_PX_WRITE_LOCK(*m_pPxScene);
 
@@ -1219,6 +1226,11 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
   if (pDynamicActorManager != nullptr)
   {
     pDynamicActorManager->UpdateKinematicActors();
+  }
+
+  if (pQueryShapesManager != nullptr)
+  {
+    pQueryShapesManager->UpdateKinematicActors();
   }
 
   if (pTriggerManager != nullptr)

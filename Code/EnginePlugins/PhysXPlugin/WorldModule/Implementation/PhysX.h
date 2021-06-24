@@ -37,6 +37,9 @@ public:
 class ezPxQueryFilter : public PxQueryFilterCallback
 {
 public:
+  /// \brief Whether shapes that are only used for scene queries (not for simulation) should be checked.
+  bool m_bIncludeQueryShapes = true;
+
   virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override;
   virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override;
 };

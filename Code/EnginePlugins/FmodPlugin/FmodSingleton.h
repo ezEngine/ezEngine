@@ -12,7 +12,7 @@ class ezOpenDdlWriter;
 class ezOpenDdlReaderElement;
 typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 
-typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
+using ezFmodSoundBankResourceHandle = ezTypedResourceHandle<class ezFmodSoundBankResource>;
 
 /// \brief Abstraction of FMOD_SPEAKERMODE
 enum class ezFmodSpeakerMode : ezUInt8

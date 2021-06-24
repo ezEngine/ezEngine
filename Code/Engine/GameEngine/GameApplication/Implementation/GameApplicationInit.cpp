@@ -10,6 +10,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
@@ -22,6 +23,7 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <Utils/ImageDataResource.h>
 
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
 constexpr const char* szDefaultRenderer = "Vulkan";
@@ -52,6 +54,12 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
   ezResourceManager::RegisterResourceForAssetType("Color Gradient", ezGetStaticRTTI<ezColorGradientResource>());
   ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animation Controller", ezGetStaticRTTI<ezAnimGraphResource>());
+  ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
+  ezResourceManager::RegisterResourceForAssetType("Property Anim", ezGetStaticRTTI<ezPropertyAnimResource>());
+  ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()

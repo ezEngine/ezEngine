@@ -8,7 +8,7 @@
 
 struct ezMsgComponentInternalTrigger;
 typedef ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact> ezTimedDeathComponentManager;
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 /// \brief This component deletes the object it is attached to after a timeout.
 ///

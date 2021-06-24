@@ -47,3 +47,4 @@ ezPxJointDriveMode::DriveAndSpin; Drive and Spin
 ezPxJointDriveMode::DriveAndBrake; Drive and Brake
 ezPxGrabObjectComponent;PhysX Grab Object
 ezPxCharacterCapsuleShapeComponent;PhysX Character Capsule Shape
+ezPxBoneColliderComponent;Bone Collider

@@ -12,7 +12,7 @@
 
 class ezImage;
 
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
 /// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTexture2DResource> to create textures from data in memory.
 struct EZ_RENDERERCORE_DLL ezTexture2DResourceDescriptor
@@ -74,7 +74,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezTypedResourceHandle<class ezRenderToTexture2DResource> ezRenderToTexture2DResourceHandle;
+using ezRenderToTexture2DResourceHandle = ezTypedResourceHandle<class ezRenderToTexture2DResource>;
 
 struct EZ_RENDERERCORE_DLL ezRenderToTexture2DResourceDescriptor
 {

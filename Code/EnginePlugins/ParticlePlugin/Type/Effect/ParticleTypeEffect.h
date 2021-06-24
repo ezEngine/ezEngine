@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory final : public ezParticleTypeFactory
 {

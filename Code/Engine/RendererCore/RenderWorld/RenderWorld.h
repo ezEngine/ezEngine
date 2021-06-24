@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
 struct ezRenderWorldExtractionEvent
 {
