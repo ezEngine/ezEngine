@@ -5,7 +5,7 @@
 
 struct SpriteData;
 class ezRenderDataBatch;
-typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
 /// \brief Implements rendering of sprites
 class EZ_RENDERERCORE_DLL ezSpriteRenderer : public ezRenderer

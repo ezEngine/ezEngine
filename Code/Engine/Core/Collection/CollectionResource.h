@@ -21,7 +21,7 @@ struct EZ_CORE_DLL ezCollectionResourceDescriptor
   void Load(ezStreamReader& stream);
 };
 
-typedef ezTypedResourceHandle<class ezCollectionResource> ezCollectionResourceHandle;
+using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
 
 /// \brief An ezCollectionResource is used to tell the engine about resources that it should preload in the background
 ///

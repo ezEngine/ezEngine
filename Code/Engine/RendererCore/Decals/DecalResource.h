@@ -4,7 +4,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
+using ezDecalResourceHandle = ezTypedResourceHandle<class ezDecalResource>;
 
 struct ezDecalResourceDescriptor
 {

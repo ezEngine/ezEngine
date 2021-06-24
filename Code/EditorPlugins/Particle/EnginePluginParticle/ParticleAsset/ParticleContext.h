@@ -7,7 +7,7 @@
 
 class ezParticleComponent;
 
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
 class EZ_ENGINEPLUGINPARTICLE_DLL ezParticleContext : public ezEngineProcessDocumentContext
 {

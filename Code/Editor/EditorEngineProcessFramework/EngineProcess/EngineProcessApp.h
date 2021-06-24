@@ -9,7 +9,7 @@
 
 class ezActor;
 
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
 enum class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessMode
 {

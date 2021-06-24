@@ -4,8 +4,8 @@
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <PhysXPlugin/PhysXPluginDLL.h>
 
-typedef ezTypedResourceHandle<class ezPxMeshResource> ezPxMeshResourceHandle;
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
+using ezPxMeshResourceHandle = ezTypedResourceHandle<class ezPxMeshResource>;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 struct ezMsgExtractGeometry;
 

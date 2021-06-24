@@ -10,7 +10,7 @@ class dtCrowd;
 class dtNavMesh;
 struct ezResourceEvent;
 
-typedef ezTypedResourceHandle<class ezRecastNavMeshResource> ezRecastNavMeshResourceHandle;
+using ezRecastNavMeshResourceHandle = ezTypedResourceHandle<class ezRecastNavMeshResource>;
 
 class EZ_RECASTPLUGIN_DLL ezRecastWorldModule : public ezWorldModule
 {

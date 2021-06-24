@@ -6,7 +6,7 @@
 #include <KrautPlugin/KrautDeclarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 
 class EZ_KRAUTPLUGIN_DLL ezKrautRenderData : public ezRenderData
 {

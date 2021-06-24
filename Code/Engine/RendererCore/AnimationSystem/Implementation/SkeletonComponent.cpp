@@ -11,13 +11,14 @@
 #include <ozz/base/maths/simd_math.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
     EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("BonesToHighlight", GetBonesToHighlight, SetBonesToHighlight),
+    EZ_MEMBER_PROPERTY("VisualizeColliders", m_bVisualizeColliders),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -46,7 +47,7 @@ ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 
 void ezSkeletonComponent::Update()
 {
-  if (m_bVisualizeSkeleton)
+  if (m_bVisualizeSkeleton || m_bVisualizeColliders)
   {
     if (m_hSkeleton.IsValid())
     {
@@ -58,6 +59,21 @@ void ezSkeletonComponent::Update()
     }
 
     ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::White, GetOwner()->GetGlobalTransform());
+
+    for (const auto& shape : m_SpheresSkeleton)
+    {
+      ezDebugRenderer::DrawLineSphere(GetWorld(), shape.m_Shape, ezColor::Yellow, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+    }
+
+    for (const auto& shape : m_BoxesSkeleton)
+    {
+      ezDebugRenderer::DrawLineBox(GetWorld(), shape.m_Shape, ezColor::Yellow, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+    }
+
+    for (const auto& shape : m_CapsulesSkeleton)
+    {
+      ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), shape.m_fLength, shape.m_fRadius, ezColor::Yellow, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+    }
   }
 }
 
@@ -70,6 +86,7 @@ void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hSkeleton;
   s << m_bVisualizeSkeleton;
   s << m_sBonesToHighlight;
+  s << m_bVisualizeColliders;
 }
 
 void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
@@ -85,6 +102,11 @@ void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 2)
   {
     s >> m_sBonesToHighlight;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bVisualizeColliders;
   }
 }
 
@@ -146,162 +168,226 @@ const char* ezSkeletonComponent::GetBonesToHighlight() const
 void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
   m_LinesSkeleton.Clear();
+  m_SpheresSkeleton.Clear();
+  m_BoxesSkeleton.Clear();
+  m_CapsulesSkeleton.Clear();
 
   ezBoundingSphere bsphere;
   bsphere.SetInvalid();
   bsphere.m_fRadius = 0.0f;
 
-  ezStringBuilder tmp;
-
-  struct Bone
+  if (m_bVisualizeSkeleton)
   {
-    ezVec3 pos = ezVec3::ZeroVector();
-    ezVec3 dir = ezVec3::ZeroVector();
-    float distToParent = 0.0f;
-    float minDistToChild = 10.0f;
-    bool highlight = false;
-  };
+    ezStringBuilder tmp;
 
-  ezHybridArray<Bone, 128> bones;
-  bones.SetCount(msg.m_pSkeleton->GetJointCount());
-
-  const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
-
-  auto renderBone = [&](int currentBone, int parentBone) {
-    if (parentBone == ozz::animation::Skeleton::kNoParent)
-      return;
-
-    const ezVec3 v0 = *msg.m_pRootTransform * msg.m_ModelTransforms[parentBone].GetTranslationVector();
-    const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].GetTranslationVector();
-
-    ezVec3 dirToBone = (v1 - v0);
-
-    bsphere.ExpandToInclude(v0);
-
-    auto& bone = bones[currentBone];
-    bone.pos = v1;
-    bone.distToParent = dirToBone.GetLength();
-    bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].TransformDirection(vBoneDir);
-    bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
-
-    auto& pb = bones[parentBone];
-
-    const ezString currentName = msg.m_pSkeleton->GetJointByIndex(currentBone).GetName().GetString();
-
-    if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
+    struct Bone
     {
-      if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::Degree(45))
+      ezVec3 pos = ezVec3::ZeroVector();
+      ezVec3 dir = ezVec3::ZeroVector();
+      float distToParent = 0.0f;
+      float minDistToChild = 10.0f;
+      bool highlight = false;
+    };
+
+    ezHybridArray<Bone, 128> bones;
+    bones.SetCount(msg.m_pSkeleton->GetJointCount());
+
+    const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
+
+    auto renderBone = [&](int currentBone, int parentBone) {
+      if (parentBone == ozz::animation::Skeleton::kNoParent)
+        return;
+
+      const ezVec3 v0 = *msg.m_pRootTransform * msg.m_ModelTransforms[parentBone].GetTranslationVector();
+      const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].GetTranslationVector();
+
+      ezVec3 dirToBone = (v1 - v0);
+
+      bsphere.ExpandToInclude(v0);
+
+      auto& bone = bones[currentBone];
+      bone.pos = v1;
+      bone.distToParent = dirToBone.GetLength();
+      bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].TransformDirection(vBoneDir);
+      bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+
+      auto& pb = bones[parentBone];
+
+      const ezString currentName = msg.m_pSkeleton->GetJointByIndex(currentBone).GetName().GetString();
+
+      if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
       {
-        ezPlane plane;
-        plane.SetFromNormalAndPoint(pb.dir, pb.pos);
-        pb.minDistToChild = ezMath::Min(pb.minDistToChild, plane.GetDistanceTo(v1));
+        if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::Degree(45))
+        {
+          ezPlane plane;
+          plane.SetFromNormalAndPoint(pb.dir, pb.pos);
+          pb.minDistToChild = ezMath::Min(pb.minDistToChild, plane.GetDistanceTo(v1));
+        }
       }
-    }
-  };
+    };
 
-  ozz::animation::IterateJointsDF(msg.m_pSkeleton->GetOzzSkeleton(), renderBone);
+    ozz::animation::IterateJointsDF(msg.m_pSkeleton->GetOzzSkeleton(), renderBone);
 
-  if (m_sBonesToHighlight == "*")
-  {
-    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+    if (m_sBonesToHighlight == "*")
     {
-      bones[b].highlight = true;
-    }
-  }
-  else if (!m_sBonesToHighlight.IsEmpty())
-  {
-    const ezStringBuilder mask(";", m_sBonesToHighlight, ";");
-
-    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
-    {
-      const ezString currentName = msg.m_pSkeleton->GetJointByIndex(b).GetName().GetString();
-
-      tmp.Set(";", currentName, ";");
-
-      if (mask.FindSubString(tmp))
+      for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
       {
         bones[b].highlight = true;
       }
     }
-  }
-
-  for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
-  {
-    const auto& bone = bones[b];
-
-    if (!bone.highlight)
+    else if (!m_sBonesToHighlight.IsEmpty())
     {
-      float len = 0.3f;
+      const ezStringBuilder mask(";", m_sBonesToHighlight, ";");
 
-      if (bone.minDistToChild < 10.0f)
+      for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
       {
-        len = bone.minDistToChild;
-      }
-      else if (bone.distToParent > 0)
-      {
-        len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
-      }
-      else
-      {
-        len = 0.1f;
-      }
+        const ezString currentName = msg.m_pSkeleton->GetJointByIndex(b).GetName().GetString();
 
-      ezVec3 v0 = bone.pos;
-      ezVec3 v1 = bone.pos + bone.dir * len;
+        tmp.Set(";", currentName, ";");
 
-      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
-      m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
-      m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
+        if (mask.FindSubString(tmp))
+        {
+          bones[b].highlight = true;
+        }
+      }
+    }
+
+    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+    {
+      const auto& bone = bones[b];
+
+      if (!bone.highlight)
+      {
+        float len = 0.3f;
+
+        if (bone.minDistToChild < 10.0f)
+        {
+          len = bone.minDistToChild;
+        }
+        else if (bone.distToParent > 0)
+        {
+          len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
+        }
+        else
+        {
+          len = 0.1f;
+        }
+
+        ezVec3 v0 = bone.pos;
+        ezVec3 v1 = bone.pos + bone.dir * len;
+
+        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+        m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
+        m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
+      }
+    }
+
+    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+    {
+      const auto& bone = bones[b];
+
+      if (bone.highlight && !bone.dir.IsZero(0.0001f))
+      {
+        float len = 0.3f;
+
+        if (bone.minDistToChild < 10.0f)
+        {
+          len = bone.minDistToChild;
+        }
+        else if (bone.distToParent > 0)
+        {
+          len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
+        }
+        else
+        {
+          len = 0.1f;
+        }
+
+        ezVec3 v0 = bone.pos;
+        ezVec3 v1 = bone.pos + bone.dir * len;
+
+        const ezVec3 vO1 = bone.dir.GetOrthogonalVector().GetNormalized();
+        const ezVec3 vO2 = bone.dir.CrossRH(vO1).GetNormalized();
+
+        ezVec3 s[4];
+        s[0] = v0 + vO1 * len * 0.1f + bone.dir * len * 0.1f;
+        s[1] = v0 + vO2 * len * 0.1f + bone.dir * len * 0.1f;
+        s[2] = v0 - vO1 * len * 0.1f + bone.dir * len * 0.1f;
+        s[3] = v0 - vO2 * len * 0.1f + bone.dir * len * 0.1f;
+
+        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+        m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
+        m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
+
+        for (ezUInt32 si = 0; si < 4; ++si)
+        {
+          m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, s[si]));
+          m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
+          m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
+
+          m_LinesSkeleton.PushBack(ezDebugRenderer::Line(s[si], v1));
+          m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
+          m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
+        }
+      }
     }
   }
 
-  for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+  if (m_bVisualizeColliders && m_hSkeleton.IsValid())
   {
-    const auto& bone = bones[b];
+    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
-    if (bone.highlight && !bone.dir.IsZero(0.0001f))
+    for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
     {
-      float len = 0.3f;
+      if (geo.m_Type == ezSkeletonJointGeometryType::None)
+        continue;
 
-      if (bone.minDistToChild < 10.0f)
+      ezMat4 boneTrans;
+      ezQuat boneRot;
+      msg.ComputeFullBoneTransform(geo.m_uiAttachedToJoint, boneTrans, boneRot);
+
+      ezTransform st;
+      st.SetIdentity();
+      st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * geo.m_Transform.m_vPosition);
+      st.m_qRotation = boneRot * geo.m_Transform.m_qRotation;
+
+      if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
       {
-        len = bone.minDistToChild;
+        auto& shape = m_SpheresSkeleton.ExpandAndGetRef();
+        shape.m_Transform = st;
+        shape.m_Shape.SetElements(ezVec3::ZeroVector(), geo.m_Transform.m_vScale.z);
       }
-      else if (bone.distToParent > 0)
+
+      if (geo.m_Type == ezSkeletonJointGeometryType::Box)
       {
-        len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
+        auto& shape = m_BoxesSkeleton.ExpandAndGetRef();
+
+        ezVec3 ext;
+        ext.x = geo.m_Transform.m_vScale.y * 0.5f;
+        ext.y = geo.m_Transform.m_vScale.x * 0.5f;
+        ext.z = geo.m_Transform.m_vScale.z * 0.5f;
+
+        st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * (geo.m_Transform.m_vPosition + ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0)));
+
+        shape.m_Transform = st;
+        shape.m_Shape.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
       }
-      else
+
+      if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
       {
-        len = 0.1f;
+        ezQuat qRot;
+        qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+
+        st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * (geo.m_Transform.m_vPosition + ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0)));
+
+        auto& shape = m_CapsulesSkeleton.ExpandAndGetRef();
+        shape.m_Transform = st;
+        shape.m_Transform.m_qRotation = shape.m_Transform.m_qRotation * qRot;
+        shape.m_fLength = geo.m_Transform.m_vScale.x;
+        shape.m_fRadius = geo.m_Transform.m_vScale.z;
       }
 
-      ezVec3 v0 = bone.pos;
-      ezVec3 v1 = bone.pos + bone.dir * len;
-
-      const ezVec3 vO1 = bone.dir.GetOrthogonalVector().GetNormalized();
-      const ezVec3 vO2 = bone.dir.CrossRH(vO1).GetNormalized();
-
-      ezVec3 s[4];
-      s[0] = v0 + vO1 * len * 0.1f + bone.dir * len * 0.1f;
-      s[1] = v0 + vO2 * len * 0.1f + bone.dir * len * 0.1f;
-      s[2] = v0 - vO1 * len * 0.1f + bone.dir * len * 0.1f;
-      s[3] = v0 - vO2 * len * 0.1f + bone.dir * len * 0.1f;
-
-      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
-      m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
-      m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
-
-      for (ezUInt32 si = 0; si < 4; ++si)
-      {
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, s[si]));
-        m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
-        m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
-
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(s[si], v1));
-        m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
-        m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
-      }
+      bsphere.ExpandToInclude(st.m_vPosition);
     }
   }
 
@@ -321,6 +407,10 @@ void ezSkeletonComponent::UpdateSkeletonVis()
     return;
 
   m_LinesSkeleton.Clear();
+  m_SpheresSkeleton.Clear();
+  m_BoxesSkeleton.Clear();
+  m_CapsulesSkeleton.Clear();
+
   m_LocalBounds.SetInvalid();
   m_uiSkeletonChangeCounter = 0;
 

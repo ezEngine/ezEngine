@@ -8,7 +8,7 @@
 #include <Foundation/Types/Variant.h>
 #include <GameEngine/GameEngineDLL.h>
 
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 typedef ezComponentManager<class ezPlayerStartPointComponent, ezBlockStorageType::Compact> ezPlayerStartPointComponentManager;
 

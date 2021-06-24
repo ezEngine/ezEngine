@@ -5,13 +5,16 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-// struct ezSkeletonResourceGeometry
-//{
-//  // scale is used to resize a unit sphere / box / capsule
-//  ezTransform m_Transform;
-//  ezUInt16 m_uiAttachedToJoint = 0;
-//  ezEnum<ezSkeletonJointGeometryType> m_Type;
-//};
+struct ezSkeletonResourceGeometry
+{
+  // scale is used to resize a unit sphere / box / capsule
+  ezTransform m_Transform;
+  ezUInt16 m_uiAttachedToJoint = 0;
+  ezEnum<ezSkeletonJointGeometryType> m_Type;
+  ezHashedString m_sName;
+  ezHashedString m_sSurface;
+  ezUInt8 m_uiCollisionLayer = 0;
+};
 
 struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 {
@@ -30,7 +33,7 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
   ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezSkeleton m_Skeleton;
 
-  // ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
+  ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
 };
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;

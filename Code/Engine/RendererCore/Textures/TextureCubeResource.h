@@ -9,7 +9,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <Texture/Image/Image.h>
 
-typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
+using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 
 /// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTextureCubeResource> to create textures from data in memory.
 struct ezTextureCubeResourceDescriptor

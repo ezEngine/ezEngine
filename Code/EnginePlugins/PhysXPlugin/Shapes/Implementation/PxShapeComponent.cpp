@@ -129,6 +129,12 @@ const char* ezPxShapeComponent::GetSurfaceFile() const
   return m_hSurface.GetResourceID();
 }
 
+void ezPxShapeComponent::SetInitialShapeId(ezUInt32 id)
+{
+  EZ_ASSERT_DEV(m_uiShapeId == ezInvalidIndex, "ezPxShapeComponent::SetInitialShapeId() can only be called before the component has been activated.");
+  m_uiShapeId = id;
+}
+
 void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform& parentTransform)
 {
   PxTransform shapeTransform(PxIdentity);
@@ -142,21 +148,26 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
   ezSimdTransform localTransform;
   localTransform.SetLocalTransform(parentTransform, ownerTransform);
 
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+
+  if (m_uiShapeId == ezInvalidIndex)
+  {
+    m_uiShapeId = pModule->CreateShapeId();
+  }
+
+  PxFilterData filter = CreateFilterData();
+
+  ezPxUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+
+  const PxTransform t = ezPxConversionUtils::ToTransform(localTransform);
+
   for (auto pShape : shapes)
   {
-    PxTransform t = ezPxConversionUtils::ToTransform(localTransform);
     pShape->setLocalPose(t * shapeTransform);
-
-    ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-    m_uiShapeId = pModule->CreateShapeId();
-
-    PxFilterData filter = CreateFilterData();
     pShape->setSimulationFilterData(filter);
     pShape->setQueryFilterData(filter);
-
-    ezPxUserData* pUserData = nullptr;
-    m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
-    pUserData->Init(this);
     pShape->userData = pUserData;
   }
 }

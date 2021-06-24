@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <FmodPlugin/FmodPluginDLL.h>
 
-typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
+using ezFmodSoundBankResourceHandle = ezTypedResourceHandle<class ezFmodSoundBankResource>;
 
 struct EZ_FMODPLUGIN_DLL ezFmodSoundBankResourceDescriptor
 {

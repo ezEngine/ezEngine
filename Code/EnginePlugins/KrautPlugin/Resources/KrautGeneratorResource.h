@@ -14,9 +14,9 @@ namespace Kraut
   struct TreeStructureDesc;
 }; // namespace Kraut
 
-typedef ezTypedResourceHandle<class ezKrautGeneratorResource> ezKrautGeneratorResourceHandle;
-typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
-typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+using ezKrautGeneratorResourceHandle = ezTypedResourceHandle<class ezKrautGeneratorResource>;
+using ezKrautTreeResourceHandle = ezTypedResourceHandle<class ezKrautTreeResource>;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
 struct ezKrautMaterialDescriptor
 {

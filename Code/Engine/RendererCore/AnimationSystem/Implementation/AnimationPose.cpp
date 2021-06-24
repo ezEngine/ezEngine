@@ -32,6 +32,31 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgApplyRootMotion, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform) const
+{
+  fullTransform = m_pRootTransform->GetAsMat4() * m_ModelTransforms[uiJointIndex];
+}
+
+void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const
+{
+  fullTransform = m_pRootTransform->GetAsMat4() * m_ModelTransforms[uiJointIndex];
+
+  // the bone might contain (non-uniform) scaling and mirroring, which the quaternion can't represent
+  // so reconstruct a representable rotation matrix
+  {
+    const ezVec3 x = fullTransform.TransformDirection(ezVec3(1, 0, 0)).GetNormalized();
+    const ezVec3 y = fullTransform.TransformDirection(ezVec3(0, 1, 0)).GetNormalized();
+    const ezVec3 z = x.CrossRH(y);
+
+    ezMat3 m;
+    m.SetColumn(0, x);
+    m.SetColumn(1, y);
+    m.SetColumn(2, z);
+
+    rotationOnly.SetFromMat3(m);
+  }
+}
+
 ezSkinningSpaceAnimationPose::ezSkinningSpaceAnimationPose() = default;
 ezSkinningSpaceAnimationPose::~ezSkinningSpaceAnimationPose() = default;
 

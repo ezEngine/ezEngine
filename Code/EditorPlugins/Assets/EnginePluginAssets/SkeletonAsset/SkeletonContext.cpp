@@ -71,6 +71,7 @@ void ezSkeletonContext::OnInitialize()
     m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
     pVisSkeleton->SetSkeleton(m_hSkeleton);
     pVisSkeleton->m_bVisualizeSkeleton = true;
+    pVisSkeleton->m_bVisualizeColliders = true;
   }
 }
 

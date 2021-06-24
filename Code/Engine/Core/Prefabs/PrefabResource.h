@@ -5,7 +5,7 @@
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/PropertyPath.h>
 
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 struct EZ_CORE_DLL ezPrefabResourceDescriptor
 {

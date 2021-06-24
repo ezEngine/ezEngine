@@ -6,7 +6,7 @@
 #include <RtsGamePlugin/RtsGamePluginDLL.h>
 
 class RtsGameMode;
-typedef ezTypedResourceHandle<class ezCollectionResource> ezCollectionResourceHandle;
+using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
 
 enum class RtsActiveGameMode
 {

@@ -10,6 +10,7 @@ class ezPxCharacterShapeComponent;
 class ezPxShapeComponent;
 class ezSurfaceResource;
 class ezBreakableSheetComponent;
+class ezPxQueryShapeActorComponent;
 
 class ezPxUserData
 {
@@ -21,49 +22,55 @@ public:
 
   EZ_ALWAYS_INLINE void Init(ezPxDynamicActorComponent* pObject)
   {
-    m_Type = DynamicActorComponent;
+    m_Type = Type::DynamicActorComponent;
     m_pObject = pObject;
   }
 
   EZ_ALWAYS_INLINE void Init(ezPxStaticActorComponent* pObject)
   {
-    m_Type = StaticActorComponent;
+    m_Type = Type::StaticActorComponent;
     m_pObject = pObject;
   }
 
   EZ_ALWAYS_INLINE void Init(ezPxTriggerComponent* pObject)
   {
-    m_Type = TriggerComponent;
+    m_Type = Type::TriggerComponent;
     m_pObject = pObject;
   }
 
   EZ_ALWAYS_INLINE void Init(ezPxCharacterShapeComponent* pObject)
   {
-    m_Type = CharacterShapeComponent;
+    m_Type = Type::CharacterShapeComponent;
     m_pObject = pObject;
   }
 
   EZ_ALWAYS_INLINE void Init(ezPxShapeComponent* pObject)
   {
-    m_Type = ShapeComponent;
+    m_Type = Type::ShapeComponent;
     m_pObject = pObject;
   }
 
   EZ_ALWAYS_INLINE void Init(ezBreakableSheetComponent* pObject)
   {
-    m_Type = BreakableSheetComponent;
+    m_Type = Type::BreakableSheetComponent;
+    m_pObject = pObject;
+  }
+
+  EZ_ALWAYS_INLINE void Init(ezPxQueryShapeActorComponent* pObject)
+  {
+    m_Type = Type::QueryShapeActorComponent;
     m_pObject = pObject;
   }
 
   EZ_ALWAYS_INLINE ezPxUserData(ezSurfaceResource* pObject)
-    : m_Type(SurfaceResource)
-    , m_pObject(pObject)
   {
+    m_Type = Type::SurfaceResource;
+    m_pObject = pObject;
   }
 
   EZ_FORCE_INLINE void Invalidate()
   {
-    m_Type = Invalid;
+    m_Type = Type::Invalid;
     m_pObject = nullptr;
     m_pAdditionalUserData = nullptr;
   }
@@ -71,7 +78,7 @@ public:
   EZ_FORCE_INLINE static ezPxDynamicActorComponent* GetDynamicActorComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == DynamicActorComponent)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::DynamicActorComponent)
     {
       return static_cast<ezPxDynamicActorComponent*>(pPxUserData->m_pObject);
     }
@@ -82,7 +89,7 @@ public:
   EZ_FORCE_INLINE static ezPxStaticActorComponent* GetStaticActorComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == StaticActorComponent)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::StaticActorComponent)
     {
       return static_cast<ezPxStaticActorComponent*>(pPxUserData->m_pObject);
     }
@@ -93,7 +100,7 @@ public:
   EZ_FORCE_INLINE static ezPxTriggerComponent* GetTriggerComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == TriggerComponent)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::TriggerComponent)
     {
       return static_cast<ezPxTriggerComponent*>(pPxUserData->m_pObject);
     }
@@ -104,7 +111,7 @@ public:
   EZ_FORCE_INLINE static ezPxCharacterShapeComponent* GetCharacterShapeComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == CharacterShapeComponent)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::CharacterShapeComponent)
     {
       return static_cast<ezPxCharacterShapeComponent*>(pPxUserData->m_pObject);
     }
@@ -115,7 +122,7 @@ public:
   EZ_FORCE_INLINE static ezPxShapeComponent* GetShapeComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == ShapeComponent)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::ShapeComponent)
     {
       return static_cast<ezPxShapeComponent*>(pPxUserData->m_pObject);
     }
@@ -126,9 +133,20 @@ public:
   EZ_FORCE_INLINE static ezBreakableSheetComponent* GetBreakableSheetComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == BreakableSheetComponent)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::BreakableSheetComponent)
     {
       return static_cast<ezBreakableSheetComponent*>(pPxUserData->m_pObject);
+    }
+
+    return nullptr;
+  }
+
+  EZ_FORCE_INLINE static ezPxQueryShapeActorComponent* GetQueryShapeActorComponent(void* pUserData)
+  {
+    ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::QueryShapeActorComponent)
+    {
+      return static_cast<ezPxQueryShapeActorComponent*>(pPxUserData->m_pObject);
     }
 
     return nullptr;
@@ -137,11 +155,18 @@ public:
   EZ_FORCE_INLINE static ezComponent* GetComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr &&
-        (pPxUserData->m_Type == DynamicActorComponent || pPxUserData->m_Type == StaticActorComponent || pPxUserData->m_Type == TriggerComponent ||
-          pPxUserData->m_Type == CharacterShapeComponent || pPxUserData->m_Type == ShapeComponent || pPxUserData->m_Type == BreakableSheetComponent))
+    if (pPxUserData != nullptr)
     {
-      return static_cast<ezComponent*>(pPxUserData->m_pObject);
+      if (pPxUserData->m_Type == Type::DynamicActorComponent ||
+          pPxUserData->m_Type == Type::StaticActorComponent ||
+          pPxUserData->m_Type == Type::TriggerComponent ||
+          pPxUserData->m_Type == Type::CharacterShapeComponent ||
+          pPxUserData->m_Type == Type::ShapeComponent ||
+          pPxUserData->m_Type == Type::QueryShapeActorComponent ||
+          pPxUserData->m_Type == Type::BreakableSheetComponent)
+      {
+        return static_cast<ezComponent*>(pPxUserData->m_pObject);
+      }
     }
 
     return nullptr;
@@ -150,7 +175,7 @@ public:
   EZ_FORCE_INLINE static ezSurfaceResource* GetSurfaceResource(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == SurfaceResource)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::SurfaceResource)
     {
       return static_cast<ezSurfaceResource*>(pPxUserData->m_pObject);
     }
@@ -168,7 +193,7 @@ public:
 
 
 private:
-  enum Type
+  enum class Type
   {
     Invalid,
     DynamicActorComponent,
@@ -177,10 +202,11 @@ private:
     CharacterShapeComponent,
     ShapeComponent,
     BreakableSheetComponent,
-    SurfaceResource
+    SurfaceResource,
+    QueryShapeActorComponent,
   };
 
-  Type m_Type = Invalid;
+  Type m_Type = Type::Invalid;
   void* m_pObject = nullptr;
   void* m_pAdditionalUserData = nullptr;
 };

@@ -8,7 +8,7 @@
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
 
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 /// \brief Used for raycast and seep tests
 struct ezPhysicsCastResult
@@ -60,6 +60,7 @@ struct ezPhysicsQueryParameters
   ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
   ezUInt32 m_uiIgnoreShapeId = ezInvalidIndex;
   bool m_bIgnoreInitialOverlap = false;
+  bool m_bIncludeQueryShapes = true;
 };
 
 enum class ezPhysicsHitCollection

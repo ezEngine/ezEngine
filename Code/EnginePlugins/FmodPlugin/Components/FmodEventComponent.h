@@ -43,7 +43,7 @@ private:
   void ResourceEventHandler(const ezResourceEvent& e);
 };
 
-typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
+using ezFmodSoundEventResourceHandle = ezTypedResourceHandle<class ezFmodSoundEventResource>;
 
 struct ezResourceEvent;
 

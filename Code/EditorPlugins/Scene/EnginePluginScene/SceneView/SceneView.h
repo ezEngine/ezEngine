@@ -11,7 +11,7 @@ class ezEditorEngineDocumentMsg;
 class ezEditorRenderPass;
 class ezSelectedObjectsExtractor;
 class ezSceneContext;
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 class ezViewMarqueePickingMsgToEngine;
 
 struct ObjectData

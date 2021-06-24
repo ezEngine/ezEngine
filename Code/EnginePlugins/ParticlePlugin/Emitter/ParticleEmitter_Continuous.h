@@ -4,7 +4,7 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
-typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
+using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Continuous final : public ezParticleEmitterFactory
 {

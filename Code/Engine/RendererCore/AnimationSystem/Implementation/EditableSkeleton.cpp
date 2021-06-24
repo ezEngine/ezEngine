@@ -13,6 +13,29 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointGeometryType, 1)
 EZ_ENUM_CONSTANTS(ezSkeletonJointGeometryType::None, ezSkeletonJointGeometryType::Capsule, ezSkeletonJointGeometryType::Sphere, ezSkeletonJointGeometryType::Box)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBoneShape, 1, ezRTTIDefaultAllocator<ezEditableSkeletonBoneShape>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
+    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
+    EZ_MEMBER_PROPERTY("Rotation", m_qRotation),
+    EZ_MEMBER_PROPERTY("Length", m_fLength)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.01f, 10.0f)),
+    EZ_MEMBER_PROPERTY("Width", m_fWidth)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 10.0f)),
+    EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 10.0f)),
+
+    EZ_MEMBER_PROPERTY("OverrideName", m_bOverrideName),
+    EZ_MEMBER_PROPERTY("Name", m_sNameOverride),
+    EZ_MEMBER_PROPERTY("OverrideSurface", m_bOverrideSurface),
+    EZ_MEMBER_PROPERTY("Surface", m_sSurfaceOverride)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_MEMBER_PROPERTY("OverrideCollisionLayer", m_bOverrideCollisionLayer),
+    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayerOverride)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocator<ezEditableSkeletonJoint>)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,10 +43,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocat
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_MEMBER_PROPERTY("Transform", m_Transform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::IdentityTransform())),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    //EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
-    //EZ_MEMBER_PROPERTY("Length", m_fLength),
-    //EZ_MEMBER_PROPERTY("Width", m_fWidth),
-    //EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
+    EZ_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
   }
   EZ_END_PROPERTIES;
 }
@@ -39,6 +59,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
     EZ_ENUM_MEMBER_PROPERTY("BoneDirection", ezBasisAxis, m_BoneDirection)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
+    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_MEMBER_PROPERTY("Surface", m_sSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
 
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
   }
@@ -63,41 +85,48 @@ void ezEditableSkeleton::ClearJoints()
   m_Children.Clear();
 }
 
-static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx)
+void ezEditableSkeleton::AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) const
 {
-  //if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
-  //{
-  //  auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
-  //  geo.m_Type = pJoint->m_Geometry;
-  //  geo.m_uiAttachedToJoint = uiJointIdx;
-  //  geo.m_Transform.SetIdentity();
-  //  geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
+  for (auto& shape : pJoint->m_BoneShapes)
+  {
+    auto& geo = desc.m_Geometry.ExpandAndGetRef();
 
-  //  if (pParentJoint)
-  //  {
-  //    const float fBoneLength = (pParentJoint->m_Transform.m_vPosition - pJoint->m_Transform.m_vPosition).GetLength();
-  //    geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
-  //  }
-  //}
+    geo.m_Type = shape.m_Geometry;
+    geo.m_uiAttachedToJoint = uiJointIdx;
+    geo.m_sName = pJoint->m_sName;
+    geo.m_Transform.SetIdentity();
+    geo.m_Transform.m_vScale.Set(shape.m_fLength, shape.m_fWidth, shape.m_fThickness);
+    geo.m_Transform.m_vPosition = shape.m_vOffset;
+    geo.m_Transform.m_qRotation = shape.m_qRotation;
+    geo.m_sSurface.Assign(m_sSurfaceFile);
+    geo.m_uiCollisionLayer = m_uiCollisionLayer;
+
+    if (shape.m_bOverrideName)
+      geo.m_sName.Assign(shape.m_sNameOverride);
+    if (shape.m_bOverrideCollisionLayer)
+      geo.m_uiCollisionLayer = shape.m_uiCollisionLayerOverride;
+    if (shape.m_bOverrideSurface)
+      geo.m_sSurface.Assign(shape.m_sSurfaceOverride);
+  }
 
   for (const auto* pChildJoint : pJoint->m_Children)
   {
     const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
 
-    AddChildJoints(sb, pDesc, pJoint, pChildJoint, idx);
+    AddChildJoints(sb, desc, pJoint, pChildJoint, idx);
   }
 }
 
 void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const
 {
-  // desc.m_Geometry.Clear();
+  desc.m_Geometry.Clear();
 
   ezSkeletonBuilder sb;
   for (const auto* pJoint : m_Children)
   {
     const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
 
-    AddChildJoints(sb, &desc, nullptr, pJoint, idx);
+    AddChildJoints(sb, desc, nullptr, pJoint, idx);
   }
   sb.BuildSkeleton(desc.m_Skeleton);
   desc.m_Skeleton.m_BoneDirection = m_BoneDirection;
@@ -169,7 +198,6 @@ void ezEditableSkeletonJoint::ClearJoints()
   {
     EZ_DEFAULT_DELETE(pChild);
   }
-
   m_Children.Clear();
 }
 
@@ -180,10 +208,7 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   //  transform
   //  children
 
-  // m_Geometry = pJoint->m_Geometry;
-  // m_fLength = pJoint->m_fLength;
-  // m_fWidth = pJoint->m_fWidth;
-  // m_fThickness = pJoint->m_fThickness;
+  m_BoneShapes = pJoint->m_BoneShapes;
 }
 
 

@@ -10,7 +10,7 @@ class ezVisualScriptComponent;
 class ezVisualScriptInstance;
 struct ezVisualScriptInstanceActivity;
 
-typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
+using ezVisualScriptResourceHandle = ezTypedResourceHandle<class ezVisualScriptResource>;
 
 struct EZ_GAMEENGINE_DLL ezVisualScriptComponentActivityEvent
 {

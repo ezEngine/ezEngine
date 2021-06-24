@@ -21,4 +21,4 @@ private:
   ezMeshResourceDescriptor m_Descriptor;
 };
 
-typedef ezTypedResourceHandle<class ezCpuMeshResource> ezCpuMeshResourceHandle;
+using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;

@@ -36,6 +36,8 @@ public:
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]
 
+  /// \brief Sets the shape ID for the object to use. This can only be set right after creation, before the component is activated.
+  void SetInitialShapeId(ezUInt32 id);
   ezUInt32 GetShapeId() const { return m_uiShapeId; } // [ scriptable ]
 
   ezUInt8 m_uiCollisionLayer = 0;           // [ property ]

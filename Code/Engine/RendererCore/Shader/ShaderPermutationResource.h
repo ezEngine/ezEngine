@@ -7,8 +7,8 @@
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
-typedef ezTypedResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
-typedef ezTypedResourceHandle<class ezShaderStateResource> ezShaderStateResourceHandle;
+using ezShaderPermutationResourceHandle = ezTypedResourceHandle<class ezShaderPermutationResource>;
+using ezShaderStateResourceHandle = ezTypedResourceHandle<class ezShaderStateResource>;
 
 struct ezShaderPermutationResourceDescriptor
 {

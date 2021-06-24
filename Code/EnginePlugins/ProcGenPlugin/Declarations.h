@@ -8,9 +8,9 @@
 #include <ProcGenPlugin/ProcGenPluginDLL.h>
 
 class ezExpressionByteCode;
-typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
+using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 struct ezProcGenBlendMode
 {

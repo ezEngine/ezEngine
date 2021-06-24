@@ -6,7 +6,7 @@
 struct rcPolyMesh;
 class dtNavMesh;
 
-typedef ezTypedResourceHandle<class ezRecastNavMeshResource> ezRecastNavMeshResourceHandle;
+using ezRecastNavMeshResourceHandle = ezTypedResourceHandle<class ezRecastNavMeshResource>;
 
 struct EZ_RECASTPLUGIN_DLL ezRecastNavMeshResourceDescriptor
 {

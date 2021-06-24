@@ -409,10 +409,14 @@ void ezQtEditorApp::CreatePanels()
   pAssetBrowserPanel->raise();
 }
 
+ezCommandLineOptionBool opt_NoSplashScreen("_Editor", "-NoSplash", "Disables the editor splash-screen", false);
 
 void ezQtEditorApp::SetupAndShowSplashScreen()
 {
   EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
+
+  if (opt_NoSplashScreen.GetOptionValue(ezCommandLineOption::LogMode::Never))
+    return;
 
   //QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
 
