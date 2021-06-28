@@ -886,7 +886,7 @@ const ezDocumentObject* ezSceneDocument::GetSettingsObject() const
 
 const ezSceneDocumentSettingsBase* ezSceneDocument::GetSettingsBase() const
 {
-  return static_cast<const ezSceneDocumentSettings*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
+  return static_cast<const ezSceneDocumentSettingsBase*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 }
 
 ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const

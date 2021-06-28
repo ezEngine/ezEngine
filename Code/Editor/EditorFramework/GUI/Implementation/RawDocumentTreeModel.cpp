@@ -203,6 +203,12 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
   const ezDocumentObject* pParent = nullptr;
   switch (e.m_EventType)
   {
+    case ezDocumentObjectStructureEvent::Type::BeforeReset:
+      beginResetModel();
+      return;
+    case ezDocumentObjectStructureEvent::Type::AfterReset:
+      endResetModel();
+      return;
     case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
       pParent = e.m_pPreviousParent;

@@ -10,6 +10,7 @@ class EZ_TOOLSFOUNDATION_DLL ezObjectCommandAccessor : public ezObjectDirectAcce
 public:
   ezObjectCommandAccessor(ezCommandHistory* pHistory);
 
+
   virtual void StartTransaction(const char* szDisplayString) override;
   virtual void CancelTransaction() override;
   virtual void FinishTransaction() override;

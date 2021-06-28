@@ -5,38 +5,8 @@
 #include "Foundation/Serialization/GraphPatch.h"
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneLayerBase, 1, ezRTTINoAllocator)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneLayer, 1, ezRTTIDefaultAllocator<ezSceneLayer>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Layer", m_Layer)
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettingsBase, 1, ezRTTINoAllocator)
 {
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettings, 2, ezRTTIDefaultAllocator<ezSceneDocumentSettings>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_ARRAY_MEMBER_PROPERTY("Layers", m_Layers)->AddFlags(ezPropertyFlags::PointerOwner)
-  }
-  EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -65,15 +35,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentRoot, 2, ezRTTINoAllocator)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-
-ezSceneDocumentSettings::~ezSceneDocumentSettings()
-{
-  for (ezSceneLayerBase* pLayer : m_Layers)
-  {
-    EZ_DEFAULT_DELETE(pLayer);
-  }
-}
 
 //////////////////////////////////////////////////////////////////////////
 

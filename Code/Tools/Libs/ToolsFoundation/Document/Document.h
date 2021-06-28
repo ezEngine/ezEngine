@@ -61,10 +61,10 @@ public:
   bool IsReadOnly() const { return m_bReadOnly; }
   const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
 
-  const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager; }
-  ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager; }
-  ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
-  ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
+  const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager.Borrow(); }
+  ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager.Borrow(); }
+  ezSelectionManager* GetSelectionManager() const { return m_SelectionManager.Borrow(); }
+  ezCommandHistory* GetCommandHistory() const { return m_CommandHistory.Borrow(); }
   virtual ezObjectAccessorBase* GetObjectAccessor() const;
 
   virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index = ezVariant()) const;
@@ -230,11 +230,13 @@ protected:
 
   ///@}
 
-  mutable ezSelectionManager m_SelectionManager;
-  mutable ezCommandHistory m_CommandHistory;
+  ezUniquePtr<ezDocumentObjectManager> m_pObjectManager;
+  mutable ezUniquePtr<ezCommandHistory> m_CommandHistory;
+  mutable ezUniquePtr<ezSelectionManager> m_SelectionManager;
+  mutable ezUniquePtr<ezObjectCommandAccessor> m_ObjectAccessor; ///< Default object accessor used by every doc.
+
   ezDocumentInfo* m_pDocumentInfo = nullptr;
   const ezDocumentTypeDescriptor* m_pTypeDescriptor = nullptr;
-  mutable ezObjectCommandAccessor* m_ObjectAccessor = nullptr; ///< Default object accessor used by every doc.
 
 private:
   friend class ezDocumentManager;
@@ -245,7 +247,6 @@ private:
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
   ezDocumentManager* m_pDocumentManager = nullptr;
-  ezDocumentObjectManager* m_pObjectManager = nullptr;
 
   ezString m_sDocumentPath;
   bool m_bModified;

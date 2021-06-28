@@ -46,17 +46,22 @@ ezStatus ezCommandTransaction::AddCommandTransaction(ezCommand* pCommand)
 ////////////////////////////////////////////////////////////////////////
 
 ezCommandHistory::ezCommandHistory(ezDocument* pDocument)
-  : m_pHistoryStorage(EZ_DEFAULT_NEW(Storage))
-  , m_pDocument(pDocument)
 {
+  auto pStorage = EZ_DEFAULT_NEW(Storage);
+  pStorage->m_pDocument = pDocument;
+  SwapStorage(pStorage);
+
   m_bTemporaryMode = false;
   m_bIsInUndoRedo = false;
 }
 
 ezCommandHistory::~ezCommandHistory()
 {
-  EZ_ASSERT_ALWAYS(m_pHistoryStorage->m_UndoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
-  EZ_ASSERT_ALWAYS(m_pHistoryStorage->m_RedoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
+  if (m_pHistoryStorage->GetRefCount() == 1)
+  {
+    EZ_ASSERT_ALWAYS(m_pHistoryStorage->m_UndoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
+    EZ_ASSERT_ALWAYS(m_pHistoryStorage->m_RedoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
+  }
 }
 
 void ezCommandHistory::BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands)
@@ -129,9 +134,9 @@ ezStatus ezCommandHistory::UndoInternal()
   m_bIsInUndoRedo = true;
   {
     ezCommandHistoryEvent e;
-    e.m_pDocument = m_pDocument;
+    e.m_pDocument = m_pHistoryStorage->m_pDocument;
     e.m_Type = ezCommandHistoryEvent::Type::UndoStarted;
-    m_Events.Broadcast(e);
+    m_pHistoryStorage->m_Events.Broadcast(e);
   }
 
   ezCommandTransaction* pTransaction = m_pHistoryStorage->m_UndoHistory.PeekBack();
@@ -142,7 +147,7 @@ ezStatus ezCommandHistory::UndoInternal()
     m_pHistoryStorage->m_UndoHistory.PopBack();
     m_pHistoryStorage->m_RedoHistory.PushBack(pTransaction);
 
-    m_pDocument->SetModified(true);
+    m_pHistoryStorage->m_pDocument->SetModified(true);
 
     status = ezStatus(EZ_SUCCESS);
   }
@@ -150,9 +155,9 @@ ezStatus ezCommandHistory::UndoInternal()
   m_bIsInUndoRedo = false;
   {
     ezCommandHistoryEvent e;
-    e.m_pDocument = m_pDocument;
+    e.m_pDocument = m_pHistoryStorage->m_pDocument;
     e.m_Type = ezCommandHistoryEvent::Type::UndoEnded;
-    m_Events.Broadcast(e);
+    m_pHistoryStorage->m_Events.Broadcast(e);
   }
   return status;
 }
@@ -176,9 +181,9 @@ ezStatus ezCommandHistory::RedoInternal()
   m_bIsInUndoRedo = true;
   {
     ezCommandHistoryEvent e;
-    e.m_pDocument = m_pDocument;
+    e.m_pDocument = m_pHistoryStorage->m_pDocument;
     e.m_Type = ezCommandHistoryEvent::Type::RedoStarted;
-    m_Events.Broadcast(e);
+    m_pHistoryStorage->m_Events.Broadcast(e);
   }
 
   ezCommandTransaction* pTransaction = m_pHistoryStorage->m_RedoHistory.PeekBack();
@@ -189,7 +194,7 @@ ezStatus ezCommandHistory::RedoInternal()
     m_pHistoryStorage->m_RedoHistory.PopBack();
     m_pHistoryStorage->m_UndoHistory.PushBack(pTransaction);
 
-    m_pDocument->SetModified(true);
+    m_pHistoryStorage->m_pDocument->SetModified(true);
 
     status = ezStatus(EZ_SUCCESS);
   }
@@ -197,9 +202,9 @@ ezStatus ezCommandHistory::RedoInternal()
   m_bIsInUndoRedo = false;
   {
     ezCommandHistoryEvent e;
-    e.m_pDocument = m_pDocument;
+    e.m_pDocument = m_pHistoryStorage->m_pDocument;
     e.m_Type = ezCommandHistoryEvent::Type::RedoEnded;
-    m_Events.Broadcast(e);
+    m_pHistoryStorage->m_Events.Broadcast(e);
   }
   return status;
 }
@@ -269,7 +274,7 @@ void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
   ezStringBuilder tmp;
 
   pTransaction = ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate<ezCommandTransaction>();
-  pTransaction->m_pDocument = m_pDocument;
+  pTransaction->m_pDocument = m_pHistoryStorage->m_pDocument;
   pTransaction->m_sDisplayString = sDisplayString.GetText(tmp);
 
   if (!m_pHistoryStorage->m_TransactionStack.IsEmpty())
@@ -286,9 +291,9 @@ void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
     m_pHistoryStorage->m_ActiveCommandStack.PushBack(pTransaction);
     {
       ezCommandHistoryEvent e;
-      e.m_pDocument = m_pDocument;
+      e.m_pDocument = m_pHistoryStorage->m_pDocument;
       e.m_Type = ezCommandHistoryEvent::Type::TransactionStarted;
-      m_Events.Broadcast(e);
+      m_pHistoryStorage->m_Events.Broadcast(e);
     }
   }
   return;
@@ -307,9 +312,9 @@ void ezCommandHistory::EndTransaction(bool bCancel)
       bCancel = true;
 
     ezCommandHistoryEvent e;
-    e.m_pDocument = m_pDocument;
+    e.m_pDocument = m_pHistoryStorage->m_pDocument;
     e.m_Type = bCancel ? ezCommandHistoryEvent::Type::BeforeTransactionCanceled : ezCommandHistoryEvent::Type::BeforeTransactionEnded;
-    m_Events.Broadcast(e);
+    m_pHistoryStorage->m_Events.Broadcast(e);
   }
 
   if (!bCancel)
@@ -329,7 +334,7 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 
       if (bDidModifyDoc)
       {
-        m_pDocument->SetModified(true);
+        m_pHistoryStorage->m_pDocument->SetModified(true);
       }
     }
   }
@@ -352,9 +357,9 @@ void ezCommandHistory::EndTransaction(bool bCancel)
   {
     // All transactions done
     ezCommandHistoryEvent e;
-    e.m_pDocument = m_pDocument;
+    e.m_pDocument = m_pHistoryStorage->m_pDocument;
     e.m_Type = bCancel ? ezCommandHistoryEvent::Type::TransactionCanceled : ezCommandHistoryEvent::Type::TransactionEnded;
-    m_Events.Broadcast(e);
+    m_pHistoryStorage->m_Events.Broadcast(e);
   }
 }
 
@@ -448,7 +453,11 @@ ezSharedPtr<ezCommandHistory::Storage> ezCommandHistory::SwapStorage(ezSharedPtr
 
   auto retVal = m_pHistoryStorage;
 
+  m_EventsUnsubscriber.Clear();
+
   m_pHistoryStorage = pNewStorage;
+
+  m_pHistoryStorage->m_Events.AddEventHandler([this](const ezCommandHistoryEvent& e) { m_Events.Broadcast(e); }, m_EventsUnsubscriber);
 
   return retVal;
 }

@@ -355,7 +355,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   if (const auto* pMsg = ezDynamicCast<const ezDocumentClearMsgToEngine*>(e.m_pMessage))
   {
     ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
-    pDocumentContext->ClearExistingObjects();
+    if (pDocumentContext)
+    {
+      pDocumentContext->ClearExistingObjects();
+    }
     return;
   }
 

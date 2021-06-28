@@ -57,14 +57,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
 
 ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
-  : m_CommandHistory(this)
 {
   m_pDocumentInfo = nullptr;
   m_sDocumentPath = szPath;
-  m_pObjectManager = pDocumentObjectManagerImpl;
+  m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
-
-  m_SelectionManager.SetOwner(this);
+  m_CommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
+  m_SelectionManager = EZ_DEFAULT_NEW(ezSelectionManager);
+  m_SelectionManager->SetOwner(m_pObjectManager.Borrow());
+  m_ObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_CommandHistory.Borrow());
 
   m_bWindowRequested = false;
   m_bModified = true;
@@ -72,8 +73,6 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
   m_bAddToRecentFilesList = true;
 
   m_uiUnknownObjectTypeInstances = 0;
-
-  m_ObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, &m_CommandHistory);
 }
 
 ezDocument::~ezDocument()
@@ -82,16 +81,14 @@ ezDocument::~ezDocument()
   {
     ezTaskSystem::WaitForGroup(m_activeSaveTask);
   }
-  m_SelectionManager.SetOwner(nullptr);
+  m_SelectionManager->SetOwner(nullptr);
 
   m_pObjectManager->DestroyAllObjects();
 
-  m_CommandHistory.ClearRedoHistory();
-  m_CommandHistory.ClearUndoHistory();
+  m_CommandHistory->ClearRedoHistory();
+  m_CommandHistory->ClearUndoHistory();
 
-  EZ_DEFAULT_DELETE(m_pObjectManager);
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
-  EZ_DEFAULT_DELETE(m_ObjectAccessor);
 }
 
 void ezDocument::SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor)
@@ -421,7 +418,7 @@ ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject
 
 ezObjectAccessorBase* ezDocument::GetObjectAccessor() const
 {
-  return m_ObjectAccessor;
+  return m_ObjectAccessor.Borrow();
 }
 
 ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index) const

@@ -26,11 +26,21 @@ class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
 public:
   ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&> m_Events;
 
+  // \brief Storage for the command history so it can be swapped when using multiple sub documents
+  class Storage : public ezRefCounted
+  {
+  public:
+    ezDeque<const ezDocumentObject*> m_SelectionList;
+    ezSet<ezUuid> m_SelectionSet;
+
+    ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&> m_Events;
+  };
+
 public:
   ezSelectionManager();
 
   // Should be called after construction. Can only be called once.
-  void SetOwner(const ezDocument* pDocument);
+  void SetOwner(const ezDocumentObjectManager* pDocument);
 
   void SetSelection(const ezDocumentObject* pSingleObject)
   {
@@ -48,9 +58,9 @@ public:
   /// \brief Returns the last selected object in the selection or null if empty.
   const ezDocumentObject* GetCurrentObject() const;
 
-  const ezDeque<const ezDocumentObject*>& GetSelection() const { return m_SelectionList; }
+  const ezDeque<const ezDocumentObject*>& GetSelection() const { return m_pSelectionStorage->m_SelectionList; }
 
-  bool IsSelectionEmpty() const { return m_SelectionList.IsEmpty(); }
+  bool IsSelectionEmpty() const { return m_pSelectionStorage->m_SelectionList.IsEmpty(); }
 
   /// \brief Returns the subset of selected items which have no parent selected. Ie. if an object is selected and one of its ancestors is selected, it
   /// is culled from the list.
@@ -62,7 +72,10 @@ public:
   bool IsSelected(const ezDocumentObject* pObject) const;
   bool IsParentSelected(const ezDocumentObject* pObject) const;
 
-  const ezDocument* GetDocument() const { return m_pDocument; }
+  const ezDocument* GetDocument() const;
+
+  ezSharedPtr<ezSelectionManager::Storage> SwapStorage(ezSharedPtr<ezSelectionManager::Storage> pNewStorage);
+  ezSharedPtr<ezSelectionManager::Storage> GetStorage() { return m_pSelectionStorage; }
 
 
 private:
@@ -71,8 +84,8 @@ private:
 
   friend class ezDocument;
 
+  ezSharedPtr<ezSelectionManager::Storage> m_pSelectionStorage;
 
-  ezDeque<const ezDocumentObject*> m_SelectionList;
-  ezSet<ezUuid> m_SelectionSet;
-  const ezDocument* m_pDocument = nullptr;
+  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_EventsUnsubscriber;
+  const ezDocumentObjectManager* m_pObjectManager = nullptr;
 };

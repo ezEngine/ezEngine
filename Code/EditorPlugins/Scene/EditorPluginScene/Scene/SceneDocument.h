@@ -133,7 +133,7 @@ public:
   /// \name Scene Settings
   ///@{
 
-  const ezDocumentObject* GetSettingsObject() const;
+  virtual const ezDocumentObject* GetSettingsObject() const;
   const ezSceneDocumentSettingsBase* GetSettingsBase() const;
   template<typename T>
   const T* GetSettings() const
@@ -187,7 +187,7 @@ protected:
     }
   }
 
-private:
+protected:
   void EnsureSettingsObjectExist();
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);

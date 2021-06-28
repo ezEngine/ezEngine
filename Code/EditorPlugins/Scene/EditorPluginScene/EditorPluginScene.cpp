@@ -10,6 +10,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
+#include <EditorPluginScene/Actions/LayerActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/Scene2DocumentWindow.moc.h>
@@ -103,6 +104,7 @@ void OnLoadPlugin(bool bReloading)
   ezSelectionActions::RegisterActions();
   ezSceneGizmoActions::RegisterActions();
   ezSceneActions::RegisterActions();
+  ezLayerActions::RegisterActions();
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar").IgnoreResult();
@@ -145,6 +147,10 @@ void OnLoadPlugin(bool bReloading)
   ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
   ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
 
+   // Layer Context Menu
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu").IgnoreResult();
+  ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu", "");
+
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
@@ -161,6 +167,7 @@ void OnUnloadPlugin(bool bReloading)
 
   ezSelectionActions::UnregisterActions();
   ezSceneGizmoActions::UnregisterActions();
+  ezLayerActions::UnregisterActions();
   ezSceneActions::UnregisterActions();
 }
 

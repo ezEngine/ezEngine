@@ -13,6 +13,9 @@ public:
   ezQtLayerPanel(QWidget* pParent, ezScene2Document* pDocument);
   ~ezQtLayerPanel();
 
+private Q_SLOTS:
+  void OnRequestContextMenu(QPoint pos);
+
 private:
   ezScene2Document* m_pSceneDocument;
   ezQtDocumentTreeView* m_pTreeWidget;

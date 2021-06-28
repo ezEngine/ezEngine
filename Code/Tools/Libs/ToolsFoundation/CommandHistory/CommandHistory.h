@@ -59,13 +59,15 @@ public:
     ezHybridArray<ezCommand*, 4> m_ActiveCommandStack;
     ezDeque<ezCommandTransaction*> m_UndoHistory;
     ezDeque<ezCommandTransaction*> m_RedoHistory;
+    ezDocument* m_pDocument = nullptr;
+    ezEvent<const ezCommandHistoryEvent&, ezMutex> m_Events;
   };
 
 public:
   ezCommandHistory(ezDocument* pDocument);
   ~ezCommandHistory();
 
-  const ezDocument* GetDocument() const { return m_pDocument; }
+  const ezDocument* GetDocument() const { return m_pHistoryStorage->m_pDocument; }
 
   ezStatus Undo(ezUInt32 uiNumEntries = 1);
   ezStatus Redo(ezUInt32 uiNumEntries = 1);
@@ -108,7 +110,7 @@ public:
   const ezCommandTransaction* GetRedoStackEntry(ezUInt32 iIndex) const;
 
   ezSharedPtr<ezCommandHistory::Storage> SwapStorage(ezSharedPtr<ezCommandHistory::Storage> pNewStorage);
-  ezCommandHistory::Storage* GetStorage() { return m_pHistoryStorage; }
+  ezSharedPtr<ezCommandHistory::Storage> GetStorage() { return m_pHistoryStorage; }
 
 private:
   friend class ezCommand;
@@ -121,11 +123,11 @@ private:
 
   ezSharedPtr<ezCommandHistory::Storage> m_pHistoryStorage;
 
+  ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_EventsUnsubscriber;
+
   bool m_bFireEventsWhenUndoingTempCommands = false;
   bool m_bTemporaryMode = false;
   ezInt32 m_iTemporaryDepth = -1;
   ezInt32 m_iPreSuspendTemporaryDepth = -1;
   bool m_bIsInUndoRedo = false;
-
-  ezDocument* m_pDocument;
 };
