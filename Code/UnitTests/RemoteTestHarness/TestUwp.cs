@@ -141,7 +141,7 @@ namespace ezUwpTestHarness
         throw new Exception(string.Format("Did not find Visual Studio installation."));
       }
 
-      // "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.com" "F:\Development\current_development\ezEngine\build_uwp64\ezEngine.sln" /Deploy "RelWithDebInfo|x64" /project CoreTest
+      // "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.com" "F:\Development\current_development\ezEngine\build_uwp64\ezEngine.sln" /Deploy "Dev|x64" /project CoreTest
       var deployProcessResults = ezProcessHelper.RunExternalExe(devEnvPath,
               string.Format("\"{0}\" /Deploy \"{1}|{2}\" /project {3}", absSlnPath, _configuration, _platform, _project), null, 1000000);
 

@@ -40,7 +40,8 @@ if(NOT EZ_SUBMODULE_MODE)
 		LANGUAGES ${EZ_LANGUAGES})
 endif()
 
-ez_check_build_type()
+ez_set_build_types()
+
 ez_write_configuration_txt()
 
 #if (EZ_VCPKG_INSTALL_QT)

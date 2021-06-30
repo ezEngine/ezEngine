@@ -59,14 +59,14 @@ jobs:
           cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=ON -DEZ_BUILD_SAMPLES:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=ON -DEZ_BUILD_RMLUI:BOOL=ON -DEZ_BUILD_FMOD:BOOL=ON -DEZ_SOLUTION_NAME:string="solution"
 
       - name: Build Full Solution
-        run:  msbuild build/solution.sln /p:Configuration=Release
+        run:  msbuild build/solution.sln /p:Configuration=Shipping
 
       - name: Artifact - Full Binaries
         if: github.event.inputs.full-binaries-artifact == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: full-binaries
-          path: repo\Output\Bin\WinVs2019Release64
+          path: repo\Output\Bin\WinVs2019Shipping64
           retention-days: 3
 
       - name: Remove Unwanted Files
@@ -81,7 +81,7 @@ jobs:
       - name: Compile Shaders
         if: github.event.inputs.compile-shaders == 'true'
         run: |
-          repo\Output\Bin\WinVs2019Release64\ShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
+          repo\Output\Bin\WinVs2019Shipping64\ShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
 
       - name: Transform All Projects
         if: github.event.inputs.transform-projects == 'true'

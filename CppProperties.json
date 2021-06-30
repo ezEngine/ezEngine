@@ -13,7 +13,7 @@
     },
     {
       "inheritEnvironments": [ "vsdev" ],
-      "name": "Android-arm-RelWithDebInfo",
+      "name": "Android-arm-Dev",
       "includePath": [
         "${env.INCLUDE}",
         "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
@@ -46,7 +46,7 @@
     },
     {
       "inheritEnvironments": [ "vsdev" ],
-      "name": "Android-arm64-RelWithDebInfo",
+      "name": "Android-arm64-Dev",
       "includePath": [
         "${env.INCLUDE}",
         "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
@@ -79,7 +79,7 @@
     },
     {
       "inheritEnvironments": [ "vsdev" ],
-      "name": "Android-x86-RelWithDebInfo",
+      "name": "Android-x86-Dev",
       "includePath": [
         "${env.INCLUDE}",
         "${env.ANDROID_NDK_HOME}/sysroot/usr/include",

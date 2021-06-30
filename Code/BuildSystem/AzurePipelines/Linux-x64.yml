@@ -58,7 +58,7 @@ jobs:
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/;/usr/SFML/SFML-2.5.1;/usr/SFML/SFML-2.5.1/lib/cmake/SFML -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=g++-9 -DCMAKE_C_COMPILER=gcc-9 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/;/usr/SFML/SFML-2.5.1;/usr/SFML/SFML-2.5.1/lib/cmake/SFML -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-9 -DCMAKE_C_COMPILER=gcc-9 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
   - task: Bash@3
     displayName: Make
     inputs:
@@ -74,19 +74,19 @@ jobs:
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin/LinuxMakeGccRelDeb64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
+      script: ./Output/Bin/LinuxMakeGccDev64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
   - task: Bash@3
     displayName: CoreTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin/LinuxMakeGccRelDeb64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+      script: ./Output/Bin/LinuxMakeGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
   - task: Bash@3
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin/LinuxMakeGccRelDeb64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+      script: ./Output/Bin/LinuxMakeGccDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     condition: succeededOrFailed()

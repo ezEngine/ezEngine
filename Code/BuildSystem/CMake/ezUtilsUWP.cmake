@@ -15,7 +15,7 @@ function(ez_uwp_mark_import_as_content IMPORT)
   else()
     set_property(SOURCE ${_dll_location_debug} PROPERTY VS_DEPLOYMENT_CONTENT $<CONFIG:Debug>)
 
-    set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT $<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>)
+    set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT $<OR:$<CONFIG:Shipping>,$<CONFIG:Dev>>)
 
     unset (_dll_location_debug)
     unset (_dll_location)

@@ -51,7 +51,7 @@
 /// Prefer to use this file to configure these settings, as this will also work when you build your application with another
 /// build-system (and thus the pre-defined defines such as BUILDSYSTEM_COMPILE_FOR_DEVELOPMENT are not automatically there as well).
 
-#  if !defined(BUILDSYSTEM_BUILDTYPE_RELEASE)
+#  if !defined(BUILDSYSTEM_BUILDTYPE_Shipping)
 // Enables profiling features.
 #    undef EZ_USE_PROFILING
 #    define EZ_USE_PROFILING EZ_ON

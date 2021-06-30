@@ -1,20 +1,4 @@
 
-######################################
-### ez_check_build_type()
-######################################
-
-function(ez_check_build_type)
-
-	# set the default build type
-
-	if (NOT CMAKE_BUILD_TYPE)
-		
-		set (CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
-	
-	endif()
-
-endfunction()
-
 
 ######################################
 ### ez_set_build_flags_msvc(<target>)
@@ -62,18 +46,18 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	endif ()
 	
 	# /Zo: Improved debugging of optimized code
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Zo>")
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELWITHDEBINFO>:/Zo>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Zo>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEV>:/Zo>")
 	
 	# /Ob1: Only consider functions for inlining that are marked with inline or forceinline
 	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEBUG>:/Ob1>")
 	
 	# /Ox: favor speed for optimizations
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Ox>")
 	# /Ob2: Consider all functions for inlining
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Ob2>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Ob2>")
 	# /Oi: Replace some functions with intrinsics or other special forms of the function
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Oi>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Oi>")
 	
 	# Enable SSE4.1 for Clang on Windows.
 	# Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
@@ -90,20 +74,19 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	set (LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOICF")
 	
 	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG           ${LINKER_FLAGS_DEBUG})
-	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO  ${LINKER_FLAGS_DEBUG})
+	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEV  ${LINKER_FLAGS_DEBUG})
 	
-	set (LINKER_FLAGS_RELEASE "")
+	set (LINKER_FLAGS_SHIPPING "")
 	
-	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /INCREMENTAL:NO")
+	set (LINKER_FLAGS_SHIPPING "${LINKER_FLAGS_SHIPPING} /INCREMENTAL:NO")
 		
 	# Remove unreferenced data (does not work together with incremental build)
-	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:REF")
+	set (LINKER_FLAGS_SHIPPING "${LINKER_FLAGS_SHIPPING} /OPT:REF")
 		
 	# Enable comdat folding. Reduces the number of redundant template functions and thus reduces binary size. Makes debugging harder though.
-	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:ICF")	
+	set (LINKER_FLAGS_SHIPPING "${LINKER_FLAGS_SHIPPING} /OPT:ICF")	
 
-  	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_FLAGS_RELEASE})
-	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_FLAGS_RELEASE})
+  	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_SHIPPING        ${LINKER_FLAGS_SHIPPING})
   	
 	if(EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
 		target_compile_options(${TARGET_NAME} PRIVATE "/analyze")
