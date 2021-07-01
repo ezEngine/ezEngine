@@ -31,9 +31,9 @@
       "intelliSenseMode": "android-clang-arm"
     },
     {
-      "name": "Android-arm-RelWithDebInfo",
+      "name": "Android-arm-Dev",
       "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
+      "configurationType": "Dev",
       "inheritEnvironments": [ "vsdev" ],
       "buildRoot": "${workspaceRoot}\\build\\${name}",
       "installRoot": "${workspaceRoot}\\install\\${name}",
@@ -125,9 +125,9 @@
       "intelliSenseMode": "android-clang-arm"
     },
     {
-      "name": "Android-arm64-RelWithDebInfo",
+      "name": "Android-arm64-Dev",
       "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
+      "configurationType": "Dev",
       "inheritEnvironments": [ "vsdev" ],
       "buildRoot": "${workspaceRoot}\\build\\${name}",
       "installRoot": "${workspaceRoot}\\install\\${name}",
@@ -227,9 +227,9 @@
       "intelliSenseMode": "android-clang-x86"
     },
     {
-      "name": "Android-x86-RelWithDebInfo",
+      "name": "Android-x86-Dev",
       "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
+      "configurationType": "Dev",
       "inheritEnvironments": [ "vsdev" ],
       "buildRoot": "${workspaceRoot}\\build\\${name}",
       "installRoot": "${workspaceRoot}\\install\\${name}",

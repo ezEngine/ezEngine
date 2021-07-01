@@ -61,13 +61,13 @@ jobs:
   - task: CMake@1
     displayName: CMake Android Ninja
     inputs:
-      cwd: build\Android-x86-RelWithDebInfo
-      cmakeArgs: -G "Ninja" -DCMAKE_INSTALL_PREFIX:PATH="$(System.DefaultWorkingDirectory)\install\Android-x86-RelWithDebInfo"  -DCMAKE_TOOLCHAIN_FILE="$(ANDROID_NDK)\build\cmake\android.toolchain.cmake"  -DANDROID_ABI="x86"  -DANDROID_PLATFORM="23"  -DEZ_ENABLE_QT_SUPPORT="0"  -DEZ_BUILD_SAMPLES="0"  -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DCMAKE_MAKE_PROGRAM="C:\Program Files\CMake\bin\ninja.exe" ../../
+      cwd: build\Android-x86-Dev
+      cmakeArgs: -G "Ninja" -DCMAKE_INSTALL_PREFIX:PATH="$(System.DefaultWorkingDirectory)\install\Android-x86-Dev"  -DCMAKE_TOOLCHAIN_FILE="$(ANDROID_NDK)\build\cmake\android.toolchain.cmake"  -DANDROID_ABI="x86"  -DANDROID_PLATFORM="23"  -DEZ_ENABLE_QT_SUPPORT="0"  -DEZ_BUILD_SAMPLES="0"  -DCMAKE_BUILD_TYPE="Dev" -DCMAKE_MAKE_PROGRAM="C:\Program Files\CMake\bin\ninja.exe" ../../
   - task: CmdLine@2
     displayName: Build
     inputs:
       script: >-
-        cd $(System.DefaultWorkingDirectory)\build\Android-x86-RelWithDebInfo
+        cd $(System.DefaultWorkingDirectory)\build\Android-x86-Dev
 
         ninja libFoundationTest.so
   - task: PowerShell@2

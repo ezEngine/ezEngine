@@ -922,10 +922,16 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
   const bool bRecordStats = CVarCullingStats && bIsMainView;
   ezSpatialSystem::QueryStats stats;
+#endif
 
-  ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, uiCategoryBitmask, m_visibleObjects, bRecordStats ? &stats : nullptr);
+  const ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, uiCategoryBitmask, m_visibleObjects,
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    bRecordStats ? &stats :
+#endif
+                 nullptr);
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezViewHandle hView = view.GetHandle();
 
   if (s_DebugCulling && bIsMainView)
@@ -954,8 +960,6 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
     ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
   }
-#else
-  view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, nullptr);
 #endif
 }
 

@@ -2,13 +2,13 @@
 
 $appPath = ""
 
-$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs2019Release64\EditorProcessor.exe"
+$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs2019Shipping64\EditorProcessor.exe"
 if (Test-Path $fileToCheck -PathType leaf)
 {
     $appPath = $fileToCheck
 }
 
-$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs2019RelDeb64\EditorProcessor.exe"
+$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs2019Dev64\EditorProcessor.exe"
 if (Test-Path $fileToCheck -PathType leaf)
 {
     $appPath = $fileToCheck

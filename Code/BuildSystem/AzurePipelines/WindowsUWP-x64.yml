@@ -141,7 +141,7 @@ jobs:
       solution: buildUWP/ezVs2019.sln
       msbuildArchitecture: x64
       platform: x64
-      configuration: RelWithDebInfo
+      configuration: Dev
       maximumCpuCount: true
   - task: PowerShell@2
     displayName: PowerShell Script
@@ -186,9 +186,9 @@ jobs:
         xcopy Output\Bin\WinVs2019Debug64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2019Debug64\ /C/D/Y
         xcopy Output\Bin\WinVs2019Debug64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2019Debug64\ /C/D/Y
         xcopy Output\Bin\WinVs2019Debug64\*.dmp $(Build.ArtifactStagingDirectory)\Bin\WinVs2019Debug64\ /C/D/Y
-        xcopy Output\Bin\WinUWPVs2019RelDeb64\*.dll $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
-        xcopy Output\Bin\WinUWPVs2019RelDeb64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
-        xcopy Output\Bin\WinUWPVs2019RelDeb64\*.exe $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
+        xcopy Output\Bin\WinUWPVs2019Dev64\*.dll $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
+        xcopy Output\Bin\WinUWPVs2019Dev64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
+        xcopy Output\Bin\WinUWPVs2019Dev64\*.exe $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     condition: succeededOrFailed()

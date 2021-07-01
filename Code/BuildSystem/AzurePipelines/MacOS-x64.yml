@@ -73,12 +73,13 @@ jobs:
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt@5/5.15.2/;/usr/local/Cellar/sfml/2.5.1/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt@5/5.15.2/;/usr/local/Cellar/sfml/2.5.1/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=Dev -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
   - task: Xcode@5
     displayName: Xcode build
     inputs:
       xcWorkspacePath: $(BuildParameters.xcWorkspacePath)
       scheme: $(BuildParameters.scheme)
+      configuration: Dev
       xcodeVersion: $(BuildParameters.xcodeVersion)
       xcodeDeveloperDir: $(BuildParameters.xcodeDeveloperDir)
       destinationPlatformOption: macOS
@@ -94,19 +95,19 @@ jobs:
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin//OsxXcodeClangRelDeb64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
+      script: ./Output/Bin//OsxXcodeClangDev64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
   - task: Bash@3
     displayName: CoreTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin//OsxXcodeClangRelDeb64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+      script: ./Output/Bin//OsxXcodeClangDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
   - task: Bash@3
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin//OsxXcodeClangRelDeb64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+      script: ./Output/Bin//OsxXcodeClangDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     condition: succeededOrFailed()

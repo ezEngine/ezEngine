@@ -69,8 +69,8 @@ void ezSystemInformation::Initialize()
 #endif
 
   s_SystemInformation.m_szPlatformName = "OSX";
-#if defined BUILDSYSTEM_CONFIGURATION
-  s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_CONFIGURATION;
+#if defined BUILDSYSTEM_BUILDTYPE
+  s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_BUILDTYPE;
 #else
   s_SystemInformation.m_szBuildConfiguration = "undefined";
 #endif
