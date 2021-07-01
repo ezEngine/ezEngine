@@ -78,7 +78,7 @@ jobs:
     displayName: Xcode build
     inputs:
       xcWorkspacePath: $(BuildParameters.xcWorkspacePath)
-      scheme: $(BuildParameters.scheme)
+      scheme: Dev
       xcodeVersion: $(BuildParameters.xcodeVersion)
       xcodeDeveloperDir: $(BuildParameters.xcodeDeveloperDir)
       destinationPlatformOption: macOS
