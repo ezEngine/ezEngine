@@ -139,6 +139,9 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& Se
     return;
   }
 
+  if (m_pSelectionStorage->m_SelectionList == Selection)
+    return;
+
   m_pSelectionStorage->m_SelectionList.Clear();
   m_pSelectionStorage->m_SelectionSet.Clear();
 
@@ -212,7 +215,7 @@ ezSharedPtr<ezSelectionManager::Storage> ezSelectionManager::SwapStorage(ezShare
 
   auto retVal = m_pSelectionStorage;
 
-  m_EventsUnsubscriber.Clear();
+  m_EventsUnsubscriber.Unsubscribe();
 
   m_pSelectionStorage = pNewStorage;
 

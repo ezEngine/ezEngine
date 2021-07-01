@@ -40,10 +40,11 @@ struct ezCommandHistoryEvent
     BeforeTransactionCanceled, ///< Emit before initial transaction ended.
     TransactionEnded,          ///< Emit after initial transaction ended.
     TransactionCanceled,       ///< Emit after initial transaction canceled.
+    HistoryChanged,
   };
 
   Type m_Type;
-  ezDocument* m_pDocument;
+  const ezDocument* m_pDocument;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory

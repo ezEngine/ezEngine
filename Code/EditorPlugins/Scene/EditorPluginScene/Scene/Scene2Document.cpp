@@ -78,15 +78,11 @@ ezScene2Document::ezScene2Document(const char* szDocumentPath)
 {
   // Separate selection for the layer panel.
   m_LayerSelection.SetOwner(m_pObjectManager.Borrow());
-  m_LayerSelection.m_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::LayerSelectionEventHandler, this), m_layerSelectionEventSubscriber);
-
-  m_pObjectManager->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezScene2Document::StructureEventHandler, this), m_structureEventSubscriber);
-  m_CommandHistory->m_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::CommandHistoryEventHandler, this), m_commandHistoryEventSubscriber);
 }
 
 ezScene2Document::~ezScene2Document()
 {
-  SetActiveLayer(GetGuid());
+  SetActiveLayer(GetGuid()).LogFailure();
 
   m_SelectionManager->SetOwner(nullptr);
   // Move the preserved real scene document back.
@@ -95,9 +91,10 @@ ezScene2Document::~ezScene2Document()
   m_SelectionManager = std::move(m_sceneSelectionManager);
   m_ObjectAccessor = std::move(m_pSceneObjectAccessor);
 
-  m_layerSelectionEventSubscriber.Clear();
-  m_structureEventSubscriber.Clear();
-  m_commandHistoryEventSubscriber.Clear();
+  m_documentManagerEventSubscriber.Unsubscribe();
+  m_layerSelectionEventSubscriber.Unsubscribe();
+  m_structureEventSubscriber.Unsubscribe();
+  m_commandHistoryEventSubscriber.Unsubscribe();
 }
 
 void ezScene2Document::InitializeAfterLoading(bool bFirstTimeCreation)
@@ -122,6 +119,11 @@ void ezScene2Document::InitializeAfterLoading(bool bFirstTimeCreation)
 
 void ezScene2Document::InitializeAfterLoadingAndSaving()
 {
+  m_LayerSelection.m_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::LayerSelectionEventHandler, this), m_layerSelectionEventSubscriber);
+  m_pObjectManager->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezScene2Document::StructureEventHandler, this), m_structureEventSubscriber);
+  m_CommandHistory->m_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::CommandHistoryEventHandler, this), m_commandHistoryEventSubscriber);
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::DocumentManagerEventHandler, this), m_documentManagerEventSubscriber);
+
   SUPER::InitializeAfterLoadingAndSaving();
   // These preserve the real scene document.
   m_pSceneObjectManager = std::move(m_pObjectManager);
@@ -145,6 +147,7 @@ void ezScene2Document::InitializeAfterLoadingAndSaving()
 
 const ezDocumentObject* ezScene2Document::GetSettingsObject() const
 {
+  /// This function is overwritten so that after redirecting to the active document this still accesses the original content and is not redirected.
   if (m_pSceneObjectManager == nullptr)
     return SUPER::GetSettingsObject();
 
@@ -155,6 +158,13 @@ const ezDocumentObject* ezScene2Document::GetSettingsObject() const
   return GetSceneObjectManager()->GetObject(id);
 }
 
+ezTaskGroupID ezScene2Document::InternalSaveDocument(AfterSaveCallback callback)
+{
+  // We need to switch the active layer back to the original content as otherwise the scene will not save itself but instead the active layer's content into itself.
+  SetActiveLayer(GetGuid()).LogFailure();
+  return SUPER::InternalSaveDocument(callback);
+}
+
 void ezScene2Document::LayerSelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   const ezDocumentObject* pObject = m_LayerSelection.GetCurrentObject();
@@ -163,7 +173,10 @@ void ezScene2Document::LayerSelectionEventHandler(const ezSelectionManagerEvent&
     if (pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezSceneLayer>()))
     {
       ezUuid layerGuid = GetSceneObjectAccessor()->Get<ezUuid>(pObject, "Layer");
-      SetActiveLayer(layerGuid);
+      if (IsLayerLoaded(layerGuid))
+      {
+        SetActiveLayer(layerGuid).LogFailure();
+      }
     }
   }
 }
@@ -186,6 +199,49 @@ void ezScene2Document::CommandHistoryEventHandler(const ezCommandHistoryEvent& e
   }
 }
 
+void ezScene2Document::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
+{
+  switch (e.m_Type)
+  {
+    case ezDocumentManager::Event::Type::DocumentOpened:
+    {
+      if (e.m_pDocument->GetDynamicRTTI()->IsDerivedFrom<ezSceneDocument>())
+      {
+        ezUuid layerGuid = e.m_pDocument->GetGuid();
+        LayerInfo* pInfo = nullptr;
+        if (m_Layers.TryGetValue(layerGuid, pInfo))
+        {
+          pInfo->m_pLayer = static_cast<ezSceneDocument*>(e.m_pDocument);
+
+          ezScene2LayerEvent e;
+          e.m_Type = ezScene2LayerEvent::Type::LayerLoaded;
+          e.m_layerGuid = layerGuid;
+          m_LayerEvents.Broadcast(e);
+        }
+      }
+    }
+    break;
+    case ezDocumentManager::Event::Type::DocumentClosing:
+    {
+      if (e.m_pDocument->GetDynamicRTTI()->IsDerivedFrom<ezSceneDocument>())
+      {
+        ezUuid layerGuid = e.m_pDocument->GetGuid();
+        LayerInfo* pInfo = nullptr;
+        if (m_Layers.TryGetValue(layerGuid, pInfo))
+        {
+          pInfo->m_pLayer = nullptr;
+
+          ezScene2LayerEvent e;
+          e.m_Type = ezScene2LayerEvent::Type::LayerUnloaded;
+          e.m_layerGuid = layerGuid;
+          m_LayerEvents.Broadcast(e);
+        }
+      }
+    }
+    break;
+  }
+}
+
 void ezScene2Document::UpdateLayers()
 {
   ezSet<ezUuid> layersBefore;
@@ -194,12 +250,15 @@ void ezScene2Document::UpdateLayers()
     layersBefore.Insert(it.Key());
   }
   ezSet<ezUuid> layersAfter;
+  ezMap<ezUuid, ezUuid> LayerToSceneObject;
   const ezSceneDocumentSettings* pSettings = GetSettings<ezSceneDocumentSettings>();
   for (const ezSceneLayerBase* pLayerBase : pSettings->m_Layers)
   {
     if (const ezSceneLayer* pLayer = ezDynamicCast<const ezSceneLayer*>(pLayerBase))
     {
       layersAfter.Insert(pLayer->m_Layer);
+      ezUuid objectGuid = m_Context.GetObjectGUID(ezGetStaticRTTI<ezSceneLayer>(), pLayer);
+      LayerToSceneObject.Insert(pLayer->m_Layer, objectGuid);
     }
   }
 
@@ -214,15 +273,16 @@ void ezScene2Document::UpdateLayers()
   layersAdded.Difference(layersBefore);
   for (auto it = layersAdded.GetIterator(); it.IsValid(); ++it)
   {
-    LayerAdded(it.Key());
+    LayerAdded(it.Key(), LayerToSceneObject[it.Key()]);
   }
 }
 
-void ezScene2Document::LayerAdded(const ezUuid& layerGuid)
+void ezScene2Document::LayerAdded(const ezUuid& layerGuid, const ezUuid& layerObjectGuid)
 {
   LayerInfo info;
   info.m_pLayer = nullptr;
   info.m_bVisible = true;
+  info.m_objectGuid = layerObjectGuid;
   m_Layers.Insert(layerGuid, info);
 
   ezScene2LayerEvent e;
@@ -230,23 +290,8 @@ void ezScene2Document::LayerAdded(const ezUuid& layerGuid)
   e.m_layerGuid = layerGuid;
   m_LayerEvents.Broadcast(e);
 
-  ezStringBuilder sAbsPath;
-  {
-    auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
-    if (assetInfo.isValid())
-    {
-      sAbsPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
-    }
-  }
-  ezDocument* pDoc = nullptr;
-
-  ezDocumentObject* pRoot = m_pSceneObjectManager->GetRootObject();
-  ezQtEditorApp::GetSingleton()->OpenDocument(sAbsPath, ezDocumentFlags::None, pRoot);
-
- // ezDocumentManager::OpenDocument()
-  //#TODO Load document
-
-  //#TODO Set to active
+  //#TODO Decide whether to load a layer or not (persist as meta data? / user preferences?)
+  SetLayerLoaded(layerGuid, true).LogFailure();
 }
 
 void ezScene2Document::LayerRemoved(const ezUuid& layerGuid)
@@ -254,7 +299,7 @@ void ezScene2Document::LayerRemoved(const ezUuid& layerGuid)
   // Make sure removed layer is not active
   if (m_ActiveLayerGuid == layerGuid)
   {
-    SetActiveLayer(GetGuid());
+    SetActiveLayer(GetGuid()).LogFailure();
   }
 
   ezScene2LayerEvent e;
@@ -262,9 +307,9 @@ void ezScene2Document::LayerRemoved(const ezUuid& layerGuid)
   e.m_layerGuid = layerGuid;
   m_LayerEvents.Broadcast(e);
 
-  m_Layers.Remove(layerGuid);
+  SetLayerLoaded(layerGuid, false).LogFailure();
 
-  //#TODO Unload document
+  m_Layers.Remove(layerGuid);
 }
 
 ezStatus ezScene2Document::CreateLayer(const char* szName, const ezUuid& out_layerGuid)
@@ -300,14 +345,12 @@ ezStatus ezScene2Document::CreateLayer(const char* szName, const ezUuid& out_lay
       return ezStatus(ezFmt("Failed to create new layer '{0}'", targetDirectory));
     }
   }
-  //ezSceneDocumentSettings* pSettings = static_cast<ezSceneDocumentSettings*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 
   ezObjectAccessorBase* pAccessor = GetSceneObjectAccessor();
   ezStringBuilder sTransactionText;
   pAccessor->StartTransaction(ezFmt("Add Layer - '{}'", szName).GetText(sTransactionText));
   {
     auto pRoot = m_pSceneObjectManager->GetObject(GetSettingsObject()->GetGuid());
-    //ezDocumentObject* pObject = m_pSceneObjectManager->CreateObject(ezGetStaticRTTI<ezSceneLayer>());
     ezInt32 uiCount = 0;
     EZ_VERIFY(pAccessor->GetCount(pRoot, "Layers", uiCount).Succeeded(), "Failed to get layer count.");
     ezUuid sceneLayerGuid;
@@ -316,12 +359,61 @@ ezStatus ezScene2Document::CreateLayer(const char* szName, const ezUuid& out_lay
     EZ_VERIFY(pAccessor->SetValue(pLayer, "Layer", pLayerDoc->GetGuid()).Succeeded(), "Failed to set layer GUID.");
   }
   pAccessor->FinishTransaction();
+
+  // We need to manually emit this here as when the layer doc was loaded DocumentManagerEventHandler will not fire as the document was not added as a layer yet.
+  ezScene2LayerEvent e;
+  e.m_Type = ezScene2LayerEvent::Type::LayerLoaded;
+  e.m_layerGuid = pLayerDoc->GetGuid();
+  m_LayerEvents.Broadcast(e);
+
   return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezScene2Document::DeleteLayer(const ezUuid& layerGuid)
 {
-  return ezStatus("FAIL");
+  // We need to be the active layer in order to make changes to the layers.
+  ezStatus res = SetActiveLayer(GetGuid());
+  if (res.Failed())
+    return res;
+
+  LayerInfo* pInfo = nullptr;
+  if (!m_Layers.TryGetValue(layerGuid, pInfo))
+  {
+    return ezStatus("Unknown layer guid. Layer can't be deleted.");
+  }
+
+  if (!pInfo->m_objectGuid.IsValid())
+  {
+    return ezStatus("Layer object guid not set, layer object unknown.");
+  }
+
+  const ezDocumentObject* pObject = GetSceneObjectManager()->GetObject(pInfo->m_objectGuid);
+  if (!pObject)
+  {
+    return ezStatus("Layer object no longer valid.");
+  }
+
+  ezStringBuilder sName("<Unknown>");
+  {
+    auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
+    if (assetInfo.isValid())
+    {
+      sName = ezPathUtils::GetFileName(assetInfo->m_pAssetInfo->m_sDataDirRelativePath);
+    }
+    else
+    {
+      return ezStatus("Could not resolve layer in ezAssetCurator.");
+    }
+  }
+
+  ezObjectAccessorBase* pAccessor = GetSceneObjectAccessor();
+  ezStringBuilder sTransactionText;
+  pAccessor->StartTransaction(ezFmt("Remove Layer - '{}'", sName).GetText(sTransactionText));
+  {
+    EZ_VERIFY(pAccessor->RemoveObject(pObject).Succeeded(), "Failed to remove Layer.");
+  }
+  pAccessor->FinishTransaction();
+  return ezStatus(EZ_SUCCESS);
 }
 
 const ezUuid& ezScene2Document::GetActiveLayer() const
@@ -355,7 +447,6 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
     if (!pDoc)
       return ezStatus("Unladed layer can't be made active.");
 
-
     ezDocumentObjectStructureEvent e;
     e.m_pDocument = m_pObjectManager->GetDocument();
     e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeReset;
@@ -370,22 +461,147 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
     m_pObjectManager->m_StructureEvents.Broadcast(e);
   }
 
+  {
+    ezSelectionManagerEvent se;
+    se.m_pDocument = m_pObjectManager->GetDocument();
+    se.m_pObject = nullptr;
+    se.m_Type = ezSelectionManagerEvent::Type::SelectionSet;
+    m_SelectionManager->GetStorage()->m_Events.Broadcast(se);
+  }
+  {
+    ezCommandHistoryEvent ce;
+    ce.m_pDocument = m_pObjectManager->GetDocument();
+    ce.m_Type = ezCommandHistoryEvent::Type::HistoryChanged;
+    m_CommandHistory->GetStorage()->m_Events.Broadcast(ce);
+  }
   m_ActiveLayerGuid = layerGuid;
+  {
+    ezScene2LayerEvent e;
+    e.m_Type = ezScene2LayerEvent::Type::ActiveLayerChanged;
+    e.m_layerGuid = layerGuid;
+    m_LayerEvents.Broadcast(e);
+  }
 
-  ezScene2LayerEvent e;
-  e.m_Type = ezScene2LayerEvent::Type::ActiveLayerChanged;
-  e.m_layerGuid = layerGuid;
-  m_LayerEvents.Broadcast(e);
-
+  // Set selection to object that contains the active layer
+  if (const ezDocumentObject* pLayerObject = GetLayerObject(layerGuid))
+  {
+    m_LayerSelection.SetSelection(pLayerObject);
+  }
   return ezStatus(EZ_SUCCESS);
 }
 
-bool ezScene2Document::IsLayerLoaded(const ezUuid& layerGuid)
+bool ezScene2Document::IsLayerLoaded(const ezUuid& layerGuid) const
 {
+  const LayerInfo* pInfo = nullptr;
+  if (m_Layers.TryGetValue(layerGuid, pInfo))
+  {
+    return pInfo->m_pLayer != nullptr;
+  }
   return false;
 }
 
 ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
 {
-  return ezStatus("FAIL");
+  // We can't unload the active layer
+  if (!bLoaded && m_ActiveLayerGuid == layerGuid)
+  {
+    ezStatus res = SetActiveLayer(GetGuid());
+    if (res.Failed())
+      return res;
+  }
+
+  LayerInfo* pInfo = nullptr;
+  if (!m_Layers.TryGetValue(layerGuid, pInfo))
+  {
+    return ezStatus("Unknown layer guid. Layer can't be loaded / unloaded.");
+  }
+
+  if ((pInfo->m_pLayer != nullptr) == bLoaded)
+    return ezStatus(EZ_SUCCESS);
+
+  if (bLoaded)
+  {
+    ezStringBuilder sAbsPath;
+    {
+      auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
+      if (assetInfo.isValid())
+      {
+        sAbsPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+      }
+      else
+      {
+        return ezStatus("Could not resolve layer in ezAssetCurator.");
+      }
+    }
+
+    ezDocument* pDoc = nullptr;
+    //#TODO Open layer. Pass our root into it to indicate what the parent context of the layer is.
+    //#TODO context is a window-only concept and not passed to the doc.
+    ezDocumentObject* pRoot = m_pSceneObjectManager->GetRootObject();
+    if (ezDocument* pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(sAbsPath, ezDocumentFlags::None, pRoot))
+    {
+      pInfo->m_pLayer = ezDynamicCast<ezSceneDocument*>(pDoc);
+
+      ezScene2LayerEvent e;
+      e.m_Type = ezScene2LayerEvent::Type::LayerLoaded;
+      e.m_layerGuid = layerGuid;
+      m_LayerEvents.Broadcast(e);
+
+      return ezStatus(EZ_SUCCESS);
+    }
+    else
+    {
+      return ezStatus("Could not load layer, see log for more information.");
+    }
+  }
+  else
+  {
+    if (pInfo->m_pLayer == nullptr)
+      return ezStatus(EZ_SUCCESS);
+
+    // Unload document (save and close)
+    pInfo->m_pLayer->SaveDocument();
+    ezDocumentManager* pManager = pInfo->m_pLayer->GetDocumentManager();
+    pManager->CloseDocument(pInfo->m_pLayer);
+    pInfo->m_pLayer = nullptr;
+
+    ezScene2LayerEvent e;
+    e.m_Type = ezScene2LayerEvent::Type::LayerUnloaded;
+    e.m_layerGuid = layerGuid;
+    m_LayerEvents.Broadcast(e);
+
+    return ezStatus(EZ_SUCCESS);
+  }
+}
+
+void ezScene2Document::GetLoadedLayers(ezDynamicArray<ezSceneDocument*>& out_LayerGuids) const
+{
+  out_LayerGuids.Clear();
+  for (auto it = m_Layers.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_pLayer)
+    {
+      out_LayerGuids.PushBack(it.Value().m_pLayer);
+    }
+  }
+}
+
+const ezDocumentObject* ezScene2Document::GetLayerObject(const ezUuid& layerGuid) const
+{
+  const LayerInfo* pInfo = nullptr;
+  if (m_Layers.TryGetValue(layerGuid, pInfo))
+  {
+    return GetSceneObjectManager()->GetObject(pInfo->m_objectGuid);
+  }
+  return nullptr;
+}
+
+ezSceneDocument* ezScene2Document::GetLayerDocument(const ezUuid& layerGuid) const
+{
+  const LayerInfo* pInfo = nullptr;
+  if (m_Layers.TryGetValue(layerGuid, pInfo))
+  {
+    return pInfo->m_pLayer;
+  }
+  return nullptr;
 }

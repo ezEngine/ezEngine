@@ -528,9 +528,9 @@ ezSharedPtr<ezDocumentObjectManager::Storage> ezDocumentObjectManager::SwapStora
 
   auto retVal = m_pObjectStorage;
 
-  m_StructureEventsUnsubscriber.Clear();
-  m_PropertyEventsUnsubscriber.Clear();
-  m_ObjectEventsUnsubscriber.Clear();
+  m_StructureEventsUnsubscriber.Unsubscribe();
+  m_PropertyEventsUnsubscriber.Unsubscribe();
+  m_ObjectEventsUnsubscriber.Unsubscribe();
 
   m_pObjectStorage = pNewStorage;
 

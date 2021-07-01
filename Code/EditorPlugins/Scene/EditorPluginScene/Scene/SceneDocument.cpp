@@ -46,9 +46,9 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType Docume
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool { return GetObjectManager()->IsUnderRootProperty("Settings", pObject, szProperty); });
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
   // (Remote IPC mirror only sends scene)
-  m_Mirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool { return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty); });
+  m_Mirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   EnsureSettingsObjectExist();
@@ -1166,6 +1166,7 @@ void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<
     msg.m_sTag = "EditorHidden";
     msg.m_bApplyOnAllChildren = true;
 
+    //#TODO scene2 handling across layers
     SendObjectMsg(GetObjectManager()->GetObject(e.m_ObjectKey), &msg);
   }
 }
@@ -1302,6 +1303,7 @@ void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjec
 
 void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {
+  //#TODO needs to be overwritten by Scene2
   if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsOfTypeMsgInterDoc>())
   {
     GatherObjectsOfType(GetObjectManager()->GetRootObject(), static_cast<ezGatherObjectsOfTypeMsgInterDoc*>(pMessage));
@@ -1507,6 +1509,7 @@ ezStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& Thumbnail
 
 void ezSceneDocument::SyncObjectHiddenState()
 {
+  //#TODO Scene2 handling
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
     SyncObjectHiddenState(pChild);

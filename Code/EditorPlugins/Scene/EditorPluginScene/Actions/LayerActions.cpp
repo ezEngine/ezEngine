@@ -15,6 +15,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezActionDescriptorHandle ezLayerActions::s_hLayerCategory;
 ezActionDescriptorHandle ezLayerActions::s_hCreateLayer;
 ezActionDescriptorHandle ezLayerActions::s_hDeleteLayer;
+ezActionDescriptorHandle ezLayerActions::s_hSaveLayer;
 ezActionDescriptorHandle ezLayerActions::s_hLayerLoaded;
 ezActionDescriptorHandle ezLayerActions::s_hLayerVisible;
 
@@ -26,6 +27,8 @@ void ezLayerActions::RegisterActions()
     ezLayerAction, ezLayerAction::ActionType::CreateLayer);
   s_hDeleteLayer = EZ_REGISTER_ACTION_1("Layer.DeleteLayer", ezActionScope::Document, "Scene - Layer", "",
     ezLayerAction, ezLayerAction::ActionType::DeleteLayer);
+  s_hSaveLayer = EZ_REGISTER_ACTION_1("Layer.SaveLayer", ezActionScope::Document, "Scene - Layer", "",
+    ezLayerAction, ezLayerAction::ActionType::SaveLayer);
   s_hLayerLoaded = EZ_REGISTER_ACTION_1("Layer.LayerLoaded", ezActionScope::Document, "Scene - Layer", "",
     ezLayerAction, ezLayerAction::ActionType::LayerLoaded);
   s_hLayerVisible = EZ_REGISTER_ACTION_1("Layer.LayerVisible", ezActionScope::Document, "Scene - Layer", "",
@@ -37,6 +40,7 @@ void ezLayerActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLayerCategory);
   ezActionManager::UnregisterAction(s_hCreateLayer);
   ezActionManager::UnregisterAction(s_hDeleteLayer);
+  ezActionManager::UnregisterAction(s_hSaveLayer);
   ezActionManager::UnregisterAction(s_hLayerLoaded);
   ezActionManager::UnregisterAction(s_hLayerVisible);
 }
@@ -51,8 +55,9 @@ void ezLayerActions::MapContextMenuActions(const char* szMapping, const char* sz
   ezStringBuilder sSubPath(szPath, "/LayerCategory");
   pMap->MapAction(s_hCreateLayer, sSubPath, 1.0f);
   pMap->MapAction(s_hDeleteLayer, sSubPath, 2.0f);
-  pMap->MapAction(s_hLayerLoaded, sSubPath, 3.0f);
-  pMap->MapAction(s_hLayerVisible, sSubPath, 4.0f);
+  pMap->MapAction(s_hSaveLayer, sSubPath, 3.0f);
+  pMap->MapAction(s_hLayerLoaded, sSubPath, 4.0f);
+  pMap->MapAction(s_hLayerVisible, sSubPath, 5.0f);
 }
 
 ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName, ezLayerAction::ActionType type)
@@ -65,18 +70,19 @@ ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName,
   switch (m_Type)
   {
     case ActionType::CreateLayer:
-      SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
+      SetIconPath(":/GuiFoundation/Icons/Add16.png");
       break;
     case ActionType::DeleteLayer:
-      SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
+      SetIconPath(":/GuiFoundation/Icons/Delete16.png");
+      break;
+    case ActionType::SaveLayer:
+      SetIconPath(":/GuiFoundation/Icons/Save16.png");
       break;
     case ActionType::LayerLoaded:
       SetCheckable(true);
-      SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
       break;
     case ActionType::LayerVisible:
       SetCheckable(true);
-      SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
       break;
 
   }
@@ -115,10 +121,21 @@ void ezLayerAction::Execute(const ezVariant& value)
       m_pSceneDocument->DeleteLayer(layerGuid).LogFailure();
       return;
     }
+    case ActionType::SaveLayer:
+    {
+      ezUuid layerGuid = GetCurrentSelectedLayer();
+      if (ezSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid))
+      {
+        pLayer->SaveDocument().LogFailure();
+      }
+      return;
+    }
     case ActionType::LayerLoaded:
     {
       ezUuid layerGuid = GetCurrentSelectedLayer();
-      m_pSceneDocument->SetLayerLoaded(layerGuid, !m_pSceneDocument->IsLayerLoaded(layerGuid)).LogFailure();
+      bool bLoad = !m_pSceneDocument->IsLayerLoaded(layerGuid);
+      m_pSceneDocument->SetLayerLoaded(layerGuid, bLoad).LogFailure();
+      m_pSceneDocument->SetActiveLayer(layerGuid);
       return;
     }
     case ActionType::LayerVisible:
@@ -146,6 +163,12 @@ void ezLayerAction::UpdateEnableState()
     case ActionType::DeleteLayer:
     {
       SetEnabled(layerGuid.IsValid() && layerGuid != m_pSceneDocument->GetGuid());
+      return;
+    }
+    case ActionType::SaveLayer:
+    {
+      ezSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid);
+      SetEnabled(pLayer && pLayer->IsModified());
       return;
     }
     case ActionType::LayerLoaded:

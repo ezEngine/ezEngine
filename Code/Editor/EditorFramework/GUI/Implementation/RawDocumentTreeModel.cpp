@@ -177,7 +177,11 @@ void ezQtDocumentTreeModel::AddAdapter(ezQtDocumentTreeModelAdapter* adapter)
 
   adapter->setParent(this);
   connect(adapter, &ezQtDocumentTreeModelAdapter::dataChanged, this, [this](const ezDocumentObject* pObject, QVector<int> roles) {
+    if (!pObject)
+      return;
     auto index = ComputeModelIndex(pObject);
+    if (!index.isValid())
+      return;
     dataChanged(index, index, roles);
   });
   m_Adapters.Insert(adapter->GetType(), adapter);

@@ -453,7 +453,7 @@ ezSharedPtr<ezCommandHistory::Storage> ezCommandHistory::SwapStorage(ezSharedPtr
 
   auto retVal = m_pHistoryStorage;
 
-  m_EventsUnsubscriber.Clear();
+  m_EventsUnsubscriber.Unsubscribe();
 
   m_pHistoryStorage = pNewStorage;
 

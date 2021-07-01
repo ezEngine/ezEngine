@@ -4,6 +4,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
+#include "ToolsFoundation/Document/DocumentManager.h"
 
 class ezScene2Document;
 
@@ -50,6 +51,8 @@ struct ezScene2LayerEvent
   {
     LayerAdded,
     LayerRemoved,
+    LayerLoaded,
+    LayerUnloaded,
     ActiveLayerChanged,
   };
 
@@ -79,12 +82,17 @@ public:
   const ezUuid& GetActiveLayer() const;
   ezStatus SetActiveLayer(const ezUuid& layerGuid);
 
-  bool IsLayerLoaded(const ezUuid& layerGuid);
+  bool IsLayerLoaded(const ezUuid& layerGuid) const;
   ezStatus SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded);
+  void GetLoadedLayers(ezDynamicArray<ezSceneDocument*>& out_LayerGuids) const;
+
+  const ezDocumentObject* GetLayerObject(const ezUuid& layerGuid) const;
+  ezSceneDocument* GetLayerDocument(const ezUuid& layerGuid) const;
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void InitializeAfterLoadingAndSaving() override;
   virtual const ezDocumentObject* GetSettingsObject() const override;
+  virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
 
 public:
   mutable ezEvent<const ezScene2LayerEvent&> m_LayerEvents;
@@ -93,9 +101,10 @@ private:
   void LayerSelectionEventHandler(const ezSelectionManagerEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
   
   void UpdateLayers();
-  void LayerAdded(const ezUuid& layerGuid);
+  void LayerAdded(const ezUuid& layerGuid, const ezUuid& layerObjectGuid);
   void LayerRemoved(const ezUuid& layerGuid);
 
 private:
@@ -103,11 +112,13 @@ private:
   ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_structureEventSubscriber;
   ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_layerSelectionEventSubscriber;
   ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_commandHistoryEventSubscriber;
+  ezCopyOnBroadcastEvent<const ezDocumentManager::Event&>::Unsubscriber m_documentManagerEventSubscriber;
 
   // This is used for a flattened list of the ezSceneDocumentSettings hierarchy
   struct LayerInfo
   {
     ezSceneDocument* m_pLayer = nullptr;
+    ezUuid m_objectGuid;
     bool m_bVisible = true;
   };
 
