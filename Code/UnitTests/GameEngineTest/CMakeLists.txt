@@ -35,7 +35,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   )
 
   if (EZ_BUILD_FMOD)
-    find_package(EzFmod REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
   endif()
 endif()
