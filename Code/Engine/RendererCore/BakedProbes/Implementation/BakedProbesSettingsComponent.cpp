@@ -8,6 +8,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Utilities/Progress.h>
 #include <RendererCore/BakedProbes/BakedProbesSettingsComponent.h>
+#include <RendererCore/BakedProbes/BakedProbesWorldModule.h>
 #include <RendererCore/BakedProbes/BakingInterface.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -178,6 +179,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesSettingsComponent, 1, ezComponentMode::Stat
   {
     EZ_ACCESSOR_PROPERTY("ShowDebugOverlay", GetShowDebugOverlay, SetShowDebugOverlay),
     EZ_ACCESSOR_PROPERTY("ShowDebugProbes", GetShowDebugProbes, SetShowDebugProbes),
+    EZ_ACCESSOR_PROPERTY("UseTestPosition", GetUseTestPosition, SetUseTestPosition),
+    EZ_ACCESSOR_PROPERTY("TestPosition", GetTestPosition, SetTestPosition)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -194,7 +197,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesSettingsComponent, 1, ezComponentMode::Stat
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering/Baking"),
-    new ezLongOpAttribute("ezLongOpProxy_BakeScene")
+    new ezLongOpAttribute("ezLongOpProxy_BakeScene"),
+    new ezTransformManipulatorAttribute("TestPosition"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -206,6 +210,8 @@ ezBakedProbesSettingsComponent::~ezBakedProbesSettingsComponent() = default;
 
 void ezBakedProbesSettingsComponent::OnActivated()
 {
+  GetWorld()->GetOrCreateModule<ezBakedProbesWorldModule>();
+
   GetOwner()->UpdateLocalBounds();
 
   SUPER::OnActivated();
@@ -246,6 +252,29 @@ void ezBakedProbesSettingsComponent::SetShowDebugProbes(bool bShow)
   }
 }
 
+void ezBakedProbesSettingsComponent::SetUseTestPosition(bool bUse)
+{
+  if (m_bUseTestPosition != bUse)
+  {
+    m_bUseTestPosition = bUse;
+
+    if (IsActiveAndInitialized())
+    {
+      ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    }
+  }
+}
+
+void ezBakedProbesSettingsComponent::SetTestPosition(const ezVec3& pos)
+{
+  m_TestPosition = pos;
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
+}
+
 void ezBakedProbesSettingsComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
@@ -264,24 +293,15 @@ void ezBakedProbesSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData&
   if (!m_hProbeTree.IsValid())
     return;
 
-  ezResourceLock<ezProbeTreeSectorResource> pProbeTree(m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
-
-  auto probePositions = pProbeTree->GetProbePositions();
-  auto skyVisibility = pProbeTree->GetSkyVisibility();
-
-  ezTransform transform = ezTransform::IdentityTransform();
-  ezColor encodedSkyVisibility = ezColor::Black;
-
   const ezGameObject* pOwner = GetOwner();
   auto pManager = static_cast<const ezBakedProbesSettingsComponentManager*>(GetOwningManager());
 
-  for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < probePositions.GetCount(); ++uiProbeIndex)
-  {
-    transform.m_vPosition = probePositions[uiProbeIndex];
+  auto addProbeRenderData = [&](const ezVec3& position, ezCompressedSkyVisibility skyVisibility) {
+    ezTransform transform = ezTransform::IdentityTransform();
+    transform.m_vPosition = position;
 
-    encodedSkyVisibility.r = *reinterpret_cast<const float*>(&skyVisibility[uiProbeIndex]);
+    ezColor encodedSkyVisibility = ezColor::Black;
+    encodedSkyVisibility.r = *reinterpret_cast<const float*>(&skyVisibility);
 
     ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
     {
@@ -297,6 +317,33 @@ void ezBakedProbesSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData&
     }
 
     msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, ezRenderData::Caching::IfStatic);
+  };
+
+  if (m_bUseTestPosition)
+  {
+    auto pModule = GetWorld()->GetModule<ezBakedProbesWorldModule>();
+
+    ezBakedProbesWorldModule::ProbeIndexData indexData;
+    if (pModule->GetProbeIndexData(m_TestPosition, ezVec3::UnitZAxis(), indexData).Failed())
+      return;
+
+    ezCompressedSkyVisibility skyVisibility = ezBakingUtils::CompressSkyVisibility(pModule->GetSkyVisibility(indexData));
+
+    addProbeRenderData(m_TestPosition, skyVisibility);
+  }
+  else
+  {
+    ezResourceLock<ezProbeTreeSectorResource> pProbeTree(m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return;
+
+    auto probePositions = pProbeTree->GetProbePositions();
+    auto skyVisibility = pProbeTree->GetSkyVisibility();
+
+    for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < probePositions.GetCount(); ++uiProbeIndex)
+    {
+      addProbeRenderData(probePositions[uiProbeIndex], skyVisibility[uiProbeIndex]);
+    }
   }
 }
 
