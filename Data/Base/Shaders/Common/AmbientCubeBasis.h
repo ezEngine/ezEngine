@@ -6,11 +6,13 @@
 
 struct AmbientCubeFloat
 {
+  // value order is +X, -X, +Y, -Y, +Z, -Z
   float m_Values[AMBIENT_CUBE_NUM_DIRS];
 };
 
 struct AmbientCubeFloat3
 {
+  // value order is +X, -X, +Y, -Y, +Z, -Z
   float3 m_Values[AMBIENT_CUBE_NUM_DIRS];
 };
 
@@ -62,4 +64,10 @@ float4 EvaluateAmbientCube(Texture2D ambientCubeTexture, int slotIndex, float3 n
 
 float EvaluateCompressedSkyVisibility(uint compressedSkyVisibility, float3 normal)
 {
+  // skyvisibility is compressed as 5,5,5,5,6,6 bits with +X stored in the lowest bits
+  float3 normalSquared = normal * normal * float3(1.0 / 31.0, 1.0 / 31.0, 1.0 / 63.0);
+  uint3 bitShift = normal < 0.0 ? uint3(5, 15, 26) : uint3(0, 10, 20);
+  return normalSquared.x * float((compressedSkyVisibility >> bitShift.x) & 0x1F) +
+         normalSquared.y * float((compressedSkyVisibility >> bitShift.y) & 0x1F) +
+         normalSquared.z * float((compressedSkyVisibility >> bitShift.z) & 0x3F);
 }
