@@ -13,6 +13,10 @@
 
 #  define EZ_SUPPORTS_SFML EZ_OFF
 
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+#  define EZ_SUPPORTS_SFML EZ_OFF
+
 #else
 #  error "Undefined platform!"
 #endif
