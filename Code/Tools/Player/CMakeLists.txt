@@ -23,11 +23,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     TypeScriptPlugin
   )
 
-  if (EZ_BUILD_PHYSX)
-    find_package(ezPhysX REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC PhysXPlugin)
-  endif()
-
   if (EZ_BUILD_FMOD)
     find_package(EzFmod REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
