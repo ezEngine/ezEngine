@@ -100,7 +100,7 @@ namespace ezApplicationDetails
   {                                                                             \
     _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;  \
   }                                                                             \
-  int main(int argc, const char** argv) { return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); }
+  int main(int argc, const char** argv) { return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, ##__VA_ARGS__); }
 
 // If windows.h is already included use the native types, otherwise use types from ezMinWindows
 //

@@ -30,6 +30,7 @@ jobs:
     name: Hosted macOS
   steps:
   - checkout: self
+    submodules: true
   - task: InstallAppleCertificate@2
     displayName: Install an Apple certificate
     enabled: False

@@ -266,7 +266,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   EZ_SCRIPT_FUNCTION_PROPERTY(MyFunc1NoParams)
 ///   EZ_SCRIPT_FUNCTION_PROPERTY(MyFunc2FloatInDoubleOut, In, "FloatValue", Out, "DoubleResult")
 #define EZ_SCRIPT_FUNCTION_PROPERTY(Function, ...) \
-  EZ_FUNCTION_PROPERTY(Function)->AddAttributes(new ezScriptableFunctionAttribute(EZ_EXPAND_ARGS_PAIR_COMMA(_EZ_SCRIPT_FUNCTION_PARAM, __VA_ARGS__)))
+  EZ_FUNCTION_PROPERTY(Function)->AddAttributes(new ezScriptableFunctionAttribute(EZ_EXPAND_ARGS_PAIR_COMMA(_EZ_SCRIPT_FUNCTION_PARAM, ##__VA_ARGS__)))
 
 /// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block, this adds a constructor function property stored inside the RTTI data.
 ///

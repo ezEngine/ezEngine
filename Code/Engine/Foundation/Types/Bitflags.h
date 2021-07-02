@@ -279,7 +279,7 @@ private:
   EZ_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
 
 #define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...) \
-  EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, 0, __VA_ARGS__)
+  EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, 0, ##__VA_ARGS__)
 /// \cond
 
 /// Internal Do not use.

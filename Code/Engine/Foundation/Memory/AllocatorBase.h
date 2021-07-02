@@ -90,7 +90,7 @@ private:
 
 
 /// \brief creates a new instance of type using the default allocator
-#define EZ_DEFAULT_NEW(type, ...) EZ_NEW(ezFoundation::GetDefaultAllocator(), type, __VA_ARGS__)
+#define EZ_DEFAULT_NEW(type, ...) EZ_NEW(ezFoundation::GetDefaultAllocator(), type, ##__VA_ARGS__)
 
 /// \brief deletes the instance stored in ptr using the default allocator and sets ptr to nullptr
 #define EZ_DEFAULT_DELETE(ptr) EZ_DELETE(ezFoundation::GetDefaultAllocator(), ptr)

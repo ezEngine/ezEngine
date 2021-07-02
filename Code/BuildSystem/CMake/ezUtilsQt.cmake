@@ -32,28 +32,38 @@ function(ez_prepare_find_qt)
 
     # Currently only implemented for x64
     if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+
+        if (EZ_CMAKE_ARCHITECTURE_64BIT)
+            set (EZ_SDK_VERSION "Qt-5.13.0-vs141-x64")
+            set (EZ_SDK_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt-5.13.0-vs141-x64/Qt-5.13.0-vs141-x64.zip")
+        endif()
+
+        set (EZ_SDK_LOCAL_ZIP "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}.zip")
+        set (QT_LOCAL_MARKER "${EZ_SDK_LOCAL_ZIP}.extracted")
+
         if ((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR (EZ_QT_DIR STREQUAL ""))
 
-            if (EZ_CMAKE_ARCHITECTURE_64BIT)
-                set (EZ_SDK_VERSION "Qt-5.13.0-vs141-x64")
-                set (EZ_SDK_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt-5.13.0-vs141-x64/Qt-5.13.0-vs141-x64.zip")
-            endif()
+            if (NOT EXISTS ${QT_LOCAL_MARKER})
 
-            set (EZ_SDK_LOCAL_ZIP "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}.zip")
-
-            if (NOT EXISTS ${EZ_SDK_LOCAL_ZIP})
-                message(STATUS "Downloading '${EZ_SDK_URL}'...")
-                file(DOWNLOAD ${EZ_SDK_URL} ${EZ_SDK_LOCAL_ZIP} SHOW_PROGRESS)
+                if (NOT EXISTS ${EZ_SDK_LOCAL_ZIP})
+                    message(STATUS "Downloading '${EZ_SDK_URL}'...")
+                    file(DOWNLOAD ${EZ_SDK_URL} ${EZ_SDK_LOCAL_ZIP} SHOW_PROGRESS)
+                else()
+                    message(STATUS "Already downloaded '${EZ_SDK_LOCAL_ZIP}'")
+                endif()
 
                 message(STATUS "Extracting '${EZ_SDK_LOCAL_ZIP}'...")  
                 execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf ${EZ_SDK_LOCAL_ZIP} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-            else()
-                message(STATUS "Already downloaded '${EZ_SDK_LOCAL_ZIP}'")
+
+                file(TOUCH ${QT_LOCAL_MARKER})
+
             endif()
             
             set (EZ_QT_DIR "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of the Qt installation" FORCE)
-        endif()    
-    endif()    
+        endif()
+
+        file(REMOVE "${EZ_SDK_LOCAL_ZIP}")
+    endif()
 
     ## Download Qt package
     ######################

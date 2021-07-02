@@ -35,7 +35,10 @@ function(ez_uwp_add_import_to_sources TARGET_NAME IMPORT)
   get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_DEBUG)
   target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
 
-  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION)
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_DEV)
+  target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
+
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_SHIPPING)
   target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
 
   unset (_dll_location)
