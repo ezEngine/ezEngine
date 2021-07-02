@@ -41,18 +41,10 @@ float3 GetDiffuseColor()
 {
   float3 normal = normalize(G.Input.Normal);
   
-  float3 ambientCube0 = RGB8ToFloat3(asuint(GetInstanceData().Color.r));
-  float3 ambientCube1 = RGB8ToFloat3(asuint(GetInstanceData().Color.g));
+  uint compressedSkyVisibility = asuint(GetInstanceData().Color.r);
+  float skyVisibility = EvaluateCompressedSkyVisibility(compressedSkyVisibility, normal);
   
-  AmbientCubeFloat skyVisibility;
-  skyVisibility.m_Values[0] = ambientCube0.x;
-  skyVisibility.m_Values[1] = ambientCube0.y;
-  skyVisibility.m_Values[2] = ambientCube0.z;
-  skyVisibility.m_Values[3] = ambientCube1.x;
-  skyVisibility.m_Values[4] = ambientCube1.y;
-  skyVisibility.m_Values[5] = ambientCube1.z;
-  
-  return SrgbToLinear(EvaluateAmbientCube(skyVisibility, normal));
+  return SrgbToLinear(skyVisibility);
 }
 
 float3 GetSpecularColor()

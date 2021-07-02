@@ -32,9 +32,6 @@ public:
   ezArrayPtr<const MeshObject> GetMeshObjects() const { return m_MeshObjects; }
   const ezBoundingBox& GetBoundingBox() const { return m_BoundingBox; }
 
-  ezArrayPtr<const ezVec3> GetProbePositions() const { return m_ProbePositions; }
-  ezArrayPtr<const ezAmbientCube<ezUInt8>> GetSkyVisibility() const { return m_SkyVisibility; }
-
   bool IsBaked() const { return m_bIsBaked; }
 
 private:
@@ -46,10 +43,6 @@ private:
 
   ezDynamicArray<MeshObject, ezAlignedAllocatorWrapper> m_MeshObjects;
   ezBoundingBox m_BoundingBox;
-
-  // temp
-  ezDynamicArray<ezVec3> m_ProbePositions;
-  ezDynamicArray<ezAmbientCube<ezUInt8>> m_SkyVisibility;
 
   ezUInt32 m_uiWorldIndex = ezInvalidIndex;
   ezUniquePtr<ezTracerInterface> m_pTracer;

@@ -2,7 +2,7 @@
 
 #include <Core/Graphics/AmbientCubeBasis.h>
 #include <Core/ResourceManager/Resource.h>
-#include <RendererCore/Declarations.h>
+#include <RendererCore/BakedProbes/BakingUtils.h>
 
 typedef ezTypedResourceHandle<class ezProbeTreeSectorResource> ezProbeTreeSectorResourceHandle;
 
@@ -15,7 +15,7 @@ struct EZ_RENDERERCORE_DLL ezProbeTreeSectorResourceDescriptor
   void operator=(ezProbeTreeSectorResourceDescriptor&& other);
 
   ezDynamicArray<ezVec3> m_ProbePositions;
-  ezDynamicArray<ezAmbientCube<ezUInt8>> m_SkyVisibility;
+  ezDynamicArray<ezCompressedSkyVisibility> m_SkyVisibility;
 
   void Clear();
   ezUInt64 GetHeapMemoryUsage() const;
@@ -35,7 +35,7 @@ public:
   ~ezProbeTreeSectorResource();
 
   ezArrayPtr<const ezVec3> GetProbePositions() const { return m_Desc.m_ProbePositions; }
-  ezArrayPtr<const ezAmbientCube<ezUInt8>> GetSkyVisibility() const { return m_Desc.m_SkyVisibility; }
+  ezArrayPtr<const ezCompressedSkyVisibility> GetSkyVisibility() const { return m_Desc.m_SkyVisibility; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

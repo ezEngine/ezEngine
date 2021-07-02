@@ -99,9 +99,6 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(file));
 
-  m_ProbePositions = placeProbesTask.GetProbePositions();
-  m_SkyVisibility = skyVisibilityTask.GetSkyVisibility();
-
   m_bIsBaked = true;
 
   return EZ_SUCCESS;
