@@ -134,7 +134,7 @@ jobs:
     displayName: CMake UWP
     inputs:
       cwd: buildUWP
-      cmakeArgs: -DCMAKE_PREFIX_PATH="$(System.DefaultWorkingDirectory)\ThirdPartyUWPx86\FMOD Studio API UWP" -DEZ_BUILD_OPENXR=1 -DEZ_BUILD_PHYSX=1 -DEZ_BUILD_FMOD=1 -DEZ_BUILD_GAMES=1 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=0 -DCMAKE_TOOLCHAIN_FILE="../Code/BuildSystem/CMake/toolchain-winstore.cmake" -A "x64" -G "Visual Studio 16 2019" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH="$(System.DefaultWorkingDirectory)\ThirdPartyUWPx86\FMOD Studio API UWP" -DEZ_BUILD_OPENXR=0 -DEZ_BUILD_PHYSX=1 -DEZ_BUILD_FMOD=1 -DEZ_BUILD_GAMES=1 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=0 -DCMAKE_TOOLCHAIN_FILE="../Code/BuildSystem/CMake/toolchain-winstore.cmake" -A "x64" -G "Visual Studio 16 2019" ../
   - task: MSBuild@1
     displayName: Build solution buildUWP/ezVs2019.sln
     inputs:
