@@ -49,6 +49,12 @@ public:
   void SetShowDebugProbes(bool bShow);
   bool GetShowDebugProbes() const { return m_bShowDebugProbes; }
 
+  void SetUseTestPosition(bool bUse);
+  bool GetUseTestPosition() const { return m_bUseTestPosition; }
+
+  void SetTestPosition(const ezVec3& pos);
+  const ezVec3& GetTestPosition() const { return m_TestPosition; }
+
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
@@ -61,6 +67,8 @@ private:
 
   bool m_bShowDebugOverlay = false;
   bool m_bShowDebugProbes = false;
+  bool m_bUseTestPosition = false;
+  ezVec3 m_TestPosition = ezVec3::ZeroVector();
 
   struct RenderDebugViewTask;
   ezSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;

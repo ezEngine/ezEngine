@@ -1,7 +1,8 @@
 #pragma once
 
-#include <RendererCore/Declarations.h>
+#include <Core/Graphics/AmbientCubeBasis.h>
 #include <Core/World/WorldModule.h>
+#include <RendererCore/Declarations.h>
 
 class EZ_RENDERERCORE_DLL ezBakedProbesWorldModule : public ezWorldModule
 {
@@ -17,10 +18,9 @@ public:
 
   struct ProbeIndexData
   {
-
   };
 
-  ezResult GetProbeIndexData(const ezVec3& globalPosition, const ezVec3& normal, ProbeIndexData& out_ProbeIndexData);
+  ezResult GetProbeIndexData(const ezVec3& globalPosition, const ezVec3& normal, ProbeIndexData& out_ProbeIndexData) const;
 
-  ezAmbientCube<float> GetSkyVisibility(const ProbeIndexData& indexData);
+  ezAmbientCube<float> GetSkyVisibility(const ProbeIndexData& indexData) const;
 };

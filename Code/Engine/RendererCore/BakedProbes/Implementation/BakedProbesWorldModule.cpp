@@ -23,12 +23,12 @@ void ezBakedProbesWorldModule::Deinitialize()
 {
 }
 
-ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPosition, const ezVec3& normal, ProbeIndexData& out_ProbeIndexData)
+ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPosition, const ezVec3& normal, ProbeIndexData& out_ProbeIndexData) const
 {
   return EZ_FAILURE;
 }
 
-ezAmbientCube<float> ezBakedProbesWorldModule::GetSkyVisibility(const ProbeIndexData& indexData)
+ezAmbientCube<float> ezBakedProbesWorldModule::GetSkyVisibility(const ProbeIndexData& indexData) const
 {
   return ezAmbientCube<float>();
 }
