@@ -59,3 +59,7 @@ float4 EvaluateAmbientCube(Texture2D ambientCubeTexture, int slotIndex, float3 n
          normalSquared.y * ambientCubeTexture.Load(int3(isNegative.y + 2, slotIndex, 0)) +
          normalSquared.z * ambientCubeTexture.Load(int3(isNegative.z + 4, slotIndex, 0));
 }
+
+float EvaluateCompressedSkyVisibility(uint compressedSkyVisibility, float3 normal)
+{
+}

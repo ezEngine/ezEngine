@@ -1,10 +1,7 @@
 #include <BakingPluginPCH.h>
 
 #include <BakingPlugin/Tasks/SkyVisibilityTask.h>
-#include <BakingPlugin/Tasks/Utils.h>
 #include <BakingPlugin/Tracer/TracerInterface.h>
-
-using namespace ezBakingInternal;
 
 SkyVisibilityTask::SkyVisibilityTask(ezTracerInterface* pTracer, ezArrayPtr<const ezVec3> probePositions)
   : m_pTracer(pTracer)
@@ -26,7 +23,7 @@ void SkyVisibilityTask::Execute()
   for (ezUInt32 uiSampleIndex = 0; uiSampleIndex < uiNumSamples; ++uiSampleIndex)
   {
     auto& ray = rays[uiSampleIndex];
-    ray.m_vDir = FibonacciSphere(uiSampleIndex, uiNumSamples);
+    ray.m_vDir = ezBakingUtils::FibonacciSphere(uiSampleIndex, uiNumSamples);
     ray.m_fDistance = 1000.0f;
 
     weightNormalization.AddSample(ray.m_vDir, 1.0f);
@@ -60,10 +57,11 @@ void SkyVisibilityTask::Execute()
       skyVisibility.AddSample(ray.m_vDir, value);
     }
 
-    auto& compressedSkyVisibility = m_SkyVisibility[uiProbeIndex];
     for (ezUInt32 i = 0; i < ezAmbientCubeBasis::NumDirs; ++i)
     {
-      compressedSkyVisibility.m_Values[i] = ezMath::ColorFloatToByte(skyVisibility.m_Values[i] * weightNormalization.m_Values[i]);
+      skyVisibility.m_Values[i] *= weightNormalization.m_Values[i];
     }
+    auto& compressedSkyVisibility = m_SkyVisibility[uiProbeIndex];
+    compressedSkyVisibility = ezBakingUtils::CompressSkyVisibility(skyVisibility);
   }
 }

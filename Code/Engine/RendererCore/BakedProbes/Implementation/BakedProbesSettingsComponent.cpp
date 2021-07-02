@@ -281,9 +281,7 @@ void ezBakedProbesSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData&
   {
     transform.m_vPosition = probePositions[uiProbeIndex];
 
-    auto& skyVis = skyVisibility[uiProbeIndex];
-    encodedSkyVisibility.r = *reinterpret_cast<float*>(&ezColorLinearUB(skyVis.m_Values[0], skyVis.m_Values[1], skyVis.m_Values[2], 0));
-    encodedSkyVisibility.g = *reinterpret_cast<float*>(&ezColorLinearUB(skyVis.m_Values[3], skyVis.m_Values[4], skyVis.m_Values[5], 0));
+    encodedSkyVisibility.r = *reinterpret_cast<const float*>(&skyVisibility[uiProbeIndex]);
 
     ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
     {

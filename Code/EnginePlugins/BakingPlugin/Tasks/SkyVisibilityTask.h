@@ -1,8 +1,8 @@
 #pragma once
 
 #include <BakingPlugin/BakingPluginDLL.h>
-#include <Core/Graphics/AmbientCubeBasis.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <RendererCore/BakedProbes/BakingUtils.h>
 
 class ezTracerInterface;
 
@@ -16,12 +16,12 @@ namespace ezBakingInternal
 
     virtual void Execute() override;
 
-    ezArrayPtr<const ezAmbientCube<ezUInt8>> GetSkyVisibility() const { return m_SkyVisibility; }
+    ezArrayPtr<const ezCompressedSkyVisibility> GetSkyVisibility() const { return m_SkyVisibility; }
 
   private:
     ezTracerInterface* m_pTracer = nullptr;
     ezArrayPtr<const ezVec3> m_ProbePositions;
 
-    ezDynamicArray<ezAmbientCube<ezUInt8>> m_SkyVisibility;
+    ezDynamicArray<ezCompressedSkyVisibility> m_SkyVisibility;
   };
 } // namespace ezBakingInternal
