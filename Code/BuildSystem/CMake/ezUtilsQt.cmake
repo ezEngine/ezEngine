@@ -43,26 +43,11 @@ function(ez_prepare_find_qt)
 
         if ((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR (EZ_QT_DIR STREQUAL ""))
 
-            if (NOT EXISTS ${QT_LOCAL_MARKER})
+            ez_download_and_extract("${EZ_SDK_URL}" "${CMAKE_BINARY_DIR}" "${EZ_SDK_VERSION}" "zip")
 
-                if (NOT EXISTS ${EZ_SDK_LOCAL_ZIP})
-                    message(STATUS "Downloading '${EZ_SDK_URL}'...")
-                    file(DOWNLOAD ${EZ_SDK_URL} ${EZ_SDK_LOCAL_ZIP} SHOW_PROGRESS)
-                else()
-                    message(STATUS "Already downloaded '${EZ_SDK_LOCAL_ZIP}'")
-                endif()
-
-                message(STATUS "Extracting '${EZ_SDK_LOCAL_ZIP}'...")  
-                execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf ${EZ_SDK_LOCAL_ZIP} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-
-                file(TOUCH ${QT_LOCAL_MARKER})
-
-            endif()
-            
             set (EZ_QT_DIR "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of the Qt installation" FORCE)
         endif()
 
-        file(REMOVE "${EZ_SDK_LOCAL_ZIP}")
     endif()
 
     ## Download Qt package

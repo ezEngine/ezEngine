@@ -606,3 +606,58 @@ function(ez_set_build_types)
 
 endfunction()
 
+
+######################################
+### ez_download_and_extract(<url-to-download> <dest-folder-path> <dest-filename-without-extension> <dest-file-extension>)
+######################################
+
+function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME PKG_TYPE)
+
+	set (FULL_FILENAME "${DEST_FILENAME}.${PKG_TYPE}")
+    set (PKG_FILE "${DEST_FOLDER}/${FULL_FILENAME}")
+    set (EXTRACT_MARKER "${PKG_FILE}.extracted")
+
+    if (EXISTS "${EXTRACT_MARKER}")
+        return()
+    endif()
+
+    if (NOT EXISTS "${PKG_FILE}")
+        message(STATUS "Downloading '${FULL_FILENAME}'...")  
+        file(DOWNLOAD ${URL} "${PKG_FILE}" SHOW_PROGRESS STATUS DOWNLOAD_STATUS)
+
+        list(GET DOWNLOAD_STATUS 0 DOWNLOAD_STATUS_CODE)
+        if (NOT DOWNLOAD_STATUS_CODE EQUAL 0)
+            message(FATAL_ERROR "Download failed: ${DOWNLOAD_STATUS}")
+            return()
+        endif()
+    endif()
+
+    message(STATUS "Extracting '${FULL_FILENAME}'...")  
+
+	if (${PKG_TYPE} MATCHES "7z")
+
+		execute_process(COMMAND "${CMAKE_SOURCE_DIR}/Data/Tools/Precompiled/7za.exe"
+			x "${PKG_FILE}"
+			-aoa
+			WORKING_DIRECTORY "${DEST_FOLDER}"
+			COMMAND_ERROR_IS_FATAL ANY
+			RESULT_VARIABLE CMD_STATUS)
+
+	else()
+
+		execute_process(COMMAND ${CMAKE_COMMAND} 
+			-E tar -xf ${PKG_FILE}
+			WORKING_DIRECTORY "${DEST_FOLDER}"
+			COMMAND_ERROR_IS_FATAL ANY
+			RESULT_VARIABLE CMD_STATUS)
+
+	endif()
+
+    if (NOT CMD_STATUS EQUAL 0)
+        message(FATAL_ERROR "Extracting package '${FULL_FILENAME}' failed.")
+        return()
+    endif()
+
+    file(TOUCH ${EXTRACT_MARKER})
+
+endfunction()
