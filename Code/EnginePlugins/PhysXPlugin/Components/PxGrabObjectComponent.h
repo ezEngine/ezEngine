@@ -89,7 +89,7 @@ protected:
   void ReleaseGrabbedObject();
 
   ezPxDynamicActorComponent* GetAttachToActor();
-  ezResult DetermineGrabPoint(const ezPxDynamicActorComponent* pActor, ezTransform& out_LocalGrabPoint) const;
+  ezResult DetermineGrabPoint(const ezComponent* pActor, ezTransform& out_LocalGrabPoint) const;
   void AdjustGrabbedActor(ezPxDynamicActorComponent* pActor);
   void CreateJoint(ezPxDynamicActorComponent* pParent, ezPxDynamicActorComponent* pChild);
   void DetectDistanceViolation(ezPxDynamicActorComponent* pGrabbedActor, ezPx6DOFJointComponent* pJoint);

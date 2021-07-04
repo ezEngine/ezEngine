@@ -146,6 +146,9 @@ ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
 
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
+  m_bIsTransforming = true;
+  EZ_SCOPE_EXIT(m_bIsTransforming = false);
+
   ezProgressRange range("Transforming Asset", 3, false);
 
   ezEditableSkeleton* pProp = GetProperties();

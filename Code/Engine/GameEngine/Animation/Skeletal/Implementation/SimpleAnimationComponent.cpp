@@ -173,16 +173,6 @@ void ezSimpleAnimationComponent::Update()
   if (pose.IsEmpty())
     return;
 
-  // inform child nodes/components that a new pose is available
-  {
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = pose;
-
-    GetOwner()->SendMessageRecursive(msg);
-  }
-
   if (m_RootMotionMode != ezRootMotionMode::Ignore)
   {
     ezVec3 vRootMotion = tDiff.AsFloatInSeconds() * m_fSpeed * animDesc.m_vConstantRootMotion;
@@ -195,6 +185,21 @@ void ezSimpleAnimationComponent::Update()
 
     // only applies positional root motion
     ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezAngle(), ezAngle(), ezAngle());
+  }
+
+  // inform child nodes/components that a new pose is available
+  {
+    ezMsgAnimationPoseUpdated msg;
+    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+    msg.m_ModelTransforms = pose;
+
+    GetOwner()->SendMessageRecursive(msg);
+
+    if (msg.m_bContinueAnimating == false)
+    {
+      SetActiveFlag(false);
+    }
   }
 }
 

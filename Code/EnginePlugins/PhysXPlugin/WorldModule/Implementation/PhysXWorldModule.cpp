@@ -19,6 +19,7 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <Shapes/PxShapeBoxComponent.h>
+#include <pvd/PxPvdSceneClient.h>
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
@@ -104,10 +105,10 @@ namespace
     // the only way to prevent this, seems to be to disable ALL self-collision, unfortunately this also disables collisions with all other
     // articulations
     // TODO: this needs to be revisited with later PhysX versions
-    if (PxGetFilterObjectType(attributes0) == PxFilterObjectType::eARTICULATION && PxGetFilterObjectType(attributes1) == PxFilterObjectType::eARTICULATION)
-    {
-      return PxFilterFlag::eSUPPRESS;
-    }
+    //if (PxGetFilterObjectType(attributes0) == PxFilterObjectType::eARTICULATION && PxGetFilterObjectType(attributes1) == PxFilterObjectType::eARTICULATION)
+    //{
+    //  return PxFilterFlag::eSUPPRESS;
+    //}
 
     pairFlags = (PxPairFlag::Enum)0;
 
@@ -189,6 +190,9 @@ namespace
     out_Result.m_fDistance = hit.distance;
     EZ_ASSERT_DEBUG(!out_Result.m_vPosition.IsNaN(), "Raycast hit Position is NaN");
     EZ_ASSERT_DEBUG(!out_Result.m_vNormal.IsNaN(), "Raycast hit Normal is NaN");
+
+    out_Result.m_pInternalPhysicsShape = pHitShape;
+    out_Result.m_pInternalPhysicsActor = pHitShape->getActor();
 
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData))
     {
@@ -603,6 +607,16 @@ void ezPhysXWorldModule::Initialize()
     EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
     m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
     EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the PhysX scene failed");
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    physx::PxPvdSceneClient* pvdClient = m_pPxScene->getScenePvdClient();
+    if (pvdClient)
+    {
+      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+    }
+#endif
   }
 
   m_pCharacterManager = PxCreateControllerManager(*m_pPxScene);
@@ -810,189 +824,6 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
 
   return false;
 }
-
-#if 0
-void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& rootTransform0, const ezAnimationPose& initPose)
-{
-  const float fScale = rootTransform0.m_vScale.x;
-  const ezTransform rootTransform(rootTransform0.m_vPosition, rootTransform0.m_qRotation);
-
-  const PxMaterial* pPxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
-  const PxFilterData filter = ezPhysX::CreateFilterData(/*m_uiCollisionLayer*/ 0);
-
-  physx::PxArticulation* pArt = m_pPxScene->getPhysics().createArticulation();
-
-  // if (false)
-  //{
-  //  ezTransform tRoot;
-  //  tRoot.SetIdentity();
-  //  tRoot.m_vPosition.z = 5.0f;
-  //  PxArticulationLink* pRootLink = pArt->createLink(nullptr, ezPxConversionUtils::ToTransform(tRoot));
-  //  // pRootLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-
-  //  {
-  //    // PxBoxGeometry shape(1, 0.1, 0.5);
-  //    PxSphereGeometry shape(0.5f);
-  //    PxShape* pShape = PxRigidActorExt::createExclusiveShape(*pRootLink, shape, *pPxMaterial);
-  //    PxRigidBodyExt::updateMassAndInertia(*pRootLink, 1.0f);
-  //    pShape->setSimulationFilterData(filter);
-  //    pShape->setQueryFilterData(filter);
-  //  }
-
-  //  ezTransform tChild;
-  //  tChild.SetIdentity();
-  //  tChild.m_vPosition.z = 5.0f;
-  //  tChild.m_vPosition.x = 2.0f;
-  //  PxArticulationLink* pChildLink = pArt->createLink(pRootLink, ezPxConversionUtils::ToTransform(tChild));
-  //  pChildLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-
-  //  ezTransform jointParentPose;
-  //  jointParentPose.SetIdentity();
-  //  pChildLink->getInboundJoint()->setParentPose(ezPxConversionUtils::ToTransform(jointParentPose));
-
-  //  ezTransform jointChildPose;
-  //  jointChildPose.SetIdentity();
-  //  jointChildPose.m_vPosition.x = -2.0f;
-  //  // jointChildPose.SetLocalTransform(tChild, ezTransform::IdentityTransform());
-  //  pChildLink->getInboundJoint()->setChildPose(ezPxConversionUtils::ToTransform(jointChildPose));
-
-  //  {
-  //    PxBoxGeometry shape(0.8, 0.1, 0.4);
-  //    PxShape* pShape = PxRigidActorExt::createExclusiveShape(*pChildLink, shape, *pPxMaterial);
-  //    PxRigidBodyExt::updateMassAndInertia(*pChildLink, 1.0f);
-  //    pShape->setSimulationFilterData(filter);
-  //    pShape->setQueryFilterData(filter);
-  //  }
-  //}
-  // else
-  {
-    ezMap<ezUInt16, PxArticulationLink*> links;
-
-    //{
-    //  PxArticulationLink* pRootLink = pArt->createLink(nullptr, ezPxConversionUtils::ToTransform(rootTransform));
-    //  // pRootLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-    //  links[ezInvalidJointIndex] = pRootLink;
-    //  pRootLink->setName("Ragdoll");
-    //}
-
-#  if 0
-    for (const ezSkeletonResourceGeometry& geom : skeleton.m_Geometry)
-    {
-      const ezSkeletonJoint& joint = skeleton.m_Skeleton.GetJointByIndex(geom.m_uiAttachedToJoint);
-
-      PxArticulationLink* pThisLink = nullptr;
-
-      bool bExisted = false;
-      auto itLink = links.FindOrAdd(geom.m_uiAttachedToJoint, &bExisted);
-      if (!bExisted)
-      {
-        ezUInt16 uiParentJoint = joint.GetParentIndex();
-        PxArticulationLink* pParentLink = links.GetValueOrDefault(uiParentJoint, nullptr);
-
-        if (links.GetCount() > 1)
-        {
-          while (pParentLink == nullptr)
-          {
-            uiParentJoint = skeleton.m_Skeleton.GetJointByIndex(uiParentJoint).GetParentIndex();
-            pParentLink = links.GetValueOrDefault(uiParentJoint, nullptr);
-          }
-        }
-        else
-        {
-          uiParentJoint = ezInvalidJointIndex;
-        }
-
-        ezTransform parentTransformAbs;
-        ezTransform thisTransformAbs;
-
-        // compute link transforms
-        {
-          if (uiParentJoint == ezInvalidJointIndex)
-            parentTransformAbs = rootTransform;
-          else
-          {
-            ezTransform poseTransform;
-            poseTransform.SetFromMat4(initPose.GetTransform(uiParentJoint));
-
-            parentTransformAbs = rootTransform * ezTransform(poseTransform.m_vPosition * fScale, poseTransform.m_qRotation);
-          }
-
-          {
-            ezTransform poseTransform;
-            poseTransform.SetFromMat4(initPose.GetTransform(geom.m_uiAttachedToJoint));
-
-            thisTransformAbs = rootTransform * ezTransform(poseTransform.m_vPosition * fScale, poseTransform.m_qRotation);
-          }
-        }
-
-        pThisLink = pArt->createLink(pParentLink, ezPxConversionUtils::ToTransform(thisTransformAbs));
-        itLink.Value() = pThisLink;
-
-        pThisLink->setName(joint.GetName().GetData());
-        // pThisLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-
-        if (PxArticulationJointBase* pJoint = pThisLink->getInboundJoint())
-        {
-          pJoint->setChildPose(ezPxConversionUtils::ToTransform(ezTransform::IdentityTransform()));
-
-          ezTransform parentJointTransform;
-          parentJointTransform.SetLocalTransform(parentTransformAbs, thisTransformAbs);
-          pJoint->setParentPose(ezPxConversionUtils::ToTransform(parentJointTransform));
-          // TODO: Commented out after PhysX4 upgrade.
-          // pJoint->setTwistLimitEnabled(true);
-          // pJoint->setSwingLimitEnabled(true);
-        }
-
-        if (links.GetCount() == 1)
-        {
-          links[ezInvalidJointIndex] = pThisLink;
-        }
-      }
-
-      pThisLink = itLink.Value();
-      PxShape* pShape = nullptr;
-
-      switch (geom.m_Type)
-      {
-        case ezSkeletonJointGeometryType::Box:
-        {
-          PxBoxGeometry shape(fScale * geom.m_Transform.m_vScale.x, fScale * geom.m_Transform.m_vScale.y, fScale * geom.m_Transform.m_vScale.z);
-          pShape = PxRigidActorExt::createExclusiveShape(*itLink.Value(), shape, *pPxMaterial);
-          break;
-        }
-
-        case ezSkeletonJointGeometryType::Sphere:
-        {
-          PxSphereGeometry shape(fScale * geom.m_Transform.m_vScale.z);
-          pShape = PxRigidActorExt::createExclusiveShape(*itLink.Value(), shape, *pPxMaterial);
-          break;
-        }
-
-        case ezSkeletonJointGeometryType::Capsule:
-        {
-          PxCapsuleGeometry shape(fScale * geom.m_Transform.m_vScale.z, fScale * geom.m_Transform.m_vScale.x);
-          pShape = PxRigidActorExt::createExclusiveShape(*itLink.Value(), shape, *pPxMaterial);
-          break;
-        }
-      }
-
-      // create shape
-      {
-        PxRigidBodyExt::updateMassAndInertia(*itLink.Value(), 1.0f);
-
-        pShape->setSimulationFilterData(filter);
-        pShape->setQueryFilterData(filter);
-      }
-    }
-#  endif
-  }
-
-  EZ_PX_WRITE_LOCK(*m_pPxScene);
-  m_pPxScene->addArticulation(*pArt);
-
-  return pArt;
-}
-#endif
 
 bool ezPhysXWorldModule::SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {

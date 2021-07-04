@@ -254,7 +254,7 @@ ezPxDynamicActorComponent* ezPxGrabObjectComponent::GetAttachToActor()
   return pActor;
 }
 
-ezResult ezPxGrabObjectComponent::DetermineGrabPoint(const ezPxDynamicActorComponent* pActorComp, ezTransform& out_LocalGrabPoint) const
+ezResult ezPxGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActorComp, ezTransform& out_LocalGrabPoint) const
 {
   out_LocalGrabPoint.SetIdentity();
 

@@ -10,7 +10,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDamage, 1, ezRTTIDefaultAllocator<ezMsgDama
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Damage", m_fDamage),
-    EZ_MEMBER_PROPERTY("HitObjectName", m_sHitObjectName)
+    EZ_MEMBER_PROPERTY("HitObjectName", m_sHitObjectName),
+    EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
+    EZ_MEMBER_PROPERTY("ImpactDirection", m_vImpactDirection),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

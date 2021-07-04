@@ -121,7 +121,11 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
   while (itComp.IsValid())
   {
     const ezCameraComponent* pComp = itComp;
-    Cameras[pComp->GetUsageHint().GetValue()].PushBack(pComp);
+
+    if (pComp->IsActive())
+    {
+      Cameras[pComp->GetUsageHint().GetValue()].PushBack(pComp);
+    }
 
     itComp.Next();
   }

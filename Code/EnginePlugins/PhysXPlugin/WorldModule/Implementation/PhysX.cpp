@@ -40,6 +40,13 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
       EZ_REPORT_FAILURE("PhysX Invalid Operation: {0}", message);
       break;
     case PxErrorCode::eINVALID_PARAMETER:
+      if (ezStringUtils::IsEqual(message, "PxScene::raycast(): pose is not valid.") ||
+          ezStringUtils::IsEqual(message, "Gu::overlap(): pose1 is not valid.") ||
+          ezStringUtils::IsEqual(message, "PxScene::sweep(): pose1 is not valid."))
+      {
+        //ezLog::Warning("Invalid pose");
+        return;
+      }
       EZ_REPORT_FAILURE("PhysX Invalid Parameter: {0}", message);
       break;
     case PxErrorCode::eOUT_OF_MEMORY:
@@ -326,7 +333,9 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
     const auto& desc = e.m_pSurface->GetDescriptor();
 
     PxMaterial* pMaterial = m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
-    pMaterial->userData = EZ_DEFAULT_NEW(ezPxUserData, e.m_pSurface);
+    ezPxUserData* pxUserData = EZ_DEFAULT_NEW(ezPxUserData);
+    pxUserData->Init(e.m_pSurface);
+    pMaterial->userData = pxUserData;
 
     e.m_pSurface->m_pPhysicsMaterial = pMaterial;
   }

@@ -11,6 +11,7 @@ class ezPxShapeComponent;
 class ezSurfaceResource;
 class ezBreakableSheetComponent;
 class ezPxQueryShapeActorComponent;
+class ezPxRagdollComponent;
 
 class ezPxUserData
 {
@@ -62,9 +63,15 @@ public:
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE ezPxUserData(ezSurfaceResource* pObject)
+  EZ_ALWAYS_INLINE void Init(ezSurfaceResource* pObject)
   {
     m_Type = Type::SurfaceResource;
+    m_pObject = pObject;
+  }
+
+  EZ_ALWAYS_INLINE void Init(ezPxRagdollComponent* pObject)
+  {
+    m_Type = Type::RagdollComponent;
     m_pObject = pObject;
   }
 
@@ -152,6 +159,17 @@ public:
     return nullptr;
   }
 
+  EZ_FORCE_INLINE static ezPxRagdollComponent* GetRagdollComponent(void* pUserData)
+  {
+    ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
+    if (pPxUserData != nullptr && pPxUserData->m_Type == Type::RagdollComponent)
+    {
+      return static_cast<ezPxRagdollComponent*>(pPxUserData->m_pObject);
+    }
+
+    return nullptr;
+  }
+
   EZ_FORCE_INLINE static ezComponent* GetComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
@@ -163,6 +181,7 @@ public:
           pPxUserData->m_Type == Type::CharacterShapeComponent ||
           pPxUserData->m_Type == Type::ShapeComponent ||
           pPxUserData->m_Type == Type::QueryShapeActorComponent ||
+          pPxUserData->m_Type == Type::RagdollComponent ||
           pPxUserData->m_Type == Type::BreakableSheetComponent)
       {
         return static_cast<ezComponent*>(pPxUserData->m_pObject);
@@ -204,6 +223,7 @@ private:
     BreakableSheetComponent,
     SurfaceResource,
     QueryShapeActorComponent,
+    RagdollComponent,
   };
 
   Type m_Type = Type::Invalid;
