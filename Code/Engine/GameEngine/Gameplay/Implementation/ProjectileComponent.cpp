@@ -153,6 +153,8 @@ void ezProjectileComponent::Update()
               msg.m_vGlobalPosition = castResult.m_vPosition;
               msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
               msg.m_uiShapeId = castResult.m_uiShapeId;
+              msg.m_pInternalPhysicsShape = castResult.m_pInternalPhysicsShape;
+              msg.m_pInternalPhysicsActor = castResult.m_pInternalPhysicsActor;
 
               pObject->SendMessage(msg);
             }
@@ -166,6 +168,8 @@ void ezProjectileComponent::Update()
             {
               ezMsgDamage msg;
               msg.m_fDamage = interaction.m_fDamage;
+              msg.m_vGlobalPosition = castResult.m_vPosition;
+              msg.m_vImpactDirection = vCurDirection;
 
               ezGameObject* pHitShape = nullptr;
               if (GetWorld()->TryGetObject(castResult.m_hShapeObject, pHitShape))

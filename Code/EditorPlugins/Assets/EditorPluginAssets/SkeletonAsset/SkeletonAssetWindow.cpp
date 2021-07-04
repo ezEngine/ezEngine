@@ -176,6 +176,11 @@ void ezQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
+  ezSkeletonAssetDocument* pDoc = ezDynamicCast<ezSkeletonAssetDocument*>(GetDocument());
+
+  if (pDoc->m_bIsTransforming)
+    return;
+
   ezResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "Skeleton";
 
@@ -185,7 +190,6 @@ void ezQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezSkeletonAssetDocument* pDoc = ezDynamicCast<ezSkeletonAssetDocument*>(GetDocument());
 
   // Write Path
   ezStringBuilder sAbsFilePath = pDoc->GetDocumentPath();

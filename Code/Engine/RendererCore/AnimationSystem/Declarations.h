@@ -62,6 +62,7 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   const ezTransform* m_pRootTransform = nullptr;
   const ezSkeleton* m_pSkeleton = nullptr;
   ezArrayPtr<const ezMat4> m_ModelTransforms;
+  bool m_bContinueAnimating = true;
 };
 
 /// \brief The animated mesh component listens to this message and 'answers' by filling out the skeleton resource handle.

@@ -1,0 +1,204 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{85153831524228785,4896476241313511951}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Animated Mesh"}
+		VarArray %Dependencies
+		{
+			s{"Animations/Mattress/Mattress.glb"}
+		}
+		Uuid %DocumentID{u4{85153831524228785,4896476241313511951}}
+		u4 %Hash{1152767020759977699}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ ba807654-635f-462a-9113-4f3d262d57cc }"}
+			s{"{ d9628d95-9475-4ec7-b0dd-b64b52b9d2e9 }"}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{737644387007793320,5023125410429531495}}
+	s %t{"ezAnimatedMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %DefaultSkeleton{"{ ba807654-635f-462a-9113-4f3d262d57cc }"}
+		b %ImportMaterials{0}
+		VarArray %Materials
+		{
+			Uuid{u4{292248676611588998,5458871623945809914}}
+		}
+		s %MeshFile{"Animations/Mattress/Mattress.glb"}
+		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %RecalculateNormals{0}
+		b %RecalculateTangents{1}
+		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
+	}
+}
+o
+{
+	Uuid %id{u4{292248676611588998,5458871623945809914}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Mat-0"}
+		s %Resource{"{ d9628d95-9475-4ec7-b0dd-b64b52b9d2e9 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{737644387007793320,5023125410429531495}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{9735983355844992176,7654398404563011307}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimatedMeshAssetProperties"}
+		u3 %TypeSize{1256}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7523378465055293707,11345788873737253128}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMaterialResourceSlot"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3437852327385397451,11533535376753039907}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshTexCoordPrecision"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3566230308987241816,14467924040829974905}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshNormalPrecision"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}

@@ -11,6 +11,9 @@ struct EZ_GAMEENGINE_DLL ezMsgDamage : public ezEventMessage
 
   double m_fDamage = 0;
   ezString m_sHitObjectName; ///< The actual game object that was hit (may be a child of the object to which the message is sent)
+
+  ezVec3 m_vGlobalPosition;
+  ezVec3 m_vImpactDirection;
 };
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_OnDamage : public ezVisualScriptNode
