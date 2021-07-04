@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <CoreFoundation/CoreFoundation.h>
 
 /// \brief Helper class to release references of core foundation objects correctly.
