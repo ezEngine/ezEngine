@@ -42,10 +42,10 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
 
     // GetInt64 / SetInt64
     ezTimestamp firstContactTest(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
-    EZ_TEST_BOOL(firstContactTest.GetInt64(ezSIUnitOfTime::Second) == iFirstContactUnixTimeInSeconds);
-    EZ_TEST_BOOL(firstContactTest.GetInt64(ezSIUnitOfTime::Millisecond) == iFirstContactUnixTimeInSeconds * 1000LL);
-    EZ_TEST_BOOL(firstContactTest.GetInt64(ezSIUnitOfTime::Microsecond) == iFirstContactUnixTimeInSeconds * 1000000LL);
-    EZ_TEST_BOOL(firstContactTest.GetInt64(ezSIUnitOfTime::Nanosecond) == iFirstContactUnixTimeInSeconds * 1000000000LL);
+    EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Second) , iFirstContactUnixTimeInSeconds);
+    EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Millisecond), iFirstContactUnixTimeInSeconds * 1000LL);
+    EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Microsecond), iFirstContactUnixTimeInSeconds * 1000000LL);
+    EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Nanosecond), iFirstContactUnixTimeInSeconds * 1000000000LL);
 
     firstContactTest.SetInt64(firstContactTest.GetInt64(ezSIUnitOfTime::Second), ezSIUnitOfTime::Second);
     EZ_TEST_BOOL(firstContactTest.Compare(firstContact, ezTimestamp::CompareMode::Identical));

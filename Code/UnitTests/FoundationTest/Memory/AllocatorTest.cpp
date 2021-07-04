@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
   {
     enum
     {
-      BLOCK_SIZE_IN_BYTES = 4096 * 2
+      BLOCK_SIZE_IN_BYTES = 4096 * 4
     };
     const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
 

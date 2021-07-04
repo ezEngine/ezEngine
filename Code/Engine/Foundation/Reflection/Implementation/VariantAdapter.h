@@ -95,7 +95,7 @@ struct ezIsValueType
 {
   enum
   {
-    value = ezVariant::TypeDeduction<C>::value >= ezVariantType::FirstStandardType && ezVariant::TypeDeduction<C>::value <= ezVariantType::LastStandardType || ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast,
+    value = (ezVariant::TypeDeduction<C>::value >= ezVariantType::FirstStandardType && ezVariant::TypeDeduction<C>::value <= ezVariantType::LastStandardType) || ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast,
   };
 };
 

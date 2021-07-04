@@ -18,7 +18,7 @@ namespace ezInternal
 
   enum
   {
-    DEFAULT_BLOCK_SIZE = 1024 * 4
+    DEFAULT_BLOCK_SIZE = 1024 * 16
   };
 
   typedef ezLargeBlockAllocator<DEFAULT_BLOCK_SIZE> WorldLargeBlockAllocator;
