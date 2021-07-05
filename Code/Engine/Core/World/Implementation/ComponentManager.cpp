@@ -73,7 +73,7 @@ ezComponentHandle ezComponentManagerBase::CreateComponentNoInit(ezGameObject* pO
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
   pComponent->m_ComponentFlags.AddOrRemove(ezObjectFlags::Dynamic, pComponent->GetMode() == ezComponentMode::Dynamic);
-  
+
   // In Editor we add components via reflection so it is fine to have a nullptr here.
   // We check for a valid owner before the Initialize() callback.
   if (pOwnerObject != nullptr)

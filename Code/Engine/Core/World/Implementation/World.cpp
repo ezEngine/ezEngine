@@ -1037,7 +1037,7 @@ bool ezWorld::ProcessInitializationBatch(ezInternal::WorldData::InitBatch& batch
 
       // make sure the object's transform is up to date before the component is initialized.
       pComponent->GetOwner()->UpdateGlobalTransform();
-      
+
       pComponent->EnsureInitialized();
 
       if (pComponent->IsActive())
