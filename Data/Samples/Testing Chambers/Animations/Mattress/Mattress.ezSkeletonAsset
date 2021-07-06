@@ -14,7 +14,7 @@ o
 			s{"Animations/Mattress/Mattress.glb"}
 		}
 		Uuid %DocumentID{u4{14724287148971725713,5055962794478827092}}
-		u4 %Hash{16205785213705233014}
+		u4 %Hash{16033782793453404869}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -80,6 +80,9 @@ o
 		{
 			Uuid{u4{9708513671528913056,5755520461842193994}}
 		}
+		Vec3 %GlobalPos{f{0,0,0xDFCCCC3D}}
+		Vec3 %GlobalPosRO{f{0,0,0xDFCCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.005"}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -97,6 +100,9 @@ o
 			Uuid{u4{12438663165128338319,5428263948055023234}}
 			Uuid{u4{4719487436521421757,5648896884461461039}}
 		}
+		Vec3 %GlobalPos{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
+		Vec3 %GlobalPosRO{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Armature"}
 		Transform %Transform{f{0,0xCDCCCC3D,0x000080BF,0x0000803F,0,0,0x4CEF2EB4,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -158,6 +164,9 @@ o
 		{
 			Uuid{u4{9621086076020439736,4950849210816176908}}
 		}
+		Vec3 %GlobalPos{f{0x0000003F,0x00000033,0xFCCCCC3D}}
+		Vec3 %GlobalPosRO{f{0x0000003F,0x00000033,0xFCCCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.009"}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -198,6 +207,9 @@ o
 		{
 			Uuid{u4{14927471046578142348,5314507661894247677}}
 		}
+		Vec3 %GlobalPos{f{0x000040BF,0x000000B3,0xB8CCCC3D}}
+		Vec3 %GlobalPosRO{f{0x000040BF,0x000000B3,0xB8CCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.001"}
 		Transform %Transform{f{0,0x0000803E,0,0xA67717B5,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -214,6 +226,9 @@ o
 			Uuid{u4{16125738336430129593,5003081575911914346}}
 		}
 		VarArray %Children{}
+		Vec3 %GlobalPos{f{0x0000403F,0,0x08CDCC3D}}
+		Vec3 %GlobalPosRO{f{0x0000403F,0,0x08CDCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.010"}
 		Transform %Transform{f{0,0x0000803E,0x000000A9,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -296,6 +311,9 @@ o
 		{
 			Uuid{u4{3830399822218347174,4782425431986197529}}
 		}
+		Vec3 %GlobalPos{f{0x000080BE,0x00008031,0xD0CCCC3D}}
+		Vec3 %GlobalPosRO{f{0x000080BE,0x00008031,0xD0CCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.003"}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -315,6 +333,9 @@ o
 		{
 			Uuid{u4{15841934645179297186,5054242365542430851}}
 		}
+		Vec3 %GlobalPos{f{0x000000BF,0,0xC0CCCC3D}}
+		Vec3 %GlobalPosRO{f{0x000000BF,0,0xC0CCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.002"}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -328,6 +349,9 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
+		Vec3 %GlobalPos{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
+		Vec3 %GlobalPosRO{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Cube"}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -347,7 +371,7 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Animations/Mattress/Mattress.glb"}
 		b %FlipForwardDir{0}
-		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %RightDir{"ezBasisAxis::NegativeX"}
 		s %Surface{""}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
@@ -368,6 +392,9 @@ o
 		{
 			Uuid{u4{15888914949541950605,4932287688552968235}}
 		}
+		Vec3 %GlobalPos{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
+		Vec3 %GlobalPosRO{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone"}
 		Transform %Transform{f{0,0,0,0xF00435BF,0,0,0xF604353F,0x0000803F,0x0100803F,0x0100803F}}
 	}
@@ -387,6 +414,9 @@ o
 		{
 			Uuid{u4{11491224505138677928,4892068319508362805}}
 		}
+		Vec3 %GlobalPos{f{0x0000803E,0,0xEECCCC3D}}
+		Vec3 %GlobalPosRO{f{0x0000803E,0,0xEECCCC3D}}
+		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.008"}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
@@ -458,7 +488,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeletonJoint"}
-		u3 %TypeSize{344}
+		u3 %TypeSize{360}
 		u3 %TypeVersion{1}
 	}
 }
