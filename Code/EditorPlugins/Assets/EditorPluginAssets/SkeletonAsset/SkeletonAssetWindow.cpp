@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
+#include <EditorFramework/InputContexts/SelectionContext.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -42,7 +43,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig, true);
     m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(-5, 1, 2));
     AddViewWidget(m_pViewWidget);
     pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "SkeletonAssetViewToolBar");
@@ -103,7 +104,7 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
 
   for (auto pView : m_ViewWidgets)
   {
-    pView->SetEnablePicking(false);
+    pView->SetEnablePicking(true);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }

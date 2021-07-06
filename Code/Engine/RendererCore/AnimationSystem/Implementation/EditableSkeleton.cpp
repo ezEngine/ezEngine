@@ -44,8 +44,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("Transform", m_Transform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::IdentityTransform())),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
+
+    EZ_MEMBER_PROPERTY("GlobalPos", m_vJointPosGlobal)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY_READ_ONLY("GlobalPosRO", m_vJointPosGlobal)->AddAttributes(new ezHiddenAttribute()),
+    EZ_ACCESSOR_PROPERTY("LimitOrientation", GetJointLimitOrientation, SetJointLimitOrientation),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTransformManipulatorAttribute("GlobalPosRO", "LimitOrientation"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -211,6 +220,19 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   m_BoneShapes = pJoint->m_BoneShapes;
 }
 
+ezVec3 ezEditableSkeletonJoint::GetJointPosGlobal() const
+{
+  return m_vJointPosGlobal;
+}
 
+ezQuat ezEditableSkeletonJoint::GetJointLimitOrientation() const
+{
+  return m_qJointLimitOrientation;
+}
+
+void ezEditableSkeletonJoint::SetJointLimitOrientation(ezQuat val)
+{
+  m_qJointLimitOrientation = val;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_EditableSkeleton);
