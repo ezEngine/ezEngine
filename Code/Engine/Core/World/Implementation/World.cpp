@@ -1033,11 +1033,10 @@ bool ezWorld::ProcessInitializationBatch(ezInternal::WorldData::InitBatch& batch
       if (!TryGetComponent(hComponent, pComponent))
         continue;
 
-      // make sure the object's transform is up to date before the component is initialized
-      if (pComponent->GetOwner())
-      {
-        pComponent->GetOwner()->UpdateGlobalTransform();
-      }
+      EZ_ASSERT_DEBUG(pComponent->GetOwner() != nullptr, "Component must have a valid owner");
+
+      // make sure the object's transform is up to date before the component is initialized.
+      pComponent->GetOwner()->UpdateGlobalTransform();
 
       pComponent->EnsureInitialized();
 
