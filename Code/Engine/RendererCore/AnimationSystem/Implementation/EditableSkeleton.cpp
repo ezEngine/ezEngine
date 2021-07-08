@@ -45,6 +45,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("GlobalPos", m_vJointPosGlobal)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY_READ_ONLY("GlobalPosRO", m_vJointPosGlobal)->AddAttributes(new ezHiddenAttribute()),
     EZ_ACCESSOR_PROPERTY("LimitOrientation", GetJointLimitOrientation, SetJointLimitOrientation),
+    EZ_MEMBER_PROPERTY("SwingLimitX", m_SwingLimitX)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
+    EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
+    EZ_MEMBER_PROPERTY("TwistLimitLow", m_TwistLimitLow)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(180)), new ezDefaultValueAttribute(ezAngle::Degree(15))),
+    EZ_MEMBER_PROPERTY("TwistLimitHigh", m_TwistLimitHigh)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(180)), new ezDefaultValueAttribute(ezAngle::Degree(15))),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
   }
@@ -121,6 +125,8 @@ void ezEditableSkeleton::AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourc
   {
     const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
 
+    sb.SetJointLimit(idx, pChildJoint->m_qJointLimitOrientation, pChildJoint->m_SwingLimitX, pChildJoint->m_SwingLimitY, pChildJoint->m_TwistLimitLow, pChildJoint->m_TwistLimitHigh);
+
     AddChildJoints(sb, desc, pJoint, pChildJoint, idx);
   }
 }
@@ -133,6 +139,8 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& de
   for (const auto* pJoint : m_Children)
   {
     const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
+
+    sb.SetJointLimit(idx, pJoint->m_qJointLimitOrientation, pJoint->m_SwingLimitX, pJoint->m_SwingLimitY, pJoint->m_TwistLimitLow, pJoint->m_TwistLimitHigh);
 
     AddChildJoints(sb, desc, nullptr, pJoint, idx);
   }
@@ -217,6 +225,11 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   //  children
 
   m_BoneShapes = pJoint->m_BoneShapes;
+  m_qJointLimitOrientation = pJoint->m_qJointLimitOrientation;
+  m_SwingLimitX = pJoint->m_SwingLimitX;
+  m_SwingLimitY = pJoint->m_SwingLimitY;
+  m_TwistLimitLow = pJoint->m_TwistLimitLow;
+  m_TwistLimitHigh = pJoint->m_TwistLimitHigh;
 }
 
 ezVec3 ezEditableSkeletonJoint::GetJointPosGlobal() const
