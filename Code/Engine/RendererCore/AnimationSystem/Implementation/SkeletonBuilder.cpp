@@ -26,6 +26,16 @@ ezUInt32 ezSkeletonBuilder::AddJoint(const char* szName, const ezTransform& loca
   return m_Joints.GetCount() - 1;
 }
 
+void ezSkeletonBuilder::SetJointLimit(ezUInt32 uiJointIndex, const ezQuat& rotation, ezAngle halfSwingLimitX, ezAngle halfSwingLimitY, ezAngle twistLimitLow, ezAngle twistLimitHigh)
+{
+  auto& j = m_Joints[uiJointIndex];
+  j.m_LimitRotation = rotation;
+  j.m_HalfSwingLimitX = halfSwingLimitX;
+  j.m_HalfSwingLimitY = halfSwingLimitY;
+  j.m_TwistLimitLow = twistLimitLow;
+  j.m_TwistLimitHigh = twistLimitHigh;
+}
+
 void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& skeleton) const
 {
   EZ_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
@@ -40,6 +50,12 @@ void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& skeleton) const
     skeleton.m_Joints[i].m_sName = m_Joints[i].m_sName;
     skeleton.m_Joints[i].m_uiParentIndex = m_Joints[i].m_uiParentIndex;
     skeleton.m_Joints[i].m_BindPoseLocal = m_Joints[i].m_BindPoseLocal;
+
+    skeleton.m_Joints[i].m_LimitRotation = m_Joints[i].m_LimitRotation;
+    skeleton.m_Joints[i].m_HalfSwingLimitX = m_Joints[i].m_HalfSwingLimitX;
+    skeleton.m_Joints[i].m_HalfSwingLimitY = m_Joints[i].m_HalfSwingLimitY;
+    skeleton.m_Joints[i].m_TwistLimitLow = m_Joints[i].m_TwistLimitLow;
+    skeleton.m_Joints[i].m_TwistLimitHigh = m_Joints[i].m_TwistLimitHigh;
   }
 }
 

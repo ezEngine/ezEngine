@@ -67,10 +67,10 @@ public:
   ezQuat GetJointLimitOrientation() const;
   void SetJointLimitOrientation(ezQuat val);
 
-  //ezAngle m_TwistLow;
-  //ezAngle m_TwistHigh;
-  //ezAngle m_SwingLow;
-  //ezAngle m_SwingHigh;
+  ezAngle m_TwistLimitLow;
+  ezAngle m_TwistLimitHigh;
+  ezAngle m_SwingLimitX;
+  ezAngle m_SwingLimitY;
 
   ezQuat m_qJointLimitOrientation = ezQuat::IdentityQuaternion();
   ezVec3 m_vJointPosGlobal = ezVec3::ZeroVector();

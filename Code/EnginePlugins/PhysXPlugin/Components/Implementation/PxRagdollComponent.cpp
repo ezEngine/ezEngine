@@ -286,7 +286,8 @@ void ezPxRagdollComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& h
     if (geo.m_Type == ezSkeletonJointGeometryType::None)
       continue;
 
-    ezUInt16 uiParentJoint = desc.m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint).GetParentIndex();
+    const ezSkeletonJoint& joint = desc.m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint);
+    ezUInt16 uiParentJoint = joint.GetParentIndex();
 
     while (!links.Contains(uiParentJoint))
     {
@@ -351,9 +352,11 @@ void ezPxRagdollComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& h
         inb->setParentPose(ezPxConversionUtils::ToTransform(parentFrameJoint));
         inb->setSwingLimitEnabled(true);
         inb->setTwistLimitEnabled(true);
-        inb->setSwingLimit(ezAngle::Degree(35).GetRadian(), ezAngle::Degree(35).GetRadian());
+        //inb->setSwingLimit(ezAngle::Degree(35).GetRadian(), ezAngle::Degree(35).GetRadian());
+        inb->setSwingLimit(ezMath::Max(ezAngle::Degree(1), joint.GetHalfSwingLimitX()).GetRadian(), ezMath::Max(ezAngle::Degree(1), joint.GetHalfSwingLimitY()).GetRadian());
         //inb->setSwingLimit(ezAngle::Degree(5).GetRadian(), ezAngle::Degree(5).GetRadian());
-        inb->setTwistLimit(ezAngle::Degree(-20).GetRadian(), ezAngle::Degree(20).GetRadian());
+        //inb->setTwistLimit(ezAngle::Degree(-20).GetRadian(), ezAngle::Degree(20).GetRadian());
+        inb->setTwistLimit(-ezMath::Max(ezAngle::Degree(1), joint.GetTwistLimitLow()).GetRadian(), ezMath::Max(ezAngle::Degree(1), joint.GetTwistLimitHigh()).GetRadian());
         //inb->setTwistLimit(ezAngle::Degree(-5).GetRadian(), ezAngle::Degree(5).GetRadian());
         inb->setTangentialDamping(25.0f);
         inb->setDamping(25.0f);
