@@ -42,12 +42,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocat
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_MEMBER_PROPERTY("Transform", m_Transform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::IdentityTransform())),
-    EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
-
     EZ_MEMBER_PROPERTY("GlobalPos", m_vJointPosGlobal)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY_READ_ONLY("GlobalPosRO", m_vJointPosGlobal)->AddAttributes(new ezHiddenAttribute()),
     EZ_ACCESSOR_PROPERTY("LimitOrientation", GetJointLimitOrientation, SetJointLimitOrientation),
+    EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
+    EZ_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
