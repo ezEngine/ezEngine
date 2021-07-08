@@ -154,6 +154,11 @@ public:
   /// \brief Creates an object with an ezCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
   ezResult CreateLevelCamera(ezUInt8 uiSlot);
 
+  virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
+  {
+    return ezManipulatorSearchStrategy::ChildrenOfSelectedObject;
+  }
+
   ///@}
 
 protected:

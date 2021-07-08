@@ -185,13 +185,13 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
 
   const auto& selection = pDoc->GetSelectionManager()->GetSelection();
 
-  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
-  {
-    const auto& children = selection[i]->GetChildren();
+  EZ_ASSERT_DEV(pDoc->GetManipulatorSearchStrategy() != ezManipulatorSearchStrategy::None, "The document type '{}' has to override the function 'GetManipulatorSearchStrategy()'", pDoc->GetDynamicRTTI()->GetTypeName());
 
-    for (const auto& child : children)
+  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::SelectedObject)
+  {
+    for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
     {
-      const auto& OtherAttributes = child->GetTypeAccessor().GetType()->GetAttributes();
+      const auto& OtherAttributes = selection[i]->GetTypeAccessor().GetType()->GetAttributes();
 
       for (const auto pOtherAttr : OtherAttributes)
       {
@@ -204,7 +204,36 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
               pOtherManip->m_sProperty5 == pAttribute->m_sProperty5 && pOtherManip->m_sProperty6 == pAttribute->m_sProperty6)
           {
             auto& newItem = newSelection.ExpandAndGetRef();
-            newItem.m_pObject = child;
+            newItem.m_pObject = selection[i];
+          }
+        }
+      }
+    }
+  }
+
+  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::ChildrenOfSelectedObject)
+  {
+    for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+    {
+      const auto& children = selection[i]->GetChildren();
+
+      for (const auto& child : children)
+      {
+        const auto& OtherAttributes = child->GetTypeAccessor().GetType()->GetAttributes();
+
+        for (const auto pOtherAttr : OtherAttributes)
+        {
+          if (pOtherAttr->IsInstanceOf(pAttribute->GetDynamicRTTI()))
+          {
+            ezManipulatorAttribute* pOtherManip = static_cast<ezManipulatorAttribute*>(pOtherAttr);
+
+            if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 && pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
+                pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 && pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
+                pOtherManip->m_sProperty5 == pAttribute->m_sProperty5 && pOtherManip->m_sProperty6 == pAttribute->m_sProperty6)
+            {
+              auto& newItem = newSelection.ExpandAndGetRef();
+              newItem.m_pObject = child;
+            }
           }
         }
       }

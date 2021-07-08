@@ -42,8 +42,15 @@ public:
   bool m_bHidden;            /// Whether the object should be rendered in the editor view (no effect on the runtime)
   ezUuid m_CreateFromPrefab; /// The asset GUID of the prefab from which this object was created. Invalid GUID, if this is not a prefab instance.
   ezUuid m_PrefabSeedGuid;   /// The seed GUID used to remap the object GUIDs from the prefab asset into this instance.
-  ezString m_sBasePrefab; /// The prefab from which this instance was created as complete DDL text (this describes the entire object!). Necessary for
-                          /// three-way-merging the prefab instances.
+  ezString m_sBasePrefab;    /// The prefab from which this instance was created as complete DDL text (this describes the entire object!). Necessary for
+                             /// three-way-merging the prefab instances.
+};
+
+enum class ezManipulatorSearchStrategy
+{
+  None,
+  SelectedObject,
+  ChildrenOfSelectedObject
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezDocument : public ezReflectedClass
@@ -166,6 +173,12 @@ public:
 
   /// \brief Tries to compute the position and rotation for an object in the document. Returns EZ_SUCCESS if it was possible.
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const;
+
+  /// \brief Needed by ezManipulatorManager to know where to look for the manipulator attributes.
+  ///
+  /// Override this function for document types that use manipulators.
+  /// The ezManipulatorManager will assert that the document type doesn't return 'None' once it is in use.
+  virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const { return ezManipulatorSearchStrategy::None; }
 
   ///@}
   /// \name Prefab Functions

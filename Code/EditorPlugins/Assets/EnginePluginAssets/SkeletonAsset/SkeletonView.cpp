@@ -160,11 +160,6 @@ void ezSkeletonViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
           res.m_ComponentGuid = ezUuid();
         }
       }
-
-      if (res.m_OtherGuid.IsValid())
-      {
-        ezLog::Dev("Other is valid");
-      }
     }
   }
 
