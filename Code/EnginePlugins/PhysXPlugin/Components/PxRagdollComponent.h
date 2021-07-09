@@ -12,6 +12,8 @@ namespace physx
   class PxAggregate;
   class PxArticulation;
   class PxArticulationDriveCache;
+  class PxRigidActor;
+  class PxMaterial;
 } // namespace physx
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
@@ -74,11 +76,21 @@ public:
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
 
 protected:
+  struct LinkData
+  {
+    physx::PxArticulationLink* m_pLink = nullptr;
+    ezTransform m_GlobalTransform;
+  };
+
   void CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton, ezMsgAnimationPoseUpdated& poseMsg);
+  void CreatePhysicsShapes2(const ezSkeletonResourceHandle& hSkeleton, ezMsgAnimationPoseUpdated& poseMsg);
   void DestroyPhysicsShapes();
   void UpdatePose();
   void Update();
   void CreateShapesFromBindPose();
+  void AddArticulationToScene();
+  void CreateBoneShape(const ezTransform& rootTransform, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const PxMaterial& pxMaterial, const PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
+  void CreateBoneLink(ezUInt16 uiBoneIdx, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
 
   physx::PxMaterial* GetPxMaterial();
   physx::PxFilterData CreateFilterData();
@@ -101,6 +113,7 @@ protected:
     ezVec3 m_vPos;
     ezVec3 m_vImpulse;
   };
+
 
   ezHybridArray<Impulse, 8> m_Impulses;
 
