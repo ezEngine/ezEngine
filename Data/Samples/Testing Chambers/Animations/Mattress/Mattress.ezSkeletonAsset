@@ -14,7 +14,7 @@ o
 			s{"Animations/Mattress/Mattress.glb"}
 		}
 		Uuid %DocumentID{u4{14724287148971725713,5055962794478827092}}
-		u4 %Hash{16033782793453404869}
+		u4 %Hash{8676225992775767315}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -84,7 +84,11 @@ o
 		Vec3 %GlobalPosRO{f{0,0,0xDFCCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.005"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -104,7 +108,11 @@ o
 		Vec3 %GlobalPosRO{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Armature"}
+		Angle %SwingLimitX{f{0}}
+		Angle %SwingLimitY{f{0}}
 		Transform %Transform{f{0,0xCDCCCC3D,0x000080BF,0x0000803F,0,0,0x4CEF2EB4,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0}}
+		Angle %TwistLimitLow{f{0}}
 	}
 }
 o
@@ -168,7 +176,11 @@ o
 		Vec3 %GlobalPosRO{f{0x0000003F,0x00000033,0xFCCCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.009"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -211,7 +223,11 @@ o
 		Vec3 %GlobalPosRO{f{0x000040BF,0x000000B3,0xB8CCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.001"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0x0000803E,0,0xA67717B5,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -230,7 +246,11 @@ o
 		Vec3 %GlobalPosRO{f{0x0000403F,0,0x08CDCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.010"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0x0000803E,0x000000A9,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -315,7 +335,11 @@ o
 		Vec3 %GlobalPosRO{f{0x000080BE,0x00008031,0xD0CCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.003"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -337,7 +361,11 @@ o
 		Vec3 %GlobalPosRO{f{0x000000BF,0,0xC0CCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.002"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -353,7 +381,11 @@ o
 		Vec3 %GlobalPosRO{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Cube"}
+		Angle %SwingLimitX{f{0}}
+		Angle %SwingLimitY{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0}}
+		Angle %TwistLimitLow{f{0}}
 	}
 }
 o
@@ -396,7 +428,11 @@ o
 		Vec3 %GlobalPosRO{f{0x000080BF,0x000000B3,0xC8CCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0,0,0xF00435BF,0,0,0xF604353F,0x0000803F,0x0100803F,0x0100803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -418,7 +454,11 @@ o
 		Vec3 %GlobalPosRO{f{0x0000803E,0,0xEECCCC3D}}
 		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.008"}
+		Angle %SwingLimitX{f{0x35FA8E3C}}
+		Angle %SwingLimitY{f{0xF366DF3E}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitHigh{f{0xC2B8323E}}
+		Angle %TwistLimitLow{f{0xC2B8323E}}
 	}
 }
 o
@@ -488,7 +528,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeletonJoint"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{376}
 		u3 %TypeVersion{1}
 	}
 }
