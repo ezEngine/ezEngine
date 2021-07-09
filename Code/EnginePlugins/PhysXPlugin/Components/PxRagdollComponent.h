@@ -83,7 +83,6 @@ protected:
   };
 
   void CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton, ezMsgAnimationPoseUpdated& poseMsg);
-  void CreatePhysicsShapes2(const ezSkeletonResourceHandle& hSkeleton, ezMsgAnimationPoseUpdated& poseMsg);
   void DestroyPhysicsShapes();
   void UpdatePose();
   void Update();
@@ -120,7 +119,7 @@ protected:
   ezEnum<ezPxRagdollStart> m_Start;
   physx::PxArticulationLink* m_pRootLink = nullptr;
   ezDynamicArray<ArtLink> m_ArticulationLinks;
-  ezDynamicArray<ezVec3> m_vLastPos;
+  //ezDynamicArray<ezVec3> m_vLastPos;
 
   ezSkeletonResourceHandle m_hSkeleton;
   physx::PxAggregate* m_pAggregate = nullptr;
