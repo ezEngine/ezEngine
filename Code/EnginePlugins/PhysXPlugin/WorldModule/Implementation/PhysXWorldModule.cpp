@@ -18,6 +18,7 @@
 #include <PxArticulation.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <Shapes/PxShapeBoxComponent.h>
 #include <pvd/PxPvdSceneClient.h>
 
@@ -1033,6 +1034,8 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
 
   EZ_PX_WRITE_LOCK(*m_pPxScene);
 
+  UpdatePVD();
+
   if (ezPxSettingsComponentManager* pSettingsManager = GetWorld()->GetComponentManager<ezPxSettingsComponentManager>())
   {
     ezPxSettingsComponent* pSettings = pSettingsManager->GetSingletonComponent();
@@ -1338,6 +1341,43 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
   }
 
   m_bSimulationStepExecuted = true;
+}
+
+void ezPhysXWorldModule::UpdatePVD()
+{
+  // this function doesn't seem to have any effect in the PVD :(
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  physx::PxPvdSceneClient* pvdClient = m_pPxScene->getScenePvdClient();
+  if (pvdClient)
+  {
+    ezStringBuilder camName;
+
+    auto pCamMan = GetWorld()->GetComponentManager<ezCameraComponentManager>();
+    for (auto it = pCamMan->GetComponents(); it.IsValid(); it.Next())
+    {
+      if (!it->IsActiveAndSimulating())
+        continue;
+
+      ezCameraComponent* pCam = it;
+
+      if (pCam->GetUsageHint() == ezCameraUsageHint::EditorView ||
+          pCam->GetUsageHint() == ezCameraUsageHint::MainView)
+      {
+        camName = pCam->GetOwner()->GetName();
+
+        if (camName.IsEmpty())
+          camName.Format("Camera {}", ezArgP(pCam));
+
+        const ezVec3 pos = pCam->GetOwner()->GetGlobalPosition();
+        const ezVec3 up = pCam->GetOwner()->GetGlobalDirUp();
+        const ezVec3 fwd = pCam->GetOwner()->GetGlobalDirForwards();
+
+        pvdClient->updateCamera("Default", ezPxConversionUtils::ToVec3(pos), ezPxConversionUtils::ToVec3(up), ezPxConversionUtils::ToVec3(pos + fwd));
+      }
+    }
+  }
+#endif
 }
 
 void ezPhysXWorldModule::UpdateJoints()

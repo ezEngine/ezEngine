@@ -82,6 +82,7 @@ private:
 
   void Simulate();
   void SimulateStep(ezTime deltaTime);
+  void UpdatePVD();
 
   void UpdateJoints();
 
