@@ -84,16 +84,16 @@ EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator ezComponentManager<T, StorageType>::GetComponents()
+EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator ezComponentManager<T, StorageType>::GetComponents(ezUInt32 uiStartIndex /*= 0*/)
 {
-  return m_ComponentStorage.GetIterator();
+  return m_ComponentStorage.GetIterator(uiStartIndex);
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
 EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator
-ezComponentManager<T, StorageType>::GetComponents() const
+ezComponentManager<T, StorageType>::GetComponents(ezUInt32 uiStartIndex /*= 0*/) const
 {
-  return m_ComponentStorage.GetIterator();
+  return m_ComponentStorage.GetIterator(uiStartIndex);
 }
 
 // static

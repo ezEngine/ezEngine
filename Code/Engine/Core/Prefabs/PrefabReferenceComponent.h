@@ -22,6 +22,7 @@ public:
 private:
   void ResourceEventHandler(const ezResourceEvent& e);
 
+  ezUInt32 m_uiGcStartIndex = 0;
   ezDeque<ezComponentHandle> m_ComponentsToUpdate;
 };
 
