@@ -101,10 +101,10 @@ public:
   bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 
   /// \brief Returns an iterator over all components.
-  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator GetComponents();
+  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator GetComponents(ezUInt32 uiStartIndex = 0);
 
   /// \brief Returns an iterator over all components.
-  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator GetComponents() const;
+  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator GetComponents(ezUInt32 uiStartIndex = 0) const;
 
   /// \brief Returns the type id corresponding to the component type managed by this manager.
   static ezWorldModuleTypeId TypeId();
