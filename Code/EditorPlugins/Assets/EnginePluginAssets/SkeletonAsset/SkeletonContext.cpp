@@ -72,6 +72,7 @@ void ezSkeletonContext::OnInitialize()
     pVisSkeleton->SetSkeleton(m_hSkeleton);
     pVisSkeleton->m_bVisualizeSkeleton = true;
     pVisSkeleton->m_bVisualizeColliders = true;
+    pVisSkeleton->m_bVisualizeJoints = true;
   }
 }
 

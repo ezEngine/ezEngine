@@ -45,6 +45,7 @@ public:
 
   bool m_bVisualizeSkeleton = true;   // [ property ]
   bool m_bVisualizeColliders = false; // [ property ]
+  bool m_bVisualizeJoints = false;    // [ property ]
 
   void SetBonesToHighlight(const char* szFilter);
   const char* GetBonesToHighlight() const;

@@ -26,6 +26,7 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
   t.m_vScale.Set(us);
 
   // prevent mirroring in the rotation matrix, because we can't generate a quaternion from that
+  if (!pProp->m_bFlipForwardDir)
   {
     switch (forwardDir)
     {
@@ -136,8 +137,8 @@ ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
   auto pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
 
   ezSkeletonResourceDescriptor desc;
-  pProp->FillResourceDescriptor(desc);
   desc.m_RootTransform = CalculateTransformationMatrix(pProp);
+  pProp->FillResourceDescriptor(desc);
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 
