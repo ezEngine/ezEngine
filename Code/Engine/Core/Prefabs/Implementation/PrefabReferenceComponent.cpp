@@ -446,33 +446,6 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
   }
 
   m_ComponentsToUpdate.Clear();
-
-  auto pWorld = GetWorld();
-
-  ezUInt32 uiGcSteps = 0;
-  auto it = GetComponents(m_uiGcStartIndex);
-
-  for (; it.IsValid() && uiGcSteps < 10; it.Next())
-  {
-    ++uiGcSteps;
-
-    if (!it->IsActiveAndSimulating())
-      continue;
-
-    auto pOwner = it->GetOwner();
-    if (pOwner == nullptr)
-      continue;
-
-    if (pOwner->GetChildCount() == 0 && pOwner->GetComponents().GetCount() == 1)
-    {
-      pWorld->DeleteObjectDelayed(pOwner->GetHandle());
-    }
-  }
-
-  if (!it.IsValid())
-  {
-    m_uiGcStartIndex = 0;
-  }
 }
 
 void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceComponent* pComponent)
