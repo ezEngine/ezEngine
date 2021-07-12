@@ -97,7 +97,7 @@ void ezEditableSkeleton::ClearJoints()
   m_Children.Clear();
 }
 
-void ezEditableSkeleton::AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) const
+void ezEditableSkeleton::AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx, const ezQuat& parentRot) const
 {
   for (auto& shape : pJoint->m_BoneShapes)
   {
@@ -121,13 +121,17 @@ void ezEditableSkeleton::AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourc
       geo.m_sSurface.Assign(shape.m_sSurfaceOverride);
   }
 
+  const ezQuat qThisRot = parentRot * pJoint->m_Transform.m_qRotation;
+
   for (const auto* pChildJoint : pJoint->m_Children)
   {
     const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
 
-    sb.SetJointLimit(idx, pChildJoint->m_qJointLimitOrientation, pChildJoint->m_SwingLimitX, pChildJoint->m_SwingLimitY, pChildJoint->m_TwistLimitLow, pChildJoint->m_TwistLimitHigh);
+    const ezQuat qLocalLimit = -desc.m_RootTransform.m_qRotation * -parentRot * pChildJoint->m_qJointLimitOrientation;
 
-    AddChildJoints(sb, desc, pJoint, pChildJoint, idx);
+    sb.SetJointLimit(idx, qLocalLimit, pChildJoint->m_SwingLimitX, pChildJoint->m_SwingLimitY, pChildJoint->m_TwistLimitLow, pChildJoint->m_TwistLimitHigh);
+
+    AddChildJoints(sb, desc, pJoint, pChildJoint, idx, qThisRot);
   }
 }
 
@@ -142,7 +146,7 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& de
 
     sb.SetJointLimit(idx, pJoint->m_qJointLimitOrientation, pJoint->m_SwingLimitX, pJoint->m_SwingLimitY, pJoint->m_TwistLimitLow, pJoint->m_TwistLimitHigh);
 
-    AddChildJoints(sb, desc, nullptr, pJoint, idx);
+    AddChildJoints(sb, desc, nullptr, pJoint, idx, ezQuat::IdentityQuaternion());
   }
   sb.BuildSkeleton(desc.m_Skeleton);
   desc.m_Skeleton.m_BoneDirection = m_BoneDirection;

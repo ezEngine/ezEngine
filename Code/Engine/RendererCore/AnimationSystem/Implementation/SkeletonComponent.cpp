@@ -11,7 +11,7 @@
 #include <ozz/base/maths/simd_math.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -19,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 3, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("BonesToHighlight", GetBonesToHighlight, SetBonesToHighlight),
     EZ_MEMBER_PROPERTY("VisualizeColliders", m_bVisualizeColliders),
+    EZ_MEMBER_PROPERTY("VisualizeJoints", m_bVisualizeJoints),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -47,7 +48,7 @@ ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 
 void ezSkeletonComponent::Update()
 {
-  if (m_bVisualizeSkeleton || m_bVisualizeColliders)
+  if (m_bVisualizeSkeleton || m_bVisualizeColliders || m_bVisualizeJoints)
   {
     if (m_hSkeleton.IsValid())
     {
@@ -87,6 +88,7 @@ void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bVisualizeSkeleton;
   s << m_sBonesToHighlight;
   s << m_bVisualizeColliders;
+  s << m_bVisualizeJoints;
 }
 
 void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
@@ -107,6 +109,11 @@ void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_bVisualizeColliders;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bVisualizeJoints;
   }
 }
 
@@ -388,6 +395,38 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
       }
 
       bsphere.ExpandToInclude(st.m_vPosition);
+    }
+  }
+
+  if (m_bVisualizeJoints && m_hSkeleton.IsValid())
+  {
+    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+    const auto& skel = pSkeleton->GetDescriptor().m_Skeleton;
+
+    for (ezUInt16 uiJointIdx = 0; uiJointIdx < skel.GetJointCount(); ++uiJointIdx)
+    {
+      const auto& thisJoint = skel.GetJointByIndex(uiJointIdx);
+      const ezUInt16 uiParentIdx = thisJoint.GetParentIndex();
+
+      if (uiParentIdx == ezInvalidJointIndex)
+        continue;
+
+      ezMat4 parentTrans;
+      ezQuat parentRot;
+      msg.ComputeFullBoneTransform(uiParentIdx, parentTrans, parentRot);
+
+      ezMat4 thisTrans;
+      msg.ComputeFullBoneTransform(uiJointIdx, thisTrans);
+
+      ezQuat qLimitRot = parentRot * thisJoint.GetLimitRotation();
+
+      auto& line = m_LinesSkeleton.ExpandAndGetRef();
+      line.m_start = thisTrans.GetTranslationVector();
+      line.m_startColor = ezColor::OrangeRed;
+      line.m_endColor = ezColor::Orange;
+
+      //line.m_end = line.m_start + pSkeleton->GetDescriptor().m_RootTransform.TransformDirection(qLimitRot * ezVec3(0.2, 0, 0));
+      line.m_end = line.m_start + qLimitRot * ezVec3(0.2, 0, 0);
     }
   }
 

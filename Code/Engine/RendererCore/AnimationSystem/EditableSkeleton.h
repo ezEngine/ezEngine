@@ -91,7 +91,7 @@ public:
   void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
   void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const;
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;
-  void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) const;
+  void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx, const ezQuat& parentRot) const;
 
   ezString m_sAnimationFile;
   ezString m_sSurfaceFile;

@@ -37,6 +37,8 @@ public:
   ezAngle GetTwistLimitLow() const { return m_TwistLimitLow; }
   ezAngle GetTwistLimitHigh() const { return m_TwistLimitHigh; }
 
+  ezQuat GetLimitRotation() const { return m_LimitRotation; }
+
 protected:
   friend ezSkeleton;
   friend ezSkeletonBuilder;
