@@ -126,7 +126,7 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
   {
     auto hObject = m_GameObjectMap.GetHandle(guid);
     UnregisterObject(guid);
-    m_pWorld->DeleteObjectNow(hObject);
+    m_pWorld->DeleteObjectNow(hObject, false);
 
     Event e;
     e.m_Type = Event::Type::GameObjectDeleted;
