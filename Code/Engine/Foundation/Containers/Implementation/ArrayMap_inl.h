@@ -68,7 +68,6 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const CompatibleKeyType& key) const
 {
   if (!m_bSorted)
   {
-    m_bSorted = true;
     m_Data.Sort();
   }
 
@@ -102,7 +101,6 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::LowerBound(const CompatibleKeyType& key) co
 {
   if (!m_bSorted)
   {
-    m_bSorted = true;
     m_Data.Sort();
   }
 
@@ -135,7 +133,6 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::UpperBound(const CompatibleKeyType& key) co
 {
   if (!m_bSorted)
   {
-    m_bSorted = true;
     m_Data.Sort();
   }
 

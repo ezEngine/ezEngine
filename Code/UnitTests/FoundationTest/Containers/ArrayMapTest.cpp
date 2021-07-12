@@ -449,4 +449,72 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_INT(sa.UpperBound(19), ezInvalidIndex);
     EZ_TEST_INT(sa.UpperBound(20), ezInvalidIndex);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Duplicate Keys")
+  {
+    ezArrayMap<ezInt32, ezInt32> sa;
+
+    sa.Insert(32, 1);
+    sa.Insert(31, 1);
+    sa.Insert(33, 1);
+
+    sa.Insert(40, 1);
+    sa.Insert(44, 1);
+    sa.Insert(46, 1);
+
+    sa.Insert(11, 1);
+    sa.Insert(15, 1);
+    sa.Insert(19, 1);
+
+    sa.Insert(11, 2);
+    sa.Insert(15, 2);
+    sa.Insert(31, 2);
+    sa.Insert(44, 2);
+
+    sa.Insert(11, 3);
+    sa.Insert(15, 3);
+    sa.Insert(44, 3);
+
+    sa.Insert(60, 1);
+    sa.Insert(60, 2);
+    sa.Insert(60, 3);
+    sa.Insert(60, 4);
+    sa.Insert(60, 5);
+    sa.Insert(60, 6);
+    sa.Insert(60, 7);
+    sa.Insert(60, 8);
+    sa.Insert(60, 9);
+    sa.Insert(60, 10);
+
+    sa.Sort();
+
+    EZ_TEST_INT(sa.LowerBound(11), 0);
+    EZ_TEST_INT(sa.LowerBound(15), 3);
+    EZ_TEST_INT(sa.LowerBound(19), 6);
+
+    EZ_TEST_INT(sa.LowerBound(31), 7);
+    EZ_TEST_INT(sa.LowerBound(32), 9);
+    EZ_TEST_INT(sa.LowerBound(33), 10);
+
+    EZ_TEST_INT(sa.LowerBound(40), 11);
+    EZ_TEST_INT(sa.LowerBound(44), 12);
+    EZ_TEST_INT(sa.LowerBound(46), 15);
+
+    EZ_TEST_INT(sa.LowerBound(60), 16);
+
+
+    EZ_TEST_INT(sa.UpperBound(11), 3);
+    EZ_TEST_INT(sa.UpperBound(15), 6);
+    EZ_TEST_INT(sa.UpperBound(19), 7);
+
+    EZ_TEST_INT(sa.UpperBound(31), 9);
+    EZ_TEST_INT(sa.UpperBound(32), 10);
+    EZ_TEST_INT(sa.UpperBound(33), 11);
+
+    EZ_TEST_INT(sa.UpperBound(40), 12);
+    EZ_TEST_INT(sa.UpperBound(44), 15);
+    EZ_TEST_INT(sa.UpperBound(46), 16);
+
+    EZ_TEST_INT(sa.UpperBound(60), ezInvalidIndex);
+  }
 }

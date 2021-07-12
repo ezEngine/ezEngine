@@ -58,13 +58,15 @@ public:
   template <typename CompatibleKeyType>
   ezUInt32 Find(const CompatibleKeyType& key) const; // [tested]
 
-  /// \brief Returns an index to the element with a key equal or larger than the given key.
+  /// \brief Returns the index to the first element with a key equal or larger than the given key.
   /// Returns ezInvalidIndex when no such element exists.
+  /// If there are multiple keys with the same value, the one at the smallest index is returned.
   template <typename CompatibleKeyType>
   ezUInt32 LowerBound(const CompatibleKeyType& key) const; // [tested]
 
-  /// \brief Returns an index to the element with a key that is LARGER than the given key.
+  /// \brief Returns the index to the first element with a key that is LARGER than the given key.
   /// Returns ezInvalidIndex when no such element exists.
+  /// If there are multiple keys with the same value, the one at the smallest index is returned.
   template <typename CompatibleKeyType>
   ezUInt32 UpperBound(const CompatibleKeyType& key) const; // [tested]
 
