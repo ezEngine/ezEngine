@@ -238,13 +238,32 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   return ezGameObjectHandle(newId);
 }
 
-void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
+void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDeleteEmptyParents /*= true*/)
 {
   CheckForWriteAccess();
 
   ezGameObject* pObject = nullptr;
-  if (!m_Data.m_Objects.TryGetValue(hObject, pObject))
+  if (!m_Data.m_Objects.TryGetValue(hObject0, pObject))
     return;
+
+  ezGameObjectHandle hObject = hObject0;
+
+  if (bAlsoDeleteEmptyParents)
+  {
+    ezGameObject* pParent = pObject->GetParent();
+
+    while (pParent)
+    {
+      if (pParent->GetChildCount() != 1 || pParent->GetComponents().GetCount() != 0)
+        break;
+
+      pObject = pParent;
+
+      pParent = pParent->GetParent();
+    }
+
+    hObject = pObject->GetHandle();
+  }
 
   // inform external systems that we are about to delete this object
   m_Data.m_ObjectDeletionEvent.Broadcast(pObject);
@@ -255,7 +274,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
-    DeleteObjectNow(it->GetHandle());
+    DeleteObjectNow(it->GetHandle(), false);
   }
 
   // delete attached components
@@ -280,9 +299,10 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
   EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");
 }
 
-void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
+void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents /*= true*/)
 {
   ezMsgDeleteGameObject msg;
+  msg.m_bDeleteEmptyParents = bAlsoDeleteEmptyParents;
   PostMessage(hObject, msg, ezTime::Zero());
 }
 

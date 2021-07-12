@@ -716,7 +716,7 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArra
 
 void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
-  GetWorld()->DeleteObjectNow(GetHandle());
+  GetWorld()->DeleteObjectNow(GetHandle(), msg.m_bDeleteEmptyParents);
 }
 
 void ezGameObject::AddComponent(ezComponent* pComponent)

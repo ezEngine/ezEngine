@@ -47,11 +47,15 @@ public:
   /// \note This function deletes the object immediately! It is unsafe to use this during a game update loop, as other objects
   /// may rely on this object staying valid for the rest of the frame.
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
-  void DeleteObjectNow(const ezGameObjectHandle& object);
+  ///
+  /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
+  void DeleteObjectNow(const ezGameObjectHandle& object, bool bAlsoDeleteEmptyParents = true);
 
   /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
   /// valid until then.
-  void DeleteObjectDelayed(const ezGameObjectHandle& object);
+  ///
+  /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
+  void DeleteObjectDelayed(const ezGameObjectHandle& object, bool bAlsoDeleteEmptyParents = true);
 
   /// \brief Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
   /// which is associated with the deleted object.
