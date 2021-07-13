@@ -739,7 +739,7 @@ void ezFmodEventComponent::Update()
         {
           ezVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * occlusionState.m_fRadius;
           ezColor color = (occlusionState.m_uiRaycastHits & (1 << uiRayIndex)) ? ezColor::Red : ezColor::Green;
-          ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(targetPos, 0.02f), color);
+          ezDebugRenderer::DrawCross(GetWorld(), targetPos, 0.1f, color);
         }
       }
 

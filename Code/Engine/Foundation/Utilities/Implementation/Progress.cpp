@@ -4,13 +4,7 @@
 
 static ezProgress* s_pGlobal = nullptr;
 
-ezProgress::ezProgress()
-{
-  m_pActiveRange = nullptr;
-  m_bCancelClicked = false;
-  m_fLastReportedCompletion = 0.0f;
-  m_fCurrentCompletion = 0.0;
-}
+ezProgress::ezProgress() = default;
 
 ezProgress::~ezProgress()
 {

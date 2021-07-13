@@ -477,7 +477,7 @@ inline static ezUInt32 NextStableRandomSeed(ezUInt32& seed)
 }
 
 template <bool UseTransform>
-bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime)
+bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_CreatedObjects, ezTime endTime)
 {
   EZ_PROFILE_SCOPE("ezWorldReader::CreateGameObjects");
 

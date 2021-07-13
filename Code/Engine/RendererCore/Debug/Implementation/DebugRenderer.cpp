@@ -394,10 +394,18 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
   const ezVec3 yAxis = ezVec3::UnitYAxis() * fHalfLineLength;
   const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
 
-  Line lines[3] = {{transform.TransformPosition(globalPosition - xAxis), transform.TransformPosition(globalPosition + xAxis)}, {transform.TransformPosition(globalPosition - yAxis), transform.TransformPosition(globalPosition + yAxis)},
-    {transform.TransformPosition(globalPosition - zAxis), transform.TransformPosition(globalPosition + zAxis)}};
+  EZ_LOCK(s_Mutex);
 
-  DrawLines(context, lines, color);
+  auto& data = GetDataForExtraction(context);
+
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - xAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + xAxis), color});
+
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - yAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + yAxis), color});
+
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - zAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + zAxis), color});
 }
 
 // static
@@ -471,7 +479,10 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
   const float fRadius = sphere.m_fRadius;
   const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
 
-  Line lines[NUM_SEGMENTS * 3];
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context);
+
   for (ezUInt32 s = 0; s < NUM_SEGMENTS; ++s)
   {
     const float fS1 = (float)s;
@@ -483,17 +494,15 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
     const float fSin1 = ezMath::Sin(fS1 * stepAngle);
     const float fSin2 = ezMath::Sin(fS2 * stepAngle);
 
-    lines[s * 3 + 0].m_start = transform * (vCenter + ezVec3(0.0f, fCos1, fSin1) * fRadius);
-    lines[s * 3 + 0].m_end = transform * (vCenter + ezVec3(0.0f, fCos2, fSin2) * fRadius);
+    data.m_lineVertices.PushBack({transform * (vCenter + ezVec3(0.0f, fCos1, fSin1) * fRadius), color});
+    data.m_lineVertices.PushBack({transform * (vCenter + ezVec3(0.0f, fCos2, fSin2) * fRadius), color});
 
-    lines[s * 3 + 1].m_start = transform * (vCenter + ezVec3(fCos1, 0.0f, fSin1) * fRadius);
-    lines[s * 3 + 1].m_end = transform * (vCenter + ezVec3(fCos2, 0.0f, fSin2) * fRadius);
+    data.m_lineVertices.PushBack({transform * (vCenter + ezVec3(fCos1, 0.0f, fSin1) * fRadius), color});
+    data.m_lineVertices.PushBack({transform * (vCenter + ezVec3(fCos2, 0.0f, fSin2) * fRadius), color});
 
-    lines[s * 3 + 2].m_start = transform * (vCenter + ezVec3(fCos1, fSin1, 0.0f) * fRadius);
-    lines[s * 3 + 2].m_end = transform * (vCenter + ezVec3(fCos2, fSin2, 0.0f) * fRadius);
+    data.m_lineVertices.PushBack({transform * (vCenter + ezVec3(fCos1, fSin1, 0.0f) * fRadius), color});
+    data.m_lineVertices.PushBack({transform * (vCenter + ezVec3(fCos2, fSin2, 0.0f) * fRadius), color});
   }
-
-  DrawLines(context, lines, color);
 }
 
 
