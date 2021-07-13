@@ -398,14 +398,14 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
 
   auto& data = GetDataForExtraction(context);
 
-  data.m_lineVertices.PushBack({ transform.TransformPosition(globalPosition - xAxis), color });
-  data.m_lineVertices.PushBack({ transform.TransformPosition(globalPosition + xAxis), color });
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - xAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + xAxis), color});
 
-  data.m_lineVertices.PushBack({ transform.TransformPosition(globalPosition - yAxis), color });
-  data.m_lineVertices.PushBack({ transform.TransformPosition(globalPosition + yAxis), color });
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - yAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + yAxis), color});
 
-  data.m_lineVertices.PushBack({ transform.TransformPosition(globalPosition - zAxis), color });
-  data.m_lineVertices.PushBack({ transform.TransformPosition(globalPosition + zAxis), color });
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - zAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + zAxis), color});
 }
 
 // static

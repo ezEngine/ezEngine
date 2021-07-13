@@ -90,10 +90,10 @@ PS_OUT main(PS_IN Input)
     #if defined(USE_MATERIAL_REFRACTION)
       ApplyRefraction(matData, light);
     #endif
-  
-    float specularNormalization = lerp(1.0f, 1.0f / matData.opacity, saturate(matData.opacity * 10.0f));
-    light.specularLight *= specularNormalization;
-  #endif
+
+      float specularNormalization = lerp(1.0f, 1.0f / matData.opacity, saturate(matData.opacity * 10.0f));
+      light.specularLight *= specularNormalization;
+#endif
 
   float3 litColor = light.diffuseLight + light.specularLight;
   litColor += matData.emissiveColor;
