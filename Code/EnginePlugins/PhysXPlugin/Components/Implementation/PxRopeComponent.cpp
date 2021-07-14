@@ -26,6 +26,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 1, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("FixAtStart", m_bFixAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("FixAtEnd", m_bFixAtEnd)->AddAttributes(new ezDefaultValueAttribute(false)),
       EZ_ACCESSOR_PROPERTY("Slack", GetSlack, SetSlack)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.0f, 10.0f)),
+      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
+      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(90))),
     }
     EZ_END_PROPERTIES;
     EZ_BEGIN_MESSAGEHANDLERS
@@ -50,8 +52,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 * start/end reference objects ?
 * swing limit / bendiness / drive ?
 * twist limit
-* rope manager for update
-* use average position as center
 */
 
 ezPxRopeComponent::ezPxRopeComponent() = default;
@@ -117,6 +117,8 @@ void ezPxRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bSelfCollision;
   s << m_bDisableGravity;
   s << m_hSurface;
+  s << m_MaxBend;
+  s << m_MaxTwist;
 }
 
 void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
@@ -135,6 +137,8 @@ void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bSelfCollision;
   s >> m_bDisableGravity;
   s >> m_hSurface;
+  s >> m_MaxBend;
+  s >> m_MaxTwist;
 }
 
 PxFilterData ezPxRopeComponent::CreateFilterData()
@@ -221,19 +225,21 @@ void ezPxRopeComponent::CreateRope()
     {
       ezTransform parentFrameJoint;
       parentFrameJoint.SetLocalTransform(pieces[idx - 1], pieces[idx]);
+      parentFrameJoint.m_qRotation.SetIdentity();
 
       PxArticulationJoint* inb = reinterpret_cast<PxArticulationJoint*>(pLink->getInboundJoint());
 
       inb->setParentPose(ezPxConversionUtils::ToTransform(parentFrameJoint));
       inb->setSwingLimitEnabled(true);
       inb->setTwistLimitEnabled(true);
-      inb->setSwingLimit(ezAngle::Degree(35).GetRadian(), ezAngle::Degree(35).GetRadian());
-      inb->setTwistLimit(ezAngle::Degree(-25).GetRadian(), ezAngle::Degree(25).GetRadian());
+      inb->setSwingLimit(m_MaxBend.GetRadian(), m_MaxBend.GetRadian());
+      inb->setTwistLimit(-m_MaxTwist.GetRadian(), m_MaxTwist.GetRadian());
+
+      // magic values that seem to work well
       inb->setTangentialDamping(25.0f);
       inb->setDamping(25.0f);
       inb->setStiffness(25.0f);
       inb->setTangentialStiffness(25.0f);
-
       inb->setInternalCompliance(0.7f);
       inb->setExternalCompliance(1.0f);
     }
@@ -360,9 +366,6 @@ void ezPxRopeComponent::Update()
   if (m_ArticulationLinks.IsEmpty())
     return;
 
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-  EZ_PX_READ_LOCK(*pModule->GetPxScene());
-
   if (m_pArticulation->isSleeping())
     return;
 
@@ -373,10 +376,12 @@ void ezPxRopeComponent::Update()
   poseMsg.m_fSegmentLength = m_fLength / poses.GetCount();
   poseMsg.m_LinkTransforms = poses;
 
-  const ezTransform rootTransform = ezPxConversionUtils::ToTransform(m_ArticulationLinks[0]->getGlobalPose());
-  GetOwner()->SetGlobalTransform(rootTransform);
+  // we can assume that the link in the middle of the array is also more or less in the middle of the rope
+  const ezUInt32 uiCenterLink = m_ArticulationLinks.GetCount() / 2;
 
-  // TODO: use average position as center
+  ezTransform rootTransform = GetOwner()->GetGlobalTransform();
+  rootTransform.m_vPosition = ezPxConversionUtils::ToVec3(m_ArticulationLinks[uiCenterLink]->getGlobalPose().p);
+  GetOwner()->SetGlobalPosition(rootTransform.m_vPosition);
 
   for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
   {
@@ -459,5 +464,46 @@ void ezPxRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
       m_pArticulation->getLinks(pLink, 1);
 
     PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezPxRopeComponentManager::ezPxRopeComponentManager(ezWorld* pWorld)
+  : ezComponentManager(pWorld)
+{
+}
+
+ezPxRopeComponentManager::~ezPxRopeComponentManager() = default;
+
+void ezPxRopeComponentManager::Initialize()
+{
+  SUPER::Initialize();
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPxRopeComponentManager::Update, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Default;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+
+    this->RegisterUpdateFunction(desc);
+  }
+}
+
+void ezPxRopeComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
+  if (pModule == nullptr)
+    return;
+
+  EZ_PX_READ_LOCK(*pModule->GetPxScene());
+
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndSimulating())
+    {
+      it->Update();
+    }
   }
 }

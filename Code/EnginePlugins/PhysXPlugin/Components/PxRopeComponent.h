@@ -18,7 +18,19 @@ namespace physx
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-using ezPxRopeComponentManager = ezComponentManagerSimple<class ezPxRopeComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PHYSXPLUGIN_DLL ezPxRopeComponentManager : public ezComponentManager<class ezPxRopeComponent, ezBlockStorageType::Compact>
+{
+public:
+  ezPxRopeComponentManager(ezWorld* pWorld);
+  ~ezPxRopeComponentManager();
+
+  virtual void Initialize() override;
+
+private:
+  void Update(const ezWorldModule::UpdateContext& context);
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -55,11 +67,13 @@ public:
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]
 
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
-  ezUInt16 m_uiPieces = 16;       // [ property ]
-  float m_fThickness = 0.05f;     // [ property ]
-  bool m_bFixAtStart = true;      // [ property ]
-  bool m_bFixAtEnd = true;        // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;           // [ property ]
+  ezUInt16 m_uiPieces = 16;                 // [ property ]
+  float m_fThickness = 0.05f;               // [ property ]
+  bool m_bFixAtStart = true;                // [ property ]
+  bool m_bFixAtEnd = true;                  // [ property ]
+  ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
+  ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
 
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
