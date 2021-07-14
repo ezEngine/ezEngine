@@ -24,6 +24,7 @@
 	<file>ezPxCharacterCapsuleShapeComponent.png</file>
 	<file>ezPxPrismaticJointComponent.png</file>
 	<file>ezPxBoneColliderComponent.png</file>
+	<file>ezPxRopeComponent.png</file>
   </qresource>  
 </RCC>
 

@@ -68,6 +68,7 @@
 	<file>ezAnimationControllerComponent.png</file>
 	<file>ezSimpleAnimationComponent.png</file>
 	<file>ezHeightfieldComponent.png</file>
+	<file>ezRopeRenderComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

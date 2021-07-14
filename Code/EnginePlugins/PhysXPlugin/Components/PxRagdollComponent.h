@@ -112,5 +112,4 @@ protected:
   ezSkeletonResourceHandle m_hSkeleton;
   physx::PxAggregate* m_pAggregate = nullptr;
   physx::PxArticulation* m_pArticulation = nullptr;
-  //physx::PxArticulationDriveCache* m_pDriveCache = nullptr;
 };
