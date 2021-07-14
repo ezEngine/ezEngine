@@ -74,6 +74,7 @@ struct EZ_RENDERERCORE_DLL ezMsgRopePoseUpdated : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgRopePoseUpdated, ezMessage);
 
+  float m_fSegmentLength = 0.0f; ///< the length of each link/segment
   ezArrayPtr<const ezTransform> m_LinkTransforms;
 };
 

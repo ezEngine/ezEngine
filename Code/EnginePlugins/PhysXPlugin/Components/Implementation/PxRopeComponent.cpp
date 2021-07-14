@@ -51,6 +51,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 * swing limit / bendiness / drive ?
 * twist limit
 * rope manager for update
+* use average position as center
 */
 
 ezPxRopeComponent::ezPxRopeComponent() = default;
@@ -157,6 +158,10 @@ void ezPxRopeComponent::OnDeactivated()
 {
   DestroyPhysicsShapes();
 
+  // tell the render components, that the rope is gone
+  ezMsgRopePoseUpdated poseMsg;
+  GetOwner()->SendMessage(poseMsg);
+
   SUPER::OnDeactivated();
 }
 
@@ -220,7 +225,7 @@ void ezPxRopeComponent::CreateRope()
       PxArticulationJoint* inb = reinterpret_cast<PxArticulationJoint*>(pLink->getInboundJoint());
 
       inb->setParentPose(ezPxConversionUtils::ToTransform(parentFrameJoint));
-      //inb->setSwingLimitEnabled(true);
+      inb->setSwingLimitEnabled(true);
       inb->setTwistLimitEnabled(true);
       inb->setSwingLimit(ezAngle::Degree(35).GetRadian(), ezAngle::Degree(35).GetRadian());
       inb->setTwistLimit(ezAngle::Degree(-25).GetRadian(), ezAngle::Degree(25).GetRadian());
@@ -283,18 +288,22 @@ void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform
 
   ezUInt32 uiPieces = m_uiPieces;
 
-  ezQuat qRot1, qRot2;
+  ezQuat qRotDown;
+
   if (m_fSlack > 0)
   {
-    qRot1.SetShortestRotation(ezVec3::UnitXAxis(), centerPos.GetNormalized());
-    qRot2 = -qRot1 * -qRot1;
+    qRotDown.SetShortestRotation(ezVec3::UnitXAxis(), centerPos.GetNormalized());
 
     uiPieces = ezMath::RoundUp(uiPieces, 2);
+  }
+  else
+  {
+    qRotDown.SetIdentity();
   }
 
   out_fPieceLength = fLengthWithSlack / uiPieces;
 
-  ezQuat qRot = qRot1;
+  ezQuat qRot = qRotDown;
   ezVec3 vNextPos(0);
 
   transforms.SetCountUninitialized(uiPieces);
@@ -303,8 +312,7 @@ void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform
   {
     if (idx * 2 >= uiPieces)
     {
-      // TODO: fix local space joint
-      qRot = qRot2;
+      qRot = -qRotDown;
     }
 
     ezTransform localTransform;
@@ -362,6 +370,7 @@ void ezPxRopeComponent::Update()
   poses.SetCountUninitialized(m_ArticulationLinks.GetCount());
 
   ezMsgRopePoseUpdated poseMsg;
+  poseMsg.m_fSegmentLength = m_fLength / poses.GetCount();
   poseMsg.m_LinkTransforms = poses;
 
   const ezTransform rootTransform = ezPxConversionUtils::ToTransform(m_ArticulationLinks[0]->getGlobalPose());
@@ -380,12 +389,14 @@ void ezPxRopeComponent::Update()
 void ezPxRopeComponent::SendPreviewPose()
 {
   ezDynamicArray<ezTransform> pieces(ezFrameAllocator::GetCurrentAllocator());
-  float fPieceLength;
-  CreateSegmentTransforms(ezTransform::IdentityTransform(), pieces, fPieceLength);
 
   ezMsgRopePoseUpdated poseMsg;
-  poseMsg.m_LinkTransforms = pieces;
+  CreateSegmentTransforms(ezTransform::IdentityTransform(), pieces, poseMsg.m_fSegmentLength);
 
+  if (pieces.IsEmpty())
+    return;
+
+  poseMsg.m_LinkTransforms = pieces;
   GetOwner()->PostMessage(poseMsg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 }
 

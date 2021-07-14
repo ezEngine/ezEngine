@@ -69,19 +69,31 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
   bsphere.SetInvalid();
   bsphere.m_fRadius = 0.0f;
 
-  m_Lines.Reserve(m_Lines.GetCount() + msg.m_LinkTransforms.GetCount());
-
-  bsphere.ExpandToInclude(msg.m_LinkTransforms[0].m_vPosition);
-
-  for (ezUInt32 i = 1; i < msg.m_LinkTransforms.GetCount(); ++i)
+  if (!msg.m_LinkTransforms.IsEmpty())
   {
-    auto& l = m_Lines.ExpandAndGetRef();
-    l.m_start = msg.m_LinkTransforms[i - 1].m_vPosition;
-    l.m_end = msg.m_LinkTransforms[i].m_vPosition;
-    l.m_startColor = ezColor::Black;
-    l.m_endColor = ezColor::Black;
+    m_Lines.Reserve(m_Lines.GetCount() + msg.m_LinkTransforms.GetCount());
 
-    bsphere.ExpandToInclude(l.m_end);
+    bsphere.ExpandToInclude(msg.m_LinkTransforms[0].m_vPosition);
+
+    for (ezUInt32 i = 1; i < msg.m_LinkTransforms.GetCount(); ++i)
+    {
+      auto& l = m_Lines.ExpandAndGetRef();
+      l.m_start = msg.m_LinkTransforms[i - 1].m_vPosition;
+      l.m_end = msg.m_LinkTransforms[i].m_vPosition;
+      l.m_startColor = ezColor::Black;
+      l.m_endColor = ezColor::Black;
+
+      bsphere.ExpandToInclude(l.m_end);
+    }
+
+    // render the very last segment
+    {
+      auto& l = m_Lines.ExpandAndGetRef();
+      l.m_start = msg.m_LinkTransforms[msg.m_LinkTransforms.GetCount() - 1].m_vPosition;
+      l.m_end = l.m_start + msg.m_LinkTransforms[msg.m_LinkTransforms.GetCount() - 1].m_qRotation * ezVec3(msg.m_fSegmentLength, 0, 0);
+      l.m_startColor = ezColor::Black;
+      l.m_endColor = ezColor::Black;
+    }
   }
 
   // if the existing bounds are big enough, don't update them
