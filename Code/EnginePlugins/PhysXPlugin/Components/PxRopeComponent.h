@@ -52,15 +52,15 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezPxRopeComponent
 
-  bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
-  void SetDisableGravity(bool b);                              // [ property ]
-
 public:
   ezPxRopeComponent();
   ~ezPxRopeComponent();
 
-  void SetSlack(float val);                     // [ property ]
-  float GetSlack() const { return m_fSlack; }   // [ property ]
+  bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
+  void SetDisableGravity(bool b);                              // [ property ]
+
+  void SetSlack(float val);                   // [ property ]
+  float GetSlack() const { return m_fSlack; } // [ property ]
 
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]
@@ -73,11 +73,11 @@ public:
   ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
   ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
 
-  void SetStartAnchorReference(const char* szReference); // [ property ]
-  void SetEndAnchorReference(const char* szReference);   // [ property ]
+  void SetAnchorAReference(const char* szReference); // [ property ]
+  void SetAnchorBReference(const char* szReference); // [ property ]
 
-  void SetStartAnchor(ezGameObjectHandle hActor);
-  void SetEndAnchor(ezGameObjectHandle hActor);
+  void SetAnchorA(ezGameObjectHandle hActor);
+  void SetAnchorB(ezGameObjectHandle hActor);
 
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
@@ -92,6 +92,7 @@ private:
   PxMaterial* GetPxMaterial();
   ezVec3 GetAnchorPositionA() const;
   ezVec3 GetAnchorPositionB() const;
+  PxJoint* CreateJoint(const ezGameObjectHandle& hTarget, const ezTransform& location, PxRigidBody* pLink, const ezTransform& linkOffset);
 
   mutable float m_fRopeLength = 0.0f;
   ezSurfaceResourceHandle m_hSurface;
@@ -101,13 +102,13 @@ private:
 
   float m_fSlack = 0.1f;
   ezUInt32 m_uiShapeID = ezInvalidIndex;
-  bool m_bSelfCollision = true;
+  bool m_bSelfCollision = false;
   bool m_bDisableGravity = false;
 
   physx::PxAggregate* m_pAggregate = nullptr;
   physx::PxArticulation* m_pArticulation = nullptr;
-  physx::PxSphericalJoint* m_pJointStart = nullptr;
-  physx::PxSphericalJoint* m_pJointEnd = nullptr;
+  physx::PxJoint* m_pJointA = nullptr;
+  physx::PxJoint* m_pJointB = nullptr;
   ezDynamicArray<physx::PxArticulationLink*> m_ArticulationLinks;
 
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
