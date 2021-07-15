@@ -7,6 +7,7 @@
 #include <Utilities/PxUserData.h>
 #include <WorldModule/Implementation/PhysX.h>
 #include <WorldModule/PhysXWorldModule.h>
+#include <extensions/PxD6Joint.h>
 #include <foundation/Px.h>
 
 using namespace physx;
@@ -17,17 +18,18 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 1, ezComponentMode::Dynamic)
     EZ_BEGIN_PROPERTIES
     {
       EZ_ACCESSOR_PROPERTY("AnchorA", DummyGetter, SetAnchorAReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-      EZ_MEMBER_PROPERTY("AttachToA", m_bAttachToA)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ACCESSOR_PROPERTY("AnchorB", DummyGetter, SetAnchorBReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+      EZ_MEMBER_PROPERTY("AttachToA", m_bAttachToA)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("AttachToB", m_bAttachToB)->AddAttributes(new ezDefaultValueAttribute(true)),
+      EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(4, 200)),
+      EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
+      EZ_MEMBER_PROPERTY("Stiffness", m_fStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, 10000.0f)),
+      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
+      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
       EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
       //EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
-      EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(4, 200)),
-      EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
-      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
-      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(90))),
     }
     EZ_END_PROPERTIES;
     EZ_BEGIN_MESSAGEHANDLERS
@@ -47,10 +49,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 /* TODO:
 * initial curve shape
-* expose stiffness
 * joint options (fixed / spherical / damping? / limit cone?)
-* fix owner rotation issue
-* property cleanup
 * allow release attachment at runtime
 */
 
@@ -91,6 +90,7 @@ void ezPxRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hSurface;
   s << m_MaxBend;
   s << m_MaxTwist;
+  s << m_fStiffness;
 
   stream.WriteGameObjectHandle(m_hAnchorA);
   stream.WriteGameObjectHandle(m_hAnchorB);
@@ -112,6 +112,7 @@ void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hSurface;
   s >> m_MaxBend;
   s >> m_MaxTwist;
+  s >> m_fStiffness;
 
   m_hAnchorA = stream.ReadGameObjectHandle();
   m_hAnchorB = stream.ReadGameObjectHandle();
@@ -224,11 +225,12 @@ void ezPxRopeComponent::CreateRope()
       inb->setSwingLimit(m_MaxBend.GetRadian(), m_MaxBend.GetRadian());
       inb->setTwistLimit(-m_MaxTwist.GetRadian(), m_MaxTwist.GetRadian());
 
+      inb->setStiffness(m_fStiffness);           // makes the rope try to get straight
+      inb->setTangentialStiffness(m_fStiffness); // probably makes the rope try to not have any twist
+
       // magic values that seem to work well
       inb->setTangentialDamping(25.0f); // probably prevents changes to the rope twist
       inb->setDamping(25.0f);           // prevents changes to the rope bending
-      //inb->setStiffness(25.0f); // makes the rope try to get straight
-      //inb->setTangentialStiffness(25.0f); // probably makes the rope try to not have any twist
     }
 
     PxCapsuleGeometry shape(m_fThickness * 0.5f, fPieceLength * 0.5f);
@@ -248,7 +250,7 @@ void ezPxRopeComponent::CreateRope()
       pShape->setSimulationFilterData(filterNone);
     }
 
-    float fMass = 0.2f;
+    float fMass = 0.1f;
     PxRigidBodyExt::setMassAndUpdateInertia(*pLink, fMass);
   }
 
@@ -309,7 +311,19 @@ PxJoint* ezPxRopeComponent::CreateJoint(const ezGameObjectHandle& hTarget, const
   }
 
   auto pPxApi = ezPhysX::GetSingleton()->GetPhysXAPI();
-  return PxSphericalJointCreate(*pPxApi, pPxActor, ezPxConversionUtils::ToTransform(parentLocal), pLink, ezPxConversionUtils::ToTransform(linkOffset));
+
+  PxD6Joint* pJoint = PxD6JointCreate(*pPxApi, pPxActor, ezPxConversionUtils::ToTransform(parentLocal), pLink, ezPxConversionUtils::ToTransform(linkOffset));
+
+  pJoint->setMotion(PxD6Axis::eX, PxD6Motion::eLOCKED);
+  pJoint->setMotion(PxD6Axis::eY, PxD6Motion::eLOCKED);
+  pJoint->setMotion(PxD6Axis::eY, PxD6Motion::eLOCKED);
+  pJoint->setMotion(PxD6Axis::eTWIST, PxD6Motion::eFREE);
+  //pJoint->setTwistLimit(PxJointAngularLimitPair(-m_MaxTwist.GetRadian(), m_MaxTwist.GetRadian()));
+  pJoint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
+  pJoint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+  //pJoint->setSwingLimit(PxJointLimitCone(m_MaxBend.GetRadian(), m_MaxBend.GetRadian()));
+
+  return pJoint;
 }
 
 void ezPxRopeComponent::UpdatePreview()
@@ -535,6 +549,8 @@ void ezPxRopeComponent::SetAnchorB(ezGameObjectHandle hActor)
   m_hAnchorB = hActor;
 }
 
+constexpr float g_fMaxForce = 3.0f;
+
 void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 {
   if (m_pArticulation == nullptr || m_fMaxForcePerFrame <= 0.0f)
@@ -552,10 +568,10 @@ void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
   ezVec3 vImp = msg.m_vForce;
   const float fOrgImp = vImp.GetLength();
 
-  if (fOrgImp > 10.0f)
+  if (fOrgImp > g_fMaxForce)
   {
-    vImp.SetLength(10.0f).IgnoreResult();
-    m_fMaxForcePerFrame -= 10.0f;
+    vImp.SetLength(g_fMaxForce).IgnoreResult();
+    m_fMaxForcePerFrame -= g_fMaxForce;
   }
   else
   {
@@ -582,10 +598,10 @@ void ezPxRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
   ezVec3 vImp = msg.m_vImpulse;
   const float fOrgImp = vImp.GetLength();
 
-  if (fOrgImp > 10.0f)
+  if (fOrgImp > g_fMaxForce)
   {
-    vImp.SetLength(10.0f).IgnoreResult();
-    m_fMaxForcePerFrame -= 10.0f;
+    vImp.SetLength(g_fMaxForce).IgnoreResult();
+    m_fMaxForcePerFrame -= g_fMaxForce;
   }
   else
   {

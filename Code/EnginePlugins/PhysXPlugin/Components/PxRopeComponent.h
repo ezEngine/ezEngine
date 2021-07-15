@@ -98,6 +98,7 @@ private:
   ezGameObjectHandle m_hAnchorB;
 
   float m_fMaxForcePerFrame = 0.0f;
+  float m_fStiffness = 0.0f;
   ezUInt32 m_uiShapeID = ezInvalidIndex;
   bool m_bSelfCollision = false;
   bool m_bDisableGravity = false;
