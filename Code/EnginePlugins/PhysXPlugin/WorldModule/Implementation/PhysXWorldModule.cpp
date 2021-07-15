@@ -114,7 +114,7 @@ namespace
 
     // trigger the contact callback for pairs (A,B) where
     // the filter mask of A contains the ID of B and vice versa.
-    if ((filterData0.word0 & filterData1.word1) || (filterData1.word0 & filterData0.word1))
+    if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
     {
       // let triggers through
       // note that triggers are typically kinematic

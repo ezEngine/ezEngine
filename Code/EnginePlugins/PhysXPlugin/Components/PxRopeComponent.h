@@ -59,8 +59,6 @@ public:
   ezPxRopeComponent();
   ~ezPxRopeComponent();
 
-  void SetLength(float val);                    // [ property ]
-  float GetLength() const { return m_fLength; } // [ property ]
   void SetSlack(float val);                     // [ property ]
   float GetSlack() const { return m_fSlack; }   // [ property ]
 
@@ -75,6 +73,12 @@ public:
   ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
   ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
 
+  void SetStartAnchorReference(const char* szReference); // [ property ]
+  void SetEndAnchorReference(const char* szReference);   // [ property ]
+
+  void SetStartAnchor(ezGameObjectHandle hActor);
+  void SetEndAnchor(ezGameObjectHandle hActor);
+
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
 
@@ -86,10 +90,15 @@ private:
   void SendPreviewPose();
   PxFilterData CreateFilterData();
   PxMaterial* GetPxMaterial();
+  ezVec3 GetAnchorPositionA() const;
+  ezVec3 GetAnchorPositionB() const;
 
+  mutable float m_fRopeLength = 0.0f;
   ezSurfaceResourceHandle m_hSurface;
 
-  float m_fLength = 2.0f;
+  ezGameObjectHandle m_hAnchorA;
+  ezGameObjectHandle m_hAnchorB;
+
   float m_fSlack = 0.1f;
   ezUInt32 m_uiShapeID = ezInvalidIndex;
   bool m_bSelfCollision = true;
@@ -102,4 +111,7 @@ private:
   ezDynamicArray<physx::PxArticulationLink*> m_ArticulationLinks;
 
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
+
+private:
+  const char* DummyGetter() const { return nullptr; }
 };
