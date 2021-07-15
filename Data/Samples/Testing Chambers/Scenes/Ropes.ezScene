@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{4710185972455754022}
+		u4 %Hash{14523426960276374271}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -353,15 +353,13 @@ o
 		b %Active{1}
 		s %AnchorA{"{ 85c56453-15d1-43ab-ba57-9c4ad5427164 }"}
 		s %AnchorB{"{ 7cc7e332-6d82-4f31-a7ca-415054a60d2d }"}
+		b %AttachToA{1}
+		b %AttachToB{1}
 		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
-		b %FixAtEnd{1}
-		b %FixAtStart{1}
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
-		b %SelfCollision{0}
-		f %Slack{0x8FC2F53E}
 		s %Surface{""}
 		f %Thickness{0xCDCCCC3D}
 	}
@@ -408,7 +406,7 @@ o
 			Uuid{u4{11689016508994298536,5748822781731255238}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000060C0,0x000060C0,0x00004040}}
+		Vec3 %LocalPosition{f{0x000050C0,0x000030C0,0x00004040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -481,7 +479,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -489,8 +487,8 @@ o
 			Uuid{u4{8194730903900273299,4706646882225173918}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000003F,0xA8AAAA3E,0x0000803F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x0000003F,0x889CC43E,0xAAA0893F}}
+		Quat %LocalRotation{f{0,0,0xD7B35DBF,0x0000003F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -588,7 +586,7 @@ o
 			Uuid{u4{1912256757878185368,4733271215002818226}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000803F,0x00006040,0x00003040}}
+		Vec3 %LocalPosition{f{0x0000803F,0x00746A40,0x00003040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -858,7 +856,7 @@ o
 			Uuid{u4{5311127542862119580,5356294545050624938}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000060C0,0x00004040,0x00004040}}
+		Vec3 %LocalPosition{f{0x000080C0,0x000020C0,0x0000A840}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -912,7 +910,7 @@ o
 			Uuid{u4{17854405227018650282,5404136580364011215}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000E03F,0x000040C0,0x00003040}}
+		Vec3 %LocalPosition{f{0x0000E03F,0x0000C0BF,0x00005040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -939,7 +937,7 @@ o
 			Uuid{u4{8550577027111876267,5225503652726917703}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000040C0,0x00006040,0x00003040}}
+		Vec3 %LocalPosition{f{0x000040C0,0x00745A40,0x00000040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1198,15 +1196,13 @@ o
 		b %Active{1}
 		s %AnchorA{"{ 2520d23b-59dc-4244-819e-90d5dbbcfa62 }"}
 		s %AnchorB{"{ 87c77f96-6240-4aae-8e75-d146c8f8f664 }"}
+		b %AttachToA{1}
+		b %AttachToB{1}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
-		b %FixAtEnd{1}
-		b %FixAtStart{1}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
-		b %SelfCollision{0}
-		f %Slack{0xAE47813F}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 	}
@@ -1230,7 +1226,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -1238,7 +1234,7 @@ o
 			Uuid{u4{16878701419359152945,9386072175554186323}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0xA8AAAA3E,0x0000403F}}
+		Vec3 %LocalPosition{f{0x94A1CDBE,0x109293BF,0x7CC6AA3F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1271,15 +1267,13 @@ o
 		b %Active{1}
 		s %AnchorA{"{ cd32fdeb-eb26-4b3d-81a7-78d0549708d1 }"}
 		s %AnchorB{"{ 9c37d87d-6292-49ef-80c4-d3e7fb67fea0 }"}
+		b %AttachToA{1}
+		b %AttachToB{1}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
-		b %FixAtEnd{1}
-		b %FixAtStart{1}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
-		b %SelfCollision{0}
-		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 	}
@@ -1483,15 +1477,13 @@ o
 		b %Active{1}
 		s %AnchorA{"{ 862de31a-6cb2-4e12-b55c-8ec1febc8b7b }"}
 		s %AnchorB{"{ d6f38db8-4d33-4059-a1e4-eaf256224fba }"}
+		b %AttachToA{1}
+		b %AttachToB{1}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
-		b %FixAtEnd{1}
-		b %FixAtStart{1}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
-		b %SelfCollision{0}
-		f %Slack{0x85EB113F}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 	}
@@ -1503,7 +1495,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -1511,8 +1503,8 @@ o
 			Uuid{u4{7967140390012934102,14305340199064522597}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000010C0,0xAAAA9240,0x0000403F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x32410BC0,0x0E173E40,0x48121840}}
+		Quat %LocalRotation{f{0,0,0x35194BBF,0xC9D71B3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -2242,7 +2234,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxRopeComponent"}
-		u3 %TypeSize{176}
+		u3 %TypeSize{184}
 		u3 %TypeVersion{1}
 	}
 }

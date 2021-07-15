@@ -17,16 +17,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 1, ezComponentMode::Dynamic)
     EZ_BEGIN_PROPERTIES
     {
       EZ_ACCESSOR_PROPERTY("AnchorA", DummyGetter, SetAnchorAReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+      EZ_MEMBER_PROPERTY("AttachToA", m_bAttachToA)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ACCESSOR_PROPERTY("AnchorB", DummyGetter, SetAnchorBReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+      EZ_MEMBER_PROPERTY("AttachToB", m_bAttachToB)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
       EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
-      EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
+      //EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
       EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(4, 200)),
       EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
-      EZ_MEMBER_PROPERTY("FixAtStart", m_bFixAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_MEMBER_PROPERTY("FixAtEnd", m_bFixAtEnd)->AddAttributes(new ezDefaultValueAttribute(false)),
-      EZ_ACCESSOR_PROPERTY("Slack", GetSlack, SetSlack)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.0f, 10.0f)),
       EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(90))),
     }
@@ -52,20 +51,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 * joint options (fixed / spherical / damping? / limit cone?)
 * fix owner rotation issue
 * property cleanup
+* allow release attachment at runtime
 */
 
 ezPxRopeComponent::ezPxRopeComponent() = default;
 ezPxRopeComponent::~ezPxRopeComponent() = default;
-
-void ezPxRopeComponent::SetSlack(float val)
-{
-  if (m_fSlack == val)
-    return;
-
-  m_fSlack = val;
-
-  SendPreviewPose();
-}
 
 void ezPxRopeComponent::SetSurfaceFile(const char* szFile)
 {
@@ -94,9 +84,8 @@ void ezPxRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_uiCollisionLayer;
   s << m_uiPieces;
   s << m_fThickness;
-  s << m_fSlack;
-  s << m_bFixAtStart;
-  s << m_bFixAtEnd;
+  s << m_bAttachToA;
+  s << m_bAttachToB;
   s << m_bSelfCollision;
   s << m_bDisableGravity;
   s << m_hSurface;
@@ -116,9 +105,8 @@ void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiCollisionLayer;
   s >> m_uiPieces;
   s >> m_fThickness;
-  s >> m_fSlack;
-  s >> m_bFixAtStart;
-  s >> m_bFixAtEnd;
+  s >> m_bAttachToA;
+  s >> m_bAttachToB;
   s >> m_bSelfCollision;
   s >> m_bDisableGravity;
   s >> m_hSurface;
@@ -172,23 +160,14 @@ PxMaterial* ezPxRopeComponent::GetPxMaterial()
   return ezPhysX::GetSingleton()->GetDefaultMaterial();
 }
 
-ezVec3 ezPxRopeComponent::GetAnchorPositionA() const
+ezVec3 ezPxRopeComponent::GetAnchorPosition(const ezGameObjectHandle& hTarget) const
 {
   const ezGameObject* pObj;
-  if (GetWorld()->TryGetObject(m_hAnchorA, pObj))
+  if (GetWorld()->TryGetObject(hTarget, pObj))
   {
-    return pObj->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
-  }
-
-  return ezVec3::ZeroVector();
-}
-
-ezVec3 ezPxRopeComponent::GetAnchorPositionB() const
-{
-  const ezGameObject* pObj;
-  if (GetWorld()->TryGetObject(m_hAnchorB, pObj))
-  {
-    return pObj->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
+    ezTransform t = GetOwner()->GetGlobalTransform();
+    t.Invert();
+    return t.TransformPosition(pObj->GetGlobalPosition());
   }
 
   return ezVec3::ZeroVector();
@@ -262,7 +241,7 @@ void ezPxRopeComponent::CreateRope()
     pShape->setQueryFilterData(filter);
     pShape->userData = pUserData;
 
-    if ((m_bFixAtStart && idx == 0) || (m_bFixAtEnd && idx + 1 == pieces.GetCount()))
+    if ((m_bAttachToA && idx == 0) || (m_bAttachToB && idx + 1 == pieces.GetCount()))
     {
       // disable all collisions for the first and last rope segment
       // this prevents colliding with walls that the rope is attached to
@@ -279,12 +258,12 @@ void ezPxRopeComponent::CreateRope()
   m_pAggregate->addArticulation(*m_pArticulation);
   pModule->GetPxScene()->addAggregate(*m_pAggregate);
 
-  if (m_bFixAtStart)
+  if (m_bAttachToA)
   {
     m_pJointA = CreateJoint(m_hAnchorA, pieces[0], m_ArticulationLinks[0], ezTransform::IdentityTransform());
   }
 
-  if (m_bFixAtEnd)
+  if (m_bAttachToB)
   {
     ezTransform localTransform;
     localTransform.SetIdentity();
@@ -333,27 +312,56 @@ PxJoint* ezPxRopeComponent::CreateJoint(const ezGameObjectHandle& hTarget, const
   return PxSphericalJointCreate(*pPxApi, pPxActor, ezPxConversionUtils::ToTransform(parentLocal), pLink, ezPxConversionUtils::ToTransform(linkOffset));
 }
 
+void ezPxRopeComponent::UpdatePreview()
+{
+  ezVec3 vNewPreviewRefPos = GetOwner()->GetGlobalPosition();
+
+  ezGameObject* pObj;
+  if (GetWorld()->TryGetObject(m_hAnchorA, pObj))
+    vNewPreviewRefPos += pObj->GetGlobalPosition();
+  if (GetWorld()->TryGetObject(m_hAnchorB, pObj))
+    vNewPreviewRefPos += pObj->GetGlobalPosition();
+
+  if (vNewPreviewRefPos != m_vPreviewRefPos)
+  {
+    m_vPreviewRefPos = vNewPreviewRefPos;
+    SendPreviewPose();
+  }
+}
+
 void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform, ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const
 {
+  // check out https://www.britannica.com/science/catenary for a natural rope hanging formula
+
   out_fPieceLength = 0.0f;
 
-  const ezVec3 vAnchorA = GetAnchorPositionA();
-  const ezVec3 vAnchorB = GetAnchorPositionB();
+  if (m_hAnchorA.IsInvalidated() && m_hAnchorB.IsInvalidated())
+    return;
+
+  const ezVec3 vAnchorA = GetAnchorPosition(m_hAnchorA);
+  const ezVec3 vAnchorB = GetAnchorPosition(m_hAnchorB);
 
   const float fLength = (vAnchorB - vAnchorA).GetLength();
   if (ezMath::IsZero(fLength, 0.001f))
     return;
 
-  const ezVec3 vMainDir = (vAnchorB - vAnchorA).GetNormalized();
+  ezVec3 centerPos = ezMath::Lerp(vAnchorA, vAnchorB, 0.5f);
 
-  // check out https://www.britannica.com/science/catenary for a more natural formula
-  const ezVec3 centerPos = ezMath::Lerp(vAnchorA, vAnchorB, 0.5f) - ezVec3(0, 0, fLength * 0.5f * m_fSlack);
+  if (!m_hAnchorA.IsInvalidated() && !m_hAnchorB.IsInvalidated())
+  {
+    ezVec3 vDownDir = -centerPos;
+    vDownDir.MakeOrthogonalTo((vAnchorB - vAnchorA).GetNormalized());
+    vDownDir.NormalizeIfNotZero(ezVec3(0, 0, -1)).IgnoreResult();
+
+    centerPos += vDownDir * centerPos.GetLength();
+  }
+
   float fLengthWithSlack = (centerPos - vAnchorA).GetLength() * 2;
   m_fRopeLength = fLengthWithSlack;
 
   ezTransform prevTransform;
 
-  const ezUInt32 uiPieces = m_fSlack > 0 ? ezMath::RoundUp(m_uiPieces, 2) : m_uiPieces;
+  const ezUInt32 uiPieces = ezMath::RoundUp(m_uiPieces, 2);
   transforms.SetCountUninitialized(uiPieces);
   out_fPieceLength = fLengthWithSlack / uiPieces;
 
@@ -413,6 +421,8 @@ void ezPxRopeComponent::DestroyPhysicsShapes()
 
 void ezPxRopeComponent::Update()
 {
+  m_fMaxForcePerFrame = 100.0f;
+
   if (m_ArticulationLinks.IsEmpty())
     return;
 
@@ -431,6 +441,11 @@ void ezPxRopeComponent::Update()
 
   ezTransform rootTransform = GetOwner()->GetGlobalTransform();
   rootTransform.m_vPosition = ezPxConversionUtils::ToVec3(m_ArticulationLinks[uiCenterLink]->getGlobalPose().p);
+
+  // apparently this can happen when strong forces are applied to the actor
+  if (!rootTransform.m_vPosition.IsValid())
+    return;
+
   GetOwner()->SetGlobalPosition(rootTransform.m_vPosition);
 
   for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
@@ -522,36 +537,62 @@ void ezPxRopeComponent::SetAnchorB(ezGameObjectHandle hActor)
 
 void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 {
-  if (m_pArticulation != nullptr)
+  if (m_pArticulation == nullptr || m_fMaxForcePerFrame <= 0.0f)
+    return;
+
+  EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
+
+  PxArticulationLink* pLink[1] = {};
+
+  if (msg.m_pInternalPhysicsActor != nullptr)
+    pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
+  else
+    m_pArticulation->getLinks(pLink, 1);
+
+  ezVec3 vImp = msg.m_vForce;
+  const float fOrgImp = vImp.GetLength();
+
+  if (fOrgImp > 10.0f)
   {
-    EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
-
-    PxArticulationLink* pLink[1] = {};
-
-    if (msg.m_pInternalPhysicsActor != nullptr)
-      pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
-    else
-      m_pArticulation->getLinks(pLink, 1);
-
-    PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
+    vImp.SetLength(10.0f).IgnoreResult();
+    m_fMaxForcePerFrame -= 10.0f;
   }
+  else
+  {
+    m_fMaxForcePerFrame -= fOrgImp;
+  }
+
+  PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(vImp), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
 }
 
 void ezPxRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
 {
-  if (m_pArticulation != nullptr)
+  if (m_pArticulation == nullptr || m_fMaxForcePerFrame <= 0.0f)
+    return;
+
+  EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
+
+  PxArticulationLink* pLink[1] = {};
+
+  if (msg.m_pInternalPhysicsActor != nullptr)
+    pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
+  else
+    m_pArticulation->getLinks(pLink, 1);
+
+  ezVec3 vImp = msg.m_vImpulse;
+  const float fOrgImp = vImp.GetLength();
+
+  if (fOrgImp > 10.0f)
   {
-    EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
-
-    PxArticulationLink* pLink[1] = {};
-
-    if (msg.m_pInternalPhysicsActor != nullptr)
-      pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
-    else
-      m_pArticulation->getLinks(pLink, 1);
-
-    PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+    vImp.SetLength(10.0f).IgnoreResult();
+    m_fMaxForcePerFrame -= 10.0f;
   }
+  else
+  {
+    m_fMaxForcePerFrame -= fOrgImp;
+  }
+
+  PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(vImp), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -572,7 +613,7 @@ void ezPxRopeComponentManager::Initialize()
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPxRopeComponentManager::Update, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
-    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_bOnlyUpdateWhenSimulating = false;
 
     this->RegisterUpdateFunction(desc);
   }
@@ -580,6 +621,19 @@ void ezPxRopeComponentManager::Initialize()
 
 void ezPxRopeComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
+  if (!GetWorld()->GetWorldSimulationEnabled())
+  {
+    for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+    {
+      if (it->IsActiveAndInitialized())
+      {
+        it->UpdatePreview();
+      }
+    }
+
+    return;
+  }
+
   ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
   if (pModule == nullptr)
     return;

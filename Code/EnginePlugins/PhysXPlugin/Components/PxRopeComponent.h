@@ -59,17 +59,14 @@ public:
   bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
   void SetDisableGravity(bool b);                              // [ property ]
 
-  void SetSlack(float val);                   // [ property ]
-  float GetSlack() const { return m_fSlack; } // [ property ]
-
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]
 
   ezUInt8 m_uiCollisionLayer = 0;           // [ property ]
   ezUInt16 m_uiPieces = 16;                 // [ property ]
   float m_fThickness = 0.05f;               // [ property ]
-  bool m_bFixAtStart = true;                // [ property ]
-  bool m_bFixAtEnd = true;                  // [ property ]
+  bool m_bAttachToA = true;                 // [ property ]
+  bool m_bAttachToB = true;                 // [ property ]
   ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
   ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
 
@@ -90,9 +87,9 @@ private:
   void SendPreviewPose();
   PxFilterData CreateFilterData();
   PxMaterial* GetPxMaterial();
-  ezVec3 GetAnchorPositionA() const;
-  ezVec3 GetAnchorPositionB() const;
+  ezVec3 GetAnchorPosition(const ezGameObjectHandle& hTarget) const;
   PxJoint* CreateJoint(const ezGameObjectHandle& hTarget, const ezTransform& location, PxRigidBody* pLink, const ezTransform& linkOffset);
+  void UpdatePreview();
 
   mutable float m_fRopeLength = 0.0f;
   ezSurfaceResourceHandle m_hSurface;
@@ -100,10 +97,11 @@ private:
   ezGameObjectHandle m_hAnchorA;
   ezGameObjectHandle m_hAnchorB;
 
-  float m_fSlack = 0.1f;
+  float m_fMaxForcePerFrame = 0.0f;
   ezUInt32 m_uiShapeID = ezInvalidIndex;
   bool m_bSelfCollision = false;
   bool m_bDisableGravity = false;
+  ezVec3 m_vPreviewRefPos = ezVec3::ZeroVector();
 
   physx::PxAggregate* m_pAggregate = nullptr;
   physx::PxArticulation* m_pArticulation = nullptr;
