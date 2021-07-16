@@ -97,8 +97,12 @@ private:
   ezGameObjectHandle m_hAnchorA;
   ezGameObjectHandle m_hAnchorB;
 
+  float m_fTotalMass = 1.0f;
   float m_fMaxForcePerFrame = 0.0f;
-  float m_fStiffness = 0.0f;
+  float m_fBendStiffness = 0.0f;
+  float m_fBendDamping = 50.0f;
+  float m_fTwistStiffness = 0.0f;
+  float m_fTwistDamping = 50.0f;
   ezUInt32 m_uiShapeID = ezInvalidIndex;
   bool m_bSelfCollision = false;
   bool m_bDisableGravity = false;
