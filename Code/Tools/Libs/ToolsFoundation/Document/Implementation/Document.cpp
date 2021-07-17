@@ -73,6 +73,9 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
   m_bAddToRecentFilesList = true;
 
   m_uiUnknownObjectTypeInstances = 0;
+
+  m_pHostDocument = this;
+  m_pActiveClientDocument = this;
 }
 
 ezDocument::~ezDocument()

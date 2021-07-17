@@ -5,6 +5,7 @@
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
+#include "GuiFoundation/PropertyGrid/ManipulatorManager.h"
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneLayerBase, 1, ezRTTINoAllocator)
@@ -85,23 +86,41 @@ ezScene2Document::~ezScene2Document()
   SetActiveLayer(GetGuid()).LogFailure();
 
   m_SelectionManager->SetOwner(nullptr);
+
+  // Game object document subscribed to the true document originally but we rerouted that to the mock data.
+  // In order to destroy the game object document we need to revert this and subscribe to the true document again.
+  UnsubscribeGameObjectEventHandlers();
+
   // Move the preserved real scene document back.
   m_pObjectManager = std::move(m_pSceneObjectManager);
   m_CommandHistory = std::move(m_pSceneCommandHistory);
   m_SelectionManager = std::move(m_sceneSelectionManager);
   m_ObjectAccessor = std::move(m_pSceneObjectAccessor);
 
+  // See comment above for UnsubscribeGameObjectEventHandlers.
+  SubscribeGameObjectEventHandlers();
+
   m_documentManagerEventSubscriber.Unsubscribe();
   m_layerSelectionEventSubscriber.Unsubscribe();
   m_structureEventSubscriber.Unsubscribe();
   m_commandHistoryEventSubscriber.Unsubscribe();
+
+  for (auto it : m_Layers)
+  {
+    auto pDoc = it.Value().m_pLayer;
+
+    if (pDoc && pDoc != this)
+    {
+      ezDocumentManager* pManager = pDoc->GetDocumentManager();
+      pManager->CloseDocument(pDoc);
+    }
+  }
 }
 
 void ezScene2Document::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   EnsureSettingsObjectExist();
 
-  //#TODO: Test code to add some layers
   m_ActiveLayerGuid = GetGuid();
   ezObjectDirectAccessor accessor(GetObjectManager());
   ezObjectAccessorBase* pAccessor = &accessor;
@@ -125,6 +144,11 @@ void ezScene2Document::InitializeAfterLoadingAndSaving()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::DocumentManagerEventHandler, this), m_documentManagerEventSubscriber);
 
   SUPER::InitializeAfterLoadingAndSaving();
+
+  // Game object document subscribed to the true document originally but want to reroute it to the mock data so that is picks up the layer content on its own.
+  // Therefore we need to unsubscribe the original subscriptions and replace them with ones to the mock data.
+  UnsubscribeGameObjectEventHandlers();
+
   // These preserve the real scene document.
   m_pSceneObjectManager = std::move(m_pObjectManager);
   m_pSceneCommandHistory = std::move(m_CommandHistory);
@@ -142,6 +166,9 @@ void ezScene2Document::InitializeAfterLoadingAndSaving()
   m_SelectionManager->SwapStorage(m_sceneSelectionManager->GetStorage());
   m_ObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_CommandHistory.Borrow());
 
+  // See comment above for UnsubscribeGameObjectEventHandlers.
+  SubscribeGameObjectEventHandlers();
+
   UpdateLayers();
 }
 
@@ -158,11 +185,35 @@ const ezDocumentObject* ezScene2Document::GetSettingsObject() const
   return GetSceneObjectManager()->GetObject(id);
 }
 
+void ezScene2Document::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+{
+  if (const ezPushObjectStateMsgToEditor* msg = ezDynamicCast<const ezPushObjectStateMsgToEditor*>(pMsg))
+  {
+    HandleObjectStateFromEngineMsg2(msg);
+    return;
+  }
+
+  SUPER::HandleEngineMessage(pMsg);
+}
+
 ezTaskGroupID ezScene2Document::InternalSaveDocument(AfterSaveCallback callback)
 {
   // We need to switch the active layer back to the original content as otherwise the scene will not save itself but instead the active layer's content into itself.
   SetActiveLayer(GetGuid()).LogFailure();
   return SUPER::InternalSaveDocument(callback);
+}
+
+void ezScene2Document::SendGameWorldToEngine()
+{
+  SUPER::SendGameWorldToEngine();
+  for (auto layer : m_Layers)
+  {
+    ezSceneDocument* pLayer = layer.Value().m_pLayer;
+    if (pLayer != this && pLayer != nullptr)
+    {
+      ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(pLayer, true);
+    }
+  }
 }
 
 void ezScene2Document::LayerSelectionEventHandler(const ezSelectionManagerEvent& e)
@@ -240,6 +291,39 @@ void ezScene2Document::DocumentManagerEventHandler(const ezDocumentManager::Even
     }
     break;
   }
+}
+
+void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMsgToEditor* pMsg)
+{
+  ezMap<ezUuid, ezHybridArray<const ezPushObjectStateData*, 1>> layerToChanges;
+  for (const ezPushObjectStateData& change : pMsg->m_ObjectStates)
+  {
+    layerToChanges[change.m_LayerGuid].PushBack(&change);
+  }
+
+  const ezUuid activeLayer = m_ActiveLayerGuid;
+  for (auto it : layerToChanges)
+  {
+    if (SetActiveLayer(it.Key()).Failed())
+      continue;
+
+    auto pHistory = GetCommandHistory();
+
+    pHistory->StartTransaction("Pull Object State");
+
+    for (const ezPushObjectStateData* pState : it.Value())
+    {
+      auto pObject = GetObjectManager()->GetObject(pState->m_ObjectGuid);
+
+      if (pObject)
+      {
+        SetGlobalTransform(pObject, ezTransform(pState->m_vPosition, pState->m_qRotation), TransformationChanges::Translation | TransformationChanges::Rotation);
+      }
+    }
+
+    pHistory->FinishTransaction();
+  }
+  SetActiveLayer(activeLayer);
 }
 
 void ezScene2Document::UpdateLayers()
@@ -330,7 +414,8 @@ ezStatus ezScene2Document::CreateLayer(const char* szName, const ezUuid& out_lay
   ezSceneDocument* pLayerDoc = nullptr;
   if (ezOSFile::ExistsFile(targetDirectory))
   {
-    pLayerDoc = ezDynamicCast<ezSceneDocument*>(ezQtEditorApp::GetSingleton()->OpenDocument(targetDirectory, ezDocumentFlags::None));
+    ezDocumentObject* pRoot = m_pSceneObjectManager->GetRootObject();
+    pLayerDoc = ezDynamicCast<ezSceneDocument*>(ezQtEditorApp::GetSingleton()->OpenDocument(targetDirectory, ezDocumentFlags::None, pRoot));
     //auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset();
 
 
@@ -338,8 +423,8 @@ ezStatus ezScene2Document::CreateLayer(const char* szName, const ezUuid& out_lay
   }
   else
   {
-
-    pLayerDoc = ezDynamicCast<ezSceneDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(targetDirectory, ezDocumentFlags::None));
+    ezDocumentObject* pRoot = m_pSceneObjectManager->GetRootObject();
+    pLayerDoc = ezDynamicCast<ezSceneDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(targetDirectory, ezDocumentFlags::None, pRoot));
     if (!pLayerDoc)
     {
       return ezStatus(ezFmt("Failed to create new layer '{0}'", targetDirectory));
@@ -429,7 +514,7 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
   if (layerGuid == GetGuid())
   {
     ezDocumentObjectStructureEvent e;
-    e.m_pDocument = m_pObjectManager->GetDocument();
+    e.m_pDocument = this;
     e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeReset;
     m_pObjectManager->m_StructureEvents.Broadcast(e);
 
@@ -448,7 +533,7 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
       return ezStatus("Unladed layer can't be made active.");
 
     ezDocumentObjectStructureEvent e;
-    e.m_pDocument = m_pObjectManager->GetDocument();
+    e.m_pDocument = this;
     e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeReset;
     m_pObjectManager->m_StructureEvents.Broadcast(e);
 
@@ -463,23 +548,38 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
 
   {
     ezSelectionManagerEvent se;
-    se.m_pDocument = m_pObjectManager->GetDocument();
+    se.m_pDocument = this;
     se.m_pObject = nullptr;
     se.m_Type = ezSelectionManagerEvent::Type::SelectionSet;
     m_SelectionManager->GetStorage()->m_Events.Broadcast(se);
   }
   {
     ezCommandHistoryEvent ce;
-    ce.m_pDocument = m_pObjectManager->GetDocument();
+    ce.m_pDocument = this;
     ce.m_Type = ezCommandHistoryEvent::Type::HistoryChanged;
     m_CommandHistory->GetStorage()->m_Events.Broadcast(ce);
   }
+
   m_ActiveLayerGuid = layerGuid;
+  m_pActiveClientDocument = GetLayerDocument(layerGuid);
   {
     ezScene2LayerEvent e;
     e.m_Type = ezScene2LayerEvent::Type::ActiveLayerChanged;
     e.m_layerGuid = layerGuid;
     m_LayerEvents.Broadcast(e);
+  }
+  {
+    ezDocumentEvent e;
+    e.m_pDocument = this;
+    e.m_Type = ezDocumentEvent::Type::ModifiedChanged;
+
+    m_EventsOne.Broadcast(e);
+    s_EventsAny.Broadcast(e);
+  }
+  {
+    ezActiveLayerChangedMsgToEngine msg;
+    msg.m_ActiveLayer = layerGuid;
+    SendMessageToEngine(&msg);
   }
 
   // Set selection to object that contains the active layer
@@ -535,8 +635,7 @@ ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
     }
 
     ezDocument* pDoc = nullptr;
-    //#TODO Open layer. Pass our root into it to indicate what the parent context of the layer is.
-    //#TODO context is a window-only concept and not passed to the doc.
+    // Pass our root into it to indicate what the parent context of the layer is.
     ezDocumentObject* pRoot = m_pSceneObjectManager->GetRootObject();
     if (ezDocument* pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(sAbsPath, ezDocumentFlags::None, pRoot))
     {
@@ -560,7 +659,6 @@ ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
       return ezStatus(EZ_SUCCESS);
 
     // Unload document (save and close)
-    pInfo->m_pLayer->SaveDocument();
     ezDocumentManager* pManager = pInfo->m_pLayer->GetDocumentManager();
     pManager->CloseDocument(pInfo->m_pLayer);
     pInfo->m_pLayer = nullptr;
@@ -604,4 +702,16 @@ ezSceneDocument* ezScene2Document::GetLayerDocument(const ezUuid& layerGuid) con
     return pInfo->m_pLayer;
   }
   return nullptr;
+}
+
+bool ezScene2Document::IsAnyLayerModified() const
+{
+  for (auto& layer : m_Layers)
+  {
+    auto pLayer = layer.Value().m_pLayer;
+    if (pLayer && pLayer->IsModified())
+      return true;
+  }
+
+  return false;
 }

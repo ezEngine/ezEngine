@@ -162,6 +162,13 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     // fall through
   }
 
+  if (pMsg->IsInstanceOf<ezActiveLayerChangedMsgToEngine>())
+  {
+    HandleActiveLayerChangedMsg(static_cast<const ezActiveLayerChangedMsgToEngine*>(pMsg));
+    return;
+  }
+  
+
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
@@ -193,11 +200,10 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
-  const auto& objectMapper = GetDocumentContext(GetDocumentGuid())->m_Context.m_GameObjectMap;
-
+  //#TODO This check is not good enough, we need a better way of figuring out when the document has been restored.
   // if the handle map is currently empty, the scene has not yet been sent over
   // return and try again later
-  if (objectMapper.GetHandleToGuidMap().IsEmpty())
+  if (GetActiveContext().m_GameObjectMap.GetHandleToGuidMap().IsEmpty())
     return;
 
   // now we need to adjust the transforms for all objects that were not directly pulled
@@ -208,6 +214,12 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
     if (!state.m_bAdjustFromPrefabRootChild)
       continue;
 
+    ezWorldRttiConverterContext* pContext = GetContextForLayer(state.m_LayerGuid);
+    if (!pContext)
+      continue;
+
+    const auto& objectMapper = pContext->m_GameObjectMap;
+
     ezGameObjectHandle hObject = objectMapper.GetHandle(state.m_ObjectGuid);
 
     // if this object does not exist anymore, this is not considered a problem (user may have deleted it)
@@ -215,6 +227,7 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
     if (!m_pWorld->TryGetObject(hObject, pObject))
       continue;
 
+    //#TODO this checks needs to be done across all layers at once.
     // we expect the object to have a child, if none is there yet, we assume the prefab
     // instantiation has not happened yet
     // stop the whole process and try again later
@@ -236,6 +249,11 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
   SendProcessMessage(&m_PushObjectStateMsg);
 
   m_PushObjectStateMsg.m_ObjectStates.Clear();
+}
+
+void ezSceneContext::HandleActiveLayerChangedMsg(const ezActiveLayerChangedMsgToEngine* pMsg)
+{
+  m_ActiveLayer = pMsg->m_ActiveLayer;
 }
 
 void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg)
@@ -380,12 +398,27 @@ void ezSceneContext::OnSimulationDisabled()
 
 ezGameStateBase* ezSceneContext::GetGameState() const
 {
-  return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(m_pWorld.Borrow());
+  return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(m_pWorld);
+}
+
+void ezSceneContext::RegisterLayer(ezLayerContext* pLayer)
+{
+  m_Layers.PushBack(pLayer);
+  m_Contexts.PushBack(&pLayer->m_Context);
+}
+
+void ezSceneContext::UnregisterLayer(ezLayerContext* pLayer)
+{
+  m_Layers.RemoveAndSwap(pLayer);
+  m_Contexts.RemoveAndSwap(&pLayer->m_Context);
 }
 
 void ezSceneContext::OnInitialize()
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
+  if (!m_ActiveLayer.IsValid())
+    m_ActiveLayer = m_DocumentGuid;
+  m_Contexts.PushBack(&m_Context);
 }
 
 void ezSceneContext::OnDeinitialize()
@@ -417,7 +450,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   ezStringBuilder sSel = pMsg->m_sSelection;
   ezStringBuilder sGuid;
 
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetReadMarker());
 
   while (!sSel.IsEmpty())
@@ -427,7 +460,8 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
     const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid);
 
-    auto hObject = m_Context.m_GameObjectMap.GetHandle(guid);
+    //#TODO Active Layer
+    auto hObject = GetActiveContext().m_GameObjectMap.GetHandle(guid);
 
     if (!hObject.IsInvalidated())
     {
@@ -464,7 +498,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition).IgnoreResult();
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, pStartPosition).IgnoreResult();
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -488,6 +522,7 @@ void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivit
 
   EZ_ASSERT_DEV(e.m_pComponent->GetDebugOutput(), "This component should not send debug data.");
 
+  //#TODO Any layer?
   const ezUuid guid = m_Context.m_ComponentMap.GetGuid(e.m_pComponent->GetHandle());
 
   if (!guid.IsValid())
@@ -535,7 +570,8 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 
   for (auto guid : guids)
   {
-    auto hComp = m_Context.m_ComponentMap.GetHandle(guid);
+    //#TODO: Active layer
+    auto hComp = GetActiveContext().m_ComponentMap.GetHandle(guid);
 
     if (hComp.IsInvalidated())
       continue;
@@ -600,6 +636,7 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
 
 bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
+  //#TODO layers
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
 
   ezDeferredFileWriter file;
@@ -751,7 +788,7 @@ void ezSceneContext::UpdateDocumentContext()
 
 bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
+  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
   ezSceneViewContext* pMaterialViewContext = static_cast<ezSceneViewContext*>(pThumbnailViewContext);
   const bool result = pMaterialViewContext->UpdateThumbnailCamera(bounds);
@@ -818,6 +855,45 @@ void ezSceneContext::RemoveAmbientLight()
   }
 }
 
+ezWorldRttiConverterContext& ezSceneContext::GetActiveContext()
+{
+  if (m_ActiveLayer == GetDocumentGuid())
+  {
+    return m_Context;
+  }
+
+  for (ezLayerContext* pLayer : m_Layers)
+  {
+    if (m_ActiveLayer == pLayer->GetDocumentGuid())
+    {
+      return pLayer->m_Context;
+    }
+  }
+
+  EZ_REPORT_FAILURE("Active layer does not exist.");
+  return m_Context;
+}
+
+ezWorldRttiConverterContext* ezSceneContext::GetContextForLayer(const ezUuid& layerGuid)
+{
+  if (layerGuid == GetDocumentGuid())
+    return &m_Context;
+
+  for (ezLayerContext* pLayer : m_Layers)
+  {
+    if (layerGuid == pLayer->GetDocumentGuid())
+    {
+      return &pLayer->m_Context;
+    }
+  }
+  return nullptr;
+}
+
+ezArrayPtr<ezWorldRttiConverterContext*> ezSceneContext::GetAllContexts()
+{
+  return m_Contexts;
+}
+
 void ezSceneContext::HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg)
 {
   m_ExposedSceneProperties = pMsg->m_Properties;
@@ -846,7 +922,7 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
   const ezWorld* pWorld = GetWorld();
   EZ_LOCK(pWorld->GetReadMarker());
 
-  const auto& objectMapper = GetDocumentContext(GetDocumentGuid())->m_Context.m_GameObjectMap;
+  const auto& objectMapper = GetActiveContext().m_GameObjectMap;
 
   m_PushObjectStateMsg.m_ObjectStates.Reserve(m_PushObjectStateMsg.m_ObjectStates.GetCount() + m_SelectionWithChildren.GetCount());
 
@@ -893,6 +969,7 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
     {
       auto& state = m_PushObjectStateMsg.m_ObjectStates.ExpandAndGetRef();
 
+      state.m_LayerGuid = m_ActiveLayer;
       state.m_ObjectGuid = objectGuid;
       state.m_bAdjustFromPrefabRootChild = bAdjust;
       state.m_vPosition = pObject->GetGlobalPosition();

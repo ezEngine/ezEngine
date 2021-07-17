@@ -43,12 +43,24 @@ ezGameObjectDocument::ezGameObjectDocument(
 
 ezGameObjectDocument::~ezGameObjectDocument()
 {
-  GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::SelectionManagerEventHandler, this));
-  GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));
-  GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
-  GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
-
+  UnsubscribeGameObjectEventHandlers();
   DeallocateEditTools();
+}
+
+void ezGameObjectDocument::SubscribeGameObjectEventHandlers()
+{
+  m_SelectionManagerEventHandlerID = GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::SelectionManagerEventHandler, this));
+  m_ObjectPropertyEventHandlerID = GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
+  m_ObjectStructureEventHandlerID = GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));
+  m_ObjectEventHandlerID = GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
+}
+
+void ezGameObjectDocument::UnsubscribeGameObjectEventHandlers()
+{
+  GetSelectionManager()->m_Events.RemoveEventHandler(m_SelectionManagerEventHandlerID);
+  GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_ObjectPropertyEventHandlerID);
+  GetObjectManager()->m_StructureEvents.RemoveEventHandler(m_ObjectStructureEventHandlerID);
+  GetObjectManager()->m_ObjectEvents.RemoveEventHandler(m_ObjectEventHandlerID);
 }
 
 ezEditorInputContext* ezGameObjectDocument::GetEditorInputContextOverride()
@@ -506,10 +518,7 @@ void ezGameObjectDocument::DeallocateEditTools()
 void ezGameObjectDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
-  GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::SelectionManagerEventHandler, this));
-  GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
-  GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));
-  GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
+  SubscribeGameObjectEventHandlers();
 }
 
 
@@ -811,7 +820,7 @@ void ezGameObjectDocument::ObjectPropertyEventHandler(const ezDocumentObjectProp
 
 void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (e.m_pObject && e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
   {
     switch (e.m_EventType)
     {

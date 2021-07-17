@@ -18,7 +18,7 @@ public:
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
   ezStatus CreateDocument(
-    const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None);
+    const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None, const ezDocumentObject* pOpenContext = nullptr);
   ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
     ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow,
     const ezDocumentObject* pOpenContext = nullptr);
@@ -89,7 +89,7 @@ public:
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
 private:
-  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) = 0;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:

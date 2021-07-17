@@ -20,7 +20,7 @@ ezRmlUiContext::ezRmlUiContext() = default;
 
 void ezRmlUiContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   // Preview object

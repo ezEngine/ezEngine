@@ -1,5 +1,6 @@
 #include <EditorPluginScenePCH.h>
 
+#include <EditorPluginScene/Scene/LayerDocument.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -18,7 +19,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     docTypeDesc.m_pManager = this;
-    
+
     docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
     docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
   }
@@ -68,7 +69,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
 }
 
 void ezSceneDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   if (ezStringUtils::IsEqual(szDocumentTypeName, "Scene"))
   {
@@ -94,7 +95,9 @@ void ezSceneDocumentManager::InternalCreateDocument(
   }
   else if (ezStringUtils::IsEqual(szDocumentTypeName, "Layer"))
   {
-    out_pDocument = new ezSceneDocument(szPath, ezSceneDocument::DocumentType::Layer);
+    EZ_ASSERT_DEV(pOpenContext, "Opening a Layer needs an pOpenContext provided by the parent ezScene2Document.");
+    ezScene2Document* pDoc = const_cast<ezScene2Document*>(ezDynamicCast<const ezScene2Document*>(pOpenContext->GetDocumentObjectManager()->GetDocument()));
+    out_pDocument = new ezLayerDocument(szPath, pDoc);
   }
 }
 

@@ -11,11 +11,14 @@ ezQtLayerAdapter::ezQtLayerAdapter(ezScene2Document* pDocument)
   m_pSceneDocument = pDocument;
   m_pSceneDocument->m_LayerEvents.AddEventHandler(
     ezMakeDelegate(&ezQtLayerAdapter::LayerEventHandler, this), m_LayerEventUnsubscriber);
+
+  ezDocument::s_EventsAny.AddEventHandler(ezMakeDelegate(&ezQtLayerAdapter::DocumentEventHander, this), m_DocumentEventUnsubscriber);
 }
 
 ezQtLayerAdapter::~ezQtLayerAdapter()
 {
   m_LayerEventUnsubscriber.Unsubscribe();
+  m_DocumentEventUnsubscriber.Unsubscribe();
 }
 
 QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
@@ -97,7 +100,22 @@ void ezQtLayerAdapter::LayerEventHandler(const ezScene2LayerEvent& e)
   }
 }
 
- ezQtLayerModel::ezQtLayerModel(ezScene2Document* pDocument)
+void ezQtLayerAdapter::DocumentEventHander(const ezDocumentEvent& e)
+{
+  if (e.m_Type == ezDocumentEvent::Type::DocumentSaved || e.m_Type == ezDocumentEvent::Type::ModifiedChanged)
+  {
+    const ezDocumentObject* pLayerObj = m_pSceneDocument->GetLayerObject(e.m_pDocument->GetGuid());
+    if (pLayerObj)
+    {
+      QVector<int> v;
+      v.push_back(Qt::DisplayRole);
+      v.push_back(Qt::ForegroundRole);
+      Q_EMIT dataChanged(pLayerObj, v);
+    }
+  }
+}
+
+ezQtLayerModel::ezQtLayerModel(ezScene2Document* pDocument)
   : ezQtDocumentTreeModel(pDocument->GetSceneObjectManager(), pDocument->GetSettingsObject()->GetGuid())
   , m_pDocument(pDocument)
 {

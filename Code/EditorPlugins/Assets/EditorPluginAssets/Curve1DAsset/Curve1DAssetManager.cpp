@@ -45,7 +45,7 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 }
 
 void ezCurve1DAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   out_pDocument = new ezCurve1DAssetDocument(szPath);
 }

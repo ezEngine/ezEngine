@@ -2,8 +2,8 @@
 
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Panels/LayerPanel/LayerPanel.moc.h>
+#include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/Scene2DocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
@@ -80,4 +80,53 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
 
 ezQtScene2DocumentWindow::~ezQtScene2DocumentWindow()
 {
+}
+
+bool ezQtScene2DocumentWindow::InternalCanCloseWindow()
+{
+  // I guess this is to remove the focus from other widgets like input boxes, such that they may modify the document.
+  setFocus();
+  clearFocus();
+
+  ezScene2Document* pDoc = static_cast<ezScene2Document*>(GetDocument());
+  if (pDoc && pDoc->IsAnyLayerModified())
+  {
+    QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save scene and all layers before closing?"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
+
+    if (res == QMessageBox::StandardButton::Cancel)
+      return false;
+
+    if (res == QMessageBox::StandardButton::Yes)
+    {
+      ezStatus err = SaveAllLayers();
+
+      if (err.Failed())
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxStatus(err, "Saving the scene failed.");
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+ezStatus ezQtScene2DocumentWindow::SaveAllLayers()
+{
+  ezScene2Document* pDoc = static_cast<ezScene2Document*>(GetDocument());
+
+  ezHybridArray<ezSceneDocument*, 16> layers;
+  pDoc->GetLoadedLayers(layers);
+
+  for (auto pLayer : layers)
+  {
+    ezStatus res = pLayer->SaveDocument();
+
+    if (res.Failed())
+    {
+      return res;
+    }
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }

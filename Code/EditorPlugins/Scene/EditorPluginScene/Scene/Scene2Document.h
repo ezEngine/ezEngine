@@ -1,10 +1,10 @@
 #pragma once
 
+#include "ToolsFoundation/Document/DocumentManager.h"
+#include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
-#include <EditorPluginScene/Objects/SceneObjectManager.h>
-#include "ToolsFoundation/Document/DocumentManager.h"
 
 class ezScene2Document;
 
@@ -89,10 +89,15 @@ public:
   const ezDocumentObject* GetLayerObject(const ezUuid& layerGuid) const;
   ezSceneDocument* GetLayerDocument(const ezUuid& layerGuid) const;
 
+  bool IsAnyLayerModified() const;
+
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void InitializeAfterLoadingAndSaving() override;
   virtual const ezDocumentObject* GetSettingsObject() const override;
+  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
+  virtual void SendGameWorldToEngine() override;
+
 
 public:
   mutable ezEvent<const ezScene2LayerEvent&> m_LayerEvents;
@@ -102,7 +107,8 @@ private:
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-  
+  void HandleObjectStateFromEngineMsg2(const ezPushObjectStateMsgToEditor* pMsg);
+
   void UpdateLayers();
   void LayerAdded(const ezUuid& layerGuid, const ezUuid& layerObjectGuid);
   void LayerRemoved(const ezUuid& layerGuid);

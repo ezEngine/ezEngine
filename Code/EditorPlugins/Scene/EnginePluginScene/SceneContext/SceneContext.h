@@ -20,6 +20,7 @@ class ezExposedDocumentObjectPropertiesMsgToEngine;
 class ezViewRedrawMsgToEngine;
 class ezWorldWriter;
 class ezDeferredFileWriter;
+class ezLayerContext;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext
 {
@@ -42,6 +43,13 @@ public:
 
   ezGameStateBase* GetGameState() const;
   bool IsPlayTheGameActive() const { return GetGameState() != nullptr; }
+
+  void RegisterLayer(ezLayerContext* pLayer);
+  void UnregisterLayer(ezLayerContext* pLayer);
+
+  ezWorldRttiConverterContext& GetActiveContext();
+  ezWorldRttiConverterContext* GetContextForLayer(const ezUuid& layerGuid);
+  ezArrayPtr<ezWorldRttiConverterContext*> GetAllContexts();
 
 protected:
   virtual void OnInitialize() override;
@@ -74,6 +82,7 @@ private:
   void HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg);
   void HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg);
   void AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine* pMsg);
+  void HandleActiveLayerChangedMsg(const ezActiveLayerChangedMsgToEngine* pMsg);
 
   void DrawSelectionBounds(const ezViewHandle& hView);
 
@@ -100,4 +109,8 @@ private:
   ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
 
   ezPushObjectStateMsgToEditor m_PushObjectStateMsg;
+
+  ezUuid m_ActiveLayer;
+  ezDynamicArray<ezLayerContext*> m_Layers;
+  ezDynamicArray<ezWorldRttiConverterContext*> m_Contexts;
 };

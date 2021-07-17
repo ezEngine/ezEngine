@@ -127,6 +127,7 @@ public:
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
   void HandleVisualScriptActivityMsg(const ezVisualScriptActivityMsgToEditor* pMsg);
   void HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg);
+
   void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
 

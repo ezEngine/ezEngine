@@ -39,9 +39,12 @@ ezUuid ezSceneSelectionContext::FindLayerByObject(ezUuid objectGuid) const
   pSceneDocument->GetLoadedLayers(loadedLayers);
   for (ezSceneDocument* pLayer : loadedLayers)
   {
-    if (pLayer == pSceneDocument && pSceneDocument->GetSceneObjectManager()->GetObject(objectGuid))
+    if (pLayer == pSceneDocument)
     {
-      return pLayer->GetGuid();
+      if (pSceneDocument->GetSceneObjectManager()->GetObject(objectGuid))
+      {
+        return pLayer->GetGuid();
+      }
     }
     else if (pLayer->GetObjectManager()->GetObject(objectGuid) != nullptr)
     {

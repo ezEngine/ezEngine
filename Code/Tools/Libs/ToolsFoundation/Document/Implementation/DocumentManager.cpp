@@ -260,7 +260,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       {
         EZ_PROFILE_SCOPE(szDocumentTypeName);
         status = ezStatus(EZ_SUCCESS);
-        InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
+        InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
       }
       out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
 
@@ -319,9 +319,9 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 }
 
 ezStatus ezDocumentManager::CreateDocument(
-  const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags)
+  const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, flags);
+  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, flags, pOpenContext);
 }
 
 ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,

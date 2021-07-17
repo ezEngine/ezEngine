@@ -10,7 +10,7 @@ ezConeLengthManipulatorAdapter::~ezConeLengthManipulatorAdapter() {}
 
 void ezConeLengthManipulatorAdapter::Finalize()
 {
-  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetHostDocument();
 
   auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
 

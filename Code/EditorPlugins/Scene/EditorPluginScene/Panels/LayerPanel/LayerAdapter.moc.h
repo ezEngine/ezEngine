@@ -4,6 +4,7 @@
 
 class ezScene2Document;
 struct ezScene2LayerEvent;
+struct ezDocumentEvent;
 
 class ezQtLayerAdapter : public ezQtDocumentTreeModelAdapter
 {
@@ -17,10 +18,12 @@ public:
 
 private:
   void LayerEventHandler(const ezScene2LayerEvent& e);
+  void DocumentEventHander(const ezDocumentEvent& e);
 
 private:
   ezScene2Document* m_pSceneDocument;
   ezEvent<const ezScene2LayerEvent&>::Unsubscriber m_LayerEventUnsubscriber;
+  ezEvent<const ezDocumentEvent&>::Unsubscriber m_DocumentEventUnsubscriber;
 };
 
 class ezQtLayerModel : public ezQtDocumentTreeModel

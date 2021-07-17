@@ -1401,6 +1401,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 
 ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
 {
+  //#TODO export layers
   auto saveres = SaveDocument();
 
   if (saveres.m_Result.Failed())

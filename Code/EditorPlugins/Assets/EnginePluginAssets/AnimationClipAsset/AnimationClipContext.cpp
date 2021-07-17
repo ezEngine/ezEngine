@@ -41,7 +41,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
     {
       m_sAnimatedMeshToUse = pMsg->m_sPayload;
 
-      auto pWorld = m_pWorld.Borrow();
+      auto pWorld = m_pWorld;
       EZ_LOCK(pWorld->GetWriteMarker());
 
       ezStringBuilder sAnimClipGuid;
@@ -71,7 +71,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
   if (auto pMsg = ezDynamicCast<const ezViewRedrawMsgToEngine*>(pMsg0))
   {
-    auto pWorld = m_pWorld.Borrow();
+    auto pWorld = m_pWorld;
     EZ_LOCK(pWorld->GetWriteMarker());
 
     ezSimpleAnimationComponent* pAnimController;
@@ -99,7 +99,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
 void ezAnimationClipContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
@@ -124,7 +124,7 @@ void ezAnimationClipContext::DestroyViewContext(ezEngineProcessViewContext* pCon
 
 bool ezAnimationClipContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
   if (!m_hAnimControllerComponent.IsInvalidated())
   {

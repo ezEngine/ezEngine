@@ -46,7 +46,7 @@ void ezAnimationControllerAssetManager::OnDocumentManagerEvent(const ezDocumentM
   }
 }
 
-void ezAnimationControllerAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezAnimationControllerAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   out_pDocument = new ezAnimationControllerAssetDocument(szPath);
 }

@@ -143,7 +143,7 @@ void ezViewAction::Execute(const ezVariant& value)
   {
     case ezViewAction::ButtonType::ActivateRemoteProcess:
     {
-      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(m_Context.m_pDocument, pView->GetViewID());
+      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(ezDynamicCast<ezAssetDocument*>(m_Context.m_pDocument), pView->GetViewID());
     }
     break;
 
@@ -151,7 +151,7 @@ void ezViewAction::Execute(const ezVariant& value)
     {
       pView->m_pViewConfig->m_bUseCameraTransformOnDevice = !pView->m_pViewConfig->m_bUseCameraTransformOnDevice;
       SetChecked(pView->m_pViewConfig->m_bUseCameraTransformOnDevice);
-      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(m_Context.m_pDocument, pView->GetViewID());
+      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(ezDynamicCast<ezAssetDocument*>(m_Context.m_pDocument), pView->GetViewID());
     }
     break;
   }

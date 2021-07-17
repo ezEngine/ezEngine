@@ -217,28 +217,33 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
       const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
       const ezUInt32 uiPartIndex = (uiPickingID >> 24) & 0x7F; // highest bit indicates whether the object is dynamic, ignore this
 
-      res.m_ComponentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
-      res.m_OtherGuid = GetDocumentContext()->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
-
-      if (res.m_ComponentGuid.IsValid())
+      ezArrayPtr<ezWorldRttiConverterContext*> contexts = m_pSceneContext->GetAllContexts();
+      for (ezWorldRttiConverterContext* pContext : contexts)
       {
-        ezComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(res.m_ComponentGuid);
-
-        ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-
-        // check whether the component is still valid
-        ezComponent* pComponent = nullptr;
-        if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
+        res.m_ComponentGuid = pContext->m_ComponentPickingMap.GetGuid(uiComponentID);
+        if (res.m_ComponentGuid.IsValid())
         {
-          // if yes, fill out the parent game object guid
-          res.m_ObjectGuid = GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
-          res.m_uiPartIndex = uiPartIndex;
-        }
-        else
-        {
-          res.m_ComponentGuid = ezUuid();
+          ezComponentHandle hComponent = pContext->m_ComponentMap.GetHandle(res.m_ComponentGuid);
+
+          ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+
+          // check whether the component is still valid
+          ezComponent* pComponent = nullptr;
+          if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
+          {
+            // if yes, fill out the parent game object guid
+            res.m_ObjectGuid = pContext->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
+            res.m_uiPartIndex = uiPartIndex;
+          }
+          else
+          {
+            res.m_ComponentGuid = ezUuid();
+          }
+          break;
         }
       }
+      // Always take the other picking ID from the scene itself as gizmos are handled by the window and only the scene itself has one.
+      res.m_OtherGuid = m_pSceneContext->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
     }
   }
 
@@ -285,18 +290,18 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
         const ezUInt32 uiPickingID = singleRes.ConvertTo<ezUInt32>();
         const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
 
-        const ezUuid componentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
+        const ezUuid componentGuid = m_pSceneContext->GetActiveContext().m_ComponentPickingMap.GetGuid(uiComponentID);
 
         if (componentGuid.IsValid())
         {
-          ezComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(componentGuid);
+          ezComponentHandle hComponent = m_pSceneContext->GetActiveContext().m_ComponentMap.GetHandle(componentGuid);
 
           // check whether the component is still valid
           ezComponent* pComponent = nullptr;
           if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
           {
             // if yes, fill out the parent game object guid
-            res.m_ObjectGuids.PushBack(GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle()));
+            res.m_ObjectGuids.PushBack(m_pSceneContext->GetActiveContext().m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle()));
           }
         }
       }
