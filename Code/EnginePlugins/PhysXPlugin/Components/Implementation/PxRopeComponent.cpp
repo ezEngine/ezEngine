@@ -51,10 +51,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 1, ezComponentMode::Dynamic)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-/* TODO:
-* initial curve shape
-*/
-
 ezPxRopeComponent::ezPxRopeComponent() = default;
 ezPxRopeComponent::~ezPxRopeComponent() = default;
 
@@ -317,7 +313,10 @@ PxJoint* ezPxRopeComponent::CreateJoint(const ezGameObjectHandle& hTarget, const
     pActor->EnsureSimulationStarted();
     pPxActor = pActor->GetPxActor();
 
-    parentLocal.SetLocalTransform(pObject->GetGlobalTransform(), location);
+    ezTransform tParent = pObject->GetGlobalTransform();
+    tParent.m_vScale.Set(1.0f);
+
+    parentLocal.SetLocalTransform(tParent, location);
   }
   else
   {

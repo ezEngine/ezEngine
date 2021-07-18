@@ -75,5 +75,9 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
   t.m_qRotation = axisRotation;
   t.m_vScale = ezVec3(fScale);
   t.m_vPosition = axisRotation * ezVec3(fScale * 0.5f, 0, 0);
-  m_Gizmo.SetTransformation(GetObjectTransform() * t);
+
+  ezTransform tObject = GetObjectTransform();
+  tObject.m_vScale.Set(1.0f);
+
+  m_Gizmo.SetTransformation(tObject * t);
 }
