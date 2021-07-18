@@ -323,6 +323,9 @@ public:
             pRigid0 = static_cast<PxRigidDynamic*>(pairHeader.actors[0]);
 
             vVelocity0 = ezPxConversionUtils::ToVec3(pRigid0->getLinearVelocity());
+
+            if (!vVelocity0.IsValid())
+              vVelocity0.SetZero();
           }
 
           if (pairHeader.actors[1]->getType() == PxActorType::eRIGID_DYNAMIC)
@@ -330,6 +333,9 @@ public:
             pRigid1 = static_cast<PxRigidDynamic*>(pairHeader.actors[1]);
 
             vVelocity1 = ezPxConversionUtils::ToVec3(pRigid1->getLinearVelocity());
+
+            if (!vVelocity1.IsValid())
+              vVelocity1.SetZero();
           }
 
           {
@@ -1087,7 +1093,7 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 
   if (ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>())
   {
-    EZ_PX_READ_LOCK(*m_pPxScene);
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
 
     PxU32 numActiveActors = 0;
     PxActor** pActiveActors = m_pPxScene->getActiveActors(numActiveActors);

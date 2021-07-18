@@ -46,12 +46,12 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> 
 {
   EZ_PROFILE_SCOPE("DynamicActors");
 
-  for (const PxActor* activeActor : activeActors)
+  for (PxActor* activeActor : activeActors)
   {
     if (activeActor->getType() != PxActorType::eRIGID_DYNAMIC)
       continue;
 
-    const PxRigidDynamic* dynamicActor = static_cast<const PxRigidDynamic*>(activeActor);
+    PxRigidDynamic* dynamicActor = static_cast<PxRigidDynamic*>(activeActor);
 
     ezPxDynamicActorComponent* pComponent = ezPxUserData::GetDynamicActorComponent(activeActor->userData);
     if (pComponent == nullptr)
@@ -68,11 +68,22 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> 
     if (pComponent->GetKinematic())
       continue;
 
+    auto pose = dynamicActor->getGlobalPose();
+    if (!pose.isSane())
+    {
+      // PhysX can completely fuck up poses and never recover
+      // if that happens, force a non-NaN pose to prevent crashes down the line
+      dynamicActor->setGlobalPose(ezPxConversionUtils::ToTransform(pComponent->GetOwner()->GetGlobalTransformSimd()));
+
+      // ignore objects with bad data
+      continue;
+    }
+
     ezGameObject* pObject = pComponent->GetOwner();
     EZ_ASSERT_DEV(pObject != nullptr, "Owner must be still valid");
 
     // preserve scaling
-    ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(dynamicActor->getGlobalPose());
+    ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(pose);
     t.m_Scale = ezSimdConversion::ToVec3(pObject->GetGlobalScaling());
 
     pObject->SetGlobalTransform(t);

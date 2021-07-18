@@ -24,10 +24,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 1, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("Mass", m_fTotalMass)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 1000.0f)),
       EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(2, 200)),
       EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
-      EZ_MEMBER_PROPERTY("BendStiffness", m_fBendStiffness)->AddAttributes(new ezClampValueAttribute(0.0f,   1000000.0f)),
-      EZ_MEMBER_PROPERTY("TwistStiffness", m_fTwistStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, 1000000.0f)),
-      EZ_MEMBER_PROPERTY("BendDamping", m_fBendDamping)->AddAttributes(new ezClampValueAttribute(0.0f,   1000000.0f)),
-      EZ_MEMBER_PROPERTY("TwistDamping", m_fTwistDamping)->AddAttributes(new ezClampValueAttribute(0.0f,   1000000.0f)),
+      EZ_MEMBER_PROPERTY("BendStiffness", m_fBendStiffness)->AddAttributes(new ezClampValueAttribute(0.0f,   ezVariant())),
+      EZ_MEMBER_PROPERTY("TwistStiffness", m_fTwistStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+      EZ_MEMBER_PROPERTY("BendDamping", m_fBendDamping)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f,   ezVariant())),
+      EZ_MEMBER_PROPERTY("TwistDamping", m_fTwistDamping)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f,   ezVariant())),
       EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
@@ -204,9 +204,6 @@ void ezPxRopeComponent::CreateRope()
   m_pArticulation->userData = pUserData;
   m_pArticulation->setSleepThreshold(0.8f);
 
-  //PxU32 minPositionIters, minVelocityIters;
-  //m_pArticulation->getSolverIterationCounts(minPositionIters, minVelocityIters);
-  //ezLog::Info("Iterations: {} / {}", minPositionIters, minVelocityIters);
   //m_pArticulation->setSolverIterationCounts(16, 4);
   //m_pArticulation->setMaxProjectionIterations(8);
 
@@ -452,9 +449,22 @@ void ezPxRopeComponent::DestroyPhysicsShapes()
   }
 }
 
+// this is a hard-coded constant that seems to prevent the most severe issues well enough
+//
+// applying forces to an articulation is a problem,
+// because articulations tend to end up with bad (NaN)
+// data real quickly if those forces are too large
+// linear and angular damping already helps a lot, but it's not sufficient
+// the only reliable solution seems to be to prevent too large incoming forces
+// since ropes have many links, things like explosions tend to apply the same force to each link
+// thus multiplying the effect
+// therefore a 'frame budget' is used to only apply a certain amount of force during a single frame
+// this effectively ignores most forces that are applied to multiple links and just moves one or two links
+constexpr float g_fMaxForce = 1.5f;
+
 void ezPxRopeComponent::Update()
 {
-  m_fMaxForcePerFrame = 100.0f;
+  m_fMaxForcePerFrame = g_fMaxForce * 2.0f;
 
   if (m_ArticulationLinks.IsEmpty())
     return;
@@ -567,8 +577,6 @@ void ezPxRopeComponent::SetAnchorB(ezGameObjectHandle hActor)
 {
   m_hAnchorB = hActor;
 }
-
-constexpr float g_fMaxForce = 3.0f;
 
 void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 {

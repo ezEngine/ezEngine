@@ -37,7 +37,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
       ezLog::Error("PhysX Internal: {0}", message);
       break;
     case PxErrorCode::eINVALID_OPERATION:
-      EZ_REPORT_FAILURE("PhysX Invalid Operation: {0}", message);
+      ezLog::Error("PhysX Invalid Operation: {0}", message);
       break;
     case PxErrorCode::eINVALID_PARAMETER:
       if (ezStringUtils::IsEqual(message, "PxScene::raycast(): pose is not valid.") ||
@@ -47,7 +47,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
         //ezLog::Warning("Invalid pose");
         return;
       }
-      EZ_REPORT_FAILURE("PhysX Invalid Parameter: {0}", message);
+      ezLog::Error("PhysX Invalid Parameter: {0}", message);
       break;
     case PxErrorCode::eOUT_OF_MEMORY:
       ezLog::Error("PhysX Out-of-Memory: {0}", message);
