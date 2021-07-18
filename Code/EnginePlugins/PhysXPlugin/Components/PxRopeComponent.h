@@ -1,19 +1,18 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 
 struct ezMsgPhysicsAddImpulse;
 struct ezMsgPhysicsAddForce;
-namespace physx
-{
-  class PxSphericalJoint;
-}
 
 namespace physx
 {
   class PxArticulationLink;
   class PxArticulation;
   class PxAggregate;
+  class PxSphericalJoint;
+  struct PxFilterData;
 } // namespace physx
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
@@ -85,10 +84,10 @@ private:
   void DestroyPhysicsShapes();
   void Update();
   void SendPreviewPose();
-  PxFilterData CreateFilterData();
-  PxMaterial* GetPxMaterial();
+  void CreateFilterData(physx::PxFilterData& filter);
+  physx::PxMaterial* GetPxMaterial();
   ezVec3 GetAnchorPosition(const ezGameObjectHandle& hTarget) const;
-  PxJoint* CreateJoint(const ezGameObjectHandle& hTarget, const ezTransform& location, PxRigidBody* pLink, const ezTransform& linkOffset);
+  physx::PxJoint* CreateJoint(const ezGameObjectHandle& hTarget, const ezTransform& location, physx::PxRigidBody* pLink, const ezTransform& linkOffset);
   void UpdatePreview();
 
   mutable float m_fRopeLength = 0.0f;

@@ -1,8 +1,10 @@
 #include <PhysXPluginPCH.h>
 
+#include <Components/PxDynamicActorComponent.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxRopeComponent.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <Utilities/PxConversionUtils.h>
 #include <Utilities/PxUserData.h>
 #include <WorldModule/Implementation/PhysX.h>
@@ -124,9 +126,9 @@ void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
   m_hAnchorB = stream.ReadGameObjectHandle();
 }
 
-PxFilterData ezPxRopeComponent::CreateFilterData()
+void ezPxRopeComponent::CreateFilterData(PxFilterData& filter)
 {
-  return ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeID);
+  filter = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeID);
 }
 
 void ezPxRopeComponent::OnSimulationStarted()
@@ -186,7 +188,9 @@ void ezPxRopeComponent::CreateRope()
   m_uiShapeID = pModule->CreateShapeId();
 
   const PxMaterial* pPxMaterial = GetPxMaterial();
-  const PxFilterData filter = CreateFilterData();
+  PxFilterData filter;
+  CreateFilterData(filter);
+
   PxFilterData filterNone = filter;
   filterNone.word1 = 0; // disable collisions with everything else
 
