@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{5655081157900400286}
+		u4 %Hash{4807399190753204119}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1844,12 +1844,12 @@ o
 			Uuid{u4{12992158215835705490,4202556643374573012}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xA08297C0,0x748A5440,0x110C5C40}}
-		Quat %LocalRotation{f{0x1AF9303D,0xF883393E,0xBC6469BE,0xC3A8743F}}
+		Vec3 %LocalPosition{f{0x38321341,0x8C3E9FC1,0x46B64D40}}
+		Quat %LocalRotation{f{0x289381BD,0x44BB913C,0x2CE9753F,0x58498A3E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
+		s %Name{"Thumbnail Camera"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
