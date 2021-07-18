@@ -83,6 +83,7 @@ private:
   void HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg);
   void AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine* pMsg);
   void HandleActiveLayerChangedMsg(const ezActiveLayerChangedMsgToEngine* pMsg);
+  void HandleTagMsgToEngineMsg(const ezObjectTagMsgToEngine* pMsg);
 
   void DrawSelectionBounds(const ezViewHandle& hView);
 

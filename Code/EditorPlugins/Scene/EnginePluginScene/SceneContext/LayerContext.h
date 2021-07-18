@@ -15,6 +15,7 @@ public:
   ~ezLayerContext();
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  void SceneDeinitialized();
 
 protected:
   virtual void OnInitialize() override;

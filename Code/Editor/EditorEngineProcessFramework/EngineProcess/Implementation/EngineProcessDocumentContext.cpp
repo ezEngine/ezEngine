@@ -116,7 +116,6 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, cons
     ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
     desc.m_bReportErrorWhenStaticObjectMoves = false;
 
-    //#TODO Use scene world for layer
     m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
     m_pWorld->SetGameObjectReferenceResolver(ezMakeDelegate(&ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
 
@@ -128,12 +127,12 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, cons
 
 void ezEngineProcessDocumentContext::Deinitialize()
 {
+  OnDeinitialize();
+
   ClearViewContexts();
   m_Mirror.Clear();
   m_Mirror.DeInit();
   m_Context.Clear();
-
-  OnDeinitialize();
 
   CleanUpContextSyncObjects();
   if (m_flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))

@@ -27,22 +27,18 @@ ezLayerContext::~ezLayerContext()
 
 void ezLayerContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
+  // Everything in the picking buffer needs a unique ID. As layers and scene share the same world we need to make sure no id is used twice.
+  // To achieve this the scene's next ID is retrieved on every change and written back in base new IDs were used up.
   m_Context.m_uiNextComponentPickingID = m_pParentSceneContext->m_Context.m_uiNextComponentPickingID;
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
   m_pParentSceneContext->m_Context.m_uiNextComponentPickingID = m_Context.m_uiNextComponentPickingID;
+}
 
-  //#TODO: these are not sent as the layer is not connected to a window that triggers these so rerouting does not work.
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectSelectionMsgToEngine>())
-  {
-    m_pParentSceneContext->HandleMessage(pMsg);
-    return;
-  }
-
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
-  {
-    m_pParentSceneContext->HandleMessage(pMsg);
-    return;
-  }
+void ezLayerContext::SceneDeinitialized()
+{
+  // If the scene is deinitialized the world is destroyed so there is no use tracking anything further.
+  m_pWorld = nullptr;
+  m_Context.Clear();
 }
 
 void ezLayerContext::OnInitialize()
@@ -60,6 +56,13 @@ void ezLayerContext::OnInitialize()
 
 void ezLayerContext::OnDeinitialize()
 {
+  if (m_pWorld)
+  {
+    // If the world still exists we are just unloading the layer not the scene that owns the world.
+    // Thus, we need to make sure the layer objects are removed from the still existing world.
+    m_Context.DeleteExistingObjects();
+  }
+
   m_pParentSceneContext->UnregisterLayer(this);
   m_pParentSceneContext = nullptr;
 }

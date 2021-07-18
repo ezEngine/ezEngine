@@ -167,7 +167,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     HandleActiveLayerChangedMsg(static_cast<const ezActiveLayerChangedMsgToEngine*>(pMsg));
     return;
   }
-  
+
+  if (pMsg->IsInstanceOf<ezObjectTagMsgToEngine>())
+  {
+    HandleTagMsgToEngineMsg(static_cast<const ezObjectTagMsgToEngine*>(pMsg));
+    return;
+  }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
@@ -200,11 +205,17 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
-  //#TODO This check is not good enough, we need a better way of figuring out when the document has been restored.
-  // if the handle map is currently empty, the scene has not yet been sent over
-  // return and try again later
-  if (GetActiveContext().m_GameObjectMap.GetHandleToGuidMap().IsEmpty())
-    return;
+  for (auto& state : m_PushObjectStateMsg.m_ObjectStates)
+  {
+    ezWorldRttiConverterContext* pContext = GetContextForLayer(state.m_LayerGuid);
+    if (!pContext)
+      return;
+
+    // if the handle map is currently empty, the scene has not yet been sent over
+    // return and try again later
+    if (pContext->m_GameObjectMap.GetHandleToGuidMap().IsEmpty())
+      return;
+  }
 
   // now we need to adjust the transforms for all objects that were not directly pulled
   // ie. nodes inside instantiated prefabs
@@ -254,6 +265,34 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
 void ezSceneContext::HandleActiveLayerChangedMsg(const ezActiveLayerChangedMsgToEngine* pMsg)
 {
   m_ActiveLayer = pMsg->m_ActiveLayer;
+}
+
+void ezSceneContext::HandleTagMsgToEngineMsg(const ezObjectTagMsgToEngine* pMsg)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezGameObjectHandle hObject = GetActiveContext().m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
+
+  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg->m_sTag);
+
+  ezGameObject* pObject;
+  if (m_pWorld->TryGetObject(hObject, pObject))
+  {
+    if (pMsg->m_bApplyOnAllChildren)
+    {
+      if (pMsg->m_bSetTag)
+        SetTagRecursive(pObject, tag);
+      else
+        ClearTagRecursive(pObject, tag);
+    }
+    else
+    {
+      if (pMsg->m_bSetTag)
+        pObject->GetTags().Set(tag);
+      else
+        pObject->GetTags().Remove(tag);
+    }
+  }
 }
 
 void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg)
@@ -429,6 +468,11 @@ void ezSceneContext::OnDeinitialize()
   m_hAmbientLight[0].Invalidate();
   m_hAmbientLight[1].Invalidate();
   m_hAmbientLight[2].Invalidate();
+
+  for (ezLayerContext* pLayer: m_Layers)
+  {
+    pLayer->SceneDeinitialized();
+  }
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
@@ -460,7 +504,6 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
     const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid);
 
-    //#TODO Active Layer
     auto hObject = GetActiveContext().m_GameObjectMap.GetHandle(guid);
 
     if (!hObject.IsInvalidated())
