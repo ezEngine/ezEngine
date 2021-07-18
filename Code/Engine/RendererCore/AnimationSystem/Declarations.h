@@ -70,11 +70,12 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
 /// The rope simulation component sends this message to components attached to the same game object,
 /// every time there is a new rope pose. There is no skeleton information, since all joints/bones are
 /// connected as one long string.
+///
+/// For a rope with N segments, N+1 poses are sent. The last pose may use the same rotation as the one before.
 struct EZ_RENDERERCORE_DLL ezMsgRopePoseUpdated : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgRopePoseUpdated, ezMessage);
 
-  float m_fSegmentLength = 0.0f; ///< the length of each link/segment
   ezArrayPtr<const ezTransform> m_LinkTransforms;
 };
 

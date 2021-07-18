@@ -85,15 +85,6 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 
       bsphere.ExpandToInclude(l.m_end);
     }
-
-    // render the very last segment
-    {
-      auto& l = m_Lines.ExpandAndGetRef();
-      l.m_start = msg.m_LinkTransforms[msg.m_LinkTransforms.GetCount() - 1].m_vPosition;
-      l.m_end = l.m_start + msg.m_LinkTransforms[msg.m_LinkTransforms.GetCount() - 1].m_qRotation * ezVec3(msg.m_fSegmentLength, 0, 0);
-      l.m_startColor = ezColor::Black;
-      l.m_endColor = ezColor::Black;
-    }
   }
 
   // if the existing bounds are big enough, don't update them

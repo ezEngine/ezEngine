@@ -207,9 +207,10 @@ void ezPxRopeComponent::CreateRope()
 
   const ezTransform tRoot = GetOwner()->GetGlobalTransform();
 
-  ezHybridArray<ezTransform, 64> pieces;
+  ezHybridArray<ezTransform, 65> pieces;
   float fPieceLength;
   CreateSegmentTransforms(tRoot, pieces, fPieceLength);
+  pieces.PopBack(); // don't need the last transform
 
   m_ArticulationLinks.SetCountUninitialized(pieces.GetCount());
 
@@ -390,10 +391,8 @@ void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform
   float fLengthWithSlack = (centerPos - vAnchorA).GetLength() * 2;
   m_fRopeLength = fLengthWithSlack;
 
-  ezTransform prevTransform;
-
   const ezUInt32 uiPieces = ezMath::RoundUp(m_uiPieces, 2);
-  transforms.SetCountUninitialized(uiPieces);
+  transforms.SetCountUninitialized(uiPieces + 1);
   out_fPieceLength = fLengthWithSlack / uiPieces;
 
   ezQuat qRotDown, qRotUp;
@@ -402,6 +401,7 @@ void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform
 
   ezVec3 vNextPos = vAnchorA;
   ezQuat qRot = qRotDown;
+
 
   for (ezUInt32 idx = 0; idx < uiPieces; ++idx)
   {
@@ -417,6 +417,15 @@ void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform
     vNextPos += qRot * ezVec3(out_fPieceLength, 0, 0);
 
     transforms[idx].SetGlobalTransform(rootTransform, localTransform);
+  }
+
+  {
+    ezTransform localTransform;
+    localTransform.SetIdentity();
+    localTransform.m_qRotation = qRot;
+    localTransform.m_vPosition = vNextPos;
+
+    transforms.PeekBack().SetGlobalTransform(rootTransform, localTransform);
   }
 }
 
@@ -474,10 +483,9 @@ void ezPxRopeComponent::Update()
     return;
 
   ezHybridArray<ezTransform, 32> poses(ezFrameAllocator::GetCurrentAllocator());
-  poses.SetCountUninitialized(m_ArticulationLinks.GetCount());
+  poses.SetCountUninitialized(m_ArticulationLinks.GetCount() + 1);
 
   ezMsgRopePoseUpdated poseMsg;
-  poseMsg.m_fSegmentLength = m_fRopeLength / poses.GetCount();
   poseMsg.m_LinkTransforms = poses;
 
   // we can assume that the link in the middle of the array is also more or less in the middle of the rope
@@ -497,6 +505,17 @@ void ezPxRopeComponent::Update()
     poses[i].SetLocalTransform(rootTransform, ezPxConversionUtils::ToTransform(m_ArticulationLinks[i]->getGlobalPose()));
   }
 
+  // last pose
+  {
+    const ezUInt32 uiLastIdx = m_ArticulationLinks.GetCount();
+
+    ezTransform tLocal;
+    tLocal.SetIdentity();
+    tLocal.m_vPosition.x = (poses[uiLastIdx-1].m_vPosition - poses[uiLastIdx-2].m_vPosition).GetLength();
+
+    poses.PeekBack().SetGlobalTransform(poses[uiLastIdx-1], tLocal);
+  }
+
   GetOwner()->SendMessage(poseMsg);
 }
 
@@ -508,7 +527,8 @@ void ezPxRopeComponent::SendPreviewPose()
   ezDynamicArray<ezTransform> pieces(ezFrameAllocator::GetCurrentAllocator());
 
   ezMsgRopePoseUpdated poseMsg;
-  CreateSegmentTransforms(ezTransform::IdentityTransform(), pieces, poseMsg.m_fSegmentLength);
+  float fPieceLength;
+  CreateSegmentTransforms(ezTransform::IdentityTransform(), pieces, fPieceLength);
 
   if (pieces.IsEmpty())
     return;
