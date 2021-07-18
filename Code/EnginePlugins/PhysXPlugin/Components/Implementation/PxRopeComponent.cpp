@@ -511,9 +511,9 @@ void ezPxRopeComponent::Update()
 
     ezTransform tLocal;
     tLocal.SetIdentity();
-    tLocal.m_vPosition.x = (poses[uiLastIdx-1].m_vPosition - poses[uiLastIdx-2].m_vPosition).GetLength();
+    tLocal.m_vPosition.x = (poses[uiLastIdx - 1].m_vPosition - poses[uiLastIdx - 2].m_vPosition).GetLength();
 
-    poses.PeekBack().SetGlobalTransform(poses[uiLastIdx-1], tLocal);
+    poses.PeekBack().SetGlobalTransform(poses[uiLastIdx - 1], tLocal);
   }
 
   GetOwner()->SendMessage(poseMsg);
