@@ -169,21 +169,33 @@ PxMaterial* ezPxRopeComponent::GetPxMaterial()
   return ezPhysX::GetSingleton()->GetDefaultMaterial();
 }
 
-ezVec3 ezPxRopeComponent::GetAnchorPosition(const ezGameObjectHandle& hTarget) const
+ezVec3 ezPxRopeComponent::GetAnchorPosition(const ezGameObjectHandle& hTarget, bool& out_bTargetValid) const
 {
   const ezGameObject* pObj;
   if (GetWorld()->TryGetObject(hTarget, pObj))
   {
+    out_bTargetValid = true;
+
     ezTransform t = GetOwner()->GetGlobalTransform();
     t.Invert();
     return t.TransformPosition(pObj->GetGlobalPosition());
   }
 
+  out_bTargetValid = false;
   return ezVec3::ZeroVector();
 }
 
 void ezPxRopeComponent::CreateRope()
 {
+  const ezTransform tRoot = GetOwner()->GetGlobalTransform();
+
+  ezHybridArray<ezTransform, 65> pieces;
+  float fPieceLength;
+  if (CreateSegmentTransforms(tRoot, pieces, fPieceLength).Failed())
+    return;
+
+  pieces.PopBack(); // don't need the last transform
+
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   m_uiShapeID = pModule->CreateShapeId();
 
@@ -204,13 +216,6 @@ void ezPxRopeComponent::CreateRope()
 
   //m_pArticulation->setSolverIterationCounts(16, 4);
   //m_pArticulation->setMaxProjectionIterations(8);
-
-  const ezTransform tRoot = GetOwner()->GetGlobalTransform();
-
-  ezHybridArray<ezTransform, 65> pieces;
-  float fPieceLength;
-  CreateSegmentTransforms(tRoot, pieces, fPieceLength);
-  pieces.PopBack(); // don't need the last transform
 
   m_ArticulationLinks.SetCountUninitialized(pieces.GetCount());
 
@@ -289,6 +294,8 @@ void ezPxRopeComponent::CreateRope()
     ezTransform lastPiece;
     lastPiece.SetGlobalTransform(pieces.PeekBack(), localTransform);
 
+    localTransform.m_qRotation = -localTransform.m_qRotation;
+
     m_pJointB = CreateJoint(m_hAnchorB, lastPiece, m_ArticulationLinks.PeekBack(), localTransform);
   }
 }
@@ -361,25 +368,28 @@ void ezPxRopeComponent::UpdatePreview()
   }
 }
 
-void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform, ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const
+ezResult ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform, ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const
 {
   // check out https://www.britannica.com/science/catenary for a natural rope hanging formula
 
   out_fPieceLength = 0.0f;
 
   if (m_hAnchorA.IsInvalidated() && m_hAnchorB.IsInvalidated())
-    return;
+    return EZ_FAILURE;
 
-  const ezVec3 vAnchorA = GetAnchorPosition(m_hAnchorA);
-  const ezVec3 vAnchorB = GetAnchorPosition(m_hAnchorB);
+  bool bAnchorValidA = false;
+  bool bAnchorValidB = false;
+
+  const ezVec3 vAnchorA = GetAnchorPosition(m_hAnchorA, bAnchorValidA);
+  const ezVec3 vAnchorB = GetAnchorPosition(m_hAnchorB, bAnchorValidB);
 
   const float fLength = (vAnchorB - vAnchorA).GetLength();
-  if (ezMath::IsZero(fLength, 0.001f))
-    return;
+  if (ezMath::IsZero(fLength, 0.001f) || (!bAnchorValidA && !bAnchorValidB))
+    return EZ_FAILURE;
 
   ezVec3 centerPos = ezMath::Lerp(vAnchorA, vAnchorB, 0.5f);
 
-  if (!m_hAnchorA.IsInvalidated() && !m_hAnchorB.IsInvalidated())
+  if (bAnchorValidA && bAnchorValidB)
   {
     ezVec3 vDownDir = -centerPos;
     vDownDir.MakeOrthogonalTo((vAnchorB - vAnchorA).GetNormalized());
@@ -427,6 +437,8 @@ void ezPxRopeComponent::CreateSegmentTransforms(const ezTransform& rootTransform
 
     transforms.PeekBack().SetGlobalTransform(rootTransform, localTransform);
   }
+
+  return EZ_SUCCESS;
 }
 
 void ezPxRopeComponent::DestroyPhysicsShapes()
@@ -528,12 +540,11 @@ void ezPxRopeComponent::SendPreviewPose()
 
   ezMsgRopePoseUpdated poseMsg;
   float fPieceLength;
-  CreateSegmentTransforms(ezTransform::IdentityTransform(), pieces, fPieceLength);
+  if (CreateSegmentTransforms(ezTransform::IdentityTransform(), pieces, fPieceLength).Succeeded())
+  {
+    poseMsg.m_LinkTransforms = pieces;
+  }
 
-  if (pieces.IsEmpty())
-    return;
-
-  poseMsg.m_LinkTransforms = pieces;
   GetOwner()->PostMessage(poseMsg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 }
 

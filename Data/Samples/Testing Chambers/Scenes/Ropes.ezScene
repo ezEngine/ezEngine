@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{4807399190753204119}
+		u4 %Hash{16033473869140725212}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -367,7 +367,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -581,7 +581,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -938,7 +938,7 @@ o
 		s %AnchorB{"{ 7cc7e332-6d82-4f31-a7ca-415054a60d2d }"}
 		b %AttachToA{1}
 		b %AttachToB{1}
-		f %BendDamping{0x0000FA43}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -1609,7 +1609,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -1765,7 +1765,7 @@ o
 		s %AnchorB{"{ 9b9cc319-74d7-8ff3-38f4-8b699ef96651 }"}
 		b %AttachToA{1}
 		b %AttachToB{1}
-		f %BendDamping{0x0000FA43}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
@@ -2094,7 +2094,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -2688,7 +2688,7 @@ o
 		s %AnchorB{"{ df27df1b-c49c-4d49-9575-d6c00a8e5a97 }"}
 		b %AttachToA{1}
 		b %AttachToB{1}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -3014,7 +3014,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -3490,7 +3490,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -3778,7 +3778,7 @@ o
 		s %AnchorB{"{ 3e35aa9a-9915-d00e-ed92-cf0977491ebe }"}
 		b %AttachToA{1}
 		b %AttachToB{1}
-		f %BendDamping{0x0000FA43}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
@@ -4622,7 +4622,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -5004,7 +5004,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -5871,7 +5871,7 @@ o
 		s %AnchorB{"{ afa2dbfa-a170-1d35-8237-4e322d07e3c1 }"}
 		b %AttachToA{1}
 		b %AttachToB{1}
-		f %BendDamping{0x0000FA43}
+		f %BendDamping{0x00004842}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
 		b %DisableGravity{1}
@@ -6051,7 +6051,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
@@ -6401,7 +6401,7 @@ o
 		s %AnchorB{""}
 		b %AttachToA{1}
 		b %AttachToB{0}
-		f %BendDamping{0x00004843}
+		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
 		b %DisableGravity{0}
