@@ -1168,10 +1168,14 @@ void ezBreakableSheetComponent::Cleanup()
 
 void ezBreakableSheetComponent::SetPieceTransform(const physx::PxTransform& transform, void* pAdditionalUserData)
 {
-  m_uiNumActiveBrokenPieceActors++;
-
   ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(transform);
   t.m_Scale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalScaling());
+
+  // ignore pieces that have gotten bad transforms
+  if (!transform.isSane())
+    return;
+
+  m_uiNumActiveBrokenPieceActors++;
 
   const ezUInt32 uiPieceIndex = static_cast<ezUInt32>(reinterpret_cast<size_t>(pAdditionalUserData));
 

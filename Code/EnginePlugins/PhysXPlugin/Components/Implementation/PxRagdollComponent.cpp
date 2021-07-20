@@ -440,7 +440,6 @@ void ezPxRagdollComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& h
     for (const auto& imp : m_Impulses)
     {
       PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(imp.m_vImpulse), ezPxConversionUtils::ToVec3(imp.m_vPos), PxForceMode::eIMPULSE);
-      //pLink[0]->addForce(ezPxConversionUtils::ToVec3(imp.m_vImpulse), PxForceMode::eIMPULSE);
     }
   }
 }
@@ -457,12 +456,6 @@ void ezPxRagdollComponent::DestroyPhysicsShapes()
 
     m_pAggregate->release();
     m_pAggregate = nullptr;
-
-    //if (m_pDriveCache)
-    //{
-    //  m_pArticulation->releaseDriveCache(*m_pDriveCache);
-    //  m_pDriveCache = nullptr;
-    //}
 
     pModule->DeallocateUserData(m_uiUserDataIndex);
     m_uiUserDataIndex = ezInvalidIndex;
@@ -576,13 +569,19 @@ void ezPxRagdollComponent::CreateShapesFromBindPose()
 
 void ezPxRagdollComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 {
-  //if (m_pArticulation != nullptr)
-  //{
-  //  EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
+  if (m_pArticulation != nullptr)
+  {
+    EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
 
-  //  PxRigidBodyExt::addForceAtPos(
-  //    *m_pArticulation, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
-  //}
+    PxArticulationLink* pLink[1] = {};
+
+    if (msg.m_pInternalPhysicsActor != nullptr)
+      pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
+    else
+      m_pArticulation->getLinks(pLink, 1);
+
+    PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
+  }
 }
 
 void ezPxRagdollComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
@@ -599,23 +598,12 @@ void ezPxRagdollComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
   {
     EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
 
-    //if (m_pDriveCache == nullptr)
-    //{
-    //  m_pDriveCache = m_pArticulation->createDriveCache(1.0f, 16);
-    //}
-    //else
-    //{
-    //  m_pArticulation->updateDriveCache(*m_pDriveCache, 1.0f, 16);
-    //}
-
     PxArticulationLink* pLink[1] = {};
 
     if (msg.m_pInternalPhysicsActor != nullptr)
       pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
     else
       m_pArticulation->getLinks(pLink, 1);
-
-    //m_pArticulation->applyImpulse(pLink[0], *m_pDriveCache, ezPxConversionUtils::ToVec3(msg.m_vImpulse), PxZERO::PxZero);
 
     PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
   }

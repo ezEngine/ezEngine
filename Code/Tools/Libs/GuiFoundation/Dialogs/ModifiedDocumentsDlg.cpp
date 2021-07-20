@@ -45,6 +45,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybr
     QPushButton* pButtonSave = new QPushButton(QLatin1String("Save"));
     EZ_VERIFY(connect(pButtonSave, SIGNAL(clicked()), this, SLOT(SlotSaveDocument())) != nullptr, "signal/slot connection failed");
 
+    pButtonSave->setIcon(QIcon(":/GuiFoundation/Icons/Save16.png"));
     pButtonSave->setProperty("document", QVariant::fromValue((void*)pDoc));
 
     pButtonSave->setMinimumWidth(100);

@@ -176,7 +176,7 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   bsphere.SetInvalid();
   bsphere.m_fRadius = 0.0f;
 
-  if (m_bVisualizeSkeleton)
+  if (m_bVisualizeSkeleton && msg.m_pSkeleton)
   {
     ezStringBuilder tmp;
 
@@ -190,7 +190,9 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
     };
 
     ezHybridArray<Bone, 128> bones;
+
     bones.SetCount(msg.m_pSkeleton->GetJointCount());
+    m_LinesSkeleton.Reserve(m_LinesSkeleton.GetCount() + msg.m_pSkeleton->GetJointCount());
 
     const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
@@ -212,8 +214,6 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
       bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
 
       auto& pb = bones[parentBone];
-
-      const ezString currentName = msg.m_pSkeleton->GetJointByIndex(currentBone).GetName().GetString();
 
       if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
       {

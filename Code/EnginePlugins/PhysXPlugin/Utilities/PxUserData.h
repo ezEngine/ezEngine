@@ -12,6 +12,7 @@ class ezSurfaceResource;
 class ezBreakableSheetComponent;
 class ezPxQueryShapeActorComponent;
 class ezPxRagdollComponent;
+class ezPxRopeComponent;
 
 class ezPxUserData
 {
@@ -72,6 +73,12 @@ public:
   EZ_ALWAYS_INLINE void Init(ezPxRagdollComponent* pObject)
   {
     m_Type = Type::RagdollComponent;
+    m_pObject = pObject;
+  }
+
+  EZ_ALWAYS_INLINE void Init(ezPxRopeComponent* pObject)
+  {
+    m_Type = Type::RopeComponent;
     m_pObject = pObject;
   }
 
@@ -182,6 +189,7 @@ public:
           pPxUserData->m_Type == Type::ShapeComponent ||
           pPxUserData->m_Type == Type::QueryShapeActorComponent ||
           pPxUserData->m_Type == Type::RagdollComponent ||
+          pPxUserData->m_Type == Type::RopeComponent ||
           pPxUserData->m_Type == Type::BreakableSheetComponent)
       {
         return static_cast<ezComponent*>(pPxUserData->m_pObject);
@@ -224,6 +232,7 @@ private:
     SurfaceResource,
     QueryShapeActorComponent,
     RagdollComponent,
+    RopeComponent,
   };
 
   Type m_Type = Type::Invalid;
