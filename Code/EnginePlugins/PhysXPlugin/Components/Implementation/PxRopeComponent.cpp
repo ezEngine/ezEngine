@@ -491,6 +491,49 @@ void ezPxRopeComponent::Update()
   if (m_ArticulationLinks.IsEmpty())
     return;
 
+  // at runtime, allow to disengage the connection
+  {
+    if (!m_bAttachToA && m_pJointA)
+    {
+      PxRigidActor *a0;
+      PxRigidActor *a1;
+      m_pJointA->getActors(a0, a1);
+
+      if (a0 && a0->is<PxRigidDynamic>())
+      {
+        static_cast<PxRigidDynamic*>(a0)->wakeUp();
+      }
+      if (a1 && a1->is<PxRigidDynamic>())
+      {
+        static_cast<PxRigidDynamic*>(a1)->wakeUp();
+      }
+
+      m_pJointA->release();
+      m_pJointA = nullptr;
+      m_pArticulation->wakeUp();
+    }
+
+    if (!m_bAttachToB && m_pJointB)
+    {
+      PxRigidActor *a0;
+      PxRigidActor *a1;
+      m_pJointB->getActors(a0, a1);
+
+      if (a0 && a0->is<PxRigidDynamic>())
+      {
+        static_cast<PxRigidDynamic*>(a0)->wakeUp();
+      }
+      if (a1 && a1->is<PxRigidDynamic>())
+      {
+        static_cast<PxRigidDynamic*>(a1)->wakeUp();
+      }
+
+      m_pJointB->release();
+      m_pJointB = nullptr;
+      m_pArticulation->wakeUp();
+    }
+  }
+
   if (m_pArticulation->isSleeping())
     return;
 
@@ -713,7 +756,7 @@ void ezPxRopeComponentManager::Update(const ezWorldModule::UpdateContext& contex
   if (pModule == nullptr)
     return;
 
-  EZ_PX_READ_LOCK(*pModule->GetPxScene());
+  EZ_PX_WRITE_LOCK(*pModule->GetPxScene());
 
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
