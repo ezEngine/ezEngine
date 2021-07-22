@@ -377,3 +377,4 @@ Fresnel;Fresnel
 Refraction;Refraction
 SetColorMode;Set Color Mode
 ezRopeRenderComponent;Rope Renderer
+ezFakeRopeComponent;Fake Rope Simulation

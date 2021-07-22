@@ -39,7 +39,7 @@ ezResult ezRopeRenderComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool
 
 void ezRopeRenderComponent::Update()
 {
-  ezDebugRenderer::DrawLines(GetWorld(), m_Lines, ezColor::White, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLines(GetWorld(), m_Lines, m_Color, GetOwner()->GetGlobalTransform());
 }
 
 void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -91,8 +91,8 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
       auto& l = m_Lines.ExpandAndGetRef();
       l.m_start = msg.m_LinkTransforms[i - 1].m_vPosition;
       l.m_end = msg.m_LinkTransforms[i].m_vPosition;
-      l.m_startColor = ezColor::Black;
-      l.m_endColor = ezColor::Black;
+      l.m_startColor = ezColor::White;
+      l.m_endColor = ezColor::White;
 
       bsphere.ExpandToInclude(l.m_end);
     }

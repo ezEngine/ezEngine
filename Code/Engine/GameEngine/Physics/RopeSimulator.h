@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>
-#include <GameEngineDLL.h>
+#include <GameEngine/GameEngineDLL.h>
 
 /// \brief A simple simulator for swinging and hanging ropes.
 ///

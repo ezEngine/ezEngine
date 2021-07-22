@@ -43,34 +43,29 @@ public:
 
   ezUInt16 m_uiPieces = 16; // [ property ]
 
-  void SetAnchorAReference(const char* szReference); // [ property ]
-  void SetAnchorBReference(const char* szReference); // [ property ]
+  void SetAnchorReference(const char* szReference); // [ property ]
+  void SetAnchor(ezGameObjectHandle hActor);
 
-  void SetAnchorA(ezGameObjectHandle hActor);
-  void SetAnchorB(ezGameObjectHandle hActor);
+  void SetSlack(float val);
+  float GetSlack() const { return m_fSlack; }
 
-  void SetLength(float val);
-  float GetLength() const { return m_fLength; }
+  void SetAttachToOrigin(bool val);
+  bool GetAttachToOrigin() const;
+  void SetAttachToAnchor(bool val);
+  bool GetAttachToAnchor() const;
 
-  void SetAttachToA(bool val);
-  bool GetAttachToA() const;
-  void SetAttachToB(bool val);
-  bool GetAttachToB() const;
-
-  float m_fLength = 0.0f;
+  float m_fSlack = 0.0f;
   float m_fDamping = 0.1f;
 
 private:
-  void UpdatePoses(bool force);
-  ezVec3 GetAnchorPosition(const ezGameObjectHandle& hTarget) const;
-  void SetupSimulator();
+  ezResult ConfigureRopeSimulator();
   void SendCurrentPose();
-  void UpdatePreview();
+  void SendPreviewPose();
+  void RuntimeUpdate();
 
-  ezGameObjectHandle m_hAnchorA;
-  ezGameObjectHandle m_hAnchorB;
+  ezGameObjectHandle m_hAnchor;
 
-  ezVec3 m_vPreviewRefPos;
+  ezUInt32 m_uiPreviewHash = 0;
 
   ezRopeSimulator m_RopeSim;
 

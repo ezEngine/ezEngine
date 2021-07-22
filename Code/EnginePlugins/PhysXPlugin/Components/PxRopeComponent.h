@@ -78,17 +78,15 @@ public:
 
 private:
   void CreateRope();
-  ezResult CreateSegmentTransforms(const ezTransform& rootTransform, ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const;
+  ezResult CreateSegmentTransforms(ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const;
   void DestroyPhysicsShapes();
   void Update();
   void SendPreviewPose();
   void CreateFilterData(physx::PxFilterData& filter);
   physx::PxMaterial* GetPxMaterial();
-  ezVec3 GetAnchorPosition(const ezGameObjectHandle& hTarget, bool& out_bTargetValid) const;
   physx::PxJoint* CreateJoint(const ezGameObjectHandle& hTarget, const ezTransform& location, physx::PxRigidBody* pLink, const ezTransform& linkOffset);
   void UpdatePreview();
 
-  mutable float m_fRopeLength = 0.0f;
   ezSurfaceResourceHandle m_hSurface;
 
   ezGameObjectHandle m_hAnchor;
