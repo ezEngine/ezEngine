@@ -543,11 +543,8 @@ void ezPxRopeComponent::Update()
   ezMsgRopePoseUpdated poseMsg;
   poseMsg.m_LinkTransforms = poses;
 
-  // we can assume that the link in the middle of the array is also more or less in the middle of the rope
-  const ezUInt32 uiCenterLink = m_ArticulationLinks.GetCount() / 2;
-
   ezTransform rootTransform = GetOwner()->GetGlobalTransform();
-  rootTransform.m_vPosition = ezPxConversionUtils::ToVec3(m_ArticulationLinks[uiCenterLink]->getGlobalPose().p);
+  rootTransform.m_vPosition = ezPxConversionUtils::ToVec3(m_ArticulationLinks[0]->getGlobalPose().p);
 
   // apparently this can happen when strong forces are applied to the actor
   if (!rootTransform.m_vPosition.IsValid())
