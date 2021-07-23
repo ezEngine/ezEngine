@@ -245,7 +245,15 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       {
         // if a bone index array is available, move the custom index into it
 
-        if (si.m_Format == ezGALResourceFormat::RGBAUShort)
+        if (si.m_Format == ezGALResourceFormat::RGBAUByte)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            ezVec4Template<ezUInt8> storage(geom.GetVertices()[v].m_iCustomIndex, 0, 0, 0);
+            SetVertexData<ezVec4Template<ezUInt8>>(s, v, storage);
+          }
+        }
+        else if (si.m_Format == ezGALResourceFormat::RGBAUShort)
         {
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
@@ -259,6 +267,16 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       case ezGALVertexAttributeSemantic::BoneWeights0:
       {
         // if a bone weight array is available, set it to fully use the first bone
+
+        if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
+        {
+          ezColorLinearUB storage(255, 0, 0, 0);
+
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezColorLinearUB>(s, v, storage);
+          }
+        }
 
         if (si.m_Format == ezGALResourceFormat::XYZWFloat)
         {

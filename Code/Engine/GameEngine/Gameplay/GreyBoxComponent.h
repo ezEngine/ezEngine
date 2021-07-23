@@ -49,6 +49,8 @@ class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  virtual void OnActivated() override;
+
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 protected:
@@ -112,8 +114,8 @@ protected:
   bool m_bSlopedBottom = false;
 
   void InvalidateMesh();
-  void GenerateRenderMesh() const;
+  void GenerateRenderMesh();
   void BuildGeometry(ezGeometry& geom) const;
 
-  mutable ezMeshResourceHandle m_hMesh;
+  ezMeshResourceHandle m_hMesh;
 };

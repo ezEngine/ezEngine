@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{14181989816840132805}
+		u4 %Hash{9534562311733419821}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -201,7 +201,7 @@ o
 			Uuid{u4{13095837691708545194,2110170948684548308}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xE8FF8740,0x4C00C0BF,0x6260BDBF}}
+		Vec3 %LocalPosition{f{0xD0FF5F40,0x4800C0BF,0x6260BDBF}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -290,6 +290,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -582,6 +583,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -721,6 +723,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -1215,6 +1218,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0xEC115F3F,0xE014133F,0x3ED45A3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -1402,6 +1406,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -1902,6 +1907,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -2038,6 +2044,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -2492,6 +2499,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x75C35E3F,0x4ACF933D,0x315D713F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -2555,6 +2563,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -2642,6 +2651,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x61AB5F3F,0x17C0933E,0xBF1B6E3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -2653,6 +2663,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x70DF213F,0x53FBDB3A,0x57AD543F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -2954,6 +2965,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -2998,6 +3010,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x96C91C3F,0x1969703E,0x1AA2523F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -3259,6 +3272,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -3473,6 +3487,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0xADA24E3F,0x9A35813E,0xB0CC583F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -3904,6 +3919,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -4150,6 +4166,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -4396,6 +4413,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -4576,6 +4594,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -4779,6 +4798,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -5178,7 +5198,8 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0,0,0,0x0000803F}}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -5202,6 +5223,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -5784,6 +5806,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -6110,6 +6133,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -6288,6 +6312,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -6712,6 +6737,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -6828,6 +6854,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -7008,9 +7035,9 @@ o
 	p
 	{
 		b %Active{1}
-		s %Anchor{""}
+		s %Anchor{"{ 9c93e6fc-e2bf-8fa0-03ec-9737c6a04c51 }"}
 		b %AttachToAnchor{1}
-		b %AttachToOrigin{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x0000FA43}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
@@ -7090,7 +7117,8 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0,0,0,0x0000803F}}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -7107,7 +7135,7 @@ o
 			Uuid{u4{4235071321504423972,15041175744031274365}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xD0FF7F40,0x4C00C0BF,0x31B01EC0}}
+		Vec3 %LocalPosition{f{0xD0FF6F40,0x4800C0BF,0x31B01EC0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -7269,6 +7297,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -7511,6 +7540,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -7744,6 +7774,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -7993,6 +8024,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		s %Material{""}
 	}
 }
 o
@@ -8767,7 +8799,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRopeRenderComponent"}
-		u3 %TypeSize{120}
+		u3 %TypeSize{144}
 		u3 %TypeVersion{2}
 	}
 }

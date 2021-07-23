@@ -110,10 +110,16 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+void ezGreyBoxComponent::OnActivated()
 {
   GenerateRenderMesh();
 
+  // First generate the mesh and then call the base implementation which will update the bounds
+  SUPER::OnActivated();
+}
+
+ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+{
   if (m_hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
@@ -126,8 +132,6 @@ ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& b
 
 void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  GenerateRenderMesh();
-
   if (!m_hMesh.IsValid())
     return;
 
@@ -388,6 +392,9 @@ void ezGreyBoxComponent::InvalidateMesh()
   if (m_hMesh.IsValid())
   {
     m_hMesh.Invalidate();
+
+    GenerateRenderMesh();
+
     TriggerLocalBoundsUpdate();
   }
 }
@@ -475,7 +482,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
   }
 }
 
-void ezGreyBoxComponent::GenerateRenderMesh() const
+void ezGreyBoxComponent::GenerateRenderMesh()
 {
   if (m_hMesh.IsValid())
     return;

@@ -44,9 +44,9 @@ public:
   ~ezSkinnedMeshComponent();
 
 protected:
-  void CreateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
 
+private:
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  mutable ezArrayPtr<const ezMat4> m_SkinningMatrices;
+  ezArrayPtr<const ezMat4> m_SkinningMatrices;
 };

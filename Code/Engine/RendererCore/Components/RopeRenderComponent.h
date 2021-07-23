@@ -1,14 +1,13 @@
 #pragma once
 
-#include <Foundation/Math/Declarations.h>
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
 
+struct ezMsgExtractRenderData;
+struct ezMsgSetColor;
+struct ezMsgSetMeshMaterial;
 struct ezMsgRopePoseUpdated;
 
-// TODO: don't use an updating manager, at all
-//using ezRopeRenderComponentManager = ezComponentManager<class ezRopeRenderComponent, ezBlockStorageType::Compact>;
-using ezRopeRenderComponentManager = ezComponentManagerSimple<class ezRopeRenderComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
+using ezRopeRenderComponentManager = ezComponentManager<class ezRopeRenderComponent, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezRopeRenderComponent : public ezRenderComponent
 {
@@ -22,14 +21,14 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual void OnSimulationStarted() override;
-
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
-public:
+protected:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
 
   //////////////////////////////////////////////////////////////////////////
   // ezRopeRenderComponent
@@ -38,14 +37,32 @@ public:
   ezRopeRenderComponent();
   ~ezRopeRenderComponent();
 
-  ezColor m_Color = ezColor::Black;
+  ezColor m_Color = ezColor::White; // [ property ]
+
+  void SetMaterialFile(const char* szFile); // [ property ]
+  const char* GetMaterialFile() const;      // [ property ]
+
+  void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
+  ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
+
+  void OnMsgSetColor(ezMsgSetColor& msg);               // [ msg handler ]
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg); // [ msg handler ]
 
 private:
   void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg); // [ msg handler ]
-  void Update();
+
+  void GenerateRenderMesh();
+
+  void UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms);
 
   ezBoundingBoxSphere m_LocalBounds;
 
-  // TODO: don't use debug rendering
-  ezDynamicArray<ezDebugRenderer::Line> m_Lines;
+  ezGALBufferHandle m_hSkinningTransformsBuffer;
+  ezArrayPtr<const ezMat4> m_SkinningMatrices;
+  ezUInt64 m_uiSkinningMatricesValidFrame = 0;
+
+  ezMeshResourceHandle m_hMesh;
+  ezMaterialResourceHandle m_hMaterial;
+
+  ezUInt32 m_uiNumRopePieces = 0;
 };
