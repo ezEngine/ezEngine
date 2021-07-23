@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{16033473869140725212}
+		u4 %Hash{15978051745275383654}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -23,14 +23,13 @@ o
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
 			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
 			s{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
-			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6d2f2203-1c29-417b-bb1b-b434080e8fed }"}
 			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ 8ad58edd-f5ae-44ff-a9ea-a3e541bc3e08 }"}
 			s{"{ 8cf1538a-b0b5-4a34-ba93-436e1609c204 }"}
+			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 			s{"{ b3aae013-269b-4fed-83ac-d509f8014667 }"}
-			s{"{ b93a6e80-5bf7-48f0-b7b3-2097d0133159 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
 		}
@@ -39,6 +38,34 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{13559239066347932917,524309838316205151}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1947817302101864339,12818838642997800141}}
+			Uuid{u4{678808372709105516,13486388242156709591}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000BF,0x0000003F,0x0000E0BF}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
 o
 {
 	Uuid %id{u4{14384475091941386620,566945787666192919}}
@@ -162,16 +189,6 @@ o
 }
 o
 {
-	Uuid %id{u4{18228147207346294952,1888327439941716470}}
-	s %t{"ezShapeIconComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-	}
-}
-o
-{
 	Uuid %id{u4{7102337582532137622,1901122793939467830}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -195,6 +212,16 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{658975565416291436,1941665122722218222}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -227,33 +254,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13971018359732320130,2104765906220669946}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{18228147207346294952,1888327439941716470}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A033,0xF7FF7F32,0xFEFF7F3E}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{13095837691708545194,2110170948684548308}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -266,12 +266,29 @@ o
 }
 o
 {
-	Uuid %id{u4{145825846501680262,2182204379235824299}}
-	s %t{"ezRopeRenderComponent"}
+	Uuid %id{u4{17659333578936446840,2163289019052396852}}
+	s %t{"ezFakeRopeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		s %Anchor{"{ 5811b16c-10e8-24d3-5aae-72978ad97ddb }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
+		f %Damping{0}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
+	}
+}
+o
+{
+	Uuid %id{u4{145825846501680262,2182204379235824299}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -359,22 +376,22 @@ o
 {
 	Uuid %id{u4{3231527775949745273,2264585099970351489}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ a6a51451-ea6a-1eb7-8b96-8508887ed20e }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ a6a51451-ea6a-1eb7-8b96-8508887ed20e }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -429,6 +446,72 @@ o
 			Uuid{u4{18076765050361120390,3558307588243064469}}
 			Uuid{u4{2260673974192066938,3395054714571239154}}
 			Uuid{u4{4504195566680990054,3033060319253132376}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15816036655664639578,2653483195547365740}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{658975565416291436,1941665122722218222}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000A0BF,0x0000003F,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16390324649543688017,2830838618211306302}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{6014843678615797307,2908091408955130449}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12850165988079280345,15202620213636725439}}
+			Uuid{u4{11581157058686521522,15870169812795634889}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000A0BF,0x0000C03F,0x0000C0BF}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
 		}
 	}
 }
@@ -536,10 +619,11 @@ o
 {
 	Uuid %id{u4{503324435205905107,4043181978424707805}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -573,22 +657,22 @@ o
 {
 	Uuid %id{u4{3589026364653970118,4125562699159234995}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ e541ec83-6fae-388b-d8cc-f08b9a95c813 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ e541ec83-6fae-388b-d8cc-f08b9a95c813 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -828,7 +912,6 @@ o
 		{
 			Uuid{u4{7122034306035309620,9738208067837304176}}
 			Uuid{u4{16068569150679963311,4313601747133748401}}
-			Uuid{u4{17036164946347080091,4689858959758245967}}
 			Uuid{u4{8580108913148301712,1546874475313156556}}
 		}
 		VarArray %Components{}
@@ -904,7 +987,7 @@ o
 		b %Active{1}
 		VarArray %Children
 		{
-			Uuid{u4{13971018359732320130,2104765906220669946}}
+			Uuid{u4{11387410750989942483,15408956908875101593}}
 		}
 		VarArray %Components
 		{
@@ -913,7 +996,7 @@ o
 			Uuid{u4{18274167011247396408,10403792832878288759}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00009840,0xA06142BF,0xECF2FFBE}}
+		Vec3 %LocalPosition{f{0x231D9040,0xA06142BF,0xB8C542BE}}
 		Quat %LocalRotation{f{0,0xF20435BF,0xF3043533,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -930,22 +1013,22 @@ o
 {
 	Uuid %id{u4{3958088180980292029,4524054016110166493}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 85c56453-15d1-43ab-ba57-9c4ad5427164 }"}
-		s %AnchorB{"{ 7cc7e332-6d82-4f31-a7ca-415054a60d2d }"}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ 7cc7e332-6d82-4f31-a7ca-415054a60d2d }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0x9A99993E}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -1000,12 +1083,106 @@ o
 }
 o
 {
-	Uuid %id{u4{15371406252230443407,4657292626430137826}}
+	Uuid %id{u4{5213551845632066748,4631217940127133192}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12324703955557045893,5005123199647319894}}
+			Uuid{u4{6794127922588471718,4641743185107036632}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x5092A4BF,0x2049823F,0xD8B6CD3F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6794127922588471718,4641743185107036632}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0xEC115F3F,0xE014133F,0x3ED45A3F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{186327323655070372,4647213395028321536}}
 	s %t{"ezShapeIconComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13625417834005220517,4650584973123577056}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{15700613542426955409,5559139538266678938}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{7041155335728187320,5504627597647727539}}
+			Uuid{u4{17726294307664303245,5594497687933030757}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xC0B6ED3E,0xB86DEFC0,0x4A92A4C0}}
+		Quat %LocalRotation{f{0,0,0x16EFC3BE,0x5E836C3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5180582315288896440,4655854173581362848}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x0000C03F}
+		f %SizeNegY{0}
+		f %SizeNegZ{0}
+		f %SizePosX{0}
+		f %SizePosY{0x0000C03F}
+		f %SizePosZ{0x0000003F}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
 	}
 }
 o
@@ -1032,10 +1209,7 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Children
-		{
-			Uuid{u4{15062455344271239041,5421748078307900907}}
-		}
+		VarArray %Children{}
 		VarArray %Components
 		{
 			Uuid{u4{2908280015347814029,4181371190484572565}}
@@ -1070,8 +1244,8 @@ o
 			Uuid{u4{3923441655507528868,4800108997545438041}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x1426913E,0x444E023F,0x5441533F}}
-		Quat %LocalRotation{f{0,0,0xD7B35DBF,0x0000003F}}
+		Vec3 %LocalPosition{f{0x000080BF,0x0000003F,0x00001040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -1087,20 +1261,11 @@ o
 {
 	Uuid %id{u4{8194730903900273299,4706646882225173918}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1912256757878185368,4733271215002818226}}
-	s %t{"ezShapeIconComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -1149,33 +1314,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4297161475942173340,4763903481407272855}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{12176563222388086923,5252522867222130856}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x0000003F,0x00009040}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{16307688573058954376,4777337597535827540}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1213,7 +1351,6 @@ o
 		{
 			Uuid{u4{11481143820262357189,12788522040856752358}}
 			Uuid{u4{17791382572118920380,12519481400226532964}}
-			Uuid{u4{3282042414725200777,5230209765086796984}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -1307,6 +1444,75 @@ o
 }
 o
 {
+	Uuid %id{u4{4861367197932844701,4851836391426671806}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{11006869064807473083,15692814390131694327}}
+			Uuid{u4{6487173259627018792,10710353810000833161}}
+			Uuid{u4{104520378830057077,13309032819492769029}}
+			Uuid{u4{5424019523174880734,8036424931053991422}}
+			Uuid{u4{15343388413903418514,5359031467853469054}}
+			Uuid{u4{15816036655664639578,2653483195547365740}}
+			Uuid{u4{10824011269472963802,8315504288080353478}}
+			Uuid{u4{10351363027711742738,11021052560386456792}}
+			Uuid{u4{13559239066347932917,524309838316205151}}
+			Uuid{u4{431994136983204958,13698446023586979160}}
+			Uuid{u4{1495147873435343016,16372374902533820899}}
+			Uuid{u4{6014843678615797307,2908091408955130449}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{5180582315288896440,4655854173581362848}}
+			Uuid{u4{5396555506708773015,5168552877717227315}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x42B1533F,0x401E3FBF,0x40AB03BE}}
+		Quat %LocalRotation{f{0x8D1C323E,0,0x8E1C32B2,0x05197C3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6376701644956604344,4858855555745448237}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{4861367197932844701,4851836391426671806}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x6327D63F,0x8A9DB041,0x01005040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Fake Ropes Hanging"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{7917543970698804371,4859133908891143834}}
 	s %t{"ezSkyLightComponent"}
 	u3 %v{2}
@@ -1322,7 +1528,23 @@ o
 }
 o
 {
-	Uuid %id{u4{7237639560008325050,4876015011195348051}}
+	Uuid %id{u4{17186685337175225776,4868837291358500166}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ 058bd57e-1aba-4a5f-92b4-8e3d78aaeed4 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
+		f %Damping{0}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
+	}
+}
+o
+{
+	Uuid %id{u4{8548839292957306292,4884495948187834968}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
@@ -1331,10 +1553,11 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{1912256757878185368,4733271215002818226}}
+			Uuid{u4{6177143942545529489,5309010553806458234}}
+			Uuid{u4{2007236063332883115,5605071206057505226}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000080BF,0x0000003F,0x00001040}}
+		Vec3 %LocalPosition{f{0xD8B67D40,0x2049823F,0xD8B6CD3F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1386,6 +1609,16 @@ o
 }
 o
 {
+	Uuid %id{u4{11367368046247498394,4893553692218546712}}
+	s %t{"ezAlwaysVisibleComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14430632868005155473,4896325735064831731}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1413,6 +1646,22 @@ o
 }
 o
 {
+	Uuid %id{u4{1479180007210623625,4905020064310593420}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ db36e69a-07f4-4d26-91ce-0bd8d4c8e3d9 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
+		f %Damping{0x0000003F}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
+	}
+}
+o
+{
 	Uuid %id{u4{12230844335709385371,4913725678223895305}}
 	s %t{"ezSkyBoxComponent"}
 	u3 %v{4}
@@ -1430,10 +1679,11 @@ o
 {
 	Uuid %id{u4{16299298569283344795,4919483465549846432}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -1502,6 +1752,40 @@ o
 }
 o
 {
+	Uuid %id{u4{3430101213481820061,4950413370667241936}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{13625417834005220517,4650584973123577056}}
+			Uuid{u4{10125303747534805150,5714110747874550633}}
+			Uuid{u4{8548839292957306292,4884495948187834968}}
+			Uuid{u4{2781152639771043981,5331268256031576873}}
+			Uuid{u4{8920349505871889800,5216475411869419536}}
+			Uuid{u4{5213551845632066748,4631217940127133192}}
+			Uuid{u4{6773844187414153857,5518159347621409907}}
+			Uuid{u4{2657466959231070905,5578725458525942156}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x4A924041,0x6EDBE941,0x4A92B440}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Fake Ropes Rotating"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{14305542013659137202,4978238391565098134}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1531,10 +1815,11 @@ o
 {
 	Uuid %id{u4{12666850276263491727,4981889889442486883}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -1549,6 +1834,16 @@ o
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %OnContact{""}
 		s %Surface{""}
+	}
+}
+o
+{
+	Uuid %id{u4{10281767776289381024,4989760071692751755}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -1599,16 +1894,31 @@ o
 }
 o
 {
-	Uuid %id{u4{7635642911872098743,5018123216623908477}}
-	s %t{"ezPxRopeComponent"}
+	Uuid %id{u4{12324703955557045893,5005123199647319894}}
+	s %t{"ezFakeRopeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ c93db654-833b-424c-8834-e0f85a8c50e2 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ db36e69a-07f4-4d26-91ce-0bd8d4c8e3d9 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
+		f %Damping{0x0000003F}
+		u2 %Pieces{32}
+		f %Slack{0x295C8F3D}
+	}
+}
+o
+{
+	Uuid %id{u4{7635642911872098743,5018123216623908477}}
+	s %t{"ezPxRopeComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ c93db654-833b-424c-8834-e0f85a8c50e2 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
@@ -1617,6 +1927,7 @@ o
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0xCDCCCCBD}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -1658,23 +1969,6 @@ o
 }
 o
 {
-	Uuid %id{u4{14291161535326489019,5046265196832469911}}
-	s %t{"ezPointLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{0}
-		f %ConstantBias{0xCDCCCC3D}
-		f %Intensity{0x0000C842}
-		ColorGamma %LightColor{u1{0,195,255,255}}
-		f %PenumbraSize{0xCDCCCC3D}
-		f %Range{0x00000040}
-		f %SlopeBias{0x0000803E}
-	}
-}
-o
-{
 	Uuid %id{u4{9771518033791889039,5046734910812693381}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1684,7 +1978,6 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{5128194653954064707,10026959195720346568}}
-			Uuid{u4{1136988881403687984,10857406794586778279}}
 			Uuid{u4{14926720040292819748,9840803144283244484}}
 		}
 		VarArray %Components{}
@@ -1757,14 +2050,13 @@ o
 {
 	Uuid %id{u4{9551972727193194938,5086180186416964841}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 14b46097-a1ce-8c37-2f88-dc9d5472f9a8 }"}
-		s %AnchorB{"{ 9b9cc319-74d7-8ff3-38f4-8b699ef96651 }"}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ 9b9cc319-74d7-8ff3-38f4-8b699ef96651 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
@@ -1773,6 +2065,7 @@ o
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{32}
+		f %Slack{0xCDCC0CBF}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -1938,6 +2231,36 @@ o
 }
 o
 {
+	Uuid %id{u4{5396555506708773015,5168552877717227315}}
+	s %t{"ezSliderComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0x00002041}
+		b %Active{1}
+		s %Axis{"ezBasisAxis::PositiveY"}
+		f %Deceleration{0x00002041}
+		f %Distance{0x00008040}
+		Time %RandomStart{d{0}}
+		b %ReverseAtEnd{1}
+		b %ReverseAtStart{1}
+		b %Running{1}
+		f %Speed{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{15984879629468996258,5180847749020157080}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x75C35E3F,0x4ACF933D,0x315D713F,0x0000803F}}
+	}
+}
+o
+{
 	Uuid %id{u4{15895370514605434528,5206628199117231608}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -1962,12 +2285,41 @@ o
 }
 o
 {
-	Uuid %id{u4{7227083997911600566,5218778408374360363}}
-	s %t{"ezRopeRenderComponent"}
+	Uuid %id{u4{8920349505871889800,5216475411869419536}}
+	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1479180007210623625,4905020064310593420}}
+			Uuid{u4{15984879629468996258,5180847749020157080}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xC0B6ED3E,0x2049823F,0xD8B6CD3F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7227083997911600566,5218778408374360363}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -1996,8 +2348,8 @@ o
 			Uuid{u4{12574701405410362246,4749584369611660858}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x006C983C,0xEAF27F3F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x0000C033,0xFFFFFF32,0xFEFFFF3E}}
+		Quat %LocalRotation{f{0,0xF20435BF,0xF3043533,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -2038,12 +2390,40 @@ o
 }
 o
 {
-	Uuid %id{u4{12176563222388086923,5252522867222130856}}
-	s %t{"ezShapeIconComponent"}
+	Uuid %id{u4{12775970753449564341,5251995858995685251}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x61AB5F3F,0x17C0933E,0xBF1B6E3F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{3932016442914640568,5255746021259714181}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x70DF213F,0x53FBDB3A,0x57AD543F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{8606959334699900330,5262904238599666791}}
+	s %t{"ezFakeRopeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		s %Anchor{"{ db36e69a-07f4-4d26-91ce-0bd8d4c8e3d9 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
+		f %Damping{0x0000003F}
+		u2 %Pieces{32}
+		f %Slack{0x9A99993E}
 	}
 }
 o
@@ -2062,6 +2442,22 @@ o
 		f %LinearDamping{0xCDCC4C3E}
 		f %Mass{0}
 		f %MaxContactImpulse{0x0050C347}
+	}
+}
+o
+{
+	Uuid %id{u4{10001837129786421686,5268951232652780929}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ db36e69a-07f4-4d26-91ce-0bd8d4c8e3d9 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
+		f %Damping{0x0000003F}
+		u2 %Pieces{32}
+		f %Slack{0x9A99193E}
 	}
 }
 o
@@ -2086,26 +2482,42 @@ o
 {
 	Uuid %id{u4{10312785927359665577,5301159129108887553}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 5b9fbad1-fe68-48db-bb3f-264e4d2d1871 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ 5b9fbad1-fe68-48db-bb3f-264e4d2d1871 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
 		f %TwistStiffness{0}
+	}
+}
+o
+{
+	Uuid %id{u4{6177143942545529489,5309010553806458234}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ db36e69a-07f4-4d26-91ce-0bd8d4c8e3d9 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
+		f %Damping{0x0000003F}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
 	}
 }
 o
@@ -2122,8 +2534,36 @@ o
 			Uuid{u4{15857952869390818726,5111146799749285497}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0xDC9D0B3F}}
+		Vec3 %LocalPosition{f{0,0,0x0000003F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2781152639771043981,5331268256031576873}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3211784759771360673,5554708014979015804}}
+			Uuid{u4{18039187813824799675,5409081077126802129}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD8B60D40,0x2049823F,0xD8B6CD3F}}
+		Quat %LocalRotation{f{0x20EFA7BA,0x03A6D7B6,0xAD5DA43B,0x1FFF7F3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -2164,18 +2604,69 @@ o
 }
 o
 {
-	Uuid %id{u4{4823615614859060113,5386116917420659439}}
-	s %t{"ezMeshComponent"}
+	Uuid %id{u4{15343388413903418514,5359031467853469054}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{186327323655070372,4647213395028321536}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000040BF,0x0000803E,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4848657563431112893,5362814115751336495}}
+	s %t{"ezDebugTextComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Text{"Non-Physical Ropes"}
+		f %Value0{0}
+		f %Value1{0}
+		f %Value2{0}
+		f %Value3{0}
+	}
+}
+o
+{
+	Uuid %id{u4{5551023977374573244,5388028705069765308}}
+	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0x0F61293D,0x04276A41,0x493D8841,0x0000803F}}
-		VarArray %Materials
-		{
-			s{"{ b93a6e80-5bf7-48f0-b7b3-2097d0133159 }"}
-		}
-		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x00001441}
+		f %SizeNegY{0x0000003F}
+		f %SizeNegZ{0}
+		f %SizePosX{0}
+		f %SizePosY{0}
+		f %SizePosZ{0x0000003F}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
 	}
 }
 o
@@ -2190,8 +2681,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{14436298415261227918,5039981819643309784}}
-			Uuid{u4{14291161535326489019,5046265196832469911}}
-			Uuid{u4{4823615614859060113,5386116917420659439}}
+			Uuid{u4{16162682267968108947,5659093959854767562}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x00008840,0x0000003F,0x0000E03F}}
@@ -2199,7 +2689,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0AD7A33D}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
+		s %Name{"Welcome Text"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -2211,10 +2701,11 @@ o
 {
 	Uuid %id{u4{11525810813705196721,5403485355069366067}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -2252,39 +2743,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18039187813824799675,5409081077126802129}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x96C91C3F,0x1969703E,0x1AA2523F,0x0000803F}}
+	}
+}
+o
+{
 	Uuid %id{u4{4934068628900751019,5415789730668646597}}
 	s %t{"ezShapeIconComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15062455344271239041,5421748078307900907}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{15371406252230443407,4657292626430137826}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
 	}
 }
 o
@@ -2445,6 +2920,30 @@ o
 }
 o
 {
+	Uuid %id{u4{7041155335728187320,5504627597647727539}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
+		s %Shape{"ezGreyBoxShape::Column"}
+		f %SizeNegX{0x0000803F}
+		f %SizeNegY{0x0000803F}
+		f %SizeNegZ{0}
+		f %SizePosX{0x0000803F}
+		f %SizePosY{0x0000803F}
+		f %SizePosZ{0x00008040}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+	}
+}
+o
+{
 	Uuid %id{u4{6686703591225657246,5508134440894674747}}
 	s %t{"ezDebugTextComponent"}
 	u3 %v{1}
@@ -2461,6 +2960,34 @@ o
 }
 o
 {
+	Uuid %id{u4{6773844187414153857,5518159347621409907}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8606959334699900330,5262904238599666791}}
+			Uuid{u4{3932016442914640568,5255746021259714181}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x284942C0,0x2049823F,0xD8B6CD3F}}
+		Quat %LocalRotation{f{0x2E0A673B,0x00941A37,0xB6462B3B,0x5FFF7F3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{5014899831183125138,5534252706117483282}}
 	s %t{"ezDebugTextComponent"}
 	u3 %v{1}
@@ -2473,6 +3000,17 @@ o
 		f %Value1{0}
 		f %Value2{0}
 		f %Value3{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15917676407782466953,5536386890517409616}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
 	}
 }
 o
@@ -2526,6 +3064,49 @@ o
 }
 o
 {
+	Uuid %id{u4{3211784759771360673,5554708014979015804}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ db36e69a-07f4-4d26-91ce-0bd8d4c8e3d9 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
+		f %Damping{0x0000003F}
+		u2 %Pieces{32}
+		f %Slack{0x7B142E3E}
+	}
+}
+o
+{
+	Uuid %id{u4{15700613542426955409,5559139538266678938}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10281767776289381024,4989760071692751755}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x0000803F,0x00006040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{4069172247762659237,5560831880513642176}}
 	s %t{"ezShapeIconComponent"}
 	u3 %v{1}
@@ -2548,7 +3129,35 @@ o
 			Uuid{u4{7099861465195049615,5597180340196358300}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x000000BF,0x00009040}}
+		Vec3 %LocalPosition{f{0,0x000000BF,0x00008040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2657466959231070905,5578725458525942156}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10001837129786421686,5268951232652780929}}
+			Uuid{u4{12775970753449564341,5251995858995685251}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x942499C0,0x2049823F,0xD8B6CD3F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -2579,12 +3188,42 @@ o
 }
 o
 {
+	Uuid %id{u4{17726294307664303245,5594497687933030757}}
+	s %t{"ezRotorComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0x0000C842}
+		b %Active{1}
+		s %Axis{"ezBasisAxis::PositiveZ"}
+		Angle %AxisDeviation{f{0}}
+		f %Deceleration{0x0000C842}
+		i3 %DegreesToRotate{90}
+		b %ReverseAtEnd{1}
+		b %ReverseAtStart{1}
+		b %Running{1}
+		f %Speed{0x0000B442}
+	}
+}
+o
+{
 	Uuid %id{u4{7099861465195049615,5597180340196358300}}
 	s %t{"ezShapeIconComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2007236063332883115,5605071206057505226}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0xADA24E3F,0x9A35813E,0xB0CC583F,0x0000803F}}
 	}
 }
 o
@@ -2680,14 +3319,13 @@ o
 {
 	Uuid %id{u4{9202419651124653222,5652713455219194985}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ e186f797-c8f9-421c-9cca-06549895a23b }"}
-		s %AnchorB{"{ df27df1b-c49c-4d49-9575-d6c00a8e5a97 }"}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ df27df1b-c49c-4d49-9575-d6c00a8e5a97 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
@@ -2696,10 +3334,21 @@ o
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{64}
+		f %Slack{0xCDCCCC3D}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
 		f %TwistStiffness{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16162682267968108947,5659093959854767562}}
+	s %t{"ezAlwaysVisibleComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -2717,7 +3366,7 @@ o
 			Uuid{u4{16299298569283344795,4919483465549846432}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0xB0AA2A3E,0xAAAA2A3F}}
+		Vec3 %LocalPosition{f{0,0xABAAB0C1,0x55558540}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -2759,6 +3408,33 @@ o
 }
 o
 {
+	Uuid %id{u4{10125303747534805150,5714110747874550633}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5551023977374573244,5388028705069765308}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x6CDB8640,0x2049C23F,0xD8B6AD3F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{10284790600629767324,5716441281101730468}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -2779,6 +3455,34 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Long Rope"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4048090037225853826,5719299425498276289}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4848657563431112893,5362814115751336495}}
+			Uuid{u4{11367368046247498394,4893553692218546712}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000B040,0x0000D041,0x00002040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -2840,6 +3544,9 @@ o
 			Uuid{u4{5370292059024976225,9412630921871196145}}
 			Uuid{u4{3336478414205924511,5397375011967422995}}
 			Uuid{u4{5641842526635134454,14972052375721390417}}
+			Uuid{u4{3430101213481820061,4950413370667241936}}
+			Uuid{u4{6376701644956604344,4858855555745448237}}
+			Uuid{u4{4048090037225853826,5719299425498276289}}
 		}
 		Uuid %Settings{u4{17439421046004068268,4344044620059655748}}
 	}
@@ -2930,10 +3637,11 @@ o
 {
 	Uuid %id{u4{6981248039705315849,7166768072685623503}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -3006,22 +3714,22 @@ o
 {
 	Uuid %id{u4{10066949969153380860,7249148793420150693}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ bb077a75-a4af-63e4-0efc-3eeccccaae6d }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ bb077a75-a4af-63e4-0efc-3eeccccaae6d }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -3066,6 +3774,16 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8713702506636084208,7324606858228843904}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -3119,12 +3837,29 @@ o
 }
 o
 {
-	Uuid %id{u4{458718142302828601,7623755484827019605}}
-	s %t{"ezRopeRenderComponent"}
+	Uuid %id{u4{7267316446446687996,7546230754559022534}}
+	s %t{"ezFakeRopeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		s %Anchor{"{ 5f90f5fe-1de5-6f87-de55-9fc504fd454b }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
+		f %Damping{0}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
+	}
+}
+o
+{
+	Uuid %id{u4{458718142302828601,7623755484827019605}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -3176,14 +3911,13 @@ o
 {
 	Uuid %id{u4{3536995877909936454,7772337311420818377}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 3cc4178c-a36d-8ff1-3a4b-23ac37626041 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ 3cc4178c-a36d-8ff1-3a4b-23ac37626041 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x0000FA43}
 		f %BendStiffness{0x0050C347}
 		u1 %CollisionLayer{0}
@@ -3192,6 +3926,7 @@ o
 		Angle %MaxBend{f{0xC2B8323E}}
 		Angle %MaxTwist{f{0xC2B8B23D}}
 		u2 %Pieces{8}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -3254,6 +3989,33 @@ o
 }
 o
 {
+	Uuid %id{u4{5424019523174880734,8036424931053991422}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8713702506636084208,7324606858228843904}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000BF,0x0000003F,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{8389314002442359550,8105085030629304510}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -3278,6 +4040,17 @@ o
 }
 o
 {
+	Uuid %id{u4{5998307517053929173,8213780353717931984}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+	}
+}
+o
+{
 	Uuid %id{u4{3960936132463094317,8254344341611294026}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -3298,6 +4071,34 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Stiff Upright Rope"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10824011269472963802,8315504288080353478}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17659333578936446840,2163289019052396852}}
+			Uuid{u4{16390324649543688017,2830838618211306302}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000E0BF,0x0000803E,0x0000C0BF}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -3421,10 +4222,11 @@ o
 {
 	Uuid %id{u4{5770483201808185989,9100337652252584357}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -3482,22 +4284,22 @@ o
 {
 	Uuid %id{u4{8856185131256251000,9182718372987111547}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 7d9e8b4b-0ff9-7eba-8aac-da66984ae15c }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ 7d9e8b4b-0ff9-7eba-8aac-da66984ae15c }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -3542,7 +4344,6 @@ o
 		{
 			Uuid{u4{868217615207389050,17407847730794862695}}
 			Uuid{u4{7178456367063952241,17138807090164643301}}
-			Uuid{u4{11115860283379784254,9849535455024907321}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -3579,10 +4380,7 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Children
-		{
-			Uuid{u4{4297161475942173340,4763903481407272855}}
-		}
+		VarArray %Children{}
 		VarArray %Components
 		{
 			Uuid{u4{2847262758515465223,10448537993877930727}}
@@ -3627,10 +4425,11 @@ o
 {
 	Uuid %id{u4{2053924071208523588,9601215579380597220}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -3718,14 +4517,13 @@ o
 {
 	Uuid %id{u4{1848643274926031686,9674998200635165010}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 6e3f6bc8-ea43-8b26-4341-fd0fde012b47 }"}
-		s %AnchorB{"{ 6541eaa7-41f4-96ad-30b4-a2155d65c70f }"}
-		b %AttachToA{0}
-		b %AttachToB{0}
+		s %Anchor{"{ 6e3f6bc8-ea43-8b26-4341-fd0fde012b47 }"}
+		b %AttachToAnchor{0}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x0000C841}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
@@ -3734,6 +4532,7 @@ o
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0xAE47E1BF}
 		s %Surface{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
 		f %Thickness{0x0000803E}
 		f %TwistDamping{0x0000C841}
@@ -3744,14 +4543,13 @@ o
 {
 	Uuid %id{u4{6413321501354621816,9688021025707338703}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ cd32fdeb-eb26-4b3d-81a7-78d0549708d1 }"}
-		s %AnchorB{"{ 9c37d87d-6292-49ef-80c4-d3e7fb67fea0 }"}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ 9c37d87d-6292-49ef-80c4-d3e7fb67fea0 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x0000FA43}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
@@ -3760,6 +4558,7 @@ o
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x35FA8E3C}}
 		u2 %Pieces{6}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -3770,14 +4569,13 @@ o
 {
 	Uuid %id{u4{17385790595847778415,9705505876355075178}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ b74d4818-c60b-cc52-e426-203e2dc2b015 }"}
-		s %AnchorB{"{ 3e35aa9a-9915-d00e-ed92-cf0977491ebe }"}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ b74d4818-c60b-cc52-e426-203e2dc2b015 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
@@ -3786,6 +4584,7 @@ o
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{32}
+		f %Slack{0x0AD7A33D}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -3802,7 +4601,7 @@ o
 		b %Active{1}
 		VarArray %Children
 		{
-			Uuid{u4{7237639560008325050,4876015011195348051}}
+			Uuid{u4{17036164946347080091,4689858959758245967}}
 		}
 		VarArray %Components
 		{
@@ -3902,7 +4701,7 @@ o
 			Uuid{u4{12926184881946760862,5025859474560722838}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x20CB303E,0x60028ABE,0x72C0FB3F}}
+		Vec3 %LocalPosition{f{0x58860DC0,0x6055D5BE,0xABAA0AC0}}
 		Quat %LocalRotation{f{0,0,0xD7B35DBF,0x0000003F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -3931,8 +4730,8 @@ o
 			Uuid{u4{1961775200355394107,9368910059549771195}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x006C983C,0xA0CB7F3E}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x0000E834,0xDFFF7F32,0xFEFF7F3E}}
+		Quat %LocalRotation{f{0,0xF104353F,0xF20435B3,0xF204353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -3960,7 +4759,7 @@ o
 			Uuid{u4{10095033118829206702,5592390403053896749}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x0000003F,0x00001040}}
+		Vec3 %LocalPosition{f{0,0x0000003F,0x00004040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -3989,10 +4788,11 @@ o
 {
 	Uuid %id{u4{6085285997846012956,9857591066750172435}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -4011,25 +4811,16 @@ o
 {
 	Uuid %id{u4{10649964224274603086,9870613891822346128}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
 {
 	Uuid %id{u4{18249555925533476641,9884215399527816743}}
-	s %t{"ezShapeIconComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-	}
-}
-o
-{
-	Uuid %id{u4{16433017622938116437,9887283729232744083}}
 	s %t{"ezShapeIconComponent"}
 	u3 %v{1}
 	p
@@ -4093,6 +4884,16 @@ o
 }
 o
 {
+	Uuid %id{u4{9776856243088222266,9998535737175685643}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5128194653954064707,10026959195720346568}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -4105,7 +4906,7 @@ o
 			Uuid{u4{18249555925533476641,9884215399527816743}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xA8790240,0x0024203C,0x74C01BBF}}
+		Vec3 %LocalPosition{f{0xECF93940,0x0024203C,0xC0041BBD}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -4155,33 +4956,6 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{12175888775324141615,10103722195511697559}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{16433017622938116437,9887283729232744083}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x0000003F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
 	}
 }
 o
@@ -4257,6 +5031,22 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{8330470182898826054,10220159633505864273}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ 57d9ea89-d20b-94a2-283a-7b88b511075a }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
+		f %Damping{0}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
 	}
 }
 o
@@ -4469,16 +5259,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6441132121057615924,10376447837251916220}}
-	s %t{"ezShapeIconComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-	}
-}
-o
-{
 	Uuid %id{u4{10420609071724212312,10377609592151433155}}
 	s %t{"ezGrabbableItemComponent"}
 	u3 %v{1}
@@ -4526,10 +5306,11 @@ o
 {
 	Uuid %id{u4{13958177385437065304,10411207631239822428}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -4614,22 +5395,22 @@ o
 {
 	Uuid %id{u4{17043879314885130315,10493588351974349618}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 71e09e02-3546-90eb-5de2-953713d381ce }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ 71e09e02-3546-90eb-5de2-953713d381ce }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -4756,6 +5537,33 @@ o
 }
 o
 {
+	Uuid %id{u4{6487173259627018792,10710353810000833161}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9776856243088222266,9998535737175685643}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000040BF,0x0000A03F,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{15099105884877684506,10789849725537936609}}
 	s %t{"ezGrabbableItemGrabPoint"}
 	u3 %v{1}
@@ -4791,7 +5599,18 @@ o
 }
 o
 {
-	Uuid %id{u4{1136988881403687984,10857406794586778279}}
+	Uuid %id{u4{7061461253506067231,10887709232664773723}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{10351363027711742738,11021052560386456792}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
@@ -4800,10 +5619,11 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{6441132121057615924,10376447837251916220}}
+			Uuid{u4{17186685337175225776,4868837291358500166}}
+			Uuid{u4{15917676407782466953,5536386890517409616}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x58860DC0,0x2001853E,0x3AE0ADBF}}
+		Vec3 %LocalPosition{f{0x000040BF,0x000080BE,0x0000C0BF}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -4959,10 +5779,11 @@ o
 {
 	Uuid %id{u4{2606794448730341816,11880543707051292754}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -4996,22 +5817,22 @@ o
 {
 	Uuid %id{u4{5692496378178406827,11962924427785819944}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ b84959f8-56a6-a54f-bd33-c0b36f9cf930 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ b84959f8-56a6-a54f-bd33-c0b36f9cf930 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -5038,7 +5859,7 @@ o
 		b %Active{1}
 		VarArray %Children
 		{
-			Uuid{u4{12175888775324141615,10103722195511697559}}
+			Uuid{u4{3282042414725200777,5230209765086796984}}
 		}
 		VarArray %Components
 		{
@@ -5059,6 +5880,16 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{3394203362291260551,12597214746667621511}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -5125,6 +5956,22 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{1947817302101864339,12818838642997800141}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ c5e1cd05-2ed5-b8b3-756e-f413bb547301 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
+		f %Damping{0}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
 	}
 }
 o
@@ -5296,10 +6143,38 @@ o
 {
 	Uuid %id{u4{15200502718112273355,13269044311902796221}}
 	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{104520378830057077,13309032819492769029}}
+	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3394203362291260551,12597214746667621511}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000BF,0x0000803F,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -5358,14 +6233,13 @@ o
 {
 	Uuid %id{u4{18278780453719381208,13417626138496594993}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 751967f4-bbb4-de49-cca6-97102fb9f50d }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ 751967f4-bbb4-de49-cca6-97102fb9f50d }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x0000C842}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
@@ -5374,10 +6248,22 @@ o
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{8}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
 		f %TwistStiffness{0}
+	}
+}
+o
+{
+	Uuid %id{u4{678808372709105516,13486388242156709591}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
 	}
 }
 o
@@ -5473,6 +6359,34 @@ o
 }
 o
 {
+	Uuid %id{u4{431994136983204958,13698446023586979160}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7267316446446687996,7546230754559022534}}
+			Uuid{u4{5998307517053929173,8213780353717931984}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000BF,0,0x0000C0BF}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{12276377741238792844,13717799578878613011}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -5526,14 +6440,13 @@ o
 {
 	Uuid %id{u4{15655844219291779066,14615794203690407136}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 9c93e6fc-e2bf-8fa0-03ec-9737c6a04c51 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{""}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x0000FA43}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{0}
@@ -5542,6 +6455,7 @@ o
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{12}
+		f %Slack{0x9A99993E}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -5577,16 +6491,6 @@ o
 }
 o
 {
-	Uuid %id{u4{17956596739736136723,14775650059801073814}}
-	s %t{"ezShapeIconComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-	}
-}
-o
-{
 	Uuid %id{u4{10287176910949015512,14781599147338486610}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -5618,10 +6522,11 @@ o
 {
 	Uuid %id{u4{1445742868502208720,14798387069805414561}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -5679,7 +6584,6 @@ o
 		{
 			Uuid{u4{1139768082817547279,4520525110935505351}}
 			Uuid{u4{7450006834674110470,4251484470305285957}}
-			Uuid{u4{11387410750989942483,15408956908875101593}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -5698,29 +6602,12 @@ o
 }
 o
 {
-	Uuid %id{u4{13699467892122161901,14992088526080027290}}
-	s %t{"ezGameObject"}
+	Uuid %id{u4{14296552048268676557,14980996317306546809}}
+	s %t{"ezShapeIconComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{17956596739736136723,14775650059801073814}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A033,0xF7FF7F32,0xFEFF7F3E}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
 	}
 }
 o
@@ -5813,10 +6700,11 @@ o
 {
 	Uuid %id{u4{2325474538818681817,15160637033230791492}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -5849,6 +6737,22 @@ o
 }
 o
 {
+	Uuid %id{u4{12850165988079280345,15202620213636725439}}
+	s %t{"ezFakeRopeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Anchor{"{ 31f01af7-138b-d9c8-bbdf-15f91841c098 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
+		f %Damping{0}
+		u2 %Pieces{32}
+		f %Slack{0xCDCC4C3E}
+	}
+}
+o
+{
 	Uuid %id{u4{15989509831961762001,15208285670054027397}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -5863,14 +6767,13 @@ o
 {
 	Uuid %id{u4{17657341063457936644,15264927330205269450}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 28ba7978-ce67-1979-79cb-9e66e37f7519 }"}
-		s %AnchorB{"{ afa2dbfa-a170-1d35-8237-4e322d07e3c1 }"}
-		b %AttachToA{1}
-		b %AttachToB{1}
+		s %Anchor{"{ 28ba7978-ce67-1979-79cb-9e66e37f7519 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{1}
 		f %BendDamping{0x00004842}
 		f %BendStiffness{0}
 		u1 %CollisionLayer{10}
@@ -5879,6 +6782,7 @@ o
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{32}
+		f %Slack{0x8FC2F5BD}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -5955,8 +6859,8 @@ o
 			Uuid{u4{2233325667965552336,14928331513399965467}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x006C983C,0x74F9FF3F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x0080D1B8,0x7FCC17BE,0xEC077E3E}}
+		Quat %LocalRotation{f{0,0xF104353F,0xF20435B3,0xF204353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -5972,10 +6876,11 @@ o
 {
 	Uuid %id{u4{15815423556036792317,15416218533209796492}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -6043,22 +6948,22 @@ o
 {
 	Uuid %id{u4{454381411775305712,15498599253944323682}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ 3ec15132-942c-d660-0202-a38aa01648e8 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ 3ec15132-942c-d660-0202-a38aa01648e8 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -6112,6 +7017,33 @@ o
 }
 o
 {
+	Uuid %id{u4{11006869064807473083,15692814390131694327}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14296552048268676557,14980996317306546809}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000A0BF,0x0000A03F,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{5263042551194124274,15801101467174032880}}
 	s %t{"ezShapeIconComponent"}
 	u3 %v{1}
@@ -6140,6 +7072,17 @@ o
 	{
 		Vec3 %LocalPosition{f{0,0x000000BF,0}}
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
+	}
+}
+o
+{
+	Uuid %id{u4{11581157058686521522,15870169812795634889}}
+	s %t{"ezRopeRenderComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
 	}
 }
 o
@@ -6294,6 +7237,34 @@ o
 }
 o
 {
+	Uuid %id{u4{1495147873435343016,16372374902533820899}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8330470182898826054,10220159633505864273}}
+			Uuid{u4{7061461253506067231,10887709232664773723}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000080BF,0x0000403F,0x000000C0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{3688766975214443065,16948497991121308446}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -6339,7 +7310,7 @@ o
 			Uuid{u4{4838458172855157917,4847826579672678532}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000030C0,0x6079763E,0xF0F2FFBE}}
+		Vec3 %LocalPosition{f{0xAC3A73C0,0x6079763E,0x073800C0}}
 		Quat %LocalRotation{f{0,0xF204353F,0xF30435B3,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -6356,10 +7327,11 @@ o
 {
 	Uuid %id{u4{8454994128733044031,17177492402223113046}}
 	s %t{"ezRopeRenderComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0,0,0,0x0000803F}}
 	}
 }
 o
@@ -6393,22 +7365,22 @@ o
 {
 	Uuid %id{u4{11540696058181109042,17259873122957640236}}
 	s %t{"ezPxRopeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		s %AnchorA{"{ d178c4fc-e16c-eed1-446f-dd690f972282 }"}
-		s %AnchorB{""}
-		b %AttachToA{1}
-		b %AttachToB{0}
+		s %Anchor{"{ d178c4fc-e16c-eed1-446f-dd690f972282 }"}
+		b %AttachToAnchor{1}
+		b %AttachToOrigin{0}
 		f %BendDamping{0x00009643}
 		f %BendStiffness{0}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{10}
 		b %DisableGravity{0}
 		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
+		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
 		f %TwistDamping{0x00007A44}
@@ -6435,7 +7407,7 @@ o
 		b %Active{1}
 		VarArray %Children
 		{
-			Uuid{u4{13699467892122161901,14992088526080027290}}
+			Uuid{u4{11115860283379784254,9849535455024907321}}
 		}
 		VarArray %Components
 		{
@@ -6444,7 +7416,7 @@ o
 			Uuid{u4{18002616543637238179,4844371379028094487}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000C03F,0x006A18BC,0xECF2FFBE}}
+		Vec3 %LocalPosition{f{0x43F7D73F,0x006A18BC,0x33AFF8BF}}
 		Quat %LocalRotation{f{0,0xF20435BF,0xF3043533,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -7068,6 +8040,24 @@ o
 }
 o
 {
+	Uuid %id{u4{2566484675337934134,10906360683877419076}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAlwaysVisibleComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{15882193157902367962,11161339356943974921}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -7080,8 +8070,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRopeRenderComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{120}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -7299,8 +8289,8 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxRopeComponent"}
-		u3 %TypeSize{208}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{200}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -7372,6 +8362,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraUsageHint"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16929382448693401782,17118942926477716302}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezFakeRopeComponent"}
+		u3 %TypeSize{144}
 		u3 %TypeVersion{1}
 	}
 }

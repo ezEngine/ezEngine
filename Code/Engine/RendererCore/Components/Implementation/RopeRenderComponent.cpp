@@ -7,12 +7,13 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
 {
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //}
-  //EZ_END_PROPERTIES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::Black))
+  }
+  EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgRopePoseUpdated, OnRopePoseUpdated),
@@ -38,20 +39,27 @@ ezResult ezRopeRenderComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool
 
 void ezRopeRenderComponent::Update()
 {
-  ezDebugRenderer::DrawLines(GetWorld(), m_Lines, ezColor::White, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLines(GetWorld(), m_Lines, m_Color, GetOwner()->GetGlobalTransform());
 }
 
 void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  //auto& s = stream.GetStream();
+  auto& s = stream.GetStream();
+
+  s << m_Color;
 }
 
 void ezRopeRenderComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  //auto& s = stream.GetStream();
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = stream.GetStream();
+
+  if (uiVersion >= 2)
+  {
+    s >> m_Color;
+  }
 }
 
 void ezRopeRenderComponent::OnSimulationStarted()
@@ -71,6 +79,9 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 
   if (!msg.m_LinkTransforms.IsEmpty())
   {
+    const ezUInt32 uiCenterLink = msg.m_LinkTransforms.GetCount() / 2;
+    bsphere.m_vCenter = msg.m_LinkTransforms[uiCenterLink].m_vPosition;
+
     m_Lines.Reserve(m_Lines.GetCount() + msg.m_LinkTransforms.GetCount());
 
     bsphere.ExpandToInclude(msg.m_LinkTransforms[0].m_vPosition);
@@ -80,8 +91,8 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
       auto& l = m_Lines.ExpandAndGetRef();
       l.m_start = msg.m_LinkTransforms[i - 1].m_vPosition;
       l.m_end = msg.m_LinkTransforms[i].m_vPosition;
-      l.m_startColor = ezColor::Black;
-      l.m_endColor = ezColor::Black;
+      l.m_startColor = ezColor::White;
+      l.m_endColor = ezColor::White;
 
       bsphere.ExpandToInclude(l.m_end);
     }

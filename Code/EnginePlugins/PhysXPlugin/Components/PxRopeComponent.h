@@ -64,37 +64,32 @@ public:
   ezUInt8 m_uiCollisionLayer = 0;           // [ property ]
   ezUInt16 m_uiPieces = 16;                 // [ property ]
   float m_fThickness = 0.05f;               // [ property ]
-  bool m_bAttachToA = true;                 // [ property ]
-  bool m_bAttachToB = true;                 // [ property ]
+  float m_fSlack = 0.3f;                    // [ property ]
+  bool m_bAttachToOrigin = true;            // [ property ]
+  bool m_bAttachToAnchor = true;            // [ property ]
   ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
   ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
 
-  void SetAnchorAReference(const char* szReference); // [ property ]
-  void SetAnchorBReference(const char* szReference); // [ property ]
-
-  void SetAnchorA(ezGameObjectHandle hActor);
-  void SetAnchorB(ezGameObjectHandle hActor);
+  void SetAnchorReference(const char* szReference); // [ property ]
+  void SetAnchor(ezGameObjectHandle hActor);
 
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
 
 private:
   void CreateRope();
-  ezResult CreateSegmentTransforms(const ezTransform& rootTransform, ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const;
+  ezResult CreateSegmentTransforms(ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const;
   void DestroyPhysicsShapes();
   void Update();
   void SendPreviewPose();
   void CreateFilterData(physx::PxFilterData& filter);
   physx::PxMaterial* GetPxMaterial();
-  ezVec3 GetAnchorPosition(const ezGameObjectHandle& hTarget, bool& out_bTargetValid) const;
   physx::PxJoint* CreateJoint(const ezGameObjectHandle& hTarget, const ezTransform& location, physx::PxRigidBody* pLink, const ezTransform& linkOffset);
   void UpdatePreview();
 
-  mutable float m_fRopeLength = 0.0f;
   ezSurfaceResourceHandle m_hSurface;
 
-  ezGameObjectHandle m_hAnchorA;
-  ezGameObjectHandle m_hAnchorB;
+  ezGameObjectHandle m_hAnchor;
 
   float m_fTotalMass = 1.0f;
   float m_fMaxForcePerFrame = 0.0f;
@@ -109,8 +104,8 @@ private:
 
   physx::PxAggregate* m_pAggregate = nullptr;
   physx::PxArticulation* m_pArticulation = nullptr;
-  physx::PxJoint* m_pJointA = nullptr;
-  physx::PxJoint* m_pJointB = nullptr;
+  physx::PxJoint* m_pJointOrigin = nullptr;
+  physx::PxJoint* m_pJointAnchor = nullptr;
   ezDynamicArray<physx::PxArticulationLink*> m_ArticulationLinks;
 
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;

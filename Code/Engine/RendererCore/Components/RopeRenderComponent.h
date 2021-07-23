@@ -38,6 +38,8 @@ public:
   ezRopeRenderComponent();
   ~ezRopeRenderComponent();
 
+  ezColor m_Color = ezColor::Black;
+
 private:
   void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg); // [ msg handler ]
   void Update();
