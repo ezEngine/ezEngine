@@ -259,7 +259,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   // Update processing tasks
   if (GetWorldSimulationEnabled())
   {
-    if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+    if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
     {
       {
         EZ_PROFILE_SCOPE("Prepare processing tasks");

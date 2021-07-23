@@ -98,7 +98,7 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
     m_RopeSim.m_fSegmentLength = (len + len * m_fSlack) / m_uiPieces;
   }
 
-  if (ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
+  if (const ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
   {
     m_RopeSim.m_vAcceleration = pModule->GetGravity();
   }
@@ -269,7 +269,7 @@ void ezFakeRopeComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFakeRopeComponentManager::Update, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
     desc.m_bOnlyUpdateWhenSimulating = false;
 
     this->RegisterUpdateFunction(desc);

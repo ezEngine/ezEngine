@@ -82,7 +82,7 @@ void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
 
 bool ezPxGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_LocalGrabPoint) const
 {
-  const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
+  const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>();
 
   if (pPhysicsModule == nullptr)
     return false;

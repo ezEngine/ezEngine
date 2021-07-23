@@ -177,8 +177,7 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
 
 void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateContext& context)
 {
-  const ezWorld* pWorld = GetWorld();
-  if (const auto pPhysicsWorldModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  if (const auto pPhysicsWorldModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
   {
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
     ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
