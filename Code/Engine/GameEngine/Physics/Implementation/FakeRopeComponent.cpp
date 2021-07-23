@@ -86,15 +86,31 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
   if (!IsActiveAndInitialized())
     return EZ_FAILURE;
 
-  ezGameObject* pAnchor;
+  ezVec3 anchorB;
+
+  ezGameObject* pAnchor = nullptr;
   if (!GetWorld()->TryGetObject(m_hAnchor, pAnchor))
-    return EZ_FAILURE;
+  {
+    // never set up so far
+    if (m_RopeSim.m_Nodes.IsEmpty())
+      return EZ_FAILURE;
+
+    if (m_RopeSim.m_bLastNodeIsFixed)
+    {
+      anchorB = m_RopeSim.m_Nodes.PeekBack().m_vPosition;
+      m_RopeSim.m_bLastNodeIsFixed = false;
+      m_uiSleepCounter = 0;
+    }
+  }
+  else
+  {
+    anchorB = pAnchor->GetGlobalPosition();
+  }
 
   // only early out, if we are not in edit mode
-  m_bIsDynamic = !IsActiveAndSimulating() || GetOwner()->IsDynamic() || pAnchor->IsDynamic();
+  m_bIsDynamic = !IsActiveAndSimulating() || GetOwner()->IsDynamic() || (pAnchor != nullptr && pAnchor->IsDynamic());
 
   const ezVec3 anchorA = GetOwner()->GetGlobalPosition();
-  const ezVec3 anchorB = pAnchor->GetGlobalPosition();
 
   m_RopeSim.m_fDampingFactor = ezMath::Lerp(1.0f, 0.97f, m_fDamping);
 
