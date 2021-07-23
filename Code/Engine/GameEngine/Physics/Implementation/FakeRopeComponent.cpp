@@ -195,15 +195,30 @@ void ezFakeRopeComponent::SendCurrentPose()
 
     pieces.SetCountUninitialized(m_RopeSim.m_Nodes.GetCount());
 
-    for (ezUInt32 i = 0; i < pieces.GetCount(); ++i)
+    ezTransform tGlobal;
+    tGlobal.m_vScale.Set(1);
+
+    for (ezUInt32 i = 0; i < pieces.GetCount() - 1; ++i)
     {
-      ezTransform tGlobal;
-      tGlobal.SetIdentity();
-      tGlobal.m_vPosition = m_RopeSim.m_Nodes[i].m_vPosition;
-      // TODO: rotation
+      const ezVec3 p0 = m_RopeSim.m_Nodes[i].m_vPosition;
+      const ezVec3 p1 = m_RopeSim.m_Nodes[i + 1].m_vPosition;
+      ezVec3 dir = p1 - p0;
+
+      dir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+
+      tGlobal.m_vPosition = p0;
+      tGlobal.m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), dir);
 
       pieces[i].SetLocalTransform(tRoot, tGlobal);
     }
+
+    {
+      tGlobal.m_vPosition = m_RopeSim.m_Nodes.PeekBack().m_vPosition;
+      // tGlobal.m_qRotation is the same as from the previous bone
+
+      pieces.PeekBack().SetLocalTransform(tRoot, tGlobal);
+    }
+
 
     poseMsg.m_LinkTransforms = pieces;
   }
