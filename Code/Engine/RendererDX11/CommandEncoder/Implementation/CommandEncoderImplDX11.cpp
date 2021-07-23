@@ -129,32 +129,37 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot
 
 // Fence & Query functions
 
-void ezGALCommandEncoderImplDX11::InsertFencePlatform(const ezGALFence* pFence)
+void ezGALCommandEncoderImplDX11::SignalFencePlatform(const ezGALFence* pFence, ezUInt64 value)
 {
-  m_pDXContext->End(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence());
+  //m_pDXContext->End(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence());
+  pFence->Signal(value);
 }
 
-bool ezGALCommandEncoderImplDX11::IsFenceReachedPlatform(const ezGALFence* pFence)
+bool ezGALCommandEncoderImplDX11::IsFenceReachedPlatform(const ezGALFence* pFence, ezUInt64 value)
 {
-  BOOL data = FALSE;
-  if (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
-  {
-    EZ_ASSERT_DEV(data == TRUE, "Implementation error");
-    return true;
-  }
+  //BOOL data = FALSE;
+  //if (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
+  //{
+  //  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+  //  return true;
+  //}
 
-  return false;
+  //return false;
+
+  return pFence->GetCompletedValue() == value; // >=?(but what if value overflows?), 
 }
 
-void ezGALCommandEncoderImplDX11::WaitForFencePlatform(const ezGALFence* pFence)
+void ezGALCommandEncoderImplDX11::WaitForFencePlatform(const ezGALFence* pFence, ezUInt64 value)
 {
-  BOOL data = FALSE;
-  while (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
-  {
-    ezThreadUtils::YieldTimeSlice();
-  }
+  //BOOL data = FALSE;
+  //while (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
+  //{
+  //  ezThreadUtils::YieldTimeSlice();
+  //}
 
-  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+  //EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+
+  pFence->Wait(value);
 }
 
 void ezGALCommandEncoderImplDX11::BeginQueryPlatform(const ezGALQuery* pQuery)

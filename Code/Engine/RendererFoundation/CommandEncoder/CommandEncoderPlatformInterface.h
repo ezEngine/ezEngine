@@ -19,9 +19,9 @@ public:
 
   // Fence & Query functions
 
-  virtual void InsertFencePlatform(const ezGALFence* pFence) = 0;
-  virtual bool IsFenceReachedPlatform(const ezGALFence* pFence) = 0;
-  virtual void WaitForFencePlatform(const ezGALFence* pFence) = 0;
+  virtual void SignalFencePlatform(const ezGALFence* pFence, ezUInt64 value) = 0;
+  virtual bool IsFenceReachedPlatform(const ezGALFence* pFence, ezUInt64 value) = 0;
+  virtual void WaitForFencePlatform(const ezGALFence* pFence, ezUInt64 value) = 0;
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) = 0;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;

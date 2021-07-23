@@ -1136,11 +1136,11 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
   }
 }
 
-ezGALFenceHandle ezGALDevice::CreateFence()
+ezGALFenceHandle ezGALDevice::CreateFence(ezUInt64 initialValue)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ezGALFence* pFence = CreateFencePlatform();
+  ezGALFence* pFence = CreateFencePlatform(initialValue);
 
   if (pFence == nullptr)
   {

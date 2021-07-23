@@ -210,7 +210,7 @@ retry:
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
     auto& perFrameData = m_PerFrameData[i];
-    perFrameData.m_pFence = CreateFencePlatform();
+    perFrameData.m_pFence = CreateFencePlatform(m_FenceValues[i]);
 
     if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
     {
@@ -603,11 +603,11 @@ void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
   EZ_DELETE(&m_Allocator, pSwapChainDX11);
 }
 
-ezGALFence* ezGALDeviceDX11::CreateFencePlatform()
+ezGALFence* ezGALDeviceDX11::CreateFencePlatform(ezUInt64 initialValue)
 {
   ezGALFenceDX11* pFence = EZ_NEW(&m_Allocator, ezGALFenceDX11);
 
-  if (!pFence->InitPlatform(this).Succeeded())
+  if (!pFence->InitPlatform(this, initialValue).Succeeded())
   {
     EZ_DELETE(&m_Allocator, pFence);
     return nullptr;
@@ -763,15 +763,16 @@ void ezGALDeviceDX11::BeginFramePlatform()
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-      bool bFenceReached = pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence);
+      bool bFenceReached = pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence, m_FenceValues[m_uiCurrentPerFrameData]);
       if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
       {
-        pCommandEncoder->WaitForFencePlatform(perFrameData.m_pFence);
+        pCommandEncoder->WaitForFencePlatform(perFrameData.m_pFence, m_FenceValues[m_uiCurrentPerFrameData]);
       }
     }
   }
 
   {
+    ++m_FenceValues[m_uiNextPerFrameData];
     auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
     m_pImmediateContext->Begin(perFrameData.m_pDisjointTimerQuery);
 
@@ -794,7 +795,7 @@ void ezGALDeviceDX11::EndFramePlatform()
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-      if (pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence))
+      if (pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence, m_FenceValues[m_uiCurrentPerFrameData]))
       {
         FreeTempResources(perFrameData.m_uiFrame);
 
@@ -833,7 +834,7 @@ void ezGALDeviceDX11::EndFramePlatform()
     perFrameData.m_uiFrame = m_uiFrameCounter;
 
     // insert fence
-    pCommandEncoder->InsertFencePlatform(perFrameData.m_pFence);
+    pCommandEncoder->SignalFencePlatform(perFrameData.m_pFence, m_FenceValues[m_uiNextPerFrameData]);
 
     m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   }

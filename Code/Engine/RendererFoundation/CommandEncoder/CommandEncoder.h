@@ -26,9 +26,9 @@ public:
 
   // Fence & Query functions
 
-  void InsertFence(ezGALFenceHandle hFence);
-  bool IsFenceReached(ezGALFenceHandle hFence);
-  void WaitForFence(ezGALFenceHandle hFence);
+  void SignalFence(ezGALFenceHandle hFence, ezUInt64 value);
+  bool IsFenceReached(ezGALFenceHandle hFence, ezUInt64 value);
+  void WaitForFence(ezGALFenceHandle hFence, ezUInt64 value);
 
   void BeginQuery(ezGALQueryHandle hQuery);
   void EndQuery(ezGALQueryHandle hQuery);

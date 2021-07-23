@@ -109,7 +109,7 @@ protected:
   virtual ezGALSwapChain* CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description) override;
   virtual void DestroySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
-  virtual ezGALFence* CreateFencePlatform() override;
+  virtual ezGALFence* CreateFencePlatform(ezUInt64 initialValue) override;
   virtual void DestroyFencePlatform(ezGALFence* pFence) override;
 
   virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) override;
@@ -187,6 +187,7 @@ private:
   };
 
   PerFrameData m_PerFrameData[4];
+  ezUInt64 m_FenceValues[4] = {};
   ezUInt8 m_uiCurrentPerFrameData = 0;
   ezUInt8 m_uiNextPerFrameData = 0;
 

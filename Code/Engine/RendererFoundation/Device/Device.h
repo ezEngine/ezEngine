@@ -91,7 +91,7 @@ public:
   ezGALSwapChainHandle CreateSwapChain(const ezGALSwapChainCreationDescription& Description);
   void DestroySwapChain(ezGALSwapChainHandle hSwapChain);
 
-  ezGALFenceHandle CreateFence();
+  ezGALFenceHandle CreateFence(ezUInt64 initialValue);
   void DestroyFence(ezGALFenceHandle& hFence);
 
   ezGALQueryHandle CreateQuery(const ezGALQueryCreationDescription& Description);
@@ -292,7 +292,7 @@ protected:
   virtual ezGALSwapChain* CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description) = 0;
   virtual void DestroySwapChainPlatform(ezGALSwapChain* pSwapChain) = 0;
 
-  virtual ezGALFence* CreateFencePlatform() = 0;
+  virtual ezGALFence* CreateFencePlatform(ezUInt64 initialValue) = 0;
   virtual void DestroyFencePlatform(ezGALFence* pFence) = 0;
 
   virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) = 0;
