@@ -45,24 +45,36 @@ public:
   void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
   ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
 
+  void SetThickness(float fThickness);                // [ property ]
+  float GetThickness() const { return m_fThickness; } // [ property ]
+
+  void SetNumSegments(ezUInt32 uiNumSegments);                // [ property ]
+  ezUInt32 GetNumSegments() const { return m_uiNumSegments; } // [ property ]
+
+  void SetUScale(float fUScale);                // [ property ]
+  float GetUScale() const { return m_fUScale; } // [ property ]
+
   void OnMsgSetColor(ezMsgSetColor& msg);               // [ msg handler ]
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg); // [ msg handler ]
 
 private:
   void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg); // [ msg handler ]
 
-  void GenerateRenderMesh();
+  void GenerateRenderMesh(ezUInt32 uiNumRopePieces);
 
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms);
 
   ezBoundingBoxSphere m_LocalBounds;
 
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezArrayPtr<const ezMat4> m_SkinningMatrices;
-  ezUInt64 m_uiSkinningMatricesValidFrame = 0;
+  ezDynamicArray<ezMat4> m_SkinningMatrices;
+  mutable ezUInt64 m_uiSkinningMatricesExtractedFrame = -1;
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
 
-  ezUInt32 m_uiNumRopePieces = 0;
+  float m_fThickness = 0.05f;
+  ezUInt32 m_uiNumSegments = 6;
+
+  float m_fUScale = 1.0f;
 };
