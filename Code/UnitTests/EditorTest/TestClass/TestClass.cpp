@@ -101,6 +101,7 @@ ezResult ezEditorTest::InitializeTest()
 
   static bool s_bCheckedReferenceDriver = false;
   static bool s_bIsReferenceDriver = false;
+  static bool s_bIsAMDDriver = false;
 
   if (!s_bCheckedReferenceDriver)
   {
@@ -119,6 +120,10 @@ ezResult ezEditorTest::InitializeTest()
     {
       s_bIsReferenceDriver = true;
     }
+    else if (pDevice->GetCapabilities().m_sAdapterName.StartsWith("AMD"))
+    {
+      s_bIsAMDDriver = true;
+    }
 
     EZ_SUCCEED_OR_RETURN(pDevice->Shutdown());
     pDevice.Clear();
@@ -129,6 +134,11 @@ ezResult ezEditorTest::InitializeTest()
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+  }
+  else if (s_bIsAMDDriver)
+  {
+    // Line rendering is different on AMD and requires separate images for tests rendering lines.
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
   }
   else
   {

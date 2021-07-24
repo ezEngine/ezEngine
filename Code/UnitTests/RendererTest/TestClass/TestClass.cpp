@@ -101,6 +101,11 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
   }
+  else if (m_pDevice->GetCapabilities().m_sAdapterName.StartsWith("AMD"))
+  {
+    // Line rendering is different on AMD and requires separate images for tests rendering lines.
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
+  }
   else
   {
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
