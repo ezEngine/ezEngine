@@ -66,6 +66,8 @@ void ezFakeRopeComponent::OnActivated()
   m_RopeSim.m_Nodes.Clear();
   m_RopeSim.m_fSegmentLength = -1.0f;
 
+  m_uiCheckEquilibriumCounter = GetOwner()->GetStableRandomSeed() & 63;
+
   SendPreviewPose();
 }
 
@@ -219,7 +221,7 @@ void ezFakeRopeComponent::RuntimeUpdate()
   m_RopeSim.SimulateRope(GetWorld()->GetClock().GetTimeDiff());
 
   ++m_uiCheckEquilibriumCounter;
-  if (m_uiCheckEquilibriumCounter > 30)
+  if (m_uiCheckEquilibriumCounter > 64)
   {
     m_uiCheckEquilibriumCounter = 0;
 
