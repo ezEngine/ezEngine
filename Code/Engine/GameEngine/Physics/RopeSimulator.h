@@ -47,6 +47,7 @@ public:
   void SimulateRope(const ezTime& tDiff);
   void SimulateStep(const float tDiffSqr, ezUInt32 uiMaxIterations, double fAllowedError);
   void SimulateTillEquilibrium(float fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
+  bool HasEquilibrium(float fAllowedMovement) const;
 
 private:
   double EnforceDistanceConstraint();

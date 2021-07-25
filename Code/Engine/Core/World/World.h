@@ -125,13 +125,13 @@ public:
 
   /// \brief Returns the instance to the given module type or derived types.
   template <typename ModuleType>
-  const ModuleType* GetModule() const;
+  const ModuleType* GetModuleReadOnly() const;
 
   /// \brief Returns the instance to the given module type or derived types.
   ezWorldModule* GetModule(const ezRTTI* pRtti);
 
   /// \brief Returns the instance to the given module type or derived types.
-  const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
+  const ezWorldModule* GetModuleReadOnly(const ezRTTI* pRtti) const;
 
   ///@}
   /// \name Component Functions

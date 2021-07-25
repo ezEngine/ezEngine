@@ -66,6 +66,8 @@ void ezFakeRopeComponent::OnActivated()
   m_RopeSim.m_Nodes.Clear();
   m_RopeSim.m_fSegmentLength = -1.0f;
 
+  m_uiCheckEquilibriumCounter = GetOwner()->GetStableRandomSeed() & 63;
+
   SendPreviewPose();
 }
 
@@ -80,15 +82,37 @@ void ezFakeRopeComponent::OnDeactivated()
 
 ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
 {
+  if (!m_bIsDynamic)
+    return EZ_SUCCESS;
+
   if (!IsActiveAndInitialized())
     return EZ_FAILURE;
 
-  ezGameObject* pAnchor;
+  ezVec3 anchorB;
+
+  ezGameObject* pAnchor = nullptr;
   if (!GetWorld()->TryGetObject(m_hAnchor, pAnchor))
-    return EZ_FAILURE;
+  {
+    // never set up so far
+    if (m_RopeSim.m_Nodes.IsEmpty())
+      return EZ_FAILURE;
+
+    if (m_RopeSim.m_bLastNodeIsFixed)
+    {
+      anchorB = m_RopeSim.m_Nodes.PeekBack().m_vPosition;
+      m_RopeSim.m_bLastNodeIsFixed = false;
+      m_uiSleepCounter = 0;
+    }
+  }
+  else
+  {
+    anchorB = pAnchor->GetGlobalPosition();
+  }
+
+  // only early out, if we are not in edit mode
+  m_bIsDynamic = !IsActiveAndSimulating() || GetOwner()->IsDynamic() || (pAnchor != nullptr && pAnchor->IsDynamic());
 
   const ezVec3 anchorA = GetOwner()->GetGlobalPosition();
-  const ezVec3 anchorB = pAnchor->GetGlobalPosition();
 
   m_RopeSim.m_fDampingFactor = ezMath::Lerp(1.0f, 0.97f, m_fDamping);
 
@@ -98,18 +122,23 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
     m_RopeSim.m_fSegmentLength = (len + len * m_fSlack) / m_uiPieces;
   }
 
-  if (ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
+  if (const ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
   {
-    m_RopeSim.m_vAcceleration = pModule->GetGravity();
+    if (m_RopeSim.m_vAcceleration != pModule->GetGravity())
+    {
+      m_uiSleepCounter = 0;
+      m_RopeSim.m_vAcceleration = pModule->GetGravity();
+    }
   }
 
   if (m_uiPieces < m_RopeSim.m_Nodes.GetCount())
   {
+    m_uiSleepCounter = 0;
     m_RopeSim.m_Nodes.SetCount(m_uiPieces);
   }
   else if (m_uiPieces > m_RopeSim.m_Nodes.GetCount())
   {
-
+    m_uiSleepCounter = 0;
     const ezUInt32 uiOldNum = m_RopeSim.m_Nodes.GetCount();
 
     m_RopeSim.m_Nodes.SetCount(m_uiPieces);
@@ -125,12 +154,20 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
   {
     if (m_RopeSim.m_bFirstNodeIsFixed)
     {
-      m_RopeSim.m_Nodes[0].m_vPosition = anchorA;
+      if (m_RopeSim.m_Nodes[0].m_vPosition != anchorA)
+      {
+        m_uiSleepCounter = 0;
+        m_RopeSim.m_Nodes[0].m_vPosition = anchorA;
+      }
     }
 
     if (m_RopeSim.m_bLastNodeIsFixed)
     {
-      m_RopeSim.m_Nodes.PeekBack().m_vPosition = anchorB;
+      if (m_RopeSim.m_Nodes.PeekBack().m_vPosition != anchorB)
+      {
+        m_uiSleepCounter = 0;
+        m_RopeSim.m_Nodes.PeekBack().m_vPosition = anchorB;
+      }
     }
   }
 
@@ -177,8 +214,26 @@ void ezFakeRopeComponent::RuntimeUpdate()
   if (ConfigureRopeSimulator().Failed())
     return;
 
+  if (m_uiSleepCounter > 10)
+    return;
+
   // TODO: detect no change and early out
   m_RopeSim.SimulateRope(GetWorld()->GetClock().GetTimeDiff());
+
+  ++m_uiCheckEquilibriumCounter;
+  if (m_uiCheckEquilibriumCounter > 64)
+  {
+    m_uiCheckEquilibriumCounter = 0;
+
+    if (m_RopeSim.HasEquilibrium(0.01f))
+    {
+      ++m_uiSleepCounter;
+    }
+    else
+    {
+      m_uiSleepCounter = 0;
+    }
+  }
 
   SendCurrentPose();
 }
@@ -195,15 +250,30 @@ void ezFakeRopeComponent::SendCurrentPose()
 
     pieces.SetCountUninitialized(m_RopeSim.m_Nodes.GetCount());
 
-    for (ezUInt32 i = 0; i < pieces.GetCount(); ++i)
+    ezTransform tGlobal;
+    tGlobal.m_vScale.Set(1);
+
+    for (ezUInt32 i = 0; i < pieces.GetCount() - 1; ++i)
     {
-      ezTransform tGlobal;
-      tGlobal.SetIdentity();
-      tGlobal.m_vPosition = m_RopeSim.m_Nodes[i].m_vPosition;
-      // TODO: rotation
+      const ezVec3 p0 = m_RopeSim.m_Nodes[i].m_vPosition;
+      const ezVec3 p1 = m_RopeSim.m_Nodes[i + 1].m_vPosition;
+      ezVec3 dir = p1 - p0;
+
+      dir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+
+      tGlobal.m_vPosition = p0;
+      tGlobal.m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), dir);
 
       pieces[i].SetLocalTransform(tRoot, tGlobal);
     }
+
+    {
+      tGlobal.m_vPosition = m_RopeSim.m_Nodes.PeekBack().m_vPosition;
+      // tGlobal.m_qRotation is the same as from the previous bone
+
+      pieces.PeekBack().SetLocalTransform(tRoot, tGlobal);
+    }
+
 
     poseMsg.m_LinkTransforms = pieces;
   }
@@ -224,17 +294,20 @@ void ezFakeRopeComponent::SetAnchorReference(const char* szReference)
 void ezFakeRopeComponent::SetAnchor(ezGameObjectHandle hActor)
 {
   m_hAnchor = hActor;
+  m_bIsDynamic = true;
 }
 
 void ezFakeRopeComponent::SetSlack(float val)
 {
   m_fSlack = val;
   m_RopeSim.m_fSegmentLength = -1.0f;
+  m_bIsDynamic = true;
 }
 
 void ezFakeRopeComponent::SetAttachToOrigin(bool val)
 {
   m_RopeSim.m_bFirstNodeIsFixed = val;
+  m_bIsDynamic = true;
 }
 
 bool ezFakeRopeComponent::GetAttachToOrigin() const
@@ -245,6 +318,7 @@ bool ezFakeRopeComponent::GetAttachToOrigin() const
 void ezFakeRopeComponent::SetAttachToAnchor(bool val)
 {
   m_RopeSim.m_bLastNodeIsFixed = val;
+  m_bIsDynamic = true;
 }
 
 bool ezFakeRopeComponent::GetAttachToAnchor() const
@@ -269,7 +343,7 @@ void ezFakeRopeComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFakeRopeComponentManager::Update, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
     desc.m_bOnlyUpdateWhenSimulating = false;
 
     this->RegisterUpdateFunction(desc);

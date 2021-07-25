@@ -67,6 +67,11 @@ private:
 
   ezUInt32 m_uiPreviewHash = 0;
 
+  // if the owner or the anchor object are flagged as 'dynamic', the rope must follow their movement
+  // otherwise it can skip some update steps
+  bool m_bIsDynamic = true;
+  ezUInt8 m_uiCheckEquilibriumCounter = 0;
+  ezUInt8 m_uiSleepCounter = 0;
   ezRopeSimulator m_RopeSim;
 
 private:

@@ -42,8 +42,6 @@ void ezRopeSimulator::SimulateTillEquilibrium(float fAllowedMovement, ezUInt32 u
   constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
   constexpr float tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
 
-  const float fErrorSqr = ezMath::Square(fAllowedMovement);
-
   ezUInt8 uiInEquilibrium = 0;
 
   while (uiInEquilibrium < 100 && uiMaxIterations > 0)
@@ -53,15 +51,26 @@ void ezRopeSimulator::SimulateTillEquilibrium(float fAllowedMovement, ezUInt32 u
     SimulateStep(tStepSqr, 32, m_fSegmentLength);
     uiInEquilibrium++;
 
-    for (const auto& n : m_Nodes)
+    if (!HasEquilibrium(fAllowedMovement))
     {
-      if ((n.m_vPosition - n.m_vPreviousPosition).GetLengthSquared() > fErrorSqr)
-      {
-        uiInEquilibrium = 0;
-        break;
-      }
+      uiInEquilibrium = 0;
     }
   }
+}
+
+bool ezRopeSimulator::HasEquilibrium(float fAllowedMovement) const
+{
+  const float fErrorSqr = ezMath::Square(fAllowedMovement);
+
+  for (const auto& n : m_Nodes)
+  {
+    if ((n.m_vPosition - n.m_vPreviousPosition).GetLengthSquared() > fErrorSqr)
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 ezVec3 ezRopeSimulator::MoveTowards(const ezVec3& posThis, const ezVec3& posNext, float factor, const ezVec3& fallbackDir, double& inout_fError)
@@ -150,5 +159,14 @@ void ezRopeSimulator::UpdateNodePositions(const float tDiffSqr)
     // this would be needed to affect the rope more localized
     n.m_vPosition += vel + tDiffSqr * m_vAcceleration;
     n.m_vPreviousPosition = previousPos;
+  }
+
+  if (m_bFirstNodeIsFixed)
+  {
+    m_Nodes[0].m_vPreviousPosition = m_Nodes[0].m_vPosition;
+  }
+  if (m_bLastNodeIsFixed)
+  {
+    m_Nodes.PeekBack().m_vPreviousPosition = m_Nodes.PeekBack().m_vPosition;
   }
 }

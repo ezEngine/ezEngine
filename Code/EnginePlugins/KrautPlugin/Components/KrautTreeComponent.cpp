@@ -368,7 +368,7 @@ void ezKrautTreeComponent::ComputeWind() const
   if (!IsActiveAndSimulating())
     return;
 
-  const ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModule<ezWindWorldModuleInterface>();
+  const ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>();
 
   if (!pWindInterface)
     return;
