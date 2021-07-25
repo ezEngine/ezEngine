@@ -1,6 +1,7 @@
 #include <PhysXPluginPCH.h>
 
 #include <Components/PxDynamicActorComponent.h>
+#include <Core/Interfaces/WindWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/RopeSimulator.h>
@@ -529,6 +530,24 @@ void ezPxRopeComponent::Update()
       m_pArticulation->wakeUp();
     }
   }
+
+  //if (m_fWindInfluence > 0.0f)
+  //{
+  //  if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+  //  {
+  //    ezVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
+
+  //    const ezVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition) * m_fWindInfluence;
+
+  //    ezVec3 windForce = vWind;
+  //    windForce += pWind->ComputeWindFlutter(vWind, ropeDir, 10.0f, GetOwner()->GetStableRandomSeed());
+
+  //    if (!windForce.IsZero())
+  //    {
+  //      // apply force to all articulation links
+  //    }
+  //  }
+  //}
 
   if (m_pArticulation->isSleeping())
     return;
