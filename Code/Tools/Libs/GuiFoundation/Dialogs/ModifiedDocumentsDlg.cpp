@@ -113,6 +113,22 @@ void ezQtModifiedDocumentsDlg::SlotSaveDocument()
   SaveDocument(pDoc).IgnoreResult();
 
   pButtonSave->setEnabled(pDoc->IsModified());
+
+  // Check if now all documents are saved and close the dialog if so
+  bool anyDocumentModified = false;
+  for (ezDocument* pDoc : m_ModifiedDocs)
+  {
+    if (pDoc->IsModified())
+    {
+      anyDocumentModified = true;
+      break;
+    }
+  }
+
+  if (!anyDocumentModified)
+  {
+    accept();
+  }
 }
 
 void ezQtModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
