@@ -47,4 +47,25 @@ ezWindWorldModuleInterface::ezWindWorldModuleInterface(ezWorld* pWorld)
 {
 }
 
+ezVec3 ezWindWorldModuleInterface::ComputeWindFlutter(const ezVec3& vWind, const ezVec3& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const
+{
+  ezVec3 windDir = vWind;
+  const float fWindStrength = windDir.GetLengthAndNormalize();
+
+  if (fWindStrength <= 0.01f)
+    return ezVec3::ZeroVector();
+
+  ezVec3 mainDir = vObjectDir;
+  mainDir.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+
+  ezVec3 flutterDir = windDir.CrossRH(mainDir);
+  flutterDir.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+
+  const float fFlutterOffset = (uiFlutterRandomOffset & 1023u) / 256.0f;
+
+  const float fFlutter = ezMath::Sin(ezAngle::Radian(fFlutterOffset + fFlutterSpeed * fWindStrength * GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds())) * fWindStrength;
+
+  return flutterDir * fFlutter;
+}
+
 EZ_STATICLINK_FILE(Core, Core_Interfaces_WindWorldModule);
