@@ -1,6 +1,7 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/WindWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/FakeRopeComponent.h>
@@ -214,8 +215,30 @@ void ezFakeRopeComponent::RuntimeUpdate()
   if (ConfigureRopeSimulator().Failed())
     return;
 
-  if (m_uiSleepCounter > 10)
-    return;
+  ezVec3 acc(0);
+
+  if (const ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  {
+    if (m_RopeSim.m_vAcceleration != pModule->GetGravity())
+    {
+      acc += pModule->GetGravity();
+    }
+  }
+
+  if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+  {
+    ezVec3 wind = pWind->GetWindAt(m_RopeSim.m_Nodes[0].m_vPosition);
+
+    float fWindStrength = wind.GetLength();
+    float fSeed = (float)GetOwner()->GetStableRandomSeed();
+
+    wind.z = ezMath::Sin(ezAngle::Radian(fSeed + 10 * fWindStrength * GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds())) * fWindStrength;
+
+    m_RopeSim.m_vAcceleration += wind;
+  }
+
+  //if (m_uiSleepCounter > 10)
+  //  return;
 
   // TODO: detect no change and early out
   m_RopeSim.SimulateRope(GetWorld()->GetClock().GetTimeDiff());
