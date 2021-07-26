@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Interfaces/WindWorldModule.h>
+#include <World/World.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWindWorldModuleInterface, 1, ezRTTINoAllocator)
