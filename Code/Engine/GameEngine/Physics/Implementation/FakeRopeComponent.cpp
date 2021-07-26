@@ -1,22 +1,24 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/WindWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/FakeRopeComponent.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezFakeRopeComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezFakeRopeComponent, 2, ezComponentMode::Static)
   {
     EZ_BEGIN_PROPERTIES
     {
       EZ_ACCESSOR_PROPERTY("Anchor", DummyGetter, SetAnchorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
       EZ_ACCESSOR_PROPERTY("AttachToOrigin", GetAttachToOrigin, SetAttachToOrigin)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ACCESSOR_PROPERTY("AttachToAnchor", GetAttachToAnchor, SetAttachToAnchor)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_ACCESSOR_PROPERTY("Slack", GetSlack, SetSlack)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(32), new ezClampValueAttribute(2, 200)),
+      EZ_ACCESSOR_PROPERTY("Slack", GetSlack, SetSlack)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+      EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 10.0f)),
     }
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
@@ -43,6 +45,8 @@ void ezFakeRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_RopeSim.m_bLastNodeIsFixed;
 
   stream.WriteGameObjectHandle(m_hAnchor);
+
+  s << m_fWindInfluence;
 }
 
 void ezFakeRopeComponent::DeserializeComponent(ezWorldReader& stream)
@@ -58,6 +62,11 @@ void ezFakeRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_RopeSim.m_bLastNodeIsFixed;
 
   m_hAnchor = stream.ReadGameObjectHandle();
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fWindInfluence;
+  }
 }
 
 void ezFakeRopeComponent::OnActivated()
@@ -214,10 +223,35 @@ void ezFakeRopeComponent::RuntimeUpdate()
   if (ConfigureRopeSimulator().Failed())
     return;
 
+  ezVec3 acc(0);
+
+  if (const ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  {
+    acc += pModule->GetGravity();
+  }
+
+  if (m_fWindInfluence > 0.0f)
+  {
+    if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+    {
+      ezVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
+
+      const ezVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition) * m_fWindInfluence;
+
+      acc += vWind;
+      acc += pWind->ComputeWindFlutter(vWind, ropeDir, 0.5f, GetOwner()->GetStableRandomSeed());
+    }
+  }
+
+  if (m_RopeSim.m_vAcceleration != acc)
+  {
+    m_RopeSim.m_vAcceleration = acc;
+    m_uiSleepCounter = 0;
+  }
+
   if (m_uiSleepCounter > 10)
     return;
 
-  // TODO: detect no change and early out
   m_RopeSim.SimulateRope(GetWorld()->GetClock().GetTimeDiff());
 
   ++m_uiCheckEquilibriumCounter;

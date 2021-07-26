@@ -73,6 +73,7 @@ private:
   ezUInt8 m_uiCheckEquilibriumCounter = 0;
   ezUInt8 m_uiSleepCounter = 0;
   ezRopeSimulator m_RopeSim;
+  float m_fWindInfluence = 0.0f;
 
 private:
   const char* DummyGetter() const { return nullptr; }
