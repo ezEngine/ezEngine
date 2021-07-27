@@ -34,7 +34,7 @@ static VS_GLOBALS G;
     OutPos += mul(TransformToMatrix(skinningTransforms[BoneIndices.w]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.w;
 
     return OutPos;
-}
+  }
 
 float3 SkinDirection(float3 ObjectSpaceDirection, float4 BoneWeights, uint4 BoneIndices)
 {
@@ -70,8 +70,8 @@ VS_OUT FillVertexData(VS_IN Input)
     objectPosition = SkinPosition(objectPosition, Input.BoneWeights, Input.BoneIndices);
 #endif
 
-  VS_OUT Output;
-  Output.WorldPosition = mul(objectToWorld, float4(objectPosition, 1.0)).xyz;
+    VS_OUT Output;
+    Output.WorldPosition = mul(objectToWorld, float4(objectPosition, 1.0)).xyz;
 #if defined(USE_WORLD_POSITION_OFFSET)
     Output.WorldPosition += GetWorldPositionOffset(data, Output.WorldPosition);
   #endif
@@ -100,9 +100,9 @@ VS_OUT FillVertexData(VS_IN Input)
   #if defined(USE_TANGENT)
     float3 tangent = Input.Tangent.xyz * 2.0 - 1.0;
 
-#if defined(USE_SKINNING)
-      tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices);
-    #endif
+#  if defined(USE_SKINNING)
+    tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices);
+#  endif
 
     Output.Tangent = normalize(mul(objectToWorldNormal, tangent));
 
@@ -110,7 +110,7 @@ VS_OUT FillVertexData(VS_IN Input)
     Output.BiTangent = cross(Output.Normal, Output.Tangent) * handednessCorrection;
 #endif
 
-  #if defined(USE_TEXCOORD0)
+#if defined(USE_TEXCOORD0)
     Output.TexCoord0 = Input.TexCoord0;
     #if defined(USE_TEXCOORD1)
       Output.TexCoord1 = Input.TexCoord1;
