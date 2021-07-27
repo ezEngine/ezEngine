@@ -19,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 16)),
+    EZ_ACCESSOR_PROPERTY("Subdivide", GetSubdivide, SetSubdivide),
     EZ_ACCESSOR_PROPERTY("UScale", GetUScale, SetUScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
@@ -51,6 +52,7 @@ void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hMaterial;
   s << m_fThickness;
   s << m_uiDetail;
+  s << m_bSubdivide;
   s << m_fUScale;
 }
 
@@ -64,6 +66,7 @@ void ezRopeRenderComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hMaterial;
   s >> m_fThickness;
   s >> m_uiDetail;
+  s >> m_bSubdivide;
   s >> m_fUScale;
 }
 
@@ -237,6 +240,19 @@ void ezRopeRenderComponent::SetDetail(ezUInt32 uiDetail)
   }
 }
 
+void ezRopeRenderComponent::SetSubdivide(bool bSubdivide)
+{
+  if (m_bSubdivide != bSubdivide)
+  {
+    m_bSubdivide = bSubdivide;
+
+    if (IsActiveAndInitialized() && !m_SkinningMatrices.IsEmpty())
+    {
+      GenerateRenderMesh(m_SkinningMatrices.GetCount());
+    }
+  }
+}
+
 void ezRopeRenderComponent::SetUScale(float fUScale)
 {
   if (m_fUScale != fUScale)
@@ -293,7 +309,7 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 {
   ezStringBuilder sResourceName;
-  sResourceName.Format("Rope-Mesh:{}-d{}-u{}", uiNumRopePieces, m_uiDetail, m_fUScale);
+  sResourceName.Format("Rope-Mesh:{}{}-d{}-u{}", uiNumRopePieces, m_bSubdivide ? "Sub" : "", m_uiDetail, m_fUScale);
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResourceName);
   if (m_hMesh.IsValid())
@@ -382,12 +398,29 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
     // first ring full weight to first bone
     addPiece(0.0f, ezVec4U16(0, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), false);
 
-    // middle rings half weight between bones
     ezUInt32 p = 1;
-    for (; p < uiNumRopePieces - 1; ++p)
+
+    if (m_bSubdivide)
     {
-      // ensure that weights sum up to 1, ubyte can't represent 0.5 perfectly so we weight one bone with 128 and the other with 127.
-      addPiece(static_cast<float>(p), ezVec4U16(p - 1, p, 0, 0), ezColorLinearUB(128, 127, 0, 0), true);
+      addPiece(0.75f, ezVec4U16(0, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), true);
+
+      for (; p < uiNumRopePieces - 2; ++p)
+      {
+        addPiece(static_cast<float>(p) + 0.25f, ezVec4U16(p, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), true);
+        addPiece(static_cast<float>(p) + 0.75f, ezVec4U16(p, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), true);
+      }
+
+      addPiece(static_cast<float>(p) + 0.25f, ezVec4U16(p, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), true);
+      ++p;
+    }
+    else
+    {
+      for (; p < uiNumRopePieces - 1; ++p)
+      {
+        // Middle rings half weight between bones. To ensure that weights sum up to 1 we weight one bone with 128 and the other with 127,
+        // since "ubyte normalized" can't represent 0.5 perfectly.
+        addPiece(static_cast<float>(p), ezVec4U16(p - 1, p, 0, 0), ezColorLinearUB(128, 127, 0, 0), true);
+      }
     }
 
     // last ring full weight to last bone
@@ -435,7 +468,7 @@ void ezRopeRenderComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezTra
     // scale x axis to match the distance between this bone and the next bone
     if (i < skinningTransforms.GetCount() - 1)
     {
-      t.m_vScale.x = (skinningTransforms[i+1].m_vPosition - skinningTransforms[i].m_vPosition).GetLength();
+      t.m_vScale.x = (skinningTransforms[i + 1].m_vPosition - skinningTransforms[i].m_vPosition).GetLength();
     }
 
     bindPoseMat.SetTranslationVector(ezVec3(-static_cast<float>(i), 0, 0));

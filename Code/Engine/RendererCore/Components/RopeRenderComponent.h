@@ -51,6 +51,9 @@ public:
   void SetDetail(ezUInt32 uiDetail);                // [ property ]
   ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
 
+  void SetSubdivide(bool bSubdivide);                // [ property ]
+  bool GetSubdivide() const { return m_bSubdivide; } // [ property ]
+
   void SetUScale(float fUScale);                // [ property ]
   float GetUScale() const { return m_fUScale; } // [ property ]
 
@@ -75,6 +78,7 @@ private:
 
   float m_fThickness = 0.05f;
   ezUInt32 m_uiDetail = 6;
+  bool m_bSubdivide = false;
 
   float m_fUScale = 1.0f;
 };
