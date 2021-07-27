@@ -73,7 +73,7 @@ VS_OUT FillVertexData(VS_IN Input)
   #endif
 
   VS_OUT Output;
-  Output.WorldPosition = mul(objectToWorld, objPos).xyz;
+  Output.WorldPosition = mul(objectToWorld, float4(objPos.xyz, 1.0)).xyz;
   #if defined(USE_WORLD_POSITION_OFFSET)
     Output.WorldPosition += GetWorldPositionOffset(data, Output.WorldPosition);
   #endif

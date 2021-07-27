@@ -249,16 +249,16 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         {
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            ezVec4Template<ezUInt8> storage(geom.GetVertices()[v].m_iCustomIndex, 0, 0, 0);
-            SetVertexData<ezVec4Template<ezUInt8>>(s, v, storage);
+            ezVec4U16 boneIndices = geom.GetVertices()[v].m_BoneIndices;
+            ezVec4U8 storage(static_cast<ezUInt8>(boneIndices.x), static_cast<ezUInt8>(boneIndices.y), static_cast<ezUInt8>(boneIndices.z), static_cast<ezUInt8>(boneIndices.w));
+            SetVertexData<ezVec4U8>(s, v, storage);
           }
         }
         else if (si.m_Format == ezGALResourceFormat::RGBAUShort)
         {
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            ezVec4Template<ezUInt16> storage(geom.GetVertices()[v].m_iCustomIndex, 0, 0, 0);
-            SetVertexData<ezVec4Template<ezUInt16>>(s, v, storage);
+            SetVertexData<ezVec4U16>(s, v, geom.GetVertices()[v].m_BoneIndices);
           }
         }
       }
@@ -270,21 +270,17 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
 
         if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
         {
-          ezColorLinearUB storage(255, 0, 0, 0);
-
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            SetVertexData<ezColorLinearUB>(s, v, storage);
+            SetVertexData<ezColorLinearUB>(s, v, geom.GetVertices()[v].m_BoneWeights);
           }
         }
 
         if (si.m_Format == ezGALResourceFormat::XYZWFloat)
         {
-          ezVec4 storage(1, 0, 0, 0);
-
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            SetVertexData<ezVec4>(s, v, storage);
+            SetVertexData<ezVec4>(s, v, ezColor(geom.GetVertices()[v].m_BoneWeights).GetAsVec4());
           }
         }
       }

@@ -742,6 +742,9 @@ void ezBreakableSheetComponent::CreateMeshes()
             m_PieceTransforms.PushBack(ezMat4::IdentityMatrix());
           }
 
+          EZ_ASSERT_DEV(iPieceMatrixIndex >= 0 && iPieceMatrixIndex <= ezMath::MaxValue<ezUInt16>(), "Bone index cannot be stored in 16bit unsigned int");
+          ezVec4U16 boneIndices(static_cast<ezUInt16>(iPieceMatrixIndex), 0, 0, 0);
+
           const jcv_site* site = &sites[i];
           const jcv_graphedge* e = site->edges;
           while (e)
@@ -749,16 +752,16 @@ void ezBreakableSheetComponent::CreateMeshes()
 
             // Front side
             ezUInt32 frontIdx[3];
-            frontIdx[0] = g.AddVertex(ezVec3(site->p.x, fHalfThickness, site->p.y), ezVec3(0, 1, 0), ezVec2((site->p.x + halfSize.x) * fInvWidth, (site->p.y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
-            frontIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, fHalfThickness, e->pos[0].y), ezVec3(0, 1, 0), ezVec2((e->pos[0].x + halfSize.x) * fInvWidth, (e->pos[0].y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
-            frontIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, fHalfThickness, e->pos[1].y), ezVec3(0, 1, 0), ezVec2((e->pos[1].x + halfSize.x) * fInvWidth, (e->pos[1].y + halfSize.z) * fInvHeight), ezColor::White, iPieceMatrixIndex);
+            frontIdx[0] = g.AddVertex(ezVec3(site->p.x, fHalfThickness, site->p.y), ezVec3(0, 1, 0), ezVec2((site->p.x + halfSize.x) * fInvWidth, (site->p.y + halfSize.z) * fInvHeight), ezColor::White, boneIndices);
+            frontIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, fHalfThickness, e->pos[0].y), ezVec3(0, 1, 0), ezVec2((e->pos[0].x + halfSize.x) * fInvWidth, (e->pos[0].y + halfSize.z) * fInvHeight), ezColor::White, boneIndices);
+            frontIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, fHalfThickness, e->pos[1].y), ezVec3(0, 1, 0), ezVec2((e->pos[1].x + halfSize.x) * fInvWidth, (e->pos[1].y + halfSize.z) * fInvHeight), ezColor::White, boneIndices);
             g.AddPolygon(frontIdx, true);
 
             // Back side
             ezUInt32 backIdx[3];
-            backIdx[0] = g.AddVertex(ezVec3(site->p.x, -fHalfThickness, site->p.y), ezVec3(0, -1, 0), ezVec2(1.0f - ((site->p.x + halfSize.x) * fInvWidth), 1.0f - ((site->p.y + halfSize.z) * fInvHeight)), ezColor::White, iPieceMatrixIndex);
-            backIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, -fHalfThickness, e->pos[0].y), ezVec3(0, -1, 0), ezVec2(1.0f - ((e->pos[0].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[0].y + halfSize.z) * fInvHeight)), ezColor::White, iPieceMatrixIndex);
-            backIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, -fHalfThickness, e->pos[1].y), ezVec3(0, -1, 0), ezVec2(1.0f - ((e->pos[1].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[1].y + halfSize.z) * fInvHeight)), ezColor::White, iPieceMatrixIndex);
+            backIdx[0] = g.AddVertex(ezVec3(site->p.x, -fHalfThickness, site->p.y), ezVec3(0, -1, 0), ezVec2(1.0f - ((site->p.x + halfSize.x) * fInvWidth), 1.0f - ((site->p.y + halfSize.z) * fInvHeight)), ezColor::White, boneIndices);
+            backIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, -fHalfThickness, e->pos[0].y), ezVec3(0, -1, 0), ezVec2(1.0f - ((e->pos[0].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[0].y + halfSize.z) * fInvHeight)), ezColor::White, boneIndices);
+            backIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, -fHalfThickness, e->pos[1].y), ezVec3(0, -1, 0), ezVec2(1.0f - ((e->pos[1].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[1].y + halfSize.z) * fInvHeight)), ezColor::White, boneIndices);
             g.AddPolygon(backIdx, false);
 
             // Add skirt connecting front and back side
@@ -788,13 +791,13 @@ void ezBreakableSheetComponent::CreateMeshes()
 
         for (const auto& vertex : g.GetVertices())
         {
-          if (m_PieceBoundingBoxes[vertex.m_iCustomIndex].IsValid())
+          if (m_PieceBoundingBoxes[vertex.m_BoneIndices.x].IsValid())
           {
-            m_PieceBoundingBoxes[vertex.m_iCustomIndex].ExpandToInclude(vertex.m_vPosition);
+            m_PieceBoundingBoxes[vertex.m_BoneIndices.x].ExpandToInclude(vertex.m_vPosition);
           }
           else
           {
-            m_PieceBoundingBoxes[vertex.m_iCustomIndex].SetFromPoints(&vertex.m_vPosition, 1);
+            m_PieceBoundingBoxes[vertex.m_BoneIndices.x].SetFromPoints(&vertex.m_vPosition, 1);
           }
         }
 
@@ -842,10 +845,13 @@ void ezBreakableSheetComponent::AddSkirtPolygons(ezVec2 Point0, ezVec2 Point1, f
   ezVec3 FaceNormal;
   FaceNormal.CalculateNormal(Point0Front, Point1Front, Point0Back).IgnoreResult();
 
-  const ezUInt32 uiIdx0 = Geometry.AddVertex(Point0Front, FaceNormal, Point0FrontUV, ezColor::White, iPieceMatrixIndex);
-  const ezUInt32 uiIdx1 = Geometry.AddVertex(Point0Back, FaceNormal, Point0BackUV, ezColor::White, iPieceMatrixIndex);
-  const ezUInt32 uiIdx2 = Geometry.AddVertex(Point1Front, FaceNormal, Point1FrontUV, ezColor::White, iPieceMatrixIndex);
-  const ezUInt32 uiIdx3 = Geometry.AddVertex(Point1Back, FaceNormal, Point1BackUV, ezColor::White, iPieceMatrixIndex);
+  EZ_ASSERT_DEV(iPieceMatrixIndex >= 0 && iPieceMatrixIndex <= ezMath::MaxValue<ezUInt16>(), "Bone index cannot be stored in 16bit unsigned int");
+  ezVec4U16 boneIndices(static_cast<ezUInt16>(iPieceMatrixIndex), 0, 0, 0);
+
+  const ezUInt32 uiIdx0 = Geometry.AddVertex(Point0Front, FaceNormal, Point0FrontUV, ezColor::White, boneIndices);
+  const ezUInt32 uiIdx1 = Geometry.AddVertex(Point0Back, FaceNormal, Point0BackUV, ezColor::White, boneIndices);
+  const ezUInt32 uiIdx2 = Geometry.AddVertex(Point1Front, FaceNormal, Point1FrontUV, ezColor::White, boneIndices);
+  const ezUInt32 uiIdx3 = Geometry.AddVertex(Point1Back, FaceNormal, Point1BackUV, ezColor::White, boneIndices);
 
   {
     ezUInt32 idx[3] = {uiIdx0, uiIdx2, uiIdx1};
@@ -866,44 +872,10 @@ void ezBreakableSheetComponent::BuildMeshResourceFromGeometry(ezGeometry& Geomet
 
   if (bWithSkinningData)
   {
-    MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::XYZWFloat);
+    MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAUByteNormalized);
     MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUShort);
   }
   MeshBufferDesc.AllocateStreamsFromGeometry(Geometry, ezGALPrimitiveTopology::Triangles);
-
-  // Add bone indices and weights information
-  if (bWithSkinningData)
-  {
-    const auto& VertexDecl = MeshBufferDesc.GetVertexDeclaration();
-    const ezUInt32 VertexCount = Geometry.GetVertices().GetCount();
-    for (ezUInt32 s = 0; s < VertexDecl.m_VertexStreams.GetCount(); ++s)
-    {
-      const ezVertexStreamInfo& si = VertexDecl.m_VertexStreams[s];
-      switch (si.m_Semantic)
-      {
-        case ezGALVertexAttributeSemantic::BoneIndices0:
-        {
-          for (ezUInt32 v = 0; v < VertexCount; ++v)
-          {
-            ezUInt16 boneIndices[4] = {static_cast<ezUInt16>(Geometry.GetVertices()[v].m_iCustomIndex), 0, 0, 0};
-            ezUInt64 uiPackedBoneIndices = *reinterpret_cast<ezUInt64*>(&boneIndices[0]);
-
-            MeshBufferDesc.SetVertexData<ezUInt64>(s, v, uiPackedBoneIndices);
-          }
-        }
-        break;
-        case ezGALVertexAttributeSemantic::BoneWeights0:
-        {
-          ezVec4 Weight(1, 0, 0, 0);
-          for (ezUInt32 v = 0; v < VertexCount; ++v)
-          {
-            MeshBufferDesc.SetVertexData<ezVec4>(s, v, Weight);
-          }
-        }
-        break;
-      }
-    }
-  }
 
   MeshDesc.AddSubMesh(MeshBufferDesc.GetPrimitiveCount(), 0, 0);
 

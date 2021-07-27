@@ -8,6 +8,8 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 
+ezCVarBool CVarVisRopeBones("r_VisRopeBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");
+
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
 {
@@ -16,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("NumSegments", GetNumSegments, SetNumSegments)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 16)),
+    EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 16)),
     EZ_ACCESSOR_PROPERTY("UScale", GetUScale, SetUScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
@@ -47,6 +49,9 @@ void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_Color;
   s << m_hMaterial;
+  s << m_fThickness;
+  s << m_uiDetail;
+  s << m_fUScale;
 }
 
 void ezRopeRenderComponent::DeserializeComponent(ezWorldReader& stream)
@@ -57,6 +62,9 @@ void ezRopeRenderComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_Color;
   s >> m_hMaterial;
+  s >> m_fThickness;
+  s >> m_uiDetail;
+  s >> m_fUScale;
 }
 
 void ezRopeRenderComponent::OnDeactivated()
@@ -137,6 +145,41 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   }
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+
+  if (CVarVisRopeBones)
+  {
+    ezHybridArray<ezDebugRenderer::Line, 128> lines(ezFrameAllocator::GetCurrentAllocator());
+    lines.Reserve(m_SkinningMatrices.GetCount() * 3);
+
+    ezMat4 offsetMat;
+    offsetMat.SetIdentity();
+
+    for (ezUInt32 i = 0; i < m_SkinningMatrices.GetCount(); ++i)
+    {
+      offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
+      ezVec3 pos = (m_SkinningMatrices[i] * offsetMat).GetTranslationVector();
+
+      auto& x = lines.ExpandAndGetRef();
+      x.m_start = pos;
+      x.m_end = x.m_start + (m_SkinningMatrices[i]).TransformDirection(ezVec3::UnitXAxis());
+      x.m_startColor = ezColor::Red;
+      x.m_endColor = ezColor::Red;
+
+      auto& y = lines.ExpandAndGetRef();
+      y.m_start = pos;
+      y.m_end = y.m_start + (m_SkinningMatrices[i]).TransformDirection(ezVec3::UnitYAxis() * 2.0f);
+      y.m_startColor = ezColor::Green;
+      y.m_endColor = ezColor::Green;
+
+      auto& z = lines.ExpandAndGetRef();
+      z.m_start = pos;
+      z.m_end = z.m_start + (m_SkinningMatrices[i]).TransformDirection(ezVec3::UnitZAxis() * 2.0f);
+      z.m_startColor = ezColor::Blue;
+      z.m_endColor = ezColor::Blue;
+    }
+
+    ezDebugRenderer::DrawLines(msg.m_pView->GetHandle(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
+  }
 }
 
 void ezRopeRenderComponent::SetMaterialFile(const char* szFile)
@@ -181,11 +224,11 @@ void ezRopeRenderComponent::SetThickness(float fThickness)
   }
 }
 
-void ezRopeRenderComponent::SetNumSegments(ezUInt32 uiNumSegments)
+void ezRopeRenderComponent::SetDetail(ezUInt32 uiDetail)
 {
-  if (m_uiNumSegments != uiNumSegments)
+  if (m_uiDetail != uiDetail)
   {
-    m_uiNumSegments = uiNumSegments;
+    m_uiDetail = uiDetail;
 
     if (IsActiveAndInitialized() && !m_SkinningMatrices.IsEmpty())
     {
@@ -193,7 +236,6 @@ void ezRopeRenderComponent::SetNumSegments(ezUInt32 uiNumSegments)
     }
   }
 }
-
 
 void ezRopeRenderComponent::SetUScale(float fUScale)
 {
@@ -223,26 +265,15 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
   if (msg.m_LinkTransforms.IsEmpty())
     return;
 
-  if (false)
-  {
-    ezHybridArray<ezDebugRenderer::Line, 128> lines;
-    lines.Reserve(msg.m_LinkTransforms.GetCount());
-
-    for (ezUInt32 i = 1; i < msg.m_LinkTransforms.GetCount(); ++i)
-    {
-      auto& l = lines.ExpandAndGetRef();
-      l.m_start = msg.m_LinkTransforms[i - 1].m_vPosition;
-      l.m_end = msg.m_LinkTransforms[i].m_vPosition;
-      l.m_startColor = ezColor::White;
-      l.m_endColor = ezColor::White;
-    }
-
-    ezDebugRenderer::DrawLines(GetWorld(), lines, m_Color, GetOwner()->GetGlobalTransform());
-  }
-
   if (m_SkinningMatrices.GetCount() != msg.m_LinkTransforms.GetCount())
   {
     GenerateRenderMesh(msg.m_LinkTransforms.GetCount());
+
+    if (!m_hSkinningTransformsBuffer.IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hSkinningTransformsBuffer);
+      m_hSkinningTransformsBuffer.Invalidate();
+    }
   }
 
   UpdateSkinningTransformBuffer(msg.m_LinkTransforms);
@@ -262,7 +293,7 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 {
   ezStringBuilder sResourceName;
-  sResourceName.Format("Rope-Mesh:{}-s{}-u{}", uiNumRopePieces, m_uiNumSegments, m_fUScale);
+  sResourceName.Format("Rope-Mesh:{}-d{}-u{}", uiNumRopePieces, m_uiDetail, m_fUScale);
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResourceName);
   if (m_hMesh.IsValid())
@@ -270,88 +301,103 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
   ezGeometry geom;
 
-  // vertices
-  const ezAngle fDegStep = ezAngle::Degree(360.0f / m_uiNumSegments);
-  const float fVStep = 1.0f / m_uiNumSegments;
+  const ezAngle fDegStep = ezAngle::Degree(360.0f / m_uiDetail);
+  const float fVStep = 1.0f / m_uiDetail;
 
-  auto addCap = [&](const ezVec3& normal, ezUInt32 boneIndex, bool flipWinding) {
-    ezUInt32 centerIndex = geom.AddVertex(ezVec3::ZeroVector(), normal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndex);
+  auto addCap = [&](float x, const ezVec3& normal, ezUInt16 boneIndex, bool flipWinding) {
+    ezVec4U16 boneIndices(boneIndex, 0, 0, 0);
+
+    ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), normal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
 
     ezAngle deg = ezAngle::Radian(0);
-    for (ezUInt32 s = 0; s < m_uiNumSegments; ++s)
+    for (ezUInt32 s = 0; s < m_uiDetail; ++s)
     {
       const float fY = ezMath::Cos(deg);
       const float fZ = ezMath::Sin(deg);
 
-      geom.AddVertex(ezVec3(0, fY, fZ), normal, ezVec2(fY, fZ), ezColor::White, boneIndex);
+      geom.AddVertex(ezVec3(x, fY, fZ), normal, ezVec2(fY, fZ), ezColor::White, boneIndices);
 
       deg += fDegStep;
     }
 
     ezUInt32 triangle[3];
     triangle[0] = centerIndex;
-    for (ezUInt32 s = 0; s < m_uiNumSegments; ++s)
+    for (ezUInt32 s = 0; s < m_uiDetail; ++s)
     {
       triangle[1] = s + triangle[0] + 1;
-      triangle[2] = ((s + 1) % m_uiNumSegments) + triangle[0] + 1;
+      triangle[2] = ((s + 1) % m_uiDetail) + triangle[0] + 1;
 
       geom.AddPolygon(triangle, flipWinding);
+    }
+  };
+
+  auto addPiece = [&](float x, const ezVec4U16& boneIndices, const ezColorLinearUB& boneWeights, bool createPolygons) {
+    ezAngle deg = ezAngle::Radian(0);
+    float fU = x * m_fUScale;
+    float fV = 0;
+
+    for (ezUInt32 s = 0; s <= m_uiDetail; ++s)
+    {
+      const float fY = ezMath::Cos(deg);
+      const float fZ = ezMath::Sin(deg);
+
+      const ezVec3 pos(x, fY, fZ);
+      const ezVec3 normal(0, fY, fZ);
+
+      geom.AddVertex(pos, normal, ezVec2(fU, fV), ezColor::White, boneIndices, boneWeights);
+
+      deg += fDegStep;
+      fV += fVStep;
+    }
+
+    if (createPolygons)
+    {
+      ezUInt32 endIndex = geom.GetVertices().GetCount() - (m_uiDetail + 1);
+      ezUInt32 startIndex = endIndex - (m_uiDetail + 1);
+
+      ezUInt32 triangle[3];
+      for (ezUInt32 s = 0; s < m_uiDetail; ++s)
+      {
+        triangle[0] = startIndex + s;
+        triangle[1] = startIndex + s + 1;
+        triangle[2] = endIndex + s + 1;
+        geom.AddPolygon(triangle, false);
+
+        triangle[0] = startIndex + s;
+        triangle[1] = endIndex + s + 1;
+        triangle[2] = endIndex + s;
+        geom.AddPolygon(triangle, false);
+      }
     }
   };
 
   // cap
   {
     const ezVec3 normal = ezVec3(-1, 0, 0);
-    addCap(normal, 0, true);
+    addCap(0.0f, normal, 0, true);
   }
 
-  // side vertices
-  for (ezUInt32 p = 0; p < uiNumRopePieces; ++p)
+  // pieces
   {
-    ezAngle deg = ezAngle::Radian(0);
+    // first ring full weight to first bone
+    addPiece(0.0f, ezVec4U16(0, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), false);
 
-    float fU = p * m_fUScale;
-    float fV = 0;
-
-    for (ezUInt32 s = 0; s <= m_uiNumSegments; ++s)
+    // middle rings half weight between bones
+    ezUInt32 p = 1;
+    for (; p < uiNumRopePieces - 1; ++p)
     {
-      const float fY = ezMath::Cos(deg);
-      const float fZ = ezMath::Sin(deg);
-
-      const ezVec3 vDir(0, fY, fZ);
-
-      geom.AddVertex(vDir, vDir, ezVec2(fU, fV), ezColor::White, p);
-
-      deg += fDegStep;
-      fV += fVStep;
+      // ensure that weights sum up to 1, ubyte can't represent 0.5 perfectly so we weight one bone with 128 and the other with 127.
+      addPiece(static_cast<float>(p), ezVec4U16(p - 1, p, 0, 0), ezColorLinearUB(128, 127, 0, 0), true);
     }
-  }
 
-  // side polygons
-  for (ezUInt32 p = 1; p < uiNumRopePieces; ++p)
-  {
-    ezUInt32 startIndex = p * (m_uiNumSegments + 1);
-    ezUInt32 endIndex = (p + 1) * (m_uiNumSegments + 1);
-
-    ezUInt32 triangle[3];
-    for (ezUInt32 s = 0; s < m_uiNumSegments; ++s)
-    {
-      triangle[0] = startIndex + s;
-      triangle[1] = startIndex + s + 1;
-      triangle[2] = endIndex + s + 1;
-      geom.AddPolygon(triangle, false);
-
-      triangle[0] = startIndex + s;
-      triangle[1] = endIndex + s + 1;
-      triangle[2] = endIndex + s;
-      geom.AddPolygon(triangle, false);
-    }
+    // last ring full weight to last bone
+    addPiece(static_cast<float>(p), ezVec4U16(p, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), true);
   }
 
   // cap
   {
     const ezVec3 normal = ezVec3(1, 0, 0);
-    addCap(normal, uiNumRopePieces - 1, false);
+    addCap(static_cast<float>(uiNumRopePieces - 1), normal, uiNumRopePieces - 1, false);
   }
 
   geom.ComputeTangents();
@@ -361,12 +407,13 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   // Data/Base/Materials/Prototyping/PrototypeBlack.ezMaterialAsset
   desc.SetMaterial(0, "{ d615cd66-0904-00ca-81f9-768ff4fc24ee }");
 
-  desc.MeshBufferDesc().AddCommonStreams();
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAUByteNormalized);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUByte);
-  desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+  auto& meshBufferDesc = desc.MeshBufferDesc();
+  meshBufferDesc.AddCommonStreams();
+  meshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUByte);
+  meshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAUByteNormalized);
+  meshBufferDesc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-  desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+  desc.AddSubMesh(meshBufferDesc.GetPrimitiveCount(), 0, 0);
 
   desc.ComputeBounds();
 
@@ -375,14 +422,25 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
 void ezRopeRenderComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms)
 {
+  ezMat4 bindPoseMat;
+  bindPoseMat.SetIdentity();
   m_SkinningMatrices.SetCountUninitialized(skinningTransforms.GetCount());
 
-  const ezVec3 newScale = ezVec3(1, m_fThickness * 0.5f, m_fThickness * 0.5f);
+  const ezVec3 newScale = ezVec3(1.0f, m_fThickness * 0.5f, m_fThickness * 0.5f);
   for (ezUInt32 i = 0; i < skinningTransforms.GetCount(); ++i)
   {
     ezTransform t = skinningTransforms[i];
     t.m_vScale = newScale;
-    m_SkinningMatrices[i] = t.GetAsMat4();
+
+    // scale x axis to match the distance between this bone and the next bone
+    if (i < skinningTransforms.GetCount() - 1)
+    {
+      t.m_vScale.x = (skinningTransforms[i+1].m_vPosition - skinningTransforms[i].m_vPosition).GetLength();
+    }
+
+    bindPoseMat.SetTranslationVector(ezVec3(-static_cast<float>(i), 0, 0));
+
+    m_SkinningMatrices[i] = t.GetAsMat4() * bindPoseMat;
   }
 
   if (m_hSkinningTransformsBuffer.IsInvalidated())

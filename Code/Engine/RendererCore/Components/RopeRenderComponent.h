@@ -48,8 +48,8 @@ public:
   void SetThickness(float fThickness);                // [ property ]
   float GetThickness() const { return m_fThickness; } // [ property ]
 
-  void SetNumSegments(ezUInt32 uiNumSegments);                // [ property ]
-  ezUInt32 GetNumSegments() const { return m_uiNumSegments; } // [ property ]
+  void SetDetail(ezUInt32 uiDetail);                // [ property ]
+  ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
 
   void SetUScale(float fUScale);                // [ property ]
   float GetUScale() const { return m_fUScale; } // [ property ]
@@ -74,7 +74,7 @@ private:
   ezMaterialResourceHandle m_hMaterial;
 
   float m_fThickness = 0.05f;
-  ezUInt32 m_uiNumSegments = 6;
+  ezUInt32 m_uiDetail = 6;
 
   float m_fUScale = 1.0f;
 };

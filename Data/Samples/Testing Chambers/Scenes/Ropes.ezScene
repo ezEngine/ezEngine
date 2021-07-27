@@ -291,8 +291,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -587,8 +587,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -730,8 +730,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -1228,8 +1228,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0xEC115F3F,0xE014133F,0x3ED45A3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -1419,8 +1419,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{"{ 20d48758-2c81-4fef-a2f8-bf295ccb9407 }"}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -1923,8 +1923,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0xE112BE3E,0x5B4D923E,0x69B8453E,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{"{ 20d48758-2c81-4fef-a2f8-bf295ccb9407 }"}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x00008040}
 	}
@@ -2063,8 +2063,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -2521,8 +2521,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x75C35E3F,0x4ACF933D,0x315D713F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -2588,8 +2588,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -2679,8 +2679,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x61AB5F3F,0x17C0933E,0xBF1B6E3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -2694,8 +2694,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x70DF213F,0x53FBDB3A,0x57AD543F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -2999,8 +2999,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -3047,8 +3047,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x96C91C3F,0x1969703E,0x1AA2523F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -3312,8 +3312,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -3530,8 +3530,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0xADA24E3F,0x9A35813E,0xB0CC583F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -3965,8 +3965,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -4215,8 +4215,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -4465,8 +4465,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -4649,8 +4649,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -4856,8 +4856,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -5260,8 +5260,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0xE4E0993E,0,0x0000803F,0x0000803F}}
+		u3 %Detail{12}
 		s %Material{"{ 20d48758-2c81-4fef-a2f8-bf295ccb9407 }"}
-		u3 %NumSegments{12}
 		f %Thickness{0x0000803E}
 		f %UScale{0x00000040}
 	}
@@ -5287,8 +5287,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -5873,8 +5873,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -6203,8 +6203,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -6385,8 +6385,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -6813,8 +6813,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -6933,8 +6933,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -7200,8 +7200,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x528EEF3D,0x528EEF3D,0x528EEF3D,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{"{ 20d48758-2c81-4fef-a2f8-bf295ccb9407 }"}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCCCC3D}
 		f %UScale{0x0000803F}
 	}
@@ -7382,8 +7382,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -7628,8 +7628,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -7865,8 +7865,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x60EBC63A,0x0000803F,0x5E5D3A3F,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
@@ -8118,8 +8118,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0,0,0x0000803F}}
+		u3 %Detail{6}
 		s %Material{""}
-		u3 %NumSegments{6}
 		f %Thickness{0xCDCC4C3D}
 		f %UScale{0x0000803F}
 	}
