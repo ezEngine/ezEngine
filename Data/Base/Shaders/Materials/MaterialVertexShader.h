@@ -26,22 +26,22 @@ static VS_GLOBALS G;
 
 #if defined(USE_SKINNING)
 
-float3 SkinPosition(float3 ObjectSpacePosition, float4 BoneWeights, uint4 BoneIndices)
-{
-  float3 OutPos  = mul(TransformToMatrix(skinningTransforms[BoneIndices.x]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.x;
-         OutPos += mul(TransformToMatrix(skinningTransforms[BoneIndices.y]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.y;
-         OutPos += mul(TransformToMatrix(skinningTransforms[BoneIndices.z]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.z;
-         OutPos += mul(TransformToMatrix(skinningTransforms[BoneIndices.w]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.w;
+  float3 SkinPosition(float3 ObjectSpacePosition, float4 BoneWeights, uint4 BoneIndices)
+  {
+    float3 OutPos = mul(TransformToMatrix(skinningTransforms[BoneIndices.x]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.x;
+    OutPos += mul(TransformToMatrix(skinningTransforms[BoneIndices.y]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.y;
+    OutPos += mul(TransformToMatrix(skinningTransforms[BoneIndices.z]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.z;
+    OutPos += mul(TransformToMatrix(skinningTransforms[BoneIndices.w]), float4(ObjectSpacePosition, 1.0)).xyz * BoneWeights.w;
 
-  return OutPos;
+    return OutPos;
 }
 
 float3 SkinDirection(float3 ObjectSpaceDirection, float4 BoneWeights, uint4 BoneIndices)
 {
-  float3 OutDir  = mul(TransformToRotation(skinningTransforms[BoneIndices.x]), ObjectSpaceDirection) * BoneWeights.x;
-         OutDir += mul(TransformToRotation(skinningTransforms[BoneIndices.y]), ObjectSpaceDirection) * BoneWeights.y;
-         OutDir += mul(TransformToRotation(skinningTransforms[BoneIndices.z]), ObjectSpaceDirection) * BoneWeights.z;
-         OutDir += mul(TransformToRotation(skinningTransforms[BoneIndices.w]), ObjectSpaceDirection) * BoneWeights.w;
+  float3 OutDir = mul(TransformToRotation(skinningTransforms[BoneIndices.x]), ObjectSpaceDirection) * BoneWeights.x;
+  OutDir += mul(TransformToRotation(skinningTransforms[BoneIndices.y]), ObjectSpaceDirection) * BoneWeights.y;
+  OutDir += mul(TransformToRotation(skinningTransforms[BoneIndices.z]), ObjectSpaceDirection) * BoneWeights.z;
+  OutDir += mul(TransformToRotation(skinningTransforms[BoneIndices.w]), ObjectSpaceDirection) * BoneWeights.w;
 
   return OutDir;
 }
@@ -68,11 +68,11 @@ VS_OUT FillVertexData(VS_IN Input)
 
   #if defined(USE_SKINNING)
     objectPosition = SkinPosition(objectPosition, Input.BoneWeights, Input.BoneIndices);
-  #endif
+#endif
 
   VS_OUT Output;
   Output.WorldPosition = mul(objectToWorld, float4(objectPosition, 1.0)).xyz;
-  #if defined(USE_WORLD_POSITION_OFFSET)
+#if defined(USE_WORLD_POSITION_OFFSET)
     Output.WorldPosition += GetWorldPositionOffset(data, Output.WorldPosition);
   #endif
 
@@ -99,16 +99,16 @@ VS_OUT FillVertexData(VS_IN Input)
 
   #if defined(USE_TANGENT)
     float3 tangent = Input.Tangent.xyz * 2.0 - 1.0;
-    
-    #if defined(USE_SKINNING)
+
+#if defined(USE_SKINNING)
       tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices);
     #endif
-    
+
     Output.Tangent = normalize(mul(objectToWorldNormal, tangent));
-    
+
     float handednessCorrection = Input.Tangent.w * 2.0 - 1.0;
     Output.BiTangent = cross(Output.Normal, Output.Tangent) * handednessCorrection;
-  #endif
+#endif
 
   #if defined(USE_TEXCOORD0)
     Output.TexCoord0 = Input.TexCoord0;
