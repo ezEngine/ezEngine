@@ -708,7 +708,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
 
     ezUInt32 vert[12];
     ezVec3 vDir(0, 0, 1);
-    
+
     vDir.Normalize();
     vert[0] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, boneIndices);
 
