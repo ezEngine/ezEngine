@@ -26,7 +26,7 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
 
   auto pSkinnedRenderData = static_cast<const ezSkinnedMeshRenderData*>(pRenderData);
 
-  if (pSkinnedRenderData->m_hSkinningMatrices.IsInvalidated())
+  if (pSkinnedRenderData->m_hSkinningTransforms.IsInvalidated())
   {
     pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
   }
@@ -34,12 +34,12 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
   {
     pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "TRUE");
 
-    if (!pSkinnedRenderData->m_pNewSkinningMatricesData.IsEmpty())
+    if (!pSkinnedRenderData->m_pNewSkinningTransformData.IsEmpty())
     {
-      pContext->GetCommandEncoder()->UpdateBuffer(pSkinnedRenderData->m_hSkinningMatrices, 0, pSkinnedRenderData->m_pNewSkinningMatricesData);
+      pContext->GetCommandEncoder()->UpdateBuffer(pSkinnedRenderData->m_hSkinningTransforms, 0, pSkinnedRenderData->m_pNewSkinningTransformData);
     }
 
-    pContext->BindBuffer("skinningMatrices", pDevice->GetDefaultResourceView(pSkinnedRenderData->m_hSkinningMatrices));
+    pContext->BindBuffer("skinningTransforms", pDevice->GetDefaultResourceView(pSkinnedRenderData->m_hSkinningTransforms));
   }
 }
 

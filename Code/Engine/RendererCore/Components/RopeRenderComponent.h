@@ -6,6 +6,7 @@ struct ezMsgExtractRenderData;
 struct ezMsgSetColor;
 struct ezMsgSetMeshMaterial;
 struct ezMsgRopePoseUpdated;
+class ezShaderTransform;
 
 using ezRopeRenderComponentManager = ezComponentManager<class ezRopeRenderComponent, ezBlockStorageType::Compact>;
 
@@ -70,8 +71,8 @@ private:
   ezBoundingBoxSphere m_LocalBounds;
 
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezDynamicArray<ezMat4> m_SkinningMatrices;
-  mutable ezUInt64 m_uiSkinningMatricesExtractedFrame = -1;
+  ezDynamicArray<ezShaderTransform> m_SkinningTransforms;
+  mutable ezUInt64 m_uiSkinningTransformsExtractedFrame = -1;
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;

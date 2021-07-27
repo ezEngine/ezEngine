@@ -4,13 +4,15 @@
 
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Math/Transform.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 class ezSkeleton;
+class ezShaderTransform;
 
 class EZ_RENDERERCORE_DLL ezSkinningSpaceAnimationPose
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezSkinningSpaceAnimationPose);
+
 public:
   ezSkinningSpaceAnimationPose();
   ~ezSkinningSpaceAnimationPose();
@@ -25,6 +27,5 @@ public:
 
   void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms);
 
-  // TODO: would be nicer to use ezTransform or ezShaderTransform for this data
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_Transforms;
+  ezDynamicArray<ezShaderTransform, ezAlignedAllocatorWrapper> m_Transforms;
 };

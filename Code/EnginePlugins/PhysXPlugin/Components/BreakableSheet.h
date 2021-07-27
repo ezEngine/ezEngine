@@ -14,6 +14,7 @@ struct ezMsgExtractRenderData;
 struct ezMsgCollision;
 struct ezMsgPhysicsAddImpulse;
 struct ezMsgExtractGeometry;
+class ezShaderTransform;
 
 /// \brief Sent when a breakable sheet breaks
 struct EZ_PHYSXPLUGIN_DLL ezMsgBreakableSheetBroke : public ezEventMessage
@@ -130,7 +131,7 @@ protected:
   bool m_bPiecesMovedThisFrame = false;
   ezMeshResourceHandle m_hUnbrokenMesh;
   ezMeshResourceHandle m_hPiecesMesh;
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_PieceTransforms;
+  ezDynamicArray<ezShaderTransform, ezAlignedAllocatorWrapper> m_PieceTransforms;
   ezDynamicArray<ezBoundingBox> m_PieceBoundingBoxes;
   ezBoundingSphere m_BrokenPiecesBoundingSphere;
   ezUInt32 m_uiNumActiveBrokenPieceActors = 0;

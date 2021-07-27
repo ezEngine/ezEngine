@@ -9,6 +9,8 @@
 class ezShaderMat3
 {
 public:
+  EZ_DECLARE_POD_TYPE();
+
   EZ_ALWAYS_INLINE ezShaderMat3() {}
 
   EZ_ALWAYS_INLINE ezShaderMat3(const ezMat3& m) { *this = m; }
@@ -32,6 +34,8 @@ private:
 class ezShaderTransform
 {
 public:
+  EZ_DECLARE_POD_TYPE();
+
   EZ_ALWAYS_INLINE ezShaderTransform() {}
 
   inline void operator=(const ezTransform& t) { *this = t.GetAsMat4(); }
@@ -68,6 +72,22 @@ public:
     m_Data[11] = 0;
   }
 
+  inline ezMat4 GetAsMat4() const
+  {
+    ezMat4 res;
+    res.SetRow(0, reinterpret_cast<const ezVec4&>(m_Data[0]));
+    res.SetRow(1, reinterpret_cast<const ezVec4&>(m_Data[4]));
+    res.SetRow(2, reinterpret_cast<const ezVec4&>(m_Data[8]));
+    res.SetRow(3, ezVec4(0, 0, 0, 1));
+
+    return res;
+  }
+
+  inline ezVec3 GetTranslationVector() const
+  {
+    return ezVec3(m_Data[3], m_Data[7], m_Data[11]);
+  }
+
 private:
   float m_Data[12];
 };
@@ -76,6 +96,8 @@ private:
 class ezShaderBool
 {
 public:
+  EZ_DECLARE_POD_TYPE();
+
   EZ_ALWAYS_INLINE ezShaderBool() {}
 
   EZ_ALWAYS_INLINE ezShaderBool(bool b) { m_Data = b ? 0xFFFFFFFF : 0; }

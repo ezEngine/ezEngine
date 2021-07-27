@@ -13,6 +13,7 @@
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
 #include <extensions/PxRigidActorExt.h>
 
@@ -122,11 +123,11 @@ void ezBreakableSheetComponent::Update()
         // to 0 so the border is still rendered, otherwise we can deactivate the component
         if (m_bFixedBorder)
         {
-          ezMat4 scaleMatrix;
-          scaleMatrix.SetScalingMatrix(ezVec3(0, 0, 0));
+          ezMat4 zeroMatrix;
+          zeroMatrix.SetZero();
           for (ezUInt32 i = 1; i < m_PieceTransforms.GetCount(); ++i)
           {
-            m_PieceTransforms[i] = m_PieceTransforms[i] * scaleMatrix;
+            m_PieceTransforms[i] = zeroMatrix;
           }
 
           m_bPiecesMovedThisFrame = true;
@@ -280,15 +281,15 @@ void ezBreakableSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
   if (m_bBroken)
   {
     auto pSkinnedRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
-    pSkinnedRenderData->m_hSkinningMatrices = m_hPieceTransformsBuffer;
+    pSkinnedRenderData->m_hSkinningTransforms = m_hPieceTransformsBuffer;
 
     // We only supply this pointer if any transform changed
     if (m_bPiecesMovedThisFrame)
     {
-      auto pMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_PieceTransforms.GetCount());
-      pMatrices.CopyFrom(m_PieceTransforms);
+      auto pTransforms = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, m_PieceTransforms.GetCount());
+      pTransforms.CopyFrom(m_PieceTransforms);
 
-      pSkinnedRenderData->m_pNewSkinningMatricesData = pMatrices.ToByteArray();
+      pSkinnedRenderData->m_pNewSkinningTransformData = pTransforms.ToByteArray();
     }
 
     pRenderData = pSkinnedRenderData;
@@ -720,7 +721,7 @@ void ezBreakableSheetComponent::CreateMeshes()
         m_PieceTransforms.Reserve(static_cast<ezUInt32>(diagram.numsites) - uiNumBorderPieces + 1);
         if (m_bFixedBorder)
         {
-          m_PieceTransforms.PushBack(ezMat4::IdentityMatrix());
+          m_PieceTransforms.ExpandAndGetRef() = ezMat4::IdentityMatrix();
         }
 
         // Build geometry from cells
@@ -739,7 +740,7 @@ void ezBreakableSheetComponent::CreateMeshes()
           {
             iNonBorderPieces++;
             iPieceMatrixIndex = iNonBorderPieces;
-            m_PieceTransforms.PushBack(ezMat4::IdentityMatrix());
+            m_PieceTransforms.ExpandAndGetRef() = ezMat4::IdentityMatrix();
           }
 
           EZ_ASSERT_DEV(iPieceMatrixIndex >= 0 && iPieceMatrixIndex <= ezMath::MaxValue<ezUInt16>(), "Bone index cannot be stored in 16bit unsigned int");
@@ -814,13 +815,13 @@ void ezBreakableSheetComponent::CreateMeshes()
 
   // Create the buffer for the skinning matrices
   ezGALBufferCreationDescription BufferDesc;
-  BufferDesc.m_uiStructSize = sizeof(ezMat4);
+  BufferDesc.m_uiStructSize = sizeof(ezShaderTransform);
   BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_PieceTransforms.GetCount();
   BufferDesc.m_bUseAsStructuredBuffer = true;
   BufferDesc.m_bAllowShaderResourceView = true;
   BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
-  m_hPieceTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_PieceTransforms.GetData()), BufferDesc.m_uiTotalSize));
+  m_hPieceTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, m_PieceTransforms.GetByteArrayPtr());
   if (m_hPieceTransformsBuffer.IsInvalidated())
   {
     ezLog::Warning("Couldn't allocate buffer for piece transforms of breakable sheet.");

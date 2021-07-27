@@ -2,7 +2,7 @@
 
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
-#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Shader/Types.h>
 
 // clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPosePreparing);
