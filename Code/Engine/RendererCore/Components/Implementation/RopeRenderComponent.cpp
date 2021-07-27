@@ -8,6 +8,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/Shader/Types.h>
+#include <RendererFoundation/Device/Device.h>
 
 ezCVarBool CVarVisRopeBones("r_VisRopeBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");
 

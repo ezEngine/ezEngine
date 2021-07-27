@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Declarations.h>
 
 struct ezMsgExtractRenderData;
 struct ezMsgSetColor;
