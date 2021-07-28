@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Declarations.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
 struct ezMsgExtractRenderData;
 struct ezMsgSetColor;

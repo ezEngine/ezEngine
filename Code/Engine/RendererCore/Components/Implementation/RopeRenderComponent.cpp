@@ -1,12 +1,16 @@
 #include <RendererCorePCH.h>
 
+#include <Core/Graphics/Geometry.h>
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Configuration/CVar.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Components/RopeRenderComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
 

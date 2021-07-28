@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off

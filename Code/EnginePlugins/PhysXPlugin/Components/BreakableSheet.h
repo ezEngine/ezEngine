@@ -57,6 +57,8 @@ public:
   ezBreakableSheetComponent();
   ~ezBreakableSheetComponent();
 
+  ezBreakableSheetComponent& operator=(ezBreakableSheetComponent&& other);
+
   void SetWidth(float fWidth); // [ property ]
   float GetWidth() const;      // [ property ]
 

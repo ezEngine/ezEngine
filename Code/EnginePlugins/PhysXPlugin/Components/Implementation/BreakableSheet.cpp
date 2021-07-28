@@ -94,6 +94,8 @@ ezBreakableSheetComponent::ezBreakableSheetComponent()
 
 ezBreakableSheetComponent::~ezBreakableSheetComponent() = default;
 
+ezBreakableSheetComponent& ezBreakableSheetComponent::operator=(ezBreakableSheetComponent&& other) = default;
+
 void ezBreakableSheetComponent::Update()
 {
   if (m_bBroken)
