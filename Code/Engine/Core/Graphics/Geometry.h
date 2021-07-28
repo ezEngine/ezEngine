@@ -4,6 +4,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Vec3.h>
 
