@@ -92,7 +92,11 @@ void ezSpatialSystem::UpdateSpatialData(
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
     return;
 
-  pData->m_pObject = pObject;
+  if (pData->m_pObject != pObject)
+  {
+    pData->m_pObject = pObject;
+    SpatialDataObjectChanged(pData);
+  }
 
   if (!pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
   {
@@ -185,8 +189,7 @@ void ezSpatialSystem::FindObjectsInBox(
   }
 }
 
-void ezSpatialSystem::FindVisibleObjects(
-  const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezUInt64 uiCurrentFrame, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezStopwatch timer;
@@ -199,7 +202,7 @@ void ezSpatialSystem::FindVisibleObjects(
   }
 #endif
 
-  FindVisibleObjectsInternal(frustum, uiCategoryBitmask, out_Objects, pStats);
+  FindVisibleObjectsInternal(frustum, uiCategoryBitmask, uiCurrentFrame, out_Objects, pStats);
 
   for (auto pData : m_DataAlwaysVisible)
   {
@@ -217,6 +220,19 @@ void ezSpatialSystem::FindVisibleObjects(
 #endif
 }
 
+ezUInt64 ezSpatialSystem::GetNumFramesSinceVisible(const ezSpatialDataHandle& hData, ezUInt64 uiCurrentFrame) const
+{
+  ezSpatialData* pData = nullptr;
+  if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
+    return -1;
 
+  if (pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
+  {
+    return 0;
+  }
+
+  const ezUInt64 uiLastFrameVisible = GetLastFrameVisibleInternal(pData);
+  return (uiCurrentFrame > uiLastFrameVisible) ? uiCurrentFrame - uiLastFrameVisible : 0;
+}
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);

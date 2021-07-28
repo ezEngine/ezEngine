@@ -454,14 +454,22 @@ public:
   ///
   /// The stable seed is also propagated through prefab instances, such that every prefab instance gets a different value, but
   /// in a deterministic fashion.
-  ezUInt32 GetStableRandomSeed() const { return m_pTransformationData->m_uiStableRandomSeed; }
+  ezUInt32 GetStableRandomSeed() const;
 
-  /// \brief OVerwrites the object's random seed value.
+  /// \brief Overwrites the object's random seed value.
   ///
   /// See \a GetStableRandomSeed() for details.
   ///
   /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
-  void SetStableRandomSeed(ezUInt32 seed) { m_pTransformationData->m_uiStableRandomSeed = seed; }
+  void SetStableRandomSeed(ezUInt32 seed);
+
+  /// \brief Returns the number of frames since this object was last visible in any view.
+  ///
+  /// The uiCurrentFrame needs to be in the same domain as the frame counter used for visibility determination,
+  /// which is typically ezRenderWorld::GetFrameCounter().
+  ///
+  /// This value can be used to skip update logic if the object was not visible in any views.
+  ezUInt64 GetNumFramesSinceVisible(ezUInt64 uiCurrentFrame) const;
 
 private:
   friend class ezComponentManagerBase;

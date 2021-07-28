@@ -136,12 +136,13 @@ struct ezSpatialSystem_RegularGrid::Cell
 {
   Cell(ezAllocatorBase* pAllocator)
     : m_BoundingSpheres(pAllocator)
+    , m_ObjectPointers(pAllocator)
     , m_DataPointers(pAllocator)
     , m_DataPointersToIndex(pAllocator)
   {
   }
 
-  EZ_FORCE_INLINE void AddData(ezSpatialData* pData, ezAllocatorBase* pAlignedAllocator)
+  EZ_FORCE_INLINE void AddData(ezSpatialData* pData, ezUInt64 uiLastVisibleFrame, ezAllocatorBase* pAlignedAllocator)
   {
     ezUInt32 mask = pData->m_uiCategoryBitmask;
     ezUInt32 category = ezMath::FirstBitLow(mask);
@@ -151,6 +152,7 @@ struct ezSpatialSystem_RegularGrid::Cell
     while (m_BoundingSpheres.GetCount() <= highestCategory)
     {
       m_BoundingSpheres.PushBack(ezDynamicArray<ezSimdBSphere>(pAlignedAllocator));
+      m_ObjectPointers.PushBack(ezDynamicArray<ObjectPointerAndFrame>(m_DataPointers.GetAllocator()));
       m_DataPointers.PushBack(ezDynamicArray<ezSpatialData*>(m_DataPointers.GetAllocator()));
     }
 
@@ -164,6 +166,7 @@ struct ezSpatialSystem_RegularGrid::Cell
 
     ezUInt32 dataIndex = m_BoundingSpheres[category].GetCount();
     m_BoundingSpheres[category].PushBack(pData->m_Bounds.GetSphere());
+    m_ObjectPointers[category].PushBack({pData->m_pObject, uiLastVisibleFrame});
     m_DataPointers[category].PushBack(pData);
 
     auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
@@ -180,6 +183,7 @@ struct ezSpatialSystem_RegularGrid::Cell
 
       dataIndex = m_BoundingSpheres[category].GetCount();
       m_BoundingSpheres[category].PushBack(pData->m_Bounds.GetSphere());
+      m_ObjectPointers[category].PushBack({pData->m_pObject, uiLastVisibleFrame});
       m_DataPointers[category].PushBack(pData);
       m_DataPointersToIndex[category].Insert(pData, dataIndex);
     }
@@ -216,6 +220,7 @@ struct ezSpatialSystem_RegularGrid::Cell
     }
 
     m_BoundingSpheres[category].RemoveAtAndSwap(dataIndex);
+    m_ObjectPointers[category].RemoveAtAndSwap(dataIndex);
     m_DataPointers[category].RemoveAtAndSwap(dataIndex);
 
     EZ_ASSERT_DEBUG(pUserData->m_pCell == this, "Implementation error");
@@ -238,6 +243,7 @@ struct ezSpatialSystem_RegularGrid::Cell
       }
 
       m_BoundingSpheres[category].RemoveAtAndSwap(dataIndex);
+      m_ObjectPointers[category].RemoveAtAndSwap(dataIndex);
       m_DataPointers[category].RemoveAtAndSwap(dataIndex);
     }
   }
@@ -266,12 +272,47 @@ struct ezSpatialSystem_RegularGrid::Cell
     }
   }
 
+  EZ_FORCE_INLINE ezUInt64 GetLastFrameVisible(ezSpatialData* pData) const
+  {
+    ezUInt32 mask = pData->m_uiCategoryBitmask;
+    ezUInt32 category = ezMath::FirstBitLow(mask);
+    mask &= mask - 1;
+
+    auto pUserData = reinterpret_cast<const SpatialUserData*>(&pData->m_uiUserData[0]);
+    ezUInt32 dataIndex = pUserData->m_uiCachedDataIndex;
+    EZ_ASSERT_DEBUG(pUserData->m_uiCachedCategory == category, "Implementation error");
+
+    ezUInt64 uiLastVisibleFrame = m_ObjectPointers[category][dataIndex].m_uiLastVisibleFrame;
+
+    while (mask > 0)
+    {
+      category = ezMath::FirstBitLow(mask);
+      mask &= mask - 1;
+
+      const bool found = m_DataPointersToIndex[category].TryGetValue(pData, dataIndex);
+      EZ_ASSERT_DEBUG(found, "Implementation error");
+
+      uiLastVisibleFrame = ezMath::Max(uiLastVisibleFrame, m_ObjectPointers[category][dataIndex].m_uiLastVisibleFrame);
+    }
+
+    return uiLastVisibleFrame;
+  }
+
   EZ_ALWAYS_INLINE ezBoundingBox GetBoundingBox() const { return ezSimdConversion::ToBBoxSphere(m_Bounds).GetBox(); }
 
   ezSimdBBoxSphere m_Bounds;
   ezUInt32 m_uiCategoryBitmask = 0;
 
+  struct ObjectPointerAndFrame
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezGameObject* m_pObject;
+    ezUInt64 m_uiLastVisibleFrame;
+  };
+
   ezHybridArray<ezDynamicArray<ezSimdBSphere>, 4> m_BoundingSpheres;
+  ezHybridArray<ezDynamicArray<ObjectPointerAndFrame>, 4> m_ObjectPointers;
   ezHybridArray<ezDynamicArray<ezSpatialData*>, 4> m_DataPointers;
   ezHybridArray<ezHashTable<ezSpatialData*, ezUInt32>, 4> m_DataPointersToIndex;
 };
@@ -443,8 +484,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(
     });
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(
-  const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezUInt64 uiCurrentFrame, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const
 {
   ezVec3 cornerPoints[8];
   frustum.ComputeCornerPoints(cornerPoints);
@@ -501,10 +541,10 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(
         ezUInt32 category = ezMath::FirstBitLow(filteredMask);
         filteredMask &= filteredMask - 1;
 
-        auto& boundingSpheres = cell.m_BoundingSpheres[category];
-        auto& dataPointers = cell.m_DataPointers[category];
+        auto boundingSpheres = cell.m_BoundingSpheres[category].GetData();
+        auto objectPointers = cell.m_ObjectPointers[category].GetData();
 
-        const ezUInt32 numSpheres = boundingSpheres.GetCount();
+        const ezUInt32 numSpheres = cell.m_BoundingSpheres[category].GetCount();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
         uiNumObjectsTested += numSpheres;
@@ -530,8 +570,9 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(
               ezUInt32 i = ezMath::FirstBitLow(mask);
               mask &= mask - 1;
 
-              ezSpatialData* pData = dataPointers[currentIndex + i];
-              out_Objects.PushBack(pData->m_pObject);
+              auto& objectAndFrame = objectPointers[currentIndex + i];
+              const_cast<Cell::ObjectPointerAndFrame&>(objectAndFrame).m_uiLastVisibleFrame = uiCurrentFrame;
+              out_Objects.PushBack(objectAndFrame.m_pObject);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
               uiNumObjectsPassed++;
@@ -549,8 +590,9 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(
             if (!SphereFrustumIntersect(objectSphere, planeData))
               continue;
 
-            ezSpatialData* pData = dataPointers[i];
-            out_Objects.PushBack(pData->m_pObject);
+            auto& objectAndFrame = objectPointers[i];
+            const_cast<Cell::ObjectPointerAndFrame&>(objectAndFrame).m_uiLastVisibleFrame = uiCurrentFrame;
+            out_Objects.PushBack(objectAndFrame.m_pObject);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
             uiNumObjectsPassed++;
@@ -569,10 +611,21 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(
 #endif
 }
 
+ezUInt64 ezSpatialSystem_RegularGrid::GetLastFrameVisibleInternal(ezSpatialData* pData) const
+{
+  auto pUserData = reinterpret_cast<const SpatialUserData*>(&pData->m_uiUserData[0]);
+  if (auto pCell = pUserData->m_pCell)
+  {
+    return pCell->GetLastFrameVisible(pData);
+  }
+
+  return -1;
+}
+
 void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)
 {
   Cell* pCell = GetOrCreateCell(pData->m_Bounds);
-  pCell->AddData(pData, &m_AlignedAllocator);
+  pCell->AddData(pData, 0, &m_AlignedAllocator);
 }
 
 void ezSpatialSystem_RegularGrid::SpatialDataRemoved(ezSpatialData* pData)
@@ -604,8 +657,9 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
       }
       else
       {
+        ezUInt64 uiLastVisibleFrame = pOldCell->GetLastFrameVisible(pData);
         pOldCell->RemoveData(pData);
-        pNewCell->AddData(pData, &m_AlignedAllocator);
+        pNewCell->AddData(pData, uiLastVisibleFrame, &m_AlignedAllocator);
       }
     }
   }
@@ -624,6 +678,11 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
       SpatialDataAdded(pData);
     }
   }
+}
+
+void ezSpatialSystem_RegularGrid::SpatialDataObjectChanged(ezSpatialData* pData)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr)
