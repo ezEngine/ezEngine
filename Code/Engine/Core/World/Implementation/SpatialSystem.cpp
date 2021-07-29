@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/World/SpatialSystem.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Stopwatch.h>
 
 // clang-format off
