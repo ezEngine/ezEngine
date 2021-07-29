@@ -218,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     }
 
     uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-    
+
     ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
     ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(80.0f), 1.0f, 1.0f, 10000.0f);
 
