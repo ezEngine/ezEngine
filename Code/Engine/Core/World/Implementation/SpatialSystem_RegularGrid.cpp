@@ -502,7 +502,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(
     });
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezUInt64 uiCurrentFrame, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const
 {
   ezVec3 cornerPoints[8];
   frustum.ComputeCornerPoints(cornerPoints);
@@ -589,7 +589,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& fr
               mask &= mask - 1;
 
               auto& objectAndFrame = objectPointers[currentIndex + i];
-              const_cast<Cell::ObjectPointerAndFrame&>(objectAndFrame).m_uiLastVisibleFrame = uiCurrentFrame;
+              const_cast<Cell::ObjectPointerAndFrame&>(objectAndFrame).m_uiLastVisibleFrame = m_uiFrameCounter;
               out_Objects.PushBack(objectAndFrame.m_pObject);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -609,7 +609,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& fr
               continue;
 
             auto& objectAndFrame = objectPointers[i];
-            const_cast<Cell::ObjectPointerAndFrame&>(objectAndFrame).m_uiLastVisibleFrame = uiCurrentFrame;
+            const_cast<Cell::ObjectPointerAndFrame&>(objectAndFrame).m_uiLastVisibleFrame = m_uiFrameCounter;
             out_Objects.PushBack(objectAndFrame.m_pObject);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -643,7 +643,7 @@ ezUInt64 ezSpatialSystem_RegularGrid::GetLastFrameVisibleInternal(ezSpatialData*
 void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)
 {
   Cell* pCell = GetOrCreateCell(pData->m_Bounds);
-  pCell->AddData(pData, 0, &m_AlignedAllocator);
+  pCell->AddData(pData, m_uiFrameCounter, &m_AlignedAllocator);
 }
 
 void ezSpatialSystem_RegularGrid::SpatialDataRemoved(ezSpatialData* pData)

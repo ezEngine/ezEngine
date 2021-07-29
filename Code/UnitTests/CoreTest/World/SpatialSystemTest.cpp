@@ -209,9 +209,16 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindVisibleObjects")
   {
-    uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-    ezUInt64 uiCurrentFrame = 42;
+    constexpr uint32_t numUpdates = 13;
 
+    // update a few times to increase internal frame counter
+    for (uint32_t i = 0; i < numUpdates; ++i)
+    {
+      world.Update();
+    }
+
+    uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+    
     ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
     ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(80.0f), 1.0f, 1.0f, 10000.0f);
 
@@ -220,14 +227,14 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<const ezGameObject*> visibleObjects;
     ezHashSet<const ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, uiCategoryBitmask, uiCurrentFrame, visibleObjects);
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, uiCategoryBitmask, visibleObjects);
 
     for (auto pObject : visibleObjects)
     {
       EZ_TEST_BOOL(testFrustum.Overlaps(pObject->GetGlobalBoundsSimd().GetSphere()));
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
       EZ_TEST_BOOL(pObject->IsDynamic());
-      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible(uiCurrentFrame) == 0);
+      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 0);
     }
 
     // Check for missing objects
@@ -237,7 +244,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       if (testFrustum.GetObjectPosition(pObject->GetGlobalBounds().GetSphere()) == ezVolumePosition::Outside)
       {
-        EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible(uiCurrentFrame) == uiCurrentFrame);
+        EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() >= numUpdates);
       }
     }
 
@@ -260,10 +267,10 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     world.Update();
 
-    // Check that last frame visible stays the same after moving
+    // Check that last frame visible doesn't reset entirely after moving
     for (const ezGameObject* pObject : visibleObjects)
     {
-      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible(uiCurrentFrame) == 0);
+      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 1);
     }
   }
 

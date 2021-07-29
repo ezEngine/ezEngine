@@ -23,7 +23,7 @@ private:
   virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const override;
   virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const override;
 
-  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezUInt64 uiCurrentFrame, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const override;
+  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const override;
   virtual ezUInt64 GetLastFrameVisibleInternal(ezSpatialData* pData) const override;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) override;

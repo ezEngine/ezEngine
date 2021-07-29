@@ -714,11 +714,11 @@ void ezGameObject::SetTeamID(ezUInt16 id)
   }
 }
 
-ezUInt64 ezGameObject::GetNumFramesSinceVisible(ezUInt64 uiCurrentFrame) const
+ezUInt64 ezGameObject::GetNumFramesSinceVisible() const
 {
   if (const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
-    return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData, uiCurrentFrame);
+    return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData);
   }
 
   return -1;

@@ -465,11 +465,8 @@ public:
 
   /// \brief Returns the number of frames since this object was last visible in any view.
   ///
-  /// The uiCurrentFrame needs to be in the same domain as the frame counter used for visibility determination,
-  /// which is typically ezRenderWorld::GetFrameCounter().
-  ///
-  /// This value can be used to skip update logic if the object was not visible in any views.
-  ezUInt64 GetNumFramesSinceVisible(ezUInt64 uiCurrentFrame) const;
+  /// This value can be used to skip update logic of invisible objects.
+  ezUInt64 GetNumFramesSinceVisible() const;
 
 private:
   friend class ezComponentManagerBase;

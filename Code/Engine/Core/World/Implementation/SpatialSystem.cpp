@@ -20,6 +20,11 @@ ezSpatialSystem::ezSpatialSystem()
 
 ezSpatialSystem::~ezSpatialSystem() = default;
 
+void ezSpatialSystem::StartNewFrame()
+{
+  ++m_uiFrameCounter;
+}
+
 ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask)
 {
   if (uiCategoryBitmask == 0)
@@ -193,7 +198,7 @@ void ezSpatialSystem::FindObjectsInBox(
   }
 }
 
-void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezUInt64 uiCurrentFrame, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
 {
   EZ_PROFILE_SCOPE("SpatialSystem::FindVisibleObjects");
 
@@ -208,7 +213,7 @@ void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCa
   }
 #endif
 
-  FindVisibleObjectsInternal(frustum, uiCategoryBitmask, uiCurrentFrame, out_Objects, pStats);
+  FindVisibleObjectsInternal(frustum, uiCategoryBitmask, out_Objects, pStats);
 
   for (auto pData : m_DataAlwaysVisible)
   {
@@ -226,7 +231,7 @@ void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCa
 #endif
 }
 
-ezUInt64 ezSpatialSystem::GetNumFramesSinceVisible(const ezSpatialDataHandle& hData, ezUInt64 uiCurrentFrame) const
+ezUInt64 ezSpatialSystem::GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const
 {
   ezSpatialData* pData = nullptr;
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
@@ -238,7 +243,7 @@ ezUInt64 ezSpatialSystem::GetNumFramesSinceVisible(const ezSpatialDataHandle& hD
   }
 
   const ezUInt64 uiLastFrameVisible = GetLastFrameVisibleInternal(pData);
-  return (uiCurrentFrame > uiLastFrameVisible) ? uiCurrentFrame - uiLastFrameVisible : 0;
+  return (m_uiFrameCounter > uiLastFrameVisible) ? m_uiFrameCounter - uiLastFrameVisible : 0;
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);

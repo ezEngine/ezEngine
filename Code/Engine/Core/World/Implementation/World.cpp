@@ -493,6 +493,11 @@ void ezWorld::Update()
   m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
   m_Data.m_Clock.Update();
 
+  if (m_Data.m_pSpatialSystem != nullptr)
+  {
+    m_Data.m_pSpatialSystem->StartNewFrame();
+  }
+
   // initialize phase
   {
     EZ_PROFILE_SCOPE("Initialize Phase");
