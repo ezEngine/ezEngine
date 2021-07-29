@@ -245,12 +245,20 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       {
         // if a bone index array is available, move the custom index into it
 
-        if (si.m_Format == ezGALResourceFormat::RGBAUShort)
+        if (si.m_Format == ezGALResourceFormat::RGBAUByte)
         {
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            ezVec4Template<ezUInt16> storage(geom.GetVertices()[v].m_iCustomIndex, 0, 0, 0);
-            SetVertexData<ezVec4Template<ezUInt16>>(s, v, storage);
+            ezVec4U16 boneIndices = geom.GetVertices()[v].m_BoneIndices;
+            ezVec4U8 storage(static_cast<ezUInt8>(boneIndices.x), static_cast<ezUInt8>(boneIndices.y), static_cast<ezUInt8>(boneIndices.z), static_cast<ezUInt8>(boneIndices.w));
+            SetVertexData<ezVec4U8>(s, v, storage);
+          }
+        }
+        else if (si.m_Format == ezGALResourceFormat::RGBAUShort)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec4U16>(s, v, geom.GetVertices()[v].m_BoneIndices);
           }
         }
       }
@@ -260,13 +268,19 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       {
         // if a bone weight array is available, set it to fully use the first bone
 
-        if (si.m_Format == ezGALResourceFormat::XYZWFloat)
+        if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
         {
-          ezVec4 storage(1, 0, 0, 0);
-
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            SetVertexData<ezVec4>(s, v, storage);
+            SetVertexData<ezColorLinearUB>(s, v, geom.GetVertices()[v].m_BoneWeights);
+          }
+        }
+
+        if (si.m_Format == ezGALResourceFormat::XYZWFloat)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec4>(s, v, ezColor(geom.GetVertices()[v].m_BoneWeights).GetAsVec4());
           }
         }
       }

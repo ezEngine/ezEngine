@@ -144,7 +144,11 @@ class ezVec4Template;
 using ezVec4 = ezVec4Template<float>;
 using ezVec4d = ezVec4Template<double>;
 using ezVec4I32 = ezVec4Template<ezInt32>;
+using ezVec4I16 = ezVec4Template<ezInt16>;
+using ezVec4I8 = ezVec4Template<ezInt8>;
 using ezVec4U32 = ezVec4Template<ezUInt32>;
+using ezVec4U16 = ezVec4Template<ezUInt16>;
+using ezVec4U8 = ezVec4Template<ezUInt8>;
 
 template <typename Type>
 class ezMat3Template;

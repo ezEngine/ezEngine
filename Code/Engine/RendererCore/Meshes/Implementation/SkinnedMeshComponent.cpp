@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
@@ -62,35 +63,32 @@ ezMeshRenderData* ezSkinnedMeshComponent::CreateRenderData() const
 {
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
 
-  if (!m_SkinningMatrices.IsEmpty())
-  {
-    pRenderData->m_hSkinningMatrices = m_hSkinningTransformsBuffer;
-    pRenderData->m_pNewSkinningMatricesData = m_SkinningMatrices.ToByteArray();
-  }
+  pRenderData->m_hSkinningTransforms = m_hSkinningTransformsBuffer;
+  pRenderData->m_pNewSkinningTransformData = m_SkinningTransforms.ToByteArray();
 
   return pRenderData;
 }
 
-void ezSkinnedMeshComponent::CreateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices)
+void ezSkinnedMeshComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezShaderTransform> skinningTransforms)
 {
-  EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
+  if (m_hSkinningTransformsBuffer.IsInvalidated())
+  {
+    ezGALBufferCreationDescription BufferDesc;
+    BufferDesc.m_uiStructSize = sizeof(ezShaderTransform);
+    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * skinningTransforms.GetCount();
+    BufferDesc.m_bUseAsStructuredBuffer = true;
+    BufferDesc.m_bAllowShaderResourceView = true;
+    BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
-  ezGALBufferCreationDescription BufferDesc;
-  BufferDesc.m_uiStructSize = sizeof(ezMat4);
-  BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * skinningMatrices.GetCount();
-  BufferDesc.m_bUseAsStructuredBuffer = true;
-  BufferDesc.m_bAllowShaderResourceView = true;
-  BufferDesc.m_ResourceAccess.m_bImmutable = false;
+    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, skinningTransforms.ToByteArray());
+  }
+  else
+  {
+    auto transformsCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, skinningTransforms.GetCount());
+    transformsCopy.CopyFrom(skinningTransforms);
 
-  m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, skinningMatrices.ToByteArray());
-}
-
-void ezSkinnedMeshComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices)
-{
-  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, skinningMatrices.GetCount());
-  pRenderMatrices.CopyFrom(skinningMatrices);
-
-  m_SkinningMatrices = pRenderMatrices;
+    m_SkinningTransforms = transformsCopy;
+  }
 }
 
 

@@ -61,9 +61,6 @@ void ezAnimatedMeshComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  // make sure the skinning buffer is deleted
-  EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
-
   InitializeAnimationPose();
 }
 
@@ -114,23 +111,11 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
     OnAnimationPoseUpdated(msg);
   }
 
-  // Create the buffer for the skinning matrices
-  CreateSkinningTransformBuffer(m_SkinningSpacePose.m_Transforms);
-
   TriggerLocalBoundsUpdate();
 }
 
 ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
 {
-  if (!m_SkinningSpacePose.IsEmpty())
-  {
-    // this copy is necessary for the multi-threaded renderer to not access m_SkinningSpacePose while we update it
-    ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_SkinningSpacePose.GetTransformCount());
-    pRenderMatrices.CopyFrom(m_SkinningSpacePose.m_Transforms);
-
-    m_SkinningMatrices = pRenderMatrices;
-  }
-
   ezMeshRenderData* pData = SUPER::CreateRenderData();
   pData->m_GlobalTransform = m_RootTransform;
 
@@ -147,6 +132,8 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   m_SkinningSpacePose.MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms);
+
+  UpdateSkinningTransformBuffer(m_SkinningSpacePose.m_Transforms);
 }
 
 void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)

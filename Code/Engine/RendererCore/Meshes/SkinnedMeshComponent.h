@@ -2,6 +2,8 @@
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
+class ezShaderTransform;
+
 class EZ_RENDERERCORE_DLL ezSkinnedMeshRenderData : public ezMeshRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSkinnedMeshRenderData, ezMeshRenderData);
@@ -9,8 +11,8 @@ class EZ_RENDERERCORE_DLL ezSkinnedMeshRenderData : public ezMeshRenderData
 public:
   virtual void FillBatchIdAndSortingKey() override;
 
-  ezGALBufferHandle m_hSkinningMatrices;
-  ezArrayPtr<const ezUInt8> m_pNewSkinningMatricesData;
+  ezGALBufferHandle m_hSkinningTransforms;
+  ezArrayPtr<const ezUInt8> m_pNewSkinningTransformData;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,9 +46,9 @@ public:
   ~ezSkinnedMeshComponent();
 
 protected:
-  void CreateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
-  void UpdateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
+  void UpdateSkinningTransformBuffer(ezArrayPtr<const ezShaderTransform> skinningTransforms);
 
+private:
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  mutable ezArrayPtr<const ezMat4> m_SkinningMatrices;
+  ezArrayPtr<const ezShaderTransform> m_SkinningTransforms;
 };
