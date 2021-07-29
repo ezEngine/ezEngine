@@ -248,7 +248,7 @@ struct ezSpatialSystem_RegularGrid::Cell
     }
   }
 
-  EZ_FORCE_INLINE void UpdateData(ezSpatialData* pData)
+  EZ_FORCE_INLINE void UpdateBounds(ezSpatialData* pData)
   {
     ezUInt32 mask = pData->m_uiCategoryBitmask;
     ezUInt32 category = ezMath::FirstBitLow(mask);
@@ -269,6 +269,30 @@ struct ezSpatialSystem_RegularGrid::Cell
       EZ_ASSERT_DEBUG(found, "Implementation error");
 
       m_BoundingSpheres[category][dataIndex] = pData->m_Bounds.GetSphere();
+    }
+  }
+
+  EZ_FORCE_INLINE void UpdateObject(ezSpatialData* pData)
+  {
+    ezUInt32 mask = pData->m_uiCategoryBitmask;
+    ezUInt32 category = ezMath::FirstBitLow(mask);
+    mask &= mask - 1;
+
+    auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
+    ezUInt32 dataIndex = pUserData->m_uiCachedDataIndex;
+    EZ_ASSERT_DEBUG(pUserData->m_uiCachedCategory == category, "Implementation error");
+
+    m_ObjectPointers[category][dataIndex].m_pObject = pData->m_pObject;
+
+    while (mask > 0)
+    {
+      category = ezMath::FirstBitLow(mask);
+      mask &= mask - 1;
+
+      const bool found = m_DataPointersToIndex[category].TryGetValue(pData, dataIndex);
+      EZ_ASSERT_DEBUG(found, "Implementation error");
+
+      m_ObjectPointers[category][dataIndex].m_pObject = pData->m_pObject;
     }
   }
 
@@ -399,10 +423,10 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphereInternal(
         ezUInt32 category = ezMath::FirstBitLow(mask);
         mask &= mask - 1;
 
-        auto& boundingSpheres = cell.m_BoundingSpheres[category];
-        auto& dataPointers = cell.m_DataPointers[category];
+        auto boundingSpheres = cell.m_BoundingSpheres[category].GetData();
+        auto objectPointers = cell.m_ObjectPointers[category].GetData();
 
-        const ezUInt32 numSpheres = boundingSpheres.GetCount();
+        const ezUInt32 numSpheres = cell.m_BoundingSpheres[category].GetCount();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
         if (pStats != nullptr)
@@ -417,10 +441,8 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphereInternal(
           if (!simdSphere.Overlaps(objectSphere))
             continue;
 
-          const ezSpatialData* pData = dataPointers[i];
-
           // TODO: The return value has to have more control
-          if (callback(pData->m_pObject) == ezVisitorExecution::Stop)
+          if (callback(objectPointers[i].m_pObject) == ezVisitorExecution::Stop)
             return;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -447,10 +469,10 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(
         ezUInt32 category = ezMath::FirstBitLow(mask);
         mask &= mask - 1;
 
-        auto& boundingSpheres = cell.m_BoundingSpheres[category];
-        auto& dataPointers = cell.m_DataPointers[category];
+        auto boundingSpheres = cell.m_BoundingSpheres[category].GetData();
+        auto objectPointers = cell.m_ObjectPointers[category].GetData();
 
-        const ezUInt32 numSpheres = boundingSpheres.GetCount();
+        const ezUInt32 numSpheres = cell.m_BoundingSpheres[category].GetCount();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
         if (pStats != nullptr)
@@ -465,12 +487,8 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(
           if (!simdBox.Overlaps(objectSphere))
             continue;
 
-          const ezSpatialData* pData = dataPointers[i];
-          if (!simdBox.Overlaps(pData->m_Bounds.GetBox()))
-            continue;
-
           // TODO: The return value has to have more control
-          if (callback(pData->m_pObject) == ezVisitorExecution::Stop)
+          if (callback(objectPointers[i].m_pObject) == ezVisitorExecution::Stop)
             return;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -646,14 +664,14 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
     Cell* pOldCell = pUserData->m_pCell;
     if (pOldCell->m_Bounds.GetBox().Contains(pData->m_Bounds.GetBox()))
     {
-      pOldCell->UpdateData(pData);
+      pOldCell->UpdateBounds(pData);
     }
     else
     {
       Cell* pNewCell = GetOrCreateCell(pData->m_Bounds);
       if (pOldCell == pNewCell)
       {
-        pOldCell->UpdateData(pData);
+        pOldCell->UpdateBounds(pData);
       }
       else
       {
@@ -682,7 +700,8 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
 
 void ezSpatialSystem_RegularGrid::SpatialDataObjectChanged(ezSpatialData* pData)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
+  pUserData->m_pCell->UpdateObject(pData);
 }
 
 void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr)

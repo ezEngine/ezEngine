@@ -133,6 +133,8 @@ void ezSpatialSystem::FindObjectsInSphere(
 void ezSpatialSystem::FindObjectsInSphere(
   const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
 {
+  EZ_PROFILE_SCOPE("SpatialSystem::FindObjectsInSphere");
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (pStats != nullptr)
   {
@@ -169,6 +171,8 @@ void ezSpatialSystem::FindObjectsInBox(
 void ezSpatialSystem::FindObjectsInBox(
   const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
 {
+  EZ_PROFILE_SCOPE("SpatialSystem::FindObjectsInBox");
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (pStats != nullptr)
   {
@@ -191,6 +195,8 @@ void ezSpatialSystem::FindObjectsInBox(
 
 void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezUInt64 uiCurrentFrame, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
 {
+  EZ_PROFILE_SCOPE("SpatialSystem::FindVisibleObjects");
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezStopwatch timer;
 
