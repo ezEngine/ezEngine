@@ -177,7 +177,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("ShowDebugOverlay", GetShowDebugOverlay, SetShowDebugOverlay),
+    EZ_ACCESSOR_PROPERTY("ProbeSpacing", GetProbeSpacing, SetProbeSpacing)->AddAttributes(new ezDefaultValueAttribute(ezVec3(4)), new ezClampValueAttribute(ezVec3(0.1), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("ShowDebugOverlay", GetShowDebugOverlay, SetShowDebugOverlay)->AddAttributes(new ezGroupAttribute("Debug")),
     EZ_ACCESSOR_PROPERTY("ShowDebugProbes", GetShowDebugProbes, SetShowDebugProbes),
     EZ_ACCESSOR_PROPERTY("UseTestPosition", GetUseTestPosition, SetUseTestPosition),
     EZ_ACCESSOR_PROPERTY("TestPosition", GetTestPosition, SetTestPosition)
@@ -228,6 +229,11 @@ void ezBakedProbesComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 
   SUPER::OnDeactivated();
+}
+
+void ezBakedProbesComponent::SetProbeSpacing(const ezVec3& probeSpacing)
+{
+  m_vProbeSpacing = probeSpacing.CompMax(ezVec3(0.1));
 }
 
 void ezBakedProbesComponent::SetShowDebugOverlay(bool bShow)
@@ -371,11 +377,12 @@ void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
+  s << m_vProbeSpacing;
+  s << m_sProbeTreeResourcePrefix;
   s << m_bShowDebugOverlay;
   s << m_bShowDebugProbes;
   s << m_bUseTestPosition;
   s << m_TestPosition;
-  s << m_sProbeTreeResourcePrefix;
 }
 
 void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
@@ -384,11 +391,12 @@ void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
+  s >> m_vProbeSpacing;
+  s >> m_sProbeTreeResourcePrefix;
   s >> m_bShowDebugOverlay;
   s >> m_bShowDebugProbes;
   s >> m_bUseTestPosition;
   s >> m_TestPosition;
-  s >> m_sProbeTreeResourcePrefix;
 }
 
 void ezBakedProbesComponent::RenderDebugOverlay()

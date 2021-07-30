@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RendererCore/Declarations.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <RendererCore/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezMsgUpdateLocalBounds;
@@ -40,17 +40,20 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void SetShowDebugOverlay(bool bShow);
-  bool GetShowDebugOverlay() const { return m_bShowDebugOverlay; }
+  void SetProbeSpacing(const ezVec3& probeSpacing);                 // [ property ]
+  const ezVec3& GetProbeSpacing() const { return m_vProbeSpacing; } // [ property ]
 
-  void SetShowDebugProbes(bool bShow);
-  bool GetShowDebugProbes() const { return m_bShowDebugProbes; }
+  void SetShowDebugOverlay(bool bShow);                            // [ property ]
+  bool GetShowDebugOverlay() const { return m_bShowDebugOverlay; } // [ property ]
 
-  void SetUseTestPosition(bool bUse);
-  bool GetUseTestPosition() const { return m_bUseTestPosition; }
+  void SetShowDebugProbes(bool bShow);                           // [ property ]
+  bool GetShowDebugProbes() const { return m_bShowDebugProbes; } // [ property ]
 
-  void SetTestPosition(const ezVec3& pos);
-  const ezVec3& GetTestPosition() const { return m_TestPosition; }
+  void SetUseTestPosition(bool bUse);                            // [ property ]
+  bool GetUseTestPosition() const { return m_bUseTestPosition; } // [ property ]
+
+  void SetTestPosition(const ezVec3& pos);                         // [ property ]
+  const ezVec3& GetTestPosition() const { return m_TestPosition; } // [ property ]
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -62,6 +65,10 @@ private:
   void RenderDebugOverlay();
   void OnObjectCreated(const ezAbstractObjectNode& node);
 
+  ezVec3 m_vProbeSpacing = ezVec3(4);
+
+  ezHashedString m_sProbeTreeResourcePrefix;
+
   bool m_bShowDebugOverlay = false;
   bool m_bShowDebugProbes = false;
   bool m_bUseTestPosition = false;
@@ -71,6 +78,4 @@ private:
   ezSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;
 
   ezGALTextureHandle m_hDebugViewTexture;
-
-  ezHashedString m_sProbeTreeResourcePrefix;
 };

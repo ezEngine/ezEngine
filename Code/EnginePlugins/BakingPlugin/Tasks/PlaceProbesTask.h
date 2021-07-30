@@ -8,7 +8,7 @@ namespace ezBakingInternal
   class EZ_BAKINGPLUGIN_DLL PlaceProbesTask : public ezTask
   {
   public:
-    PlaceProbesTask(const ezBoundingBox& bounds);
+    PlaceProbesTask(const ezBoundingBox& bounds, const ezVec3& probeSpacing);
     ~PlaceProbesTask();
 
     virtual void Execute() override;
@@ -17,10 +17,9 @@ namespace ezBakingInternal
     const ezVec3& GetGridOrigin() const { return m_vGridOrigin; }
     const ezVec3U32& GetProbeCount() const { return m_vProbeCount; }
 
-    static constexpr float ProbeSpacing = 4.0f;
-
   private:
     ezBoundingBox m_Bounds;
+    ezVec3 m_vProbeSpacing;
 
     ezVec3 m_vGridOrigin = ezVec3::ZeroVector();
     ezVec3U32 m_vProbeCount = ezVec3U32::ZeroVector();

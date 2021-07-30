@@ -41,8 +41,11 @@ private:
   ezBakingScene();
   ~ezBakingScene();
 
+  // Settings
+  ezVec3 m_vProbeSpacing;
+
   ezDynamicArray<MeshObject, ezAlignedAllocatorWrapper> m_MeshObjects;
-  ezBoundingBox m_BoundingBox;
+  ezBoundingBox m_BoundingBox;  
 
   ezUInt32 m_uiWorldIndex = ezInvalidIndex;
   ezUniquePtr<ezTracerInterface> m_pTracer;

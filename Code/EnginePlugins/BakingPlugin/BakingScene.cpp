@@ -10,14 +10,10 @@
 #include <Foundation/Utilities/Progress.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/BakedProbes/BakedProbesComponent.h>
 
 ezResult ezBakingScene::Extract()
 {
-  if (m_pTracer == nullptr)
-  {
-    m_pTracer = EZ_DEFAULT_NEW(ezTracerEmbree);
-  }
-
   m_MeshObjects.Clear();
   m_BoundingBox.SetInvalid();
   m_bIsBaked = false;
@@ -30,6 +26,14 @@ ezResult ezBakingScene::Extract()
 
   const ezWorld& world = *pWorld;
   EZ_LOCK(world.GetReadMarker());
+
+  // settings
+  {
+    auto pManager = world.GetComponentManager<ezBakedProbesComponentManager>();
+    auto pComponent = pManager->GetSingletonComponent();
+
+    m_vProbeSpacing = pComponent->GetProbeSpacing();
+  }
 
   const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
@@ -65,6 +69,11 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 {
   EZ_ASSERT_DEV(!ezThreadUtils::IsMainThread(), "BakeScene must be executed on a worker thread");
 
+  if (m_pTracer == nullptr)
+  {
+    m_pTracer = EZ_DEFAULT_NEW(ezTracerEmbree);
+  }
+
   ezProgressRange pgRange("Baking Scene", 2, true, &progress);
   pgRange.SetStepWeighting(0, 0.95f);
   pgRange.SetStepWeighting(1, 0.05f);
@@ -74,7 +83,7 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 
   EZ_SUCCEED_OR_RETURN(m_pTracer->BuildScene(*this));
 
-  ezBakingInternal::PlaceProbesTask placeProbesTask(m_BoundingBox);
+  ezBakingInternal::PlaceProbesTask placeProbesTask(m_BoundingBox, m_vProbeSpacing);
   placeProbesTask.Execute();
 
   ezBakingInternal::SkyVisibilityTask skyVisibilityTask(m_pTracer.Borrow(), placeProbesTask.GetProbePositions());
@@ -95,7 +104,7 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 
   ezProbeTreeSectorResourceDescriptor desc;
   desc.m_vGridOrigin = placeProbesTask.GetGridOrigin();
-  desc.m_vProbeSpacing.Set(placeProbesTask.ProbeSpacing);
+  desc.m_vProbeSpacing = m_vProbeSpacing;
   desc.m_vProbeCount = placeProbesTask.GetProbeCount();
   desc.m_ProbePositions = placeProbesTask.GetProbePositions();
   desc.m_SkyVisibility = skyVisibilityTask.GetSkyVisibility();
