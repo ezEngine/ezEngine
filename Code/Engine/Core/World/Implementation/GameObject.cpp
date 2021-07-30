@@ -721,7 +721,7 @@ ezUInt64 ezGameObject::GetNumFramesSinceVisible() const
     return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData);
   }
 
-  return -1;
+  return 0;
 }
 
 void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)

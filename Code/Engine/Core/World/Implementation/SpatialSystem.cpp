@@ -236,12 +236,10 @@ ezUInt64 ezSpatialSystem::GetNumFramesSinceVisible(const ezSpatialDataHandle& hD
 {
   ezSpatialData* pData = nullptr;
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
-    return -1;
+    return 0;
 
   if (pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
-  {
     return 0;
-  }
 
   const ezUInt64 uiLastFrameVisible = GetLastFrameVisibleInternal(pData);
   return (m_uiFrameCounter > uiLastFrameVisible) ? m_uiFrameCounter - uiLastFrameVisible : 0;
