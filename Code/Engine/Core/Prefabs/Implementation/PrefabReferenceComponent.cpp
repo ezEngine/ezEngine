@@ -371,14 +371,24 @@ void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant
 
   m_Parameters[hs] = value;
 
-  GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+  if (IsActiveAndInitialized())
+  {
+    // only add to update list, if not yet activated,
+    // since OnActivate will do the instantiation anyway
+    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+  }
 }
 
 void ezPrefabReferenceComponent::RemoveParameter(const char* szKey)
 {
   if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
   {
-    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+    if (IsActiveAndInitialized())
+    {
+      // only add to update list, if not yet activated,
+      // since OnActivate will do the instantiation anyway
+      GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+    }
   }
 }
 
