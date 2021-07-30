@@ -32,7 +32,7 @@ ezResult ezBakingScene::Extract()
     auto pManager = world.GetComponentManager<ezBakedProbesComponentManager>();
     auto pComponent = pManager->GetSingletonComponent();
 
-    m_vProbeSpacing = pComponent->GetProbeSpacing();
+    m_Settings = pComponent->m_Settings;
   }
 
   const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
@@ -83,10 +83,10 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 
   EZ_SUCCEED_OR_RETURN(m_pTracer->BuildScene(*this));
 
-  ezBakingInternal::PlaceProbesTask placeProbesTask(m_BoundingBox, m_vProbeSpacing);
+  ezBakingInternal::PlaceProbesTask placeProbesTask(m_Settings, m_BoundingBox);
   placeProbesTask.Execute();
 
-  ezBakingInternal::SkyVisibilityTask skyVisibilityTask(m_pTracer.Borrow(), placeProbesTask.GetProbePositions());
+  ezBakingInternal::SkyVisibilityTask skyVisibilityTask(m_Settings, *m_pTracer, placeProbesTask.GetProbePositions());
   skyVisibilityTask.Execute();
 
   if (!pgRange.BeginNextStep("Writing Result"))
@@ -104,7 +104,7 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 
   ezProbeTreeSectorResourceDescriptor desc;
   desc.m_vGridOrigin = placeProbesTask.GetGridOrigin();
-  desc.m_vProbeSpacing = m_vProbeSpacing;
+  desc.m_vProbeSpacing = m_Settings.m_vProbeSpacing;
   desc.m_vProbeCount = placeProbesTask.GetProbeCount();
   desc.m_ProbePositions = placeProbesTask.GetProbePositions();
   desc.m_SkyVisibility = skyVisibilityTask.GetSkyVisibility();

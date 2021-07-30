@@ -4,6 +4,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <RendererCore/BakedProbes/BakingUtils.h>
 
+struct ezBakingSettings;
 class ezTracerInterface;
 
 namespace ezBakingInternal
@@ -11,7 +12,7 @@ namespace ezBakingInternal
   class EZ_BAKINGPLUGIN_DLL SkyVisibilityTask : public ezTask
   {
   public:
-    SkyVisibilityTask(ezTracerInterface* pTracer, ezArrayPtr<const ezVec3> probePositions);
+    SkyVisibilityTask(const ezBakingSettings& settings, ezTracerInterface& tracer, ezArrayPtr<const ezVec3> probePositions);
     ~SkyVisibilityTask();
 
     virtual void Execute() override;
@@ -19,7 +20,9 @@ namespace ezBakingInternal
     ezArrayPtr<const ezCompressedSkyVisibility> GetSkyVisibility() const { return m_SkyVisibility; }
 
   private:
-    ezTracerInterface* m_pTracer = nullptr;
+    const ezBakingSettings& m_Settings;
+
+    ezTracerInterface& m_Tracer;
     ezArrayPtr<const ezVec3> m_ProbePositions;
 
     ezDynamicArray<ezCompressedSkyVisibility> m_SkyVisibility;

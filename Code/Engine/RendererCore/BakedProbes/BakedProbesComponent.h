@@ -3,6 +3,7 @@
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <RendererCore/BakedProbes/BakingInterface.h>
 #include <RendererCore/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
@@ -40,8 +41,7 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void SetProbeSpacing(const ezVec3& probeSpacing);                 // [ property ]
-  const ezVec3& GetProbeSpacing() const { return m_vProbeSpacing; } // [ property ]
+  ezBakingSettings m_Settings; // [ property ]
 
   void SetShowDebugOverlay(bool bShow);                            // [ property ]
   bool GetShowDebugOverlay() const { return m_bShowDebugOverlay; } // [ property ]
@@ -64,8 +64,6 @@ public:
 private:
   void RenderDebugOverlay();
   void OnObjectCreated(const ezAbstractObjectNode& node);
-
-  ezVec3 m_vProbeSpacing = ezVec3(4);
 
   ezHashedString m_sProbeTreeResourcePrefix;
 

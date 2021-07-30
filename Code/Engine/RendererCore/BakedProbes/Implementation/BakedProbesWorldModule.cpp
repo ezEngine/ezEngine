@@ -34,31 +34,42 @@ ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPositio
 {
   // TODO: optimize
 
+  if (!HasProbeData())
+    return EZ_FAILURE;
+
   ezResourceLock<ezProbeTreeSectorResource> pProbeTree(m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
     return EZ_FAILURE;
 
   ezSimdVec4f gridSpacePos = ezSimdConversion::ToVec3((globalPosition - pProbeTree->GetGridOrigin()).CompDiv(pProbeTree->GetProbeSpacing()));
+  gridSpacePos = gridSpacePos.CompMax(ezSimdVec4f::ZeroVector());
 
   ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
   ezSimdVec4f weights = gridSpacePos - gridSpacePosFloor;
 
-  ezSimdVec4i pos = ezSimdVec4i::Truncate(gridSpacePosFloor);
-  ezUInt32 x = pos.x();
-  ezUInt32 y = pos.y();
-  ezUInt32 z = pos.z();
+  ezSimdVec4i maxIndices = ezSimdVec4i(pProbeTree->GetProbeCount().x, pProbeTree->GetProbeCount().y, pProbeTree->GetProbeCount().z) - ezSimdVec4i(1);
+  ezSimdVec4i pos0 = ezSimdVec4i::Truncate(gridSpacePosFloor).CompMin(maxIndices);  
+  ezSimdVec4i pos1 = (pos0 + ezSimdVec4i(1)).CompMin(maxIndices);
+
+  ezUInt32 x0 = pos0.x();
+  ezUInt32 y0 = pos0.y();
+  ezUInt32 z0 = pos0.z();
+
+  ezUInt32 x1 = pos1.x();
+  ezUInt32 y1 = pos1.y();
+  ezUInt32 z1 = pos1.z();
+
   ezUInt32 xCount = pProbeTree->GetProbeCount().x;
   ezUInt32 xyCount = xCount * pProbeTree->GetProbeCount().y;
-  ezUInt32 baseIndex = z * xyCount + y * xCount + x;
 
-  out_ProbeIndexData.m_probeIndices[0] = baseIndex;
-  out_ProbeIndexData.m_probeIndices[1] = baseIndex + 1;
-  out_ProbeIndexData.m_probeIndices[2] = baseIndex + xCount;
-  out_ProbeIndexData.m_probeIndices[3] = baseIndex + xCount + 1;
-  out_ProbeIndexData.m_probeIndices[4] = baseIndex + xyCount;
-  out_ProbeIndexData.m_probeIndices[5] = baseIndex + xyCount + 1;
-  out_ProbeIndexData.m_probeIndices[6] = baseIndex + xyCount + xCount;
-  out_ProbeIndexData.m_probeIndices[7] = baseIndex + xyCount + xCount + 1;
+  out_ProbeIndexData.m_probeIndices[0] = z0 * xyCount + y0 * xCount + x0;
+  out_ProbeIndexData.m_probeIndices[1] = z0 * xyCount + y0 * xCount + x1;
+  out_ProbeIndexData.m_probeIndices[2] = z0 * xyCount + y1 * xCount + x0;
+  out_ProbeIndexData.m_probeIndices[3] = z0 * xyCount + y1 * xCount + x1;
+  out_ProbeIndexData.m_probeIndices[4] = z1 * xyCount + y0 * xCount + x0;
+  out_ProbeIndexData.m_probeIndices[5] = z1 * xyCount + y0 * xCount + x1;
+  out_ProbeIndexData.m_probeIndices[6] = z1 * xyCount + y1 * xCount + x0;
+  out_ProbeIndexData.m_probeIndices[7] = z1 * xyCount + y1 * xCount + x1;
 
   ezVec3 w1 = ezSimdConversion::ToVec3(weights);
   ezVec3 w0 = ezVec3(1.0f) - w1;

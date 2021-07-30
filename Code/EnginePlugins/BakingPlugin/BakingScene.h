@@ -41,8 +41,7 @@ private:
   ezBakingScene();
   ~ezBakingScene();
 
-  // Settings
-  ezVec3 m_vProbeSpacing;
+  ezBakingSettings m_Settings;
 
   ezDynamicArray<MeshObject, ezAlignedAllocatorWrapper> m_MeshObjects;
   ezBoundingBox m_BoundingBox;  

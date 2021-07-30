@@ -3,8 +3,9 @@
 #include <BakingPlugin/Tasks/SkyVisibilityTask.h>
 #include <BakingPlugin/Tracer/TracerInterface.h>
 
-SkyVisibilityTask::SkyVisibilityTask(ezTracerInterface* pTracer, ezArrayPtr<const ezVec3> probePositions)
-  : m_pTracer(pTracer)
+SkyVisibilityTask::SkyVisibilityTask(const ezBakingSettings& settings, ezTracerInterface& tracer, ezArrayPtr<const ezVec3> probePositions)
+  : m_Settings(settings)
+  , m_Tracer(tracer)
   , m_ProbePositions(probePositions)
 {
 }
@@ -15,8 +16,8 @@ void SkyVisibilityTask::Execute()
 {
   m_SkyVisibility.SetCountUninitialized(m_ProbePositions.GetCount());
 
-  const ezUInt32 uiNumSamples = 128;
-  ezHybridArray<ezTracerInterface::Ray, 128> rays;
+  const ezUInt32 uiNumSamples = m_Settings.m_uiNumSamplesPerProbe;
+  ezHybridArray<ezTracerInterface::Ray, 128> rays(ezFrameAllocator::GetCurrentAllocator());
   rays.SetCountUninitialized(uiNumSamples);
 
   ezAmbientCube<float> weightNormalization;
@@ -24,7 +25,7 @@ void SkyVisibilityTask::Execute()
   {
     auto& ray = rays[uiSampleIndex];
     ray.m_vDir = ezBakingUtils::FibonacciSphere(uiSampleIndex, uiNumSamples);
-    ray.m_fDistance = 1000.0f;
+    ray.m_fDistance = m_Settings.m_fMaxRayDistance;
 
     weightNormalization.AddSample(ray.m_vDir, 1.0f);
   }
@@ -34,7 +35,7 @@ void SkyVisibilityTask::Execute()
     weightNormalization.m_Values[i] = 1.0f / weightNormalization.m_Values[i];
   }
 
-  ezHybridArray<ezTracerInterface::Hit, 128> hits;
+  ezHybridArray<ezTracerInterface::Hit, 128> hits(ezFrameAllocator::GetCurrentAllocator());
   hits.SetCountUninitialized(uiNumSamples);
 
   for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < m_ProbePositions.GetCount(); ++uiProbeIndex)
@@ -45,7 +46,7 @@ void SkyVisibilityTask::Execute()
       rays[uiSampleIndex].m_vStartPos = probePos;
     }
 
-    m_pTracer->TraceRays(rays, hits);
+    m_Tracer.TraceRays(rays, hits);
 
     ezAmbientCube<float> skyVisibility;
     for (ezUInt32 uiSampleIndex = 0; uiSampleIndex < uiNumSamples; ++uiSampleIndex)

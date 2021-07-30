@@ -9,7 +9,6 @@
 #include <Foundation/Utilities/Progress.h>
 #include <RendererCore/BakedProbes/BakedProbesComponent.h>
 #include <RendererCore/BakedProbes/BakedProbesWorldModule.h>
-#include <RendererCore/BakedProbes/BakingInterface.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
@@ -177,7 +176,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("ProbeSpacing", GetProbeSpacing, SetProbeSpacing)->AddAttributes(new ezDefaultValueAttribute(ezVec3(4)), new ezClampValueAttribute(ezVec3(0.1), ezVariant())),
+    EZ_MEMBER_PROPERTY("Settings", m_Settings),
     EZ_ACCESSOR_PROPERTY("ShowDebugOverlay", GetShowDebugOverlay, SetShowDebugOverlay)->AddAttributes(new ezGroupAttribute("Debug")),
     EZ_ACCESSOR_PROPERTY("ShowDebugProbes", GetShowDebugProbes, SetShowDebugProbes),
     EZ_ACCESSOR_PROPERTY("UseTestPosition", GetUseTestPosition, SetUseTestPosition),
@@ -229,11 +228,6 @@ void ezBakedProbesComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 
   SUPER::OnDeactivated();
-}
-
-void ezBakedProbesComponent::SetProbeSpacing(const ezVec3& probeSpacing)
-{
-  m_vProbeSpacing = probeSpacing.CompMax(ezVec3(0.1));
 }
 
 void ezBakedProbesComponent::SetShowDebugOverlay(bool bShow)
@@ -377,7 +371,9 @@ void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_vProbeSpacing;
+  if (m_Settings.Serialize(s).Failed())
+    return;
+
   s << m_sProbeTreeResourcePrefix;
   s << m_bShowDebugOverlay;
   s << m_bShowDebugProbes;
@@ -391,7 +387,9 @@ void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_vProbeSpacing;
+  if (m_Settings.Deserialize(s).Failed())
+    return;
+
   s >> m_sProbeTreeResourcePrefix;
   s >> m_bShowDebugOverlay;
   s >> m_bShowDebugProbes;
