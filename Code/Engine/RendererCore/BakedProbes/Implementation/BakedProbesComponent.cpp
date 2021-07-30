@@ -7,7 +7,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Utilities/Progress.h>
-#include <RendererCore/BakedProbes/BakedProbesSettingsComponent.h>
+#include <RendererCore/BakedProbes/BakedProbesComponent.h>
 #include <RendererCore/BakedProbes/BakedProbesWorldModule.h>
 #include <RendererCore/BakedProbes/BakingInterface.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
@@ -20,7 +20,7 @@
 #include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-struct ezBakedProbesSettingsComponent::RenderDebugViewTask : public ezTask
+struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
 {
   RenderDebugViewTask()
   {
@@ -63,34 +63,34 @@ struct ezBakedProbesSettingsComponent::RenderDebugViewTask : public ezTask
 //////////////////////////////////////////////////////////////////////////
 
 
-ezBakedProbesSettingsComponentManager::ezBakedProbesSettingsComponentManager(ezWorld* pWorld)
-  : ezSettingsComponentManager<ezBakedProbesSettingsComponent>(pWorld)
+ezBakedProbesComponentManager::ezBakedProbesComponentManager(ezWorld* pWorld)
+  : ezSettingsComponentManager<ezBakedProbesComponent>(pWorld)
 {
 }
 
-ezBakedProbesSettingsComponentManager::~ezBakedProbesSettingsComponentManager() = default;
+ezBakedProbesComponentManager::~ezBakedProbesComponentManager() = default;
 
-void ezBakedProbesSettingsComponentManager::Initialize()
+void ezBakedProbesComponentManager::Initialize()
 {
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezBakedProbesSettingsComponentManager::RenderDebug, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezBakedProbesComponentManager::RenderDebug, this);
 
     this->RegisterUpdateFunction(desc);
   }
 
-  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezBakedProbesSettingsComponentManager::OnRenderEvent, this));
+  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezBakedProbesComponentManager::OnRenderEvent, this));
 
   CreateDebugResources();
 }
 
-void ezBakedProbesSettingsComponentManager::Deinitialize()
+void ezBakedProbesComponentManager::Deinitialize()
 {
-  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezBakedProbesSettingsComponentManager::OnRenderEvent, this));
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezBakedProbesComponentManager::OnRenderEvent, this));
 }
 
-void ezBakedProbesSettingsComponentManager::RenderDebug(const ezWorldModule::UpdateContext& updateContext)
+void ezBakedProbesComponentManager::RenderDebug(const ezWorldModule::UpdateContext& updateContext)
 {
-  if (ezBakedProbesSettingsComponent* pComponent = GetSingletonComponent())
+  if (ezBakedProbesComponent* pComponent = GetSingletonComponent())
   {
     if (pComponent->GetShowDebugOverlay())
     {
@@ -99,12 +99,12 @@ void ezBakedProbesSettingsComponentManager::RenderDebug(const ezWorldModule::Upd
   }
 }
 
-void ezBakedProbesSettingsComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
+void ezBakedProbesComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
   if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
     return;
 
-  if (ezBakedProbesSettingsComponent* pComponent = GetSingletonComponent())
+  if (ezBakedProbesComponent* pComponent = GetSingletonComponent())
   {
     auto& task = pComponent->m_pRenderDebugViewTask;
     if (task != nullptr && task->m_bHasNewData)
@@ -131,7 +131,7 @@ void ezBakedProbesSettingsComponentManager::OnRenderEvent(const ezRenderWorldRen
   }
 }
 
-void ezBakedProbesSettingsComponentManager::CreateDebugResources()
+void ezBakedProbesComponentManager::CreateDebugResources()
 {
   if (!m_hDebugSphere.IsValid())
   {
@@ -173,7 +173,7 @@ void ezBakedProbesSettingsComponentManager::CreateDebugResources()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesSettingsComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -205,19 +205,20 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesSettingsComponent, 1, ezComponentMode::Stat
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezBakedProbesSettingsComponent::ezBakedProbesSettingsComponent() = default;
-ezBakedProbesSettingsComponent::~ezBakedProbesSettingsComponent() = default;
+ezBakedProbesComponent::ezBakedProbesComponent() = default;
+ezBakedProbesComponent::~ezBakedProbesComponent() = default;
 
-void ezBakedProbesSettingsComponent::OnActivated()
+void ezBakedProbesComponent::OnActivated()
 {
-  GetWorld()->GetOrCreateModule<ezBakedProbesWorldModule>();
+  auto pModule = GetWorld()->GetOrCreateModule<ezBakedProbesWorldModule>();
+  pModule->SetProbeTreeResourcePrefix(m_sProbeTreeResourcePrefix);
 
   GetOwner()->UpdateLocalBounds();
 
   SUPER::OnActivated();
 }
 
-void ezBakedProbesSettingsComponent::OnDeactivated()
+void ezBakedProbesComponent::OnDeactivated()
 {
   if (m_pRenderDebugViewTask != nullptr)
   {
@@ -229,7 +230,7 @@ void ezBakedProbesSettingsComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezBakedProbesSettingsComponent::SetShowDebugOverlay(bool bShow)
+void ezBakedProbesComponent::SetShowDebugOverlay(bool bShow)
 {
   m_bShowDebugOverlay = bShow;
 
@@ -239,7 +240,7 @@ void ezBakedProbesSettingsComponent::SetShowDebugOverlay(bool bShow)
   }
 }
 
-void ezBakedProbesSettingsComponent::SetShowDebugProbes(bool bShow)
+void ezBakedProbesComponent::SetShowDebugProbes(bool bShow)
 {
   if (m_bShowDebugProbes != bShow)
   {
@@ -252,7 +253,7 @@ void ezBakedProbesSettingsComponent::SetShowDebugProbes(bool bShow)
   }
 }
 
-void ezBakedProbesSettingsComponent::SetUseTestPosition(bool bUse)
+void ezBakedProbesComponent::SetUseTestPosition(bool bUse)
 {
   if (m_bUseTestPosition != bUse)
   {
@@ -265,7 +266,7 @@ void ezBakedProbesSettingsComponent::SetUseTestPosition(bool bUse)
   }
 }
 
-void ezBakedProbesSettingsComponent::SetTestPosition(const ezVec3& pos)
+void ezBakedProbesComponent::SetTestPosition(const ezVec3& pos)
 {
   m_TestPosition = pos;
 
@@ -275,12 +276,12 @@ void ezBakedProbesSettingsComponent::SetTestPosition(const ezVec3& pos)
   }
 }
 
-void ezBakedProbesSettingsComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void ezBakedProbesComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezBakedProbesSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_bShowDebugProbes)
     return;
@@ -290,13 +291,14 @@ void ezBakedProbesSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData&
       msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
-  if (!m_hProbeTree.IsValid())
+  auto pModule = GetWorld()->GetModule<ezBakedProbesWorldModule>();
+  if (!pModule->HasProbeData())
     return;
 
   const ezGameObject* pOwner = GetOwner();
-  auto pManager = static_cast<const ezBakedProbesSettingsComponentManager*>(GetOwningManager());
+  auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
 
-  auto addProbeRenderData = [&](const ezVec3& position, ezCompressedSkyVisibility skyVisibility) {
+  auto addProbeRenderData = [&](const ezVec3& position, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching) {
     ezTransform transform = ezTransform::IdentityTransform();
     transform.m_vPosition = position;
 
@@ -316,24 +318,40 @@ void ezBakedProbesSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData&
       pRenderData->FillBatchIdAndSortingKey();
     }
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, caching);
   };
 
   if (m_bUseTestPosition)
   {
-    auto pModule = GetWorld()->GetModule<ezBakedProbesWorldModule>();
-
     ezBakedProbesWorldModule::ProbeIndexData indexData;
     if (pModule->GetProbeIndexData(m_TestPosition, ezVec3::UnitZAxis(), indexData).Failed())
       return;
 
+    if (true)
+    {
+      ezResourceLock<ezProbeTreeSectorResource> pProbeTree(pModule->m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+        return;
+
+      ezStringBuilder sb;
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(indexData.m_probeIndices); ++i)
+      {
+        ezVec3 pos = pProbeTree->GetProbePositions()[indexData.m_probeIndices[i]];
+        ezDebugRenderer::DrawCross(msg.m_pView->GetHandle(), pos, 0.5f, ezColor::Yellow);
+
+        sb.Format("Weight: {}", indexData.m_probeWeights[i]);
+        pos.z += 0.5f;
+        ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, pos, ezColor::Yellow);
+      }
+    }
+
     ezCompressedSkyVisibility skyVisibility = ezBakingUtils::CompressSkyVisibility(pModule->GetSkyVisibility(indexData));
 
-    addProbeRenderData(m_TestPosition, skyVisibility);
+    addProbeRenderData(m_TestPosition, skyVisibility, ezRenderData::Caching::Never);
   }
   else
   {
-    ezResourceLock<ezProbeTreeSectorResource> pProbeTree(m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    ezResourceLock<ezProbeTreeSectorResource> pProbeTree(pModule->m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
     if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
       return;
 
@@ -342,26 +360,38 @@ void ezBakedProbesSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData&
 
     for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < probePositions.GetCount(); ++uiProbeIndex)
     {
-      addProbeRenderData(probePositions[uiProbeIndex], skyVisibility[uiProbeIndex]);
+      addProbeRenderData(probePositions[uiProbeIndex], skyVisibility[uiProbeIndex], ezRenderData::Caching::IfStatic);
     }
   }
 }
 
-void ezBakedProbesSettingsComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
   ezStreamWriter& s = stream.GetStream();
+
+  s << m_bShowDebugOverlay;
+  s << m_bShowDebugProbes;
+  s << m_bUseTestPosition;
+  s << m_TestPosition;
+  s << m_sProbeTreeResourcePrefix;
 }
 
-void ezBakedProbesSettingsComponent::DeserializeComponent(ezWorldReader& stream)
+void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
+
+  s >> m_bShowDebugOverlay;
+  s >> m_bShowDebugProbes;
+  s >> m_bUseTestPosition;
+  s >> m_TestPosition;
+  s >> m_sProbeTreeResourcePrefix;
 }
 
-void ezBakedProbesSettingsComponent::RenderDebugOverlay()
+void ezBakedProbesComponent::RenderDebugOverlay()
 {
   ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView);
   if (pView == nullptr)
@@ -427,12 +457,10 @@ void ezBakedProbesSettingsComponent::RenderDebugOverlay()
   ezDebugRenderer::Draw2DRectangle(pView->GetHandle(), rectInPixel, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hDebugViewTexture));
 }
 
-void ezBakedProbesSettingsComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+void ezBakedProbesComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
-  ezStringBuilder sOutputPath;
+  ezStringBuilder sPrefix;
+  sPrefix.Format(":project/AssetCache/Generated/{0}", node.GetGuid());
 
-  // this is where the editor will put the baked probe tree resources
-  sOutputPath.Format(":project/AssetCache/Generated/{0}_Global.ezProbeTreeSector", node.GetGuid());
-
-  m_hProbeTree = ezResourceManager::LoadResource<ezProbeTreeSectorResource>(sOutputPath);
+  m_sProbeTreeResourcePrefix.Assign(sPrefix);
 }

@@ -34,3 +34,14 @@ ezCompressedSkyVisibility ezBakingUtils::CompressSkyVisibility(const ezAmbientCu
 
   return result;
 }
+
+void ezBakingUtils::DecompressSkyVisibility(ezCompressedSkyVisibility compressedSkyVisibility, ezAmbientCube<float>& out_SkyVisibility)
+{
+  ezUInt32 uiOffset = 0;
+  for (ezUInt32 i = 0; i < ezAmbientCubeBasis::NumDirs; ++i)
+  {
+    ezUInt32 maxValue = (1u << s_BitsPerDir[i]) - 1u;
+    out_SkyVisibility.m_Values[i] = static_cast<float>((compressedSkyVisibility >> uiOffset) & maxValue) * (1.0f / maxValue);
+    uiOffset += s_BitsPerDir[i];
+  }
+}

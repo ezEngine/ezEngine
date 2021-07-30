@@ -94,6 +94,9 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
   EZ_SUCCEED_OR_RETURN(header.Write(file));
 
   ezProbeTreeSectorResourceDescriptor desc;
+  desc.m_vGridOrigin = placeProbesTask.GetGridOrigin();
+  desc.m_vProbeSpacing.Set(placeProbesTask.ProbeSpacing);
+  desc.m_vProbeCount = placeProbesTask.GetProbeCount();
   desc.m_ProbePositions = placeProbesTask.GetProbePositions();
   desc.m_SkyVisibility = skyVisibilityTask.GetSkyVisibility();
 

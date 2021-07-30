@@ -4,7 +4,6 @@
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <RendererCore/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezMsgUpdateLocalBounds;
@@ -12,13 +11,11 @@ struct ezMsgExtractRenderData;
 struct ezRenderWorldRenderEvent;
 class ezAbstractObjectNode;
 
-using ezProbeTreeSectorResourceHandle = ezTypedResourceHandle<class ezProbeTreeSectorResource>;
-
-class EZ_RENDERERCORE_DLL ezBakedProbesSettingsComponentManager : public ezSettingsComponentManager<class ezBakedProbesSettingsComponent>
+class EZ_RENDERERCORE_DLL ezBakedProbesComponentManager : public ezSettingsComponentManager<class ezBakedProbesComponent>
 {
 public:
-  ezBakedProbesSettingsComponentManager(ezWorld* pWorld);
-  ~ezBakedProbesSettingsComponentManager();
+  ezBakedProbesComponentManager(ezWorld* pWorld);
+  ~ezBakedProbesComponentManager();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
@@ -32,13 +29,13 @@ private:
   void CreateDebugResources();
 };
 
-class EZ_RENDERERCORE_DLL ezBakedProbesSettingsComponent : public ezSettingsComponent
+class EZ_RENDERERCORE_DLL ezBakedProbesComponent : public ezSettingsComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezBakedProbesSettingsComponent, ezSettingsComponent, ezBakedProbesSettingsComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezBakedProbesComponent, ezSettingsComponent, ezBakedProbesComponentManager);
 
 public:
-  ezBakedProbesSettingsComponent();
-  ~ezBakedProbesSettingsComponent();
+  ezBakedProbesComponent();
+  ~ezBakedProbesComponent();
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
@@ -75,5 +72,5 @@ private:
 
   ezGALTextureHandle m_hDebugViewTexture;
 
-  ezProbeTreeSectorResourceHandle m_hProbeTree;
+  ezHashedString m_sProbeTreeResourcePrefix;
 };

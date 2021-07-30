@@ -12,7 +12,11 @@ struct EZ_RENDERERCORE_DLL ezProbeTreeSectorResourceDescriptor
 
   ezProbeTreeSectorResourceDescriptor();
   ~ezProbeTreeSectorResourceDescriptor();
-  void operator=(ezProbeTreeSectorResourceDescriptor&& other);
+  ezProbeTreeSectorResourceDescriptor& operator=(ezProbeTreeSectorResourceDescriptor&& other);
+
+  ezVec3 m_vGridOrigin;
+  ezVec3 m_vProbeSpacing;
+  ezVec3U32 m_vProbeCount;
 
   ezDynamicArray<ezVec3> m_ProbePositions;
   ezDynamicArray<ezCompressedSkyVisibility> m_SkyVisibility;
@@ -33,6 +37,10 @@ class EZ_RENDERERCORE_DLL ezProbeTreeSectorResource : public ezResource
 public:
   ezProbeTreeSectorResource();
   ~ezProbeTreeSectorResource();
+
+  const ezVec3& GetGridOrigin() const { return m_Desc.m_vGridOrigin; }
+  const ezVec3& GetProbeSpacing() const { return m_Desc.m_vProbeSpacing; }
+  const ezVec3U32& GetProbeCount() const { return m_Desc.m_vProbeCount; }
 
   ezArrayPtr<const ezVec3> GetProbePositions() const { return m_Desc.m_ProbePositions; }
   ezArrayPtr<const ezCompressedSkyVisibility> GetSkyVisibility() const { return m_Desc.m_SkyVisibility; }

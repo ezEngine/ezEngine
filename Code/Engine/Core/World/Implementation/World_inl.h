@@ -134,11 +134,17 @@ EZ_ALWAYS_INLINE ModuleType* ezWorld::GetModule()
 }
 
 template <typename ModuleType>
-EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModuleReadOnly() const
+EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModule() const
 {
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
-  return ezStaticCast<const ModuleType*>(GetModuleReadOnly(ezGetStaticRTTI<ModuleType>()));
+  return ezStaticCast<const ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
+}
+
+template <typename ModuleType>
+EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModuleReadOnly() const
+{
+  return GetModule<ModuleType>();
 }
 
 template <typename ManagerType>
@@ -235,7 +241,7 @@ EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetManagerForComponentTy
 {
   EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '{0}'", pComponentRtti->GetTypeName());
 
-  return ezStaticCast<const ezComponentManagerBase*>(GetModuleReadOnly(pComponentRtti));
+  return ezStaticCast<const ezComponentManagerBase*>(GetModule(pComponentRtti));
 }
 
 inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const

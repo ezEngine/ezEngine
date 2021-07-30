@@ -1,5 +1,7 @@
 #include <RendererCorePCH.h>
 
+#include <Foundation/SimdMath/SimdConversion.h>
+#include <Foundation/SimdMath/SimdVec4i.h>
 #include <RendererCore/BakedProbes/BakedProbesWorldModule.h>
 
 // clang-format off
@@ -23,12 +25,99 @@ void ezBakedProbesWorldModule::Deinitialize()
 {
 }
 
+bool ezBakedProbesWorldModule::HasProbeData() const
+{
+  return m_hProbeTree.IsValid();
+}
+
 ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPosition, const ezVec3& normal, ProbeIndexData& out_ProbeIndexData) const
 {
-  return EZ_FAILURE;
+  // TODO: optimize
+
+  ezResourceLock<ezProbeTreeSectorResource> pProbeTree(m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return EZ_FAILURE;
+
+  ezSimdVec4f gridSpacePos = ezSimdConversion::ToVec3((globalPosition - pProbeTree->GetGridOrigin()).CompDiv(pProbeTree->GetProbeSpacing()));
+
+  ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
+  ezSimdVec4f weights = gridSpacePos - gridSpacePosFloor;
+
+  ezSimdVec4i pos = ezSimdVec4i::Truncate(gridSpacePosFloor);
+  ezUInt32 x = pos.x();
+  ezUInt32 y = pos.y();
+  ezUInt32 z = pos.z();
+  ezUInt32 xCount = pProbeTree->GetProbeCount().x;
+  ezUInt32 xyCount = xCount * pProbeTree->GetProbeCount().y;
+  ezUInt32 baseIndex = z * xyCount + y * xCount + x;
+
+  out_ProbeIndexData.m_probeIndices[0] = baseIndex;
+  out_ProbeIndexData.m_probeIndices[1] = baseIndex + 1;
+  out_ProbeIndexData.m_probeIndices[2] = baseIndex + xCount;
+  out_ProbeIndexData.m_probeIndices[3] = baseIndex + xCount + 1;
+  out_ProbeIndexData.m_probeIndices[4] = baseIndex + xyCount;
+  out_ProbeIndexData.m_probeIndices[5] = baseIndex + xyCount + 1;
+  out_ProbeIndexData.m_probeIndices[6] = baseIndex + xyCount + xCount;
+  out_ProbeIndexData.m_probeIndices[7] = baseIndex + xyCount + xCount + 1;
+
+  ezVec3 w1 = ezSimdConversion::ToVec3(weights);
+  ezVec3 w0 = ezVec3(1.0f) - w1;
+
+  // TODO: add geometry factor to weight
+  out_ProbeIndexData.m_probeWeights[0] = w0.x * w0.y * w0.z;
+  out_ProbeIndexData.m_probeWeights[1] = w1.x * w0.y * w0.z;
+  out_ProbeIndexData.m_probeWeights[2] = w0.x * w1.y * w0.z;
+  out_ProbeIndexData.m_probeWeights[3] = w1.x * w1.y * w0.z;
+  out_ProbeIndexData.m_probeWeights[4] = w0.x * w0.y * w1.z;
+  out_ProbeIndexData.m_probeWeights[5] = w1.x * w0.y * w1.z;
+  out_ProbeIndexData.m_probeWeights[6] = w0.x * w1.y * w1.z;
+  out_ProbeIndexData.m_probeWeights[7] = w1.x * w1.y * w1.z;
+
+  float weightSum = 0;
+  for (ezUInt32 i = 0; i < ProbeIndexData::NumProbes; ++i)
+  {
+    weightSum += out_ProbeIndexData.m_probeWeights[i];
+  }
+
+  float normalizeFactor = 1.0f / weightSum;
+  for (ezUInt32 i = 0; i < ProbeIndexData::NumProbes; ++i)
+  {
+    out_ProbeIndexData.m_probeWeights[i] *= normalizeFactor;
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezAmbientCube<float> ezBakedProbesWorldModule::GetSkyVisibility(const ProbeIndexData& indexData) const
 {
-  return ezAmbientCube<float>();
+  // TODO: optimize
+
+  ezAmbientCube<float> result;
+
+  ezResourceLock<ezProbeTreeSectorResource> pProbeTree(m_hProbeTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return result;
+
+  auto compressedSkyVisibility = pProbeTree->GetSkyVisibility();
+  ezAmbientCube<float> skyVisibility;
+
+  for (ezUInt32 i = 0; i < ProbeIndexData::NumProbes; ++i)
+  {
+    ezBakingUtils::DecompressSkyVisibility(compressedSkyVisibility[indexData.m_probeIndices[i]], skyVisibility);
+
+    for (ezUInt32 d = 0; d < ezAmbientCubeBasis::NumDirs; ++d)
+    {
+      result.m_Values[d] += skyVisibility.m_Values[d] * indexData.m_probeWeights[i];
+    }
+  }
+
+  return result;
+}
+
+void ezBakedProbesWorldModule::SetProbeTreeResourcePrefix(const ezHashedString& prefix)
+{
+  ezStringBuilder sResourcePath;
+  sResourcePath.Format("{}_Global.ezProbeTreeSector", prefix);
+
+  m_hProbeTree = ezResourceManager::LoadResource<ezProbeTreeSectorResource>(sResourcePath);
 }

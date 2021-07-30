@@ -6,12 +6,7 @@
 
 ezProbeTreeSectorResourceDescriptor::ezProbeTreeSectorResourceDescriptor() = default;
 ezProbeTreeSectorResourceDescriptor::~ezProbeTreeSectorResourceDescriptor() = default;
-
-void ezProbeTreeSectorResourceDescriptor::operator=(ezProbeTreeSectorResourceDescriptor&& other)
-{
-  m_ProbePositions = std::move(other.m_ProbePositions);
-  m_SkyVisibility = std::move(other.m_SkyVisibility);
-}
+ezProbeTreeSectorResourceDescriptor& ezProbeTreeSectorResourceDescriptor::operator=(ezProbeTreeSectorResourceDescriptor&& other) = default;
 
 void ezProbeTreeSectorResourceDescriptor::Clear()
 {
@@ -32,6 +27,10 @@ ezResult ezProbeTreeSectorResourceDescriptor::Serialize(ezStreamWriter& stream) 
 {
   stream.WriteVersion(s_ProbeTreeResourceDescriptorVersion);
 
+  stream << m_vGridOrigin;
+  stream << m_vProbeSpacing;
+  stream << m_vProbeCount;
+
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_ProbePositions));
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_SkyVisibility));
 
@@ -43,6 +42,10 @@ ezResult ezProbeTreeSectorResourceDescriptor::Deserialize(ezStreamReader& stream
   Clear();
 
   const ezTypeVersion version = stream.ReadVersion(s_ProbeTreeResourceDescriptorVersion);
+
+  stream >> m_vGridOrigin;
+  stream >> m_vProbeSpacing;
+  stream >> m_vProbeCount;
 
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_ProbePositions));
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_SkyVisibility));
