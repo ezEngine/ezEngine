@@ -187,16 +187,6 @@ void ezGameObject::MakeStaticInternal()
   GetWorld()->RecreateHierarchyData(this, true);
 }
 
-void ezGameObject::SetTeamID(ezUInt16 id)
-{
-  m_uiTeamID = id;
-
-  for (auto it = GetChildren(); it.IsValid(); ++it)
-  {
-    it->SetTeamID(id);
-  }
-}
-
 void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
 {
   if (IsStatic() && GetWorld()->ReportErrorWhenStaticObjectMoves())
@@ -712,6 +702,26 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArra
       out_components.PushBack(pComponent);
     }
   }
+}
+
+void ezGameObject::SetTeamID(ezUInt16 id)
+{
+  m_uiTeamID = id;
+
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    it->SetTeamID(id);
+  }
+}
+
+ezUInt64 ezGameObject::GetNumFramesSinceVisible() const
+{
+  if (const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  {
+    return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData);
+  }
+
+  return 0;
 }
 
 void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)

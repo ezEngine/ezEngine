@@ -7,6 +7,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 namespace
 {
@@ -207,6 +208,73 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindVisibleObjects")
+  {
+    constexpr uint32_t numUpdates = 13;
+
+    // update a few times to increase internal frame counter
+    for (uint32_t i = 0; i < numUpdates; ++i)
+    {
+      world.Update();
+    }
+
+    uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+
+    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+    ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(80.0f), 1.0f, 1.0f, 10000.0f);
+
+    ezFrustum testFrustum;
+    testFrustum.SetFrustum(projection * lookAt);
+
+    ezDynamicArray<const ezGameObject*> visibleObjects;
+    ezHashSet<const ezGameObject*> uniqueObjects;
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, uiCategoryBitmask, visibleObjects);
+
+    for (auto pObject : visibleObjects)
+    {
+      EZ_TEST_BOOL(testFrustum.Overlaps(pObject->GetGlobalBoundsSimd().GetSphere()));
+      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      EZ_TEST_BOOL(pObject->IsDynamic());
+      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 0);
+    }
+
+    // Check for missing objects
+    for (auto it = world.GetObjects(); it.IsValid(); ++it)
+    {
+      ezGameObject* pObject = it;
+
+      if (testFrustum.GetObjectPosition(pObject->GetGlobalBounds().GetSphere()) == ezVolumePosition::Outside)
+      {
+        EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() >= numUpdates);
+      }
+    }
+
+    // Move some objects
+    const double range = 500.0f;
+
+    for (auto it = world.GetObjects(); it.IsValid(); ++it)
+    {
+      if (it->IsDynamic())
+      {
+        ezVec3 pos = it->GetLocalPosition();
+
+        pos.x += (float)rng.DoubleMinMax(-range, range);
+        pos.y += (float)rng.DoubleMinMax(-range, range);
+        pos.z += (float)rng.DoubleMinMax(-range, range);
+
+        it->SetLocalPosition(pos);
+      }
+    }
+
+    world.Update();
+
+    // Check that last frame visible doesn't reset entirely after moving
+    for (const ezGameObject* pObject : visibleObjects)
+    {
+      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 1);
+    }
+  }
+
   if (false)
   {
     ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
@@ -223,29 +291,32 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   }
 
   // Test multiple categories for spatial data
-  for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MultipleCategories")
   {
-    ezGameObject* pObject = objects[i];
+    for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+    {
+      ezGameObject* pObject = objects[i];
 
-    TestBoundsComponent* pComponent = nullptr;
-    TestBoundsComponent::CreateComponent(pObject, pComponent);
-    pComponent->m_SpecialCategory = s_SpecialTestCategory;
+      TestBoundsComponent* pComponent = nullptr;
+      TestBoundsComponent::CreateComponent(pObject, pComponent);
+      pComponent->m_SpecialCategory = s_SpecialTestCategory;
+    }
+
+    world.Update();
+
+    ezDynamicArray<ezGameObjectHandle> allObjects;
+    allObjects.Reserve(world.GetObjectCount());
+
+    for (auto it = world.GetObjects(); it.IsValid(); ++it)
+    {
+      allObjects.PushBack(it->GetHandle());
+    }
+
+    for (ezUInt32 i = allObjects.GetCount(); i-- > 0;)
+    {
+      world.DeleteObjectNow(allObjects[i]);
+    }
+
+    world.Update();
   }
-
-  world.Update();
-
-  ezDynamicArray<ezGameObjectHandle> allObjects;
-  allObjects.Reserve(world.GetObjectCount());
-
-  for (auto it = world.GetObjects(); it.IsValid(); ++it)
-  {
-    allObjects.PushBack(it->GetHandle());
-  }
-
-  for (ezUInt32 i = allObjects.GetCount(); i-- > 0;)
-  {
-    world.DeleteObjectNow(allObjects[i]);
-  }
-
-  world.Update();
 }

@@ -504,16 +504,6 @@ EZ_ALWAYS_INLINE ezUInt16 ezGameObject::GetComponentVersion() const
   return m_Components.GetUserData<ComponentUserData>().m_uiVersion;
 }
 
-EZ_ALWAYS_INLINE ezTagSet& ezGameObject::GetTags()
-{
-  return m_Tags;
-}
-
-EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
-{
-  return m_Tags;
-}
-
 EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg)
 {
   return SendMessageInternal(msg, false);
@@ -534,6 +524,25 @@ EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
   return SendMessageRecursiveInternal(msg, false);
 }
 
+EZ_ALWAYS_INLINE ezTagSet& ezGameObject::GetTags()
+{
+  return m_Tags;
+}
+
+EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
+{
+  return m_Tags;
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetStableRandomSeed() const
+{
+  return m_pTransformationData->m_uiStableRandomSeed;
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::SetStableRandomSeed(ezUInt32 seed)
+{
+  m_pTransformationData->m_uiStableRandomSeed = seed;
+}
 
 //////////////////////////////////////////////////////////////////////////
 

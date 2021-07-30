@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/World/SpatialSystem.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Stopwatch.h>
 
 // clang-format off
@@ -19,6 +20,11 @@ ezSpatialSystem::ezSpatialSystem()
 }
 
 ezSpatialSystem::~ezSpatialSystem() = default;
+
+void ezSpatialSystem::StartNewFrame()
+{
+  ++m_uiFrameCounter;
+}
 
 ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask)
 {
@@ -92,7 +98,11 @@ void ezSpatialSystem::UpdateSpatialData(
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
     return;
 
-  pData->m_pObject = pObject;
+  if (pData->m_pObject != pObject)
+  {
+    pData->m_pObject = pObject;
+    SpatialDataObjectChanged(pData);
+  }
 
   if (!pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
   {
@@ -129,6 +139,8 @@ void ezSpatialSystem::FindObjectsInSphere(
 void ezSpatialSystem::FindObjectsInSphere(
   const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
 {
+  EZ_PROFILE_SCOPE("SpatialSystem::FindObjectsInSphere");
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (pStats != nullptr)
   {
@@ -165,6 +177,8 @@ void ezSpatialSystem::FindObjectsInBox(
 void ezSpatialSystem::FindObjectsInBox(
   const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
 {
+  EZ_PROFILE_SCOPE("SpatialSystem::FindObjectsInBox");
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (pStats != nullptr)
   {
@@ -185,9 +199,10 @@ void ezSpatialSystem::FindObjectsInBox(
   }
 }
 
-void ezSpatialSystem::FindVisibleObjects(
-  const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
 {
+  EZ_PROFILE_SCOPE("SpatialSystem::FindVisibleObjects");
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezStopwatch timer;
 
@@ -217,6 +232,17 @@ void ezSpatialSystem::FindVisibleObjects(
 #endif
 }
 
+ezUInt64 ezSpatialSystem::GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const
+{
+  ezSpatialData* pData = nullptr;
+  if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
+    return 0;
 
+  if (pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
+    return 0;
+
+  const ezUInt64 uiLastFrameVisible = GetLastFrameVisibleInternal(pData);
+  return (m_uiFrameCounter > uiLastFrameVisible) ? m_uiFrameCounter - uiLastFrameVisible : 0;
+}
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);

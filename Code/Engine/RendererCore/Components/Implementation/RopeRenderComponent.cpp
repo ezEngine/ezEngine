@@ -224,10 +224,15 @@ void ezRopeRenderComponent::SetThickness(float fThickness)
       ezHybridArray<ezTransform, 128> transforms;
       transforms.SetCountUninitialized(m_SkinningTransforms.GetCount());
 
+      ezMat4 offsetMat;
+      offsetMat.SetIdentity();
+
       for (ezUInt32 i = 0; i < m_SkinningTransforms.GetCount(); ++i)
       {
-        auto& t = transforms[i];
-        t.SetFromMat4(m_SkinningTransforms[i].GetAsMat4());
+        offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
+        ezMat4 skinningMat = m_SkinningTransforms[i].GetAsMat4() * offsetMat;
+
+        transforms[i].SetFromMat4(skinningMat);
       }
 
       UpdateSkinningTransformBuffer(transforms);
