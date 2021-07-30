@@ -326,7 +326,7 @@ void ezBlackboardComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
     sb.AppendFormat("{}: {}\n", it.Key(), it.Value().m_Value);
   }
 
-  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::Orange, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::Orange);
 }
 
 void ezBlackboardComponent::OnEntryChanged(const ezBlackboard::EntryEvent& e)

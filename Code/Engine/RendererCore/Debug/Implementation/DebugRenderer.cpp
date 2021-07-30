@@ -844,8 +844,8 @@ void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ez
 }
 
 
-void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
-  VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
+void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Center*/,
+  VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Bottom*/)
 {
   AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
     auto& textLine = data.m_textLines3D.ExpandAndGetRef();

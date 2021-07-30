@@ -803,8 +803,7 @@ void ezReflectionPool::ExtractReflectionProbe(
       ezStringBuilder sTemp;
       sTemp.Format("Priority: {}\\nIndex in Update Queue: {}", pUpdateInfo->m_fPriority, pUpdateInfo->m_uiIndexInUpdateQueue);
 
-      ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sTemp, vPosition + ezVec3(0, 0, s_fDebugSphereRadius), ezColor::LightPink, 16,
-        ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+      ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sTemp, vPosition + ezVec3(0, 0, s_fDebugSphereRadius), ezColor::LightPink);
     }
   }
 #endif

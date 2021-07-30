@@ -170,7 +170,7 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk)
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
   const float fSize = duk.GetFloatValue(3, 16.0f);
 
-  ezDebugRenderer::Draw3DText(pWorld, szText, vPos, color, (ezUInt32)fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
+  ezDebugRenderer::Draw3DText(pWorld, szText, vPos, color, (ezUInt32)fSize);
 
   return duk.ReturnVoid();
 }

@@ -118,7 +118,7 @@ public:
   static void Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);
 
   /// \brief Displays a string in 3D space for one frame.
-  static void Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);
+  static void Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Center, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Bottom);
 
   /// \brief Renders a cross at the given location for as many frames until \a duration has passed.
   static void AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration);
