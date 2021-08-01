@@ -108,16 +108,22 @@ public:
     : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
-    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-    pPreferences->ApplyDefaultValues(m_LightSettings);
+    if (bEnableDefaultLighting)
+    {
+      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      pPreferences->ApplyDefaultValues(m_LightSettings);
+    }
   }
 
   ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
     : BaseClass(szDocumentPath, pObjectManager, engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
-    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-    pPreferences->ApplyDefaultValues(m_LightSettings);
+    if (bEnableDefaultLighting)
+    {
+      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      pPreferences->ApplyDefaultValues(m_LightSettings);
+    }
   }
 
   ~ezSimpleAssetDocument()
