@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezFakeRopeComponentManager : public ezComponentManager<class ezFakeRopeComponent, ezBlockStorageType::Compact>
+class EZ_GAMEENGINE_DLL ezFakeRopeComponentManager : public ezComponentManager<class ezFakeRopeComponent, ezBlockStorageType::FreeList>
 {
 public:
   ezFakeRopeComponentManager(ezWorld* pWorld);
@@ -55,7 +55,7 @@ public:
   bool GetAttachToAnchor() const;
 
   float m_fSlack = 0.0f;
-  float m_fDamping = 0.1f;
+  float m_fDamping = 0.5f;
 
 private:
   ezResult ConfigureRopeSimulator();

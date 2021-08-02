@@ -23,6 +23,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
+  virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////

@@ -50,6 +50,9 @@ ezWindWorldModuleInterface::ezWindWorldModuleInterface(ezWorld* pWorld)
 
 ezVec3 ezWindWorldModuleInterface::ComputeWindFlutter(const ezVec3& vWind, const ezVec3& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const
 {
+  if (vWind.IsZero(0.001f))
+    return ezVec3::ZeroVector();
+
   ezVec3 windDir = vWind;
   const float fWindStrength = windDir.GetLengthAndNormalize();
 

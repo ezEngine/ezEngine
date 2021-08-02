@@ -594,8 +594,6 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
 
 void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
-  ezUInt64 uiExtractedFrame = ezRenderWorld::GetFrameCounter();
-
   for (auto pType : m_Types)
   {
     pType->ExtractTypeRenderData(msg, instanceTransform);

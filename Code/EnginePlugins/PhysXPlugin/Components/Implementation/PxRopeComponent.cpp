@@ -205,7 +205,7 @@ void ezPxRopeComponent::CreateRope()
 
   m_pArticulation = ezPhysX::GetSingleton()->GetPhysXAPI()->createArticulation();
   m_pArticulation->userData = pUserData;
-  m_pArticulation->setSleepThreshold(0.8f);
+  m_pArticulation->setSleepThreshold(0.02f);
 
   //m_pArticulation->setSolverIterationCounts(16, 4);
   //m_pArticulation->setMaxProjectionIterations(8);

@@ -252,6 +252,13 @@ void ezFakeRopeComponent::RuntimeUpdate()
   if (m_uiSleepCounter > 10)
     return;
 
+  ezUInt64 uiFramesVisible = GetOwner()->GetNumFramesSinceVisible();
+  if (uiFramesVisible > 1)
+  {
+    return;
+  }
+
+
   m_RopeSim.SimulateRope(GetWorld()->GetClock().GetTimeDiff());
 
   ++m_uiCheckEquilibriumCounter;
@@ -329,6 +336,7 @@ void ezFakeRopeComponent::SetAnchor(ezGameObjectHandle hActor)
 {
   m_hAnchor = hActor;
   m_bIsDynamic = true;
+  m_uiSleepCounter = 0;
 }
 
 void ezFakeRopeComponent::SetSlack(float val)
@@ -336,12 +344,14 @@ void ezFakeRopeComponent::SetSlack(float val)
   m_fSlack = val;
   m_RopeSim.m_fSegmentLength = -1.0f;
   m_bIsDynamic = true;
+  m_uiSleepCounter = 0;
 }
 
 void ezFakeRopeComponent::SetAttachToOrigin(bool val)
 {
   m_RopeSim.m_bFirstNodeIsFixed = val;
   m_bIsDynamic = true;
+  m_uiSleepCounter = 0;
 }
 
 bool ezFakeRopeComponent::GetAttachToOrigin() const
@@ -353,6 +363,7 @@ void ezFakeRopeComponent::SetAttachToAnchor(bool val)
 {
   m_RopeSim.m_bLastNodeIsFixed = val;
   m_bIsDynamic = true;
+  m_uiSleepCounter = 0;
 }
 
 bool ezFakeRopeComponent::GetAttachToAnchor() const
