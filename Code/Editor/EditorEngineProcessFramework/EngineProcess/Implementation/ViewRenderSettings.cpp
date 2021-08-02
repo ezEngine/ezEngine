@@ -70,6 +70,7 @@ ezEngineViewLightSettings::ezEngineViewLightSettings(bool bEnable)
 {
   if (!bEnable)
   {
+    m_bSkyBox = false;
     m_bSkyLight = false;
     m_bDirectionalLight = false;
     m_bFog = false;
