@@ -7,7 +7,7 @@ namespace
 {
   static void SetUniqueIDRecursive(ezGameObject* pObject, ezUInt32 uiUniqueID, const ezTag& tag)
   {
-    pObject->GetTags().Set(tag);
+    pObject->SetTag(tag);
 
     for (auto pComponent : pObject->GetComponents())
     {

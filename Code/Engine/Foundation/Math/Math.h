@@ -213,10 +213,20 @@ namespace ezMath
   /// Asserts that bitmask is not 0.
   ezUInt32 FirstBitLow(ezUInt32 bitmask); // [tested]
 
+  /// \brief Returns the index of the least significant bit set
+  ///
+  /// Asserts that bitmask is not 0.
+  ezUInt32 FirstBitLow(ezUInt64 bitmask); // [tested]
+
   /// \brief Returns the index of the most significant bit set
   ///
   /// Asserts that bitmask is not 0.
   ezUInt32 FirstBitHigh(ezUInt32 bitmask); // [tested]
+
+  /// \brief Returns the index of the most significant bit set
+  ///
+  /// Asserts that bitmask is not 0.
+  ezUInt32 FirstBitHigh(ezUInt64 bitmask); // [tested]
 
   /// Returns the number of zeros at the end (least significant part) of a bitmask.
   ///

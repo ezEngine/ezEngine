@@ -80,6 +80,22 @@ namespace ezMath
 #endif
   }
 
+  EZ_ALWAYS_INLINE ezUInt32 FirstBitLow(ezUInt64 value)
+  {
+    EZ_ASSERT_DEBUG(value != 0, "FirstBitLow is undefined for 0");
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    unsigned long uiIndex = 0;
+    _BitScanForward64(&uiIndex, value);
+    return uiIndex;
+#elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
+    return __builtin_ctzll(value);
+#else
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return 0;
+#endif
+  }
+
   EZ_ALWAYS_INLINE ezUInt32 FirstBitHigh(ezUInt32 value)
   {
     EZ_ASSERT_DEBUG(value != 0, "FirstBitHigh is undefined for 0");
@@ -90,6 +106,22 @@ namespace ezMath
     return uiIndex;
 #elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
     return 31 - __builtin_clz(value);
+#else
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return 0;
+#endif
+  }
+
+  EZ_ALWAYS_INLINE ezUInt32 FirstBitHigh(ezUInt64 value)
+  {
+    EZ_ASSERT_DEBUG(value != 0, "FirstBitHigh is undefined for 0");
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    unsigned long uiIndex = 0;
+    _BitScanReverse64(&uiIndex, value);
+    return uiIndex;
+#elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
+    return 63 - __builtin_clzll(value);
 #else
     EZ_ASSERT_NOT_IMPLEMENTED;
     return 0;

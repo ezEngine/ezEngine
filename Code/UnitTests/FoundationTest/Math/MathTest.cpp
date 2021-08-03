@@ -745,20 +745,32 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FirstBitLow")
   {
-    EZ_TEST_INT(ezMath::FirstBitLow(0b1111), 0);
-    EZ_TEST_INT(ezMath::FirstBitLow(0b1110), 1);
-    EZ_TEST_INT(ezMath::FirstBitLow(0b1100), 2);
-    EZ_TEST_INT(ezMath::FirstBitLow(0b1000), 3);
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt32(0b1111)), 0);
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt32(0b1110)), 1);
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt32(0b1100)), 2);
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt32(0b1000)), 3);
     EZ_TEST_INT(ezMath::FirstBitLow(0xFFFFFFFF), 0);
+
+    EZ_TEST_INT(ezMath::FirstBitLow(0xFF000000FF00000F), 0);
+    EZ_TEST_INT(ezMath::FirstBitLow(0xFF000000FF00000E), 1);
+    EZ_TEST_INT(ezMath::FirstBitLow(0xFF000000FF00000C), 2);
+    EZ_TEST_INT(ezMath::FirstBitLow(0xFF000000FF000008), 3);
+    EZ_TEST_INT(ezMath::FirstBitLow(0xFFFFFFFFFFFFFFFF), 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FirstBitHigh")
   {
-    EZ_TEST_INT(ezMath::FirstBitHigh(0b1111), 3);
-    EZ_TEST_INT(ezMath::FirstBitHigh(0b0111), 2);
-    EZ_TEST_INT(ezMath::FirstBitHigh(0b0011), 1);
-    EZ_TEST_INT(ezMath::FirstBitHigh(0b0001), 0);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt32(0b1111)), 3);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt32(0b0111)), 2);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt32(0b0011)), 1);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt32(0b0001)), 0);
     EZ_TEST_INT(ezMath::FirstBitHigh(0xFFFFFFFF), 31);
+
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x00FF000000FF000F)), 55);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x007F000000FF000F)), 54);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x003F000000FF000F)), 53);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x001F000000FF000F)), 52);
+    EZ_TEST_INT(ezMath::FirstBitHigh(0xFFFFFFFFFFFFFFFF), 63);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CountTrailingZeros (32)")

@@ -145,7 +145,7 @@ namespace
       offset = 4;
     }
 
-    int mask = _mm_movemask_ps(_mm_castsi128_ps(_mm_cmpeq_epi32(min, minH)));
+    ezUInt32 mask = _mm_movemask_ps(_mm_castsi128_ps(_mm_cmpeq_epi32(min, minH)));
 
     return ezMath::FirstBitLow(mask) + offset;
   }

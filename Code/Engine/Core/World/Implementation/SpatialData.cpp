@@ -2,8 +2,6 @@
 
 #include <Core/World/SpatialData.h>
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezSpatialData) == 64);
-
 ezHybridArray<ezSpatialData::CategoryData, 32>& ezSpatialData::GetCategoryData()
 {
   static ezHybridArray<ezSpatialData::CategoryData, 32> CategoryData;
@@ -11,11 +9,14 @@ ezHybridArray<ezSpatialData::CategoryData, 32>& ezSpatialData::GetCategoryData()
 }
 
 // static
-ezSpatialData::Category ezSpatialData::RegisterCategory(const char* szCategoryName)
+ezSpatialData::Category ezSpatialData::RegisterCategory(const char* szCategoryName, const ezBitflags<Flags>& flags)
 {
   Category oldCategory = FindCategory(szCategoryName);
   if (oldCategory != ezInvalidSpatialDataCategory)
+  {
+    EZ_ASSERT_DEV(GetCategoryFlags(oldCategory) == flags, "Category registered with different flags");
     return oldCategory;
+  }
 
   if (GetCategoryData().GetCount() == 32)
   {
@@ -27,6 +28,7 @@ ezSpatialData::Category ezSpatialData::RegisterCategory(const char* szCategoryNa
 
   auto& data = GetCategoryData().ExpandAndGetRef();
   data.m_sName.Assign(szCategoryName);
+  data.m_Flags = flags;
 
   return newCategory;
 }
@@ -45,10 +47,16 @@ ezSpatialData::Category ezSpatialData::FindCategory(const char* szCategoryName)
   return ezInvalidSpatialDataCategory;
 }
 
+// static
+const ezBitflags<ezSpatialData::Flags>& ezSpatialData::GetCategoryFlags(Category category)
+{
+  return GetCategoryData()[category.m_uiValue].m_Flags;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
-ezSpatialData::Category ezDefaultSpatialDataCategories::RenderStatic = ezSpatialData::RegisterCategory("RenderStatic");
-ezSpatialData::Category ezDefaultSpatialDataCategories::RenderDynamic = ezSpatialData::RegisterCategory("RenderDynamic");
+ezSpatialData::Category ezDefaultSpatialDataCategories::RenderStatic = ezSpatialData::RegisterCategory("RenderStatic", ezSpatialData::Flags::None);
+ezSpatialData::Category ezDefaultSpatialDataCategories::RenderDynamic = ezSpatialData::RegisterCategory("RenderDynamic", ezSpatialData::Flags::FrequentChanges);
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialData);

@@ -431,8 +431,16 @@ public:
 
 
   /// \brief Returns the tag set associated with this object.
-  ezTagSet& GetTags();
   const ezTagSet& GetTags() const;
+
+  /// \brief Sets the tag set associated with this object.
+  void SetTags(const ezTagSet& tags);
+
+  /// \brief Adds the given tag to the object's tags.
+  void SetTag(const ezTag& tag);
+
+  /// \brief Removes the given tag from the object's tags.
+  void RemoveTag(const ezTag& tag);
 
   /// \brief Returns the 'team ID' that was given during creation (/see ezGameObjectDesc)
   ///
@@ -546,13 +554,13 @@ private:
     void UpdateGlobalTransform();
     void UpdateGlobalTransformWithParent();
 
-    void UpdateGlobalBounds(ezSpatialSystem* pSpatialSytem);
+    void UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem);
     void UpdateGlobalBounds();
-    void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSytem);
+    void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSystem);
 
     void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 
-    void UpdateSpatialData(ezSpatialSystem& spatialSystem, bool bWasAlwaysVisible, bool bIsAlwaysVisible);
+    void RecreateSpatialData(ezSpatialSystem& spatialSystem);
   };
 
   ezGameObjectId m_InternalId;
