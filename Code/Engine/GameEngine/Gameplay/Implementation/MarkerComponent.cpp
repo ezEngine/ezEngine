@@ -68,7 +68,7 @@ void ezMarkerComponent::UpdateMarker()
 {
   if (!m_sMarkerType.IsEmpty())
   {
-    m_SpatialCategory = ezSpatialData::RegisterCategory(m_sMarkerType.GetString());
+    m_SpatialCategory = ezSpatialData::RegisterCategory(m_sMarkerType.GetString(), ezSpatialData::Flags::None);
   }
   else
   {

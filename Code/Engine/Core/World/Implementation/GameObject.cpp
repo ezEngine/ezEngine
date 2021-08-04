@@ -265,10 +265,8 @@ void ezGameObject::operator=(const ezGameObject& other)
 
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
-    if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
-    {
-      pSpatialSystem->UpdateSpatialDataObject(m_pTransformationData->m_hSpatialData, this);
-    }
+    ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
+    pSpatialSystem->UpdateSpatialDataObject(m_pTransformationData->m_hSpatialData, this);
   }
 
   m_Components.CopyFrom(other.m_Components, GetWorld()->GetAllocator());
@@ -619,14 +617,16 @@ void ezGameObject::UpdateLocalBounds()
   const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
   bool bRecreateSpatialData = false;
 
-  if (m_pTransformationData->m_hSpatialData.IsInvalidated() == false &&
-      (m_pTransformationData->m_uiSpatialDataCategoryBitmask != msg.m_uiSpatialDataCategoryBitmask ||
-        bIsAlwaysVisible != msg.m_bAlwaysVisible ||
-        msg.m_ResultingLocalBounds.IsValid() == false))
+  if (m_pTransformationData->m_hSpatialData.IsInvalidated() == false)
   {
-    // delete old spatial data if bounds are now invalid or force spatial data re-creation
-    // if categories or always visible flag has changed
-    bRecreateSpatialData = true;
+    // force spatial data re-creation if categories have changed
+    bRecreateSpatialData |= m_pTransformationData->m_uiSpatialDataCategoryBitmask != msg.m_uiSpatialDataCategoryBitmask;
+    
+    // force spatial data re-creation if always visible flag has changed
+    bRecreateSpatialData |= bIsAlwaysVisible != msg.m_bAlwaysVisible;
+    
+    // delete old spatial data if bounds are now invalid
+    bRecreateSpatialData |= msg.m_bAlwaysVisible == false && msg.m_ResultingLocalBounds.IsValid() == false;
   }
 
   m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
@@ -729,8 +729,9 @@ void ezGameObject::SetTeamID(ezUInt16 id)
 
 ezUInt64 ezGameObject::GetNumFramesSinceVisible() const
 {
-  if (const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
+    const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
     return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData);
   }
 
@@ -1071,7 +1072,8 @@ void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatia
 
   UpdateGlobalBounds();
 
-  if (m_hSpatialData.IsInvalidated() == false && m_globalBounds != oldGlobalBounds)
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  if (m_hSpatialData.IsInvalidated() == false && bIsAlwaysVisible == false && m_globalBounds != oldGlobalBounds)
   {
     spatialSystem.UpdateSpatialDataBounds(m_hSpatialData, m_globalBounds);
   }

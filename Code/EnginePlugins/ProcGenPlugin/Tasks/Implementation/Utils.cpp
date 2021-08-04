@@ -8,7 +8,7 @@
 
 namespace
 {
-  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume");
+  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
   static ezHashedString s_sVolumes = ezMakeHashedString("Volumes");
 } // namespace
 

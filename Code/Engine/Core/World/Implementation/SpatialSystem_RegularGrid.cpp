@@ -1,8 +1,8 @@
 #include <Core/CorePCH.h>
 
 #include <Core/World/SpatialSystem_RegularGrid.h>
-#include <Foundation/Containers/HashSet.h>
 #include <Foundation/SimdMath/SimdConversion.h>
+#include <Foundation/Time/Stopwatch.h>
 
 namespace
 {
@@ -147,7 +147,7 @@ struct CellDataMapping
   ezUInt32 m_uiCellDataIndex = ezInvalidIndex;
 };
 
-struct Cell
+struct ezSpatialSystem_RegularGrid::Cell
 {
   Cell(ezAllocatorBase* pAlignedAlloctor, ezAllocatorBase* pAllocator)
     : m_BoundingSpheres(pAlignedAlloctor)
@@ -163,7 +163,8 @@ struct Cell
     m_BoundingSpheres.PushBack(bounds.GetSphere());
     m_CategoryBitmasks.PushBack(uiCategoryBitmask);
     m_TagSets.PushBack(tags);
-    m_ObjectPointers.PushBack({pObject, uiLastVisibleFrame});
+    m_ObjectPointers.PushBack(pObject);
+    m_LastVisibleFrames.PushBack(uiLastVisibleFrame);
     m_DataIndices.PushBack(uiDataIndex);
 
     return m_BoundingSpheres.GetCount() - 1;
@@ -178,7 +179,9 @@ struct Cell
     m_CategoryBitmasks.RemoveAtAndSwap(uiCellDataIndex);
     m_TagSets.RemoveAtAndSwap(uiCellDataIndex);
     m_ObjectPointers.RemoveAtAndSwap(uiCellDataIndex);
+    m_LastVisibleFrames.RemoveAtAndSwap(uiCellDataIndex);
     m_DataIndices.RemoveAtAndSwap(uiCellDataIndex);
+    EZ_ASSERT_DEBUG(m_DataIndices.GetCount() == uiCellDataIndex || m_DataIndices[uiCellDataIndex] == uiMovedDataIndex, "Implementation error");
 
     return uiMovedDataIndex;
   }
@@ -187,18 +190,11 @@ struct Cell
 
   ezSimdBBoxSphere m_Bounds;
 
-  struct ObjectPointerAndFrame
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezGameObject* m_pObject;
-    ezUInt64 m_uiLastVisibleFrame;
-  };
-
   ezDynamicArray<ezSimdBSphere> m_BoundingSpheres;
   ezDynamicArray<ezUInt32> m_CategoryBitmasks;
   ezDynamicArray<ezTagSet> m_TagSets;
-  ezDynamicArray<ObjectPointerAndFrame> m_ObjectPointers;
+  ezDynamicArray<ezGameObject*> m_ObjectPointers;
+  mutable ezDynamicArray<ezUInt64> m_LastVisibleFrames; // multi-threaded access is ok, since all threads will set the same value
   ezDynamicArray<ezUInt32> m_DataIndices;
 };
 
@@ -266,12 +262,15 @@ struct ezSpatialSystem_RegularGrid::Grid
 
   void AddSpatialData(const ezSimdBBoxSphere& bounds, ezUInt32 uiCategoryBitmask, const ezTagSet& tags, ezGameObject* pObject, ezUInt64 uiLastVisibleFrame, const ezSpatialDataHandle& hData)
   {
+    m_uiCategoryBitmask |= uiCategoryBitmask;
+
     ezUInt32 uiDataIndex = hData.GetInternalID().m_InstanceIndex;
-    
+
     ezUInt32 uiCellIndex = GetOrCreateCell(bounds);
     ezUInt32 uiCellDataIndex = m_Cells[uiCellIndex]->AddData(bounds, uiCategoryBitmask, tags, pObject, uiLastVisibleFrame, uiDataIndex);
 
     m_CellDataMappings.EnsureCount(uiDataIndex + 1);
+    EZ_ASSERT_DEBUG(m_CellDataMappings[uiDataIndex].m_uiCellIndex == ezInvalidIndex, "data has already been added to a cell");
     m_CellDataMappings[uiDataIndex] = {uiCellIndex, uiCellDataIndex};
   }
 
@@ -349,6 +348,184 @@ struct ezSpatialSystem_RegularGrid::Grid
 
 //////////////////////////////////////////////////////////////////////////
 
+namespace ezInternal
+{
+  struct QueryHelper
+  {
+    template <typename T>
+    struct ShapeQueryData
+    {
+      T m_Shape;
+      ezSpatialSystem::QueryCallback m_Callback;
+    };
+
+    template <typename T, bool UseCategoryFilter, bool UseTagsFilter>
+    static ezVisitorExecution::Enum ShapeQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, void* pUserData)
+    {
+      auto pQueryData = static_cast<const ShapeQueryData<T>*>(pUserData);
+      T shape = pQueryData->m_Shape;
+
+      ezSimdBBox cellBox = cell.m_Bounds.GetBox();
+      if (!cellBox.Overlaps(shape))
+        return ezVisitorExecution::Continue;
+
+      auto boundingSpheres = cell.m_BoundingSpheres.GetData();
+      auto categoryBitmasks = cell.m_CategoryBitmasks.GetData();
+      auto tagSets = cell.m_TagSets.GetData();
+      auto objectPointers = cell.m_ObjectPointers.GetData();
+
+      const ezUInt32 numSpheres = cell.m_BoundingSpheres.GetCount();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      if (queryParams.m_pStats != nullptr)
+      {
+        queryParams.m_pStats->m_uiNumObjectsTested += numSpheres;
+      }
+#endif
+
+      for (ezUInt32 i = 0; i < numSpheres; ++i)
+      {
+        if (UseCategoryFilter)
+        {
+          if (FilterByCategory(categoryBitmasks[i], queryParams.m_uiCategoryBitmask))
+            continue;
+        }
+
+        if (!shape.Overlaps(boundingSpheres[i]))
+          continue;
+
+        if (UseTagsFilter)
+        {
+          if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
+            continue;
+        }
+
+        if (pQueryData->m_Callback(objectPointers[i]) == ezVisitorExecution::Stop)
+          return ezVisitorExecution::Stop;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+        if (queryParams.m_pStats != nullptr)
+        {
+          queryParams.m_pStats->m_uiNumObjectsPassed++;
+        }
+#endif
+      }
+
+      return ezVisitorExecution::Continue;
+    }
+
+    struct FrustumQueryData
+    {
+      PlaneData m_PlaneData;
+      ezDynamicArray<const ezGameObject*>* m_pOutObjects;
+      ezUInt64 m_uiFrameCounter;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      ezUInt32 m_uiNumObjectsTested = 0;
+      ezUInt32 m_uiNumObjectsPassed = 0;
+#endif
+    };
+
+    template <bool UseCategoryFilter, bool UseTagsFilter>
+    static ezVisitorExecution::Enum FrustumQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, void* pUserData)
+    {
+      auto pQueryData = static_cast<FrustumQueryData*>(pUserData);
+      PlaneData planeData = pQueryData->m_PlaneData;
+
+      ezSimdBSphere cellSphere = cell.m_Bounds.GetSphere();
+      if (!SphereFrustumIntersect(cellSphere, planeData))
+        return ezVisitorExecution::Continue;
+
+      auto boundingSpheres = cell.m_BoundingSpheres.GetData();
+      auto categoryBitmasks = cell.m_CategoryBitmasks.GetData();
+      auto tagSets = cell.m_TagSets.GetData();
+      auto objectPointers = cell.m_ObjectPointers.GetData();
+      auto lastVisibleFrames = cell.m_LastVisibleFrames.GetData();
+
+      const ezUInt32 numSpheres = cell.m_BoundingSpheres.GetCount();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      pQueryData->m_uiNumObjectsTested += numSpheres;
+#endif
+      ezUInt32 currentIndex = 0;
+
+      while (currentIndex < numSpheres)
+      {
+        if (numSpheres - currentIndex >= 32)
+        {
+          ezUInt32 mask = 0;
+
+          for (ezUInt32 i = 0; i < 32; i += 2)
+          {
+            auto& objectSphereA = boundingSpheres[currentIndex + i + 0];
+            auto& objectSphereB = boundingSpheres[currentIndex + i + 1];
+
+            mask |= SphereFrustumIntersect(objectSphereA, objectSphereB, planeData) << i;
+          }
+
+          while (mask > 0)
+          {
+            ezUInt32 i = ezMath::FirstBitLow(mask) + currentIndex;
+            mask &= mask - 1;
+
+            if (UseCategoryFilter)
+            {
+              if (FilterByCategory(categoryBitmasks[i], queryParams.m_uiCategoryBitmask))
+                continue;
+            }
+
+            if (UseTagsFilter)
+            {
+              if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
+                continue;
+            }
+
+            lastVisibleFrames[i] = pQueryData->m_uiFrameCounter;
+            pQueryData->m_pOutObjects->PushBack(objectPointers[i]);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+            pQueryData->m_uiNumObjectsPassed++;
+#endif
+          }
+
+          currentIndex += 32;
+        }
+        else
+        {
+          ezUInt32 i = currentIndex;
+          ++currentIndex;
+
+          if (UseCategoryFilter)
+          {
+            if (FilterByCategory(categoryBitmasks[i], queryParams.m_uiCategoryBitmask))
+              continue;
+          }
+
+          auto& objectSphere = boundingSpheres[i];
+          if (!SphereFrustumIntersect(objectSphere, planeData))
+            continue;
+
+          if (UseTagsFilter)
+          {
+            if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
+              continue;
+          }
+
+          lastVisibleFrames[i] = pQueryData->m_uiFrameCounter;
+          pQueryData->m_pOutObjects->PushBack(objectPointers[i]);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+          pQueryData->m_uiNumObjectsPassed++;
+#endif
+        }
+      }
+
+      return ezVisitorExecution::Continue;
+    }
+  };
+} // namespace ezInternal
+
+//////////////////////////////////////////////////////////////////////////
+
 constexpr ezUInt32 g_AlwaysVisibleGridIndex = 0;
 constexpr ezUInt32 g_DefaultGridIndex = 1;
 
@@ -362,17 +539,47 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
   , m_fOverlapSize(uiCellSize / 4.0f)
   , m_fInvCellSize(1.0f / uiCellSize)
 {
-  // Always visible and default grid
-  for (ezUInt32 i = 0; i < 2; ++i)
-  {
-    auto pGrid = EZ_NEW(&m_Allocator, Grid, *this);
-    pGrid->m_uiCategoryBitmask = ezInvalidIndex;
+  // dummy always visible grid which is not actually used.
+  m_Grids.PushBack(nullptr);
 
-    m_Grids.PushBack(pGrid);
-  }
+  auto pGrid = EZ_NEW(&m_Allocator, Grid, *this);
+  m_Grids.PushBack(pGrid);
 }
 
 ezSpatialSystem_RegularGrid::~ezSpatialSystem_RegularGrid() = default;
+
+ezResult ezSpatialSystem_RegularGrid::GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_BoundingBox) const
+{
+  Data* pData = nullptr;
+  if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
+    return EZ_FAILURE;
+
+  ForEachGrid(*pData, hData,
+    [&](Grid& grid, const CellDataMapping& mapping) {
+      auto& pCell = grid.m_Cells[mapping.m_uiCellIndex];
+
+      out_BoundingBox = pCell->GetBoundingBox();
+      return ezVisitorExecution::Stop;
+    });
+
+  return EZ_SUCCESS;
+}
+
+void ezSpatialSystem_RegularGrid::GetAllCellBoxes(ezDynamicArray<ezBoundingBox>& out_BoundingBoxes, ezSpatialData::Category filterCategory /*= ezInvalidSpatialDataCategory*/) const
+{
+  for (auto& pGrid : m_Grids)
+  {
+    if (filterCategory != ezInvalidSpatialDataCategory && (pGrid->m_uiCategoryBitmask & filterCategory.GetBitmask()) == 0)
+      continue;
+
+    for (auto& pCell : pGrid->m_Cells)
+    {
+      out_BoundingBoxes.ExpandAndGetRef() = pCell->GetBoundingBox();
+    }
+
+    break;
+  }
+}
 
 ezSpatialDataHandle ezSpatialSystem_RegularGrid::CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags)
 {
@@ -392,13 +599,13 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::CreateSpatialDataAlwaysVisible(
   if (uiCategoryBitmask == 0)
     return ezSpatialDataHandle();
 
-  Data data = {EZ_BIT(g_AlwaysVisibleGridIndex)};
+  Data data = {EZ_BIT(g_AlwaysVisibleGridIndex) | EZ_BIT(g_DefaultGridIndex)};
   auto hData = ezSpatialDataHandle(m_DataTable.Insert(data));
 
   ezSimdBBox hugeBox;
   hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(m_iCellSize.x() * MAX_CELL_INDEX)));
 
-  m_Grids[g_AlwaysVisibleGridIndex]->AddSpatialData(hugeBox, uiCategoryBitmask, tags, pObject, m_uiFrameCounter, hData);
+  m_Grids[g_DefaultGridIndex]->AddSpatialData(hugeBox, uiCategoryBitmask, tags, pObject, m_uiFrameCounter, hData);
 
   return hData;
 }
@@ -406,20 +613,19 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::CreateSpatialDataAlwaysVisible(
 void ezSpatialSystem_RegularGrid::DeleteSpatialData(const ezSpatialDataHandle& hData)
 {
   Data oldData;
-  if (!m_DataTable.Remove(hData.GetInternalID(), &oldData))
-    return;
+  EZ_VERIFY(m_DataTable.Remove(hData.GetInternalID(), &oldData), "Invalid spatial data handle");
 
   ForEachGrid(oldData, hData,
     [&](Grid& grid, const CellDataMapping& mapping) {
       grid.RemoveSpatialData(hData);
+      return ezVisitorExecution::Continue;
     });
 }
 
 void ezSpatialSystem_RegularGrid::UpdateSpatialDataBounds(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds)
 {
   Data* pData = nullptr;
-  if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
-    return;
+  EZ_VERIFY(m_DataTable.TryGetValue(hData.GetInternalID(), pData), "Invalid spatial data handle");
 
   // No need to update bounds for always visible data
   if (IsAlwaysVisibleData(*pData))
@@ -435,30 +641,31 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataBounds(const ezSpatialDataHan
       }
       else
       {
-        ezUInt32 uiNewCellIndex = grid.GetOrCreateCell(bounds);
-        if (mapping.m_uiCellIndex == uiNewCellIndex)
-        {
-          EZ_ASSERT_DEBUG(false, "should never happen?");
-          pOldCell->m_BoundingSpheres[mapping.m_uiCellDataIndex] = bounds.GetSphere();
-        }
-        else
-        {
-          // Migrate all data to new cell
-          ezUInt32 uiCategoryBitmask = pOldCell->m_CategoryBitmasks[mapping.m_uiCellDataIndex];
-          const ezTagSet& tags = pOldCell->m_TagSets[mapping.m_uiCellDataIndex];
-          auto& objectPointer = pOldCell->m_ObjectPointers[mapping.m_uiCellDataIndex];
-          grid.AddSpatialData(bounds, uiCategoryBitmask, tags, objectPointer.m_pObject, objectPointer.m_uiLastVisibleFrame, hData);
+        ezUInt32 uiCategoryBitmask = pOldCell->m_CategoryBitmasks[mapping.m_uiCellDataIndex];
+        const ezTagSet tags = pOldCell->m_TagSets[mapping.m_uiCellDataIndex];
+        ezGameObject* objectPointer = pOldCell->m_ObjectPointers[mapping.m_uiCellDataIndex];
+        ezUInt64 uiLastVisibleFrame = pOldCell->m_LastVisibleFrames[mapping.m_uiCellDataIndex];
 
-          // Remove data from old cell
-          grid.RemoveSpatialData(hData);
-        }
+        grid.RemoveSpatialData(hData);
+
+        grid.AddSpatialData(bounds, uiCategoryBitmask, tags, objectPointer, uiLastVisibleFrame, hData);
       }
+
+      return ezVisitorExecution::Continue;
     });
 }
 
 void ezSpatialSystem_RegularGrid::UpdateSpatialDataObject(const ezSpatialDataHandle& hData, ezGameObject* pObject)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  Data* pData = nullptr;
+  EZ_VERIFY(m_DataTable.TryGetValue(hData.GetInternalID(), pData), "Invalid spatial data handle");
+
+  ForEachGrid(*pData, hData,
+    [&](Grid& grid, const CellDataMapping& mapping) {
+      auto& pCell = grid.m_Cells[mapping.m_uiCellIndex];
+      pCell->m_ObjectPointers[mapping.m_uiCellDataIndex] = pObject;
+      return ezVisitorExecution::Continue;
+    });
 }
 
 void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const
@@ -469,61 +676,21 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
   ezSimdBBox simdBox;
   simdBox.SetCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
 
-  m_Grids[0]->ForEachCellInBox(
-    simdBox, [&](const Cell& cell) {
-      ezSimdBBox cellBox = cell.m_Bounds.GetBox();
-      if (!cellBox.Overlaps(simdSphere))
-        return ezVisitorExecution::Continue;
+  ezInternal::QueryHelper::ShapeQueryData<ezSimdBSphere> queryData = {simdSphere, callback};
 
-      auto boundingSpheres = cell.m_BoundingSpheres.GetData();
-      auto categoryBitmasks = cell.m_CategoryBitmasks.GetData();
-      auto tagSets = cell.m_TagSets.GetData();
-      auto objectPointers = cell.m_ObjectPointers.GetData();
-
-      const ezUInt32 numSpheres = cell.m_BoundingSpheres.GetCount();
+  ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBSphere, false, false>,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBSphere, true, false>,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBSphere, false, true>,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBSphere, true, true>,
+    &queryData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      if (queryParams.m_pStats != nullptr)
-      {
-        queryParams.m_pStats->m_uiNumObjectsTested += numSpheres;
-      }
-#endif
-
-      for (ezUInt32 i = 0; i < numSpheres; ++i)
-      {
-        if (FilterByCategory(categoryBitmasks[i], queryParams.m_uiCategoryBitmask))
-          continue;
-
-        if (!simdSphere.Overlaps(boundingSpheres[i]))
-          continue;
-
-        if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
-          continue;
-
-        if (callback(objectPointers[i].m_pObject) == ezVisitorExecution::Stop)
-          return ezVisitorExecution::Stop;
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-        if (queryParams.m_pStats != nullptr)
-        {
-          queryParams.m_pStats->m_uiNumObjectsPassed++;
-        }
-#endif
-      }
-
-      return ezVisitorExecution::Continue;
-    });
-
-  /*for (auto& alwaysVisibleData : m_AlwaysVisibleData)
+  if (queryParams.m_pStats != nullptr)
   {
-    if (FilterByCategory(alwaysVisibleData.m_uiCategoryBitmask, queryParams.m_uiCategoryBitmask))
-      continue;
-
-    if (FilterByTags(alwaysVisibleData.m_Tags, queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
-      continue;
-
-    callback(alwaysVisibleData.m_pObject);
-  }*/
+    queryParams.m_pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
+  }
+#endif
 }
 
 void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const
@@ -532,80 +699,94 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
 
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
-  m_Grids[0]->ForEachCellInBox(
-    simdBox, [&](const Cell& cell) {
-      auto boundingSpheres = cell.m_BoundingSpheres.GetData();
-      auto categoryBitmasks = cell.m_CategoryBitmasks.GetData();
-      auto tagSets = cell.m_TagSets.GetData();
-      auto objectPointers = cell.m_ObjectPointers.GetData();
+  ezInternal::QueryHelper::ShapeQueryData<ezSimdBBox> queryData = {simdBox, callback};
 
-      const ezUInt32 numSpheres = cell.m_BoundingSpheres.GetCount();
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      if (queryParams.m_pStats != nullptr)
-      {
-        queryParams.m_pStats->m_uiNumObjectsTested += numSpheres;
-      }
-#endif
-
-      for (ezUInt32 i = 0; i < numSpheres; ++i)
-      {
-        if (FilterByCategory(categoryBitmasks[i], queryParams.m_uiCategoryBitmask))
-          continue;
-
-        if (!simdBox.Overlaps(boundingSpheres[i]))
-          continue;
-
-        if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
-          continue;
-
-        if (callback(objectPointers[i].m_pObject) == ezVisitorExecution::Stop)
-          return ezVisitorExecution::Stop;
+  ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBBox, false, false>,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBBox, true, false>,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBBox, false, true>,
+    &ezInternal::QueryHelper::ShapeQueryCallback<ezSimdBBox, true, true>,
+    &queryData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-        if (queryParams.m_pStats != nullptr)
-        {
-          queryParams.m_pStats->m_uiNumObjectsPassed++;
-        }
-#endif
-      }
-
-      return ezVisitorExecution::Continue;
-    });
-
-  /*for (auto& alwaysVisibleData : m_AlwaysVisibleData)
+  if (queryParams.m_pStats != nullptr)
   {
-    if (FilterByCategory(alwaysVisibleData.m_uiCategoryBitmask, queryParams.m_uiCategoryBitmask))
-      continue;
-
-    if (FilterByTags(alwaysVisibleData.m_Tags, queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
-      continue;
-
-    callback(alwaysVisibleData.m_pObject);
-  }*/
+    queryParams.m_pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
+  }
+#endif
 }
 
 void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects) const
 {
   EZ_PROFILE_SCOPE("FindVisibleObjects");
 
-  /*for (auto& alwaysVisibleData : m_AlwaysVisibleData)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezStopwatch timer;
+#endif
+
+  ezVec3 cornerPoints[8];
+  frustum.ComputeCornerPoints(cornerPoints);
+
+  ezSimdVec4f simdCornerPoints[8];
+  for (ezUInt32 i = 0; i < 8; ++i)
   {
-    if (FilterByCategory(alwaysVisibleData.m_uiCategoryBitmask, queryParams.m_uiCategoryBitmask))
-      continue;
+    simdCornerPoints[i] = ezSimdConversion::ToVec3(cornerPoints[i]);
+  }
 
-    if (FilterByTags(alwaysVisibleData.m_Tags, queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
-      continue;
+  ezSimdBBox simdBox;
+  simdBox.SetFromPoints(simdCornerPoints, 8);
 
-    out_Objects.PushBack(alwaysVisibleData.m_pObject);
-  }*/
+  ezInternal::QueryHelper::FrustumQueryData queryData;
+  {
+    // Compiler is too stupid to properly unroll a constant loop so we do it by hand
+    ezSimdVec4f plane0 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(0).m_vNormal.x)));
+    ezSimdVec4f plane1 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(1).m_vNormal.x)));
+    ezSimdVec4f plane2 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(2).m_vNormal.x)));
+    ezSimdVec4f plane3 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(3).m_vNormal.x)));
+    ezSimdVec4f plane4 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(4).m_vNormal.x)));
+    ezSimdVec4f plane5 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(5).m_vNormal.x)));
+
+    ezSimdMat4f helperMat;
+    helperMat.SetRows(plane0, plane1, plane2, plane3);
+
+    queryData.m_PlaneData.m_x0x1x2x3 = helperMat.m_col0;
+    queryData.m_PlaneData.m_y0y1y2y3 = helperMat.m_col1;
+    queryData.m_PlaneData.m_z0z1z2z3 = helperMat.m_col2;
+    queryData.m_PlaneData.m_w0w1w2w3 = helperMat.m_col3;
+
+    helperMat.SetRows(plane4, plane5, plane4, plane5);
+
+    queryData.m_PlaneData.m_x4x5x4x5 = helperMat.m_col0;
+    queryData.m_PlaneData.m_y4y5y4y5 = helperMat.m_col1;
+    queryData.m_PlaneData.m_z4z5z4z5 = helperMat.m_col2;
+    queryData.m_PlaneData.m_w4w5w4w5 = helperMat.m_col3;
+
+    queryData.m_pOutObjects = &out_Objects;
+    queryData.m_uiFrameCounter = m_uiFrameCounter;
+  }
+
+  ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
+    &ezInternal::QueryHelper::FrustumQueryCallback<false, false>,
+    &ezInternal::QueryHelper::FrustumQueryCallback<true, false>,
+    &ezInternal::QueryHelper::FrustumQueryCallback<false, true>,
+    &ezInternal::QueryHelper::FrustumQueryCallback<true, true>,
+    &queryData);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (queryParams.m_pStats != nullptr)
+  {
+    queryParams.m_pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
+    queryParams.m_pStats->m_uiNumObjectsTested = queryData.m_uiNumObjectsTested;
+    queryParams.m_pStats->m_uiNumObjectsPassed = queryData.m_uiNumObjectsPassed;
+    queryParams.m_pStats->m_TimeTaken = timer.GetRunningTotal();
+  }
+#endif
 }
 
 ezUInt64 ezSpatialSystem_RegularGrid::GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const
 {
   Data* pData = nullptr;
-  if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
-    return 0;
+  EZ_VERIFY(m_DataTable.TryGetValue(hData.GetInternalID(), pData), "Invalid spatial data handle");
 
   if (IsAlwaysVisibleData(*pData))
     return 0;
@@ -614,7 +795,8 @@ ezUInt64 ezSpatialSystem_RegularGrid::GetNumFramesSinceVisible(const ezSpatialDa
   ForEachGrid(*pData, hData,
     [&](const Grid& grid, const CellDataMapping& mapping) {
       auto& pCell = grid.m_Cells[mapping.m_uiCellIndex];
-      uiLastFrameVisible = ezMath::Max(uiLastFrameVisible, pCell->m_ObjectPointers[mapping.m_uiCellDataIndex].m_uiLastVisibleFrame);
+      uiLastFrameVisible = ezMath::Max(uiLastFrameVisible, pCell->m_LastVisibleFrames[mapping.m_uiCellDataIndex]);
+      return ezVisitorExecution::Continue;
     });
 
   return (m_uiFrameCounter > uiLastFrameVisible) ? m_uiFrameCounter - uiLastFrameVisible : 0;
@@ -622,13 +804,14 @@ ezUInt64 ezSpatialSystem_RegularGrid::GetNumFramesSinceVisible(const ezSpatialDa
 
 EZ_ALWAYS_INLINE bool ezSpatialSystem_RegularGrid::IsAlwaysVisibleData(const Data& data) const
 {
-  return (data.m_uiGridBitmask & EZ_BIT(g_AlwaysVisibleGridIndex)) == EZ_BIT(g_AlwaysVisibleGridIndex);
+  return (data.m_uiGridBitmask & EZ_BIT(g_AlwaysVisibleGridIndex)) != 0;
 }
 
 template <typename Functor>
-void ezSpatialSystem_RegularGrid::ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const
+EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const
 {
-  ezUInt64 uiGridBitmask = data.m_uiGridBitmask;
+  // Exclude dummy always visible grid
+  ezUInt64 uiGridBitmask = data.m_uiGridBitmask & ~EZ_BIT(g_AlwaysVisibleGridIndex);
   ezUInt32 uiDataIndex = hData.GetInternalID().m_InstanceIndex;
 
   while (uiGridBitmask > 0)
@@ -638,7 +821,44 @@ void ezSpatialSystem_RegularGrid::ForEachGrid(const Data& data, const ezSpatialD
 
     auto& grid = *m_Grids[uiGridIndex];
     auto& mapping = grid.m_CellDataMappings[uiDataIndex];
-    func(grid, mapping);
+
+    if (func(grid, mapping) == ezVisitorExecution::Stop)
+      break;
+  }
+}
+
+void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByCategoryCallback, CellCallback filterByTagsCallback, CellCallback filterByCategoryAndTagsCallback, void* pUserData) const
+{
+  ezUInt32 uiRemainingCategoryBitmask = queryParams.m_uiCategoryBitmask;
+
+  // search for cached grids that match the exact query params first
+
+  // then search for the rest
+  const bool useTagsFilter = queryParams.m_IncludeTags.IsEmpty() == false || queryParams.m_ExcludeTags.IsEmpty() == false;
+  for (ezUInt32 uiGridIndex = g_DefaultGridIndex; uiGridIndex < m_Grids.GetCount() && uiRemainingCategoryBitmask > 0; ++uiGridIndex)
+  {
+    auto& pGrid = m_Grids[uiGridIndex];
+    if ((pGrid->m_uiCategoryBitmask & uiRemainingCategoryBitmask) == 0)
+      continue;
+
+    const bool useCategoryFilter = (pGrid->m_uiCategoryBitmask & uiRemainingCategoryBitmask) != pGrid->m_uiCategoryBitmask;
+
+    CellCallback cellCallback;
+    if (useTagsFilter)
+    {
+      cellCallback = useCategoryFilter ? filterByCategoryAndTagsCallback : filterByTagsCallback;
+    }
+    else
+    {
+      cellCallback = useCategoryFilter ? filterByCategoryCallback : noFilterCallback;
+    }
+
+    pGrid->ForEachCellInBox(box,
+      [&](const Cell& cell) {
+        return cellCallback(cell, queryParams, pUserData);
+      });
+
+    uiRemainingCategoryBitmask &= ~pGrid->m_uiCategoryBitmask;
   }
 }
 

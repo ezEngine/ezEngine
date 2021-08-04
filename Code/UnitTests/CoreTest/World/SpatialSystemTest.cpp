@@ -231,6 +231,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     ezHashSet<const ezGameObject*> uniqueObjects;
     world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects);
 
+    EZ_TEST_BOOL(!visibleObjects.IsEmpty());
+
     for (auto pObject : visibleObjects)
     {
       EZ_TEST_BOOL(testFrustum.Overlaps(pObject->GetGlobalBoundsSimd().GetSphere()));

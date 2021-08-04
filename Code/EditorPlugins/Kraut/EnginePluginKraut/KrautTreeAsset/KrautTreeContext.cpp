@@ -77,7 +77,7 @@ void ezKrautTreeContext::OnInitialize()
     pWorld->CreateObject(obj, m_pMainObject);
 
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pMainObject->GetTags().Set(tagCastShadows);
+    m_pMainObject->SetTag(tagCastShadows);
 
     m_hKrautComponent = ezKrautTreeComponent::CreateComponent(m_pMainObject, pTree);
     ezStringBuilder sMeshGuid;

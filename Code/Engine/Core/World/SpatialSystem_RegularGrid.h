@@ -5,6 +5,11 @@
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <Foundation/Types/UniquePtr.h>
 
+namespace ezInternal
+{
+  struct QueryHelper;
+}
+
 class EZ_CORE_DLL ezSpatialSystem_RegularGrid : public ezSpatialSystem
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSpatialSystem_RegularGrid, ezSpatialSystem);
@@ -17,9 +22,11 @@ public:
   ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_BoundingBox) const;
 
   /// \brief Returns bounding boxes of all existing cells.
-  void GetAllCellBoxes(ezHybridArray<ezBoundingBox, 16>& out_BoundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
+  void GetAllCellBoxes(ezDynamicArray<ezBoundingBox>& out_BoundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
 
 private:
+  friend ezInternal::QueryHelper;
+
   // ezSpatialSystem implementation
   ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
   ezSpatialDataHandle CreateSpatialDataAlwaysVisible(ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
@@ -42,6 +49,7 @@ private:
   ezSimdVec4f m_fOverlapSize;
   ezSimdFloat m_fInvCellSize;
 
+  struct Cell;
   struct Grid;
   ezDynamicArray<ezUniquePtr<Grid>> m_Grids;
 
@@ -56,4 +64,7 @@ private:
 
   template <typename Functor>
   void ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const;
+
+  using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, void*)>;
+  void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByCategoryCallback, CellCallback filterByTagsCallback, CellCallback filterByCategoryAndTagsCallback, void* pUserData) const;
 };

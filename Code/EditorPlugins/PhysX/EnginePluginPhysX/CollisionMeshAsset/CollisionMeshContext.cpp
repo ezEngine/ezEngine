@@ -59,7 +59,7 @@ void ezCollisionMeshContext::OnInitialize()
     pWorld->CreateObject(obj, m_pMeshObject);
 
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pMeshObject->GetTags().Set(tagCastShadows);
+    m_pMeshObject->SetTag(tagCastShadows);
 
     ezPxVisColMeshComponent::CreateComponent(m_pMeshObject, pMesh);
     ezStringBuilder sMeshGuid;

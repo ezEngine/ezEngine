@@ -11,7 +11,7 @@
 
 namespace
 {
-  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume");
+  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
 }
 
 //////////////////////////////////////////////////////////////////////////

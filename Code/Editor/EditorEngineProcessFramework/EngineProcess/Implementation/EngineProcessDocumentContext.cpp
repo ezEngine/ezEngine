@@ -607,16 +607,16 @@ void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const 
     else
     {
       if (bSet)
-        pObject->GetTags().Set(tag);
+        pObject->SetTag(tag);
       else
-        pObject->GetTags().Remove(tag);
+        pObject->RemoveTag(tag);
     }
   }
 }
 
 void ezEngineProcessDocumentContext::SetTagRecursive(ezGameObject* pObject, const ezTag& tag)
 {
-  pObject->GetTags().Set(tag);
+  pObject->SetTag(tag);
 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
@@ -627,7 +627,7 @@ void ezEngineProcessDocumentContext::SetTagRecursive(ezGameObject* pObject, cons
 
 void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, const ezTag& tag)
 {
-  pObject->GetTags().Remove(tag);
+  pObject->RemoveTag(tag);
 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
