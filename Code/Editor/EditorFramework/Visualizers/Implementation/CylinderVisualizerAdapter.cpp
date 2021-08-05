@@ -111,5 +111,11 @@ void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
 
   t.m_vPosition += vOffset;
 
-  m_Cylinder.SetTransformation(GetObjectTransform() * t);
+  // ezTransform doesn't (can't) combine rotations with scales
+  // however, here we know that the axisRotation is just an axis remapping, so we can combine them
+  ezTransform parentTransform = GetObjectTransform();
+  ezTransform newTrans = parentTransform * t;
+  newTrans.m_vScale = (axisRotation * parentTransform.m_vScale).CompMul(t.m_vScale);
+
+  m_Cylinder.SetTransformation(newTrans);
 }

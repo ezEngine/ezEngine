@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11111983983756151941,5386291959140080217}}
-		u4 %Hash{10904365709991164025}
+		u4 %Hash{12007570828256874669}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17656354935164069015,15475650328829996077}}
@@ -37,6 +37,20 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{3559402896027467451,4970122396957739813}}
+	s %t{"ezWindVolumeSphereComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Time %BurstDuration{d{0x9A9999999999D93F}}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteComponent"}
+		f %Radius{0xA470C540}
+		s %Strength{"ezWindStrength::MediumShockwave"}
+	}
+}
 o
 {
 	Uuid %id{u4{9378659341481404298,5459226974363203098}}
@@ -76,6 +90,7 @@ o
 			Uuid{u4{16057986633885440652,5648571844669065768}}
 			Uuid{u4{7088056443610721933,5858404433538056338}}
 			Uuid{u4{9378659341481404298,5459226974363203098}}
+			Uuid{u4{3559402896027467451,4970122396957739813}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -180,7 +195,7 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{4}
 	}
 }
@@ -222,6 +237,24 @@ o
 }
 o
 {
+	Uuid %id{u4{3802525403579708175,3375945662181748738}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezWindVolumeComponent"}
+		u3 %TypeSize{64}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -253,6 +286,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
 		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15277032590044703488,7884827235263359982}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezWindStrength"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -361,6 +412,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezFmodComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2387109944893605082,11081559190641118999}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezWindVolumeComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezWindVolumeSphereComponent"}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }

@@ -261,8 +261,20 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
     Default = None
   };
 
-  // helper function
+  /// \brief Call this when a component is 'finished' with its work.
+  ///
+  /// Pass in the desired action (usually configured by the user) and the 'this' pointer of the component.
+  /// The helper function will delete this component and maybe also attempt to delete the entire object.
+  /// For that it will coordinate with other components, and delay the object deletion, if necessary,
+  /// until the last component has finished it's work.
   static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction::Enum action);
+
+  /// \brief Call this function in a message handler for ezMsgDeleteGameObject messages.
+  ///
+  /// This is needed to coordinate object deletion across multiple components that use the
+  /// ezOnComponentFinishedAction mechanism.
+  /// Depending on the state of this component, the function will either execute the object deletion,
+  /// or delay it, until its own work is done.
   static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction>& action);
 };
 
@@ -283,8 +295,10 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
     Default = None
   };
 
-  // helper function
+  /// \brief See ezOnComponentFinishedAction::HandleFinishedAction()
   static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action);
+
+  /// \brief See ezOnComponentFinishedAction::HandleDeleteObjectMsg()
   static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction2>& action);
 };
 

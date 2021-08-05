@@ -14,6 +14,10 @@ struct EZ_CORE_DLL ezWindStrength
     ModerateBreeze,
     StrongBreeze,
     Storm,
+    WeakShockwave,
+    MediumShockwave,
+    StrongShockwave,
+    ExtremeShockwave,
 
     Default = LightBreeze
   };
