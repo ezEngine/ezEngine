@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{15975389414273557765}
+		u4 %Hash{6410233429073187662}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1465,19 +1465,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4414481583560479903,4758500704976617658}}
-	s %t{"ezSimpleWindComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Angle %MaxDeviation{f{0xDC0FC93F}}
-		s %MaxWindStrength{"ezWindStrength::GentleBreeze"}
-		s %MinWindStrength{"ezWindStrength::LightBreeze"}
-	}
-}
-o
-{
 	Uuid %id{u4{15561668086667800984,4759543659055686395}}
 	s %t{"ezDebugTextComponent"}
 	u3 %v{1}
@@ -1895,33 +1882,6 @@ o
 		b %InverseTonemap{0}
 		b %UseFog{1}
 		f %VirtualDistance{0x00007A44}
-	}
-}
-o
-{
-	Uuid %id{u4{5340150098271831944,4916122554704063133}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{4414481583560479903,4758500704976617658}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000F040,0x0000DA41,0x00001040}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
 	}
 }
 o
@@ -3877,7 +3837,6 @@ o
 			Uuid{u4{3430101213481820061,4950413370667241936}}
 			Uuid{u4{6376701644956604344,4858855555745448237}}
 			Uuid{u4{4048090037225853826,5719299425498276289}}
-			Uuid{u4{5340150098271831944,4916122554704063133}}
 			Uuid{u4{18405016183771822885,10328055772015436576}}
 			Uuid{u4{5671144804211231907,4685772269417618370}}
 		}
