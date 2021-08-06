@@ -70,6 +70,9 @@
 	<file>ezHeightfieldComponent.png</file>
 	<file>ezRopeRenderComponent.png</file>
 	<file>ezFakeRopeComponent.png</file>
+	<file>ezWindVolumeConeComponent.png</file>
+	<file>ezWindVolumeCylinderComponent.png</file>
+	<file>ezWindVolumeSphereComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

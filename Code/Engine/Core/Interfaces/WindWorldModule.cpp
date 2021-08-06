@@ -9,6 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezWindStrength, 1)
   EZ_ENUM_CONSTANTS(ezWindStrength::Calm, ezWindStrength::LightBreeze, ezWindStrength::GentleBreeze, ezWindStrength::ModerateBreeze, ezWindStrength::StrongBreeze, ezWindStrength::Storm)
+  EZ_ENUM_CONSTANTS(ezWindStrength::WeakShockwave, ezWindStrength::MediumShockwave, ezWindStrength::StrongShockwave, ezWindStrength::ExtremeShockwave)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
@@ -36,6 +37,18 @@ float ezWindStrength::GetInMetersPerSecond(Enum strength)
 
     case Storm:
       return 20.0f;
+
+    case WeakShockwave:
+      return 40.0f;
+
+    case MediumShockwave:
+      return 70.0f;
+
+    case StrongShockwave:
+      return 100.0f;
+
+    case ExtremeShockwave:
+      return 150.0f;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }

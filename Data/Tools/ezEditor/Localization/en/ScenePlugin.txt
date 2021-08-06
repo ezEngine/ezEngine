@@ -282,6 +282,10 @@ ezWindStrength::GentleBreeze;Gentle Breeze
 ezWindStrength::ModerateBreeze;Moderate Breeze
 ezWindStrength::StrongBreeze;Strong Breeze
 ezWindStrength::Storm;Storm
+ezWindStrength::WeakShockwave;Weak Shockwave
+ezWindStrength::MediumShockwave;Medium Shockwave
+ezWindStrength::StrongShockwave;Strong Shockwave
+ezWindStrength::ExtremeShockwave;Extreme Shockwave
 ezBlackboardComponent;Blackboard
 ezBlackboardEntry;Entry
 ezBlackboardEntryFlags::Save;Save
@@ -378,3 +382,8 @@ Refraction;Refraction
 SetColorMode;Set Color Mode
 ezRopeRenderComponent;Rope Renderer
 ezFakeRopeComponent;Fake Rope Simulation
+ezWindVolumeSphereComponent;Sphere Wind Volume
+ezWindVolumeCylinderComponent;Cylinder Wind Volume
+ezWindVolumeConeComponent;Cone Wind Volume
+ezWindVolumeCylinderMode::Directional;Directional
+ezWindVolumeCylinderMode::Vortex;Vortex

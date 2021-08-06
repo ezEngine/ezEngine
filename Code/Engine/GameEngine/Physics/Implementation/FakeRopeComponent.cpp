@@ -236,7 +236,9 @@ void ezFakeRopeComponent::RuntimeUpdate()
     {
       ezVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
 
-      const ezVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition) * m_fWindInfluence;
+      ezVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition);
+      vWind += pWind->GetWindAt(m_RopeSim.m_Nodes[0].m_vPosition);
+      vWind *= 0.5f * m_fWindInfluence;
 
       acc += vWind;
       acc += pWind->ComputeWindFlutter(vWind, ropeDir, 0.5f, GetOwner()->GetStableRandomSeed());

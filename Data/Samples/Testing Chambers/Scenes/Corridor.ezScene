@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{17126652768413956580}
+		u4 %Hash{9194315094611926024}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -6059,8 +6059,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			b %GiveAllWeapons{1}
-			b %Invincible{1}
+			b %GiveAllWeapons{0}
+			b %Invincible{0}
 		}
 		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 	}
