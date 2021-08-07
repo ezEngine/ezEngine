@@ -32,6 +32,7 @@ public:
 
   typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> QueryCallback;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   struct QueryStats
   {
     ezUInt32 m_uiTotalNumObjects;  ///< The total number of spatial objects in this system.
@@ -46,13 +47,16 @@ public:
       m_uiNumObjectsPassed = 0;
     }
   };
+#endif
 
   struct QueryParams
   {
     ezUInt32 m_uiCategoryBitmask = 0;
     ezTagSet m_IncludeTags;
     ezTagSet m_ExcludeTags;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     QueryStats* m_pStats = nullptr;
+#endif
   };
 
   virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const;

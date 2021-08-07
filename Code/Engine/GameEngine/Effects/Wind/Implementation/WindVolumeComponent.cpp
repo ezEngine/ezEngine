@@ -8,7 +8,7 @@
 #include <Foundation/Math/Intersection.h>
 #include <GameEngine/Effects/Wind/WindVolumeComponent.h>
 
-ezSpatialData::Category ezWindVolumeComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("WindVolumes");
+ezSpatialData::Category ezWindVolumeComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("WindVolumes", ezSpatialData::Flags::None);
 
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 2)
