@@ -55,16 +55,21 @@ private:
 
   struct Data
   {
-    ezUInt64 m_uiGridBitmask = 0;
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt64 m_uiGridBitmask : 63;
+    ezUInt64 m_uiAlwaysVisible : 1;
   };
   
   ezIdTable<ezSpatialDataId, Data, ezLocalAllocatorWrapper> m_DataTable;
 
   bool IsAlwaysVisibleData(const Data& data) const;
 
+  ezSpatialDataHandle AddSpatialDataToGrids(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags, bool bAlwaysVisible);
+
   template <typename Functor>
   void ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const;
 
   using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, void*)>;
-  void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByCategoryCallback, CellCallback filterByTagsCallback, CellCallback filterByCategoryAndTagsCallback, void* pUserData) const;
+  void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData) const;
 };
