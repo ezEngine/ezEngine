@@ -8,6 +8,8 @@ ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGrou
   m_Action = action;
   m_pGroupWidget = pGroupWidget;
 
+  setAutoRaise(true);
+
   setIconSize(QSize(16, 16));
 
   switch (action)

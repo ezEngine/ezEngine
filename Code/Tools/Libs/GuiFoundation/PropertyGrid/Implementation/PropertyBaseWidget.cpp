@@ -852,6 +852,10 @@ void ezQtPropertyContainerWidget::OnElementButtonClicked()
       DeleteItems(items);
     }
     break;
+
+    case ezQtElementGroupButton::ElementAction::Help:
+      // handled by custom lambda
+      break;
   }
 }
 
@@ -918,25 +922,27 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
 
   pNewWidget->Init(m_pGrid, m_pObjectAccessor, m_pType, m_pProp);
 
+  // Add Buttons
+  auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
+  if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
   {
-    // Add Buttons
-    auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
-    if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
-    {
-      pSubGroup->SetDraggable(true);
-      connect(pSubGroup, &ezQtGroupBoxBase::DragStarted, this, &ezQtPropertyContainerWidget::OnDragStarted);
-    }
-
-    if (!pAttr || pAttr->CanDelete())
-    {
-      ezQtElementGroupButton* pDeleteButton =
-        new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, pNewWidget);
-      pSubGroup->GetHeader()->layout()->addWidget(pDeleteButton);
-      connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
-    }
+    pSubGroup->SetDraggable(true);
+    connect(pSubGroup, &ezQtGroupBoxBase::DragStarted, this, &ezQtPropertyContainerWidget::OnDragStarted);
   }
 
-  m_Elements.Insert(Element(pSubGroup, pNewWidget), index);
+  ezQtElementGroupButton* pHelpButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::Help, pNewWidget);
+  pSubGroup->GetHeader()->layout()->addWidget(pHelpButton);
+  pHelpButton->setVisible(false); // added now, and shown later when we know the URL
+
+  if (!pAttr || pAttr->CanDelete())
+  {
+    ezQtElementGroupButton* pDeleteButton =
+      new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, pNewWidget);
+    pSubGroup->GetHeader()->layout()->addWidget(pDeleteButton);
+    connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
+  }
+
+  m_Elements.Insert(Element(pSubGroup, pNewWidget, pHelpButton), index);
   return m_Elements[index];
 }
 
@@ -1265,11 +1271,14 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 
       if (!url.isEmpty())
       {
-        ezQtElementGroupButton* pHelp = new ezQtElementGroupButton(elem.m_pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::Help, this);
-        elem.m_pSubGroup->GetHeader()->layout()->addWidget(pHelp);
-        connect(pHelp, &QToolButton::clicked, this, [=]() {
+        elem.m_pHelpButton->setVisible(true);
+        connect(elem.m_pHelpButton, &QToolButton::clicked, this, [=]() {
           QDesktopServices::openUrl(QUrl(url));
         });
+      }
+      else
+      {
+        elem.m_pHelpButton->setVisible(false);
       }
     }
   }

@@ -122,10 +122,10 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
   ezStringBuilder sContent;
   sContent.ReadAll(file);
 
-  ezDeque<ezString> Lines;
+  ezDeque<ezStringView> Lines;
   sContent.Split(false, Lines, "\n");
 
-  ezHybridArray<ezString, 4> entries;
+  ezHybridArray<ezStringView, 4> entries;
 
   ezStringBuilder sLine, sKey, sValue, sTooltip, sHelpUrl;
   for (const auto& line : Lines)
