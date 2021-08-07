@@ -923,15 +923,6 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
     auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
     if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
     {
-      // Do we need move buttons at all if we have drag&drop?
-      // ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->GetHeader(),
-      // ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);  pSubGroup->GetHeader()->layout()->addWidget(pUpButton);
-      // connect(pUpButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
-
-      // ezQtElementGroupButton* pDownButton = new ezQtElementGroupButton(pSubGroup->GetHeader(),
-      // ezQtElementGroupButton::ElementAction::MoveElementDown, pNewWidget);  pSubGroup->GetHeader()->layout()->addWidget(pDownButton);
-      // connect(pDownButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
-
       pSubGroup->SetDraggable(true);
       connect(pSubGroup, &ezQtGroupBoxBase::DragStarted, this, &ezQtPropertyContainerWidget::OnDragStarted);
     }
@@ -1253,17 +1244,33 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     }
 
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(ResolvedObjects);
+
+    // Label
     {
-      // Label
       ezStringBuilder sTitle;
       sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName()));
       elem.m_pSubGroup->SetTitle(sTitle);
     }
+
+    // Icon
     {
-      // Icon
       ezStringBuilder sIconName;
       sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
       elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
+    }
+
+    // help URL
+    {
+      QString url = ezTranslateHelpURL(pCommonType->GetTypeName());
+
+      if (!url.isEmpty())
+      {
+        ezQtElementGroupButton* pHelp = new ezQtElementGroupButton(elem.m_pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::Help, this);
+        elem.m_pSubGroup->GetHeader()->layout()->addWidget(pHelp);
+        connect(pHelp, &QToolButton::clicked, this, [=]() {
+          QDesktopServices::openUrl(QUrl(url));
+        });
+      }
     }
   }
 

@@ -125,7 +125,9 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
   ezDeque<ezString> Lines;
   sContent.Split(false, Lines, "\n");
 
-  ezStringBuilder sLine, sKey, sValue, sTooltip;
+  ezHybridArray<ezString, 4> entries;
+
+  ezStringBuilder sLine, sKey, sValue, sTooltip, sHelpUrl;
   for (const auto& line : Lines)
   {
     sLine = line;
@@ -134,34 +136,34 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     if (sLine.IsEmpty())
       continue;
 
-    const char* szSeperator = sLine.FindSubString(";");
+    entries.Clear();
+    sLine.Split(true, entries, ";");
 
-    if (szSeperator == nullptr)
+    if (entries.GetCount() <= 1)
     {
       ezLog::Error("Invalid line in translation file: '{0}'", sLine);
       continue;
     }
 
-    sKey.SetSubString_FromTo(sLine.GetData(), szSeperator);
+    sKey = entries[0];
+    sValue = entries[1];
 
-    const char* szSeperator2 = sLine.FindSubString(";", szSeperator + 1);
+    sTooltip.Clear();
+    sHelpUrl.Clear();
 
-    if (szSeperator2 == nullptr)
-    {
-      sValue = szSeperator + 1; // the rest
-      sTooltip.Clear();
-    }
-    else
-    {
-      sValue.SetSubString_FromTo(szSeperator + 1, szSeperator2);
-      sTooltip = szSeperator2 + 1;
-    }
+    if (entries.GetCount() >= 3)
+      sTooltip = entries[2];
+    if (entries.GetCount() >= 4)
+      sHelpUrl = entries[3];
 
     sKey.Trim(" \t\r\n");
     sValue.Trim(" \t\r\n");
+    sTooltip.Trim(" \t\r\n");
+    sHelpUrl.Trim(" \t\r\n");
 
     StoreTranslation(sValue, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Default);
     StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Tooltip);
+    StoreTranslation(sHelpUrl, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::HelpURL);
   }
 }
 
@@ -205,7 +207,7 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt64 uiS
   if (szResult != nullptr)
     return szResult;
 
-  if (usage == ezTranslationUsage::Tooltip)
+  if (usage != ezTranslationUsage::Default)
     return "";
 
   if (ezTranslatorLogMissing::s_bActive)

@@ -21,5 +21,8 @@ ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGrou
     case ezQtElementGroupButton::ElementAction::DeleteElement:
       setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Delete16.png")));
       break;
+    case ezQtElementGroupButton::ElementAction::Help:
+      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Log.png")));
+      break;
   }
 }
