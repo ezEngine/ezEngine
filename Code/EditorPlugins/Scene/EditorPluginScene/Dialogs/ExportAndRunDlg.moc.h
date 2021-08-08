@@ -12,6 +12,7 @@ public:
   ezQtExportAndRunDlg(QWidget* parent);
 
   static bool s_bTransformAll;
+  static bool s_bUpdateThumbnail;
   bool m_bRunAfterExport = false;
   ezString m_sCmdLine;
 

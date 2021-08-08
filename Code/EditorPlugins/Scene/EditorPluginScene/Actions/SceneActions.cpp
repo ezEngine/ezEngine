@@ -316,16 +316,47 @@ void ezSceneAction::Execute(const ezVariant& value)
 
       ezQtExportAndRunDlg dlg(nullptr);
       dlg.m_sCmdLine = sCmd;
+      dlg.s_bUpdateThumbnail = false;
+
+      bool bCreateThumbnail = dlg.s_bUpdateThumbnail;
 
       if (dlg.exec() != QDialog::Accepted)
         return;
 
-      if (dlg.s_bTransformAll)
+      if (!bCreateThumbnail)
       {
-        ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
+        // if the thumbnail doesn't exist, or is very old, update it anyway
+
+        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(m_pSceneDocument->GetDocumentPath());
+
+        ezFileStats stat;
+        if (ezOSFile::GetFileStats(sThumbnailPath, stat).Failed())
+        {
+          bCreateThumbnail = true;
+        }
+        else
+        {
+          auto tNow = ezTimestamp::CurrentTimestamp();
+          auto tComp = stat.m_LastModificationTime + ezTime::Hours(24) * 7;
+
+          if (tComp.GetInt64(ezSIUnitOfTime::Second) < tNow.GetInt64(ezSIUnitOfTime::Second))
+          {
+            bCreateThumbnail = true;
+          }
+        }
       }
 
-      m_pSceneDocument->ExportScene(false);
+      if (dlg.s_bTransformAll)
+      {
+        if (ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None).Succeeded())
+        {
+          // once all assets have been transformed, disable it for the next export
+          dlg.s_bTransformAll = false;
+        }
+      }
+
+      m_pSceneDocument->ExportScene(bCreateThumbnail);
+      dlg.s_bUpdateThumbnail = false;
 
       // send event, so that 3rd party code can hook into this
       {
