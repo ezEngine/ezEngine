@@ -14,6 +14,7 @@ public:
   static bool s_bTransformAll;
   static bool s_bUpdateThumbnail;
   bool m_bRunAfterExport = false;
+  bool m_bShowThumbnailCheckbox = true;
   ezString m_sCmdLine;
 
 private Q_SLOTS:

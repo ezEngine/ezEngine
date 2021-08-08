@@ -317,13 +317,14 @@ void ezSceneAction::Execute(const ezVariant& value)
       ezQtExportAndRunDlg dlg(nullptr);
       dlg.m_sCmdLine = sCmd;
       dlg.s_bUpdateThumbnail = false;
-
-      bool bCreateThumbnail = dlg.s_bUpdateThumbnail;
+      dlg.m_bShowThumbnailCheckbox = !m_pSceneDocument->IsPrefab();
 
       if (dlg.exec() != QDialog::Accepted)
         return;
 
-      if (!bCreateThumbnail)
+      bool bCreateThumbnail = dlg.s_bUpdateThumbnail;
+
+      if (!m_pSceneDocument->IsPrefab() && !bCreateThumbnail)
       {
         // if the thumbnail doesn't exist, or is very old, update it anyway
 
@@ -354,6 +355,7 @@ void ezSceneAction::Execute(const ezVariant& value)
           dlg.s_bTransformAll = false;
         }
       }
+
 
       m_pSceneDocument->ExportScene(bCreateThumbnail);
       dlg.s_bUpdateThumbnail = false;

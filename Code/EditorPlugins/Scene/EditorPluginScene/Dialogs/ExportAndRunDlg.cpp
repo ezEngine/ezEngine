@@ -21,6 +21,7 @@ void ezQtExportAndRunDlg::showEvent(QShowEvent* e)
 {
   QDialog::showEvent(e);
 
+  UpdateThumbnail->setVisible(m_bShowThumbnailCheckbox);
   TransformAll->setChecked(s_bTransformAll);
   UpdateThumbnail->setChecked(s_bUpdateThumbnail);
   PlayerCmdLine->setPlainText(m_sCmdLine.GetData());
