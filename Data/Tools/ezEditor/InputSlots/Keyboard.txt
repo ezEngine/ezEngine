@@ -109,4 +109,4 @@ keyboard_play_pause
 keyboard_stop
 keyboard_volume_up
 keyboard_volume_down
-keyboard_mute"
+keyboard_mute

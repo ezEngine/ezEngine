@@ -96,4 +96,4 @@ controller3_leftstick_posy
 controller3_rightstick_negx
 controller3_rightstick_posx
 controller3_rightstick_negy
-controller3_rightstick_posy"
+controller3_rightstick_posy
