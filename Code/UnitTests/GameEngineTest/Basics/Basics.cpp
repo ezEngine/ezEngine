@@ -99,6 +99,8 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("-outputDir");
   opt.AddArgument("\"{0}\"", sOutputPath);
   opt.m_Arguments.PushBack("-debug");
+  opt.m_Arguments.PushBack("-AssetThumbnails");
+  opt.m_Arguments.PushBack("never");
 
   ezProcess proc;
   ezLog::Info("Launching: '{0}'", sBinPath);

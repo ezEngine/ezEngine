@@ -1103,7 +1103,7 @@ void ezAssetCurator::NeedsReloadResources()
 // ezAssetCurator Processing
 ////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionEnum opt_AssetThumbnails("_Editor", "-AssetThumbnails", "Whether to generate thumbnails for transformed assets.", "Default = 0 | Never = 1", 0);
+ezCommandLineOptionEnum opt_AssetThumbnails("_Editor", "-AssetThumbnails", "Whether to generate thumbnails for transformed assets.", "default = 0 | never = 1", 0);
 
 ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags)
 {
