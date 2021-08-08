@@ -13,6 +13,7 @@ public:
     MoveElementUp,
     MoveElementDown,
     DeleteElement,
+    Help,
   };
 
   explicit ezQtElementGroupButton(QWidget* pParent, ElementAction action, ezQtPropertyWidget* pGroupWidget);

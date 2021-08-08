@@ -852,6 +852,10 @@ void ezQtPropertyContainerWidget::OnElementButtonClicked()
       DeleteItems(items);
     }
     break;
+
+    case ezQtElementGroupButton::ElementAction::Help:
+      // handled by custom lambda
+      break;
   }
 }
 
@@ -918,34 +922,27 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
 
   pNewWidget->Init(m_pGrid, m_pObjectAccessor, m_pType, m_pProp);
 
+  // Add Buttons
+  auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
+  if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
   {
-    // Add Buttons
-    auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
-    if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
-    {
-      // Do we need move buttons at all if we have drag&drop?
-      // ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->GetHeader(),
-      // ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);  pSubGroup->GetHeader()->layout()->addWidget(pUpButton);
-      // connect(pUpButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
-
-      // ezQtElementGroupButton* pDownButton = new ezQtElementGroupButton(pSubGroup->GetHeader(),
-      // ezQtElementGroupButton::ElementAction::MoveElementDown, pNewWidget);  pSubGroup->GetHeader()->layout()->addWidget(pDownButton);
-      // connect(pDownButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
-
-      pSubGroup->SetDraggable(true);
-      connect(pSubGroup, &ezQtGroupBoxBase::DragStarted, this, &ezQtPropertyContainerWidget::OnDragStarted);
-    }
-
-    if (!pAttr || pAttr->CanDelete())
-    {
-      ezQtElementGroupButton* pDeleteButton =
-        new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, pNewWidget);
-      pSubGroup->GetHeader()->layout()->addWidget(pDeleteButton);
-      connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
-    }
+    pSubGroup->SetDraggable(true);
+    connect(pSubGroup, &ezQtGroupBoxBase::DragStarted, this, &ezQtPropertyContainerWidget::OnDragStarted);
   }
 
-  m_Elements.Insert(Element(pSubGroup, pNewWidget), index);
+  ezQtElementGroupButton* pHelpButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::Help, pNewWidget);
+  pSubGroup->GetHeader()->layout()->addWidget(pHelpButton);
+  pHelpButton->setVisible(false); // added now, and shown later when we know the URL
+
+  if (!pAttr || pAttr->CanDelete())
+  {
+    ezQtElementGroupButton* pDeleteButton =
+      new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, pNewWidget);
+    pSubGroup->GetHeader()->layout()->addWidget(pDeleteButton);
+    connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
+  }
+
+  m_Elements.Insert(Element(pSubGroup, pNewWidget, pHelpButton), index);
   return m_Elements[index];
 }
 
@@ -1253,17 +1250,36 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     }
 
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(ResolvedObjects);
+
+    // Label
     {
-      // Label
       ezStringBuilder sTitle;
       sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName()));
       elem.m_pSubGroup->SetTitle(sTitle);
     }
+
+    // Icon
     {
-      // Icon
       ezStringBuilder sIconName;
       sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
       elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
+    }
+
+    // help URL
+    {
+      QString url = ezTranslateHelpURL(pCommonType->GetTypeName());
+
+      if (!url.isEmpty())
+      {
+        elem.m_pHelpButton->setVisible(true);
+        connect(elem.m_pHelpButton, &QToolButton::clicked, this, [=]() {
+          QDesktopServices::openUrl(QUrl(url));
+        });
+      }
+      else
+      {
+        elem.m_pHelpButton->setVisible(false);
+      }
     }
   }
 
