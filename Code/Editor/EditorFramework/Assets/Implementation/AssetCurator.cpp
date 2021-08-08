@@ -11,6 +11,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
@@ -1102,6 +1103,8 @@ void ezAssetCurator::NeedsReloadResources()
 // ezAssetCurator Processing
 ////////////////////////////////////////////////////////////////////////
 
+ezCommandLineOptionEnum opt_AssetThumbnails("_Editor", "-AssetThumbnails", "Whether to generate thumbnails for transformed assets.", "Default = 0 | Never = 1", 0);
+
 ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags)
 {
   if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
@@ -1193,11 +1196,16 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     return ezStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath));
   }
 
-  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.m_Result.Failed())
+  if (opt_AssetThumbnails.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified) != 1)
   {
-    if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
+    // skip thumbnail generation, if disabled globally
+
+    if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.m_Result.Failed())
     {
-      ret = pAsset->CreateThumbnail();
+      if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
+      {
+        ret = pAsset->CreateThumbnail();
+      }
     }
   }
 

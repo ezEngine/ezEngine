@@ -57,8 +57,7 @@ void ezSceneActions::RegisterActions()
   s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1(
     "Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction, ezSceneAction::ActionType::KeepSimulationChanges);
 
-  s_hCreateThumbnail =
-    EZ_REGISTER_ACTION_1("Scene.CreateThumbnail", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::CreateThumbnail);
+  s_hCreateThumbnail = EZ_REGISTER_ACTION_1("Scene.CreateThumbnail", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::CreateThumbnail);
   // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
   {
     s_hFavoriteCamsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.FavoriteCams.Menu", "");
@@ -182,7 +181,7 @@ void ezSceneActions::MapMenuActions()
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
-    pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f);
+    //pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
