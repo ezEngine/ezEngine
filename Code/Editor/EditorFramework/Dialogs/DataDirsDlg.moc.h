@@ -30,3 +30,4 @@ private:
   ezInt32 m_iSelection;
   ezApplicationFileSystemConfig m_Config;
 };
+

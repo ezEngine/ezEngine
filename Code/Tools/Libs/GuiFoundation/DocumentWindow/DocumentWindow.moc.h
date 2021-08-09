@@ -138,3 +138,4 @@ private:
 
   static ezDynamicArray<ezQtDocumentWindow*> s_AllDocumentWindows;
 };
+

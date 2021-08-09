@@ -37,3 +37,4 @@ private:
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
 };
+

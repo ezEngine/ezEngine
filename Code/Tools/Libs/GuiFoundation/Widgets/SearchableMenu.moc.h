@@ -62,3 +62,4 @@ private:
   QStandardItemModel* m_pItemModel;
   ezMap<ezString, QStandardItem*> m_Hierarchy;
 };
+

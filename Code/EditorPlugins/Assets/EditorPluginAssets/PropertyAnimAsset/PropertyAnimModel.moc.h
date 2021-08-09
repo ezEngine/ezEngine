@@ -76,3 +76,4 @@ private:
 
   ezPropertyAnimAssetDocument* m_pAssetDoc = nullptr;
 };
+

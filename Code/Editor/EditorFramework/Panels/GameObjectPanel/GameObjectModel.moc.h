@@ -33,3 +33,4 @@ public:
   ezQtGameObjectModel(ezGameObjectDocument* pDocument);
   ~ezQtGameObjectModel();
 };
+

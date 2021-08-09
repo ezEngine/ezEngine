@@ -307,3 +307,4 @@ private:
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezQtEditorApp::StartupFlags);
+

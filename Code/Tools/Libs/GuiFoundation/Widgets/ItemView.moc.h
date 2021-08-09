@@ -177,3 +177,4 @@ private:
   QPersistentModelIndex m_hovered;
   QPersistentModelIndex m_focused;
 };
+

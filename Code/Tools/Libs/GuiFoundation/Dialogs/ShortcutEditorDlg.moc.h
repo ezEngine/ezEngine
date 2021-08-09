@@ -36,3 +36,4 @@ private:
   ezInt32 m_iSelectedAction;
   ezHybridArray<ezActionDescriptor*, 32> m_ActionDescs;
 };
+

@@ -32,3 +32,4 @@ private:
   ezArrayPtr<Element> m_Objects;
   ezUuid m_CurrentObject;
 };
+

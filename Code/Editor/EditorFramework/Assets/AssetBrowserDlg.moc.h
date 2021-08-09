@@ -36,3 +36,4 @@ private:
   static ezMap<ezString, ezString> s_sPathFilter;
   static ezMap<ezString, ezString> s_sTypeFilter;
 };
+

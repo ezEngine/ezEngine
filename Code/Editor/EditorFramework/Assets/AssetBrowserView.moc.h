@@ -69,3 +69,4 @@ private:
   ezInt32 m_iIconSizePercentage;
   ezQtAssetBrowserView* m_pView;
 };
+

@@ -69,3 +69,4 @@ private:
   ezCurveGroupData m_CurvesBackup;
   QPointF m_contextMenuScenePos;
 };
+

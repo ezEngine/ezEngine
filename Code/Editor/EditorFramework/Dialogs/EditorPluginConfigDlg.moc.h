@@ -20,3 +20,4 @@ private Q_SLOTS:
 private:
   void FillPluginList();
 };
+

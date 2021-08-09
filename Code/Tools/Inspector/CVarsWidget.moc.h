@@ -39,3 +39,4 @@ private:
   ezMap<ezString, ezCVarWidgetData> m_CVars;
   ezMap<ezString, ezCVarWidgetData> m_CVarsBackup;
 };
+

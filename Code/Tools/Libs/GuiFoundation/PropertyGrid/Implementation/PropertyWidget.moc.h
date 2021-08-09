@@ -278,3 +278,4 @@ protected:
   QMenu* m_pMenu;
   ezInt64 m_iCurrentBitflags;
 };
+

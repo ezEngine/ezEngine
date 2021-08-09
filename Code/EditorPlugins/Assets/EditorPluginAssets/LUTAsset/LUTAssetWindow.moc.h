@@ -36,3 +36,4 @@ public:
 
   static void MapActions(const char* szMapping, const char* szPath);
 };
+

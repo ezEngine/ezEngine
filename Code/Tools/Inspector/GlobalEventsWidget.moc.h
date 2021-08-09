@@ -44,3 +44,4 @@ private:
 
   ezMap<ezString, GlobalEventsData> m_Events;
 };
+

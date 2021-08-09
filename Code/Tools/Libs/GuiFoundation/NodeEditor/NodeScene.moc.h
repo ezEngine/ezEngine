@@ -91,3 +91,4 @@ private:
 
   static ezVec2 s_LastMouseInteraction;
 };
+

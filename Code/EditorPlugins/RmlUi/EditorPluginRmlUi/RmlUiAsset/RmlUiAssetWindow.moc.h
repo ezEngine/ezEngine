@@ -26,3 +26,4 @@ private:
   ezQtEngineViewWidget* m_pViewWidget;
   ezRmlUiAssetDocument* m_pAssetDoc;
 };
+

@@ -38,3 +38,4 @@ public Q_SLOTS:
 private:
   ezVec3 m_vBoundingBoxSize;
 };
+

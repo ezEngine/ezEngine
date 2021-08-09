@@ -58,3 +58,4 @@ private:
   ezString m_sKnownLatestVersion;
   QPointer<PageDownloader> m_VersionPage;
 };
+

@@ -20,3 +20,4 @@ public:
 private:
   ezUniquePtr<ezOrbitCameraContext> m_pOrbitCameraContext;
 };
+

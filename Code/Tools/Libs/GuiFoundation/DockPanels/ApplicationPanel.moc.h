@@ -33,3 +33,4 @@ private:
   ezQtContainerWindow* m_pContainerWindow;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezQtApplicationPanel);
+

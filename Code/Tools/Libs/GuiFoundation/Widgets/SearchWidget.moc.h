@@ -49,3 +49,4 @@ protected:
   QLineEdit* m_pLineEdit;
   QPushButton* m_pClearButton;
 };
+

@@ -38,3 +38,4 @@ private:
   QPoint m_vStartDragView;
   QPointF m_vStartDragScene;
 };
+

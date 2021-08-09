@@ -52,3 +52,4 @@ private:
   bool m_bShowFirstTime;
   ezQtColorGradientEditorWidget* m_pGradientEditor;
 };
+

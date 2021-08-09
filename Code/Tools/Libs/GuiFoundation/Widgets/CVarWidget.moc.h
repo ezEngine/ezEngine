@@ -53,3 +53,4 @@ private Q_SLOTS:
   void IntChanged();
   void StringChanged();
 };
+

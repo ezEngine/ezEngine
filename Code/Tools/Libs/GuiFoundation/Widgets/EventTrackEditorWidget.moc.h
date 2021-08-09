@@ -57,3 +57,4 @@ private:
   QPointF m_contextMenuScenePos;
   ezEventSet m_EventSet;
 };
+

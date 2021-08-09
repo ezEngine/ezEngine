@@ -30,3 +30,4 @@ private:
   ezQtOrbitCamViewWidget* m_pViewWidget;
   ezKrautTreeAssetDocument* m_pAssetDoc;
 };
+

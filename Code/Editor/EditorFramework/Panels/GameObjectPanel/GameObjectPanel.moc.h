@@ -32,3 +32,4 @@ protected:
   ezQtSearchWidget* m_pFilterWidget;
   ezString m_sContextMenuMapping;
 };
+

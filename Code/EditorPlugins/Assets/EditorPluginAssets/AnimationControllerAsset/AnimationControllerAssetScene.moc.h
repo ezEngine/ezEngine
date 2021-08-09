@@ -14,3 +14,4 @@ public:
   ezQtAnimationControllerAssetScene(QObject* parent = nullptr);
   ~ezQtAnimationControllerAssetScene();
 };
+
