@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <Core/Messages/EventMessage.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>

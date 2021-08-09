@@ -1,9 +1,9 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
-#include <WorldSerializer/WorldReader.h>
-#include <WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 
 namespace
 {

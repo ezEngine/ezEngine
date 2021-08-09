@@ -1,4 +1,4 @@
-#include <EditorTestPCH.h>
+#include <EditorTest/EditorTestPCH.h>
 
 #include "Project.h"
 #include <EditorFramework/Assets/AssetCurator.h>

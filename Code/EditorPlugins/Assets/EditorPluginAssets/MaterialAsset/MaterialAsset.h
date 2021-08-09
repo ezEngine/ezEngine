@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <VisualShader/VisualShaderNodeManager.h>
+#include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 
 class ezMaterialAssetDocument;
 struct ezPropertyMetaStateEvent;

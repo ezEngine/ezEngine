@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/System/Implementation/SFML/InputDevice_SFML.h>
 #include <SFML/Window/Window.hpp>

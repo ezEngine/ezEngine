@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
 #include <Core/Messages/ApplyOnlyToMessage.h>

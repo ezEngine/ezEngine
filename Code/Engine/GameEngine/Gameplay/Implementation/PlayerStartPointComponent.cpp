@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <Core/Prefabs/PrefabResource.h>

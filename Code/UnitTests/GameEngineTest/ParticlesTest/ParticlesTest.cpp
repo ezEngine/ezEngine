@@ -1,4 +1,4 @@
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "ParticlesTest.h"
 #include <Core/WorldSerializer/WorldReader.h>

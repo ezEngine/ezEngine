@@ -1,4 +1,4 @@
-#include <EditorPluginRecastPCH.h>
+#include <EditorPluginRecast/EditorPluginRecastPCH.h>
 
 
 void OnLoadPlugin(bool bReloading)

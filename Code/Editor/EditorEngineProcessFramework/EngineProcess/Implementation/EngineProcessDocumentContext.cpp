@@ -1,4 +1,4 @@
-#include <EditorEngineProcessFrameworkPCH.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
 #include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>

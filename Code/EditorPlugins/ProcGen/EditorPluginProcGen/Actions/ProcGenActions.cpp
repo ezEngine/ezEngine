@@ -1,4 +1,4 @@
-#include <EditorPluginProcGenPCH.h>
+#include <EditorPluginProcGen/EditorPluginProcGenPCH.h>
 
 #include <EditorPluginProcGen/Actions/ProcGenActions.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>

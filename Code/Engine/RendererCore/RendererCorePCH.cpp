@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 EZ_STATICLINK_LIBRARY(RendererCore)
 {

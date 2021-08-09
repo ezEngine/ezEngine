@@ -1,4 +1,4 @@
-#include <PhysXCookingPCH.h>
+#include <PhysXCooking/PhysXCookingPCH.h>
 
 EZ_STATICLINK_LIBRARY(PhysXCooking)
 {

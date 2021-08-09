@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Type/Quad/QuadParticleRenderer.h>

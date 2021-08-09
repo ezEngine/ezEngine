@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Duktape/duktape.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>

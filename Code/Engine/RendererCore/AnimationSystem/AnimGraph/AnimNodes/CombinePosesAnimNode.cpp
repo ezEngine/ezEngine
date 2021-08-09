@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Containers/HybridArray.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>

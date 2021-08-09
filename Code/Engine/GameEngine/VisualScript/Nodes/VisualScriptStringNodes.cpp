@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <GameEngine/VisualScript/Nodes/VisualScriptStringNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>

@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 

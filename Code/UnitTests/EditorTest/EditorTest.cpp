@@ -1,4 +1,4 @@
-#include <EditorTestPCH.h>
+#include <EditorTest/EditorTestPCH.h>
 
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>

@@ -1,4 +1,4 @@
-#include <ToolsFoundationTestPCH.h>
+#include <ToolsFoundationTest/ToolsFoundationTestPCH.h>
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>

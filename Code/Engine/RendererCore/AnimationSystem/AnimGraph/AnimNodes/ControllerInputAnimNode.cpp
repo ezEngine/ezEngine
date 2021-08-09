@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/ControllerInputAnimNode.h>

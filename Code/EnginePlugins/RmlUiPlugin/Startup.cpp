@@ -1,4 +1,4 @@
-#include <RmlUiPluginPCH.h>
+#include <RmlUiPlugin/RmlUiPluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>

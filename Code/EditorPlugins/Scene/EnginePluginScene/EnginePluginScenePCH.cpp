@@ -1,4 +1,4 @@
-#include <EnginePluginScenePCH.h>
+#include <EnginePluginScene/EnginePluginScenePCH.h>
 
 EZ_STATICLINK_LIBRARY(EnginePluginScene)
 {

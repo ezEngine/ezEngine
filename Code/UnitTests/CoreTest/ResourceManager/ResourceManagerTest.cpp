@@ -1,4 +1,4 @@
-#include <CoreTestPCH.h>
+#include <CoreTest/CoreTestPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Types/ScopeExit.h>

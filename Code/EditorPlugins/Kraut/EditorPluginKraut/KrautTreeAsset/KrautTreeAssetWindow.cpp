@@ -1,4 +1,4 @@
-#include <EditorPluginKrautPCH.h>
+#include <EditorPluginKraut/EditorPluginKrautPCH.h>
 
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>

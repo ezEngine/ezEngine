@@ -66,10 +66,7 @@ public:
   void operator=(const HSTRING& hstring);
 #endif
 
-  operator const char*() const
-  {
-    return &m_Data[0];
-  }
+  operator const char *() const { return &m_Data[0]; }
   const char* GetData() const { return &m_Data[0]; }
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 

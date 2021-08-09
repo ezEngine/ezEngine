@@ -1,4 +1,4 @@
-#include <RtsGamePluginPCH.h>
+#include <RtsGamePlugin/RtsGamePluginPCH.h>
 
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <RtsGamePlugin/Components/ComponentMessages.h>

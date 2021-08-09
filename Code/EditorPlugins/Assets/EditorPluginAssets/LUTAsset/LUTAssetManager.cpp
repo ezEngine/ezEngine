@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetManager.h>

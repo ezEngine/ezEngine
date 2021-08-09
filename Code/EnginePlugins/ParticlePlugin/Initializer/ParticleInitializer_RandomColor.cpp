@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Core/Curves/ColorGradientResource.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>

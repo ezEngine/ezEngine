@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>

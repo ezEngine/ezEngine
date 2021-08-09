@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <ToolsFoundation/Document/DocumentTasks.h>

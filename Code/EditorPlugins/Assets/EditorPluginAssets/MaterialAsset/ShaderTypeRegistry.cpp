@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>

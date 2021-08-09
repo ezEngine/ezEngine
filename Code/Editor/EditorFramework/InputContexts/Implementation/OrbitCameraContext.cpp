@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/Graphics/Camera.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>

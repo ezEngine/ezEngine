@@ -1,6 +1,6 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
-#include <../../../Data/Base/Shaders/Pipeline/VRCompanionViewConstants.h>
+#include "../../../../../Data/Base/Shaders/Pipeline/VRCompanionViewConstants.h"
 #include <Core/ResourceManager/ResourceManager.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRWindow.h>

@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <Foundation/Utilities/Progress.h>

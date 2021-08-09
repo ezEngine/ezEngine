@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>

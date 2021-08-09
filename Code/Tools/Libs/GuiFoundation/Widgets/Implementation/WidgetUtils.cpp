@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/Declarations.h>

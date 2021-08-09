@@ -1,4 +1,4 @@
-#include <ModelImporterPCH.h>
+#include <ModelImporter2/ModelImporterPCH.h>
 
 #include <ModelImporter2/ImporterAssimp/ImporterAssimp.h>
 #include <ModelImporter2/ImporterMagicaVoxel/ImporterMagicaVoxel.h>

@@ -1,4 +1,4 @@
-#include <RtsGamePluginPCH.h>
+#include <RtsGamePlugin/RtsGamePluginPCH.h>
 
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>

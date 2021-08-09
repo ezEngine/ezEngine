@@ -1,16 +1,16 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Components/PxDynamicActorComponent.h>
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/RopeSimulator.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxRopeComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
-#include <Utilities/PxConversionUtils.h>
-#include <Utilities/PxUserData.h>
-#include <WorldModule/Implementation/PhysX.h>
-#include <WorldModule/PhysXWorldModule.h>
 #include <extensions/PxD6Joint.h>
 #include <foundation/Px.h>
 

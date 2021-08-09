@@ -1,4 +1,4 @@
-#include <RmlUiPluginPCH.h>
+#include <RmlUiPlugin/RmlUiPluginPCH.h>
 
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/ViewData.h>

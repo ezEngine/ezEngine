@@ -1,4 +1,4 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>

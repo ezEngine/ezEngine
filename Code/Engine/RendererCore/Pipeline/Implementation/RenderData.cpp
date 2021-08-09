@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/Renderer.h>

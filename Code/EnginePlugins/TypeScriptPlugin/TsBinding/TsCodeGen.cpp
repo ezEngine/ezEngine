@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>

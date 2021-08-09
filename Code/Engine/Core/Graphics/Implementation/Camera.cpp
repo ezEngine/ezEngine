@@ -1,8 +1,8 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Core/World/CoordinateSystem.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <World/CoordinateSystem.h>
 
 class RemapCoordinateSystemProvider : public ezCoordinateSystemProvider
 {

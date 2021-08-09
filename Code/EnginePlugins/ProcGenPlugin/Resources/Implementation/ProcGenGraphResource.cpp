@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorTestPCH.h>
+#include <EditorTest/EditorTestPCH.h>
 
 #include "../TestClass/TestClass.h"
 

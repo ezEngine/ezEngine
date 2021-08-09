@@ -1,4 +1,4 @@
-#include <EditorPluginRmlUiPCH.h>
+#include <EditorPluginRmlUi/EditorPluginRmlUiPCH.h>
 
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetObjects.h>
 

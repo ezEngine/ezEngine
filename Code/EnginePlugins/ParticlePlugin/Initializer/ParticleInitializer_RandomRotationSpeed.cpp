@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Core/Curves/Curve1DResource.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>

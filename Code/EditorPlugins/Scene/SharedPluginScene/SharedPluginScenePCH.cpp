@@ -1,4 +1,4 @@
-#include <SharedPluginScenePCH.h>
+#include <SharedPluginScene/SharedPluginScenePCH.h>
 
 EZ_STATICLINK_LIBRARY(SharedPluginScene)
 {

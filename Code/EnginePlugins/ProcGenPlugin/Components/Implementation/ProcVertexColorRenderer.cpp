@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
 #include <ProcGenPlugin/Components/ProcVertexColorRenderer.h>

@@ -1,6 +1,6 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include "EditorApp/EditorApp.moc.h"
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 
 ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* parent /*= nullptr*/)

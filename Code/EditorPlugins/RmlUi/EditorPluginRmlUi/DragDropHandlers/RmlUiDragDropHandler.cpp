@@ -1,4 +1,4 @@
-#include <EditorPluginRmlUiPCH.h>
+#include <EditorPluginRmlUi/EditorPluginRmlUiPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginRmlUi/DragDropHandlers/RmlUiDragDropHandler.h>

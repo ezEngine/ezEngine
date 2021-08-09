@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>

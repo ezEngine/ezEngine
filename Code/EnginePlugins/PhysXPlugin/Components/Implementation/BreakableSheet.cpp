@@ -1,4 +1,4 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Messages/CollisionMessage.h>

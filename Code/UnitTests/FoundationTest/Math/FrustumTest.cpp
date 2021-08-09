@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/SimdMath/SimdConversion.h>

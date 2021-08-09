@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>

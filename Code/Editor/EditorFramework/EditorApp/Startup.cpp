@@ -1,7 +1,7 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
@@ -30,6 +30,7 @@
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
@@ -47,7 +48,6 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <QSvgRenderer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ads/DockManager.h>

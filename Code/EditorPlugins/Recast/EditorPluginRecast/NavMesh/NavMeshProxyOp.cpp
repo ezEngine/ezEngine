@@ -1,4 +1,4 @@
-#include <EditorPluginRecastPCH.h>
+#include <EditorPluginRecast/EditorPluginRecastPCH.h>
 
 #include <EditorPluginRecast/NavMesh/NavMeshProxyOp.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>

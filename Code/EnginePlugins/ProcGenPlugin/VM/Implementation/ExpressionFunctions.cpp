@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/SimdMath/SimdNoise.h>

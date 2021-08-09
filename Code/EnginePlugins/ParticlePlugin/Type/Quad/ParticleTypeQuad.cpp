@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
 

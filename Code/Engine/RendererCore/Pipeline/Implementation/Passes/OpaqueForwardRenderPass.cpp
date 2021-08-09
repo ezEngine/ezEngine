@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/Passes/OpaqueForwardRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>

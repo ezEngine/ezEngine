@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>

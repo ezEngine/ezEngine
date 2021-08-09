@@ -1,4 +1,4 @@
-#include <RecastPluginPCH.h>
+#include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/World/World.h>

@@ -1,9 +1,9 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
-#include <MainWindow.moc.h>
+#include <Inspector/MainWindow.moc.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
 #include <qlistwidget.h>

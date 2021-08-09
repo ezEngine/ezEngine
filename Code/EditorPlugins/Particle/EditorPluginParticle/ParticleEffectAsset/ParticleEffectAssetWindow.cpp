@@ -1,4 +1,4 @@
-#include <EditorPluginParticlePCH.h>
+#include <EditorPluginParticle/EditorPluginParticlePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>

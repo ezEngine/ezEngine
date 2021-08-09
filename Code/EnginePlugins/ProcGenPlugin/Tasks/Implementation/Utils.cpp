@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>

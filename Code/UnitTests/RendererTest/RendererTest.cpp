@@ -1,4 +1,4 @@
-#include <RendererTestPCH.h>
+#include <RendererTest/RendererTestPCH.h>
 
 #include <RendererCore/Textures/TextureUtils.h>
 #include <TestFramework/Framework/TestFramework.h>

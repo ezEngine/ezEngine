@@ -1,4 +1,4 @@
-#include <InspectorPluginPCH.h>
+#include <InspectorPlugin/InspectorPluginPCH.h>
 
 EZ_STATICLINK_LIBRARY(InspectorPlugin)
 {

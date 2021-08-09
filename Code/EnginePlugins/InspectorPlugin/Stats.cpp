@@ -1,4 +1,4 @@
-#include <InspectorPluginPCH.h>
+#include <InspectorPlugin/InspectorPluginPCH.h>
 
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Foundation/Communication/Telemetry.h>

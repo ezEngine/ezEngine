@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/Utilities/GraphicsUtils.h>

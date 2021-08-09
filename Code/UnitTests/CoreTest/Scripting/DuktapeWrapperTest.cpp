@@ -1,4 +1,4 @@
-#include <CoreTestPCH.h>
+#include <CoreTest/CoreTestPCH.h>
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 

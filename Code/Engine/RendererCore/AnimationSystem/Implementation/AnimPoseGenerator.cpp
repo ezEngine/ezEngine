@@ -1,11 +1,11 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
-#include <AnimationSystem/AnimationClipResource.h>
-#include <AnimationSystem/Declarations.h>
-#include <AnimationSystem/SkeletonResource.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/blending_job.h>
 #include <ozz/animation/runtime/local_to_model_job.h>

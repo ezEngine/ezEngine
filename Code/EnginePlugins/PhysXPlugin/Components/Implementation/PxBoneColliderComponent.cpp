@@ -1,16 +1,16 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Components/PxDynamicActorComponent.h>
-#include <Components/PxQueryShapeActorComponent.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxBoneColliderComponent.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+#include <PhysXPlugin/Components/PxQueryShapeActorComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <Shapes/PxShapeBoxComponent.h>
-#include <Shapes/PxShapeCapsuleComponent.h>
-#include <Shapes/PxShapeSphereComponent.h>
-#include <WorldModule/PhysXWorldModule.h>
 
 using namespace physx;
 

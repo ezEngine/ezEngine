@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>

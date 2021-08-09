@@ -1,4 +1,4 @@
-#include <RecastPluginPCH.h>
+#include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Foundation/Math/Vec3.h>
 #include <RecastPlugin/Utils/RcMath.h>

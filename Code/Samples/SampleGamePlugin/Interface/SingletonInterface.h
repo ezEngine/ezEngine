@@ -1,4 +1,4 @@
-#include <SampleGamePluginPCH.h>
+#include <SampleGamePlugin/SampleGamePluginPCH.h>
 
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Strings/FormatString.h>

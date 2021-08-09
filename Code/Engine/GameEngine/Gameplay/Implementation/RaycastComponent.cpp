@@ -1,5 +1,5 @@
 
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/TriggerMessage.h>

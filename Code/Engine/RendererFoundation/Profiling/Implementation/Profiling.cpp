@@ -1,4 +1,4 @@
-#include <RendererFoundationPCH.h>
+#include <RendererFoundation/RendererFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>

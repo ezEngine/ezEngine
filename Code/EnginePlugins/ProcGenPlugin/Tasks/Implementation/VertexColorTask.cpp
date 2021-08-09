@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>

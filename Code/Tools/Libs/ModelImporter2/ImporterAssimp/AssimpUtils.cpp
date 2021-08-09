@@ -1,4 +1,4 @@
-#include <ModelImporterPCH.h>
+#include <ModelImporter2/ModelImporterPCH.h>
 
 #include <assimp/matrix4x4.h>
 #include <assimp/quaternion.h>

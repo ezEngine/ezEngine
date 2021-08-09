@@ -1,4 +1,4 @@
-#include <FmodPluginPCH.h>
+#include <FmodPlugin/FmodPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <FmodPlugin/FmodIncludes.h>

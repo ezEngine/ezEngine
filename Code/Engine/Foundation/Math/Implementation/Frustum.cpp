@@ -1,10 +1,10 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Math/Frustum.h>
-#include <SimdMath/SimdBBox.h>
-#include <SimdMath/SimdConversion.h>
-#include <SimdMath/SimdVec4f.h>
-#include <Utilities/GraphicsUtils.h>
+#include <Foundation/SimdMath/SimdBBox.h>
+#include <Foundation/SimdMath/SimdConversion.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 ezFrustum::ezFrustum() = default;
 ezFrustum::~ezFrustum() = default;

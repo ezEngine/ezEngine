@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>

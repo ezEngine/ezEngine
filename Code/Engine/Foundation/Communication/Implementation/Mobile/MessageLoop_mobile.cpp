@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 

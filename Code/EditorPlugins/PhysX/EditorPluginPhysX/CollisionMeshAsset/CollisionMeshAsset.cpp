@@ -1,4 +1,4 @@
-#include <EditorPluginPhysXPCH.h>
+#include <EditorPluginPhysX/EditorPluginPhysXPCH.h>
 
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
 #include <Foundation/IO/ChunkStream.h>

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
@@ -92,7 +92,7 @@ void ezEditableSkeleton::AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourc
     auto& geo = desc.m_Geometry.ExpandAndGetRef();
 
     geo.m_Type = shape.m_Geometry;
-    geo.m_uiAttachedToJoint = uiJointIdx;
+    geo.m_uiAttachedToJoint = static_cast<ezUInt16>(uiJointIdx);
     geo.m_sName = pJoint->m_sName;
     geo.m_Transform.SetIdentity();
     geo.m_Transform.m_vScale.Set(shape.m_fLength, shape.m_fWidth, shape.m_fThickness);

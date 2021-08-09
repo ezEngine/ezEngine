@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 #include <ProcGenPlugin/VM/ExpressionCompiler.h>

@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 // Include inline file

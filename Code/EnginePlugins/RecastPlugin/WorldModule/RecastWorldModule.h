@@ -4,7 +4,7 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
-#include <NavMeshBuilder/NavMeshPointsOfInterest.h>
+#include <RecastPlugin/NavMeshBuilder/NavMeshPointsOfInterest.h>
 
 class dtCrowd;
 class dtNavMesh;
