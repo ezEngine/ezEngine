@@ -35,6 +35,7 @@ struct EZ_ALIGN(ezConditionVariableHandle, 8)
 using ezThreadHandle = ezMinWindows::HANDLE;
 using ezThreadID = ezMinWindows::DWORD;
 using ezOSThreadEntryPoint = ezMinWindows::DWORD(__stdcall*)(void* lpThreadParameter);
+using ezSemaphoreHandle = ezMinWindows::HANDLE;
 
 #define EZ_THREAD_CLASS_ENTRY_POINT ezMinWindows::DWORD __stdcall ezThreadClassEntryPoint(void* lpThreadParameter);
 

@@ -13,8 +13,7 @@ namespace ezMath
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Sign(T f)
   {
-    return (f < 0 ? T(-1) : f > 0 ? T(1)
-                                  : 0);
+    return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
   }
 
   template <typename T>
@@ -99,6 +98,14 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : FirstBitLow(bitmask); }
 
+  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt64 bitmask)
+  {
+    const ezUInt32 numLow = CountTrailingZeros(static_cast<ezUInt32>(bitmask & 0xFFFFFFFF));
+    const ezUInt32 numHigh = CountTrailingZeros(static_cast<ezUInt32>((bitmask >> 32u) & 0xFFFFFFFF));
+
+    return (numLow == 32) ? (32 + numHigh) : numLow;
+  }
+
   EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : (31u - FirstBitHigh(bitmask)); }
 
 
@@ -117,6 +124,14 @@ namespace ezMath
     value = (value & 0x33333333u) + ((value >> 2) & 0x33333333u);
     return ((value + (value >> 4) & 0xF0F0F0Fu) * 0x1010101u) >> 24;
 #endif
+  }
+
+  EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt64 value)
+  {
+    ezUInt32 result = 0;
+    result += CountBits(ezUInt32(value));
+    result += CountBits(ezUInt32(value >> 32));
+    return result;
   }
 
   template <typename T>

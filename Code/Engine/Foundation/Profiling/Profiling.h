@@ -132,6 +132,9 @@ public:
   /// \brief Adds a new scoped event for the calling thread in the profiling system
   static void AddCPUScope(const char* szName, const char* szFunctionName, ezTime beginTime, ezTime endTime);
 
+  /// \brief Get current frame counter
+  static ezUInt64 GetFrameCount();
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ProfilingSystem);
   friend ezUInt32 RunThread(ezThread* pThread);

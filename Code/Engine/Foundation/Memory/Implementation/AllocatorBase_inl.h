@@ -3,6 +3,14 @@ EZ_ALWAYS_INLINE ezAllocatorBase::ezAllocatorBase() = default;
 
 EZ_ALWAYS_INLINE ezAllocatorBase::~ezAllocatorBase() = default;
 
+
+namespace ezMath
+{
+  // due to #include order issues, we have to forward declare this function here
+
+  EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d);
+} // namespace ezMath
+
 namespace ezInternal
 {
   template <typename T>
@@ -52,7 +60,8 @@ namespace ezInternal
   template <typename T>
   EZ_FORCE_INLINE T* CreateRawBuffer(ezAllocatorBase* pAllocator, size_t uiCount)
   {
-    return static_cast<T*>(pAllocator->Allocate(sizeof(T) * uiCount, EZ_ALIGNMENT_OF(T)));
+    ezUInt64 safeAllocationSize = ezMath::SafeMultiply64(uiCount, sizeof(T));
+    return static_cast<T*>(pAllocator->Allocate(safeAllocationSize, EZ_ALIGNMENT_OF(T)));
   }
 
   EZ_FORCE_INLINE void DeleteRawBuffer(ezAllocatorBase* pAllocator, void* ptr)

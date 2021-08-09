@@ -285,10 +285,9 @@ private:
   {
     void* m_Ptr;
     const ezRTTI* m_pType;
-    ezAtomicInteger32 m_uiRef;
+    ezAtomicInteger32 m_uiRef = 1;
     EZ_ALWAYS_INLINE SharedData(void* ptr, const ezRTTI* pType)
       : m_Ptr(ptr)
-      , m_uiRef(1)
       , m_pType(pType)
     {
     }

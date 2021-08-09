@@ -3,7 +3,7 @@ ez_cmake_init()
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME})
+ez_create_target(SHARED_LIBRARY ${PROJECT_NAME})
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
   target_link_libraries(${PROJECT_NAME}
@@ -58,7 +58,7 @@ if (EZ_3RDPARTY_ZLIB_SUPPORT)
 
 endif()
 
-ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
+ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/ezEngine.natvis")
 
 ####################################################
 ## UserConfig header settings

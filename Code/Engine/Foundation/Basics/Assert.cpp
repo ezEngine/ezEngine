@@ -16,6 +16,13 @@
 #  include <crtdbg.h>
 #endif
 
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
+void MSVC_OutOfLine_DebugBreak(...)
+{
+  __debugbreak();
+}
+#endif
+
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   char szTemp[1024 * 4] = "";
@@ -51,7 +58,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 
   if (ezEnvironmentVariableUtils::IsVariableSet("EZ_SILENT_ASSERTS"))
   {
-    ezConversionUtils::StringToBool(ezEnvironmentVariableUtils::GetValueString("EZ_SILENT_ASSERTS"), bSilentAsserts).IgnoreResult();
+    bSilentAsserts = ezEnvironmentVariableUtils::GetValueInt("EZ_SILENT_ASSERTS", bSilentAsserts ? 1 : 0) != 0;
   }
 
   if (bSilentAsserts)

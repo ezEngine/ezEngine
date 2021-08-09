@@ -163,6 +163,9 @@ function(ez_set_common_target_definitions TARGET_NAME)
 		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
 	endif()
 	
+	# on Windows, make sure to use the Unicode API
+	target_compile_definitions(${TARGET_NAME} PUBLIC UNICODE _UNICODE)
+
 endfunction()
 
 ######################################
@@ -326,9 +329,13 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 
   file(GLOB_RECURSE UI_FILES "${ROOT_DIR}/*.ui")
   file(GLOB_RECURSE QRC_FILES "${ROOT_DIR}/*.qrc")
+  file(GLOB_RECURSE DEF_FILES "${ROOT_DIR}/*.def")
   file(GLOB_RECURSE RES_FILES "${ROOT_DIR}/*.ico" "${ROOT_DIR}/*.rc")
+  file(GLOB_RECURSE CMAKE_FILES "${ROOT_DIR}/*.cmake")
   
   set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${CS_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} PARENT_SCOPE)
+
+  set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${CS_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} ${DEF_FILES} ${CMAKE_FILES} PARENT_SCOPE)
 
 endfunction()
 

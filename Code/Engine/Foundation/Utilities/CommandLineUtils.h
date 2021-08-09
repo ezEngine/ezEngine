@@ -66,6 +66,9 @@ public:
   ///  Otherwise the index at which the option can be found. This can be passed to GetParameter() or GetStringOptionArguments().
   ezInt32 GetOptionIndex(const char* szOption, bool bCaseSensitive = false) const; // [tested]
 
+  /// \brief Returns whether the requested option is specified, at all.
+  bool HasOption(const char* szOption, bool bCaseSensitive = false) const;
+
   /// \brief Returns how many arguments follow behind the option with the name \a szOption.
   ///
   /// Everything that does not start with a hyphen is considered to be an additional parameter for the option.

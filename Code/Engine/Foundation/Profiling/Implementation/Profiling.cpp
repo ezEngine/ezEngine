@@ -575,6 +575,12 @@ void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
 }
 
 // static
+ezUInt64 ezProfilingSystem::GetFrameCount()
+{
+  return s_uiFrameCount;
+}
+
+// static
 void ezProfilingSystem::StartNewFrame()
 {
   ++s_uiFrameCount;

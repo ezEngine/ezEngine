@@ -138,7 +138,51 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundin
   return ezPositionOnPlane::Spanning;
 }
 
+template <typename Type>
+Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const
+{
+  ezVec3Template<Type> vNeg = Box.m_vMax;
 
+  if (m_vNormal.x >= (Type)0)
+  {
+    vNeg.x = Box.m_vMin.x;
+  }
+
+  if (m_vNormal.y >= (Type)0)
+  {
+    vNeg.y = Box.m_vMin.y;
+  }
+
+  if (m_vNormal.z >= (Type)0)
+  {
+    vNeg.z = Box.m_vMin.z;
+  }
+
+  return GetDistanceTo(vNeg);
+}
+
+template <typename Type>
+Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const
+{
+  ezVec3Template<Type> vPos = Box.m_vMin;
+
+  if (m_vNormal.x >= (Type)0)
+  {
+    vPos.x = Box.m_vMax.x;
+  }
+
+  if (m_vNormal.y >= (Type)0)
+  {
+    vPos.y = Box.m_vMax.y;
+  }
+
+  if (m_vNormal.z >= (Type)0)
+  {
+    vPos.z = Box.m_vMax.z;
+  }
+
+  return GetDistanceTo(vPos);
+}
 
 template <typename Type>
 void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)

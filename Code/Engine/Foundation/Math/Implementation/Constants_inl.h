@@ -263,6 +263,33 @@ namespace ezMath
 
   //////////////////////////////////////////////////////////////////////////
 
+  template <>
+  constexpr float HighValue()
+  {
+    return 1.8446726e+019f;
+  }
+
+  template <>
+  constexpr double HighValue()
+  {
+    return 1.8446726e+150;
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+
+  template <>
+  constexpr float FloatEpsilon()
+  {
+    return FLT_EPSILON;
+  }
+
+  template <>
+  constexpr double FloatEpsilon()
+  {
+    return DBL_EPSILON;
+  }
+
+
   template <typename TYPE>
   constexpr TYPE SmallEpsilon()
   {

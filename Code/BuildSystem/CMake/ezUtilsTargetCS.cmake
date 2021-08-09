@@ -17,16 +17,19 @@ function(ez_create_target_cs TYPE TARGET_NAME)
 
     ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 
-    if ((${TYPE} STREQUAL "LIBRARY") OR (${TYPE} STREQUAL "STATIC_LIBRARY"))
+	# SHARED_LIBRARY means always shared
+    # LIBRARY means SHARED_LIBRARY when EZ_COMPILE_ENGINE_AS_DLL is on, otherwise STATIC_LIBRARY
 
-        if ((${EZ_COMPILE_ENGINE_AS_DLL}) AND (${TYPE} STREQUAL "LIBRARY"))
+    if ((${TYPE} STREQUAL "LIBRARY") OR (${TYPE} STREQUAL "STATIC_LIBRARY") OR (${TYPE} STREQUAL "SHARED_LIBRARY"))
 
-            message (STATUS "Shared Library: ${TARGET_NAME}")
+        if ((${EZ_COMPILE_ENGINE_AS_DLL} AND (${TYPE} STREQUAL "LIBRARY")) OR (${TYPE} STREQUAL "SHARED_LIBRARY"))
+
+            message (STATUS "Shared Library (C#): ${TARGET_NAME}")
             add_library (${TARGET_NAME} SHARED ${ALL_SOURCE_FILES})
 
         else ()
 
-            message (STATUS "Static Library: ${TARGET_NAME}")
+            message (STATUS "Static Library (C#): ${TARGET_NAME}")
             add_library (${TARGET_NAME} ${ALL_SOURCE_FILES})
 
         endif ()
@@ -37,13 +40,13 @@ function(ez_create_target_cs TYPE TARGET_NAME)
 
     elseif (${TYPE} STREQUAL "APPLICATION")
 
-        message (STATUS "Application: ${TARGET_NAME}")
+        message (STATUS "Application (C#): ${TARGET_NAME}")
 
         add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
 
     else()
 
-        message(FATAL_ERROR "ez_create_target_cs: Missing argument to specify target type. Pass in 'APP' or 'LIB'.")
+        message(FATAL_ERROR "ez_create_target_cs: Missing argument to specify target type. Pass in 'APPLICATION' or 'SHARED_LIBRARY' or 'STATIC_LIBRARY'.")
 
     endif()
 

@@ -39,6 +39,16 @@ namespace ezMath
   template <typename TYPE>
   constexpr TYPE MinValue();
 
+  /// \brief A very large value, that is slightly smaller than sqrt(MaxValue()).
+  ///
+  /// Useful to default initialize values, that may get squared in subsequent operations.
+  template <typename TYPE>
+  constexpr TYPE HighValue();
+
+  /// \brief The difference between 1.0 and the next representable value for the given type.
+  template <typename TYPE>
+  constexpr TYPE FloatEpsilon();
+
   template <typename TYPE>
   constexpr TYPE SmallEpsilon();
 

@@ -7,6 +7,8 @@
 ///
 /// This can be used to protect code that is not thread-safe against race conditions.
 /// To ensure that mutexes are always properly released, use the ezLock class or EZ_LOCK macro.
+///
+/// \sa ezSemaphore, ezConditionVariable
 class EZ_FOUNDATION_DLL ezMutex
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMutex);
@@ -21,7 +23,7 @@ public:
   /// \brief Attempts to acquire an exclusive lock for this mutex object. Returns true on success.
   ///
   /// If the mutex is already acquired by another thread, the function returns immediately and returns false.
-  bool TryLock();
+  ezResult TryLock();
 
   /// \brief Releases a lock that has been previously acquired
   void Unlock();
@@ -50,7 +52,7 @@ public:
   EZ_ALWAYS_INLINE void Lock() {}
 
   /// \brief Implements the 'TryLock' interface function, but does nothing.
-  EZ_ALWAYS_INLINE bool TryLock() { return true; }
+  EZ_ALWAYS_INLINE ezResult TryLock() { return EZ_SUCCESS; }
 
   /// \brief Implements the 'Release' interface function, but does nothing.
   EZ_ALWAYS_INLINE void Unlock() {}

@@ -40,15 +40,15 @@ inline void ezMutex::Unlock()
   ezWinLeaveCriticalSection(&m_Handle);
 }
 
-inline bool ezMutex::TryLock()
+inline ezResult ezMutex::TryLock()
 {
   if (ezWinTryEnterCriticalSection(&m_Handle) != 0)
   {
     ++m_iLockCount;
-    return true;
+    return EZ_SUCCESS;
   }
 
-  return false;
+  return EZ_FAILURE;
 }
 
 #else
@@ -67,15 +67,15 @@ inline void ezMutex::Unlock()
   LeaveCriticalSection((CRITICAL_SECTION*)&m_Handle);
 }
 
-inline bool ezMutex::TryLock()
+inline ezResult ezMutex::TryLock()
 {
   if (TryEnterCriticalSection((CRITICAL_SECTION*)&m_Handle) != 0)
   {
     ++m_iLockCount;
-    return true;
+    return EZ_SUCCESS;
   }
 
-  return false;
+  return EZ_FAILURE;
 }
 
 #endif

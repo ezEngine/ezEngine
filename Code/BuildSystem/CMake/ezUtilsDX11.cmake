@@ -59,7 +59,9 @@ function(ez_link_target_dx11 TARGET_NAME)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			"%ProgramFiles(x86)%/Windows Kits/${DX11_COPY_DLLS_WINSDKVERSION}/Redist/D3D/${DX11_COPY_DLLS_BIT}/d3dcompiler_${DX11_COPY_DLLS_DLL_VERSION}.dll"
-			$<TARGET_FILE_DIR:${TARGET_NAME}>)
+			$<TARGET_FILE_DIR:${TARGET_NAME}>
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+			)
 	endif ()
 
 endfunction()

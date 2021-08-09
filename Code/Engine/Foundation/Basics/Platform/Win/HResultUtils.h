@@ -42,14 +42,16 @@ inline ezResult ezToResult(ezMinWindows::HRESULT result)
     }                                                                                        \
   } while (false)
 
-#define EZ_HRESULT_TO_LOG_RET(code)                                                          \
+#define EZ_NO_RETURNVALUE
+
+#define EZ_HRESULT_TO_LOG_RET(code, ret)                                                     \
   do                                                                                         \
   {                                                                                          \
     ezMinWindows::HRESULT s = (code);                                                        \
     if (s < 0)                                                                               \
     {                                                                                        \
       ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
-      return;                                                                                \
+      return ret;                                                                            \
     }                                                                                        \
   } while (false)
 
