@@ -51,15 +51,15 @@ namespace
         float DecodeFromIndex(size_t uIndex) const noexcept
         {
             if (uIndex == 0)
-                return red_0 / 255.0f;
+                return float(red_0) / 255.0f;
             if (uIndex == 1)
-                return red_1 / 255.0f;
-            float fred_0 = red_0 / 255.0f;
-            float fred_1 = red_1 / 255.0f;
+                return float(red_1) / 255.0f;
+            float fred_0 = float(red_0) / 255.0f;
+            float fred_1 = float(red_1) / 255.0f;
             if (red_0 > red_1)
             {
                 uIndex -= 1;
-                return (fred_0 * (7 - uIndex) + fred_1 * uIndex) / 7.0f;
+                return (fred_0 * float(7u - uIndex) + fred_1 * float(uIndex)) / 7.0f;
             }
             else
             {
@@ -68,7 +68,7 @@ namespace
                 if (uIndex == 7)
                     return 1.0f;
                 uIndex -= 1;
-                return (fred_0 * (5 - uIndex) + fred_1 * uIndex) / 5.0f;
+                return (fred_0 * float(5u - uIndex) + fred_1 * float(uIndex)) / 5.0f;
             }
         }
 
@@ -110,15 +110,15 @@ namespace
             int8_t sred_1 = (red_1 == -128) ? -127 : red_1;
 
             if (uIndex == 0)
-                return sred_0 / 127.0f;
+                return float(sred_0) / 127.0f;
             if (uIndex == 1)
-                return sred_1 / 127.0f;
-            float fred_0 = sred_0 / 127.0f;
-            float fred_1 = sred_1 / 127.0f;
+                return float(sred_1) / 127.0f;
+            float fred_0 = float(sred_0) / 127.0f;
+            float fred_1 = float(sred_1) / 127.0f;
             if (red_0 > red_1)
             {
                 uIndex -= 1;
-                return (fred_0 * (7 - uIndex) + fred_1 * uIndex) / 7.0f;
+                return (fred_0 * float(7u - uIndex) + fred_1 * float(uIndex)) / 7.0f;
             }
             else
             {
@@ -127,7 +127,7 @@ namespace
                 if (uIndex == 7)
                     return 1.0f;
                 uIndex -= 1;
-                return (fred_0 * (5 - uIndex) + fred_1 * uIndex) / 5.0f;
+                return (fred_0 * float(5u - uIndex) + fred_1 * float(uIndex)) / 5.0f;
             }
         }
 
@@ -420,7 +420,7 @@ void DirectX::D3DXDecodeBC4S(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC4U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
+void DirectX::D3DXEncodeBC4U(uint8_t *pBC, const XMVECTOR *pColor, uint32_t flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 
@@ -441,7 +441,7 @@ void DirectX::D3DXEncodeBC4U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) 
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC4S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
+void DirectX::D3DXEncodeBC4S(uint8_t *pBC, const XMVECTOR *pColor, uint32_t flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 
@@ -498,7 +498,7 @@ void DirectX::D3DXDecodeBC5S(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC5U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
+void DirectX::D3DXEncodeBC5U(uint8_t *pBC, const XMVECTOR *pColor, uint32_t flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 
@@ -532,7 +532,7 @@ void DirectX::D3DXEncodeBC5U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) 
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC5S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
+void DirectX::D3DXEncodeBC5S(uint8_t *pBC, const XMVECTOR *pColor, uint32_t flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 

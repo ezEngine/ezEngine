@@ -81,10 +81,11 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   // Read WIC data from local storage
   ScratchImage scratchImage;
-  DWORD flags = WIC_FLAGS_ALL_FRAMES | WIC_FLAGS_IGNORE_SRGB /* just treat PNG, JPG etc as non-sRGB, we determine this through our 'Usage' later */;
-  if (FAILED(LoadFromWICMemory(storage.GetData(), storage.GetCount(), flags, nullptr, scratchImage)))
+  WIC_FLAGS flags = WIC_FLAGS_ALL_FRAMES | WIC_FLAGS_IGNORE_SRGB /* just treat PNG, JPG etc as non-sRGB, we determine this through our 'Usage' later */;
+  HRESULT loadResult = LoadFromWICMemory(storage.GetData(), storage.GetCount(), flags, nullptr, scratchImage);
+  if (FAILED(loadResult))
   {
-    ezLog::Error(pLog, "Failure to process image data.");
+    ezLog::Error(pLog, "Failure to process image data. HRESULT:{}", ezArgErrorCode(loadResult));
     return EZ_FAILURE;
   }
 
@@ -228,7 +229,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   {
     // Store images in output blob
     Blob targetBlob;
-    DWORD flags = WIC_FLAGS_NONE;
+    WIC_FLAGS flags = WIC_FLAGS_NONE;
     HRESULT res = SaveToWICMemory(outputImages.GetData(), outputImages.GetCount(), flags, GetWICCodec(WIC_CODEC_TIFF), targetBlob);
     if (FAILED(res))
     {

@@ -5,7 +5,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/Cyan4973/xxHash",
-                    "commitHash": "061753e16c61bae5c8494f2e2d2b1a766377d3bc"
+                    "commitHash": "ea5393ddb997999aace2be4e101a4efa8e8f3cb3"
                 }
             }
         }

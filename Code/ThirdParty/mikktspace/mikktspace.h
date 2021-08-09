@@ -58,6 +58,7 @@ extern "C" {
  * and also quad triangulator plugin.
  */
 
+
 typedef int tbool;
 typedef struct SMikkTSpaceContext SMikkTSpaceContext;
 

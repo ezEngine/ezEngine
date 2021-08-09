@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/lsalzman/enet",
-          "commitHash": "0eaf48eeb0d94a18d079378d8b76d588832ce838"
+          "commitHash": "e3ada4ed750b976833e3d54a9c1179445289bbf6"
         }
       }
     }

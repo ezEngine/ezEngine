@@ -39,11 +39,11 @@ DEALINGS IN THE SOFTWARE.
 #endif
 
 #if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
-    #define utf8OVERRIDE override
-    #define utf8NOEXCEPT noexcept
+    #define UTF_CPP_OVERRIDE override
+    #define UTF_CPP_NOEXCEPT noexcept
 #else // C++ 98/03
-    #define utf8OVERRIDE
-    #define utf8NOEXCEPT throw()
+    #define UTF_CPP_OVERRIDE
+    #define UTF_CPP_NOEXCEPT throw()
 #endif // C++ 11 or later
 
 

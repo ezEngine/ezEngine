@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/ocornut/imgui",
-          "commitHash": "71d20abbc34342ef6e6fc8c2824b25fa16743858"
+          "commitHash": "35b1148efb839381b84de9290d9caf0b66ad7d03"
         }
       }
     }

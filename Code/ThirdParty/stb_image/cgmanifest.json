@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/nothings/stb",
-          "commitHash": "f67165c2bb2af3060ecae7d20d6f731173485ad0"
+          "commitHash": "b42009b3b9d4ca35bc703f5310eedc74f584be58"
         }
       }
     }
