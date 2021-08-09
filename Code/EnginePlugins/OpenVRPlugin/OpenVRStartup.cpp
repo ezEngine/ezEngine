@@ -1,4 +1,4 @@
-#include <OpenVRPluginPCH.h>
+#include <OpenVRPlugin/OpenVRPluginPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

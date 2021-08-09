@@ -1,4 +1,4 @@
-#include <OpenVRPluginPCH.h>
+#include <OpenVRPlugin/OpenVRPluginPCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Time/Stopwatch.h>
