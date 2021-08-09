@@ -62,9 +62,6 @@ public:
   ///
   /// This is necessary when a 64 bit string hash is used in a hash table (which only uses 32 bit indices).
   constexpr static ezUInt32 StringHashTo32(ezUInt64 hash);
-
-  /// \brief Combines two 32 bit hash values into one.
-  constexpr static ezUInt32 CombineHashValues32(ezUInt32 h0, ezUInt32 h1);
 };
 
 /// \brief Helper struct to calculate the Hash of different types.
