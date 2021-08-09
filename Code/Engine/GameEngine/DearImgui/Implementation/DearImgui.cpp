@@ -1,13 +1,12 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
-
-#  include <GameEngine/DearImgui/DearImgui.h>
 
 #  include <Core/Input/InputManager.h>
 #  include <Foundation/Configuration/Startup.h>
 #  include <Foundation/Time/Clock.h>
-#  include <GameApplication/GameApplication.h>
+#  include <GameEngine/DearImgui/DearImgui.h>
+#  include <GameEngine/GameApplication/GameApplication.h>
 #  include <RendererCore/Pipeline/View.h>
 #  include <RendererCore/RenderWorld/RenderWorld.h>
 #  include <RendererCore/Textures/Texture2DResource.h>

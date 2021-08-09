@@ -1,7 +1,7 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Actions/QuadViewActions.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 ezActionDescriptorHandle ezQuadViewActions::s_hToggleViews;

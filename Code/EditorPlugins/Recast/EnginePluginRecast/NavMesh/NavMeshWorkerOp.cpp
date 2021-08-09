@@ -1,4 +1,4 @@
-#include <EnginePluginRecastPCH.h>
+#include <EnginePluginRecast/EnginePluginRecastPCH.h>
 
 #include <EnginePluginRecast/NavMesh/NavMeshWorkerOp.h>
 

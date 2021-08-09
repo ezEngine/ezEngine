@@ -1,4 +1,4 @@
-#include <RenderDocPluginPCH.h>
+#include <RenderDocPlugin/RenderDocPluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>

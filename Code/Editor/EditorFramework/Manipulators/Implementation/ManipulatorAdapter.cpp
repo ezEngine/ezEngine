@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>

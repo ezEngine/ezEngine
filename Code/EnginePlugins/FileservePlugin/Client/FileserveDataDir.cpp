@@ -1,4 +1,4 @@
-#include <FileservePluginPCH.h>
+#include <FileservePlugin/FileservePluginPCH.h>
 
 #include <FileservePlugin/Client/FileserveDataDir.h>
 #include <Foundation/Algorithm/HashingUtils.h>

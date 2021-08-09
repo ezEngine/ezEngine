@@ -1,4 +1,4 @@
-#include <EditorPluginPhysXPCH.h>
+#include <EditorPluginPhysX/EditorPluginPhysXPCH.h>
 
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>

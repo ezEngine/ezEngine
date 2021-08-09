@@ -29,3 +29,4 @@ protected:
   QLineEdit* m_pWidget;
   QToolButton* m_pButton;
 };
+

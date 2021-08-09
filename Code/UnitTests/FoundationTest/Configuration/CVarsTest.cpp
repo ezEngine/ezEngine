@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>

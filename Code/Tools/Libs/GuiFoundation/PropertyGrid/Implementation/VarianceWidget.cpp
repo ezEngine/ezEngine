@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>

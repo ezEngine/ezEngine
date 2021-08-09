@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Serialization/DdlSerializer.h>

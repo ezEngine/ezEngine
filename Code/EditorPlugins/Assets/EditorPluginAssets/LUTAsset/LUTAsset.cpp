@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 

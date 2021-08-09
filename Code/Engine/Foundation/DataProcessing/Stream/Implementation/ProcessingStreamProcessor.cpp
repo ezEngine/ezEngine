@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>

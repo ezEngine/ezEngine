@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>

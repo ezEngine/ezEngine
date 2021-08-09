@@ -1,4 +1,4 @@
-#include <EditorEngineProcessFrameworkPCH.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>

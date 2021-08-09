@@ -32,3 +32,4 @@ private:
   ezQtNodeScene* m_pScene;
   ezQtNodeView* m_pView;
 };
+

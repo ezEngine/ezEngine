@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>

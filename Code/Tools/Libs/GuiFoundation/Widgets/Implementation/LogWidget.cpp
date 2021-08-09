@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/Models/LogModel.moc.h>
 #include <GuiFoundation/Widgets/LogWidget.moc.h>

@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Strings/FormatString.h>

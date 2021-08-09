@@ -30,3 +30,4 @@ private:
   ezSoundBankAssetDocument* m_pAssetDoc;
   QLabel* m_pLabelInfo;
 };
+

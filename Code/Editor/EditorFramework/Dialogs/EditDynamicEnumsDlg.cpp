@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Dialogs/EditDynamicEnumsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>

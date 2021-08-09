@@ -1,4 +1,4 @@
-#include <EditorTestPCH.h>
+#include <EditorTest/EditorTestPCH.h>
 
 #include "TestClass.h"
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>

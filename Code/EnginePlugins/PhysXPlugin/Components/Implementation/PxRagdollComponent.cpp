@@ -1,14 +1,14 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxRagdollComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <Utilities/PxConversionUtils.h>
-#include <Utilities/PxUserData.h>
-#include <WorldModule/Implementation/PhysX.h>
-#include <WorldModule/PhysXWorldModule.h>
 #include <foundation/Px.h>
 
 using namespace physx;

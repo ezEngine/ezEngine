@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Memory/CommonAllocators.h>

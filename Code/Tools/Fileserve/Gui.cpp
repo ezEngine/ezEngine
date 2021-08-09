@@ -1,12 +1,12 @@
-#include <FileservePCH.h>
+#include <Fileserve/FileservePCH.h>
 
 #include <Fileserve/Fileserve.h>
 
 #ifdef EZ_USE_QT
 
 #  include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
+#  include <Fileserve/Gui.moc.h>
 #  include <Foundation/Application/Application.h>
-#  include <Gui.moc.h>
 #  include <QTimer>
 
 void CreateFileserveMainWindow(ezApplication* pApp)

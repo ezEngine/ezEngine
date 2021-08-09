@@ -1,4 +1,4 @@
-#include <RmlUiPluginPCH.h>
+#include <RmlUiPlugin/RmlUiPluginPCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>

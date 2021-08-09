@@ -128,3 +128,4 @@ private:
   ezMap<QString, CacheEntry> m_ImageCache;
   ezMap<QString, QPixmap> m_TypeIamges;
 };
+

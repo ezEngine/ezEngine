@@ -62,3 +62,4 @@ public:
   static ezActionDescriptorHandle s_hTextureChannelMode;
   static ezActionDescriptorHandle s_hLodSlider;
 };
+

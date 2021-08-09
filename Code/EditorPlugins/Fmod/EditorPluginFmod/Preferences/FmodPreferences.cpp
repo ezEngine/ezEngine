@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 

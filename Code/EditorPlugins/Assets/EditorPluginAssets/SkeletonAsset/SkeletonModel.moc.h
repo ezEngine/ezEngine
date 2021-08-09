@@ -18,3 +18,4 @@ public:
 private:
   const ezSkeletonAssetDocument* m_pDocument;
 };
+

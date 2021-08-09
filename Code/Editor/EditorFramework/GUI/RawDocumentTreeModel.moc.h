@@ -128,3 +128,4 @@ protected:
   ezHashTable<const ezRTTI*, ezQtDocumentTreeModelAdapter*> m_Adapters;
   bool m_bAllowDragDrop = false;
 };
+

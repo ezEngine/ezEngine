@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>

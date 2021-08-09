@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <Foundation/Utilities/Progress.h>

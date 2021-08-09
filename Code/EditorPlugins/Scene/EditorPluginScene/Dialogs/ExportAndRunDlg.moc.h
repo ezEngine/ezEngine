@@ -27,3 +27,4 @@ private:
 protected:
   virtual void showEvent(QShowEvent* e) override;
 };
+

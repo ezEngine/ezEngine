@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Types/VariantTypeRegistry.h>

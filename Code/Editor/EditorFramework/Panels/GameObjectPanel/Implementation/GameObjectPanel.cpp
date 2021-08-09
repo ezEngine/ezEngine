@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>

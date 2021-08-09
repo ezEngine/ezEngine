@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <Foundation/Configuration/CVar.h>

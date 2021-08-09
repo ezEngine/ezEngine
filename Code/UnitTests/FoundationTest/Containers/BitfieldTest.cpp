@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/Deque.h>

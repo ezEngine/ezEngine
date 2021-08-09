@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>

@@ -1,12 +1,12 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
-#include <Commands/SceneCommands.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
+#include <EditorPluginScene/Commands/SceneCommands.h>
 #include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>

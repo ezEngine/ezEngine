@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/SubSystem.h>

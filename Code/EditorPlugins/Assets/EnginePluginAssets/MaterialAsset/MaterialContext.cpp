@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialView.h>

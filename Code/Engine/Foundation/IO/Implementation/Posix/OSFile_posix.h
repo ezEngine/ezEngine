@@ -4,7 +4,7 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Logging/Log.h>
-#include <Utilities/CommandLineUtils.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <errno.h>
 #include <stdio.h>
 #include <sys/stat.h>

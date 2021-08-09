@@ -1,4 +1,4 @@
-#include <RtsGamePluginPCH.h>
+#include <RtsGamePlugin/RtsGamePluginPCH.h>
 
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ActorSystem/ActorManager.h>

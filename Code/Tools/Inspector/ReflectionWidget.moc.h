@@ -49,3 +49,4 @@ private:
 
   ezMap<ezString, TypeData> m_Types;
 };
+

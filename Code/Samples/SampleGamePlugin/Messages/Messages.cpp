@@ -1,4 +1,4 @@
-#include <SampleGamePluginPCH.h>
+#include <SampleGamePlugin/SampleGamePluginPCH.h>
 
 #include <SampleGamePlugin/Messages/Messages.h>
 

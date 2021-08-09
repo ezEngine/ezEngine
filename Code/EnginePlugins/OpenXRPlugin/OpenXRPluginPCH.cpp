@@ -1,4 +1,4 @@
-#include <OpenXRPluginPCH.h>
+#include <OpenXRPlugin/OpenXRPluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>

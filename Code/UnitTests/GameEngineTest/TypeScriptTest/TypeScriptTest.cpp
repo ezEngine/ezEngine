@@ -1,4 +1,4 @@
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 

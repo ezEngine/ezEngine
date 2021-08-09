@@ -1,7 +1,7 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <Assets/AssetCurator.h>
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>

@@ -1,4 +1,4 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 

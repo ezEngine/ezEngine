@@ -1,4 +1,4 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>

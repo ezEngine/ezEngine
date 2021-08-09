@@ -1,4 +1,4 @@
-#include <FmodPluginPCH.h>
+#include <FmodPlugin/FmodPluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/CommonMessages.h>

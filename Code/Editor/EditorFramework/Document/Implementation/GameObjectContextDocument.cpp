@@ -1,8 +1,8 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Document/GameObjectContextDocument.h>
+#include <EditorFramework/Preferences/GameObjectContextPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Preferences/GameObjectContextPreferences.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>

@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>

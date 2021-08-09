@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>

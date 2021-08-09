@@ -1,4 +1,4 @@
-#include <EnginePluginKrautPCH.h>
+#include <EnginePluginKraut/EnginePluginKrautPCH.h>
 
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeContext.h>
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeView.h>

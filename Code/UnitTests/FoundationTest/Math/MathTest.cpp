@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>
@@ -15,15 +15,15 @@
 /// ********************************************************************
 #define OCT__(n) 0##n##LU
 
-#define EZ_8BIT__(iBits)                                                                                                                             \
-  (((iBits & 000000001) ? 1 : 0) + ((iBits & 000000010) ? 2 : 0) + ((iBits & 000000100) ? 4 : 0) + ((iBits & 000001000) ? 8 : 0) +                   \
+#define EZ_8BIT__(iBits)                                                                                                           \
+  (((iBits & 000000001) ? 1 : 0) + ((iBits & 000000010) ? 2 : 0) + ((iBits & 000000100) ? 4 : 0) + ((iBits & 000001000) ? 8 : 0) + \
     ((iBits & 000010000) ? 16 : 0) + ((iBits & 000100000) ? 32 : 0) + ((iBits & 001000000) ? 64 : 0) + ((iBits & 010000000) ? 128 : 0))
 
 #define EZ_8BIT(B) ((ezUInt8)EZ_8BIT__(OCT__(B)))
 
 #define EZ_16BIT(B2, B1) (((ezUInt8)EZ_8BIT(B2) << 8) + EZ_8BIT(B1))
 
-#define EZ_32BIT(B4, B3, B2, B1)                                                                                                                     \
+#define EZ_32BIT(B4, B3, B2, B1) \
   ((unsigned long)EZ_8BIT(B4) << 24) + ((unsigned long)EZ_8BIT(B3) << 16) + ((unsigned long)EZ_8BIT(B2) << 8) + ((unsigned long)EZ_8BIT(B1))
 
 namespace

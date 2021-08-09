@@ -65,3 +65,4 @@ private:
 private:
   ezQtQuadViewWidget* m_pQuadViewWidget = nullptr;
 };
+

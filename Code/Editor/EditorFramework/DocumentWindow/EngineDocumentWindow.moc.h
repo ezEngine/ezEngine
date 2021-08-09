@@ -76,3 +76,4 @@ private:
   ezUInt32 m_uiRedrawCountSent = 0;
   ezUInt32 m_uiRedrawCountReceived = 0;
 };
+

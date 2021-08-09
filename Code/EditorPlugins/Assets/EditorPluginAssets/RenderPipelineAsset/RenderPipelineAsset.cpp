@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
 #include <Foundation/Serialization/BinarySerializer.h>

@@ -1,10 +1,10 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Inspector/InputWidget.moc.h>
-#include <MainWindow.moc.h>
+#include <Inspector/MainWindow.moc.h>
 #include <qlistwidget.h>
 
 ezQtInputWidget* ezQtInputWidget::s_pWidget = nullptr;

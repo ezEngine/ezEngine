@@ -1,10 +1,10 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Components/PxDynamicActorComponent.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
 #include <PhysXPlugin/Components/PxCharacterShapeComponent.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxGrabObjectComponent.h>
 #include <PhysXPlugin/Joints/Px6DOFJointComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>

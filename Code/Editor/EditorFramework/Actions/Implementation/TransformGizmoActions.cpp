@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>

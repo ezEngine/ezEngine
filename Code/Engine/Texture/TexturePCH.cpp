@@ -1,4 +1,4 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 EZ_STATICLINK_LIBRARY(Texture)
 {

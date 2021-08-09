@@ -1,4 +1,4 @@
-#include <OpenXRPluginPCH.h>
+#include <OpenXRPlugin/OpenXRPluginPCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Foundation/Profiling/Profiling.h>

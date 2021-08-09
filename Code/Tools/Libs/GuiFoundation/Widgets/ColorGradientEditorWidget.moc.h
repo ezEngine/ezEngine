@@ -76,3 +76,4 @@ private:
   ezColorGammaUB m_PickColorStart;
   ezColorGammaUB m_PickColorCurrent;
 };
+

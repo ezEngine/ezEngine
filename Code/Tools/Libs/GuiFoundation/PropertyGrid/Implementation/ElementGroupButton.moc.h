@@ -24,3 +24,4 @@ private:
   ElementAction m_Action;
   ezQtPropertyWidget* m_pGroupWidget;
 };
+

@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 EZ_STATICLINK_LIBRARY(EnginePluginAssets)
 {

@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Math/Float16.h>

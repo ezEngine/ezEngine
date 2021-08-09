@@ -1,4 +1,4 @@
-#include <ToolsFoundationTestPCH.h>
+#include <ToolsFoundationTest/ToolsFoundationTestPCH.h>
 
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundationTest/Object/TestObjectManager.h>

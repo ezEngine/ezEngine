@@ -1,4 +1,4 @@
-#include <EnginePluginScenePCH.h>
+#include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <Core/Interfaces/SoundInterface.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>

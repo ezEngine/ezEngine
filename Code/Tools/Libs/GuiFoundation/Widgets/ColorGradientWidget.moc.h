@@ -132,3 +132,4 @@ private:
   bool m_bShowScrubber = false;
   double m_fScrubberPosition = 0;
 };
+

@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 EZ_STATICLINK_LIBRARY(Foundation)
 {

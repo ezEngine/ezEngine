@@ -1,4 +1,4 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>

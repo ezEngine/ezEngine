@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>

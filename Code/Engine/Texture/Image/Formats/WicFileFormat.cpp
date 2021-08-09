@@ -1,16 +1,16 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
+#include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/IO/Stream.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/Formats/WicFileFormat.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
-#include <Foundation/Basics/Platform/Win/HResultUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#  include <DirectXTex/DirectXTex.h>
+#  include <Texture/DirectXTex/DirectXTex.h>
 
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 

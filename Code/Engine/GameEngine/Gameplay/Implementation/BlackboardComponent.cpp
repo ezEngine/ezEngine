@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>

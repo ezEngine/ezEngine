@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Tracks/Curve1D.h>

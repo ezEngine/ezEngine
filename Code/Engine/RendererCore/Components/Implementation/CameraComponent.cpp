@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>

@@ -68,3 +68,4 @@ private:
   QSet<QString> m_builtIn;
   QHash<JSEdit::ColorComponent, QColor> m_colors;
 };
+

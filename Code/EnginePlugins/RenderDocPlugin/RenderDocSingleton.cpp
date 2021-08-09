@@ -1,4 +1,4 @@
-#include <RenderDocPluginPCH.h>
+#include <RenderDocPlugin/RenderDocPluginPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/CVar.h>

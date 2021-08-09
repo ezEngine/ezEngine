@@ -1,4 +1,4 @@
-#include <TexConvPCH.h>
+#include <TexConv/TexConvPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>

@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Algorithm/HashHelperString.h>
 #include <Foundation/Algorithm/HashStream.h>

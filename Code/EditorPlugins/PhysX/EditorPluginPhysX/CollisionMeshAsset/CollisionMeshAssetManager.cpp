@@ -1,4 +1,4 @@
-#include <EditorPluginPhysXPCH.h>
+#include <EditorPluginPhysX/EditorPluginPhysXPCH.h>
 
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetManager.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetWindow.moc.h>

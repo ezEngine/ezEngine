@@ -1,4 +1,4 @@
-#include <FileservePCH.h>
+#include <Fileserve/FileservePCH.h>
 
 #include <Fileserve/Fileserve.h>
 #include <Foundation/Configuration/Startup.h>
@@ -6,8 +6,8 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 #ifdef EZ_USE_QT
+#  include <Fileserve/Gui.moc.h>
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#  include <Gui.moc.h>
 #  include <QApplication>
 #endif
 

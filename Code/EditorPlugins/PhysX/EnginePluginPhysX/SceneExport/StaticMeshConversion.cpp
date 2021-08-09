@@ -1,4 +1,4 @@
-#include <EnginePluginPhysXPCH.h>
+#include <EnginePluginPhysX/EnginePluginPhysXPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EnginePluginPhysX/SceneExport/StaticMeshConversion.h>

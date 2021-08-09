@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>

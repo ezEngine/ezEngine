@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>

@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <Core/Curves/ColorGradientResource.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>

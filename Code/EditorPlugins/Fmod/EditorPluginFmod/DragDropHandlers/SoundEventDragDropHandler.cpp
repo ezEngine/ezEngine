@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginFmod/DragDropHandlers/SoundEventDragDropHandler.h>

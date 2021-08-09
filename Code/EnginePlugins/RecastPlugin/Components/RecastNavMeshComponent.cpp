@@ -1,4 +1,4 @@
-#include <RecastPluginPCH.h>
+#include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>

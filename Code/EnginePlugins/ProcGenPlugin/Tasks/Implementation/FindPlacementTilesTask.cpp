@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <ProcGenPlugin/Components/ProcPlacementComponent.h>

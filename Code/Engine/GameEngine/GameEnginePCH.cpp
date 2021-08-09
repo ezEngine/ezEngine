@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 EZ_STATICLINK_LIBRARY(GameEngine)
 {

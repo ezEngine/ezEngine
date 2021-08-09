@@ -84,7 +84,7 @@ endfunction()
 ### ez_find_pch_in_file_list(<files> <out-pch-name>)
 ######################################
 
-function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
+function(ez_find_pch_in_file_list FILE_LIST PCH_PATH PCH_NAME)
 
   if (NOT EZ_USE_PCH)
     return()
@@ -96,7 +96,13 @@ function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
     get_filename_component(CUR_FILE_EXT ${CUR_FILE} EXT)
 
     if ((${CUR_FILE_EXT} STREQUAL ".cpp") AND (${CUR_FILE_NAME} MATCHES "PCH$"))
-      set (${PCH_NAME} ${CUR_FILE_NAME} PARENT_SCOPE)
+	
+	  get_filename_component(PARENT_DIR ${CUR_FILE} DIRECTORY)
+	  get_filename_component(PARENT_DIR_NAME ${PARENT_DIR} NAME_WE)
+	  
+	  set (${PCH_PATH} ${CUR_FILE} PARENT_SCOPE)
+      set (${PCH_NAME} ${PARENT_DIR_NAME}/${CUR_FILE_NAME} PARENT_SCOPE)
+	  
       return()
     endif ()
 
@@ -116,13 +122,13 @@ function(ez_auto_pch TARGET_NAME FILES)
 
   endforeach()
 
-  ez_find_pch_in_file_list("${FILES}" PCH_NAME)
+  ez_find_pch_in_file_list("${FILES}" PCH_PATH PCH_NAME)
 
   if (NOT PCH_NAME)
     return()
   endif()
 
-  ez_pch_create("${PCH_NAME}.h" "${PCH_NAME}.cpp")
+  ez_pch_create("${PCH_NAME}.h" ${PCH_PATH})
 
   ez_pch_use("${PCH_NAME}.h" "${FILES}")
 

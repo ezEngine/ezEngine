@@ -1,4 +1,4 @@
-#include <EditorPluginRmlUiPCH.h>
+#include <EditorPluginRmlUi/EditorPluginRmlUiPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>

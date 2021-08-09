@@ -1,4 +1,4 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>

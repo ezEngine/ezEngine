@@ -1,4 +1,4 @@
-#include <ToolsFoundationTestPCH.h>
+#include <ToolsFoundationTest/ToolsFoundationTestPCH.h>
 
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>

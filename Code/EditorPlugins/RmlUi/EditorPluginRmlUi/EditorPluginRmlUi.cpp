@@ -1,4 +1,4 @@
-#include <EditorPluginRmlUiPCH.h>
+#include <EditorPluginRmlUi/EditorPluginRmlUiPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>

@@ -1,4 +1,4 @@
-#include <CoreTestPCH.h>
+#include <CoreTest/CoreTestPCH.h>
 
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/World/World.h>

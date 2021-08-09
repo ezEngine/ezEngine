@@ -1,4 +1,4 @@
-#include <EditorPluginPhysXPCH.h>
+#include <EditorPluginPhysX/EditorPluginPhysXPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginPhysX/DragDropHandlers/CollisionMeshDragDropHandler.h>

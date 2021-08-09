@@ -1,10 +1,10 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
 #include <Inspector/LogDockWidget.moc.h>
-#include <MainWindow.moc.h>
+#include <Inspector/MainWindow.moc.h>
 #include <qlistwidget.h>
 
 ezQtLogDockWidget* ezQtLogDockWidget::s_pWidget = nullptr;

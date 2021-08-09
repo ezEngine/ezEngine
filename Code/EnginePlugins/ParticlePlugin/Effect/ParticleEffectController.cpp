@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectController.h>

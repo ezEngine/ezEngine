@@ -42,3 +42,4 @@ protected:
   QToolButton* m_pButton = nullptr;
   ezHybridArray<ezSelectionContext*, 8> m_SelectionContextsToUnsubscribe;
 };
+

@@ -30,3 +30,4 @@ private:
 
   void QueryUI();
 };
+

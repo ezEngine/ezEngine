@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/StringBuilder.h>

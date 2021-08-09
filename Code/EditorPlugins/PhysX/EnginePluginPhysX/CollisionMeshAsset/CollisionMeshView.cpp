@@ -1,4 +1,4 @@
-#include <EnginePluginPhysXPCH.h>
+#include <EnginePluginPhysX/EnginePluginPhysXPCH.h>
 
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshContext.h>
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshView.h>

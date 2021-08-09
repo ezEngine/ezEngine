@@ -128,3 +128,4 @@ private:
   static ezMap<ezString, QPixmap> s_PixmapsCache;
   static bool s_bHeadless;
 };
+

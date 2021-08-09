@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

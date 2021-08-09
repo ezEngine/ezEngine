@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>

@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Curves/Curve1DResource.h>

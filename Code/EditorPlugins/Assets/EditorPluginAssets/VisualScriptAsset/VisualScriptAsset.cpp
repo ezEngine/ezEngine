@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>

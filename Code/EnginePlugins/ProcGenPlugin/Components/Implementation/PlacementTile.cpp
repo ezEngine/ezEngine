@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/Prefabs/PrefabReferenceComponent.h>

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>

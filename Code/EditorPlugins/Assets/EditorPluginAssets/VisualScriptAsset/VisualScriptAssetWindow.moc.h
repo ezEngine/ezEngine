@@ -43,3 +43,4 @@ public:
 
   ezUuid m_DebugObject;
 };
+

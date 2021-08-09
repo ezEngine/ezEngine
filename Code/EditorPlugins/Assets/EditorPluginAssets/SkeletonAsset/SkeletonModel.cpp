@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>

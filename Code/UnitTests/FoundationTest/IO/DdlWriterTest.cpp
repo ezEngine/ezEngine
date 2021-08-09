@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlWriter.h>

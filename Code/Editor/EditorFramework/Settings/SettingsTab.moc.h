@@ -24,3 +24,4 @@ private:
   virtual bool InternalCanCloseWindow() override;
   virtual void InternalCloseDocumentWindow() override;
 };
+

@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <Foundation/Serialization/GraphPatch.h>

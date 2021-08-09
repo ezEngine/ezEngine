@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>

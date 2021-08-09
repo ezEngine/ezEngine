@@ -178,3 +178,4 @@ private:
   ezQtEngineViewWidget* m_pViewWidget;
   QVBoxLayout* m_pLayout;
 };
+

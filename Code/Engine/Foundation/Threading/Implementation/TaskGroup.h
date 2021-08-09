@@ -20,9 +20,7 @@ private:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex);
 #else
-  EZ_ALWAYS_INLINE static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
-  {
-  }
+  EZ_ALWAYS_INLINE static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex) {}
 #endif
 
   /// \brief Puts the calling thread to sleep until this group is fully finished.

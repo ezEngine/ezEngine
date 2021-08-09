@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>

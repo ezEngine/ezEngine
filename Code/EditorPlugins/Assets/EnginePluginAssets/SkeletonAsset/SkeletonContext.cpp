@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/SkeletonAsset/SkeletonContext.h>
 #include <EnginePluginAssets/SkeletonAsset/SkeletonView.h>

@@ -65,3 +65,4 @@ private:
   ezSet<ezString> m_ResourceTypes;
   ezHashTable<ezUInt64, ResourceData> m_Resources;
 };
+

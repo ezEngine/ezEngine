@@ -24,3 +24,4 @@ protected:
 
   static bool s_bContextMenuInitialized;
 };
+

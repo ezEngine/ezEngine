@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>

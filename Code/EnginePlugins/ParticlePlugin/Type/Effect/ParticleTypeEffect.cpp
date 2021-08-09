@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>

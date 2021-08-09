@@ -1,7 +1,7 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/Utils/TextureAtlasDesc.h>

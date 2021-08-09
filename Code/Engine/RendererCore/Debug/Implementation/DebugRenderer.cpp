@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/World/World.h>
@@ -308,7 +308,7 @@ namespace
       auto& glyphData = glyphs.ExpandAndGetRef();
       glyphData.m_topLeftCorner = currentPos;
       glyphData.m_color = textLine.m_color;
-      glyphData.m_glyphIndex = uiCharacter < 128 ? uiCharacter : 0;
+      glyphData.m_glyphIndex = uiCharacter < 128 ? static_cast<ezUInt16>(uiCharacter) : 0;
       glyphData.m_sizeInPixel = (ezUInt16)textLine.m_uiSizeInPixel;
 
       currentPos.x += fGlyphWidth;

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/Meshes/SkinnedMeshRenderer.h>

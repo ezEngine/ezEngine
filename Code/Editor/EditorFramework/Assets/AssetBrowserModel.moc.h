@@ -84,3 +84,4 @@ private:
 
   bool m_bIconMode;
 };
+

@@ -1,4 +1,4 @@
-#include <EditorPluginTypeScriptPCH.h>
+#include <EditorPluginTypeScript/EditorPluginTypeScriptPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>

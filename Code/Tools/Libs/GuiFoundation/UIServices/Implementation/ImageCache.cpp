@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Math/Math.h>
 #include <Foundation/Threading/ThreadUtils.h>

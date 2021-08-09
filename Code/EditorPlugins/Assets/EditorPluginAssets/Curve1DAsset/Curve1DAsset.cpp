@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <Core/Curves/Curve1DResource.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>

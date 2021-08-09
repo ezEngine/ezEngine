@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Core/World/ComponentManager.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/Physics/RopeSimulator.h>
-#include <GameEngineDLL.h>
 
 //////////////////////////////////////////////////////////////////////////
 

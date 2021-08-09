@@ -18,3 +18,4 @@ public:
 private:
   ezSceneDocument* m_pSceneDocument;
 };
+

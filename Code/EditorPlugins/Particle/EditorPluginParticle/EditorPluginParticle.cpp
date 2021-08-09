@@ -1,15 +1,15 @@
-#include <EditorPluginParticlePCH.h>
+#include <EditorPluginParticle/EditorPluginParticlePCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
+#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
-#include <ParticleEffectAsset/ParticleEffectAsset.h>
 
 void OnLoadPlugin(bool bReloading)
 {

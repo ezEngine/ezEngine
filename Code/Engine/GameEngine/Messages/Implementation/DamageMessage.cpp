@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <GameEngine/Messages/DamageMessage.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>

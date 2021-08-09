@@ -1,6 +1,5 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
-#include <Actions/SceneActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
@@ -10,6 +9,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
+#include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>

@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/DecalAsset/DecalContext.h>
 #include <EnginePluginAssets/DecalAsset/DecalView.h>

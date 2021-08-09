@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>

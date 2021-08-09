@@ -151,3 +151,4 @@ private:
   ezHybridArray<PointCategory, 8> m_Categories;
   ezHybridArray<SelectedPoint, 32> m_SelectedPoints;
 };
+

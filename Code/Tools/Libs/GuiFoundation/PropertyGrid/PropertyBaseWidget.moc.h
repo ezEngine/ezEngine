@@ -345,3 +345,4 @@ protected:
   ezQtPropertyWidget* m_pWidget = nullptr;
   const ezRTTI* m_pCurrentSubType = nullptr;
 };
+

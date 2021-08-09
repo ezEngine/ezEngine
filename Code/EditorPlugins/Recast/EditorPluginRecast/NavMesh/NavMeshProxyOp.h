@@ -1,4 +1,4 @@
-#include <EditorPluginRecastPCH.h>
+#include <EditorPluginRecast/EditorPluginRecastPCH.h>
 
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 

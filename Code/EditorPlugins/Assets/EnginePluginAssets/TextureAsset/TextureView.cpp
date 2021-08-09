@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/TextureAsset/TextureContext.h>
 #include <EnginePluginAssets/TextureAsset/TextureView.h>

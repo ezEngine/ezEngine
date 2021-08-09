@@ -1,4 +1,4 @@
-#include <OpenVRPluginPCH.h>
+#include <OpenVRPlugin/OpenVRPluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>

@@ -1,4 +1,4 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/DataTransferWidget.moc.h>

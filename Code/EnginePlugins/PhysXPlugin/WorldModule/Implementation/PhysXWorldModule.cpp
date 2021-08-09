@@ -1,24 +1,24 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Components/PxQueryShapeActorComponent.h>
-#include <Components/PxStaticActorComponent.h>
-#include <Components/PxTriggerComponent.h>
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Joints/PxJointComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+#include <PhysXPlugin/Components/PxQueryShapeActorComponent.h>
 #include <PhysXPlugin/Components/PxSettingsComponent.h>
+#include <PhysXPlugin/Components/PxStaticActorComponent.h>
+#include <PhysXPlugin/Components/PxTriggerComponent.h>
+#include <PhysXPlugin/Joints/PxJointComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PxArticulation.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <Shapes/PxShapeBoxComponent.h>
 #include <pvd/PxPvdSceneClient.h>
 
 // clang-format off

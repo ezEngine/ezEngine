@@ -59,3 +59,4 @@ private:
   static ezInt32 s_iNodeConfigWatchers;
   static ezDirectoryWatcher* s_pNodeConfigWatcher;
 };
+

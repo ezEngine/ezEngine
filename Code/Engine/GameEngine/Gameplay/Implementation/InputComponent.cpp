@@ -1,12 +1,12 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Gameplay/BlackboardComponent.h>
 #include <GameEngine/Gameplay/InputComponent.h>
-#include <Gameplay/BlackboardComponent.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)

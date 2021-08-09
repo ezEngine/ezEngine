@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Strings/HashedString.h>

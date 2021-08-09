@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>

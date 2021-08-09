@@ -1,9 +1,9 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/World/World.h>
-#include <Effects/Wind/WindVolumeComponent.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <GameEngine/Effects/Wind/SimpleWindWorldModule.h>
+#include <GameEngine/Effects/Wind/WindVolumeComponent.h>
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezSimpleWindWorldModule);

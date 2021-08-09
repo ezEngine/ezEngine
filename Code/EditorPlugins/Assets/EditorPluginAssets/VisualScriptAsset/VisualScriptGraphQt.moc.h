@@ -62,3 +62,4 @@ public:
 
   virtual void UpdateState() override;
 };
+

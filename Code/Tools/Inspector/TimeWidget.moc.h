@@ -66,3 +66,4 @@ private:
 
   ezMap<ezString, ClockData> m_ClockData;
 };
+

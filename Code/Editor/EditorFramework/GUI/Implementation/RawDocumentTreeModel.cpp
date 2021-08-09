@@ -1,7 +1,7 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <DragDrop/DragDropHandler.h>
-#include <DragDrop/DragDropInfo.h>
+#include <EditorFramework/DragDrop/DragDropHandler.h>
+#include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>

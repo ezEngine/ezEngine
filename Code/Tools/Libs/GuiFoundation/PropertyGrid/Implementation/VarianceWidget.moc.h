@@ -33,3 +33,4 @@ protected:
   ezAbstractMemberProperty* m_pValueProp = nullptr;
   ezAbstractMemberProperty* m_pVarianceProp = nullptr;
 };
+

@@ -1,8 +1,8 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 
 void ezToolsSerializationUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph)

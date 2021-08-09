@@ -1,4 +1,4 @@
-#include <EnginePluginScenePCH.h>
+#include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/Grid/GridRenderer.h>
 #include <RendererCore/Pipeline/View.h>

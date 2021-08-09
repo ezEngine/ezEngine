@@ -1,4 +1,4 @@
-#include <RmlUiPluginPCH.h>
+#include <RmlUiPlugin/RmlUiPluginPCH.h>
 
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
 

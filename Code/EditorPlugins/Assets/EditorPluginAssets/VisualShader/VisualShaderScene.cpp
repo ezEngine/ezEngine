@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>

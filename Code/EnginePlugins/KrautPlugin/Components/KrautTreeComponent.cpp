@@ -1,4 +1,4 @@
-#include <KrautPluginPCH.h>
+#include <KrautPlugin/KrautPluginPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>

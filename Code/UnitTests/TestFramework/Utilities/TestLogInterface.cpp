@@ -1,4 +1,4 @@
-#include <TestFrameworkPCH.h>
+#include <TestFramework/TestFrameworkPCH.h>
 
 #include <TestFramework/Utilities/TestLogInterface.h>
 

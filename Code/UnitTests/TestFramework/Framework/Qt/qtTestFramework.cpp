@@ -1,4 +1,4 @@
-#include <TestFrameworkPCH.h>
+#include <TestFramework/TestFrameworkPCH.h>
 
 #ifdef EZ_USE_QT
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>

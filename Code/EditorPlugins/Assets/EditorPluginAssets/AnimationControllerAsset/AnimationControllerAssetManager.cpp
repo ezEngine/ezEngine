@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAsset.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAssetManager.h>

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <RendererCore/Shader/Implementation/Helper.h>

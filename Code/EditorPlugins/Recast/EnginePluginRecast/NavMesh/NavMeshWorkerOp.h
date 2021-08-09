@@ -1,4 +1,4 @@
-#include <EnginePluginRecastPCH.h>
+#include <EnginePluginRecast/EnginePluginRecastPCH.h>
 
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>

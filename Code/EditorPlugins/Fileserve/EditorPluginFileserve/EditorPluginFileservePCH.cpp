@@ -1,4 +1,4 @@
-#include <EditorPluginFileservePCH.h>
+#include <EditorPluginFileserve/EditorPluginFileservePCH.h>
 
 EZ_STATICLINK_LIBRARY(EditorPluginFileserve)
 {

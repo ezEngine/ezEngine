@@ -1,4 +1,4 @@
-#include <SampleGamePluginPCH.h>
+#include <SampleGamePlugin/SampleGamePluginPCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>

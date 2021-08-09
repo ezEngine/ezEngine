@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>

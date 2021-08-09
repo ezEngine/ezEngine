@@ -1,11 +1,11 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
-#include <AnimationSystem/AnimPoseGenerator.h>
-#include <AnimationSystem/AnimationClipResource.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/PlaySequenceAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off

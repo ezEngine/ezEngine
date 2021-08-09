@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/Implementation/MeshRendererUtils.h>

@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Curves/ColorGradientResource.h>
@@ -9,6 +9,7 @@
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Physics/SurfaceResource.h>
+#include <GameEngine/Utils/ImageDataResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
@@ -23,7 +24,6 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
-#include <Utils/ImageDataResource.h>
 
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
 constexpr const char* szDefaultRenderer = "Vulkan";

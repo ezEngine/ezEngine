@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetManager.h>

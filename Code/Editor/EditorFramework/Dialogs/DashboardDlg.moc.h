@@ -46,3 +46,4 @@ private Q_SLOTS:
 protected:
   bool eventFilter(QObject*, QEvent*) override;
 };
+

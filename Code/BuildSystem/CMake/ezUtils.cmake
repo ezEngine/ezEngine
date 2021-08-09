@@ -28,7 +28,7 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 
 	set(SUB_DIR "")
 
-	if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+	if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		# UWP has deployment problems if all applications output to the same path.
 		set(SUB_DIR "/${TARGET_NAME}")
 	endif()
@@ -44,7 +44,7 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	# If we can't use generator expressions the non-generator expression version of the
 	# output directory should point to the version matching CMAKE_BUILD_TYPE. This is the case for
 	# add_custom_command BYPRODUCTS for example needed by Ninja.
-	if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		set_target_properties(${TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DLL_DEBUG}"
 			LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEBUG}"
@@ -65,16 +65,16 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	endif()	
 
 	set_target_properties(${TARGET_NAME} PROPERTIES
-	  RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DLL_DEBUG}"
-    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_LIB_DEBUG}"
-    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_LIB_DEBUG}"
-  )
+		RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DLL_DEBUG}"
+		LIBRARY_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_LIB_DEBUG}"
+		ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_LIB_DEBUG}"
+	)
 
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY_SHIPPING "${OUTPUT_DLL_SHIPPING}"
       LIBRARY_OUTPUT_DIRECTORY_SHIPPING "${OUTPUT_LIB_SHIPPING}"
       ARCHIVE_OUTPUT_DIRECTORY_SHIPPING "${OUTPUT_LIB_SHIPPING}"
-  )
+	)
 
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY_DEV "${OUTPUT_DLL_DEV}"
@@ -129,7 +129,7 @@ function(ez_add_target_folder_as_include_dir TARGET_NAME TARGET_FOLDER)
 
 	get_filename_component(PARENT_DIR ${TARGET_FOLDER} DIRECTORY)
 
-	target_include_directories(${TARGET_NAME} PRIVATE "${TARGET_FOLDER}")
+	#target_include_directories(${TARGET_NAME} PRIVATE "${TARGET_FOLDER}")
 	target_include_directories(${TARGET_NAME} PUBLIC "${PARENT_DIR}")
 
 endfunction()
@@ -162,7 +162,7 @@ function(ez_set_common_target_definitions TARGET_NAME)
 	if (EZ_BUILD_EXPERIMENTAL_VULKAN)
 		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
 	endif()
-
+	
 endfunction()
 
 ######################################
@@ -176,18 +176,18 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 
 	get_filename_component (PARENT_FOLDER ${PROJECT_SOURCE_DIR} PATH)
 	get_filename_component (FOLDER_NAME ${PARENT_FOLDER} NAME)
-
+	
 	set(IDE_FOLDER "${FOLDER_NAME}")
-
+	
 	if (${PROJECT_SOURCE_DIR} MATCHES "/Code/")
 
 		get_filename_component (PARENT_FOLDER ${PARENT_FOLDER} PATH)
 		get_filename_component (FOLDER_NAME ${PARENT_FOLDER} NAME)
-
+		
 		while(NOT ${FOLDER_NAME} STREQUAL "Code")
 
 			set(IDE_FOLDER "${FOLDER_NAME}/${IDE_FOLDER}")
-
+			
 			get_filename_component (PARENT_FOLDER ${PARENT_FOLDER} PATH)
 			get_filename_component (FOLDER_NAME ${PARENT_FOLDER} NAME)
 		
@@ -327,7 +327,7 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
   file(GLOB_RECURSE UI_FILES "${ROOT_DIR}/*.ui")
   file(GLOB_RECURSE QRC_FILES "${ROOT_DIR}/*.qrc")
   file(GLOB_RECURSE RES_FILES "${ROOT_DIR}/*.ico" "${ROOT_DIR}/*.rc")
-
+  
   set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${CS_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} PARENT_SCOPE)
 
 endfunction()
