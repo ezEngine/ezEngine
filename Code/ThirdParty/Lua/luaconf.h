@@ -11,9 +11,11 @@
 #include <limits.h>
 #include <stddef.h>
 
+// BEGIN EZ SPECIFIC
 #ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
   #define LUA_BUILD_AS_DLL
 #endif
+// END EZ SPECIFIC
 
 
 /*
@@ -41,21 +43,6 @@
 */
 
 /*
-@@ LUAI_MAXCSTACK defines the maximum depth for nested calls and
-** also limits the maximum depth of other recursive algorithms in
-** the implementation, such as syntactic analysis. A value too
-** large may allow the interpreter to crash (C-stack overflow).
-** The default value seems ok for regular machines, but may be
-** too high for restricted hardware.
-** The test file 'cstack.lua' may help finding a good limit.
-** (It will crash with a limit too high.)
-*/
-#if !defined(LUAI_MAXCSTACK)
-#define LUAI_MAXCSTACK		2000
-#endif
-
-
-/*
 @@ LUA_USE_C89 controls the use of non-ISO-C89 features.
 ** Define it if you want Lua to avoid the use of a few C99 features
 ** or Windows-specific features on Windows.
@@ -68,6 +55,7 @@
 */
 #if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
 
+// BEGIN EZ SPECIFIC UWP FIX
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
 #define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
 #else
@@ -75,6 +63,7 @@
   inline char* getenv(const char* name) { return "NOT SUPPORTED ON UWP"; }
   inline int system(const char* command) { return 0; }
 #endif
+// END EZ SPECIFIC UWP FIX
 
 #endif
 

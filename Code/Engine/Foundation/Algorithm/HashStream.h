@@ -3,9 +3,6 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
 
-typedef struct XXH32_state_s XXH32_state_t;
-typedef struct XXH64_state_s XXH64_state_t;
-
 /// \brief A stream writer that hashes the data written to it.
 ///
 /// This stream writer allows to conveniently generate a 32 bit hash value for any kind of data.
@@ -24,7 +21,7 @@ public:
   ezUInt32 GetHashValue() const;
 
 private:
-  XXH32_state_t* m_state;
+  void* m_state = nullptr;
 };
 
 
@@ -46,5 +43,5 @@ public:
   ezUInt64 GetHashValue() const;
 
 private:
-  XXH64_state_t* m_state;
+  void* m_state = nullptr;
 };

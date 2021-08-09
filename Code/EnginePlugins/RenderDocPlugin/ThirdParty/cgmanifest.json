@@ -5,7 +5,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/baldurk/renderdoc",
-                    "commitHash": "04ca50ba63904edd280e7bdc9595edd8bf0bd3bd"
+                    "commitHash": "40b86b63fbb990b26cc083ced32cb55f11ad263c"
                 }
             }
         }
