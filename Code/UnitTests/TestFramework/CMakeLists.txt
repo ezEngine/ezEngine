@@ -3,7 +3,7 @@ ez_cmake_init()
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(SHARED_LIBRARY ${PROJECT_NAME})
+ez_create_target(LIBRARY ${PROJECT_NAME})
 
 # set all headers, that shall be MOC'ed that do not end with moc.h and thus will be MOC'ed automatically.
 set (EZ_MOC_HEADERS
