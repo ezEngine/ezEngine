@@ -8,6 +8,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/System/CrashHandler.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -114,13 +115,13 @@ void ezTestFramework::Initialize()
   {
     // if the UI is run with GUI disabled, set the environment variable EZ_SILENT_ASSERTS
     // to make sure that no child process that the tests launch shows an assert dialog in case of a crash
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    _putenv("EZ_SILENT_ASSERTS=1");
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     // Not supported
 #else
-    /// \todo Need a platform abstraction for setting/retrieving environment variables
-    setenv("EZ_SILENT_ASSERTS", "1", 1);
+    if (ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).Failed())
+    {
+      ezLog::Print("Failed to set 'EZ_SILENT_ASSERTS' environment variable!");
+    }
 #endif
   }
 
@@ -339,7 +340,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
 
   m_Settings.m_iRevision = opt_Revision.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   m_Settings.m_bEnableAllTests = opt_EnableAllTests.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-  m_Settings.m_uiFullPasses = opt_Passes.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_uiFullPasses = static_cast<ezUInt8>(opt_Passes.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd));
   m_Settings.m_sTestFilter = opt_Filter.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   if (opt_Json.IsOptionSpecified(nullptr, &cmd))
@@ -490,7 +491,11 @@ void ezTestFramework::SetAllFailedTestsEnabledStatus()
 
 void ezTestFramework::SetTestTimeout(ezUInt32 testTimeoutMS)
 {
-  m_timeoutMS = testTimeoutMS;
+  {
+    std::scoped_lock<std::mutex> lock(m_timeoutLock);
+    m_timeoutMS = testTimeoutMS;
+  }
+  UpdateTestTimeout();
 }
 
 void ezTestFramework::TimeoutThread()
@@ -529,6 +534,10 @@ void ezTestFramework::UpdateTestTimeout()
 {
   {
     std::scoped_lock<std::mutex> lock(m_timeoutLock);
+    if (!m_useTimeout)
+    {
+      return;
+    }
     m_reArm = true;
   }
   m_timeoutCV.notify_one();
@@ -769,6 +778,13 @@ void ezTestFramework::ExecuteNextTest()
           m_bImageComparisonScheduled = false;
         }
 
+        
+        if (m_bDepthImageComparisonScheduled)
+        {
+          EZ_TEST_DEPTH_IMAGE(m_uiComparisonDepthImageNumber, m_uiMaxDepthImageComparisonError);
+          m_bDepthImageComparisonScheduled = false;
+        }
+
         // I guess we can require that tests are written in a way that they can be interrupted
         if (m_bAbortTests)
           subTestResult = ezTestAppRun::Quit;
@@ -802,8 +818,12 @@ void ezTestFramework::ExecuteNextTest()
     if (m_bAbortTests || m_iExecutingSubTest >= (ezInt32)TestEntry.m_SubTests.size())
     {
       // *** Test De-Initialization ***
-      UpdateTestTimeout();
-      pTestClass->DoTestDeInitialization();
+      if (TestEntry.m_sNotAvailableReason.empty())
+      {
+        // We only call DoTestInitialization under this condition so DoTestDeInitialization must be guarded by the same.
+        UpdateTestTimeout();
+        pTestClass->DoTestDeInitialization();
+      }
       // Third and last flush of assert counter, these are all asserts for the test de-init.
       FlushAsserts();
 
@@ -1109,6 +1129,13 @@ void ezTestFramework::ScheduleImageComparison(ezUInt32 uiImageNumber, ezUInt32 u
   m_bImageComparisonScheduled = true;
   m_uiMaxImageComparisonError = uiMaxError;
   m_uiComparisonImageNumber = uiImageNumber;
+}
+
+void ezTestFramework::ScheduleDepthImageComparison(ezUInt32 uiImageNumber, ezUInt32 uiMaxError)
+{
+  m_bDepthImageComparisonScheduled = true;
+  m_uiMaxDepthImageComparisonError = uiMaxError;
+  m_uiComparisonDepthImageNumber = uiImageNumber;
 }
 
 void ezTestFramework::GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStringBuilder& sImgName)
@@ -1498,16 +1525,28 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   return true;
 }
 
-bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg)
+bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool isDepthImage)
 {
   ezStringBuilder sImgName;
   GenerateComparisonImageName(uiImageNumber, sImgName);
 
   ezImage img;
-  if (GetTest(GetCurrentTestIndex())->m_pTest->GetImage(img).Failed())
+  if (isDepthImage)
   {
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image '%s' could not be captured", sImgName.GetData());
-    return false;
+    sImgName.Append("-depth");
+    if (GetTest(GetCurrentTestIndex())->m_pTest->GetDepthImage(img).Failed())
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Depth image '%s' could not be captured", sImgName.GetData());
+      return false;
+    }
+  }
+  else
+  {
+    if (GetTest(GetCurrentTestIndex())->m_pTest->GetImage(img).Failed())
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image '%s' could not be captured", sImgName.GetData());
+      return false;
+    }
   }
 
   bool bImagesMatch = true;
@@ -1875,11 +1914,11 @@ bool ezTestTextFiles(const char* szFile1, const char* szFile2, const char* szFil
   return EZ_SUCCESS;
 }
 
-bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool isDepthImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   char szErrorText[s_iMaxErrorMessageLength] = "";
 
-  if (!ezTestFramework::GetInstance()->CompareImages(uiImageNumber, uiMaxError, szErrorText))
+  if (!ezTestFramework::GetInstance()->CompareImages(uiImageNumber, uiMaxError, szErrorText, isDepthImage))
   {
     OUTPUT_TEST_ERROR
   }

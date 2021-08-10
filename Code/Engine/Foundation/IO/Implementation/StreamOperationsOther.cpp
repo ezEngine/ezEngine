@@ -216,6 +216,8 @@ inline void ReadValueFunc::operator()<ezTypedObject>()
   EZ_ASSERT_DEV(pType, "The type '{0}' could not be found.", sType);
   const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pType);
   EZ_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", sType);
+  EZ_MSVC_ANALYSIS_ASSUME(pType != nullptr);
+  EZ_MSVC_ANALYSIS_ASSUME(pTypeInfo != nullptr);
   void* pObject = pType->GetAllocator()->Allocate<void>();
   pTypeInfo->Deserialize(*m_pStream, pObject);
   m_pValue->MoveTypedObject(pObject, pType);

@@ -227,8 +227,8 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
             auto& newCacheEntry = newCacheEntries.ExpandAndGetRef();
             newCacheEntry.m_pRenderData = msg.m_ExtractedRenderData[uiPartIndex].m_pRenderData;
             newCacheEntry.m_uiCategory = msg.m_ExtractedRenderData[uiPartIndex].m_uiCategory;
-            newCacheEntry.m_uiComponentIndex = uiComponentIndex;
-            newCacheEntry.m_uiPartIndex = uiPartIndex;
+            newCacheEntry.m_uiComponentIndex = static_cast<ezUInt16>(uiComponentIndex);
+            newCacheEntry.m_uiPartIndex = static_cast<ezUInt16>(uiPartIndex);
           }
 
           ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, newCacheEntries);
@@ -244,7 +244,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
         ezInternal::RenderDataCacheEntry dummyEntry;
         dummyEntry.m_pRenderData = nullptr;
         dummyEntry.m_uiCategory = ezInvalidRenderDataCategory.m_uiValue;
-        dummyEntry.m_uiComponentIndex = uiComponentIndex;
+        dummyEntry.m_uiComponentIndex = static_cast<ezUInt16>(uiComponentIndex);
 
         ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, ezMakeArrayPtr(&dummyEntry, 1));
       }

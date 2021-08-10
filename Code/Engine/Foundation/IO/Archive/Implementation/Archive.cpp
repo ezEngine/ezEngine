@@ -116,7 +116,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
       sLowerCasePath.ToLower();
 
       // cut off the upper 32 bit, we don't need them here
-      const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32((ezUInt64)ezHashingUtils::StringHash(sLowerCasePath.GetData()) & 0xFFFFFFFFllu);
+      const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sLowerCasePath.GetData()) & 0xFFFFFFFFllu);
 
       m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
 
