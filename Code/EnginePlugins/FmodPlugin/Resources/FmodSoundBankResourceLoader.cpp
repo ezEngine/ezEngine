@@ -47,7 +47,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     {
       pData->m_pSoundbankData = EZ_DEFAULT_NEW(ezDataBuffer);
       pData->m_pSoundbankData->SetCountUninitialized(uiSoundBankSize + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
-      ezUInt8* pAlignedData = ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+      ezUInt8* pAlignedData = ezMemoryUtils::AlignBackwards(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
 
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 

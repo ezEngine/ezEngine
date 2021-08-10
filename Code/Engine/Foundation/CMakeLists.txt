@@ -58,7 +58,7 @@ if (EZ_3RDPARTY_ZLIB_SUPPORT)
 
 endif()
 
-ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
+ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/ezEngine.natvis")
 
 ####################################################
 ## UserConfig header settings

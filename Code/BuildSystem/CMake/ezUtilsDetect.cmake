@@ -15,7 +15,7 @@ function(ez_detect_project_name OUT_NAME)
 	if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
 
 		set (DETECTED_NAME "ezVs")
-		
+
 		if (${CMAKE_GENERATOR} MATCHES "Visual Studio 15")
 			set (DETECTED_NAME "${DETECTED_NAME}2017")
 		elseif (${CMAKE_GENERATOR} MATCHES "Visual Studio 16")
@@ -27,11 +27,11 @@ function(ez_detect_project_name OUT_NAME)
 		elseif (${CMAKE_GENERATOR} MATCHES "32$")
 			set (DETECTED_NAME "${DETECTED_NAME}x32")
 		endif()
-		
+
 	endif()
 
 	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
-
+	
 endfunction()
 
 ######################################
@@ -310,7 +310,7 @@ function(ez_detect_compiler_and_architecture)
 	set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 	try_compile(COMPILE_RESULT
 		${CMAKE_CURRENT_BINARY_DIR}
-		${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/ProbingSrc/ArchitectureDetect.c
+		${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/CMake/ProbingSrc/ArchitectureDetect.c
 		OUTPUT_VARIABLE COMPILE_OUTPUT
 	)
 	if(NOT COMPILE_RESULT)
@@ -391,34 +391,34 @@ function(ez_detect_compiler_and_architecture)
 	
 	if(EZ_DETECTED_ARCH STREQUAL "x86")
 	
-	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  message (STATUS "Architecture is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
 	  
-	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+	  message (STATUS "Architecture is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "x64")
 	
-	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  message (STATUS "Architecture is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
 	  
-	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+	  message (STATUS "Architecture is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "arm32")
 	
-	  message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+	  message (STATUS "Architecture is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
       set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
 	  
-	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+	  message (STATUS "Architecture is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "arm64")
 	
-	  message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+	  message (STATUS "Architecture is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
       set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
 	  
-	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+	  message (STATUS "Architecture is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 	  
 	else()
@@ -512,7 +512,6 @@ function(ez_get_version VERSIONFILE OUT_MAJOR OUT_MINOR OUT_PATCH)
 	endif()
 
 endfunction()
-
 ######################################
 ### ez_detect_version()
 ######################################

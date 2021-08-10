@@ -1,6 +1,4 @@
 #define _CRT_SECURE_NO_WARNINGS
-#define _UNICODE
-#define UNICODE
 
 #include <stdio.h>
 #include <strsafe.h>

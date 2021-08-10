@@ -370,6 +370,28 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAngle, ezNoBase, 1, ezRTTINoAllocator)
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFloatInterval, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Start", m_StartValue),
+    EZ_MEMBER_PROPERTY("End", m_EndValue),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntInterval, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Start", m_StartValue),
+    EZ_MEMBER_PROPERTY("End", m_EndValue),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
 // **********************************************************************
 // ***** Various RTTI infos that can't be put next to their classes *****
 

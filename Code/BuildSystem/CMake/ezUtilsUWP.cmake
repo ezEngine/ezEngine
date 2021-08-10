@@ -49,7 +49,7 @@ endfunction()
 ### ez_uwp_add_default_content(<target>)
 ######################################
 
-function(ez_uwp_fix_library_properties TARGET_NAME SOURCE_FILES)
+function(ez_uwp_fix_library_properties TARGET_NAME ALL_SOURCE_FILES)
   if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     return()
   endif()

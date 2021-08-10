@@ -159,6 +159,11 @@ ezInt32 ezCommandLineUtils::GetOptionIndex(const char* szOption, bool bCaseSensi
   return -1;
 }
 
+bool ezCommandLineUtils::HasOption(const char* szOption, bool bCaseSensitive /*= false*/) const
+{
+  return GetOptionIndex(szOption, bCaseSensitive) >= 0;
+}
+
 ezUInt32 ezCommandLineUtils::GetStringOptionArguments(const char* szOption, bool bCaseSensitive) const
 {
   const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);

@@ -128,7 +128,7 @@ namespace
     }
   }
 
-  EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& perLightData, const ezLightRenderData* pLightRenderData, ezUInt32 uiType)
+  EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& perLightData, const ezLightRenderData* pLightRenderData, ezUInt8 uiType)
   {
     ezMemoryUtils::ZeroFill(&perLightData, 1);
 

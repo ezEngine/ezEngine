@@ -13,6 +13,7 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Id.h>
+#include <Foundation/Types/Interval.h>
 #include <Foundation/Types/PointerWithFlags.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/Status.h>
@@ -65,6 +66,7 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/SerializationContext.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/IO/StreamUtils.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 
 #include <Foundation/IO/Archive/Archive.h>

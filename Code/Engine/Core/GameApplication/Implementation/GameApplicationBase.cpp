@@ -307,6 +307,14 @@ void ezGameApplicationBase::AfterCoreSystemsStartup()
 
   ExecuteInitFunctions();
 
+  // If one of the init functions already requested the application to quit,
+  // something must have gone wrong. Don't continue initialization and let the
+  // application exit.
+  if (WasQuitRequested())
+  {
+    return;
+  }
+
   ezStartup::StartupHighLevelSystems();
 
   ActivateGameStateAtStartup();

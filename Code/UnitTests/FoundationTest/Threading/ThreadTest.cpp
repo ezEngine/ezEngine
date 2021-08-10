@@ -24,7 +24,7 @@ namespace
     virtual ezUInt32 Run()
     {
       // test TryLock on a locked mutex
-      EZ_TEST_BOOL(m_pBlockedMutex->TryLock() == false);
+      EZ_TEST_BOOL(m_pBlockedMutex->TryLock().Failed());
 
       {
         // enter and leave the mutex once
@@ -84,8 +84,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     pTestThread32->m_pBlockedMutex = &blockedMutex;
 
     // no one holds these mutexes yet, must succeed
-    EZ_TEST_BOOL(blockedMutex.TryLock() == true);
-    EZ_TEST_BOOL(waitMutex.TryLock() == true);
+    EZ_TEST_BOOL(blockedMutex.TryLock().Succeeded());
+    EZ_TEST_BOOL(waitMutex.TryLock().Succeeded());
 
     // Both thread will increment the global variable via atomic operations
     pTestThread31->Start();
@@ -105,10 +105,10 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     pTestThread32->Join();
 
     // we are holding the mutex, another TryLock should work
-    EZ_TEST_BOOL(blockedMutex.TryLock() == true);
+    EZ_TEST_BOOL(blockedMutex.TryLock().Succeeded());
 
     // The threads should have finished, no one holds the lock
-    EZ_TEST_BOOL(waitMutex.TryLock() == true);
+    EZ_TEST_BOOL(waitMutex.TryLock().Succeeded());
 
     // Test deletion
     delete pTestThread31;
