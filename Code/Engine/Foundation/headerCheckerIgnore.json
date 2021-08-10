@@ -36,7 +36,8 @@
 			"stdarg.h",
 			"time.h",
 			"unistd.h",
-			"jni.h"
+			"jni.h",
+			"float.h"
 		]
 	},
 	"includeSource" : 
