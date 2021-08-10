@@ -134,7 +134,7 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) co
 {
   stream.WriteVersion(9);
 
-  const ezUInt16 uiNumJoints = m_JointInfos.GetCount();
+  const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_JointInfos.GetCount());
   stream << uiNumJoints;
   for (ezUInt32 i = 0; i < m_JointInfos.GetCount(); ++i)
   {
@@ -228,7 +228,7 @@ ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
 
 ezUInt16 ezAnimationClipResourceDescriptor::GetNumJoints() const
 {
-  return m_JointInfos.GetCount();
+  return static_cast<ezUInt16>(m_JointInfos.GetCount());
 }
 
 ezTime ezAnimationClipResourceDescriptor::GetDuration() const

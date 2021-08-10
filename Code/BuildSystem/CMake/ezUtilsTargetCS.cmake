@@ -5,7 +5,7 @@
 function(ez_create_target_cs TYPE TARGET_NAME)
 
     set(ARG_OPTIONS NO_EZ_PREFIX)
-    set(ARG_ONEVALUEARGS "")
+    set(ARG_ONEVALUEARGS DOTNET_VERSION)
     set(ARG_MULTIVALUEARGS "")
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
 
@@ -53,11 +53,17 @@ function(ez_create_target_cs TYPE TARGET_NAME)
     # sort files into the on-disk folder structure in the IDE
     source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ALL_SOURCE_FILES})
 
-    # default c# settings
-    target_compile_options(${TARGET_NAME} PRIVATE "/langversion:6")
-    set_property(TARGET ${TARGET_NAME} PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.6.1")
+    # default C# settings
+    target_compile_options(${TARGET_NAME} PRIVATE "/langversion:default")
     set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
-        
+    
+    if (ARG_DOTNET_VERSION)
+        #message(STATUS "Custom .NET version: ${ARG_DOTNET_VERSION}")
+        set_property(TARGET ${TARGET_NAME} PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v${ARG_DOTNET_VERSION}")
+    else()
+        set_property(TARGET ${TARGET_NAME} PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.6.1")
+    endif()
+
     ez_set_default_target_output_dirs(${TARGET_NAME})
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -4,34 +4,27 @@
 
 function(ez_detect_project_name OUT_NAME)
 
-	set (DETECTED_NAME "ezEngine")
-	
 	# unfortunately this has to be known before the PROJECT command, 
 	# but platform and compiler settings are only detected by CMake AFTER the project command
 	# CMAKE_GENERATOR is the only value available before that, so we have to regex this a bit to
 	# generate a useful name
 	# thus, only VS solutions currently get nice names
 
-	if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
+	cmake_path(IS_PREFIX CMAKE_SOURCE_DIR ${CMAKE_BINARY_DIR} NORMALIZE IS_IN_SOURCE_BUILD)
 
-		set (DETECTED_NAME "ezVs")
+	get_filename_component(NAME_REPO ${CMAKE_SOURCE_DIR} NAME)
+	get_filename_component(NAME_DEST ${CMAKE_BINARY_DIR} NAME)
 
-		if (${CMAKE_GENERATOR} MATCHES "Visual Studio 15")
-			set (DETECTED_NAME "${DETECTED_NAME}2017")
-		elseif (${CMAKE_GENERATOR} MATCHES "Visual Studio 16")
-			set (DETECTED_NAME "${DETECTED_NAME}2019")
-		endif()
+	set (DETECTED_NAME "${NAME_REPO}")
 
-		if (${CMAKE_GENERATOR} MATCHES "64$")
-			set (DETECTED_NAME "${DETECTED_NAME}x64")
-		elseif (${CMAKE_GENERATOR} MATCHES "32$")
-			set (DETECTED_NAME "${DETECTED_NAME}x32")
-		endif()
-
+	if (NOT ${NAME_REPO} STREQUAL ${NAME_DEST})
+		set (DETECTED_NAME "${DETECTED_NAME}_${NAME_DEST}")
 	endif()
 
 	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
 	
+	message(STATUS "Auto-detected solution name: ${DETECTED_NAME} (Generator = ${CMAKE_GENERATOR})")
+
 endfunction()
 
 ######################################

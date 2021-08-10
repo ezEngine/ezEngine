@@ -4,7 +4,7 @@
 
 function(ez_create_target TYPE TARGET_NAME)
 
-    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX)
+    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD)
     set(ARG_ONEVALUEARGS "")
     set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX MANUAL_SOURCE_FILES)
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
@@ -97,7 +97,7 @@ function(ez_create_target TYPE TARGET_NAME)
 
     ez_set_common_target_definitions(${TARGET_NAME})
 
-    ez_set_build_flags(${TARGET_NAME})
+    ez_set_build_flags(${TARGET_NAME} ${ARGN})
 
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 	

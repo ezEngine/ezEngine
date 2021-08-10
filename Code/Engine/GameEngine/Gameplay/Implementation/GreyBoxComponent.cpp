@@ -339,7 +339,7 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
           pDesc->m_Surfaces.PushBack(surface);
         }
 
-        subMesh.m_uiSurfaceIndex = idx;
+        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(idx);
       }
     }
   }
@@ -433,7 +433,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
 
     case ezGreyBoxShape::Column:
       t.SetScalingFactors(size).IgnoreResult();
-      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, m_uiDetail, m_Color, t);
+      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, static_cast<ezUInt16>(m_uiDetail), m_Color, t);
       break;
 
     case ezGreyBoxShape::StairsX:

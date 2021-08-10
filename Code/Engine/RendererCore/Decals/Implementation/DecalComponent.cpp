@@ -188,7 +188,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   if (m_hDecals.IsEmpty())
     return EZ_FAILURE;
 
-  m_uiRandomDecalIdx = GetOwner()->GetStableRandomSeed() % m_hDecals.GetCount();
+  m_uiRandomDecalIdx = (GetOwner()->GetStableRandomSeed() % m_hDecals.GetCount()) & 0xFF;
 
   const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
 

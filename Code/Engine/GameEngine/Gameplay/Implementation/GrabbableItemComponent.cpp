@@ -72,7 +72,7 @@ void ezGrabbableItemComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  const ezUInt8 uiNumGrabPoints = m_GrabPoints.GetCount();
+  const ezUInt8 uiNumGrabPoints = static_cast<ezUInt8>(m_GrabPoints.GetCount());
   s << uiNumGrabPoints;
   for (const auto& gb : m_GrabPoints)
   {

@@ -89,11 +89,19 @@ EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetCharacterCount() const
 template <ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const char* szString)
 {
-  EZ_ASSERT_DEBUG(
-    szString < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount(), "Can't assign string a value that points to ourself!");
-
   ezUInt32 uiElementCount = 0;
   ezStringUtils::GetCharacterAndElementCount(szString, m_uiCharacterCount, uiElementCount);
+
+  if (szString + uiElementCount < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount())
+  {
+    // source string is outside our own memory, so no overlapped copy
+  }
+  else
+  {
+    // source string overlaps with our own memory -> we can't increase the size of our memory, as that might invalidate the source data
+    EZ_ASSERT_DEBUG(uiElementCount < m_Data.GetCount(), "Invalid copy of overlapping string data.");
+  }
+
   m_Data.SetCountUninitialized(uiElementCount + 1);
   ezStringUtils::Copy(&m_Data[0], uiElementCount + 1, szString);
 }
