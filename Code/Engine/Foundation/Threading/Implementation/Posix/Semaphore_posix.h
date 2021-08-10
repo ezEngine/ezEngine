@@ -3,6 +3,10 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 // THIS IMPLEMENTATION IS UNTESTED (and may not even compile)
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <semaphore.h>
+
 ezSemaphore::ezSemaphore() = default;
 
 ezSemaphore::~ezSemaphore()

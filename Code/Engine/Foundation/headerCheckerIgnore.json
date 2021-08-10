@@ -46,7 +46,8 @@
 			"UWPUtils.h",
 			"ThreadingDeclarations_posix.h",
 			"xxhash.h",
-			"cpp11.h"
+			"cpp11.h",
+			"WinRTUtils.h"
 		]
 	}
 }
