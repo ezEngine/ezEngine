@@ -34,7 +34,7 @@ struct EZ_RENDERERCORE_DLL ezDynamicMeshVertex
     // this is the same
     //ezMeshBufferUtils::EncodeNormal(normal, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedNormal), sizeof(ezVec3)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
   }
-  
+
   EZ_ALWAYS_INLINE void EncodeTangent(const ezVec3& tangent, float bitangentSign)
   {
     // store in [0; 1] range
