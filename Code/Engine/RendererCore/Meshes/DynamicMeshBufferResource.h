@@ -26,8 +26,26 @@ struct EZ_RENDERERCORE_DLL ezDynamicMeshVertex
   ezVec4 m_vEncodedTangent;
   //ezColorLinearUB m_Color;
 
-  void EncodeNormal(const ezVec3& normal);
-  void EncodeTangent(const ezVec3& tangent, float bitangentSign);
+  EZ_ALWAYS_INLINE void EncodeNormal(const ezVec3& normal)
+  {
+    // store in [0; 1] range
+    m_vEncodedNormal = normal * 0.5f + ezVec3(0.5f);
+
+    // this is the same
+    //ezMeshBufferUtils::EncodeNormal(normal, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedNormal), sizeof(ezVec3)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
+  }
+  
+  EZ_ALWAYS_INLINE void EncodeTangent(const ezVec3& tangent, float bitangentSign)
+  {
+    // store in [0; 1] range
+    m_vEncodedTangent.x = tangent.x * 0.5f + 0.5f;
+    m_vEncodedTangent.y = tangent.y * 0.5f + 0.5f;
+    m_vEncodedTangent.z = tangent.z * 0.5f + 0.5f;
+    m_vEncodedTangent.w = bitangentSign < 0.0f ? 0.0f : 1.0f;
+
+    // this is the same
+    //ezMeshBufferUtils::EncodeTangent(tangent, bitangentSign, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedTangent), sizeof(ezVec4)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
+  }
 };
 
 class EZ_RENDERERCORE_DLL ezDynamicMeshBufferResource : public ezResource
@@ -56,7 +74,7 @@ public:
 
   const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
 
-  void UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex, ezUInt32 uiNumVertices, ezUInt32 uiFirstIndex, ezUInt32 uiNumIndices);
+  void UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex, ezUInt32 uiNumVertices, ezUInt32 uiFirstIndex, ezUInt32 uiNumIndices, ezGALUpdateMode::Enum mode = ezGALUpdateMode::Discard);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

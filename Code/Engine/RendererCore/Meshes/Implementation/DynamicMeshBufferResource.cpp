@@ -94,9 +94,9 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
     m_VertexDeclaration.m_VertexStreams.PushBack(si);
 
     si.m_uiOffset += si.m_uiElementSize;
-    si.m_Format = ezGALResourceFormat::XYZFloat;
+    si.m_Format = ezGALResourceFormat::XYZWFloat;
     si.m_Semantic = ezGALVertexAttributeSemantic::Tangent;
-    si.m_uiElementSize = sizeof(ezVec3);
+    si.m_uiElementSize = sizeof(ezVec4);
     m_VertexDeclaration.m_VertexStreams.PushBack(si);
 
     m_VertexDeclaration.ComputeHash();
@@ -140,16 +140,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
   return res;
 }
 
-void ezDynamicMeshBufferResource::UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex, ezUInt32 uiNumVertices, ezUInt32 uiFirstIndex, ezUInt32 uiNumIndices)
+void ezDynamicMeshBufferResource::UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex, ezUInt32 uiNumVertices, ezUInt32 uiFirstIndex, ezUInt32 uiNumIndices, ezGALUpdateMode::Enum mode /*= ezGALUpdateMode::Discard*/)
 {
-  // TODO: can ezGALUpdateMode::Discard be used, if only a subset is updated (without destroying existing data) ?
-
   if (uiNumVertices > 0)
   {
     EZ_ASSERT_DEV(uiNumVertices <= m_VertexData.GetCount(), "Can't upload {} vertices, the buffer was allocated to hold a maximum of {} vertices.", uiNumVertices, m_VertexData.GetCount());
 
 
-    pGALCommandEncoder->UpdateBuffer(m_hVertexBuffer, sizeof(ezDynamicMeshVertex) * uiFirstVertex, m_VertexData.GetArrayPtr().GetSubArray(uiFirstVertex, uiNumVertices).ToByteArray(), ezGALUpdateMode::Discard);
+    pGALCommandEncoder->UpdateBuffer(m_hVertexBuffer, sizeof(ezDynamicMeshVertex) * uiFirstVertex, m_VertexData.GetArrayPtr().GetSubArray(uiFirstVertex, uiNumVertices).ToByteArray(), mode);
   }
 
   if (uiNumIndices > 0 && !m_hIndexBuffer.IsInvalidated())
@@ -159,35 +157,14 @@ void ezDynamicMeshBufferResource::UpdateGpuBuffer(ezGALCommandEncoder* pGALComma
       EZ_ASSERT_DEV(uiFirstIndex < m_Index16Data.GetCount(), "Invalid first index value {}", uiFirstIndex);
       EZ_ASSERT_DEV(uiNumIndices <= m_Index16Data.GetCount(), "Can't upload {} indices, the buffer was allocated to hold a maximum of {} indices.", uiNumIndices, m_Index16Data.GetCount());
 
-      pGALCommandEncoder->UpdateBuffer(m_hIndexBuffer, sizeof(ezUInt16) * uiFirstIndex, m_Index16Data.GetArrayPtr().GetSubArray(uiFirstIndex, uiNumIndices).ToByteArray(), ezGALUpdateMode::Discard);
+      pGALCommandEncoder->UpdateBuffer(m_hIndexBuffer, sizeof(ezUInt16) * uiFirstIndex, m_Index16Data.GetArrayPtr().GetSubArray(uiFirstIndex, uiNumIndices).ToByteArray(), mode);
     }
     else if (!m_Index32Data.IsEmpty())
     {
       EZ_ASSERT_DEV(uiFirstIndex < m_Index32Data.GetCount(), "Invalid first index value {}", uiFirstIndex);
       EZ_ASSERT_DEV(uiNumIndices <= m_Index32Data.GetCount(), "Can't upload {} indices, the buffer was allocated to hold a maximum of {} indices.", uiNumIndices, m_Index32Data.GetCount());
 
-      pGALCommandEncoder->UpdateBuffer(m_hIndexBuffer, sizeof(ezUInt32) * uiFirstIndex, m_Index32Data.GetArrayPtr().GetSubArray(uiFirstIndex, uiNumIndices).ToByteArray(), ezGALUpdateMode::Discard);
+      pGALCommandEncoder->UpdateBuffer(m_hIndexBuffer, sizeof(ezUInt32) * uiFirstIndex, m_Index32Data.GetArrayPtr().GetSubArray(uiFirstIndex, uiNumIndices).ToByteArray(), mode);
     }
   }
-}
-
-void ezDynamicMeshVertex::EncodeNormal(const ezVec3& normal)
-{
-  // store in [0; 1] range
-  m_vEncodedNormal = normal * 0.5f + ezVec3(0.5f);
-
-  // this is the same
-  //ezMeshBufferUtils::EncodeNormal(normal, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedNormal), sizeof(ezVec3)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
-}
-
-void ezDynamicMeshVertex::EncodeTangent(const ezVec3& tangent, float bitangentSign)
-{
-  // store in [0; 1] range
-  m_vEncodedTangent.x = tangent.x * 0.5f + 0.5f;
-  m_vEncodedTangent.y = tangent.y * 0.5f + 0.5f;
-  m_vEncodedTangent.z = tangent.z * 0.5f + 0.5f;
-  m_vEncodedTangent.w = bitangentSign < 0.0f ? 0.0f : 1.0f;
-
-  // this is the same
-  //ezMeshBufferUtils::EncodeTangent(tangent, bitangentSign, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedTangent), sizeof(ezVec4)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
 }
