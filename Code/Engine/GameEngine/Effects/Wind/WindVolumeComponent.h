@@ -23,6 +23,7 @@ public:
 
 protected:
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -34,9 +35,9 @@ public:
 
   static ezSpatialData::Category SpatialDataCategory;
 
-  ezTime m_BurstDuration; // [ property ]
-
+  ezTime m_BurstDuration;            // [ property ]
   ezEnum<ezWindStrength> m_Strength; // [ property ]
+  bool m_bReverseDirection = false;  // [ property ]
 
   ezSimdVec4f ComputeForceAtGlobalPosition(const ezSimdVec4f& globalPos) const;
 
@@ -47,6 +48,8 @@ public:
 protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
+
+  float GetWindInMetersPerSecond() const;
 };
 
 //////////////////////////////////////////////////////////////////////////

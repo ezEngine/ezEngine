@@ -175,7 +175,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezPhysXCookingMesh& ou
 
     if (meshBuffer.Uses32BitIndices())
     {
-      const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(meshBuffer.GetIndexBufferData().GetData());
+      const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(meshBuffer.GetIndexBufferData().GetPtr());
 
       for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)
       {
@@ -184,7 +184,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezPhysXCookingMesh& ou
     }
     else
     {
-      const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(meshBuffer.GetIndexBufferData().GetData());
+      const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(meshBuffer.GetIndexBufferData().GetPtr());
 
       for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)
       {

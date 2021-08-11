@@ -168,6 +168,7 @@ public:
   /// This function has no effect until the next draw or dispatch call on the context.
   void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
+  void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer);
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
   void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
   EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)

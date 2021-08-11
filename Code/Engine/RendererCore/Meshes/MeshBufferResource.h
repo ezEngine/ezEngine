@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Memory/AllocatorWrapper.h>
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
@@ -38,7 +39,13 @@ public:
   /// \brief Use this function to add vertex streams to the mesh buffer. The return value is the index of the just added stream.
   ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format);
 
-  /// \brief Add common vertex streams to the mesh buffer. This includes Position, TexCoord0, Normal and Tangent.
+  /// \brief Adds common vertex streams to the mesh buffer.
+  ///
+  /// The streams are added in this order (with the corresponding stream indices):
+  /// * Position (index 0)
+  /// * TexCoord0 (index 1)
+  /// * Normal (index 2)
+  /// * Tangent (index 3)
   void AddCommonStreams();
 
   /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
@@ -50,16 +57,16 @@ public:
   void AllocateStreamsFromGeometry(const ezGeometry& geom, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles);
 
   /// \brief Gives read access to the allocated vertex data
-  const ezDynamicArray<ezUInt8>& GetVertexBufferData() const;
+  ezArrayPtr<const ezUInt8> GetVertexBufferData() const;
 
   /// \brief Gives read access to the allocated index data
-  const ezDynamicArray<ezUInt8>& GetIndexBufferData() const;
+  ezArrayPtr<const ezUInt8> GetIndexBufferData() const;
 
   /// \brief Allows write access to the allocated vertex data. This can be used for copying data fast into the array.
-  ezDynamicArray<ezUInt8>& GetVertexBufferData();
+  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& GetVertexBufferData();
 
   /// \brief Allows write access to the allocated index data. This can be used for copying data fast into the array.
-  ezDynamicArray<ezUInt8>& GetIndexBufferData();
+  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& GetIndexBufferData();
 
   /// \brief Slow, but convenient method to write one piece of vertex data at a time into the stream buffer.
   ///
@@ -118,8 +125,8 @@ private:
   ezUInt32 m_uiVertexSize;
   ezUInt32 m_uiVertexCount;
   ezVertexDeclarationInfo m_VertexDeclaration;
-  ezDynamicArray<ezUInt8> m_VertexStreamData;
-  ezDynamicArray<ezUInt8> m_IndexBufferData;
+  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_VertexStreamData;
+  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_IndexBufferData;
 };
 
 class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource

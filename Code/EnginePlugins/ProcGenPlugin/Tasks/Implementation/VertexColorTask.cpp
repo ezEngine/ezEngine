@@ -40,7 +40,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   m_InputVertices.Reserve(mbDesc.GetVertexCount());
 
   const ezVertexDeclarationInfo& vdi = mbDesc.GetVertexDeclaration();
-  const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetData();
+  const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetPtr();
 
   const float* pPositions = nullptr;
   const ezUInt8* pNormals = nullptr;

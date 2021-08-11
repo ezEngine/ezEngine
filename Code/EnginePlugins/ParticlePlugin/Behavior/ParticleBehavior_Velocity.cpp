@@ -116,7 +116,12 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   ezVec3 vWind(0);
   if (m_pWindModule != nullptr)
   {
-    vWind = m_pWindModule->GetWindAt(GetOwnerSystem()->GetTransform().m_vPosition) * m_fWindInfluence * tDiff;
+    ezVec3 vCurWind = m_pWindModule->GetWindAt(GetOwnerSystem()->GetTransform().m_vPosition);
+    vCurWind = ezMath::Lerp(m_vLastWind, vCurWind, tDiff);
+
+    vWind = vCurWind * m_fWindInfluence * tDiff;
+
+    m_vLastWind = vCurWind;
   }
 
   const ezVec3 vAddPos0 = vRise + vWind;
