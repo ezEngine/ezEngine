@@ -11,13 +11,14 @@
 ezSpatialData::Category ezWindVolumeComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("WindVolumes");
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_MEMBER_PROPERTY("Strength", ezWindStrength, m_Strength),
+    EZ_MEMBER_PROPERTY("ReverseDirection", m_bReverseDirection),
     EZ_MEMBER_PROPERTY("BurstDuration", m_BurstDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
-    EZ_ENUM_MEMBER_PROPERTY("Strength", ezWindStrength, m_Strength),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -45,6 +46,13 @@ void ezWindVolumeComponent::OnActivated()
   GetOwner()->UpdateLocalBounds();
 }
 
+void ezWindVolumeComponent::OnDeactivated()
+{
+  GetOwner()->UpdateLocalBounds();
+
+  SUPER::OnDeactivated();
+}
+
 void ezWindVolumeComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
@@ -66,6 +74,7 @@ void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_BurstDuration;
   s << m_OnFinishedAction;
   s << m_Strength;
+  s << m_bReverseDirection;
 }
 
 void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& stream)
@@ -77,6 +86,11 @@ void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_BurstDuration;
   s >> m_OnFinishedAction;
   s >> m_Strength;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bReverseDirection;
+  }
 }
 
 ezSimdVec4f ezWindVolumeComponent::ComputeForceAtGlobalPosition(const ezSimdVec4f& globalPos) const
@@ -96,6 +110,8 @@ void ezWindVolumeComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
     return;
 
   ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
+
+  SetActiveFlag(false);
 }
 
 void ezWindVolumeComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
@@ -104,6 +120,11 @@ void ezWindVolumeComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
   {
     ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
   }
+}
+
+float ezWindVolumeComponent::GetWindInMetersPerSecond() const
+{
+  return m_bReverseDirection ? -ezWindStrength::GetInMetersPerSecond(m_Strength) : ezWindStrength::GetInMetersPerSecond(m_Strength);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -162,7 +183,7 @@ ezSimdVec4f ezWindVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSim
   // inverse quadratic falloff to have sharper edges
   ezSimdFloat forceFactor = ezSimdFloat(1.0f) - (lenScaled * lenScaled);
 
-  const ezSimdFloat force = ezWindStrength::GetInMetersPerSecond(m_Strength) * forceFactor.Max(0.0f);
+  const ezSimdFloat force = GetWindInMetersPerSecond() * forceFactor.Max(0.0f);
 
   ezSimdVec4f dir = localPos;
   dir.NormalizeIfNotZero<3>();
@@ -262,10 +283,10 @@ ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezS
   {
     ezSimdVec4f forceDir = ezSimdVec4f(1, 0, 0, 0).CrossRH(orthoDir);
     forceDir.NormalizeIfNotZero<3>();
-    return forceDir * ezWindStrength::GetInMetersPerSecond(m_Strength);
+    return forceDir * GetWindInMetersPerSecond();
   }
 
-  return ezSimdVec4f(ezWindStrength::GetInMetersPerSecond(m_Strength), 0, 0);
+  return ezSimdVec4f(GetWindInMetersPerSecond(), 0, 0);
 }
 
 void ezWindVolumeCylinderComponent::SetRadius(float val)
@@ -365,7 +386,7 @@ ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdV
   if (orthoDir.GetLengthSquared<3>() >= fConeRadius * fConeRadius)
     return ezSimdVec4f::ZeroVector();
 
-  return localPos.GetNormalized<3>() * ezWindStrength::GetInMetersPerSecond(m_Strength);
+  return localPos.GetNormalized<3>() * GetWindInMetersPerSecond();
 }
 
 void ezWindVolumeConeComponent::SetLength(float val)

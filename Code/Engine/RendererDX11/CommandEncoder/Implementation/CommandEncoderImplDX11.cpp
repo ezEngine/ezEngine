@@ -267,6 +267,10 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
 
         m_pDXContext->Unmap(pDXDestination, 0);
       }
+      else
+      {
+        ezLog::Error("Could not map buffer to update content.");
+      }
     }
   }
 }

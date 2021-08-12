@@ -3,6 +3,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -480,6 +481,13 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
   m_uiMeshBufferPrimitiveCount = uiPrimitiveCount;
 
   m_StateFlags.Add(ezRenderContextFlags::MeshBufferBindingChanged);
+}
+
+void ezRenderContext::BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer)
+{
+  ezResourceLock<ezDynamicMeshBufferResource> pMeshBuffer(hDynamicMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()), pMeshBuffer->GetTopology(),
+    pMeshBuffer->GetPrimitiveCount());
 }
 
 ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)

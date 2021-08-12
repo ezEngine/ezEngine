@@ -382,8 +382,18 @@ Refraction;Refraction
 SetColorMode;Set Color Mode
 ezRopeRenderComponent;Rope Renderer;;http://ezengine.net/pages/docs/effects/rope-render-component.html
 ezFakeRopeComponent;Fake Rope Simulation;;http://ezengine.net/pages/docs/effects/fake-rope-component.html
+ezClothSheetComponent;Cloth Sheet
 ezWindVolumeSphereComponent;Sphere Wind Volume
 ezWindVolumeCylinderComponent;Cylinder Wind Volume
 ezWindVolumeConeComponent;Cone Wind Volume
 ezWindVolumeCylinderMode::Directional;Directional
 ezWindVolumeCylinderMode::Vortex;Vortex
+ezClothSheetFlags::FixedCornerTopLeft;Corner: Top Left
+ezClothSheetFlags::FixedCornerTopRight;Corner: Top Right
+ezClothSheetFlags::FixedCornerBottomRight;Corner: Bottom Right
+ezClothSheetFlags::FixedCornerBottomLeft;Corner: Bottom Left
+ezClothSheetFlags::FixedEdgeTop;Edge: Top
+ezClothSheetFlags::FixedEdgeRight;Edge: Right
+ezClothSheetFlags::FixedEdgeBottom;Edge: Bottom
+ezClothSheetFlags::FixedEdgeLeft;Edge: Left
+ezClothSheetFlags::FixedEdgeLeft;Edge: Left

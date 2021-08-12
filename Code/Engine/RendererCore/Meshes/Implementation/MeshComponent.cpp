@@ -89,7 +89,7 @@ void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
   const ezTransform transform = GetOwner()->GetGlobalTransform();
 
   const ezVertexDeclarationInfo& vdi = mb.GetVertexDeclaration();
-  const ezUInt8* pRawVertexData = mb.GetVertexBufferData().GetData();
+  const ezUInt8* pRawVertexData = mb.GetVertexBufferData().GetPtr();
 
   const float* pPositions = nullptr;
 
@@ -136,22 +136,22 @@ void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
   {
     if (mb.Uses32BitIndices())
     {
-      FillIndices<ezUInt32, true>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
+      FillIndices<ezUInt32, true>(mb.GetIndexBufferData().GetPtr(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
     }
     else
     {
-      FillIndices<ezUInt16, true>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
+      FillIndices<ezUInt16, true>(mb.GetIndexBufferData().GetPtr(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
     }
   }
   else
   {
     if (mb.Uses32BitIndices())
     {
-      FillIndices<ezUInt32, false>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
+      FillIndices<ezUInt32, false>(mb.GetIndexBufferData().GetPtr(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
     }
     else
     {
-      FillIndices<ezUInt16, false>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
+      FillIndices<ezUInt16, false>(mb.GetIndexBufferData().GetPtr(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
     }
   }
 }

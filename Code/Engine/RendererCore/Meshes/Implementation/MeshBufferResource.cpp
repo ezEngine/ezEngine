@@ -33,23 +33,23 @@ void ezMeshBufferResourceDescriptor::Clear()
   m_IndexBufferData.Clear();
 }
 
-const ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetVertexBufferData() const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetVertexBufferData() const
 {
-  return m_VertexStreamData;
+  return m_VertexStreamData.GetArrayPtr();
 }
 
-const ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetIndexBufferData() const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetIndexBufferData() const
 {
-  return m_IndexBufferData;
+  return m_IndexBufferData.GetArrayPtr();
 }
 
-ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
+ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
 {
   EZ_ASSERT_DEV(!m_VertexStreamData.IsEmpty(), "The vertex data must be allocated first");
   return m_VertexStreamData;
 }
 
-ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
+ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
 {
   EZ_ASSERT_DEV(!m_IndexBufferData.IsEmpty(), "The index data must be allocated first");
   return m_IndexBufferData;
@@ -565,7 +565,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
+  m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetArrayPtr());
 
   ezStringBuilder sName;
   sName.Format("{0} Vertex Buffer", GetResourceDescription());

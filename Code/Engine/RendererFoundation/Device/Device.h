@@ -57,8 +57,8 @@ public:
 
   // Helper functions for buffers (for common, simple use cases)
 
-  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
-  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
+  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
+  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
   ezGALBufferHandle CreateConstantBuffer(ezUInt32 uiBufferSize);
 
   ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());

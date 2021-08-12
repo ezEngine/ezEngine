@@ -332,9 +332,19 @@ export class Player extends ez.TickedTypescriptComponent {
         }
 
         if (msg.consumableType > _ge.Consumable.AmmoTypes_Start && msg.consumableType < _ge.Consumable.AmmoTypes_End) {
-            const amount = this.ammoPouch.ammo[msg.consumableType] + msg.amount;
 
-            this.ammoPouch.ammo[msg.consumableType] = ez.Utils.Clamp(amount, 0, maxAmount);
+            const curAmount = this.ammoPouch.ammo[msg.consumableType]
+
+            if (curAmount >= maxAmount) {
+                msg.return_consumed = false
+                return
+            }
+
+            msg.return_consumed = true
+
+            const newAmount = curAmount + msg.amount;
+
+            this.ammoPouch.ammo[msg.consumableType] = ez.Utils.Clamp(newAmount, 0, maxAmount);
         }
     }
 
