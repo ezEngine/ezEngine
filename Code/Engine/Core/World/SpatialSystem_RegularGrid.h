@@ -56,6 +56,7 @@ private:
   struct Cell;
   struct Grid;
   ezDynamicArray<ezUniquePtr<Grid>> m_Grids;
+  ezUInt32 m_uiNextCachedGridIndex = 62;
 
   struct Data
   {
@@ -83,14 +84,13 @@ private:
     ezTagSet m_IncludeTags;
     ezTagSet m_ExcludeTags;
     ezSpatialData::Category m_Category;
-    ezUInt32 m_uiQueryCount = 0;
+    float m_fQueryCount = 0.0f;
     float m_fFilteredRatio = 0.0f;
+    ezUInt32 m_uiGridIndex = ezInvalidIndex;
   };
 
   mutable ezDynamicArray<CacheCandidate> m_CacheCandidates;
   mutable ezMutex m_CacheCandidatesMutex;
-
-  void UpdateCacheCandidate(const ezTagSet& includeTags, const ezTagSet& excludeTags, ezSpatialData::Category category, float filteredRatio) const;
 
   struct SortedCacheCandidate
   {
@@ -100,11 +100,15 @@ private:
     bool operator<(const SortedCacheCandidate& other) const
     {
       if (m_fScore != other.m_fScore)
-        return m_fScore < other.m_fScore;
+        return m_fScore > other.m_fScore; // higher score comes first
 
       return m_uiIndex < other.m_uiIndex;
     }
   };
 
   ezDynamicArray<SortedCacheCandidate> m_SortedCacheCandidates;
+
+  void MigrateCachedGrid(ezUInt32 uiCandidateIndex);
+  void RemoveCachedGrid(ezUInt32 uiCandidateIndex);
+  void UpdateCacheCandidate(const ezTagSet& includeTags, const ezTagSet& excludeTags, ezSpatialData::Category category, float filteredRatio) const;
 };
