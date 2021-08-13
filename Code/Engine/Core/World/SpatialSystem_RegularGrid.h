@@ -28,6 +28,8 @@ private:
   friend ezInternal::QueryHelper;
 
   // ezSpatialSystem implementation
+  virtual void StartNewFrame() override;
+
   ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
   ezSpatialDataHandle CreateSpatialDataAlwaysVisible(ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
 
@@ -42,6 +44,8 @@ private:
   void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects) const override;
 
   ezUInt64 GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const override;
+
+  virtual void GetInternalStats(ezStringBuilder& sb) const override;
 
   ezProxyAllocator m_AlignedAllocator;
 
@@ -70,6 +74,37 @@ private:
   template <typename Functor>
   void ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const;
 
-  using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, void*)>;
+  struct Stats;
+  using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*)>;
   void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData) const;
+
+  struct CacheCandidate
+  {
+    ezTagSet m_IncludeTags;
+    ezTagSet m_ExcludeTags;
+    ezSpatialData::Category m_Category;
+    ezUInt32 m_uiQueryCount = 0;
+    float m_fFilteredRatio = 0.0f;
+  };
+
+  mutable ezDynamicArray<CacheCandidate> m_CacheCandidates;
+  mutable ezMutex m_CacheCandidatesMutex;
+
+  void UpdateCacheCandidate(const ezTagSet& includeTags, const ezTagSet& excludeTags, ezSpatialData::Category category, float filteredRatio) const;
+
+  struct SortedCacheCandidate
+  {
+    ezUInt32 m_uiIndex = 0;
+    float m_fScore = 0;
+
+    bool operator<(const SortedCacheCandidate& other) const
+    {
+      if (m_fScore != other.m_fScore)
+        return m_fScore < other.m_fScore;
+
+      return m_uiIndex < other.m_uiIndex;
+    }
+  };
+
+  ezDynamicArray<SortedCacheCandidate> m_SortedCacheCandidates;
 };

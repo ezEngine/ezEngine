@@ -962,6 +962,9 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
     sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
     ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
+
+    view.GetWorld()->GetSpatialSystem()->GetInternalStats(sb);
+    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 320), ezColor::AntiqueWhite);
   }
 #endif
 }

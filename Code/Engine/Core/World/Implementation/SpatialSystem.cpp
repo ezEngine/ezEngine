@@ -41,4 +41,9 @@ void ezSpatialSystem::FindObjectsInBox(  const ezBoundingBox& box, const QueryPa
     });
 }
 
+void ezSpatialSystem::GetInternalStats(ezStringBuilder& sb) const
+{
+  sb.Clear();
+}
+
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);
