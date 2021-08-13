@@ -49,3 +49,11 @@ ezPxGrabObjectComponent;PhysX Grab Object;;https://ezengine.net/pages/docs/physi
 ezPxCharacterCapsuleShapeComponent;PhysX Character Capsule Shape;;https://ezengine.net/pages/docs/physics/special/physx-character-controller.html
 ezPxBoneColliderComponent;Bone Collider
 ezPxRopeComponent;Rope Simulation;;https://ezengine.net/pages/docs/physics/special/physx-rope-component.html
+ezPxQueryShapeActorComponent;Query Shape Actor
+ezPxRagdollComponent;Ragdoll
+ezPxActorLockingFlags::FreezePositionX;Freeze Position X
+ezPxActorLockingFlags::FreezePositionY;Freeze Position Y
+ezPxActorLockingFlags::FreezePositionZ;Freeze Position Z
+ezPxActorLockingFlags::FreezeRotationX;Freeze Rotation X
+ezPxActorLockingFlags::FreezeRotationY;Freeze Rotation Y
+ezPxActorLockingFlags::FreezeRotationZ;Freeze Rotation Z
