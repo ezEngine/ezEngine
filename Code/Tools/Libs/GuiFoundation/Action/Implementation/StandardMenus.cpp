@@ -171,7 +171,7 @@ void ezHelpActions::Execute(const ezVariant& value)
 {
   if (m_ButtonType == ButtonType::OpenDocumentation)
   {
-    QDesktopServices::openUrl(QUrl("http://ezengine.net"));
+    QDesktopServices::openUrl(QUrl("https://ezengine.net"));
   }
   if (m_ButtonType == ButtonType::OpenReleaseNotes)
   {

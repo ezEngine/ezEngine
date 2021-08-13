@@ -83,6 +83,9 @@ public:
   /// \brief Returns the path to the 'ezProject' file
   const ezString& GetProjectFile() const { return m_sProjectPath; }
 
+  /// \brief Returns the short name of the project (extracted from the path).
+  const ezString GetProjectName() const;
+
   /// \brief Returns the path in which the 'ezProject' file is stored
   ezString GetProjectDirectory() const;
 

@@ -99,11 +99,7 @@ void ezQtContainerWindow::UpdateWindowTitle()
 
   if (ezToolsProject::IsProjectOpen())
   {
-    ezStringBuilder sTemp = ezToolsProject::GetSingleton()->GetProjectFile();
-    sTemp.PathParentDirectory();
-    sTemp.Trim("/");
-
-    sTitle = sTemp.GetFileName();
+    sTitle = ezToolsProject::GetSingleton()->GetProjectName();
     sTitle.Append(" - ");
   }
 
@@ -498,7 +494,8 @@ void ezQtContainerWindow::SlotDocumentTabCloseRequested()
   if (!pDocWindow->CanCloseWindow())
   {
     // TODO: There is no CloseRequested event so we just reopen on a timer.
-    QTimer::singleShot(1, [dock]() { dock->toggleView(); });
+    QTimer::singleShot(1, [dock]()
+      { dock->toggleView(); });
     return;
   }
   pDocWindow->CloseDocumentWindow();

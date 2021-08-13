@@ -9,15 +9,16 @@ class EZ_EDITORFRAMEWORK_DLL ezQtDashboardDlg : public QDialog, public Ui_ezQtDa
   Q_OBJECT
 
 public:
-  ezQtDashboardDlg(QWidget* parent);
-
-private:
   enum class DashboardTab
   {
     Projects,
     Samples,
     Documentation
   };
+
+  ezQtDashboardDlg(QWidget* parent, DashboardTab activeTab = DashboardTab::Projects);
+
+private:
 
   void SetActiveTab(DashboardTab tab);
   void FillRecentProjectsList();
