@@ -342,12 +342,15 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, m_bCCD);
 
-  m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_X, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezePositionX));
-  m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezePositionY));
-  m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezePositionZ));
-  m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezeRotationX));
-  m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezeRotationY));
-  m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezeRotationZ));
+  // make sure the cast below is valid
+  static_assert(PxRigidDynamicLockFlag::eLOCK_LINEAR_X == ezPxActorLockingFlags::FreezePositionX);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y == ezPxActorLockingFlags::FreezePositionY);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_LINEAR_Z == ezPxActorLockingFlags::FreezePositionZ);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_X == ezPxActorLockingFlags::FreezeRotationX);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y == ezPxActorLockingFlags::FreezeRotationY);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z == ezPxActorLockingFlags::FreezeRotationZ);
+
+  m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(m_LockingFlags.GetValue()));
 
   if (m_bKinematic)
   {
@@ -459,12 +462,7 @@ void ezPxDynamicActorComponent::SetLockingFlags(ezBitflags<ezPxActorLockingFlags
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
-    m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_X, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezePositionX));
-    m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezePositionY));
-    m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezePositionZ));
-    m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezeRotationX));
-    m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezeRotationY));
-    m_pActor->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, m_LockingFlags.IsSet(ezPxActorLockingFlags::FreezeRotationZ));
+    m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(m_LockingFlags.GetValue()));
   }
 }
 
