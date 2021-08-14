@@ -72,7 +72,7 @@ private:
     ezUInt64 m_uiGridBitmask : MAX_NUM_GRIDS;
     ezUInt64 m_uiAlwaysVisible : 1;
   };
-  
+
   ezIdTable<ezSpatialDataId, Data, ezLocalAllocatorWrapper> m_DataTable;
 
   bool IsAlwaysVisibleData(const Data& data) const;
