@@ -36,7 +36,7 @@ Intensity CPs;Intensity Control Points
 ezColorControlPoint;Color
 ezAlphaControlPoint;Alpha
 ezIntensityControlPoint;Intensity
-ezPropertyAnimComponent;Property Animation;;http://ezengine.net/pages/docs/animation/property-animation/property-animation-component.html
+ezPropertyAnimComponent;Property Animation;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-component.html
 Curves;Curves
 ezCurve1DData;Curve Data
 Control Points;Control Points
@@ -154,7 +154,7 @@ ezSkeletonJointGeometryType::None;None
 ezSkeletonJointGeometryType::Capsule;Capsule
 ezSkeletonJointGeometryType::Sphere;Sphere
 ezSkeletonJointGeometryType::Box;Box
-ezSkeletonComponent;Skeleton;;http://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-component.html
+ezSkeletonComponent;Skeleton;;https://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-component.html
 BoolParameters;Bool Variables
 NumberParameters;Number Variables
 StringParameters;String Variables
@@ -191,8 +191,8 @@ ezTexConvUsage::Hdr;HDR
 ezTexConvUsage::NormalMap;Normal Map
 ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)
 ezTexConvUsage::BumpMap;Bump Map
-ezColorAnimationComponent;Color Animation;;http://ezengine.net/pages/docs/animation/property-animation/color-animation-component.html
-ezJointAttachmentComponent;Joint Attachment;;http://ezengine.net/pages/docs/animation/skeletal-animation/joint-attachment-component.html
+ezColorAnimationComponent;Color Animation;;https://ezengine.net/pages/docs/animation/property-animation/color-animation-component.html
+ezJointAttachmentComponent;Joint Attachment;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-attachment-component.html
 AnimatedMeshImport.NoMaterials;Animated Mesh only
 AnimatedMeshImport.WithMaterials;Animated Mesh and Materials
 Length;Length

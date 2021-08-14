@@ -36,7 +36,7 @@ if(NOT EZ_SUBMODULE_MODE)
 	project (${EZ_SOLUTION_NAME}
 		VERSION 1.0
 		DESCRIPTION "An open-source game engine"
-		HOMEPAGE_URL "http://ezEngine.net"
+		HOMEPAGE_URL "https://ezengine.net"
 		LANGUAGES ${EZ_LANGUAGES})
 endif()
 

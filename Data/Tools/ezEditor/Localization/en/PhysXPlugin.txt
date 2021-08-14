@@ -2,28 +2,28 @@ PhysX.Settings.Project;PhysX Project Settings...
 Physics;Physics
 Joints;Joints
 Shapes;Shapes
-ezPxCenterOfMassComponent;PhysX Center of Mass;;http://ezengine.net/pages/docs/physics/collision-shapes/physx-center-of-mass-component.html
-ezPxCharacterControllerComponent;PhysX Character Controller;;http://ezengine.net/pages/docs/physics/special/physx-character-controller.html
-ezPxDynamicActorComponent;PhysX Dynamic Actor;;http://ezengine.net/pages/docs/physics/actors/physx-dynamic-actor-component.html
-ezPxStaticActorComponent;PhysX Static Actor;;http://ezengine.net/pages/docs/physics/actors/physx-static-actor-component.html
-ezPx6DOFJointComponent;PhysX 6DOF Joint;;http://ezengine.net/pages/docs/physics/joints/physx-6dof-joint-component.html
-ezPxDistanceJointComponent;PhysX Distance Joint;;http://ezengine.net/pages/docs/physics/joints/physx-distance-joint-component.html
-ezPxFixedJointComponent;PhysX Fixed Joint;;http://ezengine.net/pages/docs/physics/joints/physx-fixed-joint-component.html
-ezPxShapeBoxComponent;PhysX Box Shape;;http://ezengine.net/pages/docs/physics/collision-shapes/physx-box-shape-component.html
-ezPxShapeSphereComponent;PhysX Sphere Shape;;http://ezengine.net/pages/docs/physics/collision-shapes/physx-sphere-shape-component.html
-ezPxShapeCapsuleComponent;PhysX Capsule Shape;;http://ezengine.net/pages/docs/physics/collision-shapes/physx-capsule-shape-component.html
-ezPxShapeConvexComponent;PhysX Convex Mesh Shape;;http://ezengine.net/pages/docs/physics/collision-shapes/physx-convex-shape-component.html
-ezPxSettingsComponent;PhysX Settings;;http://ezengine.net/pages/docs/physics/physx-settings-component.html
+ezPxCenterOfMassComponent;PhysX Center of Mass;;https://ezengine.net/pages/docs/physics/collision-shapes/physx-center-of-mass-component.html
+ezPxCharacterControllerComponent;PhysX Character Controller;;https://ezengine.net/pages/docs/physics/special/physx-character-controller.html
+ezPxDynamicActorComponent;PhysX Dynamic Actor;;https://ezengine.net/pages/docs/physics/actors/physx-dynamic-actor-component.html
+ezPxStaticActorComponent;PhysX Static Actor;;https://ezengine.net/pages/docs/physics/actors/physx-static-actor-component.html
+ezPx6DOFJointComponent;PhysX 6DOF Joint;;https://ezengine.net/pages/docs/physics/joints/physx-6dof-joint-component.html
+ezPxDistanceJointComponent;PhysX Distance Joint;;https://ezengine.net/pages/docs/physics/joints/physx-distance-joint-component.html
+ezPxFixedJointComponent;PhysX Fixed Joint;;https://ezengine.net/pages/docs/physics/joints/physx-fixed-joint-component.html
+ezPxShapeBoxComponent;PhysX Box Shape;;https://ezengine.net/pages/docs/physics/collision-shapes/physx-box-shape-component.html
+ezPxShapeSphereComponent;PhysX Sphere Shape;;https://ezengine.net/pages/docs/physics/collision-shapes/physx-sphere-shape-component.html
+ezPxShapeCapsuleComponent;PhysX Capsule Shape;;https://ezengine.net/pages/docs/physics/collision-shapes/physx-capsule-shape-component.html
+ezPxShapeConvexComponent;PhysX Convex Mesh Shape;;https://ezengine.net/pages/docs/physics/collision-shapes/physx-convex-shape-component.html
+ezPxSettingsComponent;PhysX Settings;;https://ezengine.net/pages/docs/physics/physx-settings-component.html
 ezPhysXComponent;PhysX Component
 ezPxActorComponent;PhysX Actor
 ezPxSteppingMode::Variable;Variable
 ezPxSteppingMode::Fixed;Fixed
 ezPxSteppingMode::SemiFixed;SemiFixed
-ezPxTriggerComponent;PhysX Trigger;;http://ezengine.net/pages/docs/physics/actors/physx-trigger-component.html
+ezPxTriggerComponent;PhysX Trigger;;https://ezengine.net/pages/docs/physics/actors/physx-trigger-component.html
 ezPxVisColMeshComponent;PhysX Collision Mesh Visualization
 CollisionMeshImport.TriangleMesh;Triangle Collision Mesh
 CollisionMeshImport.ConvexMesh;Convex Collision Mesh
-ezBreakableSheetComponent;PhysX Breakable Sheet;;http://ezengine.net/pages/docs/physics/actors/physx-breakable-sheet-component.html
+ezBreakableSheetComponent;PhysX Breakable Sheet;;https://ezengine.net/pages/docs/physics/actors/physx-breakable-sheet-component.html
 ezPxAxis::X;X
 ezPxAxis::Y;Y
 ezPxAxis::Z;Z
@@ -36,16 +36,24 @@ ezOnPhysXContact::SlideReactions;Slide Reactions
 ezOnPhysXContact::RollXReactions;Roll X Reactions
 ezOnPhysXContact::RollYReactions;Roll Y Reactions
 ezOnPhysXContact::RollZReactions;Roll Z Reactions
-ezPxPrismaticJointComponent;PhysX Prismatic Joint;;http://ezengine.net/pages/docs/physics/joints/physx-prismatic-joint-component.html
-ezPxRevoluteJointComponent;PhysX Revolute Joint;;http://ezengine.net/pages/docs/physics/joints/physx-revolute-joint-component.html
-ezPxSphericalJointComponent;PhysX Spherical Joint;;http://ezengine.net/pages/docs/physics/joints/physx-spherical-joint-component.html
+ezPxPrismaticJointComponent;PhysX Prismatic Joint;;https://ezengine.net/pages/docs/physics/joints/physx-prismatic-joint-component.html
+ezPxRevoluteJointComponent;PhysX Revolute Joint;;https://ezengine.net/pages/docs/physics/joints/physx-revolute-joint-component.html
+ezPxSphericalJointComponent;PhysX Spherical Joint;;https://ezengine.net/pages/docs/physics/joints/physx-spherical-joint-component.html
 ezPxJointLimitMode::NoLimit; No Limit
 ezPxJointLimitMode::HardLimit; Hard Limit
 ezPxJointLimitMode::SoftLimit; Soft Limit
 ezPxJointDriveMode::NoDrive;No Drive
 ezPxJointDriveMode::DriveAndSpin; Drive and Spin
 ezPxJointDriveMode::DriveAndBrake; Drive and Brake
-ezPxGrabObjectComponent;PhysX Grab Object;;http://ezengine.net/pages/docs/physics/special/physx-grab-object-component.html
-ezPxCharacterCapsuleShapeComponent;PhysX Character Capsule Shape;;http://ezengine.net/pages/docs/physics/special/physx-character-controller.html
+ezPxGrabObjectComponent;PhysX Grab Object;;https://ezengine.net/pages/docs/physics/special/physx-grab-object-component.html
+ezPxCharacterCapsuleShapeComponent;PhysX Character Capsule Shape;;https://ezengine.net/pages/docs/physics/special/physx-character-controller.html
 ezPxBoneColliderComponent;Bone Collider
-ezPxRopeComponent;Rope Simulation;;http://ezengine.net/pages/docs/physics/special/physx-rope-component.html
+ezPxRopeComponent;Rope Simulation;;https://ezengine.net/pages/docs/physics/special/physx-rope-component.html
+ezPxQueryShapeActorComponent;Query Shape Actor
+ezPxRagdollComponent;Ragdoll
+ezPxActorLockingFlags::FreezePositionX;Freeze Position X
+ezPxActorLockingFlags::FreezePositionY;Freeze Position Y
+ezPxActorLockingFlags::FreezePositionZ;Freeze Position Z
+ezPxActorLockingFlags::FreezeRotationX;Freeze Rotation X
+ezPxActorLockingFlags::FreezeRotationY;Freeze Rotation Y
+ezPxActorLockingFlags::FreezeRotationZ;Freeze Rotation Z
