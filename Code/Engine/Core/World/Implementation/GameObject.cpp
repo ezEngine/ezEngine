@@ -621,10 +621,10 @@ void ezGameObject::UpdateLocalBounds()
   {
     // force spatial data re-creation if categories have changed
     bRecreateSpatialData |= m_pTransformationData->m_uiSpatialDataCategoryBitmask != msg.m_uiSpatialDataCategoryBitmask;
-    
+
     // force spatial data re-creation if always visible flag has changed
     bRecreateSpatialData |= bIsAlwaysVisible != msg.m_bAlwaysVisible;
-    
+
     // delete old spatial data if bounds are now invalid
     bRecreateSpatialData |= msg.m_bAlwaysVisible == false && msg.m_ResultingLocalBounds.IsValid() == false;
   }

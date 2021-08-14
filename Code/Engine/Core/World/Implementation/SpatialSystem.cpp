@@ -30,7 +30,7 @@ void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, const 
     });
 }
 
-void ezSpatialSystem::FindObjectsInBox(  const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const
+void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const
 {
   FindObjectsInBox(
     box, queryParams,
