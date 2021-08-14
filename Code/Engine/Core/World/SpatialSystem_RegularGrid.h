@@ -110,5 +110,6 @@ private:
 
   void MigrateCachedGrid(ezUInt32 uiCandidateIndex);
   void RemoveCachedGrid(ezUInt32 uiCandidateIndex);
+  void RemoveAllCachedGrids();
   void UpdateCacheCandidate(const ezTagSet& includeTags, const ezTagSet& excludeTags, ezSpatialData::Category category, float filteredRatio) const;
 };
