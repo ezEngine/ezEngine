@@ -382,7 +382,7 @@ Refraction;Refraction
 SetColorMode;Set Color Mode
 ezRopeRenderComponent;Rope Renderer;;https://ezengine.net/pages/docs/effects/rope-render-component.html
 ezFakeRopeComponent;Fake Rope Simulation;;https://ezengine.net/pages/docs/effects/fake-rope-component.html
-ezClothSheetComponent;Cloth Sheet
+ezClothSheetComponent;Cloth Sheet;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
 ezWindVolumeSphereComponent;Sphere Wind Volume
 ezWindVolumeCylinderComponent;Cylinder Wind Volume
 ezWindVolumeConeComponent;Cone Wind Volume
