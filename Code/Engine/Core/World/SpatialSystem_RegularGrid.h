@@ -53,16 +53,23 @@ private:
   ezSimdVec4f m_fOverlapSize;
   ezSimdFloat m_fInvCellSize;
 
+  enum
+  {
+    MAX_NUM_GRIDS = 63,
+    MAX_NUM_REGULAR_GRIDS = (sizeof(ezSpatialData::Category::m_uiValue) * 8),
+    MAX_NUM_CACHED_GRIDS = MAX_NUM_GRIDS - MAX_NUM_REGULAR_GRIDS
+  };
+
   struct Cell;
   struct Grid;
   ezDynamicArray<ezUniquePtr<Grid>> m_Grids;
-  ezUInt32 m_uiNextCachedGridIndex = 62;
+  ezUInt32 m_uiFirstCachedGridIndex = MAX_NUM_GRIDS;
 
   struct Data
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezUInt64 m_uiGridBitmask : 63;
+    ezUInt64 m_uiGridBitmask : MAX_NUM_GRIDS;
     ezUInt64 m_uiAlwaysVisible : 1;
   };
   

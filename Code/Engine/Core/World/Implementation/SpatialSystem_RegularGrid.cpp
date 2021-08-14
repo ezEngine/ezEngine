@@ -334,7 +334,7 @@ struct ezSpatialSystem_RegularGrid::Grid
       if (FilterByTags(tags, m_IncludeTags, m_ExcludeTags))
         continue;
 
-      const ezSimdBSphere& bounds = pOtherCell->m_BoundingSpheres[mapping.m_uiCellDataIndex];      
+      const ezSimdBSphere& bounds = pOtherCell->m_BoundingSpheres[mapping.m_uiCellDataIndex];
       ezGameObject* objectPointer = pOtherCell->m_ObjectPointers[mapping.m_uiCellDataIndex];
       ezUInt64 uiLastVisibleFrame = pOtherCell->m_LastVisibleFrames[mapping.m_uiCellDataIndex];
 
@@ -583,7 +583,7 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(Data) == 8);
 
-  m_Grids.SetCount(63);
+  m_Grids.SetCount(MAX_NUM_GRIDS);
 
   CVarCacheThreshold.m_CVarEvents.AddEventHandler([&](const ezCVarEvent& e) {
     if (e.m_EventType == ezCVarEvent::ValueChanged)
@@ -679,17 +679,19 @@ void ezSpatialSystem_RegularGrid::StartNewFrame()
 
   m_SortedCacheCandidates.Sort();
 
-  // Take the 31 candidates with the highest score
-  ezUInt32 uiIndex = 0;
-  for (; uiIndex < ezMath::Min(m_SortedCacheCandidates.GetCount(), 31u); ++uiIndex)
+  // First remove all cached grids that don't make it into the top MAX_NUM_CACHED_GRIDS to make space for new grids
+  if (m_SortedCacheCandidates.GetCount() > MAX_NUM_CACHED_GRIDS)
   {
-    MigrateCachedGrid(m_SortedCacheCandidates[uiIndex].m_uiIndex);
+    for (ezUInt32 i = MAX_NUM_CACHED_GRIDS; i < m_SortedCacheCandidates.GetCount(); ++i)
+    {
+      RemoveCachedGrid(m_SortedCacheCandidates[i].m_uiIndex);
+    }
   }
 
-  // Remove the rest
-  for (; uiIndex < m_SortedCacheCandidates.GetCount(); ++uiIndex)
+  // Then take the MAX_NUM_CACHED_GRIDS candidates with the highest score and migrate the data
+  for (ezUInt32 i = 0; i < ezMath::Min<ezUInt32>(m_SortedCacheCandidates.GetCount(), MAX_NUM_CACHED_GRIDS); ++i)
   {
-    RemoveCachedGrid(m_SortedCacheCandidates[uiIndex].m_uiIndex);
+    MigrateCachedGrid(m_SortedCacheCandidates[i].m_uiIndex);
   }
 }
 
@@ -920,13 +922,25 @@ EZ_ALWAYS_INLINE bool ezSpatialSystem_RegularGrid::IsAlwaysVisibleData(const Dat
 
 ezSpatialDataHandle ezSpatialSystem_RegularGrid::AddSpatialDataToGrids(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags, bool bAlwaysVisible)
 {
-  ezUInt32 uiGridBitmask = uiCategoryBitmask;
+  ezUInt64 uiGridBitmask = uiCategoryBitmask;
 
   Data data;
   data.m_uiGridBitmask = uiGridBitmask;
   data.m_uiAlwaysVisible = bAlwaysVisible ? 1 : 0;
 
-  // TODO: find cached grids here and add them to data.m_uiGridBitmask
+  // find matching cached grids and add them to data.m_uiGridBitmask
+  for (ezUInt32 uiCachedGridIndex = m_uiFirstCachedGridIndex; uiCachedGridIndex < m_Grids.GetCount(); ++uiCachedGridIndex)
+  {
+    auto& pGrid = m_Grids[uiCachedGridIndex];
+    if (pGrid == nullptr)
+      continue;
+
+    if ((pGrid->m_Category.GetBitmask() & uiCategoryBitmask) == 0 ||
+        FilterByTags(tags, pGrid->m_IncludeTags, pGrid->m_ExcludeTags))
+      continue;
+
+    uiGridBitmask |= EZ_BIT(uiCachedGridIndex);
+  }
 
   auto hData = ezSpatialDataHandle(m_DataTable.Insert(data));
 
@@ -978,9 +992,9 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
   ezUInt32 uiGridBitmask = queryParams.m_uiCategoryBitmask;
 
   // search for cached grids that match the exact query params first
-  for (ezUInt32 uiGridIndex = m_Grids.GetCount() - 1; uiGridIndex > m_uiNextCachedGridIndex; --uiGridIndex)
+  for (ezUInt32 uiCachedGridIndex = m_uiFirstCachedGridIndex; uiCachedGridIndex < m_Grids.GetCount(); ++uiCachedGridIndex)
   {
-    auto& pGrid = m_Grids[uiGridIndex];
+    auto& pGrid = m_Grids[uiCachedGridIndex];
     if (pGrid == nullptr || pGrid->CachingCompleted() == false)
       continue;
 
@@ -1069,15 +1083,25 @@ void ezSpatialSystem_RegularGrid::MigrateCachedGrid(ezUInt32 uiCandidateIndex)
 
     if (uiTargetGridIndex == ezInvalidIndex)
     {
-      cacheCandidate.m_uiGridIndex = m_uiNextCachedGridIndex;
-      uiTargetGridIndex = m_uiNextCachedGridIndex;
-      --m_uiNextCachedGridIndex;
+      for (ezUInt32 i = m_Grids.GetCount() - 1; i >= MAX_NUM_REGULAR_GRIDS; --i)
+      {
+        if (m_Grids[i] == nullptr)
+        {
+          uiTargetGridIndex = i;
+          break;
+        }
+      }
+
+      EZ_ASSERT_DEBUG(uiTargetGridIndex != ezInvalidIndex, "No free cached grid");
+      cacheCandidate.m_uiGridIndex = uiTargetGridIndex;
 
       auto pGrid = EZ_NEW(&m_Allocator, Grid, *this, cacheCandidate.m_Category);
       pGrid->m_IncludeTags = cacheCandidate.m_IncludeTags;
       pGrid->m_ExcludeTags = cacheCandidate.m_ExcludeTags;
 
       m_Grids[uiTargetGridIndex] = pGrid;
+
+      m_uiFirstCachedGridIndex = ezMath::Min(m_uiFirstCachedGridIndex, uiTargetGridIndex);
     }
   }
 
