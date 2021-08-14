@@ -3,6 +3,7 @@
 #include <Core/World/SpatialData.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/SimdMath/SimdBBoxSphere.h>
 #include <Foundation/Types/TagSet.h>
 
 class EZ_CORE_DLL ezSpatialSystem : public ezReflectedClass
