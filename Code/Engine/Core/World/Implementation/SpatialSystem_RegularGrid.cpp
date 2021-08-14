@@ -1008,11 +1008,8 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
     Stats stats;
     pGrid->ForEachCellInBox(box,
       [&](const Cell& cell) {
-        //return noFilterCallback(cell, queryParams, stats, pUserData);
-        return filterByTagsCallback(cell, queryParams, stats, pUserData);
+        return noFilterCallback(cell, queryParams, stats, pUserData);
       });
-
-    EZ_ASSERT_DEBUG(stats.m_uiNumObjectsFiltered == 0, "");
 
     UpdateCacheCandidate(queryParams.m_IncludeTags, queryParams.m_ExcludeTags, pGrid->m_Category, 0.0f);
 
@@ -1052,8 +1049,8 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
       // 1.0 => all objects filtered, 0.0 => no object filtered by tags
       const float filteredRatio = float(double(stats.m_uiNumObjectsFiltered) / totalNumObjectsAfterSpatialTest);
 
-      // Doesn't make sense to cache if there are only few objects in total or no objects have been filtered
-      if (totalNumObjectsAfterSpatialTest > cacheThreshold && filteredRatio > 0.0f)
+      // Doesn't make sense to cache if there are only few objects in total or only few objects have been filtered
+      if (totalNumObjectsAfterSpatialTest > cacheThreshold && filteredRatio > 0.1f)
       {
         UpdateCacheCandidate(queryParams.m_IncludeTags, queryParams.m_ExcludeTags, pGrid->m_Category, filteredRatio);
       }
