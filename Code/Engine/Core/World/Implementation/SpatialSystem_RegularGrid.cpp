@@ -2,6 +2,7 @@
 
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Time/Stopwatch.h>
 
