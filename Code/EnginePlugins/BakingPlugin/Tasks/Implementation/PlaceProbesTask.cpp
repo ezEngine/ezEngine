@@ -1,4 +1,4 @@
-#include <BakingPluginPCH.h>
+#include <BakingPlugin/BakingPluginPCH.h>
 
 #include <BakingPlugin/Tasks/PlaceProbesTask.h>
 #include <RendererCore/BakedProbes/BakingInterface.h>

@@ -1,4 +1,4 @@
-#include <RendererCoreDLL.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/BakedProbes/BakingUtils.h>
 

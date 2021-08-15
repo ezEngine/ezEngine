@@ -1,13 +1,13 @@
-#include <BakingPluginPCH.h>
+#include <BakingPlugin/BakingPluginPCH.h>
 
 #include <BakingPlugin/BakingScene.h>
 #include <BakingPlugin/Tracer/TracerEmbree.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 
 #include <embree3/rtcore.h>
-#include <RendererCore/Meshes/MeshBufferUtils.h>
 
 namespace
 {
@@ -93,7 +93,7 @@ namespace
       const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
       const ezVertexDeclarationInfo& vdi = mbDesc.GetVertexDeclaration();
-      const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetData();
+      const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetPtr();
 
       const ezVec3* pPositions = nullptr;
       const ezUInt8* pNormals = nullptr;
@@ -134,12 +134,10 @@ namespace
 
       const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
 
-      ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3),
-        mbDesc.GetVertexCount()));
+      ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
       rtcSetGeometryVertexAttributeCount(triangleMesh, 1);
-      ezVec3* rtcNormals = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3),
-        mbDesc.GetVertexCount()));
+      ezVec3* rtcNormals = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
       // write out all vertices
       for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
@@ -153,13 +151,12 @@ namespace
         pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
       }
 
-      ezVec3U32* rtcIndices = static_cast<ezVec3U32*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(ezVec3U32),
-        mbDesc.GetPrimitiveCount()));
+      ezVec3U32* rtcIndices = static_cast<ezVec3U32*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(ezVec3U32), mbDesc.GetPrimitiveCount()));
 
       bool flip = false;
       if (mbDesc.Uses32BitIndices())
       {
-        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(mbDesc.GetIndexBufferData().GetData());
+        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(mbDesc.GetIndexBufferData().GetPtr());
 
         for (ezUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
         {
@@ -170,7 +167,7 @@ namespace
       }
       else
       {
-        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(mbDesc.GetIndexBufferData().GetData());
+        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(mbDesc.GetIndexBufferData().GetPtr());
 
         for (ezUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
         {
@@ -326,8 +323,7 @@ void ezTracerEmbree::TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits)
       auto& instancedGeometry = m_pData->m_rtcInstancedGeometry[rtcRayHit.hit.instID[0]];
 
       ezSimdVec4f objectSpaceNormal;
-      rtcInterpolate0(instancedGeometry.m_mesh, rtcRayHit.hit.primID, rtcRayHit.hit.u, rtcRayHit.hit.v, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0,
-        reinterpret_cast<float*>(&objectSpaceNormal), 3);
+      rtcInterpolate0(instancedGeometry.m_mesh, rtcRayHit.hit.primID, rtcRayHit.hit.u, rtcRayHit.hit.v, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, reinterpret_cast<float*>(&objectSpaceNormal), 3);
 
       ezSimdVec4f worldSpaceNormal = instancedGeometry.m_normalTransform0 * objectSpaceNormal.x();
       worldSpaceNormal += instancedGeometry.m_normalTransform1 * objectSpaceNormal.y();

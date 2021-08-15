@@ -1,4 +1,4 @@
-#include <BakingPluginPCH.h>
+#include <BakingPlugin/BakingPluginPCH.h>
 
 #include <BakingPlugin/Tasks/SkyVisibilityTask.h>
 #include <BakingPlugin/Tracer/TracerInterface.h>

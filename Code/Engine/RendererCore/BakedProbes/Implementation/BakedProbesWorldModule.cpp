@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
@@ -48,7 +48,7 @@ ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPositio
   ezSimdVec4f weights = gridSpacePos - gridSpacePosFloor;
 
   ezSimdVec4i maxIndices = ezSimdVec4i(pProbeTree->GetProbeCount().x, pProbeTree->GetProbeCount().y, pProbeTree->GetProbeCount().z) - ezSimdVec4i(1);
-  ezSimdVec4i pos0 = ezSimdVec4i::Truncate(gridSpacePosFloor).CompMin(maxIndices);  
+  ezSimdVec4i pos0 = ezSimdVec4i::Truncate(gridSpacePosFloor).CompMin(maxIndices);
   ezSimdVec4i pos1 = (pos0 + ezSimdVec4i(1)).CompMin(maxIndices);
 
   ezUInt32 x0 = pos0.x();
