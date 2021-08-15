@@ -350,7 +350,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y == ezPxActorLockingFlags::FreezeRotationY);
   static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z == ezPxActorLockingFlags::FreezeRotationZ);
 
-  m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(m_LockingFlags.GetValue()));
+  m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(static_cast<ezUInt8>(m_LockingFlags.GetValue())));
 
   if (m_bKinematic)
   {
@@ -462,7 +462,7 @@ void ezPxDynamicActorComponent::SetLockingFlags(ezBitflags<ezPxActorLockingFlags
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
-    m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(m_LockingFlags.GetValue()));
+    m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(static_cast<ezUInt8>(m_LockingFlags.GetValue())));
   }
 }
 

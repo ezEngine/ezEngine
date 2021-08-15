@@ -28,7 +28,7 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 // BEGIN-DOCS-CODE-SNIPPET: spatial-category-registration
-ezSpatialData::Category RtsSelectableComponent::s_SelectableCategory = ezSpatialData::RegisterCategory("Selectable");
+ezSpatialData::Category RtsSelectableComponent::s_SelectableCategory = ezSpatialData::RegisterCategory("Selectable", ezSpatialData::Flags::None);
 // END-DOCS-CODE-SNIPPET
 
 RtsSelectableComponent::RtsSelectableComponent() = default;

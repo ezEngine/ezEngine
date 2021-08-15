@@ -1,8 +1,14 @@
 #pragma once
 
 #include <Core/World/SpatialSystem.h>
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <Foundation/Types/UniquePtr.h>
+
+namespace ezInternal
+{
+  struct QueryHelper;
+}
 
 class EZ_CORE_DLL ezSpatialSystem_RegularGrid : public ezSpatialSystem
 {
@@ -16,36 +22,101 @@ public:
   ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_BoundingBox) const;
 
   /// \brief Returns bounding boxes of all existing cells.
-  void GetAllCellBoxes(ezHybridArray<ezBoundingBox, 16>& out_BoundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
+  void GetAllCellBoxes(ezDynamicArray<ezBoundingBox>& out_BoundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
 
 private:
+  friend ezInternal::QueryHelper;
+
   // ezSpatialSystem implementation
-  virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const override;
-  virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const override;
+  virtual void StartNewFrame() override;
 
-  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const override;
-  virtual ezUInt64 GetLastFrameVisibleInternal(ezSpatialData* pData) const override;
+  ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
+  ezSpatialDataHandle CreateSpatialDataAlwaysVisible(ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
 
-  virtual void SpatialDataAdded(ezSpatialData* pData) override;
-  virtual void SpatialDataRemoved(ezSpatialData* pData) override;
-  virtual void SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds, ezUInt32 uiOldCategoryBitmask) override;
-  virtual void SpatialDataObjectChanged(ezSpatialData* pData) override;
-  virtual void FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr) override;
+  void DeleteSpatialData(const ezSpatialDataHandle& hData) override;
+
+  void UpdateSpatialDataBounds(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds) override;
+  void UpdateSpatialDataObject(const ezSpatialDataHandle& hData, ezGameObject* pObject) override;
+
+  void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const override;
+  void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const override;
+
+  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects) const override;
+
+  ezUInt64 GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const override;
+
+  virtual void GetInternalStats(ezStringBuilder& sb) const override;
 
   ezProxyAllocator m_AlignedAllocator;
+
   ezSimdVec4i m_iCellSize;
   ezSimdVec4f m_fOverlapSize;
   ezSimdFloat m_fInvCellSize;
 
-  struct SpatialUserData;
-  struct Cell;
-  struct CellKeyHashHelper;
+  enum
+  {
+    MAX_NUM_GRIDS = 63,
+    MAX_NUM_REGULAR_GRIDS = (sizeof(ezSpatialData::Category::m_uiValue) * 8),
+    MAX_NUM_CACHED_GRIDS = MAX_NUM_GRIDS - MAX_NUM_REGULAR_GRIDS
+  };
 
-  ezHashTable<ezUInt64, ezUniquePtr<Cell>, CellKeyHashHelper, ezLocalAllocatorWrapper> m_Cells;
-  ezUniquePtr<Cell> m_pOverflowCell;
+  struct Cell;
+  struct Grid;
+  ezDynamicArray<ezUniquePtr<Grid>> m_Grids;
+  ezUInt32 m_uiFirstCachedGridIndex = MAX_NUM_GRIDS;
+
+  struct Data
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt64 m_uiGridBitmask : MAX_NUM_GRIDS;
+    ezUInt64 m_uiAlwaysVisible : 1;
+  };
+
+  ezIdTable<ezSpatialDataId, Data, ezLocalAllocatorWrapper> m_DataTable;
+
+  bool IsAlwaysVisibleData(const Data& data) const;
+
+  ezSpatialDataHandle AddSpatialDataToGrids(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags, bool bAlwaysVisible);
 
   template <typename Functor>
-  void ForEachCellInBox(const ezSimdBBox& box, ezUInt32 uiCategoryBitmask, Functor func) const;
+  void ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const;
 
-  Cell* GetOrCreateCell(const ezSimdBBoxSphere& bounds);
+  struct Stats;
+  using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*)>;
+  void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData) const;
+
+  struct CacheCandidate
+  {
+    ezTagSet m_IncludeTags;
+    ezTagSet m_ExcludeTags;
+    ezSpatialData::Category m_Category;
+    float m_fQueryCount = 0.0f;
+    float m_fFilteredRatio = 0.0f;
+    ezUInt32 m_uiGridIndex = ezInvalidIndex;
+  };
+
+  mutable ezDynamicArray<CacheCandidate> m_CacheCandidates;
+  mutable ezMutex m_CacheCandidatesMutex;
+
+  struct SortedCacheCandidate
+  {
+    ezUInt32 m_uiIndex = 0;
+    float m_fScore = 0;
+
+    bool operator<(const SortedCacheCandidate& other) const
+    {
+      if (m_fScore != other.m_fScore)
+        return m_fScore > other.m_fScore; // higher score comes first
+
+      return m_uiIndex < other.m_uiIndex;
+    }
+  };
+
+  ezDynamicArray<SortedCacheCandidate> m_SortedCacheCandidates;
+
+  void MigrateCachedGrid(ezUInt32 uiCandidateIndex);
+  void RemoveCachedGrid(ezUInt32 uiCandidateIndex);
+  void RemoveAllCachedGrids();
+  void UpdateCacheCandidate(const ezTagSet& includeTags, const ezTagSet& excludeTags, ezSpatialData::Category category, float filteredRatio) const;
 };

@@ -81,7 +81,7 @@ void ezAnimatedMeshContext::OnInitialize()
     pWorld->CreateObject(obj, m_pAnimatedMeshObject);
 
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pAnimatedMeshObject->GetTags().Set(tagCastShadows);
+    m_pAnimatedMeshObject->SetTag(tagCastShadows);
 
     ezAnimatedMeshComponent::CreateComponent(m_pAnimatedMeshObject, pAnimatedMesh);
     ezStringBuilder sAnimatedMeshGuid;

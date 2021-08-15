@@ -621,13 +621,13 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   {
     const ezTag& tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
-    pObject->GetTags().Set(tagNoOrtho);
+    pObject->SetTag(tagNoOrtho);
   }
 
   {
     const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
-    pObject->GetTags().Set(tagEditor);
+    pObject->SetTag(tagEditor);
   }
 
   ezGizmoComponent::CreateComponent(pObject, m_pGizmoComponent);

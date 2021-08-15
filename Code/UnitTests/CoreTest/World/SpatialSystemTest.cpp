@@ -11,7 +11,7 @@
 
 namespace
 {
-  static ezSpatialData::Category s_SpecialTestCategory = ezSpatialData::RegisterCategory("SpecialTestCategory");
+  static ezSpatialData::Category s_SpecialTestCategory = ezSpatialData::RegisterCategory("SpecialTestCategory", ezSpatialData::Flags::None);
 
   typedef ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact> TestBoundsComponentManager;
 
@@ -93,7 +93,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   world.Update();
 
-  ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
+  ezSpatialSystem::QueryParams queryParams;
+  queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInSphere")
   {
@@ -101,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<ezGameObject*> objectsInSphere;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, uiCategoryBitmask, objectsInSphere);
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, objectsInSphere);
 
     for (auto pObject : objectsInSphere)
     {
@@ -125,7 +126,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, uiCategoryBitmask, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject) {
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -158,7 +159,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<ezGameObject*> objectsInBox;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindObjectsInBox(testBox, uiCategoryBitmask, objectsInBox);
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, objectsInBox);
 
     for (auto pObject : objectsInBox)
     {
@@ -182,7 +183,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInBox(testBox, uiCategoryBitmask, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject) {
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -218,7 +219,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       world.Update();
     }
 
-    uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+    queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
     ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
     ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(80.0f), 1.0f, 1.0f, 10000.0f);
@@ -228,7 +229,9 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<const ezGameObject*> visibleObjects;
     ezHashSet<const ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, uiCategoryBitmask, visibleObjects);
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects);
+
+    EZ_TEST_BOOL(!visibleObjects.IsEmpty());
 
     for (auto pObject : visibleObjects)
     {

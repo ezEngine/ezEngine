@@ -924,12 +924,15 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   ezSpatialSystem::QueryStats stats;
 #endif
 
-  const ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, uiCategoryBitmask, m_visibleObjects,
+  ezSpatialSystem::QueryParams queryParams;
+  queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+  queryParams.m_IncludeTags = view.m_IncludeTags;
+  queryParams.m_ExcludeTags = view.m_ExcludeTags;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    bRecordStats ? &stats :
+  queryParams.m_pStats = bRecordStats ? &stats : nullptr;
 #endif
-                 nullptr);
+
+  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_visibleObjects);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezViewHandle hView = view.GetHandle();
@@ -959,6 +962,9 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
     sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
     ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
+
+    view.GetWorld()->GetSpatialSystem()->GetInternalStats(sb);
+    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 320), ezColor::AntiqueWhite);
   }
 #endif
 }

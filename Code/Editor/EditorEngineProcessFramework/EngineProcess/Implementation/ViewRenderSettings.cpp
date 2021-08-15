@@ -249,8 +249,7 @@ void ezEngineViewLightSettings::UpdateForEngine(ezWorld* pWorld)
 {
   if (ezGameObject* pParent = SyncGameObject(m_pWorld, m_hSkyBoxObject, m_bSkyBox))
   {
-    ezTagSet& tags = pParent->GetTags();
-    tags.SetByName("SkyLight");
+    pParent->SetTag(ezTagRegistry::GetGlobalRegistry().RegisterTag("SkyLight"));
 
     if (ezSkyBoxComponent* pSkyBox = SyncComponent<ezSkyBoxComponent>(m_pWorld, pParent, m_hSkyBox, m_bSkyBox))
     {

@@ -265,11 +265,8 @@ void ezGameObject::operator=(const ezGameObject& other)
 
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
-    if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
-    {
-      pSpatialSystem->UpdateSpatialData(
-        m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this, m_pTransformationData->m_uiSpatialDataCategoryBitmask);
-    }
+    ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
+    pSpatialSystem->UpdateSpatialDataObject(m_pTransformationData->m_hSpatialData, this);
   }
 
   m_Components.CopyFrom(other.m_Components, GetWorld()->GetAllocator());
@@ -617,18 +614,34 @@ void ezGameObject::UpdateLocalBounds()
 
   SendMessage(msg);
 
-  if (m_pTransformationData->m_uiSpatialDataCategoryBitmask != msg.m_uiSpatialDataCategoryBitmask)
+  const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  bool bRecreateSpatialData = false;
+
+  if (m_pTransformationData->m_hSpatialData.IsInvalidated() == false)
   {
-    m_pTransformationData->m_globalBounds.SetInvalid(); // force spatial data update
+    // force spatial data re-creation if categories have changed
+    bRecreateSpatialData |= m_pTransformationData->m_uiSpatialDataCategoryBitmask != msg.m_uiSpatialDataCategoryBitmask;
+
+    // force spatial data re-creation if always visible flag has changed
+    bRecreateSpatialData |= bIsAlwaysVisible != msg.m_bAlwaysVisible;
+
+    // delete old spatial data if bounds are now invalid
+    bRecreateSpatialData |= msg.m_bAlwaysVisible == false && msg.m_ResultingLocalBounds.IsValid() == false;
   }
 
   m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
   m_pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(msg.m_bAlwaysVisible ? 1.0f : 0.0f);
   m_pTransformationData->m_uiSpatialDataCategoryBitmask = msg.m_uiSpatialDataCategoryBitmask;
 
+  ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
+  if (pSpatialSystem != nullptr && (bRecreateSpatialData || m_pTransformationData->m_hSpatialData.IsInvalidated()))
+  {
+    m_pTransformationData->RecreateSpatialData(*pSpatialSystem);
+  }
+
   if (IsStatic())
   {
-    m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
+    m_pTransformationData->UpdateGlobalBounds(pSpatialSystem);
   }
 }
 
@@ -716,8 +729,9 @@ void ezGameObject::SetTeamID(ezUInt16 id)
 
 ezUInt64 ezGameObject::GetNumFramesSinceVisible() const
 {
-  if (const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
+    const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
     return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData);
   }
 
@@ -940,6 +954,54 @@ void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSen
   }
 }
 
+void ezGameObject::SetTags(const ezTagSet& tags)
+{
+  if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  {
+    if (m_Tags != tags)
+    {
+      m_Tags = tags;
+      m_pTransformationData->RecreateSpatialData(*pSpatialSystem);
+    }
+  }
+  else
+  {
+    m_Tags = tags;
+  }
+}
+
+void ezGameObject::SetTag(const ezTag& tag)
+{
+  if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  {
+    if (m_Tags.IsSet(tag) == false)
+    {
+      m_Tags.Set(tag);
+      m_pTransformationData->RecreateSpatialData(*pSpatialSystem);
+    }
+  }
+  else
+  {
+    m_Tags.Set(tag);
+  }
+}
+
+void ezGameObject::RemoveTag(const ezTag& tag)
+{
+  if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
+  {
+    if (m_Tags.IsSet(tag))
+    {
+      m_Tags.Remove(tag);
+      m_pTransformationData->RecreateSpatialData(*pSpatialSystem);
+    }
+  }
+  else
+  {
+    m_Tags.Remove(tag);
+  }
+}
+
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
 {
   ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
@@ -992,57 +1054,48 @@ void ezGameObject::TransformationData::ConditionalUpdateGlobalTransform()
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalBounds(ezSpatialSystem* pSpatialSytem)
+void ezGameObject::TransformationData::UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem)
 {
-  if (pSpatialSytem == nullptr)
+  if (pSpatialSystem == nullptr)
   {
     UpdateGlobalBounds();
   }
   else
   {
-    UpdateGlobalBoundsAndSpatialData(*pSpatialSytem);
+    UpdateGlobalBoundsAndSpatialData(*pSpatialSystem);
   }
 }
 
-void ezGameObject::TransformationData::UpdateSpatialData(ezSpatialSystem& spatialSystem, bool bWasAlwaysVisible, bool bIsAlwaysVisible)
+void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSystem)
 {
-  if (bWasAlwaysVisible != bIsAlwaysVisible)
+  ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
+
+  UpdateGlobalBounds();
+
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  if (m_hSpatialData.IsInvalidated() == false && bIsAlwaysVisible == false && m_globalBounds != oldGlobalBounds)
   {
-    if (!m_hSpatialData.IsInvalidated())
-    {
-      spatialSystem.DeleteSpatialData(m_hSpatialData);
-      m_hSpatialData.Invalidate();
-    }
+    spatialSystem.UpdateSpatialDataBounds(m_hSpatialData, m_globalBounds);
+  }
+}
+
+void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& spatialSystem)
+{
+  if (m_hSpatialData.IsInvalidated() == false)
+  {
+    spatialSystem.DeleteSpatialData(m_hSpatialData);
+    m_hSpatialData.Invalidate();
   }
 
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
   if (bIsAlwaysVisible)
   {
-    if (m_hSpatialData.IsInvalidated())
-    {
-      m_hSpatialData = spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask);
-    }
+    m_hSpatialData = spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);
   }
-  else
+  else if (m_localBounds.IsValid())
   {
-    if (m_globalBounds.IsValid())
-    {
-      if (m_hSpatialData.IsInvalidated())
-      {
-        m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask);
-      }
-      else
-      {
-        spatialSystem.UpdateSpatialData(m_hSpatialData, m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask);
-      }
-    }
-    else
-    {
-      if (!m_hSpatialData.IsInvalidated())
-      {
-        spatialSystem.DeleteSpatialData(m_hSpatialData);
-        m_hSpatialData.Invalidate();
-      }
-    }
+    UpdateGlobalBounds();
+    m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);
   }
 }
 

@@ -20,16 +20,14 @@ public:
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData);
 
-  virtual void PostSortAndBatch(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData);
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData);
 
 protected:
   /// \brief returns true if the given object should be filtered by view tags.
   bool FilterByViewTags(const ezView& view, const ezGameObject* pObject) const;
 
   /// \brief extracts the render data for the given object.
-  void ExtractRenderData(
-    const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const;
+  void ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const;
 
 private:
   friend class ezRenderPipeline;
@@ -55,8 +53,7 @@ class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
 public:
   ezVisibleObjectsExtractor(const char* szName = "VisibleObjectsExtractor");
 
-  virtual void Extract(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 };
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
@@ -66,8 +63,7 @@ class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
 public:
   ezSelectedObjectsExtractor(const char* szName = "SelectedObjectsExtractor");
 
-  virtual void Extract(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
 
