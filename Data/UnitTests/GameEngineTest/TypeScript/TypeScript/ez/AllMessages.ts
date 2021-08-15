@@ -115,6 +115,8 @@ export class MsgDamage extends EventMessage
   constructor() { super(); this.TypeNameHash = 3803404036; }
   Damage: number = 0;
   HitObjectName: string;
+  GlobalPosition: Vec3 = new Vec3(0, 0, 0);
+  ImpactDirection: Vec3 = new Vec3(0, 0, 0);
 }
 
 export class MsgDeleteGameObject extends Message
@@ -218,6 +220,12 @@ export class MsgRmlUiReload extends Message
 {
   public static GetTypeNameHash(): number { return 1859392301; }
   constructor() { super(); this.TypeNameHash = 1859392301; }
+}
+
+export class MsgRopePoseUpdated extends Message
+{
+  public static GetTypeNameHash(): number { return 2063668489; }
+  constructor() { super(); this.TypeNameHash = 2063668489; }
 }
 
 export class MsgSetColor extends Message

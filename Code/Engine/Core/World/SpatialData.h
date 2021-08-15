@@ -12,7 +12,7 @@ struct ezSpatialData
     enum Enum
     {
       None = 0,
-      FrequentChanges = EZ_BIT(0),
+      FrequentChanges = EZ_BIT(0),  ///< Indicates that objects in this category change their bounds frequently. Spatial System implementations can use that as hint for internal optimizations.
 
       Default = None
     };

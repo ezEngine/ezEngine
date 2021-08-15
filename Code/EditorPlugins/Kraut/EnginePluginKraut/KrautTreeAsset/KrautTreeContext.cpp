@@ -172,7 +172,13 @@ void ezKrautTreeContext::DestroyViewContext(ezEngineProcessViewContext* pContext
 
 bool ezKrautTreeContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  m_pMainObject->UpdateLocalBounds();
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    m_pMainObject->UpdateLocalBounds();
+    m_pMainObject->UpdateGlobalTransformAndBounds();
+  }
+
   ezBoundingBoxSphere bounds = m_pMainObject->GetGlobalBounds();
 
   // undo the artificial bounds scale to get a tight bbox for better thumbnails
