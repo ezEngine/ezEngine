@@ -9,6 +9,7 @@ struct ezMsgPhysicsAddImpulse;
 struct ezMsgPhysicsAddForce;
 struct ezSkeletonResourceGeometry;
 class ezPxUserData;
+class ezSkeletonJoint;
 
 namespace physx
 {
