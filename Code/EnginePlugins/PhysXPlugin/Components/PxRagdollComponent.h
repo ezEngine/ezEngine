@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Math/Declarations.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 
 struct ezMsgAnimationPoseUpdated;
