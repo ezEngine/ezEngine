@@ -91,7 +91,7 @@ protected:
   void Update();
   void CreateShapesFromBindPose();
   void AddArticulationToScene();
-  void CreateBoneShape(const ezTransform& rootTransform, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const PxMaterial& pxMaterial, const PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
+  void CreateBoneShape(const ezTransform& rootTransform, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const physx::PxMaterial& pxMaterial, const physx::PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
   void CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
 
   physx::PxMaterial* GetPxMaterial();
