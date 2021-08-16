@@ -2,6 +2,7 @@
 
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
+#include <EditorFramework/InputContexts/SelectionContext.h>
 
 ezQtOrbitCamViewWidget::ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig, bool bPicking)
   : ezQtEngineViewWidget(nullptr, pOwnerWindow, pViewConfig)
