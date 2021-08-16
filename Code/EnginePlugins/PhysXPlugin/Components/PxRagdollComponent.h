@@ -7,6 +7,7 @@
 struct ezMsgAnimationPoseUpdated;
 struct ezMsgPhysicsAddImpulse;
 struct ezMsgPhysicsAddForce;
+struct ezSkeletonResourceGeometry;
 
 namespace physx
 {
@@ -15,6 +16,7 @@ namespace physx
   class PxArticulationDriveCache;
   class PxRigidActor;
   class PxMaterial;
+  struct PxFilterData;
 } // namespace physx
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
