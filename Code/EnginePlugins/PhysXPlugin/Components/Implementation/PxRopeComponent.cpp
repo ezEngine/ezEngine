@@ -370,15 +370,15 @@ ezResult ezPxRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform>&
   if (m_uiPieces == 0)
     return EZ_FAILURE;
 
-  const ezVec3 vAnchorA = GetOwner()->GetGlobalPosition();
+  const ezSimdVec4f vAnchorA = ezSimdConversion::ToVec3(GetOwner()->GetGlobalPosition());
 
   const ezGameObject* pAnchor = nullptr;
   if (!GetWorld()->TryGetObject(m_hAnchor, pAnchor))
     return EZ_FAILURE;
 
-  const ezVec3 vAnchorB = pAnchor->GetGlobalPosition();
+  const ezSimdVec4f vAnchorB = ezSimdConversion::ToVec3(pAnchor->GetGlobalPosition());
 
-  const float fLength = (vAnchorB - vAnchorA).GetLength();
+  const float fLength = (vAnchorB - vAnchorA).GetLength<3>();
   if (ezMath::IsZero(fLength, 0.001f))
     return EZ_FAILURE;
 
@@ -397,7 +397,7 @@ ezResult ezPxRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform>&
 
   for (ezUInt16 i = 0; i < m_uiPieces + 1; ++i)
   {
-    rope.m_Nodes[i].m_vPosition = ezMath::Lerp(vAnchorA, vAnchorB, (float)i / (float)m_uiPieces);
+    rope.m_Nodes[i].m_vPosition = vAnchorA + (vAnchorB - vAnchorA) * ((float)i / (float)m_uiPieces);
     rope.m_Nodes[i].m_vPreviousPosition = rope.m_Nodes[i].m_vPosition;
   }
 
@@ -409,21 +409,21 @@ ezResult ezPxRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform>&
 
   for (ezUInt16 idx = 0; idx < m_uiPieces; ++idx)
   {
-    const ezVec3 p0 = rope.m_Nodes[idx].m_vPosition;
-    const ezVec3 p1 = rope.m_Nodes[idx + 1].m_vPosition;
-    ezVec3 dir = p1 - p0;
+    const ezSimdVec4f p0 = rope.m_Nodes[idx].m_vPosition;
+    const ezSimdVec4f p1 = rope.m_Nodes[idx + 1].m_vPosition;
+    ezSimdVec4f dir = p1 - p0;
 
-    const float len = dir.GetLength();
+    const ezSimdFloat len = dir.GetLength<3>();
     out_fPieceLength += len;
 
     if (len <= 0.001f)
-      dir = ezVec3::UnitXAxis();
+      dir = ezSimdVec4f(1, 0, 0, 0);
     else
       dir /= len;
 
     transforms[idx].m_vScale.Set(1);
-    transforms[idx].m_vPosition = p0;
-    transforms[idx].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), dir);
+    transforms[idx].m_vPosition = ezSimdConversion::ToVec3(p0);
+    transforms[idx].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
   }
 
   out_fPieceLength /= m_uiPieces;
@@ -431,7 +431,7 @@ ezResult ezPxRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform>&
   {
     ezUInt32 idx = m_uiPieces;
     transforms[idx].m_vScale.Set(1);
-    transforms[idx].m_vPosition = rope.m_Nodes[idx].m_vPosition;
+    transforms[idx].m_vPosition = ezSimdConversion::ToVec3(rope.m_Nodes[idx].m_vPosition);
     transforms[idx].m_qRotation = transforms[idx - 1].m_qRotation;
   }
 

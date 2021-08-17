@@ -16,8 +16,8 @@ class EZ_GAMEENGINE_DLL ezRopeSimulator
 public:
   struct Node
   {
-    ezVec3 m_vPosition = ezVec3::ZeroVector();
-    ezVec3 m_vPreviousPosition = ezVec3::ZeroVector();
+    ezSimdVec4f m_vPosition = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::ZeroVector();
 
     // could add per node acceleration
     // could add per node mass
@@ -45,14 +45,14 @@ public:
   bool m_bLastNodeIsFixed = true;
 
   void SimulateRope(const ezTime& tDiff);
-  void SimulateStep(const float tDiffSqr, ezUInt32 uiMaxIterations, double fAllowedError);
-  void SimulateTillEquilibrium(float fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
-  bool HasEquilibrium(float fAllowedMovement) const;
+  void SimulateStep(const ezSimdFloat tDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
+  void SimulateTillEquilibrium(ezSimdFloat fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
+  bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
 
 private:
-  double EnforceDistanceConstraint();
-  void UpdateNodePositions(const float tDiffSqr);
-  ezVec3 MoveTowards(const ezVec3& posThis, const ezVec3& posNext, float factor, const ezVec3& fallbackDir, double& inout_fError);
+  ezSimdFloat EnforceDistanceConstraint();
+  void UpdateNodePositions(const ezSimdFloat tDiffSqr);
+  ezSimdVec4f MoveTowards(const ezSimdVec4f posThis, const ezSimdVec4f posNext, ezSimdFloat factor, const ezSimdVec4f fallbackDir, ezSimdFloat& inout_fError);
 
   ezTime m_leftOverTimeStep;
 };
