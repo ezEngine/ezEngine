@@ -1,5 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <GameEngine/Physics/ClothSheetSimulator.h>
 
 void ezClothSimulator::SimulateCloth(const ezTime& tDiff)
