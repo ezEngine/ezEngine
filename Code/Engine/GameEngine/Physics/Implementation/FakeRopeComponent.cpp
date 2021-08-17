@@ -255,7 +255,7 @@ void ezFakeRopeComponent::RuntimeUpdate()
     return;
 
   ezUInt64 uiFramesVisible = GetOwner()->GetNumFramesSinceVisible();
-  if (uiFramesVisible > 1)
+  if (uiFramesVisible > 60)
   {
     return;
   }
