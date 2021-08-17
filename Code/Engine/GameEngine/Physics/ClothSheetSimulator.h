@@ -2,6 +2,8 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/SimdMath/SimdFloat.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/Time/Time.h>
 #include <GameEngine/GameEngineDLL.h>
 
