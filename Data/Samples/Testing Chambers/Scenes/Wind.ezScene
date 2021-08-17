@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18057468653562690442,4916190091500798880}}
-		u4 %Hash{15371907882974681122}
+		u4 %Hash{13424140828087137098}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -103,7 +103,7 @@ o
 		Quat %LocalRotation{f{0xFEFFFFBE,0xFEFFFF3E,0x000000BF,0xFEFFFF3E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -1239,7 +1239,7 @@ o
 		Quat %LocalRotation{f{0xF20435BF,0,0xF3043533,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -1961,7 +1961,7 @@ o
 		Quat %LocalRotation{f{0xCD8C45A6,0x4CE2E032,0x4CE2E032,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -2020,7 +2020,7 @@ o
 		Quat %LocalRotation{f{0x7E78333F,0xAC05BDBD,0xA805BD3D,0x7E7833BF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -2346,7 +2346,7 @@ o
 		Quat %LocalRotation{f{0xFEFFFFBE,0xFEFFFF3E,0x000000BF,0xFEFFFF3E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -2670,7 +2670,7 @@ o
 		Quat %LocalRotation{f{0x7E78333F,0xAC05BDBD,0xA805BD3D,0x7E7833BF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -3383,7 +3383,7 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }

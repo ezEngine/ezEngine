@@ -369,6 +369,9 @@ void ezKrautTreeComponent::ComputeWind() const
   if (!IsActiveAndSimulating())
     return;
 
+  // ComputeWind() is called by the renderer extraction, which happens once for every view
+  // make sure the wind update happens only once per frame, otherwise the spring would behave differently
+  // depending on how many light sources (with shadows) shine on a tree
   if (ezRenderWorld::GetFrameCounter() == m_uiLastWindUpdate)
     return;
 
@@ -382,30 +385,29 @@ void ezKrautTreeComponent::ComputeWind() const
   auto pOwnder = GetOwner();
 
   const ezVec3 vOwnerPos = pOwnder->GetGlobalPosition();
-  const ezVec3 vSampleWindPos1 = vOwnerPos + ezVec3(0, 0, 1);
-  const ezVec3 vSampleWindPos2 = vOwnerPos + ezVec3(0, 0, 2);
-
-  const ezVec3 vWindForce1 = pWindInterface->GetWindAt(vSampleWindPos1);
-  const ezVec3 vWindForce2 = pWindInterface->GetWindAt(vSampleWindPos2);
+  const ezVec3 vSampleWindPos = vOwnerPos + ezVec3(0, 0, 2);
+  const ezVec3 vWindForce = pWindInterface->GetWindAt(vSampleWindPos);
 
   const float realTimeStep = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
 
   // springy wind force
   {
+    const float fOverallStrength = 4.0f;
+
     const float fSpringConstant = 1.0f;
     const float fSpringDamping = 0.5f;
     const float fTreeMass = 1.0f;
 
     const ezVec3 vSpringForce = -(fSpringConstant * m_vWindSpringPos + fSpringDamping * m_vWindSpringVel);
 
-    const ezVec3 vTotalForce = vWindForce2 + vSpringForce;
+    const ezVec3 vTotalForce = vWindForce + vSpringForce;
 
     // F = mass*acc
     // acc = F / mass
     const ezVec3 vTreeAcceleration = vTotalForce / fTreeMass;
 
-    m_vWindSpringVel += vTreeAcceleration * realTimeStep;
-    m_vWindSpringPos += m_vWindSpringVel * realTimeStep;
+    m_vWindSpringVel += vTreeAcceleration * realTimeStep * fOverallStrength;
+    m_vWindSpringPos += m_vWindSpringVel * realTimeStep * fOverallStrength;
   }
 
   // debug draw wind vectors
@@ -419,7 +421,7 @@ void ezKrautTreeComponent::ComputeWind() const
     {
       auto& l = lines.ExpandAndGetRef();
       l.m_start = offset;
-      l.m_end = offset + vWindForce1;
+      l.m_end = offset + vWindForce;
       l.m_startColor = ezColor::BlueViolet;
       l.m_endColor = ezColor::PowderBlue;
     }

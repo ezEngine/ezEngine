@@ -124,17 +124,24 @@ void ezClothSheetComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
+void ezClothSheetComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  SetupCloth();
+}
+
 void ezClothSheetComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
-
-  m_bbox.SetInvalid();
 
   SetupCloth();
 }
 
 void ezClothSheetComponent::SetupCloth()
 {
+  m_bbox.SetInvalid();
+
   if (IsActiveAndSimulating())
   {
     m_uiSleepCounter = 0;
@@ -452,7 +459,10 @@ void ezClothSheetComponent::Update()
 
     if (prevBbox != m_bbox)
     {
-      TriggerLocalBoundsUpdate();
+      SetUserFlag(0, true); // flag 0 => requires local bounds update
+
+      // can't call this here in the async phase
+      //TriggerLocalBoundsUpdate();
     }
 
     ++m_uiCheckEquilibriumCounter;
@@ -651,6 +661,14 @@ void ezClothSheetComponentManager::Initialize()
 
     this->RegisterUpdateFunction(desc);
   }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezClothSheetComponentManager::UpdateBounds, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+
+    this->RegisterUpdateFunction(desc);
+  }
 }
 
 void ezClothSheetComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -660,6 +678,20 @@ void ezClothSheetComponentManager::Update(const ezWorldModule::UpdateContext& co
     if (it->IsActiveAndInitialized())
     {
       it->Update();
+    }
+  }
+}
+
+void ezClothSheetComponentManager::UpdateBounds(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndInitialized() && it->GetUserFlag(0))
+    {
+      it->TriggerLocalBoundsUpdate();
+
+      // reset update bounds flag
+      it->SetUserFlag(0, false);
     }
   }
 }

@@ -22,6 +22,7 @@ public:
 
 private:
   void Update(const ezWorldModule::UpdateContext& context);
+  void UpdateBounds(const ezWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,6 +106,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  virtual void OnActivated() override;
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 

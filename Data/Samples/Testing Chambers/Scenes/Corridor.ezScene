@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{9194315094611926024}
+		u4 %Hash{13672700781165758482}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -72,6 +72,7 @@ o
 			s{"{ d2a92ebd-fd90-4214-9455-ca14b38571f5 }"}
 			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
 			s{"{ d63193e0-3e77-4960-a51a-9c8a45393450 }"}
+			s{"{ d9eadd9a-e1e3-488b-9ede-ded29ebcb522 }"}
 			s{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
 			s{"{ e1bf719c-7df9-4e2a-a35e-5baa7ff49d6c }"}
 			s{"{ e5bb667e-6911-40bf-bf48-e8a6d687ba99 }"}
@@ -9949,6 +9950,33 @@ o
 }
 o
 {
+	Uuid %id{u4{15434444333761839540,5439193331223485380}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6842922746827850658,5635956738308541392}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F040,0x00004040,0x00001C41}}
+		Quat %LocalRotation{f{0xFFFFFFBE,0xFFFFFFBE,0xFDFFFF3E,0x0000003F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{17018969519809208212,5441340599159923245}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -11085,7 +11113,7 @@ o
 {
 	Uuid %id{u4{2762316471365655227,5568637819522091574}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -11095,6 +11123,7 @@ o
 		b %DisableGravity{0}
 		b %Kinematic{1}
 		f %LinearDamping{0xCDCCCC3D}
+		s %LockingFlags{""}
 		f %Mass{0}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -11541,6 +11570,24 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{6842922746827850658,5635956738308541392}}
+	s %t{"ezClothSheetComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Damping{0x0000003F}
+		s %Flags{"ezClothSheetFlags::FixedEdgeTop"}
+		s %Material{"{ d9eadd9a-e1e3-488b-9ede-ded29ebcb522 }"}
+		Vec2u %Segments{u3{7,7}}
+		Vec2 %Size{f{0x00000040,0x00004040}}
+		Vec2 %Slack{f{0,0}}
+		f %WindInfluence{0x0000003F}
 	}
 }
 o
@@ -12079,7 +12126,7 @@ o
 {
 	Uuid %id{u4{11245039625174999736,5709342478964582064}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -12089,6 +12136,7 @@ o
 		b %DisableGravity{0}
 		b %Kinematic{1}
 		f %LinearDamping{0xCDCCCC3D}
+		s %LockingFlags{""}
 		f %Mass{0}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -13143,6 +13191,8 @@ o
 			Uuid{u4{4970457474867290732,11941551151315496724}}
 			Uuid{u4{9396838605537644038,17008218284411706765}}
 			Uuid{u4{457360542273875343,3683733991464909117}}
+			Uuid{u4{15434444333761839540,5439193331223485380}}
+			Uuid{u4{10504616665288994651,10117902771041046448}}
 		}
 		Uuid %Settings{u4{11204937990389899402,5417500911553874876}}
 	}
@@ -16954,6 +17004,33 @@ o
 }
 o
 {
+	Uuid %id{u4{10504616665288994651,10117902771041046448}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1913095078355005769,10314666178126102460}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F040,0x000040C0,0x00001C41}}
+		Quat %LocalRotation{f{0xFFFFFFBE,0xFFFFFFBE,0xFDFFFF3E,0x0000003F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13303964772602289200,10125429143793207140}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -17781,6 +17858,24 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{1913095078355005769,10314666178126102460}}
+	s %t{"ezClothSheetComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Damping{0x0000003F}
+		s %Flags{"ezClothSheetFlags::FixedEdgeTop"}
+		s %Material{"{ d9eadd9a-e1e3-488b-9ede-ded29ebcb522 }"}
+		Vec2u %Segments{u3{7,7}}
+		Vec2 %Size{f{0x00000040,0x00004040}}
+		Vec2 %Slack{f{0,0}}
+		f %WindInfluence{0x0000003F}
 	}
 }
 o
@@ -30202,6 +30297,24 @@ Types
 {
 o
 {
+	Uuid %id{u4{3295389548348269238,78191104078437921}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezClothSheetComponent"}
+		u3 %TypeSize{200}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6914292285925798136,1108246313736053318}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -30232,7 +30345,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezBreakableSheetComponent"}
-		u3 %TypeSize{448}
+		u3 %TypeSize{440}
 		u3 %TypeVersion{1}
 	}
 }
@@ -30636,7 +30749,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
 		u3 %TypeSize{88}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -30889,6 +31002,24 @@ o
 		s %TypeName{"ezRopeRenderComponent"}
 		u3 %TypeSize{160}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{15525065815870489726,11229846524213883848}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezClothSheetFlags"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -31359,6 +31490,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5641856670392806071,17941956109863478530}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxActorLockingFlags"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
