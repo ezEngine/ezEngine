@@ -116,7 +116,10 @@ private:
   ezDynamicArray<SortedCacheCandidate> m_SortedCacheCandidates;
 
   void MigrateCachedGrid(ezUInt32 uiCandidateIndex);
+  void MigrateSpatialData(ezUInt32 uiTargetGridIndex, ezUInt32 uiSourceGridIndex);
+
   void RemoveCachedGrid(ezUInt32 uiCandidateIndex);
   void RemoveAllCachedGrids();
+
   void UpdateCacheCandidate(const ezTagSet& includeTags, const ezTagSet& excludeTags, ezSpatialData::Category category, float filteredRatio) const;
 };

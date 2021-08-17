@@ -311,41 +311,31 @@ struct ezSpatialSystem_RegularGrid::Grid
     mapping = {};
   }
 
-  void MigrateSpatialDataFromOtherGrid(const Grid& other)
+  bool MigrateSpatialDataFromOtherGrid(ezUInt32 uiDataIndex, const Grid& other)
   {
-    if (CachingCompleted())
-      return;
+    // Data has already been added
+    if (uiDataIndex < m_CellDataMappings.GetCount() && m_CellDataMappings[uiDataIndex].m_uiCellIndex != ezInvalidIndex)
+      return false;
 
-    constexpr ezUInt32 uiNumObjectsPerStep = 64;
-    const ezUInt32 uiEndIndex = ezMath::Min(m_uiLastMigrationIndex + uiNumObjectsPerStep, other.m_CellDataMappings.GetCount());
+    auto& mapping = other.m_CellDataMappings[uiDataIndex];
+    if (mapping.m_uiCellIndex == ezInvalidIndex)
+      return false;
 
-    for (ezUInt32 i = m_uiLastMigrationIndex; i < uiEndIndex; ++i)
-    {
-      // Data has already been added
-      if (i < m_CellDataMappings.GetCount() && m_CellDataMappings[i].m_uiCellIndex != ezInvalidIndex)
-        continue;
+    auto& pOtherCell = other.m_Cells[mapping.m_uiCellIndex];
 
-      auto& mapping = other.m_CellDataMappings[i];
-      if (mapping.m_uiCellIndex == ezInvalidIndex)
-        continue;
+    const ezTagSet& tags = pOtherCell->m_TagSets[mapping.m_uiCellDataIndex];
+    if (FilterByTags(tags, m_IncludeTags, m_ExcludeTags))
+      return false;
 
-      auto& pOtherCell = other.m_Cells[mapping.m_uiCellIndex];
+    const ezSimdBSphere& bounds = pOtherCell->m_BoundingSpheres[mapping.m_uiCellDataIndex];
+    ezGameObject* objectPointer = pOtherCell->m_ObjectPointers[mapping.m_uiCellDataIndex];
+    ezUInt64 uiLastVisibleFrame = pOtherCell->m_LastVisibleFrames[mapping.m_uiCellDataIndex];
 
-      const ezTagSet& tags = pOtherCell->m_TagSets[mapping.m_uiCellDataIndex];
-      if (FilterByTags(tags, m_IncludeTags, m_ExcludeTags))
-        continue;
+    EZ_ASSERT_DEBUG(pOtherCell->m_DataIndices[mapping.m_uiCellDataIndex] == uiDataIndex, "Implementation error");
+    ezSpatialDataHandle hData = ezSpatialDataHandle(ezSpatialDataId(uiDataIndex, 1));
 
-      const ezSimdBSphere& bounds = pOtherCell->m_BoundingSpheres[mapping.m_uiCellDataIndex];
-      ezGameObject* objectPointer = pOtherCell->m_ObjectPointers[mapping.m_uiCellDataIndex];
-      ezUInt64 uiLastVisibleFrame = pOtherCell->m_LastVisibleFrames[mapping.m_uiCellDataIndex];
-
-      EZ_ASSERT_DEBUG(pOtherCell->m_DataIndices[mapping.m_uiCellDataIndex] == i, "Implementation error");
-      ezSpatialDataHandle hData = ezSpatialDataHandle(ezSpatialDataId(i, 1));
-
-      AddSpatialData(bounds, tags, objectPointer, uiLastVisibleFrame, hData);
-    }
-
-    m_uiLastMigrationIndex = (uiEndIndex == other.m_CellDataMappings.GetCount()) ? ezInvalidIndex : uiEndIndex;
+    AddSpatialData(bounds, tags, objectPointer, uiLastVisibleFrame, hData);
+    return true;
   }
 
   EZ_ALWAYS_INLINE bool CachingCompleted() const { return m_uiLastMigrationIndex == ezInvalidIndex; }
@@ -923,10 +913,8 @@ EZ_ALWAYS_INLINE bool ezSpatialSystem_RegularGrid::IsAlwaysVisibleData(const Dat
 
 ezSpatialDataHandle ezSpatialSystem_RegularGrid::AddSpatialDataToGrids(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags, bool bAlwaysVisible)
 {
-  ezUInt64 uiGridBitmask = uiCategoryBitmask;
-
   Data data;
-  data.m_uiGridBitmask = uiGridBitmask;
+  data.m_uiGridBitmask = uiCategoryBitmask;
   data.m_uiAlwaysVisible = bAlwaysVisible ? 1 : 0;
 
   // find matching cached grids and add them to data.m_uiGridBitmask
@@ -940,11 +928,12 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::AddSpatialDataToGrids(const ezS
         FilterByTags(tags, pGrid->m_IncludeTags, pGrid->m_ExcludeTags))
       continue;
 
-    uiGridBitmask |= EZ_BIT(uiCachedGridIndex);
+    data.m_uiGridBitmask |= EZ_BIT(uiCachedGridIndex);
   }
 
   auto hData = ezSpatialDataHandle(m_DataTable.Insert(data));
 
+  ezUInt64 uiGridBitmask = data.m_uiGridBitmask;
   while (uiGridBitmask > 0)
   {
     ezUInt32 uiGridIndex = ezMath::FirstBitLow(uiGridBitmask);
@@ -1103,7 +1092,31 @@ void ezSpatialSystem_RegularGrid::MigrateCachedGrid(ezUInt32 uiCandidateIndex)
     }
   }
 
-  m_Grids[uiTargetGridIndex]->MigrateSpatialDataFromOtherGrid(*m_Grids[uiSourceGridIndex]);
+  MigrateSpatialData(uiTargetGridIndex, uiSourceGridIndex);
+}
+
+void ezSpatialSystem_RegularGrid::MigrateSpatialData(ezUInt32 uiTargetGridIndex, ezUInt32 uiSourceGridIndex)
+{
+  auto& pTargetGrid = m_Grids[uiTargetGridIndex];
+  if (pTargetGrid->CachingCompleted())
+    return;
+
+  auto& pSourceGrid = m_Grids[uiSourceGridIndex];
+
+  constexpr ezUInt32 uiNumObjectsPerStep = 64;
+  ezUInt32& uiLastMigrationIndex = pTargetGrid->m_uiLastMigrationIndex;
+  const ezUInt32 uiSourceCount = pSourceGrid->m_CellDataMappings.GetCount();
+  const ezUInt32 uiEndIndex = ezMath::Min(uiLastMigrationIndex + uiNumObjectsPerStep, uiSourceCount);
+
+  for (ezUInt32 i = uiLastMigrationIndex; i < uiEndIndex; ++i)
+  {
+    if (pTargetGrid->MigrateSpatialDataFromOtherGrid(i, *pSourceGrid))
+    {
+      m_DataTable.GetValueUnchecked(i).m_uiGridBitmask |= EZ_BIT(uiTargetGridIndex);
+    }
+  }
+
+  uiLastMigrationIndex = (uiEndIndex == uiSourceCount) ? ezInvalidIndex : uiEndIndex;
 }
 
 void ezSpatialSystem_RegularGrid::RemoveCachedGrid(ezUInt32 uiCandidateIndex)
