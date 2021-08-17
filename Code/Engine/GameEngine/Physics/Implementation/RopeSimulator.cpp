@@ -148,7 +148,7 @@ void ezRopeSimulator::UpdateNodePositions(const ezSimdFloat tDiffSqr)
 
   const ezSimdFloat damping = m_fDampingFactor;
 
-  const ezSimdVec4f gravity = ezSimdConversion::ToVec3(m_vAcceleration);
+  const ezSimdVec4f acceleration = ezSimdConversion::ToVec3(m_vAcceleration) * tDiffSqr;
 
   for (ezUInt32 i = uiFirstNode; i < uiNumNodes; ++i)
   {
@@ -162,7 +162,7 @@ void ezRopeSimulator::UpdateNodePositions(const ezSimdFloat tDiffSqr)
 
     // instead of using a single global acceleration, this could also use individual accelerations per node
     // this would be needed to affect the rope more localized
-    n.m_vPosition += vel + gravity * tDiffSqr;
+    n.m_vPosition += vel + acceleration;
     n.m_vPreviousPosition = previousPos;
   }
 

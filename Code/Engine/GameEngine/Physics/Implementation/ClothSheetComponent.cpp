@@ -170,7 +170,7 @@ void ezClothSheetComponent::SetupCloth()
       {
         const ezUInt32 idx = (y * m_Simulator.m_uiWidth) + x;
 
-        m_Simulator.m_Nodes[idx].m_vPosition = pos + x * dist.x * dirX + y * dist.y * dirY;
+        m_Simulator.m_Nodes[idx].m_vPosition = ezSimdConversion::ToVec3(pos + x * dist.x * dirX + y * dist.y * dirY);
         m_Simulator.m_Nodes[idx].m_vPreviousPosition = m_Simulator.m_Nodes[idx].m_vPosition;
       }
     }
@@ -308,7 +308,7 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
       {
         for (ezUInt32 x = 0; x < pRenderData->m_uiVerticesX; ++x, ++vidx)
         {
-          pRenderData->m_Positions[vidx] = m_Simulator.m_Nodes[vidx].m_vPosition;
+          pRenderData->m_Positions[vidx] = ezSimdConversion::ToVec3(m_Simulator.m_Nodes[vidx].m_vPosition);
         }
       }
     }
@@ -411,7 +411,7 @@ void ezClothSheetComponent::Update()
         ezVec3 ropeDir(0, 0, 1);
 
         // take the position of the center cloth node to sample the wind
-        const ezVec3 vSampleWindPos = GetOwner()->GetGlobalTransform().TransformPosition(m_Simulator.m_Nodes[m_Simulator.m_uiWidth * (m_Simulator.m_uiHeight / 2) + m_Simulator.m_uiWidth / 2].m_vPosition);
+        const ezVec3 vSampleWindPos = GetOwner()->GetGlobalTransform().TransformPosition(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[m_Simulator.m_uiWidth * (m_Simulator.m_uiHeight / 2) + m_Simulator.m_uiWidth / 2].m_vPosition));
 
         const ezVec3 vWind = pWind->GetWindAt(vSampleWindPos) * m_fWindInfluence;
 
@@ -437,10 +437,10 @@ void ezClothSheetComponent::Update()
     m_Simulator.SimulateCloth(GetWorld()->GetClock().GetTimeDiff());
 
     auto prevBbox = m_bbox;
-    m_bbox.ExpandToInclude(m_Simulator.m_Nodes[0].m_vPosition);
-    m_bbox.ExpandToInclude(m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_vPosition);
-    m_bbox.ExpandToInclude(m_Simulator.m_Nodes[((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth)].m_vPosition);
-    m_bbox.ExpandToInclude(m_Simulator.m_Nodes.PeekBack().m_vPosition);
+    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[0].m_vPosition));
+    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_vPosition));
+    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth)].m_vPosition));
+    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes.PeekBack().m_vPosition));
 
     if (prevBbox != m_bbox)
     {
