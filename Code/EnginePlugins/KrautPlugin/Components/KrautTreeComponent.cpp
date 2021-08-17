@@ -14,6 +14,7 @@
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
@@ -367,6 +368,11 @@ void ezKrautTreeComponent::ComputeWind() const
 {
   if (!IsActiveAndSimulating())
     return;
+
+  if (ezRenderWorld::GetFrameCounter() == m_uiLastWindUpdate)
+    return;
+
+  m_uiLastWindUpdate = ezRenderWorld::GetFrameCounter();
 
   const ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>();
 
