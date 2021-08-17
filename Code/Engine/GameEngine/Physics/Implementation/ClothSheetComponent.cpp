@@ -49,7 +49,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezClothSheetComponent, 1, ezComponentMode::Static)
     EZ_BEGIN_PROPERTIES
     {
       EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0.5f, 0.5f))),
-      EZ_ACCESSOR_PROPERTY("Slack", GetSlack, SetSlack)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0.3f, 0.3f))),
+      EZ_ACCESSOR_PROPERTY("Slack", GetSlack, SetSlack)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0.0f, 0.0f))),
       EZ_ACCESSOR_PROPERTY("Segments", GetSegments, SetSegments)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(7, 7)), new ezClampValueAttribute(ezVec2U32(1, 1), ezVec2U32(31, 31))),
       EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
       EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
@@ -147,29 +147,10 @@ void ezClothSheetComponent::SetupCloth()
     m_uiSleepCounter = 0;
     m_uiVisibleCounter = 5;
 
-    ezVec2 slack = m_vSlack;
-
-    // no slack along the fixed edge
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeTop) ||
-        m_Flags.IsSet(ezClothSheetFlags::FixedEdgeBottom) ||
-        (m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopLeft) && m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopRight)) ||
-        (m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomLeft) && m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomRight)))
-    {
-      slack.x = 0.0f;
-    }
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeLeft) ||
-        m_Flags.IsSet(ezClothSheetFlags::FixedEdgeRight) ||
-        (m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopLeft) && m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomLeft)) ||
-        (m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopRight) && m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomRight)))
-    {
-      slack.y = 0.0f;
-    }
-
     m_Simulator.m_uiWidth = m_vSegments.x + 1;
     m_Simulator.m_uiHeight = m_vSegments.y + 1;
     m_Simulator.m_vAcceleration.Set(0, 0, -10);
-    m_Simulator.m_vSegmentLength = m_vSize.CompMul(ezVec2(1.0f) + slack);
+    m_Simulator.m_vSegmentLength = m_vSize.CompMul(ezVec2(1.0f) + m_vSlack);
     m_Simulator.m_vSegmentLength.x /= (float)m_vSegments.x;
     m_Simulator.m_vSegmentLength.y /= (float)m_vSegments.y;
     m_Simulator.m_Nodes.Clear();
@@ -417,6 +398,10 @@ void ezClothSheetComponent::Update()
     if (const ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
     {
       acc += pModule->GetGravity();
+    }
+    else
+    {
+      acc += ezVec3(0, 0, -9.81f);
     }
 
     if (m_fWindInfluence > 0.0f)

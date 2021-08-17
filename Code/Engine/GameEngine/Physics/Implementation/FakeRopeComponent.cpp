@@ -229,6 +229,10 @@ void ezFakeRopeComponent::RuntimeUpdate()
   {
     acc += pModule->GetGravity();
   }
+  else
+  {
+    acc += ezVec3(0, 0, -9.81f);
+  }
 
   if (m_fWindInfluence > 0.0f)
   {
