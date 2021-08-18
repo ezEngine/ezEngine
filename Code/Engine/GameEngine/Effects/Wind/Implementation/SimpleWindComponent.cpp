@@ -95,6 +95,7 @@ void ezSimpleWindComponent::OnActivated()
   m_fNextStrength = ezWindStrength::GetInMetersPerSecond(m_MinWindStrength);
   m_vNextDirection = GetOwner()->GetGlobalDirForwards();
   m_NextChange = GetWorld()->GetClock().GetAccumulatedTime();
+  m_LastChange = m_NextChange - ezTime::Seconds(1);
 
   ComputeNextState();
 }
@@ -151,7 +152,7 @@ void ezSimpleWindComponent::Initialize()
   SUPER::Initialize();
 
   // make sure to query the wind interface before any simulation starts
-  /*ezWindWorldModuleInterface* pWindInterface =*/GetWorld()->GetOrCreateModule<ezWindWorldModuleInterface>();
+  /*ezWindWorldModuleInterface* pWindInterface =*/GetWorld()->GetOrCreateModule<ezSimpleWindWorldModule>();
 }
 
 

@@ -63,10 +63,17 @@ public:
   ezHashedString m_sName;
   ezTransform m_Transform = ezTransform::IdentityTransform();
 
-  ezAngle m_TwistLow;
-  ezAngle m_TwistHigh;
-  ezAngle m_SwingLow;
-  ezAngle m_SwingHigh;
+  ezVec3 GetJointPosGlobal() const;
+  ezQuat GetJointLimitOrientation() const;
+  void SetJointLimitOrientation(ezQuat val);
+
+  ezAngle m_TwistLimitLow;
+  ezAngle m_TwistLimitHigh;
+  ezAngle m_SwingLimitX;
+  ezAngle m_SwingLimitY;
+
+  ezQuat m_qJointLimitOrientation = ezQuat::IdentityQuaternion();
+  ezVec3 m_vJointPosGlobal = ezVec3::ZeroVector();
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
   ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;
@@ -84,7 +91,7 @@ public:
   void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
   void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const;
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;
-  void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) const;
+  void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx, const ezQuat& parentRot) const;
 
   ezString m_sAnimationFile;
   ezString m_sSurfaceFile;

@@ -25,6 +25,7 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
   t.SetIdentity();
   t.m_vScale.Set(us);
 
+  // prevent mirroring in the rotation matrix, because we can't generate a quaternion from that
   if (!pProp->m_bFlipForwardDir)
   {
     switch (forwardDir)
@@ -136,8 +137,8 @@ ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
   auto pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
 
   ezSkeletonResourceDescriptor desc;
-  pProp->FillResourceDescriptor(desc);
   desc.m_RootTransform = CalculateTransformationMatrix(pProp);
+  pProp->FillResourceDescriptor(desc);
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 
@@ -171,7 +172,6 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
     ezModelImporter2::ImportOptions opt;
     opt.m_sSourceFile = sAbsFilename;
     opt.m_pSkeletonOutput = &newSkeleton;
-    //opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
     if (pImporter->Import(opt).Failed())
       return ezStatus("Model importer was unable to read this asset.");
@@ -222,22 +222,25 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {
         pJoint->CopyPropertiesFrom(it.Value());
       }
 
+      origin.SetGlobalTransform(origin, pJoint->m_Transform);
+      pJoint->m_vJointPosGlobal = tRoot.TransformPosition(origin.m_vPosition);
+
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
-        self(self, pChild);
+        self(self, pChild, tRoot, origin);
       }
     };
 
     for (ezEditableSkeletonJoint* pChild : newSkeleton.m_Children)
     {
-      TraverseJoints(TraverseJoints, pChild);
+      TraverseJoints(TraverseJoints, pChild, CalculateTransformationMatrix(pOldSkeleton), ezTransform::IdentityTransform());
     }
   }
 

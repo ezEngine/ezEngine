@@ -1328,6 +1328,8 @@ export class SkeletonComponent extends RenderComponent
   set BonesToHighlight(value: string) { __CPP_ComponentProperty_set(this, 2710454113, value); }
   get VisualizeColliders(): boolean { return __CPP_ComponentProperty_get(this, 3787596667); }
   set VisualizeColliders(value: boolean) { __CPP_ComponentProperty_set(this, 3787596667, value); }
+  get VisualizeJoints(): boolean { return __CPP_ComponentProperty_get(this, 3456629988); }
+  set VisualizeJoints(value: boolean) { __CPP_ComponentProperty_set(this, 3456629988, value); }
 }
 
 export class SkyBoxComponent extends RenderComponent

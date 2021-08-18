@@ -29,4 +29,8 @@ protected:
   ezRotateGizmo m_RotateGizmo;
   ezManipulatorScaleGizmo m_ScaleGizmo;
   ezVec3 m_vOldScale;
+
+  bool m_bHideTranslate = true;
+  bool m_bHideRotate = true;
+  bool m_bHideScale = true;
 };

@@ -1,17 +1,24 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Math/Declarations.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 
 struct ezMsgAnimationPoseUpdated;
 struct ezMsgPhysicsAddImpulse;
 struct ezMsgPhysicsAddForce;
+struct ezSkeletonResourceGeometry;
+class ezPxUserData;
+class ezSkeletonJoint;
 
 namespace physx
 {
   class PxAggregate;
   class PxArticulation;
   class PxArticulationDriveCache;
+  class PxRigidActor;
+  class PxMaterial;
+  struct PxFilterData;
 } // namespace physx
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
@@ -74,11 +81,20 @@ public:
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
 
 protected:
+  struct LinkData
+  {
+    physx::PxArticulationLink* m_pLink = nullptr;
+    ezTransform m_GlobalTransform;
+  };
+
   void CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton, ezMsgAnimationPoseUpdated& poseMsg);
   void DestroyPhysicsShapes();
   void UpdatePose();
   void Update();
   void CreateShapesFromBindPose();
+  void AddArticulationToScene();
+  void CreateBoneShape(const ezTransform& rootTransform, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const physx::PxMaterial& pxMaterial, const physx::PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
+  void CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
 
   physx::PxMaterial* GetPxMaterial();
   physx::PxFilterData CreateFilterData();
@@ -102,12 +118,13 @@ protected:
     ezVec3 m_vImpulse;
   };
 
+
   ezHybridArray<Impulse, 8> m_Impulses;
 
   ezEnum<ezPxRagdollStart> m_Start;
   physx::PxArticulationLink* m_pRootLink = nullptr;
   ezDynamicArray<ArtLink> m_ArticulationLinks;
-  ezDynamicArray<ezVec3> m_vLastPos;
+  //ezDynamicArray<ezVec3> m_vLastPos;
 
   ezSkeletonResourceHandle m_hSkeleton;
   physx::PxAggregate* m_pAggregate = nullptr;

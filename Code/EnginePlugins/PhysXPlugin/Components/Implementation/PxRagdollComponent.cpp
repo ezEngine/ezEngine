@@ -23,6 +23,7 @@ using namespace physx;
 * communication with anim controller
 * dummy poses for bones without shape
 * drive to pose
+* shape scale
 */
 
 // clang-format off
@@ -164,12 +165,12 @@ void ezPxRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& pos
   {
     m_bHasFirstState = true;
 
-    m_vLastPos.SetCountUninitialized(poseMsg.m_ModelTransforms.GetCount());
+    //m_vLastPos.SetCountUninitialized(poseMsg.m_ModelTransforms.GetCount());
 
-    for (ezUInt32 i = 0; i < poseMsg.m_ModelTransforms.GetCount(); ++i)
-    {
-      m_vLastPos[i] = poseMsg.m_ModelTransforms[i].GetTranslationVector();
-    }
+    //for (ezUInt32 i = 0; i < poseMsg.m_ModelTransforms.GetCount(); ++i)
+    //{
+    //  m_vLastPos[i] = poseMsg.m_ModelTransforms[i].GetTranslationVector();
+    //}
 
     return;
   }
@@ -227,221 +228,74 @@ void ezPxRagdollComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& h
 {
   m_bShapesCreated = true;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-  const auto& desc = pSkeleton->GetDescriptor();
+  ezResourceLock<ezSkeletonResource> pSkelRes(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  const auto& skelDesc = pSkelRes->GetDescriptor();
 
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-  m_uiShapeID = pModule->CreateShapeId();
+  ezPxUserData* pPxUserData = nullptr;
 
-  ezPhysX* pEzPhysX = ezPhysX::GetSingleton();
-  PxPhysics* pPxPhysX = pEzPhysX->GetPhysXAPI();
-
-  const ezVec3 velocity = GetOwner()->GetVelocity();
-
-  const PxMaterial* pPxMaterial = GetPxMaterial();
-  const PxFilterData filter = CreateFilterData();
-
-  ezPxUserData* pUserData = nullptr;
-  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
-  pUserData->Init(this);
-
-  struct LinkData
   {
-    PxArticulationLink* m_pLink = nullptr;
-    ezTransform m_GlobalTransform;
-  };
+    ezPhysXWorldModule* pPhysModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+    m_uiShapeID = pPhysModule->CreateShapeId();
+    m_uiUserDataIndex = pPhysModule->AllocateUserData(pPxUserData);
+  }
 
-  ezMap<ezUInt16, LinkData> links;
+  pPxUserData->Init(this);
+  const PxMaterial& pxMaterial = *GetPxMaterial();
+  const PxFilterData pxFilter = CreateFilterData();
 
-  ezQuat qRotCapsule;
-  qRotCapsule.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-
-  m_pArticulation = pPxPhysX->createArticulation();
-  m_pArticulation->userData = pUserData;
-
-  //pArt->setSolverIterationCounts(64, 32);
-  //pArt->setMaxProjectionIterations(8);
-
-  const ezTransform tRoot = GetOwner()->GetGlobalTransform();
-
-  // dummy root link
-  links.FindOrAdd(ezInvalidJointIndex);
+  m_pArticulation = ezPhysX::GetSingleton()->GetPhysXAPI()->createArticulation();
+  m_pArticulation->userData = pPxUserData;
 
   m_ArticulationLinks.SetCount(poseMsg.m_ModelTransforms.GetCount());
 
-  float invTime = 1.0f / GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
+  ezMap<ezUInt16, LinkData> linkData;
+  linkData.FindOrAdd(ezInvalidJointIndex); // dummy root link
 
-  ezTransform rt = desc.m_RootTransform;
-
-  ezMat4 scale;
-  scale.SetScalingMatrix(desc.m_RootTransform.m_vScale);
-
-  ezVec3 diff;
-  diff.SetZero();
-
-  for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
+  for (const auto& geo : skelDesc.m_Geometry)
   {
-    const auto& geo = desc.m_Geometry[idx];
-
     if (geo.m_Type == ezSkeletonJointGeometryType::None)
       continue;
 
-    ezUInt16 uiParentJoint = desc.m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint).GetParentIndex();
+    const ezSkeletonJoint& joint = skelDesc.m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint);
 
-    while (!links.Contains(uiParentJoint))
+    ezUInt16 uiParentJointIdx = joint.GetParentIndex();
+
+    // find the parent joint that is also part of the ragdoll
+    while (!linkData.Contains(uiParentJointIdx))
     {
-      uiParentJoint = desc.m_Skeleton.GetJointByIndex(uiParentJoint).GetParentIndex();
+      uiParentJointIdx = skelDesc.m_Skeleton.GetJointByIndex(uiParentJointIdx).GetParentIndex();
     }
 
-    const auto& parentLink = links[uiParentJoint];
-    auto& thisLink = links[geo.m_uiAttachedToJoint];
-
-    ezVec3 vOffsetPos = geo.m_Transform.m_qRotation * geo.m_Transform.m_vPosition;
-    ezQuat qOffsetRot = geo.m_Transform.m_qRotation;
+    const auto& parentLink = linkData[uiParentJointIdx];
+    auto& thisLink = linkData[geo.m_uiAttachedToJoint];
 
     if (thisLink.m_pLink == nullptr)
     {
-      ezMat4 mFullTransform;
-      ezQuat qFullRot;
-      poseMsg.ComputeFullBoneTransform(geo.m_uiAttachedToJoint, mFullTransform, qFullRot);
+      CreateBoneLink(geo.m_uiAttachedToJoint, joint, pPxUserData, thisLink, parentLink, poseMsg);
+    }
 
-      ezTransform linkTransform;
-      linkTransform.SetIdentity();
+    if (m_pRootLink == nullptr)
+    {
+      m_pRootLink = thisLink.m_pLink;
+    }
 
-      linkTransform.m_vPosition = mFullTransform.GetTranslationVector();
-      linkTransform.m_qRotation = qFullRot;
+    CreateBoneShape(*poseMsg.m_pRootTransform, *thisLink.m_pLink, geo, pxMaterial, pxFilter, pPxUserData);
 
-      thisLink.m_GlobalTransform.SetGlobalTransform(tRoot, linkTransform);
-      thisLink.m_pLink = m_pArticulation->createLink(parentLink.m_pLink, ezPxConversionUtils::ToTransform(thisLink.m_GlobalTransform));
+    // TODO mass distribution
+    {
+      float fMass = 5.0f;
 
+      if (parentLink.m_pLink)
       {
-        if (m_bHasFirstState)
-        {
-          diff = poseMsg.m_ModelTransforms[geo.m_uiAttachedToJoint].GetTranslationVector() - m_vLastPos[geo.m_uiAttachedToJoint];
-          diff *= invTime;
-          //ezLog::Dev("diff: {}, {}, {}", diff.x, diff.y, diff.z);
-        }
-
-        thisLink.m_pLink->setLinearVelocity(ezPxConversionUtils::ToVec3(velocity + diff));
+        fMass = 0.9f * parentLink.m_pLink->getMass();
       }
 
-      EZ_ASSERT_DEV(thisLink.m_pLink != nullptr, "Ragdoll shape creation failed. Too many bones? (max 64)");
-
-      m_ArticulationLinks[geo.m_uiAttachedToJoint].m_pLink = thisLink.m_pLink;
-
-      thisLink.m_pLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
-      thisLink.m_pLink->userData = pUserData;
-
-      if (parentLink.m_pLink != nullptr)
-      {
-        ezTransform parentFrameJoint;
-        parentFrameJoint.SetLocalTransform(parentLink.m_GlobalTransform, thisLink.m_GlobalTransform);
-
-        if (false) // relative to bind pose
-        {
-          const ezMat4 bp = scale * pSkeleton->GetDescriptor().m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint).GetBindPoseLocalTransform().GetAsMat4();
-
-          parentFrameJoint.SetIdentity();
-          ComputeBoneRotation(bp, parentFrameJoint.m_qRotation);
-          parentFrameJoint.m_vPosition = bp.GetTranslationVector();
-        }
-
-        PxArticulationJoint* inb = reinterpret_cast<PxArticulationJoint*>(thisLink.m_pLink->getInboundJoint());
-
-        inb->setParentPose(ezPxConversionUtils::ToTransform(parentFrameJoint));
-        inb->setSwingLimitEnabled(true);
-        inb->setTwistLimitEnabled(true);
-        inb->setSwingLimit(ezAngle::Degree(35).GetRadian(), ezAngle::Degree(35).GetRadian());
-        //inb->setSwingLimit(ezAngle::Degree(5).GetRadian(), ezAngle::Degree(5).GetRadian());
-        inb->setTwistLimit(ezAngle::Degree(-20).GetRadian(), ezAngle::Degree(20).GetRadian());
-        //inb->setTwistLimit(ezAngle::Degree(-5).GetRadian(), ezAngle::Degree(5).GetRadian());
-        inb->setTangentialDamping(25.0f);
-        inb->setDamping(25.0f);
-
-        //inb->setDriveType(PxArticulationJointDriveType::eTARGET);
-        //inb->setTargetOrientation(ezPxConversionUtils::ToQuat(ezQuat::IdentityQuaternion()));
-        //inb->setStiffness(1000.0f);
-        //inb->setDamping(50.0f);
-        inb->setInternalCompliance(0.7f);
-        inb->setExternalCompliance(1.0f);
-      }
-      else
-      {
-        m_pRootLink = thisLink.m_pLink;
-      }
+      PxRigidBodyExt::setMassAndUpdateInertia(*thisLink.m_pLink, fMass);
     }
-
-    const float fScale = 1.0f;
-
-    PxShape* pShape = nullptr;
-
-    if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
-    {
-      PxSphereGeometry shape(fScale * geo.m_Transform.m_vScale.z);
-      pShape = PxRigidActorExt::createExclusiveShape(*thisLink.m_pLink, shape, *pPxMaterial);
-    }
-    else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
-    {
-      ezVec3 ext;
-      ext.x = geo.m_Transform.m_vScale.y * 0.5f;
-      ext.y = geo.m_Transform.m_vScale.x * 0.5f;
-      ext.z = geo.m_Transform.m_vScale.z * 0.5f;
-      ext *= fScale;
-
-      PxBoxGeometry shape(ext.x, ext.y, ext.z);
-      pShape = PxRigidActorExt::createExclusiveShape(*thisLink.m_pLink, shape, *pPxMaterial);
-
-      vOffsetPos += geo.m_Transform.m_qRotation * ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0);
-    }
-    else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
-    {
-      PxCapsuleGeometry shape(fScale * geo.m_Transform.m_vScale.z, fScale * geo.m_Transform.m_vScale.x * 0.5f);
-      pShape = PxRigidActorExt::createExclusiveShape(*thisLink.m_pLink, shape, *pPxMaterial);
-
-      vOffsetPos += geo.m_Transform.m_qRotation * ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0);
-      qOffsetRot = qOffsetRot * qRotCapsule;
-    }
-    else
-    {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-    }
-
-    //pShape->SetSurfaceFile(geo.m_sSurface);
-
-    vOffsetPos = vOffsetPos.CompMul(poseMsg.m_pRootTransform->m_vScale);
-
-    pShape->setLocalPose(ezPxConversionUtils::ToTransform(ezTransform(vOffsetPos, qOffsetRot)));
-    pShape->setSimulationFilterData(filter);
-    pShape->setQueryFilterData(filter);
-    pShape->userData = pUserData;
-
-    float fMass = 5.0f;
-
-    if (parentLink.m_pLink)
-    {
-      fMass = 0.9f * parentLink.m_pLink->getMass();
-    }
-
-    PxRigidBodyExt::setMassAndUpdateInertia(*thisLink.m_pLink, fMass);
   }
-
-  EZ_PX_WRITE_LOCK(*pModule->GetPxScene());
-
-  m_pAggregate = pPxPhysX->createAggregate(64, m_bSelfCollision);
-  m_pAggregate->addArticulation(*m_pArticulation);
-  pModule->GetPxScene()->addAggregate(*m_pAggregate);
 
   poseMsg.m_bContinueAnimating = false;
-
-  {
-    PxArticulationLink* pLink[1] = {};
-    m_pArticulation->getLinks(pLink, 1);
-
-    for (const auto& imp : m_Impulses)
-    {
-      PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(imp.m_vImpulse), ezPxConversionUtils::ToVec3(imp.m_vPos), PxForceMode::eIMPULSE);
-    }
-  }
+  AddArticulationToScene();
 }
 
 void ezPxRagdollComponent::DestroyPhysicsShapes()
@@ -493,6 +347,8 @@ void ezPxRagdollComponent::UpdatePose()
 
   ezMat4 mInv = invRoot * newRootTransform.GetInverse().GetAsMat4();
 
+  const ezQuat qTilt = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, ezBasisAxis::PositiveY);
+
   for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
   {
     if (m_ArticulationLinks[i].m_pLink == nullptr)
@@ -502,7 +358,10 @@ void ezPxRagdollComponent::UpdatePose()
     }
     else
     {
-      poses[i] = mInv * ezPxConversionUtils::ToTransform(m_ArticulationLinks[i].m_pLink->getGlobalPose()).GetAsMat4() * scale;
+      ezTransform pose = ezPxConversionUtils::ToTransform(m_ArticulationLinks[i].m_pLink->getGlobalPose());
+      pose.m_qRotation = pose.m_qRotation * qTilt;
+
+      poses[i] = mInv * pose.GetAsMat4() * scale;
     }
   }
 
@@ -565,6 +424,162 @@ void ezPxRagdollComponent::CreateShapesFromBindPose()
   msg.m_ModelTransforms = bones;
 
   CreatePhysicsShapes(m_hSkeleton, msg);
+}
+
+void ezPxRagdollComponent::AddArticulationToScene()
+{
+  PxPhysics* pPhysApi = ezPhysX::GetSingleton()->GetPhysXAPI();
+  ezPhysXWorldModule* pPhysModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+
+  EZ_PX_WRITE_LOCK(*pPhysModule->GetPxScene());
+
+  m_pAggregate = pPhysApi->createAggregate(64, m_bSelfCollision);
+  m_pAggregate->addArticulation(*m_pArticulation);
+  pPhysModule->GetPxScene()->addAggregate(*m_pAggregate);
+
+  {
+    PxArticulationLink* pLink[1] = {};
+    m_pArticulation->getLinks(pLink, 1);
+
+    for (const auto& imp : m_Impulses)
+    {
+      PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(imp.m_vImpulse), ezPxConversionUtils::ToVec3(imp.m_vPos), PxForceMode::eIMPULSE);
+      //pLink[0]->addForce(ezPxConversionUtils::ToVec3(imp.m_vImpulse), PxForceMode::eIMPULSE);
+    }
+  }
+}
+
+void ezPxRagdollComponent::CreateBoneShape(const ezTransform& rootTransform, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const PxMaterial& pxMaterial, const PxFilterData& pxFilterData, ezPxUserData* pPxUserData)
+{
+  ezVec3 vOffsetPos = geo.m_Transform.m_qRotation * geo.m_Transform.m_vPosition;
+  ezQuat qOffsetRot = geo.m_Transform.m_qRotation;
+
+  const float fScale = 1.0f;
+
+  PxShape* pShape = nullptr;
+
+  // maybe can get rid of this and instead always add the offset to X (in Px space)
+  const ezQuat qTilt = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, ezBasisAxis::PositiveY);
+
+  if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
+  {
+    PxSphereGeometry shape(fScale * geo.m_Transform.m_vScale.z);
+    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, pxMaterial);
+  }
+  else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
+  {
+    ezVec3 ext;
+    ext.x = geo.m_Transform.m_vScale.y * 0.5f;
+    ext.y = geo.m_Transform.m_vScale.x * 0.5f;
+    ext.z = geo.m_Transform.m_vScale.z * 0.5f;
+    ext *= fScale;
+
+    PxBoxGeometry shape(ext.x, ext.y, ext.z);
+    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, pxMaterial);
+
+    vOffsetPos += geo.m_Transform.m_qRotation * qTilt * ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0);
+  }
+  else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
+  {
+    ezQuat qRotCapsule;
+    qRotCapsule.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+
+    PxCapsuleGeometry shape(fScale * geo.m_Transform.m_vScale.z, fScale * geo.m_Transform.m_vScale.x * 0.5f);
+    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, pxMaterial);
+
+    vOffsetPos += geo.m_Transform.m_qRotation * qTilt * ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0);
+    qOffsetRot = qOffsetRot * qRotCapsule;
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  //pShape->SetSurfaceFile(geo.m_sSurface);
+
+  vOffsetPos = vOffsetPos.CompMul(rootTransform.m_vScale);
+
+  ezTransform shapeTransform(vOffsetPos, qOffsetRot);
+
+  //const ezQuat qTilt = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveY, ezBasisAxis::PositiveX);
+  shapeTransform.m_qRotation = shapeTransform.m_qRotation * qTilt;
+
+  pShape->setLocalPose(ezPxConversionUtils::ToTransform(shapeTransform));
+  pShape->setSimulationFilterData(pxFilterData);
+  pShape->setQueryFilterData(pxFilterData);
+  pShape->userData = pPxUserData;
+}
+
+void ezPxRagdollComponent::CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg)
+{
+  ezMat4 mFullTransform;
+  ezQuat qFullRotation;
+  poseMsg.ComputeFullBoneTransform(uiBoneIdx, mFullTransform, qFullRotation);
+
+  ezTransform linkTransform;
+  linkTransform.SetIdentity();
+
+  linkTransform.m_vPosition = mFullTransform.GetTranslationVector();
+  linkTransform.m_qRotation = qFullRotation;
+
+
+  thisLink.m_GlobalTransform.SetGlobalTransform(GetOwner()->GetGlobalTransform(), linkTransform);
+
+  const ezQuat qTilt = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveY, ezBasisAxis::PositiveX);
+  thisLink.m_GlobalTransform.m_qRotation = thisLink.m_GlobalTransform.m_qRotation * qTilt;
+
+  thisLink.m_pLink = m_pArticulation->createLink(parentLink.m_pLink, ezPxConversionUtils::ToTransform(thisLink.m_GlobalTransform));
+  EZ_ASSERT_DEV(thisLink.m_pLink != nullptr, "Ragdoll shape creation failed. Too many bones? (max 64)");
+
+  m_ArticulationLinks[uiBoneIdx].m_pLink = thisLink.m_pLink;
+  thisLink.m_pLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
+  thisLink.m_pLink->setLinearVelocity(ezPxConversionUtils::ToVec3(GetOwner()->GetVelocity()));
+  thisLink.m_pLink->userData = pPxUserData;
+
+  if (parentLink.m_pLink == nullptr)
+    return;
+
+  ezTransform parentFrameJoint;
+  parentFrameJoint.SetLocalTransform(parentLink.m_GlobalTransform, thisLink.m_GlobalTransform);
+
+  PxArticulationJoint* inb = reinterpret_cast<PxArticulationJoint*>(thisLink.m_pLink->getInboundJoint());
+  inb->setInternalCompliance(0.7f);
+  inb->setExternalCompliance(1.0f);
+
+  inb->setParentPose(ezPxConversionUtils::ToTransform(parentFrameJoint));
+
+  if (bone.GetHalfSwingLimitX() >= ezAngle::Degree(1) || bone.GetHalfSwingLimitY() >= ezAngle::Degree(1))
+  {
+    inb->setSwingLimitEnabled(true);
+    inb->setSwingLimit(ezMath::Max(ezAngle::Degree(1), bone.GetHalfSwingLimitX()).GetRadian(), ezMath::Max(ezAngle::Degree(1), bone.GetHalfSwingLimitY()).GetRadian());
+    // inb->setSwingLimitContactDistance(ezAngle::Degree(10).GetRadian()); // ??
+  }
+  else
+  {
+    inb->setSwingLimitEnabled(false);
+  }
+
+  if (bone.GetTwistLimitLow() >= ezAngle::Degree(1) || bone.GetTwistLimitHigh() >= ezAngle::Degree(1))
+  {
+    ezAngle low = -bone.GetTwistLimitLow();
+    ezAngle high = bone.GetTwistLimitHigh();
+
+    low = ezMath::Max(ezAngle::Degree(-179), low);
+    high = ezMath::Min(ezAngle::Degree(+179), high);
+
+    inb->setTwistLimitEnabled(true);
+    inb->setTwistLimit(low.GetRadian(), high.GetRadian());
+    // inb->setTwistLimitContactDistance(); // ??
+  }
+  else
+  {
+    inb->setTwistLimitEnabled(false);
+  }
+
+  inb->setTangentialStiffness(1000.0f);
+  inb->setTangentialDamping(25.0f);
+
+  inb->setDamping(25.0f);
 }
 
 void ezPxRagdollComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)

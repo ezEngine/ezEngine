@@ -96,19 +96,27 @@ ezResult ezWorldWriter::WriteToStream()
     WriteGameObject(pObject);
   }
 
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
-  {
-    WriteComponentTypeInfo(it.Key());
-  }
+  // this is used to sort all component types by name, to make the file serialization deterministic
+  ezMap<ezString, const ezRTTI*> sortedTypes;
 
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
-    WriteComponentCreationData(it.Value().m_Components);
+    sortedTypes[it.Key()->GetTypeName()] = it.Key();
   }
 
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
   {
-    WriteComponentSerializationData(it.Value().m_Components);
+    WriteComponentTypeInfo(it.Value());
+  }
+
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
+  {
+    WriteComponentCreationData(m_AllComponents[it.Value()].m_Components);
+  }
+
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
+  {
+    WriteComponentSerializationData(m_AllComponents[it.Value()].m_Components);
   }
 
   EZ_SUCCEED_OR_RETURN(stringDedupWriteContext.End());

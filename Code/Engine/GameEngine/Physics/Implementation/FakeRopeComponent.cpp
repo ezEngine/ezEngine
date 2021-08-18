@@ -97,7 +97,7 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
   if (!IsActiveAndInitialized())
     return EZ_FAILURE;
 
-  ezVec3 anchorB;
+  ezSimdVec4f anchorB;
 
   ezGameObject* pAnchor = nullptr;
   if (!GetWorld()->TryGetObject(m_hAnchor, pAnchor))
@@ -115,19 +115,19 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
   }
   else
   {
-    anchorB = pAnchor->GetGlobalPosition();
+    anchorB = ezSimdConversion::ToVec3(pAnchor->GetGlobalPosition());
   }
 
   // only early out, if we are not in edit mode
   m_bIsDynamic = !IsActiveAndSimulating() || GetOwner()->IsDynamic() || (pAnchor != nullptr && pAnchor->IsDynamic());
 
-  const ezVec3 anchorA = GetOwner()->GetGlobalPosition();
+  const ezSimdVec4f anchorA = ezSimdConversion::ToVec3(GetOwner()->GetGlobalPosition());
 
   m_RopeSim.m_fDampingFactor = ezMath::Lerp(1.0f, 0.97f, m_fDamping);
 
   if (m_RopeSim.m_fSegmentLength < 0)
   {
-    const float len = (anchorA - anchorB).GetLength();
+    const float len = (anchorA - anchorB).GetLength<3>();
     m_RopeSim.m_fSegmentLength = (len + len * m_fSlack) / m_uiPieces;
   }
 
@@ -154,7 +154,7 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
 
     for (ezUInt32 i = uiOldNum; i < m_uiPieces; ++i)
     {
-      m_RopeSim.m_Nodes[i].m_vPosition = ezMath::Lerp(anchorA, anchorB, (float)i / (m_uiPieces - 1));
+      m_RopeSim.m_Nodes[i].m_vPosition = anchorA + ((anchorB - anchorA) * (float)i / (m_uiPieces - 1));
       m_RopeSim.m_Nodes[i].m_vPreviousPosition = m_RopeSim.m_Nodes[i].m_vPosition;
     }
   }
@@ -163,7 +163,7 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
   {
     if (m_RopeSim.m_bFirstNodeIsFixed)
     {
-      if (m_RopeSim.m_Nodes[0].m_vPosition != anchorA)
+      if ((m_RopeSim.m_Nodes[0].m_vPosition != anchorA).AnySet<3>())
       {
         m_uiSleepCounter = 0;
         m_RopeSim.m_Nodes[0].m_vPosition = anchorA;
@@ -172,7 +172,7 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
 
     if (m_RopeSim.m_bLastNodeIsFixed)
     {
-      if (m_RopeSim.m_Nodes.PeekBack().m_vPosition != anchorB)
+      if ((m_RopeSim.m_Nodes.PeekBack().m_vPosition != anchorB).AnySet<3>())
       {
         m_uiSleepCounter = 0;
         m_RopeSim.m_Nodes.PeekBack().m_vPosition = anchorB;
@@ -229,19 +229,23 @@ void ezFakeRopeComponent::RuntimeUpdate()
   {
     acc += pModule->GetGravity();
   }
+  else
+  {
+    acc += ezVec3(0, 0, -9.81f);
+  }
 
   if (m_fWindInfluence > 0.0f)
   {
     if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
     {
-      ezVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
+      const ezSimdVec4f ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
 
-      ezVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition);
-      vWind += pWind->GetWindAt(m_RopeSim.m_Nodes[0].m_vPosition);
+      ezVec3 vWind = pWind->GetWindAt(ezSimdConversion::ToVec3(m_RopeSim.m_Nodes.PeekBack().m_vPosition));
+      vWind += pWind->GetWindAt(ezSimdConversion::ToVec3(m_RopeSim.m_Nodes[0].m_vPosition));
       vWind *= 0.5f * m_fWindInfluence;
 
       acc += vWind;
-      acc += pWind->ComputeWindFlutter(vWind, ropeDir, 0.5f, GetOwner()->GetStableRandomSeed());
+      acc += pWind->ComputeWindFlutter(vWind, ezSimdConversion::ToVec3(ropeDir), 0.5f, GetOwner()->GetStableRandomSeed());
     }
   }
 
@@ -255,7 +259,7 @@ void ezFakeRopeComponent::RuntimeUpdate()
     return;
 
   ezUInt64 uiFramesVisible = GetOwner()->GetNumFramesSinceVisible();
-  if (uiFramesVisible > 1)
+  if (uiFramesVisible > 60)
   {
     return;
   }
@@ -298,20 +302,20 @@ void ezFakeRopeComponent::SendCurrentPose()
 
     for (ezUInt32 i = 0; i < pieces.GetCount() - 1; ++i)
     {
-      const ezVec3 p0 = m_RopeSim.m_Nodes[i].m_vPosition;
-      const ezVec3 p1 = m_RopeSim.m_Nodes[i + 1].m_vPosition;
-      ezVec3 dir = p1 - p0;
+      const ezSimdVec4f p0 = m_RopeSim.m_Nodes[i].m_vPosition;
+      const ezSimdVec4f p1 = m_RopeSim.m_Nodes[i + 1].m_vPosition;
+      ezSimdVec4f dir = p1 - p0;
 
-      dir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+      dir.NormalizeIfNotZero<3>();
 
-      tGlobal.m_vPosition = p0;
-      tGlobal.m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), dir);
+      tGlobal.m_vPosition = ezSimdConversion::ToVec3(p0);
+      tGlobal.m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
 
       pieces[i].SetLocalTransform(tRoot, tGlobal);
     }
 
     {
-      tGlobal.m_vPosition = m_RopeSim.m_Nodes.PeekBack().m_vPosition;
+      tGlobal.m_vPosition = ezSimdConversion::ToVec3(m_RopeSim.m_Nodes.PeekBack().m_vPosition);
       // tGlobal.m_qRotation is the same as from the previous bone
 
       pieces.PeekBack().SetLocalTransform(tRoot, tGlobal);

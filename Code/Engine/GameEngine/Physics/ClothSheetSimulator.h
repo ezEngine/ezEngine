@@ -2,6 +2,8 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/SimdMath/SimdFloat.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/Time/Time.h>
 #include <GameEngine/GameEngineDLL.h>
 
@@ -17,8 +19,8 @@ public:
   {
     /// Whether this node can swing freely or will remain fixed in place.
     bool m_bFixed = false;
-    ezVec3 m_vPosition = ezVec3::ZeroVector();
-    ezVec3 m_vPreviousPosition = ezVec3::ZeroVector();
+    ezSimdVec4f m_vPosition = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::ZeroVector();
   };
 
   /// Resolution of the cloth along X
@@ -40,13 +42,13 @@ public:
   ezDynamicArray<Node> m_Nodes;
 
   void SimulateCloth(const ezTime& tDiff);
-  void SimulateStep(const float tDiffSqr, ezUInt32 uiMaxIterations, double fAllowedError);
-  bool HasEquilibrium(float fAllowedMovement) const;
+  void SimulateStep(const ezSimdFloat tDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
+  bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
 
 private:
-  double EnforceDistanceConstraint();
-  void UpdateNodePositions(const float tDiffSqr);
-  ezVec3 MoveTowards(const ezVec3& posThis, const ezVec3& posNext, float factor, const ezVec3& fallbackDir, double& inout_fError, float fSegLen);
+  ezSimdFloat EnforceDistanceConstraint();
+  void UpdateNodePositions(const ezSimdFloat tDiffSqr);
+  ezSimdVec4f MoveTowards(const ezSimdVec4f posThis, const ezSimdVec4f posNext, ezSimdFloat factor, const ezSimdVec4f fallbackDir, ezSimdFloat& inout_fError, ezSimdFloat fSegLen);
 
   ezTime m_leftOverTimeStep;
 };

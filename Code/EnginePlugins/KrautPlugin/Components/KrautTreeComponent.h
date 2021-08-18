@@ -98,6 +98,7 @@ private:
 
   void ComputeWind() const;
 
+  mutable ezUInt64 m_uiLastWindUpdate = (ezUInt64)-1;
   mutable ezVec3 m_vWindSpringPos;
   mutable ezVec3 m_vWindSpringVel;
 };
