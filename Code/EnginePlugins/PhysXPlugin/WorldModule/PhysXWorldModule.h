@@ -132,6 +132,7 @@ public:
     ezSurfaceResource* m_pSurface;
     ezTempHashedString m_sInteraction;
     float m_fImpulseSqr;
+    float m_fDistanceSqr;
   };
 
   struct SlidingInfo
@@ -148,13 +149,18 @@ public:
     ezGameObjectHandle m_hRollPrefab;
   };
 
-  ezDynamicArray<InteractionContact> m_InteractionContacts;
+  ezVec3 m_vMainCameraPosition = ezVec3::ZeroVector();
+  ezStaticArray<InteractionContact, 16> m_InteractionContacts; // these are spawned PER FRAME, so only a low number is necessary
   ezMap<PxRigidDynamic*, SlidingInfo> m_SlidingActors;
   ezDeque<PxConstraint*> m_BrokenConstraints;
 
   virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override;
 
   virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
+
+  void OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, ezBitflags<ezOnPhysXContact>& ContactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ContactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& CombinedContactFlags);
+
+  void OnContact_ImpactReaction(PxContactPairPoint* contactPointBuffer, const PxContactPair& pair, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const PxContactPairHeader& pairHeader);
 
   void SendContactReport(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
 

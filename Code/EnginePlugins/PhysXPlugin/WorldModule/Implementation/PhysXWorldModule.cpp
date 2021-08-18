@@ -223,9 +223,6 @@ EZ_DEFINE_AS_POD_TYPE(PxRaycastHit);
 
 ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
-  , m_pPxScene(nullptr)
-  , m_pCharacterManager(nullptr)
-  , m_pSimulationEventCallback(nullptr)
   , m_uiNextShapeId(0)
   , m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
   , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
@@ -237,7 +234,7 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
 }
 
-ezPhysXWorldModule::~ezPhysXWorldModule() {}
+ezPhysXWorldModule::~ezPhysXWorldModule() = default;
 
 void ezPhysXWorldModule::Initialize()
 {
@@ -738,6 +735,16 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
 
 void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
 {
+  EZ_PROFILE_SCOPE("FetchResults");
+
+  if (const ezCameraComponentManager* pCompMan = GetWorld()->GetComponentManager<ezCameraComponentManager>())
+  {
+    if (const ezCameraComponent* pMainCamera = pCompMan->GetCameraByUsageHint(ezCameraUsageHint::MainView))
+    {
+      m_pSimulationEventCallback->m_vMainCameraPosition = pMainCamera->GetOwner()->GetGlobalPosition();
+    }
+  }
+
   {
     EZ_PROFILE_SCOPE("Wait for Simulate Task");
     ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
@@ -771,6 +778,8 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 
 void ezPhysXWorldModule::HandleBrokenConstraints()
 {
+  EZ_PROFILE_SCOPE("HandleBrokenConstraints");
+
   for (auto pConstraint : m_pSimulationEventCallback->m_BrokenConstraints)
   {
     auto it = m_BreakableJoints.Find(pConstraint);
@@ -796,6 +805,8 @@ void ezPhysXWorldModule::HandleBrokenConstraints()
 
 void ezPhysXWorldModule::HandleTriggerEvents()
 {
+  EZ_PROFILE_SCOPE("HandleTriggerEvents");
+
   for (const auto& te : m_pSimulationEventCallback->m_TriggerEvents)
   {
     ezPxTriggerComponent* pTrigger;
