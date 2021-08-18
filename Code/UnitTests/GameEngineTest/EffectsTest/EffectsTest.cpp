@@ -22,7 +22,7 @@ void ezGameEngineTestEffects::SetupSubTests()
 {
   AddSubTest("Decals", SubTests::Decals);
   AddSubTest("Heightfield", SubTests::Heightfield);
-  AddSubTest("Wind / Cloth / Ropes", SubTests::WindClothRopes);
+  AddSubTest("WindClothRopes", SubTests::WindClothRopes);
 }
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
@@ -72,7 +72,7 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
 
   if (m_ImgCompFrames[m_iImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_iImgCompIdx, 250);
+    EZ_TEST_IMAGE(m_iImgCompIdx, iIdentifier == SubTests::WindClothRopes ? 400 : 250);
     ++m_iImgCompIdx;
 
     if (m_iImgCompIdx >= m_ImgCompFrames.GetCount())

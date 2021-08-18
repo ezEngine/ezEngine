@@ -10,7 +10,6 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/ClothSheetComponent.h>
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
-#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
