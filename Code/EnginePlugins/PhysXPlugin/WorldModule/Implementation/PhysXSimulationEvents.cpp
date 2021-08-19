@@ -31,6 +31,9 @@ void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeade
   {
     const PxContactPair& pair = pairs[uiPairIndex];
 
+    if (pair.flags & (PxContactPairFlag::eREMOVED_SHAPE_0 | PxContactPairFlag::eREMOVED_SHAPE_1))
+      continue;
+
     PxContactPairPoint contactPointBuffer[8];
     const ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 8);
 
@@ -40,7 +43,7 @@ void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeade
     ContactFlags1.SetValue(pair.shapes[1]->getSimulationFilterData().word3);
 
     ezBitflags<ezOnPhysXContact> CombinedContactFlags;
-    CombinedContactFlags.SetValue(pair.shapes[0]->getSimulationFilterData().word3 | pair.shapes[1]->getSimulationFilterData().word3);
+    CombinedContactFlags.SetValue(ContactFlags0.GetValue() | ContactFlags1.GetValue());
 
     bSendContactReport = bSendContactReport || CombinedContactFlags.IsSet(ezOnPhysXContact::SendReportMsg);
 

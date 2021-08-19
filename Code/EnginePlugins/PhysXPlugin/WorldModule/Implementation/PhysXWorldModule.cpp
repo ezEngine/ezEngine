@@ -252,8 +252,11 @@ void ezPhysXWorldModule::Initialize()
     desc.flags |= PxSceneFlag::eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS;
     desc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
     desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
-    desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
     desc.flags |= PxSceneFlag::eENABLE_CCD;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
+#endif
 
     desc.gravity = ezPxConversionUtils::ToVec3(m_Settings.m_vObjectGravity);
 
