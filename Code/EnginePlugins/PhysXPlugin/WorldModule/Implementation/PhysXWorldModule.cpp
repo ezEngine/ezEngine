@@ -966,3 +966,4 @@ void ezPhysXWorldModule::UpdateJoints()
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_WorldModule_Implementation_PhysXWorldModule);
+

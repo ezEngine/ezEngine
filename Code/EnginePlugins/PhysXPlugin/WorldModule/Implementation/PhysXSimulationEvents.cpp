@@ -59,18 +59,14 @@ void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeade
         fMaxImpactSqr = ezMath::Max(fMaxImpactSqr, point.impulse.magnitudeSquared());
       }
 
-      if (fMaxImpactSqr <= 4.0f)
-        continue;
-
       vAvgPos /= (float)uiNumContactPoints;
-      vAvgNormal.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
 
-      if (CombinedContactFlags.IsAnySet(ezOnPhysXContact::SlideAndRollReactions) && !pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
+      if (!pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
       {
         OnContact_SlideAndRollReaction(pairHeader, ContactFlags0, vAvgPos, vAvgNormal, ContactFlags1, uiNumContactPoints, CombinedContactFlags);
       }
 
-      if (CombinedContactFlags.IsAnySet(ezOnPhysXContact::ImpactReactions))
+      if (fMaxImpactSqr >= 4.0f && CombinedContactFlags.IsAnySet(ezOnPhysXContact::ImpactReactions))
       {
         OnContact_ImpactReaction(contactPointBuffer, pair, vAvgPos, vAvgNormal, fMaxImpactSqr, pairHeader);
       }
@@ -92,7 +88,6 @@ void ezPxSimulationEventCallback::SendContactReport(const PxContactPairHeader& p
 
   float fNumContactPoints = 0.0f;
 
-  ///\todo Not sure whether taking a simple average is the desired behavior here.
   for (ezUInt32 uiPairIndex = 0; uiPairIndex < nbPairs; ++uiPairIndex)
   {
     const PxContactPair& pair = pairs[uiPairIndex];
@@ -186,14 +181,15 @@ void ezPhysXWorldModule::HandleSimulationEvents()
   EZ_PROFILE_SCOPE("HandleSimulationEvents");
 
   SpawnPhysicsImpactReactions();
-  UpdatePhysicsSlideAndRollReactions();
+  UpdatePhysicsSlideReactions();
+  UpdatePhysicsRollReactions();
 }
 
 void ezPhysXWorldModule::SpawnPhysicsImpactReactions()
 {
   EZ_PROFILE_SCOPE("SpawnPhysicsImpactReactions");
 
-  // TODO: sort by impulse, cluster by position, only execute the first N contacts, prevent duplicate spawns at same location within short time
+  // TODO (maybe): cluster by position, prevent duplicate spawns at same location within short time
 
   ezUInt32 uiMaxPrefabsToSpawn = 4;
 
@@ -214,63 +210,18 @@ void ezPhysXWorldModule::SpawnPhysicsImpactReactions()
   m_pSimulationEventCallback->m_InteractionContacts.Clear();
 }
 
-void ezPhysXWorldModule::UpdatePhysicsSlideAndRollReactions()
+void ezPhysXWorldModule::UpdatePhysicsSlideReactions()
 {
-  EZ_PROFILE_SCOPE("UpdatePhysicsSlideAndRollReactions");
+  EZ_PROFILE_SCOPE("UpdatePhysicsSlideReactions");
 
-  for (auto& itSlide : m_pSimulationEventCallback->m_SlidingActors)
+  for (auto& itSlide : m_pSimulationEventCallback->m_SlidingOrRollingActors)
   {
     auto& slideInfo = itSlide.Value();
 
-    if (slideInfo.m_bStillRolling)
-    {
-      if (slideInfo.m_bStartedRolling == false)
-      {
-        slideInfo.m_bStartedRolling = true;
-
-        // TODO: make roll reaction configurable
-        ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>("{ 4d306cc5-c1e6-4ec9-a04d-b804e3755210 }");
-        ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-        if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
-        {
-          ezHybridArray<ezGameObject*, 8> created;
-
-          ezPrefabInstantiationOptions options;
-          options.m_pCreatedRootObjectsOut = &created;
-          options.bForceDynamic = true;
-
-          pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vPosition), options);
-          slideInfo.m_hRollPrefab = created[0]->GetHandle();
-        }
-      }
-      else
-      {
-        ezGameObject* pObject;
-        if (m_pWorld->TryGetObject(slideInfo.m_hRollPrefab, pObject))
-        {
-          pObject->SetGlobalPosition(slideInfo.m_vPosition);
-        }
-      }
-
-      slideInfo.m_bStillRolling = false;
-    }
-    else
-    {
-      if (slideInfo.m_bStartedRolling == true)
-      {
-        m_pWorld->DeleteObjectDelayed(slideInfo.m_hRollPrefab);
-        slideInfo.m_hRollPrefab.Invalidate();
-
-        slideInfo.m_bStartedRolling = false;
-      }
-    }
-
     if (slideInfo.m_bStillSliding)
     {
-      if (slideInfo.m_bStartedSliding == false)
+      if (slideInfo.m_hSlidePrefab.IsInvalidated())
       {
-        slideInfo.m_bStartedSliding = true;
-
         // TODO: make slide reaction configurable
         ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>("{ c2d8d66d-b123-4cf1-b123-4d015fc69fb0 }");
         ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
@@ -282,7 +233,7 @@ void ezPhysXWorldModule::UpdatePhysicsSlideAndRollReactions()
           options.m_pCreatedRootObjectsOut = &created;
           options.bForceDynamic = true;
 
-          pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vPosition), options);
+          pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vContactPosition), options);
           slideInfo.m_hSlidePrefab = created[0]->GetHandle();
         }
       }
@@ -291,7 +242,11 @@ void ezPhysXWorldModule::UpdatePhysicsSlideAndRollReactions()
         ezGameObject* pObject;
         if (m_pWorld->TryGetObject(slideInfo.m_hSlidePrefab, pObject))
         {
-          pObject->SetGlobalPosition(slideInfo.m_vPosition);
+          pObject->SetGlobalPosition(slideInfo.m_vContactPosition);
+        }
+        else
+        {
+          slideInfo.m_hSlidePrefab.Invalidate();
         }
       }
 
@@ -299,13 +254,68 @@ void ezPhysXWorldModule::UpdatePhysicsSlideAndRollReactions()
     }
     else
     {
-      if (slideInfo.m_bStartedSliding == true)
+      if (!slideInfo.m_hSlidePrefab.IsInvalidated())
       {
         m_pWorld->DeleteObjectDelayed(slideInfo.m_hSlidePrefab);
         slideInfo.m_hSlidePrefab.Invalidate();
-
-        slideInfo.m_bStartedSliding = false;
       }
+
+      // TODO: remove element from m_SlidingActors
+    }
+  }
+}
+
+void ezPhysXWorldModule::UpdatePhysicsRollReactions()
+{
+  EZ_PROFILE_SCOPE("UpdatePhysicsRollReactions");
+
+  for (auto& itRoll : m_pSimulationEventCallback->m_SlidingOrRollingActors)
+  {
+    auto& rollInfo = itRoll.Value();
+
+    if (rollInfo.m_bStillRolling)
+    {
+      if (rollInfo.m_hRollPrefab.IsInvalidated())
+      {
+        // TODO: make roll reaction configurable
+        ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>("{ 4d306cc5-c1e6-4ec9-a04d-b804e3755210 }");
+        ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+        if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+        {
+          ezHybridArray<ezGameObject*, 8> created;
+
+          ezPrefabInstantiationOptions options;
+          options.m_pCreatedRootObjectsOut = &created;
+          options.bForceDynamic = true;
+
+          pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(rollInfo.m_vContactPosition), options);
+          rollInfo.m_hRollPrefab = created[0]->GetHandle();
+        }
+      }
+      else
+      {
+        ezGameObject* pObject;
+        if (m_pWorld->TryGetObject(rollInfo.m_hRollPrefab, pObject))
+        {
+          pObject->SetGlobalPosition(rollInfo.m_vContactPosition);
+        }
+        else
+        {
+          rollInfo.m_hRollPrefab.Invalidate();
+        }
+      }
+
+      rollInfo.m_bStillRolling = false;
+    }
+    else
+    {
+      if (!rollInfo.m_hRollPrefab.IsInvalidated())
+      {
+        m_pWorld->DeleteObjectDelayed(rollInfo.m_hRollPrefab);
+        rollInfo.m_hRollPrefab.Invalidate();
+      }
+
+      // TODO: remove element from m_RollingActors
     }
   }
 }
@@ -384,101 +394,118 @@ void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* c
   }
 }
 
-void ezPxSimulationEventCallback::OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, ezBitflags<ezOnPhysXContact>& ContactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ContactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& CombinedContactFlags)
+void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1)
 {
-  ezVec3 vVelocity0(0.0f);
-  ezVec3 vVelocity1(0.0f);
-  PxRigidDynamic* pRigid0 = nullptr;
-  PxRigidDynamic* pRigid1 = nullptr;
-
-  if (pairHeader.actors[0]->getType() == PxActorType::eRIGID_DYNAMIC)
+  if (/*false &&*/ pRigid0 && ContactFlags0.IsAnySet(ezOnPhysXContact::AllRollReactions))
   {
-    pRigid0 = static_cast<PxRigidDynamic*>(pairHeader.actors[0]);
+    const ezVec3 vAngularVel = ezPxConversionUtils::ToVec3(pRigid0->getGlobalPose().rotateInv(pRigid0->getAngularVelocity()));
 
+    // TODO: make threshold tweakable
+    if ((ContactFlags0.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags0.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
+        (ContactFlags0.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
+    {
+      m_SlidingOrRollingActors[pRigid0].m_bStillRolling = true;
+      m_SlidingOrRollingActors[pRigid0].m_vContactPosition = vAvgPos;
+    }
+  }
+
+  if (/*false &&*/ pRigid1 && ContactFlags1.IsAnySet(ezOnPhysXContact::AllRollReactions))
+  {
+    const ezVec3 vAngularVel = ezPxConversionUtils::ToVec3(pRigid1->getGlobalPose().rotateInv(pRigid1->getAngularVelocity()));
+
+    // TODO: make threshold tweakable
+    if ((ContactFlags1.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags1.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
+        (ContactFlags1.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
+    {
+      m_SlidingOrRollingActors[pRigid1].m_bStillRolling = true;
+      m_SlidingOrRollingActors[pRigid1].m_vContactPosition = vAvgPos;
+    }
+  }
+}
+
+void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal0, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1, ezBitflags<ezOnPhysXContact>& CombinedContactFlags)
+{
+  ezVec3 vVelocity0(0);
+  ezVec3 vVelocity1(0);
+
+  if (pRigid0)
+  {
     vVelocity0 = ezPxConversionUtils::ToVec3(pRigid0->getLinearVelocity());
 
     if (!vVelocity0.IsValid())
       vVelocity0.SetZero();
   }
 
-  if (pairHeader.actors[1]->getType() == PxActorType::eRIGID_DYNAMIC)
+  if (pRigid1)
   {
-    pRigid1 = static_cast<PxRigidDynamic*>(pairHeader.actors[1]);
-
     vVelocity1 = ezPxConversionUtils::ToVec3(pRigid1->getLinearVelocity());
 
     if (!vVelocity1.IsValid())
       vVelocity1.SetZero();
   }
 
+  const ezVec3 vRelativeVelocity = vVelocity1 - vVelocity0;
+
+  if (!vRelativeVelocity.IsZero(0.0001f))
   {
-    if (/*false &&*/ pRigid0 && ContactFlags0.IsAnySet(ezOnPhysXContact::AllRollReactions))
-    {
-      const ezVec3 vAngularVel = ezPxConversionUtils::ToVec3(pRigid0->getGlobalPose().rotateInv(pRigid0->getAngularVelocity()));
+    const ezVec3 vRelativeVelocityDir = vRelativeVelocity.GetNormalized();
 
+    ezVec3 vAvgNormal = vAvgNormal0;
+    vAvgNormal.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+
+    if (ezMath::Abs(vAvgNormal.Dot(vRelativeVelocityDir)) < 0.1f)
+    {
       // TODO: make threshold tweakable
-      if ((ContactFlags0.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags0.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
-          (ContactFlags0.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
+      if (vRelativeVelocity.GetLengthSquared() > ezMath::Square(1.0f))
       {
-        m_SlidingActors[pRigid0].m_bStillRolling = true;
-        m_SlidingActors[pRigid0].m_vPosition = vAvgPos;
-        m_SlidingActors[pRigid0].m_vNormal = vAvgNormal;
-      }
-    }
-
-    if (/*false &&*/ pRigid1 && ContactFlags1.IsAnySet(ezOnPhysXContact::AllRollReactions))
-    {
-      const ezVec3 vAngularVel = ezPxConversionUtils::ToVec3(pRigid1->getGlobalPose().rotateInv(pRigid1->getAngularVelocity()));
-
-      // TODO: make threshold tweakable
-      if ((ContactFlags1.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags1.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
-          (ContactFlags1.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
-      {
-        m_SlidingActors[pRigid1].m_bStillRolling = true;
-        m_SlidingActors[pRigid1].m_vPosition = vAvgPos;
-        m_SlidingActors[pRigid1].m_vNormal = vAvgNormal;
-      }
-    }
-  }
-
-  if (/*false &&*/ uiNumContactPoints >= 2 && CombinedContactFlags.IsAnySet(ezOnPhysXContact::SlideReactions))
-  {
-    const ezVec3 vRelativeVelocity = vVelocity1 - vVelocity0;
-
-    if (!vRelativeVelocity.IsZero(0.0001f))
-    {
-      const ezVec3 vRelativeVelocityDir = vRelativeVelocity.GetNormalized();
-
-      if (ezMath::Abs(vAvgNormal.Dot(vRelativeVelocityDir)) < 0.1f)
-      {
-        // TODO: make threshold tweakable
-        if (vRelativeVelocity.GetLengthSquared() > ezMath::Square(1.0f))
+        if (pRigid0 && ContactFlags0.IsAnySet(ezOnPhysXContact::SlideReactions))
         {
-          if (pRigid0 && ContactFlags0.IsAnySet(ezOnPhysXContact::SlideReactions))
-          {
-            auto& info = m_SlidingActors[pRigid0];
+          auto& info = m_SlidingOrRollingActors[pRigid0];
 
-            if (!info.m_bStillRolling)
-            {
-              info.m_bStillSliding = true;
-              info.m_vPosition = vAvgPos;
-              info.m_vNormal = vAvgNormal;
-            }
+          if (!info.m_bStillRolling)
+          {
+            info.m_bStillSliding = true;
+            info.m_vContactPosition = vAvgPos;
           }
+        }
 
-          if (pRigid1 && ContactFlags1.IsAnySet(ezOnPhysXContact::SlideReactions))
+        if (pRigid1 && ContactFlags1.IsAnySet(ezOnPhysXContact::SlideReactions))
+        {
+          auto& info = m_SlidingOrRollingActors[pRigid1];
+
+          if (!info.m_bStillRolling)
           {
-            auto& info = m_SlidingActors[pRigid1];
-
-            if (!info.m_bStillRolling)
-            {
-              info.m_bStillSliding = true;
-              info.m_vPosition = vAvgPos;
-              info.m_vNormal = vAvgNormal;
-            }
+            info.m_bStillSliding = true;
+            info.m_vContactPosition = vAvgPos;
           }
         }
       }
     }
+  }
+}
+
+void ezPxSimulationEventCallback::OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, ezBitflags<ezOnPhysXContact>& ContactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ContactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& CombinedContactFlags)
+{
+  PxRigidDynamic* pRigid0 = nullptr;
+  PxRigidDynamic* pRigid1 = nullptr;
+
+  if (pairHeader.actors[0]->getType() == PxActorType::eRIGID_DYNAMIC)
+  {
+    pRigid0 = static_cast<PxRigidDynamic*>(pairHeader.actors[0]);
+  }
+
+  if (pairHeader.actors[1]->getType() == PxActorType::eRIGID_DYNAMIC)
+  {
+    pRigid1 = static_cast<PxRigidDynamic*>(pairHeader.actors[1]);
+  }
+
+  if (/*false &&*/ uiNumContactPoints >= 2 && CombinedContactFlags.IsAnySet(ezOnPhysXContact::SlideReactions))
+  {
+    OnContact_SlideReaction(vAvgPos, vAvgNormal, pRigid0, pRigid1, ContactFlags0, ContactFlags1, CombinedContactFlags);
+  }
+
+  if (CombinedContactFlags.IsAnySet(ezOnPhysXContact::AllRollReactions))
+  {
+    OnContact_RollReaction(vAvgPos, pRigid0, pRigid1, ContactFlags0, ContactFlags1);
   }
 }

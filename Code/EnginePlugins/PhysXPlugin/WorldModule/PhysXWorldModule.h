@@ -80,7 +80,8 @@ private:
 
   void HandleSimulationEvents();
 
-  void UpdatePhysicsSlideAndRollReactions();
+  void UpdatePhysicsSlideReactions();
+  void UpdatePhysicsRollReactions();
 
   void SpawnPhysicsImpactReactions();
 
@@ -135,29 +136,27 @@ public:
     float m_fDistanceSqr;
   };
 
-  struct SlidingInfo
+  struct SlideAndRollInfo
   {
     bool m_bStillSliding = false;
-    bool m_bStartedSliding = false;
-
     bool m_bStillRolling = false;
-    bool m_bStartedRolling = false;
 
-    ezVec3 m_vPosition;
-    ezVec3 m_vNormal;
+    ezVec3 m_vContactPosition;
     ezGameObjectHandle m_hSlidePrefab;
     ezGameObjectHandle m_hRollPrefab;
   };
 
   ezVec3 m_vMainCameraPosition = ezVec3::ZeroVector();
   ezStaticArray<InteractionContact, 16> m_InteractionContacts; // these are spawned PER FRAME, so only a low number is necessary
-  ezMap<PxRigidDynamic*, SlidingInfo> m_SlidingActors;
+  ezMap<PxRigidDynamic*, SlideAndRollInfo> m_SlidingOrRollingActors;
   ezDeque<PxConstraint*> m_BrokenConstraints;
 
   virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override;
 
   virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
 
+  void OnContact_SlideReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1, ezBitflags<ezOnPhysXContact>& CombinedContactFlags);
+  void OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1);
   void OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, ezBitflags<ezOnPhysXContact>& ContactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ContactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& CombinedContactFlags);
 
   void OnContact_ImpactReaction(PxContactPairPoint* contactPointBuffer, const PxContactPair& pair, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const PxContactPairHeader& pairHeader);
