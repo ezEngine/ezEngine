@@ -138,9 +138,11 @@ public:
 
   struct SlideAndRollInfo
   {
+    PxRigidDynamic* m_pActor = nullptr;
     bool m_bStillSliding = false;
     bool m_bStillRolling = false;
 
+    float m_fDistanceSqr;
     ezVec3 m_vContactPosition;
     ezGameObjectHandle m_hSlidePrefab;
     ezGameObjectHandle m_hRollPrefab;
@@ -148,8 +150,10 @@ public:
 
   ezVec3 m_vMainCameraPosition = ezVec3::ZeroVector();
   ezStaticArray<InteractionContact, 16> m_InteractionContacts; // these are spawned PER FRAME, so only a low number is necessary
-  ezMap<PxRigidDynamic*, SlideAndRollInfo> m_SlidingOrRollingActors;
+  ezStaticArray<SlideAndRollInfo, 4> m_SlidingOrRollingActors;
   ezDeque<PxConstraint*> m_BrokenConstraints;
+
+  SlideAndRollInfo* FindSlideOrRollInfo(PxRigidDynamic* pActor, const ezVec3& vAvgPos);
 
   virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override;
 

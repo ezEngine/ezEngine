@@ -3,10 +3,12 @@
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Foundation/Configuration/CVar.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 void ezPxSimulationEventCallback::onConstraintBreak(PxConstraintInfo* constraints, PxU32 count)
 {
@@ -184,9 +186,28 @@ void ezPhysXWorldModule::HandleSimulationEvents()
   EZ_PROFILE_SCOPE("HandleSimulationEvents");
 
   SpawnPhysicsImpactReactions();
-  UpdatePhysicsSlideReactions();
   UpdatePhysicsRollReactions();
+  UpdatePhysicsSlideReactions();
+
+  for (auto& info : m_pSimulationEventCallback->m_SlidingOrRollingActors)
+  {
+    if (info.m_hRollPrefab.IsInvalidated() && info.m_hSlidePrefab.IsInvalidated())
+    {
+      // mark this slot as ready for reuse
+      info.m_pActor = nullptr;
+    }
+  }
+
+  // slowly shrink the array
+  if (!m_pSimulationEventCallback->m_SlidingOrRollingActors.IsEmpty() && m_pSimulationEventCallback->m_SlidingOrRollingActors.PeekBack().m_pActor == nullptr)
+  {
+    m_pSimulationEventCallback->m_SlidingOrRollingActors.PopBack();
+  }
 }
+
+ezCVarBool cvar_PhysicsReactionsVisImpacts("physics.reactions.vis.impacts", false, ezCVarFlags::Default, "Visualize where impact reactions are spawned.");
+ezCVarBool cvar_PhysicsReactionsVisSlides("physics.reactions.vis.slides", false, ezCVarFlags::Default, "Visualize where slide reactions are spawned.");
+ezCVarBool cvar_PhysicsReactionsVisRolls("physics.reactions.vis.rolls", false, ezCVarFlags::Default, "Visualize where roll reactions are spawned.");
 
 void ezPhysXWorldModule::SpawnPhysicsImpactReactions()
 {
@@ -202,6 +223,11 @@ void ezPhysXWorldModule::SpawnPhysicsImpactReactions()
     {
       if (ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, -ic.m_vNormal, ic.m_sInteraction, nullptr, ic.m_fImpulseSqr))
       {
+        if (cvar_PhysicsReactionsVisImpacts)
+        {
+          ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(ic.m_vPosition, 0.2f), ezColor::PaleVioletRed);
+        }
+
         if (--uiMaxPrefabsToSpawn == 0)
         {
           break;
@@ -217,9 +243,10 @@ void ezPhysXWorldModule::UpdatePhysicsSlideReactions()
 {
   EZ_PROFILE_SCOPE("UpdatePhysicsSlideReactions");
 
-  for (auto& itSlide : m_pSimulationEventCallback->m_SlidingOrRollingActors)
+  for (auto& slideInfo : m_pSimulationEventCallback->m_SlidingOrRollingActors)
   {
-    auto& slideInfo = itSlide.Value();
+    if (slideInfo.m_pActor == nullptr)
+      continue;
 
     if (slideInfo.m_bStillSliding)
     {
@@ -253,6 +280,11 @@ void ezPhysXWorldModule::UpdatePhysicsSlideReactions()
         }
       }
 
+      if (cvar_PhysicsReactionsVisSlides)
+      {
+        ezDebugRenderer::DrawLineBox(GetWorld(), ezBoundingBox(ezVec3(-0.5f), ezVec3(0.5f)), ezColor::BlueViolet, ezTransform(slideInfo.m_vContactPosition));
+      }
+
       slideInfo.m_bStillSliding = false;
     }
     else
@@ -262,8 +294,6 @@ void ezPhysXWorldModule::UpdatePhysicsSlideReactions()
         m_pWorld->DeleteObjectDelayed(slideInfo.m_hSlidePrefab);
         slideInfo.m_hSlidePrefab.Invalidate();
       }
-
-      // TODO: remove element from m_SlidingActors
     }
   }
 }
@@ -272,9 +302,10 @@ void ezPhysXWorldModule::UpdatePhysicsRollReactions()
 {
   EZ_PROFILE_SCOPE("UpdatePhysicsRollReactions");
 
-  for (auto& itRoll : m_pSimulationEventCallback->m_SlidingOrRollingActors)
+  for (auto& rollInfo : m_pSimulationEventCallback->m_SlidingOrRollingActors)
   {
-    auto& rollInfo = itRoll.Value();
+    if (rollInfo.m_pActor == nullptr)
+      continue;
 
     if (rollInfo.m_bStillRolling)
     {
@@ -308,7 +339,13 @@ void ezPhysXWorldModule::UpdatePhysicsRollReactions()
         }
       }
 
+      if (cvar_PhysicsReactionsVisSlides)
+      {
+        ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), 0.4f, 0.2f, ezColor::GreenYellow, ezTransform(rollInfo.m_vContactPosition));
+      }
+
       rollInfo.m_bStillRolling = false;
+      rollInfo.m_bStillSliding = false; // ensures that no slide reaction is spawned as well
     }
     else
     {
@@ -317,8 +354,6 @@ void ezPhysXWorldModule::UpdatePhysicsRollReactions()
         m_pWorld->DeleteObjectDelayed(rollInfo.m_hRollPrefab);
         rollInfo.m_hRollPrefab.Invalidate();
       }
-
-      // TODO: remove element from m_RollingActors
     }
   }
 }
@@ -397,6 +432,64 @@ void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* c
   }
 }
 
+ezPxSimulationEventCallback::SlideAndRollInfo* ezPxSimulationEventCallback::FindSlideOrRollInfo(PxRigidDynamic* pActor, const ezVec3& vAvgPos)
+{
+  EZ_ASSERT_DEV(pActor != nullptr, "");
+
+  SlideAndRollInfo* pUnused = nullptr;
+
+  for (auto& info : m_SlidingOrRollingActors)
+  {
+    if (info.m_pActor == pActor)
+      return &info;
+
+    if (info.m_pActor == nullptr)
+      pUnused = &info;
+  }
+
+  const float fDistSqr = (vAvgPos - m_vMainCameraPosition).GetLengthSquared();
+
+  if (pUnused != nullptr)
+  {
+    pUnused->m_fDistanceSqr = fDistSqr;
+    pUnused->m_pActor = pActor;
+    return pUnused;
+  }
+
+  if (m_SlidingOrRollingActors.GetCount() < m_SlidingOrRollingActors.GetCapacity())
+  {
+    pUnused = &m_SlidingOrRollingActors.ExpandAndGetRef();
+    pUnused->m_fDistanceSqr = fDistSqr;
+    pUnused->m_pActor = pActor;
+    return pUnused;
+  }
+
+  float fBestDist = 0.0f;
+
+  for (auto& info : m_SlidingOrRollingActors)
+  {
+    if (!info.m_hRollPrefab.IsInvalidated() || !info.m_hSlidePrefab.IsInvalidated())
+      continue;
+
+    // this slot is not yet really in use, so can be replaced by a better match
+
+    if (fDistSqr < info.m_fDistanceSqr && info.m_fDistanceSqr > fBestDist)
+    {
+      fBestDist = info.m_fDistanceSqr;
+      pUnused = &info;
+    }
+  }
+
+  if (pUnused != nullptr)
+  {
+    pUnused->m_fDistanceSqr = fDistSqr;
+    pUnused->m_pActor = pActor;
+    return pUnused;
+  }
+
+  return nullptr;
+}
+
 void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1)
 {
   if (/*false &&*/ pRigid0 && ContactFlags0.IsAnySet(ezOnPhysXContact::AllRollReactions))
@@ -407,8 +500,11 @@ void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, 
     if ((ContactFlags0.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags0.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
         (ContactFlags0.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
     {
-      m_SlidingOrRollingActors[pRigid0].m_bStillRolling = true;
-      m_SlidingOrRollingActors[pRigid0].m_vContactPosition = vAvgPos;
+      if (auto pInfo = FindSlideOrRollInfo(pRigid0, vAvgPos))
+      {
+        pInfo->m_bStillRolling = true;
+        pInfo->m_vContactPosition = vAvgPos;
+      }
     }
   }
 
@@ -420,8 +516,11 @@ void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, 
     if ((ContactFlags1.IsSet(ezOnPhysXContact::RollXReactions) && ezMath::Abs(vAngularVel.x) > 1.0f) || (ContactFlags1.IsSet(ezOnPhysXContact::RollYReactions) && ezMath::Abs(vAngularVel.y) > 1.0f) ||
         (ContactFlags1.IsSet(ezOnPhysXContact::RollZReactions) && ezMath::Abs(vAngularVel.z) > 1.0f))
     {
-      m_SlidingOrRollingActors[pRigid1].m_bStillRolling = true;
-      m_SlidingOrRollingActors[pRigid1].m_vContactPosition = vAvgPos;
+      if (auto pInfo = FindSlideOrRollInfo(pRigid1, vAvgPos))
+      {
+        pInfo->m_bStillRolling = true;
+        pInfo->m_vContactPosition = vAvgPos;
+      }
     }
   }
 }
@@ -463,23 +562,25 @@ void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos,
       {
         if (pRigid0 && ContactFlags0.IsAnySet(ezOnPhysXContact::SlideReactions))
         {
-          auto& info = m_SlidingOrRollingActors[pRigid0];
-
-          if (!info.m_bStillRolling)
+          if (auto pInfo = FindSlideOrRollInfo(pRigid0, vAvgPos))
           {
-            info.m_bStillSliding = true;
-            info.m_vContactPosition = vAvgPos;
+            if (!pInfo->m_bStillRolling)
+            {
+              pInfo->m_bStillSliding = true;
+              pInfo->m_vContactPosition = vAvgPos;
+            }
           }
         }
 
         if (pRigid1 && ContactFlags1.IsAnySet(ezOnPhysXContact::SlideReactions))
         {
-          auto& info = m_SlidingOrRollingActors[pRigid1];
-
-          if (!info.m_bStillRolling)
+          if (auto pInfo = FindSlideOrRollInfo(pRigid1, vAvgPos))
           {
-            info.m_bStillSliding = true;
-            info.m_vContactPosition = vAvgPos;
+            if (!pInfo->m_bStillRolling)
+            {
+              pInfo->m_bStillSliding = true;
+              pInfo->m_vContactPosition = vAvgPos;
+            }
           }
         }
       }

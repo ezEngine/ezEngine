@@ -966,7 +966,5 @@ void ezPhysXWorldModule::UpdateJoints()
   m_RequireUpdate.Clear();
 }
 
-
-
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_WorldModule_Implementation_PhysXWorldModule);
 
