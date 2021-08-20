@@ -369,7 +369,7 @@ void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* c
 
   InteractionContact* ic = nullptr;
 
-  if (m_InteractionContacts.GetCount() < cvar_PhysicsReactionsMaxImpacts * 2)
+  if (m_InteractionContacts.GetCount() < (ezUInt32)cvar_PhysicsReactionsMaxImpacts * 2)
   {
     ic = &m_InteractionContacts.ExpandAndGetRef();
     ic->m_pSurface = nullptr;
@@ -492,7 +492,7 @@ ezPxSimulationEventCallback::SlideAndRollInfo* ezPxSimulationEventCallback::Find
     return pUnused;
   }
 
-  if (m_SlidingOrRollingActors.GetCount() < cvar_PhysicsReactionsMaxSlidesOrRolls)
+  if (m_SlidingOrRollingActors.GetCount() < (ezUInt32)cvar_PhysicsReactionsMaxSlidesOrRolls)
   {
     pUnused = &m_SlidingOrRollingActors.ExpandAndGetRef();
     pUnused->m_fDistanceSqr = fDistSqr;
