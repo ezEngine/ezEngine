@@ -67,12 +67,9 @@ const char* ezSurfaceInteraction::GetPrefab() const
 
 const ezRangeView<const char*, ezUInt32> ezSurfaceInteraction::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
-    { return 0; },
-    [this]() -> ezUInt32
-    { return m_Parameters.GetCount(); },
-    [](ezUInt32& it)
-    { ++it; },
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [](ezUInt32& it) { ++it; },
     [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 

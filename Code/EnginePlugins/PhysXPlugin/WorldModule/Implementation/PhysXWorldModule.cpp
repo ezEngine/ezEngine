@@ -67,8 +67,7 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
-        { FinishTask(pTask); });
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -892,8 +891,7 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&]
-      { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
@@ -968,4 +966,3 @@ void ezPhysXWorldModule::UpdateJoints()
 }
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_WorldModule_Implementation_PhysXWorldModule);
-
