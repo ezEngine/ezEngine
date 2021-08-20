@@ -243,6 +243,7 @@ void ezPhysXWorldModule::Initialize()
   m_AccumulatedTimeSinceUpdate.SetZero();
 
   m_pSimulationEventCallback = EZ_DEFAULT_NEW(ezPxSimulationEventCallback);
+  m_pSimulationEventCallback->m_pWorld = GetWorld();
 
   {
     PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());

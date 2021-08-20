@@ -71,7 +71,7 @@ void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeade
         OnContact_SlideAndRollReaction(pairHeader, ContactFlags0, vAvgPos, vAvgNormal, ContactFlags1, uiNumContactPoints, CombinedContactFlags);
       }
 
-      if (fMaxImpactSqr >= 4.0f && CombinedContactFlags.IsAnySet(ezOnPhysXContact::ImpactReactions))
+      if (fMaxImpactSqr >= 1.0f && CombinedContactFlags.IsAnySet(ezOnPhysXContact::ImpactReactions))
       {
         OnContact_ImpactReaction(contactPointBuffer, pair, vAvgPos, vAvgNormal, fMaxImpactSqr, pairHeader);
       }
@@ -205,32 +205,37 @@ void ezPhysXWorldModule::HandleSimulationEvents()
   }
 }
 
-ezCVarBool cvar_PhysicsReactionsVisImpacts("physics.reactions.vis.impacts", false, ezCVarFlags::Default, "Visualize where impact reactions are spawned.");
-ezCVarBool cvar_PhysicsReactionsVisSlides("physics.reactions.vis.slides", false, ezCVarFlags::Default, "Visualize where slide reactions are spawned.");
-ezCVarBool cvar_PhysicsReactionsVisRolls("physics.reactions.vis.rolls", false, ezCVarFlags::Default, "Visualize where roll reactions are spawned.");
+ezCVarInt cvar_PhysicsReactionsMaxImpacts("Physics.Reactions.MaxImpacts", 4, ezCVarFlags::Default, "Maximum number of impact reactions to spawn per frame.");
+ezCVarInt cvar_PhysicsReactionsMaxSlidesOrRolls("Physics.Reactions.MaxSlidesOrRolls", 4, ezCVarFlags::Default, "Maximum number of active slide or roll reactions.");
+ezCVarBool cvar_PhysicsReactionsVisImpacts("Physics.Reactions.VisImpacts", false, ezCVarFlags::Default, "Visualize where impact reactions are spawned.");
+ezCVarBool cvar_PhysicsReactionsVisDiscardedImpacts("Physics.Reactions.VisDiscardedImpacts", false, ezCVarFlags::Default, "Visualize where impact reactions were NOT spawned.");
+ezCVarBool cvar_PhysicsReactionsVisSlides("Physics.Reactions.VisSlides", false, ezCVarFlags::Default, "Visualize active slide reactions.");
+ezCVarBool cvar_PhysicsReactionsVisRolls("Physics.Reactions.VisRolls", false, ezCVarFlags::Default, "Visualize active roll reactions.");
 
 void ezPhysXWorldModule::SpawnPhysicsImpactReactions()
 {
   EZ_PROFILE_SCOPE("SpawnPhysicsImpactReactions");
 
-  // TODO (maybe): cluster by position, prevent duplicate spawns at same location within short time
-
-  ezUInt32 uiMaxPrefabsToSpawn = 4;
+  ezUInt32 uiMaxPrefabsToSpawn = cvar_PhysicsReactionsMaxImpacts;
 
   for (const auto& ic : m_pSimulationEventCallback->m_InteractionContacts)
   {
     if (ic.m_pSurface != nullptr)
     {
-      if (ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, -ic.m_vNormal, ic.m_sInteraction, nullptr, ic.m_fImpulseSqr))
+      if (uiMaxPrefabsToSpawn > 0 && ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, -ic.m_vNormal, ic.m_sInteraction, nullptr, ic.m_fImpulseSqr))
       {
+        --uiMaxPrefabsToSpawn;
+
         if (cvar_PhysicsReactionsVisImpacts)
         {
-          ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(ic.m_vPosition, 0.2f), ezColor::PaleVioletRed);
+          ezDebugRenderer::AddPersistentCross(GetWorld(), 1.0f, ezColor::LightGreen, ezTransform(ic.m_vPosition), ezTime::Seconds(3));
         }
-
-        if (--uiMaxPrefabsToSpawn == 0)
+      }
+      else
+      {
+        if (cvar_PhysicsReactionsVisDiscardedImpacts)
         {
-          break;
+          ezDebugRenderer::AddPersistentCross(GetWorld(), 1.0f, ezColor::DarkGray, ezTransform(ic.m_vPosition), ezTime::Seconds(1));
         }
       }
     }
@@ -339,7 +344,7 @@ void ezPhysXWorldModule::UpdatePhysicsRollReactions()
         }
       }
 
-      if (cvar_PhysicsReactionsVisSlides)
+      if (cvar_PhysicsReactionsVisRolls)
       {
         ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), 0.4f, 0.2f, ezColor::GreenYellow, ezTransform(rollInfo.m_vContactPosition));
       }
@@ -366,7 +371,7 @@ void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* c
 
   InteractionContact* ic = nullptr;
 
-  if (m_InteractionContacts.GetCount() < m_InteractionContacts.GetCapacity())
+  if (m_InteractionContacts.GetCount() < cvar_PhysicsReactionsMaxImpacts * 2)
   {
     ic = &m_InteractionContacts.ExpandAndGetRef();
     ic->m_pSurface = nullptr;
@@ -379,13 +384,13 @@ void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* c
     // * prefer to replace points that have a lower impact strength than the new one
 
     float fBestScore = 0;
-    ezUInt32 uiBestScore = 0;
+    ezUInt32 uiBestScore = 0xFFFFFFFFu;
 
     for (ezUInt32 i = 0; i < m_InteractionContacts.GetCount(); ++i)
     {
       float fScore = 0;
       fScore += m_InteractionContacts[i].m_fDistanceSqr - fDistanceSqr;
-      fScore += ezMath::Square(fMaxImpactSqr - m_InteractionContacts[i].m_fImpulseSqr);
+      fScore += 2.0f * (fMaxImpactSqr - m_InteractionContacts[i].m_fImpulseSqr);
 
       if (fScore > fBestScore)
       {
@@ -394,10 +399,26 @@ void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* c
       }
     }
 
+    if (uiBestScore == 0xFFFFFFFFu)
+    {
+      if (cvar_PhysicsReactionsVisDiscardedImpacts)
+      {
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(vAvgPos), ezTime::Seconds(3));
+      }
+
+      return;
+    }
+    else
+    {
+      if (cvar_PhysicsReactionsVisDiscardedImpacts)
+      {
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(m_InteractionContacts[uiBestScore].m_vPosition), ezTime::Seconds(3));
+      }
+    }
+
     // this is the best candidate to replace
     ic = &m_InteractionContacts[uiBestScore];
   }
-
 
   if (PxMaterial* pMaterial0 = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
   {
@@ -430,6 +451,11 @@ void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* c
       }
     }
   }
+
+  if (cvar_PhysicsReactionsVisDiscardedImpacts)
+  {
+    ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkOrange, ezTransform(vAvgPos), ezTime::Seconds(10));
+  }
 }
 
 ezPxSimulationEventCallback::SlideAndRollInfo* ezPxSimulationEventCallback::FindSlideOrRollInfo(PxRigidDynamic* pActor, const ezVec3& vAvgPos)
@@ -456,7 +482,7 @@ ezPxSimulationEventCallback::SlideAndRollInfo* ezPxSimulationEventCallback::Find
     return pUnused;
   }
 
-  if (m_SlidingOrRollingActors.GetCount() < m_SlidingOrRollingActors.GetCapacity())
+  if (m_SlidingOrRollingActors.GetCount() < cvar_PhysicsReactionsMaxSlidesOrRolls)
   {
     pUnused = &m_SlidingOrRollingActors.ExpandAndGetRef();
     pUnused->m_fDistanceSqr = fDistSqr;

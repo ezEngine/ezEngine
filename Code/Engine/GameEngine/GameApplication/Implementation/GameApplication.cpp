@@ -305,11 +305,10 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText.GetData(), ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
     }
 
-    ezStringView sInputLine(m_pConsole->GetInputLine());
-    ezDebugRenderer::Draw2DText(hView, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
+    ezDebugRenderer::Draw2DText(hView, m_pConsole->GetInputLine(), ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
 
     if (ezMath::Fraction(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds()) > 0.5)
     {
