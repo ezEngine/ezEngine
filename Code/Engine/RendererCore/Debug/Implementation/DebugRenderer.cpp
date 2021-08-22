@@ -239,10 +239,13 @@ namespace
   }
 
   template <typename AddFunc>
-  static void AddTextLines(const ezDebugRendererContext& context, ezStringView text, const ezVec2I32& positionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment::Enum horizontalAlignment, ezDebugRenderer::VerticalAlignment::Enum verticalAlignment, AddFunc func)
+  static void AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& positionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment::Enum horizontalAlignment, ezDebugRenderer::VerticalAlignment::Enum verticalAlignment, AddFunc func)
   {
-    if (text.IsEmpty())
+    if (text0.IsEmpty())
       return;
+
+    ezStringBuilder tmp;
+    ezStringView text = text0.GetText(tmp);
 
     ezHybridArray<ezStringView, 8> lines;
     ezUInt32 maxLineLength = 0;
@@ -314,6 +317,44 @@ namespace
       currentPos.x += fGlyphWidth;
     }
   }
+
+  //////////////////////////////////////////////////////////////////////////
+  // Persistent Items
+
+  struct PersistentCrossData
+  {
+    float m_fSize;
+    ezColor m_Color;
+    ezTransform m_Transform;
+    ezTime m_Timeout;
+  };
+
+  struct PersistentSphereData
+  {
+    float m_fRadius;
+    ezColor m_Color;
+    ezTransform m_Transform;
+    ezTime m_Timeout;
+  };
+
+  struct PersistentBoxData
+  {
+    ezVec3 m_vHalfSize;
+    ezColor m_Color;
+    ezTransform m_Transform;
+    ezTime m_Timeout;
+  };
+
+  struct PersistentPerContextData
+  {
+    ezTime m_Now;
+    ezDeque<PersistentCrossData> m_Crosses;
+    ezDeque<PersistentSphereData> m_Spheres;
+    ezDeque<PersistentBoxData> m_Boxes;
+  };
+
+  static ezHashTable<ezDebugRendererContext, PersistentPerContextData> s_PersistentPerContextData;
+
 } // namespace
 
 // clang-format off
@@ -780,9 +821,10 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
   VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
+
   AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
     auto& textLine = data.m_textLines2D.ExpandAndGetRef();
     textLine.m_text = line;
@@ -793,7 +835,7 @@ void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ez
 }
 
 
-void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
   VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
   AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
@@ -804,6 +846,42 @@ void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ez
     textLine.m_uiSizeInPixel = uiSizeInPixel;
     textLine.m_position = globalPosition;
   });
+}
+
+void ezDebugRenderer::AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  EZ_LOCK(s_Mutex);
+
+  auto& data = s_PersistentPerContextData[context];
+  auto& item = data.m_Crosses.ExpandAndGetRef();
+  item.m_Transform = transform;
+  item.m_Color = color;
+  item.m_fSize = fSize;
+  item.m_Timeout = data.m_Now + duration;
+}
+
+void ezDebugRenderer::AddPersistentLineSphere(const ezDebugRendererContext& context, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  EZ_LOCK(s_Mutex);
+
+  auto& data = s_PersistentPerContextData[context];
+  auto& item = data.m_Spheres.ExpandAndGetRef();
+  item.m_Transform = transform;
+  item.m_Color = color;
+  item.m_fRadius = fRadius;
+  item.m_Timeout = data.m_Now + duration;
+}
+
+void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& halfSize, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  EZ_LOCK(s_Mutex);
+
+  auto& data = s_PersistentPerContextData[context];
+  auto& item = data.m_Boxes.ExpandAndGetRef();
+  item.m_Transform = transform;
+  item.m_Color = color;
+  item.m_vHalfSize = halfSize;
+  item.m_Timeout = data.m_Now + duration;
 }
 
 // static
@@ -823,6 +901,76 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
 // static
 void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext)
 {
+  {
+    EZ_LOCK(s_Mutex);
+
+    auto& data = s_PersistentPerContextData[context];
+    data.m_Now = ezTime::Now();
+
+    // persistent crosses
+    {
+      ezUInt32 uiNumItems = data.m_Crosses.GetCount();
+      for (ezUInt32 i = 0; i < uiNumItems;)
+      {
+        const auto& item = data.m_Crosses[i];
+
+        if (data.m_Now > item.m_Timeout)
+        {
+          data.m_Crosses.RemoveAtAndSwap(i);
+          --uiNumItems;
+        }
+        else
+        {
+          ezDebugRenderer::DrawCross(context, ezVec3::ZeroVector(), item.m_fSize, item.m_Color, item.m_Transform);
+
+          ++i;
+        }
+      }
+    }
+
+    // persistent spheres
+    {
+      ezUInt32 uiNumItems = data.m_Spheres.GetCount();
+      for (ezUInt32 i = 0; i < uiNumItems;)
+      {
+        const auto& item = data.m_Spheres[i];
+
+        if (data.m_Now > item.m_Timeout)
+        {
+          data.m_Spheres.RemoveAtAndSwap(i);
+          --uiNumItems;
+        }
+        else
+        {
+          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere(ezVec3::ZeroVector(), item.m_fRadius), item.m_Color, item.m_Transform);
+
+          ++i;
+        }
+      }
+    }
+
+    // persistent boxes
+    {
+      ezUInt32 uiNumItems = data.m_Boxes.GetCount();
+      for (ezUInt32 i = 0; i < uiNumItems;)
+      {
+        const auto& item = data.m_Boxes[i];
+
+        if (data.m_Now > item.m_Timeout)
+        {
+          data.m_Boxes.RemoveAtAndSwap(i);
+          --uiNumItems;
+        }
+        else
+        {
+          ezDebugRenderer::DrawLineBox(context, ezBoundingBox(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
+
+          ++i;
+        }
+      }
+    }
+  }
+
   DoubleBufferedPerContextData* pDoubleBufferedContextData = nullptr;
   if (!s_PerContextData.TryGetValue(context, pDoubleBufferedContextData))
   {
@@ -1277,8 +1425,8 @@ void ezDebugRenderer::OnEngineShutdown()
   s_hDebugTextShader.Invalidate();
 
   s_PerContextData.Clear();
+
+  s_PersistentPerContextData.Clear();
 }
-
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugRenderer);

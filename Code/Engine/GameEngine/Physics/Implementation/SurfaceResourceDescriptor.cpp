@@ -36,6 +36,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("StaticFriction", m_fPhysicsFrictionStatic)->AddAttributes(new ezDefaultValueAttribute(0.6f)),
     EZ_MEMBER_PROPERTY("DynamicFriction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
     EZ_ACCESSOR_PROPERTY("OnCollideInteraction", GetCollisionInteraction, SetCollisionInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
+    EZ_ACCESSOR_PROPERTY("SlideReaction", GetSlideReactionPrefabFile, SetSlideReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_ACCESSOR_PROPERTY("RollReaction", GetRollReactionPrefabFile, SetRollReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_Interactions),
   }
   EZ_END_PROPERTIES;
@@ -65,7 +67,10 @@ const char* ezSurfaceInteraction::GetPrefab() const
 
 const ezRangeView<const char*, ezUInt32> ezSurfaceInteraction::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezSurfaceInteraction::SetParameter(const char* szKey, const ezVariant& value)
@@ -101,7 +106,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 6, "Invalid version {0} for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 7, "Invalid version {0} for surface resource", uiVersion);
 
   stream >> m_fPhysicsRestitution;
   stream >> m_fPhysicsFrictionStatic;
@@ -111,6 +116,12 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   if (uiVersion >= 4)
   {
     stream >> m_sOnCollideInteraction;
+  }
+
+  if (uiVersion >= 7)
+  {
+    stream >> m_sSlideInteractionPrefab;
+    stream >> m_sRollInteractionPrefab;
   }
 
   if (uiVersion > 2)
@@ -166,7 +177,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 6;
+  const ezUInt8 uiVersion = 7;
 
   stream << uiVersion;
   stream << m_fPhysicsRestitution;
@@ -176,6 +187,10 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 
   // version 4
   stream << m_sOnCollideInteraction;
+
+  // version 7
+  stream << m_sSlideInteractionPrefab;
+  stream << m_sRollInteractionPrefab;
 
   stream << m_Interactions.GetCount();
   for (const auto& ia : m_Interactions)
@@ -222,14 +237,34 @@ const char* ezSurfaceResourceDescriptor::GetBaseSurfaceFile() const
   return m_hBaseSurface.GetResourceID();
 }
 
-void ezSurfaceResourceDescriptor::SetCollisionInteraction(const char* szFile)
+void ezSurfaceResourceDescriptor::SetCollisionInteraction(const char* name)
 {
-  m_sOnCollideInteraction.Assign(szFile);
+  m_sOnCollideInteraction.Assign(name);
 }
 
 const char* ezSurfaceResourceDescriptor::GetCollisionInteraction() const
 {
   return m_sOnCollideInteraction.GetData();
+}
+
+void ezSurfaceResourceDescriptor::SetSlideReactionPrefabFile(const char* szFile)
+{
+  m_sSlideInteractionPrefab.Assign(szFile);
+}
+
+const char* ezSurfaceResourceDescriptor::GetSlideReactionPrefabFile() const
+{
+  return m_sSlideInteractionPrefab.GetData();
+}
+
+void ezSurfaceResourceDescriptor::SetRollReactionPrefabFile(const char* szFile)
+{
+  m_sRollInteractionPrefab.Assign(szFile);
+}
+
+const char* ezSurfaceResourceDescriptor::GetRollReactionPrefabFile() const
+{
+  return m_sRollInteractionPrefab.GetData();
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -39,7 +39,7 @@ public:
   ezVec2 m_vSegmentLength = ezVec2(0.1f);
 
   /// All cloth nodes.
-  ezDynamicArray<Node> m_Nodes;
+  ezDynamicArray<Node, ezAlignedAllocatorWrapper> m_Nodes;
 
   void SimulateCloth(const ezTime& tDiff);
   void SimulateStep(const ezSimdFloat tDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);

@@ -55,6 +55,10 @@ struct ezOnPhysXContact
     RollYReactions = EZ_BIT(4),
     RollZReactions = EZ_BIT(5),
 
+    AllRollReactions = RollXReactions | RollYReactions | RollZReactions,
+    SlideAndRollReactions = AllRollReactions | SlideReactions,
+    AllReactions = ImpactReactions | AllRollReactions | SlideReactions,
+
     Default = None
   };
 
