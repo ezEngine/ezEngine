@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17626430219778045362,5283987167320039176}}
-		u4 %Hash{2575828669996754128}
+		u4 %Hash{4117931340739580603}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1179,8 +1179,8 @@ o
 			Uuid{u4{15755637790298253246,4797942826020233162}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xA08297C0,0x748A5440,0x110C5C40}}
-		Quat %LocalRotation{f{0x1AF9303D,0xF883393E,0xBC6469BE,0xC3A8743F}}
+		Vec3 %LocalPosition{f{0x3CF9ABC0,0x8C1FB240,0x28C26740}}
+		Quat %LocalRotation{f{0x92C459BD,0x63C8363E,0xCD988F3E,0x280E713F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -2334,7 +2334,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{112}
+		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
 	}
 }

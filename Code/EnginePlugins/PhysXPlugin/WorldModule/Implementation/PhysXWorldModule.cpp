@@ -20,6 +20,8 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <pvd/PxPvdSceneClient.h>
 
 // clang-format off
@@ -67,7 +69,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
+        { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -740,12 +743,9 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 {
   EZ_PROFILE_SCOPE("FetchResults");
 
-  if (const ezCameraComponentManager* pCompMan = GetWorld()->GetComponentManager<ezCameraComponentManager>())
+  if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
   {
-    if (const ezCameraComponent* pMainCamera = pCompMan->GetCameraByUsageHint(ezCameraUsageHint::MainView))
-    {
-      m_pSimulationEventCallback->m_vMainCameraPosition = pMainCamera->GetOwner()->GetGlobalPosition();
-    }
+    m_pSimulationEventCallback->m_vMainCameraPosition = pView->GetCamera()->GetPosition();
   }
 
   {
@@ -891,7 +891,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&]
+      { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 

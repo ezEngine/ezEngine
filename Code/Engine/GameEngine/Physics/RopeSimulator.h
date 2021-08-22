@@ -34,7 +34,7 @@ public:
   ezVec3 m_vAcceleration = ezVec3(0, 0, -10);
 
   /// \brief All the nodes in the rope
-  ezDynamicArray<Node> m_Nodes;
+  ezDynamicArray<Node, ezAlignedAllocatorWrapper> m_Nodes;
 
   /// \brief A factor to dampen velocities to make the rope stop swinging.
   /// Should be between 0.97 (strong damping) and 1.0 (no damping).
