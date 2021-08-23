@@ -118,12 +118,12 @@ ezSkyBoxComponent;Sky Box;;https://ezengine.net/pages/docs/effects/sky.html
 ezFogComponent;Fog;;https://ezengine.net/pages/docs/effects/fog.html
 ezSpriteComponent;Sprite;;https://ezengine.net/pages/docs/graphics/sprite-component.html
 ezRotorComponent;Rotor;;https://ezengine.net/pages/docs/animation/property-animation/rotor-component.html
-ezHeadBoneComponent;Head Bone
+ezHeadBoneComponent;Head Bone;;https://ezengine.net/pages/docs/gameplay/headbone-component.html
 ezSliderComponent;Slider;;https://ezengine.net/pages/docs/animation/property-animation/slider-component.html
 ezCollectionComponent;Collection;;https://ezengine.net/pages/docs/performance/collection-component.html
 ezLineToComponent;Draw Line To Object;;https://ezengine.net/pages/docs/debugging/components/draw-line-component.html
 ezDebugTextComponent;Debug Text;;https://ezengine.net/pages/docs/debugging/components/debug-text-component.html
-ezRenderTargetActivatorComponent;Render Target Activator
+ezRenderTargetActivatorComponent;Render Target Activator;;https://ezengine.net/pages/docs/graphics/render-to-texture/render-target-activator-component.html
 ezAlwaysVisibleComponent;Always Visible;;https://ezengine.net/pages/docs/graphics/always-visible-component.html
 Components;Components
 Materials;Materials
@@ -151,7 +151,7 @@ ezOnComponentFinishedAction2::None;None
 ezOnComponentFinishedAction2::DeleteComponent;Delete Component
 ezOnComponentFinishedAction2::DeleteGameObject;Delete Object
 ezOnComponentFinishedAction2::Restart;Restart
-ezVisualScriptComponent;Visual Script
+ezVisualScriptComponent;Visual Script;;https://ezengine.net/pages/docs/custom-code/visual-script/visual-script-overview.html
 ezAreaDamageComponent;Area Damage;;https://ezengine.net/pages/docs/gameplay/area-damage-component.html
 ezLogicOperator::Equal;=
 ezLogicOperator::Unequal;<>
@@ -383,9 +383,9 @@ SetColorMode;Set Color Mode
 ezRopeRenderComponent;Rope Renderer;;https://ezengine.net/pages/docs/effects/rope-render-component.html
 ezFakeRopeComponent;Fake Rope Simulation;;https://ezengine.net/pages/docs/effects/fake-rope-component.html
 ezClothSheetComponent;Cloth Sheet;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
-ezWindVolumeSphereComponent;Sphere Wind Volume
-ezWindVolumeCylinderComponent;Cylinder Wind Volume
-ezWindVolumeConeComponent;Cone Wind Volume
+ezWindVolumeSphereComponent;Sphere Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezWindVolumeCylinderComponent;Cylinder Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezWindVolumeConeComponent;Cone Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
 ezWindVolumeCylinderMode::Directional;Directional
 ezWindVolumeCylinderMode::Vortex;Vortex
 ezClothSheetFlags::FixedCornerTopLeft;Corner: Top Left

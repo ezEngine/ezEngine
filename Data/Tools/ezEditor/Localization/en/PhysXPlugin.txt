@@ -47,10 +47,10 @@ ezPxJointDriveMode::DriveAndSpin; Drive and Spin
 ezPxJointDriveMode::DriveAndBrake; Drive and Brake
 ezPxGrabObjectComponent;PhysX Grab Object;;https://ezengine.net/pages/docs/physics/special/physx-grab-object-component.html
 ezPxCharacterCapsuleShapeComponent;PhysX Character Capsule Shape;;https://ezengine.net/pages/docs/physics/special/physx-character-controller.html
-ezPxBoneColliderComponent;Bone Collider
+ezPxBoneColliderComponent;Bone Collider;;https://ezengine.net/pages/docs/physics/ragdolls/physx-bone-collider-component.html
 ezPxRopeComponent;Rope Simulation;;https://ezengine.net/pages/docs/physics/special/physx-rope-component.html
-ezPxQueryShapeActorComponent;Query Shape Actor
-ezPxRagdollComponent;Ragdoll
+ezPxQueryShapeActorComponent;Query Shape Actor;;https://ezengine.net/pages/docs/physics/actors/physx-queryshape-actor-component.html
+ezPxRagdollComponent;Ragdoll;;https://ezengine.net/pages/docs/physics/ragdolls/physx-ragdoll-component.html
 ezPxActorLockingFlags::FreezePositionX;Freeze Position X
 ezPxActorLockingFlags::FreezePositionY;Freeze Position Y
 ezPxActorLockingFlags::FreezePositionZ;Freeze Position Z
