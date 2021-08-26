@@ -18,7 +18,7 @@ ezVec3 ezBakingUtils::FibonacciSphere(ezUInt32 sampleIndex, ezUInt32 numSamples)
   return ezVec3(x, y, z);
 }
 
-static ezUInt32 s_BitsPerDir[ezAmbientCubeBasis::NumDirs] = { 5, 5, 5, 5, 6, 6 };
+static ezUInt32 s_BitsPerDir[ezAmbientCubeBasis::NumDirs] = {5, 5, 5, 5, 6, 6};
 
 ezCompressedSkyVisibility ezBakingUtils::CompressSkyVisibility(const ezAmbientCube<float>& skyVisibility)
 {

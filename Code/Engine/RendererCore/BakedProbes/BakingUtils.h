@@ -11,4 +11,4 @@ namespace ezBakingUtils
 
   EZ_RENDERERCORE_DLL ezCompressedSkyVisibility CompressSkyVisibility(const ezAmbientCube<float>& skyVisibility);
   EZ_RENDERERCORE_DLL void DecompressSkyVisibility(ezCompressedSkyVisibility compressedSkyVisibility, ezAmbientCube<float>& out_SkyVisibility);
-}
+} // namespace ezBakingUtils

@@ -832,28 +832,26 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
-    {
-      auto& textLine = data.m_textLines2D.ExpandAndGetRef();
-      textLine.m_text = line;
-      textLine.m_topLeftCorner = topLeftCorner;
-      textLine.m_color = color;
-      textLine.m_uiSizeInPixel = uiSizeInPixel;
-    });
+  AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
+    auto& textLine = data.m_textLines2D.ExpandAndGetRef();
+    textLine.m_text = line;
+    textLine.m_topLeftCorner = topLeftCorner;
+    textLine.m_color = color;
+    textLine.m_uiSizeInPixel = uiSizeInPixel;
+  });
 }
 
 
 void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Bottom*/)
 {
-  AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
-    {
-      auto& textLine = data.m_textLines3D.ExpandAndGetRef();
-      textLine.m_text = line;
-      textLine.m_topLeftCorner = topLeftCorner;
-      textLine.m_color = color;
-      textLine.m_uiSizeInPixel = uiSizeInPixel;
-      textLine.m_position = globalPosition;
-    });
+  AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
+    auto& textLine = data.m_textLines3D.ExpandAndGetRef();
+    textLine.m_text = line;
+    textLine.m_topLeftCorner = topLeftCorner;
+    textLine.m_color = color;
+    textLine.m_uiSizeInPixel = uiSizeInPixel;
+    textLine.m_position = globalPosition;
+  });
 }
 
 void ezDebugRenderer::AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)

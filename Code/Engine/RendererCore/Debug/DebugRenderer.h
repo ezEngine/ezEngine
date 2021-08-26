@@ -110,7 +110,7 @@ public:
 
   /// \brief Renders a textured 2D rectangle in screenspace for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
-  
+
   /// \brief Renders a textured 2D rectangle in screenspace for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView);
 

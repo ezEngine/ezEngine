@@ -2,8 +2,8 @@
 
 #include <Core/CoreDLL.h>
 
-#include <Foundation/Math/Vec3.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Math/Vec3.h>
 
 struct EZ_CORE_DLL ezAmbientCubeBasis
 {
