@@ -2,6 +2,9 @@
 
 #include <BakingPlugin/Tasks/SkyVisibilityTask.h>
 #include <BakingPlugin/Tracer/TracerInterface.h>
+#include <RendererCore/BakedProbes/BakingInterface.h>
+
+using namespace ezBakingInternal;
 
 SkyVisibilityTask::SkyVisibilityTask(const ezBakingSettings& settings, ezTracerInterface& tracer, ezArrayPtr<const ezVec3> probePositions)
   : m_Settings(settings)

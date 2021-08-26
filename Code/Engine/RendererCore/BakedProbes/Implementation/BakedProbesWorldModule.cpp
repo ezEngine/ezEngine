@@ -3,6 +3,7 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <RendererCore/BakedProbes/BakedProbesWorldModule.h>
+#include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezBakedProbesWorldModule);
