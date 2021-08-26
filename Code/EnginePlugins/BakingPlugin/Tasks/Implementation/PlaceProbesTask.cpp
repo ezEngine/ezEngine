@@ -5,9 +5,10 @@
 
 using namespace ezBakingInternal;
 
-PlaceProbesTask::PlaceProbesTask(const ezBakingSettings& settings, const ezBoundingBox& bounds)
+PlaceProbesTask::PlaceProbesTask(const ezBakingSettings& settings, const ezBoundingBox& bounds, ezArrayPtr<const Volume> volumes)
   : m_Settings(settings)
   , m_Bounds(bounds)
+  , m_Volumes(volumes)
 {
 }
 

@@ -8,12 +8,14 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
+#include <RendererCore/BakedProbes/BakedProbesComponent.h>
+#include <RendererCore/BakedProbes/BakedProbesVolumeComponent.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/BakedProbes/BakedProbesComponent.h>
 
 ezResult ezBakingScene::Extract()
 {
+  m_Volumes.Clear();
   m_MeshObjects.Clear();
   m_BoundingBox.SetInvalid();
   m_bIsBaked = false;
@@ -35,32 +37,55 @@ ezResult ezBakingScene::Extract()
     m_Settings = pComponent->m_Settings;
   }
 
-  const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-
-  for (auto it = world.GetObjects(); it.IsValid(); ++it)
+  // volumes
   {
-    // Exclude editor only objects like gizmos etc.
-    if (it->GetTags().IsSet(tagEditor))
-      continue;
-
-    // Only active static objects
-    if (!it->IsStatic() || !it->IsActive())
-      continue;
-
-    const ezMeshComponentBase* pMeshComponent = nullptr;
-    if (!it->TryGetComponentOfBaseType(pMeshComponent) || !pMeshComponent->GetMesh().IsValid())
-      continue;
-
-    auto& meshObject = m_MeshObjects.ExpandAndGetRef();
-    meshObject.m_GlobalTransform = it->GetGlobalTransformSimd();
-    meshObject.m_MeshResourceId.Assign(pMeshComponent->GetMeshFile());
-
-    auto globalBounds = it->GetGlobalBounds();
-    if (globalBounds.IsValid())
+    if (auto pManager = world.GetComponentManager<ezBakedProbesVolumeComponentManager>())
     {
-      m_BoundingBox.ExpandToInclude(globalBounds.GetBox());
+      for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
+      {
+        if (it->IsActiveAndInitialized())
+        {
+          ezSimdTransform scaledTransform = it->GetOwner()->GetGlobalTransformSimd();
+          scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(it->GetExtents())) * 0.5f;
+
+          auto& volume = m_Volumes.ExpandAndGetRef();
+          volume.m_GlobalToLocalTransform = scaledTransform.GetAsMat4().GetInverse();
+
+          ezBoundingBoxSphere globalBounds = it->GetOwner()->GetGlobalBounds();
+          if (globalBounds.IsValid())
+          {
+            m_BoundingBox.ExpandToInclude(globalBounds.GetBox());
+          }
+        }
+      }
+    }
+
+    if (m_Volumes.IsEmpty())
+    {
+      ezLog::Error("No Baked Probes Volume found");
+      return EZ_FAILURE;
     }
   }
+
+  ezBoundingBox queryBox = m_BoundingBox;
+  queryBox.Grow(ezVec3(m_Settings.m_fMaxRayDistance));
+
+  ezSpatialSystem::QueryParams queryParams;
+  queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
+  queryParams.m_ExcludeTags.SetByName("Editor");
+
+  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams, [&](ezGameObject* pObject)
+    {
+      const ezMeshComponentBase* pMeshComponent = nullptr;
+      if (!pObject->TryGetComponentOfBaseType(pMeshComponent) || !pMeshComponent->GetMesh().IsValid())
+        return ezVisitorExecution::Continue;
+
+      auto& meshObject = m_MeshObjects.ExpandAndGetRef();
+      meshObject.m_GlobalTransform = pObject->GetGlobalTransformSimd();
+      meshObject.m_MeshResourceId.Assign(pMeshComponent->GetMeshFile());
+
+      return ezVisitorExecution::Continue;
+    });
 
   return EZ_SUCCESS;
 }
@@ -83,7 +108,7 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 
   EZ_SUCCEED_OR_RETURN(m_pTracer->BuildScene(*this));
 
-  ezBakingInternal::PlaceProbesTask placeProbesTask(m_Settings, m_BoundingBox);
+  ezBakingInternal::PlaceProbesTask placeProbesTask(m_Settings, m_BoundingBox, m_Volumes);
   placeProbesTask.Execute();
 
   ezBakingInternal::SkyVisibilityTask skyVisibilityTask(m_Settings, *m_pTracer, placeProbesTask.GetProbePositions());

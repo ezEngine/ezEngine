@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BakingPlugin/BakingPluginDLL.h>
+#include <BakingPlugin/Declarations.h>
 #include <Core/Graphics/AmbientCubeBasis.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/SimdMath/SimdTransform.h>
@@ -23,13 +23,7 @@ public:
     ezProgress& progress) const;
 
 public:
-  struct MeshObject
-  {
-    ezSimdTransform m_GlobalTransform;
-    ezHashedString m_MeshResourceId;
-  };
-
-  ezArrayPtr<const MeshObject> GetMeshObjects() const { return m_MeshObjects; }
+  ezArrayPtr<const ezBakingInternal::MeshObject> GetMeshObjects() const { return m_MeshObjects; }
   const ezBoundingBox& GetBoundingBox() const { return m_BoundingBox; }
 
   bool IsBaked() const { return m_bIsBaked; }
@@ -42,9 +36,9 @@ private:
   ~ezBakingScene();
 
   ezBakingSettings m_Settings;
-
-  ezDynamicArray<MeshObject, ezAlignedAllocatorWrapper> m_MeshObjects;
-  ezBoundingBox m_BoundingBox;  
+  ezDynamicArray<ezBakingInternal::Volume, ezAlignedAllocatorWrapper> m_Volumes;
+  ezDynamicArray<ezBakingInternal::MeshObject, ezAlignedAllocatorWrapper> m_MeshObjects;
+  ezBoundingBox m_BoundingBox;
 
   ezUInt32 m_uiWorldIndex = ezInvalidIndex;
   ezUniquePtr<ezTracerInterface> m_pTracer;

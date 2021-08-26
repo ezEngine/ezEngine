@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BakingPlugin/BakingPluginDLL.h>
+#include <BakingPlugin/Declarations.h>
 #include <Foundation/Threading/TaskSystem.h>
 
 struct ezBakingSettings;
@@ -10,7 +10,7 @@ namespace ezBakingInternal
   class EZ_BAKINGPLUGIN_DLL PlaceProbesTask : public ezTask
   {
   public:
-    PlaceProbesTask(const ezBakingSettings& settings, const ezBoundingBox& bounds);
+    PlaceProbesTask(const ezBakingSettings& settings, const ezBoundingBox& bounds, ezArrayPtr<const Volume> volumes);
     ~PlaceProbesTask();
 
     virtual void Execute() override;
@@ -23,6 +23,7 @@ namespace ezBakingInternal
     const ezBakingSettings& m_Settings;
 
     ezBoundingBox m_Bounds;
+    ezArrayPtr<const Volume> m_Volumes;
 
     ezVec3 m_vGridOrigin = ezVec3::ZeroVector();
     ezVec3U32 m_vProbeCount = ezVec3U32::ZeroVector();
