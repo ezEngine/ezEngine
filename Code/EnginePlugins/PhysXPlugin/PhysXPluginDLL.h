@@ -27,6 +27,7 @@ namespace physx
   class PxCapsuleController;
   class PxMaterial;
   class PxJoint;
+  class PxConstraint;
   class PxScene;
   class PxControllerManager;
   class PxQueryFilterCallback;
