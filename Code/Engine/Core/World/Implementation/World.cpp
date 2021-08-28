@@ -632,7 +632,7 @@ ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti)
   return nullptr;
 }
 
-const ezWorldModule* ezWorld::GetModuleReadOnly(const ezRTTI* pRtti) const
+const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
 {
   CheckForReadAccess();
 

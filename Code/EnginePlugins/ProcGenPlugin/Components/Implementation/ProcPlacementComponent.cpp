@@ -381,7 +381,7 @@ void ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::Pla
     sb.Format("Queue Index: {}\n", uiQueueIndex);
   }
   sb.AppendFormat("Age: {}\nDistance: {}", uiAge, desc.m_fDistanceToCamera);
-  ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+  ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color);
 }
 
 void ezProcPlacementComponentManager::AddComponent(ezProcPlacementComponent* pComponent)

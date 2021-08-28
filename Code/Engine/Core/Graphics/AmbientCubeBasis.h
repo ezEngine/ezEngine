@@ -2,6 +2,7 @@
 
 #include <Core/CoreDLL.h>
 
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Math/Vec3.h>
 
 struct EZ_CORE_DLL ezAmbientCubeBasis
@@ -37,7 +38,12 @@ struct ezAmbientCube
   bool operator==(const ezAmbientCube& other) const;
   bool operator!=(const ezAmbientCube& other) const;
 
-  T Evaluate(const ezVec3& vNormal);
+  void AddSample(const ezVec3& vDir, const T& value);
+
+  T Evaluate(const ezVec3& vNormal) const;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 
   T m_Values[ezAmbientCubeBasis::NumDirs];
 };

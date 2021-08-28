@@ -449,7 +449,7 @@ void ezKrautTreeComponent::ComputeWind() const
     ezStringBuilder tmp;
     tmp.Format("Wind: {}m/s", m_vWindSpringPos.GetLength());
 
-    ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue, 16, ezDebugRenderer::HorizontalAlignment::Center);
+    ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue);
   }
 }
 

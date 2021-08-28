@@ -85,8 +85,8 @@ namespace
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_line2DVertices;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_lineBoxes;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_solidBoxes;
-    ezMap<ezTexture2DResourceHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
-    ezMap<ezTexture2DResourceHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
+    ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
+    ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
 
     ezDynamicArray<TextLineData2D> m_textLines2D;
     ezDynamicArray<TextLineData3D> m_textLines3D;
@@ -751,9 +751,12 @@ void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& contex
   if (triangles.IsEmpty())
     return;
 
+  ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::AllowLoadingFallback);
+  auto hResourceView = ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture());
+
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(context).m_texTriangle3DVertices[hTexture];
+  auto& data = GetDataForExtraction(context).m_texTriangle3DVertices[hResourceView];
 
   for (auto& triangle : triangles)
   {
@@ -793,6 +796,12 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
 {
+  ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::AllowLoadingFallback);
+  Draw2DRectangle(context, rectInPixel, fDepth, color, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()));
+}
+
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView)
+{
   TexVertex vertices[6];
 
   vertices[0].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
@@ -818,13 +827,11 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
   auto& data = GetDataForExtraction(context);
 
-  data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
+  data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
-  VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
+void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
-
   AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
     auto& textLine = data.m_textLines2D.ExpandAndGetRef();
     textLine.m_text = line;
@@ -835,8 +842,7 @@ void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ez
 }
 
 
-void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
-  VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
+void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Bottom*/)
 {
   AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
     auto& textLine = data.m_textLines3D.ExpandAndGetRef();
@@ -1048,6 +1054,44 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     }
   }
 
+  // Textured 3D triangles
+  {
+    for (auto itTex = pData->m_texTriangle3DVertices.GetIterator(); itTex.IsValid(); ++itTex)
+    {
+      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", itTex.Key());
+
+      const auto& verts = itTex.Value();
+
+      ezUInt32 uiNumVertices = verts.GetCount();
+      if (uiNumVertices != 0)
+      {
+        CreateVertexBuffer(BufferType::TexTriangles3D, sizeof(TexVertex));
+
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
+        renderViewContext.m_pRenderContext->BindShader(s_hDebugTexturedPrimitiveShader);
+
+        const TexVertex* pTriangleData = verts.GetData();
+        while (uiNumVertices > 0)
+        {
+          const ezUInt32 uiNumVerticesInBatch = ezMath::Min<ezUInt32>(uiNumVertices, TEX_TRIANGLE_VERTICES_PER_BATCH);
+          EZ_ASSERT_DEV(uiNumVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
+          pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumVerticesInBatch).ToByteArray());
+
+          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles3D], ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
+
+          unsigned int uiRenderedInstances = 1;
+          if (renderViewContext.m_pCamera->IsStereoscopic())
+            uiRenderedInstances *= 2;
+
+          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
+
+          uiNumVertices -= uiNumVerticesInBatch;
+          pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
+        }
+      }
+    }
+  }
+
   // 3D Lines
   {
     ezUInt32 uiNumLineVertices = pData->m_lineVertices.GetCount();
@@ -1202,44 +1246,6 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
           renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
 
           uiNum2DVertices -= uiNum2DVerticesInBatch;
-          pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
-        }
-      }
-    }
-  }
-
-  // Textured 3D triangles
-  {
-    for (auto itTex = pData->m_texTriangle3DVertices.GetIterator(); itTex.IsValid(); ++itTex)
-    {
-      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", itTex.Key());
-
-      const auto& verts = itTex.Value();
-
-      ezUInt32 uiNumVertices = verts.GetCount();
-      if (uiNumVertices != 0)
-      {
-        CreateVertexBuffer(BufferType::TexTriangles3D, sizeof(TexVertex));
-
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
-        renderViewContext.m_pRenderContext->BindShader(s_hDebugTexturedPrimitiveShader);
-
-        const TexVertex* pTriangleData = verts.GetData();
-        while (uiNumVertices > 0)
-        {
-          const ezUInt32 uiNumVerticesInBatch = ezMath::Min<ezUInt32>(uiNumVertices, TEX_TRIANGLE_VERTICES_PER_BATCH);
-          EZ_ASSERT_DEV(uiNumVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
-          pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumVerticesInBatch).ToByteArray());
-
-          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles3D], ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
-
-          unsigned int uiRenderedInstances = 1;
-          if (renderViewContext.m_pCamera->IsStereoscopic())
-            uiRenderedInstances *= 2;
-
-          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances).IgnoreResult();
-
-          uiNumVertices -= uiNumVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
         }
       }

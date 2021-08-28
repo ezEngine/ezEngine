@@ -4,9 +4,10 @@
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysXSimulationEvents.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 

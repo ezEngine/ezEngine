@@ -15,6 +15,7 @@
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysXSimulationEvents.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PxArticulation.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
