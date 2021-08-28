@@ -333,15 +333,13 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
       if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
         return;
 
-      ezStringBuilder sb;
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(indexData.m_probeIndices); ++i)
       {
         ezVec3 pos = pProbeTree->GetProbePositions()[indexData.m_probeIndices[i]];
         ezDebugRenderer::DrawCross(msg.m_pView->GetHandle(), pos, 0.5f, ezColor::Yellow);
 
-        sb.Format("Weight: {}", indexData.m_probeWeights[i]);
         pos.z += 0.5f;
-        ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, pos, ezColor::Yellow);
+        ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), ezFmt("Weight: {}", indexData.m_probeWeights[i]), pos, ezColor::Yellow);
       }
     }
 
