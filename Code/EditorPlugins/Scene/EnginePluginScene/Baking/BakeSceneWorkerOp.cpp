@@ -2,10 +2,12 @@
 
 #include <EnginePluginScene/Baking/BakeSceneWorkerOp.h>
 
-#include <BakingPlugin/BakingScene.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <Foundation/Utilities/Progress.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
+#ifdef BUILDSYSTEM_ENABLE_EMBREE_SUPPORT
+
+#  include <BakingPlugin/BakingScene.h>
+#  include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#  include <Foundation/Utilities/Progress.h>
+#  include <ToolsFoundation/Document/DocumentManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BakeScene, 1, ezRTTIDefaultAllocator<ezLongOpWorker_BakeScene>);
@@ -36,3 +38,5 @@ ezResult ezLongOpWorker_BakeScene::Execute(ezProgress& progress, ezStreamWriter&
 
   return EZ_SUCCESS;
 }
+
+#endif
