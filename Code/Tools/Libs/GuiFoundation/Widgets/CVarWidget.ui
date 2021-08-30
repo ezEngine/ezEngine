@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTableWidget" name="TableCVars">
      <property name="selectionMode">
@@ -46,11 +46,11 @@
      <attribute name="horizontalHeaderCascadingSectionResizes">
       <bool>false</bool>
      </attribute>
-     <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>100</number>
-     </attribute>
      <attribute name="horizontalHeaderMinimumSectionSize">
       <number>40</number>
+     </attribute>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>100</number>
      </attribute>
      <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
       <bool>true</bool>
@@ -78,11 +78,13 @@
      </column>
     </widget>
    </item>
+   <item>
+    <widget class="QTreeView" name="CVarsView"/>
+   </item>
   </layout>
  </widget>
  <resources>
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
-
+</ui>

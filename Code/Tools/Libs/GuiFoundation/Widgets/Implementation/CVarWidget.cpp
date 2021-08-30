@@ -8,11 +8,23 @@
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
 
 ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
   : QWidget(parent)
 {
   setupUi(this);
+
+  m_pItemModel = new ezQtCVarModel(this);
+
+  m_pFilterModel = new QSortFilterProxyModel(this);
+  m_pFilterModel->setSourceModel(m_pItemModel);
+
+  CVarsView->setModel(m_pFilterModel);
+  CVarsView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+  CVarsView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+  CVarsView->setHeaderHidden(false);
 }
 
 ezQtCVarWidget::~ezQtCVarWidget() {}
@@ -39,6 +51,33 @@ void ezQtCVarWidget::Clear()
 
 void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
 {
+  {
+    ezQtScopedBlockSignals bs(CVarsView);
+
+    //m_pItemModel->clear();
+
+    QStringList Headers;
+    Headers.append("");
+    Headers.append(" Plugin ");
+    Headers.append(" CVar ");
+    Headers.append(" Value ");
+    Headers.append(" Description ");
+
+    //m_pItemModel->setColumnCount(Headers.size());
+    //m_pItemModel->setHorizontalHeaderLabels(Headers);
+
+    int row = 0;
+
+    for (auto it = cvars.GetIterator(); it.IsValid(); ++it, ++row)
+    {
+      auto& item = m_pItemModel->m_RootEntries.ExpandAndGetRef();
+
+      item.m_sName = it.Key().GetData();
+    }
+
+    m_pItemModel->resetModel();
+  }
+
   {
     ezQtScopedBlockSignals bs(TableCVars);
 
@@ -224,4 +263,101 @@ void ezQtCVarWidget::StringChanged()
   const QString newValue = pValue->text();
 
   Q_EMIT onStringChanged(cvar.toUtf8().data(), newValue.toUtf8().data());
+}
+
+ezQtCVarModel::ezQtCVarModel(QObject* pParent)
+  : QAbstractItemModel(pParent)
+{
+}
+
+ezQtCVarModel::~ezQtCVarModel()
+{
+}
+
+void ezQtCVarModel::resetModel()
+{
+  beginResetModel();
+  endResetModel();
+}
+
+QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
+{
+  if (!index.isValid())
+    return QVariant();
+
+  ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
+
+  if (index.column() == 0)
+  {
+    switch (role)
+    {
+      case Qt::DisplayRole:
+        return e->m_sName;
+
+      default:
+        break;
+    }
+  }
+
+  return QVariant();
+}
+
+Qt::ItemFlags ezQtCVarModel::flags(const QModelIndex& index) const
+{
+  return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled;
+}
+
+QModelIndex ezQtCVarModel::index(int row, int column, const QModelIndex& parent /*= QModelIndex()*/) const
+{
+  if (parent.isValid())
+  {
+    ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(parent.internalId());
+    return createIndex(row, column, const_cast<ezQtCVarModel::Entry*>(&e->m_ChildEntries[row]));
+  }
+  else
+  {
+    return createIndex(row, column, const_cast<ezQtCVarModel::Entry*>(&m_RootEntries[row]));
+  }
+}
+
+QModelIndex ezQtCVarModel::parent(const QModelIndex& index) const
+{
+  if (!index.isValid())
+    return QModelIndex();
+
+  ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
+
+  if (e->m_pParentEntry == nullptr)
+    return QModelIndex();
+
+  ezQtCVarModel::Entry* p = e->m_pParentEntry;
+
+  for (ezUInt32 row = 0; row < p->m_ChildEntries.GetCount(); ++row)
+  {
+    if (&p->m_ChildEntries[row] == e)
+    {
+      return createIndex(row, index.column(), p);
+    }
+  }
+
+  return QModelIndex();
+}
+
+int ezQtCVarModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
+{
+  if (parent.isValid())
+  {
+    ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(parent.internalId());
+
+    return (int)e->m_ChildEntries.GetCount();
+  }
+  else
+  {
+    return (int)m_RootEntries.GetCount();
+  }
+}
+
+int ezQtCVarModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
+{
+  return 1;
 }

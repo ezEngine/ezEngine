@@ -5,7 +5,41 @@
 #include <Foundation/Strings/String.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_CVarWidget.h>
+#include <QPointer>
 #include <QWidget>
+
+class QStandardItemModel;
+class QSortFilterProxyModel;
+
+class ezQtCVarModel : public QAbstractItemModel
+{
+  Q_OBJECT
+public:
+  ezQtCVarModel(QObject* pParent);
+  ~ezQtCVarModel();
+
+  void resetModel();
+
+public: // QAbstractItemModel interface
+  virtual QVariant data(const QModelIndex& index, int role) const override;
+  virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
+  virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+  virtual QModelIndex parent(const QModelIndex& index) const override;
+  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+
+public:
+  struct Entry
+  {
+    QString m_sName;
+    Entry* m_pParentEntry = nullptr;
+    ezDynamicArray<Entry> m_ChildEntries;
+  };
+
+  ezDynamicArray<Entry> m_RootEntries;
+};
+
+
 
 /// \brief Data used by ezQtCVarWidget to represent CVar states
 struct EZ_GUIFOUNDATION_DLL ezCVarWidgetData
@@ -52,5 +86,8 @@ private Q_SLOTS:
   void FloatChanged();
   void IntChanged();
   void StringChanged();
-};
 
+private:
+  QPointer<ezQtCVarModel> m_pItemModel;
+  QPointer<QSortFilterProxyModel> m_pFilterModel;
+};
