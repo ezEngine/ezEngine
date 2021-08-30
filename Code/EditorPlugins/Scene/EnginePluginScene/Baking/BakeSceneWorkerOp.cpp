@@ -2,6 +2,8 @@
 
 #include <EnginePluginScene/Baking/BakeSceneWorkerOp.h>
 
+#ifdef BUILDSYSTEM_ENABLE_EMBREE_SUPPORT
+
 #include <BakingPlugin/BakingScene.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <Foundation/Utilities/Progress.h>
@@ -36,3 +38,5 @@ ezResult ezLongOpWorker_BakeScene::Execute(ezProgress& progress, ezStreamWriter&
 
   return EZ_SUCCESS;
 }
+
+#endif

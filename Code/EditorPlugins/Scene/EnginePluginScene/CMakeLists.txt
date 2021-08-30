@@ -13,6 +13,12 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
   EditorEngineProcessFramework
   GameEngine
-  BakingPlugin
   SharedPluginScene
 )
+
+if (EZ_BUILD_EMBREE)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    BakingPlugin
+  )
+endif()
