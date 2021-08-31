@@ -9,8 +9,7 @@
 #include <RendererCore/Pipeline/View.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarVisLightSize(
-  "r_VisLightScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
+ezCVarBool cvar_RenderingLightingVisScreenSpaceSize("Rendering.Lighting.VisScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
 #endif
 
 // clang-format off
@@ -147,7 +146,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (CVarVisLightSize)
+  if (cvar_RenderingLightingVisScreenSpaceSize)
   {
     ezStringBuilder sb;
     sb.Format("{0}", fScreenSpaceSize);
@@ -240,8 +239,8 @@ ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezSpotLightComponentPatch_1_2 : public ezGraphPatch
 {

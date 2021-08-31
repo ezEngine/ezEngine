@@ -31,8 +31,8 @@
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 
-ezCVarBool CVarEnableVSync("g_VSync", false, ezCVarFlags::Save, "Enables V-Sync");
-ezCVarBool CVarShowFPS("g_ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
+ezCVarBool cvar_AppVSync("App.VSync", false, ezCVarFlags::Save, "Enables V-Sync");
+ezCVarBool cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
 ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
   : ezGameApplicationBase(szAppName)
@@ -159,7 +159,7 @@ void ezGameApplication::Run_Present()
         ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
       }
 
-      pOutput->Present(CVarEnableVSync);
+      pOutput->Present(cvar_AppVSync);
     }
   }
 }
@@ -248,7 +248,7 @@ void ezGameApplication::RenderFps()
     uiFrames = 0;
   }
 
-  if (CVarShowFPS)
+  if (cvar_AppShowFPS)
   {
     if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
@@ -386,7 +386,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szShowFpsAction) == ezKeyState::Pressed)
   {
-    CVarShowFPS = !CVarShowFPS;
+    cvar_AppShowFPS = !cvar_AppShowFPS;
   }
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szReloadResourcesAction) == ezKeyState::Pressed)

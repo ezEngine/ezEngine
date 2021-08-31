@@ -14,7 +14,7 @@
 #include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
 
-ezCVarBool CVarVisRopeBones("r_VisRopeBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");
+ezCVarBool cvar_FeatureRopesVisBones("Feature.Ropes.VisBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
@@ -162,7 +162,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
 
-  if (CVarVisRopeBones)
+  if (cvar_FeatureRopesVisBones)
   {
     ezHybridArray<ezDebugRenderer::Line, 128> lines(ezFrameAllocator::GetCurrentAllocator());
     lines.Reserve(m_SkinningTransforms.GetCount() * 3);

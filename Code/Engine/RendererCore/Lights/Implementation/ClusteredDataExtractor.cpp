@@ -12,14 +12,14 @@
 #include <RendererCore/Pipeline/View.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarVisClusteredData("r_VisClusteredData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");
-ezCVarInt CVarVisClusterDepthSlice("r_VisClusterDepthSlice", -1, ezCVarFlags::Default, "Show the debug visualization only for the given depth slice");
+ezCVarBool cvar_RenderingLightingVisClusterData("Rendering.Lighting.VisClusterData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");
+ezCVarInt cvar_RenderingLightingVisClusterDepthSlice("Rendering.Lighting.VisClusterDepthSlice", -1, ezCVarFlags::Default, "Show the debug visualization only for the given depth slice");
 
 namespace
 {
   void VisualizeClusteredData(const ezView& view, const ezClusteredDataCPU* pData, ezArrayPtr<ezSimdBSphere> boundingSpheres)
   {
-    if (!CVarVisClusteredData)
+    if (!cvar_RenderingLightingVisClusterData)
       return;
 
     const ezCamera* pCamera = view.GetCullingCamera();
@@ -33,7 +33,7 @@ namespace
 
     ezColor lineColor = ezColor(1.0f, 1.0f, 1.0f, 0.1f);
 
-    ezInt32 debugSlice = CVarVisClusterDepthSlice;
+    ezInt32 debugSlice = cvar_RenderingLightingVisClusterDepthSlice;
     ezUInt32 maxSlice = debugSlice < 0 ? NUM_CLUSTERS_Z : debugSlice + 1;
     ezUInt32 minSlice = debugSlice < 0 ? 0 : debugSlice;
 

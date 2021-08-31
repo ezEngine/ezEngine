@@ -14,9 +14,9 @@
 #include <RendererFoundation/Profiling/Profiling.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool ezRenderPipeline::s_DebugCulling("r_DebugCulling", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
+ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
 
-ezCVarBool CVarCullingStats("r_CullingStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
+ezCVarBool cvar_SpatialCullingShowStats("Spatial.Culling.ShowStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
 #endif
 
 ezRenderPipeline::ezRenderPipeline()
@@ -920,7 +920,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
-  const bool bRecordStats = CVarCullingStats && bIsMainView;
+  const bool bRecordStats = cvar_SpatialCullingShowStats && bIsMainView;
   ezSpatialSystem::QueryStats stats;
 #endif
 
@@ -937,7 +937,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezViewHandle hView = view.GetHandle();
 
-  if (s_DebugCulling && bIsMainView)
+  if (cvar_SpatialCullingVis && bIsMainView)
   {
     ezDebugRenderer::DrawLineFrustum(view.GetWorld(), frustum, ezColor::LimeGreen, false);
   }

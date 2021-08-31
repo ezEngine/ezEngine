@@ -203,9 +203,6 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
 
       case 2:
         return e->m_sDescription;
-
-      case 3:
-        return e->m_sPlugin;
     }
   }
 
@@ -221,7 +218,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
   {
     if (e->m_Value.IsValid())
     {
-      return e->m_sDescription + " | " + e->m_sPlugin;
+      return QString(e->m_sFullName) + " | " + e->m_sPlugin;
     }
   }
 
@@ -311,7 +308,7 @@ int ezQtCVarModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
 
 int ezQtCVarModel::columnCount(const QModelIndex& index /*= QModelIndex()*/) const
 {
-  return 2;
+  return 3;
 }
 
 ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* name)
@@ -355,21 +352,9 @@ ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* name)
   return parentEntry;
 }
 
-QModelIndex ezQtCVarModel::ComputeFullIndex(const QModelIndex& idx)
-{
-  if (idx.parent().isValid())
-  {
-    return index(idx.row(), idx.column(), ComputeFullIndex(idx.parent()));
-  }
-  else
-  {
-    return index(idx.row(), idx.column());
-  }
-}
-
 QWidget* ezQtCVarItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& idx) const
 {
-  auto index = m_pModel->ComputeFullIndex(idx);
+  auto index = static_cast<const QSortFilterProxyModel*>(idx.model())->mapToSource(idx);
   ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalPointer());
 
   if (!e->m_Value.IsValid())

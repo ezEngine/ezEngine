@@ -56,7 +56,7 @@ public:
     ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  static ezCVarBool s_DebugCulling;
+  static ezCVarBool cvar_SpatialCullingVis;
 #endif
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);

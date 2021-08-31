@@ -6,7 +6,7 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Time/Stopwatch.h>
 
-ezCVarInt CVarCacheThreshold("srg_CacheThreshold", 100, ezCVarFlags::Default, "Number of objects that are tested for a query before it is considered for caching");
+ezCVarInt cvar_SpatialQueriesCachingThreshold("Spatial.Queries.CachingThreshold", 100, ezCVarFlags::Default, "Number of objects that are tested for a query before it is considered for caching");
 
 namespace
 {
@@ -576,7 +576,7 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
 
   m_Grids.SetCount(MAX_NUM_GRIDS);
 
-  CVarCacheThreshold.m_CVarEvents.AddEventHandler([&](const ezCVarEvent& e) {
+  cvar_SpatialQueriesCachingThreshold.m_CVarEvents.AddEventHandler([&](const ezCVarEvent& e) {
     if (e.m_EventType == ezCVarEvent::ValueChanged)
     {
       RemoveAllCachedGrids();
@@ -1034,7 +1034,7 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
     if (pGrid->m_bCanBeCached && useTagsFilter)
     {
       const ezUInt32 totalNumObjectsAfterSpatialTest = stats.m_uiNumObjectsFiltered + stats.m_uiNumObjectsPassed;
-      const ezUInt32 cacheThreshold = ezUInt32(ezMath::Max(CVarCacheThreshold.GetValue(), 1));
+      const ezUInt32 cacheThreshold = ezUInt32(ezMath::Max(cvar_SpatialQueriesCachingThreshold.GetValue(), 1));
 
       // 1.0 => all objects filtered, 0.0 => no object filtered by tags
       const float filteredRatio = float(double(stats.m_uiNumObjectsFiltered) / totalNumObjectsAfterSpatialTest);

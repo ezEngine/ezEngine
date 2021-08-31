@@ -41,14 +41,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ReflectionPool)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezCVarInt CVarMaxRenderViews(
-  "r_ReflectionPoolMaxRenderViews", 1, ezCVarFlags::Default, "The maximum number of render views for reflection probes each frame");
-ezCVarInt CVarMaxFilterViews(
-  "r_ReflectionPoolMaxFilterViews", 1, ezCVarFlags::Default, "The maximum number of filter views for reflection probes each frame");
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-// ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
-#endif
+ezCVarInt cvar_RenderingReflectionPoolMaxRenderViews("Rendering.ReflectionPool.MaxRenderViews", 1, ezCVarFlags::Default, "The maximum number of render views for reflection probes each frame");
+ezCVarInt cvar_RenderingReflectionPoolMaxFilterViews("Rendering.ReflectionPool.MaxFilterViews", 1, ezCVarFlags::Default, "The maximum number of filter views for reflection probes each frame");
 
 static ezUInt32 s_uiReflectionCubeMapSize = 128;
 static ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;
@@ -461,10 +455,10 @@ static void CreateViews(
 void ezReflectionPool::Data::CreateReflectionViewsAndResources()
 {
   // ReflectionRenderPipeline.ezRenderPipelineAsset
-  CreateViews(m_RenderViews, CVarMaxRenderViews, "Render", "{ 734898e8-b1a2-0da2-c4ae-701912983c2f }");
+  CreateViews(m_RenderViews, cvar_RenderingReflectionPoolMaxRenderViews, "Render", "{ 734898e8-b1a2-0da2-c4ae-701912983c2f }");
 
   // ReflectionFilterPipeline.ezRenderPipelineAsset
-  CreateViews(m_FilterViews, CVarMaxFilterViews, "Filter", "{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }");
+  CreateViews(m_FilterViews, cvar_RenderingReflectionPoolMaxFilterViews, "Filter", "{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }");
 
   if (m_hFallbackReflectionSpecularTexture.IsInvalidated())
   {

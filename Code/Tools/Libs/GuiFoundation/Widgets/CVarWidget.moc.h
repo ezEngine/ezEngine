@@ -67,7 +67,6 @@ public:
   };
 
   Entry* CreateEntry(const char* name);
-  QModelIndex ComputeFullIndex(const QModelIndex& index);
 
   ezQtCVarWidget* m_pOwner = nullptr;
   ezDynamicArray<Entry*> m_RootEntries;

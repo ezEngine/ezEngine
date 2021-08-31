@@ -5,9 +5,8 @@
 #include <ProcGenPlugin/Tasks/FindPlacementTilesTask.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezCVarFloat CVarCullDistanceScale(
-  "pp_CullDistanceScale", 1.0f, ezCVarFlags::Default, "Global scale to control cull distance for all placement outputs");
-ezCVarInt CVarMaxCullRadius("pp_MaxCullRadius", 10, ezCVarFlags::Default, "Maximum cull radius in number of tiles");
+ezCVarFloat cvar_ProcGenCullingDistanceScale("ProcGen.Culling.DistanceScale", 1.0f, ezCVarFlags::Default, "Global scale to control cull distance for all placement outputs");
+ezCVarInt cvar_ProcGenCullingMaxRadius("ProcGen.Culling.MaxRadius", 10, ezCVarFlags::Default, "Maximum cull radius in number of tiles");
 
 using namespace ezProcGenInternal;
 
@@ -34,9 +33,9 @@ void FindPlacementTilesTask::Execute()
 
   const float fTileSize = outputContext.m_pOutput->GetTileSize();
   const float fPatternSize = outputContext.m_pOutput->m_pPattern->m_fSize;
-  const float fCullDistance = outputContext.m_pOutput->m_fCullDistance * CVarCullDistanceScale;
+  const float fCullDistance = outputContext.m_pOutput->m_fCullDistance * cvar_ProcGenCullingDistanceScale;
 
-  float fRadius = ezMath::Min(ezMath::Ceil(fCullDistance / fTileSize + 1.0f), static_cast<float>(CVarMaxCullRadius));
+  float fRadius = ezMath::Min(ezMath::Ceil(fCullDistance / fTileSize + 1.0f), static_cast<float>(cvar_ProcGenCullingMaxRadius));
   ezInt32 iRadius = static_cast<ezInt32>(fRadius);
   ezInt32 iRadiusSqr = iRadius * iRadius;
 
@@ -147,7 +146,8 @@ void FindPlacementTilesTask::Execute()
 
     if (m_TilesByAge.GetCount() > uiMaxOldTiles)
     {
-      m_TilesByAge.Sort([](auto& tileA, auto& tileB) { return tileA.m_uiLastSeenFrame < tileB.m_uiLastSeenFrame; });
+      m_TilesByAge.Sort([](auto& tileA, auto& tileB)
+        { return tileA.m_uiLastSeenFrame < tileB.m_uiLastSeenFrame; });
 
       ezUInt32 uiOldTileCount = m_TilesByAge.GetCount() - uiMaxOldTiles;
       for (ezUInt32 i = 0; i < uiOldTileCount; ++i)

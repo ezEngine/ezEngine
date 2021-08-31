@@ -19,9 +19,9 @@
 
 using namespace ezProcGenInternal;
 
-ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
-ezCVarInt CVarMaxPlacedObjects("pp_MaxPlacedObjects", 128, ezCVarFlags::Default, "Maximum number of objects placed per frame");
-ezCVarBool CVarVisTiles("pp_VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
+ezCVarInt cvar_ProcGenProcessingMaxTiles("ProcGen.Processing.MaxTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
+ezCVarInt cvar_ProcGenProcessingMaxNewObjectsPerFrame("ProcGen.Processing.MaxNewObjectsPerFrame", 128, ezCVarFlags::Default, "Maximum number of objects placed per frame");
+ezCVarBool cvar_ProcGenVisTiles("ProcGen.VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
 
 ezProcPlacementComponentManager::ezProcPlacementComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>(pWorld)
@@ -205,14 +205,15 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
+      m_NewTiles.Sort([](auto& tileA, auto& tileB)
+        { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleComponents();
   }
 
   // Debug draw tiles
-  if (CVarVisTiles)
+  if (cvar_ProcGenVisTiles)
   {
     ezStringBuilder sb;
     sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
@@ -237,7 +238,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   {
     EZ_PROFILE_SCOPE("Allocate new tiles");
 
-    while (!m_NewTiles.IsEmpty() && GetNumAllocatedProcessingTasks() < (ezUInt32)CVarMaxProcessingTiles)
+    while (!m_NewTiles.IsEmpty() && GetNumAllocatedProcessingTasks() < (ezUInt32)cvar_ProcGenProcessingMaxTiles)
     {
       const PlacementTileDesc& newTile = m_NewTiles.PeekBack();
 
@@ -307,7 +308,8 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
     sortedTask.m_uiTaskIndex = i;
   }
 
-  m_SortedProcessingTasks.Sort([](auto& taskA, auto& taskB) { return taskA.m_uiScheduledFrame < taskB.m_uiScheduledFrame; });
+  m_SortedProcessingTasks.Sort([](auto& taskA, auto& taskB)
+    { return taskA.m_uiScheduledFrame < taskB.m_uiScheduledFrame; });
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
@@ -352,7 +354,7 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
       uiTotalNumPlacedObjects += uiPlacedObjects;
     }
 
-    if (uiTotalNumPlacedObjects >= (ezUInt32)CVarMaxPlacedObjects)
+    if (uiTotalNumPlacedObjects >= (ezUInt32)cvar_ProcGenProcessingMaxNewObjectsPerFrame)
     {
       break;
     }
