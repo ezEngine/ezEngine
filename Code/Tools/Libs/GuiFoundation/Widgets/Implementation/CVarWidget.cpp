@@ -124,9 +124,10 @@ void ezQtCVarWidget::StringChanged()
   Q_EMIT onStringChanged(cvar.toUtf8().data(), newValue.toUtf8().data());
 }
 
-ezQtCVarModel::ezQtCVarModel(QObject* pParent)
-  : QAbstractItemModel(pParent)
+ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* owner)
+  : QAbstractItemModel(owner)
 {
+  m_pOwner = owner;
 }
 
 ezQtCVarModel::~ezQtCVarModel() = default;
@@ -176,15 +177,19 @@ bool ezQtCVarModel::setData(const QModelIndex& index, const QVariant& value, int
     {
       case ezVariantType::Bool:
         e->m_Value = value.toBool();
+        m_pOwner->onBoolChanged(e->m_sFullName, value.toBool());
         break;
       case ezVariantType::Int32:
         e->m_Value = value.toInt();
+        m_pOwner->onIntChanged(e->m_sFullName, value.toInt());
         break;
       case ezVariantType::Float:
         e->m_Value = value.toFloat();
+        m_pOwner->onFloatChanged(e->m_sFullName, value.toFloat());
         break;
       case ezVariantType::String:
         e->m_Value = value.toString().toUtf8().data();
+        m_pOwner->onStringChanged(e->m_sFullName, value.toString().toUtf8().data());
         break;
       default:
         break;
@@ -245,7 +250,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
       case ezVariantType::Int32:
         return e->m_Value.Get<ezInt32>();
       case ezVariantType::Float:
-        return e->m_Value.Get<float>();
+        return e->m_Value.ConvertTo<double>();
       case ezVariantType::String:
         return e->m_Value.Get<ezString>().GetData();
       default:
@@ -351,6 +356,7 @@ ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* name)
 
     {
       auto& newItem = m_AllEntries.ExpandAndGetRef();
+      newItem.m_sFullName = name;
       newItem.m_sDisplayString = piece;
       newItem.m_pParentEntry = parentEntry;
 
@@ -424,13 +430,24 @@ void ezQtCVarItemDelegate::setEditorData(QWidget* editor, const QModelIndex& ind
 
   if (QLineEdit* pLine = qobject_cast<QLineEdit*>(editor))
   {
-    pLine->setText(value.toString());
+    if (value.type() == QVariant::Type::Double)
+    {
+      double f = value.toDouble();
+
+      pLine->setText(QString("%1").arg(f, 0, (char)103, 3));
+    }
+    else
+    {
+      pLine->setText(value.toString());
+    }
+
     pLine->selectAll();
   }
 
   if (QComboBox* pLine = qobject_cast<QComboBox*>(editor))
   {
     pLine->setCurrentIndex(value.toBool() ? 0 : 1);
+    pLine->showPopup();
   }
 }
 

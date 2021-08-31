@@ -14,6 +14,7 @@
 class QStandardItemModel;
 class QSortFilterProxyModel;
 class ezQtCVarModel;
+class ezQtCVarWidget;
 
 class ezQtCVarItemDelegate : public QItemDelegate
 {
@@ -36,7 +37,7 @@ class ezQtCVarModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-  ezQtCVarModel(QObject* pParent);
+  ezQtCVarModel(ezQtCVarWidget* owner);
   ~ezQtCVarModel();
 
   void BeginResetModel();
@@ -55,6 +56,7 @@ public: // QAbstractItemModel interface
 public:
   struct Entry
   {
+    ezString m_sFullName;
     QString m_sDisplayString;
     Entry* m_pParentEntry = nullptr;
     ezDynamicArray<Entry*> m_ChildEntries;
@@ -67,6 +69,7 @@ public:
   Entry* CreateEntry(const char* name);
   QModelIndex ComputeFullIndex(const QModelIndex& index);
 
+  ezQtCVarWidget* m_pOwner = nullptr;
   ezDynamicArray<Entry*> m_RootEntries;
   ezDeque<Entry> m_AllEntries;
 };
