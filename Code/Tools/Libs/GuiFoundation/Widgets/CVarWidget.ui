@@ -15,6 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="ezQtSearchWidget" name="SearchWidget" native="true"/>
+   </item>
+   <item>
     <widget class="QTreeView" name="CVarsView">
      <property name="editTriggers">
       <set>QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -29,6 +32,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezQtSearchWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../QtResources/resources.qrc"/>
  </resources>

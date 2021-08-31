@@ -115,10 +115,7 @@ Q_SIGNALS:
   void onStringChanged(const char* szCVar, const char* newValue);
 
 private Q_SLOTS:
-  void BoolChanged(int index);
-  void FloatChanged();
-  void IntChanged();
-  void StringChanged();
+  void SearchTextChanged(const QString& text);
 
 private:
   QPointer<ezQtCVarModel> m_pItemModel;

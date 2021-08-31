@@ -30,6 +30,8 @@ ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
   CVarsView->setHeaderHidden(false);
   CVarsView->setEditTriggers(QAbstractItemView::EditTrigger::CurrentChanged | QAbstractItemView::EditTrigger::SelectedClicked);
   CVarsView->setItemDelegateForColumn(1, m_pItemDelegate);
+
+  connect(SearchWidget, &ezQtSearchWidget::textChanged, this, &ezQtCVarWidget::SearchTextChanged);
 }
 
 ezQtCVarWidget::~ezQtCVarWidget() {}
@@ -84,44 +86,22 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
   m_pItemModel->EndResetModel();
 }
 
-void ezQtCVarWidget::BoolChanged(int index)
+void ezQtCVarWidget::SearchTextChanged(const QString& text)
 {
-  const QComboBox* pValue = qobject_cast<QComboBox*>(sender());
-  const QString cvar = pValue->property("cvar").toString();
+  m_pFilterModel->setRecursiveFilteringEnabled(true);
+  m_pFilterModel->setFilterRole(Qt::UserRole);
+  m_pFilterModel->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
 
-  const bool newValue = (pValue->currentIndex() == 0);
+  QRegExp e;
 
-  Q_EMIT onBoolChanged(cvar.toUtf8().data(), newValue);
-}
+  QString st = "(?=.*" + text + ".*)";
+  st.replace(" ", ".*)(?=.*");
 
-void ezQtCVarWidget::FloatChanged()
-{
-  const QDoubleSpinBox* pValue = qobject_cast<QDoubleSpinBox*>(sender());
-  const QString cvar = pValue->property("cvar").toString();
-
-  const float newValue = (float)pValue->value();
-
-  Q_EMIT onFloatChanged(cvar.toUtf8().data(), newValue);
-}
-
-void ezQtCVarWidget::IntChanged()
-{
-  const QSpinBox* pValue = qobject_cast<QSpinBox*>(sender());
-  const QString cvar = pValue->property("cvar").toString();
-
-  const int newValue = (int)pValue->value();
-
-  Q_EMIT onIntChanged(cvar.toUtf8().data(), newValue);
-}
-
-void ezQtCVarWidget::StringChanged()
-{
-  const QLineEdit* pValue = qobject_cast<QLineEdit*>(sender());
-  const QString cvar = pValue->property("cvar").toString();
-
-  const QString newValue = pValue->text();
-
-  Q_EMIT onStringChanged(cvar.toUtf8().data(), newValue.toUtf8().data());
+  e.setPattern(st);
+  e.setCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
+  e.setPatternSyntax(QRegExp::RegExp);
+  m_pFilterModel->setFilterRegExp(e);
+  CVarsView->expandAll();
 }
 
 ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* owner)
@@ -206,6 +186,10 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
 
   ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
 
+  if (role == Qt::UserRole)
+  {
+    return e->m_sFullName.GetData();
+  }
 
   if (role == Qt::DisplayRole)
   {
