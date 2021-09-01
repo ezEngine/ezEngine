@@ -214,11 +214,19 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
     }
   }
 
-  if (role == Qt::ToolTipRole && index.column() == 0)
+  if (role == Qt::ToolTipRole)
   {
     if (e->m_Value.IsValid())
     {
-      return QString(e->m_sFullName) + " | " + e->m_sPlugin;
+      if (index.column() == 0)
+      {
+        return QString(e->m_sFullName) + " | " + e->m_sPlugin;
+      }
+
+      if (index.column() == 2)
+      {
+        return e->m_sDescription;
+      }
     }
   }
 
