@@ -31,6 +31,12 @@ public:
   virtual void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
 
   ezQtCVarModel* m_pModel = nullptr;
+
+private:
+  mutable QModelIndex m_Index;
+
+private Q_SLOTS:
+  void onComboChanged(int);
 };
 
 class ezQtCVarModel : public QAbstractItemModel

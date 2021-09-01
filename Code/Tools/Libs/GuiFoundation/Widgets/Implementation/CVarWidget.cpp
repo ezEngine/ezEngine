@@ -362,8 +362,8 @@ ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* name)
 
 QWidget* ezQtCVarItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& idx) const
 {
-  auto index = static_cast<const QSortFilterProxyModel*>(idx.model())->mapToSource(idx);
-  ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalPointer());
+  m_Index = static_cast<const QSortFilterProxyModel*>(idx.model())->mapToSource(idx);
+  ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(m_Index.internalPointer());
 
   if (!e->m_Value.IsValid())
     return nullptr;
@@ -373,6 +373,8 @@ QWidget* ezQtCVarItemDelegate::createEditor(QWidget* parent, const QStyleOptionV
     QComboBox* ret = new QComboBox(parent);
     ret->addItem("true");
     ret->addItem("false");
+
+    connect(ret, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboChanged(int)));
     return ret;
   }
 
@@ -439,4 +441,9 @@ void ezQtCVarItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* mod
   {
     model->setData(index, pLine->currentText(), Qt::EditRole);
   }
+}
+
+void ezQtCVarItemDelegate::onComboChanged(int)
+{
+  setModelData(qobject_cast<QWidget*>(sender()), m_pModel, m_Index);
 }
