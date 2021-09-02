@@ -35,15 +35,6 @@ void ezConsole::ProcessCommand(const char* szCmd)
     return;
   }
 
-  // Broadcast that we are about to process some command
-  {
-    ConsoleEvent e;
-    e.m_EventType = ConsoleEvent::BeforeProcessCommand;
-    e.m_szCommand = szCmd;
-
-    m_Events.Broadcast(e);
-  }
-
   if (m_CommandInterpreter)
   {
     ezCommandInterpreterState s;
@@ -52,41 +43,12 @@ void ezConsole::ProcessCommand(const char* szCmd)
 
     for (auto& l : s.m_sOutput)
     {
-      switch (l.m_Type)
-      {
-        case ezCommandOutputLine::Type::Default:
-          AddConsoleString(l.m_sText);
-          break;
-        case ezCommandOutputLine::Type::Error:
-          AddConsoleString(l.m_sText, ezColor(1, 0, 0));
-          break;
-        case ezCommandOutputLine::Type::Warning:
-          AddConsoleString(l.m_sText, ezColor(1, 0.8f, 0));
-          break;
-        case ezCommandOutputLine::Type::Note:
-          AddConsoleString(l.m_sText, ezColor(1, 200.0f / 255.0f, 0));
-          break;
-        case ezCommandOutputLine::Type::Success:
-          AddConsoleString(l.m_sText, ezColor(50.0f / 255.0f, 1.0f, 50.0f / 255.0f));
-          break;
-        case ezCommandOutputLine::Type::Executed:
-          AddConsoleString(l.m_sText, ezColor(1.0f, 0.5f, 0.0f));
-          break;
-
-          EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-      }
+      AddConsoleString(l.m_sText, l.m_Type);
     }
   }
   else
-    AddConsoleString(szCmd, ezColor::White, true);
-
-  // Broadcast that we have processed a command
   {
-    ConsoleEvent e;
-    e.m_EventType = ConsoleEvent::ProcessCommand;
-    e.m_szCommand = szCmd;
-
-    m_Events.Broadcast(e);
+    AddConsoleString(szCmd);
   }
 }
 
@@ -94,7 +56,7 @@ void ezConsole::BindKey(const char* szKey, const char* szCommand)
 {
   ezStringBuilder s;
   s.Format("Binding key '{0}' to command '{1}'", szKey, szCommand);
-  AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
+  AddConsoleString(s, ezConsoleString::Type::Success);
 
   m_BoundKeys[szKey] = szCommand;
 }
@@ -103,7 +65,7 @@ void ezConsole::UnbindKey(const char* szKey)
 {
   ezStringBuilder s;
   s.Format("Unbinding key '{0}'", szKey);
-  AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
+  AddConsoleString(s, ezConsoleString::Type::Success);
 
   m_BoundKeys.Remove(szKey);
 }

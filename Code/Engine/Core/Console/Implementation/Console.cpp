@@ -24,17 +24,15 @@ ezConsole::~ezConsole()
   EnableLogOutput(false);
 }
 
-void ezConsole::AddConsoleString(const char* szText, const ezColor& color, bool bShowOnScreen)
+void ezConsole::AddConsoleString(const char* szText, ezConsoleString::Type type)
 {
   EZ_LOCK(m_Mutex);
 
   m_ConsoleStrings.PushFront();
 
-  ConsoleString& cs = m_ConsoleStrings.PeekFront();
+  ezConsoleString& cs = m_ConsoleStrings.PeekFront();
   cs.m_sText = szText;
-  cs.m_TextColor = color;
-  cs.m_TimeStamp = ezTime::Now();
-  cs.m_bShowOnScreen = bShowOnScreen;
+  cs.m_Type = type;
 
   // Broadcast that we have added a string to the console
   {
@@ -49,7 +47,7 @@ void ezConsole::AddConsoleString(const char* szText, const ezColor& color, bool 
     m_ConsoleStrings.PopBack(m_ConsoleStrings.GetCount() - m_uiMaxConsoleStrings);
 }
 
-const ezDeque<ezConsole::ezConsole::ConsoleString>& ezConsole::GetConsoleStrings() const
+const ezDeque<ezConsoleString>& ezConsole::GetConsoleStrings() const
 {
   if (m_bUseFilteredStrings)
   {
@@ -116,8 +114,7 @@ void ezConsole::ReplaceInput(const char* sz)
 
 void ezConsole::LogHandler(const ezLoggingEventData& data)
 {
-  bool bShow = false;
-  ezColor color = ezColor::White;
+  ezConsoleString::Type type = ezConsoleString::Type::Default;
 
   switch (data.m_EventType)
   {
@@ -131,33 +128,37 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
       return;
 
     case ezLogMsgType::ErrorMsg:
-      color = ezColor(1.0f, 0.2f, 0.2f);
-      bShow = true;
+      type = ezConsoleString::Type::Error;
       break;
+
     case ezLogMsgType::SeriousWarningMsg:
-      color = ezColor(1.0f, 0.4f, 0.1f);
-      bShow = true;
+      type = ezConsoleString::Type::SeriousWarning;
       break;
+
     case ezLogMsgType::WarningMsg:
-      color = ezColor(1.0f, 0.6f, 0.1f);
+      type = ezConsoleString::Type::Warning;
       break;
+
     case ezLogMsgType::SuccessMsg:
-      color = ezColor(0.1f, 1.0f, 0.1f);
+      type = ezConsoleString::Type::Success;
       break;
+
     case ezLogMsgType::InfoMsg:
       break;
+
     case ezLogMsgType::DevMsg:
-      color = ezColor(0.6f, 0.6f, 0.6f);
+      type = ezConsoleString::Type::Dev;
       break;
+
     case ezLogMsgType::DebugMsg:
-      color = ezColor(0.4f, 0.6f, 0.8f);
+      type = ezConsoleString::Type::Debug;
       break;
   }
 
   ezStringBuilder sFormat;
   sFormat.Printf("%*s%s", data.m_uiIndentation, "", data.m_szText);
 
-  AddConsoleString(sFormat.GetData(), color, bShow);
+  AddConsoleString(sFormat.GetData(), type);
 }
 
 void ezConsole::InputStringChanged()
@@ -261,13 +262,56 @@ void ezConsole::LoadState(ezStreamReader& Stream)
   }
 }
 
-void ezCommandInterpreterState::AddOutputLine(const ezFormatString& text, ezCommandOutputLine::Type type /*= ezCommandOutputLine::Type::Default*/)
+void ezCommandInterpreterState::AddOutputLine(const ezFormatString& text, ezConsoleString::Type type /*= ezCommandOutputLine::Type::Default*/)
 {
   auto& line = m_sOutput.ExpandAndGetRef();
   line.m_Type = type;
 
   ezStringBuilder tmp;
   line.m_sText = text.GetText(tmp);
+}
+
+ezColor ezConsoleString::GetColor() const
+{
+  switch (m_Type)
+  {
+    case ezConsoleString::Type::Default:
+      return ezColor::White;
+
+    case ezConsoleString::Type::Error:
+      return ezColor(1.0f, 0.2f, 0.2f);
+
+    case ezConsoleString::Type::SeriousWarning:
+      return ezColor(1.0f, 0.4f, 0.1f);
+
+    case ezConsoleString::Type::Warning:
+      return ezColor(1.0f, 0.6f, 0.1f);
+
+    case ezConsoleString::Type::Note:
+      return ezColor(1, 200.0f / 255.0f, 0);
+
+    case ezConsoleString::Type::Success:
+      return ezColor(0.1f, 1.0f, 0.1f);
+
+    case ezConsoleString::Type::Executed:
+      return ezColor(1.0f, 0.5f, 0.0f);
+
+    case ezConsoleString::Type::VarName:
+      return ezColorGammaUB(255, 210, 0);
+
+    case ezConsoleString::Type::FuncName:
+      return ezColorGammaUB(100, 255, 100);
+
+    case ezConsoleString::Type::Dev:
+      return ezColor(0.6f, 0.6f, 0.6f);
+
+    case ezConsoleString::Type::Debug:
+      return ezColor(0.4f, 0.6f, 0.8f);
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return ezColor::White;
 }
 
 EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Console);

@@ -160,7 +160,7 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 
   sTemp = "> ";
   sTemp.Append(sRealCommand.GetData());
-  inout_State.AddOutputLine(sTemp, ezCommandOutputLine::Type::Executed);
+  inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Executed);
 
   ezCVar* pCVAR = ezCVar::FindCVarByName(sRealVarName.GetData());
   if (pCVAR != nullptr)
@@ -180,18 +180,18 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 
       if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
       {
-        inout_State.AddOutputLine("  Error Executing Command.", ezCommandOutputLine::Type::Error);
+        inout_State.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
         return;
       }
       else
       {
         if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
         {
-          inout_State.AddOutputLine("  This change takes only effect after a restart.", ezCommandOutputLine::Type::Note);
+          inout_State.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
         }
 
         sTemp.Format("  {0} = {1}", sRealVarName, ezConsole::GetFullInfoAsString(pCVAR));
-        inout_State.AddOutputLine(sTemp, ezCommandOutputLine::Type::Success);
+        inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
     }
     else
@@ -202,10 +202,10 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
       {
         sTemp.Format("  Description: {0}", pCVAR->GetDescription());
-        inout_State.AddOutputLine(sTemp, ezCommandOutputLine::Type::Success);
+        inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
       else
-        inout_State.AddOutputLine("  No Description available.", ezCommandOutputLine::Type::Success);
+        inout_State.AddOutputLine("  No Description available.", ezConsoleString::Type::Success);
     }
 
     return;
@@ -216,7 +216,7 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 
     if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
     {
-      inout_State.AddOutputLine("  Error Executing Command.", ezCommandOutputLine::Type::Error);
+      inout_State.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
       return;
     }
   }

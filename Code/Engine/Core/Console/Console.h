@@ -11,34 +11,53 @@
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 
-struct EZ_CORE_DLL ezCommandOutputLine
+struct EZ_CORE_DLL ezConsoleString
 {
   enum class Type : ezUInt8
   {
     Default,
     Error,
+    SeriousWarning,
     Warning,
     Note,
     Success,
-    Executed, // orange
+    Executed,
+    VarName,
+    FuncName,
+    Dev,
+    Debug,
   };
 
   Type m_Type = Type::Default;
   ezString m_sText;
+  ezColor GetColor() const;
+
+  bool operator<(const ezConsoleString& rhs) const { return m_sText < rhs.m_sText; }
 };
 
 struct EZ_CORE_DLL ezCommandInterpreterState
 {
-  ezString m_sInput;
-  ezHybridArray<ezCommandOutputLine, 16> m_sOutput;
+  ezStringBuilder m_sInput;
+  ezHybridArray<ezConsoleString, 16> m_sOutput;
 
-  void AddOutputLine(const ezFormatString& text, ezCommandOutputLine::Type type = ezCommandOutputLine::Type::Default);
+  void AddOutputLine(const ezFormatString& text, ezConsoleString::Type type = ezConsoleString::Type::Default);
 };
 
 class EZ_CORE_DLL ezCommandInterpreter : public ezRefCounted
 {
 public:
   virtual void Interpret(ezCommandInterpreterState& inout_State) = 0;
+
+  virtual void AutoComplete(ezCommandInterpreterState& inout_State);
+
+  /// \brief Iterates over all cvars and finds all that start with the string \a szVariable.
+  static void FindPossibleCVars(const char* szVariable, ezDeque<ezString>& CommonStrings, ezDeque<ezConsoleString>& ConsoleStrings);
+
+  /// \brief Iterates over all console functions and finds all that start with the string \a szVariable.
+  static void FindPossibleFunctions(const char* szVariable, ezDeque<ezString>& CommonStrings, ezDeque<ezConsoleString>& ConsoleStrings);
+
+  /// \brief Returns the prefix string that is common to all strings in the \a vStrings array.
+  static const ezString FindCommonString(const ezDeque<ezString>& vStrings);
 };
 
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
@@ -55,25 +74,7 @@ public:
   ezConsole();
   virtual ~ezConsole();
 
-  /// \brief The data for one text entry in the console window.
-  struct ConsoleString
-  {
-    ezString m_sText;
-    ezColor m_TextColor;
 
-    /// \brief The timestamp of when the string was added.
-    ezTime m_TimeStamp;
-
-    /// \brief If true, the application might show this string on screen when the console is not displayed.
-    bool m_bShowOnScreen;
-
-    ConsoleString()
-    {
-      m_TextColor = ezColor::White;
-      m_bShowOnScreen = false;
-    }
-    bool operator<(const ConsoleString& rhs) const { return m_sText < rhs.m_sText; }
-  };
 
   /// \name Events
   /// @{
@@ -84,25 +85,13 @@ public:
   {
     enum EventType
     {
-      BeforeProcessCommand, ///< The console is about to process a command
-      ProcessCommand,       ///< A command was processed
-      StringAdded,          ///< A string was added to the console
-      AutoCompleteRequest,  ///< The user tries to auto-complete the input
+      StringAdded, ///< A string was added to the console
     };
 
     EventType m_EventType;
 
-    /// \brief The command the was or will be processed
-    const char* m_szCommand;
-
     /// \brief The console string that was just added.
-    const ConsoleString* m_AddedpConsoleString;
-
-    /// \brief AutoComplete: The strings that might be used for auto-completion, the event handler may add additional suggestions to it.
-    ezDeque<ezString>* m_pAutoCompleteOptions;
-
-    /// \brief The descriptions of each auto-complete option, to be shown in the console.
-    ezDeque<ConsoleString>* m_pAutoCompleteDescriptions;
+    const ezConsoleString* m_AddedpConsoleString;
   };
 
   /// \brief The console event variable, to attach to.
@@ -222,10 +211,10 @@ public:
   /// \brief Adds a string to the console.
   ///
   /// bShowOnScreen is a hint for the renderer to also display this string on screen, even if the console is not visible.
-  void AddConsoleString(const char* szText, const ezColor& color = ezColor(1, 1, 1), bool bShowOnScreen = false);
+  void AddConsoleString(const char* szText, ezConsoleString::Type type = ezConsoleString::Type::Default);
 
   /// \brief Returns all current console strings. Use GetScrollPosition() to know which one should be displayed as the first one.
-  const ezDeque<ConsoleString>& GetConsoleStrings() const;
+  const ezDeque<ezConsoleString>& GetConsoleStrings() const;
 
   /// \brief Deletes all console strings, making the console empty.
   void ClearConsoleStrings();
@@ -264,15 +253,6 @@ protected:
   /// \brief Adds an item to the input history.
   void AddToInputHistory(const char* szString);
 
-  /// \brief Iterates over all cvars and finds all that start with the string \a szVariable.
-  static void FindPossibleCVars(const char* szVariable, ezDeque<ezString>& CommonStrings, ezDeque<ConsoleString>& ConsoleStrings);
-
-  /// \brief Iterates over all console functions and finds all that start with the string \a szVariable.
-  static void FindPossibleFunctions(const char* szVariable, ezDeque<ezString>& CommonStrings, ezDeque<ConsoleString>& ConsoleStrings);
-
-  /// \brief Returns the prefix string that is common to all strings in the \a vStrings array.
-  static const ezString FindCommonString(const ezDeque<ezString>& vStrings);
-
   /// \brief The function that is used to read ezGlobalLog messages.
   void LogHandler(const ezLoggingEventData& data);
 
@@ -285,9 +265,9 @@ protected:
 
   mutable ezMutex m_Mutex;
   ezSharedPtr<ezCommandInterpreter> m_CommandInterpreter;
-  ezDeque<ConsoleString> m_ConsoleStrings;
+  ezDeque<ezConsoleString> m_ConsoleStrings;
   bool m_bUseFilteredStrings = false;
-  ezDeque<ConsoleString> m_FilteredConsoleStrings;
+  ezDeque<ezConsoleString> m_FilteredConsoleStrings;
   ezUInt32 m_uiMaxConsoleStrings;
   ezInt32 m_iScrollPosition;
   ezInt32 m_iCurrentInputHistoryElement;
