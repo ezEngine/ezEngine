@@ -11,6 +11,7 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   ToolsFoundation
   ads
+  Core
 )
 
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras Svg COPY_DLLS)

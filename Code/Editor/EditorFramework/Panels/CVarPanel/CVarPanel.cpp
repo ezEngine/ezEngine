@@ -3,8 +3,23 @@
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <Foundation/Configuration/CVar.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Core/Console/Console.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtCVarPanel);
+
+class ezCommandInterpreterFwd : public ezCommandInterpreter
+{
+public:
+  virtual ezResult Interpret(ezCommandInterpreterState& inout_State) override
+  {
+    ezConsoleCmdMsgToEngine msg;
+    msg.m_sCommand = inout_State.m_sInput;
+
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+
+    return EZ_SUCCESS;
+  }
+};
 
 ezQtCVarPanel::ezQtCVarPanel()
   : ezQtApplicationPanel("Panel.CVar")
@@ -23,6 +38,8 @@ ezQtCVarPanel::ezQtCVarPanel()
   connect(m_pCVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarPanel::FloatChanged);
   connect(m_pCVarWidget, &ezQtCVarWidget::onIntChanged, this, &ezQtCVarPanel::IntChanged);
   connect(m_pCVarWidget, &ezQtCVarWidget::onStringChanged, this, &ezQtCVarPanel::StringChanged);
+
+  m_pCVarWidget->SetConsoleCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterFwd));
 }
 
 ezQtCVarPanel::~ezQtCVarPanel()

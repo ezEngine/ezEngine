@@ -30,6 +30,22 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QTextEdit" name="ConsoleOutput">
+     <property name="undoRedoEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QTextEdit::NoWrap</enum>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ezQtSearchWidget" name="ConsoleInput" native="true"/>
+   </item>
   </layout>
  </widget>
  <customwidgets>

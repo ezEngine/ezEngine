@@ -121,6 +121,14 @@ public:
   ezVariant m_NewValue;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezConsoleCmdMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezConsoleCmdMsgToEngine, ezEditorEngineMsg);
+
+public:
+  ezString m_sCommand;
+};
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 /// \brief Base class for all messages that are tied to some document.

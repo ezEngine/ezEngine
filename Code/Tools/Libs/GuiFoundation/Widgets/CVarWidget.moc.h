@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Console/Console.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
@@ -113,6 +114,8 @@ public:
   /// \brief Updates the existing UI. This is sufficient if values changed only.
   void UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
 
+  void SetConsoleCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter);
+
 Q_SIGNALS:
   void onBoolChanged(const char* szCVar, bool newValue);
   void onFloatChanged(const char* szCVar, float newValue);
@@ -121,9 +124,16 @@ Q_SIGNALS:
 
 private Q_SLOTS:
   void SearchTextChanged(const QString& text);
+  void ConsoleInputChanged(const QString& text);
+  void ConsoleEnterPressed();
+  void ConsoleSpecialKeyPressed(Qt::Key key);
 
 private:
   QPointer<ezQtCVarModel> m_pItemModel;
   QPointer<QSortFilterProxyModel> m_pFilterModel;
   QPointer<ezQtCVarItemDelegate> m_pItemDelegate;
+
+  void OnConsoleEvent(ezConsole::ConsoleEvent& e);
+
+  ezConsole m_Console;
 };

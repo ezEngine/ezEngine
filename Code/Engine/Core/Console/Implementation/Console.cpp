@@ -108,6 +108,11 @@ void ezConsole::SearchInputHistory(ezInt32 iHistoryUp)
 }
 
 
+void ezConsole::ReplaceInput(const char* sz)
+{
+  m_sInputLine = sz;
+  ClampCaretPosition();
+}
 
 void ezConsole::LogHandler(const ezLoggingEventData& data)
 {

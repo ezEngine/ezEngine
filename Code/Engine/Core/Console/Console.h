@@ -253,6 +253,8 @@ public:
 
   /// @}
 
+  void ReplaceInput(const char* sz);
+
 protected:
   /// \brief Deletes the character at the given position in the input line.
   void RemoveCharacter(ezUInt32 uiInputLinePosition);

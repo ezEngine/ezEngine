@@ -133,6 +133,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezChangeCVarMsgToEngine, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConsoleCmdMsgToEngine, 1, ezRTTIDefaultAllocator<ezConsoleCmdMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Cmd", m_sCommand),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpReplicationMsg, 1, ezRTTIDefaultAllocator<ezLongOpReplicationMsg>)
 {
   EZ_BEGIN_PROPERTIES

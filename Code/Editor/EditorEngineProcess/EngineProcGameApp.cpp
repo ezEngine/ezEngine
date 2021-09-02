@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
+#include <Core/Console/Console.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -327,6 +328,16 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     }
     else
       ezLog::Warning("ezChangeCVarMsgToEngine: Unknown CVar '{0}'", pMsg->m_sCVarName);
+  }
+  else if (const auto* pMsg = ezDynamicCast<const ezConsoleCmdMsgToEngine*>(e.m_pMessage))
+  {
+    if (m_pConsole->GetCommandInterpreter())
+    {
+      ezCommandInterpreterState s;
+      s.m_sInput = pMsg->m_sCommand;
+
+      m_pConsole->GetCommandInterpreter()->Interpret(s).IgnoreResult();
+    }
   }
 
   // Document Messages:
