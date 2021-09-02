@@ -105,7 +105,7 @@ static void UnSanitizeCVarName(ezStringBuilder& cvarName)
   }
 }
 
-ezResult ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
+void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 {
   inout_State.m_sOutput.Clear();
 
@@ -114,7 +114,7 @@ ezResult ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_Sta
   if (sRealCommand.IsEmpty())
   {
     inout_State.AddOutputLine("");
-    return EZ_SUCCESS;
+    return;
   }
 
   sRealCommand.Trim(" \t\n\r");
@@ -176,10 +176,12 @@ ezResult ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_Sta
 
     if (bSetValue && !bValueEmpty)
     {
-      if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
+      ezMuteLog muteLog;
+
+      if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
       {
         inout_State.AddOutputLine("  Error Executing Command.", ezCommandOutputLine::Type::Error);
-        return EZ_FAILURE;
+        return;
       }
       else
       {
@@ -206,18 +208,18 @@ ezResult ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_Sta
         inout_State.AddOutputLine("  No Description available.", ezCommandOutputLine::Type::Success);
     }
 
-    return EZ_SUCCESS;
+    return;
   }
   else
   {
-    if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
+    ezMuteLog muteLog;
+
+    if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
     {
       inout_State.AddOutputLine("  Error Executing Command.", ezCommandOutputLine::Type::Error);
-      return EZ_FAILURE;
+      return;
     }
   }
-
-  return EZ_SUCCESS;
 }
 
 static int LUAFUNC_ReadCVAR(lua_State* state)

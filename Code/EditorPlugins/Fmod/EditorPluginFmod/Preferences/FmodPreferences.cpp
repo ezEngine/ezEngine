@@ -40,7 +40,7 @@ void ezFmodProjectPreferences::SyncCVars()
 
   {
     ezChangeCVarMsgToEngine msg;
-    msg.m_sCVarName = "fmod_Mute";
+    msg.m_sCVarName = "Fmod.Mute";
     msg.m_NewValue = m_bMute;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -48,7 +48,7 @@ void ezFmodProjectPreferences::SyncCVars()
 
   {
     ezChangeCVarMsgToEngine msg;
-    msg.m_sCVarName = "fmod_MasterVolume";
+    msg.m_sCVarName = "Fmod.MasterVolume";
     msg.m_NewValue = m_fMasterVolume;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);

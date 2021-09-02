@@ -135,6 +135,16 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
     m_Console.AddInputCharacter('\t');
     ConsoleInput->setText(m_Console.GetInputLine());
   }
+  if (key == Qt::Key_Up)
+  {
+    m_Console.SearchInputHistory(1);
+    ConsoleInput->setText(m_Console.GetInputLine());
+  }
+  if (key == Qt::Key_Down)
+  {
+    m_Console.SearchInputHistory(-1);
+    ConsoleInput->setText(m_Console.GetInputLine());
+  }
 }
 
 void ezQtCVarWidget::OnConsoleEvent(ezConsole::ConsoleEvent& e)

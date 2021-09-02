@@ -336,7 +336,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezCommandInterpreterState s;
       s.m_sInput = pMsg->m_sCommand;
 
-      m_pConsole->GetCommandInterpreter()->Interpret(s).IgnoreResult();
+      m_pConsole->GetCommandInterpreter()->Interpret(s);
     }
   }
 

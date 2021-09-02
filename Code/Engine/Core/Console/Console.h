@@ -38,7 +38,7 @@ struct EZ_CORE_DLL ezCommandInterpreterState
 class EZ_CORE_DLL ezCommandInterpreter : public ezRefCounted
 {
 public:
-  virtual ezResult Interpret(ezCommandInterpreterState& inout_State) = 0;
+  virtual void Interpret(ezCommandInterpreterState& inout_State) = 0;
 };
 
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
@@ -84,11 +84,10 @@ public:
   {
     enum EventType
     {
-      BeforeProcessCommand,  ///< The console is about to process a command
-      ProcessCommandSuccess, ///< A command was successfully processed
-      ProcessCommandFailure, ///< A command failed to be processed
-      StringAdded,           ///< A string was added to the console
-      AutoCompleteRequest,   ///< The user tries to auto-complete the input
+      BeforeProcessCommand, ///< The console is about to process a command
+      ProcessCommand,       ///< A command was processed
+      StringAdded,          ///< A string was added to the console
+      AutoCompleteRequest,  ///< The user tries to auto-complete the input
     };
 
     EventType m_EventType;

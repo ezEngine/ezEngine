@@ -44,13 +44,11 @@ void ezConsole::ProcessCommand(const char* szCmd)
     m_Events.Broadcast(e);
   }
 
-  ezResult res = EZ_FAILURE;
-
   if (m_CommandInterpreter)
   {
     ezCommandInterpreterState s;
     s.m_sInput = szCmd;
-    res = m_CommandInterpreter->Interpret(s);
+    m_CommandInterpreter->Interpret(s);
 
     for (auto& l : s.m_sOutput)
     {
@@ -85,7 +83,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
   // Broadcast that we have processed a command
   {
     ConsoleEvent e;
-    e.m_EventType = res.Succeeded() ? ConsoleEvent::ProcessCommandSuccess : ConsoleEvent::ProcessCommandFailure;
+    e.m_EventType = ConsoleEvent::ProcessCommand;
     e.m_szCommand = szCmd;
 
     m_Events.Broadcast(e);
