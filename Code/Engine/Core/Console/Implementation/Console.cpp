@@ -15,7 +15,7 @@ ezConsole::ezConsole()
   // END-DOCS-CODE-SNIPPET
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-  SetCommandInterpreter(ezConsoleInterpreter::Lua);
+  SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterLua));
 #endif
 }
 
@@ -256,6 +256,13 @@ void ezConsole::LoadState(ezStreamReader& Stream)
   }
 }
 
+void ezCommandInterpreterState::AddOutputLine(const ezFormatString& text, ezCommandOutputLine::Type type /*= ezCommandOutputLine::Type::Default*/)
+{
+  auto& line = m_sOutput.ExpandAndGetRef();
+  line.m_Type = type;
 
+  ezStringBuilder tmp;
+  line.m_sText = text.GetText(tmp);
+}
 
 EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Console);

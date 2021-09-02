@@ -8,6 +8,38 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
+
+struct EZ_CORE_DLL ezCommandOutputLine
+{
+  enum class Type : ezUInt8
+  {
+    Default,
+    Error,
+    Warning,
+    Note,
+    Success,
+    Executed, // orange
+  };
+
+  Type m_Type = Type::Default;
+  ezString m_sText;
+};
+
+struct EZ_CORE_DLL ezCommandInterpreterState
+{
+  ezString m_sInput;
+  ezHybridArray<ezCommandOutputLine, 16> m_sOutput;
+
+  void AddOutputLine(const ezFormatString& text, ezCommandOutputLine::Type type = ezCommandOutputLine::Type::Default);
+};
+
+class EZ_CORE_DLL ezCommandInterpreter : public ezRefCounted
+{
+public:
+  virtual ezResult Interpret(ezCommandInterpreterState& inout_State) = 0;
+};
 
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
 ///
@@ -22,9 +54,6 @@ class EZ_CORE_DLL ezConsole
 public:
   ezConsole();
   virtual ~ezConsole();
-
-  /// \brief The delegate type for an interpreter of all the commands that are typed into the console.
-  typedef ezDelegate<ezResult(const char*, ezConsole*)> ezCommandProcessor;
 
   /// \brief The data for one text entry in the console window.
   struct ConsoleString
@@ -108,7 +137,10 @@ public:
   /// \brief Replaces the current command interpreter. This allows to attach a custom interpreter to the console.
   ///
   /// by default the Lua interpreter is used. Using a custom interpreter you can extend its functionality or allow for different syntax.
-  void SetCommandInterpreter(ezCommandProcessor processor) { m_CommandProcessor = processor; }
+  void SetCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter) { m_CommandInterpreter = interpreter; }
+
+  /// \brief Returns the currently used command interpreter.
+  const ezSharedPtr<ezCommandInterpreter>& GetCommandInterpreter() const { return m_CommandInterpreter; }
 
   /// \brief Executes the given command using the current command interpreter.
   ///
@@ -251,7 +283,7 @@ protected:
   virtual void InputStringChanged();
 
   mutable ezMutex m_Mutex;
-  ezCommandProcessor m_CommandProcessor;
+  ezSharedPtr<ezCommandInterpreter> m_CommandInterpreter;
   ezDeque<ConsoleString> m_ConsoleStrings;
   bool m_bUseFilteredStrings = false;
   ezDeque<ConsoleString> m_FilteredConsoleStrings;

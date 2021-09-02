@@ -4,17 +4,18 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-namespace ezConsoleInterpreter
+class EZ_CORE_DLL ezCommandInterpreterLua : public ezCommandInterpreter
 {
+public:
   /// \brief The default interpreter used by ezConsole. Uses Lua for parsing and execution.
   ///
-  /// The lua interpreter can modify ezCVar variables and call ezConsoleFunction functions.
+  /// The Lua interpreter can modify ezCVar variables and call ezConsoleFunction functions.
   ///
   /// Typing 'some_bool_cvar =' is a short form for 'some_bool_cvar = not some_bool_cvar'
-  /// which toggles the value of the boolean cvar variable.
+  /// which toggles the value of the boolean CVar variable.
   ///
   /// Mathematical operations are possible, such as 'int_cvar = int_cvar + 1',
-  /// which can be used to modify the cvar gradually.
+  /// which can be used to modify the CVar gradually.
   /// Such a command can be very useful when the console is configured such that it is
   /// easy to re-execute the last commands by hitting just one button.
   /// It can also be used when binding keys to commands.
@@ -26,8 +27,7 @@ namespace ezConsoleInterpreter
   /// SomeConsoleFunc(2, some_cvar)
   ///
   /// If there is any kind of error (e.g. a Lua syntax error), the interpreter will return EZ_FAILURE;
-  EZ_CORE_DLL ezResult Lua(const char* szCommand, ezConsole* pConsole);
-
-} // namespace ezConsoleInterpreter
+  virtual ezResult Interpret(ezCommandInterpreterState& inout_State) override;
+};
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT

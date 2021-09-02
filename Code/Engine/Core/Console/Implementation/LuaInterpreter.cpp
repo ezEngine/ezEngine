@@ -105,13 +105,15 @@ static void UnSanitizeCVarName(ezStringBuilder& cvarName)
   }
 }
 
-ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
+ezResult ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 {
-  ezStringBuilder sRealCommand = szCommand;
+  inout_State.m_sOutput.Clear();
+
+  ezStringBuilder sRealCommand = inout_State.m_sInput;
 
   if (sRealCommand.IsEmpty())
   {
-    pConsole->AddConsoleString("");
+    inout_State.AddOutputLine("");
     return EZ_SUCCESS;
   }
 
@@ -158,8 +160,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
   sTemp = "> ";
   sTemp.Append(sRealCommand.GetData());
-  pConsole->AddConsoleString(sTemp.GetData(), ezColor(255.0f / 255.0f, 128.0f / 255.0f, 0.0f / 255.0f));
-
+  inout_State.AddOutputLine(sTemp, ezCommandOutputLine::Type::Executed);
 
   ezCVar* pCVAR = ezCVar::FindCVarByName(sRealVarName.GetData());
   if (pCVAR != nullptr)
@@ -177,32 +178,32 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
     {
       if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
       {
-        pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
+        inout_State.AddOutputLine("  Error Executing Command.", ezCommandOutputLine::Type::Error);
         return EZ_FAILURE;
       }
       else
       {
         if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
         {
-          pConsole->AddConsoleString("  This change takes only effect after a restart.", ezColor(1, 200.0f / 255.0f, 0));
+          inout_State.AddOutputLine("  This change takes only effect after a restart.", ezCommandOutputLine::Type::Note);
         }
 
-        sTemp.Format("  {0} = {1}", sRealVarName, pConsole->GetFullInfoAsString(pCVAR));
-        pConsole->AddConsoleString(sTemp.GetData(), ezColor(50.0f / 255.0f, 1, 50.0f / 255.0f));
+        sTemp.Format("  {0} = {1}", sRealVarName, ezConsole::GetFullInfoAsString(pCVAR));
+        inout_State.AddOutputLine(sTemp, ezCommandOutputLine::Type::Success);
       }
     }
     else
     {
-      sTemp.Format("{0} = {1}", sRealVarName, pConsole->GetFullInfoAsString(pCVAR));
-      pConsole->AddConsoleString(sTemp.GetData());
+      sTemp.Format("{0} = {1}", sRealVarName, ezConsole::GetFullInfoAsString(pCVAR));
+      inout_State.AddOutputLine(sTemp);
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
       {
         sTemp.Format("  Description: {0}", pCVAR->GetDescription());
-        pConsole->AddConsoleString(sTemp.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
+        inout_State.AddOutputLine(sTemp, ezCommandOutputLine::Type::Success);
       }
       else
-        pConsole->AddConsoleString("  No Description available.", ezColor(50 / 255.0f, 1, 50 / 255.0f));
+        inout_State.AddOutputLine("  No Description available.", ezCommandOutputLine::Type::Success);
     }
 
     return EZ_SUCCESS;
@@ -211,7 +212,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
   {
     if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
     {
-      pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
+      inout_State.AddOutputLine("  Error Executing Command.", ezCommandOutputLine::Type::Error);
       return EZ_FAILURE;
     }
   }

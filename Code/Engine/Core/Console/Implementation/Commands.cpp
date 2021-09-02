@@ -46,8 +46,39 @@ void ezConsole::ProcessCommand(const char* szCmd)
 
   ezResult res = EZ_FAILURE;
 
-  if (m_CommandProcessor.IsValid())
-    res = m_CommandProcessor(szCmd, this);
+  if (m_CommandInterpreter)
+  {
+    ezCommandInterpreterState s;
+    s.m_sInput = szCmd;
+    res = m_CommandInterpreter->Interpret(s);
+
+    for (auto& l : s.m_sOutput)
+    {
+      switch (l.m_Type)
+      {
+        case ezCommandOutputLine::Type::Default:
+          AddConsoleString(l.m_sText);
+          break;
+        case ezCommandOutputLine::Type::Error:
+          AddConsoleString(l.m_sText, ezColor(1, 0, 0));
+          break;
+        case ezCommandOutputLine::Type::Warning:
+          AddConsoleString(l.m_sText, ezColor(1, 0.8f, 0));
+          break;
+        case ezCommandOutputLine::Type::Note:
+          AddConsoleString(l.m_sText, ezColor(1, 200.0f / 255.0f, 0));
+          break;
+        case ezCommandOutputLine::Type::Success:
+          AddConsoleString(l.m_sText, ezColor(50.0f / 255.0f, 1.0f, 50.0f / 255.0f));
+          break;
+        case ezCommandOutputLine::Type::Executed:
+          AddConsoleString(l.m_sText, ezColor(1.0f, 0.5f, 0.0f));
+          break;
+
+          EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      }
+    }
+  }
   else
     AddConsoleString(szCmd, ezColor::White, true);
 
