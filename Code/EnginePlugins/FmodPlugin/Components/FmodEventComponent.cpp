@@ -39,7 +39,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCVarInt CVarFmodOcclusionRays("fmod_OcclusionRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
+ezCVarInt cvar_FmodOcclusionNumRays("Fmod.Occlusion.NumRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
 
 static ezVec3 s_InSpherePositions[32];
 static bool s_bInSpherePositionsInitialized = false;
@@ -182,7 +182,7 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
     ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
 
-    ezUInt32 uiNumRays = ezMath::Max<int>(CVarFmodOcclusionRays, 1);
+    ezUInt32 uiNumRays = ezMath::Max<int>(cvar_FmodOcclusionNumRays, 1);
 
     for (auto& occlusionState : m_OcclusionStates)
     {

@@ -98,7 +98,7 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
           break;
       }
 
-      if (sd.m_iTableRow == -1)
+      if (sd.m_bNewEntry)
         bUpdateCVarsTable = true;
 
       bFillCVarsTable = true;

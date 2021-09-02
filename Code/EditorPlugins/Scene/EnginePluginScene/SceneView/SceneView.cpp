@@ -136,7 +136,7 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   bool bDebugCulling = false;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  bDebugCulling = ezRenderPipeline::s_DebugCulling;
+  bDebugCulling = ezRenderPipeline::cvar_SpatialCullingVis;
 #endif
 
   if (bDebugCulling && pView != nullptr)

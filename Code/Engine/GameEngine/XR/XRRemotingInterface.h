@@ -71,9 +71,9 @@ class ezXRRemotingInterface
 {
 public:
   /// \brief Enable XR Remoting if available.
-  static ezCVarBool s_CVarXrRemoting;
+  static ezCVarBool cvar_XrRemoting;
   /// \brief Hostname to connect to for XR Remoting.
-  static ezCVarString s_CVarXrRemotingHostName;
+  static ezCVarString cvar_XrRemotingHostName;
 
   /// \brief Initializes the XR Remoting system. Needs to be done before ezXRInterface is initialized.
   virtual ezResult Initialize() = 0;

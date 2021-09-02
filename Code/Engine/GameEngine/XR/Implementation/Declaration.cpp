@@ -4,8 +4,8 @@
 #include <GameEngine/XR/Declarations.h>
 #include <GameEngine/XR/XRRemotingInterface.h>
 
-ezCVarBool ezXRRemotingInterface::s_CVarXrRemoting("xr_Remoting", false, ezCVarFlags::Default, "Enable XR Remoting if available.");
-ezCVarString ezXRRemotingInterface::s_CVarXrRemotingHostName("xr_RemotingHostName", "", ezCVarFlags::Save, "Hostname to connect to for XR Remoting.");
+ezCVarBool ezXRRemotingInterface::cvar_XrRemoting("XR.Remoting", false, ezCVarFlags::Default, "Enable XR Remoting if available.");
+ezCVarString ezXRRemotingInterface::cvar_XrRemotingHostName("XR.Remoting.HostName", "", ezCVarFlags::Save, "Hostname to connect to for XR Remoting.");
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRTransformSpace, 1)

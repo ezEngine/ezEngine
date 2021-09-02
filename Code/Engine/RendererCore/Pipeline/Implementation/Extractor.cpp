@@ -10,17 +10,14 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarVisBounds("r_VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
-ezCVarBool CVarVisLocalBBox("r_VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
-ezCVarBool CVarVisSpatialData("r_VisSpatialData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
-ezCVarString CVarVisSpatialCategory(
-  "r_VisSpatialCategory", "", ezCVarFlags::Default, "When set the debug visualization is only shown for the given spatial data category");
-ezCVarBool CVarVisObjectSelection(
-  "r_VisObjectSelection", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
-ezCVarString CVarVisObjectName(
-  "r_VisObjectName", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
+ezCVarBool cvar_SpatialVisBounds("Spatial.VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
+ezCVarBool cvar_SpatialVisLocalBBox("Spatial.VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
+ezCVarBool cvar_SpatialVisData("Spatial.VisData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
+ezCVarString cvar_SpatialVisDataOnlyCategory("Spatial.VisData.OnlyCategory", "", ezCVarFlags::Default, "When set the debug visualization is only shown for the given spatial data category");
+ezCVarBool cvar_SpatialVisDataOnlySelected("Spatial.VisData.OnlySelected", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
+ezCVarString cvar_SpatialVisDataOnlyObject("Spatial.VisData.OnlyObject", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
 
-ezCVarBool CVarExtractionStats("r_ExtractionStats", false, ezCVarFlags::Default, "Display some stats of the render data extraction");
+ezCVarBool cvar_SpatialExtractionShowStats("Spatial.Extraction.ShowStats", false, ezCVarFlags::Default, "Display some stats of the render data extraction");
 #endif
 
 namespace
@@ -28,12 +25,12 @@ namespace
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   void VisualizeSpatialData(const ezView& view)
   {
-    if (CVarVisSpatialData && CVarVisObjectName.GetValue().IsEmpty() && !CVarVisObjectSelection)
+    if (cvar_SpatialVisData && cvar_SpatialVisDataOnlyObject.GetValue().IsEmpty() && !cvar_SpatialVisDataOnlySelected)
     {
       const ezSpatialSystem& spatialSystem = *view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
       {
-        ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(CVarVisSpatialCategory.GetValue());
+        ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(cvar_SpatialVisDataOnlyCategory.GetValue());
 
         ezHybridArray<ezBoundingBox, 16> boxes;
         pSpatialSystemGrid->GetAllCellBoxes(boxes, filterCategory);
@@ -48,10 +45,10 @@ namespace
 
   void VisualizeObject(const ezView& view, const ezGameObject* pObject)
   {
-    if (!CVarVisBounds && !CVarVisLocalBBox && !CVarVisSpatialData)
+    if (!cvar_SpatialVisBounds && !cvar_SpatialVisLocalBBox && !cvar_SpatialVisData)
       return;
 
-    if (CVarVisLocalBBox)
+    if (cvar_SpatialVisLocalBBox)
     {
       const ezBoundingBoxSphere& localBounds = pObject->GetLocalBounds();
       if (localBounds.IsValid())
@@ -60,7 +57,7 @@ namespace
       }
     }
 
-    if (CVarVisBounds)
+    if (cvar_SpatialVisBounds)
     {
       const ezBoundingBoxSphere& globalBounds = pObject->GetGlobalBounds();
       if (globalBounds.IsValid())
@@ -70,7 +67,7 @@ namespace
       }
     }
 
-    if (CVarVisSpatialData && CVarVisSpatialCategory.GetValue().IsEmpty())
+    if (cvar_SpatialVisData && cvar_SpatialVisDataOnlyCategory.GetValue().IsEmpty())
     {
       const ezSpatialSystem& spatialSystem = *view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
@@ -293,11 +290,11 @@ void ezVisibleObjectsExtractor::Extract(
     ExtractRenderData(view, pObject, msg, extractedRenderData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)
+    if (cvar_SpatialVisBounds || cvar_SpatialVisLocalBBox || cvar_SpatialVisData)
     {
-      if ((CVarVisObjectName.GetValue().IsEmpty() ||
-            ezStringUtils::FindSubString_NoCase(pObject->GetName(), CVarVisObjectName.GetValue()) != nullptr) &&
-          !CVarVisObjectSelection)
+      if ((cvar_SpatialVisDataOnlyObject.GetValue().IsEmpty() ||
+            ezStringUtils::FindSubString_NoCase(pObject->GetName(), cvar_SpatialVisDataOnlyObject.GetValue()) != nullptr) &&
+          !cvar_SpatialVisDataOnlySelected)
       {
         VisualizeObject(view, pObject);
       }
@@ -308,7 +305,7 @@ void ezVisibleObjectsExtractor::Extract(
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
 
-  if (CVarExtractionStats && bIsMainView)
+  if (cvar_SpatialExtractionShowStats && bIsMainView)
   {
     ezViewHandle hView = view.GetHandle();
 
@@ -358,9 +355,9 @@ void ezSelectedObjectsExtractor::Extract(
     ExtractRenderData(view, pObject, msg, extractedRenderData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)
+    if (cvar_SpatialVisBounds || cvar_SpatialVisLocalBBox || cvar_SpatialVisData)
     {
-      if (CVarVisObjectSelection)
+      if (cvar_SpatialVisDataOnlySelected)
       {
         VisualizeObject(view, pObject);
       }

@@ -41,7 +41,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
   // clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
+ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 #endif
 
 namespace
@@ -703,7 +703,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
   ezDebugRendererContext debugContext(ezWorld::GetWorld(0));
 
-  if (CVarShadowPoolStats)
+  if (cvar_RenderingShadowsShowPoolStats)
   {
     ezDebugRenderer::Draw2DText(debugContext, "Shadow Pool Stats", ezVec2I32(10, 200), ezColor::LightSteelBlue);
     ezDebugRenderer::Draw2DText(debugContext, "Details (Name: Size - Atlas Offset)", ezVec2I32(10, 250), ezColor::LightSteelBlue);
@@ -749,7 +749,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
       pShadowView->SetViewport(ezRectFloat((float)atlasRect.x, (float)atlasRect.y, (float)atlasRect.width, (float)atlasRect.height));
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      if (CVarShadowPoolStats)
+      if (cvar_RenderingShadowsShowPoolStats)
       {
         ezStringBuilder sb;
         sb.Format("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y);
@@ -930,7 +930,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (CVarShadowPoolStats)
+  if (cvar_RenderingShadowsShowPoolStats)
   {
     ezStringBuilder sb;
     sb.Format("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2));
