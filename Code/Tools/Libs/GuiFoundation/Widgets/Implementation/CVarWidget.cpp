@@ -159,6 +159,20 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
     m_Console.RetrieveInputHistory(-1, input);
     ConsoleInput->setText(input.GetData());
   }
+  if (key == Qt::Key_F2)
+  {
+    if (m_Console.GetInputHistory().GetCount() >= 1)
+    {
+      m_Console.ExecuteCommand(m_Console.GetInputHistory()[0]);
+    }
+  }
+  if (key == Qt::Key_F3)
+  {
+    if (m_Console.GetInputHistory().GetCount() >= 2)
+    {
+      m_Console.ExecuteCommand(m_Console.GetInputHistory()[1]);
+    }
+  }
 }
 
 void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
