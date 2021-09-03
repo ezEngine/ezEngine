@@ -137,7 +137,7 @@ private:
   QPointer<QSortFilterProxyModel> m_pFilterModel;
   QPointer<ezQtCVarItemDelegate> m_pItemDelegate;
 
-  void OnConsoleEvent(ezConsole::ConsoleEvent& e);
+  void OnConsoleEvent(const ezConsoleEvent& e);
 
   ezConsole m_Console;
 };

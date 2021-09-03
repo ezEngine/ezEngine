@@ -36,8 +36,8 @@ void ezConsole::AddConsoleString(const char* szText, ezConsoleString::Type type)
 
   // Broadcast that we have added a string to the console
   {
-    ConsoleEvent e;
-    e.m_EventType = ConsoleEvent::StringAdded;
+    ezConsoleEvent e;
+    e.m_Type = ezConsoleEvent::Type::OutputLineAdded;
     e.m_AddedpConsoleString = &cs;
 
     m_Events.Broadcast(e);
@@ -312,6 +312,19 @@ ezColor ezConsoleString::GetColor() const
   }
 
   return ezColor::White;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezConsoleBase::ezConsoleBase()
+{
+}
+
+ezConsoleBase::~ezConsoleBase()
+{
 }
 
 EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Console);

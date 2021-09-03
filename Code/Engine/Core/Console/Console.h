@@ -60,6 +60,42 @@ public:
   static const ezString FindCommonString(const ezDeque<ezString>& vStrings);
 };
 
+/// \brief The event data that is broadcast by the console
+struct ezConsoleEvent
+{
+  enum class Type : ezInt32
+  {
+    OutputLineAdded, ///< A string was added to the console
+  };
+
+  Type m_Type;
+
+  /// \brief The console string that was just added.
+  const ezConsoleString* m_AddedpConsoleString;
+};
+
+class EZ_CORE_DLL ezConsoleBase
+{
+public:
+  ezConsoleBase();
+  virtual ~ezConsoleBase();
+
+  /// \name Events
+  /// @{
+
+public:
+  /// \brief Grants access to subscribe and unsubscribe from console events.
+  const ezEvent<const ezConsoleEvent&>& Events() const { return m_Events; }
+
+protected:
+  /// \brief The console event variable, to attach to.
+  ezEvent<const ezConsoleEvent&> m_Events;
+
+  /// @}
+
+protected:
+};
+
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
 ///
 /// The console displays the recent log activity and allows to modify cvars and call console functions.
@@ -68,36 +104,13 @@ public:
 /// easily.
 /// The default implementation uses ezConsoleInterpreter::Lua as the interpreter for commands typed into it.
 /// The interpreter can be replaced with custom implementations.
-class EZ_CORE_DLL ezConsole
+class EZ_CORE_DLL ezConsole : public ezConsoleBase
 {
 public:
   ezConsole();
   virtual ~ezConsole();
 
 
-
-  /// \name Events
-  /// @{
-
-
-  /// \brief The event data that is broadcast by the console
-  struct ConsoleEvent
-  {
-    enum EventType
-    {
-      StringAdded, ///< A string was added to the console
-    };
-
-    EventType m_EventType;
-
-    /// \brief The console string that was just added.
-    const ezConsoleString* m_AddedpConsoleString;
-  };
-
-  /// \brief The console event variable, to attach to.
-  ezEvent<ConsoleEvent&> m_Events;
-
-  /// @}
 
   /// \name Configuration
   /// @{

@@ -37,7 +37,7 @@ ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
   connect(ConsoleInput, &ezQtSearchWidget::specialKeyPressed, this, &ezQtCVarWidget::ConsoleSpecialKeyPressed);
 
   m_Console.EnableLogOutput(false);
-  m_Console.m_Events.AddEventHandler(ezMakeDelegate(&ezQtCVarWidget::OnConsoleEvent, this));
+  m_Console.Events().AddEventHandler(ezMakeDelegate(&ezQtCVarWidget::OnConsoleEvent, this));
 
   ConsoleInput->setPlaceholderText("> TAB to auto-complete");
 }
@@ -161,7 +161,7 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
   }
 }
 
-void ezQtCVarWidget::OnConsoleEvent(ezConsole::ConsoleEvent& e)
+void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
 {
   //if (e.m_EventType == ezConsole::ConsoleEvent::StringAdded)
   //{
