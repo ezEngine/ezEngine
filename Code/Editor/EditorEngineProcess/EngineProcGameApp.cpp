@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
-#include <Core/Console/Console.h>
+#include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>

@@ -1,9 +1,7 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Console/Console.h>
+#include <Core/Console/QuakeConsole.h>
 #include <Foundation/Configuration/CVar.h>
-
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezConsoleFunctionBase);
 
 void ezQuakeConsole::ExecuteCommand(ezStringView input)
 {
@@ -33,7 +31,7 @@ void ezQuakeConsole::ExecuteCommand(ezStringView input)
     return;
   }
 
-  ezConsoleBase::ExecuteCommand(input);
+  ezConsole::ExecuteCommand(input);
 }
 
 void ezQuakeConsole::BindKey(const char* szKey, const char* szCommand)

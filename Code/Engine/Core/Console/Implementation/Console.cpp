@@ -1,6 +1,9 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Console/LuaInterpreter.h>
+#include <Core/Console/QuakeConsole.h>
+
+EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezConsoleFunctionBase);
 
 ezQuakeConsole::ezQuakeConsole()
 {
@@ -35,7 +38,7 @@ void ezQuakeConsole::AddConsoleString(ezStringView text, ezConsoleString::Type t
   if (m_ConsoleStrings.GetCount() > m_uiMaxConsoleStrings)
     m_ConsoleStrings.PopBack(m_ConsoleStrings.GetCount() - m_uiMaxConsoleStrings);
 
-  ezConsoleBase::AddConsoleString(text, type);
+  ezConsole::AddConsoleString(text, type);
 }
 
 const ezDeque<ezConsoleString>& ezQuakeConsole::GetConsoleStrings() const
@@ -46,61 +49,6 @@ const ezDeque<ezConsoleString>& ezQuakeConsole::GetConsoleStrings() const
   }
 
   return m_ConsoleStrings;
-}
-
-void ezQuakeConsole::AddToInputHistory(const char* szString)
-{
-  EZ_LOCK(m_Mutex);
-
-  m_iCurrentInputHistoryElement = -1;
-
-  if (ezStringUtils::IsNullOrEmpty(szString))
-    return;
-
-  const ezString sString = szString;
-
-  for (ezInt32 i = 0; i < (ezInt32)m_InputHistory.GetCount(); i++)
-  {
-    if (m_InputHistory[i] == sString) // already in the History
-    {
-      // just move it to the front
-
-      for (ezInt32 j = i - 1; j >= 0; j--)
-        m_InputHistory[j + 1] = m_InputHistory[j];
-
-      m_InputHistory[0] = sString;
-      return;
-    }
-  }
-
-  m_InputHistory.SetCount(ezMath::Min<ezUInt32>(m_InputHistory.GetCount() + 1, 16));
-
-  for (ezUInt32 i = m_InputHistory.GetCount() - 1; i > 0; i--)
-    m_InputHistory[i] = m_InputHistory[i - 1];
-
-  m_InputHistory[0] = sString;
-}
-
-void ezQuakeConsole::SearchInputHistory(ezInt32 iHistoryUp)
-{
-  EZ_LOCK(m_Mutex);
-
-  if (m_InputHistory.IsEmpty())
-    return;
-
-  m_iCurrentInputHistoryElement = ezMath::Clamp<ezInt32>(m_iCurrentInputHistoryElement + iHistoryUp, 0, m_InputHistory.GetCount() - 1);
-
-  if (!m_InputHistory[m_iCurrentInputHistoryElement].IsEmpty())
-    m_sInputLine = m_InputHistory[m_iCurrentInputHistoryElement];
-
-  m_iCaretPosition = m_sInputLine.GetCharacterCount();
-}
-
-
-void ezQuakeConsole::ReplaceInput(const char* sz)
-{
-  m_sInputLine = sz;
-  ClampCaretPosition();
 }
 
 void ezQuakeConsole::LogHandler(const ezLoggingEventData& data)
@@ -310,16 +258,18 @@ ezColor ezConsoleString::GetColor() const
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezConsoleBase::ezConsoleBase()
+ezConsole::ezConsole()
 {
 }
 
-ezConsoleBase::~ezConsoleBase()
+ezConsole::~ezConsole()
 {
 }
 
-bool ezConsoleBase::AutoComplete(ezStringBuilder& text)
+bool ezConsole::AutoComplete(ezStringBuilder& text)
 {
+  EZ_LOCK(m_Mutex);
+
   if (m_CommandInterpreter)
   {
     ezCommandInterpreterState s;
@@ -342,10 +292,12 @@ bool ezConsoleBase::AutoComplete(ezStringBuilder& text)
   return false;
 }
 
-void ezConsoleBase::ExecuteCommand(ezStringView input)
+void ezConsole::ExecuteCommand(ezStringView input)
 {
   if (input.IsEmpty())
     return;
+
+  EZ_LOCK(m_Mutex);
 
   if (m_CommandInterpreter)
   {
@@ -364,7 +316,7 @@ void ezConsoleBase::ExecuteCommand(ezStringView input)
   }
 }
 
-void ezConsoleBase::AddConsoleString(ezStringView text, ezConsoleString::Type type /*= ezConsoleString::Type::Default*/)
+void ezConsole::AddConsoleString(ezStringView text, ezConsoleString::Type type /*= ezConsoleString::Type::Default*/)
 {
   ezConsoleString cs;
   cs.m_sText = text;
@@ -376,6 +328,52 @@ void ezConsoleBase::AddConsoleString(ezStringView text, ezConsoleString::Type ty
   e.m_AddedpConsoleString = &cs;
 
   m_Events.Broadcast(e);
+}
+
+void ezConsole::AddToInputHistory(ezStringView text)
+{
+  EZ_LOCK(m_Mutex);
+
+  m_iCurrentInputHistoryElement = -1;
+
+  if (text.IsEmpty())
+    return;
+
+  for (ezInt32 i = 0; i < (ezInt32)m_InputHistory.GetCount(); i++)
+  {
+    if (m_InputHistory[i] == text) // already in the History
+    {
+      // just move it to the front
+
+      for (ezInt32 j = i - 1; j >= 0; j--)
+        m_InputHistory[j + 1] = m_InputHistory[j];
+
+      m_InputHistory[0] = text;
+      return;
+    }
+  }
+
+  m_InputHistory.SetCount(ezMath::Min<ezUInt32>(m_InputHistory.GetCount() + 1, m_InputHistory.GetCapacity()));
+
+  for (ezUInt32 i = m_InputHistory.GetCount() - 1; i > 0; i--)
+    m_InputHistory[i] = m_InputHistory[i - 1];
+
+  m_InputHistory[0] = text;
+}
+
+void ezConsole::RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& result)
+{
+  EZ_LOCK(m_Mutex);
+
+  if (m_InputHistory.IsEmpty())
+    return;
+
+  m_iCurrentInputHistoryElement = ezMath::Clamp<ezInt32>(m_iCurrentInputHistoryElement + iHistoryUp, 0, m_InputHistory.GetCount() - 1);
+
+  if (!m_InputHistory[m_iCurrentInputHistoryElement].IsEmpty())
+  {
+    result = m_InputHistory[m_iCurrentInputHistoryElement];
+  }
 }
 
 EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Console);

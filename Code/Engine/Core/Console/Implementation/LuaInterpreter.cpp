@@ -1,6 +1,7 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Console/LuaInterpreter.h>
+#include <Core/Console/QuakeConsole.h>
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT

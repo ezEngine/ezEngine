@@ -1,6 +1,7 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Console/Console.h>
+#include <Core/Console/QuakeConsole.h>
 
 void ezCommandInterpreter::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions, ezDeque<ezConsoleString>& AutoCompleteDescriptions)
 {

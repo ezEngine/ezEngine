@@ -138,5 +138,5 @@ private:
 
   void OnConsoleEvent(const ezConsoleEvent& e);
 
-  ezConsoleBase m_Console;
+  ezConsole m_Console;
 };

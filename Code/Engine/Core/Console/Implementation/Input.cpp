@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Console/Console.h>
+#include <Core/Console/QuakeConsole.h>
 #include <Core/Input/InputManager.h>
 
 bool ezQuakeConsole::ProcessInputCharacter(ezUInt32 uiChar)
@@ -197,9 +197,15 @@ void ezQuakeConsole::DoDefaultInputHandling(bool bConsoleOpen)
     if (ezInputManager::GetInputActionState("Console", "ScrollDown") == ezKeyState::Pressed)
       Scroll(-10);
     if (ezInputManager::GetInputActionState("Console", "HistoryUp") == ezKeyState::Pressed)
-      SearchInputHistory(1);
+    {
+      RetrieveInputHistory(1, m_sInputLine);
+      m_iCaretPosition = m_sInputLine.GetCharacterCount();
+    }
     if (ezInputManager::GetInputActionState("Console", "HistoryDown") == ezKeyState::Pressed)
-      SearchInputHistory(-1);
+    {
+      RetrieveInputHistory(-1, m_sInputLine);
+      m_iCaretPosition = m_sInputLine.GetCharacterCount();
+    }
 
     const ezUInt32 uiChar = ezInputManager::RetrieveLastCharacter();
 

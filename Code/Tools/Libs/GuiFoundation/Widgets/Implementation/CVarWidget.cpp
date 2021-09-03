@@ -131,6 +131,7 @@ void ezQtCVarWidget::SearchTextChanged(const QString& text)
 
 void ezQtCVarWidget::ConsoleEnterPressed()
 {
+  m_Console.AddToInputHistory(ConsoleInput->text().toUtf8().data());
   m_Console.ExecuteCommand(ConsoleInput->text().toUtf8().data());
   ConsoleInput->setText("");
 }
@@ -148,22 +149,24 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
   }
   if (key == Qt::Key_Up)
   {
-    m_Console.SearchInputHistory(1);
-    ConsoleInput->setText(m_Console.GetInputLine());
+    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+    m_Console.RetrieveInputHistory(1, input);
+    ConsoleInput->setText(input.GetData());
   }
   if (key == Qt::Key_Down)
   {
-    m_Console.SearchInputHistory(-1);
-    ConsoleInput->setText(m_Console.GetInputLine());
+    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+    m_Console.RetrieveInputHistory(-1, input);
+    ConsoleInput->setText(input.GetData());
   }
 }
 
 void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
 {
-  //if (e.m_EventType == ezConsole::ConsoleEvent::StringAdded)
-  //{
-  //  AddConsoleOutput(e.m_AddedpConsoleString->m_sText);
-  //}
+  if (e.m_Type == ezConsoleEvent::Type::OutputLineAdded)
+  {
+    AddConsoleOutput(e.m_AddedpConsoleString->m_sText);
+  }
 }
 
 ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* owner)
