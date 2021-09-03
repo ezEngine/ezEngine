@@ -44,7 +44,7 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
 
-  m_pConsole = EZ_DEFAULT_NEW(ezConsole);
+  m_pConsole = EZ_DEFAULT_NEW(ezQuakeConsole);
 }
 
 ezGameApplication::~ezGameApplication()

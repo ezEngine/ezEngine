@@ -93,7 +93,52 @@ protected:
 
   /// @}
 
+  /// \name Helpers
+  /// @{
+
+public:
+  /// \brief Returns the mutex that's used to prevent multi-threaded access
+  ezMutex& GetMutex() const { return m_Mutex; }
+
 protected:
+  mutable ezMutex m_Mutex;
+
+  /// @}
+
+  /// \name Command Interpreter
+  /// @{
+
+public:
+  /// \brief Replaces the current command interpreter.
+  ///
+  /// This base class doesn't set any default interpreter, but derived classes may do so.
+  void SetCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter) { m_CommandInterpreter = interpreter; }
+
+  /// \brief Returns the currently used command interpreter.
+  const ezSharedPtr<ezCommandInterpreter>& GetCommandInterpreter() const { return m_CommandInterpreter; }
+
+  /// \brief Auto-completes the given text.
+  ///
+  /// Returns true, if the string was modified in any way.
+  /// Adds additional strings to the console output, if there are further auto-completion suggestions.
+  virtual bool AutoComplete(ezStringBuilder& text);
+
+  virtual void ExecuteCommand(ezStringView input);
+
+protected:
+  ezSharedPtr<ezCommandInterpreter> m_CommandInterpreter;
+
+  /// @}
+
+  /// \name Console Display
+  /// @{
+
+  /// \brief Adds a string to the console.
+  ///
+  /// The base class only broadcasts an event, but does not store the string anywhere.
+  virtual void AddConsoleString(ezStringView text, ezConsoleString::Type type = ezConsoleString::Type::Default);
+
+  /// @}
 };
 
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
@@ -104,11 +149,11 @@ protected:
 /// easily.
 /// The default implementation uses ezConsoleInterpreter::Lua as the interpreter for commands typed into it.
 /// The interpreter can be replaced with custom implementations.
-class EZ_CORE_DLL ezConsole : public ezConsoleBase
+class EZ_CORE_DLL ezQuakeConsole : public ezConsoleBase
 {
 public:
-  ezConsole();
-  virtual ~ezConsole();
+  ezQuakeConsole();
+  virtual ~ezQuakeConsole();
 
 
 
@@ -135,19 +180,10 @@ public:
   /// \name Command Processing
   /// @{
 
-  /// \brief Replaces the current command interpreter. This allows to attach a custom interpreter to the console.
-  ///
-  /// by default the Lua interpreter is used. Using a custom interpreter you can extend its functionality or allow for different syntax.
-  void SetCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter) { m_CommandInterpreter = interpreter; }
 
-  /// \brief Returns the currently used command interpreter.
-  const ezSharedPtr<ezCommandInterpreter>& GetCommandInterpreter() const { return m_CommandInterpreter; }
 
   /// \brief Executes the given command using the current command interpreter.
-  ///
-  /// This will also broadcast ConsoleEvent::BeforeProcessCommand and ConsoleEvent::ProcessCommandSuccess or ConsoleEvent::ProcessCommandFailure,
-  /// depending on what the interpreter returned.
-  void ProcessCommand(const char* szCmd);
+  virtual void ExecuteCommand(ezStringView input) override;
 
   /// \brief Binds \a szCommand to \a szKey. Calling ExecuteBoundKey() with this key will then run that command.
   ///
@@ -196,13 +232,6 @@ public:
   /// \brief Returns the current scroll position. This must be used during rendering to start with the proper line.
   ezUInt32 GetScrollPosition() const { return m_iScrollPosition; }
 
-  /// \brief Tries to auto-complete the current input line.
-  ///
-  /// This will trigger ConsoleEvent::AutoCompleteRequest, which allows external code to suggest auto-complete options for
-  /// the current word.
-  /// The console will always use all CVars for auto-completion already.
-  virtual void AutoCompleteInputLine();
-
   /// \brief This function implements input handling (via ezInputManager) for the console.
   ///
   /// If the console is 'open' (ie. has full focus), it will handle more input for caret movement etc.
@@ -224,7 +253,7 @@ public:
   /// \brief Adds a string to the console.
   ///
   /// bShowOnScreen is a hint for the renderer to also display this string on screen, even if the console is not visible.
-  void AddConsoleString(const char* szText, ezConsoleString::Type type = ezConsoleString::Type::Default);
+  virtual void AddConsoleString(ezStringView text, ezConsoleString::Type type = ezConsoleString::Type::Default) override;
 
   /// \brief Returns all current console strings. Use GetScrollPosition() to know which one should be displayed as the first one.
   const ezDeque<ezConsoleString>& GetConsoleStrings() const;
@@ -243,8 +272,6 @@ public:
   /// \name Helpers
   /// @{
 
-  /// \brief Returns the internal mutex to prevent multi-threaded access
-  ezMutex& GetMutex() const { return m_Mutex; }
 
   /// \brief Returns a nice string containing all the important information about the cvar.
   static ezString GetFullInfoAsString(ezCVar* pCVar);
@@ -276,8 +303,6 @@ protected:
   virtual bool FilterInputCharacter(ezUInt32 uiChar);
   virtual void InputStringChanged();
 
-  mutable ezMutex m_Mutex;
-  ezSharedPtr<ezCommandInterpreter> m_CommandInterpreter;
   ezDeque<ezConsoleString> m_ConsoleStrings;
   bool m_bUseFilteredStrings = false;
   ezDeque<ezConsoleString> m_FilteredConsoleStrings;

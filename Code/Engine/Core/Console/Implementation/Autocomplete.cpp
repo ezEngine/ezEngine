@@ -2,28 +2,6 @@
 
 #include <Core/Console/Console.h>
 
-void ezConsole::AutoCompleteInputLine()
-{
-  if (m_CommandInterpreter)
-  {
-    ezCommandInterpreterState s;
-    s.m_sInput = m_sInputLine;
-
-    m_CommandInterpreter->AutoComplete(s);
-
-    for (auto& l : s.m_sOutput)
-    {
-      AddConsoleString(l.m_sText, l.m_Type);
-    }
-
-    if (m_sInputLine != s.m_sInput)
-    {
-      m_sInputLine = s.m_sInput;
-      MoveCaret(500);
-    }
-  }
-}
-
 void ezCommandInterpreter::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions, ezDeque<ezConsoleString>& AutoCompleteDescriptions)
 {
   ezStringBuilder sText;
@@ -33,7 +11,7 @@ void ezCommandInterpreter::FindPossibleCVars(const char* szVariable, ezDeque<ezS
   {
     if (ezStringUtils::StartsWith_NoCase(pCVar->GetName(), szVariable))
     {
-      sText.Format("    {0} = {1}", pCVar->GetName(), ezConsole::GetFullInfoAsString(pCVar));
+      sText.Format("    {0} = {1}", pCVar->GetName(), ezQuakeConsole::GetFullInfoAsString(pCVar));
 
       ezConsoleString cs;
       cs.m_sText = sText;
@@ -71,7 +49,7 @@ void ezCommandInterpreter::FindPossibleFunctions(const char* szVariable, ezDeque
 }
 
 
-const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
+const ezString ezQuakeConsole::GetValueAsString(ezCVar* pCVar)
 {
   ezStringBuilder s = "undefined";
 
@@ -115,7 +93,7 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
   return s.GetData();
 }
 
-ezString ezConsole::GetFullInfoAsString(ezCVar* pCVar)
+ezString ezQuakeConsole::GetFullInfoAsString(ezCVar* pCVar)
 {
   ezStringBuilder s = GetValueAsString(pCVar);
 

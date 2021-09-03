@@ -32,11 +32,9 @@ ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
   CVarsView->setItemDelegateForColumn(1, m_pItemDelegate);
 
   connect(SearchWidget, &ezQtSearchWidget::textChanged, this, &ezQtCVarWidget::SearchTextChanged);
-  connect(ConsoleInput, &ezQtSearchWidget::textChanged, this, &ezQtCVarWidget::ConsoleInputChanged);
   connect(ConsoleInput, &ezQtSearchWidget::enterPressed, this, &ezQtCVarWidget::ConsoleEnterPressed);
   connect(ConsoleInput, &ezQtSearchWidget::specialKeyPressed, this, &ezQtCVarWidget::ConsoleSpecialKeyPressed);
 
-  m_Console.EnableLogOutput(false);
   m_Console.Events().AddEventHandler(ezMakeDelegate(&ezQtCVarWidget::OnConsoleEvent, this));
 
   ConsoleInput->setPlaceholderText("> TAB to auto-complete");
@@ -131,14 +129,9 @@ void ezQtCVarWidget::SearchTextChanged(const QString& text)
   CVarsView->expandAll();
 }
 
-void ezQtCVarWidget::ConsoleInputChanged(const QString& text)
-{
-  m_Console.ReplaceInput(text.toUtf8().data());
-}
-
 void ezQtCVarWidget::ConsoleEnterPressed()
 {
-  m_Console.AddInputCharacter(13);
+  m_Console.ExecuteCommand(ConsoleInput->text().toUtf8().data());
   ConsoleInput->setText("");
 }
 
@@ -146,8 +139,12 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
 {
   if (key == Qt::Key_Tab)
   {
-    m_Console.AddInputCharacter('\t');
-    //ConsoleInput->setText(m_Console.GetInputLine());
+    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+
+    if (m_Console.AutoComplete(input))
+    {
+      ConsoleInput->setText(input.GetData());
+    }
   }
   if (key == Qt::Key_Up)
   {

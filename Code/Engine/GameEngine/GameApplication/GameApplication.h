@@ -7,7 +7,7 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezConsole;
+class ezQuakeConsole;
 
 // TODO: update comments below
 
@@ -90,5 +90,5 @@ protected:
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
   bool m_bShowConsole = false;
-  ezUniquePtr<ezConsole> m_pConsole;
+  ezUniquePtr<ezQuakeConsole> m_pConsole;
 };

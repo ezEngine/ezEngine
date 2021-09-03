@@ -190,13 +190,13 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
           inout_State.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
         }
 
-        sTemp.Format("  {0} = {1}", sRealVarName, ezConsole::GetFullInfoAsString(pCVAR));
+        sTemp.Format("  {0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
         inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
     }
     else
     {
-      sTemp.Format("{0} = {1}", sRealVarName, ezConsole::GetFullInfoAsString(pCVAR));
+      sTemp.Format("{0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
       inout_State.AddOutputLine(sTemp);
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))

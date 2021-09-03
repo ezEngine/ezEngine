@@ -2,9 +2,8 @@
 
 #include <Core/Console/LuaInterpreter.h>
 
-ezConsole::ezConsole()
+ezQuakeConsole::ezQuakeConsole()
 {
-  // BEGIN-DOCS-CODE-SNIPPET: console-demo1
   ClearInputLine();
 
   m_bLogOutputEnabled = false;
@@ -12,42 +11,34 @@ ezConsole::ezConsole()
   m_uiMaxConsoleStrings = 1000;
 
   EnableLogOutput(true);
-  // END-DOCS-CODE-SNIPPET
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
   SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterLua));
 #endif
 }
 
-ezConsole::~ezConsole()
+ezQuakeConsole::~ezQuakeConsole()
 {
   EnableLogOutput(false);
 }
 
-void ezConsole::AddConsoleString(const char* szText, ezConsoleString::Type type)
+void ezQuakeConsole::AddConsoleString(ezStringView text, ezConsoleString::Type type)
 {
   EZ_LOCK(m_Mutex);
 
   m_ConsoleStrings.PushFront();
 
   ezConsoleString& cs = m_ConsoleStrings.PeekFront();
-  cs.m_sText = szText;
+  cs.m_sText = text;
   cs.m_Type = type;
-
-  // Broadcast that we have added a string to the console
-  {
-    ezConsoleEvent e;
-    e.m_Type = ezConsoleEvent::Type::OutputLineAdded;
-    e.m_AddedpConsoleString = &cs;
-
-    m_Events.Broadcast(e);
-  }
 
   if (m_ConsoleStrings.GetCount() > m_uiMaxConsoleStrings)
     m_ConsoleStrings.PopBack(m_ConsoleStrings.GetCount() - m_uiMaxConsoleStrings);
+
+  ezConsoleBase::AddConsoleString(text, type);
 }
 
-const ezDeque<ezConsoleString>& ezConsole::GetConsoleStrings() const
+const ezDeque<ezConsoleString>& ezQuakeConsole::GetConsoleStrings() const
 {
   if (m_bUseFilteredStrings)
   {
@@ -57,7 +48,7 @@ const ezDeque<ezConsoleString>& ezConsole::GetConsoleStrings() const
   return m_ConsoleStrings;
 }
 
-void ezConsole::AddToInputHistory(const char* szString)
+void ezQuakeConsole::AddToInputHistory(const char* szString)
 {
   EZ_LOCK(m_Mutex);
 
@@ -90,7 +81,7 @@ void ezConsole::AddToInputHistory(const char* szString)
   m_InputHistory[0] = sString;
 }
 
-void ezConsole::SearchInputHistory(ezInt32 iHistoryUp)
+void ezQuakeConsole::SearchInputHistory(ezInt32 iHistoryUp)
 {
   EZ_LOCK(m_Mutex);
 
@@ -106,13 +97,13 @@ void ezConsole::SearchInputHistory(ezInt32 iHistoryUp)
 }
 
 
-void ezConsole::ReplaceInput(const char* sz)
+void ezQuakeConsole::ReplaceInput(const char* sz)
 {
   m_sInputLine = sz;
   ClampCaretPosition();
 }
 
-void ezConsole::LogHandler(const ezLoggingEventData& data)
+void ezQuakeConsole::LogHandler(const ezLoggingEventData& data)
 {
   ezConsoleString::Type type = ezConsoleString::Type::Default;
 
@@ -161,7 +152,7 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
   AddConsoleString(sFormat.GetData(), type);
 }
 
-void ezConsole::InputStringChanged()
+void ezQuakeConsole::InputStringChanged()
 {
   m_bUseFilteredStrings = false;
   m_FilteredConsoleStrings.Clear();
@@ -191,7 +182,7 @@ void ezConsole::InputStringChanged()
   }
 }
 
-void ezConsole::EnableLogOutput(bool bEnable)
+void ezQuakeConsole::EnableLogOutput(bool bEnable)
 {
   if (m_bLogOutputEnabled == bEnable)
     return;
@@ -200,15 +191,15 @@ void ezConsole::EnableLogOutput(bool bEnable)
 
   if (bEnable)
   {
-    ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezConsole::LogHandler, this));
+    ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezQuakeConsole::LogHandler, this));
   }
   else
   {
-    ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezConsole::LogHandler, this));
+    ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezQuakeConsole::LogHandler, this));
   }
 }
 
-void ezConsole::SaveState(ezStreamWriter& Stream) const
+void ezQuakeConsole::SaveState(ezStreamWriter& Stream) const
 {
   EZ_LOCK(m_Mutex);
 
@@ -229,7 +220,7 @@ void ezConsole::SaveState(ezStreamWriter& Stream) const
   }
 }
 
-void ezConsole::LoadState(ezStreamReader& Stream)
+void ezQuakeConsole::LoadState(ezStreamReader& Stream)
 {
   EZ_LOCK(m_Mutex);
 
@@ -325,6 +316,66 @@ ezConsoleBase::ezConsoleBase()
 
 ezConsoleBase::~ezConsoleBase()
 {
+}
+
+bool ezConsoleBase::AutoComplete(ezStringBuilder& text)
+{
+  if (m_CommandInterpreter)
+  {
+    ezCommandInterpreterState s;
+    s.m_sInput = text;
+
+    m_CommandInterpreter->AutoComplete(s);
+
+    for (auto& l : s.m_sOutput)
+    {
+      AddConsoleString(l.m_sText, l.m_Type);
+    }
+
+    if (text != s.m_sInput)
+    {
+      text = s.m_sInput;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void ezConsoleBase::ExecuteCommand(ezStringView input)
+{
+  if (input.IsEmpty())
+    return;
+
+  if (m_CommandInterpreter)
+  {
+    ezCommandInterpreterState s;
+    s.m_sInput = input;
+    m_CommandInterpreter->Interpret(s);
+
+    for (auto& l : s.m_sOutput)
+    {
+      AddConsoleString(l.m_sText, l.m_Type);
+    }
+  }
+  else
+  {
+    AddConsoleString(input);
+  }
+}
+
+void ezConsoleBase::AddConsoleString(ezStringView text, ezConsoleString::Type type /*= ezConsoleString::Type::Default*/)
+{
+  ezConsoleString cs;
+  cs.m_sText = text;
+  cs.m_Type = type;
+
+  // Broadcast that we have added a string to the console
+  ezConsoleEvent e;
+  e.m_Type = ezConsoleEvent::Type::OutputLineAdded;
+  e.m_AddedpConsoleString = &cs;
+
+  m_Events.Broadcast(e);
 }
 
 EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Console);

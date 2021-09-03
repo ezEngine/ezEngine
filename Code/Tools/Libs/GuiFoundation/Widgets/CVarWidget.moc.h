@@ -128,7 +128,6 @@ Q_SIGNALS:
 
 private Q_SLOTS:
   void SearchTextChanged(const QString& text);
-  void ConsoleInputChanged(const QString& text);
   void ConsoleEnterPressed();
   void ConsoleSpecialKeyPressed(Qt::Key key);
 
@@ -139,5 +138,5 @@ private:
 
   void OnConsoleEvent(const ezConsoleEvent& e);
 
-  ezConsole m_Console;
+  ezConsoleBase m_Console;
 };
