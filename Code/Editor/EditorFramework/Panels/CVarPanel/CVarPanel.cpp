@@ -47,7 +47,7 @@ ezQtCVarPanel::ezQtCVarPanel()
   connect(m_pCVarWidget, &ezQtCVarWidget::onIntChanged, this, &ezQtCVarPanel::IntChanged);
   connect(m_pCVarWidget, &ezQtCVarWidget::onStringChanged, this, &ezQtCVarPanel::StringChanged);
 
-  m_pCVarWidget->SetConsoleCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterFwd));
+  m_pCVarWidget->GetConsole().SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterFwd));
 }
 
 ezQtCVarPanel::~ezQtCVarPanel()
@@ -153,7 +153,7 @@ void ezQtCVarPanel::UpdateUI()
     ezHybridArray<ezStringView, 64> lines;
     m_sCommandResult.Split(false, lines, ";;");
 
-    ezStringBuilder add, tmp;
+    ezStringBuilder tmp;
 
     for (auto l : lines)
     {
@@ -166,12 +166,9 @@ void ezQtCVarPanel::UpdateUI()
       }
       else
       {
-        add.Append(l);
-        add.Append("\n");
+        m_pCVarWidget->GetConsole().AddConsoleString(l);
       }
     }
-
-    m_pCVarWidget->AddConsoleOutput(add);
   }
 
   m_sCommandResult.Clear();

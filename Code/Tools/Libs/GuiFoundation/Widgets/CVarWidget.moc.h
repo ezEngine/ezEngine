@@ -114,11 +114,9 @@ public:
   /// \brief Updates the existing UI. This is sufficient if values changed only.
   void UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
 
-  void SetConsoleCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter);
-
-  void AddConsoleOutput(const char* text);
-
   void ReplaceConsoleInput(const char* text);
+
+  ezConsole& GetConsole() { return m_Console; }
 
 Q_SIGNALS:
   void onBoolChanged(const char* szCVar, bool newValue);

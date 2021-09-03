@@ -123,6 +123,9 @@ public:
   /// Adds additional strings to the console output, if there are further auto-completion suggestions.
   virtual bool AutoComplete(ezStringBuilder& text);
 
+  /// \brief Executes the given input string.
+  ///
+  /// The command is forwarded to the set command interpreter.
   virtual void ExecuteCommand(ezStringView input);
 
 protected:

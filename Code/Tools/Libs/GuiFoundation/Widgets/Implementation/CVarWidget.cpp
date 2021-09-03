@@ -93,19 +93,6 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
   CVarsView->resizeColumnToContents(1);
 }
 
-void ezQtCVarWidget::SetConsoleCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter)
-{
-  m_Console.SetCommandInterpreter(interpreter);
-}
-
-void ezQtCVarWidget::AddConsoleOutput(const char* data)
-{
-  QString t = ConsoleOutput->toPlainText();
-  t += data;
-  ConsoleOutput->setPlainText(t);
-  ConsoleOutput->verticalScrollBar()->setValue(ConsoleOutput->verticalScrollBar()->maximum());
-}
-
 void ezQtCVarWidget::ReplaceConsoleInput(const char* text)
 {
   ConsoleInput->setText(text);
@@ -179,7 +166,10 @@ void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
 {
   if (e.m_Type == ezConsoleEvent::Type::OutputLineAdded)
   {
-    AddConsoleOutput(e.m_AddedpConsoleString->m_sText);
+    QString t = ConsoleOutput->toPlainText();
+    t += e.m_AddedpConsoleString->m_sText;
+    ConsoleOutput->setPlainText(t);
+    ConsoleOutput->verticalScrollBar()->setValue(ConsoleOutput->verticalScrollBar()->maximum());
   }
 }
 
