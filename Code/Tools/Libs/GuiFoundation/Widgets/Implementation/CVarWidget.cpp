@@ -53,11 +53,8 @@ void ezQtCVarWidget::Clear()
 
 void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
 {
+  // for now update and rebuild are the same
   UpdateCVarUI(cvars);
-
-  CVarsView->expandAll();
-  CVarsView->resizeColumnToContents(0);
-  CVarsView->resizeColumnToContents(1);
 }
 
 void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
@@ -92,11 +89,28 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
   }
 
   m_pItemModel->EndResetModel();
+
+  CVarsView->expandAll();
+  CVarsView->resizeColumnToContents(0);
+  CVarsView->resizeColumnToContents(1);
 }
 
 void ezQtCVarWidget::SetConsoleCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter)
 {
   m_Console.SetCommandInterpreter(interpreter);
+}
+
+void ezQtCVarWidget::AddConsoleOutput(const char* data)
+{
+  QString t = ConsoleOutput->toPlainText();
+  t += data;
+  ConsoleOutput->setPlainText(t);
+  ConsoleOutput->verticalScrollBar()->setValue(ConsoleOutput->verticalScrollBar()->maximum());
+}
+
+void ezQtCVarWidget::ReplaceConsoleInput(const char* text)
+{
+  ConsoleInput->setText(text);
 }
 
 void ezQtCVarWidget::SearchTextChanged(const QString& text)
@@ -133,7 +147,7 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
   if (key == Qt::Key_Tab)
   {
     m_Console.AddInputCharacter('\t');
-    ConsoleInput->setText(m_Console.GetInputLine());
+    //ConsoleInput->setText(m_Console.GetInputLine());
   }
   if (key == Qt::Key_Up)
   {
@@ -149,13 +163,10 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
 
 void ezQtCVarWidget::OnConsoleEvent(ezConsole::ConsoleEvent& e)
 {
-  if (e.m_EventType == ezConsole::ConsoleEvent::StringAdded)
-  {
-    QString t = ConsoleOutput->toHtml();
-    t += e.m_AddedpConsoleString->m_sText.GetData();
-    ConsoleOutput->setHtml(t);
-    ConsoleOutput->verticalScrollBar()->setValue(ConsoleOutput->verticalScrollBar()->maximum());
-  }
+  //if (e.m_EventType == ezConsole::ConsoleEvent::StringAdded)
+  //{
+  //  AddConsoleOutput(e.m_AddedpConsoleString->m_sText);
+  //}
 }
 
 ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* owner)

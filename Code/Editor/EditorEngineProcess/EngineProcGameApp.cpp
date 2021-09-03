@@ -336,7 +336,25 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezCommandInterpreterState s;
       s.m_sInput = pMsg->m_sCommand;
 
-      m_pConsole->GetCommandInterpreter()->Interpret(s);
+      ezStringBuilder tmp;
+
+      if (pMsg->m_iType == 1)
+      {
+        m_pConsole->GetCommandInterpreter()->AutoComplete(s);
+        tmp.AppendFormat(";;00||<{}", s.m_sInput);
+      }
+      else
+        m_pConsole->GetCommandInterpreter()->Interpret(s);
+
+      for (auto l : s.m_sOutput)
+      {
+        tmp.AppendFormat(";;{}||{}", ezArgI((int)l.m_Type, 2, true), l.m_sText);
+      }
+
+      ezConsoleCmdResultMsgToEditor r;
+      r.m_sResult = tmp;
+
+      m_IPC.SendMessage(&r);
     }
   }
 

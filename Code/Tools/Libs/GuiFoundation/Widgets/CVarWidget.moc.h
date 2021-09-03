@@ -116,6 +116,10 @@ public:
 
   void SetConsoleCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter);
 
+  void AddConsoleOutput(const char* text);
+
+  void ReplaceConsoleInput(const char* text);
+
 Q_SIGNALS:
   void onBoolChanged(const char* szCVar, bool newValue);
   void onFloatChanged(const char* szCVar, float newValue);

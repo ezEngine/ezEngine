@@ -1,9 +1,9 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <Core/Console/Console.h>
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <Foundation/Configuration/CVar.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Core/Console/Console.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtCVarPanel);
 
@@ -13,6 +13,16 @@ public:
   virtual void Interpret(ezCommandInterpreterState& inout_State) override
   {
     ezConsoleCmdMsgToEngine msg;
+    msg.m_iType = 0;
+    msg.m_sCommand = inout_State.m_sInput;
+
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  }
+
+  virtual void AutoComplete(ezCommandInterpreterState& inout_State) override
+  {
+    ezConsoleCmdMsgToEngine msg;
+    msg.m_iType = 1;
     msg.m_sCommand = inout_State.m_sInput;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -114,6 +124,12 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
           QTimer::singleShot(100, this, SLOT(UpdateUI()));
         }
       }
+      else if (auto pMsg = ezDynamicCast<const ezConsoleCmdResultMsgToEditor*>(e.m_pMsg))
+      {
+        m_sCommandResult.Append(pMsg->m_sResult.GetView());
+        m_bUpdateConsole = true;
+        QTimer::singleShot(100, this, SLOT(UpdateUI()));
+      }
     }
     break;
     default:
@@ -123,16 +139,45 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
 
 void ezQtCVarPanel::UpdateUI()
 {
-  m_bUpdateUI = false;
-
   if (m_bRebuildUI)
   {
     m_pCVarWidget->RebuildCVarUI(m_EngineCVarState);
   }
-  else
+  else if (m_bUpdateUI)
   {
     m_pCVarWidget->UpdateCVarUI(m_EngineCVarState);
   }
+
+  if (m_bUpdateConsole)
+  {
+    ezHybridArray<ezStringView, 64> lines;
+    m_sCommandResult.Split(false, lines, ";;");
+
+    ezStringBuilder add, tmp;
+
+    for (auto l : lines)
+    {
+      l.Shrink(4, 0); // skip the line type number at the front (for now)
+
+      if (l.StartsWith("<"))
+      {
+        l.Shrink(1, 0);
+        m_pCVarWidget->ReplaceConsoleInput(l.GetData(tmp));
+      }
+      else
+      {
+        add.Append(l);
+        add.Append("\n");
+      }
+    }
+
+    m_pCVarWidget->AddConsoleOutput(add);
+  }
+
+  m_sCommandResult.Clear();
+  m_bUpdateConsole = false;
+  m_bUpdateUI = false;
+  m_bRebuildUI = false;
 }
 
 void ezQtCVarPanel::BoolChanged(const char* szCVar, bool newValue)
