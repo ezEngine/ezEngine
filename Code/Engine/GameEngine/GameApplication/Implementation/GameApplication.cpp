@@ -3,7 +3,7 @@
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ActorSystem/ActorManager.h>
 #include <Core/ActorSystem/ActorPluginWindow.h>
-#include <Core/Console/Console.h>
+#include <Core/Console/QuakeConsole.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
@@ -44,7 +44,8 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
 
-  m_pConsole = EZ_DEFAULT_NEW(ezConsole);
+  m_pConsole = EZ_DEFAULT_NEW(ezQuakeConsole);
+  ezConsole::SetMainConsole(m_pConsole.Borrow());
 }
 
 ezGameApplication::~ezGameApplication()
@@ -305,7 +306,7 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText.GetData(), ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText.GetData(), ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.GetColor());
     }
 
     ezDebugRenderer::Draw2DText(hView, m_pConsole->GetInputLine(), ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);

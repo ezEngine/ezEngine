@@ -33,7 +33,10 @@ Q_SIGNALS:
   void enterPressed();
 
   /// \brief This signal is sent when certain keys are pressed that could be used by external code to implement additional features.
-  /// Currently exposed: Qt::Key_Up, Qt::Key_Down, Qt::Key_Tab, Qt::Key_Backtab (that's SHIFT+Tab)
+  /// Currently exposed:
+  ///   Qt::Key_Up, Qt::Key_Down
+  ///   Qt::Key_Tab, Qt::Key_Backtab (that's SHIFT+Tab)
+  ///   Qt::Key_F1, Qt::Key_F2, Qt::Key_F3
   void specialKeyPressed(Qt::Key key);
 
   void visibleEvent();
@@ -49,4 +52,3 @@ protected:
   QLineEdit* m_pLineEdit;
   QPushButton* m_pClearButton;
 };
-

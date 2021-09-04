@@ -32,6 +32,12 @@ ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
   CVarsView->setItemDelegateForColumn(1, m_pItemDelegate);
 
   connect(SearchWidget, &ezQtSearchWidget::textChanged, this, &ezQtCVarWidget::SearchTextChanged);
+  connect(ConsoleInput, &ezQtSearchWidget::enterPressed, this, &ezQtCVarWidget::ConsoleEnterPressed);
+  connect(ConsoleInput, &ezQtSearchWidget::specialKeyPressed, this, &ezQtCVarWidget::ConsoleSpecialKeyPressed);
+
+  m_Console.Events().AddEventHandler(ezMakeDelegate(&ezQtCVarWidget::OnConsoleEvent, this));
+
+  ConsoleInput->setPlaceholderText("> TAB to auto-complete");
 }
 
 ezQtCVarWidget::~ezQtCVarWidget() {}
@@ -45,11 +51,8 @@ void ezQtCVarWidget::Clear()
 
 void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
 {
+  // for now update and rebuild are the same
   UpdateCVarUI(cvars);
-
-  CVarsView->expandAll();
-  CVarsView->resizeColumnToContents(0);
-  CVarsView->resizeColumnToContents(1);
 }
 
 void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
@@ -84,6 +87,33 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
   }
 
   m_pItemModel->EndResetModel();
+
+  CVarsView->expandAll();
+  CVarsView->resizeColumnToContents(0);
+  CVarsView->resizeColumnToContents(1);
+}
+
+void ezQtCVarWidget::AddConsoleStrings(const ezStringBuilder& encoded)
+{
+  ezHybridArray<ezStringView, 64> lines;
+  encoded.Split(false, lines, ";;");
+
+  ezStringBuilder tmp;
+
+  for (auto l : lines)
+  {
+    l.Shrink(4, 0); // skip the line type number at the front (for now)
+
+    if (l.StartsWith("<"))
+    {
+      l.Shrink(1, 0);
+      ConsoleInput->setText(l.GetData(tmp));
+    }
+    else
+    {
+      GetConsole().AddConsoleString(l);
+    }
+  }
 }
 
 void ezQtCVarWidget::SearchTextChanged(const QString& text)
@@ -102,6 +132,64 @@ void ezQtCVarWidget::SearchTextChanged(const QString& text)
   e.setPatternSyntax(QRegExp::RegExp);
   m_pFilterModel->setFilterRegExp(e);
   CVarsView->expandAll();
+}
+
+void ezQtCVarWidget::ConsoleEnterPressed()
+{
+  m_Console.AddToInputHistory(ConsoleInput->text().toUtf8().data());
+  m_Console.ExecuteCommand(ConsoleInput->text().toUtf8().data());
+  ConsoleInput->setText("");
+}
+
+void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
+{
+  if (key == Qt::Key_Tab)
+  {
+    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+
+    if (m_Console.AutoComplete(input))
+    {
+      ConsoleInput->setText(input.GetData());
+    }
+  }
+  if (key == Qt::Key_Up)
+  {
+    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+    m_Console.RetrieveInputHistory(1, input);
+    ConsoleInput->setText(input.GetData());
+  }
+  if (key == Qt::Key_Down)
+  {
+    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+    m_Console.RetrieveInputHistory(-1, input);
+    ConsoleInput->setText(input.GetData());
+  }
+  if (key == Qt::Key_F2)
+  {
+    if (m_Console.GetInputHistory().GetCount() >= 1)
+    {
+      m_Console.ExecuteCommand(m_Console.GetInputHistory()[0]);
+    }
+  }
+  if (key == Qt::Key_F3)
+  {
+    if (m_Console.GetInputHistory().GetCount() >= 2)
+    {
+      m_Console.ExecuteCommand(m_Console.GetInputHistory()[1]);
+    }
+  }
+}
+
+void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
+{
+  if (e.m_Type == ezConsoleEvent::Type::OutputLineAdded)
+  {
+    QString t = ConsoleOutput->toPlainText();
+    t += e.m_AddedpConsoleString->m_sText;
+    t += "\n";
+    ConsoleOutput->setPlainText(t);
+    ConsoleOutput->verticalScrollBar()->setValue(ConsoleOutput->verticalScrollBar()->maximum());
+  }
 }
 
 ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* owner)
