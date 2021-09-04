@@ -45,6 +45,7 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
   m_bWasQuitRequested = false;
 
   m_pConsole = EZ_DEFAULT_NEW(ezQuakeConsole);
+  ezConsole::SetMainConsole(m_pConsole.Borrow());
 }
 
 ezGameApplication::~ezGameApplication()

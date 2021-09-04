@@ -17,6 +17,9 @@ void RemoveStartupEventHandler();
 void AddCVarEventHandler();
 void RemoveCVarEventHandler();
 
+void AddConsoleEventHandler();
+void RemoveConsoleEventHandler();
+
 void AddMemoryEventHandler();
 void RemoveMemoryEventHandler();
 
@@ -63,6 +66,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     AddStatsEventHandler();
     AddStartupEventHandler();
     AddCVarEventHandler();
+    AddConsoleEventHandler();
     AddReflectionEventHandler();
     AddMemoryEventHandler();
     AddInputEventHandler();
@@ -88,6 +92,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     RemoveMemoryEventHandler();
     RemoveReflectionEventHandler();
     RemoveCVarEventHandler();
+    RemoveConsoleEventHandler();
     RemoveStartupEventHandler();
     RemoveStatsEventHandler();
     RemoveLogWriter();

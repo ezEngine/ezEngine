@@ -95,7 +95,11 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
       if (error == ERROR_INVALID_NAME)
         return res;
 
-      if (error == ERROR_SHARING_VIOLATION)
+      if (error == ERROR_SHARING_VIOLATION
+          // these two situations happen when the ezInspector is connected
+          // for some reason, the networking blocks file reading (when run on the same machine)
+          // retrying fixes the problem, but can introduce very long stalls
+          || error == WSAEWOULDBLOCK || error == ERROR_SUCCESS)
       {
         if (m_bRetryOnSharingViolation)
         {

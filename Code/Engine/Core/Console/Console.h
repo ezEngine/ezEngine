@@ -100,8 +100,14 @@ public:
   /// \brief Returns the mutex that's used to prevent multi-threaded access
   ezMutex& GetMutex() const { return m_Mutex; }
 
+  static void SetMainConsole(ezConsole* pConsole);
+  static ezConsole* GetMainConsole();
+
 protected:
   mutable ezMutex m_Mutex;
+
+private:
+  static ezConsole* s_pMainConsole;
 
   /// @}
 

@@ -9,6 +9,26 @@
 #include <qlistwidget.h>
 #include <qspinbox.h>
 
+class ezCommandInterpreterInspector : public ezCommandInterpreter
+{
+public:
+  virtual void Interpret(ezCommandInterpreterState& inout_State) override
+  {
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('CMD', 'EXEC');
+    Msg.GetWriter() << inout_State.m_sInput;
+    ezTelemetry::SendToServer(Msg);
+  }
+
+  virtual void AutoComplete(ezCommandInterpreterState& inout_State) override
+  {
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('CMD', 'COMP');
+    Msg.GetWriter() << inout_State.m_sInput;
+    ezTelemetry::SendToServer(Msg);
+  }
+};
+
 ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
 ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent)
@@ -23,6 +43,8 @@ ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent)
   connect(CVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarsWidget::FloatChanged);
   connect(CVarWidget, &ezQtCVarWidget::onIntChanged, this, &ezQtCVarsWidget::IntChanged);
   connect(CVarWidget, &ezQtCVarWidget::onStringChanged, this, &ezQtCVarsWidget::StringChanged);
+
+  CVarWidget->GetConsole().SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterInspector));
 
   ResetStats();
 }

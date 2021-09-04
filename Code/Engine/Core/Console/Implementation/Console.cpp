@@ -264,7 +264,23 @@ ezConsole::ezConsole()
 
 ezConsole::~ezConsole()
 {
+  if (s_pMainConsole == this)
+  {
+    s_pMainConsole = nullptr;
+  }
 }
+
+void ezConsole::SetMainConsole(ezConsole* pConsole)
+{
+  s_pMainConsole = pConsole;
+}
+
+ezConsole* ezConsole::GetMainConsole()
+{
+  return s_pMainConsole;
+}
+
+ezConsole* ezConsole::s_pMainConsole = nullptr;
 
 bool ezConsole::AutoComplete(ezStringBuilder& text)
 {
