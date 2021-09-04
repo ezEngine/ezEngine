@@ -133,6 +133,24 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
     s_pWidget->CVarWidget->UpdateCVarUI(s_pWidget->m_CVars);
 }
 
+void ezQtCVarsWidget::ProcessTelemetryConsole(void* pUnuseed)
+{
+  if (!s_pWidget)
+    return;
+
+  ezTelemetryMessage msg;
+  ezStringBuilder tmp;
+
+  while (ezTelemetry::RetrieveMessage('CMD', msg) == EZ_SUCCESS)
+  {
+    if (msg.GetMessageID() == 'RES')
+    {
+      msg.GetReader() >> tmp;
+      s_pWidget->CVarWidget->AddConsoleStrings(tmp);
+    }
+  }
+}
+
 void ezQtCVarsWidget::SyncAllCVarsToServer()
 {
   for (auto it = m_CVars.GetIterator(); it.IsValid(); ++it)

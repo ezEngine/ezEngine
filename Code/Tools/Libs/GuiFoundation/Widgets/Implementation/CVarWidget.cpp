@@ -93,9 +93,27 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
   CVarsView->resizeColumnToContents(1);
 }
 
-void ezQtCVarWidget::ReplaceConsoleInput(const char* text)
+void ezQtCVarWidget::AddConsoleStrings(const ezStringBuilder& encoded)
 {
-  ConsoleInput->setText(text);
+  ezHybridArray<ezStringView, 64> lines;
+  encoded.Split(false, lines, ";;");
+
+  ezStringBuilder tmp;
+
+  for (auto l : lines)
+  {
+    l.Shrink(4, 0); // skip the line type number at the front (for now)
+
+    if (l.StartsWith("<"))
+    {
+      l.Shrink(1, 0);
+      ConsoleInput->setText(l.GetData(tmp));
+    }
+    else
+    {
+      GetConsole().AddConsoleString(l);
+    }
+  }
 }
 
 void ezQtCVarWidget::SearchTextChanged(const QString& text)
@@ -168,6 +186,7 @@ void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
   {
     QString t = ConsoleOutput->toPlainText();
     t += e.m_AddedpConsoleString->m_sText;
+    t += "\n";
     ConsoleOutput->setPlainText(t);
     ConsoleOutput->verticalScrollBar()->setValue(ConsoleOutput->verticalScrollBar()->maximum());
   }

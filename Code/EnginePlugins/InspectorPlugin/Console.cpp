@@ -22,20 +22,26 @@ static void TelemetryMessage(void* pPassThrough)
           ezCommandInterpreterState s;
           s.m_sInput = input;
 
+          ezStringBuilder encoded;
+
           if (Msg.GetMessageID() == 'EXEC')
+          {
             pInt->Interpret(s);
+          }
           else
+          {
             pInt->AutoComplete(s);
+            encoded.AppendFormat(";;00||<{}", s.m_sInput);
+          }
+
+          for (const auto& l : s.m_sOutput)
+          {
+            encoded.AppendFormat(";;{}||{}", ezArgI((ezInt32)l.m_Type, 2, true), l.m_sText);
+          }
 
           ezTelemetryMessage msg;
           msg.SetMessageID('CMD', 'RES');
-          msg.GetWriter() << s.m_sInput;
-          msg.GetWriter() << (ezUInt16)s.m_sOutput.GetCount();
-          for (const auto& l : s.m_sOutput)
-          {
-            msg.GetWriter() << l.m_sText;
-            msg.GetWriter() << (ezInt16)l.m_Type;
-          }
+          msg.GetWriter() << encoded;
           ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
         }
       }

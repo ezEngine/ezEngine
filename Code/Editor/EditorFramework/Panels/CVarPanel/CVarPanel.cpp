@@ -150,25 +150,7 @@ void ezQtCVarPanel::UpdateUI()
 
   if (m_bUpdateConsole)
   {
-    ezHybridArray<ezStringView, 64> lines;
-    m_sCommandResult.Split(false, lines, ";;");
-
-    ezStringBuilder tmp;
-
-    for (auto l : lines)
-    {
-      l.Shrink(4, 0); // skip the line type number at the front (for now)
-
-      if (l.StartsWith("<"))
-      {
-        l.Shrink(1, 0);
-        m_pCVarWidget->ReplaceConsoleInput(l.GetData(tmp));
-      }
-      else
-      {
-        m_pCVarWidget->GetConsole().AddConsoleString(l);
-      }
-    }
+    m_pCVarWidget->AddConsoleStrings(m_sCommandResult);
   }
 
   m_sCommandResult.Clear();

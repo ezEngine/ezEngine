@@ -114,7 +114,7 @@ public:
   /// \brief Updates the existing UI. This is sufficient if values changed only.
   void UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
 
-  void ReplaceConsoleInput(const char* text);
+  void AddConsoleStrings(const ezStringBuilder& encoded);
 
   ezConsole& GetConsole() { return m_Console; }
 
