@@ -49,7 +49,7 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
       continue;
     }
 
-    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint()))
+    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint(), ezCameraUsageHint::None, GetWorld()))
     {
       pCameraComponent->ApplySettingsToView(pView);
     }
@@ -72,9 +72,9 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
 
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    if (it->IsActiveAndInitialized() && it->GetUsageHint() == ezCameraUsageHint::MainView)
+    if (it->IsActiveAndInitialized() && it->m_bShowStats && it->GetUsageHint() == ezCameraUsageHint::MainView)
     {
-      if (ezView* pView = ezRenderWorld::GetViewByUsageHint(it->GetUsageHint()))
+      if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
       {
         it->ShowStats(pView);
       }
@@ -332,8 +332,8 @@ void ezCameraComponent::ShowStats(ezView* pView)
     const char* szName = GetOwner()->GetName();
 
     ezStringBuilder sb;
-    sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
-    ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
+    sb.Format("Camera '{0}':\nEV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
+    ezDebugRenderer::Draw2DText(pView->GetHandle(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
   }
 
   // draw frustum
