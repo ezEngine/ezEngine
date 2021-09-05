@@ -114,6 +114,7 @@ public:
 
 private:
   void UpdateRenderTargetCamera();
+  void ShowStats(ezView* pView);
 
   void ResourceChangeEventHandler(const ezResourceEvent& e);
 
