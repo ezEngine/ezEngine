@@ -76,6 +76,9 @@ public:
 
   static bool GetUseMultithreadedRendering();
 
+  /// \brief Resets the frame counter to zero. Only for test purposes !
+  EZ_ALWAYS_INLINE static void ResetFrameCounter() { s_uiFrameCounter = 0; }
+
   EZ_ALWAYS_INLINE static ezUInt64 GetFrameCounter() { return s_uiFrameCounter; }
 
   EZ_FORCE_INLINE static ezUInt32 GetDataIndexForExtraction() { return GetUseMultithreadedRendering() ? (s_uiFrameCounter & 1) : 0; }

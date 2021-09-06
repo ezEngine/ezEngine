@@ -9,6 +9,7 @@
 #include <Foundation/System/Process.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
@@ -194,6 +195,7 @@ void ezGameEngineTestBasics::SetupSubTests()
   AddSubTest("Many Meshes", SubTests::ManyMeshes);
   AddSubTest("Skybox", SubTests::Skybox);
   AddSubTest("Debug Rendering", SubTests::DebugRendering);
+  AddSubTest("Debug Rendering - No Lines", SubTests::DebugRendering2);
   AddSubTest("Load Scene", SubTests::LoadScene);
 }
 
@@ -215,7 +217,7 @@ ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_SUCCESS;
   }
 
-  if (iIdentifier == SubTests::DebugRendering)
+  if (iIdentifier == SubTests::DebugRendering || iIdentifier == SubTests::DebugRendering2)
   {
     m_pOwnApplication->SubTestDebugRenderingSetup();
     return EZ_SUCCESS;
@@ -242,6 +244,9 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
 
   if (iIdentifier == SubTests::DebugRendering)
     return m_pOwnApplication->SubTestDebugRenderingExec(m_iFrame);
+
+  if (iIdentifier == SubTests::DebugRendering2)
+    return m_pOwnApplication->SubTestDebugRenderingExec2(m_iFrame);
 
   if (iIdentifier == SubTests::LoadScene)
     return m_pOwnApplication->SubTestLoadSceneExec(m_iFrame);
@@ -396,6 +401,8 @@ void ezGameEngineTestApplication_Basics::SubTestDebugRenderingSetup()
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   m_pWorld->Clear();
+
+  ezRenderWorld::ResetFrameCounter();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt32 iCurFrame)
@@ -478,6 +485,35 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 0, 0), ezVec3(7, 2, 0), ezVec3(7, 2, 1)));
     tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 3, 0), ezVec3(7, 1, 0), ezVec3(7, 3, 1)));
     ezDebugRenderer::DrawSolidTriangles(m_pWorld.Borrow(), tris, ezColor::Gainsboro);
+  }
+
+  if (Run() == ezApplication::Execution::Quit)
+    return ezTestAppRun::Quit;
+
+  // first frame no image is captured yet
+  if (iCurFrame < 1)
+    return ezTestAppRun::Continue;
+
+  EZ_TEST_IMAGE(0, 150);
+
+  return ezTestAppRun::Quit;
+}
+
+ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec2(ezInt32 iCurFrame)
+{
+  {
+    auto pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
+    pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 100.0f, 0.1f, 1000.0f);
+    ezVec3 pos;
+    pos.SetZero();
+    pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+  }
+
+  // Text
+  {
+    ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()), ezVec2I32(10, 10), ezColor::AntiqueWhite, 24);
+    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugRenderer::ScreenPlacement::BottomLeft, "test", ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()));
+    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugRenderer::ScreenPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
   }
 
   if (Run() == ezApplication::Execution::Quit)
