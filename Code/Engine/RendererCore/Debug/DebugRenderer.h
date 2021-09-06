@@ -121,9 +121,27 @@ public:
 
   /// \brief Displays a string in screen-space for one frame.
   ///
+  /// The string may contain newlines (\n) for multi-line output.
+  /// If horizontal alignment is right, the entire text block is aligned according to the longest line.
+  /// If vertical alignment is bottom, the entire text block is aligned there.
+  ///
+  /// Data can be output as a table, by separating columns with tabs (\n). For example:\n
+  /// "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|"
+  ///
   /// Returns the number of lines that the text was split up into.
   static ezUInt32 Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment verticalAlignment = VerticalAlignment::Top);
 
+  /// \brief Draws a piece of text in one of the screen corners.
+  ///
+  /// Text positioning is automatic, all lines are placed in each corner such that they don't overlap.
+  /// Text from different corners may overlap, though.
+  ///
+  /// For text formatting options, see Draw2DText().
+  ///
+  /// The \a groupName parameter is used to insert whitespace between unrelated pieces of text,
+  /// it is not displayed anywhere, though.
+  ///
+  /// Text size cannot be changed.
   static void DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* groupName, const ezFormatString& text, const ezColor& color = ezColor::White);
 
   /// \brief Displays a string in 3D space for one frame.

@@ -75,14 +75,14 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     }
 
     ezStringBuilder sText;
-    sText.AppendFormat("Triangles: \t{}\n", uiNumTriangles);
-    sText.AppendFormat("Vertices: \t{}\n", uiNumVertices);
-    sText.AppendFormat("UV Channels: \t{}\n", uiNumUVs);
-    sText.AppendFormat("Color Channels: \t{}\n", uiNumColors);
-    sText.AppendFormat("Bytes Per Vertex: \t{}\n", bufferDesc.m_uiStructSize);
-    sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
+    sText.AppendFormat("Triangles: \t{}\t\n", uiNumTriangles);
+    sText.AppendFormat("Vertices: \t{}\t\n", uiNumVertices);
+    sText.AppendFormat("UV Channels: \t{}\t\n", uiNumUVs);
+    sText.AppendFormat("Color Channels: \t{}\t\n", uiNumColors);
+    sText.AppendFormat("Bytes Per Vertex: \t{}\t\n", bufferDesc.m_uiStructSize);
+    sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}\t", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-    ezDebugRenderer::DrawInfoText(m_hView, ezDebugRenderer::ScreenPlacement::BottomLeft, "AssetStats", sText);
+    ezDebugRenderer::DrawInfoText(m_hView, ezDebugRenderer::ScreenPlacement::BottomRight, "AssetStats", sText);
   }
 }

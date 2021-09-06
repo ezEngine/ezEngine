@@ -274,8 +274,6 @@ namespace
 
       for (auto& line : lines)
       {
-        maxLineLength = ezMath::Max(maxLineLength, line.GetElementCount());
-
         ezUInt32 uiColIdx = 0;
 
         const char* colPtrCur = line.GetStartPointer();
@@ -292,6 +290,14 @@ namespace
           colPtrCur = colPtrNext + 1;
           ++uiColIdx;
         }
+
+        // length of the last column (that wasn't counted)
+        maxLineLength = ezMath::Max(maxLineLength, ezStringUtils::GetStringElementCount(colPtrCur, line.GetEndPointer()));
+      }
+
+      for (ezUInt32 columnWidth : maxColumWidth)
+      {
+        maxLineLength += columnWidth;
       }
     }
     else
@@ -1069,6 +1075,9 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     return;
   }
 
+  // update the frame counter
+  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
+
   // draw info text
   // this has to be done before the frame counter is updated
   {
@@ -1119,9 +1128,6 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       }
     }
   }
-
-  // update the frame counter
-  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();

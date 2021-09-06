@@ -455,8 +455,6 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
   {
     ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), "Not 'a test\"", ezVec2I32(30, 10), ezColor::AntiqueWhite, 24);
     ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), "!@#$%^&*()_[]{}|", ezVec2I32(20, 200), ezColor::AntiqueWhite, 24);
-
-    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugRenderer::ScreenPlacement::TopRight, "test", "Col1\tCol2\tCol3\nData 1\tData in Col2\tData in Col3\nMore Column 1\tCol2 data\tlast");
   }
 
   // Frustum
