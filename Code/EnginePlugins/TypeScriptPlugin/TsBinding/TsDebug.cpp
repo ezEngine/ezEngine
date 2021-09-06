@@ -14,6 +14,7 @@ static int __CPP_Debug_DrawBox(duk_context* pDuk);
 static int __CPP_Debug_DrawSphere(duk_context* pDuk);
 static int __CPP_Debug_Draw2DText(duk_context* pDuk);
 static int __CPP_Debug_Draw3DText(duk_context* pDuk);
+static int __CPP_Debug_DrawInfoText(duk_context* pDuk);
 static int __CPP_Debug_GetResolution(duk_context* pDuk);
 static int __CPP_Debug_ReadCVar(duk_context* pDuk);
 static int __CPP_Debug_WriteCVar(duk_context* pDuk);
@@ -30,6 +31,7 @@ ezResult ezTypeScriptBinding::Init_Debug()
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineSphere", __CPP_Debug_DrawSphere, 4);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw2DText", __CPP_Debug_Draw2DText, 5);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw3DText", __CPP_Debug_Draw3DText, 4);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawInfoText", __CPP_Debug_DrawInfoText, 3);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_GetResolution", __CPP_Debug_GetResolution, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_ReadCVarBool", __CPP_Debug_ReadCVar, 1, ezCVarType::Bool);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_ReadCVarInt", __CPP_Debug_ReadCVar, 1, ezCVarType::Int);
@@ -171,6 +173,20 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk)
   const float fSize = duk.GetFloatValue(3, 16.0f);
 
   ezDebugRenderer::Draw3DText(pWorld, szText, vPos, color, (ezUInt32)fSize);
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_Debug_DrawInfoText(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+
+  const ezInt32 corner = duk.GetIntValue(0);
+  const char* szText = duk.GetStringValue(1);
+  const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
+
+  ezDebugRenderer::DrawInfoText(pWorld, static_cast<ezDebugRenderer::ScreenPlacement>(corner), "Script", szText, color);
 
   return duk.ReturnVoid();
 }

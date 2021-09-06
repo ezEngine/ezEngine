@@ -902,13 +902,14 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  return AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-    auto& textLine = data.m_textLines2D.ExpandAndGetRef();
-    textLine.m_text = line;
-    textLine.m_topLeftCorner = topLeftCorner;
-    textLine.m_color = color;
-    textLine.m_uiSizeInPixel = uiSizeInPixel;
-  });
+  return AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
+    {
+      auto& textLine = data.m_textLines2D.ExpandAndGetRef();
+      textLine.m_text = line;
+      textLine.m_topLeftCorner = topLeftCorner;
+      textLine.m_color = color;
+      textLine.m_uiSizeInPixel = uiSizeInPixel;
+    });
 }
 
 
@@ -928,14 +929,15 @@ void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, Screen
 
 ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Bottom*/)
 {
-  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-    auto& textLine = data.m_textLines3D.ExpandAndGetRef();
-    textLine.m_text = line;
-    textLine.m_topLeftCorner = topLeftCorner;
-    textLine.m_color = color;
-    textLine.m_uiSizeInPixel = uiSizeInPixel;
-    textLine.m_position = globalPosition;
-  });
+  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
+    {
+      auto& textLine = data.m_textLines3D.ExpandAndGetRef();
+      textLine.m_text = line;
+      textLine.m_topLeftCorner = topLeftCorner;
+      textLine.m_color = color;
+      textLine.m_uiSizeInPixel = uiSizeInPixel;
+      textLine.m_position = globalPosition;
+    });
 }
 
 void ezDebugRenderer::AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
@@ -1067,7 +1069,10 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       }
     }
 
+    PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForRendering()].Borrow();
+
     // draw info text
+    if (pData)
     {
       static_assert((int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT == 6);
 
@@ -1100,14 +1105,13 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         ezVec2I32(resX / 2, resY - 10),
         ezVec2I32(resX - 10, resY - 10)};
 
-      PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForExtraction()].Borrow();
-
       for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++corner)
       {
         auto& cd = pData->m_infoTextData[corner];
 
         // InsertionSort is stable
-        ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool { return lhs.m_group < rhs.m_group; });
+        ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
+          { return lhs.m_group < rhs.m_group; });
 
         ezVec2I32 pos = anchor[corner];
 
