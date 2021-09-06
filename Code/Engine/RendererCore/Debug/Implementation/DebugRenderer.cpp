@@ -993,6 +993,13 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
 // static
 void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext)
 {
+  DoubleBufferedPerContextData* pDoubleBufferedContextData = nullptr;
+  if (!s_PerContextData.TryGetValue(context, pDoubleBufferedContextData))
+  {
+    return;
+  }
+
+
   {
     EZ_LOCK(s_Mutex);
 
@@ -1061,12 +1068,62 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
       }
     }
-  }
 
-  DoubleBufferedPerContextData* pDoubleBufferedContextData = nullptr;
-  if (!s_PerContextData.TryGetValue(context, pDoubleBufferedContextData))
-  {
-    return;
+    // draw info text
+    {
+      static_assert((int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT == 6);
+
+      HorizontalAlignment ha[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+        HorizontalAlignment::Left,
+        HorizontalAlignment::Center,
+        HorizontalAlignment::Right,
+        HorizontalAlignment::Left,
+        HorizontalAlignment::Center,
+        HorizontalAlignment::Right};
+
+      VerticalAlignment va[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+        VerticalAlignment::Top,
+        VerticalAlignment::Top,
+        VerticalAlignment::Top,
+        VerticalAlignment::Bottom,
+        VerticalAlignment::Bottom,
+        VerticalAlignment::Bottom};
+
+      int offs[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
+
+      ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
+      ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
+
+      ezVec2I32 anchor[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+        ezVec2I32(10, 10),
+        ezVec2I32(resX / 2, 10),
+        ezVec2I32(resX - 10, 10),
+        ezVec2I32(10, resY - 10),
+        ezVec2I32(resX / 2, resY - 10),
+        ezVec2I32(resX - 10, resY - 10)};
+
+      PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForExtraction()].Borrow();
+
+      for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++corner)
+      {
+        auto& cd = pData->m_infoTextData[corner];
+
+        // InsertionSort is stable
+        ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
+          { return lhs.m_group < rhs.m_group; });
+
+        ezVec2I32 pos = anchor[corner];
+
+        for (ezUInt32 i = 0; i < cd.GetCount(); ++i)
+        {
+          // add some space between groups
+          if (i > 0 && cd[i - 1].m_group != cd[i].m_group)
+            pos.y += offs[corner];
+
+          pos.y += offs[corner] * Draw2DText(context, cd[i].m_text.GetData(), pos, cd[i].m_color, 16, ha[corner], va[corner]);
+        }
+      }
+    }
   }
 
   PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForRendering()].Borrow();
@@ -1077,57 +1134,6 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
   // update the frame counter
   pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
-
-  // draw info text
-  // this has to be done before the frame counter is updated
-  {
-    static_assert((int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT == 6);
-
-    HorizontalAlignment ha[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
-      HorizontalAlignment::Left,
-      HorizontalAlignment::Center,
-      HorizontalAlignment::Right,
-      HorizontalAlignment::Left,
-      HorizontalAlignment::Center,
-      HorizontalAlignment::Right};
-
-    VerticalAlignment va[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
-      VerticalAlignment::Top,
-      VerticalAlignment::Top,
-      VerticalAlignment::Top,
-      VerticalAlignment::Bottom,
-      VerticalAlignment::Bottom,
-      VerticalAlignment::Bottom};
-
-    int offs[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
-
-    ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
-    ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
-
-    ezVec2I32 anchor[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
-      ezVec2I32(10, 10),
-      ezVec2I32(resX / 2, 10),
-      ezVec2I32(resX - 10, 10),
-      ezVec2I32(10, resY - 10),
-      ezVec2I32(resX / 2, resY - 10),
-      ezVec2I32(resX - 10, resY - 10)};
-
-    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++corner)
-    {
-      auto& cd = pData->m_infoTextData[corner];
-
-      ezVec2I32 pos = anchor[corner];
-
-      for (ezUInt32 i = 0; i < cd.GetCount(); ++i)
-      {
-        // add some space between groups
-        if (i > 0 && cd[i - 1].m_group != cd[i].m_group)
-          pos.y += offs[corner];
-
-        pos.y += offs[corner] * Draw2DText(context, cd[i].m_text.GetData(), pos, cd[i].m_color, 16, ha[corner], va[corner]);
-      }
-    }
-  }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
