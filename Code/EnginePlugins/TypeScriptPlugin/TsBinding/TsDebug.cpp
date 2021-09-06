@@ -153,7 +153,7 @@ static int __CPP_Debug_Draw2DText(duk_context* pDuk)
   const ezVec2 vPos = ezTypeScriptBinding::GetVec2(pDuk, 1);
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
   const float fSize = duk.GetFloatValue(3, 16.0f);
-  ezDebugRenderer::HorizontalAlignment::Enum halign = (ezDebugRenderer::HorizontalAlignment::Enum)duk.GetIntValue(4);
+  ezDebugRenderer::HorizontalAlignment halign = (ezDebugRenderer::HorizontalAlignment)duk.GetIntValue(4);
 
   ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, (ezUInt32)fSize, halign, ezDebugRenderer::VerticalAlignment::Top);
 

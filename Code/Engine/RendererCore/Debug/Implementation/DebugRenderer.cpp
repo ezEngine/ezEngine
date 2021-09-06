@@ -77,6 +77,13 @@ namespace
     ezVec3 m_position;
   };
 
+  struct InfoTextData
+  {
+    ezString m_group;
+    ezString m_text;
+    ezColor m_color;
+  };
+
   struct PerContextData
   {
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineVertices;
@@ -88,6 +95,7 @@ namespace
     ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
     ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
 
+    ezDynamicArray<InfoTextData> m_infoTextData[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT];
     ezDynamicArray<TextLineData2D> m_textLines2D;
     ezDynamicArray<TextLineData3D> m_textLines3D;
     ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
@@ -143,6 +151,11 @@ namespace
         pData->m_texTriangle3DVertices.Clear();
         pData->m_textLines2D.Clear();
         pData->m_textLines3D.Clear();
+
+        for (ezUInt32 i = 0; i < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++i)
+        {
+          pData->m_infoTextData[i].Clear();
+        }
       }
     }
   }
@@ -239,10 +252,10 @@ namespace
   }
 
   template <typename AddFunc>
-  static void AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& positionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment::Enum horizontalAlignment, ezDebugRenderer::VerticalAlignment::Enum verticalAlignment, AddFunc func)
+  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& positionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment horizontalAlignment, ezDebugRenderer::VerticalAlignment verticalAlignment, AddFunc func)
   {
     if (text0.IsEmpty())
-      return;
+      return 0;
 
     ezStringBuilder tmp;
     ezStringView text = text0.GetText(tmp);
@@ -250,21 +263,41 @@ namespace
     ezHybridArray<ezStringView, 8> lines;
     ezUInt32 maxLineLength = 0;
 
+    ezHybridArray<ezUInt32, 8> maxColumWidth;
+    bool isTabular = false;
+
     ezStringBuilder sb;
     if (text.FindSubString("\n"))
     {
       sb = text;
-      sb.Split(false, lines, "\n");
+      sb.Split(true, lines, "\n");
 
       for (auto& line : lines)
       {
         maxLineLength = ezMath::Max(maxLineLength, line.GetElementCount());
+
+        ezUInt32 uiColIdx = 0;
+
+        const char* colPtrCur = line.GetStartPointer();
+
+        if (const char* colPtrNext = line.FindSubString("\t", colPtrCur))
+        {
+          isTabular = true;
+
+          const ezUInt32 colLen = static_cast<ezUInt32>(colPtrNext - colPtrCur);
+
+          maxColumWidth.EnsureCount(uiColIdx + 1);
+          maxColumWidth[uiColIdx] = ezMath::Max(maxColumWidth[uiColIdx], colLen);
+
+          colPtrCur = colPtrNext;
+        }
       }
     }
     else
     {
       lines.PushBack(text);
       maxLineLength = text.GetElementCount();
+      maxColumWidth.PushBack(maxLineLength);
     }
 
     // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
@@ -294,11 +327,19 @@ namespace
         if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Center)
           currentPos.x -= ezMath::Ceil(line.GetElementCount() * fGlyphWidth * 0.5f);
 
-        func(data, line, currentPos);
+        if (isTabular)
+        {
+        }
+        else
+        {
+          func(data, line, currentPos);
+        }
 
         currentPos.y += fLineHeight;
       }
     }
+
+    return lines.GetCount();
   }
 
   static void AppendGlyphs(ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper>& glyphs, const TextLineData2D& textLine)
@@ -830,28 +871,44 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
+ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-    auto& textLine = data.m_textLines2D.ExpandAndGetRef();
-    textLine.m_text = line;
-    textLine.m_topLeftCorner = topLeftCorner;
-    textLine.m_color = color;
-    textLine.m_uiSizeInPixel = uiSizeInPixel;
-  });
+  return AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
+    {
+      auto& textLine = data.m_textLines2D.ExpandAndGetRef();
+      textLine.m_text = line;
+      textLine.m_topLeftCorner = topLeftCorner;
+      textLine.m_color = color;
+      textLine.m_uiSizeInPixel = uiSizeInPixel;
+    });
 }
 
 
-void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Bottom*/)
+void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* groupName, const ezFormatString& text, const ezColor& color)
 {
-  AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-    auto& textLine = data.m_textLines3D.ExpandAndGetRef();
-    textLine.m_text = line;
-    textLine.m_topLeftCorner = topLeftCorner;
-    textLine.m_color = color;
-    textLine.m_uiSizeInPixel = uiSizeInPixel;
-    textLine.m_position = globalPosition;
-  });
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context);
+
+  ezStringBuilder tmp;
+
+  auto& e = data.m_infoTextData[(int)placement].ExpandAndGetRef();
+  e.m_group = groupName;
+  e.m_text = text.GetText(tmp);
+  e.m_color = color;
+}
+
+ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Bottom*/)
+{
+  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
+    {
+      auto& textLine = data.m_textLines3D.ExpandAndGetRef();
+      textLine.m_text = line;
+      textLine.m_topLeftCorner = topLeftCorner;
+      textLine.m_color = color;
+      textLine.m_uiSizeInPixel = uiSizeInPixel;
+      textLine.m_position = globalPosition;
+    });
 }
 
 void ezDebugRenderer::AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
@@ -983,13 +1040,68 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     return;
   }
 
-  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
-
   PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForRendering()].Borrow();
   if (pData == nullptr)
   {
     return;
   }
+
+  // draw info text
+  // this has to be done before the frame counter is updated
+  {
+    static_assert((int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT == 6);
+
+    HorizontalAlignment ha[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+      HorizontalAlignment::Left,
+      HorizontalAlignment::Center,
+      HorizontalAlignment::Right,
+      HorizontalAlignment::Left,
+      HorizontalAlignment::Center,
+      HorizontalAlignment::Right};
+
+    VerticalAlignment va[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+      VerticalAlignment::Top,
+      VerticalAlignment::Top,
+      VerticalAlignment::Top,
+      VerticalAlignment::Bottom,
+      VerticalAlignment::Bottom,
+      VerticalAlignment::Bottom};
+
+    int offs[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
+
+    ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
+    ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
+
+    ezVec2I32 anchor[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+      ezVec2I32(10, 10),
+      ezVec2I32(resX / 2, 10),
+      ezVec2I32(resX - 10, 10),
+      ezVec2I32(10, resY - 10),
+      ezVec2I32(resX / 2, resY - 10),
+      ezVec2I32(resX - 10, resY - 10)};
+
+    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++corner)
+    {
+      auto& cd = pData->m_infoTextData[corner];
+
+      cd.Sort([](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
+        { return lhs.m_group < rhs.m_group; });
+
+      ezVec2I32 pos = anchor[corner];
+
+      for (ezUInt32 i = 0; i < cd.GetCount(); ++i)
+      {
+        // add some space between groups
+        if (i > 0 && cd[i - 1].m_group != cd[i].m_group)
+          pos.y += offs[corner];
+
+        pos.y += offs[corner] * Draw2DText(context, cd[i].m_text.GetData(), pos, cd[i].m_color, 16, ha[corner], va[corner]);
+      }
+    }
+  }
+
+  // update the frame counter
+  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();

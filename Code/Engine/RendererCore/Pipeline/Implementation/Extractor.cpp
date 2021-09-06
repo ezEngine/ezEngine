@@ -311,13 +311,13 @@ void ezVisibleObjectsExtractor::Extract(
 
     ezStringBuilder sb;
 
-    ezDebugRenderer::Draw2DText(hView, "Extraction Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", "Extraction Stats:");
 
     sb.Format("Num Cached Render Data: {0}", m_uiNumCachedRenderData);
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", sb);
 
     sb.Format("Num Uncached Render Data: {0}", m_uiNumUncachedRenderData);
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", sb);
   }
 #endif
 }

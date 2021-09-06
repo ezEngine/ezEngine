@@ -253,12 +253,7 @@ void ezGameApplication::RenderFps()
   {
     if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
-      ezStringBuilder sFps;
-      sFps.Format("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4));
-
-      ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
-
-      ezDebugRenderer::Draw2DText(pView->GetHandle(), sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
+      ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugRenderer::ScreenPlacement::BottomLeft, "FPS", ezFmt("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4)));
     }
   }
 }
