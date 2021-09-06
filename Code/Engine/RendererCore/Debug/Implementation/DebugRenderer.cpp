@@ -280,16 +280,17 @@ namespace
 
         const char* colPtrCur = line.GetStartPointer();
 
-        if (const char* colPtrNext = line.FindSubString("\t", colPtrCur))
+        while (const char* colPtrNext = line.FindSubString("\t", colPtrCur))
         {
           isTabular = true;
 
-          const ezUInt32 colLen = static_cast<ezUInt32>(colPtrNext - colPtrCur);
+          const ezUInt32 colLen = ezMath::RoundUp(1 + static_cast<ezUInt32>(colPtrNext - colPtrCur), 4);
 
           maxColumWidth.EnsureCount(uiColIdx + 1);
           maxColumWidth[uiColIdx] = ezMath::Max(maxColumWidth[uiColIdx], colLen);
 
-          colPtrCur = colPtrNext;
+          colPtrCur = colPtrNext + 1;
+          ++uiColIdx;
         }
       }
     }
@@ -329,6 +330,28 @@ namespace
 
         if (isTabular)
         {
+          ezUInt32 uiColIdx = 0;
+
+          const char* colPtrCur = line.GetStartPointer();
+
+          ezUInt32 addWidth = 0;
+
+          while (const char* colPtrNext = line.FindSubString("\t", colPtrCur))
+          {
+            const ezVec2 tabOff(addWidth * fGlyphWidth, 0);
+            func(data, ezStringView(colPtrCur, colPtrNext), currentPos + tabOff);
+
+            addWidth += maxColumWidth[uiColIdx];
+
+            colPtrCur = colPtrNext + 1;
+            ++uiColIdx;
+          }
+
+          // last column
+          {
+            const ezVec2 tabOff(addWidth * fGlyphWidth, 0);
+            func(data, ezStringView(colPtrCur, line.GetEndPointer()), currentPos + tabOff);
+          }
         }
         else
         {
@@ -1083,9 +1106,6 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++corner)
     {
       auto& cd = pData->m_infoTextData[corner];
-
-      cd.Sort([](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
-        { return lhs.m_group < rhs.m_group; });
 
       ezVec2I32 pos = anchor[corner];
 

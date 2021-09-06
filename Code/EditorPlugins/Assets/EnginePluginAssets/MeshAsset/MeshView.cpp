@@ -83,7 +83,6 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugRenderer::HorizontalAlignment::Left,
-      ezDebugRenderer::VerticalAlignment::Bottom);
+    ezDebugRenderer::DrawInfoText(m_hView, ezDebugRenderer::ScreenPlacement::BottomLeft, "AssetStats", sText);
   }
 }
