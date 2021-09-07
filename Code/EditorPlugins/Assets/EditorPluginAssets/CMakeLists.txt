@@ -15,6 +15,11 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
 )
 
+add_dependencies(${PROJECT_NAME}
+  TexConv
+  ShaderCompiler
+)
+
 ez_link_target_dx11(${PROJECT_NAME})
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg)
 ez_link_target_assimp(${PROJECT_NAME})

@@ -22,14 +22,7 @@ target_link_libraries(${PROJECT_NAME}
 add_dependencies(${PROJECT_NAME}
   EditorProcessor
   EditorEngineProcess
-  EditorPluginScene
-  EditorPluginAssets
-  EditorPluginParticle
-  EditorPluginProcGen
-  TexConv
   Player
-  InspectorPlugin
-  ShaderCompiler
 )
 
 # set all external projects as runtime dependencies of this application
