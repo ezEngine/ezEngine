@@ -702,6 +702,10 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
   ezUInt32 uiUsedAtlasSize = 0;
 
   ezDebugRendererContext debugContext(ezWorld::GetWorld(0));
+  if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
+  {
+    debugContext = ezDebugRendererContext(pView->GetHandle());
+  }
 
   if (cvar_RenderingShadowsShowPoolStats)
   {
