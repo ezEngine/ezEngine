@@ -122,17 +122,17 @@ export class Player extends ez.TickedTypescriptComponent {
             }
         }
 
-        ez.Debug.Draw2DText("Health: " + Math.ceil(this.health), new ez.Vec2(10, 10), ez.Color.White(), 32);
+        ez.Debug.DrawInfoText(ez.Debug.ScreenPlacement.TopLeft, "Health: " + Math.ceil(this.health));
 
         if (this.activeWeapon != _ge.Weapon.None) {
 
             const ammoInClip = this.gunComp[this.activeWeapon].GetAmmoInClip();
 
             if (this.gunComp[this.activeWeapon].GetAmmoType() == _ge.Consumable.Ammo_None) {
-                ez.Debug.Draw2DText("Ammo: " + ammoInClip, new ez.Vec2(10, 50), ez.Color.White(), 32);
+                ez.Debug.DrawInfoText(ez.Debug.ScreenPlacement.TopLeft, "Ammo: " + ammoInClip);
             } else {
                 const ammoOfType = this.ammoPouch.ammo[this.gunComp[this.activeWeapon].GetAmmoType()];
-                ez.Debug.Draw2DText("Ammo: " + ammoInClip + " / " + ammoOfType, new ez.Vec2(10, 50), ez.Color.White(), 32);
+                ez.Debug.DrawInfoText(ez.Debug.ScreenPlacement.TopLeft, "Ammo: " + ammoInClip + " / " + ammoOfType);
             }
 
             this.gunComp[this.activeWeapon].RenderCrosshair();

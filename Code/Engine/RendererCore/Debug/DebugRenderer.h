@@ -51,31 +51,36 @@ public:
     ezVec2 m_texcoord[3];
   };
 
-  struct HorizontalAlignment
+  enum class HorizontalAlignment : ezUInt8
   {
-    enum Enum
-    {
-      Left,
-      Center,
-      Right
-    };
+    Left,
+    Center,
+    Right
   };
 
-  struct VerticalAlignment
+  enum class VerticalAlignment : ezUInt8
   {
-    enum Enum
-    {
-      Top,
-      Center,
-      Bottom
-    };
+    Top,
+    Center,
+    Bottom
   };
 
+  enum class ScreenPlacement : ezUInt8
+  {
+    TopLeft,
+    TopCenter,
+    TopRight,
+    BottomLeft,
+    BottomCenter,
+    BottomRight,
+
+    ENUM_COUNT
+  };
 
   /// \brief Renders the given set of lines for one frame.
   static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
-  /// \brief Renders the given set of lines in 2D (screenspace) for one frame.
+  /// \brief Renders the given set of lines in 2D (screen-space) for one frame.
   static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color);
 
   /// \brief Renders a cross for one frame.
@@ -105,20 +110,42 @@ public:
   /// \brief Renders the set of textured triangles for one frame.
   static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
 
-  /// \brief Renders a filled 2D rectangle in screenspace for one frame.
+  /// \brief Renders a filled 2D rectangle in screen-space for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
-  /// \brief Renders a textured 2D rectangle in screenspace for one frame.
+  /// \brief Renders a textured 2D rectangle in screen-space for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
 
-  /// \brief Renders a textured 2D rectangle in screenspace for one frame.
+  /// \brief Renders a textured 2D rectangle in screen-space for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView);
 
-  /// \brief Displays a string in screenspace for one frame.
-  static void Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);
+  /// \brief Displays a string in screen-space for one frame.
+  ///
+  /// The string may contain newlines (\n) for multi-line output.
+  /// If horizontal alignment is right, the entire text block is aligned according to the longest line.
+  /// If vertical alignment is bottom, the entire text block is aligned there.
+  ///
+  /// Data can be output as a table, by separating columns with tabs (\n). For example:\n
+  /// "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|"
+  ///
+  /// Returns the number of lines that the text was split up into.
+  static ezUInt32 Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment verticalAlignment = VerticalAlignment::Top);
+
+  /// \brief Draws a piece of text in one of the screen corners.
+  ///
+  /// Text positioning is automatic, all lines are placed in each corner such that they don't overlap.
+  /// Text from different corners may overlap, though.
+  ///
+  /// For text formatting options, see Draw2DText().
+  ///
+  /// The \a groupName parameter is used to insert whitespace between unrelated pieces of text,
+  /// it is not displayed anywhere, though.
+  ///
+  /// Text size cannot be changed.
+  static void DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* groupName, const ezFormatString& text, const ezColor& color = ezColor::White);
 
   /// \brief Displays a string in 3D space for one frame.
-  static void Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Center, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Bottom);
+  static ezUInt32 Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment horizontalAlignment = HorizontalAlignment::Center, VerticalAlignment verticalAlignment = VerticalAlignment::Bottom);
 
   /// \brief Renders a cross at the given location for as many frames until \a duration has passed.
   static void AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration);

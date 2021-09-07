@@ -55,7 +55,7 @@ void ezRmlUiViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
                           ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-      ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+      ezDebugRenderer::DrawInfoText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
     }
   }*/
 }

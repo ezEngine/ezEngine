@@ -217,7 +217,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
     ezStringBuilder sb;
     sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
 
-    ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(10, 200), ezColor::Magenta);
+    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "ProcPlaceStats", sb, ezColor::Magenta);
 
     for (ezUInt32 i = 0; i < m_NewTiles.GetCount(); ++i)
     {

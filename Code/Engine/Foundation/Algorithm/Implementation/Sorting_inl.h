@@ -2,24 +2,36 @@
 template <typename Container, typename Comparer>
 void ezSorting::QuickSort(Container& container, const Comparer& comparer)
 {
+  if (container.IsEmpty())
+    return;
+
   QuickSort(container, 0, container.GetCount() - 1, comparer);
 }
 
 template <typename T, typename Comparer>
 void ezSorting::QuickSort(ezArrayPtr<T>& arrayPtr, const Comparer& comparer)
 {
+  if (arrayPtr.IsEmpty())
+    return;
+
   QuickSort(arrayPtr, 0, arrayPtr.GetCount() - 1, comparer);
 }
 
 template <typename Container, typename Comparer>
 void ezSorting::InsertionSort(Container& container, const Comparer& comparer)
 {
+  if (container.IsEmpty())
+    return;
+
   InsertionSort(container, 0, container.GetCount() - 1, comparer);
 }
 
 template <typename T, typename Comparer>
 void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, const Comparer& comparer)
 {
+  if (arrayPtr.IsEmpty())
+    return;
+
   InsertionSort(arrayPtr, 0, arrayPtr.GetCount() - 1, comparer);
 }
 

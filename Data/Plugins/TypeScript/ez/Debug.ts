@@ -23,6 +23,7 @@ declare function __CPP_Debug_DrawSolidBox(min: Vec3, max: Vec3, color: Color, tr
 declare function __CPP_Debug_DrawLineSphere(center: Vec3, radius: number, color: Color, transform: Transform): void;
 declare function __CPP_Debug_Draw2DText(text: string, pos: Vec2, color: Color, sizeInPixel: number, alignHorz: Debug.HorizontalAlignment): void;
 declare function __CPP_Debug_Draw3DText(text: string, pos: Vec3, color: Color, sizeInPixel: number): void;
+declare function __CPP_Debug_DrawInfoText(corner: Debug.ScreenPlacement, text: string, color: Color): void;
 declare function __CPP_Debug_GetResolution(): Vec2;
 declare function __CPP_Debug_ReadCVarBool(name: string): boolean;
 declare function __CPP_Debug_ReadCVarInt(name: string): number;
@@ -45,6 +46,15 @@ export namespace Debug {
         Left,
         Center,
         Right,
+    }
+
+    export enum ScreenPlacement {
+        TopLeft,
+        TopCenter,
+        TopRight,
+        BottomLeft,
+        BottomCenter,
+        BottomRight,
     }
 
     // TODO:
@@ -136,6 +146,12 @@ export namespace Debug {
     /**
      * Draws text at a pixel position on screen.
      * 
+     * The string may contain newlines (\n) for multi-line output.
+     * If horizontal alignment is right, the entire text block is aligned according to the longest line.
+     * 
+     * Data can be output as a table, by separating columns with tabs (\n). For example:\n
+     * "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|"
+     * 
      * @param pos The screen-space position where to render the text.
      * @param sizeInPixel The size of the text in pixels.
      */
@@ -151,6 +167,17 @@ export namespace Debug {
      */
     export function Draw3DText(text: string, pos: Vec3, color: Color = null, sizeInPixel: number = 16): void {
         __CPP_Debug_Draw3DText(text, pos, color, sizeInPixel);
+    }
+
+    /**
+     * Draws text in one of the screen corners.
+     * Makes sure text in the same corner does not overlap.
+     * Has the same formatting options as Draw2DText().
+     * 
+     * @param corner In which area of the screen to position the text.
+     */
+    export function DrawInfoText(corner: Debug.ScreenPlacement, text: string, color: Color = null): void {
+        __CPP_Debug_DrawInfoText(corner, text, color);
     }
 
     /**
