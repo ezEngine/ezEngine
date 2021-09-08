@@ -266,7 +266,7 @@ void ezPhysXWorldModule::UpdatePhysicsSlideReactions()
 
           ezPrefabInstantiationOptions options;
           options.m_pCreatedRootObjectsOut = &created;
-          options.bForceDynamic = true;
+          options.m_bForceDynamic = true;
 
           pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vContactPosition), options);
           slideInfo.m_hSlidePrefab = created[0]->GetHandle();
@@ -324,7 +324,7 @@ void ezPhysXWorldModule::UpdatePhysicsRollReactions()
 
           ezPrefabInstantiationOptions options;
           options.m_pCreatedRootObjectsOut = &created;
-          options.bForceDynamic = true;
+          options.m_bForceDynamic = true;
 
           pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(rollInfo.m_vContactPosition), options);
           rollInfo.m_hRollPrefab = created[0]->GetHandle();

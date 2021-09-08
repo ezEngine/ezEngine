@@ -18,7 +18,7 @@ struct ezPrefabInstantiationOptions
   ezDynamicArray<ezGameObject*>* m_pCreatedChildObjectsOut = nullptr;
   const ezUInt16* m_pOverrideTeamID = nullptr;
 
-  bool bForceDynamic = false;
+  bool m_bForceDynamic = false;
 
   enum class RandomSeedMode
   {

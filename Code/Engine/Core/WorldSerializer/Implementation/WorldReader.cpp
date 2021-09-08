@@ -233,7 +233,8 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
 
 void ezWorldReader::ReadComponentDataToMemStream()
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& writer, bool bReadNumComponents) {
+  auto WriteToMemStream = [&](ezMemoryStreamWriter& writer, bool bReadNumComponents)
+  {
     ezUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {
@@ -487,7 +488,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
 
     ezGameObjectDesc desc = godesc.m_Desc; // make a copy
     desc.m_hParent = hParent.IsInvalidated() ? m_WorldReader.m_IndexToGameObjectHandle[godesc.m_uiParentHandleIdx] : hParent;
-    desc.m_bDynamic |= m_Options.bForceDynamic;
+    desc.m_bDynamic |= m_Options.m_bForceDynamic;
 
     switch (m_Options.m_RandomSeedMode)
     {

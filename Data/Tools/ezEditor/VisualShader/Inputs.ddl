@@ -89,6 +89,24 @@ Node %UV_Scroll
   string %Category { "Input" }
   unsigned_int8 %Color { 38, 105, 0 }
 
+  string %CodeVertexShader { "
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
+" }
+
+  string %CodeGeometryShader { "
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
+" }
+
+  string %CodePixelDefines { "
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
+" }
+
   InputPin %Speed
   {
     string %Type { "float2" }
