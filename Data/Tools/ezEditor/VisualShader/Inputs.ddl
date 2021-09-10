@@ -115,11 +115,27 @@ Node %UV_Scroll
     string %DefaultValue { "1, 1" }
   }
 
+  InputPin %Scale
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 150, 0, 0 }
+    bool %Expose { true }
+    string %DefaultValue { "1, 1" }
+  }
+
+  InputPin %Offset
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 0, 150, 0 }
+    bool %Expose { true }
+    string %DefaultValue { "0, 0" }
+  }
+
   OutputPin %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "G.Input.TexCoord0 + frac(WorldTime * $in0)" }
+    string %Inline { "(G.Input.TexCoord0 * $in1 + $in2) + frac(WorldTime * $in0)" }
     string %Tooltip { "The scrolled UV 0 texture coordinate." }
   }
 }
