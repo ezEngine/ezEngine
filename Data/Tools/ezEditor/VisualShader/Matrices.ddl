@@ -85,6 +85,35 @@ Node %FromWorldSpace
   }
 }
 
+Node %FromObjectSpace
+{
+  string %Category { "Transformations" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  InputPin %ObjectSpace
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Tooltip { "Position or direction vector in object-space." }
+  }
+
+  OutputPin %WorldPosition
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Inline { "mul(TransformToMatrix(GetInstanceData().ObjectToWorld), ToFloat4Position($in0))" }
+    string %Tooltip { "Transformed position in world-space." }
+  }
+
+  OutputPin %WorldDirection
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Inline { "mul(TransformToRotation(GetInstanceData().ObjectToWorld), ToFloat3($in0))" }
+    string %Tooltip { "Transformed direction vector in world-space." }
+  }
+}
+
 Node %TangentToWorldSpace
 {
   string %Category { "Transformations" }

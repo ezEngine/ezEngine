@@ -212,7 +212,7 @@ Node %VertexTangent
     string %Type { "float3" }
     unsigned_int8 %Color { 255, 128, 128 }
     string %Inline { "G.Input.Tangent" }
-    string %Tooltip { "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position." }
+    string %Tooltip { "The vertex tangent. For vertex shaders this is the local tangent, for pixel shaders it is the transformed tangent." }
   }
 }
 
