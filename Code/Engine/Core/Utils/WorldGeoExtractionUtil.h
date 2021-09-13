@@ -1,12 +1,13 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Containers/Deque.h>
-#include <Foundation/Math/Vec3.h>
 #include <Foundation/Types/TagSet.h>
 
 class ezWorld;
+using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
 
 /// \brief A utility to gather raw geometry from a world
 ///
@@ -16,41 +17,13 @@ class ezWorld;
 class EZ_CORE_DLL ezWorldGeoExtractionUtil
 {
 public:
-  struct Vertex
+  struct MeshObject
   {
-    EZ_DECLARE_POD_TYPE();
-
-    ezVec3 m_vPosition;
-    // ezVec2 m_vTexCoord;
+    ezTransform m_GlobalTransform;
+    ezCpuMeshResourceHandle m_hMeshResource;
   };
 
-  struct Triangle
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezUInt32 m_uiVertexIndices[3];
-  };
-
-  /// \brief Geometry can also be described as a number of shapes, which can be more efficient in some cases
-  struct Shape
-  {
-    ezVec3 m_vPosition;
-    ezQuat m_qRotation;
-
-    // TODO ground type etc.
-  };
-
-  struct BoxShape : public Shape
-  {
-    ezVec3 m_vHalfExtents;
-  };
-
-  struct Geometry
-  {
-    ezDeque<Vertex> m_Vertices;
-    ezDeque<Triangle> m_Triangles;
-    ezDeque<BoxShape> m_BoxShapes;
-  };
+  using MeshObjectList = ezDeque<MeshObject>;
 
   /// \brief Describes what the geometry is needed for
   enum class ExtractionMode
@@ -63,15 +36,15 @@ public:
   /// \brief Extracts the desired geometry from all objects in a world
   ///
   /// The geometry object is not cleared, so this can be called repeatedly to append more data.
-  static void ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags = nullptr);
+  static void ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags = nullptr);
 
   /// \brief Extracts the desired geometry from a specified subset of objects in a world
   ///
   /// The geometry object is not cleared, so this can be called repeatedly to append more data.
-  static void ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection);
+  static void ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection);
 
   /// \brief Writes the given geometry in .obj format to file
-  static void WriteWorldGeometryToOBJ(const char* szFile, const Geometry& geo, const ezMat3& mTransform);
+  static void WriteWorldGeometryToOBJ(const char* szFile, const MeshObjectList& objects, const ezMat3& mTransform);
 };
 
 /// \brief Sent by ezWorldGeoExtractionUtil to gather geometry information about objects in a world
@@ -85,6 +58,6 @@ struct EZ_CORE_DLL ezMsgExtractGeometry : public ezMessage
   /// \brief Specifies what the geometry is extracted for, and thus what the message handler should write back
   ezWorldGeoExtractionUtil::ExtractionMode m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
 
-  /// \brief Append data to this to describe the requested world geometry
-  ezWorldGeoExtractionUtil::Geometry* m_pWorldGeometry = nullptr;
+  /// \brief Append mesh objects to this to describe the requested world geometry
+  ezWorldGeoExtractionUtil::MeshObjectList* m_pMeshObjects;
 };

@@ -114,8 +114,10 @@ protected:
   bool m_bSlopedBottom = false;
 
   void InvalidateMesh();
-  void GenerateRenderMesh();
   void BuildGeometry(ezGeometry& geom) const;
+
+  template <typename ResourceType>
+  void GenerateMesh(ezTypedResourceHandle<ResourceType>& hResource) const;
 
   ezMeshResourceHandle m_hMesh;
 };

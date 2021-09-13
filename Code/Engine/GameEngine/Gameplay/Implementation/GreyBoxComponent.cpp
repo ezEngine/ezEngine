@@ -6,6 +6,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
@@ -112,7 +113,7 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezGreyBoxComponent::OnActivated()
 {
-  GenerateRenderMesh();
+  GenerateMesh(m_hMesh);
 
   // First generate the mesh and then call the base implementation which will update the bounds
   SUPER::OnActivated();
@@ -361,30 +362,9 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
     EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
   }
 
-
-  const ezTransform transform = GetOwner()->GetGlobalTransform();
-
-  ezGeometry geom;
-  BuildGeometry(geom);
-  geom.TriangulatePolygons();
-
-  const ezUInt32 uiVertexIdxOffset = msg.m_pWorldGeometry->m_Vertices.GetCount();
-
-  auto& vertices = geom.GetVertices();
-  for (auto& v : vertices)
-  {
-    auto& vert = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
-    vert.m_vPosition = transform * v.m_vPosition;
-  }
-
-  auto& triangles = geom.GetPolygons();
-  for (auto& t : triangles)
-  {
-    auto& tri = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
-    tri.m_uiVertexIndices[0] = uiVertexIdxOffset + t.m_Vertices[0];
-    tri.m_uiVertexIndices[1] = uiVertexIdxOffset + t.m_Vertices[1];
-    tri.m_uiVertexIndices[2] = uiVertexIdxOffset + t.m_Vertices[2];
-  }
+  auto& meshObject = msg.m_pMeshObjects->ExpandAndGetRef();
+  meshObject.m_GlobalTransform = GetOwner()->GetGlobalTransform();
+  GenerateMesh(meshObject.m_hMeshResource);
 }
 
 void ezGreyBoxComponent::InvalidateMesh()
@@ -393,7 +373,7 @@ void ezGreyBoxComponent::InvalidateMesh()
   {
     m_hMesh.Invalidate();
 
-    GenerateRenderMesh();
+    GenerateMesh(m_hMesh);
 
     TriggerLocalBoundsUpdate();
   }
@@ -482,11 +462,9 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
   }
 }
 
-void ezGreyBoxComponent::GenerateRenderMesh()
+template <typename ResourceType>
+void ezGreyBoxComponent::GenerateMesh(ezTypedResourceHandle<ResourceType>& hResource) const
 {
-  if (m_hMesh.IsValid())
-    return;
-
   ezStringBuilder sResourceName;
 
   switch (m_Shape)
@@ -533,8 +511,8 @@ void ezGreyBoxComponent::GenerateRenderMesh()
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
-  m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResourceName);
-  if (m_hMesh.IsValid())
+  hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
+  if (hResource.IsValid())
     return;
 
   ezGeometry geom;
@@ -555,7 +533,7 @@ void ezGreyBoxComponent::GenerateRenderMesh()
 
   desc.ComputeBounds();
 
-  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResourceName, std::move(desc), sResourceName);
+  hResource = ezResourceManager::CreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
 }
 
 

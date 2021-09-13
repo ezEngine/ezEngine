@@ -10,46 +10,36 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-struct GatherObjectsTraverser
+void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags /*= nullptr*/)
 {
-  ezTagSet* m_pExcludeTags = nullptr;
-  ezDeque<ezGameObjectHandle> m_Selection;
-
-  ezVisitorExecution::Enum Run(ezGameObject* pObject)
-  {
-    if (m_pExcludeTags && pObject->GetTags().IsAnySet(*m_pExcludeTags))
-      return ezVisitorExecution::Skip;
-
-    m_Selection.PushBack(pObject->GetHandle());
-
-    return ezVisitorExecution::Continue;
-  }
-};
-
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world0, ExtractionMode mode, ezTagSet* pExcludeTags /*= nullptr*/)
-{
-  // we don't modify the world, but the traverser is a non-const function
-  ezWorld& world = const_cast<ezWorld&>(world0);
-
-  EZ_LOCK(world.GetWriteMarker());
-
-  GatherObjectsTraverser traverser;
-  traverser.m_pExcludeTags = pExcludeTags;
-
-  world.Traverse(ezMakeDelegate(&GatherObjectsTraverser::Run, &traverser), ezWorld::TraversalMethod::DepthFirst);
-
-  ExtractWorldGeometry(geo, world, mode, traverser.m_Selection);
-}
-
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection)
-{
-  EZ_LOCK(world.GetReadMarker());
-
+  EZ_PROFILE_SCOPE("ExtractWorldGeometry");
   EZ_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
 
   ezMsgExtractGeometry msg;
   msg.m_Mode = mode;
-  msg.m_pWorldGeometry = &geo;
+  msg.m_pMeshObjects = &objects;
+
+  EZ_LOCK(world.GetReadMarker());
+
+  for (auto it = world.GetObjects(); it.IsValid(); ++it)
+  {
+    if (pExcludeTags != nullptr && it->GetTags().IsAnySet(*pExcludeTags))
+      continue;
+
+    it->SendMessage(msg);
+  }
+}
+
+void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection)
+{
+  EZ_PROFILE_SCOPE("ExtractWorldGeometry");
+  EZ_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
+
+  ezMsgExtractGeometry msg;
+  msg.m_Mode = mode;
+  msg.m_pMeshObjects = &objects;
+
+  EZ_LOCK(world.GetReadMarker());
 
   for (ezGameObjectHandle hObject : selection)
   {
@@ -61,7 +51,7 @@ void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld
   }
 }
 
-void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const Geometry& geo, const ezMat3& mTransform)
+void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const MeshObjectList& objects, const ezMat3& mTransform)
 {
   EZ_LOG_BLOCK("Write World Geometry to OBJ", szFile);
 
@@ -71,6 +61,10 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
     ezLog::Error("Failed to open file for writing: '{0}'", szFile);
     return;
   }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
+#if 0
 
   ezStringBuilder line;
 
@@ -167,6 +161,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
       idxOff += 8;
     }
   }
+#endif
 
   ezLog::Success("Wrote world geometry to '{0}'", file.GetFilePathAbsolute().GetView());
 }

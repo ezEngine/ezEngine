@@ -22,10 +22,6 @@ ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(ezStreamReader& config
   config >> m_sOutputPath;
   EZ_SUCCEED_OR_RETURN(m_NavMeshConfig.Deserialize(config));
 
-  pDocContext->GetWorld();
-
-  EZ_LOCK(pDocContext->GetWorld()->GetWriteMarker());
-
   EZ_SUCCEED_OR_RETURN(ezRecastNavMeshBuilder::ExtractWorldGeometry(*pDocContext->GetWorld(), m_ExtractedWorldGeometry));
 
   return EZ_SUCCESS;
