@@ -30,6 +30,12 @@ public:
   void SetSortOrder(float fOrder);
   float GetSortOrder() const { return m_fSortOrder; }
 
+  void SetImageFile(const char* szFile); // [ property ]
+  const char* GetImageFile() const;      // [ property ]
+
+  void SetImage(const ezImageDataResourceHandle& hResource);
+  ezImageDataResourceHandle GetImage() const { return m_Image; }
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 

@@ -10,7 +10,7 @@ using namespace ezProcGenInternal;
 PreparePlacementTask::PreparePlacementTask(PlacementData* pData, const char* szName)
   : m_pData(pData)
 {
-  ConfigureTask(szName, ezTaskNesting::Never);
+  ConfigureTask(szName, ezTaskNesting::Maybe);
 }
 
 PreparePlacementTask::~PreparePlacementTask() = default;

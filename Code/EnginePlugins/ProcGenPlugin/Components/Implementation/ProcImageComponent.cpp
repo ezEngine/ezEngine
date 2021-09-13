@@ -24,6 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcImageComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Value", GetValue, SetValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Image", GetImageFile, SetImageFile)->AddAttributes(new ezAssetBrowserAttribute("Image Data")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -118,6 +119,31 @@ void ezProcImageComponent::SetSortOrder(float fOrder)
   }
 }
 
+void ezProcImageComponent::SetImageFile(const char* szFile)
+{
+  ezImageDataResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezImageDataResource>(szFile);
+  }
+
+  SetImage(hResource);
+}
+
+const char* ezProcImageComponent::GetImageFile() const
+{
+  if (!m_Image.IsValid())
+    return "";
+
+  return m_Image.GetResourceID();
+}
+
+void ezProcImageComponent::SetImage(const ezImageDataResourceHandle& hResource)
+{
+  m_Image = hResource;
+}
+
 void ezProcImageComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -159,7 +185,7 @@ void ezProcImageComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) cons
 
 void ezProcImageComponent::OnExtractProcImages(ezMsgExtractProcImages& msg) const
 {
-  msg.m_pCollection->AddShape(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_fSortOrder, m_fValue);
+  msg.m_pCollection->AddShape(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_fSortOrder, m_fValue, m_Image);
 }
 
 void ezProcImageComponent::InvalidateArea()

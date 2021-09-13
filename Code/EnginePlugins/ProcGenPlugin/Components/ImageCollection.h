@@ -5,6 +5,8 @@
 #include <Foundation/Types/TagSet.h>
 #include <ProcGenPlugin/Declarations.h>
 
+using ezImageDataResourceHandle = ezTypedResourceHandle<class ezImageDataResource>;
+
 class EZ_PROCGENPLUGIN_DLL ezImageCollection : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezImageCollection, ezReflectedClass);
@@ -17,6 +19,10 @@ public:
     ezVec4 m_GlobalToLocalTransform2;
     ezFloat16 m_fValue;
     ezUInt32 m_uiSortingKey;
+    ezImageDataResourceHandle m_Image;
+    const ezColor* m_pPixelData = nullptr;
+    ezUInt32 m_uiImageWidth = 0;
+    ezUInt32 m_uiImageHeight = 0;
 
     EZ_ALWAYS_INLINE bool operator<(const Shape& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
 
@@ -33,7 +39,7 @@ public:
   static void ExtractImagesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
     const ezTagSet& includeTags, ezImageCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
 
-  void AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, float fValue);
+  void AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, float fValue, const ezImageDataResourceHandle& image);
 
 private:
   ezDynamicArray<Shape, ezAlignedAllocatorWrapper> m_Shapes;

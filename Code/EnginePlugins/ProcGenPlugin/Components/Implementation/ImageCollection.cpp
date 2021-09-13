@@ -1,6 +1,8 @@
 #include <ProcGenPlugin/ProcGenPluginPCH.h>
 
+#include <GameEngine/Utils/ImageDataResource.h>
 #include <ProcGenPlugin/Components/ImageCollection.h>
+#include <Texture/Image/ImageUtils.h>
 
 void ezImageCollection::Shape::SetGlobalToLocalTransform(const ezSimdMat4f& t)
 {
@@ -42,10 +44,16 @@ float ezImageCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float
   for (const auto& shape : m_Shapes)
   {
     const ezSimdVec4f absLocalPos = shape.GetGlobalToLocalTransform().TransformPosition(globalPos).Abs();
-    if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
+    if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>() && shape.m_pPixelData != nullptr)
     {
+      ezVec2 uv;
+      uv.x = static_cast<float>(absLocalPos.x()) * 0.5f + 0.5f;
+      uv.y = static_cast<float>(absLocalPos.y()) * 0.5f + 0.5f;
+
+      ezColor c = ezImageUtils::NearestSample(shape.m_pPixelData, shape.m_uiImageWidth, shape.m_uiImageHeight, ezImageAddressMode::Clamp, uv);
+
       // TODO
-      fValue = shape.m_fValue;
+      fValue = c.r;
     }
   }
 
@@ -86,15 +94,24 @@ void ezImageCollection::ExtractImagesInBox(const ezWorld& world, const ezBoundin
   out_Collection.m_Shapes.Sort();
 }
 
-void ezImageCollection::AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, float fValue)
+void ezImageCollection::AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, float fValue, const ezImageDataResourceHandle& image)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
 
-  auto& box = m_Shapes.ExpandAndGetRef();
-  box.SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
-  box.m_fValue = fValue;
-  box.m_uiSortingKey = ezImageCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  auto& shape = m_Shapes.ExpandAndGetRef();
+  shape.SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
+  shape.m_fValue = fValue;
+  shape.m_uiSortingKey = ezImageCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  shape.m_Image = image;
+
+  if (shape.m_Image.IsValid())
+  {
+    ezResourceLock<ezImageDataResource> pImage(shape.m_Image, ezResourceAcquireMode::BlockTillLoaded);
+    shape.m_pPixelData = pImage->GetDescriptor().m_Image.GetPixelPointer<ezColor>();
+    shape.m_uiImageWidth = pImage->GetDescriptor().m_Image.GetWidth();
+    shape.m_uiImageHeight = pImage->GetDescriptor().m_Image.GetHeight();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
