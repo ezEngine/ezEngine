@@ -38,7 +38,7 @@ Node %Split
   {
     string %Type { "float" }
     unsigned_int8 %Color { 175, 175, 117 }
-    string %Inline { "ToFloat4($in0).w" }
+    string %Inline { "ToFloat4Direction($in0).w" }
     string %Tooltip { "Returns the w component of the incoming data. Zero if the incoming data has less than 4 components." }
   }
 }
