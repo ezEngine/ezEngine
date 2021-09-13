@@ -6,6 +6,7 @@
 
 struct ezMeshBufferResourceDescriptor;
 class ezVolumeCollection;
+class ezImageCollection;
 
 namespace ezProcGenInternal
 {
@@ -41,6 +42,7 @@ namespace ezProcGenInternal
     ezArrayPtr<ezUInt32> m_OutputVertexColors;
 
     ezDeque<ezVolumeCollection> m_VolumeCollections;
+    ezDeque<ezImageCollection> m_ImageCollections;
     ezExpression::GlobalData m_GlobalData;
 
     ezExpressionVM m_VM;

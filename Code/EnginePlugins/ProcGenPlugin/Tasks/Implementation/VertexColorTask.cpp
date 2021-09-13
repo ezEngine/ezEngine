@@ -28,6 +28,7 @@ VertexColorTask::VertexColorTask()
 {
   m_VM.RegisterDefaultFunctions();
   m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
+  m_VM.RegisterFunction("SampleImages", &ezProcGenExpressionFunctions::SampleImages, &ezProcGenExpressionFunctions::SampleImagesValidate);
 }
 
 VertexColorTask::~VertexColorTask() = default;
@@ -124,6 +125,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   box.TransformFromOrigin(transform.GetAsMat4());
 
   m_VolumeCollections.Clear();
+  m_ImageCollections.Clear();
   m_GlobalData.Clear();
 
   for (auto& pOutput : outputs)
@@ -131,6 +133,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     if (pOutput != nullptr)
     {
       ezProcGenInternal::ExtractVolumeCollections(world, box, *pOutput, m_VolumeCollections, m_GlobalData);
+      ezProcGenInternal::ExtractImageCollections(world, box, *pOutput, m_ImageCollections, m_GlobalData);
     }
   }
 }

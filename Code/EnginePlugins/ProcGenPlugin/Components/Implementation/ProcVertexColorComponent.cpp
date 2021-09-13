@@ -71,7 +71,9 @@ void ezProcVertexColorComponentManager::Initialize()
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
+  // TODO: also do this in ezProcPlacementComponentManager
   ezProcVolumeComponent::GetAreaInvalidatedEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
+  ezProcImageComponent::GetAreaInvalidatedEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
 }
 
 void ezProcVertexColorComponentManager::Deinitialize()
@@ -85,6 +87,7 @@ void ezProcVertexColorComponentManager::Deinitialize()
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
   ezProcVolumeComponent::GetAreaInvalidatedEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
+  ezProcImageComponent::GetAreaInvalidatedEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
 
   SUPER::Deinitialize();
 }
@@ -287,17 +290,18 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams, [this](ezGameObject* pObject) {
-    ezHybridArray<ezProcVertexColorComponent*, 8> components;
-    pObject->TryGetComponentsOfBaseType(components);
-
-    for (auto pComponent : components)
+  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams, [this](ezGameObject* pObject)
     {
-      EnqueueUpdate(pComponent);
-    }
+      ezHybridArray<ezProcVertexColorComponent*, 8> components;
+      pObject->TryGetComponentsOfBaseType(components);
 
-    return ezVisitorExecution::Continue;
-  });
+      for (auto pComponent : components)
+      {
+        EnqueueUpdate(pComponent);
+      }
+
+      return ezVisitorExecution::Continue;
+    });
 }
 
 //////////////////////////////////////////////////////////////////////////

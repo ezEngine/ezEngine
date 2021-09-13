@@ -5,6 +5,7 @@
 
 class ezPhysicsWorldModuleInterface;
 class ezVolumeCollection;
+class ezImageCollection;
 
 namespace ezProcGenInternal
 {
@@ -24,6 +25,7 @@ namespace ezProcGenInternal
     ezDynamicArray<ezSimdMat4f, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
 
     ezDeque<ezVolumeCollection> m_VolumeCollections;
+    ezDeque<ezImageCollection> m_ImageCollections;
     ezExpression::GlobalData m_GlobalData;
   };
 } // namespace ezProcGenInternal
