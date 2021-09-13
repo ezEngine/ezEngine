@@ -70,6 +70,8 @@ public:
   ezRenderPipelineNodeInputPin m_ScalePin;
   ezRenderPipelineNodeInputPin m_ColorIndexPin;
   ezRenderPipelineNodeInputPin m_ObjectIndexPin;
+
+  ezEnum<ezProcPlacementMode> m_Mode;
 };
 
 //////////////////////////////////////////////////////////////////////////

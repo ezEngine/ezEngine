@@ -137,6 +137,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(30.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_ENUM_MEMBER_PROPERTY("Mode", ezProcPlacementMode, m_Mode),
 
     EZ_MEMBER_PROPERTY("Density", m_DensityPin)->AddAttributes(new ezColorAttribute(ezColor::White)),
     EZ_MEMBER_PROPERTY("Scale", m_ScalePin)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
@@ -232,6 +233,9 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& stream)
 
   // chunk version 3
   stream << m_sSurface;
+
+  // chunk version 5
+  stream << m_Mode;
 }
 
 //////////////////////////////////////////////////////////////////////////

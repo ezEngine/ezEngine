@@ -25,3 +25,5 @@ ezProcVertexColorChannelMapping::B;B
 ezProcVertexColorChannelMapping::A;A
 ezProcVertexColorChannelMapping::Black;Black
 ezProcVertexColorChannelMapping::White;White
+ezProcPlacementMode::Raycast;Raycast
+ezProcPlacementMode::Fixed;Fixed

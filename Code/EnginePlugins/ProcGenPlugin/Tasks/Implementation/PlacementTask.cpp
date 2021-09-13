@@ -69,25 +69,39 @@ void PlacementTask::FindPlacementPoints()
     auto& patternPoint = patternPoints[i];
     ezSimdVec4f patternCoords = ezSimdConversion::ToVec3(patternPoint.m_Coordinates.GetAsVec3(0.0f));
 
-    ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
-    rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);
-    rayStart.SetZ(fZStart);
-
     ezPhysicsCastResult hitResult;
-    if (!m_pData->m_pPhysicsModule->Raycast(hitResult, ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, ezPhysicsQueryParameters(uiCollisionLayer, ezPhysicsShapeType::Static)))
-      continue;
 
-    if (pOutput->m_hSurface.IsValid())
+    if (m_pData->m_pOutput->m_Mode == ezProcPlacementMode::Raycast)
     {
-      if (!hitResult.m_hSurface.IsValid())
+      ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
+      rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);
+      rayStart.SetZ(fZStart);
+
+      if (!m_pData->m_pPhysicsModule->Raycast(hitResult, ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, ezPhysicsQueryParameters(uiCollisionLayer, ezPhysicsShapeType::Static)))
         continue;
 
-      ezResourceLock<ezSurfaceResource> hitSurface(hitResult.m_hSurface, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (hitSurface.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
-        continue;
+      if (pOutput->m_hSurface.IsValid())
+      {
+        if (!hitResult.m_hSurface.IsValid())
+          continue;
 
-      if (!hitSurface->IsBasedOn(pOutput->m_hSurface))
-        continue;
+        ezResourceLock<ezSurfaceResource> hitSurface(hitResult.m_hSurface, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+        if (hitSurface.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+          continue;
+
+        if (!hitSurface->IsBasedOn(pOutput->m_hSurface))
+          continue;
+      }
+    }
+    else if (m_pData->m_pOutput->m_Mode == ezProcPlacementMode::Fixed)
+    {
+      ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
+      rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);
+      rayStart.SetZ(fZStart);
+
+      hitResult.m_vPosition = ezSimdConversion::ToVec3(rayStart);
+      hitResult.m_fDistance = 0;
+      hitResult.m_vNormal.Set(0, 0, 1);
     }
 
     bool bInBoundingBox = false;
