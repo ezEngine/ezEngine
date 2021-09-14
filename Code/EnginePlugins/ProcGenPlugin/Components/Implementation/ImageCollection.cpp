@@ -36,24 +36,28 @@ ezUInt32 ezImageCollection::ComputeSortingKey(float fSortOrder, float fMaxScale)
   return uiSortingKey;
 }
 
-float ezImageCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue /*= 0.0f*/) const
+float ezImageCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, const ezColor& refCol) const
 {
   ezSimdVec4f globalPos = ezSimdConversion::ToVec3(vPosition);
   float fValue = fInitialValue;
 
   for (const auto& shape : m_Shapes)
   {
-    const ezSimdVec4f absLocalPos = shape.GetGlobalToLocalTransform().TransformPosition(globalPos).Abs();
+    const ezSimdVec4f localPos = shape.GetGlobalToLocalTransform().TransformPosition(globalPos);
+    const ezSimdVec4f absLocalPos = localPos.Abs();
     if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>() && shape.m_pPixelData != nullptr)
     {
       ezVec2 uv;
-      uv.x = static_cast<float>(absLocalPos.x()) * 0.5f + 0.5f;
-      uv.y = static_cast<float>(absLocalPos.y()) * 0.5f + 0.5f;
+      uv.x = static_cast<float>(localPos.x()) * 0.5f + 0.5f;
+      uv.y = static_cast<float>(localPos.y()) * 0.5f + 0.5f;
 
       ezColor c = ezImageUtils::NearestSample(shape.m_pPixelData, shape.m_uiImageWidth, shape.m_uiImageHeight, ezImageAddressMode::Clamp, uv);
 
-      // TODO
-      fValue = c.r;
+      if (c.IsEqualRGBA(refCol, 0.1f))
+        return 1.0f;
+
+      // TODO combine values somehow ?
+      // fValue = c.r;
     }
   }
 

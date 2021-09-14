@@ -229,6 +229,7 @@ public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
   float m_fInputValue = 0.0f;
+  ezColor m_RefColor;
 
   ezTagSet m_IncludeTags;
 

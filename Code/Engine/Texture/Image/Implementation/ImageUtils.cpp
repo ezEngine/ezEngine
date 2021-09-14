@@ -1535,8 +1535,8 @@ ezColor ezImageUtils::NearestSample(const ezColor* pPixelPointer, ezUInt32 uiWid
   const ezInt32 h = uiHeight;
 
   uv = uv.CompMul(ezVec2(static_cast<float>(w), static_cast<float>(h))) - ezVec2(0.5f);
-  const float floorX = ezMath::Floor(uv.x);
-  const float floorY = ezMath::Floor(uv.y);
+  const float floorX = ezMath::Round(uv.x);
+  const float floorY = ezMath::Round(uv.y);
   const ezInt32 intX = (ezInt32)floorX;
   const ezInt32 intY = (ezInt32)floorY;
 

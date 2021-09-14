@@ -33,7 +33,7 @@ public:
 
   static ezUInt32 ComputeSortingKey(float fSortOrder, float fMaxScale);
 
-  float EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue = 0.0f) const;
+  float EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, const ezColor& refCol) const;
 
   static void ExtractImagesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
     const ezTagSet& includeTags, ezImageCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);

@@ -601,14 +601,12 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
     pInput = out_Ast.CreateConstant(m_fInputValue);
   }
 
-  auto pTagSetInex = out_Ast.CreateConstant(static_cast<float>(tagSetIndex));
-
   auto pFunctionCall = out_Ast.CreateFunctionCall(s_sApplyVolumes);
   pFunctionCall->m_Arguments.PushBack(pPosX);
   pFunctionCall->m_Arguments.PushBack(pPosY);
   pFunctionCall->m_Arguments.PushBack(pPosZ);
   pFunctionCall->m_Arguments.PushBack(pInput);
-  pFunctionCall->m_Arguments.PushBack(pTagSetInex);
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(tagSetIndex)));
 
   return pFunctionCall;
 }
@@ -621,6 +619,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_SampleImages, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
+    EZ_MEMBER_PROPERTY("RefColor", m_RefColor),
     EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
 
     EZ_MEMBER_PROPERTY("In", m_InputValuePin),
@@ -653,19 +652,23 @@ ezExpressionAST::Node* ezProcGen_SampleImages::GenerateExpressionASTNode(ezTempH
   ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
 
   auto pInput = inputs[0];
+
+  // if the input pin is not connected, fall back to using the constant value
   if (pInput == nullptr)
   {
     pInput = out_Ast.CreateConstant(m_fInputValue);
   }
-
-  auto pTagSetInex = out_Ast.CreateConstant(static_cast<float>(tagSetIndex));
 
   auto pFunctionCall = out_Ast.CreateFunctionCall(s_sSampleImages);
   pFunctionCall->m_Arguments.PushBack(pPosX);
   pFunctionCall->m_Arguments.PushBack(pPosY);
   pFunctionCall->m_Arguments.PushBack(pPosZ);
   pFunctionCall->m_Arguments.PushBack(pInput);
-  pFunctionCall->m_Arguments.PushBack(pTagSetInex);
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(tagSetIndex)));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.r));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.g));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.b));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.a));
 
   return pFunctionCall;
 }

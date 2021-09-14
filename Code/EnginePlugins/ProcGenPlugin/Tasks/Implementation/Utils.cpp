@@ -22,13 +22,13 @@ void ezProcGenExpressionFunctions::ApplyVolumes(ezExpression::Inputs inputs, ezE
   if (volumes.IsEmpty())
     return;
 
-  ezUInt32 uiIndex = 0;
+  ezUInt32 uiTagSetIndex = 0;
   if (inputs.GetCount() > 4)
   {
-    uiIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
+    uiTagSetIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
   }
 
-  auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiIndex].Get<ezReflectedClass*>());
+  auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiTagSetIndex].Get<ezReflectedClass*>());
   if (pVolumeCollection == nullptr)
     return;
 
@@ -78,13 +78,13 @@ void ezProcGenExpressionFunctions::SampleImages(ezExpression::Inputs inputs, ezE
   if (images.IsEmpty())
     return;
 
-  ezUInt32 uiIndex = 0;
+  ezUInt32 uiTagSetIndex = 0;
   if (inputs.GetCount() > 4)
   {
-    uiIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
+    uiTagSetIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
   }
 
-  auto pCollection = ezDynamicCast<const ezImageCollection*>(images[uiIndex].Get<ezReflectedClass*>());
+  auto pCollection = ezDynamicCast<const ezImageCollection*>(images[uiTagSetIndex].Get<ezReflectedClass*>());
   if (pCollection == nullptr)
     return;
 
@@ -95,14 +95,19 @@ void ezProcGenExpressionFunctions::SampleImages(ezExpression::Inputs inputs, ezE
 
   const ezSimdVec4f* pInitialValues = inputs[3].GetPtr();
 
+  const ezSimdVec4f* pRefColR = inputs[5].GetPtr();
+  const ezSimdVec4f* pRefColG = inputs[6].GetPtr();
+  const ezSimdVec4f* pRefColB = inputs[7].GetPtr();
+  const ezSimdVec4f* pRefColA = inputs[8].GetPtr();
+
   ezSimdVec4f* pOutput = output.GetPtr();
 
   while (pPosX < pPosXEnd)
   {
-    pOutput->SetX(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->x(), pPosY->x(), pPosZ->x()), pInitialValues->x()));
-    pOutput->SetY(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->y(), pPosY->y(), pPosZ->y()), pInitialValues->y()));
-    pOutput->SetZ(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->z(), pPosY->z(), pPosZ->z()), pInitialValues->z()));
-    pOutput->SetW(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->w(), pPosY->w(), pPosZ->w()), pInitialValues->w()));
+    pOutput->SetX(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->x(), pPosY->x(), pPosZ->x()), pInitialValues->x(), ezColor(pRefColR->x(), pRefColG->x(), pRefColB->x(), pRefColA->x())));
+    pOutput->SetY(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->y(), pPosY->y(), pPosZ->y()), pInitialValues->y(), ezColor(pRefColR->y(), pRefColG->y(), pRefColB->y(), pRefColA->y())));
+    pOutput->SetZ(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->z(), pPosY->z(), pPosZ->z()), pInitialValues->z(), ezColor(pRefColR->z(), pRefColG->z(), pRefColB->z(), pRefColA->z())));
+    pOutput->SetW(pCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->w(), pPosY->w(), pPosZ->w()), pInitialValues->w(), ezColor(pRefColR->w(), pRefColG->w(), pRefColB->w(), pRefColA->w())));
 
     ++pPosX;
     ++pPosY;
