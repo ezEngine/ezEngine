@@ -94,14 +94,13 @@ void ezImageCollection::ExtractImagesInBox(const ezWorld& world, const ezBoundin
   out_Collection.m_Shapes.Sort();
 }
 
-void ezImageCollection::AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, float fValue, const ezImageDataResourceHandle& image)
+void ezImageCollection::AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, const ezImageDataResourceHandle& image)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
 
   auto& shape = m_Shapes.ExpandAndGetRef();
   shape.SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
-  shape.m_fValue = fValue;
   shape.m_uiSortingKey = ezImageCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
   shape.m_Image = image;
 

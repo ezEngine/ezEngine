@@ -21,7 +21,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcImageComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Value", GetValue, SetValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
     EZ_ACCESSOR_PROPERTY("Image", GetImageFile, SetImageFile)->AddAttributes(new ezAssetBrowserAttribute("Image Data")),
@@ -99,16 +98,6 @@ void ezProcImageComponent::SetExtents(const ezVec3& extents)
   }
 }
 
-void ezProcImageComponent::SetValue(float fValue)
-{
-  if (m_fValue != fValue)
-  {
-    m_fValue = fValue;
-
-    InvalidateArea();
-  }
-}
-
 void ezProcImageComponent::SetSortOrder(float fOrder)
 {
   if (m_fSortOrder != fOrder)
@@ -150,7 +139,6 @@ void ezProcImageComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_fValue;
   s << m_vExtents;
   s << m_fSortOrder;
   s << m_Image;
@@ -162,7 +150,6 @@ void ezProcImageComponent::DeserializeComponent(ezWorldReader& stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_fValue;
   s >> m_vExtents;
   s >> m_fSortOrder;
   s >> m_Image;
@@ -185,7 +172,7 @@ void ezProcImageComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) cons
 
 void ezProcImageComponent::OnExtractProcImages(ezMsgExtractProcImages& msg) const
 {
-  msg.m_pCollection->AddShape(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_fSortOrder, m_fValue, m_Image);
+  msg.m_pCollection->AddShape(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_fSortOrder, m_Image);
 }
 
 void ezProcImageComponent::InvalidateArea()

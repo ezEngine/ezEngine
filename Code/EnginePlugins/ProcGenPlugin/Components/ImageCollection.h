@@ -17,7 +17,6 @@ public:
     ezVec4 m_GlobalToLocalTransform0;
     ezVec4 m_GlobalToLocalTransform1;
     ezVec4 m_GlobalToLocalTransform2;
-    ezFloat16 m_fValue;
     ezUInt32 m_uiSortingKey;
     ezImageDataResourceHandle m_Image;
     const ezColor* m_pPixelData = nullptr;
@@ -39,7 +38,7 @@ public:
   static void ExtractImagesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
     const ezTagSet& includeTags, ezImageCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
 
-  void AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, float fValue, const ezImageDataResourceHandle& image);
+  void AddShape(const ezSimdTransform& transform, const ezVec3& vExtents, float fSortOrder, const ezImageDataResourceHandle& image);
 
 private:
   ezDynamicArray<Shape, ezAlignedAllocatorWrapper> m_Shapes;

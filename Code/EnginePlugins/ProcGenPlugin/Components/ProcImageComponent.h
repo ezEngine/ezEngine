@@ -24,9 +24,6 @@ public:
   const ezVec3& GetExtents() const { return m_vExtents; }
   void SetExtents(const ezVec3& extents);
 
-  void SetValue(float fValue);
-  float GetValue() const { return m_fValue; }
-
   void SetSortOrder(float fOrder);
   float GetSortOrder() const { return m_fSortOrder; }
 
@@ -48,7 +45,6 @@ public:
 
 protected:
   ezVec3 m_vExtents = ezVec3(10.0f);
-  float m_fValue = 1.0f;
   float m_fSortOrder = 0.0f;
   ezImageDataResourceHandle m_Image;
 
