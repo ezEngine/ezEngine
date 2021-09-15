@@ -92,11 +92,10 @@ ezColor PlacementTile::GetDebugColor() const
   }
 }
 
-void PlacementTile::PreparePlacementData(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
+void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
 {
-  EZ_ASSERT_DEV(pPhysicsModule != nullptr, "Physics module must be valid");
-
   placementData.m_pPhysicsModule = pPhysicsModule;
+  placementData.m_pWorld = pWorld;
   placementData.m_pOutput = m_pOutput;
   placementData.m_iTileSeed = (m_Desc.m_iPosX << 11) ^ (m_Desc.m_iPosY * 17);
   placementData.m_TileBoundingBox = GetBoundingBox();

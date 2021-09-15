@@ -205,7 +205,8 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
+      m_NewTiles.Sort([](auto& tileA, auto& tileB)
+        { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleComponents();
@@ -259,39 +260,36 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   // Update processing tasks
   if (GetWorldSimulationEnabled())
   {
-    if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
     {
+      EZ_PROFILE_SCOPE("Prepare processing tasks");
+
+      ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+
+      for (auto& processingTask : m_ProcessingTasks)
       {
-        EZ_PROFILE_SCOPE("Prepare processing tasks");
+        if (!processingTask.IsValid() || processingTask.IsScheduled())
+          continue;
 
-        ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+        auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
+        activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), *processingTask.m_pData);
 
-        for (auto& processingTask : m_ProcessingTasks)
-        {
-          if (!processingTask.IsValid() || processingTask.IsScheduled())
-            continue;
-
-          auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
-          activeTile.PreparePlacementData(pPhysicsModule, *processingTask.m_pData);
-
-          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
-        }
-
-        ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
-        ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+        ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
       }
 
+      ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
+      ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+    }
+
+    {
+      EZ_PROFILE_SCOPE("Kickoff placement tasks");
+
+      for (auto& processingTask : m_ProcessingTasks)
       {
-        EZ_PROFILE_SCOPE("Kickoff placement tasks");
+        if (!processingTask.IsValid() || processingTask.IsScheduled())
+          continue;
 
-        for (auto& processingTask : m_ProcessingTasks)
-        {
-          if (!processingTask.IsValid() || processingTask.IsScheduled())
-            continue;
-
-          processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
-          processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
-        }
+        processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
+        processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
       }
     }
   }
@@ -307,7 +305,8 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
     sortedTask.m_uiTaskIndex = i;
   }
 
-  m_SortedProcessingTasks.Sort([](auto& taskA, auto& taskB) { return taskA.m_uiScheduledFrame < taskB.m_uiScheduledFrame; });
+  m_SortedProcessingTasks.Sort([](auto& taskA, auto& taskB)
+    { return taskA.m_uiScheduledFrame < taskB.m_uiScheduledFrame; });
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 

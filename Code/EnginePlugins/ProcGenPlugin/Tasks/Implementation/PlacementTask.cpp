@@ -48,7 +48,6 @@ void PlacementTask::FindPlacementPoints()
 {
   EZ_PROFILE_SCOPE("FindPlacementPoints");
 
-  EZ_ASSERT_DEV(m_pData->m_pPhysicsModule != nullptr, "Physics module must be valid");
   auto pOutput = m_pData->m_pOutput;
 
   ezSimdVec4u seed = ezSimdVec4u(m_pData->m_iTileSeed) + ezSimdVec4u(0, 3, 7, 11);
@@ -58,6 +57,9 @@ void PlacementTask::FindPlacementPoints()
   ezSimdVec4f vXY = ezSimdConversion::ToVec3(m_pData->m_TileBoundingBox.m_vMin);
   ezSimdVec4f vMinOffset = ezSimdConversion::ToVec3(pOutput->m_vMinOffset);
   ezSimdVec4f vMaxOffset = ezSimdConversion::ToVec3(pOutput->m_vMaxOffset);
+
+  // use center for fixed plane placement
+  vXY.SetZ(m_pData->m_TileBoundingBox.GetCenter().z);
 
   ezVec3 rayDir = ezVec3(0, 0, -1);
   ezUInt32 uiCollisionLayer = pOutput->m_uiCollisionLayer;
@@ -71,7 +73,7 @@ void PlacementTask::FindPlacementPoints()
 
     ezPhysicsCastResult hitResult;
 
-    if (m_pData->m_pOutput->m_Mode == ezProcPlacementMode::Raycast)
+    if (m_pData->m_pPhysicsModule != nullptr && m_pData->m_pOutput->m_Mode == ezProcPlacementMode::Raycast)
     {
       ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
       rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);
@@ -97,7 +99,6 @@ void PlacementTask::FindPlacementPoints()
     {
       ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
       rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);
-      rayStart.SetZ(fZStart);
 
       hitResult.m_vPosition = ezSimdConversion::ToVec3(rayStart);
       hitResult.m_fDistance = 0;

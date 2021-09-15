@@ -17,7 +17,7 @@ PreparePlacementTask::~PreparePlacementTask() = default;
 
 void PreparePlacementTask::Execute()
 {
-  const ezWorld& world = *m_pData->m_pPhysicsModule->GetWorld();
+  const ezWorld& world = *m_pData->m_pWorld;
   const ezBoundingBox& box = m_pData->m_TileBoundingBox;
   const Output& output = *m_pData->m_pOutput;
 
