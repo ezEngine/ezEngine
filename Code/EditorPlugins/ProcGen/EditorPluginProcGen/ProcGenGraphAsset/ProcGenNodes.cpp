@@ -137,6 +137,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(30.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_ENUM_MEMBER_PROPERTY("Mode", ezProcPlacementMode, m_Mode),
 
     EZ_MEMBER_PROPERTY("Density", m_DensityPin)->AddAttributes(new ezColorAttribute(ezColor::White)),
     EZ_MEMBER_PROPERTY("Scale", m_ScalePin)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
@@ -232,6 +233,9 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& stream)
 
   // chunk version 3
   stream << m_sSurface;
+
+  // chunk version 5
+  stream << m_Mode;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -557,8 +561,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
     EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+
+    EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
+
+    EZ_ENUM_MEMBER_PROPERTY("ImageVolumeMode", ezProcVolumeImageMode, m_ImageVolumeMode),
+    EZ_MEMBER_PROPERTY("RefColor", m_RefColor),
 
     EZ_MEMBER_PROPERTY("In", m_InputValuePin),
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
@@ -567,7 +575,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_ATTRIBUTES
   {
     new ezTitleAttribute("Volumes: {IncludeTags}"),
-    new ezCategoryAttribute("Math"),
+    new ezCategoryAttribute("Modifiers"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -595,14 +603,17 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
     pInput = out_Ast.CreateConstant(m_fInputValue);
   }
 
-  auto pTagSetInex = out_Ast.CreateConstant(static_cast<float>(tagSetIndex));
-
   auto pFunctionCall = out_Ast.CreateFunctionCall(s_sApplyVolumes);
   pFunctionCall->m_Arguments.PushBack(pPosX);
   pFunctionCall->m_Arguments.PushBack(pPosY);
   pFunctionCall->m_Arguments.PushBack(pPosZ);
   pFunctionCall->m_Arguments.PushBack(pInput);
-  pFunctionCall->m_Arguments.PushBack(pTagSetInex);
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(tagSetIndex)));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(m_ImageVolumeMode.GetValue())));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.r));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.g));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.b));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.a));
 
   return pFunctionCall;
 }

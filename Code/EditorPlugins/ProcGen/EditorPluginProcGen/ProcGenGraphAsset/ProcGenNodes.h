@@ -70,6 +70,8 @@ public:
   ezRenderPipelineNodeInputPin m_ScalePin;
   ezRenderPipelineNodeInputPin m_ColorIndexPin;
   ezRenderPipelineNodeInputPin m_ObjectIndexPin;
+
+  ezEnum<ezProcPlacementMode> m_Mode;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -210,6 +212,9 @@ public:
   float m_fInputValue = 0.0f;
 
   ezTagSet m_IncludeTags;
+
+  ezEnum<ezProcVolumeImageMode> m_ImageVolumeMode;
+  ezColor m_RefColor;
 
   ezRenderPipelineNodeInputPin m_InputValuePin;
   ezRenderPipelineNodeOutputPin m_OutputValuePin;

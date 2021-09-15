@@ -2,10 +2,12 @@
 
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Utils/ImageDataResource.h>
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 
@@ -328,4 +330,74 @@ void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) 
 void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
   msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeImageComponent, 1, ezComponentMode::Static)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Image", GetImageFile, SetImageFile)->AddAttributes(new ezAssetBrowserAttribute("Image Data")),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgExtractVolumes, OnExtractVolumes)
+  }
+  EZ_END_MESSAGEHANDLERS;
+}
+EZ_END_COMPONENT_TYPE
+// clang-format on
+
+ezProcVolumeImageComponent::ezProcVolumeImageComponent() = default;
+ezProcVolumeImageComponent::~ezProcVolumeImageComponent() = default;
+
+void ezProcVolumeImageComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  ezStreamWriter& s = stream.GetStream();
+
+  s << m_Image;
+}
+
+void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = stream.GetStream();
+
+  s >> m_Image;
+}
+
+void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
+{
+  msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart, m_Image);
+}
+
+void ezProcVolumeImageComponent::SetImageFile(const char* szFile)
+{
+  ezImageDataResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezImageDataResource>(szFile);
+  }
+
+  SetImage(hResource);
+}
+
+const char* ezProcVolumeImageComponent::GetImageFile() const
+{
+  if (!m_Image.IsValid())
+    return "";
+
+  return m_Image.GetResourceID();
+}
+
+void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hResource)
+{
+  m_Image = hResource;
 }

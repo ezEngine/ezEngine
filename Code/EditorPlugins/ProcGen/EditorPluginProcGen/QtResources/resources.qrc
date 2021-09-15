@@ -6,6 +6,7 @@
     <file>ezProcPlacementComponent.png</file>
     <file>ezProcVolumeBoxComponent.png</file>
     <file>ezProcVolumeSphereComponent.png</file>
+    <file>ezProcVolumeImageComponent.png</file>
     <file>ezProcVertexColorComponent.png</file>
   </qresource>
   <qresource prefix="Icons">

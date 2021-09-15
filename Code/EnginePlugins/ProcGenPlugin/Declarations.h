@@ -64,6 +64,39 @@ struct ezProcVertexColorMapping
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorMapping);
 
+struct ezProcPlacementMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Raycast,
+    Fixed,
+
+    Default = Raycast
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcPlacementMode);
+
+struct ezProcVolumeImageMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    ReferenceColor,
+    ChannelR,
+    ChannelG,
+    ChannelB,
+    ChannelA,
+
+    Default = ReferenceColor
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVolumeImageMode);
+
 //////////////////////////////////////////////////////////////////////////
 
 namespace ezProcGenInternal
@@ -139,6 +172,8 @@ namespace ezProcGenInternal
     ezColorGradientResourceHandle m_hColorGradient;
 
     ezSurfaceResourceHandle m_hSurface;
+
+    ezEnum<ezProcPlacementMode> m_Mode;
   };
 
   struct VertexColorOutput : public Output

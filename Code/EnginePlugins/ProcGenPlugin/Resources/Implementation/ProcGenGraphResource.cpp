@@ -168,6 +168,11 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
             pOutput->m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
           }
 
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 5)
+          {
+            chunk >> pOutput->m_Mode;
+          }
+
           m_PlacementOutputs.PushBack(pOutput);
         }
       }

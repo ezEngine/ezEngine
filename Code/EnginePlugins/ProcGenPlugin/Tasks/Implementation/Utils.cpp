@@ -18,13 +18,13 @@ void ezProcGenExpressionFunctions::ApplyVolumes(ezExpression::Inputs inputs, ezE
   if (volumes.IsEmpty())
     return;
 
-  ezUInt32 uiIndex = 0;
+  ezUInt32 uiTagSetIndex = 0;
   if (inputs.GetCount() > 4)
   {
-    uiIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
+    uiTagSetIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
   }
 
-  auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiIndex].Get<ezReflectedClass*>());
+  auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiTagSetIndex].Get<ezReflectedClass*>());
   if (pVolumeCollection == nullptr)
     return;
 
@@ -35,14 +35,23 @@ void ezProcGenExpressionFunctions::ApplyVolumes(ezExpression::Inputs inputs, ezE
 
   const ezSimdVec4f* pInitialValues = inputs[3].GetPtr();
 
+  const ezSimdVec4f* pImgMode = inputs[5].GetPtr();
+  const ezSimdVec4f* pRefColR = inputs[6].GetPtr();
+  const ezSimdVec4f* pRefColG = inputs[7].GetPtr();
+  const ezSimdVec4f* pRefColB = inputs[8].GetPtr();
+  const ezSimdVec4f* pRefColA = inputs[9].GetPtr();
+
+  const ezProcVolumeImageMode::Enum imgMode = static_cast<ezProcVolumeImageMode::Enum>((float)pImgMode->x());
+  const ezColor refCol = ezColor(pRefColR->x(), pRefColG->x(), pRefColB->x(), pRefColA->x());
+
   ezSimdVec4f* pOutput = output.GetPtr();
 
   while (pPosX < pPosXEnd)
   {
-    pOutput->SetX(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->x(), pPosY->x(), pPosZ->x()), pInitialValues->x()));
-    pOutput->SetY(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->y(), pPosY->y(), pPosZ->y()), pInitialValues->y()));
-    pOutput->SetZ(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->z(), pPosY->z(), pPosZ->z()), pInitialValues->z()));
-    pOutput->SetW(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->w(), pPosY->w(), pPosZ->w()), pInitialValues->w()));
+    pOutput->SetX(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->x(), pPosY->x(), pPosZ->x()), pInitialValues->x(), imgMode, refCol));
+    pOutput->SetY(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->y(), pPosY->y(), pPosZ->y()), pInitialValues->y(), imgMode, refCol));
+    pOutput->SetZ(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->z(), pPosY->z(), pPosZ->z()), pInitialValues->z(), imgMode, refCol));
+    pOutput->SetW(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->w(), pPosY->w(), pPosZ->w()), pInitialValues->w(), imgMode, refCol));
 
     ++pPosX;
     ++pPosY;

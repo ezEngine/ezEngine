@@ -111,7 +111,9 @@ bool ezQtVersionChecker::Check(bool bForce)
   }
 
   m_bCheckInProgresss = true;
-  m_VersionPage = new PageDownloader(QUrl("https://ezengine.net/pages/getting-started/binaries.html"));
+
+  // DON'T use HTTPS here, our Qt version only supports HTTP
+  m_VersionPage = new PageDownloader(QUrl("http://ezengine.net/pages/getting-started/binaries.html"));
 
   connect(m_VersionPage.data(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
 

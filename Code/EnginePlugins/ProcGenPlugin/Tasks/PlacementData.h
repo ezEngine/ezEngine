@@ -16,6 +16,7 @@ namespace ezProcGenInternal
     void Clear();
 
     const ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
+    const ezWorld* m_pWorld = nullptr;
 
     ezSharedPtr<const PlacementOutput> m_pOutput;
     ezInt32 m_iTileSeed = 0;

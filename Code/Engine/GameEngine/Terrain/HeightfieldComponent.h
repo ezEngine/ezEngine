@@ -12,12 +12,11 @@ class ezGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
-class ezImageDataResource;
 class ezHeightfieldComponent;
 
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
-using ezImageDataResourceHandle = ezTypedResourceHandle<ezImageDataResource>;
+using ezImageDataResourceHandle = ezTypedResourceHandle<class ezImageDataResource>;
 
 class EZ_GAMEENGINE_DLL ezHeightfieldComponentManager : public ezComponentManager<ezHeightfieldComponent, ezBlockStorageType::Compact>
 {

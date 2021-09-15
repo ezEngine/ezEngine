@@ -26,7 +26,7 @@ namespace ezProcGenInternal
     ezBoundingBox GetBoundingBox() const;
     ezColor GetDebugColor() const;
 
-    void PreparePlacementData(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData);
+    void PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData);
 
     ezUInt32 PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementTransform> objectTransforms);
 

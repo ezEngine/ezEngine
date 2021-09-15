@@ -121,13 +121,26 @@ public:
 
   static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor);
 
-  /// \brief Samples the image at the given uv coordinates with bilinear filtering.
+  /// \brief Samples the image at the given UV coordinates with nearest filtering.
+  ///
+  /// This function has to validate that the image is of the right format, and has to query the pixel pointer, which is slow.
+  /// If you need to sample the image very often, use the overload that takes a pixel pointer instead of an image.
+  static ezColor NearestSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv);
+
+  /// \brief Samples the image at the given UV coordinates with nearest filtering.
+  ///
+  /// Prefer this function over the one that takes an ezImageView when you need to sample the image very often,
+  /// as it does away with internal validation that would be redundant. Also, the pixel pointer given to this function
+  /// should be retrieved only once from the source image, as ezImage::GetPixelPointer() is rather slow due to validation overhead.
+  static ezColor NearestSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 uv);
+
+  /// \brief Samples the image at the given UV coordinates with bilinear filtering.
   ///
   /// This function has to validate that the image is of the right format, and has to query the pixel pointer, which is slow.
   /// If you need to sample the image very often, use the overload that takes a pixel pointer instead of an image.
   static ezColor BilinearSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv);
 
-  /// \brief Samples the image at the given uv coordinates with bilinear filtering.
+  /// \brief Samples the image at the given UV coordinates with bilinear filtering.
   ///
   /// Prefer this function over the one that takes an ezImageView when you need to sample the image very often,
   /// as it does away with internal validation that would be redundant. Also, the pixel pointer given to this function

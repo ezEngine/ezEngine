@@ -69,22 +69,44 @@ float3 ToFloat3(float4 val)
 
 /// ToFloat4
 
-float4 ToFloat4(float val)
+float4 ToFloat4Direction(float val)
 {
   return float4(val, val, val, val);
 }
 
-float4 ToFloat4(float2 val)
+float4 ToFloat4Direction(float2 val)
 {
   return float4(val.x, val.y, 0, 0);
 }
 
-float4 ToFloat4(float3 val)
+float4 ToFloat4Direction(float3 val)
 {
   return float4(val.x, val.y, val.z, 0);
 }
 
-float4 ToFloat4(float4 val)
+float4 ToFloat4Direction(float4 val)
+{
+  return val;
+}
+
+/// ToFloat4Position
+
+float4 ToFloat4Position(float val)
+{
+  return float4(val, val, val, 1);
+}
+
+float4 ToFloat4Position(float2 val)
+{
+  return float4(val.x, val.y, 0, 1);
+}
+
+float4 ToFloat4Position(float3 val)
+{
+  return float4(val.x, val.y, val.z, 1);
+}
+
+float4 ToFloat4Position(float4 val)
 {
   return val;
 }

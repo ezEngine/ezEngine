@@ -11,6 +11,7 @@ namespace ezProcGenInternal
   void PlacementData::Clear()
   {
     m_pPhysicsModule = nullptr;
+    m_pWorld = nullptr;
 
     m_pOutput = nullptr;
     m_iTileSeed = 0;

@@ -115,11 +115,27 @@ Node %UV_Scroll
     string %DefaultValue { "1, 1" }
   }
 
+  InputPin %Scale
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 150, 0, 0 }
+    bool %Expose { true }
+    string %DefaultValue { "1, 1" }
+  }
+
+  InputPin %Offset
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 0, 150, 0 }
+    bool %Expose { true }
+    string %DefaultValue { "0, 0" }
+  }
+
   OutputPin %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "G.Input.TexCoord0 + frac(WorldTime * $in0)" }
+    string %Inline { "(G.Input.TexCoord0 * $in1 + $in2) + frac(WorldTime * $in0)" }
     string %Tooltip { "The scrolled UV 0 texture coordinate." }
   }
 }
@@ -212,7 +228,7 @@ Node %VertexTangent
     string %Type { "float3" }
     unsigned_int8 %Color { 255, 128, 128 }
     string %Inline { "G.Input.Tangent" }
-    string %Tooltip { "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position." }
+    string %Tooltip { "The vertex tangent. For vertex shaders this is the local tangent, for pixel shaders it is the transformed tangent." }
   }
 }
 
