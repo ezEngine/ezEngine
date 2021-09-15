@@ -22,7 +22,6 @@ PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
 
   m_VM.RegisterDefaultFunctions();
   m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
-  m_VM.RegisterFunction("SampleImages", &ezProcGenExpressionFunctions::SampleImages, &ezProcGenExpressionFunctions::SampleImagesValidate);
 }
 
 PlacementTask::~PlacementTask() = default;

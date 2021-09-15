@@ -5,6 +5,8 @@
 #include <Foundation/Types/TagSet.h>
 #include <ProcGenPlugin/Declarations.h>
 
+using ezImageDataResourceHandle = ezTypedResourceHandle<class ezImageDataResource>;
+
 class EZ_PROCGENPLUGIN_DLL ezVolumeCollection : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVolumeCollection, ezReflectedClass);
@@ -18,6 +20,7 @@ public:
     {
       Sphere,
       Box,
+      Image,
 
       Default = Sphere
     };
@@ -51,23 +54,32 @@ public:
     ezVec3 m_vFadeOutBias;
   };
 
+  struct Image : public Box
+  {
+    ezImageDataResourceHandle m_Image;
+    const ezColor* m_pPixelData = nullptr;
+    ezUInt32 m_uiImageWidth = 0;
+    ezUInt32 m_uiImageHeight = 0;
+  };
+
   bool IsEmpty() { return m_Spheres.IsEmpty() && m_Boxes.IsEmpty(); }
 
   static ezUInt32 ComputeSortingKey(float fSortOrder, float fMaxScale);
 
-  float EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue = 0.0f) const;
+  float EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, const ezColor& refColor) const;
 
-  static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
-    const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
+  static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory, const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
 
   void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart);
 
-  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue,
-    const ezVec3& vFadeOutStart);
+  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart);
+
+  void AddImage(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart, const ezImageDataResourceHandle& image);
 
 private:
   ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
   ezDynamicArray<Box, ezAlignedAllocatorWrapper> m_Boxes;
+  ezDynamicArray<Image, ezAlignedAllocatorWrapper> m_Images;
 
   ezDynamicArray<const Shape*> m_SortedShapes;
 };

@@ -14,7 +14,6 @@ public:
   {
     ezProcGenInternal::GraphSharedData m_SharedData;
     ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
-    ezHybridArray<ezUInt8, 4> m_ImageTagSetIndices;
   };
 
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) = 0;
@@ -34,7 +33,6 @@ public:
   ezString m_sName;
 
   ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
-  ezHybridArray<ezUInt8, 4> m_ImageTagSetIndices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -214,24 +212,7 @@ public:
   float m_fInputValue = 0.0f;
 
   ezTagSet m_IncludeTags;
-
-  ezRenderPipelineNodeInputPin m_InputValuePin;
-  ezRenderPipelineNodeOutputPin m_OutputValuePin;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-class ezProcGen_SampleImages : public ezProcGenNodeBase
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_SampleImages, ezProcGenNodeBase);
-
-public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
-
-  float m_fInputValue = 0.0f;
   ezColor m_RefColor;
-
-  ezTagSet m_IncludeTags;
 
   ezRenderPipelineNodeInputPin m_InputValuePin;
   ezRenderPipelineNodeOutputPin m_OutputValuePin;

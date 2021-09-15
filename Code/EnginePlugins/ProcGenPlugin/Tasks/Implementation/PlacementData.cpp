@@ -18,7 +18,6 @@ namespace ezProcGenInternal
     m_GlobalToLocalBoxTransforms.Clear();
 
     m_VolumeCollections.Clear();
-    m_ImageCollections.Clear();
     m_GlobalData.Clear();
   }
 } // namespace ezProcGenInternal

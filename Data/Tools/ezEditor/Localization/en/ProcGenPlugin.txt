@@ -8,6 +8,7 @@ BoxExtents;Extents
 ezProcVertexColorComponent;Procedural Vertex Color
 ezProcVolumeSphereComponent;Procedural Volume Sphere
 ezProcVolumeBoxComponent;Procedural Volume Box
+ezProcVolumeImageComponent;Procedural Volume Image
 ezProcGenBlendMode::Add;Add
 ezProcGenBlendMode::Subtract;Subtract
 ezProcGenBlendMode::Multiply;Multiply

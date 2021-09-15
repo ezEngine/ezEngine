@@ -7,7 +7,6 @@ namespace
   static ezHashedString s_sRandom = ezMakeHashedString("Random");
   static ezHashedString s_sPerlinNoise = ezMakeHashedString("PerlinNoise");
   static ezHashedString s_sApplyVolumes = ezMakeHashedString("ApplyVolumes");
-  static ezHashedString s_sSampleImages = ezMakeHashedString("SampleImages");
 
   ezExpressionAST::NodeType::Enum GetBlendOperator(ezProcGenBlendMode::Enum blendMode)
   {
@@ -118,7 +117,6 @@ void ezProcGenOutput::Save(ezStreamWriter& stream)
 {
   stream << m_sName;
   stream.WriteArray(m_VolumeTagSetIndices).IgnoreResult();
-  stream.WriteArray(m_ImageTagSetIndices).IgnoreResult();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -563,8 +561,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
     EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+
+    EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
+    EZ_MEMBER_PROPERTY("RefColor", m_RefColor),
 
     EZ_MEMBER_PROPERTY("In", m_InputValuePin),
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
@@ -607,64 +607,6 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
   pFunctionCall->m_Arguments.PushBack(pPosZ);
   pFunctionCall->m_Arguments.PushBack(pInput);
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(tagSetIndex)));
-
-  return pFunctionCall;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_SampleImages, 1, ezRTTIDefaultAllocator<ezProcGen_SampleImages>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
-    EZ_MEMBER_PROPERTY("RefColor", m_RefColor),
-    EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-
-    EZ_MEMBER_PROPERTY("In", m_InputValuePin),
-    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
-  }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezTitleAttribute("Images: {IncludeTags}"),
-    new ezCategoryAttribute("Modifiers"),
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezExpressionAST::Node* ezProcGen_SampleImages::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context)
-{
-  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
-
-  ezUInt32 tagSetIndex = context.m_SharedData.AddTagSet(m_IncludeTags);
-  EZ_ASSERT_DEV(tagSetIndex <= 255, "Too many tag sets");
-  if (!context.m_ImageTagSetIndices.Contains(tagSetIndex))
-  {
-    context.m_ImageTagSetIndices.PushBack(tagSetIndex);
-  }
-
-  ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX);
-  ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY);
-  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
-
-  auto pInput = inputs[0];
-
-  // if the input pin is not connected, fall back to using the constant value
-  if (pInput == nullptr)
-  {
-    pInput = out_Ast.CreateConstant(m_fInputValue);
-  }
-
-  auto pFunctionCall = out_Ast.CreateFunctionCall(s_sSampleImages);
-  pFunctionCall->m_Arguments.PushBack(pPosX);
-  pFunctionCall->m_Arguments.PushBack(pPosY);
-  pFunctionCall->m_Arguments.PushBack(pPosZ);
-  pFunctionCall->m_Arguments.PushBack(pInput);
-  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(tagSetIndex)));
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.r));
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.g));
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.b));
@@ -672,3 +614,4 @@ ezExpressionAST::Node* ezProcGen_SampleImages::GenerateExpressionASTNode(ezTempH
 
   return pFunctionCall;
 }
+

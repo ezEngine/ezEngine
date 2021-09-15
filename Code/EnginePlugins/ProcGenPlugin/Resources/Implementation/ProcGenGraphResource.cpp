@@ -131,11 +131,6 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           chunk >> pOutput->m_sName;
           chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
 
-          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 6)
-          {
-            chunk.ReadArray(pOutput->m_ImageTagSetIndices).IgnoreResult();
-          }
-
           ezUInt64 uiNumObjectsToPlace = 0;
           chunk >> uiNumObjectsToPlace;
 
@@ -207,11 +202,6 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
           chunk >> pOutput->m_sName;
           chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
-
-          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 3)
-          {
-            chunk.ReadArray(pOutput->m_ImageTagSetIndices).IgnoreResult();
-          }
 
           m_VertexColorOutputs.PushBack(pOutput);
         }

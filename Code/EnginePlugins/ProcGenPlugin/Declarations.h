@@ -120,7 +120,6 @@ namespace ezProcGenInternal
     ezHashedString m_sName;
 
     ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
-    ezHybridArray<ezUInt8, 4> m_ImageTagSetIndices;
     ezSharedPtr<const GraphSharedDataBase> m_pGraphSharedData;
 
     ezUniquePtr<ezExpressionByteCode> m_pByteCode;

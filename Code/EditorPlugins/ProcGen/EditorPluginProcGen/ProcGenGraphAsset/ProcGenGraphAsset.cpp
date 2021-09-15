@@ -90,7 +90,6 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   auto WriteByteCode = [&](const ezDocumentObject* pOutputNode)
   {
     context.m_VolumeTagSetIndices.Clear();
-    context.m_ImageTagSetIndices.Clear();
 
     ezExpressionAST ast;
     GenerateExpressionAST(pOutputNode, "", objectWriter, rttiConverter, nodeCache, ast, context);
@@ -116,7 +115,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 6);
+    chunk.BeginChunk("PlacementOutputs", 5);
 
     if (!bDebug)
     {
@@ -131,7 +130,6 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
         auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(cachedNode.m_pPPNode);
 
         pPlacementOutput->m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
-        pPlacementOutput->m_ImageTagSetIndices = context.m_ImageTagSetIndices;
         pPlacementOutput->Save(chunk);
       }
     }
@@ -141,7 +139,6 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       chunk << uiNumNodes;
 
       context.m_VolumeTagSetIndices.Clear();
-      context.m_ImageTagSetIndices.Clear();
 
       ezExpressionAST ast;
       GenerateDebugExpressionAST(objectWriter, rttiConverter, nodeCache, ast, context);
@@ -155,7 +152,6 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       byteCode.Save(chunk);
 
       m_pDebugNode->m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
-      m_pDebugNode->m_ImageTagSetIndices = context.m_ImageTagSetIndices;
       m_pDebugNode->Save(chunk);
     }
 
@@ -163,7 +159,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   }
 
   {
-    chunk.BeginChunk("VertexColorOutputs", 3);
+    chunk.BeginChunk("VertexColorOutputs", 2);
 
     chunk << vertexColorNodes.GetCount();
 
@@ -176,7 +172,6 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(cachedNode.m_pPPNode);
 
       pVertexColorOutput->m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
-      pVertexColorOutput->m_ImageTagSetIndices = context.m_ImageTagSetIndices;
       pVertexColorOutput->Save(chunk);
     }
 

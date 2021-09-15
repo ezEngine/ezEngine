@@ -22,5 +22,4 @@ void PreparePlacementTask::Execute()
   const Output& output = *m_pData->m_pOutput;
 
   ezProcGenInternal::ExtractVolumeCollections(world, box, output, m_pData->m_VolumeCollections, m_pData->m_GlobalData);
-  ezProcGenInternal::ExtractImageCollections(world, box, output, m_pData->m_ImageCollections, m_pData->m_GlobalData);
 }
