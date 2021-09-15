@@ -212,6 +212,8 @@ public:
   float m_fInputValue = 0.0f;
 
   ezTagSet m_IncludeTags;
+
+  ezEnum<ezProcVolumeImageMode> m_ImageVolumeMode;
   ezColor m_RefColor;
 
   ezRenderPipelineNodeInputPin m_InputValuePin;

@@ -65,7 +65,7 @@ ezUInt32 ezVolumeCollection::ComputeSortingKey(float fSortOrder, float fMaxScale
   return uiSortingKey;
 }
 
-float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, const ezColor& refColor) const
+float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const
 {
   ezSimdVec4f globalPos = ezSimdConversion::ToVec3(vPosition);
   float fValue = fInitialValue;
@@ -112,11 +112,30 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
 
         const ezColor col = ezImageUtils::NearestSample(image.m_pPixelData, image.m_uiImageWidth, image.m_uiImageHeight, ezImageAddressMode::Clamp, uv);
 
-        // TODO: if mode == refColor
+        float fValueToUse = image.m_fValue;
 
-        if (col.IsEqualRGBA(refColor, 0.01f))
+        switch (imgMode)
         {
-          const float fNewValue = ApplyValue(image.m_BlendMode, fValue, image.m_fValue);
+          case ezProcVolumeImageMode::ReferenceColor:
+            fValueToUse = image.m_fValue;
+            break;
+          case ezProcVolumeImageMode::ChannelR:
+            fValueToUse = image.m_fValue * col.r;
+            break;
+          case ezProcVolumeImageMode::ChannelG:
+            fValueToUse = image.m_fValue * col.g;
+            break;
+          case ezProcVolumeImageMode::ChannelB:
+            fValueToUse = image.m_fValue * col.b;
+            break;
+          case ezProcVolumeImageMode::ChannelA:
+            fValueToUse = image.m_fValue * col.a;
+            break;
+        }
+
+        if (imgMode != ezProcVolumeImageMode::ReferenceColor || col.IsEqualRGBA(refColor, 0.01f))
+        {
+          const float fNewValue = ApplyValue(image.m_BlendMode, fValue, fValueToUse);
           ezSimdVec4f vAlpha = absLocalPos.CompMul(ezSimdConversion::ToVec3(image.m_vFadeOutScale)) + ezSimdConversion::ToVec3(image.m_vFadeOutBias);
           vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::ZeroVector());
           const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();

@@ -564,6 +564,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 1, ezRTTIDefaultAllocato
     EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
 
     EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
+
+    EZ_ENUM_MEMBER_PROPERTY("ImageVolumeMode", ezProcVolumeImageMode, m_ImageVolumeMode),
     EZ_MEMBER_PROPERTY("RefColor", m_RefColor),
 
     EZ_MEMBER_PROPERTY("In", m_InputValuePin),
@@ -607,6 +609,7 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
   pFunctionCall->m_Arguments.PushBack(pPosZ);
   pFunctionCall->m_Arguments.PushBack(pInput);
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(tagSetIndex)));
+  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(static_cast<float>(m_ImageVolumeMode.GetValue())));
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.r));
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.g));
   pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_RefColor.b));
@@ -614,4 +617,3 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
 
   return pFunctionCall;
 }
-

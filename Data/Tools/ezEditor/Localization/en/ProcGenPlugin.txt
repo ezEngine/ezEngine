@@ -28,3 +28,8 @@ ezProcVertexColorChannelMapping::Black;Black
 ezProcVertexColorChannelMapping::White;White
 ezProcPlacementMode::Raycast;Raycast
 ezProcPlacementMode::Fixed;Fixed
+ezProcVolumeImageMode::ChannelR;Red Channel
+ezProcVolumeImageMode::ChannelG;Green Channel
+ezProcVolumeImageMode::ChannelB;Blue Channel
+ezProcVolumeImageMode::ChannelA;Alpha Channel
+ezProcVolumeImageMode::ReferenceColor;Reference Color

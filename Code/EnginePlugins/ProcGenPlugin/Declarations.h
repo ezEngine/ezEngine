@@ -79,6 +79,24 @@ struct ezProcPlacementMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcPlacementMode);
 
+struct ezProcVolumeImageMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    ReferenceColor,
+    ChannelR,
+    ChannelG,
+    ChannelB,
+    ChannelA,
+
+    Default = ReferenceColor
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVolumeImageMode);
+
 //////////////////////////////////////////////////////////////////////////
 
 namespace ezProcGenInternal
