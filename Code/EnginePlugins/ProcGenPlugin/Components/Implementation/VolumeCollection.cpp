@@ -159,25 +159,24 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
   queryParams.m_IncludeTags = includeTags;
 
-  world.GetSpatialSystem()->FindObjectsInBox(box, queryParams, [&](ezGameObject* pObject)
+  world.GetSpatialSystem()->FindObjectsInBox(box, queryParams, [&](ezGameObject* pObject) {
+    if (pComponentBaseType != nullptr)
     {
-      if (pComponentBaseType != nullptr)
-      {
-        ezHybridArray<const ezComponent*, 8> components;
-        pObject->TryGetComponentsOfBaseType(pComponentBaseType, components);
+      ezHybridArray<const ezComponent*, 8> components;
+      pObject->TryGetComponentsOfBaseType(pComponentBaseType, components);
 
-        for (auto pComponent : components)
-        {
-          pComponent->SendMessage(msg);
-        }
-      }
-      else
+      for (auto pComponent : components)
       {
-        pObject->SendMessage(msg);
+        pComponent->SendMessage(msg);
       }
+    }
+    else
+    {
+      pObject->SendMessage(msg);
+    }
 
-      return ezVisitorExecution::Continue;
-    });
+    return ezVisitorExecution::Continue;
+  });
 
   out_Collection.m_Spheres.Sort();
   out_Collection.m_Boxes.Sort();

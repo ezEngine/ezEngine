@@ -233,8 +233,7 @@ static void FindMinMax(const ezImageView& image, ezUInt8& uiMinRgb, ezUInt8& uiM
   uiMaxRgb = 0u;
   uiMaxAlpha = 0u;
 
-  auto minMax = [&](const ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
-  {
+  auto minMax = [&](const ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
     ezUInt8 val = *pixel;
 
     if (c < 3)
@@ -273,8 +272,7 @@ void ezImageUtils::Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRg
   ezUInt8 uiRangeRgb = uiMaxRgb - uiMinRgb;
   ezUInt8 uiRangeAlpha = uiMaxAlpha - uiMinAlpha;
 
-  auto normalize = [&](ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
-  {
+  auto normalize = [&](ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
     ezUInt8 val = *pixel;
     if (c < 3)
     {
@@ -855,8 +853,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
   const ezUInt32 maxNumScratchImages = 2;
   ezImage scratch[maxNumScratchImages];
   bool scratchUsed[maxNumScratchImages] = {};
-  auto allocateScratch = [&]() -> ezImage&
-  {
+  auto allocateScratch = [&]() -> ezImage& {
     for (ezUInt32 i = 0;; ++i)
     {
       EZ_ASSERT_DEV(i < maxNumScratchImages, "Failed to allocate scratch image");
@@ -867,8 +864,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
       }
     }
   };
-  auto releaseScratch = [&](const ezImageView& image)
-  {
+  auto releaseScratch = [&](const ezImageView& image) {
     for (ezUInt32 i = 0; i < maxNumScratchImages; ++i)
     {
       if (&scratch[i] == &image)
