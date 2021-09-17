@@ -145,7 +145,6 @@ public:
   void DeInitQt();
 
   void LoadEditorPlugins();
-  void UnloadEditorPlugins();
 
   ezRecentFilesList& GetRecentProjectsList() { return s_RecentProjects; }
   ezRecentFilesList& GetRecentDocumentsList() { return s_RecentDocuments; }

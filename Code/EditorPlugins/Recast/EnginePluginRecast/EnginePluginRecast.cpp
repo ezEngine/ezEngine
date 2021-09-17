@@ -1,3 +1,4 @@
 #include <EnginePluginRecast/EnginePluginRecastPCH.h>
 
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEnginePluginRecast)
+EZ_END_PLUGIN;

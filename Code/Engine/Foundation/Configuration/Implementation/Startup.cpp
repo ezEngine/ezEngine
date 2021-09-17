@@ -81,19 +81,13 @@ void ezStartup::PluginEventHandler(const ezPluginEvent& EventData)
 
     case ezPluginEvent::AfterLoadingBeforeInit:
     {
-      if (EventData.m_pPluginObject)
-      {
-        AssignSubSystemPlugin(EventData.m_pPluginObject->GetPluginName());
-      }
+      AssignSubSystemPlugin(EventData.m_szPluginBinary);
     }
     break;
 
     case ezPluginEvent::StartupShutdown:
     {
-      if (EventData.m_pPluginObject)
-      {
-        ezStartup::UnloadPluginSubSystems(EventData.m_pPluginObject->GetPluginName());
-      }
+      ezStartup::UnloadPluginSubSystems(EventData.m_szPluginBinary);
     }
     break;
 

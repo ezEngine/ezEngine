@@ -9,6 +9,9 @@
 #include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
+EZ_BEGIN_PLUGIN(ezKrautPlugin)
+EZ_END_PLUGIN;
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -56,5 +59,3 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-ezPlugin g_Plugin(false);

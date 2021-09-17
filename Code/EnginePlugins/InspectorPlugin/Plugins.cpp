@@ -18,8 +18,8 @@ namespace PluginsDetail
     {
       ezTelemetryMessage msg;
       msg.SetMessageID('PLUG', 'DATA');
-      msg.GetWriter() << pSub->GetPluginName();
-      msg.GetWriter() << pSub->IsReloadable();
+      msg.GetWriter() << pSub->GetOriginBinary(); // pSub->GetPluginName();
+      msg.GetWriter() << false; //pSub->IsReloadable();
 
       ezStringBuilder s;
 

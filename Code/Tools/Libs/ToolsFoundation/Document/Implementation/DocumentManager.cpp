@@ -68,7 +68,7 @@ void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPluginEvent& e)
   {
     const ezRTTI* pRtti = s_AllDocumentManagers[i]->GetDynamicRTTI();
 
-    if (ezStringUtils::IsEqual(pRtti->GetPluginName(), e.m_pPluginObject->GetPluginName()))
+    if (ezStringUtils::IsEqual(pRtti->GetPluginName(), e.m_szPluginBinary))
     {
       s_KnownManagers.Remove(pRtti);
 

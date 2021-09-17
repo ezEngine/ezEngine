@@ -1,4 +1,4 @@
 #include <EnginePluginPhysX/EnginePluginPhysXPCH.h>
 
-
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEnginePluginPhysX)
+EZ_END_PLUGIN;

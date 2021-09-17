@@ -3,7 +3,8 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezInspectorPlugin)
+EZ_END_PLUGIN;
 
 void AddLogWriter();
 void RemoveLogWriter();

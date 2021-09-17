@@ -9,7 +9,7 @@
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezRmlUiPlugin");
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezEnginePluginRmlUi");
@@ -36,6 +36,24 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading) {}
+void OnUnloadPlugin() {}
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
+// clang-format off
+EZ_BEGIN_PLUGIN(ezEditorPluginRmlUi)
+
+  BEGIN_PLUGIN_DEPENDENCIES
+    "ezEditorPluginScene"
+  END_PLUGIN_DEPENDENCIES
+
+  ON_PLUGIN_LOADED
+  {
+    OnLoadPlugin();
+  }
+  
+  ON_PLUGIN_UNLOADED
+  {
+    OnUnloadPlugin();
+  }
+
+EZ_END_PLUGIN;
+// clang-format on

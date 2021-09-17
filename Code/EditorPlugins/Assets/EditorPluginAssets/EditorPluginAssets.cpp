@@ -506,7 +506,7 @@ static void ConfigureImageDataAsset()
   }
 }
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
 
@@ -530,7 +530,7 @@ void OnLoadPlugin(bool bReloading)
   ConfigureImageDataAsset();
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   ezTextureAssetActions::UnregisterActions();
   ezTextureCubeAssetActions::UnregisterActions();
@@ -547,4 +547,18 @@ void OnUnloadPlugin(bool bReloading)
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
+// clang-format off
+EZ_BEGIN_PLUGIN(ezEditorPluginAssets)
+
+  ON_PLUGIN_LOADED
+  {
+    OnLoadPlugin();
+  }
+
+  ON_PLUGIN_UNLOADED
+  {
+    OnUnloadPlugin();
+  }
+
+EZ_END_PLUGIN;
+// clang-format on

@@ -77,7 +77,7 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
@@ -144,7 +144,7 @@ void OnLoadPlugin(bool bReloading)
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
@@ -158,8 +158,21 @@ void OnUnloadPlugin(bool bReloading)
   ezSceneActions::UnregisterActions();
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
+// clang-format off
+EZ_BEGIN_PLUGIN(ezEditorPluginScene)
 
+  ON_PLUGIN_LOADED
+  {
+    OnLoadPlugin();
+  }
+  
+  ON_PLUGIN_UNLOADED
+  {
+    OnUnloadPlugin();
+  }
+
+EZ_END_PLUGIN;
+// clang-format on
 
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {

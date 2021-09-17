@@ -4,6 +4,9 @@
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
+EZ_BEGIN_PLUGIN(ezPhysXPlugin)
+EZ_END_PLUGIN;
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 
@@ -42,10 +45,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-ezPlugin g_Plugin(false);
 
 
 

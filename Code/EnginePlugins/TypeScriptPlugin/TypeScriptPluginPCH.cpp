@@ -4,4 +4,5 @@
 
 #include <Foundation/Configuration/Plugin.h>
 
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezTypeScriptPlugin)
+EZ_END_PLUGIN;

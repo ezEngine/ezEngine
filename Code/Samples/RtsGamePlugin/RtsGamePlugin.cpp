@@ -1,3 +1,4 @@
 #include <RtsGamePlugin/RtsGamePluginPCH.h>
 
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezRtsGamePlugin)
+EZ_END_PLUGIN;

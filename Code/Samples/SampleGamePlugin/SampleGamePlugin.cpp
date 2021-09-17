@@ -2,16 +2,22 @@
 
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
+// clang-format off
+
 // BEGIN-DOCS-CODE-SNIPPET: plugin-setup
-static void OnPluginLoaded(bool)
-{
-  // you could do something here, though this is rare
-}
+EZ_BEGIN_PLUGIN(ezSampleGamePlugin)
 
-static void OnPluginUnloaded(bool)
-{
-  // you could do something here, though this is rare
-}
+  ON_PLUGIN_LOADED
+  {
+    // you could do something here, though this is rare
+  }
 
-ezPlugin s_Plugin(false, &OnPluginLoaded, &OnPluginUnloaded);
+  ON_PLUGIN_UNLOADED
+  {
+    // you could do something here, though this is rare
+  }
+
+EZ_END_PLUGIN;
 // END-DOCS-CODE-SNIPPET
+
+// clang-format on

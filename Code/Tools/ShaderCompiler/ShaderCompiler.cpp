@@ -114,6 +114,8 @@ void ezShaderCompilerApplication::AfterCoreSystemsStartup()
 
 void ezShaderCompilerApplication::Init_LoadRequiredPlugins()
 {
+  ezPlugin::InitializeStaticallyLinkedPlugins();
+
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
   ezShaderManager::Configure("VULKAN", true);
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");

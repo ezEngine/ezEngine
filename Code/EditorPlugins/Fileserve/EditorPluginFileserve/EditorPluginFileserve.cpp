@@ -1,4 +1,4 @@
 #include <EditorPluginFileserve/EditorPluginFileservePCH.h>
 
-
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEditorPluginFileserve)
+EZ_END_PLUGIN;

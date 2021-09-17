@@ -7,6 +7,9 @@
 
 static ezRmlUiResourceLoader s_RmlUiResourceLoader;
 
+EZ_BEGIN_PLUGIN(ezRmlUiPlugin)
+EZ_END_PLUGIN;
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
 
@@ -55,7 +58,3 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-ezPlugin g_Plugin(false);

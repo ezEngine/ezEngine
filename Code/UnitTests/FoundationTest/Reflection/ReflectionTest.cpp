@@ -332,7 +332,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
     EZ_TEST_BOOL(bFoundStruct2);
 
-    EZ_TEST_BOOL(ezPlugin::UnloadPlugin(ezFoundationTest_Plugin1) == EZ_SUCCESS);
+    ezPlugin::UnloadAllPlugins();
   }
 #endif
 }

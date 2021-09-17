@@ -1,4 +1,6 @@
 #include <EnginePluginParticle/EnginePluginParticlePCH.h>
 
+#include <Foundation/Configuration/Plugin.h>
 
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEnginePluginParticle)
+EZ_END_PLUGIN;

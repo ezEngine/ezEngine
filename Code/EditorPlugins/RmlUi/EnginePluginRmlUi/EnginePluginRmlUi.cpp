@@ -1,3 +1,4 @@
 #include <EnginePluginRmlUi/EnginePluginRmlUiPCH.h>
 
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEnginePluginRmlUi)
+EZ_END_PLUGIN;

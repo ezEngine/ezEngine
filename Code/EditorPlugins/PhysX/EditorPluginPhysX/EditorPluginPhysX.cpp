@@ -18,7 +18,7 @@ void UpdateCollisionLayerDynamicEnumValues();
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginPhysX", "ezPhysXPlugin");
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginPhysX", "ezEnginePluginPhysX");
@@ -62,15 +62,33 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   ezPhysXActions::UnregisterActions();
   ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler);
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene", "ezPhysXPlugin");
+// clang-format off
+EZ_BEGIN_PLUGIN(ezEditorPluginPhysX)
 
+  BEGIN_PLUGIN_DEPENDENCIES
+    "ezEditorPluginScene",
+    "ezPhysXPlugin"
+  END_PLUGIN_DEPENDENCIES
+
+  ON_PLUGIN_LOADED
+  {
+    OnLoadPlugin();
+  }
+  
+  ON_PLUGIN_UNLOADED
+  {
+    OnUnloadPlugin();
+  }
+
+EZ_END_PLUGIN;
+// clang-format on
 
 void UpdateCollisionLayerDynamicEnumValues()
 {

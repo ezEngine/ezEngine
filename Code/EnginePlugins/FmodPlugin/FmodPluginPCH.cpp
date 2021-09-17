@@ -4,6 +4,9 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>
 
+EZ_BEGIN_PLUGIN(ezFmodPlugin)
+EZ_END_PLUGIN;
+
 EZ_STATICLINK_LIBRARY(FmodPlugin)
 {
   if (bReturn)
@@ -21,4 +24,3 @@ EZ_STATICLINK_LIBRARY(FmodPlugin)
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundEventResourceLoader);
 }
 
-ezPlugin g_Plugin(false);

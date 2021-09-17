@@ -1,4 +1,4 @@
 #include <EnginePluginKraut/EnginePluginKrautPCH.h>
 
-
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEnginePluginKraut)
+EZ_END_PLUGIN;

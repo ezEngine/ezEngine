@@ -101,6 +101,8 @@ void ezQtEditorApp::LoadEditorPlugins()
   DetectAvailableEditorPlugins();
   ReadEditorPluginsToBeLoaded();
 
+  ezPlugin::InitializeStaticallyLinkedPlugins();
+
   for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
     it.Value().m_bActive = false;
@@ -144,14 +146,3 @@ void ezQtEditorApp::LoadEditorPlugins()
   }
 }
 
-void ezQtEditorApp::UnloadEditorPlugins()
-{
-  for (auto it = s_EditorPlugins.m_Plugins.GetLastIterator(); it.IsValid(); --it)
-  {
-    if (it.Value().m_bActive)
-    {
-      ezPlugin::UnloadPlugin(it.Key().GetData()).IgnoreResult();
-      it.Value().m_bActive = false;
-    }
-  }
-}

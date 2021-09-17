@@ -1,4 +1,4 @@
 #include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
-
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEnginePluginAssets)
+EZ_END_PLUGIN;

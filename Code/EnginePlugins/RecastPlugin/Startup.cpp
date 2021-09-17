@@ -4,6 +4,9 @@
 #include <RecastPlugin/RecastInterface.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
+EZ_BEGIN_PLUGIN(ezRecastPlugin)
+EZ_END_PLUGIN;
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Recast, RecastPlugin)
 
@@ -30,7 +33,3 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Recast, RecastPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-ezPlugin g_Plugin(false);

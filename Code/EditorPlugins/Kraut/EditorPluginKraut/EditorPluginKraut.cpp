@@ -8,7 +8,7 @@
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginKraut", "ezKrautPlugin");
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginKraut", "ezEnginePluginKraut");
@@ -35,6 +35,17 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading) {}
+// clang-format off
+EZ_BEGIN_PLUGIN(ezEditorPluginKraut)
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
+  BEGIN_PLUGIN_DEPENDENCIES
+    "ezEditorPluginScene"
+  END_PLUGIN_DEPENDENCIES
+
+  ON_PLUGIN_LOADED
+  {
+    OnLoadPlugin();
+  }
+  
+EZ_END_PLUGIN;
+// clang-format on

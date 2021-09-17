@@ -264,6 +264,8 @@ void ezGameApplication::Init_SetupGraphicsDevice()
 
 void ezGameApplication::Init_LoadRequiredPlugins()
 {
+  ezPlugin::InitializeStaticallyLinkedPlugins();
+
   const char* szRendererName = GetRendererNameFromCommandLine();
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";

@@ -4,6 +4,9 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <RenderDocPlugin/RenderDocPluginDLL.h>
 
+EZ_BEGIN_PLUGIN(ezRenderDocPlugin)
+EZ_END_PLUGIN;
+
 EZ_STATICLINK_LIBRARY(RenderDocPlugin)
 {
   if (bReturn)
@@ -11,5 +14,3 @@ EZ_STATICLINK_LIBRARY(RenderDocPlugin)
 
   EZ_STATICLINK_REFERENCE(RenderDocPlugin_RenderDocSingleton);
 }
-
-ezPlugin g_Plugin(false);

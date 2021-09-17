@@ -1,4 +1,4 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
-
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezEnginePluginScene)
+EZ_END_PLUGIN;

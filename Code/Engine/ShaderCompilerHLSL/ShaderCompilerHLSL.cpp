@@ -6,7 +6,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPlugin g_Plugin(false);
+EZ_BEGIN_PLUGIN(ezShaderCompilerHLSL)
+EZ_END_PLUGIN;
 
 ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
