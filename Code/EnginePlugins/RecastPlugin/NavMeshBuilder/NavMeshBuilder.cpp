@@ -73,14 +73,14 @@ void ezRecastNavMeshBuilder::Clear()
   m_pRecastContext = nullptr;
 }
 
-ezResult ezRecastNavMeshBuilder::ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::Geometry& out_worldGeo)
+ezResult ezRecastNavMeshBuilder::ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::MeshObjectList& out_worldGeo)
 {
   ezWorldGeoExtractionUtil::ExtractWorldGeometry(out_worldGeo, world, ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& geo,
+ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::MeshObjectList& geo,
   ezRecastNavMeshResourceDescriptor& out_NavMeshDesc, ezProgress& progress)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build");
