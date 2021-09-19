@@ -5,6 +5,7 @@
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
@@ -122,6 +123,12 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << sWndCfgPath.GetData();
   }
 
+  // set up the EditorEngineProcess telemetry server on a different port
+  {
+    args << "-TelemetryPort";
+    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
+  }
+
   if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
@@ -188,7 +195,8 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).IgnoreResult();
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
-  waitDialog.m_OnIdle = [this]() -> bool {
+  waitDialog.m_OnIdle = [this]() -> bool
+  {
     if (m_pRemoteProcess->IsConnected())
       return false;
 
@@ -277,7 +285,8 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
     {
