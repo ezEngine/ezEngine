@@ -13,6 +13,7 @@ struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
 class ezHeightfieldComponent;
+class ezMeshResourceDescriptor;
 
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
@@ -50,6 +51,8 @@ class EZ_GAMEENGINE_DLL ezHeightfieldComponent : public ezRenderComponent
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  virtual void OnActivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -99,8 +102,11 @@ protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
 
   void InvalidateMesh();
-  void GenerateRenderMesh() const;
   void BuildGeometry(ezGeometry& geom) const;
+  ezResult BuildMeshDescriptor(ezMeshResourceDescriptor& desc) const;
+
+  template <typename ResourceType>
+  void GenerateMesh(ezTypedResourceHandle<ResourceType>& hResource) const;
 
   ezUInt32 m_uiHeightfieldChangeCounter = 0;
   ezImageDataResourceHandle m_hHeightfield;
@@ -115,5 +121,5 @@ protected:
   ezVec2U32 m_vTesselation = ezVec2U32(128);
   ezVec2U32 m_vColMeshTesselation = ezVec2U32(64);
 
-  mutable ezMeshResourceHandle m_hMesh;
+  ezMeshResourceHandle m_hMesh;
 };

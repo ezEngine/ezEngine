@@ -113,7 +113,10 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezGreyBoxComponent::OnActivated()
 {
-  GenerateMesh(m_hMesh);
+  if (!m_hMesh.IsValid())
+  {
+    GenerateMesh(m_hMesh);
+  }
 
   // First generate the mesh and then call the base implementation which will update the bounds
   SUPER::OnActivated();

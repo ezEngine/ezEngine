@@ -10,10 +10,4 @@ namespace ezBakingInternal
   {
     ezSimdMat4f m_GlobalToLocalTransform;
   };
-
-  struct MeshObject
-  {
-    ezSimdTransform m_GlobalTransform;
-    ezHashedString m_MeshResourceId;
-  };
 } // namespace ezBakingInternal

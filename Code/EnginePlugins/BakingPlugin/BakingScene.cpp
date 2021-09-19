@@ -74,17 +74,16 @@ ezResult ezBakingScene::Extract()
   queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
   queryParams.m_ExcludeTags.SetByName("Editor");
 
-  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams, [&](ezGameObject* pObject) {
-    const ezMeshComponentBase* pMeshComponent = nullptr;
-    if (!pObject->TryGetComponentOfBaseType(pMeshComponent) || !pMeshComponent->GetMesh().IsValid())
+  ezMsgExtractGeometry msg;
+  msg.m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
+  msg.m_pMeshObjects = &m_MeshObjects;
+
+  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams, [&](ezGameObject* pObject)
+    {
+      pObject->SendMessage(msg);
+
       return ezVisitorExecution::Continue;
-
-    auto& meshObject = m_MeshObjects.ExpandAndGetRef();
-    meshObject.m_GlobalTransform = pObject->GetGlobalTransformSimd();
-    meshObject.m_MeshResourceId.Assign(pMeshComponent->GetMeshFile());
-
-    return ezVisitorExecution::Continue;
-  });
+    });
 
   return EZ_SUCCESS;
 }

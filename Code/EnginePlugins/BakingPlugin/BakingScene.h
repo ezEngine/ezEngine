@@ -2,6 +2,7 @@
 
 #include <BakingPlugin/Declarations.h>
 #include <Core/Graphics/AmbientCubeBasis.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
@@ -23,7 +24,7 @@ public:
     ezProgress& progress) const;
 
 public:
-  ezArrayPtr<const ezBakingInternal::MeshObject> GetMeshObjects() const { return m_MeshObjects; }
+  const ezWorldGeoExtractionUtil::MeshObjectList& GetMeshObjects() const { return m_MeshObjects; }
   const ezBoundingBox& GetBoundingBox() const { return m_BoundingBox; }
 
   bool IsBaked() const { return m_bIsBaked; }
@@ -37,7 +38,7 @@ private:
 
   ezBakingSettings m_Settings;
   ezDynamicArray<ezBakingInternal::Volume, ezAlignedAllocatorWrapper> m_Volumes;
-  ezDynamicArray<ezBakingInternal::MeshObject, ezAlignedAllocatorWrapper> m_MeshObjects;
+  ezWorldGeoExtractionUtil::MeshObjectList m_MeshObjects;
   ezBoundingBox m_BoundingBox;
 
   ezUInt32 m_uiWorldIndex = ezInvalidIndex;

@@ -72,16 +72,18 @@ namespace
     s_rtcDevice = nullptr;
   }
 
-  static RTCScene GetOrCreateMesh(const ezHashedString& sResourceId)
+  static RTCScene GetOrCreateMesh(const ezCpuMeshResourceHandle& hMeshResource)
   {
+    ezHashedString sResourceId;
+    sResourceId.Assign(hMeshResource.GetResourceID());
+
     RTCScene scene = nullptr;
     if (s_rtcMeshCache.TryGetValue(sResourceId, scene))
     {
       return scene;
     }
 
-    ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(sResourceId);
-    ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    ezResourceLock<ezCpuMeshResource> pCpuMesh(hMeshResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
     if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     {
       ezLog::Warning("Failed to retrieve CPU mesh '{}'", sResourceId);
@@ -241,13 +243,13 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
 
   for (auto& meshObject : scene.GetMeshObjects())
   {
-    RTCScene mesh = GetOrCreateMesh(meshObject.m_MeshResourceId);
+    RTCScene mesh = GetOrCreateMesh(meshObject.m_hMeshResource);
     if (mesh == nullptr)
     {
       continue;
     }
 
-    ezSimdMat4f transform = meshObject.m_GlobalTransform.GetAsMat4();
+    ezMat4 transform = meshObject.m_GlobalTransform.GetAsMat4();
 
     RTCGeometry instance = rtcNewGeometry(s_rtcDevice, RTC_GEOMETRY_TYPE_INSTANCE);
     {
@@ -260,14 +262,14 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
     ezUInt32 uiInstanceID = rtcAttachGeometry(m_pData->m_rtcScene, instance);
     rtcReleaseGeometry(instance);
 
-    ezSimdMat4f normalTransform = transform.GetInverse(0.0f).GetTranspose();
+    ezMat3 normalTransform = transform.GetRotationalPart().GetInverse(0.0f).GetTranspose();
 
     EZ_ASSERT_DEBUG(uiInstanceID == m_pData->m_rtcInstancedGeometry.GetCount(), "");
     auto& instancedGeometry = m_pData->m_rtcInstancedGeometry.ExpandAndGetRef();
     instancedGeometry.m_mesh = rtcGetGeometry(mesh, 0);
-    instancedGeometry.m_normalTransform0 = normalTransform.m_col0;
-    instancedGeometry.m_normalTransform1 = normalTransform.m_col1;
-    instancedGeometry.m_normalTransform2 = normalTransform.m_col2;
+    instancedGeometry.m_normalTransform0 = ezSimdConversion::ToVec3(normalTransform.GetColumn(0));
+    instancedGeometry.m_normalTransform1 = ezSimdConversion::ToVec3(normalTransform.GetColumn(1));
+    instancedGeometry.m_normalTransform2 = ezSimdConversion::ToVec3(normalTransform.GetColumn(2));
   }
 
   rtcCommitScene(m_pData->m_rtcScene);

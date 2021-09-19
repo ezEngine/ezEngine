@@ -15,5 +15,5 @@ public:
 
   ezString m_sOutputPath;
   ezRecastConfig m_NavMeshConfig;
-  ezWorldGeoExtractionUtil::Geometry m_ExtractedWorldGeometry;
+  ezWorldGeoExtractionUtil::MeshObjectList m_ExtractedObjects;
 };
