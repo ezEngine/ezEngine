@@ -3,9 +3,6 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 
-EZ_BEGIN_PLUGIN(ezInspectorPlugin)
-EZ_END_PLUGIN;
-
 void AddLogWriter();
 void RemoveLogWriter();
 

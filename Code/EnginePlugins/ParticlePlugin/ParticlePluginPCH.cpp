@@ -6,9 +6,6 @@
 
 // clang-format off
 
-EZ_BEGIN_PLUGIN(ezParticlePlugin)
-EZ_END_PLUGIN;
-
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)

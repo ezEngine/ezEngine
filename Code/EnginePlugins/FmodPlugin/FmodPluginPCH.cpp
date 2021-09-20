@@ -4,9 +4,6 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>
 
-EZ_BEGIN_PLUGIN(ezFmodPlugin)
-EZ_END_PLUGIN;
-
 EZ_STATICLINK_LIBRARY(FmodPlugin)
 {
   if (bReturn)

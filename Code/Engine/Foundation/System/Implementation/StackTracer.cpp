@@ -29,12 +29,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, StackTracer)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezStackTracer::OnPluginEvent);
+    ezPlugin::Events().AddEventHandler(ezStackTracer::OnPluginEvent);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezStackTracer::OnPluginEvent);
+    ezPlugin::Events().RemoveEventHandler(ezStackTracer::OnPluginEvent);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

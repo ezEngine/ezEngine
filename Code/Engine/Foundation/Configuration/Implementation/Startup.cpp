@@ -332,7 +332,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
   if (s_CurrentState == ezStartupStage::None)
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(PluginEventHandler);
   }
 
   s_CurrentState = stage;
@@ -414,7 +414,7 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
     if (s_CurrentState == ezStartupStage::None)
     {
-      ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
+      ezPlugin::Events().RemoveEventHandler(PluginEventHandler);
     }
   }
 }

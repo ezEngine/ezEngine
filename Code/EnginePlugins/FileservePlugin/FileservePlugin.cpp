@@ -2,9 +2,6 @@
 
 #include <FileservePlugin/Client/FileserveDataDir.h>
 
-EZ_BEGIN_PLUGIN(ezFileservePlugin)
-EZ_END_PLUGIN;
-
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 

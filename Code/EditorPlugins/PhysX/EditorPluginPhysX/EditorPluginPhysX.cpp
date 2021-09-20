@@ -72,26 +72,15 @@ void OnUnloadPlugin()
 EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 EZ_PLUGIN_DEPENDENCY(ezPhysXPlugin);
 
-// clang-format off
-EZ_BEGIN_PLUGIN(ezEditorPluginPhysX)
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
 
-  BEGIN_PLUGIN_DEPENDENCIES
-    //"ezEditorPluginScene",
-    //"ezPhysXPlugin"
-  END_PLUGIN_DEPENDENCIES
-
-  ON_PLUGIN_LOADED
-  {
-    OnLoadPlugin();
-  }
-  
-  ON_PLUGIN_UNLOADED
-  {
-    OnUnloadPlugin();
-  }
-
-EZ_END_PLUGIN;
-// clang-format on
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}
 
 void UpdateCollisionLayerDynamicEnumValues()
 {

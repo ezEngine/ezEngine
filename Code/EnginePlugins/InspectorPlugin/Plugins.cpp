@@ -12,33 +12,26 @@ namespace PluginsDetail
 
     ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', ' CLR', nullptr, 0);
 
-    ezPlugin* pSub = ezPlugin::GetFirstInstance();
+    ezHybridArray<ezPlugin::PluginInfo, 16> infos;
+    ezPlugin::GetAllPluginInfos(infos);
 
-    while (pSub)
+    for (const auto& pi : infos)
     {
       ezTelemetryMessage msg;
       msg.SetMessageID('PLUG', 'DATA');
-      msg.GetWriter() << pSub->GetOriginBinary(); // pSub->GetPluginName();
-      msg.GetWriter() << false; //pSub->IsReloadable();
+      msg.GetWriter() << pi.m_sName;
+      msg.GetWriter() << false; // deprecated 'IsReloadable' flag
 
       ezStringBuilder s;
 
-      ezUInt8 uiDep = 0;
-      while (pSub->GetPluginDependency(uiDep) != nullptr)
+      for (const auto& dep : pi.m_sDependencies)
       {
-        if (!s.IsEmpty())
-          s.Append(" | ");
-
-        s.Append(pSub->GetPluginDependency(uiDep));
-
-        ++uiDep;
+        s.AppendWithSeparator(" | ", dep);
       }
 
-      msg.GetWriter() << s.GetData();
+      msg.GetWriter() << s;
 
       ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-
-      pSub = pSub->GetNextInstance();
     }
   }
 
@@ -72,12 +65,12 @@ namespace PluginsDetail
 void AddPluginEventHandler()
 {
   ezTelemetry::AddEventHandler(PluginsDetail::TelemetryEventsHandler);
-  ezPlugin::s_PluginEvents.AddEventHandler(PluginsDetail::PluginEventHandler);
+  ezPlugin::Events().AddEventHandler(PluginsDetail::PluginEventHandler);
 }
 
 void RemovePluginEventHandler()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginsDetail::PluginEventHandler);
+  ezPlugin::Events().RemoveEventHandler(PluginsDetail::PluginEventHandler);
   ezTelemetry::RemoveEventHandler(PluginsDetail::TelemetryEventsHandler);
 }
 

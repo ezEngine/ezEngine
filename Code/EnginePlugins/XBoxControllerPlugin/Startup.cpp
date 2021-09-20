@@ -17,9 +17,6 @@ void ezInputDeviceXBox360::DestroyAllDevices()
 }
 
 // clang-format off
-EZ_BEGIN_PLUGIN(ezXBoxControllerPlugin)
-EZ_END_PLUGIN;
-
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
  
   BEGIN_SUBSYSTEM_DEPENDENCIES

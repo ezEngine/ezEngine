@@ -36,7 +36,7 @@ static ezDynamicArray<ezString> s_PluginLoadOrder;
 static ezUInt32 s_uiMaxParallelInstances = 32;
 static ezInt32 s_iPluginChangeRecursionCounter = 0;
 
-ezCopyOnBroadcastEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
+ezCopyOnBroadcastEvent<const ezPluginEvent&> s_PluginEvents;
 
 void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)
 {
@@ -46,6 +46,20 @@ void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)
 void ezPlugin::InitializeStaticallyLinkedPlugins()
 {
   g_StaticModule.Initialize();
+}
+
+void ezPlugin::GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos)
+{
+  infos.Clear();
+
+  infos.Reserve(g_LoadedModules.GetCount());
+
+  for (auto mod : g_LoadedModules)
+  {
+    auto& pi = infos.ExpandAndGetRef();
+    pi.m_sName = mod.Key();
+    pi.m_sDependencies = mod.Value().m_sPluginDependencies;
+  }
 }
 
 void ModuleData::Initialize()
@@ -328,6 +342,11 @@ void ezPlugin::UnloadAllPlugins()
 
   s_PluginLoadOrder.Clear();
   g_LoadedModules.Clear();
+}
+
+const ezCopyOnBroadcastEvent<const ezPluginEvent&>& ezPlugin::Events()
+{
+  return s_PluginEvents;
 }
 
 ezPlugin::Init::Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad)

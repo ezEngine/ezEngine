@@ -498,7 +498,7 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
   // used for sending CVar changes over to the editor
   ezCVar::s_AllCVarEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
-  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
+  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
 }
 
 void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
@@ -507,7 +507,7 @@ void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
 
   // used for sending CVar changes over to the editor
   ezCVar::s_AllCVarEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
+  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
 
   SUPER::Deinit_ShutdownLogging();
 }

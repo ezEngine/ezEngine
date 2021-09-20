@@ -21,21 +21,15 @@ ezCVarFloat CVar_TestFloat2("test1_Float2", 2.1f, ezCVarFlags::Default, "Desc: t
 ezCVarBool CVar_TestBool2("test1_Bool2", true, ezCVarFlags::Default, "Desc: test1_Bool2");
 ezCVarString CVar_TestString2("test1_String2", "test1b", ezCVarFlags::Default, "Desc: test1_String2");
 
-// clang-format off
-EZ_BEGIN_PLUGIN(ezFoundationTest_Plugin1)
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
 
-  ON_PLUGIN_LOADED
-  {
-    OnLoadPlugin();
-  }
-
-  ON_PLUGIN_UNLOADED
-  {
-    OnUnloadPlugin();
-  }
-
-EZ_END_PLUGIN;
-// clang-format on
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}
 
 void OnLoadPlugin()
 {

@@ -37,17 +37,7 @@ void OnLoadPlugin()
 
 EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
-// clang-format off
-EZ_BEGIN_PLUGIN(ezEditorPluginKraut)
-
-  BEGIN_PLUGIN_DEPENDENCIES
-    //"ezEditorPluginScene"
-  END_PLUGIN_DEPENDENCIES
-
-  ON_PLUGIN_LOADED
-  {
-    OnLoadPlugin();
-  }
-  
-EZ_END_PLUGIN;
-// clang-format on
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}

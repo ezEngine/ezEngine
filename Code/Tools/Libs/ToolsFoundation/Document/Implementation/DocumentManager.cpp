@@ -23,12 +23,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezDocumentManager::OnPluginEvent);
+    ezPlugin::Events().AddEventHandler(ezDocumentManager::OnPluginEvent);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezDocumentManager::OnPluginEvent);
+    ezPlugin::Events().RemoveEventHandler(ezDocumentManager::OnPluginEvent);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

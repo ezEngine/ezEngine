@@ -206,14 +206,14 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezGraphVersioning::ezGraphVersioning()
   : m_SingletonRegistrar(this)
 {
-  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
+  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
 
   UpdatePatches();
 }
 
 ezGraphVersioning::~ezGraphVersioning()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
+  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
 }
 
 void ezGraphVersioning::PatchGraph(ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)

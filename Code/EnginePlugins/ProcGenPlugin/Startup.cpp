@@ -5,9 +5,6 @@
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <ProcGenPlugin/VM/ExpressionVM.h>
 
-EZ_BEGIN_PLUGIN(ezProcGenPlugin)
-EZ_END_PLUGIN;
-
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
 

@@ -657,7 +657,7 @@ void ezProfilingSystem::Initialize()
 
   s_MainThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
 
-  s_PluginEventSubscription = ezPlugin::s_PluginEvents.AddEventHandler(&PluginEvent);
+  s_PluginEventSubscription = ezPlugin::Events().AddEventHandler(&PluginEvent);
 }
 
 // static
@@ -692,7 +692,7 @@ void ezProfilingSystem::Reset()
   }
   s_DeadThreadIDs.Clear();
 
-  ezPlugin::s_PluginEvents.RemoveEventHandler(s_PluginEventSubscription);
+  ezPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
 }
 
 // static

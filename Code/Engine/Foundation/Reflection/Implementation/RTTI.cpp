@@ -38,13 +38,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezRTTI::PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(ezRTTI::PluginEventHandler);
     ezRTTI::AssignPlugin("Static");
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezRTTI::PluginEventHandler);
+    ezPlugin::Events().RemoveEventHandler(ezRTTI::PluginEventHandler);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

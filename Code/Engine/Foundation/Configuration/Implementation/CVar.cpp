@@ -25,7 +25,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezCVar::PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(ezCVar::PluginEventHandler);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -36,7 +36,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     // if it succeeds, the most recent state will be serialized though
     ezCVar::SaveCVars();
 
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezCVar::PluginEventHandler);
+    ezPlugin::Events().RemoveEventHandler(ezCVar::PluginEventHandler);
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN

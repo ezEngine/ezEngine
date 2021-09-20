@@ -12,25 +12,15 @@ void OnUnloadPlugin();
 
 EZ_PLUGIN_DEPENDENCY(ezFoundationTest_Plugin1);
 
-// clang-format off
-EZ_BEGIN_PLUGIN(ezFoundationTest_Plugin2)
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
 
-  BEGIN_PLUGIN_DEPENDENCIES
-    //"ezFoundationTest_Plugin1"
-  END_PLUGIN_DEPENDENCIES
-
-  ON_PLUGIN_LOADED
-  {
-    OnLoadPlugin();
-  }
-
-  ON_PLUGIN_UNLOADED
-  {
-    OnUnloadPlugin();
-  }
-
-EZ_END_PLUGIN;
-// clang-format on
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}
 
 ezCVarInt CVar_TestInt("test2_Int", 22, ezCVarFlags::None, "Desc: test2_Int");
 ezCVarFloat CVar_TestFloat("test2_Float", 2.2f, ezCVarFlags::Default, "Desc: test2_Float");

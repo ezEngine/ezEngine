@@ -15,12 +15,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderData)
   {
     ezRenderData::UpdateRendererTypes();
 
-    ezPlugin::s_PluginEvents.AddEventHandler(ezRenderData::PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(ezRenderData::PluginEventHandler);
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezRenderData::PluginEventHandler);
+    ezPlugin::Events().RemoveEventHandler(ezRenderData::PluginEventHandler);
 
     ezRenderData::ClearRendererInstances();
   }

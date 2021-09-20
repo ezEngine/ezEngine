@@ -6,8 +6,6 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-class ezPlugin;
-
 /// \brief The data that is broadcast whenever a plugin is (un-) loaded.
 struct ezPluginEvent
 {
@@ -83,7 +81,7 @@ public:
   static void UnloadAllPlugins();
 
   /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
-  static ezCopyOnBroadcastEvent<const ezPluginEvent&> s_PluginEvents;
+  static const ezCopyOnBroadcastEvent<const ezPluginEvent&>& Events();
 
   /// \brief Sets how many tries the system will do to find a free plugin file name.
   ///
@@ -92,9 +90,6 @@ public:
   /// This value specifies how often the system tries to find a free file. The default is 32.
   static void SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances);
 
-  /// \brief Returns the name of the binary through which the plugin was loaded.
-  //const char* GetOriginBinary() const { return m_sOriginBinary; }
-
   static void InitializeStaticallyLinkedPlugins();
 
   struct EZ_FOUNDATION_DLL Init
@@ -102,6 +97,14 @@ public:
     Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad);
     Init(const char* szAddPluginDependency);
   };
+
+  struct EZ_FOUNDATION_DLL PluginInfo
+  {
+    ezString m_sName;
+    ezHybridArray<ezString, 2> m_sDependencies;
+  };
+
+  static void GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos);
 
 private:
   ezPlugin() = delete;
@@ -112,20 +115,15 @@ private:
   static ezResult LoadPluginInternal(const char* szPlugin, ezBitflags<ezPluginLoadFlags> flags);
 };
 
-#define EZ_BEGIN_PLUGIN(a)
-#define EZ_END_PLUGIN
-#define BEGIN_PLUGIN_DEPENDENCIES
-#define END_PLUGIN_DEPENDENCIES
-
 #define EZ_PLUGIN_DEPENDENCY(PluginName) \
   ezPlugin::Init EZ_CONCAT(EZ_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
 
-#define ON_PLUGIN_LOADED                                     \
+#define EZ_PLUGIN_ON_LOADED()                                \
   static void plugin_OnLoaded();                             \
   ezPlugin::Init plugin_OnLoadedInit(plugin_OnLoaded, true); \
   static void plugin_OnLoaded()
 
-#define ON_PLUGIN_UNLOADED                                        \
+#define EZ_PLUGIN_ON_UNLOADED()                                   \
   static void plugin_OnUnloaded();                                \
   ezPlugin::Init plugin_OnUnloadedInit(plugin_OnUnloaded, false); \
   static void plugin_OnUnloaded()

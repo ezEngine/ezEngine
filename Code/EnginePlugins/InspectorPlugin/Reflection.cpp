@@ -134,12 +134,12 @@ void AddReflectionEventHandler()
 {
   ezTelemetry::AddEventHandler(ReflectionDetail::TelemetryEventsHandler);
 
-  ezPlugin::s_PluginEvents.AddEventHandler(ReflectionDetail::PluginEventHandler);
+  ezPlugin::Events().AddEventHandler(ReflectionDetail::PluginEventHandler);
 }
 
 void RemoveReflectionEventHandler()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ReflectionDetail::PluginEventHandler);
+  ezPlugin::Events().RemoveEventHandler(ReflectionDetail::PluginEventHandler);
 
   ezTelemetry::RemoveEventHandler(ReflectionDetail::TelemetryEventsHandler);
 }

@@ -55,18 +55,12 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);
 }
 
-// clang-format off
-EZ_BEGIN_PLUGIN(ezEditorPluginParticle)
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
 
-  ON_PLUGIN_LOADED
-  {
-    OnLoadPlugin();
-  }
-  
-  ON_PLUGIN_UNLOADED
-  {
-    OnUnloadPlugin();
-  }
-
-EZ_END_PLUGIN;
-// clang-format on
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}

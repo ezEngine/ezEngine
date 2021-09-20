@@ -544,7 +544,7 @@ void ezResourceManager::OnCoreStartup()
   s_State->s_bAllowLaunchDataLoadTask = true;
   s_State->s_bShutdown = false;
 
-  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
+  ezPlugin::Events().AddEventHandler(PluginEventHandler);
 }
 
 void ezResourceManager::EngineAboutToShutdown()
@@ -677,7 +677,7 @@ void ezResourceManager::OnCoreShutdown()
     }
   }
 
-  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
+  ezPlugin::Events().RemoveEventHandler(PluginEventHandler);
 
   s_State.Clear();
 }
