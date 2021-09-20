@@ -3,15 +3,13 @@
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
 // BEGIN-DOCS-CODE-SNIPPET: plugin-setup
-static void OnPluginLoaded(bool)
+EZ_PLUGIN_ON_LOADED()
 {
   // you could do something here, though this is rare
 }
 
-static void OnPluginUnloaded(bool)
+EZ_PLUGIN_ON_UNLOADED()
 {
   // you could do something here, though this is rare
 }
-
-ezPlugin s_Plugin(false, &OnPluginLoaded, &OnPluginUnloaded);
 // END-DOCS-CODE-SNIPPET

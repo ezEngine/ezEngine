@@ -6,6 +6,8 @@
 
 // clang-format off
 
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Opaque),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Additive),
@@ -53,11 +55,6 @@ EZ_END_STATIC_REFLECTED_ENUM;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format on
-
-ezPlugin g_Plugin(false);
-
-//////////////////////////////////////////////////////////////////////////
-
 
 EZ_STATICLINK_LIBRARY(ParticlePlugin)
 {

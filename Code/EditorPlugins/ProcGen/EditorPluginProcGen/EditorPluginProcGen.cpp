@@ -10,7 +10,7 @@
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProcGen", "ezProcGenPlugin");
   // ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProcGen", "ezEnginePluginProcGen");
@@ -54,7 +54,7 @@ void OnLoadPlugin(bool bReloading)
 }
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   ezProcGenActions::UnregisterActions();
   // ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
@@ -69,5 +69,14 @@ void OnUnloadPlugin(bool bReloading)
   }
 }*/
 
+EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
+
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}

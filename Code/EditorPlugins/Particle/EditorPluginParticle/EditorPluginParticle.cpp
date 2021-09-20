@@ -11,7 +11,7 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginParticle", "ezParticlePlugin");
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginParticle", "ezEnginePluginParticle");
@@ -49,10 +49,18 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   ezParticleActions::UnregisterActions();
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
+
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}

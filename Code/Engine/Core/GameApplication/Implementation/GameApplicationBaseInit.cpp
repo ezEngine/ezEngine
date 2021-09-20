@@ -85,8 +85,10 @@ void ezGameApplicationBase::Init_ConfigureAssetManagement() {}
 
 void ezGameApplicationBase::Init_LoadRequiredPlugins()
 {
+  ezPlugin::InitializeStaticallyLinkedPlugins();
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezPlugin::LoadOptionalPlugin("XBoxControllerPlugin").IgnoreResult();
+  ezPlugin::LoadPlugin("XBoxControllerPlugin", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
 #endif
 }
 
@@ -239,7 +241,7 @@ void ezGameApplicationBase::Init_SetupDefaultResources()
 
 void ezGameApplicationBase::Deinit_UnloadPlugins()
 {
-  ezPlugin::UnloadAllPlugins().IgnoreResult();
+  ezPlugin::UnloadAllPlugins();
 }
 
 void ezGameApplicationBase::Deinit_ShutdownLogging()

@@ -4,4 +4,3 @@
 
 #include <Foundation/Configuration/Plugin.h>
 
-ezPlugin g_Plugin(false);

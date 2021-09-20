@@ -36,7 +36,3 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Baking, BakingPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-ezPlugin g_Plugin(false);

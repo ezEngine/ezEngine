@@ -43,10 +43,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-//////////////////////////////////////////////////////////////////////////
-
-ezPlugin g_Plugin(false);
-
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Startup);

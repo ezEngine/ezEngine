@@ -1,9 +1,6 @@
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/ConstructionCounter.h>
 
-#define ezFoundationTest_Plugin1 "ezFoundationTest_Plugin1"
-#define ezFoundationTest_Plugin2 "ezFoundationTest_Plugin2"
-
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>
@@ -11,10 +8,8 @@
 
 static ezInt32 g_iPluginState = -1;
 
-void OnLoadPlugin(bool bReloading);
-void OnUnloadPlugin(bool bReloading);
-
-ezPlugin g_Plugin(true, OnLoadPlugin, OnUnloadPlugin);
+void OnLoadPlugin();
+void OnUnloadPlugin();
 
 ezCVarInt CVar_TestInt("test1_Int", 11, ezCVarFlags::Save, "Desc: test1_Int");
 ezCVarFloat CVar_TestFloat("test1_Float", 1.1f, ezCVarFlags::RequiresRestart, "Desc: test1_Float");
@@ -26,25 +21,25 @@ ezCVarFloat CVar_TestFloat2("test1_Float2", 2.1f, ezCVarFlags::Default, "Desc: t
 ezCVarBool CVar_TestBool2("test1_Bool2", true, ezCVarFlags::Default, "Desc: test1_Bool2");
 ezCVarString CVar_TestString2("test1_String2", "test1b", ezCVarFlags::Default, "Desc: test1_String2");
 
-void OnLoadPlugin(bool bReloading)
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
+
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}
+
+void OnLoadPlugin()
 {
   EZ_TEST_BOOL_MSG(g_iPluginState == -1, "Plugin is in an invalid state.");
   g_iPluginState = 1;
-
-  EZ_TEST_BOOL(ezPlugin::FindPluginByName(ezFoundationTest_Plugin1) != nullptr); // should find itself
 
   ezCVarInt* pCVar = (ezCVarInt*)ezCVar::FindCVarByName("TestPlugin1InitCount");
 
   if (pCVar)
     *pCVar = *pCVar + 1;
-
-  if (bReloading)
-  {
-    ezCVarInt* pCVarReload = (ezCVarInt*)ezCVar::FindCVarByName("TestPlugin1Reloaded");
-
-    if (pCVarReload)
-      *pCVarReload = *pCVarReload + 1;
-  }
 
   ezCVarBool* pCVarPlugin2Inited = (ezCVarBool*)ezCVar::FindCVarByName("test2_Inited");
   if (pCVarPlugin2Inited)
@@ -53,7 +48,7 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   EZ_TEST_BOOL_MSG(g_iPluginState == 1, "Plugin is in an invalid state.");
   g_iPluginState = 2;
@@ -62,14 +57,6 @@ void OnUnloadPlugin(bool bReloading)
 
   if (pCVar)
     *pCVar = *pCVar + 1;
-
-  if (bReloading)
-  {
-    ezCVarInt* pCVarReload = (ezCVarInt*)ezCVar::FindCVarByName("TestPlugin1Reloaded");
-
-    if (pCVarReload)
-      *pCVarReload = *pCVarReload + 1;
-  }
 }
 
 // clang-format off

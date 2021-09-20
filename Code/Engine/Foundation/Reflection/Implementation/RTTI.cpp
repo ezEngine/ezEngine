@@ -37,13 +37,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezRTTI::PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(ezRTTI::PluginEventHandler);
     ezRTTI::AssignPlugin("Static");
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezRTTI::PluginEventHandler);
+    ezPlugin::Events().RemoveEventHandler(ezRTTI::PluginEventHandler);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -528,8 +528,7 @@ void ezRTTI::PluginEventHandler(const ezPluginEvent& EventData)
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new rtti instances and assign them to that new plugin
-      if (EventData.m_pPluginObject)
-        AssignPlugin(EventData.m_pPluginObject->GetPluginName());
+      AssignPlugin(EventData.m_szPluginBinary);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       ezRTTI::VerifyCorrectnessForAllTypes();

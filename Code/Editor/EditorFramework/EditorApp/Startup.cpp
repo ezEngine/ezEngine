@@ -371,7 +371,7 @@ void ezQtEditorApp::ShutdownEditor()
 
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();
-  UnloadEditorPlugins();
+  ezPlugin::UnloadAllPlugins();
 
   // make sure no one tries to load any further images in parallel
   ezQtImageCache::GetSingleton()->StopRequestProcessing(true);

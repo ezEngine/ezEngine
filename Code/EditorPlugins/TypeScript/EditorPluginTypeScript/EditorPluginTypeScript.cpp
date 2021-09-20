@@ -16,7 +16,7 @@
 #include <PhysXCooking/PhysXCooking.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginTypeScript", "ezTypeScriptPlugin");
 
@@ -44,9 +44,19 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   ezTypeScriptActions::UnregisterActions();
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
+EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
+
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
+
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}

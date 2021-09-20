@@ -3,8 +3,6 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezPlugin g_Plugin(false);
-
 void AddLogWriter();
 void RemoveLogWriter();
 
