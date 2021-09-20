@@ -130,8 +130,9 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWor
   return EZ_SUCCESS;
 }
 
-void ezRecastNavMeshBuilder::ReserveMemory(const ezWorldGeoExtractionUtil::Geometry& desc)
+void ezRecastNavMeshBuilder::ReserveMemory(const ezWorldGeoExtractionUtil::MeshObjectList& desc)
 {
+#if 0
   const ezUInt32 uiBoxes = desc.m_BoxShapes.GetCount();
   const ezUInt32 uiBoxTriangles = uiBoxes * 12;
   const ezUInt32 uiBoxVertices = uiBoxes * 8;
@@ -142,9 +143,10 @@ void ezRecastNavMeshBuilder::ReserveMemory(const ezWorldGeoExtractionUtil::Geome
   m_Triangles.Reserve(uiTriangles);
   m_TriangleAreaIDs.Reserve(uiTriangles);
   m_Vertices.Reserve(uiVertices);
+#endif
 }
 
-void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::Geometry& desc)
+void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& desc)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::GenerateTriangleMesh");
 
@@ -154,6 +156,8 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
 
   ReserveMemory(desc);
 
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#if 0
   {
     for (const auto& v : desc.m_Vertices)
     {
@@ -224,6 +228,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
   m_TriangleAreaIDs.SetCount(m_Triangles.GetCount());
 
   ezLog::Debug("Vertices: {0}, Triangles: {1}", m_Vertices.GetCount(), m_Triangles.GetCount());
+#endif
 }
 
 

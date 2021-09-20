@@ -257,20 +257,17 @@ void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx:
 
 void ezPxStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (!m_bIncludeInNavmesh)
-    return;
-
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
-    return;
-
-  if (m_hCollisionMesh.IsValid())
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && m_bIncludeInNavmesh))
   {
-    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
+    if (m_hCollisionMesh.IsValid())
+    {
+      ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-    pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
+      pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
+    }
+
+    AddShapesToNavMesh(GetOwner(), msg);
   }
-
-  AddShapesToNavMesh(GetOwner(), msg);
 }
 
 void ezPxStaticActorComponent::SetMeshFile(const char* szFile)

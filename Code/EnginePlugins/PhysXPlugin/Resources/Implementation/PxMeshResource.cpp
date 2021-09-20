@@ -234,6 +234,8 @@ void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtrac
   if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
     return;
 
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#if 0
   if (!m_PxConvexParts.IsEmpty())
   {
     for (auto pConvex : m_PxConvexParts)
@@ -301,6 +303,7 @@ void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtrac
       }
     }
   }
+#endif
 }
 
 ezUInt32 ezPxMeshResource::GetNumPolygons() const
