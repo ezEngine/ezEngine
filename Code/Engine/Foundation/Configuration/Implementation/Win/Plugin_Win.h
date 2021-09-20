@@ -12,19 +12,19 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 typedef HMODULE ezPluginModule;
 
-void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath, ezUInt8 uiFileNumber)
+void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
 {
-  sOldPath = ezOSFile::GetApplicationDirectory();
-  sOldPath.AppendPath(szPluginName);
-  sOldPath.Append(".dll");
+  sOriginalFile = ezOSFile::GetApplicationDirectory();
+  sOriginalFile.AppendPath(szPluginName);
+  sOriginalFile.Append(".dll");
 
-  sNewPath = ezOSFile::GetApplicationDirectory();
-  sNewPath.AppendPath(szPluginName);
+  sCopiedFile = ezOSFile::GetApplicationDirectory();
+  sCopiedFile.AppendPath(szPluginName);
 
-  if (uiFileNumber > 0)
-    sNewPath.AppendFormat("{0}", uiFileNumber);
+  if (uiFileCopyNumber > 0)
+    sCopiedFile.AppendFormat("{0}", uiFileCopyNumber);
 
-  sNewPath.Append(".loaded");
+  sCopiedFile.Append(".loaded");
 }
 
 ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile)

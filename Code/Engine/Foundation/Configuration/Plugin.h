@@ -11,31 +11,30 @@ struct ezPluginEvent
 {
   enum Type
   {
-    BeforeLoading,          ///< Sent shortly before a new plugin is loaded
-    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of
-                            ///< other plugins)
-    AfterLoading,           ///< Sent after a new plugin has been loaded and initialized
-    BeforeUnloading,        ///< Sent before a plugin is going to be unloaded
-    StartupShutdown,        ///< Used by the startup system for automatic shutdown
-    AfterStartupShutdown,
-    AfterUnloading,      ///< Sent after a plugin has been unloaded
-    BeforePluginChanges, ///< Sent (once) before any (group) plugin changes (load/unload) are done.
-    AfterPluginChanges,  ///< Sent (once) after all (group) plugin changes (unload/load) are finished.
+    BeforeLoading,          ///< Sent shortly before a new plugin is loaded.
+    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins).
+    AfterLoading,           ///< Sent after a new plugin has been loaded and initialized.
+    BeforeUnloading,        ///< Sent before a plugin is going to be unloaded.
+    StartupShutdown,        ///< Used by the startup system for automatic shutdown.
+    AfterStartupShutdown,   ///< Used by the ResourceManager to unload now unreferenced resources after the startup system shutdown is through.
+    AfterUnloading,         ///< Sent after a plugin has been unloaded.
+    BeforePluginChanges,    ///< Sent (once) before any (group) plugin changes (load/unload) are done.
+    AfterPluginChanges,     ///< Sent (once) after all (group) plugin changes (unload/load) are finished.
   };
 
   Type m_EventType;                       ///< Which type of event this is.
-  const char* m_szPluginBinary = nullptr; ///< The file name in which the plugin that is loaded or unloaded is located.
+  const char* m_szPluginBinary = nullptr; ///< The file name of the affected plugin.
 };
 
+/// \brief Flags for loading a plugin.
 struct ezPluginLoadFlags
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    LoadCopy = EZ_BIT(0),               ///<
-    PluginIsOptional = EZ_BIT(1),       ///<
-    NoPluginObjectExpected = EZ_BIT(2), ///<
+    LoadCopy = EZ_BIT(0),         ///< Don't load a DLL directly, but create a copy of the file and load that instead. This allows to continue working on (and compiling) the DLL in parallel.
+    PluginIsOptional = EZ_BIT(1), ///< When an optional plugin can't be loaded (missing file usually), no error is logged. LoadPlugin() will still return EZ_FAILURE though.
 
     Default = 0,
   };
@@ -44,21 +43,39 @@ struct ezPluginLoadFlags
   {
     StorageType LoadCopy : 1;
     StorageType PluginIsOptional : 1;
-    StorageType NoPluginObjectExpected : 1;
   };
 };
 
 using ezPluginInitCallback = void (*)();
 
-/// \brief ezPlugin allows to manage all dynamically loadable plugins. Each plugin DLL must contain one global instance of ezPlugin.
+/// \brief ezPlugin manages all dynamically loadable plugins.
 ///
-/// Put a global instance of ezPlugin somewhere into the source of each dynamic plugin DLL. Certain code depends on such instances
-/// to work correctly with dynamically loaded code. For example ezStartup allows to initialize and deinitialize code from
-/// dynamic DLLs properly (and in the correct order), by listening to events from ezPlugin.
-/// ezPlugin also provides static functions to load and unload DLLs.
+/// To load a plugin, call ezPlugin::LoadPlugin() with the filename of the plugin (without a path).
+/// The plugin DLL has to be located next to the application binary.
+///
+/// It is not possible to unload individual plugins, but you can unload all plugins. Make sure to only do this when no code and data
+/// from any of the plugins is still referenced somewhere.
+///
+/// When a plugin has a dependency on another plugin, it should contain a call to EZ_PLUGIN_DEPENDENCY() in one of its cpp files.
+/// This instructs the system to load that plugin as well, and makes sure to delay initialization until all (transitive) dependencies are loaded.
+///
+/// A plugin may contain one or multiple EZ_PLUGIN_ON_LOADED() and EZ_PLUGIN_ON_UNLOADED() functions.
+/// These are called automatically once a plugin and all its dependencies are loaded. This can be used to make sure basic things get set up.
+/// For anything more complicated, use ezStartup instead. Once a plugin is loaded, the startup system will initialize new startup code properly.
 class EZ_FOUNDATION_DLL ezPlugin
 {
 public:
+  /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
+  static const ezCopyOnBroadcastEvent<const ezPluginEvent&>& Events(); // [tested]
+
+  /// \brief Calls the EZ_PLUGIN_ON_LOADED() functions for all code that is already linked into the executable at startup.
+  ///
+  /// If code that was meant to be loaded dynamically ends up being statically linked (e.g. on platforms where only static linking is used),
+  /// the EZ_PLUGIN_ON_LOADED() functions should still be called. The application can decide when the best time is.
+  /// Usually a good point in time is right before the app would load the first dynamic plugin.
+  /// If this function is never called manually, but ezPlugin::LoadPlugin() is called, this function will be called automatically before loading the first actual plugin.
+  static void InitializeStaticallyLinkedPlugins(); // [tested]
+
   /// \brief Call this before loading / unloading several plugins in a row, to prevent unnecessary re-initializations.
   static void BeginPluginChanges();
 
@@ -70,18 +87,16 @@ public:
 
   /// \brief Tries to load a DLL dynamically into the program.
   ///
-  /// For every time a plugin is loaded via 'LoadPlugin' it should also get unloaded via 'UnloadPlugin',
-  /// as ezPlugin counts these and only unloads a plugin once its reference count reaches zero.
-  ///
   /// EZ_SUCCESS is returned when the DLL is either successfully loaded or has already been loaded before.
   /// EZ_FAILURE is returned if the DLL cannot be located or it could not be loaded properly.
+  ///
+  /// See ezPluginLoadFlags for additional options.
   static ezResult LoadPlugin(const char* szPluginFile, ezBitflags<ezPluginLoadFlags> flags = ezPluginLoadFlags::Default); // [tested]
 
-  /// \brief Attempts to unload all previously loaded plugins in the reverse order in which they were loaded.
-  static void UnloadAllPlugins();
-
-  /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
-  static const ezCopyOnBroadcastEvent<const ezPluginEvent&>& Events();
+  /// \brief Unloads all previously loaded plugins in the reverse order in which they were loaded.
+  ///
+  /// Also calls EZ_PLUGIN_ON_UNLOADED() of all statically linked code.
+  static void UnloadAllPlugins(); // [tested]
 
   /// \brief Sets how many tries the system will do to find a free plugin file name.
   ///
@@ -90,39 +105,59 @@ public:
   /// This value specifies how often the system tries to find a free file. The default is 32.
   static void SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances);
 
-  static void InitializeStaticallyLinkedPlugins();
-
+  /// \internal struct used by ezPlugin macros
   struct EZ_FOUNDATION_DLL Init
   {
     Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad);
     Init(const char* szAddPluginDependency);
   };
 
+  /// \brief Contains basic information about a loaded plugin.
   struct EZ_FOUNDATION_DLL PluginInfo
   {
     ezString m_sName;
     ezHybridArray<ezString, 2> m_sDependencies;
   };
 
+  /// \brief Returns information about all currently loaded plugins.
   static void GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos);
+
+  /// \internal Determines the plugin paths.
+  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber);
 
 private:
   ezPlugin() = delete;
-
-  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath, ezUInt8 uiFileNumber);
-
-  static ezResult UnloadPluginInternal(const char* szPlugin);
-  static ezResult LoadPluginInternal(const char* szPlugin, ezBitflags<ezPluginLoadFlags> flags);
 };
 
+/// \brief Adds a dependency on another plugin to the plugin in which this call is located.
+///
+/// If Plugin2 requires Plugin1 to be loaded when Plugin2 is used, insert this into a CPP file of Plugin2:\n
+/// EZ_PLUGIN_DEPENDENCY(Plugin1);
+///
+/// That instructs the ezPlugin system to make sure that Plugin1 gets loaded and initialized before Plugin2 is initialized.
 #define EZ_PLUGIN_DEPENDENCY(PluginName) \
   ezPlugin::Init EZ_CONCAT(EZ_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
 
+/// \brief Creates a function that is executed when the plugin gets loaded.
+///
+/// Just insert EZ_PLUGIN_ON_LOADED() { /* function body */ } into a CPP file of a plugin to add a function that is called
+/// right after the plugin got loaded.
+/// If the plugin has depenencies (set via EZ_PLUGIN_DEPENDENCY()), it is guaranteed that all ON_LOADED functions of the
+/// dependencies are called first.
+/// If there are multiple such functions defined within the same DLL, there is no guarantee in which order they are called.
 #define EZ_PLUGIN_ON_LOADED()                                \
   static void plugin_OnLoaded();                             \
   ezPlugin::Init plugin_OnLoadedInit(plugin_OnLoaded, true); \
   static void plugin_OnLoaded()
 
+/// \brief Creates a function that is executed when the plugin gets unloaded.
+///
+/// This is typically the case when the application shuts down.
+///
+/// Just insert EZ_PLUGIN_ON_UNLOADED() { /* function body */ } into a CPP file of a plugin to add a function that is called
+/// right before the plugin gets unloaded.
+/// ON_UNLOADED function calls across DLLs are done in reverse order to the ON_LOADED function calls.
+/// If there are multiple such functions defined within the same DLL, there is no guarantee in which order they are called.
 #define EZ_PLUGIN_ON_UNLOADED()                                   \
   static void plugin_OnUnloaded();                                \
   ezPlugin::Init plugin_OnUnloadedInit(plugin_OnUnloaded, false); \
