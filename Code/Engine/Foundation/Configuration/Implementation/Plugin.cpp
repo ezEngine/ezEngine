@@ -16,62 +16,68 @@
 ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile);
 ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, const char* szPluginFile);
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezPlugin);
-
 struct ModuleData
 {
   ezPluginModule m_hModule = 0;
   ezUInt8 m_uiFileNumber = 0;
+  bool m_bCalledOnLoad = false;
+  ezHybridArray<ezPluginInitCallback, 2> m_OnLoadCB;
+  ezHybridArray<ezPluginInitCallback, 2> m_OnUnloadCB;
+  ezHybridArray<ezString, 2> m_sPluginDependencies;
+
+  void Initialize();
+  void Uninitialize();
 };
 
+static ModuleData g_StaticModule;
+static ModuleData* g_pCurrentlyLoadingModule = nullptr;
 static ezMap<ezString, ModuleData> g_LoadedModules;
 static ezDynamicArray<ezString> s_PluginLoadOrder;
+static ezUInt32 s_uiMaxParallelInstances = 32;
+static ezInt32 s_iPluginChangeRecursionCounter = 0;
 
-ezInt32 ezPlugin::s_iPluginChangeRecursionCounter = 0;
-ezUInt32 ezPlugin::m_uiMaxParallelInstances = 32;
 ezCopyOnBroadcastEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
 
 void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)
 {
-  m_uiMaxParallelInstances = ezMath::Max(1u, uiMaxParallelInstances);
+  s_uiMaxParallelInstances = ezMath::Max(1u, uiMaxParallelInstances);
 }
 
 void ezPlugin::InitializeStaticallyLinkedPlugins()
 {
-  ezPlugin::ConfigureNewPlugins("Executable");
+  g_StaticModule.Initialize();
 }
 
-ezPlugin::ezPlugin()
+void ModuleData::Initialize()
 {
-}
-
-void ezPlugin::Initialize()
-{
-  if (m_bInitialized)
+  if (m_bCalledOnLoad)
     return;
 
-  m_bInitialized = true;
+  m_bCalledOnLoad = true;
 
-  for (ezUInt32 i = 0; true; ++i)
+  for (const auto& dep : m_sPluginDependencies)
   {
-    if (GetPluginDependency(i) == nullptr)
-      break;
-
     // TODO: ignore ??
-    LoadPlugin(GetPluginDependency(i)).IgnoreResult();
+    ezPlugin::LoadPlugin(dep).IgnoreResult();
   }
 
-  OnPluginLoaded();
+  for (auto cb : m_OnLoadCB)
+  {
+    cb();
+  }
 }
 
-void ezPlugin::Uninitialize()
+void ModuleData::Uninitialize()
 {
-  if (!m_bInitialized)
+  if (!m_bCalledOnLoad)
     return;
 
-  OnPluginUnloaded();
+  for (auto cb : m_OnUnloadCB)
+  {
+    cb();
+  }
 
-  m_bInitialized = false;
+  m_bCalledOnLoad = false;
 }
 
 void ezPlugin::BeginPluginChanges()
@@ -98,17 +104,11 @@ void ezPlugin::EndPluginChanges()
   }
 }
 
-void ezPlugin::OnPluginLoaded()
-{
-}
-
-void ezPlugin::OnPluginUnloaded()
-{
-}
-
 ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile)
 {
-  if (!g_LoadedModules.Find(szPluginFile).IsValid())
+  auto thisMod = g_LoadedModules.Find(szPluginFile);
+
+  if (!thisMod.IsValid())
     return EZ_SUCCESS;
 
   ezLog::Debug("Plugin to unload: \"{0}\"", szPluginFile);
@@ -139,17 +139,10 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile)
     s_PluginEvents.Broadcast(e);
   }
 
-  // uninitialize all plugin objects that originated from this binary
-  for (ezPlugin* pPlugin = ezPlugin::GetFirstInstance(); pPlugin != nullptr; pPlugin = pPlugin->GetNextInstance())
-  {
-    if (ezStringUtils::IsEqual_NoCase(pPlugin->GetOriginBinary(), szPluginFile))
-    {
-      pPlugin->Uninitialize();
-    }
-  }
+  thisMod.Value().Uninitialize();
 
   // unload the plugin module
-  if (UnloadPluginModule(g_LoadedModules[szPluginFile].m_hModule, szPluginFile) == EZ_FAILURE)
+  if (UnloadPluginModule(thisMod.Value().m_hModule, szPluginFile) == EZ_FAILURE)
   {
     ezLog::Error("Unloading plugin module '{}' failed.", szPluginFile);
 
@@ -173,16 +166,8 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile)
     s_PluginEvents.Broadcast(e);
   }
 
-  for (ezPlugin* pPlugin = ezPlugin::GetFirstInstance(); pPlugin != nullptr; pPlugin = pPlugin->GetNextInstance())
-  {
-    if (ezStringUtils::IsEqual_NoCase(pPlugin->GetOriginBinary(), szPluginFile))
-    {
-      EZ_REPORT_FAILURE("ezPlugin object loaded from '{}' still exists after module was unloaded.", szPluginFile);
-    }
-  }
-
   ezLog::Success("Plugin '{0}' is unloaded.", szPluginFile);
-  g_LoadedModules.Remove(szPluginFile);
+  g_LoadedModules.Remove(thisMod);
 
   EndPluginChanges();
 
@@ -205,7 +190,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, ezBitflags<ezPlu
   if (flags.IsSet(ezPluginLoadFlags::LoadCopy))
   {
     // create a copy of the original plugin file
-    const ezUInt8 uiMaxParallelInstances = static_cast<ezUInt8>(ezPlugin::m_uiMaxParallelInstances);
+    const ezUInt8 uiMaxParallelInstances = static_cast<ezUInt8>(s_uiMaxParallelInstances);
     for (uiFileNumber = 0; uiFileNumber < uiMaxParallelInstances; ++uiFileNumber)
     {
       GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, uiFileNumber);
@@ -213,7 +198,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, ezBitflags<ezPlu
         goto success;
     }
 
-    ezLog::Error("Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.", sOldPlugin, sNewPlugin, ezPlugin::m_uiMaxParallelInstances);
+    ezLog::Error("Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.", sOldPlugin, sNewPlugin, s_uiMaxParallelInstances);
 
     g_LoadedModules.Remove(sNewPlugin);
     return EZ_FAILURE;
@@ -225,7 +210,8 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, ezBitflags<ezPlu
 
 success:
 
-  g_LoadedModules[szPluginFile].m_uiFileNumber = uiFileNumber;
+  auto& thisMod = g_LoadedModules[szPluginFile];
+  thisMod.m_uiFileNumber = uiFileNumber;
 
   BeginPluginChanges();
 
@@ -237,68 +223,43 @@ success:
     s_PluginEvents.Broadcast(e);
   }
 
-  if (LoadPluginModule(sNewPlugin.GetData(), g_LoadedModules[szPluginFile].m_hModule, szPluginFile) == EZ_FAILURE)
+  g_pCurrentlyLoadingModule = &thisMod;
+
+  if (LoadPluginModule(sNewPlugin.GetData(), g_pCurrentlyLoadingModule->m_hModule, szPluginFile) == EZ_FAILURE)
   {
     // loaded, but failed
-    g_LoadedModules[szPluginFile].m_hModule = 0;
+    g_pCurrentlyLoadingModule = nullptr;
+    thisMod.m_hModule = 0;
     EndPluginChanges();
 
     return EZ_FAILURE;
   }
 
-  // Find all known plugin objects
-  ConfigureNewPlugins(szPluginFile);
+  g_pCurrentlyLoadingModule = nullptr;
 
-  ezLog::Success("Plugin '{0}' is loaded.", szPluginFile);
-  EndPluginChanges();
-  return EZ_SUCCESS;
-}
-
-void ezPlugin::ConfigureNewPlugins(const char* szOriginBinary)
-{
-  ezHybridArray<ezPlugin*, 4> newPluginsNow;
-
-  for (ezPlugin* pPlugin = ezPlugin::GetFirstInstance(); pPlugin != nullptr; pPlugin = pPlugin->GetNextInstance())
-  {
-    if (!pPlugin->m_bInitialized)
-    {
-      pPlugin->m_sOriginBinary = szOriginBinary;
-
-      newPluginsNow.PushBack(pPlugin);
-    }
-  }
-
-  if (newPluginsNow.IsEmpty())
-  {
-    // make sure the events are sent, even if there is no plugin definition in the DLL
-    newPluginsNow.PushBack(nullptr);
-  }
-
-  for (ezPlugin* pPlugin : newPluginsNow)
   {
     // Broadcast Event: After loading plugin, before init
     {
       ezPluginEvent e;
       e.m_EventType = ezPluginEvent::AfterLoadingBeforeInit;
-      e.m_szPluginBinary = szOriginBinary;
+      e.m_szPluginBinary = szPluginFile;
       s_PluginEvents.Broadcast(e);
     }
 
-    // this may trigger recursive plugin loading
-    if (pPlugin)
-    {
-      EZ_ASSERT_DEV(!pPlugin->m_bInitialized, "Something went wrong");
-      pPlugin->Initialize();
-    }
+    thisMod.Initialize();
 
     // Broadcast Event: After loading plugin
     {
       ezPluginEvent e;
       e.m_EventType = ezPluginEvent::AfterLoading;
-      e.m_szPluginBinary = szOriginBinary;
+      e.m_szPluginBinary = szPluginFile;
       s_PluginEvents.Broadcast(e);
     }
   }
+
+  ezLog::Success("Plugin '{0}' is loaded.", szPluginFile);
+  EndPluginChanges();
+  return EZ_SUCCESS;
 }
 
 bool ezPlugin::ExistsPluginFile(const char* szPluginFile)
@@ -355,14 +316,35 @@ void ezPlugin::UnloadAllPlugins()
     }
   }
 
-  s_PluginLoadOrder.Clear();
-  g_LoadedModules.Clear();
+  EZ_ASSERT_DEBUG(g_LoadedModules.IsEmpty(), "Not all plugins were unloaded somehow.");
+
+  for (auto mod : g_LoadedModules)
+  {
+    mod.Value().Uninitialize();
+  }
 
   // also shut down all plugin objects that are statically linked
-  for (ezPlugin* pPlugin = ezPlugin::GetFirstInstance(); pPlugin != nullptr; pPlugin = pPlugin->GetNextInstance())
-  {
-    pPlugin->Uninitialize();
-  }
+  g_StaticModule.Uninitialize();
+
+  s_PluginLoadOrder.Clear();
+  g_LoadedModules.Clear();
+}
+
+ezPlugin::Init::Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad)
+{
+  ModuleData* pMD = g_pCurrentlyLoadingModule ? g_pCurrentlyLoadingModule : &g_StaticModule;
+
+  if (bOnLoad)
+    pMD->m_OnLoadCB.PushBack(OnLoadOrUnloadCB);
+  else
+    pMD->m_OnUnloadCB.PushBack(OnLoadOrUnloadCB);
+}
+
+ezPlugin::Init::Init(const char* szAddPluginDependency)
+{
+  ModuleData* pMD = g_pCurrentlyLoadingModule ? g_pCurrentlyLoadingModule : &g_StaticModule;
+
+  pMD->m_sPluginDependencies.PushBack(szAddPluginDependency);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_Plugin);

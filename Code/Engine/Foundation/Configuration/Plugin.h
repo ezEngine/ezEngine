@@ -5,7 +5,6 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Utilities/EnumerableClass.h>
 
 class ezPlugin;
 
@@ -26,7 +25,7 @@ struct ezPluginEvent
     AfterPluginChanges,  ///< Sent (once) after all (group) plugin changes (unload/load) are finished.
   };
 
-  Type m_EventType;                     ///< Which type of event this is.
+  Type m_EventType;                       ///< Which type of event this is.
   const char* m_szPluginBinary = nullptr; ///< The file name in which the plugin that is loaded or unloaded is located.
 };
 
@@ -51,16 +50,16 @@ struct ezPluginLoadFlags
   };
 };
 
+using ezPluginInitCallback = void (*)();
+
 /// \brief ezPlugin allows to manage all dynamically loadable plugins. Each plugin DLL must contain one global instance of ezPlugin.
 ///
 /// Put a global instance of ezPlugin somewhere into the source of each dynamic plugin DLL. Certain code depends on such instances
 /// to work correctly with dynamically loaded code. For example ezStartup allows to initialize and deinitialize code from
 /// dynamic DLLs properly (and in the correct order), by listening to events from ezPlugin.
 /// ezPlugin also provides static functions to load and unload DLLs.
-class EZ_FOUNDATION_DLL ezPlugin : public ezEnumerable<ezPlugin>
+class EZ_FOUNDATION_DLL ezPlugin
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezPlugin);
-
 public:
   /// \brief Call this before loading / unloading several plugins in a row, to prevent unnecessary re-initializations.
   static void BeginPluginChanges();
@@ -86,9 +85,6 @@ public:
   /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
   static ezCopyOnBroadcastEvent<const ezPluginEvent&> s_PluginEvents;
 
-  /// \brief Returns the n-th plugin that this one is dependent on, or nullptr if there is no further dependency.
-  virtual const char* GetPluginDependency(ezUInt32 uiDependency) const { return nullptr; }
-
   /// \brief Sets how many tries the system will do to find a free plugin file name.
   ///
   /// During plugin loading the system may create copies of the plugin DLLs. This only works if the system can find a
@@ -97,85 +93,39 @@ public:
   static void SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances);
 
   /// \brief Returns the name of the binary through which the plugin was loaded.
-  const char* GetOriginBinary() const { return m_sOriginBinary; }
+  //const char* GetOriginBinary() const { return m_sOriginBinary; }
 
   static void InitializeStaticallyLinkedPlugins();
 
-protected:
-  ezPlugin();
+  struct EZ_FOUNDATION_DLL Init
+  {
+    Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad);
+    Init(const char* szAddPluginDependency);
+  };
 
 private:
-  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath, ezUInt8 uiFileNumber);
+  ezPlugin() = delete;
 
-  virtual void OnPluginLoaded();
-  virtual void OnPluginUnloaded();
+  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath, ezUInt8 uiFileNumber);
 
   static ezResult UnloadPluginInternal(const char* szPlugin);
   static ezResult LoadPluginInternal(const char* szPlugin, ezBitflags<ezPluginLoadFlags> flags);
-
-  void Initialize();
-  void Uninitialize();
-
-  bool m_bInitialized = false;
-  ezString m_sOriginBinary;
-
-  static ezUInt32 m_uiMaxParallelInstances;
-  static ezInt32 s_iPluginChangeRecursionCounter;
-
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Plugin);
-  static void ConfigureNewPlugins(const char* szOriginBinary);
 };
 
-// TODO: the way plugin dependencies etc are configured is not necessarily final
+#define EZ_BEGIN_PLUGIN(a)
+#define EZ_END_PLUGIN
+#define BEGIN_PLUGIN_DEPENDENCIES
+#define END_PLUGIN_DEPENDENCIES
 
-#define EZ_BEGIN_PLUGIN(PluginName)           \
-  class PluginName##_Plugin : public ezPlugin \
-  {                                           \
+#define EZ_PLUGIN_DEPENDENCY(PluginName) \
+  ezPlugin::Init EZ_CONCAT(EZ_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
 
-#define EZ_END_PLUGIN \
-  }                   \
-  static EZ_CONCAT(g_Plugin, EZ_SOURCE_LINE)
+#define ON_PLUGIN_LOADED                                     \
+  static void plugin_OnLoaded();                             \
+  ezPlugin::Init plugin_OnLoadedInit(plugin_OnLoaded, true); \
+  static void plugin_OnLoaded()
 
-
-#define BEGIN_PLUGIN_DEPENDENCIES                                               \
-public:                                                                         \
-  virtual const char* GetPluginDependency(ezUInt32 uiDependency) const override \
-  {                                                                             \
-    const char* szDeps[] = {
-
-#define END_PLUGIN_DEPENDENCIES \
-  , nullptr, nullptr, nullptr   \
-  }                             \
-  ;                             \
-  return szDeps[uiDependency];  \
-  }
-
-#define ON_PLUGIN_LOADED \
-private:                 \
-  virtual void OnPluginLoaded() override
-
-#define ON_PLUGIN_UNLOADED \
-private:                   \
-  virtual void OnPluginUnloaded() override
-
-/* For copy&pasting:
-
-// clang-format off
-EZ_BEGIN_PLUGIN(Name)
-
-  BEGIN_PLUGIN_DEPENDENCIES
-    "dep"
-  END_PLUGIN_DEPENDENCIES
-
-  ON_PLUGIN_LOADED
-  {
-  }
-  
-  ON_PLUGIN_UNLOADED
-  {
-  }
-
-EZ_END_PLUGIN;
-// clang-format on
-
-*/
+#define ON_PLUGIN_UNLOADED                                        \
+  static void plugin_OnUnloaded();                                \
+  ezPlugin::Init plugin_OnUnloadedInit(plugin_OnUnloaded, false); \
+  static void plugin_OnUnloaded()

@@ -35,11 +35,13 @@ void OnLoadPlugin()
   }
 }
 
+EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
+
 // clang-format off
 EZ_BEGIN_PLUGIN(ezEditorPluginKraut)
 
   BEGIN_PLUGIN_DEPENDENCIES
-    "ezEditorPluginScene"
+    //"ezEditorPluginScene"
   END_PLUGIN_DEPENDENCIES
 
   ON_PLUGIN_LOADED

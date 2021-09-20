@@ -10,11 +10,13 @@ static ezInt32 g_iPluginState = -1;
 void OnLoadPlugin();
 void OnUnloadPlugin();
 
+EZ_PLUGIN_DEPENDENCY(ezFoundationTest_Plugin1);
+
 // clang-format off
 EZ_BEGIN_PLUGIN(ezFoundationTest_Plugin2)
 
   BEGIN_PLUGIN_DEPENDENCIES
-    "ezFoundationTest_Plugin1"
+    //"ezFoundationTest_Plugin1"
   END_PLUGIN_DEPENDENCIES
 
   ON_PLUGIN_LOADED

@@ -69,12 +69,15 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler);
 }
 
+EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
+EZ_PLUGIN_DEPENDENCY(ezPhysXPlugin);
+
 // clang-format off
 EZ_BEGIN_PLUGIN(ezEditorPluginPhysX)
 
   BEGIN_PLUGIN_DEPENDENCIES
-    "ezEditorPluginScene",
-    "ezPhysXPlugin"
+    //"ezEditorPluginScene",
+    //"ezPhysXPlugin"
   END_PLUGIN_DEPENDENCIES
 
   ON_PLUGIN_LOADED
