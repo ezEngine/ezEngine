@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5963804767315103672,5433555503478725399}}
-		u4 %Hash{8053425805281512762}
+		u4 %Hash{6241995962988601337}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -59,6 +59,7 @@ o
 		u3 %InputCubemap{0}
 		f %Intensity{0x0000803F}
 		Uuid %IrradianceData{u4{3796248088956775667,8325318231547522961}}
+		u3 %IrradianceOutputIndex{0}
 		s %Name{""}
 		VarArray %Node::Connections
 		{
@@ -67,8 +68,8 @@ o
 			Uuid{u4{12748989557167519964,15040883955414241070}}
 		}
 		Vec2 %Node::Pos{f{0xC1A2F843,0x1B90A143}}
-		u3 %OutputIndex{0}
 		f %Saturation{0x0000803F}
+		u3 %SpecularOutputIndex{0}
 	}
 }
 o
@@ -309,7 +310,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionFilterPass"}
-		u3 %TypeSize{192}
+		u3 %TypeSize{208}
 		u3 %TypeVersion{1}
 	}
 }
