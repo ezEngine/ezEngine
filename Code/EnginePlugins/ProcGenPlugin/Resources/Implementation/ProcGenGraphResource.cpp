@@ -147,6 +147,10 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           chunk >> pOutput->m_vMinOffset;
           chunk >> pOutput->m_vMaxOffset;
 
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 6)
+          {
+            chunk >> pOutput->m_YawRotationSnap;
+          }
           chunk >> pOutput->m_fAlignToNormal;
 
           chunk >> pOutput->m_vMinScale;

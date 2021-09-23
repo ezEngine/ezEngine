@@ -160,6 +160,7 @@ namespace ezProcGenInternal
     ezVec3 m_vMinOffset = ezVec3::ZeroVector();
     ezVec3 m_vMaxOffset = ezVec3::ZeroVector();
 
+    ezAngle m_YawRotationSnap = ezAngle::Radian(0.0f);
     float m_fAlignToNormal = 1.0f;
 
     ezVec3 m_vMinScale = ezVec3(1.0f);

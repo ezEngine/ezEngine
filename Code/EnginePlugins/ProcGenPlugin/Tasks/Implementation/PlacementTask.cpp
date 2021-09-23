@@ -217,7 +217,9 @@ void PlacementTask::ExecuteVM()
 
   ezSimdVec4f vMinValue = ezSimdVec4f(fMinAngle, pOutput->m_vMinOffset.z, 0.0f);
   ezSimdVec4f vMaxValue = ezSimdVec4f(fMaxAngle, pOutput->m_vMaxOffset.z, 0.0f);
+  ezSimdVec4f vYawRotationSnap = ezSimdVec4f(pOutput->m_YawRotationSnap);
   ezSimdVec4f vUp = ezSimdVec4f(0, 0, 1);
+  ezSimdVec4f vHalf = ezSimdVec4f(0.5f);
   ezSimdVec4f vAlignToNormal = ezSimdVec4f(pOutput->m_fAlignToNormal);
   ezSimdVec4f vMinScale = ezSimdConversion::ToVec3(pOutput->m_vMinScale);
   ezSimdVec4f vMaxScale = ezSimdConversion::ToVec3(pOutput->m_vMaxScale);
@@ -243,8 +245,12 @@ void PlacementTask::ExecuteVM()
     offset.SetZ(random.y());
     placementTransform.m_Transform.m_Position = ezSimdConversion::ToVec3(placementPoint.m_vPosition) + offset;
 
+    ezSimdVec4f yaw = ezSimdVec4f(random.x());
+    ezSimdVec4f roundedYaw = (yaw.CompDiv(vYawRotationSnap) + vHalf).Floor().CompMul(vYawRotationSnap);
+    yaw = ezSimdVec4f::Select(vYawRotationSnap == ezSimdVec4f::ZeroVector(), yaw, roundedYaw);
+
     ezSimdQuat qYawRot;
-    qYawRot.SetFromAxisAndAngle(vUp, random.x());
+    qYawRot.SetFromAxisAndAngle(vUp, yaw.x());
     ezSimdVec4f vNormal = ezSimdConversion::ToVec3(placementPoint.m_vNormal);
     ezSimdQuat qToNormalRot;
     qToNormalRot.SetShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));

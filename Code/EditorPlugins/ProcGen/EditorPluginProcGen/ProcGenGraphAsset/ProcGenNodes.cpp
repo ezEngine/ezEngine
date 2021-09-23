@@ -130,6 +130,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("Footprint", m_fFootprint)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("MinOffset", m_vMinOffset),
     EZ_MEMBER_PROPERTY("MaxOffset", m_vMaxOffset),
+    EZ_MEMBER_PROPERTY("YawRotationSnap", m_YawRotationSnap)->AddAttributes(new ezClampValueAttribute(ezAngle::Radian(0.0f), ezVariant())),
     EZ_MEMBER_PROPERTY("AlignToNormal", m_fAlignToNormal)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("MinScale", m_vMinScale)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.0f), ezVariant())),
     EZ_MEMBER_PROPERTY("MaxScale", m_vMaxScale)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.0f), ezVariant())),
@@ -220,6 +221,8 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& stream)
   stream << m_vMinOffset;
   stream << m_vMaxOffset;
 
+  // chunk version 6
+  stream << m_YawRotationSnap;
   stream << m_fAlignToNormal;
 
   stream << m_vMinScale;

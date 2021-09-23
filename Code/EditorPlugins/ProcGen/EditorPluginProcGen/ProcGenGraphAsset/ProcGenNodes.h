@@ -53,6 +53,7 @@ public:
   ezVec3 m_vMinOffset = ezVec3(0);
   ezVec3 m_vMaxOffset = ezVec3(0);
 
+  ezAngle m_YawRotationSnap = ezAngle::Radian(0.0f);
   float m_fAlignToNormal = 1.0f;
 
   ezVec3 m_vMinScale = ezVec3(1);
@@ -66,12 +67,12 @@ public:
 
   ezString m_sColorGradient;
 
+  ezEnum<ezProcPlacementMode> m_Mode;
+
   ezRenderPipelineNodeInputPin m_DensityPin;
   ezRenderPipelineNodeInputPin m_ScalePin;
   ezRenderPipelineNodeInputPin m_ColorIndexPin;
   ezRenderPipelineNodeInputPin m_ObjectIndexPin;
-
-  ezEnum<ezProcPlacementMode> m_Mode;
 };
 
 //////////////////////////////////////////////////////////////////////////
