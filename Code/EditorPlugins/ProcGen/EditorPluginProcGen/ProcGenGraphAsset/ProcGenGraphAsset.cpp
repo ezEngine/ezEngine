@@ -41,7 +41,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 5, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProcGenNodeManager), ezAssetDocEngineConnection::Simple)
+  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProcGenNodeManager), ezAssetDocEngineConnection::None)
 {
 }
 

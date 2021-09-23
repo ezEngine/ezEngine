@@ -12,7 +12,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
 

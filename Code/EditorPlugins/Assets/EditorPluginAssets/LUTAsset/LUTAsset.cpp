@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezLUTAssetDocument::ezLUTAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezLUTAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezLUTAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

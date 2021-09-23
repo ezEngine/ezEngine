@@ -26,7 +26,7 @@ void ezLUTAssetActions::MapActions(const char* szMapping, const char* szPath) {}
 //////////////////////////////////////////////////////////////////////////
 
 ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
@@ -83,25 +83,4 @@ ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocu
   }
 
   FinishWindowCreation();
-}
-
-void ezQtLUTAssetDocumentWindow::InternalRedraw()
-{
-  ezEditorInputContext::UpdateActiveInputContext();
-  SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
-}
-
-void ezQtLUTAssetDocumentWindow::SendRedrawMsg()
-{
-  // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
-    return;
-
-  for (auto pView : m_ViewWidgets)
-  {
-    pView->SetEnablePicking(false);
-    pView->UpdateCameraInterpolation();
-    pView->SyncToEngine();
-  }
 }

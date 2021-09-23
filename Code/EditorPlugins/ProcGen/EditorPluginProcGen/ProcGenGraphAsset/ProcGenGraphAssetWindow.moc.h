@@ -1,14 +1,14 @@
 #pragma once
 
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 
 class ezProcGenGraphAssetDocument;
 
 class ezQtNodeScene;
 class ezQtNodeView;
 
-class ezProcGenGraphAssetDocumentWindow : public ezQtEngineDocumentWindow
+class ezProcGenGraphAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 

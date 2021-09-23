@@ -13,11 +13,12 @@ class ezAssetDocumentManager;
 class ezPlatformProfile;
 class QImage;
 
+/// \brief Describes whether the asset document on the editor side also needs a rendering context on the engine side
 enum class ezAssetDocEngineConnection : ezUInt8
 {
-  None,
-  Simple,
-  FullObjectMirroring
+  None,               ///< Use this when the document is fully self-contained and any UI is handled by Qt only. This is very common for 'data only' assets and everything that can't be visualized in 3D.
+  Simple,             ///< Use this when the asset should be visualized in 3D. This requires a 'context' to be set up on the engine side that implements custom rendering. This is the most common type for anything that can be visualized in 3D, though can also be used for 2D data.
+  FullObjectMirroring ///< In this mode the entire object hierarchy on the editor side is automatically synchronized over to an engine context. This is only needed for complex documents, such as scenes and prefabs.
 };
 
 /// \brief Frequently needed asset document states, to prevent code duplication
