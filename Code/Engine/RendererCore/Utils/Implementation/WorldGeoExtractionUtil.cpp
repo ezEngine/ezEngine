@@ -166,9 +166,7 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
     geom.ComputeTangents();
 
     ezMeshResourceDescriptor desc;
-
-    // Data/Base/Materials/Common/Pattern.ezMaterialAsset
-    desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
+    desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.ezMaterialAsset
 
     desc.MeshBufferDesc().AddCommonStreams();
     desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);

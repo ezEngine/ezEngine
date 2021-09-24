@@ -1,15 +1,18 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <Recast/DetourNavMesh.h>
 #include <Recast/DetourNavMeshBuilder.h>
 #include <Recast/Recast.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezRecastConfig>)
@@ -130,23 +133,7 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWor
   return EZ_SUCCESS;
 }
 
-void ezRecastNavMeshBuilder::ReserveMemory(const ezWorldGeoExtractionUtil::MeshObjectList& desc)
-{
-#if 0
-  const ezUInt32 uiBoxes = desc.m_BoxShapes.GetCount();
-  const ezUInt32 uiBoxTriangles = uiBoxes * 12;
-  const ezUInt32 uiBoxVertices = uiBoxes * 8;
-
-  const ezUInt32 uiTriangles = uiBoxTriangles + desc.m_Triangles.GetCount();
-  const ezUInt32 uiVertices = uiBoxVertices + desc.m_Vertices.GetCount();
-
-  m_Triangles.Reserve(uiTriangles);
-  m_TriangleAreaIDs.Reserve(uiTriangles);
-  m_Vertices.Reserve(uiVertices);
-#endif
-}
-
-void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& desc)
+void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& objects)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::GenerateTriangleMesh");
 
@@ -154,81 +141,73 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
   m_TriangleAreaIDs.Clear();
   m_Vertices.Clear();
 
-  ReserveMemory(desc);
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#if 0
+  ezUInt32 uiVertexOffset = 0;
+  for (const ezWorldGeoExtractionUtil::MeshObject& object : objects)
   {
-    for (const auto& v : desc.m_Vertices)
+    ezResourceLock<ezCpuMeshResource> pCpuMesh(object.m_hMeshResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     {
-      ezVec3 pos = v.m_vPosition;
+      continue;
+    }
 
-      // convert from ez convention (Y up) to recast convention (Z up)
+    const auto& meshBufferDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
+
+    const ezVec3* pPositions = nullptr;
+    ezUInt32 uiElementStride = 0;
+    if (ezMeshBufferUtils::GetPositionStream(meshBufferDesc, pPositions, uiElementStride).Failed())
+    {
+      continue;
+    }
+
+    ezMat4 transform = object.m_GlobalTransform.GetAsMat4();
+
+    // collect all vertices
+    for (ezUInt32 i = 0; i < meshBufferDesc.GetVertexCount(); ++i)
+    {
+      ezVec3 pos = transform.TransformPosition(*pPositions);
+
+      // convert from ez convention (Z up) to recast convention (Y up)
       ezMath::Swap(pos.y, pos.z);
 
       m_Vertices.PushBack(pos);
+
+      pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
     }
 
-    for (const auto& tri : desc.m_Triangles)
+    // collect all indices
+    bool flip = ezGraphicsUtils::IsTriangleFlipRequired(transform.GetRotationalPart());
+    if (meshBufferDesc.Uses32BitIndices())
     {
-      auto& nt = m_Triangles.ExpandAndGetRef();
-      nt.m_VertexIdx[0] = tri.m_uiVertexIndices[0];
-      nt.m_VertexIdx[1] = tri.m_uiVertexIndices[2];
-      nt.m_VertexIdx[2] = tri.m_uiVertexIndices[1];
-    }
-  }
+      const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
 
-  for (const auto& box : desc.m_BoxShapes)
-  {
-    const ezUInt32 uiFirstVtx = m_Vertices.GetCount();
-
-    // add the 8 box vertices
-    {
-      ezVec3 ext = box.m_vHalfExtents;
-
-      ezVec3 exts[8];
-      exts[0] = ezVec3(ext.x, ext.y, ext.z);
-      exts[1] = ezVec3(ext.x, ext.y, -ext.z);
-      exts[2] = ezVec3(ext.x, -ext.y, ext.z);
-      exts[3] = ezVec3(ext.x, -ext.y, -ext.z);
-      exts[4] = ezVec3(-ext.x, ext.y, ext.z);
-      exts[5] = ezVec3(-ext.x, ext.y, -ext.z);
-      exts[6] = ezVec3(-ext.x, -ext.y, ext.z);
-      exts[7] = ezVec3(-ext.x, -ext.y, -ext.z);
-
-      for (ezUInt32 i = 0; i < 8; ++i)
+      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
       {
-        ezVec3 pos = box.m_vPosition + box.m_qRotation * exts[i];
+        auto& triangle = m_Triangles.ExpandAndGetRef();
+        triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
+        triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
+        triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
+      }
+    }
+    else
+    {
+      const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
 
-        // convert from ez convention (Y up) to recast convention (Z up)
-        ezMath::Swap(pos.y, pos.z);
-
-        m_Vertices.ExpandAndGetRef() = pos;
+      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+      {
+        auto& triangle = m_Triangles.ExpandAndGetRef();
+        triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
+        triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
+        triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
       }
     }
 
-    // Add all triangles
-    {
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 0, uiFirstVtx + 5, uiFirstVtx + 1);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 0, uiFirstVtx + 4, uiFirstVtx + 5);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 2, uiFirstVtx + 1, uiFirstVtx + 3);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 2, uiFirstVtx + 0, uiFirstVtx + 1);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 6, uiFirstVtx + 3, uiFirstVtx + 7);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 6, uiFirstVtx + 2, uiFirstVtx + 3);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 4, uiFirstVtx + 7, uiFirstVtx + 5);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 4, uiFirstVtx + 6, uiFirstVtx + 7);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 4, uiFirstVtx + 2, uiFirstVtx + 6);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 4, uiFirstVtx + 0, uiFirstVtx + 2);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 7, uiFirstVtx + 1, uiFirstVtx + 5);
-      m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 7, uiFirstVtx + 3, uiFirstVtx + 1);
-    }
+    uiVertexOffset += meshBufferDesc.GetVertexCount();
   }
 
   // initialize the IDs to zero
   m_TriangleAreaIDs.SetCount(m_Triangles.GetCount());
 
   ezLog::Debug("Vertices: {0}, Triangles: {1}", m_Vertices.GetCount(), m_Triangles.GetCount());
-#endif
 }
 
 

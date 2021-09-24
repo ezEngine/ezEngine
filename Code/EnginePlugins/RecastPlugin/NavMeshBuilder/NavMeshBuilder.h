@@ -53,8 +53,7 @@ private:
   static void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config, const ezBoundingBox& bbox);
 
   void Clear();
-  void ReserveMemory(const ezWorldGeoExtractionUtil::MeshObjectList& desc);
-  void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& desc);
+  void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& objects);
   void ComputeBoundingBox();
   ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress);
   static ezResult BuildDetourNavMeshData(const ezRecastConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& NavmeshData);
