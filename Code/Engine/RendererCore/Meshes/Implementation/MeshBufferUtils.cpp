@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Math/Float16.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
 namespace
@@ -321,6 +322,89 @@ ezResult ezMeshBufferUtils::DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGAL
     default:
       return EZ_FAILURE;
   }
+}
+
+// static
+ezResult ezMeshBufferUtils::GetPositionStream(const ezMeshBufferResourceDescriptor& meshBufferDesc, const ezVec3*& out_pPositions, ezUInt32& out_uiElementStride)
+{
+  const ezVertexDeclarationInfo& vdi = meshBufferDesc.GetVertexDeclaration();
+  const ezUInt8* pRawVertexData = meshBufferDesc.GetVertexBufferData().GetPtr();
+
+  const ezVec3* pPositions = nullptr;
+
+  for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
+  {
+    if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
+    {
+      if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
+      {
+        ezLog::Error("Unsupported vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
+        return EZ_FAILURE; // other position formats are not supported
+      }
+
+      pPositions = reinterpret_cast<const ezVec3*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+    }
+  }
+
+  if (pPositions == nullptr)
+  {
+    ezLog::Error("No position stream found");
+    return EZ_FAILURE;
+  }
+
+  out_pPositions = pPositions;
+  out_uiElementStride = meshBufferDesc.GetVertexDataSize();
+  return EZ_SUCCESS;
+}
+
+// static
+ezResult ezMeshBufferUtils::GetPositionAndNormalStream(const ezMeshBufferResourceDescriptor& meshBufferDesc, const ezVec3*& out_pPositions, const ezUInt8*& out_pNormals, ezGALResourceFormat::Enum& out_NormalFormat, ezUInt32& out_uiElementStride)
+{
+  const ezVertexDeclarationInfo& vdi = meshBufferDesc.GetVertexDeclaration();
+  const ezUInt8* pRawVertexData = meshBufferDesc.GetVertexBufferData().GetPtr();
+
+  const ezVec3* pPositions = nullptr;
+  const ezUInt8* pNormals = nullptr;
+  ezGALResourceFormat::Enum normalFormat = ezGALResourceFormat::Invalid;
+
+  for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
+  {
+    if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
+    {
+      if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
+      {
+        ezLog::Error("Unsupported vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
+        return EZ_FAILURE; // other position formats are not supported
+      }
+
+      pPositions = reinterpret_cast<const ezVec3*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+    }
+    else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
+    {
+      pNormals = pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset;
+      normalFormat = vdi.m_VertexStreams[vs].m_Format;
+    }
+  }
+
+  if (pPositions == nullptr || pNormals == nullptr)
+  {
+    ezLog::Error("No position and normal stream found");
+    return EZ_FAILURE;
+  }
+
+  ezUInt8 dummySource[16] = {};
+  ezVec3 vNormal;
+  if (DecodeNormal(ezMakeArrayPtr(dummySource), normalFormat, vNormal).Failed())
+  {
+    ezLog::Error("Unsupported vertex normal format {0}", normalFormat);
+    return EZ_FAILURE;
+  }
+
+  out_pPositions = pPositions;
+  out_pNormals = pNormals;
+  out_NormalFormat = normalFormat;
+  out_uiElementStride = meshBufferDesc.GetVertexDataSize();
+  return EZ_SUCCESS;
 }
 
 

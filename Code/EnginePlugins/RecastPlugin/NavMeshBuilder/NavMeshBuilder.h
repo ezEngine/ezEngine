@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RecastPlugin/RecastPluginDLL.h>

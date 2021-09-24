@@ -2,7 +2,7 @@
 
 #include <BakingPlugin/Declarations.h>
 #include <Core/Graphics/AmbientCubeBasis.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>

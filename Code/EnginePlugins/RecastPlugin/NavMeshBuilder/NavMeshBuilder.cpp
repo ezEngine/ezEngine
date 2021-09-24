@@ -1,6 +1,6 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>

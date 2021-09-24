@@ -1,7 +1,7 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>

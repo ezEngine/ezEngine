@@ -94,47 +94,14 @@ namespace
     {
       const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
-      const ezVertexDeclarationInfo& vdi = mbDesc.GetVertexDeclaration();
-      const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetPtr();
-
       const ezVec3* pPositions = nullptr;
       const ezUInt8* pNormals = nullptr;
       ezGALResourceFormat::Enum normalFormat = ezGALResourceFormat::Invalid;
-
-      for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
+      ezUInt32 uiElementStride = 0;
+      if (ezMeshBufferUtils::GetPositionAndNormalStream(mbDesc, pPositions, pNormals, normalFormat, uiElementStride).Failed())
       {
-        if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
-        {
-          if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
-          {
-            ezLog::Warning("Unsupported CPU mesh vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
-            return nullptr; // other position formats are not supported
-          }
-
-          pPositions = reinterpret_cast<const ezVec3*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
-        }
-        else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
-        {
-          pNormals = pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset;
-          normalFormat = vdi.m_VertexStreams[vs].m_Format;
-        }
-      }
-
-      if (pPositions == nullptr || pNormals == nullptr)
-      {
-        ezLog::Warning("No position and normal stream found in CPU mesh");
         return nullptr;
       }
-
-      ezUInt8 dummySource[16] = {};
-      ezVec3 vNormal;
-      if (ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(dummySource), normalFormat, vNormal).Failed())
-      {
-        ezLog::Error("Unsupported CPU mesh vertex normal format {0}", normalFormat);
-        return nullptr;
-      }
-
-      const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
 
       ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
@@ -142,6 +109,7 @@ namespace
       ezVec3* rtcNormals = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
       // write out all vertices
+      ezVec3 vNormal;
       for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
       {
         ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();

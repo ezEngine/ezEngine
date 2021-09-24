@@ -1,9 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 3, ezComponentMode::Static)

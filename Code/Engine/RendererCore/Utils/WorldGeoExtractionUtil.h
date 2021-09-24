@@ -5,6 +5,7 @@
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Types/TagSet.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 class ezWorld;
 using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
@@ -14,7 +15,7 @@ using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
 /// The utility sends ezMsgExtractGeometry to world components and they may fill out the geometry information.
 /// \a ExtractionMode defines what the geometry is needed for. This ranges from finding geometry that is used to generate the navmesh from
 /// to exporting the geometry to a file for use in another program, e.g. a modeling software.
-class EZ_CORE_DLL ezWorldGeoExtractionUtil
+class EZ_RENDERERCORE_DLL ezWorldGeoExtractionUtil
 {
 public:
   struct MeshObject
@@ -51,7 +52,7 @@ public:
 ///
 /// The mode defines what the geometry is needed for, thus components should decide to participate or not
 /// and how detailed the geometry is they return.
-struct EZ_CORE_DLL ezMsgExtractGeometry : public ezMessage
+struct EZ_RENDERERCORE_DLL ezMsgExtractGeometry : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractGeometry, ezMessage);
 

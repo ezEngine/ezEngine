@@ -1,6 +1,6 @@
 #include <EnginePluginRecast/EnginePluginRecastPCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>

@@ -2,7 +2,7 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Terrain/HeightfieldComponent.h>

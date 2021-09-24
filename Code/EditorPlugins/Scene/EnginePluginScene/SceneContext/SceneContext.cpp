@@ -6,7 +6,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>

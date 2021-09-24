@@ -4,7 +4,7 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>

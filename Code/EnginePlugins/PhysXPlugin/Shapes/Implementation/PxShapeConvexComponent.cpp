@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
