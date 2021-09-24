@@ -114,6 +114,8 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
   ezHybridArray<ezPrefabResource*, 4> prefabs;
   prefabs.SetCount(objectsToPlace.GetCount());
 
+
+
   for (auto& objectTransform : objectTransforms)
   {
     const ezUInt32 uiObjectIndex = objectTransform.m_uiObjectIndex;
@@ -133,13 +135,20 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
 
     pPrefab->InstantiatePrefab(world, transform, options);
 
+    // only send the color message, if we actually have a custom color
+    if (objectTransform.m_uiSetColor != 0)
+    {
+      for (auto pRootObject : rootObjects)
+      {
+        // Set the color
+        ezMsgSetColor msg;
+        msg.m_Color = objectTransform.m_ObjectColor;
+        pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+      }
+    }
+
     for (auto pRootObject : rootObjects)
     {
-      // Set the color
-      ezMsgSetColor msg;
-      msg.m_Color = objectTransform.m_Color;
-      pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
-
       m_PlacedObjects.PushBack(pRootObject->GetHandle());
     }
   }

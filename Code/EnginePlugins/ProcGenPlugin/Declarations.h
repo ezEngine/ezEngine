@@ -225,9 +225,10 @@ namespace ezProcGenInternal
     EZ_DECLARE_POD_TYPE();
 
     ezSimdTransform m_Transform;
-    ezColorGammaUB m_Color;
+    ezColor m_ObjectColor;
     ezUInt8 m_uiObjectIndex;
     ezUInt16 m_uiPointIndex;
+    ezUInt8 m_uiSetColor : 1;
   };
 
   struct PlacementTileDesc
