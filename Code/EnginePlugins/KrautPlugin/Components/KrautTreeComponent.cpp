@@ -475,9 +475,7 @@ void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
     hMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   }
 
-  auto& meshObject = msg.m_pMeshObjects->ExpandAndGetRef();
-  meshObject.m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  meshObject.m_hMeshResource = hMesh;
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
 void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const

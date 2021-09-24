@@ -1,12 +1,13 @@
 #include <Core/CorePCH.h>
 
+#include <Core/Graphics/Geometry.h>
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)
@@ -136,7 +137,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
   line = "\n\n# triangles\n\n";
   file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
 
-  for (ezUInt32 i = 0; i < indices.GetCount(); i+=3)
+  for (ezUInt32 i = 0; i < indices.GetCount(); i += 3)
   {
     // indices are 1 based in obj
     line.Format("f {0} {1} {2}\n", indices[i + 0] + 1, indices[i + 1] + 1, indices[i + 2] + 1);
@@ -144,6 +145,45 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
   }
 
   ezLog::Success("Wrote world geometry to '{0}'", file.GetFilePathAbsolute().GetView());
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezMsgExtractGeometry::AddMeshObject(const ezTransform& transform, ezCpuMeshResourceHandle hMeshResource)
+{
+  m_pMeshObjects->PushBack({transform, hMeshResource});
+}
+
+void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
+{
+  const char* szResourceName = "CpuMesh-UnitBox";
+  ezCpuMeshResourceHandle hBoxMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(szResourceName);
+  if (hBoxMesh.IsValid() == false)
+  {
+    ezGeometry geom;
+    geom.AddBox(ezVec3(1), ezColor::White);
+    geom.TriangulatePolygons();
+    geom.ComputeTangents();
+
+    ezMeshResourceDescriptor desc;
+
+    // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+    desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
+
+    desc.MeshBufferDesc().AddCommonStreams();
+    desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+    desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+
+    desc.ComputeBounds();
+
+    hBoxMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(szResourceName, std::move(desc), szResourceName);
+  }
+
+  auto& meshObject = m_pMeshObjects->ExpandAndGetRef();
+  meshObject.m_GlobalTransform = transform;
+  meshObject.m_GlobalTransform.m_vScale *= vExtents;
+  meshObject.m_hMeshResource = hBoxMesh;
 }
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_WorldGeoExtractionUtil);

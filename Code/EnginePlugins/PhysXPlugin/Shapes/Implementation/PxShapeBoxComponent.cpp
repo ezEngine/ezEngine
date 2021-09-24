@@ -60,15 +60,7 @@ void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) con
 
 void ezPxShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#if 0
-  const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
-
-  auto& box = msg.m_pWorldGeometry->m_BoxShapes.ExpandAndGetRef();
-  box.m_vPosition = GetOwner()->GetGlobalPosition();
-  box.m_qRotation = GetOwner()->GetGlobalRotation();
-  box.m_vHalfExtents = m_vExtents.CompMul(vScale) * 0.5f;
-#endif
+  msg.AddBox(GetOwner()->GetGlobalTransform(), m_vExtents);
 }
 
 void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)

@@ -43,9 +43,7 @@ void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
       return;
   }
 
-  auto& meshObject = msg.m_pMeshObjects->ExpandAndGetRef();
-  meshObject.m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  meshObject.m_hMeshResource = ezResourceManager::LoadResource<ezCpuMeshResource>(GetMeshFile());
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(GetMeshFile()));
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);

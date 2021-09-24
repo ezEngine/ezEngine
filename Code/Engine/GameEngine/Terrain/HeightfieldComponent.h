@@ -106,7 +106,7 @@ protected:
   ezResult BuildMeshDescriptor(ezMeshResourceDescriptor& desc) const;
 
   template <typename ResourceType>
-  void GenerateMesh(ezTypedResourceHandle<ResourceType>& hResource) const;
+  ezTypedResourceHandle<ResourceType> GenerateMesh() const;
 
   ezUInt32 m_uiHeightfieldChangeCounter = 0;
   ezImageDataResourceHandle m_hHeightfield;

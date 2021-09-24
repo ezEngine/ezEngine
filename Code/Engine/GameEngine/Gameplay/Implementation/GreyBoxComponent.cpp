@@ -2,13 +2,13 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
@@ -115,7 +115,7 @@ void ezGreyBoxComponent::OnActivated()
 {
   if (!m_hMesh.IsValid())
   {
-    GenerateMesh(m_hMesh);
+    m_hMesh = GenerateMesh<ezMeshResource>();
   }
 
   // First generate the mesh and then call the base implementation which will update the bounds
@@ -365,9 +365,7 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
     EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
   }
 
-  auto& meshObject = msg.m_pMeshObjects->ExpandAndGetRef();
-  meshObject.m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  GenerateMesh(meshObject.m_hMeshResource);
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
 }
 
 void ezGreyBoxComponent::InvalidateMesh()
@@ -376,7 +374,7 @@ void ezGreyBoxComponent::InvalidateMesh()
   {
     m_hMesh.Invalidate();
 
-    GenerateMesh(m_hMesh);
+    m_hMesh = GenerateMesh<ezMeshResource>();
 
     TriggerLocalBoundsUpdate();
   }
@@ -466,7 +464,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
 }
 
 template <typename ResourceType>
-void ezGreyBoxComponent::GenerateMesh(ezTypedResourceHandle<ResourceType>& hResource) const
+ezTypedResourceHandle<ResourceType> ezGreyBoxComponent::GenerateMesh() const
 {
   ezStringBuilder sResourceName;
 
@@ -514,9 +512,9 @@ void ezGreyBoxComponent::GenerateMesh(ezTypedResourceHandle<ResourceType>& hReso
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
-  hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
+  ezTypedResourceHandle<ResourceType> hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
   if (hResource.IsValid())
-    return;
+    return hResource;
 
   ezGeometry geom;
   BuildGeometry(geom);
@@ -536,7 +534,7 @@ void ezGreyBoxComponent::GenerateMesh(ezTypedResourceHandle<ResourceType>& hReso
 
   desc.ComputeBounds();
 
-  hResource = ezResourceManager::CreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
+  return ezResourceManager::CreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
 }
 
 

@@ -211,18 +211,9 @@ void ezBreakableSheetComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) 
 {
   if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && m_bIncludeInNavmesh))
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-#if 0
-    const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
+    const ezVec3 vExtents(m_fWidth, m_fThickness, m_fHeight);
 
-    auto& box = msg.m_pWorldGeometry->m_BoxShapes.ExpandAndGetRef();
-    box.m_vPosition = GetOwner()->GetGlobalPosition();
-    box.m_qRotation = GetOwner()->GetGlobalRotation();
-
-    ezVec3 vExtents(m_fWidth, m_fThickness, m_fHeight);
-
-    box.m_vHalfExtents = vExtents.CompMul(vScale) * 0.5f;
-#endif
+    msg.AddBox(GetOwner()->GetGlobalTransform(), vExtents);
   }
 }
 

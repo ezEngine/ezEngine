@@ -117,7 +117,7 @@ protected:
   void BuildGeometry(ezGeometry& geom) const;
 
   template <typename ResourceType>
-  void GenerateMesh(ezTypedResourceHandle<ResourceType>& hResource) const;
+  ezTypedResourceHandle<ResourceType> GenerateMesh() const;
 
   ezMeshResourceHandle m_hMesh;
 };

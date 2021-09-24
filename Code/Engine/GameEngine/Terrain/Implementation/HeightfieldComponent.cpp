@@ -101,7 +101,7 @@ void ezHeightfieldComponent::OnActivated()
 {
   if (!m_hMesh.IsValid())
   {
-    GenerateMesh(m_hMesh);
+    m_hMesh = GenerateMesh<ezMeshResource>();
   }
 
   // First generate the mesh and then call the base implementation which will update the bounds
@@ -326,9 +326,7 @@ void ezHeightfieldComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) con
     EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
   }
 
-  auto& meshObject = msg.m_pMeshObjects->ExpandAndGetRef();
-  meshObject.m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  GenerateMesh(meshObject.m_hMeshResource);
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
 }
 
 void ezHeightfieldComponent::InvalidateMesh()
@@ -337,7 +335,7 @@ void ezHeightfieldComponent::InvalidateMesh()
   {
     m_hMesh.Invalidate();
 
-    GenerateMesh(m_hMesh);
+    m_hMesh = GenerateMesh<ezMeshResource>();
 
     TriggerLocalBoundsUpdate();
   }
@@ -580,10 +578,10 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
 }
 
 template <typename ResourceType>
-void ezHeightfieldComponent::GenerateMesh(ezTypedResourceHandle<ResourceType>& hResource) const
+ezTypedResourceHandle<ResourceType> ezHeightfieldComponent::GenerateMesh() const
 {
   if (!m_hHeightfield.IsValid())
-    return;
+    return ezTypedResourceHandle<ResourceType>();
 
   ezStringBuilder sResourceName;
 
@@ -597,16 +595,18 @@ void ezHeightfieldComponent::GenerateMesh(ezTypedResourceHandle<ResourceType>& h
 
     sResourceName.Format("Heightfield:{}", uiSettingsHash);
 
-    hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
+    ezTypedResourceHandle<ResourceType> hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
     if (hResource.IsValid())
-      return;
+      return hResource;
   }
 
   ezMeshResourceDescriptor desc;
   if (BuildMeshDescriptor(desc).Succeeded())
   {
-    hResource = ezResourceManager::CreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
+    return ezResourceManager::CreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
   }
+
+  return ezTypedResourceHandle<ResourceType>();
 }
 
 //////////////////////////////////////////////////////////////////////////
