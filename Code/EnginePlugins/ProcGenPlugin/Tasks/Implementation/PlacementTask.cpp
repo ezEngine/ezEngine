@@ -252,6 +252,7 @@ void PlacementTask::ExecuteVM()
 
     ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));
     placementTransform.m_Transform.m_Scale = ezSimdVec4f::Lerp(vMinScale, vMaxScale, scale);
+    placementTransform.m_uiSetColor = 0;
 
     ezColor objectColor = ezColor::ZeroColor();
     if (pColorGradient != nullptr)
@@ -266,9 +267,10 @@ void PlacementTask::ExecuteVM()
       objectColor.g *= intensity;
       objectColor.b *= intensity;
       objectColor.a = alpha;
+      placementTransform.m_uiSetColor = 1;
     }
-    placementTransform.m_ObjectColor = objectColor;
 
+    placementTransform.m_ObjectColor = objectColor;
     placementTransform.m_uiObjectIndex = placementPoint.m_uiObjectIndex;
     placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;
   }

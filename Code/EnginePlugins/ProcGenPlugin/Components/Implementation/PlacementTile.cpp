@@ -136,7 +136,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
     pPrefab->InstantiatePrefab(world, transform, options);
 
     // only send the color message, if we actually have a custom color
-    if (objectTransform.m_ObjectColor != ezColor::ZeroColor())
+    if (objectTransform.m_uiSetColor != 0)
     {
       for (auto pRootObject : rootObjects)
       {
