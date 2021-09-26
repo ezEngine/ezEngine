@@ -51,6 +51,7 @@ public: // Properties
   ezUuid m_Parent;
   ezString m_sGraphTextFormat;
   ezString m_sMimeType;
+  bool m_bAllowPickedPosition = true;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;

@@ -609,14 +609,14 @@ bool ezRenderWorld::IsRenderingThread()
 void ezRenderWorld::DeleteCachedRenderDataInternal(const ezGameObjectHandle& hOwnerObject)
 {
   ezUInt32 uiCacheIndex = hOwnerObject.GetInternalID().m_InstanceIndex;
-  ezUInt8 uiWorldIndex = hOwnerObject.GetInternalID().m_WorldIndex;
+  ezWorld* pWorld = ezWorld::GetWorld(hOwnerObject);
 
   EZ_LOCK(s_ViewsMutex);
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
     ezView* pView = it.Value();
-    if (pView->GetWorld() != nullptr && pView->GetWorld()->GetIndex() == uiWorldIndex)
+    if (pView->GetWorld() != nullptr && pView->GetWorld() == pWorld)
     {
       auto& perObjectCaches = pView->m_pRenderDataCache->m_PerObjectCaches;
 

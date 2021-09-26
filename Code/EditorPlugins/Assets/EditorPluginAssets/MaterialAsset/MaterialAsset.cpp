@@ -420,7 +420,7 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
     }
 
     {
-      auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+      auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObject->GetGuid());
 
       if (pMeta->m_CreateFromPrefab != pAssetInfo->m_Data.m_Guid)
       {
@@ -428,7 +428,7 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
         pMeta->m_CreateFromPrefab = pAssetInfo->m_Data.m_Guid;
         pMeta->m_PrefabSeedGuid = seed;
       }
-      m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+      m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
     }
     UpdatePrefabs();
   }
@@ -575,12 +575,12 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
 
   // Update prefab meta data
   {
-    auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObject->GetGuid());
     pMeta->m_CreateFromPrefab = PrefabAsset; // Should not change
     pMeta->m_PrefabSeedGuid = PrefabSeed;    // Should not change
     pMeta->m_sBasePrefab = sLeft;
 
-    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
 }
 
@@ -828,7 +828,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
     const ezDocumentObject* pObject = GetShaderPropertyObject();
     if (pObject)
     {
-      bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, m_DocumentObjectMetaData).IsValid();
+      bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData).IsValid();
       auto pType = pObject->GetTypeAccessor().GetType();
       ezHybridArray<ezAbstractProperty*, 32> properties;
       pType->GetAllProperties(properties);
@@ -1256,7 +1256,7 @@ bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezA
     }
   }
 
-  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(objectGraph);
 
   RestoreMetaDataAfterLoading(objectGraph, true);
 

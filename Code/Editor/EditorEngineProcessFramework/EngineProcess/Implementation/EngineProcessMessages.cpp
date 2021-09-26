@@ -231,6 +231,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenMsgToEngine, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("DocumentOpen", m_bDocumentOpen),
     EZ_MEMBER_PROPERTY("DocumentType", m_sDocumentType),
+    EZ_MEMBER_PROPERTY("DocumentMetaData", m_DocumentMetaData),
   }
   EZ_END_PROPERTIES;
 }

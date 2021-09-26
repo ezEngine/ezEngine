@@ -17,8 +17,24 @@ public:
 
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
+  /// \brief Creates a new document.
+  /// \param szDocumentTypeName Document type to create. See ezDocumentTypeDescriptor.
+  /// \param szPath Absolute path to the document to be created.
+  /// \param out_pDocument Out parameter for the resulting ezDocument. Will be nullptr on failure.
+  /// \param flags Flags to define various options like whether a window should be created.
+  /// \param pOpenContext An generic context object. Allows for custom data to be passed along into the construction. E.g. inform a sub-document which main document it belongs to.
+  /// \return Returns the error in case the operations failed.
   ezStatus CreateDocument(
-    const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None);
+    const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None, const ezDocumentObject* pOpenContext = nullptr);
+
+  /// \brief Opens an existing document.
+  /// \param szDocumentTypeName Document type to open. See ezDocumentTypeDescriptor.
+  /// \param szPath Absolute path to the document to be opened.
+  /// \param out_pDocument Out parameter for the resulting ezDocument. Will be nullptr on failure.
+  /// \param flags Flags to define various options like whether a window should be created.
+  /// \param pOpenContext  An generic context object. Allows for custom data to be passed along into the construction. E.g. inform a sub-document which main document it belongs to.
+  /// \return Returns the error in case the operations failed.
+  /// \return Returns the error in case the operations failed.
   ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
     ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow,
     const ezDocumentObject* pOpenContext = nullptr);
@@ -89,7 +105,7 @@ public:
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
 private:
-  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) = 0;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:

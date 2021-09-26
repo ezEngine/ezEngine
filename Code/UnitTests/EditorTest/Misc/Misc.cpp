@@ -4,13 +4,14 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
-static ezEditorTestMisc s_GameEngineTestBasics;
+static ezEditorTestMisc s_EditorTestMisc;
 
 const char* ezEditorTestMisc::GetTestName() const
 {
@@ -77,6 +78,30 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
       ezThreadUtils::Sleep(ezTime::Milliseconds(100));
       ProcessEvents();
     }
+
+    EZ_TEST_BOOL(CaptureImage(pWindow, "GoRef").Succeeded());
+
+    EZ_TEST_IMAGE(1, 100);
+
+    // Move everything to the layer and repeat the test.
+    ezScene2Document* pScene = ezDynamicCast<ezScene2Document*>(m_pDocument);
+    ezHybridArray<ezUuid, 2> layerGuids;
+    pScene->GetAllLayers(layerGuids);
+    EZ_TEST_INT(layerGuids.GetCount(), 2);
+    ezUuid layerGuid = layerGuids[0] == pScene->GetGuid() ? layerGuids[1] : layerGuids[0];
+
+    auto pAccessor = pScene->GetObjectAccessor();
+    auto pRoot = pScene->GetObjectManager()->GetRootObject();
+    ezHybridArray<ezVariant, 16> values;
+    pAccessor->GetValues(pRoot, "Children", values);
+
+    ezDeque<const ezDocumentObject*> assets;
+    for (auto& value : values)
+    {
+      assets.PushBack(pAccessor->GetObject(value.Get<ezUuid>()));
+    }
+    ezDeque<const ezDocumentObject*> newObjects;
+    MoveObjectsToLayer(pScene, assets, layerGuid, newObjects);
 
     EZ_TEST_BOOL(CaptureImage(pWindow, "GoRef").Succeeded());
 

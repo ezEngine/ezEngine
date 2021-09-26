@@ -81,6 +81,15 @@ void ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentO
 {
   if (pObject != nullptr)
   {
+    if (m_Items[0].m_pObject->GetDocumentObjectManager() != pObject->GetDocumentObjectManager())
+    {
+      if (ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument()))
+      {
+        pWindow->ShowTemporaryStatusBarMsg("Can't reference object in another layer.");
+      }
+      return;
+    }
+
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(pObject->GetGuid(), sGuid);
 

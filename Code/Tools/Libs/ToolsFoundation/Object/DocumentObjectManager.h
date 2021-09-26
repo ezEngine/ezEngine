@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
@@ -13,6 +15,8 @@ class ezDocument;
 #  undef GetObject
 #endif
 
+/// \brief Standard root object for most documents.
+/// m_RootObjects stores what is in the document and m_TempObjects stores transient data used during editing which is not part of the document.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot, ezReflectedClass);
@@ -21,6 +25,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
   ezHybridArray<ezReflectedClass*, 1> m_TempObjects;
 };
 
+/// \brief Implementation detail of ezDocumentObjectManager.
 class ezDocumentRootObject : public ezDocumentStorageObject
 {
 public:
@@ -35,7 +40,7 @@ public:
   virtual void RemoveSubObject(ezDocumentObject* pObject) override;
 };
 
-
+/// \brief Used by ezDocumentObjectManager::m_StructureEvents.
 struct ezDocumentObjectStructureEvent
 {
   ezDocumentObjectStructureEvent()
@@ -49,6 +54,8 @@ struct ezDocumentObjectStructureEvent
   ezVariant getInsertIndex() const;
   enum class Type
   {
+    BeforeReset,
+    AfterReset,
     BeforeObjectAdded,
     AfterObjectAdded,
     BeforeObjectRemoved,
@@ -68,6 +75,7 @@ struct ezDocumentObjectStructureEvent
   ezVariant m_NewPropertyIndex;
 };
 
+/// \brief Used by ezDocumentObjectManager::m_PropertyEvents.
 struct ezDocumentObjectPropertyEvent
 {
   ezDocumentObjectPropertyEvent() { m_pObject = nullptr; }
@@ -90,6 +98,7 @@ struct ezDocumentObjectPropertyEvent
   ezVariant m_NewIndex;
 };
 
+/// \brief Used by ezDocumentObjectManager::m_ObjectEvents.
 struct ezDocumentObjectEvent
 {
   ezDocumentObjectEvent() { m_pObject = nullptr; }
@@ -104,8 +113,26 @@ struct ezDocumentObjectEvent
   const ezDocumentObject* m_pObject;
 };
 
+/// \brief Represents to content of a document. Every document has exactly one root object under which all objects need to be parented. The default root object is ezDocumentRoot.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManager
 {
+public:
+  // \brief Storage for the object manager so it can be swapped when using multiple sub documents.
+  class Storage : public ezRefCounted
+  {
+  public:
+    Storage(const ezRTTI* pRootType);
+
+    ezDocument* m_pDocument = nullptr;
+    ezDocumentRootObject m_RootObject;
+
+    ezHashTable<ezUuid, const ezDocumentObject*> m_GuidToObject;
+
+    mutable ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&> m_StructureEvents;
+    mutable ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
+    ezEvent<const ezDocumentObjectEvent&> m_ObjectEvents;
+  };
+
 public:
   mutable ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&> m_StructureEvents;
   mutable ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
@@ -113,7 +140,7 @@ public:
 
   ezDocumentObjectManager(const ezRTTI* pRootType = ezDocumentRoot::GetStaticRTTI());
   virtual ~ezDocumentObjectManager();
-  void SetDocument(const ezDocument* pDocument) { m_pDocument = pDocument; }
+  void SetDocument(ezDocument* pDocument) { m_pObjectStorage->m_pDocument = pDocument; }
 
   // Object Construction / Destruction
   // holds object data
@@ -128,11 +155,12 @@ public:
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const { return nullptr; }
   void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
 
-  const ezDocumentObject* GetRootObject() const { return &m_RootObject; }
-  ezDocumentObject* GetRootObject() { return &m_RootObject; }
+  const ezDocumentObject* GetRootObject() const { return &m_pObjectStorage->m_RootObject; }
+  ezDocumentObject* GetRootObject() { return &m_pObjectStorage->m_RootObject; }
   const ezDocumentObject* GetObject(const ezUuid& guid) const;
   ezDocumentObject* GetObject(const ezUuid& guid);
-  const ezDocument* GetDocument() const { return m_pDocument; }
+  const ezDocument* GetDocument() const { return m_pObjectStorage->m_pDocument; }
+  ezDocument* GetDocument() { return m_pObjectStorage->m_pDocument; }
 
   // Property Change
   ezStatus SetValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& newValue, ezVariant index = ezVariant());
@@ -153,6 +181,9 @@ public:
 
   bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pObject) const;
   bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pParent, const char* szParentProperty) const;
+
+  ezSharedPtr<ezDocumentObjectManager::Storage> SwapStorage(ezSharedPtr<ezDocumentObjectManager::Storage> pNewStorage);
+  ezSharedPtr<ezDocumentObjectManager::Storage> GetStorage() { return m_pObjectStorage; }
 
 private:
   virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
@@ -181,8 +212,9 @@ private:
 private:
   friend class ezObjectAccessorBase;
 
-  const ezDocument* m_pDocument;
-  ezDocumentRootObject m_RootObject;
+  ezSharedPtr<ezDocumentObjectManager::Storage> m_pObjectStorage;
 
-  ezHashTable<ezUuid, const ezDocumentObject*> m_GuidToObject;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_StructureEventsUnsubscriber;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_PropertyEventsUnsubscriber;
+  ezEvent<const ezDocumentObjectEvent&>::Unsubscriber m_ObjectEventsUnsubscriber;
 };

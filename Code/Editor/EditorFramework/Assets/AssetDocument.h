@@ -117,6 +117,9 @@ public:
   /// \brief Returns the current state of the engine process side of this document.
   EngineStatus GetEngineStatus() const { return m_EngineStatus; }
 
+  /// \brief Passed into ezEngineProcessDocumentContext::Initialize on the engine process side. Allows the document to provide additional data to the engine process during context creation.
+  virtual ezVariant GetCreateEngineMetaData() const { return ezVariant(); }
+
   /// \brief Sends a message to the corresponding ezEngineProcessDocumentContext on the engine process.
   void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
 

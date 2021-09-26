@@ -373,9 +373,9 @@ void ezSelectionAction::OpenPrefabDocument()
   }
   else
   {
-    auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
+    auto pMeta = pScene->m_DocumentObjectMetaData->BeginReadMetaData(sel[0]->GetGuid());
     PrefabAsset = pMeta->m_CreateFromPrefab;
-    pScene->m_DocumentObjectMetaData.EndReadMetaData();
+    pScene->m_DocumentObjectMetaData->EndReadMetaData();
   }
 
   auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(PrefabAsset);

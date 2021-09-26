@@ -1,17 +1,18 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
+#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
+#include <EditorPluginScene/InputContexts/SceneSelectionContext.h>
+#include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QKeyEvent>
-
-
 
 bool ezQtSceneViewWidget::s_bContextMenuInitialized = false;
 
@@ -21,6 +22,15 @@ ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumen
   setAcceptDrops(true);
 
   m_bAllowPickSelectedWhileDragging = false;
+
+  if (ezDynamicCast<ezScene2Document*>(pOwnerWindow->GetDocument()))
+  {
+    //#TODO Not the cleanest solution but this replaces the default selection context of the base class.
+    const ezUInt32 uiSelectionIndex = m_InputContexts.IndexOf(m_pSelectionContext);
+    EZ_DEFAULT_DELETE(m_pSelectionContext);
+    m_pSelectionContext = EZ_DEFAULT_NEW(ezSceneSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
+    m_InputContexts[uiSelectionIndex] = m_pSelectionContext;
+  }
 }
 
 ezQtSceneViewWidget::~ezQtSceneViewWidget() {}

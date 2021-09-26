@@ -12,17 +12,22 @@ class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectAdapter : public ezQtNameableAdapter
   Q_OBJECT;
 
 public:
-  ezQtGameObjectAdapter(ezGameObjectDocument* pDocument);
+  ezQtGameObjectAdapter(ezDocumentObjectManager* pObjectManager, ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* pObjectMetaData = nullptr, ezObjectMetaData<ezUuid, ezGameObjectMetaData>* pGameObjectMetaData = nullptr);
   ~ezQtGameObjectAdapter();
   virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override;
   virtual bool setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const override;
 
-private:
+public:
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void GameObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezGameObjectMetaData>::EventData& e);
 
-private:
-  ezGameObjectDocument* m_pGameObjectDocument;
+protected:
+  ezDocumentObjectManager* m_pObjectManager = nullptr;
+  ezGameObjectDocument* m_pGameObjectDocument = nullptr;
+  ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* m_pObjectMetaData = nullptr;
+  ezObjectMetaData<ezUuid, ezGameObjectMetaData>* m_pGameObjectMetaData = nullptr;
+  ezEventSubscriptionID m_GameObjectMetaDataSubscription;
+  ezEventSubscriptionID m_DocumentObjectMetaDataSubscription;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectModel : public ezQtDocumentTreeModel
@@ -30,7 +35,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectModel : public ezQtDocumentTreeModel
   Q_OBJECT
 
 public:
-  ezQtGameObjectModel(ezGameObjectDocument* pDocument);
+  ezQtGameObjectModel(const ezDocumentObjectManager* pObjectManager, const ezUuid& root = ezUuid());
   ~ezQtGameObjectModel();
 };
 

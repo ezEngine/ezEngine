@@ -30,6 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, 1, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
     EZ_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
     EZ_MEMBER_PROPERTY("Mime", m_sMimeType),
+    EZ_MEMBER_PROPERTY("AllowPickedPosition", m_bAllowPickedPosition),
   }
   EZ_END_PROPERTIES;
 }
@@ -258,28 +259,43 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
-    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
-
+    ezHybridArray<ezAbstractObjectNode*, 16> RootNodes;
     auto& nodes = graph.GetAllNodes();
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
       auto* pNode = it.Value();
       if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
       {
-        auto* pNewObject = reader.CreateObjectFromNode(pNode);
-
-        if (pNewObject)
-        {
-          reader.ApplyPropertiesToObject(pNode, pNewObject);
-
-          auto& ref = ToBePasted.ExpandAndGetRef();
-          ref.m_pObject = pNewObject;
-          ref.m_pParent = pParent;
-        }
+        RootNodes.PushBack(pNode);
       }
     }
 
-    if (pDocument->Paste(ToBePasted, graph, true, m_sMimeType))
+    RootNodes.Sort([](const ezAbstractObjectNode* a, const ezAbstractObjectNode* b) {
+      auto* pOrderA = a->FindProperty("__Order");
+      auto* pOrderB = b->FindProperty("__Order");
+      if (pOrderA && pOrderB && pOrderA->m_Value.CanConvertTo<ezUInt32>() && pOrderB->m_Value.CanConvertTo<ezUInt32>())
+      {
+        return pOrderA->m_Value.ConvertTo<ezUInt32>() < pOrderB->m_Value.ConvertTo<ezUInt32>();
+      }
+      return a < b;
+    });
+
+    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+    for (ezAbstractObjectNode* pNode : RootNodes)
+    {
+      auto* pNewObject = reader.CreateObjectFromNode(pNode);
+
+      if (pNewObject)
+      {
+        reader.ApplyPropertiesToObject(pNode, pNewObject);
+
+        auto& ref = ToBePasted.ExpandAndGetRef();
+        ref.m_pObject = pNewObject;
+        ref.m_pParent = pParent;
+      }
+    }
+
+    if (pDocument->Paste(ToBePasted, graph, m_bAllowPickedPosition, m_sMimeType))
     {
       for (const auto& item : ToBePasted)
       {
@@ -391,11 +407,11 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
       // if prefabs are not allowed in this document, just create this as a regular object, with no link to the prefab template
       if (pDocument->ArePrefabsAllowed())
       {
-        auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
+        auto pMeta = pDocument->m_DocumentObjectMetaData->BeginModifyMetaData(m_CreatedRootObject);
         pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
         pMeta->m_PrefabSeedGuid = m_RemapGuid;
         pMeta->m_sBasePrefab = m_sBasePrefabGraph;
-        pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+        pDocument->m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
       }
       else
       {
@@ -506,20 +522,20 @@ ezStatus ezUnlinkPrefabCommand::DoInternal(bool bRedo)
   // store previous values
   if (!bRedo)
   {
-    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginReadMetaData(m_Object);
+    auto pMeta = pDocument->m_DocumentObjectMetaData->BeginReadMetaData(m_Object);
     m_OldCreateFromPrefab = pMeta->m_CreateFromPrefab;
     m_OldRemapGuid = pMeta->m_PrefabSeedGuid;
     m_sOldGraphTextFormat = pMeta->m_sBasePrefab;
-    pDocument->m_DocumentObjectMetaData.EndReadMetaData();
+    pDocument->m_DocumentObjectMetaData->EndReadMetaData();
   }
 
   // unlink
   {
-    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_Object);
+    auto pMeta = pDocument->m_DocumentObjectMetaData->BeginModifyMetaData(m_Object);
     pMeta->m_CreateFromPrefab = ezUuid();
     pMeta->m_PrefabSeedGuid = ezUuid();
     pMeta->m_sBasePrefab.Clear();
-    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    pDocument->m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -535,11 +551,11 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
 
   // restore link
   {
-    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_Object);
+    auto pMeta = pDocument->m_DocumentObjectMetaData->BeginModifyMetaData(m_Object);
     pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
     pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
     pMeta->m_sBasePrefab = m_sOldGraphTextFormat;
-    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    pDocument->m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
 
   return ezStatus(EZ_SUCCESS);

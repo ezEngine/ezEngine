@@ -92,7 +92,7 @@ void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
   if (m_pManipulator == nullptr)
     return;
 
-  const ezDocument* pDoc = (*m_pItems)[0].m_pObject->GetDocumentObjectManager()->GetDocument();
+  const ezDocument* pDoc = (*m_pItems)[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
   if (m_bActive)
     ezManipulatorManager::GetSingleton()->ClearActiveManipulator(pDoc);

@@ -68,19 +68,39 @@ public:
   bool IsReadOnly() const { return m_bReadOnly; }
   const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
 
-  const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager; }
-  ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager; }
-  ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
-  ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
+  const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager.Borrow(); }
+  ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager.Borrow(); }
+  ezSelectionManager* GetSelectionManager() const { return m_SelectionManager.Borrow(); }
+  ezCommandHistory* GetCommandHistory() const { return m_CommandHistory.Borrow(); }
   virtual ezObjectAccessorBase* GetObjectAccessor() const;
 
   virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index = ezVariant()) const;
   virtual bool IsDefaultValue(const ezDocumentObject* pObject, const char* szProperty, bool bReturnOnInvalid, ezVariant index = ezVariant()) const;
 
   ///@}
+  /// \name Main / Sub-Document Functions
+  ///@{
+
+  /// \brief Returns whether this document is a main document, i.e. self contained.
+  bool IsMainDocument() const { return m_pHostDocument == this; }
+  /// \brief Returns whether this document is a sub-document, i.e. is part of another document.
+  bool IsSubDocument() const { return m_pHostDocument != this; }
+  /// \brief In case this is a sub-document, returns the main document this belongs to. Otherwise 'this' is returned.
+  const ezDocument* GetMainDocument() const { return m_pHostDocument; }
+  /// @brief At any given time, only the active sub-document can be edited. This returns the active sub-document which can also be this document itself. Changes to the active sub-document are generally triggered by ezDocumentObjectStructureEvent::Type::AfterReset.
+  const ezDocument* GetActiveSubDocument() const { return m_pActiveSubDocument; }
+  ezDocument* GetMainDocument() { return m_pHostDocument; }
+  ezDocument* GetActiveSubDocument() { return m_pActiveSubDocument; }
+
+protected:
+  ezDocument* m_pHostDocument = nullptr;
+  ezDocument* m_pActiveSubDocument = nullptr;
+
+  ///@}
   /// \name Document Management Functions
   ///@{
 
+public:
   /// \brief Returns the absolute path to the document.
   const char* GetDocumentPath() const { return m_sDocumentPath; }
 
@@ -210,7 +230,7 @@ public:
   ///@}
 
 public:
-  ezObjectMetaData<ezUuid, ezDocumentObjectMetaData> m_DocumentObjectMetaData;
+  ezUniquePtr<ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>> m_DocumentObjectMetaData;
 
   mutable ezEvent<const ezDocumentEvent&> m_EventsOne;
   static ezEvent<const ezDocumentEvent&> s_EventsAny;
@@ -243,11 +263,13 @@ protected:
 
   ///@}
 
-  mutable ezSelectionManager m_SelectionManager;
-  mutable ezCommandHistory m_CommandHistory;
+  ezUniquePtr<ezDocumentObjectManager> m_pObjectManager;
+  mutable ezUniquePtr<ezCommandHistory> m_CommandHistory;
+  mutable ezUniquePtr<ezSelectionManager> m_SelectionManager;
+  mutable ezUniquePtr<ezObjectCommandAccessor> m_ObjectAccessor; ///< Default object accessor used by every doc.
+
   ezDocumentInfo* m_pDocumentInfo = nullptr;
   const ezDocumentTypeDescriptor* m_pTypeDescriptor = nullptr;
-  mutable ezObjectCommandAccessor* m_ObjectAccessor = nullptr; ///< Default object accessor used by every doc.
 
 private:
   friend class ezDocumentManager;
@@ -258,7 +280,6 @@ private:
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
   ezDocumentManager* m_pDocumentManager = nullptr;
-  ezDocumentObjectManager* m_pObjectManager = nullptr;
 
   ezString m_sDocumentPath;
   bool m_bModified;

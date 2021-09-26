@@ -10,7 +10,7 @@ ezConeAngleManipulatorAdapter::~ezConeAngleManipulatorAdapter() {}
 
 void ezConeAngleManipulatorAdapter::Finalize()
 {
-  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
   auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
 

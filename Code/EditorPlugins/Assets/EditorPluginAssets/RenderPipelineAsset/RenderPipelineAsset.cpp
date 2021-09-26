@@ -224,7 +224,7 @@ bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, con
     }
   }
 
-  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(objectGraph);
 
   RestoreMetaDataAfterLoading(objectGraph, true);
 

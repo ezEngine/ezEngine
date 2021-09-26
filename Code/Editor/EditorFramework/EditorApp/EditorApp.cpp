@@ -123,7 +123,8 @@ void ezQtEditorApp::SaveAllOpenDocuments()
     for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
     {
       ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-      if (pWnd)
+      // Layers for example will share a window with the scene document and the window will always save the scene.
+      if (pWnd && pWnd->GetDocument() == pDoc)
       {
         if (pWnd->SaveDocument().m_Result.Failed())
           return;

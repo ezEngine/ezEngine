@@ -101,23 +101,7 @@ ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
       const bool bDirect = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
-
-      if (res.m_PickedObject.IsValid())
-      {
-        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
-
-        if (m_PickObjectOverride.IsValid())
-        {
-          m_PickObjectOverride(pObject);
-        }
-        else
-        {
-          if (bToggle)
-            pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
-          else
-            pDocument->GetSelectionManager()->SetSelection(determineObjectToSelect(pObject, false, bDirect));
-        }
-      }
+      SelectPickedObject(res, bToggle, bDirect);
 
       DoFocusLost(false);
 
@@ -162,6 +146,29 @@ void ezSelectionContext::OpenDocumentForPickedObject(const ezObjectPickingResult
   }
 
   GetOwnerWindow()->ShowTemporaryStatusBarMsg("Could not open a document for the picked object");
+}
+
+void ezSelectionContext::SelectPickedObject(const ezObjectPickingResult& res, bool bToggle, bool bDirect) const
+{
+  if (res.m_PickedObject.IsValid())
+  {
+    auto* pDocument = GetOwnerWindow()->GetDocument();
+    const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
+    if (!pObject)
+      return;
+
+    if (m_PickObjectOverride.IsValid())
+    {
+      m_PickObjectOverride(pObject);
+    }
+    else
+    {
+      if (bToggle)
+        pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
+      else
+        pDocument->GetSelectionManager()->SetSelection(determineObjectToSelect(pObject, false, bDirect));
+    }
+  }
 }
 
 void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
@@ -333,7 +340,7 @@ static const ezDocumentObject* GetPrefabParentOrSelf(const ezDocumentObject* pOb
 {
   const ezDocumentObject* pParent = pObject;
   const ezDocument* pDocument = pObject->GetDocumentObjectManager()->GetDocument();
-  const auto& metaData = pDocument->m_DocumentObjectMetaData;
+  const auto& metaData = *pDocument->m_DocumentObjectMetaData;
 
   while (pParent != nullptr)
   {

@@ -4,6 +4,9 @@
 #include <Foundation/Reflection/Reflection.h>
 
 class QMimeData;
+class QDataStream;
+class ezDocumentObject;
+class ezQtDocumentTreeModelAdapter;
 
 /// \brief This type is used to provide ezDragDropHandler instances with all the important information for a drag & drop target
 ///
@@ -43,6 +46,9 @@ public:
   /// If dropped on a scene tree, this may say as which child the object is supposed to be inserted. -1 if invalid (ie. append)
   ezInt32 m_iTargetObjectInsertChildIndex;
 
+  /// If dropped on a scene tree, this is the adapter for the target object.
+  const ezQtDocumentTreeModelAdapter* m_pAdapter = nullptr;
+
   bool m_bShiftKeyDown;
   bool m_bCtrlKeyDown;
 };
@@ -60,3 +66,12 @@ public:
   /// Whether the currently selected objects (ie the dragged objects) should be considered for picking or not. Default is disabled.
   bool m_bPickSelectedObjects;
 };
+
+/// \brief Helper operator to retrieve the "application/ezEditor.ObjectSelection" mime data from a ezDragDropInfo::m_pMimeData.
+/// \code{.cpp}
+///   ezHybridArray<const ezDocumentObject*, 32> Dragged;
+///   QByteArray encodedData = m_pMimeData->data("application/ezEditor.ObjectSelection");
+///   QDataStream stream(&encodedData, QIODevice::ReadOnly);
+///   stream >> Dragged;
+/// \endcode
+EZ_EDITORFRAMEWORK_DLL void operator>>(QDataStream& stream, ezDynamicArray<ezDocumentObject*>& rhs);
