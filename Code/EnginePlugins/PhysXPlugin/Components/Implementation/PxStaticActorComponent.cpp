@@ -263,7 +263,7 @@ void ezPxStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) c
     {
       ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-      pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
+      msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
     }
 
     AddShapesToNavMesh(GetOwner(), msg);

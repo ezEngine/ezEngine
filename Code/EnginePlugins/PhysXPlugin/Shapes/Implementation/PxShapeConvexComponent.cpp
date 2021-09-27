@@ -115,7 +115,7 @@ void ezPxShapeConvexComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
   {
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-    pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
+    msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
   }
 }
 
