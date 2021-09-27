@@ -1,6 +1,5 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
@@ -8,6 +7,7 @@
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <extensions/PxRigidActorExt.h>
 
 // clang-format off

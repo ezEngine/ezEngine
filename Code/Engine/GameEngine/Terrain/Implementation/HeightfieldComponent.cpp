@@ -2,7 +2,6 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Terrain/HeightfieldComponent.h>
@@ -11,6 +10,7 @@
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
 

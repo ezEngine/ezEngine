@@ -78,12 +78,11 @@ ezResult ezBakingScene::Extract()
   msg.m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
   msg.m_pMeshObjects = &m_MeshObjects;
 
-  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams, [&](ezGameObject* pObject)
-    {
-      pObject->SendMessage(msg);
+  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams, [&](ezGameObject* pObject) {
+    pObject->SendMessage(msg);
 
-      return ezVisitorExecution::Continue;
-    });
+    return ezVisitorExecution::Continue;
+  });
 
   return EZ_SUCCESS;
 }

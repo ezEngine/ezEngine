@@ -278,12 +278,12 @@ ezCpuMeshResourceHandle ezPxMeshResource::ConvertToCpuMesh() const
     else if (GetTriangleMesh() != nullptr)
     {
       const auto pTriMesh = GetTriangleMesh();
-      
+
       desc.MeshBufferDesc().AllocateStreams(pTriMesh->getNbVertices(), ezGALPrimitiveTopology::Triangles, pTriMesh->getNbTriangles());
-      
+
       auto positions = ezMakeArrayPtr(reinterpret_cast<const ezVec3*>(pTriMesh->getVertices()), pTriMesh->getNbVertices()).ToByteArray();
       desc.MeshBufferDesc().GetVertexBufferData().GetArrayPtr().CopyFrom(positions);
-        
+
       const bool uses16BitIndices = pTriMesh->getTriangleMeshFlags().isSet(PxTriangleMeshFlag::e16_BIT_INDICES);
       EZ_ASSERT_DEV(uses16BitIndices == !desc.MeshBufferDesc().Uses32BitIndices(), "Index format mismatch");
       const ezUInt32 indexSize = uses16BitIndices ? sizeof(ezUInt16) : sizeof(ezUInt32);

@@ -1,10 +1,10 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <extensions/PxRigidActorExt.h>
 
 using namespace physx;

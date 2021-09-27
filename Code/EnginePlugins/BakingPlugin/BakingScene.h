@@ -2,12 +2,12 @@
 
 #include <BakingPlugin/Declarations.h>
 #include <Core/Graphics/AmbientCubeBasis.h>
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/BakedProbes/BakingInterface.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 class ezWorld;
 class ezProgress;

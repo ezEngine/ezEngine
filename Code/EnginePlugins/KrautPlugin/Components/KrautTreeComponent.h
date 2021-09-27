@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <KrautPlugin/KrautDeclarations.h>
 #include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 struct ezMsgExtractGeometry;
 struct ezMsgBuildStaticMesh;

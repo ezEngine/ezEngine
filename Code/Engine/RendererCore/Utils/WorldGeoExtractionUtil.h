@@ -58,7 +58,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractGeometry : public ezMessage
 
   /// \brief Specifies what the geometry is extracted for, and thus what the message handler should write back
   ezWorldGeoExtractionUtil::ExtractionMode m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
-  
+
   /// \brief Append mesh objects to this to describe the requested world geometry
   ezWorldGeoExtractionUtil::MeshObjectList* m_pMeshObjects;
 
