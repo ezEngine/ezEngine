@@ -15,7 +15,7 @@
 #include <Texture/Image/ImageUtils.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -26,7 +26,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Tesselation", GetTesselation, SetTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(128))),
     EZ_ACCESSOR_PROPERTY("TexCoordOffset", GetTexCoordOffset, SetTexCoordOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0))),
     EZ_ACCESSOR_PROPERTY("TexCoordScale", GetTexCoordScale, SetTexCoordScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1))),
-    EZ_ACCESSOR_PROPERTY("ColMeshTesselation", GetColMeshTesselation, SetColMeshTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(64))),
+    EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("ColMeshTesselation", GetColMeshTesselation, SetColMeshTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(64))),    
+    EZ_ACCESSOR_PROPERTY("IncludeInNavmesh", GetIncludeInNavmesh, SetIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -79,6 +81,10 @@ void ezHeightfieldComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_vTexCoordScale;
   s << m_vTesselation;
   s << m_vColMeshTesselation;
+
+  // Version 2
+  s << m_bGenerateCollision;
+  s << m_bIncludeInNavmesh;
 }
 
 void ezHeightfieldComponent::DeserializeComponent(ezWorldReader& stream)
@@ -95,6 +101,12 @@ void ezHeightfieldComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_vTexCoordScale;
   s >> m_vTesselation;
   s >> m_vColMeshTesselation;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bGenerateCollision;
+    s >> m_bIncludeInNavmesh;
+  }
 }
 
 void ezHeightfieldComponent::OnActivated()
@@ -243,14 +255,27 @@ void ezHeightfieldComponent::SetTesselation(ezVec2U32 value)
   InvalidateMesh();
 }
 
+void ezHeightfieldComponent::SetGenerateCollision(bool b)
+{
+  m_bGenerateCollision = b;
+}
+
 void ezHeightfieldComponent::SetColMeshTesselation(ezVec2U32 value)
 {
   m_vColMeshTesselation = value;
   // don't invalidate the render mesh
 }
 
+void ezHeightfieldComponent::SetIncludeInNavmesh(bool b)
+{
+  m_bIncludeInNavmesh = b;
+}
+
 void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 {
+  if (!m_bGenerateCollision)
+    return;
+
   ezGeometry geom;
   BuildGeometry(geom);
 
@@ -312,19 +337,11 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
 void ezHeightfieldComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
-  {
-    // do not include this for the collision mesh, if the proper tag is not set
-    if (!GetOwner()->GetTags().IsSetByName("AutoColMesh"))
-      return;
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && (m_bGenerateCollision == false || GetOwner()->IsDynamic()))
+    return;
 
-    if (GetOwner()->IsDynamic())
-      return;
-  }
-  else
-  {
-    EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
-  }
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && (m_bIncludeInNavmesh == false || GetOwner()->IsDynamic()))
+    return;
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
 }

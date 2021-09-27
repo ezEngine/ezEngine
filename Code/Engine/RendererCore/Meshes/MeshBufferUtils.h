@@ -4,7 +4,7 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
-class ezMeshBufferResourceDescriptor;
+struct ezMeshBufferResourceDescriptor;
 
 struct ezMeshNormalPrecision
 {

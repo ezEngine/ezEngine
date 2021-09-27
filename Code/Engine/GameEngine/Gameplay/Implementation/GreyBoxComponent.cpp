@@ -16,7 +16,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY, ezGreyBoxShape::SpiralStairs)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -34,6 +34,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
     EZ_ACCESSOR_PROPERTY("SlopedBottom", GetSlopedBottom, SetSlopedBottom),
+    EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("IncludeInNavmesh", GetIncludeInNavmesh, SetIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -79,6 +81,10 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // Version 3
   s << m_Color;
+
+  // Version 4
+  s << m_bGenerateCollision;
+  s << m_bIncludeInNavmesh;
 }
 
 void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
@@ -108,6 +114,12 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_Color;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bGenerateCollision;
+    s >> m_bIncludeInNavmesh;
   }
 }
 
@@ -290,8 +302,21 @@ void ezGreyBoxComponent::SetThickness(float f)
   InvalidateMesh();
 }
 
+void ezGreyBoxComponent::SetGenerateCollision(bool b)
+{
+  m_bGenerateCollision = b;
+}
+
+void ezGreyBoxComponent::SetIncludeInNavmesh(bool b)
+{
+  m_bIncludeInNavmesh = b;
+}
+
 void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 {
+  if (!m_bGenerateCollision)
+    return;
+
   ezGeometry geom;
   BuildGeometry(geom);
   geom.TriangulatePolygons();
@@ -351,19 +376,11 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
 void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
-  {
-    // do not include this for the collision mesh, if the proper tag is not set
-    if (!GetOwner()->GetTags().IsSetByName("AutoColMesh"))
-      return;
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && (m_bGenerateCollision == false || GetOwner()->IsDynamic()))
+    return;
 
-    if (GetOwner()->IsDynamic())
-      return;
-  }
-  else
-  {
-    EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
-  }
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && (m_bIncludeInNavmesh == false || GetOwner()->IsDynamic()))
+    return;
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
 }
