@@ -114,7 +114,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 5);
+    chunk.BeginChunk("PlacementOutputs", 6);
 
     if (!bDebug)
     {
