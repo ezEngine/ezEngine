@@ -1,4 +1,4 @@
-#include <Core/CorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/World/World.h>
