@@ -18,7 +18,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipContext, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimationClipContext::ezAnimationClipContext() {}
+ezAnimationClipContext::ezAnimationClipContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 {

@@ -17,7 +17,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonContext, 1, ezRTTIDefaultAllocator<ezS
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSkeletonContext::ezSkeletonContext() {}
+ezSkeletonContext::ezSkeletonContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {

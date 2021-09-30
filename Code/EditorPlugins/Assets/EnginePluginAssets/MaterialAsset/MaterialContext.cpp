@@ -17,7 +17,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezM
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMaterialContext::ezMaterialContext() {}
+ezMaterialContext::ezMaterialContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {

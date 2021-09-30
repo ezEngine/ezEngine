@@ -17,7 +17,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDeca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalContext::ezDecalContext() {}
+ezDecalContext::ezDecalContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezDecalContext::OnInitialize()
 {

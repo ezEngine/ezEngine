@@ -18,7 +18,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezP
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleContext::ezParticleContext() = default;
+ezParticleContext::ezParticleContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
+
 ezParticleContext::~ezParticleContext() = default;
 
 void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)

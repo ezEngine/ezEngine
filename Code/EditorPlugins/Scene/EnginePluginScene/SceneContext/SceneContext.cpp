@@ -111,6 +111,7 @@ void ezSceneContext::UpdateInvisibleLayerTags()
 }
 
 ezSceneContext::ezSceneContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_bRenderSelectionOverlay = true;
   m_bRenderSelectionBoxes = true;

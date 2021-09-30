@@ -17,7 +17,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeContext, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTextureCubeContext::ezTextureCubeContext() = default;
+ezTextureCubeContext::ezTextureCubeContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezTextureCubeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {

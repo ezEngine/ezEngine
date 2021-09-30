@@ -18,6 +18,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezAnimatedMeshContext::ezAnimatedMeshContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pAnimatedMeshObject = nullptr;
 }

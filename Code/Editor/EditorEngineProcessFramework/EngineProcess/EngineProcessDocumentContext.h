@@ -23,7 +23,7 @@ struct ezEngineProcessDocumentContextFlags
   {
     None = 0,
     CreateWorld = EZ_BIT(0),
-    Default = CreateWorld
+    Default = None
   };
 
   struct Bits
@@ -42,7 +42,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineProcessDocumentContext : publi
   EZ_ADD_DYNAMIC_REFLECTION(ezEngineProcessDocumentContext, ezReflectedClass);
 
 public:
-  ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags = ezEngineProcessDocumentContextFlags::Default);
+  ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags);
   virtual ~ezEngineProcessDocumentContext();
 
   virtual void Initialize(const ezUuid& DocumentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC);
@@ -121,7 +121,7 @@ protected:
   /// \brief Called before a thumbnail context is destroyed. Used for cleanup of what was done in OnThumbnailViewContextCreated()
   virtual void OnDestroyThumbnailViewContext();
 
-  ezWorld* m_pWorld;
+  ezWorld* m_pWorld = nullptr;
 
   /// \brief Sets or removes the given tag on the object and optionally all children
   void SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive);

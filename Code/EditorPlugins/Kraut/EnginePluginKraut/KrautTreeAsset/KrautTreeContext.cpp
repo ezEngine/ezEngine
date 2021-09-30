@@ -20,6 +20,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezKrautTreeContext::ezKrautTreeContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pMainObject = nullptr;
 }
