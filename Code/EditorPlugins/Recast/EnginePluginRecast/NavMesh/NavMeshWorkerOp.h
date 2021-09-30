@@ -1,9 +1,9 @@
 #include <EnginePluginRecast/EnginePluginRecastPCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 class ezLongOpWorker_BuildNavMesh : public ezLongOpWorker
 {
@@ -15,5 +15,5 @@ public:
 
   ezString m_sOutputPath;
   ezRecastConfig m_NavMeshConfig;
-  ezWorldGeoExtractionUtil::Geometry m_ExtractedWorldGeometry;
+  ezWorldGeoExtractionUtil::MeshObjectList m_ExtractedObjects;
 };

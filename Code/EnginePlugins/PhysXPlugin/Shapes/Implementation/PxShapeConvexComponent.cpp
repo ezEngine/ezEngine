@@ -1,11 +1,11 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <extensions/PxRigidActorExt.h>
 
 using namespace physx;
@@ -115,7 +115,7 @@ void ezPxShapeConvexComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
   {
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-    pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
+    msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
   }
 }
 

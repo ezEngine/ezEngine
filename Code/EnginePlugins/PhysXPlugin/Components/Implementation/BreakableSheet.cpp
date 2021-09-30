@@ -2,7 +2,6 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Messages/CollisionMessage.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -14,6 +13,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/Shader/Types.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <RendererFoundation/Device/Device.h>
 #include <extensions/PxRigidActorExt.h>
 
@@ -209,18 +209,12 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
 
 void ezBreakableSheetComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (!m_bIncludeInNavmesh)
-    return;
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && m_bIncludeInNavmesh))
+  {
+    const ezVec3 vExtents(m_fWidth, m_fThickness, m_fHeight);
 
-  const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
-
-  auto& box = msg.m_pWorldGeometry->m_BoxShapes.ExpandAndGetRef();
-  box.m_vPosition = GetOwner()->GetGlobalPosition();
-  box.m_qRotation = GetOwner()->GetGlobalRotation();
-
-  ezVec3 vExtents(m_fWidth, m_fThickness, m_fHeight);
-
-  box.m_vHalfExtents = vExtents.CompMul(vScale) * 0.5f;
+    msg.AddBox(GetOwner()->GetGlobalTransform(), vExtents);
+  }
 }
 
 void ezBreakableSheetComponent::OnActivated()

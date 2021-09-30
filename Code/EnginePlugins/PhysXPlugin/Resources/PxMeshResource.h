@@ -6,6 +6,7 @@
 
 using ezPxMeshResourceHandle = ezTypedResourceHandle<class ezPxMeshResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
 
 struct ezMsgExtractGeometry;
 
@@ -39,8 +40,8 @@ public:
   /// Use the default physics material as a fallback.
   const ezDynamicArray<ezSurfaceResourceHandle>& GetSurfaces() const { return m_Surfaces; }
 
-  /// \brief Adds the geometry of the triangle or convex mesh to the descriptor
-  void ExtractGeometry(const ezTransform& transform, ezMsgExtractGeometry& msg) const;
+  /// \brief Converts the geometry of the triangle or convex mesh to a cpu mesh resource
+  ezCpuMeshResourceHandle ConvertToCpuMesh() const;
 
   ezUInt32 GetNumPolygons() const;
   ezUInt32 GetNumVertices() const;

@@ -6,7 +6,6 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
@@ -16,6 +15,7 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
@@ -825,17 +825,17 @@ void ezSceneContext::HandleExposedPropertiesMsg(const ezExposedDocumentObjectPro
 
 void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg)
 {
-  ezWorldGeoExtractionUtil::Geometry geo;
+  ezWorldGeoExtractionUtil::MeshObjectList objects;
 
   ezTagSet excludeTags;
   excludeTags.SetByName("Editor");
 
   if (pMsg->m_bSelectionOnly)
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(objects, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
   else
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(objects, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
 
-  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, pMsg->m_Transform);
+  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, objects, pMsg->m_Transform);
 }
 
 void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg)

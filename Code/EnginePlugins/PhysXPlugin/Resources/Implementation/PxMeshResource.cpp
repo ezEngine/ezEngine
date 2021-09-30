@@ -1,10 +1,10 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
@@ -229,78 +229,75 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPxMeshResource, ezPxMeshResourceDescriptor)
   return res;
 }
 
-void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtractGeometry& msg) const
+ezCpuMeshResourceHandle ezPxMeshResource::ConvertToCpuMesh() const
 {
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
-    return;
-
-  if (!m_PxConvexParts.IsEmpty())
+  ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(GetResourceID());
+  if (!hCpuMesh.IsValid())
   {
-    for (auto pConvex : m_PxConvexParts)
+    ezMeshResourceDescriptor desc;
+    desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+
+    if (!m_PxConvexParts.IsEmpty())
     {
-      const ezUInt32 uiFirstVertexIdx = msg.m_pWorldGeometry->m_Vertices.GetCount();
+      ezDynamicArray<ezVec3> positions;
+      ezDynamicArray<ezUInt16> indices;
+      positions.Reserve(256);
+      indices.Reserve(512);
 
-      for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
+      for (auto pConvex : m_PxConvexParts)
       {
-        auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
-        vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pConvex->getVertices()[v]);
-      }
+        const ezUInt16 uiFirstVertexIdx = static_cast<ezUInt16>(positions.GetCount());
 
-      const auto pIndices = pConvex->getIndexBuffer();
-
-      for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
-      {
-        physx::PxHullPolygon poly;
-        pConvex->getPolygonData(p, poly);
-
-        const auto pLocalIdx = &pIndices[poly.mIndexBase];
-
-        for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
+        for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
         {
-          auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
-          triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pLocalIdx[0];
-          triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pLocalIdx[tri - 1];
-          triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pLocalIdx[tri];
+          positions.PushBack(reinterpret_cast<const ezVec3&>(pConvex->getVertices()[v]));
+        }
+
+        const auto pIndices = pConvex->getIndexBuffer();
+
+        for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
+        {
+          physx::PxHullPolygon poly;
+          pConvex->getPolygonData(p, poly);
+
+          const auto pLocalIdx = &pIndices[poly.mIndexBase];
+
+          for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
+          {
+            indices.PushBack(uiFirstVertexIdx + pLocalIdx[0]);
+            indices.PushBack(uiFirstVertexIdx + pLocalIdx[tri - 1]);
+            indices.PushBack(uiFirstVertexIdx + pLocalIdx[tri]);
+          }
         }
       }
+
+      desc.MeshBufferDesc().AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles, indices.GetCount() / 3);
+      desc.MeshBufferDesc().GetVertexBufferData().GetArrayPtr().CopyFrom(positions.GetByteArrayPtr());
+      desc.MeshBufferDesc().GetIndexBufferData().GetArrayPtr().CopyFrom(indices.GetByteArrayPtr());
     }
+    else if (GetTriangleMesh() != nullptr)
+    {
+      const auto pTriMesh = GetTriangleMesh();
+
+      desc.MeshBufferDesc().AllocateStreams(pTriMesh->getNbVertices(), ezGALPrimitiveTopology::Triangles, pTriMesh->getNbTriangles());
+
+      auto positions = ezMakeArrayPtr(reinterpret_cast<const ezVec3*>(pTriMesh->getVertices()), pTriMesh->getNbVertices()).ToByteArray();
+      desc.MeshBufferDesc().GetVertexBufferData().GetArrayPtr().CopyFrom(positions);
+
+      const bool uses16BitIndices = pTriMesh->getTriangleMeshFlags().isSet(PxTriangleMeshFlag::e16_BIT_INDICES);
+      EZ_ASSERT_DEV(uses16BitIndices == !desc.MeshBufferDesc().Uses32BitIndices(), "Index format mismatch");
+      const ezUInt32 indexSize = uses16BitIndices ? sizeof(ezUInt16) : sizeof(ezUInt32);
+      auto indices = ezMakeArrayPtr(static_cast<const ezUInt8*>(pTriMesh->getTriangles()), pTriMesh->getNbTriangles() * 3 * indexSize);
+      desc.MeshBufferDesc().GetIndexBufferData().GetArrayPtr().CopyFrom(indices);
+    }
+
+    desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+    desc.ComputeBounds();
+
+    hCpuMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(GetResourceID(), std::move(desc), GetResourceDescription());
   }
-  else if (GetTriangleMesh() != nullptr)
-  {
-    const auto pTriMesh = GetTriangleMesh();
-    const ezUInt32 uiFirstVertexIdx = msg.m_pWorldGeometry->m_Vertices.GetCount();
 
-    for (ezUInt32 vtx = 0; vtx < pTriMesh->getNbVertices(); ++vtx)
-    {
-      auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
-      vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pTriMesh->getVertices()[vtx]);
-    }
-
-    if (pTriMesh->getTriangleMeshFlags().isSet(PxTriangleMeshFlag::e16_BIT_INDICES))
-    {
-      const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(pTriMesh->getTriangles());
-
-      for (ezUInt32 tri = 0; tri < pTriMesh->getNbTriangles(); ++tri)
-      {
-        auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
-        triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pIndices[tri * 3 + 0];
-        triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pIndices[tri * 3 + 1];
-        triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pIndices[tri * 3 + 2];
-      }
-    }
-    else
-    {
-      const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(pTriMesh->getTriangles());
-
-      for (ezUInt32 tri = 0; tri < pTriMesh->getNbTriangles(); ++tri)
-      {
-        auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
-        triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pIndices[tri * 3 + 0];
-        triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pIndices[tri * 3 + 1];
-        triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pIndices[tri * 3 + 2];
-      }
-    }
-  }
+  return hCpuMesh;
 }
 
 ezUInt32 ezPxMeshResource::GetNumPolygons() const

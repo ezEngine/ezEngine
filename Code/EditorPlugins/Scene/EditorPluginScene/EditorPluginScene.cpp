@@ -90,7 +90,6 @@ void OnLoadPlugin()
   // Add built in tags
   {
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
-    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "AutoColMesh", true));
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "SkyLight", true));
   }
 

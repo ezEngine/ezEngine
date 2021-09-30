@@ -4,7 +4,6 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -13,8 +12,10 @@
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
@@ -314,14 +315,11 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     if (fHeightScale * fTreeHeight <= 0.0f)
       return EZ_FAILURE;
 
-    // for the position offset we need to adjust for the tree scale (cylinder has its origin at its center)
-    const ezMat4 transform = GetOwner()->GetGlobalTransform().GetAsMat4();
-
     // using a cone or even a cylinder with a thinner top results in the character controller getting stuck while sliding along the geometry
     // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
 
     // due to 'transform' this will already include the tree scale
-    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8, ezColor::White, transform);
+    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8, ezColor::White);
 
     geo.TriangulatePolygons();
   }
@@ -455,27 +453,29 @@ void ezKrautTreeComponent::ComputeWind() const
 
 void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  ezGeometry geo;
-  if (CreateGeometry(geo, msg.m_Mode).Failed())
-    return;
+  ezStringBuilder sResourceName;
+  sResourceName.Format("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
 
-  auto& vertices = msg.m_pWorldGeometry->m_Vertices;
-  auto& triangles = msg.m_pWorldGeometry->m_Triangles;
-
-  const ezUInt32 uiFirstVertex = vertices.GetCount();
-
-  for (const auto& vtx : geo.GetVertices())
+  ezCpuMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
+  if (!hMesh.IsValid())
   {
-    vertices.ExpandAndGetRef().m_vPosition = vtx.m_vPosition;
+    ezGeometry geo;
+    if (CreateGeometry(geo, msg.m_Mode).Failed())
+      return;
+
+    ezMeshResourceDescriptor desc;
+
+    desc.MeshBufferDesc().AddCommonStreams();
+    desc.MeshBufferDesc().AllocateStreamsFromGeometry(geo, ezGALPrimitiveTopology::Triangles);
+
+    desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+
+    desc.ComputeBounds();
+
+    hMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   }
 
-  for (const auto& tri : geo.GetPolygons())
-  {
-    auto& t = triangles.ExpandAndGetRef();
-    t.m_uiVertexIndices[0] = uiFirstVertex + tri.m_Vertices[0];
-    t.m_uiVertexIndices[1] = uiFirstVertex + tri.m_Vertices[1];
-    t.m_uiVertexIndices[2] = uiFirstVertex + tri.m_Vertices[2];
-  }
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
 void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
@@ -502,6 +502,8 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
     }
   }
 
+  const ezTransform transform = GetOwner()->GetGlobalTransform();
+
   subMesh.m_uiFirstTriangle = desc.m_Triangles.GetCount();
   subMesh.m_uiNumTriangles = geo.GetPolygons().GetCount();
 
@@ -509,7 +511,7 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
   for (const auto& vtx : geo.GetVertices())
   {
-    desc.m_Vertices.ExpandAndGetRef() = vtx.m_vPosition;
+    desc.m_Vertices.ExpandAndGetRef() = transform.TransformPosition(vtx.m_vPosition);
   }
 
   for (const auto& tri : geo.GetPolygons())

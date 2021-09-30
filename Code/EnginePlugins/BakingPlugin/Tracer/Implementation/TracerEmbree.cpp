@@ -72,16 +72,18 @@ namespace
     s_rtcDevice = nullptr;
   }
 
-  static RTCScene GetOrCreateMesh(const ezHashedString& sResourceId)
+  static RTCScene GetOrCreateMesh(const ezCpuMeshResourceHandle& hMeshResource)
   {
+    ezHashedString sResourceId;
+    sResourceId.Assign(hMeshResource.GetResourceID());
+
     RTCScene scene = nullptr;
     if (s_rtcMeshCache.TryGetValue(sResourceId, scene))
     {
       return scene;
     }
 
-    ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(sResourceId);
-    ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    ezResourceLock<ezCpuMeshResource> pCpuMesh(hMeshResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
     if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     {
       ezLog::Warning("Failed to retrieve CPU mesh '{}'", sResourceId);
@@ -92,47 +94,14 @@ namespace
     {
       const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
-      const ezVertexDeclarationInfo& vdi = mbDesc.GetVertexDeclaration();
-      const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetPtr();
-
       const ezVec3* pPositions = nullptr;
       const ezUInt8* pNormals = nullptr;
       ezGALResourceFormat::Enum normalFormat = ezGALResourceFormat::Invalid;
-
-      for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
+      ezUInt32 uiElementStride = 0;
+      if (ezMeshBufferUtils::GetPositionAndNormalStream(mbDesc, pPositions, pNormals, normalFormat, uiElementStride).Failed())
       {
-        if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
-        {
-          if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
-          {
-            ezLog::Warning("Unsupported CPU mesh vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
-            return nullptr; // other position formats are not supported
-          }
-
-          pPositions = reinterpret_cast<const ezVec3*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
-        }
-        else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
-        {
-          pNormals = pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset;
-          normalFormat = vdi.m_VertexStreams[vs].m_Format;
-        }
-      }
-
-      if (pPositions == nullptr || pNormals == nullptr)
-      {
-        ezLog::Warning("No position and normal stream found in CPU mesh");
         return nullptr;
       }
-
-      ezUInt8 dummySource[16] = {};
-      ezVec3 vNormal;
-      if (ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(dummySource), normalFormat, vNormal).Failed())
-      {
-        ezLog::Error("Unsupported CPU mesh vertex normal format {0}", normalFormat);
-        return nullptr;
-      }
-
-      const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
 
       ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
@@ -140,6 +109,7 @@ namespace
       ezVec3* rtcNormals = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
       // write out all vertices
+      ezVec3 vNormal;
       for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
       {
         ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();
@@ -241,13 +211,13 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
 
   for (auto& meshObject : scene.GetMeshObjects())
   {
-    RTCScene mesh = GetOrCreateMesh(meshObject.m_MeshResourceId);
+    RTCScene mesh = GetOrCreateMesh(meshObject.m_hMeshResource);
     if (mesh == nullptr)
     {
       continue;
     }
 
-    ezSimdMat4f transform = meshObject.m_GlobalTransform.GetAsMat4();
+    ezMat4 transform = meshObject.m_GlobalTransform.GetAsMat4();
 
     RTCGeometry instance = rtcNewGeometry(s_rtcDevice, RTC_GEOMETRY_TYPE_INSTANCE);
     {
@@ -260,14 +230,14 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
     ezUInt32 uiInstanceID = rtcAttachGeometry(m_pData->m_rtcScene, instance);
     rtcReleaseGeometry(instance);
 
-    ezSimdMat4f normalTransform = transform.GetInverse(0.0f).GetTranspose();
+    ezMat3 normalTransform = transform.GetRotationalPart().GetInverse(0.0f).GetTranspose();
 
     EZ_ASSERT_DEBUG(uiInstanceID == m_pData->m_rtcInstancedGeometry.GetCount(), "");
     auto& instancedGeometry = m_pData->m_rtcInstancedGeometry.ExpandAndGetRef();
     instancedGeometry.m_mesh = rtcGetGeometry(mesh, 0);
-    instancedGeometry.m_normalTransform0 = normalTransform.m_col0;
-    instancedGeometry.m_normalTransform1 = normalTransform.m_col1;
-    instancedGeometry.m_normalTransform2 = normalTransform.m_col2;
+    instancedGeometry.m_normalTransform0 = ezSimdConversion::ToVec3(normalTransform.GetColumn(0));
+    instancedGeometry.m_normalTransform1 = ezSimdConversion::ToVec3(normalTransform.GetColumn(1));
+    instancedGeometry.m_normalTransform2 = ezSimdConversion::ToVec3(normalTransform.GetColumn(2));
   }
 
   rtcCommitScene(m_pData->m_rtcScene);

@@ -22,11 +22,7 @@ ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(ezStreamReader& config
   config >> m_sOutputPath;
   EZ_SUCCEED_OR_RETURN(m_NavMeshConfig.Deserialize(config));
 
-  pDocContext->GetWorld();
-
-  EZ_LOCK(pDocContext->GetWorld()->GetWriteMarker());
-
-  EZ_SUCCEED_OR_RETURN(ezRecastNavMeshBuilder::ExtractWorldGeometry(*pDocContext->GetWorld(), m_ExtractedWorldGeometry));
+  EZ_SUCCEED_OR_RETURN(ezRecastNavMeshBuilder::ExtractWorldGeometry(*pDocContext->GetWorld(), m_ExtractedObjects));
 
   return EZ_SUCCESS;
 }
@@ -43,7 +39,7 @@ ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress, ezStreamWrit
   if (!pgRange.BeginNextStep("Building NavMesh"))
     return EZ_FAILURE;
 
-  EZ_SUCCEED_OR_RETURN(NavMeshBuilder.Build(m_NavMeshConfig, m_ExtractedWorldGeometry, desc, progress));
+  EZ_SUCCEED_OR_RETURN(NavMeshBuilder.Build(m_NavMeshConfig, m_ExtractedObjects, desc, progress));
 
   if (!pgRange.BeginNextStep("Writing Result"))
     return EZ_FAILURE;

@@ -91,6 +91,12 @@ public:
   void SetThickness(float f);                                 // [ property ]
   float GetThickness() const { return m_fThickness; }         // [ property ]
 
+  void SetGenerateCollision(bool b);                                 // [ property ]
+  bool GetGenerateCollision() const { return m_bGenerateCollision; } // [ property ]
+
+  void SetIncludeInNavmesh(bool b);                                // [ property ]
+  bool GetIncludeInNavmesh() const { return m_bIncludeInNavmesh; } // [ property ]
+
   void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
   ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
 
@@ -112,10 +118,14 @@ protected:
   float m_fThickness = 0.5f;
   bool m_bSlopedTop = false;
   bool m_bSlopedBottom = false;
+  bool m_bGenerateCollision = true;
+  bool m_bIncludeInNavmesh = true;
 
   void InvalidateMesh();
-  void GenerateRenderMesh();
   void BuildGeometry(ezGeometry& geom) const;
+
+  template <typename ResourceType>
+  ezTypedResourceHandle<ResourceType> GenerateMesh() const;
 
   ezMeshResourceHandle m_hMesh;
 };

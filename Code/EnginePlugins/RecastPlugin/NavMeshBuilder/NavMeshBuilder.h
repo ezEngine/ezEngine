@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RecastPlugin/RecastPluginDLL.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 class ezRcBuildContext;
 struct rcPolyMesh;
@@ -44,17 +44,16 @@ public:
   ezRecastNavMeshBuilder();
   ~ezRecastNavMeshBuilder();
 
-  static ezResult ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::Geometry& out_worldGeo);
+  static ezResult ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::MeshObjectList& out_worldGeo);
 
-  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& worldGeo, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc,
+  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::MeshObjectList& worldGeo, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc,
     ezProgress& progress);
 
 private:
   static void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config, const ezBoundingBox& bbox);
 
   void Clear();
-  void ReserveMemory(const ezWorldGeoExtractionUtil::Geometry& desc);
-  void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::Geometry& desc);
+  void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& objects);
   void ComputeBoundingBox();
   ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress);
   static ezResult BuildDetourNavMeshData(const ezRecastConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& NavmeshData);
