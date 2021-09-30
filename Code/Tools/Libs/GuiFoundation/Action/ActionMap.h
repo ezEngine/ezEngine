@@ -47,6 +47,7 @@ public:
     ezTreeNode<T>* pNode = EZ_DEFAULT_NEW(ezTreeNode<T>, data);
     pNode->m_Guid.CreateNewUuid();
     m_Children.Insert(pNode, iIndex);
+    pNode->m_pParent = this;
     return pNode;
   }
 
@@ -91,6 +92,8 @@ public:
 
   void MapAction(ezActionDescriptorHandle hAction, const char* szPath, float m_fOrder);
   ezUuid MapAction(const ezActionMapDescriptor& desc);
+  ezResult UnmapAction(ezActionDescriptorHandle hAction, const char* szPath);
+  ezResult UnmapAction(const ezActionMapDescriptor& desc);
   ezResult UnmapAction(const ezUuid& guid);
 
   const TreeNode* GetRootObject() const { return &m_Root; }

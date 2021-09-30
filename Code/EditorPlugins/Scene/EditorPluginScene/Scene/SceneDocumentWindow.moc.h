@@ -28,15 +28,14 @@ class QMenu;
 
 Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
 
-class ezQtSceneDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
+class ezQtSceneDocumentWindowBase : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
 {
   Q_OBJECT
 
 public:
-  ezQtSceneDocumentWindow(ezSceneDocument* pDocument);
-  ~ezQtSceneDocumentWindow();
+  ezQtSceneDocumentWindowBase(ezSceneDocument* pDocument);
+  ~ezQtSceneDocumentWindowBase();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "Scene"; }
   ezSceneDocument* GetSceneDocument() const;
 
   virtual void CreateImageCapture(const char* szOutputPath) override;
@@ -56,13 +55,22 @@ protected:
   virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
   virtual void InternalRedraw() override;
 
-private:
   void GameObjectEventHandler(const ezGameObjectEvent& e);
   void SnapSelectionToPosition(bool bSnapEachObject);
   void SendRedrawMsg();
   void ExtendPropertyGridContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp);
 
-private:
+protected:
   ezQtQuadViewWidget* m_pQuadViewWidget = nullptr;
 };
 
+class ezQtSceneDocumentWindow : public ezQtSceneDocumentWindowBase
+{
+  Q_OBJECT
+
+public:
+  ezQtSceneDocumentWindow(ezSceneDocument* pDocument);
+  ~ezQtSceneDocumentWindow();
+
+  virtual const char* GetWindowLayoutGroupName() const override { return "Scene"; }
+};

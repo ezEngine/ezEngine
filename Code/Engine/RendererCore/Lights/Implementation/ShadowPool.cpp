@@ -447,6 +447,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
       pView->SetLodCamera(pReferenceCamera);
+      pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
     }
 
     // Setup camera
@@ -508,7 +509,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 }
 
 // static
-ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize)
+ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
 
@@ -564,6 +565,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
     {
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pPointLight->GetWorld()));
+      pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
     }
 
     // Setup camera
@@ -582,7 +584,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 }
 
 // static
-ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize)
+ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
 
@@ -608,6 +610,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   {
     pView->SetName("SpotLightView");
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
+    pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
   }
 
   // Setup camera

@@ -20,6 +20,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezKrautTreeContext::ezKrautTreeContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pMainObject = nullptr;
 }
@@ -58,7 +59,7 @@ void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 
 void ezKrautTreeContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
 

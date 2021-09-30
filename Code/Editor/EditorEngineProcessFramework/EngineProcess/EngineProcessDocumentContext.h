@@ -15,6 +15,24 @@ class ezExportDocumentMsgToEngine;
 class ezCreateThumbnailMsgToEngine;
 struct ezResourceEvent;
 
+struct ezEngineProcessDocumentContextFlags
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None = 0,
+    CreateWorld = EZ_BIT(0),
+    Default = None
+  };
+
+  struct Bits
+  {
+    StorageType CreateWorld : 1;
+  };
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezEngineProcessDocumentContextFlags);
+
 /// \brief A document context is the counter part to an editor document on the engine side.
 ///
 /// For every document in the editor that requires engine output (rendering, picking, etc.), there is a ezEngineProcessDocumentContext
@@ -24,17 +42,17 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineProcessDocumentContext : publi
   EZ_ADD_DYNAMIC_REFLECTION(ezEngineProcessDocumentContext, ezReflectedClass);
 
 public:
-  ezEngineProcessDocumentContext();
+  ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags);
   virtual ~ezEngineProcessDocumentContext();
 
-  void Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC);
+  virtual void Initialize(const ezUuid& DocumentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC);
   void Deinitialize();
 
   void SendProcessMessage(ezProcessMessage* pMsg = nullptr);
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg);
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);
-  static void AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView, ezEngineProcessCommunicationChannel* pIPC);
+  static void AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pView, ezEngineProcessCommunicationChannel* pIPC);
   static bool PendingOperationsInProgress();
   static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
@@ -52,7 +70,10 @@ public:
   ezIPCObjectMirrorEngine m_Mirror;
   ezWorldRttiConverterContext m_Context; // TODO: Move actual context into the EngineProcessDocumentContext
 
-  ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
+  ezWorld* GetWorld() const { return m_pWorld; }
+
+  /// \brief Tries to resolve a 'reference' (given in pData) to an ezGameObject.
+  virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const;
 
 protected:
   virtual void OnInitialize();
@@ -100,7 +121,7 @@ protected:
   /// \brief Called before a thumbnail context is destroyed. Used for cleanup of what was done in OnThumbnailViewContextCreated()
   virtual void OnDestroyThumbnailViewContext();
 
-  ezUniquePtr<ezWorld> m_pWorld;
+  ezWorld* m_pWorld = nullptr;
 
   /// \brief Sets or removes the given tag on the object and optionally all children
   void SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive);
@@ -115,9 +136,6 @@ protected:
   {
     return uiView >= m_ViewContexts.GetCount() ? nullptr : m_ViewContexts[uiView];
   }
-
-  /// \brief Tries to resolve a 'reference' (given in pData) to an ezGameObject.
-  ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const;
 
 private:
   friend class ezEditorEngineSyncObject;
@@ -136,7 +154,10 @@ private:
   /// Removes all sync objects that are tied to this context
   void CleanUpContextSyncObjects();
 
+protected:
+  ezBitflags<ezEngineProcessDocumentContextFlags> m_flags;
   ezUuid m_DocumentGuid;
+  ezVariant m_MetaData;
 
   ezEngineProcessCommunicationChannel* m_pIPC = nullptr;
   ezHybridArray<ezEngineProcessViewContext*, 4> m_ViewContexts;

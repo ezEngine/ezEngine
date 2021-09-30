@@ -538,7 +538,7 @@ bool ezAnimationControllerAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info
     }
   }
 
-  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(objectGraph);
 
   RestoreMetaDataAfterLoading(objectGraph, true);
 

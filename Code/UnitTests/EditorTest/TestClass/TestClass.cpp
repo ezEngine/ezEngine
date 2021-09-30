@@ -1,10 +1,16 @@
 #include <EditorTest/EditorTestPCH.h>
 
 #include "TestClass.h"
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/DragDrop/DragDropHandler.h>
+#include <EditorFramework/DragDrop/DragDropInfo.h>
+#include <EditorPluginScene/Panels/LayerPanel/LayerAdapter.moc.h>
+#include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/Action/ActionManager.h>
+#include <QMimeData>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -120,7 +126,7 @@ ezResult ezEditorTest::InitializeTest()
     {
       s_bIsReferenceDriver = true;
     }
-    else if (pDevice->GetCapabilities().m_sAdapterName.StartsWith("AMD"))
+    else if (pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
     {
       s_bIsAMDDriver = true;
     }
@@ -320,4 +326,92 @@ void ezEditorTest::ProcessEvents(ezUInt32 uiIterations)
       qApp->processEvents();
     }
   }
+}
+
+std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid> assetGuids)
+{
+  std::unique_ptr<QMimeData> mimeData(new QMimeData());
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+  QString sGuids;
+  QList<QUrl> urls;
+
+  ezStringBuilder tmp;
+
+  stream << (int)1;
+  for (ezUInt32 i = 0; i < assetGuids.GetCount(); ++i)
+  {
+    QString sGuid(ezConversionUtils::ToString(assetGuids[i], tmp).GetData());
+    stream << sGuid;
+  }
+
+  mimeData->setData("application/ezEditor.AssetGuid", encodedData);
+  return std::move(mimeData);
+}
+
+std::unique_ptr<QMimeData> ezEditorTest::ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects)
+{
+  std::unique_ptr<QMimeData> mimeData(new QMimeData());
+  QByteArray encodedData;
+
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+  int iCount = (int)objects.GetCount();
+  stream << iCount;
+
+  for (const ezDocumentObject* pObject : objects)
+  {
+    stream.writeRawData((const char*)&pObject, sizeof(void*));
+  }
+
+  mimeData->setData("application/ezEditor.ObjectSelection", encodedData);
+  return std::move(mimeData);
+}
+
+void ezEditorTest::MoveObjectsToLayer(ezScene2Document* pDoc, const ezDeque<const ezDocumentObject*>& objects, const ezUuid& layer, ezDeque<const ezDocumentObject*>& new_objects)
+{
+  pDoc->GetSelectionManager()->SetSelection(objects);
+
+  ezQtLayerAdapter adapter(pDoc);
+  auto mimeData = ObjectsDragMimeData(objects);
+  ezDragDropInfo info;
+  info.m_iTargetObjectInsertChildIndex = -1;
+  info.m_pMimeData = mimeData.get();
+  info.m_sTargetContext = "layertree";
+  info.m_TargetDocument = pDoc->GetGuid();
+  info.m_TargetObject = pDoc->GetLayerObject(layer)->GetGuid();
+  info.m_bCtrlKeyDown = false;
+  info.m_bShiftKeyDown = false;
+  info.m_pAdapter = &adapter;
+  if (!EZ_TEST_BOOL(ezDragDropHandler::DropOnly(&info)))
+    return;
+
+  new_objects = pDoc->GetLayerDocument(layer)->GetSelectionManager()->GetSelection();
+}
+
+const ezDocumentObject* ezEditorTest::DropAsset(ezScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift /*= false*/, bool bCtrl /*= false*/)
+{
+  const ezAssetCurator::ezLockedSubAsset asset = ezAssetCurator::GetSingleton()->FindSubAsset(szAssetGuidOrPath);
+  if (EZ_TEST_BOOL(asset.isValid()))
+  {
+    ezUuid assetGuid = asset->m_Data.m_Guid;
+    ezArrayPtr<ezUuid> assets(&assetGuid, 1);
+    auto mimeData = AssetsToDragMimeData(assets);
+
+    ezDragDropInfo info;
+    info.m_pMimeData = mimeData.get();
+    info.m_TargetDocument = pDoc->GetGuid();
+    info.m_sTargetContext = "viewport";
+    info.m_iTargetObjectInsertChildIndex = -1;
+    info.m_iTargetObjectSubID = 0;
+    info.m_bShiftKeyDown = bShift;
+    info.m_bCtrlKeyDown = bCtrl;
+
+    if (EZ_TEST_BOOL(ezDragDropHandler::DropOnly(&info)))
+    {
+      return pDoc->GetSelectionManager()->GetCurrentObject();
+    }
+  }
+  return {};
 }

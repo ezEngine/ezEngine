@@ -16,3 +16,5 @@
 #include <Foundation/Math/Rect.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+
+#include <EditorPluginScene/EditorPluginSceneDLL.h>

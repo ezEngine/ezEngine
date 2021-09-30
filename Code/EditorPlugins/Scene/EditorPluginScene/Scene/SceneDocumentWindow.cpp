@@ -12,12 +12,11 @@
 #include <QInputDialog>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
-  : ezQtGameObjectDocumentWindow(pDocument)
+  : ezQtSceneDocumentWindowBase(pDocument)
 {
   auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
-    ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindow*>(pWindow), pConfig);
+    ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindowBase*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
   };
@@ -53,7 +52,6 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   }
 
   const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
-  pSceneDoc->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::GameObjectEventHandler, this));
 
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
@@ -94,41 +92,52 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
 ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
 {
-  GetSceneDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::GameObjectEventHandler, this));
 }
 
-ezSceneDocument* ezQtSceneDocumentWindow::GetSceneDocument() const
+ezQtSceneDocumentWindowBase::ezQtSceneDocumentWindowBase(ezSceneDocument* pDocument)
+  : ezQtGameObjectDocumentWindow(pDocument)
+{
+  const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
+  pSceneDoc->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindowBase::GameObjectEventHandler, this));
+}
+
+ezQtSceneDocumentWindowBase::~ezQtSceneDocumentWindowBase()
+{
+  GetSceneDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindowBase::GameObjectEventHandler, this));
+}
+
+ezSceneDocument* ezQtSceneDocumentWindowBase::GetSceneDocument() const
 {
   return static_cast<ezSceneDocument*>(GetDocument());
 }
 
-void ezQtSceneDocumentWindow::CreateImageCapture(const char* szOutputPath)
+void ezQtSceneDocumentWindowBase::CreateImageCapture(const char* szOutputPath)
 {
   m_pQuadViewWidget->GetActiveMainViews()[0]->GetViewWidget()->TakeScreenshot(szOutputPath);
 }
 
-void ezQtSceneDocumentWindow::ToggleViews(QWidget* pView)
+void ezQtSceneDocumentWindowBase::ToggleViews(QWidget* pView)
 {
   m_pQuadViewWidget->ToggleViews(pView);
 }
 
 
-ezObjectAccessorBase* ezQtSceneDocumentWindow::GetObjectAccessor()
+ezObjectAccessorBase* ezQtSceneDocumentWindowBase::GetObjectAccessor()
 {
   return GetDocument()->GetObjectAccessor();
 }
 
-bool ezQtSceneDocumentWindow::CanDuplicateSelection() const
+bool ezQtSceneDocumentWindowBase::CanDuplicateSelection() const
 {
   return true;
 }
 
-void ezQtSceneDocumentWindow::DuplicateSelection()
+void ezQtSceneDocumentWindowBase::DuplicateSelection()
 {
   GetSceneDocument()->DuplicateSelection();
 }
 
-void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
+void ezQtSceneDocumentWindowBase::SnapSelectionToPosition(bool bSnapEachObject)
 {
   const float fSnap = ezSnapProvider::GetTranslationSnapValue();
 
@@ -206,7 +215,7 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
   ShowTemporaryStatusBarMsg(ezFmt("Snap to Grid ({})", bSnapEachObject ? "Each Object" : "Pivot"));
 }
 
-void ezQtSceneDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)
+void ezQtSceneDocumentWindowBase::GameObjectEventHandler(const ezGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
@@ -233,7 +242,7 @@ void ezQtSceneDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)
   }
 }
 
-void ezQtSceneDocumentWindow::InternalRedraw()
+void ezQtSceneDocumentWindowBase::InternalRedraw()
 {
   // If play the game is on, only render (in editor) if the window is active
   ezSceneDocument* doc = GetSceneDocument();
@@ -245,7 +254,7 @@ void ezQtSceneDocumentWindow::InternalRedraw()
   ezQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtSceneDocumentWindow::SendRedrawMsg()
+void ezQtSceneDocumentWindowBase::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
@@ -284,7 +293,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
   }
 }
 
-void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(
+void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
   QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp)
 {
   if (!GetSceneDocument()->IsPrefab())
@@ -351,7 +360,7 @@ void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(
   }
 }
 
-void ezQtSceneDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void ezQtSceneDocumentWindowBase::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
 {
   ezQtGameObjectDocumentWindow::ProcessMessageEventHandler(pMsg);
 }

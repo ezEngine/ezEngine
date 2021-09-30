@@ -35,7 +35,10 @@ static void CreatePreviewRect(ezGeometry& geom)
   geom.AddPolygon(idx, false);
 }
 
-ezTextureContext::ezTextureContext() = default;
+ezTextureContext::ezTextureContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {

@@ -18,6 +18,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezMeshContext::ezMeshContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pMeshObject = nullptr;
 }
@@ -68,7 +69,7 @@ void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 
 void ezMeshContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
@@ -115,7 +116,7 @@ bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThum
     m_pMeshObject->UpdateGlobalTransformAndBounds();
     m_boundsDirty = false;
   }
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
   ezMeshViewContext* pMeshViewContext = static_cast<ezMeshViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);

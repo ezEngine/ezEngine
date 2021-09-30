@@ -290,7 +290,7 @@ bool ezProcGenGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
     }
   }
 
-  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(objectGraph);
 
   RestoreMetaDataAfterLoading(objectGraph, true);
 

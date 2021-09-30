@@ -27,12 +27,12 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
 
-  pContext->Initialize(guid, pIPC);
+  pContext->Initialize(guid, metaData, pIPC);
 }
 
 bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
@@ -91,7 +91,8 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
   return bounds;
 }
 
-ezEngineProcessDocumentContext::ezEngineProcessDocumentContext()
+ezEngineProcessDocumentContext::ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags)
+  : m_flags(flags)
 {
   m_Context.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
@@ -103,35 +104,41 @@ ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
   m_Context.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
-void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC)
 {
   m_DocumentGuid = DocumentGuid;
+  m_MetaData = metaData;
   m_pIPC = pIPC;
 
-  ezStringBuilder tmp;
-  ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
-  desc.m_bReportErrorWhenStaticObjectMoves = false;
+  if (m_flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  {
+    ezStringBuilder tmp;
+    ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
+    desc.m_bReportErrorWhenStaticObjectMoves = false;
 
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
-  m_pWorld->SetGameObjectReferenceResolver(ezMakeDelegate(&ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
+    m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
+    m_pWorld->SetGameObjectReferenceResolver(ezMakeDelegate(&ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
 
-  m_Context.m_pWorld = m_pWorld.Borrow();
-  m_Mirror.InitReceiver(&m_Context);
-
+    m_Context.m_pWorld = m_pWorld;
+    m_Mirror.InitReceiver(&m_Context);
+  }
   OnInitialize();
 }
 
 void ezEngineProcessDocumentContext::Deinitialize()
 {
+  OnDeinitialize();
+
   ClearViewContexts();
   m_Mirror.Clear();
   m_Mirror.DeInit();
   m_Context.Clear();
 
-  OnDeinitialize();
-
   CleanUpContextSyncObjects();
-
+  if (m_flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  {
+    EZ_DEFAULT_DELETE(m_pWorld);
+  }
   m_pWorld = nullptr;
 }
 
@@ -370,7 +377,7 @@ void ezEngineProcessDocumentContext::Reset()
 
   Deinitialize();
 
-  Initialize(guid, ipc);
+  Initialize(guid, m_MetaData, ipc);
 }
 
 void ezEngineProcessDocumentContext::ClearExistingObjects()
@@ -912,13 +919,13 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 
       EZ_LOCK(m_pWorld->GetWriteMarker());
 
-      if (pSyncObject->SetupForEngine(m_pWorld.Borrow(), m_Context.m_uiNextComponentPickingID))
+      if (pSyncObject->SetupForEngine(m_pWorld, m_Context.m_uiNextComponentPickingID))
       {
         m_Context.m_OtherPickingMap.RegisterObject(pSyncObject->GetGuid(), m_Context.m_uiNextComponentPickingID);
         ++m_Context.m_uiNextComponentPickingID;
       }
 
-      pSyncObject->UpdateForEngine(m_pWorld.Borrow());
+      pSyncObject->UpdateForEngine(m_pWorld);
     }
   }
 }

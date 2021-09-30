@@ -15,8 +15,11 @@
     <file>Icons/PrefabUpdate16.png</file>
     <file>Icons/PrefabUnlink16.png</file>
     <file>Icons/PrefabOpenDocument16.png</file>
-	<file>Icons/Duplicate16.png</file>
-	<file>Icons/PullObjectState16.png</file>
+    <file>Icons/Duplicate16.png</file>
+    <file>Icons/PullObjectState16.png</file>
+    <file>Icons/Layer16.png</file>
+    <file>Icons/LayerVisible16.png</file>
+    <file>Icons/LayerLoaded16.png</file>
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezMeshComponent.png</file>

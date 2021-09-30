@@ -13,12 +13,15 @@ ez_create_target(APPLICATION ${PROJECT_NAME})
 
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
 
+target_include_directories (${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../EditorPlugins/Scene")
+
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
   TestFramework
   EditorFramework
   EditorEngineProcessFramework
   RendererDX11
+  EditorPluginScene
 )
 
 add_dependencies(${PROJECT_NAME}

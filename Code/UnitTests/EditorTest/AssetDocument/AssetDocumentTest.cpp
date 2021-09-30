@@ -6,7 +6,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-static ezEditorAssetDocumentTest s_GameEngineTestBasics;
+static ezEditorAssetDocumentTest s_EditorAssetDocumentTest;
 
 const char* ezEditorAssetDocumentTest::GetTestName() const
 {

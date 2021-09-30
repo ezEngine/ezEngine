@@ -14,8 +14,8 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions();
-  static void MapToolbarActions();
+  static void MapMenuActions(const char* szMapping);
+  static void MapToolbarActions(const char* szMapping);
   static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hSceneCategory;

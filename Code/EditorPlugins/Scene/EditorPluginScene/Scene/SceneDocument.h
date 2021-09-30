@@ -3,7 +3,7 @@
 #include <EditorFramework/Document/GameObjectDocument.h>
 
 class ezExposedSceneProperty;
-class ezSceneDocumentSettings;
+class ezSceneDocumentSettingsBase;
 class ezPushObjectStateMsgToEditor;
 
 struct GameMode
@@ -16,12 +16,20 @@ struct GameMode
   };
 };
 
-class ezSceneDocument : public ezGameObjectDocument
+class EZ_EDITORPLUGINSCENE_DLL ezSceneDocument : public ezGameObjectDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument, ezGameObjectDocument);
 
 public:
-  ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
+  enum class DocumentType
+  {
+    Scene,
+    Prefab,
+    Layer
+  };
+
+public:
+  ezSceneDocument(const char* szDocumentPath, DocumentType DocumentType);
   ~ezSceneDocument();
 
   enum class ShowOrHide
@@ -29,7 +37,6 @@ public:
     Show,
     Hide
   };
-
 
   void GroupSelection();
 
@@ -62,7 +69,7 @@ public:
   void HideUnselectedObjects();
 
   /// \brief Whether this document represents a prefab or a scene
-  bool IsPrefab() const { return m_bIsPrefab; }
+  bool IsPrefab() const { return m_DocumentType == DocumentType::Prefab; }
 
   /// \brief Determines whether the given object is an editor prefab
   bool IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
@@ -81,7 +88,7 @@ public:
   bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
   bool CopySelectedObjects(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
-  bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);
+  bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph);
 
   virtual void UpdatePrefabs() override;
 
@@ -119,14 +126,20 @@ public:
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
   void HandleVisualScriptActivityMsg(const ezVisualScriptActivityMsgToEditor* pMsg);
   void HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg);
+
   void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
 
   /// \name Scene Settings
   ///@{
 
-  const ezDocumentObject* GetSettingsObject() const;
-  const ezSceneDocumentSettings* GetSettings() const;
+  virtual const ezDocumentObject* GetSettingsObject() const;
+  const ezSceneDocumentSettingsBase* GetSettingsBase() const;
+  template <typename T>
+  const T* GetSettings() const
+  {
+    return ezDynamicCast<const T*>(GetSettingsBase());
+  }
 
   ezStatus CreateExposedProperty(
     const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
@@ -179,7 +192,7 @@ protected:
     }
   }
 
-private:
+protected:
   void EnsureSettingsObjectExist();
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
@@ -200,7 +213,7 @@ private:
   /// the runtime.
   void UpdateObjectDebugTargets();
 
-  bool m_bIsPrefab;
+  DocumentType m_DocumentType = DocumentType::Scene;
 
   GameMode::Enum m_GameMode;
 

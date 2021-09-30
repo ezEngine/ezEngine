@@ -171,9 +171,9 @@ void ezSceneActions::UnregisterActions()
   }
 }
 
-void ezSceneActions::MapMenuActions()
+void ezSceneActions::MapMenuActions(const char* szMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
@@ -205,9 +205,9 @@ void ezSceneActions::MapMenuActions()
   }
 }
 
-void ezSceneActions::MapToolbarActions()
+void ezSceneActions::MapToolbarActions(const char* szMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentToolBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
@@ -237,8 +237,8 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  // TODO const cast
-  m_pSceneDocument = const_cast<ezSceneDocument*>(static_cast<const ezSceneDocument*>(context.m_pDocument));
+
+  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
   m_pSceneDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
 
   switch (m_Type)

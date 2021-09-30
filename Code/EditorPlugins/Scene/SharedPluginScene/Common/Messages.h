@@ -39,6 +39,7 @@ class EZ_SHAREDPLUGINSCENE_DLL ezPullObjectStateMsgToEngine : public ezEditorEng
 
 struct ezPushObjectStateData
 {
+  ezUuid m_LayerGuid;
   ezUuid m_ObjectGuid;
   ezVec3 m_vPosition;
   ezQuat m_qRotation;
@@ -53,4 +54,20 @@ class EZ_SHAREDPLUGINSCENE_DLL ezPushObjectStateMsgToEditor : public ezEditorEng
 
 public:
   ezDynamicArray<ezPushObjectStateData> m_ObjectStates;
+};
+
+class EZ_SHAREDPLUGINSCENE_DLL ezActiveLayerChangedMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezActiveLayerChangedMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezUuid m_ActiveLayer;
+};
+
+class EZ_SHAREDPLUGINSCENE_DLL ezLayerVisibilityChangedMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLayerVisibilityChangedMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezHybridArray<ezUuid, 1> m_HiddenLayers;
 };

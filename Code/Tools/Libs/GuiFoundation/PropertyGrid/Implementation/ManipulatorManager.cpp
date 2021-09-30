@@ -163,11 +163,26 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
       }
     }
   }
+
+  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeReset)
+  {
+    auto pDoc = e.m_pDocument;
+    auto it = m_ActiveManipulator.Find(pDoc);
+
+    if (it.IsValid())
+    {
+      for (auto& sel : it.Value().m_Selection)
+      {
+        it.Value().m_Selection.RemoveAndCopy(sel);
+        InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, it.Value().m_Selection, false);
+      }
+    }
+  }
 }
 
 void ezManipulatorManager::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
-  TransferToCurrentSelection(e.m_pDocument);
+  TransferToCurrentSelection(e.m_pDocument->GetMainDocument());
 }
 
 void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)

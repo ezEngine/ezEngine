@@ -6,34 +6,27 @@
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
-ezQtGameObjectPanel::ezQtGameObjectPanel(
-  QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
-  : ezQtDocumentPanel(pParent)
-{
-  setObjectName("ScenegraphPanel");
-  setWindowTitle("Scenegraph");
 
+ezQtGameObjectWidget::ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection)
+{
   m_pDocument = pDocument;
   m_sContextMenuMapping = szContextMenuMapping;
 
-  m_pMainWidget = new QWidget(this);
-  m_pMainWidget->setLayout(new QVBoxLayout());
-  m_pMainWidget->setContentsMargins(0, 0, 0, 0);
-  m_pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
+  setLayout(new QVBoxLayout());
+  setContentsMargins(0, 0, 0, 0);
+  layout()->setContentsMargins(0, 0, 0, 0);
 
   m_pFilterWidget = new ezQtSearchWidget(this);
-  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezQtGameObjectPanel::OnFilterTextChanged);
+  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezQtGameObjectWidget::OnFilterTextChanged);
 
-  m_pMainWidget->layout()->addWidget(m_pFilterWidget);
+  layout()->addWidget(m_pFilterWidget);
 
-  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pCustomModel));
+  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pCustomModel), pSelection);
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pTreeWidget->SetAllowDeleteObjects(true);
-  m_pMainWidget->layout()->addWidget(m_pTreeWidget);
+  layout()->addWidget(m_pTreeWidget);
 
-  setWidget(m_pMainWidget);
-
-  m_pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectPanel::DocumentSceneEventHandler, this));
+  m_pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectWidget::DocumentSceneEventHandler, this));
 
   m_pTreeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
@@ -43,12 +36,13 @@ ezQtGameObjectPanel::ezQtGameObjectPanel(
     "signal/slot connection failed");
 }
 
-ezQtGameObjectPanel::~ezQtGameObjectPanel()
+ezQtGameObjectWidget::~ezQtGameObjectWidget()
 {
-  m_pDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectPanel::DocumentSceneEventHandler, this));
+  m_pDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectWidget::DocumentSceneEventHandler, this));
 }
 
-void ezQtGameObjectPanel::DocumentSceneEventHandler(const ezGameObjectEvent& e)
+
+void ezQtGameObjectWidget::DocumentSceneEventHandler(const ezGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
@@ -63,12 +57,12 @@ void ezQtGameObjectPanel::DocumentSceneEventHandler(const ezGameObjectEvent& e)
   }
 }
 
-void ezQtGameObjectPanel::OnItemDoubleClicked(const QModelIndex&)
+void ezQtGameObjectWidget::OnItemDoubleClicked(const QModelIndex&)
 {
   m_pDocument->TriggerFocusOnSelection(true);
 }
 
-void ezQtGameObjectPanel::OnRequestContextMenu(QPoint pos)
+void ezQtGameObjectWidget::OnRequestContextMenu(QPoint pos)
 {
   ezQtMenuActionMapView menu(nullptr);
 
@@ -81,7 +75,25 @@ void ezQtGameObjectPanel::OnRequestContextMenu(QPoint pos)
   menu.exec(m_pTreeWidget->mapToGlobal(pos));
 }
 
-void ezQtGameObjectPanel::OnFilterTextChanged(const QString& text)
+void ezQtGameObjectWidget::OnFilterTextChanged(const QString& text)
 {
   m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+ezQtGameObjectPanel::ezQtGameObjectPanel(
+  QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+  : ezQtDocumentPanel(pParent)
+{
+  setObjectName("ScenegraphPanel");
+  setWindowTitle("Scenegraph");
+
+  m_pMainWidget = new ezQtGameObjectWidget(this, pDocument, szContextMenuMapping, std::move(pCustomModel));
+  setWidget(m_pMainWidget);
+}
+
+ezQtGameObjectPanel::~ezQtGameObjectPanel()
+{
 }

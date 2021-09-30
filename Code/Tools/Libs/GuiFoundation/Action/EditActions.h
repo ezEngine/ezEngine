@@ -10,7 +10,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath, bool bDeleteAction, bool bPasteAsChildAction);
+  static void MapActions(const char* szMapping, const char* szPath, bool bDeleteAction, bool bAdvancedPasteActions);
   static void MapContextMenuActions(const char* szMapping, const char* szPath);
   static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
 
@@ -18,6 +18,7 @@ public:
   static ezActionDescriptorHandle s_hCopy;
   static ezActionDescriptorHandle s_hPaste;
   static ezActionDescriptorHandle s_hPasteAsChild;
+  static ezActionDescriptorHandle s_hPasteAtOriginalLocation;
   static ezActionDescriptorHandle s_hDelete;
 };
 
@@ -33,6 +34,7 @@ public:
     Copy,
     Paste,
     PasteAsChild,
+    PasteAtOriginalLocation,
     Delete,
   };
   ezEditAction(const ezActionContext& context, const char* szName, ButtonType button);

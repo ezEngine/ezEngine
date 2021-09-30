@@ -100,7 +100,12 @@ public:
     ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
 
+
   virtual ezEditorInputContext* GetEditorInputContextOverride() override;
+
+protected:
+  void SubscribeGameObjectEventHandlers();
+  void UnsubscribeGameObjectEventHandlers();
 
   /// \name Gizmo
   ///@{
@@ -229,7 +234,7 @@ public:
 
 public:
   mutable ezEvent<const ezGameObjectEvent&> m_GameObjectEvents;
-  mutable ezObjectMetaData<ezUuid, ezGameObjectMetaData> m_GameObjectMetaData;
+  mutable ezUniquePtr<ezObjectMetaData<ezUuid, ezGameObjectMetaData>> m_GameObjectMetaData;
 
   static ezEvent<const ezGameObjectDocumentEvent&> s_GameObjectDocumentEvents;
 
@@ -237,13 +242,13 @@ protected:
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;
   /// \brief Sends the current state of the scene to the engine process. This is typically done after scene load or when the world might have deviated
   /// on the engine side (after play the game etc.)
-  void SendGameWorldToEngine();
+  virtual void SendGameWorldToEngine();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
 
-private:
+public:
   void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
@@ -273,4 +278,10 @@ private:
   // therefore when the selection is changed in the first frame, it might not be fully correct
   // by sending it a second time, we can fix that easily
   ezInt8 m_iResendSelection = 0;
+
+protected:
+  ezEventSubscriptionID m_SelectionManagerEventHandlerID;
+  ezEventSubscriptionID m_ObjectPropertyEventHandlerID;
+  ezEventSubscriptionID m_ObjectStructureEventHandlerID;
+  ezEventSubscriptionID m_ObjectEventHandlerID;
 };

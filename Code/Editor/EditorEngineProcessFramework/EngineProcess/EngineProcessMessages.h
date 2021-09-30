@@ -217,6 +217,7 @@ public:
 
   bool m_bDocumentOpen;
   ezString m_sDocumentType;
+  ezVariant m_DocumentMetaData;
 };
 
 /// \brief Used to reset the engine side to an empty document before sending the full document state over

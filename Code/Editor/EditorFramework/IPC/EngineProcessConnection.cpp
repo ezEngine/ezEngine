@@ -29,7 +29,7 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 }
 
-void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen)
+void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezAssetDocument* pDocument, bool bOpen)
 {
   EZ_PROFILE_SCOPE("SendDocumentOpenMessage");
 
@@ -44,6 +44,7 @@ void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* 
   m.m_DocumentGuid = pDocument->GetGuid();
   m.m_bDocumentOpen = bOpen;
   m.m_sDocumentType = pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
+  m.m_DocumentMetaData = pDocument->GetCreateEngineMetaData();
 
   SendMessage(&m);
 }
@@ -141,7 +142,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   }
 }
 
-void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezDocument* pDocument, ezUInt32 uiViewID)
+void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezAssetDocument* pDocument, ezUInt32 uiViewID)
 {
   // make sure process is started
   if (!ConnectToRemoteProcess())

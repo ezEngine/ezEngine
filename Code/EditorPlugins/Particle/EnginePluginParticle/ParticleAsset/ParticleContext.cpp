@@ -18,7 +18,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezP
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleContext::ezParticleContext() = default;
+ezParticleContext::ezParticleContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
+
 ezParticleContext::~ezParticleContext() = default;
 
 void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -49,7 +53,7 @@ void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezParticleContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezParticleComponentManager* pCompMan = pWorld->GetOrCreateComponentManager<ezParticleComponentManager>();

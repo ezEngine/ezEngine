@@ -122,9 +122,9 @@ ezStatus ezCommand::AddSubCommand(ezCommand& command)
   pCommand->m_pDocument = m_pDocument;
 
   m_ChildActions.PushBack(pCommand);
-  m_pDocument->GetCommandHistory()->m_ActiveCommandStack.PushBack(pCommand);
+  m_pDocument->GetCommandHistory()->GetStorage()->m_ActiveCommandStack.PushBack(pCommand);
   ezStatus ret = pCommand->Do(false);
-  m_pDocument->GetCommandHistory()->m_ActiveCommandStack.PopBack();
+  m_pDocument->GetCommandHistory()->GetStorage()->m_ActiveCommandStack.PopBack();
 
   if (ret.m_Result == EZ_FAILURE)
   {

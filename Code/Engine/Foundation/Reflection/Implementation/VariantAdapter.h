@@ -122,8 +122,8 @@ struct ezVariantAssignmentAdapter
   {
   }
 
-  void operator=(T* rhs) { m_value = rhs; }
-  void operator=(T&& rhs)
+  void operator=(RealType* rhs) { m_value = rhs; }
+  void operator=(RealType&& rhs)
   {
     if (m_value.IsValid())
       *m_value.Get<RealType*>() = rhs;

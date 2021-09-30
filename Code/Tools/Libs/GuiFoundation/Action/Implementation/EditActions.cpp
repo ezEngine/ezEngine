@@ -22,6 +22,7 @@ ezActionDescriptorHandle ezEditActions::s_hEditCategory;
 ezActionDescriptorHandle ezEditActions::s_hCopy;
 ezActionDescriptorHandle ezEditActions::s_hPaste;
 ezActionDescriptorHandle ezEditActions::s_hPasteAsChild;
+ezActionDescriptorHandle ezEditActions::s_hPasteAtOriginalLocation;
 ezActionDescriptorHandle ezEditActions::s_hDelete;
 
 void ezEditActions::RegisterActions()
@@ -30,6 +31,7 @@ void ezEditActions::RegisterActions()
   s_hCopy = EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
   s_hPaste = EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
   s_hPasteAsChild = EZ_REGISTER_ACTION_1("Selection.PasteAsChild", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::PasteAsChild);
+  s_hPasteAtOriginalLocation = EZ_REGISTER_ACTION_1("Selection.PasteAtOriginalLocation", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::PasteAtOriginalLocation);
   s_hDelete = EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
 }
 
@@ -39,10 +41,11 @@ void ezEditActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCopy);
   ezActionManager::UnregisterAction(s_hPaste);
   ezActionManager::UnregisterAction(s_hPasteAsChild);
+  ezActionManager::UnregisterAction(s_hPasteAtOriginalLocation);
   ezActionManager::UnregisterAction(s_hDelete);
 }
 
-void ezEditActions::MapActions(const char* szMapping, const char* szPath, bool bDeleteAction, bool bPasteAsChildAction)
+void ezEditActions::MapActions(const char* szMapping, const char* szPath, bool bDeleteAction, bool bAdvancedPasteActions)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
@@ -54,8 +57,11 @@ void ezEditActions::MapActions(const char* szMapping, const char* szPath, bool b
   pMap->MapAction(s_hCopy, sSubPath, 1.0f);
   pMap->MapAction(s_hPaste, sSubPath, 2.0f);
 
-  if (bPasteAsChildAction)
+  if (bAdvancedPasteActions)
+  {
     pMap->MapAction(s_hPasteAsChild, sSubPath, 2.5f);
+    pMap->MapAction(s_hPasteAtOriginalLocation, sSubPath, 2.7f);
+  }
 
   if (bDeleteAction)
     pMap->MapAction(s_hDelete, sSubPath, 3.0f);
@@ -88,6 +94,7 @@ void ezEditActions::MapViewContextMenuActions(const char* szMapping, const char*
 
   pMap->MapAction(s_hCopy, sSubPath, 1.0f);
   pMap->MapAction(s_hPasteAsChild, sSubPath, 2.0f);
+  pMap->MapAction(s_hPasteAtOriginalLocation, sSubPath, 2.5f);
   pMap->MapAction(s_hDelete, sSubPath, 3.0f);
 }
 
@@ -110,6 +117,9 @@ ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, B
       break;
     case ezEditAction::ButtonType::PasteAsChild:
       SetIconPath(":/GuiFoundation/Icons/Paste16.png"); /// \todo Icon
+      break;
+    case ezEditAction::ButtonType::PasteAtOriginalLocation:
+      SetIconPath(":/GuiFoundation/Icons/Paste16.png");
       break;
     case ezEditAction::ButtonType::Delete:
       SetIconPath(":/GuiFoundation/Icons/Delete16.png");
@@ -163,6 +173,7 @@ void ezEditAction::Execute(const ezVariant& value)
 
     case ezEditAction::ButtonType::Paste:
     case ezEditAction::ButtonType::PasteAsChild:
+    case ezEditAction::ButtonType::PasteAtOriginalLocation:
     {
       // Check for clipboard data of the correct type.
       QClipboard* clipboard = QApplication::clipboard();
@@ -197,6 +208,10 @@ void ezEditAction::Execute(const ezVariant& value)
       {
         if (!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty())
           cmd.m_Parent = m_Context.m_pDocument->GetSelectionManager()->GetSelection().PeekBack()->GetGuid();
+      }
+      else if (m_ButtonType == ButtonType::PasteAtOriginalLocation)
+      {
+        cmd.m_bAllowPickedPosition = false;
       }
 
       auto history = m_Context.m_pDocument->GetCommandHistory();
