@@ -1321,7 +1321,17 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
   else
   {
     // Explicitly trigger transform AND bounds update, otherwise bounds would be outdated for static objects
-    pObject->UpdateGlobalTransformAndBounds();
+    // Don't call pObject->UpdateGlobalTransformAndBounds() here since that would recursively update the parent global transform which is already up-to-date.
+    if (pParent != nullptr)
+    {
+      pObject->m_pTransformationData->UpdateGlobalTransformWithParent();
+    }
+    else
+    {
+      pObject->m_pTransformationData->UpdateGlobalTransform();
+    }
+
+    pObject->m_pTransformationData->UpdateGlobalBounds(GetSpatialSystem());
   }
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)

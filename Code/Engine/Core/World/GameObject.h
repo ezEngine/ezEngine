@@ -550,6 +550,8 @@ private:
 
     void UpdateLocalTransform();
 
+    // Calls UpdateGlobalTransform or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
+    // In case there is a parent transform it also recursively calls ConditionalUpdateGlobalTransform on the parent transform to ensure everything is up-to-date.
     void ConditionalUpdateGlobalTransform();
     void UpdateGlobalTransform();
     void UpdateGlobalTransformWithParent();
