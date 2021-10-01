@@ -399,7 +399,7 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetVelocity() const
 
 EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransform()
 {
-  m_pTransformationData->ConditionalUpdateGlobalTransform();
+  m_pTransformationData->UpdateGlobalTransformRecursive();
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::EnableStaticTransformChangesNotifications()
@@ -541,7 +541,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetStableRandomSeed(ezUInt32 seed)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()
+EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWithoutParent()
 {
   m_globalTransform.m_Position = m_localPosition;
   m_globalTransform.m_Rotation = m_localRotation;
