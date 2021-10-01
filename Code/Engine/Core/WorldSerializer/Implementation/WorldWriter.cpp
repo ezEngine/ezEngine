@@ -83,8 +83,16 @@ ezResult ezWorldWriter::WriteToStream()
   *m_pStream << uiNumChildObjects;
   *m_pStream << uiNumComponentTypes;
 
+  // this is used to sort all component types by name, to make the file serialization deterministic
+  ezMap<ezString, const ezRTTI*> sortedTypes;
+
+  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  {
+    sortedTypes[it.Key()->GetTypeName()] = it.Key();
+  }
+
   AssignGameObjectIndices();
-  AssignComponentHandleIndices();
+  AssignComponentHandleIndices(sortedTypes);
 
   for (const auto* pObject : m_AllRootObjects)
   {
@@ -94,14 +102,6 @@ ezResult ezWorldWriter::WriteToStream()
   for (const auto* pObject : m_AllChildObjects)
   {
     WriteGameObject(pObject);
-  }
-
-  // this is used to sort all component types by name, to make the file serialization deterministic
-  ezMap<ezString, const ezRTTI*> sortedTypes;
-
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
-  {
-    sortedTypes[it.Key()->GetTypeName()] = it.Key();
   }
 
   for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
@@ -142,16 +142,16 @@ void ezWorldWriter::AssignGameObjectIndices()
   }
 }
 
-void ezWorldWriter::AssignComponentHandleIndices()
+void ezWorldWriter::AssignComponentHandleIndices(const ezMap<ezString, const ezRTTI*>& sortedTypes)
 {
   ezUInt16 uiTypeIndex = 0;
 
   EZ_ASSERT_DEV(m_AllComponents.GetCount() <= ezMath::MaxValue<ezUInt16>(), "Too many types for world writer");
 
   // assign the component handle indices in the order in which the components are written
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
   {
-    auto& components = it.Value();
+    auto& components = m_AllComponents[it.Value()];
 
     components.m_uiSerializedTypeIndex = uiTypeIndex;
     ++uiTypeIndex;
