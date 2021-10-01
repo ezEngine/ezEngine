@@ -195,14 +195,7 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
 
   ezSimdTransform oldGlobalTransform = GetGlobalTransformSimd();
 
-  if (m_pTransformationData->m_pParentData != nullptr)
-  {
-    m_pTransformationData->UpdateGlobalTransformWithParent();
-  }
-  else
-  {
-    m_pTransformationData->UpdateGlobalTransform();
-  }
+  m_pTransformationData->UpdateGlobalTransformNonRecursive();
 
   if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
@@ -646,7 +639,7 @@ void ezGameObject::UpdateLocalBounds()
 
 void ezGameObject::UpdateGlobalTransformAndBounds()
 {
-  m_pTransformationData->ConditionalUpdateGlobalTransform();
+  m_pTransformationData->UpdateGlobalTransformRecursive();
   m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
@@ -1040,16 +1033,28 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
   m_localScaling.SetW(1.0f);
 }
 
-void ezGameObject::TransformationData::ConditionalUpdateGlobalTransform()
+void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive()
 {
   if (m_pParentData != nullptr)
   {
-    m_pParentData->ConditionalUpdateGlobalTransform();
     UpdateGlobalTransformWithParent();
   }
   else
   {
-    UpdateGlobalTransform();
+    UpdateGlobalTransformWithoutParent();
+  }
+}
+
+void ezGameObject::TransformationData::UpdateGlobalTransformRecursive()
+{
+  if (m_pParentData != nullptr)
+  {
+    m_pParentData->UpdateGlobalTransformRecursive();
+    UpdateGlobalTransformWithParent();
+  }
+  else
+  {
+    UpdateGlobalTransformWithoutParent();
   }
 }
 

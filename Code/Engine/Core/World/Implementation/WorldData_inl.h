@@ -62,7 +62,7 @@ namespace ezInternal
   // static
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
   {
-    pData->UpdateGlobalTransform();
+    pData->UpdateGlobalTransformWithoutParent();
     pData->UpdateVelocity(fInvDeltaSeconds);
     pData->UpdateGlobalBounds();
   }
@@ -79,7 +79,7 @@ namespace ezInternal
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(
     ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
   {
-    pData->UpdateGlobalTransform();
+    pData->UpdateGlobalTransformWithoutParent();
     pData->UpdateVelocity(fInvDeltaSeconds);
     pData->UpdateGlobalBoundsAndSpatialData(spatialSystem);
   }

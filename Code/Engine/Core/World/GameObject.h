@@ -548,12 +548,23 @@ private:
 
     ezUInt32 m_uiPadding2[1];
 
+    /// \brief Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
     void UpdateLocalTransform();
 
-    // Calls UpdateGlobalTransform or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
-    // In case there is a parent transform it also recursively calls ConditionalUpdateGlobalTransform on the parent transform to ensure everything is up-to-date.
-    void ConditionalUpdateGlobalTransform();
-    void UpdateGlobalTransform();
+    /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
+    /// In case there is a parent transform it also recursively calls itself on the parent transform to ensure everything is up-to-date.
+    void UpdateGlobalTransformRecursive();
+
+    /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
+    /// Assumes that the parent's global transform is already up to date.
+    void UpdateGlobalTransformNonRecursive();
+
+    /// \brief Updates the global transform by copying the object's local transform into the global transform.
+    /// This is for objects that have no parent.
+    void UpdateGlobalTransformWithoutParent();
+
+    /// \brief Updates the global transform by combining the parents global transform with this object's local transform.
+    /// Assumes that the parent's global transform is already up to date.
     void UpdateGlobalTransformWithParent();
 
     void UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem);

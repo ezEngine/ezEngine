@@ -213,14 +213,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->m_uiStableRandomSeed = GetRandomNumberGenerator().UInt();
   }
 
-  if (pParentData != nullptr)
-  {
-    pTransformationData->UpdateGlobalTransformWithParent();
-  }
-  else
-  {
-    pTransformationData->UpdateGlobalTransform();
-  }
+  pTransformationData->UpdateGlobalTransformNonRecursive();
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_Position;
@@ -1322,14 +1315,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
   {
     // Explicitly trigger transform AND bounds update, otherwise bounds would be outdated for static objects
     // Don't call pObject->UpdateGlobalTransformAndBounds() here since that would recursively update the parent global transform which is already up-to-date.
-    if (pParent != nullptr)
-    {
-      pObject->m_pTransformationData->UpdateGlobalTransformWithParent();
-    }
-    else
-    {
-      pObject->m_pTransformationData->UpdateGlobalTransform();
-    }
+    pObject->m_pTransformationData->UpdateGlobalTransformNonRecursive();
 
     pObject->m_pTransformationData->UpdateGlobalBounds(GetSpatialSystem());
   }
