@@ -338,6 +338,12 @@
 		</Expand>
 	</Type>
 
+  <Type Name="ezAngle">
+    <DisplayString>{{Degree = {m_fRadian*57.295}}}</DisplayString>
+    <Expand>
+      <Item Name="Radians">m_fRadian</Item>
+    </Expand>
+  </Type>
 </AutoVisualizer>
 
 
