@@ -64,16 +64,16 @@ public:
   /// \brief Returns whether the given handle corresponds to a valid object.
   bool IsValidObject(const ezGameObjectHandle& object) const;
 
-  /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
+  /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject);
 
-  /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
+  /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const;
 
-  /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
+  /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
 
-  /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
+  /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const;
 
 
@@ -169,11 +169,11 @@ public:
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
   [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
   [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 

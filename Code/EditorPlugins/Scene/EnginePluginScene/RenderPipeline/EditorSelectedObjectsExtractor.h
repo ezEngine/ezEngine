@@ -8,9 +8,9 @@
 class ezSceneContext;
 class ezCameraComponent;
 
-class ezEditorSelectedObjectsExtractor : public ezSelectedObjectsExtractor
+class ezEditorSelectedObjectsExtractor : public ezSelectedObjectsExtractorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorSelectedObjectsExtractor, ezSelectedObjectsExtractor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorSelectedObjectsExtractor, ezSelectedObjectsExtractorBase);
 
 public:
   ezEditorSelectedObjectsExtractor();

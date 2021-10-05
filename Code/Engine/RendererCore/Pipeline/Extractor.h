@@ -57,13 +57,13 @@ public:
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 };
 
-class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
+class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractorBase : public ezExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsExtractor, ezExtractor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsExtractorBase, ezExtractor);
 
 public:
-  ezSelectedObjectsExtractor(const char* szName = "SelectedObjectsExtractor");
-  ~ezSelectedObjectsExtractor();
+  ezSelectedObjectsExtractorBase(const char* szName = "SelectedObjectsExtractor");
+  ~ezSelectedObjectsExtractorBase();
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 
@@ -75,39 +75,46 @@ public:
 /// \brief Stores a list of game objects that should get highlighted by the renderer.
 ///
 /// Store an instance somewhere in your game code:
-/// ezExplicitObjectSelection m_SelectedObjects;
+/// ezSelectedObjectsContext m_SelectedObjects;
 /// Add handles to game object that should be get the highlighting outline (as the editor uses for selected objects).
 /// On an ezView call:
 /// ezView::SetExtractorProperty("HighlightObjects", "SelectionContext", &m_SelectedObjects);
-/// The first name must be the name of an ezExplicitlySelectedObjectsExtractor that is instantiated by the render pipeline.
+/// The first name must be the name of an ezSelectedObjectsExtractor that is instantiated by the render pipeline.
 ///
 /// As long as there is also an ezSelectionHighlightPass in the render pipeline, all objects in this selection will be rendered
 /// with an outline.
-class EZ_RENDERERCORE_DLL ezExplicitObjectSelection : public ezReflectedClass
+class EZ_RENDERERCORE_DLL ezSelectedObjectsContext : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExplicitObjectSelection, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsContext, ezReflectedClass);
 
 public:
+  ezSelectedObjectsContext();
+  ~ezSelectedObjectsContext();
+
+  void RemoveDeadObjects(const ezWorld& world);
+  void AddObjectAndChildren(const ezWorld& world, const ezGameObjectHandle& hObject);
+  void AddObjectAndChildren(const ezWorld& world, const ezGameObject* pObject);
+
   ezDeque<ezGameObjectHandle> m_Objects;
 };
 
 /// \brief An extractor that can be instantiated in a render pipeline, to define manually which objects should be rendered with a selection outline.
 ///
-/// \sa ezExplicitObjectSelection
-class EZ_RENDERERCORE_DLL ezExplicitlySelectedObjectsExtractor : public ezSelectedObjectsExtractor
+/// \sa ezSelectedObjectsContext
+class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezSelectedObjectsExtractorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExplicitlySelectedObjectsExtractor, ezSelectedObjectsExtractor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsExtractor, ezSelectedObjectsExtractorBase);
 
 public:
-  ezExplicitlySelectedObjectsExtractor(const char* szName = "ExplicitlySelectedObjectsExtractor");
-  ~ezExplicitlySelectedObjectsExtractor();
+  ezSelectedObjectsExtractor(const char* szName = "ExplicitlySelectedObjectsExtractor");
+  ~ezSelectedObjectsExtractor();
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() override;
 
   /// \brief The context is typically set through an ezView, through ezView::SetExtractorProperty("<name>", "SelectionContext", pointer);
-  void SetSelectionContext(ezExplicitObjectSelection* pSelectionContext) { m_pSelectionContext = pSelectionContext; } // [ property ]
-  ezExplicitObjectSelection* GetSelectionContext() const { return m_pSelectionContext; }                              // [ property ]
+  void SetSelectionContext(ezSelectedObjectsContext* pSelectionContext) { m_pSelectionContext = pSelectionContext; } // [ property ]
+  ezSelectedObjectsContext* GetSelectionContext() const { return m_pSelectionContext; }                              // [ property ]
 
 private:
-  ezExplicitObjectSelection* m_pSelectionContext = nullptr;
+  ezSelectedObjectsContext* m_pSelectionContext = nullptr;
 };

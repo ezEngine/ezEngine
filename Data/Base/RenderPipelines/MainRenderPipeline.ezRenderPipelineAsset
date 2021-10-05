@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{17985677467951124764}
+		u4 %Hash{7060614606698042978}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -270,6 +270,20 @@ o
 }
 o
 {
+	Uuid %id{u4{17098409832324973992,4858576378905591650}}
+	s %t{"ezSelectedObjectsExtractor"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Name{"HighlightObjects"}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0x74193D42,0x2AAC1EC4}}
+		Uuid %SelectionContext{u4{0,0}}
+	}
+}
+o
+{
 	Uuid %id{u4{16972766189944550570,4911723010182931087}}
 	s %t{"ezAntialiasingPass"}
 	u3 %v{1}
@@ -385,20 +399,6 @@ o
 		s %Name{""}
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xCEAA8BC3,0xABC90FC4}}
-	}
-}
-o
-{
-	Uuid %id{u4{17881717886170802056,5507398310066614815}}
-	s %t{"ezExplicitlySelectedObjectsExtractor"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Name{"HighlightObjects"}
-		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x75FC14C1,0x989F21C4}}
-		Uuid %SelectionContext{u4{0,0}}
 	}
 }
 o
@@ -584,8 +584,8 @@ o
 			Uuid{u4{131739830145733043,4938117585638962621}}
 			Uuid{u4{18256155234598274697,4621777589978447158}}
 			Uuid{u4{15217573783965038497,4632251886641546667}}
-			Uuid{u4{17881717886170802056,5507398310066614815}}
 			Uuid{u4{16611465311992832695,5592881206940490891}}
+			Uuid{u4{17098409832324973992,4858576378905591650}}
 		}
 	}
 }
@@ -941,13 +941,13 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezExtractor"}
+		s %ParentTypeName{"ezSelectedObjectsExtractorBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSelectedObjectsExtractor"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1187,24 +1187,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13533744723338021017,9373383924450389303}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSelectedObjectsExtractor"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezExplicitlySelectedObjectsExtractor"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{1156777463365570400,9614739548711995995}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1313,6 +1295,24 @@ o
 }
 o
 {
+	Uuid %id{u4{219248466762185117,12802398661095773549}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezExtractor"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSelectedObjectsExtractorBase"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16010827031939946249,13383519467893930609}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1385,7 +1385,7 @@ o
 }
 o
 {
-	Uuid %id{u4{10926472458034681267,15970064231038134303}}
+	Uuid %id{u4{6635121407750259211,15852601089429924324}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1396,7 +1396,7 @@ o
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezExplicitObjectSelection"}
+		s %TypeName{"ezSelectedObjectsContext"}
 		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
