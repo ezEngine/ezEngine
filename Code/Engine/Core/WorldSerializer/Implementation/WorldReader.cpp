@@ -585,9 +585,10 @@ bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
       s >> userFlags;
 
       ezGameObject* pOwnerObject = nullptr;
-      m_WorldReader.m_pWorld->TryGetObject(hOwner, pOwnerObject);
-
-      EZ_ASSERT_DEBUG(pOwnerObject != nullptr, "Owner object must be not null");
+      if (!m_WorldReader.m_pWorld->TryGetObject(hOwner, pOwnerObject))
+      {
+        EZ_REPORT_FAILURE("Owner object must be not null");
+      }
 
       ezComponent* pComponent = nullptr;
       auto hComponent = pManager->CreateComponentNoInit(pOwnerObject, pComponent);

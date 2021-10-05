@@ -65,16 +65,16 @@ public:
   bool IsValidObject(const ezGameObjectHandle& object) const;
 
   /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject);
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject);
 
   /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const;
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const;
 
   /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
 
   /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const;
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const;
 
 
   /// \brief Returns the total number of objects in this world.
@@ -171,11 +171,11 @@ public:
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
+  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
+  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 
   /// \brief Creates a new component init batch.
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.

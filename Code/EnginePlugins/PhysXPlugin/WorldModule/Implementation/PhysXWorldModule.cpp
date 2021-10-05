@@ -70,7 +70,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
+        { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -817,9 +818,10 @@ void ezPhysXWorldModule::HandleTriggerEvents()
       continue;
 
     ezComponent* pOther = nullptr;
-    m_pWorld->TryGetComponent(te.m_hOtherComponent, pOther);
-
-    pTrigger->PostTriggerMessage(pOther, te.m_TriggerState);
+    if (m_pWorld->TryGetComponent(te.m_hOtherComponent, pOther))
+    {
+      pTrigger->PostTriggerMessage(pOther, te.m_TriggerState);
+    }
   }
 
   m_pSimulationEventCallback->m_TriggerEvents.Clear();
@@ -891,7 +893,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&]
+      { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 

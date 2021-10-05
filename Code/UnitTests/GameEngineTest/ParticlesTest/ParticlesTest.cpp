@@ -153,12 +153,13 @@ void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szF
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   ezGameObject* pObject;
-  m_pWorld->TryGetObjectWithGlobalKey("Effect", pObject);
-
-  ezParticleComponent* pEffect;
-  m_pWorld->GetOrCreateComponentManager<ezParticleComponentManager>()->CreateComponent(pObject, pEffect);
-  pEffect->SetParticleEffectFile(szFile);
-  pEffect->m_uiRandomSeed = 42;
+  if (m_pWorld->TryGetObjectWithGlobalKey("Effect", pObject))
+  {
+    ezParticleComponent* pEffect;
+    m_pWorld->GetOrCreateComponentManager<ezParticleComponentManager>()->CreateComponent(pObject, pEffect);
+    pEffect->SetParticleEffectFile(szFile);
+    pEffect->m_uiRandomSeed = 42;
+  }
 }
 
 ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)
