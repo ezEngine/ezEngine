@@ -62,7 +62,7 @@ void ezDependencyFile::StoreCurrentTimeStamp()
   }
 }
 
-bool ezDependencyFile::HasAnyFileChanged()
+bool ezDependencyFile::HasAnyFileChanged() const
 {
 #if EZ_DISABLED(EZ_SUPPORTS_FILE_STATS)
   ezLog::Warning("Trying to retrieve file time stamps on a platform that does not support it");

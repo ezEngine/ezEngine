@@ -255,10 +255,12 @@ private:
   ezResult ProcessFile(const char* szFile, ezTokenParseUtils::TokenStream& TokenOutput);
   ezResult ProcessCmd(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& TokenOutput);
 
-private: // *** File Handling ***
-  ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
+public:
   static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath);
   static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
+
+private: // *** File Handling ***
+  ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
 
   FileOpenCB m_FileOpenCallback;
   FileLocatorCB m_FileLocatorCallback;

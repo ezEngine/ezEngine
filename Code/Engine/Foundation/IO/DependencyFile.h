@@ -43,7 +43,7 @@ public:
 
   /// \brief Retrieves the current file time stamps from the filesystem and determines whether any file has changed since the last call to
   /// StoreCurrentTimeStamp() (or ReadDependencyFile())
-  bool HasAnyFileChanged();
+  bool HasAnyFileChanged() const;
 
   /// \brief Retrieves the current file time stamps from the filesystem and stores it for later comparison. This value is also serialized through
   /// WriteDependencyFile(), so it should be called before that, to store the latest state.
