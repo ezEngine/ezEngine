@@ -1,3 +1,3 @@
 #include "imgui.h"
 
-thread_local ImGuiContext* g_ThreadLocalContext;
+thread_local ImGuiContext* g_ThreadLocalContext = nullptr;
