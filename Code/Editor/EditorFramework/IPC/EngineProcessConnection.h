@@ -78,6 +78,7 @@ public:
       ProcessCrashed,
       ProcessShutdown,
       ProcessMessage,
+      ProcessRestarted,
     };
 
     Event()
