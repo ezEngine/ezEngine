@@ -8,9 +8,9 @@
 class ezSceneContext;
 class ezCameraComponent;
 
-class ezEditorSelectedObjectsExtractor : public ezSelectedObjectsExtractor
+class ezEditorSelectedObjectsExtractor : public ezSelectedObjectsExtractorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorSelectedObjectsExtractor, ezSelectedObjectsExtractor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorSelectedObjectsExtractor, ezSelectedObjectsExtractorBase);
 
 public:
   ezEditorSelectedObjectsExtractor();
@@ -18,8 +18,7 @@ public:
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() override;
 
-  virtual void Extract(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }

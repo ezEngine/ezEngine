@@ -341,7 +341,7 @@ void ezGameObject::SetParent(const ezGameObjectHandle& parent, ezGameObject::Tra
   ezWorld* pWorld = GetWorld();
 
   ezGameObject* pParent = nullptr;
-  pWorld->TryGetObject(parent, pParent);
+  bool _ = pWorld->TryGetObject(parent, pParent);
   pWorld->SetParent(this, pParent, preserve);
 }
 

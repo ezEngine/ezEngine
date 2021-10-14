@@ -139,8 +139,7 @@ static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk)
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
   ezGameObject* pObject = nullptr;
-  pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
-
+  bool _ = pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
   pBinding->DukPutGameObject(pObject);
 

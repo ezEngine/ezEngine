@@ -130,6 +130,10 @@ void ezImgui::Shutdown()
 
 ImGuiContext* ezImgui::CreateContext()
 {
+  // imgui reads the global context pointer WHILE creating a new context
+  // so if we don't reset it to null here, it will try to access it, and crash
+  // if imgui was active on the same thread before
+  ImGui::SetCurrentContext(nullptr);
   ImGuiContext* context = ImGui::CreateContext(m_pSharedFontAtlas.Borrow());
   ImGui::SetCurrentContext(context);
 

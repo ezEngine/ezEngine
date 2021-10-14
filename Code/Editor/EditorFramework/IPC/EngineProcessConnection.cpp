@@ -352,6 +352,11 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   ezLog::Success("Engine Process is running");
 
   m_bClientIsConfigured = true;
+
+  Event e;
+  e.m_Type = Event::Type::ProcessRestarted;
+  s_Events.Broadcast(e);
+
   return EZ_SUCCESS;
 }
 

@@ -49,7 +49,7 @@ private:
   void Clear();
   ezResult WriteToStream();
   void AssignGameObjectIndices();
-  void AssignComponentHandleIndices();
+  void AssignComponentHandleIndices(const ezMap<ezString, const ezRTTI*>& sortedTypes);
   void IncludeAllComponentBaseTypes();
   void IncludeAllComponentBaseTypes(const ezRTTI* pRtti);
   void Traverse(ezGameObject* pObject);

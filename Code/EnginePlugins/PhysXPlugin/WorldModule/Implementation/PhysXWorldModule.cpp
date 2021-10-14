@@ -817,9 +817,10 @@ void ezPhysXWorldModule::HandleTriggerEvents()
       continue;
 
     ezComponent* pOther = nullptr;
-    m_pWorld->TryGetComponent(te.m_hOtherComponent, pOther);
-
-    pTrigger->PostTriggerMessage(pOther, te.m_TriggerState);
+    if (m_pWorld->TryGetComponent(te.m_hOtherComponent, pOther))
+    {
+      pTrigger->PostTriggerMessage(pOther, te.m_TriggerState);
+    }
   }
 
   m_pSimulationEventCallback->m_TriggerEvents.Clear();

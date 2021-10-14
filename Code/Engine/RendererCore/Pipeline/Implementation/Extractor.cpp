@@ -108,7 +108,7 @@ ezExtractor::ezExtractor(const char* szName)
 #endif
 }
 
-ezExtractor::~ezExtractor() {}
+ezExtractor::~ezExtractor() = default;
 
 void ezExtractor::SetName(const char* szName)
 {
@@ -270,6 +270,8 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 {
 }
 
+ezVisibleObjectsExtractor::~ezVisibleObjectsExtractor() = default;
+
 void ezVisibleObjectsExtractor::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
@@ -324,16 +326,18 @@ void ezVisibleObjectsExtractor::Extract(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractorBase, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSelectedObjectsExtractor::ezSelectedObjectsExtractor(const char* szName)
+ezSelectedObjectsExtractorBase::ezSelectedObjectsExtractorBase(const char* szName)
   : ezExtractor(szName)
   , m_OverrideCategory(ezDefaultRenderDataCategories::Selection)
 {
 }
 
-void ezSelectedObjectsExtractor::Extract(
+ezSelectedObjectsExtractorBase::~ezSelectedObjectsExtractorBase() = default;
+
+void ezSelectedObjectsExtractorBase::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
@@ -366,6 +370,79 @@ void ezSelectedObjectsExtractor::Extract(
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsContext, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezSelectedObjectsExtractor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("SelectionContext", GetSelectionContext, SetSelectionContext),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezSelectedObjectsContext::ezSelectedObjectsContext() = default;
+ezSelectedObjectsContext::~ezSelectedObjectsContext() = default;
+
+void ezSelectedObjectsContext::RemoveDeadObjects(const ezWorld& world)
+{
+  for (ezUInt32 i = 0; i < m_Objects.GetCount();)
+  {
+    const ezGameObject* pObj;
+    if (world.TryGetObject(m_Objects[i], pObj) == false)
+    {
+      m_Objects.RemoveAtAndSwap(i);
+    }
+    else
+      ++i;
+  }
+}
+
+void ezSelectedObjectsContext::AddObjectAndChildren(const ezWorld& world, const ezGameObjectHandle& hObject)
+{
+  const ezGameObject* pObj;
+  if (world.TryGetObject(hObject, pObj))
+  {
+    m_Objects.PushBack(hObject);
+
+    for (auto it = pObj->GetChildren(); it.IsValid(); ++it)
+    {
+      AddObjectAndChildren(world, it);
+    }
+  }
+}
+
+void ezSelectedObjectsContext::AddObjectAndChildren(const ezWorld& world, const ezGameObject* pObject)
+{
+  m_Objects.PushBack(pObject->GetHandle());
+
+  for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+  {
+    AddObjectAndChildren(world, it);
+  }
+}
+
+ezSelectedObjectsExtractor::ezSelectedObjectsExtractor(const char* szName /*= "ExplicitlySelectedObjectsExtractor"*/)
+  : ezSelectedObjectsExtractorBase(szName)
+{
+}
+
+ezSelectedObjectsExtractor::~ezSelectedObjectsExtractor() = default;
+
+const ezDeque<ezGameObjectHandle>* ezSelectedObjectsExtractor::GetSelection()
+{
+  if (m_pSelectionContext)
+    return &m_pSelectionContext->m_Objects;
+
+  return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Extractor);

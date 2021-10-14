@@ -80,7 +80,7 @@ void ezEditorSelectedObjectsExtractor::Extract(
     }
   }
 
-  ezSelectedObjectsExtractor::Extract(view, visibleObjects, extractedRenderData);
+  ezSelectedObjectsExtractorBase::Extract(view, visibleObjects, extractedRenderData);
 }
 
 void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& view)
