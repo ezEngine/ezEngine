@@ -120,7 +120,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     if (out_AcquireResult)
       *out_AcquireResult = ezResourceAcquireResult::Final;
 
-    pResource->m_iLockCount.Increment();
+    //pResource->m_iLockCount.Increment();
     return pResource;
   }
 
@@ -196,17 +196,15 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   if (out_AcquireResult)
     *out_AcquireResult = ezResourceAcquireResult::Final;
 
-  pResource->m_iLockCount.Increment();
+  //pResource->m_iLockCount.Increment();
   return pResource;
 }
 
 template <typename ResourceType>
 void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 {
-  EZ_ASSERT_DEV(pResource != nullptr, "Resource Pointer cannot be nullptr.");
-  EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32)pResource->m_iLockCount);
-
-  pResource->m_iLockCount.Decrement();
+  //EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32)pResource->m_iLockCount);
+  //pResource->m_iLockCount.Decrement();
 }
 
 template <typename ResourceType>

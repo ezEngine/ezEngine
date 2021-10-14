@@ -219,7 +219,7 @@ private:
   ezUInt64 m_uiUniqueIDHash = 0;
   ezUInt32 m_uiResourceChangeCounter = 0;
   ezAtomicInteger32 m_iReferenceCount = 0;
-  ezAtomicInteger32 m_iLockCount = 0;
+  //ezAtomicInteger32 m_iLockCount = 0; // currently not used
   ezString m_UniqueID;
   ezString m_sResourceDescription;
   MemoryUsage m_MemoryUsage;
