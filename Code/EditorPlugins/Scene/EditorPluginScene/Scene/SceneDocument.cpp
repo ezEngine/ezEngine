@@ -47,9 +47,11 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType Docume
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
+    { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
   // (Remote IPC mirror only sends scene)
-  m_Mirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
+  m_Mirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
+    { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   EnsureSettingsObjectExist();
@@ -470,19 +472,20 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
     if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
 
-    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj) {
-      // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-      // return;
-
-      auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
-      if (pMeta->m_bHidden != bHide)
+    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
       {
-        pMeta->m_bHidden = bHide;
-        m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::HiddenFlag);
-      }
-      else
-        m_DocumentObjectMetaData->EndModifyMetaData(0);
-    });
+        // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+        // return;
+
+        auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
+        if (pMeta->m_bHidden != bHide)
+        {
+          pMeta->m_bHidden = bHide;
+          m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::HiddenFlag);
+        }
+        else
+          m_DocumentObjectMetaData->EndModifyMetaData(0);
+      });
   }
 }
 
@@ -546,7 +549,8 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
 
   const ezTransform tReference = QueryLocalTransform(Selection.PeekBack());
 
-  auto centerNodes = [tReference](ezAbstractObjectNode* pGraphNode) {
+  auto centerNodes = [tReference](ezAbstractObjectNode* pGraphNode)
+  {
     if (auto pPosition = pGraphNode->FindProperty("LocalPosition"))
     {
       ezVec3 pos = pPosition->m_Value.ConvertTo<ezVec3>();
@@ -556,7 +560,8 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
     }
   };
 
-  auto adjustResult = [tReference, this](ezDocumentObject* pObject) {
+  auto adjustResult = [tReference, this](ezDocumentObject* pObject)
+  {
     const ezTransform tOld = QueryLocalTransform(pObject);
 
     ezSetObjectPropertyCommand cmd;
@@ -568,6 +573,11 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
   };
 
   return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, centerNodes, adjustResult);
+}
+
+bool ezSceneDocument::CanEngineProcessBeRestarted() const
+{
+  return m_GameMode == GameMode::Off;
 }
 
 void ezSceneDocument::StartSimulateWorld()
@@ -671,22 +681,23 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
 
-  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj) {
-    // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-    // return;
-
-    ezUInt32 uiFlags = 0;
-
-    auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
-
-    if (pMeta->m_bHidden != bHide)
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj)
     {
-      pMeta->m_bHidden = bHide;
-      uiFlags = ezDocumentObjectMetaData::HiddenFlag;
-    }
+      // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      // return;
 
-    m_DocumentObjectMetaData->EndModifyMetaData(uiFlags);
-  });
+      ezUInt32 uiFlags = 0;
+
+      auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
+
+      if (pMeta->m_bHidden != bHide)
+      {
+        pMeta->m_bHidden = bHide;
+        uiFlags = ezDocumentObjectMetaData::HiddenFlag;
+      }
+
+      m_DocumentObjectMetaData->EndModifyMetaData(uiFlags);
+    });
 }
 void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
 {

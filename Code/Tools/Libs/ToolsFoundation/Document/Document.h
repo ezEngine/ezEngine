@@ -130,6 +130,13 @@ public:
 
   const ezDocumentInfo* GetDocumentInfo() const { return m_pDocumentInfo; }
 
+  /// \brief Asks the document whether a restart of the engine process is allowed at this time.
+  ///
+  /// Documents that are currently interacting with the engine process (active play-the-game mode) should return false.
+  /// All others should return true.
+  /// As long as any document returns false, automatic engine process reload is suppressed.
+  virtual bool CanEngineProcessBeRestarted() const { return true; }
+
   ///@}
   /// \name Clipboard Functions
   ///@{
