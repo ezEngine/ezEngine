@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3403762621888900804,982542979997145320}}
-		u4 %Hash{7445562630049528470}
+		u4 %Hash{8876100706854133563}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -112,7 +112,7 @@ o
 	{
 		b %Active{1}
 		b %Clear{1}
-		Color %ClearColor{f{0,0,0,0x0000803F}}
+		Color %ClearColor{f{0,0,0,0}}
 		s %Format{"ezGALResourceFormat::RGBAHalf"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::FourSamples"}
 		s %Name{"ColorSource"}
@@ -747,7 +747,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezClusteredDataExtractor"}
-		u3 %TypeSize{232}
+		u3 %TypeSize{280}
 		u3 %TypeVersion{1}
 	}
 }

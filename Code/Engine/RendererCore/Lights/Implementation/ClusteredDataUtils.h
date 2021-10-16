@@ -2,6 +2,7 @@
 
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
@@ -9,6 +10,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 EZ_DEFINE_AS_POD_TYPE(ezPerLightData);
 EZ_DEFINE_AS_POD_TYPE(ezPerDecalData);
+EZ_DEFINE_AS_POD_TYPE(ezPerReflectionProbeData);
 EZ_DEFINE_AS_POD_TYPE(ezPerClusterData);
 
 #include <Core/Graphics/Camera.h>
@@ -200,6 +202,32 @@ namespace
     perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
   }
 
+  void FillReflectionProbeData(ezPerReflectionProbeData& perReflectionProbeData, const ezReflectionProbeRenderData* pReflectionProbeRenderData)
+  {
+    ezVec3 position = pReflectionProbeRenderData->m_GlobalTransform.m_vPosition;
+    ezVec3 scale = pReflectionProbeRenderData->m_GlobalTransform.m_vScale.CompMul(pReflectionProbeRenderData->m_vHalfExtents);
+
+    // We store scale separately so we easily transform into probe projection space (with scale), influence space (scale + offset) and cube map space (no scale).
+    auto trans = pReflectionProbeRenderData->m_GlobalTransform;
+    trans.m_vScale = ezVec3(1.0f, 1.0f, 1.0f);
+    auto inverse = trans.GetAsMat4().GetInverse();
+
+    // the CompMax prevents division by zero (thus inf, thus NaN later, then crash)
+    // if negative scaling should be allowed, this would need to be changed
+    scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
+    perReflectionProbeData.WorldToProbeProjectionMatrix = inverse;
+
+    perReflectionProbeData.ProbePosition = pReflectionProbeRenderData->m_vProbePosition.GetAsVec4(1.0f); // W isn't used.
+    perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                // W isn't used.
+
+    perReflectionProbeData.InfluenceScale = pReflectionProbeRenderData->m_vInfluenceScale.GetAsVec4(0.0f);
+    perReflectionProbeData.InfluenceShift = pReflectionProbeRenderData->m_vInfluenceShift.CompMul(ezVec3(1.0f) - pReflectionProbeRenderData->m_vInfluenceScale).GetAsVec4(0.0f);
+
+    perReflectionProbeData.PositiveFalloff = pReflectionProbeRenderData->m_vPositiveFalloff.GetAsVec4(0.0f);
+    perReflectionProbeData.NegativeFalloff = pReflectionProbeRenderData->m_vNegativeFalloff.GetAsVec4(0.0f);
+    perReflectionProbeData.Index = pReflectionProbeRenderData->m_uiIndex;
+  }
+
 
   EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& viewMatrix, const ezSimdMat4f& projectionMatrix)
   {
@@ -363,10 +391,10 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizeDecal(const ezDecalRenderData* pDecalRenderData, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix, Cluster* clusters,
+  void RasterizeDecal(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix, Cluster* clusters,
     ezSimdBSphere* clusterBoundingSpheres)
   {
-    ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform).GetAsMat4();
+    ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(transform).GetAsMat4();
     ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
 
     ezVec3 corners[8];

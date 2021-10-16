@@ -478,6 +478,8 @@ bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)
       {
         pWindow->CloseDocumentWindow();
       }
+      // This is necessary to clean up some 'delete later' Qt objects before the document is closed as they need to remove their references to the doc.
+      qApp->processEvents();
     }
   }
   return false;

@@ -152,6 +152,7 @@ ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
 
   m_TempLightsClusters.SetCountUninitialized(NUM_CLUSTERS);
   m_TempDecalsClusters.SetCountUninitialized(NUM_CLUSTERS);
+  m_TempReflectionProbeClusters.SetCountUninitialized(NUM_CLUSTERS);
   m_ClusterBoundingSpheres.SetCountUninitialized(NUM_CLUSTERS);
 }
 
@@ -266,6 +267,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
     pData->m_LightData.CopyFrom(m_TempLightData);
 
     pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();
+    pData->m_cameraUsageHint = view.GetCameraUsageHint();
   }
 
   // Decals
@@ -293,7 +295,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         {
           FillDecalData(m_TempDecalData.ExpandAndGetRef(), pDecalRenderData);
 
-          RasterizeDecal(pDecalRenderData, uiDecalIndex, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeDecal(pDecalRenderData->m_GlobalTransform, uiDecalIndex, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
         }
         else
         {
@@ -304,6 +306,78 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 
     pData->m_DecalData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerDecalData, m_TempDecalData.GetCount());
     pData->m_DecalData.CopyFrom(m_TempDecalData);
+  }
+
+  // Reflection Probes
+  {
+    m_TempReflectionProbeData.Clear();
+    ezMemoryUtils::ZeroFill(m_TempReflectionProbeClusters.GetData(), NUM_CLUSTERS);
+
+    auto batchList = extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::ReflectionProbe);
+    const ezUInt32 uiBatchCount = batchList.GetBatchCount();
+    for (ezUInt32 i = 0; i < uiBatchCount; ++i)
+    {
+      const ezRenderDataBatch& batch = batchList.GetBatch(i);
+
+      for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
+      {
+        const ezUInt32 uiProbeIndex = m_TempReflectionProbeData.GetCount();
+
+        if (uiProbeIndex == ezClusteredDataCPU::MAX_REFLECTION_PROBE_DATA)
+        {
+          ezLog::Warning("Maximum number of reflection probes reached ({0}). Further reflection probes will be discarded.", ezClusteredDataCPU::MAX_REFLECTION_PROBE_DATA);
+          break;
+        }
+
+        if (auto pReflectionProbeRenderData = ezDynamicCast<const ezReflectionProbeRenderData*>(it))
+        {
+          auto& probeData = m_TempReflectionProbeData.ExpandAndGetRef();
+          FillReflectionProbeData(probeData, pReflectionProbeRenderData);
+
+          const ezVec3 vFullScale = pReflectionProbeRenderData->m_vHalfExtents.CompMul(pReflectionProbeRenderData->m_GlobalTransform.m_vScale);
+
+          bool bRasterizeSphere = false;
+          float fMaxRadius = 0.0f;
+          if (pReflectionProbeRenderData->m_uiIndex & REFLECTION_PROBE_IS_SPHERE)
+          {
+            constexpr float fSphereConstant = (4.0f / 3.0f) * ezMath::Pi<float>();
+            fMaxRadius = ezMath::Max(ezMath::Max(ezMath::Abs(vFullScale.x), ezMath::Abs(vFullScale.y)), ezMath::Abs(vFullScale.z));
+            const float fSphereVolume = fSphereConstant * ezMath::Pow(fMaxRadius, 3.0f);
+            const float fBoxVolume = ezMath::Abs(vFullScale.x * vFullScale.y * vFullScale.z * 8);
+            if (fSphereVolume < fBoxVolume)
+            {
+              bRasterizeSphere = true;
+            }
+          }
+
+          if (bRasterizeSphere)
+          {
+            ezSimdBSphere pointLightSphere =
+              ezSimdBSphere(ezSimdConversion::ToVec3(pReflectionProbeRenderData->m_GlobalTransform.m_vPosition), fMaxRadius);
+            RasterizePointLight(
+              pointLightSphere, uiProbeIndex, viewMatrix, projectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          }
+          else
+          {
+            ezTransform transform = pReflectionProbeRenderData->m_GlobalTransform;
+            transform.m_vScale = vFullScale.CompMul(probeData.InfluenceScale.GetAsVec3());
+            transform.m_vPosition += transform.m_qRotation * vFullScale.CompMul(probeData.InfluenceShift.GetAsVec3());
+
+            //const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
+            //ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
+
+            RasterizeDecal(transform, uiProbeIndex, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          }
+        }
+        else
+        {
+          EZ_ASSERT_NOT_IMPLEMENTED;
+        }
+      }
+    }
+
+    pData->m_ReflectionProbeData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerReflectionProbeData, m_TempReflectionProbeData.GetCount());
+    pData->m_ReflectionProbeData.CopyFrom(m_TempReflectionProbeData);
   }
 
   FillItemListAndClusterData(pData);
@@ -318,6 +392,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 namespace
 {
   ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex) { return uiDecalIndex << 10 | uiLightIndex; }
+
+  ezUInt32 PackReflectionProbeIndex(ezUInt32 uiData, ezUInt32 uiReflectionProbeIndex) { return uiReflectionProbeIndex << 20 | uiData; }
 } // namespace
 
 void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pData)
@@ -329,6 +405,9 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
   const ezUInt32 uiNumDecals = m_TempDecalData.GetCount();
   const ezUInt32 uiMaxDecalBlockIndex = (uiNumDecals + 31) / 32;
+
+  const ezUInt32 uiNumReflectionProbes = m_TempReflectionProbeData.GetCount();
+  const ezUInt32 uiMaxReflectionProbeBlockIndex = (uiNumReflectionProbes + 31) / 32;
 
   for (ezUInt32 i = 0; i < NUM_CLUSTERS; ++i)
   {
@@ -386,9 +465,41 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
       }
     }
 
+    ezUInt32 uiReflectionProbeCount = 0;
+    const ezUInt32 uiMaxUsed = ezMath::Max(uiLightCount, uiDecalCount);
+    // Reflection Probes
+    {
+      auto& tempCluster = m_TempReflectionProbeClusters[i];
+      for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxReflectionProbeBlockIndex; ++uiBlockIndex)
+      {
+        ezUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
+
+        while (mask > 0)
+        {
+          ezUInt32 uiReflectionProbeIndex = ezMath::FirstBitLow(mask);
+          mask &= ~(1 << uiReflectionProbeIndex);
+
+          uiReflectionProbeIndex += uiBlockIndex * 32;
+
+          if (uiReflectionProbeCount < uiMaxUsed)
+          {
+            auto& item = m_TempClusterItemList[uiOffset + uiReflectionProbeCount];
+            item = PackReflectionProbeIndex(item, uiReflectionProbeIndex);
+          }
+          else
+          {
+            auto& item = m_TempClusterItemList.ExpandAndGetRef();
+            item = PackReflectionProbeIndex(0, uiReflectionProbeIndex);
+          }
+
+          ++uiReflectionProbeCount;
+        }
+      }
+    }
+
     auto& clusterData = pData->m_ClusterData[i];
     clusterData.offset = uiOffset;
-    clusterData.counts = PackIndex(uiLightCount, uiDecalCount);
+    clusterData.counts = PackReflectionProbeIndex(PackIndex(uiLightCount, uiDecalCount), uiReflectionProbeCount);
   }
 
   pData->m_ClusterItemList = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, m_TempClusterItemList.GetCount());

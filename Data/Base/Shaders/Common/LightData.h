@@ -104,6 +104,31 @@ struct EZ_ALIGN_16(ezPerDecalData)
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
 #endif
 
+#define REFLECTION_PROBE_IS_SPHERE (1 << 31)
+#define REFLECTION_PROBE_INDEX_BITMASK 0x7FFFFFFF
+#define GET_REFLECTION_PROBE_INDEX(index) (index & REFLECTION_PROBE_INDEX_BITMASK)
+
+struct EZ_ALIGN_16(ezPerReflectionProbeData)
+  {
+    TRANSFORM(WorldToProbeProjectionMatrix);
+    FLOAT4(Scale);
+    FLOAT4(ProbePosition);
+    FLOAT4(PositiveFalloff);
+    FLOAT4(NegativeFalloff);
+    FLOAT4(InfluenceScale);
+    FLOAT4(InfluenceShift);
+    UINT1(Index);
+    UINT1(Padding1);
+    UINT1(Padding2);
+    UINT1(Padding3);
+  };
+
+#if EZ_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<ezPerReflectionProbeData> perPerReflectionProbeDataBuffer;
+#else // C++
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerReflectionProbeData) == 160);
+#endif
+
 CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 {
   FLOAT1(DepthSliceScale);
@@ -133,9 +158,12 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 #define LIGHT_BITMASK 0x3FF
 #define DECAL_SHIFT 10
 #define DECAL_BITMASK 0x3FF
+#define PROBE_SHIFT 20
+#define PROBE_BITMASK 0x3FF
 
 #define GET_LIGHT_INDEX(index) (index & LIGHT_BITMASK)
 #define GET_DECAL_INDEX(index) ((index >> DECAL_SHIFT) & DECAL_BITMASK)
+#define GET_PROBE_INDEX(index) ((index >> PROBE_SHIFT) & PROBE_BITMASK)
 
 struct ezPerClusterData
 {

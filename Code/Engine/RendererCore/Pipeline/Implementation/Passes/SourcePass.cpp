@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 2, ezRTTIDefaultAllocator<ezSource
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
     EZ_ENUM_MEMBER_PROPERTY("Format", ezGALResourceFormat, m_Format),
     EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode),
-    EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor),
+    EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("Clear", m_bClear),
   }
   EZ_END_PROPERTIES;

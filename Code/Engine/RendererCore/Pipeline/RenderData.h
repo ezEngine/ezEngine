@@ -89,6 +89,7 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
 {
   static ezRenderData::Category Light;
   static ezRenderData::Category Decal;
+  static ezRenderData::Category ReflectionProbe;
   static ezRenderData::Category Sky;
   static ezRenderData::Category LitOpaque;
   static ezRenderData::Category LitMasked;

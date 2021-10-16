@@ -1,0 +1,176 @@
+#include <RendererCore/RendererCorePCH.h>
+
+#include <RendererCore/Lights/ReflectionProbeComponentBase.h>
+
+#include <Core/Graphics/Camera.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionProbeComponentBase, 2, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_ACCESSOR_PROPERTY("ReflectionProbeMode", ezReflectionProbeMode, GetReflectionProbeMode, SetReflectionProbeMode)->AddAttributes(new ezDefaultValueAttribute(ezReflectionProbeMode::Static), new ezGroupAttribute("Capture Description")),
+    EZ_SET_ACCESSOR_PROPERTY("IncludeTags", GetIncludeTags, InsertIncludeTag, RemoveIncludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+    EZ_SET_ACCESSOR_PROPERTY("ExcludeTags", GetExcludeTags, InsertExcludeTag, RemoveExcludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+    EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, {}), new ezMinValueTextAttribute("Auto")),
+    EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
+    EZ_ACCESSOR_PROPERTY("CaptureOffset", GetCaptureOffset, SetCaptureOffset),
+    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTransformManipulatorAttribute("CaptureOffset"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezReflectionProbeComponentBase::ezReflectionProbeComponentBase()
+{
+  m_desc.m_uniqueID.CreateNewUuid();
+}
+
+ezReflectionProbeComponentBase::~ezReflectionProbeComponentBase()
+{
+}
+
+void ezReflectionProbeComponentBase::SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode)
+{
+  m_desc.m_Mode = mode;
+  m_bStatesDirty = true;
+}
+
+ezEnum<ezReflectionProbeMode> ezReflectionProbeComponentBase::GetReflectionProbeMode() const
+{
+  return m_desc.m_Mode;
+}
+
+const ezTagSet& ezReflectionProbeComponentBase::GetIncludeTags() const
+{
+  return m_desc.m_IncludeTags;
+}
+
+void ezReflectionProbeComponentBase::InsertIncludeTag(const char* szTag)
+{
+  m_desc.m_IncludeTags.SetByName(szTag);
+  m_bStatesDirty = true;
+}
+
+void ezReflectionProbeComponentBase::RemoveIncludeTag(const char* szTag)
+{
+  m_desc.m_IncludeTags.RemoveByName(szTag);
+  m_bStatesDirty = true;
+}
+
+
+const ezTagSet& ezReflectionProbeComponentBase::GetExcludeTags() const
+{
+  return m_desc.m_ExcludeTags;
+}
+
+void ezReflectionProbeComponentBase::InsertExcludeTag(const char* szTag)
+{
+  m_desc.m_ExcludeTags.SetByName(szTag);
+  m_bStatesDirty = true;
+}
+
+void ezReflectionProbeComponentBase::RemoveExcludeTag(const char* szTag)
+{
+  m_desc.m_ExcludeTags.RemoveByName(szTag);
+  m_bStatesDirty = true;
+}
+
+void ezReflectionProbeComponentBase::SetNearPlane(float fNearPlane)
+{
+  m_desc.m_fNearPlane = fNearPlane;
+  m_bStatesDirty = true;
+}
+
+void ezReflectionProbeComponentBase::SetFarPlane(float fFarPlane)
+{
+  m_desc.m_fFarPlane = fFarPlane;
+  m_bStatesDirty = true;
+}
+
+void ezReflectionProbeComponentBase::SetCaptureOffset(const ezVec3& vOffset)
+{
+  m_desc.m_vCaptureOffset = vOffset;
+  m_bStatesDirty = true;
+}
+
+void ezReflectionProbeComponentBase::SetShowDebugInfo(bool bShowDebugInfo)
+{
+  m_desc.m_bShowDebugInfo = bShowDebugInfo;
+  m_bStatesDirty = true;
+}
+
+bool ezReflectionProbeComponentBase::GetShowDebugInfo() const
+{
+  return m_desc.m_bShowDebugInfo;
+}
+
+void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  ezStreamWriter& s = stream.GetStream();
+
+  m_desc.m_IncludeTags.Save(s);
+  m_desc.m_ExcludeTags.Save(s);
+  s << m_desc.m_Mode;
+  s << m_desc.m_bShowDebugInfo;
+  s << m_desc.m_uniqueID;
+  s << m_desc.m_fNearPlane;
+  s << m_desc.m_fFarPlane;
+  s << m_desc.m_vCaptureOffset;
+}
+
+void ezReflectionProbeComponentBase::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = stream.GetStream();
+
+  m_desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  m_desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  s >> m_desc.m_Mode;
+  s >> m_desc.m_bShowDebugInfo;
+  s >> m_desc.m_uniqueID;
+  s >> m_desc.m_fNearPlane;
+  s >> m_desc.m_fFarPlane;
+  s >> m_desc.m_vCaptureOffset;
+}
+
+float ezReflectionProbeComponentBase::ComputePriority(ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData, float fVolume, const ezVec3& vScale) const
+{
+  float fPriority = 0.0f;
+  const float fLogVolume = ezMath::Log2(1.0f + fVolume); // +1 to make sure it never goes negative.
+  // This sorting is only by size to make sure the probes in a cluster are iterating from smallest to largest on the GPU. Which probes are actually used is determined below by the GetReflectionProbeIndex call.
+  pRenderData->m_uiSortingKey = ezMath::FloatToInt(ezMath::MaxValue<ezUInt32>() * fLogVolume / 40.0f);
+
+  //#TODO This is a pretty poor distance / size based score.
+  if (msg.m_pView)
+  {
+    if (auto pCamera = msg.m_pView->GetLodCamera())
+    {
+      float fDistance = (pCamera->GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength();
+      float fRadius = (ezMath::Abs(vScale.x) + ezMath::Abs(vScale.y) + ezMath::Abs(vScale.z)) / 3.0f;
+      fPriority = fRadius / fDistance;
+    }
+  }
+
+#ifdef EZ_SHOW_REFLECTION_PROBE_PRIORITIES
+  ezStringBuilder s;
+  s.Format("{}, {}", pRenderData->m_uiSortingKey, fPriority);
+  ezDebugRenderer::Draw3DText(GetWorld(), s, pRenderData->m_GlobalTransform.m_vPosition, ezColor::Wheat);
+#endif
+  return fPriority;
+}
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionProbeComponentBase);

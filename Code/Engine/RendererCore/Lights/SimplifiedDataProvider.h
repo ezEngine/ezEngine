@@ -13,6 +13,7 @@ public:
   ~ezSimplifiedDataGPU();
 
   ezUInt32 m_uiSkyIrradianceIndex = 0;
+  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
   ezConstantBufferStorageHandle m_hConstantBuffer;
 
   void BindResources(ezRenderContext* pRenderContext);

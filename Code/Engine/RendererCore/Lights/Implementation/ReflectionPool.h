@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/AmbientCubeBasis.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 class ezGALTextureHandle;
 class ezGALBufferHandle;
@@ -11,22 +12,32 @@ class ezComponent;
 struct ezRenderWorldExtractionEvent;
 struct ezRenderWorldRenderEvent;
 struct ezMsgExtractRenderData;
-struct ezReflectionProbeData;
+struct ezReflectionProbeDesc;
+class ezReflectionProbeRenderData;
+typedef ezGenericId<24, 8> ezReflectionProbeId;
+class ezReflectionProbeComponentBase;
+class ezSkyLightComponent;
 
 class EZ_RENDERERCORE_DLL ezReflectionPool
 {
 public:
-  static void RegisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld, float fPriority = 1.0f);
-  static void DeregisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld);
+  //Probes
+  static ezReflectionProbeId RegisterReflectionProbe(const ezWorld* pWorld, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
+  static void DeregisterReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id);
+  static void UpdateReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
+  static void ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority);
 
-  static void ExtractReflectionProbe(
-    ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, bool& bStatesDirty, float fPriority = 1.0f);
+  // SkyLight
+  static ezReflectionProbeId RegisterSkyLight(const ezWorld* pWorld, ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent);
+  static void DeregisterSkyLight(const ezWorld* pWorld, ezReflectionProbeId id);
+  static void UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent);
+
 
   static void SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance);
   static void ResetConstantSkyIrradiance(const ezWorld* pWorld);
 
   static ezUInt32 GetReflectionCubeMapSize();
-  static ezGALTextureHandle GetReflectionSpecularTexture(ezUInt32 uiWorldIndex);
+  static ezGALTextureHandle GetReflectionSpecularTexture(ezUInt32 uiWorldIndex, ezEnum<ezCameraUsageHint> cameraUsageHint);
   static ezGALTextureHandle GetSkyIrradianceTexture();
 
 private:

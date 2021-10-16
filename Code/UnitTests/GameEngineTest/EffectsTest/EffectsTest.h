@@ -18,6 +18,7 @@ protected:
     Decals,
     Heightfield,
     WindClothRopes,
+    Reflections
   };
 
   virtual void SetupSubTests() override;

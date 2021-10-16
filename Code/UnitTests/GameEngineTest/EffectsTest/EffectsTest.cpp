@@ -23,6 +23,7 @@ void ezGameEngineTestEffects::SetupSubTests()
   AddSubTest("Decals", SubTests::Decals);
   AddSubTest("Heightfield", SubTests::Heightfield);
   AddSubTest("WindClothRopes", SubTests::WindClothRopes);
+  AddSubTest("Reflections", SubTests::Reflections);
 }
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
@@ -57,6 +58,13 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(100);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
+  if (iIdentifier == SubTests::Reflections)
+  {
+    m_ImgCompFrames.PushBack(30);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezObjectGraph"));
     return EZ_SUCCESS;
   }
 

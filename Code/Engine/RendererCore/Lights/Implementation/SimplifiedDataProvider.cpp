@@ -26,7 +26,7 @@ void ezSimplifiedDataGPU::BindResources(ezRenderContext* pRenderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex));
+  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex, m_cameraUsageHint));
   auto hSkyIrradianceTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetSkyIrradianceTexture());
 
   pRenderContext->BindTextureCube("ReflectionSpecularTexture", hReflectionSpecularTextureView);
@@ -55,6 +55,7 @@ void* ezSimplifiedDataProvider::UpdateData(const ezRenderViewContext& renderView
   if (auto pData = extractedData.GetFrameData<ezSimplifiedDataCPU>())
   {
     m_Data.m_uiSkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
+    m_Data.m_cameraUsageHint = pData->m_cameraUsageHint;
 
     // Update Constants
     const ezRectFloat& viewport = renderViewContext.m_pViewData->m_ViewPortRect;

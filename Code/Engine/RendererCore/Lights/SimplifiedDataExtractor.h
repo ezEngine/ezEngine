@@ -11,6 +11,7 @@ public:
   ~ezSimplifiedDataCPU();
 
   ezUInt32 m_uiSkyIrradianceIndex = 0;
+  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
 };
 
 class EZ_RENDERERCORE_DLL ezSimplifiedDataExtractor : public ezExtractor

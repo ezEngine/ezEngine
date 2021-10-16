@@ -544,8 +544,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 
   for (auto& pRenderPipeline : filteredRenderPipelines)
   {
-    // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted
-    // soon.
+    // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted soon.
     if (pRenderPipeline->GetRefCount() > 1)
     {
       pRenderPipeline->Render(pRenderContext);
