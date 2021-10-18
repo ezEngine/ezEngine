@@ -112,6 +112,8 @@ public:
 
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
+  virtual bool CanEngineProcessBeRestarted() const override;
+
   void StartSimulateWorld();
   void TriggerGameModePlay(bool bUsePickedPositionAsStart);
 

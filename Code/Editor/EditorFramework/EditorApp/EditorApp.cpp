@@ -50,6 +50,8 @@ void ezQtEditorApp::SlotTimedUpdate()
 
   Q_EMIT IdleEvent();
 
+  RestartEngineProcessIfPluginsChanged();
+
   m_pTimer->start(1);
 }
 
@@ -72,7 +74,7 @@ void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bFo
     else
     {
       ezStringBuilder tmp("You have the latest version: \n");
-      tmp.Append(m_VersionChecker.GetOwnVersion()); 
+      tmp.Append(m_VersionChecker.GetOwnVersion());
 
       ezQtUiServices::GetSingleton()->MessageBoxInformation(tmp);
     }
@@ -102,6 +104,10 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
       }
     }
     break;
+
+    case ezEditorEngineProcessConnection::Event::Type::ProcessRestarted:
+      StoreEnginePluginModificationTimes();
+      break;
 
     default:
       return;

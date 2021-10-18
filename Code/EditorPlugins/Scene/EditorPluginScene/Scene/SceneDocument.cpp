@@ -570,6 +570,11 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
   return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, centerNodes, adjustResult);
 }
 
+bool ezSceneDocument::CanEngineProcessBeRestarted() const
+{
+  return m_GameMode == GameMode::Off;
+}
+
 void ezSceneDocument::StartSimulateWorld()
 {
   if (m_GameMode != GameMode::Off)
