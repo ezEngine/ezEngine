@@ -29,14 +29,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: repo
-          submodules: 'false'
+          submodules: 'recursive'
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Run CMake
         run: |
-          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=OFF -DEZ_BUILD_SAMPLES:BOOL=OFF -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=OFF -DEZ_BUILD_RMLUI:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=OFF -DEZ_BUILD_SAMPLES:BOOL=OFF -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=OFF -DEZ_BUILD_RMLUI:BOOL=OFF -DEZ_BUILD_FMOD:BOOL=OFF -DEZ_BUILD_EMBREE:BOOL=OFF -DEZ_BUILD_OPENXR:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
 
       # These commands should NOT use 'rebuild', as that wastes a lot of time
       # But MSVC on GitHub is currently broken and doesn't build without it at all

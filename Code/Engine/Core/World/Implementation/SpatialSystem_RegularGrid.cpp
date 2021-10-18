@@ -873,6 +873,7 @@ ezUInt64 ezSpatialSystem_RegularGrid::GetNumFramesSinceVisible(const ezSpatialDa
   return (m_uiFrameCounter > uiLastFrameVisible) ? m_uiFrameCounter - uiLastFrameVisible : 0;
 }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 void ezSpatialSystem_RegularGrid::GetInternalStats(ezStringBuilder& sb) const
 {
   sb = "Cache Candidates:\n";
@@ -905,6 +906,7 @@ void ezSpatialSystem_RegularGrid::GetInternalStats(ezStringBuilder& sb) const
     }
   }
 }
+#endif
 
 EZ_ALWAYS_INLINE bool ezSpatialSystem_RegularGrid::IsAlwaysVisibleData(const Data& data) const
 {

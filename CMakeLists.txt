@@ -23,10 +23,6 @@ set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
 
 ez_build_filter_init()
 
-# Vcpkg is supported, but downloading pre-built packages works better
-# ez_vcpkg_show_info()
-# ez_vcpkg_init()
-
 ez_detect_project_name(DETECTED_NAME)
 
 if(NOT EZ_SUBMODULE_MODE)
@@ -43,10 +39,6 @@ endif()
 ez_set_build_types()
 
 ez_write_configuration_txt()
-
-#if (EZ_VCPKG_INSTALL_QT)
-#	ez_vcpkg_install("qt5-base;qt5-winextras")
-#endif()
 
 ez_init_projects()
 

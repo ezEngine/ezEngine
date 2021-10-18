@@ -41,9 +41,11 @@ void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, const QueryPara
     });
 }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 void ezSpatialSystem::GetInternalStats(ezStringBuilder& sb) const
 {
   sb.Clear();
 }
+#endif
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);

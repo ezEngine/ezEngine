@@ -45,7 +45,9 @@ private:
 
   ezUInt64 GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const override;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   virtual void GetInternalStats(ezStringBuilder& sb) const override;
+#endif
 
   ezProxyAllocator m_AlignedAllocator;
 
