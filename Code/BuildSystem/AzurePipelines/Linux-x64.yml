@@ -41,7 +41,9 @@ jobs:
     displayName: Apt-Get
     inputs:
       targetType: inline
-      script: sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev
+      script: |
+        sudo apt-get update
+        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev
   - task: Bash@3
     displayName: Info
     inputs:
