@@ -163,12 +163,14 @@ void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObje
 
 void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
+  SUPER::AttachMetaDataBeforeSaving(graph);
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
+  SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }

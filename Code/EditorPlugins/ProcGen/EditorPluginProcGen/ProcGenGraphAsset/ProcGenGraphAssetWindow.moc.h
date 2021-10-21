@@ -7,6 +7,7 @@ class ezProcGenGraphAssetDocument;
 
 class ezQtNodeScene;
 class ezQtNodeView;
+struct ezCommandHistoryEvent;
 
 class ezProcGenGraphAssetDocumentWindow : public ezQtDocumentWindow
 {
@@ -27,9 +28,8 @@ private:
   void UpdatePreview();
   void RestoreResource();
 
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void TransationEventHandler(const ezCommandHistoryEvent& e);
 
   ezQtNodeScene* m_pScene;
   ezQtNodeView* m_pView;
 };
-

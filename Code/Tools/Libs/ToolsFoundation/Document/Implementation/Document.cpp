@@ -342,12 +342,10 @@ ezStatus ezDocument::InternalLoadDocument()
   return ezStatus(EZ_SUCCESS);
 }
 
-
 void ezDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   m_DocumentObjectMetaData->AttachMetaDataToAbstractGraph(graph);
 }
-
 
 void ezDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {

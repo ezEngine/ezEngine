@@ -156,12 +156,14 @@ void ezVisualScriptAssetDocument::InternalGetMetaDataHash(const ezDocumentObject
 
 void ezVisualScriptAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
+  SUPER::AttachMetaDataBeforeSaving(graph);
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezVisualScriptAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
+  SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }

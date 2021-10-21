@@ -46,6 +46,8 @@ private:
 
   typedef ezHashTable<const ezDocumentObject*, CachedNode> NodeCache;
 
+  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
+
   ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
     ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast,
     ezProcGenNodeBase::GenerateASTContext& context) const;

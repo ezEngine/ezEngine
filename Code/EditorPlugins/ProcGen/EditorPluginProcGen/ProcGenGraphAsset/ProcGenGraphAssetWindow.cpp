@@ -10,11 +10,12 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
 
 ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
   : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransationEventHandler, this));
 
   // Menu Bar
   {
@@ -63,7 +64,7 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
 
 ezProcGenGraphAssetDocumentWindow::~ezProcGenGraphAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransationEventHandler, this));
 
   RestoreResource();
 }
@@ -116,7 +117,10 @@ void ezProcGenGraphAssetDocumentWindow::RestoreResource()
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezProcGenGraphAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezProcGenGraphAssetDocumentWindow::TransationEventHandler(const ezCommandHistoryEvent& e)
 {
-  UpdatePreview();
+  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded)
+  {
+    UpdatePreview();
+  }
 }

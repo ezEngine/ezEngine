@@ -328,12 +328,14 @@ bool ezProcGenGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
 
 void ezProcGenGraphAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
+  SUPER::AttachMetaDataBeforeSaving(graph);
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
+  SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
@@ -359,6 +361,28 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocum
       else if (pRtti->IsDerivedFrom(pVertexColorOutputRtti))
       {
         vertexColorNodes.PushBack(pObject);
+      }
+    }
+  }
+}
+
+void ezProcGenGraphAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+{
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  if (pManager->IsNode(pObject))
+  {
+    auto outputs = pManager->GetOutputPins(pObject);
+    for (const ezPin* pPinSource : outputs)
+    {
+      auto inputs = pPinSource->GetConnections();
+      for (const ezConnection* pConnection : inputs)
+      {
+        const ezPin* pPinTarget = pConnection->GetTargetPin();
+
+        inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }

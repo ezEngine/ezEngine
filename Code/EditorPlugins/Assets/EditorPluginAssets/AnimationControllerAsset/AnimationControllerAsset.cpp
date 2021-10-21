@@ -455,6 +455,9 @@ void ezAnimationControllerAssetDocument::CountPinTypes(const ezDocumentNodeManag
 
 void ezAnimationControllerAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
+  // TODO: THIS MUST BE IMPLEMENTED !
+  // without this, changing connections only (no property value) may not result in a different asset document hash and therefore no transform
+
   // const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   // if (pManager->IsNode(pObject))
   //{
@@ -477,12 +480,14 @@ void ezAnimationControllerAssetDocument::InternalGetMetaDataHash(const ezDocumen
 
 void ezAnimationControllerAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
+  SUPER::AttachMetaDataBeforeSaving(graph);
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezAnimationControllerAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
+  SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
