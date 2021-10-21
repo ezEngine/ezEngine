@@ -133,7 +133,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
             break;
         }
 
-        if (imgMode != ezProcVolumeImageMode::ReferenceColor || col.IsEqualRGBA(refColor, 0.01f))
+        if (imgMode != ezProcVolumeImageMode::ReferenceColor || col.IsEqualRGBA(refColor, 0.1f))
         {
           const float fNewValue = ApplyValue(image.m_BlendMode, fValue, fValueToUse);
           ezSimdVec4f vAlpha = absLocalPos.CompMul(ezSimdConversion::ToVec3(image.m_vFadeOutScale)) + ezSimdConversion::ToVec3(image.m_vFadeOutBias);

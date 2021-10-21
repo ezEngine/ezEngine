@@ -215,7 +215,7 @@ public:
   ezTagSet m_IncludeTags;
 
   ezEnum<ezProcVolumeImageMode> m_ImageVolumeMode;
-  ezColor m_RefColor;
+  ezColorGammaUB m_RefColor;
 
   ezRenderPipelineNodeInputPin m_InputValuePin;
   ezRenderPipelineNodeOutputPin m_OutputValuePin;
