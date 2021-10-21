@@ -165,6 +165,9 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
 
   for (auto pShape : shapes)
   {
+    if (pShape == nullptr)
+      continue;
+
     pShape->setLocalPose(t * shapeTransform);
     pShape->setSimulationFilterData(filter);
     pShape->setQueryFilterData(filter);
