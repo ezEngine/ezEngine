@@ -67,7 +67,7 @@ public:
 
   ezString m_sColorGradient;
 
-  ezEnum<ezProcPlacementMode> m_Mode;
+  ezEnum<ezProcPlacementMode> m_PlacementMode;
 
   ezRenderPipelineNodeInputPin m_DensityPin;
   ezRenderPipelineNodeInputPin m_ScalePin;
@@ -142,7 +142,7 @@ class ezProcGen_Blend : public ezProcGenNodeBase
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
-  ezEnum<ezProcGenBlendMode> m_BlendMode;
+  ezEnum<ezProcGenBinaryOperator> m_Operator;
   float m_fInputValueA = 1.0f;
   float m_fInputValueB = 1.0f;
   bool m_bClampOutput = false;

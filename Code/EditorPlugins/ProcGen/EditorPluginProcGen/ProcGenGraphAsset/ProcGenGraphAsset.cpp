@@ -61,7 +61,7 @@ void ezProcGenGraphAssetDocument::SetDebugPin(const ezPin* pDebugPin)
   GetObjectManager()->m_PropertyEvents.Broadcast(e);
 }
 
-ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const
+ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
@@ -77,7 +77,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   ezDynamicArray<const ezDocumentObject*> vertexColorNodes;
   GetAllOutputNodes(placementNodes, vertexColorNodes);
 
-  const bool bDebug = m_pDebugPin != nullptr;
+  const bool bDebug = bAllowDebug && (m_pDebugPin != nullptr);
 
   ezStringDeduplicationWriteContext stringDedupContext(stream);
 
@@ -238,7 +238,7 @@ ezStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWriter& str
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
-  return WriteAsset(stream, pAssetProfile);
+  return WriteAsset(stream, pAssetProfile, false);
 }
 
 void ezProcGenGraphAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
