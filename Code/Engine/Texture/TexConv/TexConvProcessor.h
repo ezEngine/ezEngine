@@ -28,7 +28,7 @@ private:
 
   ezResult LoadInputImages();
   ezResult ForceSRGBFormats();
-  ezResult ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY);
+  ezResult ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage);
   ezResult ConvertToNormalMap(ezImage& bumpMap) const;
   ezResult ConvertToNormalMap(ezArrayPtr<ezImage> bumpMap) const;
   ezResult ClampInputValues(ezArrayPtr<ezImage> images, float maxValue) const;
@@ -59,7 +59,7 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
   static ezResult AdjustUsage(const char* szFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage);
-  static ezResult ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY);
+  static ezResult ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage);
 
   //////////////////////////////////////////////////////////////////////////
   // Output Generation

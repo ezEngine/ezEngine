@@ -96,7 +96,7 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
         ezUInt32 uiResX = 0, uiResY = 0;
         EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(item.m_InputImage[layer], ezImageFormat::UNKNOWN, uiResX, uiResY));
 
-        EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY));
+        EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY, atlasDesc.m_Layers[layer].m_Usage));
       }
     }
 
@@ -114,11 +114,11 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
       ezUInt32 uiResX = 0, uiResY = 0;
       EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(alphaImg, ezImageFormat::UNKNOWN, uiResX, uiResY));
 
-      EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sAlphaInput, alphaImg, uiResX, uiResY));
+      EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sAlphaInput, alphaImg, uiResX, uiResY, ezTexConvUsage::Linear));
 
 
       // layer 0 must have the exact same size as the alpha texture
-      EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[0], item.m_InputImage[0], uiResX, uiResY));
+      EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[0], item.m_InputImage[0], uiResX, uiResY, ezTexConvUsage::Linear));
 
       // copy alpha channel into layer 0
       EZ_SUCCEED_OR_RETURN(ezImageUtils::CopyChannel(item.m_InputImage[0], 3, alphaImg, 0));
@@ -129,7 +129,7 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
         if (item.m_InputImage[layer].GetWidth() <= uiResX && item.m_InputImage[layer].GetHeight() <= uiResY)
           continue;
 
-        EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY));
+        EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY, ezTexConvUsage::Linear));
       }
     }
   }
