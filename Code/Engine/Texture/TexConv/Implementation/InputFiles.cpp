@@ -58,8 +58,10 @@ ezResult ezTexConvProcessor::LoadInputImages()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
+ezResult ezTexConvProcessor::ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage)
 {
+  const bool bSingleChannel = ezImageFormat::GetNumChannels(inout_Image.GetImageFormat()) == 1;
+
   if (inout_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
   {
     ezLog::Error("Could not convert '{}' to RGBA 32-Bit Float format.", szImageName);
@@ -76,17 +78,24 @@ ezResult ezTexConvProcessor::ConvertAndScaleImage(const char* szImageName, ezIma
 
   inout_Image.ResetAndMove(std::move(scratch));
 
+  if (usage == ezTexConvUsage::Color && bSingleChannel)
+  {
+    // replicate single channel ("red" textures) into the other channels
+    EZ_SUCCEED_OR_RETURN(ezImageUtils::CopyChannel(inout_Image, 1, inout_Image, 0));
+    EZ_SUCCEED_OR_RETURN(ezImageUtils::CopyChannel(inout_Image, 2, inout_Image, 0));
+  }
+
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
+ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage)
 {
   for (ezUInt32 idx = 0; idx < m_Descriptor.m_InputImages.GetCount(); ++idx)
   {
     auto& img = m_Descriptor.m_InputImages[idx];
     const char* szName = m_Descriptor.m_InputFiles[idx];
 
-    EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(szName, img, uiResolutionX, uiResolutionY));
+    EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(szName, img, uiResolutionX, uiResolutionY, usage));
   }
 
   return EZ_SUCCESS;
