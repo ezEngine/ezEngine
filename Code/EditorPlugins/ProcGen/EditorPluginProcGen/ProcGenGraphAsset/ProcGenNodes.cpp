@@ -393,7 +393,7 @@ ezExpressionAST::Node* ezProcGen_PerlinNoise::GenerateExpressionASTNode(ezTempHa
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 1, ezRTTIDefaultAllocator<ezProcGen_Blend>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 2, ezRTTIDefaultAllocator<ezProcGen_Blend>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -621,3 +621,28 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
 
   return pFunctionCall;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezProcGen_Blend_1_2 : public ezGraphPatch
+{
+public:
+  ezProcGen_Blend_1_2()
+    : ezGraphPatch("ezProcGen_Blend", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // even though not only the name changed, but also the underlying enum type
+    // this seems to be enough, since the enum values are the same
+    pNode->RenameProperty("Mode", "Operator");
+  }
+};
+
+ezProcGen_Blend_1_2 g_ezProcGen_Blend_1_2;
