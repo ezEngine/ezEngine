@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{981310233886598055,4858695034691347977}}
-		u4 %Hash{5463671417247195459}
+		u4 %Hash{1181924267517013265}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -19,10 +19,10 @@ o
 			s{"{ 0485ad21-f29c-429e-a61f-f28da08ecea6 }"}
 			s{"{ 0e51a2ff-6f65-461b-b071-fcf376d883d6 }"}
 			s{"{ 19831a55-f20c-4a04-b3d1-bbd45602b51b }"}
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 			s{"{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"}
 			s{"{ 3c4e7245-0aae-451e-9a14-eb289a181243 }"}
 			s{"{ 4418b713-806d-4d73-8bd2-c99707280561 }"}
-			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
 			s{"{ 4c9e23dc-5963-4fd5-bc1e-c21737a00ee8 }"}
 			s{"{ 566bc9c8-ad7f-4578-ba63-f5cf83c6c0e2 }"}
 			s{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
@@ -166,7 +166,7 @@ o
 		Vec3 %MinScale{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Trees"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x0D0B0C45,0x40558844}}
+		Vec2 %Node::Pos{f{0x0D0B0C45,0x39308844}}
 		Uuid %ObjectIndex{u4{17205322854093697021,11247925661290101466}}
 		VarArray %Objects
 		{
@@ -177,7 +177,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{33123001161142769,11200021596351852653}}
-		s %Surface{""}
+		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
 	}
 }
@@ -185,7 +185,7 @@ o
 {
 	Uuid %id{u4{452269919894580078,2845153550461940095}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{17287982115483427083,15267032885617820732}}
@@ -228,7 +228,7 @@ o
 {
 	Uuid %id{u4{4501114813013145996,3214550633566790233}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{13545910010730603846,6917513109302467411}}
@@ -405,7 +405,7 @@ o
 		Vec3 %MinScale{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Grass"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x351DE144,0x5668EA43}}
+		Vec2 %Node::Pos{f{0x351DE144,0x3BD4E943}}
 		Uuid %ObjectIndex{u4{11746751176086775362,17616112730742463115}}
 		VarArray %Objects
 		{
@@ -415,7 +415,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{12607850159536126480,10808416320009248582}}
-		s %Surface{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
 	}
 }
@@ -435,7 +435,7 @@ o
 {
 	Uuid %id{u4{5536070860423738789,5223747584207417703}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{9687954752929208312,16266152763927210964}}
@@ -456,7 +456,7 @@ o
 {
 	Uuid %id{u4{3173037520450595226,5264164646148286264}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{11958991048038540356,14493997408711337834}}
@@ -486,13 +486,14 @@ o
 		VarArray %IncludeTags
 		{
 			s{"PlantGrass"}
+			s{"VegetationMask"}
 		}
 		f %InputValue{0}
 		VarArray %Node::Connections
 		{
 			Uuid{u4{14869636733534195477,10821830708719756020}}
 		}
-		Vec2 %Node::Pos{f{0x645CA144,0x4370EB43}}
+		Vec2 %Node::Pos{f{0xBEC09244,0x0D48EA43}}
 		ColorGamma %RefColor{u1{255,0,0,255}}
 		Uuid %Value{u4{17933461953996852511,1095880196080254593}}
 	}
@@ -760,7 +761,7 @@ o
 		Vec3 %MinScale{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Bushes"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x52D00845,0x83A1A444}}
+		Vec2 %Node::Pos{f{0x52D00845,0x7C7CA444}}
 		Uuid %ObjectIndex{u4{9259700309424549955,12102862374230343797}}
 		VarArray %Objects
 		{
@@ -770,7 +771,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{9764830544944795344,12066804901998654980}}
-		s %Surface{""}
+		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
 	}
 }
@@ -806,7 +807,7 @@ o
 {
 	Uuid %id{u4{10295991528331625205,8302537849083120047}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{2632848015926812116,7663588810887449176}}
@@ -858,7 +859,7 @@ o
 {
 	Uuid %id{u4{14962571729085409582,8551407334838214687}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{4973767311912024838,14805811322319698361}}
@@ -938,7 +939,7 @@ o
 {
 	Uuid %id{u4{2965684165538800686,10207949622785046863}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{1745853948418404308,10566993519185499667}}
@@ -976,7 +977,7 @@ o
 		Vec3 %MinScale{f{0x0000003F,0x0000003F,0x0000003F}}
 		s %Name{"Big Rocks"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x8E72D844,0x2A7E2244}}
+		Vec2 %Node::Pos{f{0x8E72D844,0x1D342244}}
 		Uuid %ObjectIndex{u4{3878258049618966317,6419593839993390770}}
 		VarArray %Objects
 		{
@@ -986,7 +987,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{9953861084860125787,847663724014550230}}
-		s %Surface{""}
+		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
 	}
 }
@@ -1013,7 +1014,7 @@ o
 {
 	Uuid %id{u4{10346977150845715259,10407434129926999801}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{10384529000048585503,3762748708981447852}}
@@ -1049,6 +1050,7 @@ o
 		VarArray %IncludeTags
 		{
 			s{"PlantGrass"}
+			s{"VegetationMask"}
 		}
 		f %InputValue{0}
 		VarArray %Node::Connections
@@ -1056,7 +1058,7 @@ o
 			Uuid{u4{6876811626106310721,4331281295689413027}}
 			Uuid{u4{7994156127528902390,10370378510737033001}}
 		}
-		Vec2 %Node::Pos{f{0x7EEA9544,0x19AA1544}}
+		Vec2 %Node::Pos{f{0xD84E8744,0xFE151544}}
 		ColorGamma %RefColor{u1{0,0,255,255}}
 		Uuid %Value{u4{12108258171620535030,5505919292076356056}}
 	}
@@ -1072,7 +1074,7 @@ o
 {
 	Uuid %id{u4{5613910586070690097,10651211241666674809}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{6263761558413731804,3993594986063446699}}
@@ -1313,7 +1315,7 @@ o
 {
 	Uuid %id{u4{1575579462225757627,15239916183038978696}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{11218266840259340361,15979677105020525076}}
@@ -1348,7 +1350,7 @@ o
 {
 	Uuid %id{u4{11497315071994065360,15763339560521988950}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{12676803473047846727,6344116143938384839}}
@@ -1393,7 +1395,7 @@ o
 		Vec3 %MinScale{f{0xCDCCCC3D,0xCDCCCC3D,0xCDCCCC3D}}
 		s %Name{"Small Rocks"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x92D5EE44,0x2C865044}}
+		Vec2 %Node::Pos{f{0x92D5EE44,0x1F3C5044}}
 		Uuid %ObjectIndex{u4{7198840391181854490,3303915681089357328}}
 		VarArray %Objects
 		{
@@ -1403,7 +1405,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{8466303560495301357,1694987596653693922}}
-		s %Surface{""}
+		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
 	}
 }
@@ -1426,13 +1428,14 @@ o
 		VarArray %IncludeTags
 		{
 			s{"PlantGrass"}
+			s{"VegetationMask"}
 		}
 		f %InputValue{0}
 		VarArray %Node::Connections
 		{
 			Uuid{u4{10715773399780072086,6543739408646291981}}
 		}
-		Vec2 %Node::Pos{f{0x5D9EA244,0xD2B64644}}
+		Vec2 %Node::Pos{f{0xC44C9444,0xAAD84544}}
 		ColorGamma %RefColor{u1{0,0,255,255}}
 		Uuid %Value{u4{13546133518978003660,6380144554958689956}}
 	}
@@ -1441,7 +1444,7 @@ o
 {
 	Uuid %id{u4{11458137829923355876,16081247725132415172}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %A{u4{10178556391291673308,13667268389556257835}}
@@ -1489,6 +1492,7 @@ o
 		VarArray %IncludeTags
 		{
 			s{"PlantGrass"}
+			s{"VegetationMask"}
 		}
 		f %InputValue{0}
 		VarArray %Node::Connections
@@ -1496,7 +1500,7 @@ o
 			Uuid{u4{18156999630214413200,5196795918617660182}}
 			Uuid{u4{3562512162626491267,17920491551917583113}}
 		}
-		Vec2 %Node::Pos{f{0xEBE89444,0xC18A2A44}}
+		Vec2 %Node::Pos{f{0x454D8644,0xA6F62944}}
 		ColorGamma %RefColor{u1{255,0,0,255}}
 		Uuid %Value{u4{7665462179634629236,4194839073531828489}}
 	}
@@ -1724,7 +1728,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Blend"}
 		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

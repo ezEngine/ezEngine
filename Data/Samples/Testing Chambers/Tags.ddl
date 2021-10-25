@@ -18,3 +18,8 @@ Tag
 	string %Name{"SkyLight"}
 	string %Category{"Default"}
 }
+Tag
+{
+	string %Name{"VegetationMask"}
+	string %Category{"Default"}
+}

@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11212234289642059194,4637845551590943091}}
-		u4 %Hash{8017114860444009515}
+		u4 %Hash{9773640969435608800}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -101,8 +101,10 @@ o
 			s{"{ e8c45e75-2e03-4758-852c-a51ff3947c78 }"}
 			s{"{ 176b6229-ba87-48ec-bbc6-3fe14f54411b }"}
 		}
+		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{9791305905673822488,12638390741642247297}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		Angle %YawRotationSnap{f{0}}
 	}
 }
 o
@@ -217,8 +219,10 @@ o
 		{
 			s{"{ 6670a1ca-a18d-4d10-b782-99097912c7a8 }"}
 		}
+		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{14112596777051007533,7985040258764076844}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		Angle %YawRotationSnap{f{0}}
 	}
 }
 o
@@ -302,8 +306,10 @@ o
 			s{"{ 0bbf1189-f0d3-4ea0-bc01-450d02d3f4bc }"}
 			s{"{ 84987847-ecba-4794-b779-0a683d48bcc0 }"}
 		}
+		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{5956391832851329029,8065022560000220215}}
-		s %Surface{""}
+		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		Angle %YawRotationSnap{f{0}}
 	}
 }
 o
@@ -387,6 +393,24 @@ o
 }
 o
 {
+	Uuid %id{u4{3627846553228186833,8172653477508236746}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcPlacementMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -453,7 +477,25 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PlacementOutput"}
-		u3 %TypeSize{648}
+		u3 %TypeSize{664}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
