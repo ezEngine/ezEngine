@@ -12,6 +12,25 @@ using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradien
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
+struct ezProcGenBinaryOperator
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Max,
+    Min,
+
+    Default = Multiply
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBinaryOperator);
+
 struct ezProcGenBlendMode
 {
   typedef ezUInt8 StorageType;

@@ -4,6 +4,11 @@
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBinaryOperator, 1)
+  EZ_ENUM_CONSTANTS(ezProcGenBinaryOperator::Add, ezProcGenBinaryOperator::Subtract, ezProcGenBinaryOperator::Multiply, ezProcGenBinaryOperator::Divide)
+  EZ_ENUM_CONSTANTS(ezProcGenBinaryOperator::Max, ezProcGenBinaryOperator::Min)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBlendMode, 1)
   EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Add, ezProcGenBlendMode::Subtract, ezProcGenBlendMode::Multiply, ezProcGenBlendMode::Divide)
   EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Max, ezProcGenBlendMode::Min)

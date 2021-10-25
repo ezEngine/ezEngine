@@ -28,6 +28,8 @@ private:
   void UpdatePreview();
   void RestoreResource();
 
+  // needed for setting the debug pin
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void TransationEventHandler(const ezCommandHistoryEvent& e);
 
   ezQtNodeScene* m_pScene;

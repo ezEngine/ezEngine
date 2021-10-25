@@ -8,26 +8,27 @@ namespace
   static ezHashedString s_sPerlinNoise = ezMakeHashedString("PerlinNoise");
   static ezHashedString s_sApplyVolumes = ezMakeHashedString("ApplyVolumes");
 
-  ezExpressionAST::NodeType::Enum GetBlendOperator(ezProcGenBlendMode::Enum blendMode)
+  ezExpressionAST::NodeType::Enum GetOperator(ezProcGenBinaryOperator::Enum blendMode)
   {
     switch (blendMode)
     {
-      case ezProcGenBlendMode::Add:
+      case ezProcGenBinaryOperator::Add:
         return ezExpressionAST::NodeType::Add;
-      case ezProcGenBlendMode::Subtract:
+      case ezProcGenBinaryOperator::Subtract:
         return ezExpressionAST::NodeType::Subtract;
-      case ezProcGenBlendMode::Multiply:
+      case ezProcGenBinaryOperator::Multiply:
         return ezExpressionAST::NodeType::Multiply;
-      case ezProcGenBlendMode::Divide:
+      case ezProcGenBinaryOperator::Divide:
         return ezExpressionAST::NodeType::Divide;
-      case ezProcGenBlendMode::Max:
+      case ezProcGenBinaryOperator::Max:
         return ezExpressionAST::NodeType::Max;
-      case ezProcGenBlendMode::Min:
+      case ezProcGenBinaryOperator::Min:
         return ezExpressionAST::NodeType::Min;
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        return ezExpressionAST::NodeType::Invalid;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
+
+    return ezExpressionAST::NodeType::Invalid;
   }
 
   ezExpressionAST::Node* CreateRandom(float fSeed, ezExpressionAST& out_Ast)
@@ -136,9 +137,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("MaxScale", m_vMaxScale)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.0f), ezVariant())),
     EZ_MEMBER_PROPERTY("ColorGradient", m_sColorGradient)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
     EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(30.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ENUM_MEMBER_PROPERTY("PlacementMode", ezProcPlacementMode, m_PlacementMode),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezProcPlacementMode, m_Mode),
 
     EZ_MEMBER_PROPERTY("Density", m_DensityPin)->AddAttributes(new ezColorAttribute(ezColor::White)),
     EZ_MEMBER_PROPERTY("Scale", m_ScalePin)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
@@ -238,7 +239,7 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& stream)
   stream << m_sSurface;
 
   // chunk version 5
-  stream << m_Mode;
+  stream << m_PlacementMode;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -392,11 +393,11 @@ ezExpressionAST::Node* ezProcGen_PerlinNoise::GenerateExpressionASTNode(ezTempHa
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 1, ezRTTIDefaultAllocator<ezProcGen_Blend>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 2, ezRTTIDefaultAllocator<ezProcGen_Blend>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezProcGenBlendMode, m_BlendMode),
+    EZ_ENUM_MEMBER_PROPERTY("Operator", ezProcGenBinaryOperator, m_Operator),
     EZ_MEMBER_PROPERTY("InputA", m_fInputValueA)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("InputB", m_fInputValueB)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("ClampOutput", m_bClampOutput),
@@ -408,7 +409,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 1, ezRTTIDefaultAllocator<ezPro
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezTitleAttribute("{Mode}({A}, {B})"),
+    new ezTitleAttribute("{Operator}({A}, {B})"),
     new ezCategoryAttribute("Math"),
   }
   EZ_END_ATTRIBUTES;
@@ -432,7 +433,7 @@ ezExpressionAST::Node* ezProcGen_Blend::GenerateExpressionASTNode(ezTempHashedSt
     pInputB = out_Ast.CreateConstant(m_fInputValueB);
   }
 
-  auto pBlend = out_Ast.CreateBinaryOperator(GetBlendOperator(m_BlendMode), pInputA, pInputB);
+  auto pBlend = out_Ast.CreateBinaryOperator(GetOperator(m_Operator), pInputA, pInputB);
 
   if (m_bClampOutput)
   {
@@ -620,3 +621,28 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
 
   return pFunctionCall;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezProcGen_Blend_1_2 : public ezGraphPatch
+{
+public:
+  ezProcGen_Blend_1_2()
+    : ezGraphPatch("ezProcGen_Blend", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // even though not only the name changed, but also the underlying enum type
+    // this seems to be enough, since the enum values are the same
+    pNode->RenameProperty("Mode", "Operator");
+  }
+};
+
+ezProcGen_Blend_1_2 g_ezProcGen_Blend_1_2;
