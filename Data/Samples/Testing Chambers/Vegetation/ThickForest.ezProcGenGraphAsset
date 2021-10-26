@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11212234289642059194,4637845551590943091}}
-		u4 %Hash{9773640969435608800}
+		u4 %Hash{11676253133333803896}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -32,6 +32,18 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{9377507583075110099,254879883778411489}}
+	s %t{"DocumentNodeManagerConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{17318022188094043471,10193503723611707000}}
+		s %TargetPin{"Density"}
+	}
+}
 o
 {
 	Uuid %id{u4{3185465590721845903,675580110127191340}}
@@ -55,6 +67,13 @@ o
 }
 o
 {
+	Uuid %id{u4{14845368687765339612,2363669757739077583}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{1910105121170792801,2510891914608110459}}
 	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
@@ -71,6 +90,26 @@ o
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{15619621848996766087,4833179476461454807}}
+	s %t{"ezProcGen_PerlinNoise"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Node::Connections
+		{
+			Uuid{u4{10907700307223160867,18315153807671208361}}
+		}
+		Vec2 %Node::Pos{f{0xC68D8344,0x47138744}}
+		u3 %NumOctaves{3}
+		Vec3 %Offset{f{0,0,0}}
+		f %OutputMax{0x0000803F}
+		f %OutputMin{0}
+		Vec3 %Scale{f{0x00002041,0x00002041,0x00002041}}
+		Uuid %Value{u4{1932222591278378949,15103096557360009858}}
+	}
 }
 o
 {
@@ -109,6 +148,27 @@ o
 }
 o
 {
+	Uuid %id{u4{4883770800960183447,5175797913140972920}}
+	s %t{"ezProcGen_Blend"}
+	u3 %v{2}
+	p
+	{
+		Uuid %A{u4{14845368687765339612,2363669757739077583}}
+		Uuid %B{u4{14648644704933657957,13178494121790318061}}
+		b %ClampOutput{0}
+		f %InputA{0x0000803F}
+		f %InputB{0x0000803F}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{9377507583075110099,254879883778411489}}
+		}
+		Vec2 %Node::Pos{f{0x9C2F9944,0xE8457944}}
+		s %Operator{"ezProcGenBinaryOperator::Multiply"}
+		Uuid %Value{u4{16112760481851050706,8205119088517237268}}
+	}
+}
+o
+{
 	Uuid %id{u4{1507394232540889005,5266196713061815143}}
 	s %t{"ezProcGen_Slope"}
 	u3 %v{1}
@@ -142,6 +202,8 @@ o
 			Uuid{u4{1609146095160100947,10350911148129115697}}
 			Uuid{u4{11095407931685293014,15063649965740399571}}
 			Uuid{u4{16600160950372042245,14966675785173787356}}
+			Uuid{u4{15619621848996766087,4833179476461454807}}
+			Uuid{u4{4883770800960183447,5175797913140972920}}
 		}
 	}
 }
@@ -182,6 +244,13 @@ o
 }
 o
 {
+	Uuid %id{u4{16112760481851050706,8205119088517237268}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{11380840106430392520,9873587338443536785}}
 	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
@@ -207,13 +276,13 @@ o
 		f %CullDistance{0x0000C842}
 		Uuid %Density{u4{9036701749472991614,15421021562617494118}}
 		f %Footprint{0x3333333F}
-		Vec3 %MaxOffset{f{0x00000040,0x00000040,0}}
-		Vec3 %MaxScale{f{0x00000040,0x00000040,0x00000040}}
-		Vec3 %MinOffset{f{0x0000003F,0x0000003F,0}}
+		Vec3 %MaxOffset{f{0x0000003F,0x0000003F,0}}
+		Vec3 %MaxScale{f{0x0000C03F,0x0000C03F,0x0000C03F}}
+		Vec3 %MinOffset{f{0x000000BF,0x000000BF,0}}
 		Vec3 %MinScale{f{0x3333333F,0x3333333F,0x3333333F}}
 		s %Name{"Fern"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xFA09B444,0x4B637044}}
+		Vec2 %Node::Pos{f{0xFA09B444,0x82E26F44}}
 		Uuid %ObjectIndex{u4{3624584070298217264,2542264211529665525}}
 		VarArray %Objects
 		{
@@ -260,6 +329,13 @@ o
 }
 o
 {
+	Uuid %id{u4{14648644704933657957,13178494121790318061}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{16600160950372042245,14966675785173787356}}
 	s %t{"ezProcGen_Slope"}
 	u3 %v{1}
@@ -272,7 +348,7 @@ o
 		{
 			Uuid{u4{1910105121170792801,2510891914608110459}}
 		}
-		Vec2 %Node::Pos{f{0x27E58144,0xBF1F8F44}}
+		Vec2 %Node::Pos{f{0xA6E96E44,0xC3D69D44}}
 		f %UpperFade{0xCDCC4C3E}
 		Uuid %Value{u4{16445303618759427592,987265279439665097}}
 	}
@@ -314,6 +390,13 @@ o
 }
 o
 {
+	Uuid %id{u4{1932222591278378949,15103096557360009858}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{9036701749472991614,15421021562617494118}}
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
@@ -327,8 +410,8 @@ o
 	p
 	{
 		s %SourcePin{"Value"}
-		Uuid %Target{u4{17318022188094043471,10193503723611707000}}
-		s %TargetPin{"Density"}
+		Uuid %Target{u4{4883770800960183447,5175797913140972920}}
+		s %TargetPin{"A"}
 	}
 }
 o
@@ -352,9 +435,39 @@ o
 	u3 %v{1}
 	p{}
 }
+o
+{
+	Uuid %id{u4{10907700307223160867,18315153807671208361}}
+	s %t{"DocumentNodeManagerConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{4883770800960183447,5175797913140972920}}
+		s %TargetPin{"B"}
+	}
+}
 }
 Types
 {
+o
+{
+	Uuid %id{u4{400848087410642112,719675424515093785}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_PerlinNoise"}
+		u3 %TypeSize{64}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{877898746071678167,5219608750413080699}}
@@ -429,6 +542,24 @@ o
 }
 o
 {
+	Uuid %id{u4{1691224086308231451,8752305838249795763}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_Blend"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
 	Uuid %id{u4{9971238377151764212,9082536472818234444}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -442,6 +573,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Slope"}
 		u3 %TypeSize{40}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7477604368529695417,10886045161693512195}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenBinaryOperator"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
