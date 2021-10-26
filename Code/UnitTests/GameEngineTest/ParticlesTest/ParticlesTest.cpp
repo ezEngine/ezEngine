@@ -170,15 +170,15 @@ ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 
   switch (iCurFrame)
   {
     case 15:
-      EZ_TEST_IMAGE(0, 100);
+      EZ_TEST_IMAGE(0, 110);
       break;
 
     case 30:
-      EZ_TEST_IMAGE(1, 100);
+      EZ_TEST_IMAGE(1, 110);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(2, 100);
+      EZ_TEST_IMAGE(2, 110);
       return ezTestAppRun::Quit;
   }
 
