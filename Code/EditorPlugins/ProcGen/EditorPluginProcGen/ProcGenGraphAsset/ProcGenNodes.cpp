@@ -639,9 +639,14 @@ public:
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    // even though not only the name changed, but also the underlying enum type
-    // this seems to be enough, since the enum values are the same
-    pNode->RenameProperty("Mode", "Operator");
+    auto* pMode = pNode->FindProperty("Mode");
+    if (pMode && pMode->m_Value.IsA<ezString>())
+    {
+      ezStringBuilder val = pMode->m_Value.Get<ezString>();
+      val.ReplaceAll("ezProcGenBlendMode", "ezProcGenBinaryOperator");
+
+      pNode->AddProperty("Operator", val.GetData());
+    }
   }
 };
 
