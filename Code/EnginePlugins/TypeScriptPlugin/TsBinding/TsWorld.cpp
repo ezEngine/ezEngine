@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Duktape/duktape.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -139,8 +139,7 @@ static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk)
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
   ezGameObject* pObject = nullptr;
-  pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
-
+  bool _ = pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
   pBinding->DukPutGameObject(pObject);
 
@@ -204,8 +203,11 @@ static int __CPP_World_FindObjectsInSphere(duk_context* pDuk)
 
   if (category != ezInvalidSpatialDataCategory)
   {
+    ezSpatialSystem::QueryParams queryParams;
+    queryParams.m_uiCategoryBitmask = category.GetBitmask();
+
     pWorld->GetSpatialSystem()->FindObjectsInSphere(
-      ezBoundingSphere(vSphereCenter, fRadius), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+      ezBoundingSphere(vSphereCenter, fRadius), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
@@ -233,8 +235,11 @@ static int __CPP_World_FindObjectsInBox(duk_context* pDuk)
 
   if (category != ezInvalidSpatialDataCategory)
   {
+    ezSpatialSystem::QueryParams queryParams;
+    queryParams.m_uiCategoryBitmask = category.GetBitmask();
+
     pWorld->GetSpatialSystem()->FindObjectsInBox(
-      ezBoundingBox(vBoxMin, vBoxMax), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+      ezBoundingBox(vBoxMin, vBoxMax), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);

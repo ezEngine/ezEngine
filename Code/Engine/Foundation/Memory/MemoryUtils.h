@@ -153,7 +153,11 @@ public:
 
   /// \brief Aligns the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.
   template <typename T>
-  static T* Align(T* ptr, size_t uiAlignment); // [tested]
+  static T* AlignBackwards(T* ptr, size_t uiAlignment); // [tested]
+
+  /// \brief Aligns the pointer \a ptr by moving its address forwards to the next multiple of \a uiAlignment.
+  template <typename T>
+  static T* AlignForwards(T* ptr, size_t uiAlignment); // [tested]
 
   /// \brief Aligns the given size \a uiSize by rounding up to the next multiple of the size.
   template <typename T>

@@ -94,7 +94,9 @@ public:
 
   // Image comparison
   void ScheduleImageComparison(ezUInt32 uiImageNumber, ezUInt32 uiMaxError);
+  void ScheduleDepthImageComparison(ezUInt32 uiImageNumber, ezUInt32 uiMaxError);
   bool IsImageComparisonScheduled() const { return m_bImageComparisonScheduled; }
+  bool IsDepthImageComparisonScheduled() const { return m_bDepthImageComparisonScheduled; }
   void GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStringBuilder& sImgName);
   void GetCurrentComparisonImageName(ezStringBuilder& sImgName);
   void SetImageReferenceFolderName(const char* szFolderName);
@@ -106,7 +108,7 @@ public:
     ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);
 
   bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg);
-  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg);
+  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool isDepthImage = false);
 
   /// \brief A function to be called to add extra info to image diff output, that is not available from here.
   /// E.g. device specific info like driver version.
@@ -198,6 +200,11 @@ private:
   bool m_bImageComparisonScheduled = false;
   ezUInt32 m_uiMaxImageComparisonError = 0;
   ezUInt32 m_uiComparisonImageNumber = 0;
+
+  bool m_bDepthImageComparisonScheduled = false;
+  ezUInt32 m_uiMaxDepthImageComparisonError = 0;
+  ezUInt32 m_uiComparisonDepthImageNumber = 0;
+
   std::string m_sImageReferenceFolderName = "Images_Reference";
   std::string m_sImageReferenceOverrideFolderName;
 
@@ -386,6 +393,11 @@ EZ_TEST_DLL bool ezTestResult(
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Tests for a ezStatus condition, outputs ezStatus message on failure
+#define EZ_TEST_STATUS(condition)                 \
+  auto EZ_CONCAT(l_, EZ_SOURCE_LINE) = condition; \
+  ezTestResult(EZ_CONCAT(l_, EZ_SOURCE_LINE).m_Result, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, EZ_CONCAT(l_, EZ_SOURCE_LINE).m_sMessage)
+
 inline double ToFloat(int f)
 {
   return static_cast<double>(f);
@@ -526,10 +538,13 @@ EZ_TEST_DLL bool ezTestTextFiles(
 //////////////////////////////////////////////////////////////////////////
 
 EZ_TEST_DLL bool ezTestImage(
-  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool isDepthImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Same as EZ_TEST_IMAGE_MSG but uses an empty error message.
 #define EZ_TEST_IMAGE(ImageNumber, MaxError) EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, "")
+
+/// \brief Same as EZ_TEST_DEPTH_IMAGE_MSG but uses an empty error message.
+#define EZ_TEST_DEPTH_IMAGE(ImageNumber, MaxError) EZ_TEST_DEPTH_IMAGE_MSG(ImageNumber, MaxError, "")
 
 /// \brief Executes an image comparison right now.
 ///
@@ -544,10 +559,15 @@ EZ_TEST_DLL bool ezTestImage(
 /// 'MaxError' specifies the maximum mean-square error that is still considered acceptable
 /// between the reference image and the current image.
 ///
+/// Use the * DEPTH * variant if a depth buffer comparison should be requested.
+///
 /// \note Some tests need to know at the start, whether an image comparison will be done at the end, so they
 /// can capture the image first. For such use cases, use EZ_SCHEDULE_IMAGE_TEST at the start of a sub-test instead.
 #define EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
-  ezTestImage(ImageNumber, MaxError, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestImage(ImageNumber, MaxError, false, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+#define EZ_TEST_DEPTH_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
+  ezTestImage(ImageNumber, MaxError, true, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 /// \brief Schedules an EZ_TEST_IMAGE to be executed after the current sub-test execution finishes.
 ///
@@ -558,5 +578,9 @@ EZ_TEST_DLL bool ezTestImage(
 /// To support 'scheduled' image comparisons, the class should poll ezTestFramework::IsImageComparisonScheduled() every step and capture the
 /// image when needed.
 ///
+/// Use the * DEPTH * variant if a depth buffer comparison is intended.
+///
 /// \note Scheduling image comparisons is an optimization to only capture data when necessary, instead of capturing it every single frame.
 #define EZ_SCHEDULE_IMAGE_TEST(ImageNumber, MaxError) ezTestFramework::GetInstance()->ScheduleImageComparison(ImageNumber, MaxError);
+
+#define EZ_SCHEDULE_DEPTH_IMAGE_TEST(ImageNumber, MaxError) ezTestFramework::GetInstance()->ScheduleDepthImageComparison(ImageNumber, MaxError);

@@ -30,3 +30,4 @@ private:
   ezWindowCreationDesc m_Descs[2];
   bool m_bOverrideProjectDefault[2];
 };
+

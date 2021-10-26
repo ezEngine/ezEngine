@@ -19,9 +19,9 @@ struct EZ_ALIGN_16(ezPerInstanceData)
   StructuredBuffer<ezPerInstanceData> perInstanceData;
 
   #if defined(USE_SKINNING)
-    StructuredBuffer<float4x4> skinningMatrices;
-  #endif
-  
+  StructuredBuffer<Transform> skinningTransforms;
+#  endif
+
   Buffer<uint> perInstanceVertexColors;
 
 #else // C++

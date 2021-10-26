@@ -1,4 +1,4 @@
-#include <EditorPluginTypeScriptPCH.h>
+#include <EditorPluginTypeScript/EditorPluginTypeScriptPCH.h>
 
 #include <EditorPluginTypeScript/Actions/TypeScriptActions.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>

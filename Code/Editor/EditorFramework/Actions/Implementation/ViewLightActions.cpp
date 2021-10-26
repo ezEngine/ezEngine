@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>

@@ -1,4 +1,4 @@
-#include <EnginePluginPhysXPCH.h>
+#include <EnginePluginPhysX/EnginePluginPhysXPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EnginePluginPhysX/SceneExport/StaticMeshConversion.h>
@@ -14,8 +14,6 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
 {
   EZ_LOCK(world.GetWriteMarker());
 
-  ezTag tagColMesh = ezTagRegistry::GetGlobalRegistry().RegisterTag("AutoColMesh");
-
   ezSmcDescription desc;
   desc.m_Surfaces.PushBack(); // add a dummy empty material
 
@@ -24,7 +22,7 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
 
   for (auto it = world.GetObjects(); it.IsValid(); ++it)
   {
-    if (!it->IsStatic() || !it->GetTags().IsSet(tagColMesh))
+    if (!it->IsStatic())
       continue;
 
     it->SendMessage(msg);

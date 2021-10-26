@@ -213,10 +213,20 @@ namespace ezMath
   /// Asserts that bitmask is not 0.
   ezUInt32 FirstBitLow(ezUInt32 bitmask); // [tested]
 
+  /// \brief Returns the index of the least significant bit set
+  ///
+  /// Asserts that bitmask is not 0.
+  ezUInt32 FirstBitLow(ezUInt64 bitmask); // [tested]
+
   /// \brief Returns the index of the most significant bit set
   ///
   /// Asserts that bitmask is not 0.
   ezUInt32 FirstBitHigh(ezUInt32 bitmask); // [tested]
+
+  /// \brief Returns the index of the most significant bit set
+  ///
+  /// Asserts that bitmask is not 0.
+  ezUInt32 FirstBitHigh(ezUInt64 bitmask); // [tested]
 
   /// Returns the number of zeros at the end (least significant part) of a bitmask.
   ///
@@ -226,6 +236,9 @@ namespace ezMath
   /// 0b0100 -> 2
   /// Returns 32 when the input is 0
   ezUInt32 CountTrailingZeros(ezUInt32 bitmask); // [tested]
+
+  /// \brief 64 bit overload for CountTrailingZeros()
+  ezUInt32 CountTrailingZeros(ezUInt64 bitmask); // [tested]
 
   /// Returns the number of zeros at the start (most significant part) of a bitmask.
   ///
@@ -239,6 +252,9 @@ namespace ezMath
 
   /// \brief Returns the number of bits set
   ezUInt32 CountBits(ezUInt32 value);
+
+  /// \brief Returns the number of bits set
+  ezUInt32 CountBits(ezUInt64 value);
 
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>

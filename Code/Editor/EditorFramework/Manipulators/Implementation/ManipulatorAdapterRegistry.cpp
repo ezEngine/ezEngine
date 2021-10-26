@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>

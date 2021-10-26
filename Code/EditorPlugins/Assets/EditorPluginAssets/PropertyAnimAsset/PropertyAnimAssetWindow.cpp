@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
@@ -60,9 +60,9 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Game Object Graph
   {
-    std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtGameObjectModel(pDocument));
+    std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtGameObjectModel(pDocument->GetObjectManager()));
     pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "TempObjects"));
-    pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument));
+    pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument->GetObjectManager()));
 
     ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);

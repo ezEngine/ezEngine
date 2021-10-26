@@ -125,3 +125,9 @@ constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::StringHashTo32(ezUInt64 hash
   // just throw away the upper bits
   return static_cast<ezUInt32>(hash);
 }
+
+constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::CombineHashValues32(ezUInt32 h0, ezUInt32 h1)
+{
+  // See boost::hash_combine
+  return h0 ^ (h1 + 0x9e3779b9 + (h0 << 6) + (h1 >> 2));
+}

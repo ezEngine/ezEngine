@@ -1,4 +1,4 @@
-#include <EditorPluginPhysXPCH.h>
+#include <EditorPluginPhysX/EditorPluginPhysXPCH.h>
 
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetManager.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetWindow.moc.h>
@@ -49,7 +49,7 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   if (ezStringUtils::IsEqual(szDocumentTypeName, "Collision Mesh (Convex)"))
   {

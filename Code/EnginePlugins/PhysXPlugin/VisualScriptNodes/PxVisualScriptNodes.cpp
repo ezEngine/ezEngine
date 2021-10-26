@@ -1,4 +1,4 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>

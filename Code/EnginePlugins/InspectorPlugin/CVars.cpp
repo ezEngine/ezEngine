@@ -1,4 +1,4 @@
-#include <InspectorPluginPCH.h>
+#include <InspectorPlugin/InspectorPluginPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>
@@ -194,12 +194,12 @@ void AddCVarEventHandler()
   ezTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, nullptr);
 
   ezCVar::s_AllCVarEvents.AddEventHandler(CVarsDetail::CVarEventHandler);
-  ezPlugin::s_PluginEvents.AddEventHandler(CVarsDetail::PluginEventHandler);
+  ezPlugin::Events().AddEventHandler(CVarsDetail::PluginEventHandler);
 }
 
 void RemoveCVarEventHandler()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(CVarsDetail::PluginEventHandler);
+  ezPlugin::Events().RemoveEventHandler(CVarsDetail::PluginEventHandler);
   ezCVar::s_AllCVarEvents.RemoveEventHandler(CVarsDetail::CVarEventHandler);
 
   ezTelemetry::RemoveEventHandler(CVarsDetail::TelemetryEventsHandler);

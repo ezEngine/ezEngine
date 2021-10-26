@@ -1,4 +1,4 @@
-#include <KrautPluginPCH.h>
+#include <KrautPlugin/KrautPluginPCH.h>
 
 #include <KrautPlugin/KrautDeclarations.h>
 
@@ -56,5 +56,3 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-ezPlugin g_Plugin(false);

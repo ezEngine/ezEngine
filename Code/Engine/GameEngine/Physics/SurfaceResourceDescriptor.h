@@ -9,8 +9,8 @@
 #include <Foundation/Types/RangeView.h>
 #include <Foundation/Types/Variant.h>
 
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 
 struct ezSurfaceInteractionAlignment
@@ -67,14 +67,23 @@ public:
   void SetBaseSurfaceFile(const char* szFile);
   const char* GetBaseSurfaceFile() const;
 
-  void SetCollisionInteraction(const char* szFile);
+  void SetCollisionInteraction(const char* name);
   const char* GetCollisionInteraction() const;
+
+  void SetSlideReactionPrefabFile(const char* szFile);
+  const char* GetSlideReactionPrefabFile() const;
+
+  void SetRollReactionPrefabFile(const char* szFile);
+  const char* GetRollReactionPrefabFile() const;
+
 
   ezSurfaceResourceHandle m_hBaseSurface;
   float m_fPhysicsRestitution;
   float m_fPhysicsFrictionStatic;
   float m_fPhysicsFrictionDynamic;
   ezHashedString m_sOnCollideInteraction;
+  ezHashedString m_sSlideInteractionPrefab;
+  ezHashedString m_sRollInteractionPrefab;
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };

@@ -87,13 +87,13 @@ PS_OUT main(PS_IN Input)
   #endif
 
   #if BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
-    float specularNormalization = lerp(1.0f, 1.0f / matData.opacity, saturate(matData.opacity * 10.0f));
-    light.specularLight *= specularNormalization;
-    
     #if defined(USE_MATERIAL_REFRACTION)
       ApplyRefraction(matData, light);
     #endif
-  #endif
+
+      float specularNormalization = lerp(1.0f, 1.0f / matData.opacity, saturate(matData.opacity * 10.0f));
+      light.specularLight *= specularNormalization;
+#endif
 
   float3 litColor = light.diffuseLight + light.specularLight;
   litColor += matData.emissiveColor;
@@ -123,18 +123,15 @@ PS_OUT main(PS_IN Input)
     else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT || RenderPass == EDITOR_RENDER_PASS_DECAL_COUNT)
     {
       float lightCount = RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT ? GET_LIGHT_INDEX(clusterData.counts) : GET_DECAL_INDEX(clusterData.counts);
-      if (lightCount == 0)
-      {
-        Output.Color = float4(0, 0, 0, 1);
-      }
-      else
+      float3 heatmap = 0;
+      if (lightCount > 0)
       {
         float x = (lightCount - 1) / 16;
-        float r = saturate(x);
-        float g = saturate(2 - x);
-
-        Output.Color = float4(r, g, 0, 1);
+        heatmap.r = saturate(x);
+        heatmap.g = saturate(2 - x);
       }
+
+      Output.Color = float4(lerp(litColor, heatmap, 0.7), 1);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
     {

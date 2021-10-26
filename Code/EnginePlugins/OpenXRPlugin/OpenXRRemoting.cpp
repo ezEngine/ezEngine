@@ -1,4 +1,4 @@
-#include <OpenXRPluginPCH.h>
+#include <OpenXRPlugin/OpenXRPluginPCH.h>
 
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
 

@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Time/Stopwatch.h>

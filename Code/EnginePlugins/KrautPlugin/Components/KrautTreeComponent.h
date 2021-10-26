@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <KrautPlugin/KrautDeclarations.h>
 #include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 struct ezMsgExtractGeometry;
 struct ezMsgBuildStaticMesh;
@@ -98,6 +98,7 @@ private:
 
   void ComputeWind() const;
 
+  mutable ezUInt64 m_uiLastWindUpdate = (ezUInt64)-1;
   mutable ezVec3 m_vWindSpringPos;
   mutable ezVec3 m_vWindSpringVel;
 };

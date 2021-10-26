@@ -36,3 +36,4 @@ private:
   QStatusBar* m_pStatusBar;
   ezQtCuratorControl* m_pCuratorControl;
 };
+

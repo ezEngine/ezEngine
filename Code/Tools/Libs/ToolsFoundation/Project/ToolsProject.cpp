@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
@@ -242,6 +242,15 @@ bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezStrin
   }
 
   return false;
+}
+
+const ezString ezToolsProject::GetProjectName() const
+{
+  ezStringBuilder sTemp = ezToolsProject::GetSingleton()->GetProjectFile();
+  sTemp.PathParentDirectory();
+  sTemp.Trim("/");
+
+  return sTemp.GetFileName();
 }
 
 ezString ezToolsProject::GetProjectDirectory() const

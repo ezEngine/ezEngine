@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
@@ -10,8 +10,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
-ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
-ezCVarBool CVarCacheRenderData("r_CacheRenderData", true, ezCVarFlags::Default, "Enables render data caching of static objects");
+ezCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
+ezCVarBool cvar_RenderingCachingStaticObjects("Rendering.Caching.StaticObjects", true, ezCVarFlags::Default, "Enables render data caching of static objects");
 
 ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewCreatedEvent;
 ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewDeletedEvent;
@@ -250,7 +250,7 @@ ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
 
 void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
 {
-  if (CVarCacheRenderData)
+  if (cvar_RenderingCachingStaticObjects)
   {
     ezUInt32 uiNewEntriesCount = view.m_pRenderDataCache->m_NewEntriesCount;
     if (uiNewEntriesCount >= MaxNumNewCacheEntries)
@@ -373,7 +373,7 @@ void ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(const ezGameObject*
 
 ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion)
 {
-  if (CVarCacheRenderData)
+  if (cvar_RenderingCachingStaticObjects)
   {
     const auto& perObjectCaches = view.m_pRenderDataCache->m_PerObjectCaches;
     ezUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
@@ -416,7 +416,7 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
     s_ViewsToRender.PushBack(pView);
   }
 
-  if (CVarMultithreadedRendering)
+  if (cvar_RenderingMultithreading)
   {
     ezTaskGroupID extractTaskID = ezTaskSystem::StartSingleTask(pView->GetExtractTask(), ezTaskPriority::EarlyThisFrame);
 
@@ -442,7 +442,7 @@ void ezRenderWorld::ExtractMainViews()
   extractionEvent.m_uiFrameCounter = s_uiFrameCounter;
   s_ExtractionEvent.Broadcast(extractionEvent);
 
-  if (CVarMultithreadedRendering)
+  if (cvar_RenderingMultithreading)
   {
     s_ExtractTasks.Clear();
 
@@ -535,7 +535,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   renderEvent.m_uiFrameCounter = s_uiFrameCounter;
   s_RenderEvent.Broadcast(renderEvent);
 
-  if (!CVarMultithreadedRendering)
+  if (!cvar_RenderingMultithreading)
   {
     RebuildPipelines();
   }
@@ -597,7 +597,7 @@ void ezRenderWorld::EndFrame()
 
 bool ezRenderWorld::GetUseMultithreadedRendering()
 {
-  return CVarMultithreadedRendering;
+  return cvar_RenderingMultithreading;
 }
 
 
@@ -609,14 +609,14 @@ bool ezRenderWorld::IsRenderingThread()
 void ezRenderWorld::DeleteCachedRenderDataInternal(const ezGameObjectHandle& hOwnerObject)
 {
   ezUInt32 uiCacheIndex = hOwnerObject.GetInternalID().m_InstanceIndex;
-  ezUInt8 uiWorldIndex = hOwnerObject.GetInternalID().m_WorldIndex;
+  ezWorld* pWorld = ezWorld::GetWorld(hOwnerObject);
 
   EZ_LOCK(s_ViewsMutex);
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
     ezView* pView = it.Value();
-    if (pView->GetWorld() != nullptr && pView->GetWorld()->GetIndex() == uiWorldIndex)
+    if (pView->GetWorld() != nullptr && pView->GetWorld() == pWorld)
     {
       auto& perObjectCaches = pView->m_pRenderDataCache->m_PerObjectCaches;
 

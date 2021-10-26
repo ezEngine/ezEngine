@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Document/GameObjectDocument.h>

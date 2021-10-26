@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -6,7 +6,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent)
+ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent, DashboardTab activeTab)
   : QDialog(parent)
 {
   setupUi(this);
@@ -35,16 +35,19 @@ ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent)
 
   if (ProjectsList->rowCount() > 0)
   {
-    SetActiveTab(DashboardTab::Projects);
-
     ProjectsList->setFocus();
     ProjectsList->clearSelection();
     ProjectsList->selectRow(0);
   }
   else
   {
-    SetActiveTab(DashboardTab::Samples);
+    if (activeTab == DashboardTab::Projects)
+    {
+      activeTab = DashboardTab::Samples;
+    }
   }
+
+  SetActiveTab(activeTab);
 }
 
 void ezQtDashboardDlg::SetActiveTab(DashboardTab tab)
@@ -247,7 +250,7 @@ void ezQtDashboardDlg::on_SamplesList_itemDoubleClicked(QListWidgetItem* pItem)
 
 void ezQtDashboardDlg::on_OpenDocs_clicked()
 {
-  QDesktopServices::openUrl(QUrl("http://ezengine.net"));
+  QDesktopServices::openUrl(QUrl("https://ezengine.net"));
 }
 
 void ezQtDashboardDlg::on_OpenApiDocs_clicked()
@@ -257,7 +260,7 @@ void ezQtDashboardDlg::on_OpenApiDocs_clicked()
 
 void ezQtDashboardDlg::on_OpenReleaseNotes_clicked()
 {
-  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/releases/releases.html"));
+  QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/releases"));
 }
 
 void ezQtDashboardDlg::on_ReportProblem_clicked()

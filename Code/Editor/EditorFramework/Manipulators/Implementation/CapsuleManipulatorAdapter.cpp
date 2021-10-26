@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
@@ -10,7 +10,7 @@ ezCapsuleManipulatorAdapter::~ezCapsuleManipulatorAdapter() {}
 
 void ezCapsuleManipulatorAdapter::Finalize()
 {
-  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
   auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
 

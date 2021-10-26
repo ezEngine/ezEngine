@@ -11,13 +11,14 @@ o
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10443522772994204319,5520629884345664304}}
-		u4 %Hash{12197202189823277859}
+		u4 %Hash{12098074565445944733}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 			s{"{ 715107e7-1f35-4bd4-9c46-a93dad63d14b }"}
+			s{"{ c2d8d66d-b123-4cf1-b123-4d015fc69fb0 }"}
 		}
 	}
 }
@@ -54,6 +55,8 @@ o
 		}
 		s %OnCollideInteraction{"Bump_Wood"}
 		f %Restitution{0xCDCCCC3D}
+		s %RollReaction{""}
+		s %SlideReaction{"{ c2d8d66d-b123-4cf1-b123-4d015fc69fb0 }"}
 		f %StaticFriction{0x9A99193F}
 	}
 }
@@ -88,7 +91,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSurfaceResourceDescriptor"}
-		u3 %TypeSize{1984}
+		u3 %TypeSize{2000}
 		u3 %TypeVersion{2}
 	}
 }

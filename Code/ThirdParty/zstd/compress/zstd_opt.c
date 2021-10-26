@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Przemyslaw Skibinski, Yann Collet, Facebook, Inc.
+ * Copyright (c) 2016-2021, Przemyslaw Skibinski, Yann Collet, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -364,13 +364,11 @@ static U32 ZSTD_insertAndFindFirstIndexHash3 (ZSTD_matchState_t* ms,
 *  Binary Tree search
 ***************************************/
 /** ZSTD_insertBt1() : add one or multiple positions to tree.
- * @param ip assumed <= iend-8 .
- * @param target The target of ZSTD_updateTree_internal() - we are filling to this position
+ *  ip : assumed <= iend-8 .
  * @return : nb of positions added */
 static U32 ZSTD_insertBt1(
                 ZSTD_matchState_t* ms,
                 const BYTE* const ip, const BYTE* const iend,
-                U32 const target,
                 U32 const mls, const int extDict)
 {
     const ZSTD_compressionParameters* const cParams = &ms->cParams;
@@ -393,10 +391,7 @@ static U32 ZSTD_insertBt1(
     U32* smallerPtr = bt + 2*(curr&btMask);
     U32* largerPtr  = smallerPtr + 1;
     U32 dummy32;   /* to be nullified at the end */
-    /* windowLow is based on target because we're only need positions that will be
-     * in the window at the end of the tree update.
-     */
-    U32 const windowLow = ZSTD_getLowestMatchIndex(ms, target, cParams->windowLog);
+    U32 const windowLow = ms->window.lowLimit;
     U32 matchEndIdx = curr+8+1;
     size_t bestLength = 8;
     U32 nbCompares = 1U << cParams->searchLog;
@@ -409,7 +404,6 @@ static U32 ZSTD_insertBt1(
 
     DEBUGLOG(8, "ZSTD_insertBt1 (%u)", curr);
 
-    assert(curr <= target);
     assert(ip <= iend-8);   /* required for h calculation */
     hashTable[h] = curr;   /* Update Hash Table */
 
@@ -498,7 +492,7 @@ void ZSTD_updateTree_internal(
                 idx, target, dictMode);
 
     while(idx < target) {
-        U32 const forward = ZSTD_insertBt1(ms, base+idx, iend, target, mls, dictMode == ZSTD_extDict);
+        U32 const forward = ZSTD_insertBt1(ms, base+idx, iend, mls, dictMode == ZSTD_extDict);
         assert(idx < (U32)(idx + forward));
         idx += forward;
     }
@@ -899,7 +893,7 @@ static void ZSTD_optLdm_processMatchCandidate(ZSTD_optLdm_t* optLdm, ZSTD_match_
              */
             U32 posOvershoot = currPosInBlock - optLdm->endPosInBlock;
             ZSTD_optLdm_skipRawSeqStoreBytes(&optLdm->seqStore, posOvershoot);
-        }
+        } 
         ZSTD_opt_getNextMatchAndUpdateSeqStore(optLdm, currPosInBlock, remainingBytes);
     }
     ZSTD_optLdm_maybeAddMatch(matches, nbMatches, optLdm, currPosInBlock);

@@ -164,3 +164,4 @@ private:
   ezQtDocumentPanel* m_pEventTrackPanel = nullptr;
   bool m_bAnimTimerInFlight = false;
 };
+

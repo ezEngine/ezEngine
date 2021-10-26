@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12...3.14)
+cmake_minimum_required(VERSION 3.19)
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	message(FATAL_ERROR "In-source builds are not supported. Please choose a different binary directory.")
@@ -23,10 +23,6 @@ set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
 
 ez_build_filter_init()
 
-# Vcpkg is supported, but downloading pre-built packages works better
-# ez_vcpkg_show_info()
-# ez_vcpkg_init()
-
 ez_detect_project_name(DETECTED_NAME)
 
 if(NOT EZ_SUBMODULE_MODE)
@@ -36,16 +32,13 @@ if(NOT EZ_SUBMODULE_MODE)
 	project (${EZ_SOLUTION_NAME}
 		VERSION 1.0
 		DESCRIPTION "An open-source game engine"
-		HOMEPAGE_URL "http://ezEngine.net"
+		HOMEPAGE_URL "https://ezengine.net"
 		LANGUAGES ${EZ_LANGUAGES})
 endif()
 
-ez_check_build_type()
-ez_write_configuration_txt()
+ez_set_build_types()
 
-#if (EZ_VCPKG_INSTALL_QT)
-#	ez_vcpkg_install("qt5-base;qt5-winextras")
-#endif()
+ez_write_configuration_txt()
 
 ez_init_projects()
 

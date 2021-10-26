@@ -12,6 +12,8 @@
 template <typename ComponentType>
 class ezSettingsComponentManager : public ezComponentManagerBase
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezSettingsComponentManager);
+
 public:
   ezSettingsComponentManager(ezWorld* pWorld);
   ~ezSettingsComponentManager();

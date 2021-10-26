@@ -1,4 +1,4 @@
-#include <EditorPluginProcGenPCH.h>
+#include <EditorPluginProcGen/EditorPluginProcGenPCH.h>
 
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
@@ -209,12 +209,17 @@ ezQtProcGenScene::~ezQtProcGenScene() = default;
 
 void ezQtProcGenScene::SetDebugPin(ezQtProcGenPin* pDebugPin)
 {
-  if (m_pDebugPin == pDebugPin)
+  if (m_pDebugPin == pDebugPin || m_bUpdatingDebugPin)
     return;
 
   if (m_pDebugPin != nullptr)
   {
+    // don't recursively call this function, otherwise the resource is written twice
+    // once with debug disabled, then with it enabled, and because it is so quick after each other
+    // the resource manager may ignore the second update, because the first one is still ongoing
+    m_bUpdatingDebugPin = true;
     m_pDebugPin->SetDebug(false);
+    m_bUpdatingDebugPin = false;
   }
 
   m_pDebugPin = pDebugPin;

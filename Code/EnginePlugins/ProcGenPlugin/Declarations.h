@@ -8,9 +8,28 @@
 #include <ProcGenPlugin/ProcGenPluginDLL.h>
 
 class ezExpressionByteCode;
-typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
+using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+
+struct ezProcGenBinaryOperator
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Max,
+    Min,
+
+    Default = Multiply
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBinaryOperator);
 
 struct ezProcGenBlendMode
 {
@@ -64,6 +83,39 @@ struct ezProcVertexColorMapping
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorMapping);
 
+struct ezProcPlacementMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Raycast,
+    Fixed,
+
+    Default = Raycast
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcPlacementMode);
+
+struct ezProcVolumeImageMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    ReferenceColor,
+    ChannelR,
+    ChannelG,
+    ChannelB,
+    ChannelA,
+
+    Default = ReferenceColor
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVolumeImageMode);
+
 //////////////////////////////////////////////////////////////////////////
 
 namespace ezProcGenInternal
@@ -95,6 +147,7 @@ namespace ezProcGenInternal
 
   struct EZ_PROCGENPLUGIN_DLL GraphSharedDataBase : public ezRefCounted
   {
+    virtual ~GraphSharedDataBase();
   };
 
   struct Output : public ezRefCounted
@@ -126,6 +179,7 @@ namespace ezProcGenInternal
     ezVec3 m_vMinOffset = ezVec3::ZeroVector();
     ezVec3 m_vMaxOffset = ezVec3::ZeroVector();
 
+    ezAngle m_YawRotationSnap = ezAngle::Radian(0.0f);
     float m_fAlignToNormal = 1.0f;
 
     ezVec3 m_vMinScale = ezVec3(1.0f);
@@ -138,6 +192,8 @@ namespace ezProcGenInternal
     ezColorGradientResourceHandle m_hColorGradient;
 
     ezSurfaceResourceHandle m_hSurface;
+
+    ezEnum<ezProcPlacementMode> m_Mode;
   };
 
   struct VertexColorOutput : public Output
@@ -189,9 +245,10 @@ namespace ezProcGenInternal
     EZ_DECLARE_POD_TYPE();
 
     ezSimdTransform m_Transform;
-    ezColorGammaUB m_Color;
+    ezColor m_ObjectColor;
     ezUInt8 m_uiObjectIndex;
     ezUInt16 m_uiPointIndex;
+    ezUInt8 m_uiSetColor : 1;
   };
 
   struct PlacementTileDesc

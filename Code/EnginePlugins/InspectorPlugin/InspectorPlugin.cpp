@@ -1,9 +1,7 @@
-#include <InspectorPluginPCH.h>
+#include <InspectorPlugin/InspectorPluginPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
-
-ezPlugin g_Plugin(false);
 
 void AddLogWriter();
 void RemoveLogWriter();
@@ -16,6 +14,9 @@ void RemoveStartupEventHandler();
 
 void AddCVarEventHandler();
 void RemoveCVarEventHandler();
+
+void AddConsoleEventHandler();
+void RemoveConsoleEventHandler();
 
 void AddMemoryEventHandler();
 void RemoveMemoryEventHandler();
@@ -63,6 +64,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     AddStatsEventHandler();
     AddStartupEventHandler();
     AddCVarEventHandler();
+    AddConsoleEventHandler();
     AddReflectionEventHandler();
     AddMemoryEventHandler();
     AddInputEventHandler();
@@ -88,6 +90,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     RemoveMemoryEventHandler();
     RemoveReflectionEventHandler();
     RemoveCVarEventHandler();
+    RemoveConsoleEventHandler();
     RemoveStartupEventHandler();
     RemoveStatsEventHandler();
     RemoveLogWriter();

@@ -7,7 +7,7 @@
 
 class ezVisualScriptNode;
 
-typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
+using ezVisualScriptResourceHandle = ezTypedResourceHandle<class ezVisualScriptResource>;
 
 /// \brief Describes a visual script graph (node types and connections)
 struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor

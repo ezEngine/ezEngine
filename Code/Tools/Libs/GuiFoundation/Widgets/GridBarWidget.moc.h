@@ -24,3 +24,4 @@ private:
   double m_fFineGridStops;
   ezDelegate<QPointF(const QPointF&)> MapFromSceneFunc;
 };
+

@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -80,23 +80,10 @@ void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
   if (m_uiJointIndex == ezInvalidJointIndex)
     return;
 
-  const ezMat4 bone = msg.m_pRootTransform->GetAsMat4() * msg.m_ModelTransforms[m_uiJointIndex];
+  ezMat4 bone;
   ezQuat boneRot;
 
-  // the bone might contain (non-uniform) scaling and mirroring, which the quaternion can't represent
-  // so reconstruct a representable rotation matrix
-  {
-    const ezVec3 x = bone.TransformDirection(ezVec3(1, 0, 0)).GetNormalized();
-    const ezVec3 y = bone.TransformDirection(ezVec3(0, 1, 0)).GetNormalized();
-    const ezVec3 z = x.CrossRH(y);
-
-    ezMat3 m;
-    m.SetColumn(0, x);
-    m.SetColumn(1, y);
-    m.SetColumn(2, z);
-
-    boneRot.SetFromMat3(m);
-  }
+  msg.ComputeFullBoneTransform(m_uiJointIndex, bone, boneRot);
 
   ezGameObject* pOwner = GetOwner();
   pOwner->SetLocalPosition(bone.GetTranslationVector() + bone.TransformDirection(m_vLocalPositionOffset));

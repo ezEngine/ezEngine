@@ -1,8 +1,8 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
 
-#include <Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 

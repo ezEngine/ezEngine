@@ -31,7 +31,7 @@ ezParticleEmitterFactory_Burst;Burst
 ezParticleEmitterFactory_Distance;Distance
 ezParticleTypeMeshFactory;Mesh
 ezParticleInitializerFactory_VelocityCone;Velocity Cone
-ezParticleComponent;Particle
+ezParticleComponent;Particle;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effect-component.html
 ezParticleInitializerFactory_BoxPosition;Box Position
 ezParticleInitializerFactory_CylinderPosition;Cylinder Position
 ezParticleInitializerFactory_RandomColor;Random Color

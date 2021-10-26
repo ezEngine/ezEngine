@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Configuration/PlatformProfile.h>
 #include <Foundation/IO/ChunkStream.h>

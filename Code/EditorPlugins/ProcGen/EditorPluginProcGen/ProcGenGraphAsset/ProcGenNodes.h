@@ -53,6 +53,7 @@ public:
   ezVec3 m_vMinOffset = ezVec3(0);
   ezVec3 m_vMaxOffset = ezVec3(0);
 
+  ezAngle m_YawRotationSnap = ezAngle::Radian(0.0f);
   float m_fAlignToNormal = 1.0f;
 
   ezVec3 m_vMinScale = ezVec3(1);
@@ -65,6 +66,8 @@ public:
   ezString m_sSurface;
 
   ezString m_sColorGradient;
+
+  ezEnum<ezProcPlacementMode> m_PlacementMode;
 
   ezRenderPipelineNodeInputPin m_DensityPin;
   ezRenderPipelineNodeInputPin m_ScalePin;
@@ -139,7 +142,7 @@ class ezProcGen_Blend : public ezProcGenNodeBase
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
 
-  ezEnum<ezProcGenBlendMode> m_BlendMode;
+  ezEnum<ezProcGenBinaryOperator> m_Operator;
   float m_fInputValueA = 1.0f;
   float m_fInputValueB = 1.0f;
   bool m_bClampOutput = false;
@@ -210,6 +213,9 @@ public:
   float m_fInputValue = 0.0f;
 
   ezTagSet m_IncludeTags;
+
+  ezEnum<ezProcVolumeImageMode> m_ImageVolumeMode;
+  ezColorGammaUB m_RefColor;
 
   ezRenderPipelineNodeInputPin m_InputValuePin;
   ezRenderPipelineNodeOutputPin m_OutputValuePin;

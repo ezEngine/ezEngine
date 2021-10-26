@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/ActorSystem/ActorManager.h>
 #include <Core/GameApplication/GameApplicationBase.h>
@@ -112,7 +112,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
   pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never);
   pWriteTask->m_Image.ResetAndMove(std::move(image));
 
-  pWriteTask->m_sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());
+  pWriteTask->m_sPath.Format(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
   AppendCurrentTimestamp(pWriteTask->m_sPath);
   pWriteTask->m_sPath.Append(szContext);
   pWriteTask->m_sPath.Append(".png");
@@ -306,6 +306,14 @@ void ezGameApplicationBase::AfterCoreSystemsStartup()
   SUPER::AfterCoreSystemsStartup();
 
   ExecuteInitFunctions();
+
+  // If one of the init functions already requested the application to quit,
+  // something must have gone wrong. Don't continue initialization and let the
+  // application exit.
+  if (WasQuitRequested())
+  {
+    return;
+  }
 
   ezStartup::StartupHighLevelSystems();
 

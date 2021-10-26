@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>

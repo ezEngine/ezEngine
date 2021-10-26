@@ -5,8 +5,8 @@
 //#include <RendererCore/AnimationSystem/AnimationPose.h>
 //#include <RendererCore/Meshes/SkinnedMeshComponent.h>
 //
-//typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
-//typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
+//using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
+//using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 //
 //typedef ezComponentManagerSimple<class ezMotionMatchingComponent, ezComponentUpdateType::WhenSimulating> ezMotionMatchingComponentManager;
 //

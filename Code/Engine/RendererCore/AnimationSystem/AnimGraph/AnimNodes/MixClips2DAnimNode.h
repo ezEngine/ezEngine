@@ -1,7 +1,7 @@
 #pragma once
 
-#include <AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 
 struct EZ_RENDERERCORE_DLL ezAnimClip2D
 {

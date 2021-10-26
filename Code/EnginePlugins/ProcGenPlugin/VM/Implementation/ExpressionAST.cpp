@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <ProcGenPlugin/VM/ExpressionAST.h>

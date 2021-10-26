@@ -1,4 +1,4 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -185,6 +185,8 @@ void ezPxCharacterCapsuleShapeComponent::OnSimulationStarted()
   // Setup filter data
   m_Data->m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, GetShapeId());
 
+  m_Data->m_QueryFilter.m_bIncludeQueryShapes = false;
+
   m_Data->m_ControllerFilter.mCCTFilterCallback = nullptr;
   m_Data->m_ControllerFilter.mFilterCallback = &(m_Data->m_QueryFilter);
   m_Data->m_ControllerFilter.mFilterData = &(m_Data->m_FilterData);
@@ -235,7 +237,10 @@ bool ezPxCharacterCapsuleShapeComponent::TestShapeSweep(ezPhysicsCastResult& out
   t.m_vPosition.z += GetCurrentTotalHeight() * 0.5f;
   t.m_vPosition.z += 0.01f;
 
-  return pModule->SweepTestCapsule(out_sweepResult, m_fCapsuleRadius, GetCurrentHeightValue(), t, vDirGlobal, fDistance, ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId()));
+  ezPhysicsQueryParameters params(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId());
+  params.m_bIncludeQueryShapes = false;
+
+  return pModule->SweepTestCapsule(out_sweepResult, m_fCapsuleRadius, GetCurrentHeightValue(), t, vDirGlobal, fDistance, params);
 }
 
 bool ezPxCharacterCapsuleShapeComponent::TestShapeOverlap(const ezVec3& vGlobalFootPos, float fNewHeightValue)
@@ -249,7 +254,11 @@ bool ezPxCharacterCapsuleShapeComponent::TestShapeOverlap(const ezVec3& vGlobalF
   vCenterPos.z += 0.01f;
 
   fNewHeightValue += 0.005f;
-  return pModule->OverlapTestCapsule(m_fCapsuleRadius, fNewHeightValue, ezTransform(vCenterPos), ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId()));
+
+  ezPhysicsQueryParameters params(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId());
+  params.m_bIncludeQueryShapes = false;
+
+  return pModule->OverlapTestCapsule(m_fCapsuleRadius, fNewHeightValue, ezTransform(vCenterPos), params);
 }
 
 float ezPxCharacterCapsuleShapeComponent::GetCurrentTotalHeight()

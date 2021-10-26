@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Math/Float16.h>

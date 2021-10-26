@@ -1,4 +1,4 @@
-#include <CoreTestPCH.h>
+#include <CoreTest/CoreTestPCH.h>
 
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>

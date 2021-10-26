@@ -1,2 +1,2 @@
-ezKrautTreeComponent;Kraut Tree
+ezKrautTreeComponent;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
 ezKrautAssetMaterial;Material

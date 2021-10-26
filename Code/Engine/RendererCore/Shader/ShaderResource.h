@@ -4,7 +4,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
 struct ezShaderResourceDescriptor
 {

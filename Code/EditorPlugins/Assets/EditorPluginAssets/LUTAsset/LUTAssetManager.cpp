@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetManager.h>
@@ -56,7 +56,7 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
 }
 
 void ezLUTAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   ezLUTAssetDocument* pDoc = new ezLUTAssetDocument(szPath);
   out_pDocument = pDoc;

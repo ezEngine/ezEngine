@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/World/World.h>
 
@@ -73,13 +73,17 @@ ezComponentHandle ezComponentManagerBase::CreateComponentNoInit(ezGameObject* pO
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
   pComponent->m_ComponentFlags.AddOrRemove(ezObjectFlags::Dynamic, pComponent->GetMode() == ezComponentMode::Dynamic);
-  pComponent->UpdateActiveState(pOwnerObject);
 
   // In Editor we add components via reflection so it is fine to have a nullptr here.
   // We check for a valid owner before the Initialize() callback.
   if (pOwnerObject != nullptr)
   {
+    // AddComponent will update the active state internally
     pOwnerObject->AddComponent(pComponent);
+  }
+  else
+  {
+    pComponent->UpdateActiveState(true);
   }
 
   out_pComponent = pComponent;

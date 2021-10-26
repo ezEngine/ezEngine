@@ -1,10 +1,12 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Console/LuaInterpreter.h>
+#include <Core/Console/QuakeConsole.h>
 
-ezConsole::ezConsole()
+EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezConsoleFunctionBase);
+
+ezQuakeConsole::ezQuakeConsole()
 {
-  // BEGIN-DOCS-CODE-SNIPPET: console-demo1
   ClearInputLine();
 
   m_bLogOutputEnabled = false;
@@ -12,44 +14,34 @@ ezConsole::ezConsole()
   m_uiMaxConsoleStrings = 1000;
 
   EnableLogOutput(true);
-  // END-DOCS-CODE-SNIPPET
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-  SetCommandInterpreter(ezConsoleInterpreter::Lua);
+  SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterLua));
 #endif
 }
 
-ezConsole::~ezConsole()
+ezQuakeConsole::~ezQuakeConsole()
 {
   EnableLogOutput(false);
 }
 
-void ezConsole::AddConsoleString(const char* szText, const ezColor& color, bool bShowOnScreen)
+void ezQuakeConsole::AddConsoleString(ezStringView text, ezConsoleString::Type type)
 {
   EZ_LOCK(m_Mutex);
 
   m_ConsoleStrings.PushFront();
 
-  ConsoleString& cs = m_ConsoleStrings.PeekFront();
-  cs.m_sText = szText;
-  cs.m_TextColor = color;
-  cs.m_TimeStamp = ezTime::Now();
-  cs.m_bShowOnScreen = bShowOnScreen;
-
-  // Broadcast that we have added a string to the console
-  {
-    ConsoleEvent e;
-    e.m_EventType = ConsoleEvent::StringAdded;
-    e.m_AddedpConsoleString = &cs;
-
-    m_Events.Broadcast(e);
-  }
+  ezConsoleString& cs = m_ConsoleStrings.PeekFront();
+  cs.m_sText = text;
+  cs.m_Type = type;
 
   if (m_ConsoleStrings.GetCount() > m_uiMaxConsoleStrings)
     m_ConsoleStrings.PopBack(m_ConsoleStrings.GetCount() - m_uiMaxConsoleStrings);
+
+  ezConsole::AddConsoleString(text, type);
 }
 
-const ezDeque<ezConsole::ezConsole::ConsoleString>& ezConsole::GetConsoleStrings() const
+const ezDeque<ezConsoleString>& ezQuakeConsole::GetConsoleStrings() const
 {
   if (m_bUseFilteredStrings)
   {
@@ -59,60 +51,9 @@ const ezDeque<ezConsole::ezConsole::ConsoleString>& ezConsole::GetConsoleStrings
   return m_ConsoleStrings;
 }
 
-void ezConsole::AddToInputHistory(const char* szString)
+void ezQuakeConsole::LogHandler(const ezLoggingEventData& data)
 {
-  EZ_LOCK(m_Mutex);
-
-  m_iCurrentInputHistoryElement = -1;
-
-  if (ezStringUtils::IsNullOrEmpty(szString))
-    return;
-
-  const ezString sString = szString;
-
-  for (ezInt32 i = 0; i < (ezInt32)m_InputHistory.GetCount(); i++)
-  {
-    if (m_InputHistory[i] == sString) // already in the History
-    {
-      // just move it to the front
-
-      for (ezInt32 j = i - 1; j >= 0; j--)
-        m_InputHistory[j + 1] = m_InputHistory[j];
-
-      m_InputHistory[0] = sString;
-      return;
-    }
-  }
-
-  m_InputHistory.SetCount(ezMath::Min<ezUInt32>(m_InputHistory.GetCount() + 1, 16));
-
-  for (ezUInt32 i = m_InputHistory.GetCount() - 1; i > 0; i--)
-    m_InputHistory[i] = m_InputHistory[i - 1];
-
-  m_InputHistory[0] = sString;
-}
-
-void ezConsole::SearchInputHistory(ezInt32 iHistoryUp)
-{
-  EZ_LOCK(m_Mutex);
-
-  if (m_InputHistory.IsEmpty())
-    return;
-
-  m_iCurrentInputHistoryElement = ezMath::Clamp<ezInt32>(m_iCurrentInputHistoryElement + iHistoryUp, 0, m_InputHistory.GetCount() - 1);
-
-  if (!m_InputHistory[m_iCurrentInputHistoryElement].IsEmpty())
-    m_sInputLine = m_InputHistory[m_iCurrentInputHistoryElement];
-
-  m_iCaretPosition = m_sInputLine.GetCharacterCount();
-}
-
-
-
-void ezConsole::LogHandler(const ezLoggingEventData& data)
-{
-  bool bShow = false;
-  ezColor color = ezColor::White;
+  ezConsoleString::Type type = ezConsoleString::Type::Default;
 
   switch (data.m_EventType)
   {
@@ -126,36 +67,40 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
       return;
 
     case ezLogMsgType::ErrorMsg:
-      color = ezColor(1.0f, 0.2f, 0.2f);
-      bShow = true;
+      type = ezConsoleString::Type::Error;
       break;
+
     case ezLogMsgType::SeriousWarningMsg:
-      color = ezColor(1.0f, 0.4f, 0.1f);
-      bShow = true;
+      type = ezConsoleString::Type::SeriousWarning;
       break;
+
     case ezLogMsgType::WarningMsg:
-      color = ezColor(1.0f, 0.6f, 0.1f);
+      type = ezConsoleString::Type::Warning;
       break;
+
     case ezLogMsgType::SuccessMsg:
-      color = ezColor(0.1f, 1.0f, 0.1f);
+      type = ezConsoleString::Type::Success;
       break;
+
     case ezLogMsgType::InfoMsg:
       break;
+
     case ezLogMsgType::DevMsg:
-      color = ezColor(0.6f, 0.6f, 0.6f);
+      type = ezConsoleString::Type::Dev;
       break;
+
     case ezLogMsgType::DebugMsg:
-      color = ezColor(0.4f, 0.6f, 0.8f);
+      type = ezConsoleString::Type::Debug;
       break;
   }
 
   ezStringBuilder sFormat;
   sFormat.Printf("%*s%s", data.m_uiIndentation, "", data.m_szText);
 
-  AddConsoleString(sFormat.GetData(), color, bShow);
+  AddConsoleString(sFormat.GetData(), type);
 }
 
-void ezConsole::InputStringChanged()
+void ezQuakeConsole::InputStringChanged()
 {
   m_bUseFilteredStrings = false;
   m_FilteredConsoleStrings.Clear();
@@ -185,7 +130,7 @@ void ezConsole::InputStringChanged()
   }
 }
 
-void ezConsole::EnableLogOutput(bool bEnable)
+void ezQuakeConsole::EnableLogOutput(bool bEnable)
 {
   if (m_bLogOutputEnabled == bEnable)
     return;
@@ -194,15 +139,15 @@ void ezConsole::EnableLogOutput(bool bEnable)
 
   if (bEnable)
   {
-    ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezConsole::LogHandler, this));
+    ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezQuakeConsole::LogHandler, this));
   }
   else
   {
-    ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezConsole::LogHandler, this));
+    ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezQuakeConsole::LogHandler, this));
   }
 }
 
-void ezConsole::SaveState(ezStreamWriter& Stream) const
+void ezQuakeConsole::SaveState(ezStreamWriter& Stream) const
 {
   EZ_LOCK(m_Mutex);
 
@@ -223,7 +168,7 @@ void ezConsole::SaveState(ezStreamWriter& Stream) const
   }
 }
 
-void ezConsole::LoadState(ezStreamReader& Stream)
+void ezQuakeConsole::LoadState(ezStreamReader& Stream)
 {
   EZ_LOCK(m_Mutex);
 
@@ -256,6 +201,195 @@ void ezConsole::LoadState(ezStreamReader& Stream)
   }
 }
 
+void ezCommandInterpreterState::AddOutputLine(const ezFormatString& text, ezConsoleString::Type type /*= ezCommandOutputLine::Type::Default*/)
+{
+  auto& line = m_sOutput.ExpandAndGetRef();
+  line.m_Type = type;
 
+  ezStringBuilder tmp;
+  line.m_sText = text.GetText(tmp);
+}
+
+ezColor ezConsoleString::GetColor() const
+{
+  switch (m_Type)
+  {
+    case ezConsoleString::Type::Default:
+      return ezColor::White;
+
+    case ezConsoleString::Type::Error:
+      return ezColor(1.0f, 0.2f, 0.2f);
+
+    case ezConsoleString::Type::SeriousWarning:
+      return ezColor(1.0f, 0.4f, 0.1f);
+
+    case ezConsoleString::Type::Warning:
+      return ezColor(1.0f, 0.6f, 0.1f);
+
+    case ezConsoleString::Type::Note:
+      return ezColor(1, 200.0f / 255.0f, 0);
+
+    case ezConsoleString::Type::Success:
+      return ezColor(0.1f, 1.0f, 0.1f);
+
+    case ezConsoleString::Type::Executed:
+      return ezColor(1.0f, 0.5f, 0.0f);
+
+    case ezConsoleString::Type::VarName:
+      return ezColorGammaUB(255, 210, 0);
+
+    case ezConsoleString::Type::FuncName:
+      return ezColorGammaUB(100, 255, 100);
+
+    case ezConsoleString::Type::Dev:
+      return ezColor(0.6f, 0.6f, 0.6f);
+
+    case ezConsoleString::Type::Debug:
+      return ezColor(0.4f, 0.6f, 0.8f);
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return ezColor::White;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezConsole::ezConsole()
+{
+}
+
+ezConsole::~ezConsole()
+{
+  if (s_pMainConsole == this)
+  {
+    s_pMainConsole = nullptr;
+  }
+}
+
+void ezConsole::SetMainConsole(ezConsole* pConsole)
+{
+  s_pMainConsole = pConsole;
+}
+
+ezConsole* ezConsole::GetMainConsole()
+{
+  return s_pMainConsole;
+}
+
+ezConsole* ezConsole::s_pMainConsole = nullptr;
+
+bool ezConsole::AutoComplete(ezStringBuilder& text)
+{
+  EZ_LOCK(m_Mutex);
+
+  if (m_CommandInterpreter)
+  {
+    ezCommandInterpreterState s;
+    s.m_sInput = text;
+
+    m_CommandInterpreter->AutoComplete(s);
+
+    for (auto& l : s.m_sOutput)
+    {
+      AddConsoleString(l.m_sText, l.m_Type);
+    }
+
+    if (text != s.m_sInput)
+    {
+      text = s.m_sInput;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void ezConsole::ExecuteCommand(ezStringView input)
+{
+  if (input.IsEmpty())
+    return;
+
+  EZ_LOCK(m_Mutex);
+
+  if (m_CommandInterpreter)
+  {
+    ezCommandInterpreterState s;
+    s.m_sInput = input;
+    m_CommandInterpreter->Interpret(s);
+
+    for (auto& l : s.m_sOutput)
+    {
+      AddConsoleString(l.m_sText, l.m_Type);
+    }
+  }
+  else
+  {
+    AddConsoleString(input);
+  }
+}
+
+void ezConsole::AddConsoleString(ezStringView text, ezConsoleString::Type type /*= ezConsoleString::Type::Default*/)
+{
+  ezConsoleString cs;
+  cs.m_sText = text;
+  cs.m_Type = type;
+
+  // Broadcast that we have added a string to the console
+  ezConsoleEvent e;
+  e.m_Type = ezConsoleEvent::Type::OutputLineAdded;
+  e.m_AddedpConsoleString = &cs;
+
+  m_Events.Broadcast(e);
+}
+
+void ezConsole::AddToInputHistory(ezStringView text)
+{
+  EZ_LOCK(m_Mutex);
+
+  m_iCurrentInputHistoryElement = -1;
+
+  if (text.IsEmpty())
+    return;
+
+  for (ezInt32 i = 0; i < (ezInt32)m_InputHistory.GetCount(); i++)
+  {
+    if (m_InputHistory[i] == text) // already in the History
+    {
+      // just move it to the front
+
+      for (ezInt32 j = i - 1; j >= 0; j--)
+        m_InputHistory[j + 1] = m_InputHistory[j];
+
+      m_InputHistory[0] = text;
+      return;
+    }
+  }
+
+  m_InputHistory.SetCount(ezMath::Min<ezUInt32>(m_InputHistory.GetCount() + 1, m_InputHistory.GetCapacity()));
+
+  for (ezUInt32 i = m_InputHistory.GetCount() - 1; i > 0; i--)
+    m_InputHistory[i] = m_InputHistory[i - 1];
+
+  m_InputHistory[0] = text;
+}
+
+void ezConsole::RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& result)
+{
+  EZ_LOCK(m_Mutex);
+
+  if (m_InputHistory.IsEmpty())
+    return;
+
+  m_iCurrentInputHistoryElement = ezMath::Clamp<ezInt32>(m_iCurrentInputHistoryElement + iHistoryUp, 0, m_InputHistory.GetCount() - 1);
+
+  if (!m_InputHistory[m_iCurrentInputHistoryElement].IsEmpty())
+  {
+    result = m_InputHistory[m_iCurrentInputHistoryElement];
+  }
+}
 
 EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Console);

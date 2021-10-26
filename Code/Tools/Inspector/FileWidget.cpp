@@ -1,10 +1,10 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <Inspector/FileWidget.moc.h>
-#include <MainWindow.moc.h>
+#include <Inspector/MainWindow.moc.h>
 #include <qgraphicsitem.h>
 
 ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;

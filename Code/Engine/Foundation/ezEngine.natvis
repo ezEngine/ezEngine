@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+	<!-- Strings-->
+	<Type Name="ezHybridStringBase&lt;*&gt;">
+		<AlternativeType Name="ezStringBuilder" />
+		<DisplayString Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) == 0">{m_Data.m_pElements,s8}</DisplayString>
+		<DisplayString Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) != 0">{m_Data.m_StaticData,s8}</DisplayString>
+		<StringView Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) == 0">m_Data.m_pElements,s8</StringView>
+		<StringView Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) != 0">m_Data.m_StaticData,s8</StringView>
+		<Expand>
+			<Item Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) == 0" Name="String">m_Data.m_pElements,s8</Item>
+			<Item Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) != 0" Name="String">m_Data.m_StaticData,s8</Item>
+			<Item Name="CharacterCount">m_uiCharacterCount</Item>
+			<Item Name="ElementCount">m_Data.m_uiCount</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezStringView">
+		<DisplayString Condition="m_pStart != 0">{m_pStart,[m_pEnd - m_pStart]s8}</DisplayString>
+		<DisplayString Condition="m_pStart == 0">&lt;Invalid String&gt;</DisplayString>
+		<StringView>m_pStart,[m_pEnd - m_pStart]s8</StringView>
+		<Expand>
+			<Item Name="String" Condition="m_pStart != 0">m_pStart,[m_pEnd - m_pStart]s8</Item>
+			<Item Name="ElementCount" Condition="m_pStart != 0">m_pEnd - m_pStart</Item>
+			<Item Name="Valid">m_pStart != 0</Item>
+			<Item Name="ZeroTerminated" Condition="m_pEnd != 0">m_pEnd[0] == 0</Item>
+		</Expand>
+	</Type>	
+	
+	<Type Name="ezStringIterator&lt;*&gt;">
+		<AlternativeType Name="ezStringReverseIterator&lt;*&gt;" />
+		<DisplayString Condition="m_pElement == 0">&lt;Invalid Iterator&gt;</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) != 0x80">{m_pElement,[1]s8}</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) != 0x80">{m_pElement,[2]s8}</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[3] &amp; 0xC0) != 0x80">{m_pElement,[3]s8}</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[3] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[4] &amp; 0xC0) != 0x80">{m_pElement,[4]s8}</DisplayString>
+	</Type>
+	
+	<Type Name="ezHashedString">
+		<DisplayString>{m_Data.m_pElement->m_Value.m_sString}</DisplayString>
+		<StringView>m_Data.m_pElement->m_Value.m_sString</StringView>
+		<Expand>
+			<!--<Item Name="ref">m_Data.m_pElement->m_Value.m_iRefCount</Item>-->
+			<Item Name="hash">m_Data.m_pElement->m_Key,x</Item>
+		</Expand>
+	</Type>
+	
+	<!-- Container & Arrays-->
+	<Type Name="ezDynamicArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>(((int64_t)m_pAllocator.m_ptr &amp; 0x1) != 0) ? ($T1*)((intptr_t)this + (intptr_t)m_pElements) : m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	
+	<Type Name="ezArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+  
+  <Type Name="ezSmallArrayBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+      <Item Name="userdata">m_uiUserData</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>(m_uiCapacity &lt;= $T2) ? ($T1*)((intptr_t)(m_StaticData)) : m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	
+	<Type Name="ezStaticArray&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>($T1*)m_Data</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	
+	<Type Name="ezHashTableBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCapacity</Size>
+				<ValuePointer>m_pEntries</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	
+	<Type Name="ezHashSetBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCapacity</Size>
+				<ValuePointer>m_pEntries</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="ezListBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<LinkedListItems>
+				<Size>m_uiCount</Size>
+				<HeadPointer>m_First.m_pNext</HeadPointer>
+				<NextPointer>m_pNext</NextPointer>
+				<ValueNode>m_Data</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="ezDequeBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<IndexListItems>
+				<Size>m_uiCount</Size>
+				<ValueNode>m_pChunks[(m_uiFirstElement + $i) / m_uiChunkSize][(m_uiFirstElement + $i) % m_uiChunkSize]</ValueNode>
+			</IndexListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="ezMapBase&lt;*&gt;">
+		<AlternativeType Name="ezSetBase&lt;*&gt;" />
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<TreeItems>
+				<Size>m_uiCount</Size>
+				<HeadPointer>m_pRoot</HeadPointer>
+				<LeftPointer>m_pLink[0]</LeftPointer>
+				<RightPointer>m_pLink[1]</RightPointer>
+				<ValueNode Condition="m_uiLevel != 0">*this</ValueNode>
+			</TreeItems>
+		</Expand>
+	</Type>
+
+	<Type Name="ezStaticRingBuffer&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="start index">m_uiFirstElement</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="ezArrayPtr&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_ptr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<!-- Basic Types -->
+	<Type Name="ezVariant">
+		<DisplayString Condition="m_Type == Type::TypedObject &amp;&amp; m_bIsShared">({m_Data.shared->m_pType->m_szTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)}</DisplayString>
+		<DisplayString Condition="m_Type == Type::TypedObject &amp;&amp; !m_bIsShared">({m_Data.inlined.m_pType->m_szTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(&amp;m_Data)}</DisplayString>
+		<Expand>
+			<Item Name="Type">(Type::Enum) m_Type</Item>
+			<Item Name="Value" Condition="m_Type == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int8">*reinterpret_cast&lt;ezInt8*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt8">*reinterpret_cast&lt;ezUInt8*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int16">*reinterpret_cast&lt;ezInt16*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt16">*reinterpret_cast&lt;ezUInt16*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int32">*reinterpret_cast&lt;ezInt32*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt32">*reinterpret_cast&lt;ezUInt32*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int64">*reinterpret_cast&lt;ezInt64*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt64">*reinterpret_cast&lt;ezUInt64*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Float">*reinterpret_cast&lt;float*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Double">*reinterpret_cast&lt;double*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Color">*reinterpret_cast&lt;ezColor*&gt;(&amp;m_Data)</Item>     
+			<Item Name="Value" Condition="m_Type == Type::Vector2">*reinterpret_cast&lt;ezVec2Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector3">*reinterpret_cast&lt;ezVec3Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector4">*reinterpret_cast&lt;ezVec4Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector2I">*reinterpret_cast&lt;ezVec2Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector3I">*reinterpret_cast&lt;ezVec3Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector4I">*reinterpret_cast&lt;ezVec4Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector2U">*reinterpret_cast&lt;ezVec2Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>      
+			<Item Name="Value" Condition="m_Type == Type::Vector3U">*reinterpret_cast&lt;ezVec3Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector4U">*reinterpret_cast&lt;ezVec4Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Quaternion">*reinterpret_cast&lt;ezQuatTemplate&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Matrix3">*reinterpret_cast&lt;ezMat3Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Matrix4">*reinterpret_cast&lt;ezMat4Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Transform">*reinterpret_cast&lt;ezTransformTemplate&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::String">*reinterpret_cast&lt;ezHybridStringBase&lt;32&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::StringView">*reinterpret_cast&lt;ezStringView*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::DataBuffer">*reinterpret_cast&lt;ezDynamicArray&lt;unsigned char,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Time">*reinterpret_cast&lt;ezTime*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Uuid">*reinterpret_cast&lt;ezUuid*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Angle">*reinterpret_cast&lt;ezAngle*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::ColorGamma">*reinterpret_cast&lt;ezColorGammaUB*&gt;(&amp;m_Data)</Item>
+			
+			<Item Name="Value" Condition="m_Type == Type::TypedPointer">*reinterpret_cast&lt;ezTypedPointer*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::TypedObject &amp;&amp; m_bIsShared">reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::TypedObject &amp;&amp; !m_bIsShared">reinterpret_cast&lt;void*&gt;(&amp;m_Data)</Item>
+			<Item Name="ReflectedType" Condition="m_Type == Type::TypedObject &amp;&amp; !m_bIsShared">m_Data.inlined.m_pType</Item>
+			<Item Name="ReflectedType" Condition="m_Type == Type::TypedObject &amp;&amp; m_bIsShared">m_Data.shared->m_pType</Item>
+
+
+			<Item Name="Value" Condition="m_Type == Type::VariantArray">*reinterpret_cast&lt;ezDynamicArray&lt;ezVariant,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::VariantDictionary">*reinterpret_cast&lt;ezHashTable&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt;,ezVariant,ezHashHelper&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt; &gt;,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+
+			<Item Name="IsShared">m_bIsShared != 0</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezEnum&lt;*&gt;">
+		<DisplayString>{($T1::Enum)m_value}</DisplayString>
+	</Type>
+	
+	<Type Name="ezBitflags&lt;*&gt;">
+		<DisplayString>{($T1::Enum)m_Value}</DisplayString>
+	</Type>
+		
+	<Type Name="ezVec2Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y} }}</DisplayString>
+	</Type>
+	
+	<Type Name="ezVec3Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y}, z={z} }}</DisplayString>
+	</Type>
+
+	<Type Name="ezVec4Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y}, z={z}, w={w} }}</DisplayString>
+	</Type>
+
+	<Type Name="ezQuatTemplate&lt;*&gt;">
+		<DisplayString>{{ x={v.x}, y={v.y}, z={v.z}, w={w} }}</DisplayString>
+	</Type>
+	
+	<Type Name="ezPlaneTemplate&lt;*&gt;">
+		<DisplayString>{{ nx={m_vNormal.x}, ny={m_vNormal.y}, nz={m_vNormal.z}, negDist={m_fNegDistance} }}</DisplayString>
+	</Type>
+	
+	<Type Name="ezColor">
+		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
+	</Type>
+	
+	<Type Name="ezTime">
+		<DisplayString>{{seconds = {m_fTime} }}</DisplayString>
+		<Expand>
+			<Item Name="seconds">m_fTime</Item>
+			<Item Name="milliseconds">m_fTime * 1000.0</Item>
+			<Item Name="microseconds">m_fTime * 1000000.0</Item>
+			<Item Name="nanoseconds">m_fTime * 1000000000.0</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezMat3Template&lt;*&gt;">
+		<Expand>
+			<Item Name="Column0">&amp;m_fElementsCM[0],3</Item>
+			<Item Name="Column1">&amp;m_fElementsCM[3],3</Item>
+			<Item Name="Column2">&amp;m_fElementsCM[6],3</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezMat4Template&lt;*&gt;">
+		<Expand>
+			<Item Name="Column0">&amp;m_fElementsCM[0],4</Item>
+			<Item Name="Column1">&amp;m_fElementsCM[4],4</Item>
+			<Item Name="Column2">&amp;m_fElementsCM[8],4</Item>
+			<Item Name="Column3">&amp;m_fElementsCM[12],4</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezResource">
+		<DisplayString>{{ID = {m_UniqueID} }}</DisplayString>
+		<Expand>
+			<Item Name="ID">m_UniqueID</Item>
+			<Item Name="Desc">m_sResourceDescription</Item>
+			<Item Name="State">m_LoadingState</Item>
+			<Item Name="RefCount">m_iReferenceCount</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezUniquePtr&lt;*&gt;">
+		<DisplayString>ezUniquePtr {*m_pInstance}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pInstance</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="ezSharedPtr&lt;*&gt;">
+		<DisplayString>ezSharedPtr {*m_pInstance}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pInstance</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="ezScopedRefPointer&lt;*&gt;">
+		<DisplayString>ezScopedRefPointer {*m_pReferencedObject}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pReferencedObject</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="ezRefCounted">
+		<DisplayString>RefCount = {m_iRefCount}</DisplayString>
+	</Type>
+
+	<Type Name="ezMutex">
+		<DisplayString Condition="m_iLockCount > 0">locked</DisplayString>
+		<DisplayString Condition="m_iLockCount == 0">unlocked</DisplayString>
+		<Expand>
+			<Item Name="[locking_thread_id]" Condition="m_iLockCount > 0">(DWORD)((RTL_CRITICAL_SECTION*)m_Handle.data)->OwningThread</Item>
+			<Item Name="critical_section">*((RTL_CRITICAL_SECTION*)m_Handle.data)</Item> 
+		</Expand>
+	</Type>
+
+  <Type Name="ezAngle">
+    <DisplayString>{{Degree = {m_fRadian*57.295}}}</DisplayString>
+    <Expand>
+      <Item Name="Radians">m_fRadian</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
+
+
+
+

@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/SimdMath/SimdMath.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>

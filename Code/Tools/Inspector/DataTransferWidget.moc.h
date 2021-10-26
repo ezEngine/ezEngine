@@ -51,3 +51,4 @@ private:
 
   ezMap<ezString, TransferData> m_Transfers;
 };
+

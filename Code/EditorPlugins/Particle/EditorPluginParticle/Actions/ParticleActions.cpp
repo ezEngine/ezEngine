@@ -1,4 +1,4 @@
-#include <EditorPluginParticlePCH.h>
+#include <EditorPluginParticle/EditorPluginParticlePCH.h>
 
 #include <EditorPluginParticle/Actions/ParticleActions.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>

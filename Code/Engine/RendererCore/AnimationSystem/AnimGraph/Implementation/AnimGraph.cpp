@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
@@ -256,21 +256,21 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
 ezAnimGraphPinDataBoneWeights* ezAnimGraph::AddPinDataBoneWeights()
 {
   ezAnimGraphPinDataBoneWeights* pData = &m_PinDataBoneWeights.ExpandAndGetRef();
-  pData->m_uiOwnIndex = m_PinDataBoneWeights.GetCount() - 1;
+  pData->m_uiOwnIndex = static_cast<ezUInt16>(m_PinDataBoneWeights.GetCount()) - 1;
   return pData;
 }
 
 ezAnimGraphPinDataLocalTransforms* ezAnimGraph::AddPinDataLocalTransforms()
 {
   ezAnimGraphPinDataLocalTransforms* pData = &m_PinDataLocalTransforms.ExpandAndGetRef();
-  pData->m_uiOwnIndex = m_PinDataLocalTransforms.GetCount() - 1;
+  pData->m_uiOwnIndex = static_cast<ezUInt16>(m_PinDataLocalTransforms.GetCount()) - 1;
   return pData;
 }
 
 ezAnimGraphPinDataModelTransforms* ezAnimGraph::AddPinDataModelTransforms()
 {
   ezAnimGraphPinDataModelTransforms* pData = &m_PinDataModelTransforms.ExpandAndGetRef();
-  pData->m_uiOwnIndex = m_PinDataModelTransforms.GetCount() - 1;
+  pData->m_uiOwnIndex = static_cast<ezUInt16>(m_PinDataModelTransforms.GetCount()) - 1;
   return pData;
 }
 

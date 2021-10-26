@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/Allocator.h>
@@ -121,13 +121,13 @@ void ezPhantomRttiManager::PluginEventHandler(const ezPluginEvent& e)
 
 void ezPhantomRttiManager::Startup()
 {
-  ezPlugin::s_PluginEvents.AddEventHandler(&ezPhantomRttiManager::PluginEventHandler);
+  ezPlugin::Events().AddEventHandler(&ezPhantomRttiManager::PluginEventHandler);
 }
 
 
 void ezPhantomRttiManager::Shutdown()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(&ezPhantomRttiManager::PluginEventHandler);
+  ezPlugin::Events().RemoveEventHandler(&ezPhantomRttiManager::PluginEventHandler);
 
   while (!m_NameToPhantom.IsEmpty())
   {

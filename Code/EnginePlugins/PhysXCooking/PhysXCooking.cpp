@@ -1,4 +1,4 @@
-#include <PhysXCookingPCH.h>
+#include <PhysXCooking/PhysXCookingPCH.h>
 
 #include <Core/Graphics/ConvexHull.h>
 #include <Foundation/Configuration/Singleton.h>

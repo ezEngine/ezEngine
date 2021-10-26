@@ -4,7 +4,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <RendererCore/Declarations.h>
 
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleEffectResourceDescriptor
 {

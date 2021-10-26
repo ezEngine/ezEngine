@@ -67,5 +67,10 @@ private:
   bool m_bMoveBackwardsInPlane;
   bool m_bDidMoveMouse[3]; // Left Click, Right Click, Middle Click
 
+  bool m_bRotateLeft = false;
+  bool m_bRotateRight = false;
+  bool m_bRotateUp = false;
+  bool m_bRotateDown = false;
+
   ezTime m_LastUpdate;
 };

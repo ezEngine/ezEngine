@@ -22,3 +22,4 @@ private:
   ezQtDocumentTreeView* m_pTreeWidget = nullptr;
   ezQtSearchWidget* m_pFilterWidget = nullptr;
 };
+

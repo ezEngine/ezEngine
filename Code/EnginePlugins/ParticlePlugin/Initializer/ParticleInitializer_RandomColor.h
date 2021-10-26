@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
-typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
+using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomColor final : public ezParticleInitializerFactory
 {

@@ -9,7 +9,7 @@
 class ezRecastWorldModule;
 class ezAbstractObjectNode;
 
-typedef ezTypedResourceHandle<class ezRecastNavMeshResource> ezRecastNavMeshResourceHandle;
+using ezRecastNavMeshResourceHandle = ezTypedResourceHandle<class ezRecastNavMeshResource>;
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
@@ -11,7 +11,7 @@
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginFmod", "ezFmodPlugin");
 
@@ -40,12 +40,15 @@ void OnLoadPlugin(bool bReloading)
     // Menu Bar
     {
       ezFmodActions::RegisterActions();
-      ezFmodActions::MapMenuActions();
+      ezFmodActions::MapMenuActions("EditorPluginScene_DocumentMenuBar");
+      ezFmodActions::MapMenuActions("EditorPluginScene_Scene2MenuBar");
+      ezFmodActions::MapToolbarActions("EditorPluginScene_DocumentToolBar");
+      ezFmodActions::MapToolbarActions("EditorPluginScene_Scene2ToolBar");
     }
   }
 }
 
-void OnUnloadPlugin(bool bReloading)
+void OnUnloadPlugin()
 {
   ezFmodActions::UnregisterActions();
   ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
@@ -60,5 +63,14 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
   }
 }
 
+EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
+
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}

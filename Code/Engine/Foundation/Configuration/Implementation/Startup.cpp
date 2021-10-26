@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Configuration/Startup.h>
@@ -81,19 +81,13 @@ void ezStartup::PluginEventHandler(const ezPluginEvent& EventData)
 
     case ezPluginEvent::AfterLoadingBeforeInit:
     {
-      if (EventData.m_pPluginObject)
-      {
-        AssignSubSystemPlugin(EventData.m_pPluginObject->GetPluginName());
-      }
+      AssignSubSystemPlugin(EventData.m_szPluginBinary);
     }
     break;
 
     case ezPluginEvent::StartupShutdown:
     {
-      if (EventData.m_pPluginObject)
-      {
-        ezStartup::UnloadPluginSubSystems(EventData.m_pPluginObject->GetPluginName());
-      }
+      ezStartup::UnloadPluginSubSystems(EventData.m_szPluginBinary);
     }
     break;
 
@@ -338,7 +332,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
   if (s_CurrentState == ezStartupStage::None)
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(PluginEventHandler);
   }
 
   s_CurrentState = stage;
@@ -420,7 +414,7 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
     if (s_CurrentState == ezStartupStage::None)
     {
-      ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
+      ezPlugin::Events().RemoveEventHandler(PluginEventHandler);
     }
   }
 }

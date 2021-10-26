@@ -5,7 +5,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-typedef ezTypedResourceHandle<class ezCollectionResource> ezCollectionResourceHandle;
+using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
 
 #define MaxPlayers 4
 #define MaxAsteroids 30

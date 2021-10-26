@@ -56,9 +56,27 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseUpdated, ezMessage);
 
+  void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform) const;
+  void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const;
+
   const ezTransform* m_pRootTransform = nullptr;
   const ezSkeleton* m_pSkeleton = nullptr;
   ezArrayPtr<const ezMat4> m_ModelTransforms;
+  bool m_bContinueAnimating = true;
+};
+
+/// \brief Used by components that do rope simulation and rendering.
+///
+/// The rope simulation component sends this message to components attached to the same game object,
+/// every time there is a new rope pose. There is no skeleton information, since all joints/bones are
+/// connected as one long string.
+///
+/// For a rope with N segments, N+1 poses are sent. The last pose may use the same rotation as the one before.
+struct EZ_RENDERERCORE_DLL ezMsgRopePoseUpdated : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgRopePoseUpdated, ezMessage);
+
+  ezArrayPtr<const ezTransform> m_LinkTransforms;
 };
 
 /// \brief The animated mesh component listens to this message and 'answers' by filling out the skeleton resource handle.

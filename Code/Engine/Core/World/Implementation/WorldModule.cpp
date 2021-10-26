@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/World/World.h>
 
@@ -57,13 +57,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezWorldModuleFactory::PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(ezWorldModuleFactory::PluginEventHandler);
     ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezWorldModuleFactory::PluginEventHandler);
+    ezPlugin::Events().RemoveEventHandler(ezWorldModuleFactory::PluginEventHandler);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

@@ -1,4 +1,4 @@
-#include <EnginePluginScenePCH.h>
+#include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -77,7 +77,19 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(
   if (pObject->GetComponents().IsEmpty())
     return;
 
-  const ezComponent* pComponent = pObject->GetComponents()[0];
+  const ezComponent* pComponent = nullptr;
+  for (auto it : pObject->GetComponents())
+  {
+    if (it->IsActive())
+    {
+      pComponent = it;
+      break;
+    }
+  }
+
+  if (pComponent == nullptr)
+    return;
+
   const ezRTTI* pRtti = pComponent->GetDynamicRTTI();
 
   ShapeIconInfo* pShapeIconInfo = nullptr;

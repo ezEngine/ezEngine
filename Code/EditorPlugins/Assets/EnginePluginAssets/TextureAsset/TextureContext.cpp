@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/TextureAsset/TextureContext.h>
 #include <EnginePluginAssets/TextureAsset/TextureView.h>
@@ -35,7 +35,10 @@ static void CreatePreviewRect(ezGeometry& geom)
   geom.AddPolygon(idx, false);
 }
 
-ezTextureContext::ezTextureContext() = default;
+ezTextureContext::ezTextureContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {

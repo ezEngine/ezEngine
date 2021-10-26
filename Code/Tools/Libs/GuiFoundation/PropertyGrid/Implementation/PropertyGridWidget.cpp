@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Configuration/Startup.h>

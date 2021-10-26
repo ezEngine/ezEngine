@@ -1,11 +1,14 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
 #include <ProcGenPlugin/Declarations.h>
 
 struct ezMsgTransformChanged;
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractVolumes;
+
+using ezImageDataResourceHandle = ezTypedResourceHandle<class ezImageDataResource>;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVolumeComponent : public ezComponent
 {
@@ -47,7 +50,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezComponentManager<class ezProcVolumeSphereComponent, ezBlockStorageType::Compact> ezProcVolumeSphereComponentManager;
+using ezProcVolumeSphereComponentManager = ezComponentManager<class ezProcVolumeSphereComponent, ezBlockStorageType::Compact>;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVolumeSphereComponent : public ezProcVolumeComponent
 {
@@ -69,14 +72,14 @@ public:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
 
-private:
+protected:
   float m_fRadius = 5.0f;
   float m_fFadeOutStart = 0.5f;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezComponentManager<class ezProcVolumeBoxComponent, ezBlockStorageType::Compact> ezProcVolumeBoxComponentManager;
+using ezProcVolumeBoxComponentManager = ezComponentManager<class ezProcVolumeBoxComponent, ezBlockStorageType::Compact>;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVolumeBoxComponent : public ezProcVolumeComponent
 {
@@ -98,7 +101,34 @@ public:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
 
-private:
+protected:
   ezVec3 m_vExtents = ezVec3(10.0f);
   ezVec3 m_vFadeOutStart = ezVec3(0.5f);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+using ezProcVolumeImageComponentManager = ezComponentManager<class ezProcVolumeImageComponent, ezBlockStorageType::Compact>;
+
+class EZ_PROCGENPLUGIN_DLL ezProcVolumeImageComponent : public ezProcVolumeBoxComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezProcVolumeImageComponent, ezProcVolumeBoxComponent, ezProcVolumeImageComponentManager);
+
+public:
+  ezProcVolumeImageComponent();
+  ~ezProcVolumeImageComponent();
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
+
+  void SetImageFile(const char* szFile); // [ property ]
+  const char* GetImageFile() const;      // [ property ]
+
+  void SetImage(const ezImageDataResourceHandle& hResource);
+  ezImageDataResourceHandle GetImage() const { return m_Image; }
+
+protected:
+  ezImageDataResourceHandle m_Image;
 };

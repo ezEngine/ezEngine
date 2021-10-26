@@ -1,13 +1,33 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
-#include <MainWindow.moc.h>
+#include <Inspector/MainWindow.moc.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
 #include <qlistwidget.h>
 #include <qspinbox.h>
+
+class ezCommandInterpreterInspector : public ezCommandInterpreter
+{
+public:
+  virtual void Interpret(ezCommandInterpreterState& inout_State) override
+  {
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('CMD', 'EXEC');
+    Msg.GetWriter() << inout_State.m_sInput;
+    ezTelemetry::SendToServer(Msg);
+  }
+
+  virtual void AutoComplete(ezCommandInterpreterState& inout_State) override
+  {
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('CMD', 'COMP');
+    Msg.GetWriter() << inout_State.m_sInput;
+    ezTelemetry::SendToServer(Msg);
+  }
+};
 
 ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
@@ -23,6 +43,8 @@ ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent)
   connect(CVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarsWidget::FloatChanged);
   connect(CVarWidget, &ezQtCVarWidget::onIntChanged, this, &ezQtCVarsWidget::IntChanged);
   connect(CVarWidget, &ezQtCVarWidget::onStringChanged, this, &ezQtCVarsWidget::StringChanged);
+
+  CVarWidget->GetConsole().SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterInspector));
 
   ResetStats();
 }
@@ -98,7 +120,7 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
           break;
       }
 
-      if (sd.m_iTableRow == -1)
+      if (sd.m_bNewEntry)
         bUpdateCVarsTable = true;
 
       bFillCVarsTable = true;
@@ -109,6 +131,24 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
     s_pWidget->CVarWidget->RebuildCVarUI(s_pWidget->m_CVars);
   else if (bFillCVarsTable)
     s_pWidget->CVarWidget->UpdateCVarUI(s_pWidget->m_CVars);
+}
+
+void ezQtCVarsWidget::ProcessTelemetryConsole(void* pUnuseed)
+{
+  if (!s_pWidget)
+    return;
+
+  ezTelemetryMessage msg;
+  ezStringBuilder tmp;
+
+  while (ezTelemetry::RetrieveMessage('CMD', msg) == EZ_SUCCESS)
+  {
+    if (msg.GetMessageID() == 'RES')
+    {
+      msg.GetReader() >> tmp;
+      s_pWidget->CVarWidget->AddConsoleStrings(tmp);
+    }
+  }
 }
 
 void ezQtCVarsWidget::SyncAllCVarsToServer()

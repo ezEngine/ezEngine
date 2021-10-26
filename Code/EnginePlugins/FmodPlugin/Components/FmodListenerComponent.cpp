@@ -1,4 +1,4 @@
-#include <FmodPluginPCH.h>
+#include <FmodPlugin/FmodPluginPCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>

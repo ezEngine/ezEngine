@@ -108,16 +108,22 @@ public:
     : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
-    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-    pPreferences->ApplyDefaultValues(m_LightSettings);
+    if (bEnableDefaultLighting)
+    {
+      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      pPreferences->ApplyDefaultValues(m_LightSettings);
+    }
   }
 
   ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
     : BaseClass(szDocumentPath, pObjectManager, engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
-    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-    pPreferences->ApplyDefaultValues(m_LightSettings);
+    if (bEnableDefaultLighting)
+    {
+      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      pPreferences->ApplyDefaultValues(m_LightSettings);
+    }
   }
 
   ~ezSimpleAssetDocument()
@@ -200,7 +206,11 @@ protected:
     ezDeque<ezAbstractGraphDiffOperation> diffResult;
     graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
-    if (!diffResult.IsEmpty())
+    // if index-based remapping is used, we MUST send a change event of some kind
+    // since the underlying data structures (memory locations) might have been changed,
+    // even if there is no actual change to the content
+    // the command history will detect that there was no change and actually send a "TransactionCanceled" event, but that is enough for other code to react to
+    if (!diffResult.IsEmpty() || bForceIndexBasedRemapping)
     {
       // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
       m_ObjectMirror.Clear();

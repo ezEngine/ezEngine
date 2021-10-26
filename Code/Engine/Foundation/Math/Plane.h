@@ -92,6 +92,12 @@ public:
   Type GetMinimumDistanceTo(
     const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
+  /// \brief Returns the minimum distance between given box and a plane
+  Type GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const; // [tested]
+
+  /// \brief Returns the maximum distance between given box and a plane
+  Type GetMaximumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const; // [tested]
+
   /// \brief Returns the minimum and maximum distance that any of the given points had to the plane.
   ///
   /// 'Minimum' (and 'maximum') means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower

@@ -1,4 +1,4 @@
-#include <EditorEngineProcessFrameworkPCH.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
@@ -37,6 +37,7 @@ void ezGizmoRenderer::RenderBatch(
 
   if (auto pPickingRenderPass = ezDynamicCast<const ezPickingRenderPass*>(pPass))
   {
+    // gizmos only exist for 'selected' objects, so ignore all gizmo rendering, if we don't want to pick selected objects
     if (!pPickingRenderPass->m_bPickSelected)
       return;
 

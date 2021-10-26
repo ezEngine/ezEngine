@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -18,7 +18,7 @@
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Serialization/ToolsSerializationUtils.h>
+#include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
@@ -57,14 +57,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
 
 ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
-  : m_CommandHistory(this)
 {
+  using ObjectMetaData = ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>;
+  m_DocumentObjectMetaData = EZ_DEFAULT_NEW(ObjectMetaData);
   m_pDocumentInfo = nullptr;
   m_sDocumentPath = szPath;
-  m_pObjectManager = pDocumentObjectManagerImpl;
+  m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
-
-  m_SelectionManager.SetOwner(this);
+  m_CommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
+  m_SelectionManager = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
+  m_ObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_CommandHistory.Borrow());
 
   m_bWindowRequested = false;
   m_bModified = true;
@@ -73,7 +75,8 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
 
   m_uiUnknownObjectTypeInstances = 0;
 
-  m_ObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, &m_CommandHistory);
+  m_pHostDocument = this;
+  m_pActiveSubDocument = this;
 }
 
 ezDocument::~ezDocument()
@@ -82,16 +85,14 @@ ezDocument::~ezDocument()
   {
     ezTaskSystem::WaitForGroup(m_activeSaveTask);
   }
-  m_SelectionManager.SetOwner(nullptr);
+  m_SelectionManager = nullptr;
 
   m_pObjectManager->DestroyAllObjects();
 
-  m_CommandHistory.ClearRedoHistory();
-  m_CommandHistory.ClearUndoHistory();
+  m_CommandHistory->ClearRedoHistory();
+  m_CommandHistory->ClearUndoHistory();
 
-  EZ_DEFAULT_DELETE(m_pObjectManager);
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
-  EZ_DEFAULT_DELETE(m_ObjectAccessor);
 }
 
 void ezDocument::SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor)
@@ -341,16 +342,14 @@ ezStatus ezDocument::InternalLoadDocument()
   return ezStatus(EZ_SUCCESS);
 }
 
-
 void ezDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
-  m_DocumentObjectMetaData.AttachMetaDataToAbstractGraph(graph);
+  m_DocumentObjectMetaData->AttachMetaDataToAbstractGraph(graph);
 }
-
 
 void ezDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
-  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
+  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(graph);
 }
 
 void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances)
@@ -421,21 +420,21 @@ ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject
 
 ezObjectAccessorBase* ezDocument::GetObjectAccessor() const
 {
-  return m_ObjectAccessor;
+  return m_ObjectAccessor.Borrow();
 }
 
 ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index) const
 {
-  ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, m_DocumentObjectMetaData);
+  ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData);
 
   const ezAbstractProperty* pProp = pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
   if (pProp && rootObjectGuid.IsValid())
   {
-    auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(rootObjectGuid);
+    auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(rootObjectGuid);
     const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
     ezUuid objectPrefabGuid = pObject->GetGuid();
     objectPrefabGuid.RevertCombinationWithSeed(pMeta->m_PrefabSeedGuid);
-    m_DocumentObjectMetaData.EndReadMetaData();
+    m_DocumentObjectMetaData->EndReadMetaData();
 
     if (pGraph)
     {

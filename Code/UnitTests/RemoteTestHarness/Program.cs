@@ -16,9 +16,9 @@ namespace ezUwpTestHarness
       [Option('p', "project", Required = false, Default = "FoundationTest", HelpText = "")]
       public string project { get; set; }
 
-      [Option('c', "configuration", Required = false, Default = "RelWithDebInfo", HelpText = "")]
+      [Option('c', "configuration", Required = false, Default = "Dev", HelpText = "")]
       public string configuration { get; set; }
-      [Option("platform", Required = false, Default = "Win32", HelpText = "")]
+      [Option("platform", Required = false, Default = "x64", HelpText = "")]
       public string platform { get; set; }
     }
 

@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1604195568484542123,4944665773883242456}}
-		u4 %Hash{9245378909451227356}
+		u4 %Hash{14102576377640040793}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16908388746444736056,1615420986808674110}}
@@ -129,8 +129,8 @@ o
 		b %Active{1}
 		b %AttachAsChild{0}
 		Time %DelayRange{d{0}}
-		Angle %Deviation{f{0xC2B8B23D}}
-		Time %MinDelay{d{0x9A9999999999B93F}}
+		Angle %Deviation{f{0xDE35FA3D}}
+		Time %MinDelay{d{0x333333333333D33F}}
 		VarDict %Parameters{}
 		s %Prefab{"{ 07ca9462-c776-4fd0-ad76-bb783691ea2b }"}
 		b %SpawnAtStart{0}
@@ -254,6 +254,7 @@ o
 		{
 			d %Health{0x0000000000004940}
 		}
+		b %PassThroughUnhandledEvents{0}
 		s %Script{"{ 69a816a7-7423-4768-9b7e-ae8a7a9310e6 }"}
 	}
 }
@@ -441,7 +442,7 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{4}
 	}
 }
@@ -550,7 +551,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEventMessageHandlerComponent"}
 		u3 %TypeSize{56}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -747,7 +748,7 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{184}
+		u3 %TypeSize{200}
 		u3 %TypeVersion{4}
 	}
 }

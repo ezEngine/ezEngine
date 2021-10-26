@@ -1,4 +1,4 @@
-#include <EditorPluginTypeScriptPCH.h>
+#include <EditorPluginTypeScript/EditorPluginTypeScriptPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -20,7 +20,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezTypeScriptAssetDocument::ezTypeScriptAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTypeScriptAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezTypeScriptAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

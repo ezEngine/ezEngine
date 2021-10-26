@@ -1,0 +1,94 @@
+# Variable 'unityfiles' was defined in the Variables tab
+trigger:
+  branches:
+    include:
+    - dev
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: dev
+jobs:
+- job: Job_1
+  displayName: Linux-x64
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - checkout: self
+    submodules: true
+    lfs: true
+  - task: Bash@3
+    displayName: QT
+    inputs:
+      targetType: inline
+      filePath: sudo apt-get update
+      script: |
+        # For now qt5-default on ubuntu-20.04 is good enough for us and we don't need to add a custom repo.
+        #sudo add-apt-repository ppa:beineri/opt-qt-5.11.1-xenial
+        #sudo apt update
+        #sudo apt install qt511-meta-full
+  - task: Bash@3
+    displayName: SFML
+    inputs:
+      targetType: inline
+      script: >-
+        wget https://www.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz
+
+        sudo mkdir /usr/SFML
+
+        sudo tar xf SFML-2.5.1-linux-gcc-64-bit.tar.gz -C /usr/SFML/
+  - task: Bash@3
+    displayName: Apt-Get
+    inputs:
+      targetType: inline
+      script: |
+        sudo apt-get update
+        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev
+  - task: Bash@3
+    displayName: Info
+    inputs:
+      targetType: inline
+      script: >-
+        lscpu | grep -E '^Thread|^Core|^Socket|^CPU\('
+
+        # dpkg -L libsfml-dev
+
+        git config --list
+
+        dpkg --list | grep compiler
+  - task: CMake@1
+    displayName: CMake
+    inputs:
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/;/usr/SFML/SFML-2.5.1;/usr/SFML/SFML-2.5.1/lib/cmake/SFML -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
+  - task: Bash@3
+    displayName: Make
+    inputs:
+      targetType: inline
+      script: make -C ./build -j2
+  - task: PowerShell@2
+    displayName: PowerShell Script
+    inputs:
+      targetType: inline
+      script: Write-Host "##vso[task.setvariable variable=task.MSBuild.status]success"
+  - task: Bash@3
+    displayName: FoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: ./Output/Bin/LinuxMakeGccDev64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
+  - task: Bash@3
+    displayName: CoreTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: ./Output/Bin/LinuxMakeGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+  - task: Bash@3
+    displayName: ToolsFoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: ./Output/Bin/LinuxMakeGccDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    condition: succeededOrFailed()
+...

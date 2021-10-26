@@ -1,4 +1,4 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -46,12 +46,12 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> 
 {
   EZ_PROFILE_SCOPE("DynamicActors");
 
-  for (const PxActor* activeActor : activeActors)
+  for (PxActor* activeActor : activeActors)
   {
     if (activeActor->getType() != PxActorType::eRIGID_DYNAMIC)
       continue;
 
-    const PxRigidDynamic* dynamicActor = static_cast<const PxRigidDynamic*>(activeActor);
+    PxRigidDynamic* dynamicActor = static_cast<PxRigidDynamic*>(activeActor);
 
     ezPxDynamicActorComponent* pComponent = ezPxUserData::GetDynamicActorComponent(activeActor->userData);
     if (pComponent == nullptr)
@@ -68,11 +68,22 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> 
     if (pComponent->GetKinematic())
       continue;
 
+    auto pose = dynamicActor->getGlobalPose();
+    if (!pose.isSane())
+    {
+      // PhysX can completely fuck up poses and never recover
+      // if that happens, force a non-NaN pose to prevent crashes down the line
+      dynamicActor->setGlobalPose(ezPxConversionUtils::ToTransform(pComponent->GetOwner()->GetGlobalTransformSimd()));
+
+      // ignore objects with bad data
+      continue;
+    }
+
     ezGameObject* pObject = pComponent->GetOwner();
     EZ_ASSERT_DEV(pObject != nullptr, "Owner must be still valid");
 
     // preserve scaling
-    ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(dynamicActor->getGlobalPose());
+    ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(pose);
     t.m_Scale = ezSimdConversion::ToVec3(pObject->GetGlobalScaling());
 
     pObject->SetGlobalTransform(t);
@@ -95,7 +106,16 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPxActorLockingFlags, 1)
+  EZ_ENUM_CONSTANT(ezPxActorLockingFlags::FreezePositionX),
+  EZ_ENUM_CONSTANT(ezPxActorLockingFlags::FreezePositionY),
+  EZ_ENUM_CONSTANT(ezPxActorLockingFlags::FreezePositionZ),
+  EZ_ENUM_CONSTANT(ezPxActorLockingFlags::FreezeRotationX),
+  EZ_ENUM_CONSTANT(ezPxActorLockingFlags::FreezeRotationY),
+  EZ_ENUM_CONSTANT(ezPxActorLockingFlags::FreezeRotationZ),
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
+EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 4, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -106,7 +126,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)->AddAttributes(new ezDefaultValueAttribute(100000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-      EZ_ACCESSOR_PROPERTY("ContinuousCollisionDetection", GetContinuousCollisionDetection, SetContinuousCollisionDetection)
+      EZ_ACCESSOR_PROPERTY("ContinuousCollisionDetection", GetContinuousCollisionDetection, SetContinuousCollisionDetection),
+      EZ_BITFLAGS_ACCESSOR_PROPERTY("LockingFlags", ezPxActorLockingFlags, GetLockingFlags, SetLockingFlags),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -146,6 +167,7 @@ void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fAngularDamping;
   s << m_fMaxContactImpulse;
   s << m_bCCD;
+  s << m_LockingFlags;
 }
 
 void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -170,6 +192,11 @@ void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_bCCD;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_LockingFlags;
   }
 }
 
@@ -315,6 +342,16 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, m_bCCD);
 
+  // make sure the cast below is valid
+  static_assert(PxRigidDynamicLockFlag::eLOCK_LINEAR_X == ezPxActorLockingFlags::FreezePositionX);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y == ezPxActorLockingFlags::FreezePositionY);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_LINEAR_Z == ezPxActorLockingFlags::FreezePositionZ);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_X == ezPxActorLockingFlags::FreezeRotationX);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y == ezPxActorLockingFlags::FreezeRotationY);
+  static_assert(PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z == ezPxActorLockingFlags::FreezeRotationZ);
+
+  m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(static_cast<ezUInt8>(m_LockingFlags.GetValue())));
+
   if (m_bKinematic)
   {
     GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.PushBack(this);
@@ -414,6 +451,18 @@ void ezPxDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
     m_pActor->addTorque(ezPxConversionUtils::ToVec3(vImpulse), PxForceMode::eIMPULSE);
+  }
+}
+
+void ezPxDynamicActorComponent::SetLockingFlags(ezBitflags<ezPxActorLockingFlags> flags)
+{
+  m_LockingFlags = flags;
+
+  if (m_pActor != nullptr)
+  {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
+    m_pActor->setRigidDynamicLockFlags(static_cast<PxRigidDynamicLockFlags>(static_cast<ezUInt8>(m_LockingFlags.GetValue())));
   }
 }
 

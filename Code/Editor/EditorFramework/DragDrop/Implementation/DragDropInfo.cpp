@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 
@@ -22,4 +22,24 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezDragDropConfig::ezDragDropConfig()
 {
   m_bPickSelectedObjects = false;
+}
+
+void operator>>(QDataStream& stream, ezDynamicArray<ezDocumentObject*>& rhs)
+{
+  int iIndices = 0;
+  stream >> iIndices;
+  rhs.Clear();
+  rhs.Reserve(static_cast<ezUInt32>(iIndices));
+
+  for (int i = 0; i < iIndices; ++i)
+  {
+    void* p = nullptr;
+
+    uint len = sizeof(void*);
+    stream.readRawData((char*)&p, len);
+
+    ezDocumentObject* pDocObject = (ezDocumentObject*)p;
+
+    rhs.PushBack(pDocObject);
+  }
 }

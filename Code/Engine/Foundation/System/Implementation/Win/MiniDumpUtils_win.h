@@ -7,13 +7,13 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/ProcessGroup.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Dbghelp.h>
 #  include <Shlwapi.h>
-#  include <Utilities/CommandLineOptions.h>
-#  include <Utilities/CommandLineUtils.h>
 #  include <tchar.h>
 #  include <werapi.h>
 

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/IO/Stream.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>

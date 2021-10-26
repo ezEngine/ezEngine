@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/CodeUtils/Tokenizer.h>

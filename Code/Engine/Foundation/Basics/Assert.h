@@ -53,6 +53,12 @@ inline const char* ezFmt(const char* szFormat)
   return szFormat;
 }
 
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
+// Hides the call to __debugbreak from MSVCs optimizer to work around a bug in VS 2019
+// that can lead to code (memcpy) after an assert to be omitted
+EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
+#endif
+
 /// \brief Macro to report a failure when that code is reached. This will ALWAYS be executed, even in release builds, therefore might crash the
 /// application (or trigger a debug break).
 #define EZ_REPORT_FAILURE(szErrorMsg, ...)                                                                       \

@@ -35,3 +35,4 @@ private:
   QPushButton* m_pWidget;
   QMenu* m_pMenu;
 };
+

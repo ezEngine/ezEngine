@@ -72,6 +72,8 @@ public:
 
   ezEventTrack m_EventTrack;
 
+  bool m_bAdditive = false;
+
 private:
   ezArrayMap<ezHashedString, JointInfo> m_JointInfos;
   ezDataBuffer m_Transforms;

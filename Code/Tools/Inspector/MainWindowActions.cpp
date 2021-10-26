@@ -1,4 +1,4 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/CVarsWidget.moc.h>

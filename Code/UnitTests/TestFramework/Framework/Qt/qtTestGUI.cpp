@@ -1,4 +1,4 @@
-#include <TestFrameworkPCH.h>
+#include <TestFramework/TestFrameworkPCH.h>
 
 #ifdef EZ_USE_QT
 
@@ -82,10 +82,13 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
   this->actionDisableSuccessfulTests->setChecked(settings.m_bAutoDisableSuccessfulTests);
 
-  // Hide the Windows console
+  // Hide the Windows console if we are its owner
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (!settings.m_bKeepConsoleOpen)
-    ShowWindow(GetConsoleWindow(), SW_HIDE);
+  DWORD consoleOwner = 0;
+  HWND console = GetConsoleWindow();
+  GetWindowThreadProcessId(console, &consoleOwner);
+  if (consoleOwner == GetCurrentProcessId() && !settings.m_bKeepConsoleOpen)
+    ShowWindow(console, SW_HIDE);
 #  endif
 
   connect(m_pTestFramework, SIGNAL(TestResultReceived(qint32, qint32)), this, SLOT(onTestFrameworkTestResultReceived(qint32, qint32)));
@@ -161,10 +164,21 @@ void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
   m_pTestFramework->SetSettings(settings);
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (!settings.m_bKeepConsoleOpen)
-    ShowWindow(GetConsoleWindow(), SW_HIDE);
-  else
-    ShowWindow(GetConsoleWindow(), SW_SHOW);
+  // We should only allow hiding of the console window if this application
+  // is actually the console owner, otherwise we will for example hide all
+  // cmd.exe windows that launch a test framework based application. This
+  // also has another ugly side effect in that the cmd.exe process stays
+  // alive but the console window will never be visible again.
+  DWORD consoleOwner = 0;
+  HWND console = GetConsoleWindow();
+  GetWindowThreadProcessId(console, &consoleOwner);
+  if (consoleOwner == GetCurrentProcessId())
+  {
+    if (!settings.m_bKeepConsoleOpen)
+      ShowWindow(console, SW_HIDE);
+    else
+      ShowWindow(console, SW_SHOW);
+  }
 #  endif
 }
 

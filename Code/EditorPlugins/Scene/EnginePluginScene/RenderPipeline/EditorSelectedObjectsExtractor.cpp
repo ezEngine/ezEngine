@@ -1,4 +1,4 @@
-#include <EnginePluginScenePCH.h>
+#include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/RenderPipeline/EditorSelectedObjectsExtractor.h>
 #include <RendererCore/Components/CameraComponent.h>
@@ -80,7 +80,7 @@ void ezEditorSelectedObjectsExtractor::Extract(
     }
   }
 
-  ezSelectedObjectsExtractor::Extract(view, visibleObjects, extractedRenderData);
+  ezSelectedObjectsExtractorBase::Extract(view, visibleObjects, extractedRenderData);
 }
 
 void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& view)

@@ -9,8 +9,11 @@
 #include <QtNetwork/QHostInfo>
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <Texture/Image/Image.h>
+#include <memory>
 
 class ezSceneDocument;
+class QMimeData;
+class ezScene2Document;
 
 class ezEditorTestApplication : public ezApplication
 {
@@ -58,6 +61,12 @@ protected:
   void CloseCurrentProject();
   void SafeProfilingData();
   void ProcessEvents(ezUInt32 uiIterations = 1);
+
+  std::unique_ptr<QMimeData> AssetsToDragMimeData(ezArrayPtr<ezUuid> assetGuids);
+  std::unique_ptr<QMimeData> ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects);
+  void MoveObjectsToLayer(ezScene2Document* pDoc, const ezDeque<const ezDocumentObject*>& objects, const ezUuid& layer, ezDeque<const ezDocumentObject*>& new_objects);
+  const ezDocumentObject* DropAsset(ezScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift = false, bool bCtrl = false);
+
 
   ezEditorTestApplication* m_pApplication = nullptr;
   ezString m_sProjectPath;

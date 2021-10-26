@@ -1,4 +1,4 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #include <Texture/Image/Formats/TgaFileFormat.h>
 
@@ -397,16 +397,22 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
       stream >> uiChunkHeader;
 
+      const ezInt32 numToRead = (uiChunkHeader & 127) + 1;
+
+      if (iCurrentPixel + numToRead > iPixelCount)
+      {
+        ezLog::Error(pLog, "TGA contents are invalid");
+        return EZ_FAILURE;
+      }
+
       if (uiChunkHeader < 128)
       {
         // If the header is < 128, it means it is the number of RAW color packets minus 1
         // that follow the header
         // add 1 to get number of following color values
 
-        uiChunkHeader++;
-
         // Read RAW color values
-        for (ezInt32 i = 0; i < (ezInt32)uiChunkHeader; ++i)
+        for (ezInt32 i = 0; i < numToRead; ++i)
         {
           const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
           const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;
@@ -420,8 +426,6 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       }
       else // chunk header > 128 RLE data, next color repeated (chunk header - 127) times
       {
-        uiChunkHeader -= 127; // Subtract 127 to get rid of the ID bit
-
         ezUInt8 uiBuffer[4] = {255, 255, 255, 255};
 
         // read the current color
@@ -430,7 +434,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
         // if it is a 24-Bit TGA (3 channels), the fourth channel stays at 255 all the time, since the 4th value in ucBuffer is never overwritten
 
         // copy the color into the image data as many times as dictated
-        for (ezInt32 i = 0; i < (ezInt32)uiChunkHeader; ++i)
+        for (ezInt32 i = 0; i < numToRead; ++i)
         {
           const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
           const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;

@@ -57,6 +57,7 @@ struct ezPipeWin
     {
       m_running = true;
       m_readThread = std::thread([&]() {
+
         ezStringBuilder overflowBuffer;
 
         constexpr int BUFSIZE = 512;
@@ -101,7 +102,7 @@ struct ezPipeWin
               overflowBuffer.Append(ezStringView(szCurrentPos, szEndPos));
               szCurrentPos = szEndPos;
             }
-          }
+          } 
         }
         m_running = false;
       });

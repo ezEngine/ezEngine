@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/World/GameObject.h>
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>

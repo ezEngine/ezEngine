@@ -47,11 +47,15 @@ public:
   /// \note This function deletes the object immediately! It is unsafe to use this during a game update loop, as other objects
   /// may rely on this object staying valid for the rest of the frame.
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
-  void DeleteObjectNow(const ezGameObjectHandle& object);
+  ///
+  /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
+  void DeleteObjectNow(const ezGameObjectHandle& object, bool bAlsoDeleteEmptyParents = true);
 
   /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
   /// valid until then.
-  void DeleteObjectDelayed(const ezGameObjectHandle& object);
+  ///
+  /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
+  void DeleteObjectDelayed(const ezGameObjectHandle& object, bool bAlsoDeleteEmptyParents = true);
 
   /// \brief Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
   /// which is associated with the deleted object.
@@ -60,17 +64,17 @@ public:
   /// \brief Returns whether the given handle corresponds to a valid object.
   bool IsValidObject(const ezGameObjectHandle& object) const;
 
-  /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject);
+  /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject);
 
-  /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const;
+  /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const;
 
-  /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
+  /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
 
-  /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const;
+  /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const;
 
 
   /// \brief Returns the total number of objects in this world.
@@ -124,6 +128,10 @@ public:
   const ModuleType* GetModule() const;
 
   /// \brief Returns the instance to the given module type or derived types.
+  template <typename ModuleType>
+  const ModuleType* GetModuleReadOnly() const;
+
+  /// \brief Returns the instance to the given module type or derived types.
   ezWorldModule* GetModule(const ezRTTI* pRtti);
 
   /// \brief Returns the instance to the given module type or derived types.
@@ -161,13 +169,13 @@ public:
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
+  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
+  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 
   /// \brief Creates a new component init batch.
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.

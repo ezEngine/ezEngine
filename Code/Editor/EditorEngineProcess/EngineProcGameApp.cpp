@@ -1,7 +1,8 @@
-#include <EditorEngineProcessPCH.h>
+#include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
+#include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -328,6 +329,34 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     else
       ezLog::Warning("ezChangeCVarMsgToEngine: Unknown CVar '{0}'", pMsg->m_sCVarName);
   }
+  else if (const auto* pMsg = ezDynamicCast<const ezConsoleCmdMsgToEngine*>(e.m_pMessage))
+  {
+    if (m_pConsole->GetCommandInterpreter())
+    {
+      ezCommandInterpreterState s;
+      s.m_sInput = pMsg->m_sCommand;
+
+      ezStringBuilder tmp;
+
+      if (pMsg->m_iType == 1)
+      {
+        m_pConsole->GetCommandInterpreter()->AutoComplete(s);
+        tmp.AppendFormat(";;00||<{}", s.m_sInput);
+      }
+      else
+        m_pConsole->GetCommandInterpreter()->Interpret(s);
+
+      for (auto l : s.m_sOutput)
+      {
+        tmp.AppendFormat(";;{}||{}", ezArgI((int)l.m_Type, 2, true), l.m_sText);
+      }
+
+      ezConsoleCmdResultMsgToEditor r;
+      r.m_sResult = tmp;
+
+      m_IPC.SendMessage(&r);
+    }
+  }
 
   // Document Messages:
   if (!e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
@@ -342,7 +371,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     if (pMsg->m_bDocumentOpen)
     {
       pDocumentContext = CreateDocumentContext(pMsg);
-      // EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
+      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
     }
     else
     {
@@ -355,7 +384,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   if (const auto* pMsg = ezDynamicCast<const ezDocumentClearMsgToEngine*>(e.m_pMessage))
   {
     ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
-    pDocumentContext->ClearExistingObjects();
+    if (pDocumentContext)
+    {
+      pDocumentContext->ClearExistingObjects();
+    }
     return;
   }
 
@@ -388,10 +420,29 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
           if (sDocTypes.FindSubString(sRequestedType) != nullptr)
           {
             ezLog::Dev("Created Context of type '{0}' for '{1}'", pRtti->GetTypeName(), pMsg->m_sDocumentType);
+            for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+            {
+              if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "AllocateContext"))
+              {
+                ezVariant res;
+                ezHybridArray<ezVariant, 1> params;
+                params.PushBack(pMsg);
+                pFunc->Execute(nullptr, params, res);
+                if (res.IsA<ezEngineProcessDocumentContext*>())
+                {
+                  pDocumentContext = res.Get<ezEngineProcessDocumentContext*>();
+                }
+                else
+                {
+                  ezLog::Error("Failed to call custom allocator '{}::{}'.", pRtti->GetTypeName(), pFunc->GetPropertyName());
+                }
+              }
+            }
 
-            pDocumentContext = pRtti->GetAllocator()->Allocate<ezEngineProcessDocumentContext>();
+            if (!pDocumentContext)
+              pDocumentContext = pRtti->GetAllocator()->Allocate<ezEngineProcessDocumentContext>();
 
-            ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pDocumentContext, &m_IPC);
+            ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pMsg->m_DocumentMetaData, pDocumentContext, &m_IPC);
             break;
           }
         }
@@ -469,7 +520,7 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
   // used for sending CVar changes over to the editor
   ezCVar::s_AllCVarEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
-  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
+  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
 }
 
 void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
@@ -478,7 +529,7 @@ void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
 
   // used for sending CVar changes over to the editor
   ezCVar::s_AllCVarEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
+  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
 
   SUPER::Deinit_ShutdownLogging();
 }

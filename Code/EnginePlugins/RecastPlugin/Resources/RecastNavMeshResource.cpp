@@ -1,4 +1,4 @@
-#include <RecastPluginPCH.h>
+#include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>

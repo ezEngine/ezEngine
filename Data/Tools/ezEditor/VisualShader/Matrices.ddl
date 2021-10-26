@@ -68,6 +68,21 @@ Node %FromWorldSpace
     string %Tooltip { "Position in world-space." }
   }
 
+  OutputPin %ObjectSpacePos
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Inline { "mul(ToFloat4Position($in0), TransformToMatrix(GetInstanceData().ObjectToWorld))" }
+    string %Tooltip { "Transformed position in object-space." }
+  }  
+
+  OutputPin %ObjectSpaceDir
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 128, 128, 255 }
+    string %Inline { "mul(ToFloat3($in0), TransformToRotation(GetInstanceData().ObjectToWorld))" }
+    string %Tooltip { "Transformed direction vector in object-space." }
+  }
   OutputPin %CameraSpace
   {
     string %Type { "float3" }
@@ -82,6 +97,35 @@ Node %FromWorldSpace
     unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "mul(WorldToScreenMatrix, ToFloat3($in0))" }
     string %Tooltip { "Transformed position in screen-space." }
+  }
+}
+
+Node %FromObjectSpace
+{
+  string %Category { "Transformations" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  InputPin %ObjectSpace
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Tooltip { "Position or direction vector in object-space." }
+  }
+
+  OutputPin %WorldPosition
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 38, 105, 0 }
+    string %Inline { "mul(TransformToMatrix(GetInstanceData().ObjectToWorld), ToFloat4Position($in0))" }
+    string %Tooltip { "Transformed position in world-space." }
+  }
+
+  OutputPin %WorldDirection
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 128, 128, 255 }
+    string %Inline { "mul(TransformToRotation(GetInstanceData().ObjectToWorld), ToFloat3($in0))" }
+    string %Tooltip { "Transformed direction vector in world-space." }
   }
 }
 

@@ -1,4 +1,4 @@
-#include <RendererDX11PCH.h>
+#include <RendererDX11/RendererDX11PCH.h>
 
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -267,6 +267,10 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
 
         m_pDXContext->Unmap(pDXDestination, 0);
       }
+      else
+      {
+        ezLog::Error("Could not map buffer to update content.");
+      }
     }
   }
 }
@@ -317,7 +321,27 @@ void ezGALCommandEncoderImplDX11::UpdateTexturePlatform(const ezGALTexture* pDes
     EZ_ASSERT_DEV(pSourceData.m_uiSlicePitch == 0 || pSourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected {0} got {1}",
       uiSlicePitch, pSourceData.m_uiSlicePitch);
 
-    memcpy(MapResult.pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
+    if (MapResult.RowPitch == uiRowPitch && MapResult.DepthPitch == uiSlicePitch)
+    {
+      memcpy(MapResult.pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
+    }
+    else
+    {
+      // Copy row by row
+      for (ezUInt32 z = 0; z < uiDepth; ++z)
+      {
+        const void* pSource = ezMemoryUtils::AddByteOffset(pSourceData.m_pData, z * uiSlicePitch);
+        void* pDest = ezMemoryUtils::AddByteOffset(MapResult.pData, z * MapResult.DepthPitch);
+
+        for (ezUInt32 y = 0; y < uiHeight; ++y)
+        {
+          memcpy(pDest, pSource, uiRowPitch);
+
+          pSource = ezMemoryUtils::AddByteOffset(pSource, uiRowPitch);
+          pDest = ezMemoryUtils::AddByteOffset(pDest, MapResult.RowPitch);
+        }
+      }
+    }
 
     m_pDXContext->Unmap(pDXTempTexture, 0);
 

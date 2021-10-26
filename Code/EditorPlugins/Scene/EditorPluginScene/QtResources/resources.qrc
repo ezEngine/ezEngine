@@ -15,8 +15,11 @@
     <file>Icons/PrefabUpdate16.png</file>
     <file>Icons/PrefabUnlink16.png</file>
     <file>Icons/PrefabOpenDocument16.png</file>
-	<file>Icons/Duplicate16.png</file>
-	<file>Icons/PullObjectState16.png</file>
+    <file>Icons/Duplicate16.png</file>
+    <file>Icons/PullObjectState16.png</file>
+    <file>Icons/Layer16.png</file>
+    <file>Icons/LayerVisible16.png</file>
+    <file>Icons/LayerLoaded16.png</file>
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezMeshComponent.png</file>
@@ -68,6 +71,12 @@
 	<file>ezAnimationControllerComponent.png</file>
 	<file>ezSimpleAnimationComponent.png</file>
 	<file>ezHeightfieldComponent.png</file>
+	<file>ezRopeRenderComponent.png</file>
+	<file>ezFakeRopeComponent.png</file>
+	<file>ezWindVolumeConeComponent.png</file>
+	<file>ezWindVolumeCylinderComponent.png</file>
+	<file>ezWindVolumeSphereComponent.png</file>
+	<file>ezClothSheetComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

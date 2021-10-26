@@ -1,4 +1,4 @@
-#include <OpenXRPluginPCH.h>
+#include <OpenXRPlugin/OpenXRPluginPCH.h>
 
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>

@@ -6,7 +6,7 @@
 
 struct ezMsgCollision;
 struct ezMsgApplyRootMotion;
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
 {

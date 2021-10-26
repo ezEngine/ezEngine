@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>
@@ -39,7 +39,3 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-ezPlugin g_Plugin(false);

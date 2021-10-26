@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 EZ_STATICLINK_LIBRARY(EditorPluginAssets)
 {

@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
 
-    EZ_TEST_BOOL(ezPlugin::UnloadPlugin(ezFoundationTest_Plugin1) == EZ_SUCCESS);
+    ezPlugin::UnloadAllPlugins();
   }
 
 #endif
@@ -154,7 +154,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") != nullptr);
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") != nullptr);
 
-    EZ_TEST_BOOL(ezPlugin::UnloadPlugin(ezFoundationTest_Plugin2) == EZ_SUCCESS);
+    ezPlugin::UnloadAllPlugins();
   }
 
 #endif
@@ -304,7 +304,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       }
     }
 
-    EZ_TEST_BOOL(ezPlugin::UnloadPlugin(ezFoundationTest_Plugin2) == EZ_SUCCESS);
+    ezPlugin::UnloadAllPlugins();
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Loaded Value Test")
@@ -356,7 +356,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       CHECK_CVAR(pString, "test2_value2", "test2", "test2_value2", "test2_value2");
     }
 
-    EZ_TEST_BOOL(ezPlugin::UnloadPlugin(ezFoundationTest_Plugin2) == EZ_SUCCESS);
+    ezPlugin::UnloadAllPlugins();
   }
 
 #endif

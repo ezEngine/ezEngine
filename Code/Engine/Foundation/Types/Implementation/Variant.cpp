@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
@@ -189,6 +189,7 @@ EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezTypedObject>(const ezVari
 
   const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pType);
   EZ_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable comparing of this variant type.", pType->GetTypeName());
+  EZ_MSVC_ANALYSIS_ASSUME(pTypeInfo != nullptr);
   ezUInt32 uiHash32 = pTypeInfo->Hash(pData);
 
   return ezHashingUtils::xxHash64(&uiHash32, sizeof(ezUInt32), uiSeed);
@@ -217,6 +218,7 @@ EZ_FORCE_INLINE void CompareFunc::operator()<ezTypedObject>()
   {
     const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(A.m_pType);
     EZ_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable comparing of this variant type.", A.m_pType->GetTypeName());
+    EZ_MSVC_ANALYSIS_ASSUME(pTypeInfo != nullptr);
     m_bResult = pTypeInfo->Equal(A.m_pObject, B.m_pObject);
   }
 }

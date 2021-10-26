@@ -1,4 +1,4 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>

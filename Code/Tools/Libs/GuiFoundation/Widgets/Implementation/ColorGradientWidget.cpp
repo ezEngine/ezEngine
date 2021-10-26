@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Math/Color8UNorm.h>
 #include <GuiFoundation/Widgets/ColorGradientWidget.moc.h>

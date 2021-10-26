@@ -74,3 +74,4 @@ private:
 
   ezMap<ezString, ActionData> m_InputActions;
 };
+

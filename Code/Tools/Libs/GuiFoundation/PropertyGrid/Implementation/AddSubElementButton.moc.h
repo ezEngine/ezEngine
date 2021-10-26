@@ -45,3 +45,4 @@ private:
   // this should probably be per 'distinguishable menu', but currently it is just global
   static ezString s_sLastMenuSearch;
 };
+

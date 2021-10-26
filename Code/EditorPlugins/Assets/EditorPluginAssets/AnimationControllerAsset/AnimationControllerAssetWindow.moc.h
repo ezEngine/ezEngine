@@ -23,3 +23,4 @@ private:
   ezQtAnimationControllerAssetScene* m_pScene;
   ezQtNodeView* m_pView;
 };
+

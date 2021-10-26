@@ -3,7 +3,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
 class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource
 {
@@ -44,4 +44,4 @@ private:
   static ezUInt32 s_MeshBufferNameSuffix;
 };
 
-typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;

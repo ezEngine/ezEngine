@@ -5,7 +5,7 @@
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 struct ezTrailParticleData;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrailFactory final : public ezParticleTypeFactory

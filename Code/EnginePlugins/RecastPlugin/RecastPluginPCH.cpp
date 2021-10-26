@@ -1,4 +1,4 @@
-#include <RecastPluginPCH.h>
+#include <RecastPlugin/RecastPluginPCH.h>
 
 #include <RecastPlugin/RecastPluginDLL.h>
 

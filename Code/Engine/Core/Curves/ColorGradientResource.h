@@ -11,7 +11,7 @@ struct EZ_CORE_DLL ezColorGradientResourceDescriptor
   void Load(ezStreamReader& stream);
 };
 
-typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
+using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
 
 /// \brief A resource that stores a single color gradient. The data is stored in the descriptor.
 class EZ_CORE_DLL ezColorGradientResource : public ezResource

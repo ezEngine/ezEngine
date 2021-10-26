@@ -1,4 +1,4 @@
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "ParticlesTest.h"
 #include <Core/WorldSerializer/WorldReader.h>
@@ -153,12 +153,13 @@ void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szF
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   ezGameObject* pObject;
-  m_pWorld->TryGetObjectWithGlobalKey("Effect", pObject);
-
-  ezParticleComponent* pEffect;
-  m_pWorld->GetOrCreateComponentManager<ezParticleComponentManager>()->CreateComponent(pObject, pEffect);
-  pEffect->SetParticleEffectFile(szFile);
-  pEffect->m_uiRandomSeed = 42;
+  if (m_pWorld->TryGetObjectWithGlobalKey("Effect", pObject))
+  {
+    ezParticleComponent* pEffect;
+    m_pWorld->GetOrCreateComponentManager<ezParticleComponentManager>()->CreateComponent(pObject, pEffect);
+    pEffect->SetParticleEffectFile(szFile);
+    pEffect->m_uiRandomSeed = 42;
+  }
 }
 
 ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)
@@ -169,15 +170,15 @@ ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 
   switch (iCurFrame)
   {
     case 15:
-      EZ_TEST_IMAGE(0, 100);
+      EZ_TEST_IMAGE(0, 110);
       break;
 
     case 30:
-      EZ_TEST_IMAGE(1, 100);
+      EZ_TEST_IMAGE(1, 110);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(2, 100);
+      EZ_TEST_IMAGE(2, 110);
       return ezTestAppRun::Quit;
   }
 

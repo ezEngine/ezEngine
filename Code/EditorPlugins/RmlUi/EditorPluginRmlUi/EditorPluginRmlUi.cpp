@@ -1,4 +1,4 @@
-#include <EditorPluginRmlUiPCH.h>
+#include <EditorPluginRmlUi/EditorPluginRmlUiPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -9,7 +9,7 @@
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 
-void OnLoadPlugin(bool bReloading)
+void OnLoadPlugin()
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezRmlUiPlugin");
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezEnginePluginRmlUi");
@@ -36,6 +36,16 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading) {}
+void OnUnloadPlugin() {}
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
+EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
+
+EZ_PLUGIN_ON_LOADED()
+{
+  OnLoadPlugin();
+}
+
+EZ_PLUGIN_ON_UNLOADED()
+{
+  OnUnloadPlugin();
+}

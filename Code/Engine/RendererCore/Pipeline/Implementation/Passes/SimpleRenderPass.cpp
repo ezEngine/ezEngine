@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -118,7 +118,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   if (!m_sMessage.IsEmpty())
   {
-    ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage, ezVec2I32(20, 20), ezColor::OrangeRed);
+    ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), ezVec2I32(20, 20), ezColor::OrangeRed);
   }
 
   ezDebugRenderer::Render(renderViewContext);

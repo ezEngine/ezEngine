@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -65,6 +65,11 @@ ezCameraMoveContext::ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow,
   m_bSlideForwards = false;
   m_bPanOrbitPoint = false;
 
+  m_bRotateLeft = false;
+  m_bRotateRight = false;
+  m_bRotateUp = false;
+  m_bRotateDown = false;
+
   // while the camera moves, ignore all other shortcuts
   SetShortcutsDisabled(true);
 
@@ -98,6 +103,10 @@ void ezCameraMoveContext::DoFocusLost(bool bCancel)
   m_bMoveDown = false;
   m_bMoveForwardsInPlane = false;
   m_bMoveBackwardsInPlane = false;
+  m_bRotateLeft = false;
+  m_bRotateRight = false;
+  m_bRotateUp = false;
+  m_bRotateDown = false;
 }
 
 void ezCameraMoveContext::LoadState()
@@ -114,12 +123,17 @@ void ezCameraMoveContext::UpdateContext()
   const double TimeDiff = ezMath::Min(diff.GetSeconds(), 0.1);
 
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
-  float fSpeedFactor = ConvertCameraSpeed(pPreferences->GetCameraSpeed()) * TimeDiff;
+  float fSpeedFactor = TimeDiff;
 
   if (m_bRun)
     fSpeedFactor *= 5.0f;
   if (m_bSlowDown)
     fSpeedFactor *= 0.2f;
+
+  const float fRotateHorizontal = 45 * fSpeedFactor;
+  const float fRotateVertical = 45 * fSpeedFactor;
+
+  fSpeedFactor *= ConvertCameraSpeed(pPreferences->GetCameraSpeed());
 
   if (m_bMoveForwards)
     m_pCamera->MoveLocally(fSpeedFactor, 0, 0);
@@ -133,6 +147,14 @@ void ezCameraMoveContext::UpdateContext()
     m_pCamera->MoveGlobally(0, 0, 1 * fSpeedFactor);
   if (m_bMoveDown)
     m_pCamera->MoveGlobally(0, 0, -1 * fSpeedFactor);
+  if (m_bRotateLeft)
+    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Degree(-fRotateHorizontal));
+  if (m_bRotateRight)
+    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Degree(fRotateHorizontal));
+  if (m_bRotateUp)
+    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Degree(fRotateVertical), ezAngle::Radian(0));
+  if (m_bRotateDown)
+    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Degree(-fRotateVertical), ezAngle::Radian(0));
 
   if (m_bMoveForwardsInPlane)
   {
@@ -167,7 +189,7 @@ void ezCameraMoveContext::UpdateContext()
 
 void ezCameraMoveContext::DeactivateIfLast()
 {
-  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bSlideForwards || m_bPanOrbitPoint || m_bMoveForwards || m_bMoveBackwards || m_bMoveRight || m_bMoveLeft || m_bMoveUp || m_bMoveDown || m_bMoveForwardsInPlane || m_bMoveBackwardsInPlane)
+  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bSlideForwards || m_bPanOrbitPoint || m_bMoveForwards || m_bMoveBackwards || m_bMoveRight || m_bMoveLeft || m_bMoveUp || m_bMoveDown || m_bMoveForwardsInPlane || m_bMoveBackwardsInPlane || m_bRotateLeft || m_bRotateRight || m_bRotateUp || m_bRotateDown)
     return;
 
   FocusLost(false);
@@ -206,18 +228,22 @@ ezEditorInput ezCameraMoveContext::DoKeyReleaseEvent(QKeyEvent* e)
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Left:
       m_bMoveLeft = false;
+      m_bRotateLeft = false;
       DeactivateIfLast();
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Right:
       m_bMoveRight = false;
+      m_bRotateRight = false;
       DeactivateIfLast();
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Up:
-      m_bMoveForwardsInPlane = false;
+      m_bMoveForwards = false;
+      m_bRotateUp = false;
       DeactivateIfLast();
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Down:
-      m_bMoveBackwardsInPlane = false;
+      m_bMoveBackwards = false;
+      m_bRotateDown = false;
       DeactivateIfLast();
       return ezEditorInput::WasExclusivelyHandled;
   }
@@ -230,27 +256,39 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
-    return ezEditorInput::MayBeHandledByOthers;
+  //if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
+  //  return ezEditorInput::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
 
   switch (e->key())
   {
     case Qt::Key_Left:
-      m_bMoveLeft = true;
+      if (e->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier))
+        m_bRotateLeft = true;
+      else
+        m_bMoveLeft = true;
       SetActiveInputContext(this);
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Right:
-      m_bMoveRight = true;
+      if (e->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier))
+        m_bRotateRight = true;
+      else
+        m_bMoveRight = true;
       SetActiveInputContext(this);
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Up:
-      m_bMoveForwardsInPlane = true;
+      if (e->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier))
+        m_bRotateUp = true;
+      else
+        m_bMoveForwards = true;
       SetActiveInputContext(this);
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Down:
-      m_bMoveBackwardsInPlane = true;
+      if (e->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier))
+        m_bRotateDown = true;
+      else
+        m_bMoveBackwards = true;
       SetActiveInputContext(this);
       return ezEditorInput::WasExclusivelyHandled;
   }
@@ -427,6 +465,10 @@ ezEditorInput ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
       m_bMoveRight = false;
       m_bMoveUp = false;
       m_bMoveDown = false;
+      m_bRotateLeft = false;
+      m_bRotateRight = false;
+      m_bRotateUp = false;
+      m_bRotateDown = false;
 
       ResetCursor();
 

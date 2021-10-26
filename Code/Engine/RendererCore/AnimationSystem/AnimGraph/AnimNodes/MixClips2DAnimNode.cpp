@@ -1,11 +1,11 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
-#include <Debug/DebugRenderer.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/MixClips2DAnimNode.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimClip2D, ezNoBase, 1, ezRTTIDefaultAllocator<ezAnimClip2D>)

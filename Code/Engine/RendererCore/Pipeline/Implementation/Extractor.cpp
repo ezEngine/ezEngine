@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
@@ -10,17 +10,14 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarVisBounds("r_VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
-ezCVarBool CVarVisLocalBBox("r_VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
-ezCVarBool CVarVisSpatialData("r_VisSpatialData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
-ezCVarString CVarVisSpatialCategory(
-  "r_VisSpatialCategory", "", ezCVarFlags::Default, "When set the debug visualization is only shown for the given spatial data category");
-ezCVarBool CVarVisObjectSelection(
-  "r_VisObjectSelection", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
-ezCVarString CVarVisObjectName(
-  "r_VisObjectName", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
+ezCVarBool cvar_SpatialVisBounds("Spatial.VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
+ezCVarBool cvar_SpatialVisLocalBBox("Spatial.VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
+ezCVarBool cvar_SpatialVisData("Spatial.VisData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
+ezCVarString cvar_SpatialVisDataOnlyCategory("Spatial.VisData.OnlyCategory", "", ezCVarFlags::Default, "When set the debug visualization is only shown for the given spatial data category");
+ezCVarBool cvar_SpatialVisDataOnlySelected("Spatial.VisData.OnlySelected", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
+ezCVarString cvar_SpatialVisDataOnlyObject("Spatial.VisData.OnlyObject", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
 
-ezCVarBool CVarExtractionStats("r_ExtractionStats", false, ezCVarFlags::Default, "Display some stats of the render data extraction");
+ezCVarBool cvar_SpatialExtractionShowStats("Spatial.Extraction.ShowStats", false, ezCVarFlags::Default, "Display some stats of the render data extraction");
 #endif
 
 namespace
@@ -28,12 +25,12 @@ namespace
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   void VisualizeSpatialData(const ezView& view)
   {
-    if (CVarVisSpatialData && CVarVisObjectName.GetValue().IsEmpty() && !CVarVisObjectSelection)
+    if (cvar_SpatialVisData && cvar_SpatialVisDataOnlyObject.GetValue().IsEmpty() && !cvar_SpatialVisDataOnlySelected)
     {
       const ezSpatialSystem& spatialSystem = *view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
       {
-        ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(CVarVisSpatialCategory.GetValue());
+        ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(cvar_SpatialVisDataOnlyCategory.GetValue());
 
         ezHybridArray<ezBoundingBox, 16> boxes;
         pSpatialSystemGrid->GetAllCellBoxes(boxes, filterCategory);
@@ -48,10 +45,10 @@ namespace
 
   void VisualizeObject(const ezView& view, const ezGameObject* pObject)
   {
-    if (!CVarVisBounds && !CVarVisLocalBBox && !CVarVisSpatialData)
+    if (!cvar_SpatialVisBounds && !cvar_SpatialVisLocalBBox && !cvar_SpatialVisData)
       return;
 
-    if (CVarVisLocalBBox)
+    if (cvar_SpatialVisLocalBBox)
     {
       const ezBoundingBoxSphere& localBounds = pObject->GetLocalBounds();
       if (localBounds.IsValid())
@@ -60,7 +57,7 @@ namespace
       }
     }
 
-    if (CVarVisBounds)
+    if (cvar_SpatialVisBounds)
     {
       const ezBoundingBoxSphere& globalBounds = pObject->GetGlobalBounds();
       if (globalBounds.IsValid())
@@ -70,7 +67,7 @@ namespace
       }
     }
 
-    if (CVarVisSpatialData && CVarVisSpatialCategory.GetValue().IsEmpty())
+    if (cvar_SpatialVisData && cvar_SpatialVisDataOnlyCategory.GetValue().IsEmpty())
     {
       const ezSpatialSystem& spatialSystem = *view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
@@ -111,7 +108,7 @@ ezExtractor::ezExtractor(const char* szName)
 #endif
 }
 
-ezExtractor::~ezExtractor() {}
+ezExtractor::~ezExtractor() = default;
 
 void ezExtractor::SetName(const char* szName)
 {
@@ -139,11 +136,6 @@ bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObje
 
 void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const
 {
-  if (FilterByViewTags(view, pObject))
-  {
-    return;
-  }
-
   auto AddRenderDataFromMessage = [&](const ezMsgExtractRenderData& msg) {
     if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     {
@@ -227,8 +219,8 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
             auto& newCacheEntry = newCacheEntries.ExpandAndGetRef();
             newCacheEntry.m_pRenderData = msg.m_ExtractedRenderData[uiPartIndex].m_pRenderData;
             newCacheEntry.m_uiCategory = msg.m_ExtractedRenderData[uiPartIndex].m_uiCategory;
-            newCacheEntry.m_uiComponentIndex = uiComponentIndex;
-            newCacheEntry.m_uiPartIndex = uiPartIndex;
+            newCacheEntry.m_uiComponentIndex = static_cast<ezUInt16>(uiComponentIndex);
+            newCacheEntry.m_uiPartIndex = static_cast<ezUInt16>(uiPartIndex);
           }
 
           ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, newCacheEntries);
@@ -244,7 +236,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
         ezInternal::RenderDataCacheEntry dummyEntry;
         dummyEntry.m_pRenderData = nullptr;
         dummyEntry.m_uiCategory = ezInvalidRenderDataCategory.m_uiValue;
-        dummyEntry.m_uiComponentIndex = uiComponentIndex;
+        dummyEntry.m_uiComponentIndex = static_cast<ezUInt16>(uiComponentIndex);
 
         ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, ezMakeArrayPtr(&dummyEntry, 1));
       }
@@ -278,6 +270,8 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 {
 }
 
+ezVisibleObjectsExtractor::~ezVisibleObjectsExtractor() = default;
+
 void ezVisibleObjectsExtractor::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
@@ -298,11 +292,11 @@ void ezVisibleObjectsExtractor::Extract(
     ExtractRenderData(view, pObject, msg, extractedRenderData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)
+    if (cvar_SpatialVisBounds || cvar_SpatialVisLocalBBox || cvar_SpatialVisData)
     {
-      if ((CVarVisObjectName.GetValue().IsEmpty() ||
-            ezStringUtils::FindSubString_NoCase(pObject->GetName(), CVarVisObjectName.GetValue()) != nullptr) &&
-          !CVarVisObjectSelection)
+      if ((cvar_SpatialVisDataOnlyObject.GetValue().IsEmpty() ||
+            ezStringUtils::FindSubString_NoCase(pObject->GetName(), cvar_SpatialVisDataOnlyObject.GetValue()) != nullptr) &&
+          !cvar_SpatialVisDataOnlySelected)
       {
         VisualizeObject(view, pObject);
       }
@@ -313,35 +307,37 @@ void ezVisibleObjectsExtractor::Extract(
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
 
-  if (CVarExtractionStats && bIsMainView)
+  if (cvar_SpatialExtractionShowStats && bIsMainView)
   {
     ezViewHandle hView = view.GetHandle();
 
     ezStringBuilder sb;
 
-    ezDebugRenderer::Draw2DText(hView, "Extraction Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", "Extraction Stats:");
 
     sb.Format("Num Cached Render Data: {0}", m_uiNumCachedRenderData);
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", sb);
 
     sb.Format("Num Uncached Render Data: {0}", m_uiNumUncachedRenderData);
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", sb);
   }
 #endif
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractorBase, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSelectedObjectsExtractor::ezSelectedObjectsExtractor(const char* szName)
+ezSelectedObjectsExtractorBase::ezSelectedObjectsExtractorBase(const char* szName)
   : ezExtractor(szName)
   , m_OverrideCategory(ezDefaultRenderDataCategories::Selection)
 {
 }
 
-void ezSelectedObjectsExtractor::Extract(
+ezSelectedObjectsExtractorBase::~ezSelectedObjectsExtractorBase() = default;
+
+void ezSelectedObjectsExtractorBase::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
@@ -363,9 +359,9 @@ void ezSelectedObjectsExtractor::Extract(
     ExtractRenderData(view, pObject, msg, extractedRenderData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)
+    if (cvar_SpatialVisBounds || cvar_SpatialVisLocalBBox || cvar_SpatialVisData)
     {
-      if (CVarVisObjectSelection)
+      if (cvar_SpatialVisDataOnlySelected)
       {
         VisualizeObject(view, pObject);
       }
@@ -374,6 +370,79 @@ void ezSelectedObjectsExtractor::Extract(
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsContext, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezSelectedObjectsExtractor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("SelectionContext", GetSelectionContext, SetSelectionContext),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezSelectedObjectsContext::ezSelectedObjectsContext() = default;
+ezSelectedObjectsContext::~ezSelectedObjectsContext() = default;
+
+void ezSelectedObjectsContext::RemoveDeadObjects(const ezWorld& world)
+{
+  for (ezUInt32 i = 0; i < m_Objects.GetCount();)
+  {
+    const ezGameObject* pObj;
+    if (world.TryGetObject(m_Objects[i], pObj) == false)
+    {
+      m_Objects.RemoveAtAndSwap(i);
+    }
+    else
+      ++i;
+  }
+}
+
+void ezSelectedObjectsContext::AddObjectAndChildren(const ezWorld& world, const ezGameObjectHandle& hObject)
+{
+  const ezGameObject* pObj;
+  if (world.TryGetObject(hObject, pObj))
+  {
+    m_Objects.PushBack(hObject);
+
+    for (auto it = pObj->GetChildren(); it.IsValid(); ++it)
+    {
+      AddObjectAndChildren(world, it);
+    }
+  }
+}
+
+void ezSelectedObjectsContext::AddObjectAndChildren(const ezWorld& world, const ezGameObject* pObject)
+{
+  m_Objects.PushBack(pObject->GetHandle());
+
+  for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+  {
+    AddObjectAndChildren(world, it);
+  }
+}
+
+ezSelectedObjectsExtractor::ezSelectedObjectsExtractor(const char* szName /*= "ExplicitlySelectedObjectsExtractor"*/)
+  : ezSelectedObjectsExtractorBase(szName)
+{
+}
+
+ezSelectedObjectsExtractor::~ezSelectedObjectsExtractor() = default;
+
+const ezDeque<ezGameObjectHandle>* ezSelectedObjectsExtractor::GetSelection()
+{
+  if (m_pSelectionContext)
+    return &m_pSelectionContext->m_Objects;
+
+  return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Extractor);

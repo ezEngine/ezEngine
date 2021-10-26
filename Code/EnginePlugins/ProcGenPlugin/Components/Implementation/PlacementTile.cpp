@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/Prefabs/PrefabReferenceComponent.h>
@@ -92,11 +92,10 @@ ezColor PlacementTile::GetDebugColor() const
   }
 }
 
-void PlacementTile::PreparePlacementData(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
+void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
 {
-  EZ_ASSERT_DEV(pPhysicsModule != nullptr, "Physics module must be valid");
-
   placementData.m_pPhysicsModule = pPhysicsModule;
+  placementData.m_pWorld = pWorld;
   placementData.m_pOutput = m_pOutput;
   placementData.m_iTileSeed = (m_Desc.m_iPosX << 11) ^ (m_Desc.m_iPosY * 17);
   placementData.m_TileBoundingBox = GetBoundingBox();
@@ -114,6 +113,8 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
 
   ezHybridArray<ezPrefabResource*, 4> prefabs;
   prefabs.SetCount(objectsToPlace.GetCount());
+
+
 
   for (auto& objectTransform : objectTransforms)
   {
@@ -134,13 +135,20 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
 
     pPrefab->InstantiatePrefab(world, transform, options);
 
+    // only send the color message, if we actually have a custom color
+    if (objectTransform.m_uiSetColor != 0)
+    {
+      for (auto pRootObject : rootObjects)
+      {
+        // Set the color
+        ezMsgSetColor msg;
+        msg.m_Color = objectTransform.m_ObjectColor;
+        pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+      }
+    }
+
     for (auto pRootObject : rootObjects)
     {
-      // Set the color
-      ezMsgSetColor msg;
-      msg.m_Color = objectTransform.m_Color;
-      pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
-
       m_PlacedObjects.PushBack(pRootObject->GetHandle());
     }
   }

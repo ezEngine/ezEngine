@@ -1,4 +1,4 @@
-#include <EditorPluginParticlePCH.h>
+#include <EditorPluginParticle/EditorPluginParticlePCH.h>
 
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetManager.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetWindow.moc.h>
@@ -45,7 +45,7 @@ void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
 }
 
 void ezParticleEffectAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   out_pDocument = new ezParticleEffectAssetDocument(szPath);
 }

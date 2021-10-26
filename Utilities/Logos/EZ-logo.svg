@@ -2,21 +2,21 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="49.384998mm"
    height="55.796001mm"
    viewBox="0 0 49.384998 55.796001"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="EZ-logo.svg">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="EZ-logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <rect
@@ -73,9 +73,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="162.28334"
-     inkscape:cy="179.5987"
+     inkscape:zoom="2.8"
+     inkscape:cx="187.32143"
+     inkscape:cy="60.535715"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1-1"
      showgrid="false"
@@ -83,7 +83,15 @@
      inkscape:window-height="1137"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="0"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <sodipodi:guide
+       position="25.591057,30.405396"
+       orientation="1,0"
+       id="guide342" />
+  </sodipodi:namedview>
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -92,7 +100,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -115,14 +123,14 @@
          inkscape:connector-curvature="0" />
       <path
          sodipodi:nodetypes="ccccccccccccccc"
-         d="m -61.51706,121.93962 2.109433,38.11394 22.20226,10.3849 0.111104,-6.73963 -18.761125,-7.73287 -0.535885,-12.11863 4.178556,5.1263 14.785659,4.7837 -0.111105,-8.28633 -14.612544,-4.53927 -4.12171,2.08878 -0.434501,-12.08191 19.612655,4.69993 -0.111104,-8.50646 z"
+         d="m -61.51706,121.93962 2.109433,38.11394 21.923765,10.41418 0,-6.45366 -18.371526,-8.04812 -0.535885,-12.11863 4.131309,4.84282 14.776102,5.07704 v -7.91337 l -14.833888,-4.38755 -3.954667,1.55424 -0.434501,-12.08191 19.223056,4.57648 v -8.33632 z"
          style="display:inline;fill:#b7613f;fill-opacity:1;stroke:none;stroke-width:0.213799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          id="path1984-3-9-7"
          inkscape:connector-curvature="0" />
       <path
          sodipodi:nodetypes="ccccccccccccccccccc"
          id="path1986-8-8-4"
-         d="m -15.322399,121.02863 -22.114741,6.13343 0.20816,8.36137 16.08599,-4.83162 -5.18562,10.32207 -11.3237,4.83159 -0.0259,7.79644 6.5873,-3.07464 -6.2439,13.3967 v 6.47871 l 20.001671,-12.81201 0.49522,-6.05969 -13.406351,8.11042 5.60893,-12.62804 8.084491,-3.97785 0.48766,-6.56381 -4.550651,2.30599 5.079801,-10.65147 z"
+         d="m -14.99167,120.98138 -22.492192,6.19738 v 8.33632 l 16.340872,-4.82327 -5.18562,10.32207 -11.155252,4.83994 v 7.91337 l 6.392952,-3.19992 -6.392952,13.44681 v 6.45366 l 20.150723,-12.83707 0.377102,-5.95338 -13.288233,8.00411 5.60893,-12.62804 8.084491,-3.97785 0.48766,-6.56381 -4.550651,2.30599 5.079801,-10.65147 z"
          style="display:inline;fill:#939393;fill-opacity:1;stroke:none;stroke-width:0.208115px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          inkscape:connector-curvature="0" />
     </g>

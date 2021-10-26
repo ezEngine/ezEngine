@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
@@ -29,14 +29,14 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezVariantTypeRegistry::ezVariantTypeRegistry()
   : m_SingletonRegistrar(this)
 {
-  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezVariantTypeRegistry::PluginEventHandler, this));
+  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezVariantTypeRegistry::PluginEventHandler, this));
 
   UpdateTypes();
 }
 
 ezVariantTypeRegistry::~ezVariantTypeRegistry()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezVariantTypeRegistry::PluginEventHandler, this));
+  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezVariantTypeRegistry::PluginEventHandler, this));
 }
 
 const ezVariantTypeInfo* ezVariantTypeRegistry::FindVariantTypeInfo(const ezRTTI* pType) const

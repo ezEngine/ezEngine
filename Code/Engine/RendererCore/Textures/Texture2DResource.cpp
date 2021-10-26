@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<e
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCVarInt CVarRenderTargetResolution1("r_RenderTargetResolution1", 256, ezCVarFlags::Default, "Configurable render target resolution");
-ezCVarInt CVarRenderTargetResolution2("r_RenderTargetResolution2", 512, ezCVarFlags::Default, "Configurable render target resolution");
+ezCVarInt cvar_RenderingOffscreenTargetResolution1("Rendering.Offscreen.TargetResolution1", 256, ezCVarFlags::Default, "Configurable render target resolution");
+ezCVarInt cvar_RenderingOffscreenTargetResolution2("Rendering.Offscreen.TargetResolution2", 512, ezCVarFlags::Default, "Configurable render target resolution");
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
 
@@ -439,12 +439,12 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
     {
       if (texFormat.m_iRenderTargetResolutionY == 1)
       {
-        texFormat.m_iRenderTargetResolutionX = GetNextBestResolution(CVarRenderTargetResolution1 * texFormat.m_fResolutionScale);
+        texFormat.m_iRenderTargetResolutionX = GetNextBestResolution(cvar_RenderingOffscreenTargetResolution1 * texFormat.m_fResolutionScale);
         texFormat.m_iRenderTargetResolutionY = texFormat.m_iRenderTargetResolutionX;
       }
       else if (texFormat.m_iRenderTargetResolutionY == 2)
       {
-        texFormat.m_iRenderTargetResolutionX = GetNextBestResolution(CVarRenderTargetResolution2 * texFormat.m_fResolutionScale);
+        texFormat.m_iRenderTargetResolutionX = GetNextBestResolution(cvar_RenderingOffscreenTargetResolution2 * texFormat.m_fResolutionScale);
         texFormat.m_iRenderTargetResolutionY = texFormat.m_iRenderTargetResolutionX;
       }
       else

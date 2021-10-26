@@ -1,4 +1,4 @@
-#include <EnginePluginRmlUiPCH.h>
+#include <EnginePluginRmlUi/EnginePluginRmlUiPCH.h>
 
 #include <EnginePluginRmlUi/RmlUiAsset/RmlUiContext.h>
 #include <EnginePluginRmlUi/RmlUiAsset/RmlUiView.h>
@@ -16,11 +16,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiContext, 1, ezRTTIDefaultAllocator<ezRmlU
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRmlUiContext::ezRmlUiContext() = default;
+ezRmlUiContext::ezRmlUiContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezRmlUiContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   // Preview object
@@ -53,6 +56,8 @@ void ezRmlUiContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 bool ezRmlUiContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
+  EZ_LOCK(m_pMainObject->GetWorld()->GetWriteMarker());
+
   m_pMainObject->UpdateLocalBounds();
   ezBoundingBoxSphere bounds = m_pMainObject->GetGlobalBounds();
 

@@ -1,8 +1,6 @@
-#include <FileservePluginPCH.h>
+#include <FileservePlugin/FileservePluginPCH.h>
 
 #include <FileservePlugin/Client/FileserveDataDir.h>
-
-ezPlugin g_Plugin(false);
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)

@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -542,8 +542,11 @@ Angle $v12 { float { 45.23 } }\
   {
     EZ_ALIGN_VARIABLE(ezUInt8 rawData[sizeof(float) * 16], EZ_ALIGNMENT_OF(float)); // enough for mat4
 
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(rawData); ++i)
+    for (ezUInt8 i = 0; i < EZ_ARRAY_SIZE(rawData); ++i)
+    {
       rawData[i] = i + 1;
+    }
+
     rawData[EZ_ARRAY_SIZE(rawData) - 1] = 0; // string terminator
 
     for (ezUInt32 t = ezVariant::Type::FirstStandardType + 1; t < ezVariant::Type::LastStandardType; ++t)

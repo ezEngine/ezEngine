@@ -5,19 +5,32 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezDocument;
+class ezScene2Document;
 
-class ezSceneDocumentSettings : public ezReflectedClass
+class ezSceneDocumentSettingsBase : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettings, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettingsBase, ezReflectedClass);
+};
 
+class ezPrefabDocumentSettings : public ezSceneDocumentSettingsBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPrefabDocumentSettings, ezSceneDocumentSettingsBase);
+
+public:
   ezDynamicArray<ezExposedSceneProperty> m_ExposedProperties;
+};
+
+class ezLayerDocumentSettings : public ezSceneDocumentSettingsBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLayerDocumentSettings, ezSceneDocumentSettingsBase);
 };
 
 class ezSceneDocumentRoot : public ezDocumentRoot
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentRoot, ezDocumentRoot);
 
-  ezSceneDocumentSettings* m_pSettings;
+public:
+  ezSceneDocumentSettingsBase* m_pSettings;
 };
 
 class ezSceneObjectManager : public ezDocumentObjectManager

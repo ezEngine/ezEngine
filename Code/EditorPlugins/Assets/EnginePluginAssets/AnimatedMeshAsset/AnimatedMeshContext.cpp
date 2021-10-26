@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/AnimatedMeshAsset/AnimatedMeshContext.h>
 #include <EnginePluginAssets/AnimatedMeshAsset/AnimatedMeshView.h>
@@ -18,6 +18,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezAnimatedMeshContext::ezAnimatedMeshContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pAnimatedMeshObject = nullptr;
 }
@@ -68,7 +69,7 @@ void ezAnimatedMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocM
 
 void ezAnimatedMeshContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezAnimatedMeshComponent* pAnimatedMesh;
@@ -81,7 +82,7 @@ void ezAnimatedMeshContext::OnInitialize()
     pWorld->CreateObject(obj, m_pAnimatedMeshObject);
 
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pAnimatedMeshObject->GetTags().Set(tagCastShadows);
+    m_pAnimatedMeshObject->SetTag(tagCastShadows);
 
     ezAnimatedMeshComponent::CreateComponent(m_pAnimatedMeshObject, pAnimatedMesh);
     ezStringBuilder sAnimatedMeshGuid;
@@ -103,7 +104,7 @@ void ezAnimatedMeshContext::DestroyViewContext(ezEngineProcessViewContext* pCont
 
 bool ezAnimatedMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
   ezAnimatedMeshViewContext* pAnimatedMeshViewContext = static_cast<ezAnimatedMeshViewContext*>(pThumbnailViewContext);
   return pAnimatedMeshViewContext->UpdateThumbnailCamera(bounds);

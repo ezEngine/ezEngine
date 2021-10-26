@@ -36,13 +36,25 @@
 #    define EZ_ALIGN_VARIABLE(decl, alignment) __declspec(align(alignment)) decl
 #  endif
 
-// workaround for msvc compiler issue with alignment determination of dependent types
+// workaround for MSVC compiler issue with alignment determination of dependent types
 #  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(EZ_ALIGNMENT_MINIMUM, EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type)))
 
-#  define EZ_DEBUG_BREAK \
-    {                    \
-      __debugbreak();    \
-    }
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+
+#    define EZ_DEBUG_BREAK \
+      {                    \
+        __debugbreak();    \
+      }
+
+#  else
+
+#    define EZ_DEBUG_BREAK                         \
+      {                                            \
+        /* Declared with DLL export in Assert.h */ \
+        MSVC_OutOfLine_DebugBreak();               \
+      }
+
+#  endif
 
 #  if EZ_ENABLED(EZ_COMPILER_MSVC_CLANG)
 #    define EZ_SOURCE_FUNCTION __PRETTY_FUNCTION__

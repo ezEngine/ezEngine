@@ -1,4 +1,4 @@
-#include <EditorPluginPhysXPCH.h>
+#include <EditorPluginPhysX/EditorPluginPhysXPCH.h>
 
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
 #include <QCheckBox>

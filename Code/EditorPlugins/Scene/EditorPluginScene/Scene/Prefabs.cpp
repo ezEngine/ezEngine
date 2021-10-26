@@ -1,4 +1,4 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -13,16 +13,16 @@ void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Sele
   // Clear cached names.
   for (auto pObject : Selection)
   {
-    auto pMetaScene = m_GameObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    auto pMetaScene = m_GameObjectMetaData->BeginModifyMetaData(pObject->GetGuid());
     pMetaScene->m_CachedNodeName.Clear();
-    m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
+    m_GameObjectMetaData->EndModifyMetaData(ezGameObjectMetaData::CachedName);
   }
 }
 
 
 bool ezSceneDocument::IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid) const
 {
-  auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(object);
+  auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(object);
   const bool bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
 
   if (out_PrefabAssetGuid)
@@ -30,7 +30,7 @@ bool ezSceneDocument::IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_Pre
     *out_PrefabAssetGuid = pMeta->m_CreateFromPrefab;
   }
 
-  m_DocumentObjectMetaData.EndReadMetaData();
+  m_DocumentObjectMetaData->EndReadMetaData();
 
   return bIsPrefab;
 }
@@ -76,7 +76,7 @@ bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_Pre
 
 void ezSceneDocument::UpdatePrefabs()
 {
-  EZ_LOCK(m_GameObjectMetaData.GetMutex());
+  EZ_LOCK(m_GameObjectMetaData->GetMutex());
   SUPER::UpdatePrefabs();
 }
 
@@ -86,9 +86,9 @@ ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, con
   ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed, bEnginePrefab);
   if (newGuid.IsValid())
   {
-    auto pMeta = m_GameObjectMetaData.BeginModifyMetaData(newGuid);
+    auto pMeta = m_GameObjectMetaData->BeginModifyMetaData(newGuid);
     pMeta->m_CachedNodeName.Clear();
-    m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
+    m_GameObjectMetaData->EndModifyMetaData(ezGameObjectMetaData::CachedName);
   }
   return newGuid;
 }
@@ -231,7 +231,7 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
 
       ezAddObjectCommand cmd;
       cmd.m_Parent = (pObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pObject->GetParent()->GetGuid();
-      cmd.m_Index = -1;
+      cmd.m_Index = pObject->GetPropertyIndex();
       cmd.SetType("ezGameObject");
       cmd.m_NewObjectGuid = ObjectGuid;
       cmd.m_sParentProperty = "Children";

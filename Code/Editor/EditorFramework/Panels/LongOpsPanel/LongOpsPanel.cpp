@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>

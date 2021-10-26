@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Document/Document.h>
@@ -163,11 +163,26 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
       }
     }
   }
+
+  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeReset)
+  {
+    auto pDoc = e.m_pDocument;
+    auto it = m_ActiveManipulator.Find(pDoc);
+
+    if (it.IsValid())
+    {
+      for (auto& sel : it.Value().m_Selection)
+      {
+        it.Value().m_Selection.RemoveAndCopy(sel);
+        InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, it.Value().m_Selection, false);
+      }
+    }
+  }
 }
 
 void ezManipulatorManager::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
-  TransferToCurrentSelection(e.m_pDocument);
+  TransferToCurrentSelection(e.m_pDocument->GetMainDocument());
 }
 
 void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
@@ -185,13 +200,13 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
 
   const auto& selection = pDoc->GetSelectionManager()->GetSelection();
 
-  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
-  {
-    const auto& children = selection[i]->GetChildren();
+  EZ_ASSERT_DEV(pDoc->GetManipulatorSearchStrategy() != ezManipulatorSearchStrategy::None, "The document type '{}' has to override the function 'GetManipulatorSearchStrategy()'", pDoc->GetDynamicRTTI()->GetTypeName());
 
-    for (const auto& child : children)
+  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::SelectedObject)
+  {
+    for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
     {
-      const auto& OtherAttributes = child->GetTypeAccessor().GetType()->GetAttributes();
+      const auto& OtherAttributes = selection[i]->GetTypeAccessor().GetType()->GetAttributes();
 
       for (const auto pOtherAttr : OtherAttributes)
       {
@@ -204,7 +219,36 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
               pOtherManip->m_sProperty5 == pAttribute->m_sProperty5 && pOtherManip->m_sProperty6 == pAttribute->m_sProperty6)
           {
             auto& newItem = newSelection.ExpandAndGetRef();
-            newItem.m_pObject = child;
+            newItem.m_pObject = selection[i];
+          }
+        }
+      }
+    }
+  }
+
+  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::ChildrenOfSelectedObject)
+  {
+    for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+    {
+      const auto& children = selection[i]->GetChildren();
+
+      for (const auto& child : children)
+      {
+        const auto& OtherAttributes = child->GetTypeAccessor().GetType()->GetAttributes();
+
+        for (const auto pOtherAttr : OtherAttributes)
+        {
+          if (pOtherAttr->IsInstanceOf(pAttribute->GetDynamicRTTI()))
+          {
+            ezManipulatorAttribute* pOtherManip = static_cast<ezManipulatorAttribute*>(pOtherAttr);
+
+            if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 && pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
+                pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 && pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
+                pOtherManip->m_sProperty5 == pAttribute->m_sProperty5 && pOtherManip->m_sProperty6 == pAttribute->m_sProperty6)
+            {
+              auto& newItem = newSelection.ExpandAndGetRef();
+              newItem.m_pObject = child;
+            }
           }
         }
       }

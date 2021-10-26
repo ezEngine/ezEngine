@@ -1,0 +1,119 @@
+name: Update Precompiled Tools
+
+on: 
+  workflow_dispatch:
+    inputs:
+      push-to-dev:
+        description: 'Push to repo'
+        required: true
+        default: 'true'
+      full-binaries-artifact:
+        description: 'Create full binaries artifact'
+        required: true
+        default: 'false'
+      new-binaries-artifact:
+        description: 'Create new binaries artifact'
+        required: true
+        default: 'false'
+      test-build:
+        description: 'Minimal build for testing'
+        required: true
+        default: 'false'
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          path: repo
+          submodules: 'recursive'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Run CMake
+        run: |
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=OFF -DEZ_BUILD_SAMPLES:BOOL=OFF -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=OFF -DEZ_BUILD_RMLUI:BOOL=OFF -DEZ_BUILD_FMOD:BOOL=OFF -DEZ_BUILD_EMBREE:BOOL=OFF -DEZ_BUILD_OPENXR:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
+
+      # These commands should NOT use 'rebuild', as that wastes a lot of time
+      # But MSVC on GitHub is currently broken and doesn't build without it at all
+
+      - name: Build Way Too Much
+        if: github.event.inputs.test-build == 'false'
+        run:  msbuild build/solution.sln /p:Configuration=Shipping
+
+      #- name: Build ShaderCompiler
+      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\ShaderCompiler:rebuild
+#
+      - name: Build ArchiveTool
+        if: github.event.inputs.test-build == 'true'
+        run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\ArchiveTool:rebuild
+
+      #- name: Build Fileserve
+      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\Fileserve:rebuild
+
+      #- name: Build GdbProxy
+      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\GdbProxy:rebuild
+#
+      #- name: Build Inspector
+      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\Inspector:rebuild
+#
+      #- name: Build MiniDumpTool
+      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\MiniDumpTool:rebuild
+#
+      #- name: Build TexConv
+      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\TexConv:rebuild
+
+      - name: Artifact - Full Binaries
+        if: github.event.inputs.full-binaries-artifact == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: full-binaries
+          path: repo\Output\Bin\WinVs2019Shipping64
+          retention-days: 3
+
+      - name: Checkout Precompiled Tools Repository
+        uses: actions/checkout@v2
+        with:
+          repository: ezEngine/precompiled-tools
+          ref: main
+          path: _tools
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Copy Precompiled Binaries
+        run: |
+          xcopy repo\Output\Bin\WinVs2019Shipping64 _tools /s /u /y
+
+      - name: Artifact - New Precompiled Tools
+        if: github.event.inputs.new-binaries-artifact == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: new-precompiled-tools
+          path: _tools
+          retention-days: 3
+
+      - name: Commit
+        run: |
+          cd _tools
+          git config --global user.email "ezEngineProject@gmail.com"
+          git config --global user.name "ezEngine Automation"
+          git add .
+          git commit -m "Updated Precompiled Tools"
+
+      - name: Push changes
+        if: github.event.inputs.push-to-dev == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.API_TOKEN_GITHUB }}
+          branch: main
+          directory: _tools
+          repository: ezEngine/precompiled-tools
+          force: true
+
+      # in theory we could now also update the submodule in the ezEngine repository 
+      # and do an automated commit there as well
+      # however, maybe it's better to have some user validation there

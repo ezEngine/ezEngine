@@ -1,9 +1,9 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
-#include <Core/Console/Console.h>
+#include <Core/Console/QuakeConsole.h>
 #include <Core/Input/InputManager.h>
 
-bool ezConsole::ProcessInputCharacter(ezUInt32 uiChar)
+bool ezQuakeConsole::ProcessInputCharacter(ezUInt32 uiChar)
 {
   switch (uiChar)
   {
@@ -22,12 +22,15 @@ bool ezConsole::ProcessInputCharacter(ezUInt32 uiChar)
       return false;
 
     case '\t':
-      AutoCompleteInputLine();
+      if (AutoComplete(m_sInputLine))
+      {
+        MoveCaret(500);
+      }
       return false;
 
     case 13: // Enter
-      AddToInputHistory(m_sInputLine.GetData());
-      ProcessCommand(m_sInputLine.GetData());
+      AddToInputHistory(m_sInputLine);
+      ExecuteCommand(m_sInputLine);
       ClearInputLine();
       return false;
   }
@@ -35,7 +38,7 @@ bool ezConsole::ProcessInputCharacter(ezUInt32 uiChar)
   return true;
 }
 
-bool ezConsole::FilterInputCharacter(ezUInt32 uiChar)
+bool ezQuakeConsole::FilterInputCharacter(ezUInt32 uiChar)
 {
   // filter out not only all non-ASCII characters, but also all the non-printable ASCII characters
   // if you want to support full Unicode characters in the console, override this function and change this restriction
@@ -45,19 +48,19 @@ bool ezConsole::FilterInputCharacter(ezUInt32 uiChar)
   return true;
 }
 
-void ezConsole::ClampCaretPosition()
+void ezQuakeConsole::ClampCaretPosition()
 {
   m_iCaretPosition = ezMath::Clamp<ezInt32>(m_iCaretPosition, 0, m_sInputLine.GetCharacterCount());
 }
 
-void ezConsole::MoveCaret(ezInt32 iMoveOffset)
+void ezQuakeConsole::MoveCaret(ezInt32 iMoveOffset)
 {
   m_iCaretPosition += iMoveOffset;
 
   ClampCaretPosition();
 }
 
-void ezConsole::Scroll(ezInt32 iLines)
+void ezQuakeConsole::Scroll(ezInt32 iLines)
 {
   if (m_bUseFilteredStrings)
     m_iScrollPosition = ezMath::Clamp<ezInt32>(m_iScrollPosition + iLines, 0, ezMath::Max<ezInt32>(m_FilteredConsoleStrings.GetCount() - 10, 0));
@@ -65,7 +68,7 @@ void ezConsole::Scroll(ezInt32 iLines)
     m_iScrollPosition = ezMath::Clamp<ezInt32>(m_iScrollPosition + iLines, 0, ezMath::Max<ezInt32>(m_ConsoleStrings.GetCount() - 10, 0));
 }
 
-void ezConsole::ClearInputLine()
+void ezQuakeConsole::ClearInputLine()
 {
   m_sInputLine.Clear();
   m_iCaretPosition = 0;
@@ -78,7 +81,7 @@ void ezConsole::ClearInputLine()
   InputStringChanged();
 }
 
-void ezConsole::ClearConsoleStrings()
+void ezQuakeConsole::ClearConsoleStrings()
 {
   m_ConsoleStrings.Clear();
   m_FilteredConsoleStrings.Clear();
@@ -86,12 +89,12 @@ void ezConsole::ClearConsoleStrings()
   m_iScrollPosition = 0;
 }
 
-void ezConsole::DeleteNextCharacter()
+void ezQuakeConsole::DeleteNextCharacter()
 {
   RemoveCharacter(m_iCaretPosition);
 }
 
-void ezConsole::RemoveCharacter(ezUInt32 uiInputLinePosition)
+void ezQuakeConsole::RemoveCharacter(ezUInt32 uiInputLinePosition)
 {
   if (uiInputLinePosition >= m_sInputLine.GetCharacterCount())
     return;
@@ -107,7 +110,7 @@ void ezConsole::RemoveCharacter(ezUInt32 uiInputLinePosition)
   InputStringChanged();
 }
 
-void ezConsole::AddInputCharacter(ezUInt32 uiChar)
+void ezQuakeConsole::AddInputCharacter(ezUInt32 uiChar)
 {
   if (uiChar == '\0')
     return;
@@ -132,7 +135,7 @@ void ezConsole::AddInputCharacter(ezUInt32 uiChar)
   InputStringChanged();
 }
 
-void ezConsole::DoDefaultInputHandling(bool bConsoleOpen)
+void ezQuakeConsole::DoDefaultInputHandling(bool bConsoleOpen)
 {
   if (!m_bDefaultInputHandlingInitialized)
   {
@@ -194,9 +197,15 @@ void ezConsole::DoDefaultInputHandling(bool bConsoleOpen)
     if (ezInputManager::GetInputActionState("Console", "ScrollDown") == ezKeyState::Pressed)
       Scroll(-10);
     if (ezInputManager::GetInputActionState("Console", "HistoryUp") == ezKeyState::Pressed)
-      SearchInputHistory(1);
+    {
+      RetrieveInputHistory(1, m_sInputLine);
+      m_iCaretPosition = m_sInputLine.GetCharacterCount();
+    }
     if (ezInputManager::GetInputActionState("Console", "HistoryDown") == ezKeyState::Pressed)
-      SearchInputHistory(-1);
+    {
+      RetrieveInputHistory(-1, m_sInputLine);
+      m_iCaretPosition = m_sInputLine.GetCharacterCount();
+    }
 
     const ezUInt32 uiChar = ezInputManager::RetrieveLastCharacter();
 
@@ -217,13 +226,13 @@ void ezConsole::DoDefaultInputHandling(bool bConsoleOpen)
   if (ezInputManager::GetInputActionState("Console", "RepeatLast") == ezKeyState::Pressed)
   {
     if (GetInputHistory().GetCount() >= 1)
-      ProcessCommand(GetInputHistory()[0].GetData());
+      ExecuteCommand(GetInputHistory()[0]);
   }
 
   if (ezInputManager::GetInputActionState("Console", "RepeatSecondLast") == ezKeyState::Pressed)
   {
     if (GetInputHistory().GetCount() >= 2)
-      ProcessCommand(GetInputHistory()[1].GetData());
+      ExecuteCommand(GetInputHistory()[1]);
   }
 }
 

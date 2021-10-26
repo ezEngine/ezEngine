@@ -33,6 +33,7 @@ function(ez_link_target_assimp TARGET_NAME)
 	
 	  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzAssImp::EzAssImp> $<TARGET_FILE_DIR:${TARGET_NAME}>
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	  )
 	
 	endif()

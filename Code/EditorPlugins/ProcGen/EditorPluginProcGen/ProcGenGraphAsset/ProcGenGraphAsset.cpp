@@ -1,4 +1,4 @@
-#include <EditorPluginProcGenPCH.h>
+#include <EditorPluginProcGen/EditorPluginProcGenPCH.h>
 
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
@@ -41,7 +41,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 5, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProcGenNodeManager), ezAssetDocEngineConnection::Simple)
+  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProcGenNodeManager), ezAssetDocEngineConnection::None)
 {
 }
 
@@ -61,7 +61,7 @@ void ezProcGenGraphAssetDocument::SetDebugPin(const ezPin* pDebugPin)
   GetObjectManager()->m_PropertyEvents.Broadcast(e);
 }
 
-ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const
+ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
@@ -77,7 +77,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   ezDynamicArray<const ezDocumentObject*> vertexColorNodes;
   GetAllOutputNodes(placementNodes, vertexColorNodes);
 
-  const bool bDebug = m_pDebugPin != nullptr;
+  const bool bDebug = bAllowDebug && (m_pDebugPin != nullptr);
 
   ezStringDeduplicationWriteContext stringDedupContext(stream);
 
@@ -114,7 +114,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 4);
+    chunk.BeginChunk("PlacementOutputs", 6);
 
     if (!bDebug)
     {
@@ -238,7 +238,7 @@ ezStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWriter& str
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
-  return WriteAsset(stream, pAssetProfile);
+  return WriteAsset(stream, pAssetProfile, false);
 }
 
 void ezProcGenGraphAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
@@ -290,7 +290,7 @@ bool ezProcGenGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
     }
   }
 
-  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(objectGraph);
 
   RestoreMetaDataAfterLoading(objectGraph, true);
 
@@ -328,12 +328,14 @@ bool ezProcGenGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
 
 void ezProcGenGraphAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
+  SUPER::AttachMetaDataBeforeSaving(graph);
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
+  SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
@@ -359,6 +361,28 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocum
       else if (pRtti->IsDerivedFrom(pVertexColorOutputRtti))
       {
         vertexColorNodes.PushBack(pObject);
+      }
+    }
+  }
+}
+
+void ezProcGenGraphAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+{
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  if (pManager->IsNode(pObject))
+  {
+    auto outputs = pManager->GetOutputPins(pObject);
+    for (const ezPin* pPinSource : outputs)
+    {
+      auto inputs = pPinSource->GetConnections();
+      for (const ezConnection* pConnection : inputs)
+      {
+        const ezPin* pPinTarget = pConnection->GetTargetPin();
+
+        inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }

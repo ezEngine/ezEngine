@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
@@ -41,7 +41,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
   // clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
+ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 #endif
 
 namespace
@@ -447,6 +447,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
       pView->SetLodCamera(pReferenceCamera);
+      pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
     }
 
     // Setup camera
@@ -508,7 +509,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 }
 
 // static
-ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize)
+ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
 
@@ -564,6 +565,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
     {
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pPointLight->GetWorld()));
+      pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
     }
 
     // Setup camera
@@ -582,7 +584,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 }
 
 // static
-ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize)
+ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
 
@@ -608,6 +610,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   {
     pView->SetName("SpotLightView");
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
+    pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
   }
 
   // Setup camera
@@ -702,14 +705,17 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
   ezUInt32 uiUsedAtlasSize = 0;
 
   ezDebugRendererContext debugContext(ezWorld::GetWorld(0));
-
-  if (CVarShadowPoolStats)
+  if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
   {
-    ezDebugRenderer::Draw2DText(debugContext, "Shadow Pool Stats", ezVec2I32(10, 200), ezColor::LightSteelBlue);
-    ezDebugRenderer::Draw2DText(debugContext, "Details (Name: Size - Atlas Offset)", ezVec2I32(10, 250), ezColor::LightSteelBlue);
+    debugContext = ezDebugRendererContext(pView->GetHandle());
   }
 
-  ezInt32 iCurrentStatsOffset = 270;
+  if (cvar_RenderingShadowsShowPoolStats)
+  {
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
+  }
+
 #endif
 
   for (auto& sorted : s_SortedShadowData)
@@ -749,13 +755,9 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
       pShadowView->SetViewport(ezRectFloat((float)atlasRect.x, (float)atlasRect.y, (float)atlasRect.width, (float)atlasRect.height));
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      if (CVarShadowPoolStats)
+      if (cvar_RenderingShadowsShowPoolStats)
       {
-        ezStringBuilder sb;
-        sb.Format("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y);
-
-        ezDebugRenderer::Draw2DText(debugContext, sb, ezVec2I32(10, iCurrentStatsOffset), ezColor::LightSteelBlue);
-        iCurrentStatsOffset += 20;
+        ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
 
         uiUsedAtlasSize += atlasRect.width * atlasRect.height;
       }
@@ -930,12 +932,9 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (CVarShadowPoolStats)
+  if (cvar_RenderingShadowsShowPoolStats)
   {
-    ezStringBuilder sb;
-    sb.Format("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2));
-
-    ezDebugRenderer::Draw2DText(debugContext, sb, ezVec2I32(10, 220), ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2)), ezColor::LightSteelBlue);
   }
 #endif
 

@@ -107,6 +107,11 @@ public:
 
   ezUuid InsertEventTrackCpAt(ezInt64 tickX, const char* szValue);
 
+  virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
+  {
+    return ezManipulatorSearchStrategy::ChildrenOfSelectedObject;
+  }
+
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;

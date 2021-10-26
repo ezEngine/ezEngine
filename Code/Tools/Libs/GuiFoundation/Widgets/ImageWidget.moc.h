@@ -43,3 +43,4 @@ private:
   ezQtImageScene* m_pScene;
   float m_fCurrentScale;
 };
+

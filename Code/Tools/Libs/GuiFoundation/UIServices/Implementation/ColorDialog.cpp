@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <GuiFoundation/UIServices/ColorDialog.moc.h>

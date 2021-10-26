@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
@@ -157,6 +157,11 @@ ezInt32 ezCommandLineUtils::GetOptionIndex(const char* szOption, bool bCaseSensi
   }
 
   return -1;
+}
+
+bool ezCommandLineUtils::HasOption(const char* szOption, bool bCaseSensitive /*= false*/) const
+{
+  return GetOptionIndex(szOption, bCaseSensitive) >= 0;
 }
 
 ezUInt32 ezCommandLineUtils::GetStringOptionArguments(const char* szOption, bool bCaseSensitive) const

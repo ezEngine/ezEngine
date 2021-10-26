@@ -20,3 +20,4 @@ public:
 
   ezQtAssetPropertyWidget* m_pOwner;
 };
+

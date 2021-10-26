@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Messages/CommonMessages.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -150,8 +150,20 @@ void ezSimpleAnimationComponent::Update()
   cmdSample.m_EventSampling = mode;
 
   auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
-  cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
   cmdL2M.m_pSendLocalPoseMsgTo = GetOwner();
+
+  if (animDesc.m_bAdditive)
+  {
+    auto& cmdComb = poseGen.AllocCommandCombinePoses();
+    cmdComb.m_Inputs.PushBack(cmdSample.GetCommandID());
+    cmdComb.m_InputWeights.PushBack(1.0f);
+
+    cmdL2M.m_Inputs.PushBack(cmdComb.GetCommandID());
+  }
+  else
+  {
+    cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
+  }
 
   auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
   cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
@@ -160,16 +172,6 @@ void ezSimpleAnimationComponent::Update()
 
   if (pose.IsEmpty())
     return;
-
-  // inform child nodes/components that a new pose is available
-  {
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = pose;
-
-    GetOwner()->SendMessageRecursive(msg);
-  }
 
   if (m_RootMotionMode != ezRootMotionMode::Ignore)
   {
@@ -183,6 +185,21 @@ void ezSimpleAnimationComponent::Update()
 
     // only applies positional root motion
     ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezAngle(), ezAngle(), ezAngle());
+  }
+
+  // inform child nodes/components that a new pose is available
+  {
+    ezMsgAnimationPoseUpdated msg;
+    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+    msg.m_ModelTransforms = pose;
+
+    GetOwner()->SendMessageRecursive(msg);
+
+    if (msg.m_bContinueAnimating == false)
+    {
+      SetActiveFlag(false);
+    }
   }
 }
 

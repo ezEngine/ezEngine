@@ -19,7 +19,7 @@ public:
 
   void SetDebugPin(const ezPin* pDebugPin);
 
-  ezStatus WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;
+  ezStatus WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const;
 
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
@@ -45,6 +45,8 @@ private:
   };
 
   typedef ezHashTable<const ezDocumentObject*, CachedNode> NodeCache;
+
+  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
 
   ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
     ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast,

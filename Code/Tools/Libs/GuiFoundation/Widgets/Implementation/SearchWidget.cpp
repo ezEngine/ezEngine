@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 #include <QKeyEvent>
@@ -84,7 +84,7 @@ bool ezQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
         return true;
       }
 
-      if (pEvent->key() == Qt::Key_Up || pEvent->key() == Qt::Key_Down || pEvent->key() == Qt::Key_Tab || pEvent->key() == Qt::Key_Backtab)
+      if (pEvent->key() == Qt::Key_Up || pEvent->key() == Qt::Key_Down || pEvent->key() == Qt::Key_Tab || pEvent->key() == Qt::Key_Backtab || pEvent->key() == Qt::Key_F1 || pEvent->key() == Qt::Key_F2 || pEvent->key() == Qt::Key_F3)
       {
         Q_EMIT specialKeyPressed((Qt::Key)pEvent->key());
         return true;

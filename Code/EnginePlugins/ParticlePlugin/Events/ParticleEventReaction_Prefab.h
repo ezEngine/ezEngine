@@ -4,7 +4,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
-typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Prefab final : public ezParticleEventReactionFactory
 {

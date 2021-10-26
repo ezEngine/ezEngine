@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Math/Transform.h>
 
@@ -92,8 +92,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * (quat)")
   {
     ezQuat qRotX, qRotY;
-    qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Degree(90.0f));
-    qRotY.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Degree(90.0f));
+    qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Radian(1.57079637f));
+    qRotY.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Radian(1.57079637f));
 
     ezTransformT t0, t1;
     t0.SetIdentity();
@@ -115,8 +115,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * (vec3)")
   {
     ezQuat qRotX, qRotY;
-    qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Degree(90.0f));
-    qRotY.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Degree(90.0f));
+    qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Radian(1.57079637f));
+    qRotY.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Radian(1.57079637f));
 
     ezTransformT t;
     t.SetIdentity();
@@ -208,18 +208,18 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezTransformT)")
   {
     ezTransformT tParent(ezVec3T(1, 2, 3));
-    tParent.m_qRotation.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_qRotation.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Radian(1.57079637f));
     tParent.m_vScale.Set(2);
 
     ezTransformT tToChild(ezVec3T(4, 5, 6));
-    tToChild.m_qRotation.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_qRotation.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Radian(1.57079637f));
     tToChild.m_vScale.Set(4);
 
     // this is exactly the same as SetGlobalTransform
     ezTransformT tChild;
     tChild = tParent * tToChild;
 
-    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3T(13, 12, -5), 0.0001f);
+    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3T(13, 12, -5), 0.003f);
     EZ_TEST_BOOL(tChild.m_qRotation.GetAsMat3().IsEqual(ezMat3(0, 0, 1, 1, 0, 0, 0, 1, 0), 0.0001f));
     EZ_TEST_VEC3(tChild.m_vScale, ezVec3T(8, 8, 8), 0.0001f);
 
@@ -431,8 +431,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 
     ezMat4 m = t.GetAsMat4();
 
-    // reference
     ezMat4 refM;
+    refM.SetZero();
     {
       ezQuat q;
       q.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(34));

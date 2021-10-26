@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 EZ_STATICLINK_LIBRARY(EditorPluginFmod)
 {

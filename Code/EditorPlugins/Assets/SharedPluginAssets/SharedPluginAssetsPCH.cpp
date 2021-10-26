@@ -1,4 +1,4 @@
-#include <SharedPluginAssetsPCH.h>
+#include <SharedPluginAssets/SharedPluginAssetsPCH.h>
 
 EZ_STATICLINK_LIBRARY(SharedPluginAssets)
 {

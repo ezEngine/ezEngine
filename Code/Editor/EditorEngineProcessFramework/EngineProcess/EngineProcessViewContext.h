@@ -13,7 +13,7 @@ class ezEditorEngineViewMsg;
 class ezGALRenderTargetSetup;
 class ezActor;
 
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
 /// \brief Represents the window inside the editor process, into which the engine process renders
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorProcessViewWindow : public ezWindowBase

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/Passes/CopyTexturePass.h>
 #include <RendererCore/Pipeline/View.h>

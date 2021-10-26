@@ -1,10 +1,10 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 //-------------------------------------------------------------------------------------
 // DirectXTexMisc.cpp
-//  
+//
 // DirectX Texture Library - Misc image operations
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
@@ -17,6 +17,11 @@
 
 using namespace DirectX;
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 namespace
 {
     const XMVECTORF32 g_Gamma22 = { { { 2.2f, 2.2f, 2.2f, 1.f } } };
@@ -27,7 +32,7 @@ namespace
         const Image& image2,
         float& mse,
         _Out_writes_opt_(4) float* mseV,
-        DWORD flags) noexcept
+        CMSE_FLAGS flags) noexcept
     {
         if (!image1.pixels || !image2.pixels)
             return E_POINTER;
@@ -37,7 +42,7 @@ namespace
 
         const size_t width = image1.width;
 
-        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width) * 2, 16)));
+        auto scanline = make_AlignedArrayXMVECTOR(uint64_t(width) * 2);
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -188,7 +193,7 @@ namespace
 
         const size_t width = image.width;
 
-        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width), 16)));
+        auto scanline = make_AlignedArrayXMVECTOR(width);
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -226,7 +231,7 @@ namespace
 
         const size_t width = srcImage.width;
 
-        ScopedAlignedArrayXMVECTOR scanlines(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width*2), 16)));
+        auto scanlines = make_AlignedArrayXMVECTOR(uint64_t(width) * 2);
         if (!scanlines)
             return E_OUTOFMEMORY;
 
@@ -265,7 +270,7 @@ namespace
 //=====================================================================================
 // Entry points
 //=====================================================================================
-        
+
 //-------------------------------------------------------------------------------------
 // Copies a rectangle from one image into another
 //-------------------------------------------------------------------------------------
@@ -274,9 +279,9 @@ HRESULT DirectX::CopyRectangle(
     const Image& srcImage,
     const Rect& srcRect,
     const Image& dstImage,
-    DWORD filter,
+    TEX_FILTER_FLAGS filter,
     size_t xOffset,
-    size_t yOffset)
+    size_t yOffset) noexcept
 {
     if (!srcImage.pixels || !dstImage.pixels)
         return E_POINTER;
@@ -284,7 +289,7 @@ HRESULT DirectX::CopyRectangle(
     if (IsCompressed(srcImage.format) || IsCompressed(dstImage.format)
         || IsPlanar(srcImage.format) || IsPlanar(dstImage.format)
         || IsPalettized(srcImage.format) || IsPalettized(dstImage.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     // Validate rectangle/offset
     if (!srcRect.w || !srcRect.h || ((srcRect.x + srcRect.w) > srcImage.width) || ((srcRect.y + srcRect.h) > srcImage.height))
@@ -305,7 +310,7 @@ HRESULT DirectX::CopyRectangle(
     if (sbpp < 8)
     {
         // We don't support monochrome (DXGI_FORMAT_R1_UNORM)
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
     }
 
     const uint8_t* pEndSrc = srcImage.pixels + srcImage.rowPitch*srcImage.height;
@@ -326,7 +331,7 @@ HRESULT DirectX::CopyRectangle(
             if (((pSrc + copyW) > pEndSrc) || (pDest > pEndDest))
                 return E_FAIL;
 
-            memcpy_s(pDest, size_t(pEndDest - pDest), pSrc, copyW);
+            memcpy(pDest, pSrc, copyW);
 
             pSrc += srcImage.rowPitch;
             pDest += dstImage.rowPitch;
@@ -343,7 +348,7 @@ HRESULT DirectX::CopyRectangle(
     if (dbpp < 8)
     {
         // We don't support monochrome (DXGI_FORMAT_R1_UNORM)
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
     }
 
     // Round to bytes
@@ -351,7 +356,7 @@ HRESULT DirectX::CopyRectangle(
 
     uint8_t* pDest = dstImage.pixels + (yOffset * dstImage.rowPitch) + (xOffset * dbpp);
 
-    ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcRect.w), 16)));
+    auto scanline = make_AlignedArrayXMVECTOR(srcRect.w);
     if (!scanline)
         return E_OUTOFMEMORY;
 
@@ -378,7 +383,7 @@ HRESULT DirectX::CopyRectangle(
     return S_OK;
 }
 
-    
+
 //-------------------------------------------------------------------------------------
 // Computes the Mean-Squared-Error (MSE) between two images
 //-------------------------------------------------------------------------------------
@@ -388,7 +393,7 @@ HRESULT DirectX::ComputeMSE(
     const Image& image2,
     float& mse,
     float* mseV,
-    DWORD flags) noexcept
+    CMSE_FLAGS flags) noexcept
 {
     if (!image1.pixels || !image2.pixels)
         return E_POINTER;
@@ -402,7 +407,7 @@ HRESULT DirectX::ComputeMSE(
     if (IsPlanar(image1.format) || IsPlanar(image2.format)
         || IsPalettized(image1.format) || IsPalettized(image2.format)
         || IsTypeless(image1.format) || IsTypeless(image2.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     if (IsCompressed(image1.format))
     {
@@ -482,7 +487,7 @@ HRESULT DirectX::EvaluateImage(
         return E_INVALIDARG;
 
     if (IsPlanar(image.format) || IsPalettized(image.format) || IsTypeless(image.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     if (IsCompressed(image.format))
     {
@@ -517,7 +522,7 @@ HRESULT DirectX::EvaluateImage(
         return E_INVALIDARG;
 
     if (IsPlanar(metadata.format) || IsPalettized(metadata.format) || IsTypeless(metadata.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     if (metadata.width > UINT32_MAX
         || metadata.height > UINT32_MAX)
@@ -611,7 +616,7 @@ HRESULT DirectX::TransformImage(
         return E_INVALIDARG;
 
     if (IsPlanar(image.format) || IsPalettized(image.format) || IsCompressed(image.format) || IsTypeless(image.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     HRESULT hr = result.Initialize2D(image.format, image.width, image.height, 1, 1);
     if (FAILED(hr))
@@ -630,7 +635,7 @@ HRESULT DirectX::TransformImage(
         result.Release();
         return hr;
     }
-    
+
     return S_OK;
 }
 
@@ -645,7 +650,7 @@ HRESULT DirectX::TransformImage(
         return E_INVALIDARG;
 
     if (IsPlanar(metadata.format) || IsPalettized(metadata.format) || IsCompressed(metadata.format) || IsTypeless(metadata.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     if (metadata.width > UINT32_MAX
         || metadata.height > UINT32_MAX)

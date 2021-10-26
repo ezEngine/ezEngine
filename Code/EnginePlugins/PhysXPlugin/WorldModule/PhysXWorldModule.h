@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Messages/TriggerMessage.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Threading/DelegateTask.h>
@@ -8,11 +9,6 @@
 #include <PhysXPlugin/Utilities/PxUserData.h>
 
 class ezPxSimulationEventCallback;
-
-namespace physx
-{
-  class PxConstraint;
-}
 
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
@@ -77,17 +73,25 @@ private:
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
+  void HandleSimulationEvents();
+
+  void UpdatePhysicsSlideReactions();
+  void UpdatePhysicsRollReactions();
+
+  void SpawnPhysicsImpactReactions();
+
   void HandleBrokenConstraints();
   void HandleTriggerEvents();
 
   void Simulate();
   void SimulateStep(ezTime deltaTime);
+  void UpdatePVD();
 
   void UpdateJoints();
 
-  physx::PxScene* m_pPxScene;
-  physx::PxControllerManager* m_pCharacterManager;
-  ezPxSimulationEventCallback* m_pSimulationEventCallback;
+  physx::PxScene* m_pPxScene = nullptr;
+  physx::PxControllerManager* m_pCharacterManager = nullptr;
+  ezPxSimulationEventCallback* m_pSimulationEventCallback = nullptr;
 
   ezUInt32 m_uiNextShapeId;
   ezDynamicArray<ezUInt32> m_FreeShapeIds;
@@ -99,7 +103,6 @@ private:
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_ScratchMemory;
 
   ezTime m_AccumulatedTimeSinceUpdate;
-
 
   ezPxSettings m_Settings;
 

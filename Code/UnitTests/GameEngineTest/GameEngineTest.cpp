@@ -1,4 +1,4 @@
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #include <RendererCore/Textures/TextureUtils.h>
 #include <TestFramework/Framework/TestFramework.h>
@@ -7,7 +7,7 @@
 EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("GameEngineTest", "GameEngine Tests")
 {
   ezTextureUtils::s_bForceFullQualityAlways = true; // never allow to use low-res textures
-  ezTestFramework::GetInstance()->SetTestTimeout(1000 * 60 * 10);
+  ezTestFramework::GetInstance()->SetTestTimeout(1000 * 60 * 20);
   ezTestFramework::s_bCallstackOnAssert = true;
 }
 EZ_TESTFRAMEWORK_ENTRY_POINT_END()

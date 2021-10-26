@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
@@ -11,6 +11,7 @@ namespace ezProcGenInternal
   void PlacementData::Clear()
   {
     m_pPhysicsModule = nullptr;
+    m_pWorld = nullptr;
 
     m_pOutput = nullptr;
     m_iTileSeed = 0;

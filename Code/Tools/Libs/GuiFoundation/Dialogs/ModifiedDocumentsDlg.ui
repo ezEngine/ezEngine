@@ -98,6 +98,10 @@
        <property name="text">
         <string>Don't Save</string>
        </property>
+       <property name="icon">
+        <iconset resource="../QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+       </property>
        <property name="shortcut">
         <string>Ctrl+Q</string>
        </property>
@@ -136,6 +140,10 @@
        <property name="text">
         <string>Save All</string>
        </property>
+       <property name="icon">
+        <iconset resource="../QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/SaveAll16.png</normaloff>:/GuiFoundation/Icons/SaveAll16.png</iconset>
+       </property>
        <property name="shortcut">
         <string>Ctrl+Shift+S</string>
        </property>
@@ -149,5 +157,4 @@
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
-
+</ui>

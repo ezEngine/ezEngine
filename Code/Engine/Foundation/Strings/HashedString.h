@@ -173,7 +173,9 @@ public:
   /// \brief Copies the hash from the ezHashedString.
   ezTempHashedString(const ezHashedString& rhs); // [tested]
 
-  /// \brief Copies the hash from the integer.
+  explicit ezTempHashedString(ezUInt32 uiHash) = delete;
+
+  /// \brief Copies the hash from the 64 bit integer.
   explicit ezTempHashedString(ezUInt64 uiHash);
 
   /// \brief The hash of the given string can be computed at compile time.

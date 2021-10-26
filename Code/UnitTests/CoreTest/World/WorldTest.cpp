@@ -1,4 +1,4 @@
-#include <CoreTestPCH.h>
+#include <CoreTest/CoreTestPCH.h>
 
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
@@ -489,7 +489,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     {
       EZ_TEST_INT(world.GetObjectCount(), 5);
-      world.DeleteObjectNow(o.pChild11->GetHandle());
+      world.DeleteObjectNow(o.pChild11->GetHandle(), false);
       EZ_TEST_INT(world.GetObjectCount(), 4);
 
       for (auto it = world.GetObjects(); it.IsValid(); ++it)

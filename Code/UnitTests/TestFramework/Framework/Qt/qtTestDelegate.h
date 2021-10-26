@@ -21,3 +21,4 @@ public: // QStyledItemDelegate interface
 };
 
 #endif
+

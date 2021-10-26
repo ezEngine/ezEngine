@@ -1,9 +1,14 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <ProcGenPlugin/Declarations.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBinaryOperator, 1)
+  EZ_ENUM_CONSTANTS(ezProcGenBinaryOperator::Add, ezProcGenBinaryOperator::Subtract, ezProcGenBinaryOperator::Multiply, ezProcGenBinaryOperator::Divide)
+  EZ_ENUM_CONSTANTS(ezProcGenBinaryOperator::Max, ezProcGenBinaryOperator::Min)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBlendMode, 1)
   EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Add, ezProcGenBlendMode::Subtract, ezProcGenBlendMode::Multiply, ezProcGenBlendMode::Divide)
   EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Max, ezProcGenBlendMode::Min)
@@ -27,6 +32,14 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorMapping, ezNoBase, 1, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcPlacementMode, 1)
+  EZ_ENUM_CONSTANTS(ezProcPlacementMode::Raycast, ezProcPlacementMode::Fixed)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcVolumeImageMode, 1)
+  EZ_ENUM_CONSTANTS(ezProcVolumeImageMode::ReferenceColor, ezProcVolumeImageMode::ChannelR, ezProcVolumeImageMode::ChannelG, ezProcVolumeImageMode::ChannelB, ezProcVolumeImageMode::ChannelA)
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 static ezTypeVersion s_ProcVertexColorMappingVersion = 1;
@@ -54,6 +67,7 @@ ezResult ezProcVertexColorMapping::Deserialize(ezStreamReader& stream)
 
 namespace ezProcGenInternal
 {
+  GraphSharedDataBase::~GraphSharedDataBase() = default;
   Output::~Output() = default;
 
   ezHashedString ExpressionInputs::s_sPositionX = ezMakeHashedString("PositionX");

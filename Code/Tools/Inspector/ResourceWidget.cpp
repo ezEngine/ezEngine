@@ -1,8 +1,8 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/ResourceWidget.moc.h>
-#include <MainWindow.moc.h>
+#include <Inspector/MainWindow.moc.h>
 #include <QComboBox>
 #include <qgraphicsitem.h>
 

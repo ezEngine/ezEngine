@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/ResourceManager/Implementation/ResourceManagerState.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -394,7 +394,7 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
 
 ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 {
-  EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
+  //EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
 
   if (RemoveFromLoadingQueue(pResource).Failed())
   {
@@ -544,7 +544,7 @@ void ezResourceManager::OnCoreStartup()
   s_State->s_bAllowLaunchDataLoadTask = true;
   s_State->s_bShutdown = false;
 
-  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
+  ezPlugin::Events().AddEventHandler(PluginEventHandler);
 }
 
 void ezResourceManager::EngineAboutToShutdown()
@@ -677,7 +677,7 @@ void ezResourceManager::OnCoreShutdown()
     }
   }
 
-  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
+  ezPlugin::Events().RemoveEventHandler(PluginEventHandler);
 
   s_State.Clear();
 }

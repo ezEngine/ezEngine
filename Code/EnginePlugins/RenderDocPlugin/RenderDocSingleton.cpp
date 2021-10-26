@@ -1,4 +1,4 @@
-#include <RenderDocPluginPCH.h>
+#include <RenderDocPlugin/RenderDocPluginPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/CVar.h>
@@ -39,7 +39,7 @@ ezRenderDoc::ezRenderDoc()
   {
     void* pApi = nullptr;
     RenderDoc_GetAPI(eRENDERDOC_API_Version_1_4_0, &pApi);
-    m_pRenderDocAPI = (RENDERDOC_API_1_4_0*)pApi;
+    m_pRenderDocAPI = (RENDERDOC_API_1_4_1*)pApi;
   }
 
   if (m_pRenderDocAPI)

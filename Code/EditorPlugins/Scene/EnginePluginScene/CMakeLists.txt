@@ -15,3 +15,10 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
   SharedPluginScene
 )
+
+if (EZ_BUILD_EMBREE)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    BakingPlugin
+  )
+endif()

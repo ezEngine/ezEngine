@@ -47,6 +47,4 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezPlugin g_Plugin(false);
-
 EZ_STATICLINK_FILE(System, System_XBoxController_Startup);

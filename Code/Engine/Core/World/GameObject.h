@@ -431,8 +431,16 @@ public:
 
 
   /// \brief Returns the tag set associated with this object.
-  ezTagSet& GetTags();
   const ezTagSet& GetTags() const;
+
+  /// \brief Sets the tag set associated with this object.
+  void SetTags(const ezTagSet& tags);
+
+  /// \brief Adds the given tag to the object's tags.
+  void SetTag(const ezTag& tag);
+
+  /// \brief Removes the given tag from the object's tags.
+  void RemoveTag(const ezTag& tag);
 
   /// \brief Returns the 'team ID' that was given during creation (/see ezGameObjectDesc)
   ///
@@ -454,14 +462,19 @@ public:
   ///
   /// The stable seed is also propagated through prefab instances, such that every prefab instance gets a different value, but
   /// in a deterministic fashion.
-  ezUInt32 GetStableRandomSeed() const { return m_pTransformationData->m_uiStableRandomSeed; }
+  ezUInt32 GetStableRandomSeed() const;
 
-  /// \brief OVerwrites the object's random seed value.
+  /// \brief Overwrites the object's random seed value.
   ///
   /// See \a GetStableRandomSeed() for details.
   ///
   /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
-  void SetStableRandomSeed(ezUInt32 seed) { m_pTransformationData->m_uiStableRandomSeed = seed; }
+  void SetStableRandomSeed(ezUInt32 seed);
+
+  /// \brief Returns the number of frames since this object was last visible in any view.
+  ///
+  /// This value can be used to skip update logic of invisible objects.
+  ezUInt64 GetNumFramesSinceVisible() const;
 
 private:
   friend class ezComponentManagerBase;
@@ -535,19 +548,32 @@ private:
 
     ezUInt32 m_uiPadding2[1];
 
+    /// \brief Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
     void UpdateLocalTransform();
 
-    void ConditionalUpdateGlobalTransform();
-    void UpdateGlobalTransform();
+    /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
+    /// In case there is a parent transform it also recursively calls itself on the parent transform to ensure everything is up-to-date.
+    void UpdateGlobalTransformRecursive();
+
+    /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
+    /// Assumes that the parent's global transform is already up to date.
+    void UpdateGlobalTransformNonRecursive();
+
+    /// \brief Updates the global transform by copying the object's local transform into the global transform.
+    /// This is for objects that have no parent.
+    void UpdateGlobalTransformWithoutParent();
+
+    /// \brief Updates the global transform by combining the parents global transform with this object's local transform.
+    /// Assumes that the parent's global transform is already up to date.
     void UpdateGlobalTransformWithParent();
 
-    void UpdateGlobalBounds(ezSpatialSystem* pSpatialSytem);
+    void UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem);
     void UpdateGlobalBounds();
-    void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSytem);
+    void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSystem);
 
     void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 
-    void UpdateSpatialData(ezSpatialSystem& spatialSystem, bool bWasAlwaysVisible, bool bIsAlwaysVisible);
+    void RecreateSpatialData(ezSpatialSystem& spatialSystem);
   };
 
   ezGameObjectId m_InternalId;

@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>

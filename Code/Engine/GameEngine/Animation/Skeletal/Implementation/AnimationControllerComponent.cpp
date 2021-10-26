@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -7,7 +7,7 @@
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <GameEngine/Animation/Skeletal/AnimationControllerComponent.h>
 #include <GameEngine/Gameplay/BlackboardComponent.h>
-#include <Physics/CharacterControllerComponent.h>
+#include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 

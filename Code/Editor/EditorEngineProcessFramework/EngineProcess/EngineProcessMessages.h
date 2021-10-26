@@ -121,6 +121,23 @@ public:
   ezVariant m_NewValue;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezConsoleCmdMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezConsoleCmdMsgToEngine, ezEditorEngineMsg);
+
+public:
+  ezInt8 m_iType; // 0 = execute, 1 = auto complete
+  ezString m_sCommand;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezConsoleCmdResultMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezConsoleCmdResultMsgToEditor, ezEditorEngineMsg);
+
+public:
+  ezString m_sResult;
+};
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 /// \brief Base class for all messages that are tied to some document.
@@ -200,6 +217,7 @@ public:
 
   bool m_bDocumentOpen;
   ezString m_sDocumentType;
+  ezVariant m_DocumentMetaData;
 };
 
 /// \brief Used to reset the engine side to an empty document before sending the full document state over

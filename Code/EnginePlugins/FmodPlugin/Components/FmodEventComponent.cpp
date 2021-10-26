@@ -1,4 +1,4 @@
-#include <FmodPluginPCH.h>
+#include <FmodPlugin/FmodPluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/CommonMessages.h>
@@ -39,7 +39,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCVarInt CVarFmodOcclusionRays("fmod_OcclusionRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
+ezCVarInt cvar_FmodOcclusionNumRays("Fmod.Occlusion.NumRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
 
 static ezVec3 s_InSpherePositions[32];
 static bool s_bInSpherePositionsInitialized = false;
@@ -177,13 +177,12 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
 
 void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateContext& context)
 {
-  const ezWorld* pWorld = GetWorld();
-  if (const auto pPhysicsWorldModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  if (const auto pPhysicsWorldModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
   {
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
     ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
 
-    ezUInt32 uiNumRays = ezMath::Max<int>(CVarFmodOcclusionRays, 1);
+    ezUInt32 uiNumRays = ezMath::Max<int>(cvar_FmodOcclusionNumRays, 1);
 
     for (auto& occlusionState : m_OcclusionStates)
     {
@@ -739,11 +738,11 @@ void ezFmodEventComponent::Update()
         {
           ezVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * occlusionState.m_fRadius;
           ezColor color = (occlusionState.m_uiRaycastHits & (1 << uiRayIndex)) ? ezColor::Red : ezColor::Green;
-          ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(targetPos, 0.02f), color);
+          ezDebugRenderer::DrawCross(GetWorld(), targetPos, 0.1f, color);
         }
       }
 
-      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan);
     }
   }
 #endif

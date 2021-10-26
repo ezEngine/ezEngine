@@ -27,3 +27,4 @@ private:
 
   ezDynamicArray<ezAssetDocumentGenerator::ImportData>& m_allImports;
 };
+

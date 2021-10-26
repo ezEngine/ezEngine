@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -45,6 +45,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybr
     QPushButton* pButtonSave = new QPushButton(QLatin1String("Save"));
     EZ_VERIFY(connect(pButtonSave, SIGNAL(clicked()), this, SLOT(SlotSaveDocument())) != nullptr, "signal/slot connection failed");
 
+    pButtonSave->setIcon(QIcon(":/GuiFoundation/Icons/Save16.png"));
     pButtonSave->setProperty("document", QVariant::fromValue((void*)pDoc));
 
     pButtonSave->setMinimumWidth(100);
@@ -112,6 +113,22 @@ void ezQtModifiedDocumentsDlg::SlotSaveDocument()
   SaveDocument(pDoc).IgnoreResult();
 
   pButtonSave->setEnabled(pDoc->IsModified());
+
+  // Check if now all documents are saved and close the dialog if so
+  bool anyDocumentModified = false;
+  for (ezDocument* pDoc : m_ModifiedDocs)
+  {
+    if (pDoc->IsModified())
+    {
+      anyDocumentModified = true;
+      break;
+    }
+  }
+
+  if (!anyDocumentModified)
+  {
+    accept();
+  }
 }
 
 void ezQtModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)

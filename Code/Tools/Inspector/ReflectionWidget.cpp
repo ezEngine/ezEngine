@@ -1,8 +1,8 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/ReflectionWidget.moc.h>
-#include <MainWindow.moc.h>
+#include <Inspector/MainWindow.moc.h>
 #include <qlistwidget.h>
 
 ezQtReflectionWidget* ezQtReflectionWidget::s_pWidget = nullptr;

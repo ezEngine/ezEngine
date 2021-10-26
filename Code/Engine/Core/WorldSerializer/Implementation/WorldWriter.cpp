@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -83,8 +83,16 @@ ezResult ezWorldWriter::WriteToStream()
   *m_pStream << uiNumChildObjects;
   *m_pStream << uiNumComponentTypes;
 
+  // this is used to sort all component types by name, to make the file serialization deterministic
+  ezMap<ezString, const ezRTTI*> sortedTypes;
+
+  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  {
+    sortedTypes[it.Key()->GetTypeName()] = it.Key();
+  }
+
   AssignGameObjectIndices();
-  AssignComponentHandleIndices();
+  AssignComponentHandleIndices(sortedTypes);
 
   for (const auto* pObject : m_AllRootObjects)
   {
@@ -96,19 +104,19 @@ ezResult ezWorldWriter::WriteToStream()
     WriteGameObject(pObject);
   }
 
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
   {
-    WriteComponentTypeInfo(it.Key());
+    WriteComponentTypeInfo(it.Value());
   }
 
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
   {
-    WriteComponentCreationData(it.Value().m_Components);
+    WriteComponentCreationData(m_AllComponents[it.Value()].m_Components);
   }
 
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
   {
-    WriteComponentSerializationData(it.Value().m_Components);
+    WriteComponentSerializationData(m_AllComponents[it.Value()].m_Components);
   }
 
   EZ_SUCCEED_OR_RETURN(stringDedupWriteContext.End());
@@ -134,16 +142,16 @@ void ezWorldWriter::AssignGameObjectIndices()
   }
 }
 
-void ezWorldWriter::AssignComponentHandleIndices()
+void ezWorldWriter::AssignComponentHandleIndices(const ezMap<ezString, const ezRTTI*>& sortedTypes)
 {
   ezUInt16 uiTypeIndex = 0;
 
   EZ_ASSERT_DEV(m_AllComponents.GetCount() <= ezMath::MaxValue<ezUInt16>(), "Too many types for world writer");
 
   // assign the component handle indices in the order in which the components are written
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
   {
-    auto& components = it.Value();
+    auto& components = m_AllComponents[it.Value()];
 
     components.m_uiSerializedTypeIndex = uiTypeIndex;
     ++uiTypeIndex;

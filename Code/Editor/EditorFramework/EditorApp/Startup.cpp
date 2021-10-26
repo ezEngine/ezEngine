@@ -1,7 +1,7 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
@@ -30,6 +30,7 @@
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
@@ -47,7 +48,6 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <QSvgRenderer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ads/DockManager.h>
@@ -371,7 +371,7 @@ void ezQtEditorApp::ShutdownEditor()
 
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();
-  UnloadEditorPlugins();
+  ezPlugin::UnloadAllPlugins();
 
   // make sure no one tries to load any further images in parallel
   ezQtImageCache::GetSingleton()->StopRequestProcessing(true);
@@ -409,10 +409,14 @@ void ezQtEditorApp::CreatePanels()
   pAssetBrowserPanel->raise();
 }
 
+ezCommandLineOptionBool opt_NoSplashScreen("_Editor", "-NoSplash", "Disables the editor splash-screen", false);
 
 void ezQtEditorApp::SetupAndShowSplashScreen()
 {
   EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
+
+  if (opt_NoSplashScreen.GetOptionValue(ezCommandLineOption::LogMode::Never))
+    return;
 
   //QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
 

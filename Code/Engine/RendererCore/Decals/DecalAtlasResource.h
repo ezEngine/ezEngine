@@ -6,8 +6,8 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <Texture/Utils/TextureAtlasDesc.h>
 
-typedef ezTypedResourceHandle<class ezDecalAtlasResource> ezDecalAtlasResourceHandle;
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+using ezDecalAtlasResourceHandle = ezTypedResourceHandle<class ezDecalAtlasResource>;
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
 class ezImage;
 

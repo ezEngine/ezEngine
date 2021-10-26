@@ -11,6 +11,7 @@ enum class ezTranslationUsage
 {
   Default,
   Tooltip,
+  HelpURL,
 
   ENUM_COUNT
 };
@@ -123,5 +124,8 @@ private:
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
 #define ezTranslate(string) ezTranslationLookup::Translate(string, ezHashingUtils::StringHash(string), ezTranslationUsage::Default)
 
-/// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
+/// \brief Use this macro to query a translation for a tooltip string from the ezTranslationLookup system
 #define ezTranslateTooltip(string) ezTranslationLookup::Translate(string, ezHashingUtils::StringHash(string), ezTranslationUsage::Tooltip)
+
+/// \brief Use this macro to query a translation for a help URL from the ezTranslationLookup system
+#define ezTranslateHelpURL(string) ezTranslationLookup::Translate(string, ezHashingUtils::StringHash(string), ezTranslationUsage::HelpURL)

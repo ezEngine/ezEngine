@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
 #include <Foundation/Math/Mat4.h>

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -89,8 +89,8 @@ ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
 
 void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // Don't render in orthographic views
-  if (msg.m_pView->GetCamera()->IsOrthographic() || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  // Don't render in shadow views
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (!m_hTexture.IsValid())

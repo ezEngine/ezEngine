@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
 struct ezRenderWorldExtractionEvent
 {
@@ -75,6 +75,9 @@ public:
   static const ezEvent<const ezRenderWorldRenderEvent&, ezMutex>& GetRenderEvent() { return s_RenderEvent; }
 
   static bool GetUseMultithreadedRendering();
+
+  /// \brief Resets the frame counter to zero. Only for test purposes !
+  EZ_ALWAYS_INLINE static void ResetFrameCounter() { s_uiFrameCounter = 0; }
 
   EZ_ALWAYS_INLINE static ezUInt64 GetFrameCounter() { return s_uiFrameCounter; }
 

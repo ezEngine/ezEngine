@@ -1,4 +1,4 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
@@ -57,8 +57,7 @@ void ezSceneActions::RegisterActions()
   s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1(
     "Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction, ezSceneAction::ActionType::KeepSimulationChanges);
 
-  s_hCreateThumbnail =
-    EZ_REGISTER_ACTION_1("Scene.CreateThumbnail", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::CreateThumbnail);
+  s_hCreateThumbnail = EZ_REGISTER_ACTION_1("Scene.CreateThumbnail", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::CreateThumbnail);
   // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
   {
     s_hFavoriteCamsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.FavoriteCams.Menu", "");
@@ -172,9 +171,9 @@ void ezSceneActions::UnregisterActions()
   }
 }
 
-void ezSceneActions::MapMenuActions()
+void ezSceneActions::MapMenuActions(const char* szMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
@@ -182,7 +181,7 @@ void ezSceneActions::MapMenuActions()
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
-    pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f);
+    //pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
@@ -206,9 +205,9 @@ void ezSceneActions::MapMenuActions()
   }
 }
 
-void ezSceneActions::MapToolbarActions()
+void ezSceneActions::MapToolbarActions(const char* szMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentToolBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
@@ -238,8 +237,8 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  // TODO const cast
-  m_pSceneDocument = const_cast<ezSceneDocument*>(static_cast<const ezSceneDocument*>(context.m_pDocument));
+
+  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
   m_pSceneDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
 
   switch (m_Type)
@@ -316,16 +315,49 @@ void ezSceneAction::Execute(const ezVariant& value)
 
       ezQtExportAndRunDlg dlg(nullptr);
       dlg.m_sCmdLine = sCmd;
+      dlg.s_bUpdateThumbnail = false;
+      dlg.m_bShowThumbnailCheckbox = !m_pSceneDocument->IsPrefab();
 
       if (dlg.exec() != QDialog::Accepted)
         return;
 
-      if (dlg.s_bTransformAll)
+      bool bCreateThumbnail = dlg.s_bUpdateThumbnail;
+
+      if (!m_pSceneDocument->IsPrefab() && !bCreateThumbnail)
       {
-        ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
+        // if the thumbnail doesn't exist, or is very old, update it anyway
+
+        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(m_pSceneDocument->GetDocumentPath());
+
+        ezFileStats stat;
+        if (ezOSFile::GetFileStats(sThumbnailPath, stat).Failed())
+        {
+          bCreateThumbnail = true;
+        }
+        else
+        {
+          auto tNow = ezTimestamp::CurrentTimestamp();
+          auto tComp = stat.m_LastModificationTime + ezTime::Hours(24) * 7;
+
+          if (tComp.GetInt64(ezSIUnitOfTime::Second) < tNow.GetInt64(ezSIUnitOfTime::Second))
+          {
+            bCreateThumbnail = true;
+          }
+        }
       }
 
-      m_pSceneDocument->ExportScene(false);
+      if (dlg.s_bTransformAll)
+      {
+        if (ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None).Succeeded())
+        {
+          // once all assets have been transformed, disable it for the next export
+          dlg.s_bTransformAll = false;
+        }
+      }
+
+
+      m_pSceneDocument->ExportScene(bCreateThumbnail);
+      dlg.s_bUpdateThumbnail = false;
 
       // send event, so that 3rd party code can hook into this
       {

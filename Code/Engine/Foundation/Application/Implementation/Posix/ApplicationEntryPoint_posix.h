@@ -29,6 +29,6 @@
         ezLog::Printf("Return Code: '%s'\n", szReturnCode);                                                                                 \
     }                                                                                                                                       \
     pApp->~AppClass();                                                                                                                      \
-    memset(pApp, 0, sizeof(AppClass));                                                                                                      \
+    memset((void*)pApp, 0, sizeof(AppClass));                                                                                               \
     return iReturnCode;                                                                                                                     \
   }

@@ -141,6 +141,12 @@ EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModule() const
   return ezStaticCast<const ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
 }
 
+template <typename ModuleType>
+EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModuleReadOnly() const
+{
+  return GetModule<ModuleType>();
+}
+
 template <typename ManagerType>
 ManagerType* ezWorld::GetOrCreateComponentManager()
 {

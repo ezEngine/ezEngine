@@ -145,7 +145,6 @@ public:
   void DeInitQt();
 
   void LoadEditorPlugins();
-  void UnloadEditorPlugins();
 
   ezRecentFilesList& GetRecentProjectsList() { return s_RecentProjects; }
   ezRecentFilesList& GetRecentDocumentsList() { return s_RecentDocuments; }
@@ -237,6 +236,9 @@ private:
   void LoadProjectPreferences();
   void DetectAvailableEditorPlugins();
   void DetectAvailableEnginePlugins();
+  void StoreEnginePluginModificationTimes();
+  bool CheckForEnginePluginModifications();
+  void RestartEngineProcessIfPluginsChanged();
   void ReadEditorPluginsToBeLoaded();
   void ReadEnginePluginConfig();
   void SaveAllOpenDocuments();
@@ -279,6 +281,7 @@ private:
 
   ezLogWriter::HTML m_LogHTML;
 
+  ezTime m_LastPluginModificationCheck;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_EnginePluginConfig;
 

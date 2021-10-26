@@ -1,9 +1,9 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
-#include <AnimationSystem/AnimGraph/AnimGraph.h>
-#include <AnimationSystem/AnimationClipResource.h>
-#include <AnimationSystem/SkeletonResource.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNode, 1, ezRTTINoAllocator)

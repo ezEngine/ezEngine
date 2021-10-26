@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "../TestClass/TestClass.h"
 
@@ -17,6 +17,8 @@ public:
 
   void SubTestDebugRenderingSetup();
   ezTestAppRun SubTestDebugRenderingExec(ezInt32 iCurFrame);
+
+  ezTestAppRun SubTestDebugRenderingExec2(ezInt32 iCurFrame);
 
   void SubTestLoadSceneSetup();
   ezTestAppRun SubTestLoadSceneExec(ezInt32 iCurFrame);
@@ -36,6 +38,7 @@ private:
     ManyMeshes,
     Skybox,
     DebugRendering,
+    DebugRendering2,
     LoadScene,
   };
 

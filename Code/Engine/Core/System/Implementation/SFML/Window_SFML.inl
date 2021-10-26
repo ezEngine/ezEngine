@@ -1,7 +1,7 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
-#include <Core/System/Window.h>
 #include <Foundation/Math/Size.h>
+#include <Core/System/Window.h>
 
 ezResult ezWindow::Initialize()
 {

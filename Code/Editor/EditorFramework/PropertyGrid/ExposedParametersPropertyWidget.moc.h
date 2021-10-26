@@ -78,3 +78,4 @@ private:
   QAction* m_pRemoveUnusedAction = nullptr;
   QAction* m_pFixTypesAction = nullptr;
 };
+

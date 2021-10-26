@@ -31,7 +31,7 @@ struct ezVolumePosition
 class EZ_FOUNDATION_DLL ezFrustum
 {
 public:
-  enum PlaneType
+  enum PlaneType : ezUInt8
   {
     NearPlane,
     LeftPlane,
@@ -43,7 +43,7 @@ public:
     PLANE_COUNT
   };
 
-  enum FrustumCorner
+  enum FrustumCorner : ezUInt8
   {
     NearTopLeft,
     NearTopRight,

@@ -29,3 +29,4 @@ private:
   ezSoundEventAssetDocument* m_pAssetDoc = nullptr;
   QLabel* m_pLabelInfo = nullptr;
 };
+

@@ -1,4 +1,4 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>

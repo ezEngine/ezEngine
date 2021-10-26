@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
@@ -9,7 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezImageDataAssetDocument::ezImageDataAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezImageDataAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezImageDataAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

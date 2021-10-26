@@ -1,10 +1,10 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 //-------------------------------------------------------------------------------------
 // DirectXTexNormalMaps.cpp
-//  
+//
 // DirectX Texture Library - Normal map operations
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
@@ -21,7 +21,7 @@ namespace
 {
 
 #pragma prefast(suppress : 25000, "FXMVECTOR is 16 bytes")
-    inline float EvaluateColor(_In_ FXMVECTOR val, _In_ DWORD flags) noexcept
+    inline float EvaluateColor(_In_ FXMVECTOR val, _In_ CNMAP_FLAGS flags) noexcept
     {
         XMFLOAT4A f;
 
@@ -53,7 +53,7 @@ namespace
         _In_reads_(width) const XMVECTOR* pSource,
         _Out_writes_(width + 2) float* pDest,
         size_t width,
-        DWORD flags) noexcept
+        CNMAP_FLAGS flags) noexcept
     {
         assert(pSource && pDest);
         assert(width > 0);
@@ -77,18 +77,18 @@ namespace
         }
     }
 
-    HRESULT ComputeNMap(_In_ const Image& srcImage, _In_ DWORD flags, _In_ float amplitude,
+    HRESULT ComputeNMap(_In_ const Image& srcImage, _In_ CNMAP_FLAGS flags, _In_ float amplitude,
         _In_ DXGI_FORMAT format, _In_ const Image& normalMap) noexcept
     {
         if (!srcImage.pixels || !normalMap.pixels)
             return E_INVALIDARG;
 
-        const DWORD convFlags = _GetConvertFlags(format);
+        const uint32_t convFlags = _GetConvertFlags(format);
         if (!convFlags)
             return E_FAIL;
 
         if (!(convFlags & (CONVF_UNORM | CONVF_SNORM | CONVF_FLOAT)))
-            return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+            return HRESULT_E_NOT_SUPPORTED;
 
         const size_t width = srcImage.width;
         const size_t height = srcImage.height;
@@ -96,11 +96,11 @@ namespace
             return E_FAIL;
 
         // Allocate temporary space (4 scanlines and 3 evaluated rows)
-        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width * 4), 16)));
+        auto scanline = make_AlignedArrayXMVECTOR(uint64_t(width) * 4);
         if (!scanline)
             return E_OUTOFMEMORY;
 
-        ScopedAlignedArrayFloat buffer(static_cast<float*>(_aligned_malloc(((sizeof(float) * (width + 2)) * 3), 16)));
+        auto buffer = make_AlignedArrayFloat((uint64_t(width) + 2) * 3);
         if (!buffer)
             return E_OUTOFMEMORY;
 
@@ -128,7 +128,7 @@ namespace
         if (flags & CNMAP_MIRROR_V)
         {
             // Mirror first row
-            memcpy_s(row0, rowPitch, row1, rowPitch);
+            memcpy(row0, row1, rowPitch);
         }
         else
         {
@@ -252,14 +252,14 @@ namespace
 //=====================================================================================
 // Entry points
 //=====================================================================================
-        
+
 //-------------------------------------------------------------------------------------
 // Generates a normal map from a height-map
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::ComputeNormalMap(
     const Image& srcImage,
-    DWORD flags,
+    CNMAP_FLAGS flags,
     float amplitude,
     DXGI_FORMAT format,
     ScratchImage& normalMap) noexcept
@@ -286,7 +286,7 @@ HRESULT DirectX::ComputeNormalMap(
         || IsTypeless(format) || IsTypeless(srcImage.format)
         || IsPlanar(format) || IsPlanar(srcImage.format)
         || IsPalettized(format) || IsPalettized(srcImage.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     // Setup target image
     normalMap.Release();
@@ -317,7 +317,7 @@ HRESULT DirectX::ComputeNormalMap(
     const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
-    DWORD flags,
+    CNMAP_FLAGS flags,
     float amplitude,
     DXGI_FORMAT format,
     ScratchImage& normalMaps) noexcept
@@ -329,7 +329,7 @@ HRESULT DirectX::ComputeNormalMap(
         || IsTypeless(format) || IsTypeless(metadata.format)
         || IsPlanar(format) || IsPlanar(metadata.format)
         || IsPalettized(format) || IsPalettized(metadata.format))
-        return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+        return HRESULT_E_NOT_SUPPORTED;
 
     static_assert(CNMAP_CHANNEL_RED == 0x1, "CNMAP_CHANNEL_ flag values don't match mask");
     switch (flags & 0xf)
@@ -375,7 +375,7 @@ HRESULT DirectX::ComputeNormalMap(
         if (IsCompressed(src.format) || IsTypeless(src.format))
         {
             normalMaps.Release();
-            return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+            return HRESULT_E_NOT_SUPPORTED;
         }
 
         if (src.width != dest[index].width || src.height != dest[index].height)

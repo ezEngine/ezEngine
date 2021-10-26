@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
@@ -10,7 +10,7 @@ ezDirectionVisualizerAdapter::~ezDirectionVisualizerAdapter() {}
 
 void ezDirectionVisualizerAdapter::Finalize()
 {
-  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
   const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
   EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
@@ -75,5 +75,9 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
   t.m_qRotation = axisRotation;
   t.m_vScale = ezVec3(fScale);
   t.m_vPosition = axisRotation * ezVec3(fScale * 0.5f, 0, 0);
-  m_Gizmo.SetTransformation(GetObjectTransform() * t);
+
+  ezTransform tObject = GetObjectTransform();
+  tObject.m_vScale.Set(1.0f);
+
+  m_Gizmo.SetTransformation(tObject * t);
 }

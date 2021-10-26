@@ -1,4 +1,4 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
@@ -9,8 +9,7 @@
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/ImageConversion.h>
 
-ezCVarBool cvar_PenalizeDXConversions("texture.PenalizeDXConversions", false, ezCVarFlags::RequiresRestart,
-  "Add a penalty to DirectX-based conversion when choosing how to convert textures");
+ezCVarBool cvar_TexturePenalizeDXConversions("Texture.PenalizeDXConversions", false, ezCVarFlags::RequiresRestart, "Add a penalty to DirectX-based conversion when choosing how to convert textures");
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  define EZ_SUPPORTS_DIRECTXTEX EZ_ON
@@ -237,7 +236,7 @@ namespace
       // currently largest step, making software DX conversions available but highly undesirable.
       float devicePenalty = 2000.0f;
 
-      if ((CreateDevice(m_pD3dDevice) == TypeOfDeviceCreated::Hardware) && !cvar_PenalizeDXConversions)
+      if ((CreateDevice(m_pD3dDevice) == TypeOfDeviceCreated::Hardware) && !cvar_TexturePenalizeDXConversions)
       {
         // No penalty for hardware devices.
         devicePenalty = 0.0f;

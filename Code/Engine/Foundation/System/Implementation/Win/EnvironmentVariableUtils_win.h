@@ -2,6 +2,7 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <intsafe.h>
 
 ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, const char* szDefault)
 {
@@ -25,6 +26,7 @@ ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, cons
   // Static buffer was too small, do a heap allocation to query the value
   else if (res == ERANGE)
   {
+    EZ_ASSERT_DEV(uiRequiredSize != SIZE_T_MAX, "");
     const size_t uiDynamicSize = uiRequiredSize + 1;
     wchar_t* szDynamicBuffer = EZ_DEFAULT_NEW_RAW_BUFFER(wchar_t, uiDynamicSize);
     ezMemoryUtils::ZeroFill(szDynamicBuffer, uiDynamicSize);

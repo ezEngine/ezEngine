@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Visualizers/CylinderVisualizerAdapter.h>
@@ -10,7 +10,7 @@ ezCylinderVisualizerAdapter::~ezCylinderVisualizerAdapter() {}
 
 void ezCylinderVisualizerAdapter::Finalize()
 {
-  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
   const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
   EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
@@ -111,5 +111,11 @@ void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
 
   t.m_vPosition += vOffset;
 
-  m_Cylinder.SetTransformation(GetObjectTransform() * t);
+  // ezTransform doesn't (can't) combine rotations with scales
+  // however, here we know that the axisRotation is just an axis remapping, so we can combine them
+  ezTransform parentTransform = GetObjectTransform();
+  ezTransform newTrans = parentTransform * t;
+  newTrans.m_vScale = (axisRotation * parentTransform.m_vScale).CompMul(t.m_vScale);
+
+  m_Cylinder.SetTransformation(newTrans);
 }

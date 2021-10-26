@@ -1,10 +1,9 @@
-#include <KrautPluginPCH.h>
+#include <KrautPlugin/KrautPluginPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -13,7 +12,10 @@
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
@@ -313,14 +315,11 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     if (fHeightScale * fTreeHeight <= 0.0f)
       return EZ_FAILURE;
 
-    // for the position offset we need to adjust for the tree scale (cylinder has its origin at its center)
-    const ezMat4 transform = GetOwner()->GetGlobalTransform().GetAsMat4();
-
     // using a cone or even a cylinder with a thinner top results in the character controller getting stuck while sliding along the geometry
     // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
 
     // due to 'transform' this will already include the tree scale
-    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8, ezColor::White, transform);
+    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8, ezColor::White);
 
     geo.TriangulatePolygons();
   }
@@ -368,7 +367,15 @@ void ezKrautTreeComponent::ComputeWind() const
   if (!IsActiveAndSimulating())
     return;
 
-  const ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModule<ezWindWorldModuleInterface>();
+  // ComputeWind() is called by the renderer extraction, which happens once for every view
+  // make sure the wind update happens only once per frame, otherwise the spring would behave differently
+  // depending on how many light sources (with shadows) shine on a tree
+  if (ezRenderWorld::GetFrameCounter() == m_uiLastWindUpdate)
+    return;
+
+  m_uiLastWindUpdate = ezRenderWorld::GetFrameCounter();
+
+  const ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>();
 
   if (!pWindInterface)
     return;
@@ -376,30 +383,29 @@ void ezKrautTreeComponent::ComputeWind() const
   auto pOwnder = GetOwner();
 
   const ezVec3 vOwnerPos = pOwnder->GetGlobalPosition();
-  const ezVec3 vSampleWindPos1 = vOwnerPos + ezVec3(0, 0, 1);
-  const ezVec3 vSampleWindPos2 = vOwnerPos + ezVec3(0, 0, 2);
-
-  const ezVec3 vWindForce1 = pWindInterface->GetWindAt(vSampleWindPos1);
-  const ezVec3 vWindForce2 = pWindInterface->GetWindAt(vSampleWindPos2);
+  const ezVec3 vSampleWindPos = vOwnerPos + ezVec3(0, 0, 2);
+  const ezVec3 vWindForce = pWindInterface->GetWindAt(vSampleWindPos);
 
   const float realTimeStep = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
 
   // springy wind force
   {
+    const float fOverallStrength = 4.0f;
+
     const float fSpringConstant = 1.0f;
     const float fSpringDamping = 0.5f;
     const float fTreeMass = 1.0f;
 
     const ezVec3 vSpringForce = -(fSpringConstant * m_vWindSpringPos + fSpringDamping * m_vWindSpringVel);
 
-    const ezVec3 vTotalForce = vWindForce2 + vSpringForce;
+    const ezVec3 vTotalForce = vWindForce + vSpringForce;
 
     // F = mass*acc
     // acc = F / mass
     const ezVec3 vTreeAcceleration = vTotalForce / fTreeMass;
 
-    m_vWindSpringVel += vTreeAcceleration * realTimeStep;
-    m_vWindSpringPos += m_vWindSpringVel * realTimeStep;
+    m_vWindSpringVel += vTreeAcceleration * realTimeStep * fOverallStrength;
+    m_vWindSpringPos += m_vWindSpringVel * realTimeStep * fOverallStrength;
   }
 
   // debug draw wind vectors
@@ -413,7 +419,7 @@ void ezKrautTreeComponent::ComputeWind() const
     {
       auto& l = lines.ExpandAndGetRef();
       l.m_start = offset;
-      l.m_end = offset + vWindForce1;
+      l.m_end = offset + vWindForce;
       l.m_startColor = ezColor::BlueViolet;
       l.m_endColor = ezColor::PowderBlue;
     }
@@ -441,33 +447,35 @@ void ezKrautTreeComponent::ComputeWind() const
     ezStringBuilder tmp;
     tmp.Format("Wind: {}m/s", m_vWindSpringPos.GetLength());
 
-    ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue, 16, ezDebugRenderer::HorizontalAlignment::Center);
+    ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue);
   }
 }
 
 void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  ezGeometry geo;
-  if (CreateGeometry(geo, msg.m_Mode).Failed())
-    return;
+  ezStringBuilder sResourceName;
+  sResourceName.Format("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
 
-  auto& vertices = msg.m_pWorldGeometry->m_Vertices;
-  auto& triangles = msg.m_pWorldGeometry->m_Triangles;
-
-  const ezUInt32 uiFirstVertex = vertices.GetCount();
-
-  for (const auto& vtx : geo.GetVertices())
+  ezCpuMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
+  if (!hMesh.IsValid())
   {
-    vertices.ExpandAndGetRef().m_vPosition = vtx.m_vPosition;
+    ezGeometry geo;
+    if (CreateGeometry(geo, msg.m_Mode).Failed())
+      return;
+
+    ezMeshResourceDescriptor desc;
+
+    desc.MeshBufferDesc().AddCommonStreams();
+    desc.MeshBufferDesc().AllocateStreamsFromGeometry(geo, ezGALPrimitiveTopology::Triangles);
+
+    desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+
+    desc.ComputeBounds();
+
+    hMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   }
 
-  for (const auto& tri : geo.GetPolygons())
-  {
-    auto& t = triangles.ExpandAndGetRef();
-    t.m_uiVertexIndices[0] = uiFirstVertex + tri.m_Vertices[0];
-    t.m_uiVertexIndices[1] = uiFirstVertex + tri.m_Vertices[1];
-    t.m_uiVertexIndices[2] = uiFirstVertex + tri.m_Vertices[2];
-  }
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
 void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
@@ -494,6 +502,8 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
     }
   }
 
+  const ezTransform transform = GetOwner()->GetGlobalTransform();
+
   subMesh.m_uiFirstTriangle = desc.m_Triangles.GetCount();
   subMesh.m_uiNumTriangles = geo.GetPolygons().GetCount();
 
@@ -501,7 +511,7 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
   for (const auto& vtx : geo.GetVertices())
   {
-    desc.m_Vertices.ExpandAndGetRef() = vtx.m_vPosition;
+    desc.m_Vertices.ExpandAndGetRef() = transform.TransformPosition(vtx.m_vPosition);
   }
 
   for (const auto& tri : geo.GetPolygons())

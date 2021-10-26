@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
@@ -16,7 +16,7 @@
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
-ezCVarFloat CVarTextureLoadingDelay("r_TextureLoadDelay", 0.0f, ezCVarFlags::Save, "Artificial texture loading slowdown");
+ezCVarFloat cvar_StreamingTextureLoadDelay("Streaming.TextureLoadDelay", 0.0f, ezCVarFlags::Save, "Artificial texture loading slowdown");
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
@@ -147,9 +147,9 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
 
-  if (CVarTextureLoadingDelay > 0)
+  if (cvar_StreamingTextureLoadDelay > 0)
   {
-    ezThreadUtils::Sleep(ezTime::Seconds(CVarTextureLoadingDelay));
+    ezThreadUtils::Sleep(ezTime::Seconds(cvar_StreamingTextureLoadDelay));
   }
 
   return res;

@@ -1,4 +1,4 @@
-#include <InspectorPCH.h>
+#include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
@@ -91,6 +91,7 @@ public:
     ezQtMainWindow MainWindow;
 
     ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezQtCVarsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('CMD', true, ezQtCVarsWidget::ProcessTelemetryConsole, nullptr);
     ezTelemetry::AcceptMessagesForSystem(' LOG', true, ezQtLogDockWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem(' MEM', true, ezQtMemoryWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('TIME', true, ezQtTimeWidget::ProcessTelemetry, nullptr);

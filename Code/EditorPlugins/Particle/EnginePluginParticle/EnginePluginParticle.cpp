@@ -1,4 +1,3 @@
-#include <EnginePluginParticlePCH.h>
+#include <EnginePluginParticle/EnginePluginParticlePCH.h>
 
-
-ezPlugin g_Plugin(false);
+#include <Foundation/Configuration/Plugin.h>

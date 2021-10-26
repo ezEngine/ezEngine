@@ -429,9 +429,9 @@ typedef struct {
 static const int g_iCells = 2048;
 
 #ifdef _MSC_VER
-	#define NOINLINE __declspec(noinline)
+#  define NOINLINE __declspec(noinline)
 #else
-	#define NOINLINE __attribute__ ((noinline))
+#  define NOINLINE __attribute__ ((noinline))
 #endif
 
 // it is IMPORTANT that this function is called to evaluate the hash since
@@ -477,12 +477,14 @@ static void GenerateSharedVerticesIndexList(int piTriList_in_and_out[], const SM
 	if (vDim.y>vDim.x && vDim.y>vDim.z)
 	{
 		iChannel=1;
-		fMin = vMin.y, fMax=vMax.y;
+		fMin = vMin.y;
+		fMax = vMax.y;
 	}
 	else if (vDim.z>vDim.x)
 	{
 		iChannel=2;
-		fMin = vMin.z, fMax=vMax.z;
+		fMin = vMin.z;
+		fMax = vMax.z;
 	}
 
 	// make allocations
@@ -581,10 +583,12 @@ static void MergeVertsFast(int piTriList_in_and_out[], STmpVert pTmpVert[], cons
 	float dx=0, dy=0, dz=0, fSep=0;
 	for (c=0; c<3; c++)
 	{	fvMin[c]=pTmpVert[iL_in].vert[c]; fvMax[c]=fvMin[c];	}
-	for (l=(iL_in+1); l<=iR_in; l++)
-		for (c=0; c<3; c++)
+	for (l=(iL_in+1); l<=iR_in; l++) {
+		for (c=0; c<3; c++) {
 			if (fvMin[c]>pTmpVert[l].vert[c]) fvMin[c]=pTmpVert[l].vert[c];
-			else if (fvMax[c]<pTmpVert[l].vert[c]) fvMax[c]=pTmpVert[l].vert[c];
+			if (fvMax[c]<pTmpVert[l].vert[c]) fvMax[c]=pTmpVert[l].vert[c];
+		}
+	}
 
 	dx = fvMax[0]-fvMin[0];
 	dy = fvMax[1]-fvMin[1];
@@ -595,6 +599,10 @@ static void MergeVertsFast(int piTriList_in_and_out[], STmpVert pTmpVert[], cons
 	else if (dz>dx) channel=2;
 
 	fSep = 0.5f*(fvMax[channel]+fvMin[channel]);
+
+	// stop if all vertices are NaNs
+	if (!isfinite(fSep))
+		return;
 
 	// terminate recursion when the separation/average value
 	// is no longer strictly between fMin and fMax values.
@@ -1660,7 +1668,8 @@ static void QuickSortEdges(SEdge * pSortBuffer, int iLeft, int iRight, const int
 	uSeed=uSeed+t+3;
 	// Random end
 
-	iL=iLeft, iR=iRight;
+	iL = iLeft;
+	iR = iRight;
 	n = (iR-iL)+1;
 	assert(n>=0);
 	index = (int) (uSeed%n);

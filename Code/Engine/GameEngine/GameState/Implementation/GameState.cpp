@@ -1,5 +1,5 @@
 
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ActorSystem/ActorManager.h>
@@ -11,10 +11,10 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/System/Screen.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
-#include <GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/Configuration/XRConfig.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRRemotingInterface.h>
@@ -94,7 +94,7 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
   }
 
   ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>();
-  if (ezXRRemotingInterface::s_CVarXrRemoting)
+  if (ezXRRemotingInterface::cvar_XrRemoting)
   {
     if (pXRRemotingInterface)
     {
@@ -140,7 +140,7 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
 
   if (m_bXRRemotingEnabled)
   {
-    if (pXRRemotingInterface->Connect(ezXRRemotingInterface::s_CVarXrRemotingHostName.GetValue().GetData()).Failed())
+    if (pXRRemotingInterface->Connect(ezXRRemotingInterface::cvar_XrRemotingHostName.GetValue().GetData()).Failed())
     {
       ezLog::Error("Failed to connect XR Remoting.");
     }

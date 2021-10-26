@@ -1,4 +1,4 @@
-#include <ToolsFoundationTestPCH.h>
+#include <ToolsFoundationTest/ToolsFoundationTestPCH.h>
 
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>

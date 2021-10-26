@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/World/World.h>
 
@@ -36,12 +36,11 @@ void ezComponent::UpdateActiveState(bool bOwnerActive)
     {
       if (bSelfActive)
       {
-        OnActivated();
-
-        if (GetWorld()->GetWorldSimulationEnabled())
-        {
-          EnsureSimulationStarted();
-        }
+        // Don't call OnActivated & EnsureSimulationStarted here since there might be other components
+        // that are needed in the OnSimulation callback but are activated right after this component.
+        // Instead add the component to the initialization batch again.
+        // There initialization will be skipped since the component is already initialized.
+        GetWorld()->AddComponentToInitialize(GetHandle());
       }
       else
       {

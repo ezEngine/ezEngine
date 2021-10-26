@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
@@ -150,7 +150,7 @@ void ezAssetDocument::InitializeAfterLoadingAndSaving()
 void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const
 {
   {
-    const ezDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+    const ezDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
 
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
@@ -158,7 +158,7 @@ void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezA
       pInfo->m_AssetTransformDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
-    m_DocumentObjectMetaData.EndReadMetaData();
+    m_DocumentObjectMetaData->EndReadMetaData();
   }
 
 
@@ -176,7 +176,7 @@ void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezA
 void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const
 {
   {
-    const ezDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+    const ezDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
 
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
@@ -185,7 +185,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
       pInfo->m_RuntimeDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
-    m_DocumentObjectMetaData.EndReadMetaData();
+    m_DocumentObjectMetaData->EndReadMetaData();
   }
 
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
@@ -294,7 +294,7 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
     InternalGetMetaDataHash(pChild, uiHash);
   }
 
-  // Gather used types, sort by name to make it table and hash their data
+  // Gather used types, sort by name to make it stable and hash their data
   ezSet<const ezRTTI*> types;
   ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
   ezDynamicArray<const ezRTTI*> typesSorted;

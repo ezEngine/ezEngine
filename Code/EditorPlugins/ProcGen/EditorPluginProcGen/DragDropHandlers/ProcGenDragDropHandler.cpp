@@ -1,4 +1,4 @@
-#include <EditorPluginProcGenPCH.h>
+#include <EditorPluginProcGen/EditorPluginProcGenPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginProcGen/DragDropHandlers/ProcGenDragDropHandler.h>

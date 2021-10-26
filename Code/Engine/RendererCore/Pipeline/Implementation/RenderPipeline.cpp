@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
@@ -14,9 +14,9 @@
 #include <RendererFoundation/Profiling/Profiling.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool ezRenderPipeline::s_DebugCulling("r_DebugCulling", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
+ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
 
-ezCVarBool CVarCullingStats("r_CullingStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
+ezCVarBool cvar_SpatialCullingShowStats("Spatial.Culling.ShowStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
 #endif
 
 ezRenderPipeline::ezRenderPipeline()
@@ -920,15 +920,24 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
-  const bool bRecordStats = CVarCullingStats && bIsMainView;
+  const bool bRecordStats = cvar_SpatialCullingShowStats && bIsMainView;
   ezSpatialSystem::QueryStats stats;
+#endif
 
-  ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, uiCategoryBitmask, m_visibleObjects, bRecordStats ? &stats : nullptr);
+  ezSpatialSystem::QueryParams queryParams;
+  queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+  queryParams.m_IncludeTags = view.m_IncludeTags;
+  queryParams.m_ExcludeTags = view.m_ExcludeTags;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  queryParams.m_pStats = bRecordStats ? &stats : nullptr;
+#endif
 
+  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_visibleObjects);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezViewHandle hView = view.GetHandle();
 
-  if (s_DebugCulling && bIsMainView)
+  if (cvar_SpatialCullingVis && bIsMainView)
   {
     ezDebugRenderer::DrawLineFrustum(view.GetWorld(), frustum, ezColor::LimeGreen, false);
   }
@@ -937,25 +946,26 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   {
     ezStringBuilder sb;
 
-    ezDebugRenderer::Draw2DText(hView, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", "Visibility Culling Stats", ezColor::LimeGreen);
 
     sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
     m_AverageCullingTime = ezMath::Lerp(m_AverageCullingTime, stats.m_TimeTaken, 0.05f);
 
     sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
-    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+
+    view.GetWorld()->GetSpatialSystem()->GetInternalStats(sb);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::AntiqueWhite);
   }
-#else
-  view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, nullptr);
 #endif
 }
 

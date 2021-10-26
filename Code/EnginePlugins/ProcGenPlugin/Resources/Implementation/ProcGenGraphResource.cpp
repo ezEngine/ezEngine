@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
@@ -147,6 +147,10 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           chunk >> pOutput->m_vMinOffset;
           chunk >> pOutput->m_vMaxOffset;
 
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 6)
+          {
+            chunk >> pOutput->m_YawRotationSnap;
+          }
           chunk >> pOutput->m_fAlignToNormal;
 
           chunk >> pOutput->m_vMinScale;
@@ -166,6 +170,11 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           if (!sTemp.IsEmpty())
           {
             pOutput->m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
+          }
+
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 5)
+          {
+            chunk >> pOutput->m_Mode;
           }
 
           m_PlacementOutputs.PushBack(pOutput);

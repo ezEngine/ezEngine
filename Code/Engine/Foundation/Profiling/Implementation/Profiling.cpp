@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Communication/DataTransfer.h>
 #include <Foundation/Configuration/CVar.h>
@@ -91,7 +91,7 @@ namespace
     return static_cast<CpuScopesBuffer<BUFFER_SIZE_OTHER_THREAD>*>(pEventBuffer);
   }
 
-  ezCVarFloat CVarDiscardThresholdMs("g_ProfilingDiscardThresholdMs", 0.1f, ezCVarFlags::Default, "Discard profiling scopes if their duration is shorter than the specified threshold.");
+  ezCVarFloat cvar_ProfilingDiscardThresholdMS("Profiling.DiscardThresholdMS", 0.1f, ezCVarFlags::Default, "Discard profiling scopes if their duration is shorter than this in milliseconds.");
 
   ezStaticRingBuffer<ezTime, BUFFER_SIZE_FRAMES> s_FrameStartTimes;
   ezUInt64 s_uiFrameCount = 0;
@@ -571,7 +571,13 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& profilingData,
 // static
 void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
 {
-  CVarDiscardThresholdMs = static_cast<float>(threshold.GetMilliseconds());
+  cvar_ProfilingDiscardThresholdMS = static_cast<float>(threshold.GetMilliseconds());
+}
+
+// static
+ezUInt64 ezProfilingSystem::GetFrameCount()
+{
+  return s_uiFrameCount;
 }
 
 // static
@@ -591,7 +597,7 @@ void ezProfilingSystem::StartNewFrame()
 void ezProfilingSystem::AddCPUScope(const char* szName, const char* szFunctionName, ezTime beginTime, ezTime endTime)
 {
   // discard?
-  if (endTime - beginTime < ezTime::Milliseconds(CVarDiscardThresholdMs))
+  if (endTime - beginTime < ezTime::Milliseconds(cvar_ProfilingDiscardThresholdMS))
     return;
 
   ::CpuScopesBufferBase* pScopes = s_CpuScopes;
@@ -651,7 +657,7 @@ void ezProfilingSystem::Initialize()
 
   s_MainThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
 
-  s_PluginEventSubscription = ezPlugin::s_PluginEvents.AddEventHandler(&PluginEvent);
+  s_PluginEventSubscription = ezPlugin::Events().AddEventHandler(&PluginEvent);
 }
 
 // static
@@ -686,7 +692,7 @@ void ezProfilingSystem::Reset()
   }
   s_DeadThreadIDs.Clear();
 
-  ezPlugin::s_PluginEvents.RemoveEventHandler(s_PluginEventSubscription);
+  ezPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
 }
 
 // static
@@ -719,7 +725,7 @@ void ezProfilingSystem::InitializeGPUData()
 void ezProfilingSystem::AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime)
 {
   // discard?
-  if (endTime - beginTime < ezTime::Milliseconds(CVarDiscardThresholdMs))
+  if (endTime - beginTime < ezTime::Milliseconds(cvar_ProfilingDiscardThresholdMS))
     return;
 
   if (!s_GPUScopes->CanAppend())

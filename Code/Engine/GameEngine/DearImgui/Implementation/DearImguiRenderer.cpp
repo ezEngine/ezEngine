@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
@@ -104,7 +104,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
           const size_t iTextureID = reinterpret_cast<size_t>(pCmd->TextureId);
 
           ezImguiBatch& batch = pRenderData->m_Batches[cmdIdx];
-          batch.m_uiVertexCount = pCmd->ElemCount;
+          batch.m_uiVertexCount = static_cast<ezUInt16>(pCmd->ElemCount);
           batch.m_uiTextureID = (ezUInt16)iTextureID;
           batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y, (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x), (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
         }

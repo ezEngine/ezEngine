@@ -1,0 +1,102 @@
+name: Build Release Package
+
+on: 
+  workflow_dispatch:
+    inputs:
+      full-binaries-artifact:
+        description: 'Create full binaries artifact'
+        required: true
+        default: 'false'
+      release-artifact:
+        description: 'Create release artifact'
+        required: true
+        default: 'true'
+      transform-projects:
+        description: 'Transform Projects'
+        required: true
+        default: 'true'
+      compile-shaders:
+        description: 'Compile Shaders'
+        required: true
+        default: 'true'
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout ezEngine repository
+        uses: actions/checkout@v2
+        with:
+          path: repo
+          submodules: 'recursive'
+
+      - name: Read SDK Version
+        id: sdk-version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: repo/version.txt
+
+      - name: Echo SDK Version
+        run: echo "SDK Version is ${{ steps.sdk-version.outputs.content }}"
+
+      - name: Checkout template repository
+        uses: actions/checkout@v2
+        with:
+          repository: ezEngine/release-template
+          path: template_repo
+          token: ${{ secrets.API_TOKEN_GITHUB }} 
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Run CMake
+        run: |
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=ON -DEZ_BUILD_SAMPLES:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=ON -DEZ_BUILD_RMLUI:BOOL=ON -DEZ_BUILD_FMOD:BOOL=ON -DEZ_SOLUTION_NAME:string="solution"
+
+      - name: Build Full Solution
+        run:  msbuild build/solution.sln /p:Configuration=Shipping
+
+      - name: Artifact - Full Binaries
+        if: github.event.inputs.full-binaries-artifact == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: full-binaries
+          path: repo\Output\Bin\WinVs2019Shipping64
+          retention-days: 3
+
+      - name: Remove Unwanted Files
+        run: |
+          Get-ChildItem * -Include *.pdb -Recurse | Remove-Item
+
+          rm -r -fo repo\Output\lib
+          rm -r -fo repo\Data\Platform
+          rm -r -fo repo\Data\UnitTests
+          rm -r -fo repo\Data\Tools\Precompiled
+
+      - name: Compile Shaders
+        if: github.event.inputs.compile-shaders == 'true'
+        run: |
+          repo\Output\Bin\WinVs2019Shipping64\ShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
+
+      - name: Transform All Projects
+        if: github.event.inputs.transform-projects == 'true'
+        shell: pwsh
+        run: repo\Utilities\Scripts\transform-all-projects.ps1
+
+      - name: Generate Package
+        run: |
+          mkdir _package
+          mkdir _package\Output
+          mkdir _package\Data
+          xcopy repo\Output _package\Output /s
+          xcopy repo\Data _package\Data /s
+
+          xcopy template_repo\package _package /s /y
+
+      - name: Artifact - Release Package
+        if: github.event.inputs.release-artifact == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ezEngine.Release.${{ steps.sdk-version.outputs.content }}
+          path: _package
+          retention-days: 3

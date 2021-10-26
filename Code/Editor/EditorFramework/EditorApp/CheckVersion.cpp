@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/CheckVersion.moc.h>
 
@@ -111,7 +111,9 @@ bool ezQtVersionChecker::Check(bool bForce)
   }
 
   m_bCheckInProgresss = true;
-  m_VersionPage = new PageDownloader(QUrl("http://ezengine.net/pages/releases/releases.html"));
+
+  // DON'T use HTTPS here, our Qt version only supports HTTP
+  m_VersionPage = new PageDownloader(QUrl("http://ezengine.net/pages/getting-started/binaries.html"));
 
   connect(m_VersionPage.data(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
 
@@ -120,10 +122,7 @@ bool ezQtVersionChecker::Check(bool bForce)
 
 const char* ezQtVersionChecker::GetOwnVersion() const
 {
-  // TODO: this has to be updated for every release!
-  // could this be made more data driven ?
-
-  return "20.8";
+  return BUILDSYSTEM_SDKVERSION_MAJOR "." BUILDSYSTEM_SDKVERSION_MINOR "." BUILDSYSTEM_SDKVERSION_PATCH;
 }
 
 const char* ezQtVersionChecker::GetKnownLatestVersion() const

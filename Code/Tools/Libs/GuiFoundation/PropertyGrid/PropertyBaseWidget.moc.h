@@ -207,12 +207,12 @@ protected:
   virtual void DoPrepareToDie() override;
 
 protected:
-  QHBoxLayout* m_pLayout;
-  ezQtGroupBoxBase* m_pGroup;
-  ezQtAddSubElementButton* m_pAddButton;
-  ezQtElementGroupButton* m_pDeleteButton;
-  QHBoxLayout* m_pGroupLayout;
-  ezQtTypeWidget* m_pTypeWidget;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtGroupBoxBase* m_pGroup = nullptr;
+  ezQtAddSubElementButton* m_pAddButton = nullptr;
+  ezQtElementGroupButton* m_pDeleteButton = nullptr;
+  QHBoxLayout* m_pGroupLayout = nullptr;
+  ezQtTypeWidget* m_pTypeWidget = nullptr;
 };
 
 
@@ -237,19 +237,18 @@ public Q_SLOTS:
 protected:
   struct Element
   {
-    Element()
-      : m_pSubGroup(nullptr)
-      , m_pWidget(nullptr)
-    {
-    }
-    Element(ezQtGroupBoxBase* pSubGroup, ezQtPropertyWidget* pWidget)
+    Element() = default;
+
+    Element(ezQtGroupBoxBase* pSubGroup, ezQtPropertyWidget* pWidget, ezQtElementGroupButton* pHelpButton)
       : m_pSubGroup(pSubGroup)
       , m_pWidget(pWidget)
+      , m_pHelpButton(pHelpButton)
     {
     }
 
-    ezQtGroupBoxBase* m_pSubGroup;
-    ezQtPropertyWidget* m_pWidget;
+    ezQtGroupBoxBase* m_pSubGroup = nullptr;
+    ezQtPropertyWidget* m_pWidget = nullptr;
+    ezQtElementGroupButton* m_pHelpButton = nullptr;
   };
 
   virtual ezQtGroupBoxBase* CreateElement(QWidget* pParent);
@@ -346,3 +345,4 @@ protected:
   ezQtPropertyWidget* m_pWidget = nullptr;
   const ezRTTI* m_pCurrentSubType = nullptr;
 };
+

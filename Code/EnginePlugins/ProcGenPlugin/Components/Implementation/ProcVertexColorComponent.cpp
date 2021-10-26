@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -71,6 +71,7 @@ void ezProcVertexColorComponentManager::Initialize()
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
+  // TODO: also do this in ezProcPlacementComponentManager
   ezProcVolumeComponent::GetAreaInvalidatedEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
 }
 
@@ -284,8 +285,10 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
   if (area.m_pWorld != GetWorld())
     return;
 
-  ezUInt32 category = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, category, [this](ezGameObject* pObject) {
+  ezSpatialSystem::QueryParams queryParams;
+  queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+
+  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams, [this](ezGameObject* pObject) {
     ezHybridArray<ezProcVertexColorComponent*, 8> components;
     pObject->TryGetComponentsOfBaseType(components);
 

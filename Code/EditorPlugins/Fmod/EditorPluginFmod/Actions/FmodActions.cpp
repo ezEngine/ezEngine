@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
@@ -35,30 +35,26 @@ void ezFmodActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMasterVolume);
 }
 
-void ezFmodActions::MapMenuActions()
+void ezFmodActions::MapMenuActions(const char* szMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mmapping the actions failed!");
 
   pMap->MapAction(s_hCategoryFmod, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 9.0f);
   pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/Fmod", 0.0f);
 
-  {
-    ezActionMap* pSceneMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentToolBar");
-    EZ_ASSERT_DEV(pSceneMap != nullptr, "Mmapping the actions failed!");
+  pMap->MapAction(s_hCategoryFmod, "Menu.Scene", 5.0f);
+  pMap->MapAction(s_hMuteSound, "Menu.Scene/Fmod", 0.0f);
+  pMap->MapAction(s_hMasterVolume, "Menu.Scene/Fmod", 1.0f);
+}
 
-    pSceneMap->MapAction(s_hCategoryFmod, "", 12.0f);
-    pSceneMap->MapAction(s_hMuteSound, "Fmod", 0.0f);
-  }
+void ezFmodActions::MapToolbarActions(const char* szMapping)
+{
+  ezActionMap* pSceneMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pSceneMap != nullptr, "Mmapping the actions failed!");
 
-  {
-    ezActionMap* pSceneMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
-    EZ_ASSERT_DEV(pSceneMap != nullptr, "Mmapping the actions failed!");
-
-    pSceneMap->MapAction(s_hCategoryFmod, "Menu.Scene", 5.0f);
-    pSceneMap->MapAction(s_hMuteSound, "Menu.Scene/Fmod", 0.0f);
-    pSceneMap->MapAction(s_hMasterVolume, "Menu.Scene/Fmod", 1.0f);
-  }
+  pSceneMap->MapAction(s_hCategoryFmod, "", 12.0f);
+  pSceneMap->MapAction(s_hMuteSound, "Fmod", 0.0f);
 }
 
 ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type)

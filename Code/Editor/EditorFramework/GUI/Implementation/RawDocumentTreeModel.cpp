@@ -1,7 +1,7 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <DragDrop/DragDropHandler.h>
-#include <DragDrop/DragDropInfo.h>
+#include <EditorFramework/DragDrop/DragDropHandler.h>
+#include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -158,10 +158,10 @@ Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int ro
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree)
+ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezUuid& root)
   : QAbstractItemModel(nullptr)
   , m_pDocumentTree(pTree)
-
+  , m_root(root)
 {
   m_pDocumentTree->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreeEventHandler, this));
 }
@@ -177,7 +177,11 @@ void ezQtDocumentTreeModel::AddAdapter(ezQtDocumentTreeModelAdapter* adapter)
 
   adapter->setParent(this);
   connect(adapter, &ezQtDocumentTreeModelAdapter::dataChanged, this, [this](const ezDocumentObject* pObject, QVector<int> roles) {
+    if (!pObject)
+      return;
     auto index = ComputeModelIndex(pObject);
+    if (!index.isValid())
+      return;
     dataChanged(index, index, roles);
   });
   m_Adapters.Insert(adapter->GetType(), adapter);
@@ -203,6 +207,12 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
   const ezDocumentObject* pParent = nullptr;
   switch (e.m_EventType)
   {
+    case ezDocumentObjectStructureEvent::Type::BeforeReset:
+      beginResetModel();
+      return;
+    case ezDocumentObjectStructureEvent::Type::AfterReset:
+      endResetModel();
+      return;
     case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
       pParent = e.m_pPreviousParent;
@@ -216,6 +226,8 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
       break;
   }
   EZ_ASSERT_DEV(pParent != nullptr, "Each structure event should have a parent set.");
+  if (!IsUnderRoot(pParent))
+    return;
   auto pType = pParent->GetTypeAccessor().GetType();
   auto pAdapter = GetAdapter(pType);
   if (!pAdapter)
@@ -231,7 +243,7 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
     case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     {
       ezInt32 iIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
-      if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
+      if (e.m_pNewParent == GetRoot())
         beginInsertRows(QModelIndex(), iIndex, iIndex);
       else
         beginInsertRows(ComputeModelIndex(e.m_pNewParent), iIndex, iIndex);
@@ -276,7 +288,7 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
   const ezDocumentObject* pObject = nullptr;
   if (!parent.isValid())
   {
-    pObject = m_pDocumentTree->GetRootObject();
+    pObject = GetRoot();
   }
   else
   {
@@ -302,11 +314,33 @@ ezInt32 ezQtDocumentTreeModel::ComputeIndex(const ezDocumentObject* pObject) con
   return iIndex;
 }
 
+const ezDocumentObject* ezQtDocumentTreeModel::GetRoot() const
+{
+  if (m_root.IsValid())
+  {
+    return m_pDocumentTree->GetObject(m_root);
+  }
+  return m_pDocumentTree->GetRootObject();
+}
+
+bool ezQtDocumentTreeModel::IsUnderRoot(const ezDocumentObject* pObject) const
+{
+  const ezDocumentObject* pRoot = GetRoot();
+  while (pObject)
+  {
+    if (pRoot == pObject)
+      return true;
+
+    pObject = pObject->GetParent();
+  }
+  return false;
+}
+
 QModelIndex ezQtDocumentTreeModel::ComputeModelIndex(const ezDocumentObject* pObject) const
 {
   // Filter out objects that are not under the child property of the
   // parents adapter.
-  if (pObject == m_pDocumentTree->GetRootObject())
+  if (pObject == GetRoot())
     return QModelIndex();
 
   auto pType = pObject->GetParent()->GetTypeAccessor().GetType();
@@ -330,7 +364,7 @@ QModelIndex ezQtDocumentTreeModel::ComputeParent(const ezDocumentObject* pObject
 {
   const ezDocumentObject* pParent = pObject->GetParent();
 
-  if (pParent == m_pDocumentTree->GetRootObject())
+  if (pParent == GetRoot())
     return QModelIndex();
 
   ezInt32 iIndex = ComputeIndex(pParent);
@@ -351,7 +385,7 @@ int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
   const ezDocumentObject* pObject = nullptr;
   if (!parent.isValid())
   {
-    pObject = m_pDocumentTree->GetRootObject();
+    pObject = GetRoot();
   }
   else
   {
@@ -416,21 +450,44 @@ Qt::ItemFlags ezQtDocumentTreeModel::flags(const QModelIndex& index) const
 
 bool ezQtDocumentTreeModel::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
 {
-  const ezDocumentObject* pParent = (const ezDocumentObject*)parent.internalPointer();
+  const ezDocumentObject* pNewParent = (const ezDocumentObject*)parent.internalPointer();
+  if (!pNewParent)
+    pNewParent = GetRoot();
 
   ezDragDropInfo info;
   info.m_iTargetObjectInsertChildIndex = row;
   info.m_pMimeData = data;
-  info.m_sTargetContext = "scenetree";
+  info.m_sTargetContext = m_sTargetContext;
   info.m_TargetDocument = m_pDocumentTree->GetDocument()->GetGuid();
-  info.m_TargetObject = pParent != nullptr ? pParent->GetGuid() : ezUuid();
+  info.m_TargetObject = pNewParent->GetGuid();
   info.m_bCtrlKeyDown = QApplication::queryKeyboardModifiers() & Qt::ControlModifier;
   info.m_bShiftKeyDown = QApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
+  info.m_pAdapter = GetAdapter(pNewParent->GetType());
 
   if (ezDragDropHandler::CanDropOnly(&info))
     return true;
 
-  return QAbstractItemModel::canDropMimeData(data, action, row, column, parent);
+  {
+    // Test 'CanMove' of the target object manager.
+    QByteArray encodedData = data->data("application/ezEditor.ObjectSelection");
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    stream >> Dragged;
+
+    auto pType = pNewParent->GetTypeAccessor().GetType();
+    auto pAdapter = GetAdapter(pType);
+    const ezString& sProperty = pAdapter->GetChildProperty();
+    for (const ezDocumentObject* pItem : Dragged)
+    {
+      // If the item's and the target tree's document don't match we can't operate via this code.
+      if (pItem->GetDocumentObjectManager()->GetDocument() != m_pDocumentTree->GetDocument())
+        return false;
+      if (m_pDocumentTree->CanMove(pItem, pNewParent, sProperty, info.m_iTargetObjectInsertChildIndex).Failed())
+        return false;
+    }
+    return QAbstractItemModel::canDropMimeData(data, action, row, column, parent);
+  }
+  return false;
 }
 
 bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
@@ -441,51 +498,44 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
   if (column > 0)
     return false;
 
+  const ezDocumentObject* pNewParent = (const ezDocumentObject*)parent.internalPointer();
+  if (!pNewParent)
+    pNewParent = GetRoot();
+
+  ezDragDropInfo info;
+  info.m_iTargetObjectInsertChildIndex = row;
+  info.m_pMimeData = data;
+  info.m_sTargetContext = m_sTargetContext;
+  info.m_TargetDocument = m_pDocumentTree->GetDocument()->GetGuid();
+  info.m_TargetObject = pNewParent->GetGuid();
+  info.m_bCtrlKeyDown = QApplication::queryKeyboardModifiers() & Qt::ControlModifier;
+  info.m_bShiftKeyDown = QApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
+  info.m_pAdapter = GetAdapter(pNewParent->GetType());
+  if (ezDragDropHandler::DropOnly(&info))
+    return true;
+
+  return ezQtDocumentTreeModel::MoveObjects(info);
+}
+
+
+bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
+{
+  if (info.m_pMimeData->hasFormat("application/ezEditor.ObjectSelection"))
   {
-    const ezDocumentObject* pParent = (const ezDocumentObject*)parent.internalPointer();
+    auto pDoc = ezDocumentManager::GetDocumentByGuid(info.m_TargetDocument);
+    const ezDocumentObject* pTarget = pDoc->GetObjectManager()->GetObject(info.m_TargetObject);
 
-    ezDragDropInfo info;
-    info.m_iTargetObjectInsertChildIndex = row;
-    info.m_pMimeData = data;
-    info.m_sTargetContext = "scenetree";
-    info.m_TargetDocument = m_pDocumentTree->GetDocument()->GetGuid();
-    info.m_TargetObject = pParent != nullptr ? pParent->GetGuid() : ezUuid();
-    info.m_bCtrlKeyDown = QApplication::queryKeyboardModifiers() & Qt::ControlModifier;
-    info.m_bShiftKeyDown = QApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
-
-    if (ezDragDropHandler::DropOnly(&info))
-      return true;
-  }
-
-
-  if (data->hasFormat("application/ezEditor.ObjectSelection"))
-  {
-    const ezDocumentObject* pNewParent = (const ezDocumentObject*)parent.internalPointer();
-    if (!pNewParent)
-      pNewParent = m_pDocumentTree->GetRootObject();
-    ezHybridArray<const ezDocumentObject*, 32> Dragged;
-
-    QByteArray encodedData = data->data("application/ezEditor.ObjectSelection");
+    QByteArray encodedData = info.m_pMimeData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    stream >> Dragged;
 
-    int iIndices = 0;
-    stream >> iIndices;
-
-    for (int i = 0; i < iIndices; ++i)
+    for (const ezDocumentObject* pDocObject : Dragged)
     {
-      void* p = nullptr;
-
-      uint len = sizeof(void*);
-      stream.readRawData((char*)&p, len);
-
-      const ezDocumentObject* pDocObject = (const ezDocumentObject*)p;
-
-      Dragged.PushBack(pDocObject);
-
-      if (action != Qt::DropAction::MoveAction)
+      //if (action != Qt::DropAction::MoveAction)
       {
         bool bCanMove = true;
-        const ezDocumentObject* pCurParent = pNewParent;
+        const ezDocumentObject* pCurParent = pTarget;
 
         while (pCurParent)
         {
@@ -506,21 +556,17 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
       }
     }
 
-    auto pType = pNewParent->GetTypeAccessor().GetType();
-    auto pAdapter = GetAdapter(pType);
-    auto pDoc = m_pDocumentTree->GetDocument();
     auto pHistory = pDoc->GetCommandHistory();
     pHistory->StartTransaction("Reparent Object");
-
 
     ezStatus res(EZ_SUCCESS);
     for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
     {
       ezMoveObjectCommand cmd;
       cmd.m_Object = Dragged[i]->GetGuid();
-      cmd.m_Index = row;
-      cmd.m_sParentProperty = pAdapter->GetChildProperty();
-      cmd.m_NewParent = pNewParent->GetGuid();
+      cmd.m_Index = info.m_iTargetObjectInsertChildIndex;
+      cmd.m_sParentProperty = info.m_pAdapter->GetChildProperty();
+      cmd.m_NewParent = pTarget->GetGuid();
 
       res = pHistory->AddCommand(cmd);
       if (res.m_Result.Failed())

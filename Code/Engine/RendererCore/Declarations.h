@@ -7,16 +7,18 @@
 class ezShaderStageBinary;
 struct ezVertexDeclarationInfo;
 
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
-typedef ezTypedResourceHandle<class ezRenderToTexture2DResource> ezRenderToTexture2DResourceHandle;
-typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
-typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
-typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
-typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezTypedResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
-typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
-typedef ezTypedResourceHandle<class ezDecalAtlasResource> ezDecalAtlasResourceHandle;
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using ezRenderToTexture2DResourceHandle = ezTypedResourceHandle<class ezRenderToTexture2DResource>;
+using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
+using ezMeshBufferResourceHandle = ezTypedResourceHandle<class ezMeshBufferResource>;
+using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
+using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
+using ezShaderPermutationResourceHandle = ezTypedResourceHandle<class ezShaderPermutationResource>;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
+using ezDecalResourceHandle = ezTypedResourceHandle<class ezDecalResource>;
+using ezDecalAtlasResourceHandle = ezTypedResourceHandle<class ezDecalAtlasResource>;
 
 struct EZ_RENDERERCORE_DLL ezPermutationVar
 {

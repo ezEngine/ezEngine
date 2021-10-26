@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Threading/ConditionVariable.h>
 
@@ -8,15 +8,15 @@ void ezConditionVariable::Lock()
   ++m_iLockCount;
 }
 
-bool ezConditionVariable::TryLock()
+ezResult ezConditionVariable::TryLock()
 {
-  if (m_Mutex.TryLock())
+  if (m_Mutex.TryLock().Succeeded())
   {
     ++m_iLockCount;
-    return true;
+    return EZ_SUCCESS;
   }
 
-  return false;
+  return EZ_FAILURE;
 }
 
 void ezConditionVariable::Unlock()

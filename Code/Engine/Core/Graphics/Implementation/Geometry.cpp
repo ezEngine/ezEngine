@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Containers/Map.h>
@@ -7,65 +7,40 @@
 
 bool ezGeometry::Vertex::operator<(const ezGeometry::Vertex& rhs) const
 {
-  if (m_vPosition < rhs.m_vPosition)
-    return true;
+  if (m_vPosition != rhs.m_vPosition)
+    return m_vPosition < rhs.m_vPosition;
 
-  if (m_vPosition == rhs.m_vPosition)
-  {
-    if (m_vNormal < rhs.m_vNormal)
-      return true;
+  if (m_vNormal != rhs.m_vNormal)
+    return m_vNormal < rhs.m_vNormal;
 
-    if (m_vNormal == rhs.m_vNormal)
-    {
-      if (m_vTangent < rhs.m_vTangent)
-        return true;
+  if (m_vTangent != rhs.m_vTangent)
+    return m_vTangent < rhs.m_vTangent;
 
-      if (m_vTangent == rhs.m_vTangent)
-      {
-        if (m_fBiTangentSign < rhs.m_fBiTangentSign)
-          return true;
+  if (m_fBiTangentSign != rhs.m_fBiTangentSign)
+    return m_fBiTangentSign < rhs.m_fBiTangentSign;
 
-        if (m_fBiTangentSign == rhs.m_fBiTangentSign)
-        {
-          if (m_vTexCoord < rhs.m_vTexCoord)
-            return true;
+  if (m_vTexCoord != rhs.m_vTexCoord)
+    return m_vTexCoord < rhs.m_vTexCoord;
 
-          if (m_vTexCoord == rhs.m_vTexCoord)
-          {
-            if (m_Color < rhs.m_Color)
-              return true;
+  if (m_Color != rhs.m_Color)
+    return m_Color < rhs.m_Color;
 
-            if (m_Color == rhs.m_Color)
-            {
-              return m_iCustomIndex < rhs.m_iCustomIndex;
-            }
-          }
-        }
-      }
-    }
-  }
+  if (m_BoneIndices != rhs.m_BoneIndices)
+    return m_BoneIndices < rhs.m_BoneIndices;
 
-  return false;
+  return m_BoneWeights < rhs.m_BoneWeights;
 }
 
 bool ezGeometry::Vertex::operator==(const ezGeometry::Vertex& rhs) const
 {
-  if (m_vPosition != rhs.m_vPosition)
-    return false;
-  if (m_vNormal != rhs.m_vNormal)
-    return false;
-  if (m_vTangent != rhs.m_vTangent)
-    return false;
-  if (m_fBiTangentSign != rhs.m_fBiTangentSign)
-    return false;
-  if (m_vTexCoord != rhs.m_vTexCoord)
-    return false;
-  if (m_Color != rhs.m_Color)
-    return false;
-  if (m_iCustomIndex != rhs.m_iCustomIndex)
-    return false;
-
-  return true;
+  return m_vPosition == rhs.m_vPosition &&
+         m_vNormal == rhs.m_vNormal &&
+         m_vTangent == rhs.m_vTangent &&
+         m_fBiTangentSign == rhs.m_fBiTangentSign &&
+         m_vTexCoord == rhs.m_vTexCoord &&
+         m_Color == rhs.m_Color &&
+         m_BoneIndices == rhs.m_BoneIndices &&
+         m_BoneWeights == rhs.m_BoneWeights;
 }
 
 void ezGeometry::Polygon::FlipWinding()
@@ -85,23 +60,17 @@ void ezGeometry::Clear()
   m_Lines.Clear();
 }
 
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex)
+ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& boneIndices /*= ezVec4U16::ZeroVector()*/, const ezColorLinearUB& boneWeights /*= ezColorLinearUB(255, 0, 0, 0)*/)
 {
-  Vertex v;
+  Vertex& v = m_Vertices.ExpandAndGetRef();
   v.m_vPosition = vPos;
   v.m_vNormal = vNormal;
   v.m_vTexCoord = vTexCoord;
   v.m_Color = color;
-  v.m_iCustomIndex = iCustomIndex;
-
-  m_Vertices.PushBack(v);
+  v.m_BoneIndices = boneIndices;
+  v.m_BoneWeights = boneWeights;
 
   return m_Vertices.GetCount() - 1;
-}
-
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex, const ezMat4& mTransform)
-{
-  return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, iCustomIndex);
 }
 
 void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWinding)
@@ -335,10 +304,10 @@ ezUInt32 ezGeometry::CalculateTriangleCount() const
   return numTris;
 }
 
-void ezGeometry::SetAllVertexCustomIndex(ezInt32 iCustomIndex, ezUInt32 uiFirstVertex)
+void ezGeometry::SetAllVertexBoneIndices(const ezVec4U16& boneIndices, ezUInt32 uiFirstVertex)
 {
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
-    m_Vertices[v].m_iCustomIndex = iCustomIndex;
+    m_Vertices[v].m_BoneIndices = boneIndices;
 }
 
 void ezGeometry::SetAllVertexColor(const ezColor& color, ezUInt32 uiFirstVertex)
@@ -409,23 +378,23 @@ void ezGeometry::Merge(const ezGeometry& other)
   }
 }
 
-void ezGeometry::AddRectXY(const ezVec2& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddRectXY(const ezVec2& size, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   const ezVec2 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
 
   ezUInt32 idx[4];
 
-  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0), color, iCustomIndex, mTransform);
-  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1), color, iCustomIndex, mTransform);
+  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1), color, boneIndex, mTransform);
+  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0), color, boneIndex, mTransform);
+  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0), color, boneIndex, mTransform);
+  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1), color, boneIndex, mTransform);
 
   AddPolygon(idx, bFlipWinding);
 }
 
 
-void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezUInt16 boneIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(uiTesselationX >= 1, "TesselationX must be larger than zero.");
   EZ_ASSERT_DEV(uiTesselationY >= 1, "TesselationY must be larger than zero.");
@@ -441,7 +410,7 @@ void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, e
     {
       const ezVec2 tc((float)vx / (float)uiTesselationX, (float)vy / (float)uiTesselationY);
 
-      AddVertex(ezVec3(-halfSize.x + vx * sizeFraction.x, -halfSize.y + vy * sizeFraction.y, 0), ezVec3(0, 0, 1), tc, color, iCustomIndex, mTransform);
+      AddVertex(ezVec3(-halfSize.x + vx * sizeFraction.x, -halfSize.y + vy * sizeFraction.y, 0), ezVec3(0, 0, 1), tc, color, boneIndex, mTransform);
     }
   }
 
@@ -468,21 +437,21 @@ void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, e
   }
 }
 
-void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   const ezVec3 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
   ezUInt32 idx[8];
 
-  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
 
-  idx[4] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[5] = AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[6] = AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[7] = AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[4] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  idx[5] = AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  idx[6] = AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  idx[7] = AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
 
   ezUInt32 poly[4];
 
@@ -523,19 +492,19 @@ void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& 
   AddPolygon(poly, bFlipWinding);
 }
 
-void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezUInt16 boneIndex /*= 0*/)
 {
   const ezVec3 halfSize = size * 0.5f;
 
-  AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
 
-  AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
 
   AddLine(0, 1);
   AddLine(1, 2);
@@ -554,22 +523,22 @@ void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMa
 }
 
 
-void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezUInt16 boneIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(fCornerFraction >= 0.0f && fCornerFraction <= 1.0f, "A fraction value of {0} is invalid", ezArgF(fCornerFraction, 2));
 
   fCornerFraction *= 0.5f;
   const ezVec3 halfSize = size * 0.5f;
 
-  AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
 
-  AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
 
   for (ezUInt32 c = 0; c < 8; ++c)
   {
@@ -579,9 +548,9 @@ void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, co
     const ezVec3 op2 = ezVec3(op.x, -ezMath::Sign(op.y) * ezMath::Abs(op.y), op.z);
     const ezVec3 op3 = ezVec3(-ezMath::Sign(op.x) * ezMath::Abs(op.x), op.y, op.z);
 
-    const ezUInt32 ix1 = AddVertex(ezMath::Lerp(op, op1, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
-    const ezUInt32 ix2 = AddVertex(ezMath::Lerp(op, op2, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
-    const ezUInt32 ix3 = AddVertex(ezMath::Lerp(op, op3, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
+    const ezUInt32 ix1 = AddVertex(ezMath::Lerp(op, op1, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, boneIndex, mTransform);
+    const ezUInt32 ix2 = AddVertex(ezMath::Lerp(op, op2, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, boneIndex, mTransform);
+    const ezUInt32 ix3 = AddVertex(ezMath::Lerp(op, op3, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, boneIndex, mTransform);
 
     AddLine(c, ix1);
     AddLine(c, ix2);
@@ -589,73 +558,73 @@ void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, co
   }
 }
 
-void ezGeometry::AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   const ezVec3 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
   ezUInt32 idx[4];
 
   {
-    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 0), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 1), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 0), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 1), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 0), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(-1, 0, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, +halfSize.z), ezVec3(-1, 0, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, +halfSize.z), ezVec3(-1, 0, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(-1, 0, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(-1, 0, 0), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, +halfSize.z), ezVec3(-1, 0, 0), ezVec2(0, 0), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, +halfSize.z), ezVec3(-1, 0, 0), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(-1, 0, 0), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx[0] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 0), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx[0] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, -1, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 0), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, -1, 0), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, +1, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, +1, 0), ezVec2(0, 0), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 }
 
-void ezGeometry::AddPyramid(const ezVec3& size, bool bCap, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddPyramid(const ezVec3& size, bool bCap, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   const ezVec3 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
   ezUInt32 quad[4];
 
-  quad[0] = AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(-1, 1, 0).GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
-  quad[1] = AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(1, 1, 0).GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
-  quad[2] = AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(1, -1, 0).GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
-  quad[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(-1, -1, 0).GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
+  quad[0] = AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(-1, 1, 0).GetNormalized(), ezVec2(0), color, boneIndex, mTransform);
+  quad[1] = AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(1, 1, 0).GetNormalized(), ezVec2(0), color, boneIndex, mTransform);
+  quad[2] = AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(1, -1, 0).GetNormalized(), ezVec2(0), color, boneIndex, mTransform);
+  quad[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(-1, -1, 0).GetNormalized(), ezVec2(0), color, boneIndex, mTransform);
 
-  const ezUInt32 tip = AddVertex(ezVec3(0, 0, size.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  const ezUInt32 tip = AddVertex(ezVec3(0, 0, size.z), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
 
   if (bCap)
   {
@@ -685,7 +654,7 @@ void ezGeometry::AddPyramid(const ezVec3& size, bool bCap, const ezColor& color,
   AddPolygon(tri, bFlipWinding);
 }
 
-void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
   struct Triangle
@@ -728,6 +697,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
 
   ezInt32 iCurrentList = 0;
   ezDeque<Triangle> Tris[2];
+  ezVec4U16 boneIndices(boneIndex, 0, 0, 0);
 
   // create icosahedron
   {
@@ -740,14 +710,14 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
     ezVec3 vDir(0, 0, 1);
 
     vDir.Normalize();
-    vert[0] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, iCustomIndex);
+    vert[0] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, boneIndices);
 
     vDir = mRotX * vDir;
 
     for (ezInt32 i = 0; i < 5; ++i)
     {
       vDir.Normalize();
-      vert[1 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, iCustomIndex);
+      vert[1 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, boneIndices);
       vDir = mRotZ * vDir;
     }
 
@@ -757,13 +727,13 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
     for (ezInt32 i = 0; i < 5; ++i)
     {
       vDir.Normalize();
-      vert[6 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, iCustomIndex);
+      vert[6 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, boneIndices);
       vDir = mRotZ * vDir;
     }
 
     vDir.Set(0, 0, -1);
     vDir.Normalize();
-    vert[11] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, iCustomIndex);
+    vert[11] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), color, boneIndices);
 
 
     Tris[0].PushBack(Triangle(vert[0], vert[2], vert[1]));
@@ -820,7 +790,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
         else
         {
           const ezVec3 vCenter = (m_Vertices[Edges[i].m_uiVertex[0]].m_vPosition + m_Vertices[Edges[i].m_uiVertex[1]].m_vPosition).GetNormalized();
-          uiNewVert[i] = AddVertex(vCenter * fRadius, vCenter, ezVec2::ZeroVector(), color, iCustomIndex);
+          uiNewVert[i] = AddVertex(vCenter * fRadius, vCenter, ezVec2::ZeroVector(), color, boneIndices);
 
           NewVertices[Edges[i]] = uiNewVert[i];
         }
@@ -845,7 +815,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   TransformVertices(mTransform, uiFirstVertex);
 }
 
-void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
+void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex, ezAngle fraction)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
   EZ_ASSERT_DEV(fraction.GetDegree() >= -0.01f, "A cylinder cannot be built with more less than 0 degree");
@@ -876,8 +846,8 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
       const ezVec3 vDir(fX, fY, 0);
 
-      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, iCustomIndex, mTransform));
-      VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, iCustomIndex, mTransform));
+      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, boneIndex, mTransform));
+      VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, boneIndex, mTransform));
     }
 
     for (ezUInt32 i = 1; i <= uiSegments; ++i)
@@ -902,19 +872,19 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
     ezUInt32 quad[4];
 
     const ezVec3 vNrm0 = -ezVec3(0, 0, 1).CrossRH(vDir0).GetNormalized();
-    quad[0] = AddVertex(vTopCenter + vDir0 * fRadiusTop, vNrm0, ezVec2(0, 0), color, iCustomIndex, mTransform);
-    quad[1] = AddVertex(vTopCenter, vNrm0, ezVec2(1, 0), color, iCustomIndex, mTransform);
-    quad[2] = AddVertex(vBottomCenter, vNrm0, ezVec2(1, 1), color, iCustomIndex, mTransform);
-    quad[3] = AddVertex(vBottomCenter + vDir0 * fRadiusBottom, vNrm0, ezVec2(0, 1), color, iCustomIndex, mTransform);
+    quad[0] = AddVertex(vTopCenter + vDir0 * fRadiusTop, vNrm0, ezVec2(0, 0), color, boneIndex, mTransform);
+    quad[1] = AddVertex(vTopCenter, vNrm0, ezVec2(1, 0), color, boneIndex, mTransform);
+    quad[2] = AddVertex(vBottomCenter, vNrm0, ezVec2(1, 1), color, boneIndex, mTransform);
+    quad[3] = AddVertex(vBottomCenter + vDir0 * fRadiusBottom, vNrm0, ezVec2(0, 1), color, boneIndex, mTransform);
 
 
     AddPolygon(quad, bFlipWinding);
 
     const ezVec3 vNrm1 = ezVec3(0, 0, 1).CrossRH(vDir1).GetNormalized();
-    quad[0] = AddVertex(vTopCenter, vNrm1, ezVec2(0, 0), color, iCustomIndex, mTransform);
-    quad[1] = AddVertex(vTopCenter + vDir1 * fRadiusTop, vNrm1, ezVec2(1, 0), color, iCustomIndex, mTransform);
-    quad[2] = AddVertex(vBottomCenter + vDir1 * fRadiusBottom, vNrm1, ezVec2(1, 1), color, iCustomIndex, mTransform);
-    quad[3] = AddVertex(vBottomCenter, vNrm1, ezVec2(0, 1), color, iCustomIndex, mTransform);
+    quad[0] = AddVertex(vTopCenter, vNrm1, ezVec2(0, 0), color, boneIndex, mTransform);
+    quad[1] = AddVertex(vTopCenter + vDir1 * fRadiusTop, vNrm1, ezVec2(1, 0), color, boneIndex, mTransform);
+    quad[2] = AddVertex(vBottomCenter + vDir1 * fRadiusBottom, vNrm1, ezVec2(1, 1), color, boneIndex, mTransform);
+    quad[3] = AddVertex(vBottomCenter, vNrm1, ezVec2(0, 1), color, boneIndex, mTransform);
 
     AddPolygon(quad, bFlipWinding);
   }
@@ -925,7 +895,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
     if (bIsFraction)
     {
-      const ezUInt32 uiCenterVtx = AddVertex(vBottomCenter, ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+      const ezUInt32 uiCenterVtx = AddVertex(vBottomCenter, ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
 
       for (ezInt32 i = uiSegments; i >= 0; --i)
       {
@@ -936,7 +906,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
         const ezVec3 vDir(fX, fY, 0);
 
-        AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform);
+        AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, boneIndex, mTransform);
       }
 
       VertsBottom.SetCountUninitialized(3);
@@ -961,7 +931,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
         const ezVec3 vDir(fX, fY, 0);
 
-        VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform));
+        VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, boneIndex, mTransform));
       }
 
       AddPolygon(VertsBottom, bFlipWinding);
@@ -974,7 +944,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
     if (bIsFraction)
     {
-      const ezUInt32 uiCenterVtx = AddVertex(vTopCenter, ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+      const ezUInt32 uiCenterVtx = AddVertex(vTopCenter, ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
 
       for (ezInt32 i = 0; i <= uiSegments; ++i)
       {
@@ -985,7 +955,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
         const ezVec3 vDir(fX, fY, 0);
 
-        AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform);
+        AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, boneIndex, mTransform);
       }
 
       VertsTop.SetCountUninitialized(3);
@@ -1010,7 +980,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
         const ezVec3 vDir(fX, fY, 0);
 
-        VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform));
+        VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, boneIndex, mTransform));
       }
 
       AddPolygon(VertsTop, bFlipWinding);
@@ -1018,7 +988,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
   }
 }
 
-void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezUInt16 boneIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
 
@@ -1044,8 +1014,8 @@ void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, floa
 
       const ezVec3 vDir(fX, fY, 0);
 
-      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, iCustomIndex, mTransform));
-      VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, iCustomIndex, mTransform));
+      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, boneIndex, mTransform));
+      VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, boneIndex, mTransform));
     }
 
     for (ezUInt32 i = 1; i <= uiSegments; ++i)
@@ -1064,7 +1034,7 @@ void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, floa
   }
 }
 
-void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cone with only {0} segments", uiSegments);
 
@@ -1074,7 +1044,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
   const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
 
-  const ezUInt32 uiTip = AddVertex(ezVec3(0, 0, fHeight), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  const ezUInt32 uiTip = AddVertex(ezVec3(0, 0, fHeight), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
 
   for (ezInt32 i = uiSegments - 1; i >= 0; --i)
   {
@@ -1082,7 +1052,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
     ezVec3 vDir(ezMath::Cos(deg), ezMath::Sin(deg), 0);
 
-    VertsBottom.PushBack(AddVertex(vDir * fRadius, vDir, ezVec2(0), color, iCustomIndex, mTransform));
+    VertsBottom.PushBack(AddVertex(vDir * fRadius, vDir, ezVec2(0), color, boneIndex, mTransform));
   }
 
   ezUInt32 uiPrevSeg = uiSegments - 1;
@@ -1105,7 +1075,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
   }
 }
 
-void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 2, "Sphere must have at least 2 stacks");
@@ -1139,7 +1109,7 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
 
       ezVec3 vNormal = vPos;
       vNormal.NormalizeIfNotZero(ezVec3(0, 0, 1)).IgnoreResult();
-      AddVertex(vPos, vNormal, ezVec2(fU, fV), color, iCustomIndex, mTransform);
+      AddVertex(vPos, vNormal, ezVec2(fU, fV), color, boneIndex, mTransform);
     }
   }
 
@@ -1151,7 +1121,7 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
   {
     float fU = ((p + 0.5f) / (float)(uiSegments)) * 2.0f;
 
-    tri[0] = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(fU, 0), color, iCustomIndex, mTransform);
+    tri[0] = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(fU, 0), color, boneIndex, mTransform);
     tri[1] = uiFirstVertex + p + 1;
     tri[2] = uiFirstVertex + p;
 
@@ -1182,7 +1152,7 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
   {
     float fU = ((p + 0.5f) / (float)(uiSegments)) * 2.0f;
 
-    tri[0] = AddVertex(ezVec3(0, 0, -fRadius), ezVec3(0, 0, -1), ezVec2(fU, 1), color, iCustomIndex, mTransform);
+    tri[0] = AddVertex(ezVec3(0, 0, -fRadius), ezVec3(0, 0, -1), ezVec2(fU, 1), color, boneIndex, mTransform);
     tri[1] = uiFirstVertex + (iTopStack + p);
     tri[2] = uiFirstVertex + (iTopStack + p + 1);
 
@@ -1190,7 +1160,7 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
   }
 }
 
-void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 1, "Sphere must have at least 1 stacks");
@@ -1226,11 +1196,11 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
       vPos.y = ezMath::Sin(fDegree) * fRadius * fCosDS;
       vPos.z = fY;
 
-      AddVertex(vPos, vPos.GetNormalized(), ezVec2(fU, fV), color, iCustomIndex, mTransform);
+      AddVertex(vPos, vPos.GetNormalized(), ezVec2(fU, fV), color, boneIndex, mTransform);
     }
   }
 
-  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(0.0f), color, iCustomIndex, mTransform);
+  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(0.0f), color, boneIndex, mTransform);
 
   ezUInt32 tri[3];
   ezUInt32 quad[4];
@@ -1274,7 +1244,7 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
   }
 }
 
-void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Capsule must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 1, "Capsule must have at least 1 stacks");
@@ -1308,7 +1278,7 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
         vPos.z = fY + fOffset;
         vPos.y = ezMath::Sin(fDegree) * fRadius * fCosDS;
 
-        AddVertex(vPos, vPos.GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
+        AddVertex(vPos, vPos.GetNormalized(), ezVec2(0), color, boneIndex, mTransform);
       }
     }
 
@@ -1330,13 +1300,13 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
         vPos.z = fY + fOffset;
         vPos.y = ezMath::Sin(fDegree) * fRadius * fCosDS;
 
-        AddVertex(vPos, vPos.GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
+        AddVertex(vPos, vPos.GetNormalized(), ezVec2(0), color, boneIndex, mTransform);
       }
     }
   }
 
-  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, 0, fRadius + fHeight * 0.5f), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, 0, -fRadius - fHeight * 0.5f), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, 0, fRadius + fHeight * 0.5f), ezVec3(0, 0, 1), ezVec2(0), color, boneIndex, mTransform);
+  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, 0, -fRadius - fHeight * 0.5f), ezVec3(0, 0, -1), ezVec2(0), color, boneIndex, mTransform);
 
   ezUInt32 tri[3];
   ezUInt32 quad[4];
@@ -1382,7 +1352,7 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   }
 }
 
-void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color, const ezMat4& mTransform, ezUInt16 boneIndex)
 {
   EZ_ASSERT_DEV(fInnerRadius < fOuterRadius, "Inner radius must be smaller than outer radius. Doh!");
   EZ_ASSERT_DEV(uiSegments >= 3, "Invalid number of segments.");
@@ -1420,7 +1390,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
 
       const ezVec3 vPos = vLoopPos + fCylinderRadius * vDir;
 
-      AddVertex(vPos, vDir, ezVec2(fU, fV), color, iCustomIndex, mTransform);
+      AddVertex(vPos, vDir, ezVec2(fU, fV), color, boneIndex, mTransform);
     }
   }
 
@@ -1444,7 +1414,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   }
 }
 
-void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezUInt16 boneIndex /*= 0*/)
 {
   const ezVec3 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
@@ -1453,45 +1423,45 @@ void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const
 
   {
     ezVec3 vNormal = ezVec3(-halfSize.z, 0, halfSize.x).GetNormalized();
-    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), vNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), vNormal, ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), vNormal, ezVec2(0, 0), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), vNormal, ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), vNormal, ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 1), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 0), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(1, 1), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0, 0), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx[0] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx[0] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(0, 0), color, boneIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(1, 0, 0), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
   {
-    idx3[0] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx3[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx3[2] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx3[0] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx3[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, -1, 0), ezVec2(0, 0), color, boneIndex, mTransform);
+    idx3[2] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, -1, 0), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx3, bFlipWinding);
   }
 
   {
-    idx3[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx3[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx3[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    idx3[0] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(0, 1), color, boneIndex, mTransform);
+    idx3[1] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 0), color, boneIndex, mTransform);
+    idx3[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, +1, 0), ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(idx3, bFlipWinding);
   }
 }
 
-void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezUInt16 boneIndex /*= 0*/)
 {
   const bool bFlipWinding = false; // TODO
 
@@ -1556,41 +1526,41 @@ void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curv
     ezUInt32 poly[4];
 
     // top
-    poly[0] = AddVertex(vTopL0, ezVec3(0, 0, 1), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
-    poly[3] = AddVertex(vTopL1, ezVec3(0, 0, 1), ezVec2(fTexU0, 1), color, iCustomIndex, mTransform);
-    poly[1] = AddVertex(vTopR0, ezVec3(0, 0, 1), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
-    poly[2] = AddVertex(vTopR1, ezVec3(0, 0, 1), ezVec2(fTexU1, 1), color, iCustomIndex, mTransform);
+    poly[0] = AddVertex(vTopL0, ezVec3(0, 0, 1), ezVec2(fTexU0, 0), color, boneIndex, mTransform);
+    poly[3] = AddVertex(vTopL1, ezVec3(0, 0, 1), ezVec2(fTexU0, 1), color, boneIndex, mTransform);
+    poly[1] = AddVertex(vTopR0, ezVec3(0, 0, 1), ezVec2(fTexU1, 0), color, boneIndex, mTransform);
+    poly[2] = AddVertex(vTopR1, ezVec3(0, 0, 1), ezVec2(fTexU1, 1), color, boneIndex, mTransform);
     AddPolygon(poly, bFlipWinding);
 
     // bottom
-    poly[0] = AddVertex(vBaseL0, ezVec3(0, 0, -1), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
-    poly[1] = AddVertex(vBaseL1, ezVec3(0, 0, -1), ezVec2(fTexU0, 1), color, iCustomIndex, mTransform);
-    poly[3] = AddVertex(vBaseR0, ezVec3(0, 0, -1), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
-    poly[2] = AddVertex(vBaseR1, ezVec3(0, 0, -1), ezVec2(fTexU1, 1), color, iCustomIndex, mTransform);
+    poly[0] = AddVertex(vBaseL0, ezVec3(0, 0, -1), ezVec2(fTexU0, 0), color, boneIndex, mTransform);
+    poly[1] = AddVertex(vBaseL1, ezVec3(0, 0, -1), ezVec2(fTexU0, 1), color, boneIndex, mTransform);
+    poly[3] = AddVertex(vBaseR0, ezVec3(0, 0, -1), ezVec2(fTexU1, 0), color, boneIndex, mTransform);
+    poly[2] = AddVertex(vBaseR1, ezVec3(0, 0, -1), ezVec2(fTexU1, 1), color, boneIndex, mTransform);
     AddPolygon(poly, bFlipWinding);
 
     // step front
     if (!bSmoothSloped)
     {
-      poly[0] = AddVertex(vPrevTopR0, ezVec3(-1, 0, 0), ezVec2(0, fTexU0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vPrevTopR1, ezVec3(-1, 0, 0), ezVec2(1, fTexU0), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vTopL0, ezVec3(-1, 0, 0), ezVec2(0, fTexU1), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vTopL1, ezVec3(-1, 0, 0), ezVec2(1, fTexU1), color, iCustomIndex, mTransform);
+      poly[0] = AddVertex(vPrevTopR0, ezVec3(-1, 0, 0), ezVec2(0, fTexU0), color, boneIndex, mTransform);
+      poly[3] = AddVertex(vPrevTopR1, ezVec3(-1, 0, 0), ezVec2(1, fTexU0), color, boneIndex, mTransform);
+      poly[1] = AddVertex(vTopL0, ezVec3(-1, 0, 0), ezVec2(0, fTexU1), color, boneIndex, mTransform);
+      poly[2] = AddVertex(vTopL1, ezVec3(-1, 0, 0), ezVec2(1, fTexU1), color, boneIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
     }
 
     // side 1
-    poly[0] = AddVertex(vBaseL0, -vSideNormal0, ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
-    poly[1] = AddVertex(vBaseR0, -vSideNormal1, ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
-    poly[3] = AddVertex(vTopL0, -vSideNormal0, ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
-    poly[2] = AddVertex(vTopR0, -vSideNormal1, ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
+    poly[0] = AddVertex(vBaseL0, -vSideNormal0, ezVec2(fTexU0, 0), color, boneIndex, mTransform);
+    poly[1] = AddVertex(vBaseR0, -vSideNormal1, ezVec2(fTexU1, 0), color, boneIndex, mTransform);
+    poly[3] = AddVertex(vTopL0, -vSideNormal0, ezVec2(fTexU0, fTexU1), color, boneIndex, mTransform);
+    poly[2] = AddVertex(vTopR0, -vSideNormal1, ezVec2(fTexU1, fTexU1), color, boneIndex, mTransform);
     AddPolygon(poly, bFlipWinding);
 
     // side 2
-    poly[0] = AddVertex(vBaseL1, vSideNormal0, ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
-    poly[3] = AddVertex(vBaseR1, vSideNormal1, ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
-    poly[1] = AddVertex(vTopL1, vSideNormal0, ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
-    poly[2] = AddVertex(vTopR1, vSideNormal1, ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
+    poly[0] = AddVertex(vBaseL1, vSideNormal0, ezVec2(fTexU0, 0), color, boneIndex, mTransform);
+    poly[3] = AddVertex(vBaseR1, vSideNormal1, ezVec2(fTexU1, 0), color, boneIndex, mTransform);
+    poly[1] = AddVertex(vTopL1, vSideNormal0, ezVec2(fTexU0, fTexU1), color, boneIndex, mTransform);
+    poly[2] = AddVertex(vTopR1, vSideNormal1, ezVec2(fTexU1, fTexU1), color, boneIndex, mTransform);
     AddPolygon(poly, bFlipWinding);
 
     vPrevTopR0 = vTopR0;
@@ -1616,16 +1586,16 @@ void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curv
   // back
   {
     ezUInt32 poly[4];
-    poly[0] = AddVertex(vBaseL0, -vStepFrontNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
-    poly[1] = AddVertex(vBaseL1, -vStepFrontNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
-    poly[3] = AddVertex(vPrevTopR0, -vStepFrontNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
-    poly[2] = AddVertex(vPrevTopR1, -vStepFrontNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
+    poly[0] = AddVertex(vBaseL0, -vStepFrontNormal, ezVec2(0, 0), color, boneIndex, mTransform);
+    poly[1] = AddVertex(vBaseL1, -vStepFrontNormal, ezVec2(1, 0), color, boneIndex, mTransform);
+    poly[3] = AddVertex(vPrevTopR0, -vStepFrontNormal, ezVec2(0, 1), color, boneIndex, mTransform);
+    poly[2] = AddVertex(vPrevTopR1, -vStepFrontNormal, ezVec2(1, 1), color, boneIndex, mTransform);
     AddPolygon(poly, bFlipWinding);
   }
 }
 
 
-void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezUInt16 boneIndex /*= 0*/)
 {
   // sanitize input values
   {
@@ -1736,57 +1706,57 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 
     // Outside
     {
-      poly[0] = AddVertex(vCurBottomOuter, vCurDirOutwards, ezVec2(fCurOuterU, 0), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vNextBottomOuter, vNextDirOutwards, ezVec2(fNextOuterU, 0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vCurTopOuter, vCurDirOutwards, ezVec2(fCurOuterU, 1), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vNextTopOuter, vNextDirOutwards, ezVec2(fNextOuterU, 1), color, iCustomIndex, mTransform);
+      poly[0] = AddVertex(vCurBottomOuter, vCurDirOutwards, ezVec2(fCurOuterU, 0), color, boneIndex, mTransform);
+      poly[1] = AddVertex(vNextBottomOuter, vNextDirOutwards, ezVec2(fNextOuterU, 0), color, boneIndex, mTransform);
+      poly[3] = AddVertex(vCurTopOuter, vCurDirOutwards, ezVec2(fCurOuterU, 1), color, boneIndex, mTransform);
+      poly[2] = AddVertex(vNextTopOuter, vNextDirOutwards, ezVec2(fNextOuterU, 1), color, boneIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
     }
 
     // Inside
     {
-      poly[0] = AddVertex(vCurBottomInner, -vCurDirOutwards, ezVec2(fCurOuterU, 0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vNextBottomInner, -vNextDirOutwards, ezVec2(fNextOuterU, 0), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vCurTopInner, -vCurDirOutwards, ezVec2(fCurOuterU, 1), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vNextTopInner, -vNextDirOutwards, ezVec2(fNextOuterU, 1), color, iCustomIndex, mTransform);
+      poly[0] = AddVertex(vCurBottomInner, -vCurDirOutwards, ezVec2(fCurOuterU, 0), color, boneIndex, mTransform);
+      poly[3] = AddVertex(vNextBottomInner, -vNextDirOutwards, ezVec2(fNextOuterU, 0), color, boneIndex, mTransform);
+      poly[1] = AddVertex(vCurTopInner, -vCurDirOutwards, ezVec2(fCurOuterU, 1), color, boneIndex, mTransform);
+      poly[2] = AddVertex(vNextTopInner, -vNextDirOutwards, ezVec2(fNextOuterU, 1), color, boneIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
     }
 
     // Bottom
     {
-      poly[0] = AddVertex(vCurBottomInner, ezVec3(0, 0, -1), vCurBottomInner.GetAsVec2(), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vNextBottomInner, ezVec3(0, 0, -1), vNextBottomInner.GetAsVec2(), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vCurBottomOuter, ezVec3(0, 0, -1), vCurBottomOuter.GetAsVec2(), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vNextBottomOuter, ezVec3(0, 0, -1), vNextBottomOuter.GetAsVec2(), color, iCustomIndex, mTransform);
+      poly[0] = AddVertex(vCurBottomInner, ezVec3(0, 0, -1), vCurBottomInner.GetAsVec2(), color, boneIndex, mTransform);
+      poly[1] = AddVertex(vNextBottomInner, ezVec3(0, 0, -1), vNextBottomInner.GetAsVec2(), color, boneIndex, mTransform);
+      poly[3] = AddVertex(vCurBottomOuter, ezVec3(0, 0, -1), vCurBottomOuter.GetAsVec2(), color, boneIndex, mTransform);
+      poly[2] = AddVertex(vNextBottomOuter, ezVec3(0, 0, -1), vNextBottomOuter.GetAsVec2(), color, boneIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
     }
 
     // Top
     {
-      poly[0] = AddVertex(vCurTopInner, ezVec3(0, 0, 1), vCurTopInner.GetAsVec2(), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vNextTopInner, ezVec3(0, 0, 1), vNextTopInner.GetAsVec2(), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vCurTopOuter, ezVec3(0, 0, 1), vCurTopOuter.GetAsVec2(), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vNextTopOuter, ezVec3(0, 0, 1), vNextTopOuter.GetAsVec2(), color, iCustomIndex, mTransform);
+      poly[0] = AddVertex(vCurTopInner, ezVec3(0, 0, 1), vCurTopInner.GetAsVec2(), color, boneIndex, mTransform);
+      poly[3] = AddVertex(vNextTopInner, ezVec3(0, 0, 1), vNextTopInner.GetAsVec2(), color, boneIndex, mTransform);
+      poly[1] = AddVertex(vCurTopOuter, ezVec3(0, 0, 1), vCurTopOuter.GetAsVec2(), color, boneIndex, mTransform);
+      poly[2] = AddVertex(vNextTopOuter, ezVec3(0, 0, 1), vNextTopOuter.GetAsVec2(), color, boneIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
     }
 
     // Front
     {
       const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * vCurDirOutwards.CrossRH(ezVec3(0, 0, 1));
-      poly[0] = AddVertex(vCurBottomInner, vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vCurBottomOuter, vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vCurTopInner, vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vCurTopOuter, vNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
+      poly[0] = AddVertex(vCurBottomInner, vNormal, ezVec2(0, 0), color, boneIndex, mTransform);
+      poly[1] = AddVertex(vCurBottomOuter, vNormal, ezVec2(1, 0), color, boneIndex, mTransform);
+      poly[3] = AddVertex(vCurTopInner, vNormal, ezVec2(0, 1), color, boneIndex, mTransform);
+      poly[2] = AddVertex(vCurTopOuter, vNormal, ezVec2(1, 1), color, boneIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
     }
 
     // Back
     {
       const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * -vNextDirOutwards.CrossRH(ezVec3(0, 0, 1));
-      poly[0] = AddVertex(vNextBottomInner, vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vNextBottomOuter, vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vNextTopInner, vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vNextTopOuter, vNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
+      poly[0] = AddVertex(vNextBottomInner, vNormal, ezVec2(0, 0), color, boneIndex, mTransform);
+      poly[3] = AddVertex(vNextBottomOuter, vNormal, ezVec2(1, 0), color, boneIndex, mTransform);
+      poly[1] = AddVertex(vNextTopInner, vNormal, ezVec2(0, 1), color, boneIndex, mTransform);
+      poly[2] = AddVertex(vNextTopOuter, vNormal, ezVec2(1, 1), color, boneIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
     }
 

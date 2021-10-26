@@ -39,4 +39,7 @@ private:
 
   bool m_bUpdateUI = false;
   bool m_bRebuildUI = false;
+  bool m_bUpdateConsole = false;
+  ezStringBuilder m_sCommandResult;
 };
+

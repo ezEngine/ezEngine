@@ -1,4 +1,4 @@
-#include <SampleGamePluginPCH.h>
+#include <SampleGamePlugin/SampleGamePluginPCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -57,7 +57,7 @@ void DisplayMsgComponent::Update()
 {
   const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
 
-  ezDebugRenderer::Draw3DText(GetWorld(), m_sCurrentText, ownerTransform.m_vPosition, m_TextColor, 32);
+  ezDebugRenderer::Draw3DText(GetWorld(), m_sCurrentText.GetData(), ownerTransform.m_vPosition, m_TextColor, 32);
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: message-handler-impl

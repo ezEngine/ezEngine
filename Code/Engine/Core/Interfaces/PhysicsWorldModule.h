@@ -8,7 +8,7 @@
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
 
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 /// \brief Used for raycast and seep tests
 struct ezPhysicsCastResult
@@ -21,6 +21,10 @@ struct ezPhysicsCastResult
   ezGameObjectHandle m_hActorObject;     ///< The game object to which the parent actor of the hit physics shape is attached.
   ezSurfaceResourceHandle m_hSurface;    ///< The type of surface that was hit (if available)
   ezUInt32 m_uiShapeId = ezInvalidIndex; ///< The shape id of the hit physics shape
+
+  // Physics-engine specific information, may be available or not.
+  void* m_pInternalPhysicsShape = nullptr;
+  void* m_pInternalPhysicsActor = nullptr;
 };
 
 struct ezPhysicsCastResultArray
@@ -60,6 +64,7 @@ struct ezPhysicsQueryParameters
   ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
   ezUInt32 m_uiIgnoreShapeId = ezInvalidIndex;
   bool m_bIgnoreInitialOverlap = false;
+  bool m_bIncludeQueryShapes = true;
 };
 
 enum class ezPhysicsHitCollection
@@ -108,6 +113,10 @@ struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vImpulse;
   ezUInt32 m_uiShapeId = ezInvalidIndex;
+
+  // Physics-engine specific information, may be available or not.
+  void* m_pInternalPhysicsShape = nullptr;
+  void* m_pInternalPhysicsActor = nullptr;
 };
 
 /// \brief Used to apply a physical force on the object
@@ -117,6 +126,10 @@ struct EZ_CORE_DLL ezMsgPhysicsAddForce : public ezMessage
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vForce;
+
+  // Physics-engine specific information, may be available or not.
+  void* m_pInternalPhysicsShape = nullptr;
+  void* m_pInternalPhysicsActor = nullptr;
 };
 
 struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezEventMessage

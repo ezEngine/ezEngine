@@ -43,7 +43,9 @@ public:
   void SetSkeleton(const ezSkeletonResourceHandle& hResource);
   const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
 
-  bool m_bVisualizeSkeleton = true; // [ property ]
+  bool m_bVisualizeSkeleton = true;   // [ property ]
+  bool m_bVisualizeColliders = false; // [ property ]
+  bool m_bVisualizeJoints = false;    // [ property ]
 
   void SetBonesToHighlight(const char* szFilter);
   const char* GetBonesToHighlight() const;
@@ -60,4 +62,27 @@ protected:
 
   ezBoundingBoxSphere m_LocalBounds;
   ezDynamicArray<ezDebugRenderer::Line> m_LinesSkeleton;
+
+  struct SphereShape
+  {
+    ezTransform m_Transform;
+    ezBoundingSphere m_Shape;
+  };
+
+  struct BoxShape
+  {
+    ezTransform m_Transform;
+    ezBoundingBox m_Shape;
+  };
+
+  struct CapsuleShape
+  {
+    ezTransform m_Transform;
+    float m_fLength;
+    float m_fRadius;
+  };
+
+  ezDynamicArray<SphereShape> m_SpheresSkeleton;
+  ezDynamicArray<BoxShape> m_BoxesSkeleton;
+  ezDynamicArray<CapsuleShape> m_CapsulesSkeleton;
 };

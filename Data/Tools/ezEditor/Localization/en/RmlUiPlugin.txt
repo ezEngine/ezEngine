@@ -1,3 +1,3 @@
-ezRmlUiCanvas2DComponent;RmlUi Canvas 2D
+ezRmlUiCanvas2DComponent;RmlUi Canvas 2D;;https://ezengine.net/pages/docs/ui/rmlui-canvas2d-component.html
 ezRmlUiScaleMode::Fixed;Fixed
 ezRmlUiScaleMode::WithScreenSize;With Screen Size

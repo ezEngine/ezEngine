@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
@@ -47,7 +47,7 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
 }
 
 void ezCollectionAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   out_pDocument = new ezCollectionAssetDocument(szPath);
 }

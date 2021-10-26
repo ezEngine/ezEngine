@@ -1,3 +1,1 @@
-#include <RtsGamePluginPCH.h>
-
-ezPlugin g_Plugin(false);
+#include <RtsGamePlugin/RtsGamePluginPCH.h>

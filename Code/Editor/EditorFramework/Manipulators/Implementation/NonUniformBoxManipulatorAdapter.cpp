@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
@@ -22,7 +22,7 @@ void ezNonUniformBoxManipulatorAdapter::QueryGridSettings(ezGridSettingsMsgToEng
 
 void ezNonUniformBoxManipulatorAdapter::Finalize()
 {
-  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
   auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
 

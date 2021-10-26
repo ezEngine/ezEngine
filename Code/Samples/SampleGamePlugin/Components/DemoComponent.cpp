@@ -1,4 +1,4 @@
-#include <SampleGamePluginPCH.h>
+#include <SampleGamePlugin/SampleGamePluginPCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>

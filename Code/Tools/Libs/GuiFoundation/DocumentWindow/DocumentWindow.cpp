@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -443,8 +443,7 @@ bool ezQtDocumentWindow::CanCloseWindow()
 
 bool ezQtDocumentWindow::InternalCanCloseWindow()
 {
-  // I guess this is to remove the focus from other widgets like input boxes,
-  // such that they may modify the document
+  // I guess this is to remove the focus from other widgets like input boxes, such that they may modify the document.
   setFocus();
   clearFocus();
 
@@ -457,8 +456,13 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
 
     if (res == QMessageBox::StandardButton::Yes)
     {
-      if (SaveDocument().m_Result.Failed())
+      ezStatus err = SaveDocument();
+
+      if (err.Failed())
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxStatus(err, "Saving the scene failed.");
         return false;
+      }
     }
   }
 
@@ -553,6 +557,9 @@ void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
 
 ezQtDocumentWindow* ezQtDocumentWindow::FindWindowByDocument(const ezDocument* pDocument)
 {
+  // Sub-documents never have a window, so go to the main document instead
+  pDocument = pDocument->GetMainDocument();
+
   for (auto pWnd : s_AllDocumentWindows)
   {
     if (pWnd->GetDocument() == pDocument)

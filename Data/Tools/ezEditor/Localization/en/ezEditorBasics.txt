@@ -28,6 +28,7 @@ Document.NewWindow;New Container Window
 Selection.Copy;Copy
 Selection.Paste;Paste
 Selection.PasteAsChild;Paste as Child;Pastes the copied objects as child nodes of the selected object.
+Selection.PasteAtOriginalLocation;Paste at Original Location;Pastes the copied objects at their original location.
 Selection.Delete;Delete
 Menu.Editor;&Editor
 Menu.File;&File

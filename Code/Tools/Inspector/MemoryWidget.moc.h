@@ -77,3 +77,4 @@ private:
 
   ezMap<ezUInt32, AllocatorData> m_AllocatorData;
 };
+

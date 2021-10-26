@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/PropertyGrid/Implementation/ElementGroupButton.moc.h>
 
@@ -7,6 +7,8 @@ ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGrou
 {
   m_Action = action;
   m_pGroupWidget = pGroupWidget;
+
+  setAutoRaise(true);
 
   setIconSize(QSize(16, 16));
 
@@ -20,6 +22,9 @@ ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGrou
       break;
     case ezQtElementGroupButton::ElementAction::DeleteElement:
       setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Delete16.png")));
+      break;
+    case ezQtElementGroupButton::ElementAction::Help:
+      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Log.png")));
       break;
   }
 }

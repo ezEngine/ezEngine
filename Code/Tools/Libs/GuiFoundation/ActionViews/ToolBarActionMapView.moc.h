@@ -39,3 +39,4 @@ private:
   ezActionContext m_Context;
   ezActionMap* m_pActionMap;
 };
+

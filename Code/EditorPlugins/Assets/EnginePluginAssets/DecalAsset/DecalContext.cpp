@@ -1,4 +1,4 @@
-#include <EnginePluginAssetsPCH.h>
+#include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/DecalAsset/DecalContext.h>
 #include <EnginePluginAssets/DecalAsset/DecalView.h>
@@ -17,7 +17,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDeca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalContext::ezDecalContext() {}
+ezDecalContext::ezDecalContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+{
+}
 
 void ezDecalContext::OnInitialize()
 {
@@ -69,7 +72,7 @@ void ezDecalContext::OnInitialize()
     }
   }
 
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;

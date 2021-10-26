@@ -1,5 +1,5 @@
 
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/LUTAsset/AdobeCUBEReader.h>
 #include <Foundation/CodeUtils/Tokenizer.h>

@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
@@ -132,9 +132,9 @@ void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescrip
 
 ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(8);
+  stream.WriteVersion(9);
 
-  const ezUInt16 uiNumJoints = m_JointInfos.GetCount();
+  const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_JointInfos.GetCount());
   stream << uiNumJoints;
   for (ezUInt32 i = 0; i < m_JointInfos.GetCount(); ++i)
   {
@@ -160,12 +160,14 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) co
 
   m_EventTrack.Save(stream);
 
+  stream << m_bAdditive;
+
   return EZ_SUCCESS;
 }
 
 ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
-  const ezTypeVersion uiVersion = stream.ReadVersion(8);
+  const ezTypeVersion uiVersion = stream.ReadVersion(9);
 
   if (uiVersion < 6)
     return EZ_FAILURE;
@@ -211,6 +213,11 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
     m_EventTrack.Load(stream);
   }
 
+  if (uiVersion >= 9)
+  {
+    stream >> m_bAdditive;
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -221,7 +228,7 @@ ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
 
 ezUInt16 ezAnimationClipResourceDescriptor::GetNumJoints() const
 {
-  return m_JointInfos.GetCount();
+  return static_cast<ezUInt16>(m_JointInfos.GetCount());
 }
 
 ezTime ezAnimationClipResourceDescriptor::GetDuration() const

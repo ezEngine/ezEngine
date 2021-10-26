@@ -1,6 +1,9 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
+#include <Core/World/World.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <GameEngine/Effects/Wind/SimpleWindWorldModule.h>
+#include <GameEngine/Effects/Wind/WindVolumeComponent.h>
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezSimpleWindWorldModule);
@@ -19,6 +22,30 @@ ezSimpleWindWorldModule::~ezSimpleWindWorldModule() = default;
 
 ezVec3 ezSimpleWindWorldModule::GetWindAt(const ezVec3& vPosition) const
 {
+  if (auto pSpatial = GetWorld()->GetSpatialSystem())
+  {
+    ezHybridArray<ezGameObject*, 16> volumes;
+
+    ezSpatialSystem::QueryParams queryParams;
+    queryParams.m_uiCategoryBitmask = ezWindVolumeComponent::SpatialDataCategory.GetBitmask();
+
+    pSpatial->FindObjectsInSphere(ezBoundingSphere(vPosition, 0.5f), queryParams, volumes);
+
+    const ezSimdVec4f pos = ezSimdConversion::ToVec3(vPosition);
+    ezSimdVec4f force = ezSimdVec4f::ZeroVector();
+
+    for (ezGameObject* pObj : volumes)
+    {
+      ezWindVolumeComponent* pVol;
+      if (pObj->TryGetComponentOfBaseType(pVol))
+      {
+        force += pVol->ComputeForceAtGlobalPosition(pos);
+      }
+    }
+
+    return m_vFallbackWind + ezSimdConversion::ToVec3(force);
+  }
+
   return m_vFallbackWind;
 }
 

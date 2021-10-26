@@ -1,4 +1,4 @@
-﻿#include <FoundationTestPCH.h>
+﻿#include <FoundationTest/FoundationTestPCH.h>
 
 // NOTE: always save as Unicode UTF-8 with signature
 
@@ -43,14 +43,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf8ContinuationByte")
   {
     // all ASCII Characters are not continuation bytes
-    for (ezUInt32 i = 0; i < 128; ++i)
-      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(i));
-
-    for (ezUInt32 i = 0; i < 255; ++i)
+    for (char i = 0; i < 127; ++i)
     {
-      const ezUInt32 uiContByte = 0x80 | (i & 0x3f);
-      const ezUInt32 uiNoContByte1 = i | 0x40;
-      const ezUInt32 uiNoContByte2 = i | 0xC0;
+      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(i));
+    }
+
+    for (ezUInt32 i = 0; i < 255u; ++i)
+    {
+      const char uiContByte = static_cast<char>(0x80 | (i & 0x3f));
+      const char uiNoContByte1 = static_cast<char>(i | 0x40);
+      const char uiNoContByte2 = static_cast<char>(i | 0xC0);
 
       EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8ContinuationByte(uiContByte));
       EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte1));
@@ -61,8 +63,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetUtf8SequenceLength")
   {
     // All ASCII characters are 1 byte in length
-    for (ezUInt32 i = 0; i < 128; ++i)
+    for (char i = 0; i < 127; ++i)
+    {
       EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(i), 1);
+    }
 
     {
       ezStringUtf8 s(L"ä");
@@ -269,11 +273,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf16Surrogate")
   {
-    ezUInt16 szNoSurrogate[] = { 0x2AD7 };
-    ezUInt16 szSurrogate[] = { 0xd83e };
+    ezUInt16 szNoSurrogate[] = {0x2AD7};
+    ezUInt16 szSurrogate[] = {0xd83e};
 
     EZ_TEST_BOOL(ezUnicodeUtils::IsUtf16Surrogate(szNoSurrogate) == false);
     EZ_TEST_BOOL(ezUnicodeUtils::IsUtf16Surrogate(szSurrogate) == true);
-
   }
 }

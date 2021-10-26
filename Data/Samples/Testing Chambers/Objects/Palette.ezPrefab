@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4200437346919130552,5066148044483394644}}
-		u4 %Hash{16521046718451292578}
+		u4 %Hash{1094656137778014806}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16698943500777280249,16475979181540659076}}
@@ -20,6 +20,7 @@ o
 		VarArray %References
 		{
 			s{"{ 1f6b5778-8216-4ca2-a495-d2bc32930844 }"}
+			s{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
 		}
 	}
 }
@@ -145,7 +146,7 @@ o
 {
 	Uuid %id{u4{5321121170027099795,5228801471419256201}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -155,6 +156,7 @@ o
 		b %DisableGravity{0}
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCC4C3E}
+		s %LockingFlags{""}
 		f %Mass{0}
 		f %MaxContactImpulse{0x0050C347}
 	}
@@ -255,8 +257,8 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0xEC51B83F,0x8FC2753F,0xEC51383E}}
-		s %OnContact{""}
-		s %Surface{""}
+		s %OnContact{"ezOnPhysXContact::ImpactReactions|ezOnPhysXContact::SlideReactions"}
+		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
 	}
 }
 o
@@ -508,7 +510,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
 		u3 %TypeSize{88}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -652,6 +654,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5641856670392806071,17941956109863478530}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxActorLockingFlags"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

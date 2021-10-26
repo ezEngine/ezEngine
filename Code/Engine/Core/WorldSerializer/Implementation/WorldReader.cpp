@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
@@ -233,7 +233,8 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
 
 void ezWorldReader::ReadComponentDataToMemStream()
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& writer, bool bReadNumComponents) {
+  auto WriteToMemStream = [&](ezMemoryStreamWriter& writer, bool bReadNumComponents)
+  {
     ezUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {
@@ -477,7 +478,7 @@ inline static ezUInt32 NextStableRandomSeed(ezUInt32& seed)
 }
 
 template <bool UseTransform>
-bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime)
+bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_CreatedObjects, ezTime endTime)
 {
   EZ_PROFILE_SCOPE("ezWorldReader::CreateGameObjects");
 
@@ -487,7 +488,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
 
     ezGameObjectDesc desc = godesc.m_Desc; // make a copy
     desc.m_hParent = hParent.IsInvalidated() ? m_WorldReader.m_IndexToGameObjectHandle[godesc.m_uiParentHandleIdx] : hParent;
-    desc.m_bDynamic |= m_Options.bForceDynamic;
+    desc.m_bDynamic |= m_Options.m_bForceDynamic;
 
     switch (m_Options.m_RandomSeedMode)
     {
@@ -584,9 +585,10 @@ bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
       s >> userFlags;
 
       ezGameObject* pOwnerObject = nullptr;
-      m_WorldReader.m_pWorld->TryGetObject(hOwner, pOwnerObject);
-
-      EZ_ASSERT_DEBUG(pOwnerObject != nullptr, "Owner object must be not null");
+      if (!m_WorldReader.m_pWorld->TryGetObject(hOwner, pOwnerObject))
+      {
+        EZ_REPORT_FAILURE("Owner object must be not null");
+      }
 
       ezComponent* pComponent = nullptr;
       auto hComponent = pManager->CreateComponentNoInit(pOwnerObject, pComponent);

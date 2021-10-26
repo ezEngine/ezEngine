@@ -353,3 +353,4 @@ MigrationBackup/
 AssetCache
 /build/
 /buildUWP/
+Code/Engine/ezBuildInfo.h

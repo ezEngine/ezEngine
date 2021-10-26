@@ -1,4 +1,4 @@
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "TestClass.h"
 #include <Core/World/World.h>
@@ -32,6 +32,11 @@ ezResult ezGameEngineTest::InitializeTest()
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+  }
+  else if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
+  {
+    // Line rendering is different on AMD and requires separate images for tests rendering lines.
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
   }
   else
   {
@@ -99,6 +104,8 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
   m_pWorld->Clear();
+  m_pWorld->GetRandomNumberGenerator().Initialize(42);     // reset the RNG
+  m_pWorld->GetClock().SetAccumulatedTime(ezTime::Zero()); // reset the world clock
 
   ezFileReader file;
 
@@ -147,6 +154,8 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
   ezStartup::StartupHighLevelSystems();
 
   ezWorldDesc desc("GameEngineTestWorld");
+  desc.m_uiRandomNumberGeneratorSeed = 42;
+
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::Seconds(1.0 / 30.0));
 

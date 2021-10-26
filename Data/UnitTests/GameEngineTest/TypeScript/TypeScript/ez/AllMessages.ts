@@ -35,6 +35,12 @@ import Enum = require("./AllEnums")
 import Flags = require("./AllFlags")
 
 
+export class MsgAnimationPosePreparing extends Message
+{
+  public static GetTypeNameHash(): number { return 2419062254; }
+  constructor() { super(); this.TypeNameHash = 2419062254; }
+}
+
 export class MsgAnimationPoseUpdated extends Message
 {
   public static GetTypeNameHash(): number { return 1062497747; }
@@ -45,6 +51,25 @@ export class MsgAnimationReachedEnd extends EventMessage
 {
   public static GetTypeNameHash(): number { return 1074277864; }
   constructor() { super(); this.TypeNameHash = 1074277864; }
+}
+
+export class MsgApplyRootMotion extends Message
+{
+  public static GetTypeNameHash(): number { return 3983304456; }
+  constructor() { super(); this.TypeNameHash = 3983304456; }
+  Translation: Vec3 = new Vec3(0, 0, 0);
+  RotationX: number = 0;
+  RotationY: number = 0;
+  RotationZ: number = 0;
+}
+
+export class MsgBlackboardEntryChanged extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 1414854208; }
+  constructor() { super(); this.TypeNameHash = 1414854208; }
+  Name: string;
+  OldValue: any;
+  NewValue: any;
 }
 
 export class MsgBreakableSheetBroke extends EventMessage
@@ -75,7 +100,7 @@ export class MsgComponentInternalTrigger extends Message
 {
   public static GetTypeNameHash(): number { return 2150357888; }
   constructor() { super(); this.TypeNameHash = 2150357888; }
-  UsageStringHash: number = 0;
+  Message: string;
 }
 
 export class MsgComponentsChanged extends Message
@@ -90,6 +115,8 @@ export class MsgDamage extends EventMessage
   constructor() { super(); this.TypeNameHash = 3803404036; }
   Damage: number = 0;
   HitObjectName: string;
+  GlobalPosition: Vec3 = new Vec3(0, 0, 0);
+  ImpactDirection: Vec3 = new Vec3(0, 0, 0);
 }
 
 export class MsgDeleteGameObject extends Message
@@ -127,13 +154,14 @@ export class MsgGenericEvent extends EventMessage
   public static GetTypeNameHash(): number { return 3196354340; }
   constructor() { super(); this.TypeNameHash = 3196354340; }
   Message: string;
+  Value: any = 0;
 }
 
 export class MsgInputActionTriggered extends EventMessage
 {
   public static GetTypeNameHash(): number { return 94741345; }
   constructor() { super(); this.TypeNameHash = 94741345; }
-  InputActionHash: number = 0;
+  InputAction: string;
   KeyPressValue: number = 0;
   TriggerState: Enum.TriggerState = 0;
 }
@@ -194,6 +222,12 @@ export class MsgRmlUiReload extends Message
   constructor() { super(); this.TypeNameHash = 1859392301; }
 }
 
+export class MsgRopePoseUpdated extends Message
+{
+  public static GetTypeNameHash(): number { return 2063668489; }
+  constructor() { super(); this.TypeNameHash = 2063668489; }
+}
+
 export class MsgSetColor extends Message
 {
   public static GetTypeNameHash(): number { return 1623708695; }
@@ -235,7 +269,7 @@ export class MsgTriggerTriggered extends EventMessage
 {
   public static GetTypeNameHash(): number { return 3303636443; }
   constructor() { super(); this.TypeNameHash = 3303636443; }
-  MsgStringHash: number = 0;
+  Message: string;
   TriggerState: Enum.TriggerState = 0;
 }
 

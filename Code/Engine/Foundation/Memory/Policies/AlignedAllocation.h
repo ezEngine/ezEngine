@@ -25,7 +25,7 @@ namespace ezMemoryPolicies
 
       ezUInt8* pMemory = (ezUInt8*)m_allocator.Allocate(uiAlignedSize, EZ_ALIGNMENT_MINIMUM);
 
-      ezUInt8* pAlignedMemory = ezMemoryUtils::Align(pMemory + uiPadding, uiAlign);
+      ezUInt8* pAlignedMemory = ezMemoryUtils::AlignBackwards(pMemory + uiPadding, uiAlign);
 
       ezUInt32* pMetadata = GetMetadataPtr(pAlignedMemory);
       *pMetadata = PackMetadata((ezUInt32)(pAlignedMemory - pMemory), (ezUInt32)uiAlign);

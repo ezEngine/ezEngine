@@ -5,8 +5,8 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
-typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMeshFactory final : public ezParticleTypeFactory
 {

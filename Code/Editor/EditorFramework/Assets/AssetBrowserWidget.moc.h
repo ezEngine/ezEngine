@@ -85,3 +85,4 @@ private:
   ezQtAssetBrowserModel* m_pModel;
   ezQtAssetBrowserFilter* m_pFilter;
 };
+

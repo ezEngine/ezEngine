@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/Document.h>
@@ -188,7 +188,7 @@ ezUuid ezDocument::ReplaceByPrefab(
   if (!bEnginePrefab) // create editor prefab
   {
     ezInstantiatePrefabCommand instCmd;
-    instCmd.m_Index = pRootObject->GetParent()->GetChildIndex(pRootObject) - 1;
+    instCmd.m_Index = pRootObject->GetPropertyIndex().ConvertTo<ezInt32>();
     instCmd.m_bAllowPickedPosition = false;
     instCmd.m_CreateFromPrefab = PrefabAsset;
     instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
@@ -211,7 +211,7 @@ ezUuid ezDocument::ReplaceByPrefab(
 
     ezAddObjectCommand cmd;
     cmd.m_Parent = (pRootObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pRootObject->GetParent()->GetGuid();
-    cmd.m_Index = -1;
+    cmd.m_Index = pRootObject->GetPropertyIndex();
     cmd.SetType("ezGameObject");
     cmd.m_NewObjectGuid = instantiatedRoot;
     cmd.m_sParentProperty = "Children";
@@ -247,13 +247,13 @@ ezUuid ezDocument::ReplaceByPrefab(
 ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
 {
   auto pHistory = GetCommandHistory();
-  auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+  auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
 
   const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
 
   if (!PrefabAsset.IsValid())
   {
-    m_DocumentObjectMetaData.EndReadMetaData();
+    m_DocumentObjectMetaData->EndReadMetaData();
     return ezUuid();
   }
 
@@ -261,14 +261,14 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
   remCmd.m_Object = pObject->GetGuid();
 
   ezInstantiatePrefabCommand instCmd;
-  instCmd.m_Index = pObject->GetParent()->GetChildIndex(pObject);
+  instCmd.m_Index = pObject->GetPropertyIndex().ConvertTo<ezInt32>();
   instCmd.m_bAllowPickedPosition = false;
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
   instCmd.m_sBasePrefabGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(pMeta->m_CreateFromPrefab);
 
-  m_DocumentObjectMetaData.EndReadMetaData();
+  m_DocumentObjectMetaData->EndReadMetaData();
 
   pHistory->AddCommand(remCmd);
   pHistory->AddCommand(instCmd);
@@ -286,12 +286,12 @@ void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
 
   for (auto pChild : ChildArray)
   {
-    auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pChild->GetGuid());
+    auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pChild->GetGuid());
     const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
     const ezUuid PrefabSeed = pMeta->m_PrefabSeedGuid;
     sPrefabBase = pMeta->m_sBasePrefab;
 
-    m_DocumentObjectMetaData.EndReadMetaData();
+    m_DocumentObjectMetaData->EndReadMetaData();
 
     // if this is a prefab instance, update it
     if (PrefabAsset.IsValid())
@@ -320,7 +320,7 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
 
   // instantiate prefab again
   ezInstantiatePrefabCommand inst;
-  inst.m_Index = pObject->GetParent()->GetChildIndex(pObject);
+  inst.m_Index = pObject->GetPropertyIndex().ConvertTo<ezInt32>();
   inst.m_bAllowPickedPosition = false;
   inst.m_CreateFromPrefab = PrefabAsset;
   inst.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();

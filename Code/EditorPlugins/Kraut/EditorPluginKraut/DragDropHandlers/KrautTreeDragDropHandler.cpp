@@ -1,4 +1,4 @@
-#include <EditorPluginKrautPCH.h>
+#include <EditorPluginKraut/EditorPluginKrautPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginKraut/DragDropHandlers/KrautTreeDragDropHandler.h>

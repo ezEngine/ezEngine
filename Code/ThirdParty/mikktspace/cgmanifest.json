@@ -2,11 +2,10 @@
   "Registrations": [
     {
       "component": {
-        "type": "other",
-        "Other": {
-          "Name": "Mikktspace",
-          "Version": "1.0",
-          "DownloadUrl": "http://www.metalliandy.com/mikktspace/downloads/mikktspace/mikktspace.h"
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/mmikk/MikkTSpace",
+          "commitHash": "3e895b49d05ea07e4c2133156cfa94369e19e409"
         }
       }
     }

@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Core/World/SpatialData.h>
-#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/SimdMath/SimdBBoxSphere.h>
+#include <Foundation/Types/TagSet.h>
 
 class EZ_CORE_DLL ezSpatialSystem : public ezReflectedClass
 {
@@ -13,17 +14,18 @@ public:
   ezSpatialSystem();
   ~ezSpatialSystem();
 
+  virtual void StartNewFrame();
+
   /// \name Spatial Data Functions
   ///@{
 
-  ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask);
-  ezSpatialDataHandle CreateSpatialDataAlwaysVisible(ezGameObject* pObject, ezUInt32 uiCategoryBitmask);
+  virtual ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) = 0;
+  virtual ezSpatialDataHandle CreateSpatialDataAlwaysVisible(ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) = 0;
 
-  void DeleteSpatialData(const ezSpatialDataHandle& hData);
+  virtual void DeleteSpatialData(const ezSpatialDataHandle& hData) = 0;
 
-  bool TryGetSpatialData(const ezSpatialDataHandle& hData, const ezSpatialData*& out_pData) const;
-
-  void UpdateSpatialData(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask);
+  virtual void UpdateSpatialDataBounds(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds) = 0;
+  virtual void UpdateSpatialDataObject(const ezSpatialDataHandle& hData, ezGameObject* pObject) = 0;
 
   ///@}
   /// \name Simple Queries
@@ -31,57 +33,48 @@ public:
 
   typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> QueryCallback;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   struct QueryStats
   {
-    ezUInt32 m_uiTotalNumObjects;  ///< The total number of spatial objects in this system.
-    ezUInt32 m_uiNumObjectsTested; ///< Number of objects tested for the query condition.
-    ezUInt32 m_uiNumObjectsPassed; ///< Number of objects that passed the query condition.
-    ezTime m_TimeTaken;            ///< Time taken to execute the query
+    ezUInt32 m_uiTotalNumObjects = 0;  ///< The total number of spatial objects in this system.
+    ezUInt32 m_uiNumObjectsTested = 0; ///< Number of objects tested for the query condition.
+    ezUInt32 m_uiNumObjectsPassed = 0; ///< Number of objects that passed the query condition.
+    ezTime m_TimeTaken;                ///< Time taken to execute the query
+  };
+#endif
 
-    EZ_ALWAYS_INLINE QueryStats()
-    {
-      m_uiTotalNumObjects = 0;
-      m_uiNumObjectsTested = 0;
-      m_uiNumObjectsPassed = 0;
-    }
+  struct QueryParams
+  {
+    ezUInt32 m_uiCategoryBitmask = 0;
+    ezTagSet m_IncludeTags;
+    ezTagSet m_ExcludeTags;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    QueryStats* m_pStats = nullptr;
+#endif
   };
 
-  void FindObjectsInSphere(
-    const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
-  void FindObjectsInSphere(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const = 0;
 
-  void FindObjectsInBox(
-    const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
-  void FindObjectsInBox(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const = 0;
 
   ///@}
   /// \name Visibility Queries
   ///@{
 
-  void FindVisibleObjects(
-    const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
+  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects) const = 0;
+
+  virtual ezUInt64 GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const = 0;
 
   ///@}
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  virtual void GetInternalStats(ezStringBuilder& sb) const;
+#endif
+
 protected:
-  virtual void FindObjectsInSphereInternal(
-    const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats) const = 0;
-  virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats) const = 0;
-  virtual void FindVisibleObjectsInternal(
-    const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const = 0;
-
-  virtual void SpatialDataAdded(ezSpatialData* pData) = 0;
-  virtual void SpatialDataRemoved(ezSpatialData* pData) = 0;
-  virtual void SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds, ezUInt32 uiOldCategoryBitmask) = 0;
-  virtual void FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr) = 0;
-
   ezProxyAllocator m_Allocator;
-  ezLocalAllocatorWrapper m_AllocatorWrapper;
-  ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
 
-  typedef ezBlockStorage<ezSpatialData, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::FreeList> DataStorage;
-  ezIdTable<ezSpatialDataId, ezSpatialData*, ezLocalAllocatorWrapper> m_DataTable;
-  DataStorage m_DataStorage;
-
-  ezDynamicArray<ezSpatialData*> m_DataAlwaysVisible;
+  ezUInt64 m_uiFrameCounter = 0;
 };

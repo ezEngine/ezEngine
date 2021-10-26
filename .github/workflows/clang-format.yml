@@ -1,0 +1,100 @@
+name: ClangFormat
+
+on:
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run ClangFormat
+        id: format_files
+        shell: pwsh
+        run: |
+          echo "::set-output name=push::false"
+
+          git fetch origin "${env:GITHUB_BASE_REF}:refs/remotes/origin/${env:GITHUB_BASE_REF}"
+          git fetch origin "${env:GITHUB_HEAD_REF}:refs/remotes/origin/${env:GITHUB_HEAD_REF}"
+
+          git checkout --track "origin/${env:GITHUB_HEAD_REF}"
+
+          $baseCommit = git merge-base HEAD origin/${env:GITHUB_BASE_REF}
+
+          $codeDiff = git diff "$baseCommit..HEAD" -U0 --no-color -- "*.cpp" "*.h" "*.inl"
+
+          & chmod +x ${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format
+
+          echo "Running ClangFormat"
+
+          # run it once to detect whether there are any changes
+          $clangDiff = $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format"
+
+          if($clangDiff.Length -gt 0)
+          {
+            # run it a second time, and let it modify the files itself, because applying the patch appears to be impossible
+            $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -i -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format"
+
+            #Convert to linux line ending as required for a correct patch file
+            $clangDiff = $clangDiff -join "`n"
+
+            #Write out patch file
+            $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
+            [System.IO.File]::WriteAllText("${env:GITHUB_WORKSPACE}/clangFormat.patch", "$clangDiff`n", $Utf8NoBomEncoding)
+            
+            # this doesn't work
+            #git apply -p0 "${env:GITHUB_WORKSPACE}/clangFormat.patch"
+
+            echo "Committing ClangFormat patch"
+            git config --global user.email "ezEngineProject@gmail.com"
+            git config --global user.name "ezEngine Automation"
+            
+            git add `*.h | Out-Null
+            git add `*.inl | Out-Null
+            git add `*.cpp | Out-Null
+            
+            git commit -m "Applied code formatting rules"
+
+            echo "::set-output name=push::true"
+          }
+          else
+          {
+            echo "No formatting changes necessary"
+          }
+
+      - name: Content of Patch
+        if: ${{ steps.format_files.outputs.push == 'true' }}
+        shell: pwsh
+        run: |
+          Get-Content -Path "${env:GITHUB_WORKSPACE}/clangFormat.patch"
+
+      - name: Upload Patch File
+        if: ${{ steps.format_files.outputs.push == 'true' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ClangFormatPatch
+          path: ${{github.workspace}}/clangFormat.patch
+          retention-days: 3
+
+      - name: Push Changes
+        if: ${{ steps.format_files.outputs.push == 'true' && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.API_TOKEN_GITHUB }}
+          branch: ${{github.head_ref}}
+          directory: .
+          repository: ${{github.repository}}
+          force: false
+
+      - name: Forked Repo Instructions
+        if: ${{ steps.format_files.outputs.push == 'true' && github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          echo "This PR comes from the forked repository '${{ github.event.pull_request.head.repo.full_name }}'"
+          echo "Formatting changes can't be applied automatically."
+          echo "Please download the attached patch file and apply it manually using:"
+          echo "git apply -p0 clangFormat.patch"
+          echo "You can also run ClangFormat on the necessary files (see patch) from within Visual Studio."
+          exit 1

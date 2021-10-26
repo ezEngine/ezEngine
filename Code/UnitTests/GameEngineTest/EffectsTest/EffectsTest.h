@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "../TestClass/TestClass.h"
 
@@ -17,6 +17,7 @@ protected:
   {
     Decals,
     Heightfield,
+    WindClothRopes,
   };
 
   virtual void SetupSubTests() override;

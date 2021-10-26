@@ -2,12 +2,13 @@ ProcGen.DumpAST;Dump AST
 ProcGen.DumpDisassembly;Dump Disassembly
 Objects;Objects
 ProcGen;Procedural Generation
-ezProcPlacementComponent;Procedural Placement
+ezProcPlacementComponent;Procedural Placement;;http://ezengine.net/pages/docs/terrain/procedural/procgen-placement-component.html
 ezProcGenBoxExtents;Box Extents
 BoxExtents;Extents
-ezProcVertexColorComponent;Procedural Vertex Color
-ezProcVolumeSphereComponent;Procedural Volume Sphere
-ezProcVolumeBoxComponent;Procedural Volume Box
+ezProcVertexColorComponent;Procedural Vertex Color;;http://ezengine.net/pages/docs/terrain/procedural/procgen-vertex-color-component.html
+ezProcVolumeSphereComponent;Procedural Volume Sphere;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-sphere-component.html
+ezProcVolumeBoxComponent;Procedural Volume Box;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-box-component.html
+ezProcVolumeImageComponent;Procedural Volume Image;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-image-component.html
 ezProcGenBlendMode::Add;Add
 ezProcGenBlendMode::Subtract;Subtract
 ezProcGenBlendMode::Multiply;Multiply
@@ -25,3 +26,26 @@ ezProcVertexColorChannelMapping::B;B
 ezProcVertexColorChannelMapping::A;A
 ezProcVertexColorChannelMapping::Black;Black
 ezProcVertexColorChannelMapping::White;White
+ezProcPlacementMode::Raycast;Raycast
+ezProcPlacementMode::Fixed;Fixed
+ezProcVolumeImageMode::ChannelR;Red Channel
+ezProcVolumeImageMode::ChannelG;Green Channel
+ezProcVolumeImageMode::ChannelB;Blue Channel
+ezProcVolumeImageMode::ChannelA;Alpha Channel
+ezProcVolumeImageMode::ReferenceColor;Reference Color
+ezProcGenBinaryOperator::Add;Add
+ezProcGenBinaryOperator::Subtract;Subtract
+ezProcGenBinaryOperator::Multiply;Multiply
+ezProcGenBinaryOperator::Divide;Divide
+ezProcGenBinaryOperator::Max;Max
+ezProcGenBinaryOperator::Min;Min
+PlacementOutput;Placement Output
+VertexColorOutput;Vertex Color Output
+Random;Random
+PerlinNoise;Perlin Noise
+Blend;Blend
+Height;Height
+Slope;Slope
+MeshVertexColor;Mesh Vertex Color
+ApplyVolumes;Apply Volumes
+Operator;Operator

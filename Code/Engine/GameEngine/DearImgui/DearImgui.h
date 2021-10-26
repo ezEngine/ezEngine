@@ -12,7 +12,7 @@
 
 #  include <Imgui/imgui.h>
 
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
 struct ImGuiContext;
 

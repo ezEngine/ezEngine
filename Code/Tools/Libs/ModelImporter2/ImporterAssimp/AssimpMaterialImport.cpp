@@ -1,4 +1,4 @@
-#include <ModelImporterPCH.h>
+#include <ModelImporter2/ModelImporterPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>

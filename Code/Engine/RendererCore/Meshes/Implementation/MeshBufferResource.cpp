@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -33,23 +33,23 @@ void ezMeshBufferResourceDescriptor::Clear()
   m_IndexBufferData.Clear();
 }
 
-const ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetVertexBufferData() const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetVertexBufferData() const
 {
-  return m_VertexStreamData;
+  return m_VertexStreamData.GetArrayPtr();
 }
 
-const ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetIndexBufferData() const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetIndexBufferData() const
 {
-  return m_IndexBufferData;
+  return m_IndexBufferData.GetArrayPtr();
 }
 
-ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
+ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
 {
   EZ_ASSERT_DEV(!m_VertexStreamData.IsEmpty(), "The vertex data must be allocated first");
   return m_VertexStreamData;
 }
 
-ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
+ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
 {
   EZ_ASSERT_DEV(!m_IndexBufferData.IsEmpty(), "The index data must be allocated first");
   return m_IndexBufferData;
@@ -245,12 +245,20 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       {
         // if a bone index array is available, move the custom index into it
 
-        if (si.m_Format == ezGALResourceFormat::RGBAUShort)
+        if (si.m_Format == ezGALResourceFormat::RGBAUByte)
         {
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            ezVec4Template<ezUInt16> storage(geom.GetVertices()[v].m_iCustomIndex, 0, 0, 0);
-            SetVertexData<ezVec4Template<ezUInt16>>(s, v, storage);
+            ezVec4U16 boneIndices = geom.GetVertices()[v].m_BoneIndices;
+            ezVec4U8 storage(static_cast<ezUInt8>(boneIndices.x), static_cast<ezUInt8>(boneIndices.y), static_cast<ezUInt8>(boneIndices.z), static_cast<ezUInt8>(boneIndices.w));
+            SetVertexData<ezVec4U8>(s, v, storage);
+          }
+        }
+        else if (si.m_Format == ezGALResourceFormat::RGBAUShort)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec4U16>(s, v, geom.GetVertices()[v].m_BoneIndices);
           }
         }
       }
@@ -260,13 +268,19 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       {
         // if a bone weight array is available, set it to fully use the first bone
 
-        if (si.m_Format == ezGALResourceFormat::XYZWFloat)
+        if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
         {
-          ezVec4 storage(1, 0, 0, 0);
-
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            SetVertexData<ezVec4>(s, v, storage);
+            SetVertexData<ezColorLinearUB>(s, v, geom.GetVertices()[v].m_BoneWeights);
+          }
+        }
+
+        if (si.m_Format == ezGALResourceFormat::XYZWFloat)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec4>(s, v, ezColor(geom.GetVertices()[v].m_BoneWeights).GetAsVec4());
           }
         }
       }
@@ -551,7 +565,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
+  m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetArrayPtr());
 
   ezStringBuilder sName;
   sName.Format("{0} Vertex Buffer", GetResourceDescription());

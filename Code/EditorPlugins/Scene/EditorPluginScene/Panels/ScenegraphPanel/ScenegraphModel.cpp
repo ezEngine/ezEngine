@@ -1,11 +1,10 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 
-ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument)
-  : ezQtGameObjectModel(pDocument)
+ezQtScenegraphModel::ezQtScenegraphModel(const ezDocumentObjectManager* pObjectManager, const ezUuid& root)
+  : ezQtGameObjectModel(pObjectManager, root)
 {
-  m_pSceneDocument = pDocument;
 }
 
 ezQtScenegraphModel::~ezQtScenegraphModel() {}

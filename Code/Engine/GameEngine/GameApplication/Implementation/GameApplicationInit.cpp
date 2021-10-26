@@ -1,4 +1,4 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Curves/ColorGradientResource.h>
@@ -9,7 +9,9 @@
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Physics/SurfaceResource.h>
+#include <GameEngine/Utils/ImageDataResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
@@ -52,6 +54,12 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
   ezResourceManager::RegisterResourceForAssetType("Color Gradient", ezGetStaticRTTI<ezColorGradientResource>());
   ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animation Controller", ezGetStaticRTTI<ezAnimGraphResource>());
+  ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
+  ezResourceManager::RegisterResourceForAssetType("Property Anim", ezGetStaticRTTI<ezPropertyAnimResource>());
+  ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()
@@ -256,6 +264,8 @@ void ezGameApplication::Init_SetupGraphicsDevice()
 
 void ezGameApplication::Init_LoadRequiredPlugins()
 {
+  ezPlugin::InitializeStaticallyLinkedPlugins();
+
   const char* szRendererName = GetRendererNameFromCommandLine();
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
@@ -265,7 +275,6 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
-  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 
 #  ifdef BUILDSYSTEM_ENABLE_RENDERDOC_SUPPORT
   ezPlugin::LoadPlugin("ezRenderDocPlugin").IgnoreResult();
@@ -277,6 +286,8 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 #  endif
 
 #endif
+
+  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 }
 
 void ezGameApplication::Deinit_ShutdownGraphicsDevice()

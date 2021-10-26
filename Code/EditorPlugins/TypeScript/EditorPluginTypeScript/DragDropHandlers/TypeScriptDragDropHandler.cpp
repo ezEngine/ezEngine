@@ -1,4 +1,4 @@
-#include <EditorPluginTypeScriptPCH.h>
+#include <EditorPluginTypeScript/EditorPluginTypeScriptPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginTypeScript/DragDropHandlers/TypeScriptDragDropHandler.h>

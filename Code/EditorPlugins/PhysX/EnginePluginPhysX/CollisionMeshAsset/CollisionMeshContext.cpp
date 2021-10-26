@@ -1,4 +1,4 @@
-#include <EnginePluginPhysXPCH.h>
+#include <EnginePluginPhysX/EnginePluginPhysXPCH.h>
 
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshContext.h>
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshView.h>
@@ -18,6 +18,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCollisionMeshContext::ezCollisionMeshContext()
+  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pMeshObject = nullptr;
 }
@@ -47,7 +48,7 @@ void ezCollisionMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDoc
 
 void ezCollisionMeshContext::OnInitialize()
 {
-  auto pWorld = m_pWorld.Borrow();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
@@ -59,7 +60,7 @@ void ezCollisionMeshContext::OnInitialize()
     pWorld->CreateObject(obj, m_pMeshObject);
 
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pMeshObject->GetTags().Set(tagCastShadows);
+    m_pMeshObject->SetTag(tagCastShadows);
 
     ezPxVisColMeshComponent::CreateComponent(m_pMeshObject, pMesh);
     ezStringBuilder sMeshGuid;
@@ -81,7 +82,7 @@ void ezCollisionMeshContext::DestroyViewContext(ezEngineProcessViewContext* pCon
 
 bool ezCollisionMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
   ezCollisionMeshViewContext* pMeshViewContext = static_cast<ezCollisionMeshViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);

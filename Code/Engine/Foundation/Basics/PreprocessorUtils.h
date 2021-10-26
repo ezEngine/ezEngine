@@ -12,6 +12,12 @@
 #define EZ_STRINGIZE(str) EZ_STRINGIZE_HELPER(str)
 #define EZ_STRINGIZE_HELPER(x) #x
 
+/// \brief Concatenates two strings, even when the strings are macros themselves
+#define EZ_PP_CONCAT(x, y) EZ_CONCAT_HELPER(x, y)
+
+/// \brief Turns some piece of code (usually some identifier name) into a string. Even works on macros.
+#define EZ_PP_STRINGIFY(str) EZ_STRINGIZE_HELPER(str)
+
 /// \brief Max value of two compile-time constant expression.
 #define EZ_COMPILE_TIME_MAX(a, b) ((a) > (b) ? (a) : (b))
 

@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/Graphics/Camera.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
@@ -38,12 +38,12 @@ void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3
     bSetCamLookat = true;
   }
 
-  m_vOrbitPoint = vCenterPos;
   m_Volume.SetCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
   m_vDefaultCameraPosition = vDefaultCameraPosition;
 
   if (m_pCamera && bSetCamLookat)
   {
+    m_vOrbitPoint = vCenterPos;
     m_pCamera->LookAt(vDefaultCameraPosition, vCenterPos, ezVec3(0, 0, 1));
   }
 }
@@ -184,7 +184,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezVec3 vHalfExtents = m_Volume.GetHalfExtents();
   const float fMaxExtent = ezMath::Max(vHalfExtents.x, vHalfExtents.y, vHalfExtents.z);
-  const float fSensitivity = 0.0001f * fMaxExtent;
+  const float fBoost = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) ? 5.0f : 1.0f;
+  const float fSensitivity = fBoost * 0.0001f * fMaxExtent;
 
   if (m_Mode == Mode::Orbit)
   {
@@ -259,7 +260,7 @@ ezEditorInput ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
   if (!m_pCamera->IsPerspective())
     return ezEditorInput::MayBeHandledByOthers;
 
-  const float fScale = 1.1f;
+  const float fScale = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier)  ? 1.4f : 1.1f;
 
   float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
   if (e->delta() > 0)

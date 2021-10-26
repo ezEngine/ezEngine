@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -216,8 +216,10 @@ void ezApplicationPluginConfig::Apply()
         continue;
     }
 
+    ezBitflags<ezPluginLoadFlags> flags;
+    flags.AddOrRemove(ezPluginLoadFlags::LoadCopy, var.m_bLoadCopy);
 
-    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, var.m_bLoadCopy).IgnoreResult();
+    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, flags).IgnoreResult();
   }
 }
 

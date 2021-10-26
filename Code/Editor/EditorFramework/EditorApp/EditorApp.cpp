@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -50,6 +50,8 @@ void ezQtEditorApp::SlotTimedUpdate()
 
   Q_EMIT IdleEvent();
 
+  RestartEngineProcessIfPluginsChanged();
+
   m_pTimer->start(1);
 }
 
@@ -66,12 +68,15 @@ void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bFo
     {
       ezQtUiServices::GetSingleton()->MessageBoxInformation(
         ezFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A "
-              "href=\"https://ezengine.net/pages/releases/releases.html\">Release Notes</A> for details.</html>",
+              "href=\"https://github.com/ezEngine/ezEngine/releases\">Releases</A> for details.</html>",
           m_VersionChecker.GetKnownLatestVersion(), m_VersionChecker.GetOwnVersion()));
     }
     else
     {
-      ezQtUiServices::GetSingleton()->MessageBoxInformation("You have the latest version.");
+      ezStringBuilder tmp("You have the latest version: \n");
+      tmp.Append(m_VersionChecker.GetOwnVersion());
+
+      ezQtUiServices::GetSingleton()->MessageBoxInformation(tmp);
     }
   }
 
@@ -100,6 +105,10 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
     }
     break;
 
+    case ezEditorEngineProcessConnection::Event::Type::ProcessRestarted:
+      StoreEnginePluginModificationTimes();
+      break;
+
     default:
       return;
   }
@@ -120,7 +129,8 @@ void ezQtEditorApp::SaveAllOpenDocuments()
     for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
     {
       ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-      if (pWnd)
+      // Layers for example will share a window with the scene document and the window will always save the scene.
+      if (pWnd && pWnd->GetDocument() == pDoc)
       {
         if (pWnd->SaveDocument().m_Result.Failed())
           return;

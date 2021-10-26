@@ -1,4 +1,4 @@
-#include <ProcGenPluginPCH.h>
+#include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
@@ -19,9 +19,9 @@
 
 using namespace ezProcGenInternal;
 
-ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
-ezCVarInt CVarMaxPlacedObjects("pp_MaxPlacedObjects", 128, ezCVarFlags::Default, "Maximum number of objects placed per frame");
-ezCVarBool CVarVisTiles("pp_VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
+ezCVarInt cvar_ProcGenProcessingMaxTiles("ProcGen.Processing.MaxTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
+ezCVarInt cvar_ProcGenProcessingMaxNewObjectsPerFrame("ProcGen.Processing.MaxNewObjectsPerFrame", 128, ezCVarFlags::Default, "Maximum number of objects placed per frame");
+ezCVarBool cvar_ProcGenVisTiles("ProcGen.VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
 
 ezProcPlacementComponentManager::ezProcPlacementComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>(pWorld)
@@ -212,12 +212,12 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   }
 
   // Debug draw tiles
-  if (CVarVisTiles)
+  if (cvar_ProcGenVisTiles)
   {
     ezStringBuilder sb;
     sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
 
-    ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(10, 200), ezColor::Magenta);
+    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "ProcPlaceStats", sb, ezColor::Magenta);
 
     for (ezUInt32 i = 0; i < m_NewTiles.GetCount(); ++i)
     {
@@ -237,7 +237,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   {
     EZ_PROFILE_SCOPE("Allocate new tiles");
 
-    while (!m_NewTiles.IsEmpty() && GetNumAllocatedProcessingTasks() < (ezUInt32)CVarMaxProcessingTiles)
+    while (!m_NewTiles.IsEmpty() && GetNumAllocatedProcessingTasks() < (ezUInt32)cvar_ProcGenProcessingMaxTiles)
     {
       const PlacementTileDesc& newTile = m_NewTiles.PeekBack();
 
@@ -259,39 +259,36 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   // Update processing tasks
   if (GetWorldSimulationEnabled())
   {
-    if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
     {
+      EZ_PROFILE_SCOPE("Prepare processing tasks");
+
+      ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+
+      for (auto& processingTask : m_ProcessingTasks)
       {
-        EZ_PROFILE_SCOPE("Prepare processing tasks");
+        if (!processingTask.IsValid() || processingTask.IsScheduled())
+          continue;
 
-        ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+        auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
+        activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), *processingTask.m_pData);
 
-        for (auto& processingTask : m_ProcessingTasks)
-        {
-          if (!processingTask.IsValid() || processingTask.IsScheduled())
-            continue;
-
-          auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
-          activeTile.PreparePlacementData(pPhysicsModule, *processingTask.m_pData);
-
-          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
-        }
-
-        ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
-        ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+        ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
       }
 
+      ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
+      ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+    }
+
+    {
+      EZ_PROFILE_SCOPE("Kickoff placement tasks");
+
+      for (auto& processingTask : m_ProcessingTasks)
       {
-        EZ_PROFILE_SCOPE("Kickoff placement tasks");
+        if (!processingTask.IsValid() || processingTask.IsScheduled())
+          continue;
 
-        for (auto& processingTask : m_ProcessingTasks)
-        {
-          if (!processingTask.IsValid() || processingTask.IsScheduled())
-            continue;
-
-          processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
-          processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
-        }
+        processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
+        processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
       }
     }
   }
@@ -352,7 +349,7 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
       uiTotalNumPlacedObjects += uiPlacedObjects;
     }
 
-    if (uiTotalNumPlacedObjects >= (ezUInt32)CVarMaxPlacedObjects)
+    if (uiTotalNumPlacedObjects >= (ezUInt32)cvar_ProcGenProcessingMaxNewObjectsPerFrame)
     {
       break;
     }
@@ -381,7 +378,7 @@ void ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::Pla
     sb.Format("Queue Index: {}\n", uiQueueIndex);
   }
   sb.AppendFormat("Age: {}\nDistance: {}", uiAge, desc.m_fDistanceToCamera);
-  ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color, 16, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+  ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color);
 }
 
 void ezProcPlacementComponentManager::AddComponent(ezProcPlacementComponent* pComponent)

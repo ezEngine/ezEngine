@@ -1,4 +1,4 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Texture/Image/ImageUtils.h>
@@ -58,7 +58,7 @@ ezResult ezTexConvProcessor::Process()
 
     ezLog::Info("Target resolution is '{} x {}'", uiTargetResolutionX, uiTargetResolutionY);
 
-    EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
+    EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY, m_Descriptor.m_Usage));
 
     EZ_SUCCEED_OR_RETURN(ClampInputValues(m_Descriptor.m_InputImages, m_Descriptor.m_fMaxValue));
 

@@ -9,7 +9,7 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
-#ifdef _UNICODE
+#if defined(_UNICODE) || defined(UNICODE)
 #  define DeleteFile DeleteFileW
 #else
 #  define DeleteFile DeleteFileA

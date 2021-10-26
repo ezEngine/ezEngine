@@ -112,7 +112,7 @@ namespace ezUwpTestHarness
 
       fullPackageName = "";
 
-      string absSlnPath = Path.Combine(_ezWorkspace, "ezVs2017.sln");
+      string absSlnPath = Path.Combine(_ezWorkspace, "ezVs2019.sln");
 
       if (!File.Exists(absSlnPath))
       {
@@ -122,9 +122,9 @@ namespace ezUwpTestHarness
 
       // Just hard-code the string as any other solution will break with the next VS version anyway.
       // Use ".com" version which writes into stdout
-      string[] devEnvPathOptions = new string[] { @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.com",
-        @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\IDE\devenv.com",
-        @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.com"};
+      string[] devEnvPathOptions = new string[] { @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.com",
+        @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\devenv.com",
+        @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\devenv.com"};
 
       string devEnvPath = null;
       foreach (string location in devEnvPathOptions)
@@ -141,7 +141,7 @@ namespace ezUwpTestHarness
         throw new Exception(string.Format("Did not find Visual Studio installation."));
       }
 
-      // "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.com" "F:\Development\current_development\ezEngine\build_uwp64\ezEngine.sln" /Deploy "RelWithDebInfo|x64" /project CoreTest
+      // "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.com" "F:\Development\current_development\ezEngine\build_uwp64\ezEngine.sln" /Deploy "Dev|x64" /project CoreTest
       var deployProcessResults = ezProcessHelper.RunExternalExe(devEnvPath,
               string.Format("\"{0}\" /Deploy \"{1}|{2}\" /project {3}", absSlnPath, _configuration, _platform, _project), null, 1000000);
 

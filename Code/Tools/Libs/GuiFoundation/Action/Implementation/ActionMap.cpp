@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <GuiFoundation/Action/ActionManager.h>
@@ -102,9 +102,51 @@ ezResult ezActionMap::UnmapAction(const ezUuid& guid)
     return EZ_FAILURE;
 
   ezTreeNode<ezActionMapDescriptor>* pNode = it.Value();
+  if (ezTreeNode<ezActionMapDescriptor>* pParent = pNode->GetParent())
+  {
+    pParent->RemoveChild(pNode->GetParentIndex());
+  }
   m_Descriptors.Remove(it);
-  pNode->GetParent()->RemoveChild(pNode->GetParentIndex());
   return EZ_SUCCESS;
+}
+
+ezResult ezActionMap::UnmapAction(ezActionDescriptorHandle hAction, const char* szPath)
+{
+  ezStringBuilder sPath = szPath;
+  sPath.MakeCleanPath();
+  sPath.Trim("/");
+  ezActionMapDescriptor d;
+  d.m_hAction = hAction;
+  d.m_sPath = sPath;
+  d.m_fOrder = 0.0f; // unused.
+  return UnmapAction(d);
+}
+
+ezResult ezActionMap::UnmapAction(const ezActionMapDescriptor& desc)
+{
+  ezTreeNode<ezActionMapDescriptor>* pParent = nullptr;
+  if (desc.m_sPath.IsEmpty())
+  {
+    pParent = &m_Root;
+  }
+  else
+  {
+    ezUuid ParentGUID;
+    if (!FindObjectByPath(desc.m_sPath, ParentGUID))
+      return EZ_FAILURE;
+
+    auto it = m_Descriptors.Find(ParentGUID);
+    if (!it.IsValid())
+      return EZ_FAILURE;
+
+    pParent = it.Value();
+  }
+
+  if (auto* pChild = GetChildByName(pParent, desc.m_hAction.GetDescriptor()->m_sActionName))
+  {
+    return UnmapAction(pChild->GetGuid());
+  }
+  return EZ_FAILURE;
 }
 
 bool ezActionMap::FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) const

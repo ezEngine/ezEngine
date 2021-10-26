@@ -12,12 +12,12 @@ class ezGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
-class ezImageDataResource;
 class ezHeightfieldComponent;
+class ezMeshResourceDescriptor;
 
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
-using ezImageDataResourceHandle = ezTypedResourceHandle<ezImageDataResource>;
+using ezImageDataResourceHandle = ezTypedResourceHandle<class ezImageDataResource>;
 
 class EZ_GAMEENGINE_DLL ezHeightfieldComponentManager : public ezComponentManager<ezHeightfieldComponent, ezBlockStorageType::Compact>
 {
@@ -41,7 +41,7 @@ private:
 /// The component always creates a mesh for rendering, which uses a single material.
 /// For different layers of grass, dirt, etc. the material can combine multiple textures and a mask.
 ///
-/// If the "AutoColMesh" tag is set on the owning game object, the component also generates a static collision mesh during scene export.
+/// If the "GenerateCollision" property is set, the component also generates a static collision mesh during scene export.
 class EZ_GAMEENGINE_DLL ezHeightfieldComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezHeightfieldComponent, ezRenderComponent, ezHeightfieldComponentManager);
@@ -51,6 +51,8 @@ class EZ_GAMEENGINE_DLL ezHeightfieldComponent : public ezRenderComponent
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  virtual void OnActivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -92,16 +94,25 @@ public:
   ezVec2U32 GetTesselation() const { return m_vTesselation; } // [ property ]
   void SetTesselation(ezVec2U32 value);                       // [ property ]
 
+  void SetGenerateCollision(bool b);                                 // [ property ]
+  bool GetGenerateCollision() const { return m_bGenerateCollision; } // [ property ]
+
   ezVec2U32 GetColMeshTesselation() const { return m_vColMeshTesselation; } // [ property ]
   void SetColMeshTesselation(ezVec2U32 value);                              // [ property ]
+
+  void SetIncludeInNavmesh(bool b);                                // [ property ]
+  bool GetIncludeInNavmesh() const { return m_bIncludeInNavmesh; } // [ property ]
 
 protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;    // [ msg handler ]
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
 
   void InvalidateMesh();
-  void GenerateRenderMesh() const;
   void BuildGeometry(ezGeometry& geom) const;
+  ezResult BuildMeshDescriptor(ezMeshResourceDescriptor& desc) const;
+
+  template <typename ResourceType>
+  ezTypedResourceHandle<ResourceType> GenerateMesh() const;
 
   ezUInt32 m_uiHeightfieldChangeCounter = 0;
   ezImageDataResourceHandle m_hHeightfield;
@@ -116,5 +127,8 @@ protected:
   ezVec2U32 m_vTesselation = ezVec2U32(128);
   ezVec2U32 m_vColMeshTesselation = ezVec2U32(64);
 
-  mutable ezMeshResourceHandle m_hMesh;
+  bool m_bGenerateCollision = true;
+  bool m_bIncludeInNavmesh = true;
+
+  ezMeshResourceHandle m_hMesh;
 };

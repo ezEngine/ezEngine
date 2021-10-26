@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
@@ -56,16 +56,24 @@ ezVariant ezDocumentObjectPropertyEvent::getInsertIndex() const
   return m_NewIndex;
 }
 
-ezDocumentObjectManager::ezDocumentObjectManager(const ezRTTI* pRootType)
-  : m_pDocument(nullptr)
-  , m_RootObject(pRootType)
+ezDocumentObjectManager::Storage::Storage(const ezRTTI* pRootType)
+  : m_RootObject(pRootType)
 {
-  m_RootObject.m_pDocumentObjectManager = this;
+}
+
+ezDocumentObjectManager::ezDocumentObjectManager(const ezRTTI* pRootType)
+{
+  auto pStorage = EZ_DEFAULT_NEW(Storage, pRootType);
+  pStorage->m_RootObject.m_pDocumentObjectManager = this;
+  SwapStorage(pStorage);
 }
 
 ezDocumentObjectManager::~ezDocumentObjectManager()
 {
-  EZ_ASSERT_DEV(m_GuidToObject.IsEmpty(), "Not all objects have been destroyed!");
+  if (m_pObjectStorage->GetRefCount() == 1)
+  {
+    EZ_ASSERT_DEV(m_pObjectStorage->m_GuidToObject.IsEmpty(), "Not all objects have been destroyed!");
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -77,7 +85,8 @@ ezDocumentObject* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezU
   EZ_ASSERT_DEV(pRtti != nullptr, "Unknown RTTI type");
 
   ezDocumentObject* pObject = InternalCreateObject(pRtti);
-  pObject->m_pDocumentObjectManager = this;
+  // In case the storage is swapped, objects should still be created in their original document manager.
+  pObject->m_pDocumentObjectManager = m_pObjectStorage->m_RootObject.GetDocumentObjectManager();
 
   if (guid.IsValid())
     pObject->m_Guid = guid;
@@ -89,7 +98,7 @@ ezDocumentObject* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezU
   ezDocumentObjectEvent e;
   e.m_pObject = pObject;
   e.m_EventType = ezDocumentObjectEvent::Type::AfterObjectCreated;
-  m_ObjectEvents.Broadcast(e);
+  m_pObjectStorage->m_ObjectEvents.Broadcast(e);
 
   return pObject;
 }
@@ -104,20 +113,20 @@ void ezDocumentObjectManager::DestroyObject(ezDocumentObject* pObject)
   ezDocumentObjectEvent e;
   e.m_pObject = pObject;
   e.m_EventType = ezDocumentObjectEvent::Type::BeforeObjectDestroyed;
-  m_ObjectEvents.Broadcast(e);
+  m_pObjectStorage->m_ObjectEvents.Broadcast(e);
 
   InternalDestroyObject(pObject);
 }
 
 void ezDocumentObjectManager::DestroyAllObjects()
 {
-  for (auto child : m_RootObject.m_Children)
+  for (auto child : m_pObjectStorage->m_RootObject.m_Children)
   {
     DestroyObject(child);
   }
 
-  m_RootObject.m_Children.Clear();
-  m_GuidToObject.Clear();
+  m_pObjectStorage->m_RootObject.m_Children.Clear();
+  m_pObjectStorage->m_GuidToObject.Clear();
 }
 
 void ezDocumentObjectManager::PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const
@@ -130,12 +139,12 @@ void ezDocumentObjectManager::PatchEmbeddedClassObjects(const ezDocumentObject* 
 const ezDocumentObject* ezDocumentObjectManager::GetObject(const ezUuid& guid) const
 {
   const ezDocumentObject* pObject = nullptr;
-  if (m_GuidToObject.TryGetValue(guid, pObject))
+  if (m_pObjectStorage->m_GuidToObject.TryGetValue(guid, pObject))
   {
     return pObject;
   }
-  else if (guid == m_RootObject.GetGuid())
-    return &m_RootObject;
+  else if (guid == m_pObjectStorage->m_RootObject.GetGuid())
+    return &m_pObjectStorage->m_RootObject;
   return nullptr;
 }
 
@@ -168,7 +177,7 @@ ezStatus ezDocumentObjectManager::SetValue(ezDocumentObject* pObject, const char
   e.m_NewIndex = index;
 
   // Allow a recursion depth of 2 for property setters. This allowed for two levels of side-effects on property setters.
-  m_PropertyEvents.Broadcast(e, 2);
+  m_pObjectStorage->m_PropertyEvents.Broadcast(e, 2);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -191,7 +200,7 @@ ezStatus ezDocumentObjectManager::InsertValue(ezDocumentObject* pObject, const c
   e.m_NewIndex = index;
   e.m_sProperty = szProperty;
 
-  m_PropertyEvents.Broadcast(e);
+  m_pObjectStorage->m_PropertyEvents.Broadcast(e);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -213,7 +222,7 @@ ezStatus ezDocumentObjectManager::RemoveValue(ezDocumentObject* pObject, const c
   e.m_OldIndex = index;
   e.m_sProperty = szProperty;
 
-  m_PropertyEvents.Broadcast(e);
+  m_pObjectStorage->m_PropertyEvents.Broadcast(e);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -244,7 +253,7 @@ ezStatus ezDocumentObjectManager::MoveValue(ezDocumentObject* pObject, const cha
     e.m_sProperty = szProperty;
     e.m_NewValue = accessor.GetValue(szProperty, e.getInsertIndex());
     EZ_ASSERT_DEV(e.m_NewValue.IsValid(), "Value at new pos should be valid now, index missmatch?");
-    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
+    m_pObjectStorage->m_PropertyEvents.Broadcast(e);
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -257,8 +266,8 @@ ezStatus ezDocumentObjectManager::MoveValue(ezDocumentObject* pObject, const cha
 void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
 {
   if (pParent == nullptr)
-    pParent = &m_RootObject;
-  if (pParent == &m_RootObject && ezStringUtils::IsNullOrEmpty(szParentProperty))
+    pParent = &m_pObjectStorage->m_RootObject;
+  if (pParent == &m_pObjectStorage->m_RootObject && ezStringUtils::IsNullOrEmpty(szParentProperty))
     szParentProperty = "Children";
 
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
@@ -497,6 +506,7 @@ ezStatus ezDocumentObjectManager::CanSelect(const ezDocumentObject* pObject) con
 
 bool ezDocumentObjectManager::IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pObject) const
 {
+  EZ_ASSERT_DEBUG(m_pObjectStorage->m_RootObject.GetDocumentObjectManager() == pObject->GetDocumentObjectManager(), "Passed in object does not belong to this object manager.");
   while (pObject->GetParent() != GetRootObject())
   {
     pObject = pObject->GetParent();
@@ -507,11 +517,31 @@ bool ezDocumentObjectManager::IsUnderRootProperty(const char* szRootProperty, co
 
 bool ezDocumentObjectManager::IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pParent, const char* szParentProperty) const
 {
+  EZ_ASSERT_DEBUG(pParent == nullptr || m_pObjectStorage->m_RootObject.GetDocumentObjectManager() == pParent->GetDocumentObjectManager(), "Passed in object does not belong to this object manager.");
   if (pParent == nullptr || pParent == GetRootObject())
   {
     return ezStringUtils::IsEqual(szParentProperty, szRootProperty);
   }
   return IsUnderRootProperty(szRootProperty, pParent);
+}
+
+ezSharedPtr<ezDocumentObjectManager::Storage> ezDocumentObjectManager::SwapStorage(ezSharedPtr<ezDocumentObjectManager::Storage> pNewStorage)
+{
+  EZ_ASSERT_ALWAYS(pNewStorage != nullptr, "Need a valid history storage object");
+
+  auto retVal = m_pObjectStorage;
+
+  m_StructureEventsUnsubscriber.Unsubscribe();
+  m_PropertyEventsUnsubscriber.Unsubscribe();
+  m_ObjectEventsUnsubscriber.Unsubscribe();
+
+  m_pObjectStorage = pNewStorage;
+
+  m_pObjectStorage->m_StructureEvents.AddEventHandler([this](const ezDocumentObjectStructureEvent& e) { m_StructureEvents.Broadcast(e); }, m_StructureEventsUnsubscriber);
+  m_pObjectStorage->m_PropertyEvents.AddEventHandler([this](const ezDocumentObjectPropertyEvent& e) { m_PropertyEvents.Broadcast(e, 2); }, m_PropertyEventsUnsubscriber);
+  m_pObjectStorage->m_ObjectEvents.AddEventHandler([this](const ezDocumentObjectEvent& e) { m_ObjectEvents.Broadcast(e); }, m_ObjectEventsUnsubscriber);
+
+  return retVal;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -521,7 +551,7 @@ bool ezDocumentObjectManager::IsUnderRootProperty(const char* szRootProperty, co
 void ezDocumentObjectManager::InternalAddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
 {
   ezDocumentObjectStructureEvent e;
-  e.m_pDocument = m_pDocument;
+  e.m_pDocument = m_pObjectStorage->m_pDocument;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectAdded;
   e.m_pObject = pObject;
   e.m_pPreviousParent = nullptr;
@@ -534,42 +564,42 @@ void ezDocumentObjectManager::InternalAddObject(ezDocumentObject* pObject, ezDoc
     ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
     e.m_NewPropertyIndex = accessor.GetCount(szParentProperty);
   }
-  m_StructureEvents.Broadcast(e);
+  m_pObjectStorage->m_StructureEvents.Broadcast(e);
 
   pParent->InsertSubObject(pObject, szParentProperty, e.m_NewPropertyIndex);
   RecursiveAddGuids(pObject);
 
   e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectAdded;
-  m_StructureEvents.Broadcast(e);
+  m_pObjectStorage->m_StructureEvents.Broadcast(e);
 }
 
 void ezDocumentObjectManager::InternalRemoveObject(ezDocumentObject* pObject)
 {
   ezDocumentObjectStructureEvent e;
-  e.m_pDocument = m_pDocument;
+  e.m_pDocument = m_pObjectStorage->m_pDocument;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
   e.m_pNewParent = nullptr;
   e.m_sParentProperty = pObject->m_sParentProperty;
   e.m_OldPropertyIndex = pObject->GetPropertyIndex();
-  m_StructureEvents.Broadcast(e);
+  m_pObjectStorage->m_StructureEvents.Broadcast(e);
 
   pObject->m_pParent->RemoveSubObject(pObject);
   RecursiveRemoveGuids(pObject);
 
   e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectRemoved;
-  m_StructureEvents.Broadcast(e);
+  m_pObjectStorage->m_StructureEvents.Broadcast(e);
 }
 
 void ezDocumentObjectManager::InternalMoveObject(
   ezDocumentObject* pNewParent, ezDocumentObject* pObject, const char* szParentProperty, ezVariant index)
 {
   if (pNewParent == nullptr)
-    pNewParent = &m_RootObject;
+    pNewParent = &m_pObjectStorage->m_RootObject;
 
   ezDocumentObjectStructureEvent e;
-  e.m_pDocument = m_pDocument;
+  e.m_pDocument = m_pObjectStorage->m_pDocument;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectMoved;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
@@ -583,7 +613,7 @@ void ezDocumentObjectManager::InternalMoveObject(
     e.m_NewPropertyIndex = accessor.GetCount(szParentProperty);
   }
 
-  m_StructureEvents.Broadcast(e);
+  m_pObjectStorage->m_StructureEvents.Broadcast(e);
 
   ezVariant newIndex = e.getInsertIndex();
 
@@ -591,15 +621,15 @@ void ezDocumentObjectManager::InternalMoveObject(
   pNewParent->InsertSubObject(pObject, szParentProperty, newIndex);
 
   e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved;
-  m_StructureEvents.Broadcast(e);
+  m_pObjectStorage->m_StructureEvents.Broadcast(e);
 
   e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved2;
-  m_StructureEvents.Broadcast(e);
+  m_pObjectStorage->m_StructureEvents.Broadcast(e);
 }
 
 void ezDocumentObjectManager::RecursiveAddGuids(ezDocumentObject* pObject)
 {
-  m_GuidToObject[pObject->m_Guid] = pObject;
+  m_pObjectStorage->m_GuidToObject[pObject->m_Guid] = pObject;
 
   for (ezUInt32 c = 0; c < pObject->GetChildren().GetCount(); ++c)
     RecursiveAddGuids(pObject->GetChildren()[c]);
@@ -607,7 +637,7 @@ void ezDocumentObjectManager::RecursiveAddGuids(ezDocumentObject* pObject)
 
 void ezDocumentObjectManager::RecursiveRemoveGuids(ezDocumentObject* pObject)
 {
-  m_GuidToObject.Remove(pObject->m_Guid);
+  m_pObjectStorage->m_GuidToObject.Remove(pObject->m_Guid);
 
   for (ezUInt32 c = 0; c < pObject->GetChildren().GetCount(); ++c)
     RecursiveRemoveGuids(pObject->GetChildren()[c]);

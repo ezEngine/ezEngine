@@ -53,3 +53,4 @@ private:
   bool m_bTransitive = false;
   ezSet<ezUuid> m_uses;
 };
+

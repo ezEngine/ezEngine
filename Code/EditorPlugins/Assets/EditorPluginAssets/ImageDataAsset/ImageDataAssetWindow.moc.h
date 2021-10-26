@@ -26,3 +26,4 @@ private:
 
   QPointer<ezQtImageWidget> m_pImageWidget;
 };
+

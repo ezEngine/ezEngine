@@ -5,7 +5,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <RenderDocPlugin/RenderDocPluginDLL.h>
 
-struct RENDERDOC_API_1_4_0;
+struct RENDERDOC_API_1_4_1;
 
 /// \brief RenderDoc implementation of the ezFrameCaptureInterface interface
 ///
@@ -34,6 +34,6 @@ public:
   virtual ezResult GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) const override;
 
 private:
-  RENDERDOC_API_1_4_0* m_pRenderDocAPI = nullptr;
+  RENDERDOC_API_1_4_1* m_pRenderDocAPI = nullptr;
   ezMinWindows::HMODULE m_HandleToFree = nullptr;
 };

@@ -206,9 +206,15 @@ EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* ptr, ptrdiff_t iOffset)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::Align(T* ptr, size_t uiAlignment)
+EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignBackwards(T* ptr, size_t uiAlignment)
 {
   return reinterpret_cast<T*>(reinterpret_cast<size_t>(ptr) & ~(uiAlignment - 1));
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignForwards(T* ptr, size_t uiAlignment)
+{
+  return reinterpret_cast<T*>((reinterpret_cast<size_t>(ptr) + uiAlignment - 1) & ~(uiAlignment - 1));
 }
 
 template <typename T>

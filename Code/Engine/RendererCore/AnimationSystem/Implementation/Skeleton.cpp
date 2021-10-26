@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Strings/HashedString.h>
@@ -59,7 +59,7 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
 
 void ezSkeleton::Save(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(4);
+  stream.WriteVersion(5);
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
   stream << uiNumJoints;
@@ -69,6 +69,12 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
     stream << m_Joints[i].m_sName;
     stream << m_Joints[i].m_uiParentIndex;
     stream << m_Joints[i].m_BindPoseLocal;
+
+    stream << m_Joints[i].m_LimitRotation;
+    stream << m_Joints[i].m_HalfSwingLimitX;
+    stream << m_Joints[i].m_HalfSwingLimitY;
+    stream << m_Joints[i].m_TwistLimitLow;
+    stream << m_Joints[i].m_TwistLimitHigh;
   }
 
   stream << m_BoneDirection;
@@ -76,7 +82,7 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
 
 void ezSkeleton::Load(ezStreamReader& stream)
 {
-  const ezTypeVersion version = stream.ReadVersion(4);
+  const ezTypeVersion version = stream.ReadVersion(5);
   if (version < 3)
     return;
 
@@ -94,6 +100,15 @@ void ezSkeleton::Load(ezStreamReader& stream)
     stream >> joint.m_sName;
     stream >> joint.m_uiParentIndex;
     stream >> joint.m_BindPoseLocal;
+
+    if (version >= 5)
+    {
+      stream >> m_Joints[i].m_LimitRotation;
+      stream >> m_Joints[i].m_HalfSwingLimitX;
+      stream >> m_Joints[i].m_HalfSwingLimitY;
+      stream >> m_Joints[i].m_TwistLimitLow;
+      stream >> m_Joints[i].m_TwistLimitHigh;
+    }
   }
 
   if (version >= 4)

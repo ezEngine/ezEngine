@@ -28,6 +28,9 @@ public:
   /// \brief Implement this to add support for image comparisons. See EZ_TEST_IMAGE_MSG.
   virtual ezResult GetImage(ezImage& img) { return EZ_FAILURE; }
 
+    /// \brief Implement this to add support for depth buffer image comparisons. See EZ_TEST_DEPTH_IMAGE_MSG.
+  virtual ezResult GetDepthImage(ezImage& img) { return EZ_FAILURE; }
+
   /// \brief Used to map the 'number' for an image comparison, to a string used for finding the comparison image.
   ///
   /// By default image comparison screenshots are called 'TestName_SubTestName_XYZ'

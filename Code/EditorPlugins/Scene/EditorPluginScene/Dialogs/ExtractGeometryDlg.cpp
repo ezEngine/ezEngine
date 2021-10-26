@@ -1,8 +1,9 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginScene/EditorPluginScenePCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <EditorPluginScene/Dialogs/ExtractGeometryDlg.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
+
 #include <QFileDialog>
 
 QString ezQtExtractGeometryDlg::s_sDestinationFile;

@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <ProcGenPlugin/Declarations.h>
 
-typedef ezTypedResourceHandle<class ezProcGenGraphResource> ezProcGenGraphResourceHandle;
+using ezProcGenGraphResourceHandle = ezTypedResourceHandle<class ezProcGenGraphResource>;
 
 struct EZ_PROCGENPLUGIN_DLL ezProcGenGraphResourceDescriptor
 {

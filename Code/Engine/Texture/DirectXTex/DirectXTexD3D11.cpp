@@ -1,10 +1,10 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 //-------------------------------------------------------------------------------------
 // DirectXTexD3D11.cpp
-//  
+//
 // DirectX Texture Library - Direct3D 11 helpers
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
@@ -15,7 +15,9 @@
 
 #include "DirectXTexP.h"
 
-#if !defined(_XBOX_ONE) || !defined(_TITLE)
+#ifdef _GAMING_XBOX
+#error This module is not supported for GDK
+#elif !defined(_XBOX_ONE) || !defined(_TITLE)
 #include <d3d10.h>
 #endif
 
@@ -119,7 +121,7 @@ namespace
                     for (size_t h = 0; h < lines; ++h)
                     {
                         size_t msize = std::min<size_t>(img->rowPitch, mapped.RowPitch);
-                        memcpy_s(dptr, img->rowPitch, sptr, msize);
+                        memcpy(dptr, sptr, msize);
                         sptr += mapped.RowPitch;
                         dptr += img->rowPitch;
                     }
@@ -178,7 +180,7 @@ namespace
                     for (size_t h = 0; h < lines; ++h)
                     {
                         size_t msize = std::min<size_t>(img->rowPitch, mapped.RowPitch);
-                        memcpy_s(dptr, img->rowPitch, sptr, msize);
+                        memcpy(dptr, sptr, msize);
                         sptr += mapped.RowPitch;
                         dptr += img->rowPitch;
                     }
@@ -456,7 +458,7 @@ HRESULT DirectX::CreateTextureEx(
 
         if (metadata.arraySize > 1)
             // Direct3D 11 doesn't support arrays of 3D textures
-            return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+            return HRESULT_E_NOT_SUPPORTED;
 
         size_t depth = metadata.depth;
 

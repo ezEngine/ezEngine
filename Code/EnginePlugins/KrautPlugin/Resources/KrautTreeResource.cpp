@@ -1,4 +1,4 @@
-#include <KrautPluginPCH.h>
+#include <KrautPlugin/KrautPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>

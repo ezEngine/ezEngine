@@ -1,4 +1,4 @@
-#include <EditorEngineProcessFrameworkPCH.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
@@ -133,6 +133,27 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezChangeCVarMsgToEngine, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConsoleCmdMsgToEngine, 1, ezRTTIDefaultAllocator<ezConsoleCmdMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Type", m_iType),
+    EZ_MEMBER_PROPERTY("Cmd", m_sCommand),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConsoleCmdResultMsgToEditor, 1, ezRTTIDefaultAllocator<ezConsoleCmdResultMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Result", m_sResult),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpReplicationMsg, 1, ezRTTIDefaultAllocator<ezLongOpReplicationMsg>)
 {
   EZ_BEGIN_PROPERTIES
@@ -210,6 +231,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenMsgToEngine, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("DocumentOpen", m_bDocumentOpen),
     EZ_MEMBER_PROPERTY("DocumentType", m_sDocumentType),
+    EZ_MEMBER_PROPERTY("DocumentMetaData", m_DocumentMetaData),
   }
   EZ_END_PROPERTIES;
 }

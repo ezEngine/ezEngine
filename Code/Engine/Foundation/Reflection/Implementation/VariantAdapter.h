@@ -95,7 +95,7 @@ struct ezIsValueType
 {
   enum
   {
-    value = ezVariant::TypeDeduction<C>::value >= ezVariantType::FirstStandardType && ezVariant::TypeDeduction<C>::value <= ezVariantType::LastStandardType || ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast,
+    value = (ezVariant::TypeDeduction<C>::value >= ezVariantType::FirstStandardType && ezVariant::TypeDeduction<C>::value <= ezVariantType::LastStandardType) || ezVariantTypeDeduction<C>::classification == ezVariantClass::CustomTypeCast,
   };
 };
 
@@ -122,8 +122,8 @@ struct ezVariantAssignmentAdapter
   {
   }
 
-  void operator=(T* rhs) { m_value = rhs; }
-  void operator=(T&& rhs)
+  void operator=(RealType* rhs) { m_value = rhs; }
+  void operator=(RealType&& rhs)
   {
     if (m_value.IsValid())
       *m_value.Get<RealType*>() = rhs;

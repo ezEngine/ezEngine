@@ -1,20 +1,21 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Terrain/HeightfieldComponent.h>
+#include <GameEngine/Utils/ImageDataResource.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
-#include <Utils/ImageDataResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -25,7 +26,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Tesselation", GetTesselation, SetTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(128))),
     EZ_ACCESSOR_PROPERTY("TexCoordOffset", GetTexCoordOffset, SetTexCoordOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0))),
     EZ_ACCESSOR_PROPERTY("TexCoordScale", GetTexCoordScale, SetTexCoordScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1))),
-    EZ_ACCESSOR_PROPERTY("ColMeshTesselation", GetColMeshTesselation, SetColMeshTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(64))),
+    EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("ColMeshTesselation", GetColMeshTesselation, SetColMeshTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(64))),    
+    EZ_ACCESSOR_PROPERTY("IncludeInNavmesh", GetIncludeInNavmesh, SetIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -78,6 +81,10 @@ void ezHeightfieldComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_vTexCoordScale;
   s << m_vTesselation;
   s << m_vColMeshTesselation;
+
+  // Version 2
+  s << m_bGenerateCollision;
+  s << m_bIncludeInNavmesh;
 }
 
 void ezHeightfieldComponent::DeserializeComponent(ezWorldReader& stream)
@@ -94,12 +101,27 @@ void ezHeightfieldComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_vTexCoordScale;
   s >> m_vTesselation;
   s >> m_vColMeshTesselation;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bGenerateCollision;
+    s >> m_bIncludeInNavmesh;
+  }
+}
+
+void ezHeightfieldComponent::OnActivated()
+{
+  if (!m_hMesh.IsValid())
+  {
+    m_hMesh = GenerateMesh<ezMeshResource>();
+  }
+
+  // First generate the mesh and then call the base implementation which will update the bounds
+  SUPER::OnActivated();
 }
 
 ezResult ezHeightfieldComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  GenerateRenderMesh();
-
   if (m_hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
@@ -112,8 +134,6 @@ ezResult ezHeightfieldComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, boo
 
 void ezHeightfieldComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  GenerateRenderMesh();
-
   if (!m_hMesh.IsValid())
     return;
 
@@ -235,14 +255,27 @@ void ezHeightfieldComponent::SetTesselation(ezVec2U32 value)
   InvalidateMesh();
 }
 
+void ezHeightfieldComponent::SetGenerateCollision(bool b)
+{
+  m_bGenerateCollision = b;
+}
+
 void ezHeightfieldComponent::SetColMeshTesselation(ezVec2U32 value)
 {
   m_vColMeshTesselation = value;
   // don't invalidate the render mesh
 }
 
+void ezHeightfieldComponent::SetIncludeInNavmesh(bool b)
+{
+  m_bIncludeInNavmesh = b;
+}
+
 void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 {
+  if (!m_bGenerateCollision)
+    return;
+
   ezGeometry geom;
   BuildGeometry(geom);
 
@@ -304,46 +337,13 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
 void ezHeightfieldComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
-  {
-    // do not include this for the collision mesh, if the proper tag is not set
-    if (!GetOwner()->GetTags().IsSetByName("AutoColMesh"))
-      return;
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && (m_bGenerateCollision == false || GetOwner()->IsDynamic()))
+    return;
 
-    if (GetOwner()->IsDynamic())
-      return;
-  }
-  else
-  {
-    EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
-  }
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && (m_bIncludeInNavmesh == false || GetOwner()->IsDynamic()))
+    return;
 
-
-  const ezTransform transform = GetOwner()->GetGlobalTransform();
-
-  ezGeometry geom;
-  BuildGeometry(geom);
-
-  const ezUInt32 uiVertexIdxOffset = msg.m_pWorldGeometry->m_Vertices.GetCount();
-
-  auto& vertices = geom.GetVertices();
-  for (auto& v : vertices)
-  {
-    auto& vert = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
-    vert.m_vPosition = transform * v.m_vPosition;
-  }
-
-  const auto& polys = geom.GetPolygons();
-  for (auto& poly : polys)
-  {
-    for (ezUInt32 t = 0; t < poly.m_Vertices.GetCount() - 2; ++t)
-    {
-      auto& tri = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
-      tri.m_uiVertexIndices[0] = uiVertexIdxOffset + poly.m_Vertices[0];
-      tri.m_uiVertexIndices[1] = uiVertexIdxOffset + poly.m_Vertices[t + 1];
-      tri.m_uiVertexIndices[2] = uiVertexIdxOffset + poly.m_Vertices[t + 2];
-    }
-  }
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
 }
 
 void ezHeightfieldComponent::InvalidateMesh()
@@ -351,6 +351,9 @@ void ezHeightfieldComponent::InvalidateMesh()
   if (m_hMesh.IsValid())
   {
     m_hMesh.Invalidate();
+
+    m_hMesh = GenerateMesh<ezMeshResource>();
+
     TriggerLocalBoundsUpdate();
   }
 }
@@ -420,41 +423,18 @@ void ezHeightfieldComponent::BuildGeometry(ezGeometry& geom) const
   }
 }
 
-void ezHeightfieldComponent::GenerateRenderMesh() const
+ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& desc) const
 {
-  if (m_hMesh.IsValid() || !m_hHeightfield.IsValid())
-    return;
-
-  ezStringBuilder sResourceName;
-
-  {
-    ezUInt64 uiSettingsHash = m_hHeightfield.GetResourceIDHash() + m_uiHeightfieldChangeCounter;
-    uiSettingsHash = ezHashingUtils::xxHash64(&m_vHalfExtents, sizeof(m_vHalfExtents), uiSettingsHash);
-    uiSettingsHash = ezHashingUtils::xxHash64(&m_fHeight, sizeof(m_fHeight), uiSettingsHash);
-    uiSettingsHash = ezHashingUtils::xxHash64(&m_vTexCoordOffset, sizeof(m_vTexCoordOffset), uiSettingsHash);
-    uiSettingsHash = ezHashingUtils::xxHash64(&m_vTexCoordScale, sizeof(m_vTexCoordScale), uiSettingsHash);
-    uiSettingsHash = ezHashingUtils::xxHash64(&m_vTesselation, sizeof(m_vTesselation), uiSettingsHash);
-
-    sResourceName.Format("Heightfield:{}", uiSettingsHash);
-
-    m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResourceName);
-
-    if (m_hMesh.IsValid())
-      return;
-  }
-
   EZ_PROFILE_SCOPE("Heightfield: GenerateRenderMesh");
 
   ezResourceLock<ezImageDataResource> pImageData(m_hHeightfield, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pImageData.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
     ezLog::Error("Failed to load heightmap image data '{}'", m_hHeightfield.GetResourceID());
-    return;
+    return EZ_FAILURE;
   }
 
   const ezImage& heightmap = pImageData->GetDescriptor().m_Image;
-
-  ezMeshResourceDescriptor desc;
 
   // Data/Base/Materials/Common/Pattern.ezMaterialAsset
   desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
@@ -611,8 +591,39 @@ void ezHeightfieldComponent::GenerateRenderMesh() const
   }
 
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+  return EZ_SUCCESS;
+}
 
-  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResourceName, std::move(desc), sResourceName);
+template <typename ResourceType>
+ezTypedResourceHandle<ResourceType> ezHeightfieldComponent::GenerateMesh() const
+{
+  if (!m_hHeightfield.IsValid())
+    return ezTypedResourceHandle<ResourceType>();
+
+  ezStringBuilder sResourceName;
+
+  {
+    ezUInt64 uiSettingsHash = m_hHeightfield.GetResourceIDHash() + m_uiHeightfieldChangeCounter;
+    uiSettingsHash = ezHashingUtils::xxHash64(&m_vHalfExtents, sizeof(m_vHalfExtents), uiSettingsHash);
+    uiSettingsHash = ezHashingUtils::xxHash64(&m_fHeight, sizeof(m_fHeight), uiSettingsHash);
+    uiSettingsHash = ezHashingUtils::xxHash64(&m_vTexCoordOffset, sizeof(m_vTexCoordOffset), uiSettingsHash);
+    uiSettingsHash = ezHashingUtils::xxHash64(&m_vTexCoordScale, sizeof(m_vTexCoordScale), uiSettingsHash);
+    uiSettingsHash = ezHashingUtils::xxHash64(&m_vTesselation, sizeof(m_vTesselation), uiSettingsHash);
+
+    sResourceName.Format("Heightfield:{}", uiSettingsHash);
+
+    ezTypedResourceHandle<ResourceType> hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
+    if (hResource.IsValid())
+      return hResource;
+  }
+
+  ezMeshResourceDescriptor desc;
+  if (BuildMeshDescriptor(desc).Succeeded())
+  {
+    return ezResourceManager::CreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
+  }
+
+  return ezTypedResourceHandle<ResourceType>();
 }
 
 //////////////////////////////////////////////////////////////////////////

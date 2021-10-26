@@ -35,3 +35,4 @@ private:
   ezHybridArray<ezToolsTag, 32> m_Tags;
   ezMap<ezString, QTreeWidgetItem*> m_CategoryToItem;
 };
+

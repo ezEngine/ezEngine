@@ -1,6 +1,5 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
@@ -8,6 +7,7 @@
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <extensions/PxRigidActorExt.h>
 
 // clang-format off
@@ -257,20 +257,17 @@ void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx:
 
 void ezPxStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (!m_bIncludeInNavmesh)
-    return;
-
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
-    return;
-
-  if (m_hCollisionMesh.IsValid())
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && m_bIncludeInNavmesh))
   {
-    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
+    if (m_hCollisionMesh.IsValid())
+    {
+      ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-    pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
+      msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
+    }
+
+    AddShapesToNavMesh(GetOwner(), msg);
   }
-
-  AddShapesToNavMesh(GetOwner(), msg);
 }
 
 void ezPxStaticActorComponent::SetMeshFile(const char* szFile)

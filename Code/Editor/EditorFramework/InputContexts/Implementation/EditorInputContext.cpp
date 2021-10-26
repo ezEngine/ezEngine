@@ -1,6 +1,6 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
-#include "DocumentWindow/EngineViewWidget.moc.h"
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
 

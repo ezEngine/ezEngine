@@ -1,4 +1,4 @@
-#include <ToolsFoundationPCH.h>
+#include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/SubSystem.h>
@@ -23,12 +23,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezDocumentManager::OnPluginEvent);
+    ezPlugin::Events().AddEventHandler(ezDocumentManager::OnPluginEvent);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezDocumentManager::OnPluginEvent);
+    ezPlugin::Events().RemoveEventHandler(ezDocumentManager::OnPluginEvent);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -68,7 +68,7 @@ void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPluginEvent& e)
   {
     const ezRTTI* pRtti = s_AllDocumentManagers[i]->GetDynamicRTTI();
 
-    if (ezStringUtils::IsEqual(pRtti->GetPluginName(), e.m_pPluginObject->GetPluginName()))
+    if (ezStringUtils::IsEqual(pRtti->GetPluginName(), e.m_szPluginBinary))
     {
       s_KnownManagers.Remove(pRtti);
 
@@ -260,7 +260,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       {
         EZ_PROFILE_SCOPE(szDocumentTypeName);
         status = ezStatus(EZ_SUCCESS);
-        InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
+        InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
       }
       out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
 
@@ -319,9 +319,9 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 }
 
 ezStatus ezDocumentManager::CreateDocument(
-  const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags)
+  const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, flags);
+  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, flags, pOpenContext);
 }
 
 ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,

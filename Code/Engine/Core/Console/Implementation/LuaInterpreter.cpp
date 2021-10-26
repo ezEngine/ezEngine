@@ -1,6 +1,7 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Console/LuaInterpreter.h>
+#include <Core/Console/QuakeConsole.h>
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
@@ -105,14 +106,16 @@ static void UnSanitizeCVarName(ezStringBuilder& cvarName)
   }
 }
 
-ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
+void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 {
-  ezStringBuilder sRealCommand = szCommand;
+  inout_State.m_sOutput.Clear();
+
+  ezStringBuilder sRealCommand = inout_State.m_sInput;
 
   if (sRealCommand.IsEmpty())
   {
-    pConsole->AddConsoleString("");
-    return EZ_SUCCESS;
+    inout_State.AddOutputLine("");
+    return;
   }
 
   sRealCommand.Trim(" \t\n\r");
@@ -158,8 +161,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
   sTemp = "> ";
   sTemp.Append(sRealCommand.GetData());
-  pConsole->AddConsoleString(sTemp.GetData(), ezColor(255.0f / 255.0f, 128.0f / 255.0f, 0.0f / 255.0f));
-
+  inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Executed);
 
   ezCVar* pCVAR = ezCVar::FindCVarByName(sRealVarName.GetData());
   if (pCVAR != nullptr)
@@ -175,48 +177,50 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
     if (bSetValue && !bValueEmpty)
     {
-      if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
+      ezMuteLog muteLog;
+
+      if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
       {
-        pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
-        return EZ_FAILURE;
+        inout_State.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
+        return;
       }
       else
       {
         if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
         {
-          pConsole->AddConsoleString("  This change takes only effect after a restart.", ezColor(1, 200.0f / 255.0f, 0));
+          inout_State.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
         }
 
-        sTemp.Format("  {0} = {1}", sRealVarName, pConsole->GetFullInfoAsString(pCVAR));
-        pConsole->AddConsoleString(sTemp.GetData(), ezColor(50.0f / 255.0f, 1, 50.0f / 255.0f));
+        sTemp.Format("  {0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
+        inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
     }
     else
     {
-      sTemp.Format("{0} = {1}", sRealVarName, pConsole->GetFullInfoAsString(pCVAR));
-      pConsole->AddConsoleString(sTemp.GetData());
+      sTemp.Format("{0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
+      inout_State.AddOutputLine(sTemp);
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
       {
         sTemp.Format("  Description: {0}", pCVAR->GetDescription());
-        pConsole->AddConsoleString(sTemp.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
+        inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
       else
-        pConsole->AddConsoleString("  No Description available.", ezColor(50 / 255.0f, 1, 50 / 255.0f));
+        inout_State.AddOutputLine("  No Description available.", ezConsoleString::Type::Success);
     }
 
-    return EZ_SUCCESS;
+    return;
   }
   else
   {
-    if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
+    ezMuteLog muteLog;
+
+    if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
     {
-      pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
-      return EZ_FAILURE;
+      inout_State.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
+      return;
     }
   }
-
-  return EZ_SUCCESS;
 }
 
 static int LUAFUNC_ReadCVAR(lua_State* state)

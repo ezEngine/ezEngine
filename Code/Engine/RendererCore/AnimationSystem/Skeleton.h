@@ -32,6 +32,13 @@ public:
   bool IsRootJoint() const { return m_uiParentIndex == ezInvalidJointIndex; }
   const ezHashedString& GetName() const { return m_sName; }
 
+  ezAngle GetHalfSwingLimitX() const { return m_HalfSwingLimitX; }
+  ezAngle GetHalfSwingLimitY() const { return m_HalfSwingLimitY; }
+  ezAngle GetTwistLimitLow() const { return m_TwistLimitLow; }
+  ezAngle GetTwistLimitHigh() const { return m_TwistLimitHigh; }
+
+  ezQuat GetLimitRotation() const { return m_LimitRotation; }
+
 protected:
   friend ezSkeleton;
   friend ezSkeletonBuilder;
@@ -39,6 +46,12 @@ protected:
   ezTransform m_BindPoseLocal;
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
+
+  ezQuat m_LimitRotation = ezQuat::IdentityQuaternion();
+  ezAngle m_HalfSwingLimitX;
+  ezAngle m_HalfSwingLimitY;
+  ezAngle m_TwistLimitLow;
+  ezAngle m_TwistLimitHigh;
 };
 
 /// \brief The skeleton class encapsulates the information about the joint structure for a model.

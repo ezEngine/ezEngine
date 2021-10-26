@@ -1,4 +1,4 @@
-#include <CoreTestPCH.h>
+#include <CoreTest/CoreTestPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -7,7 +7,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(ResourceManager);
 
 namespace
 {
-  typedef ezTypedResourceHandle<class TestResource> TestResourceHandle;
+  using TestResourceHandle = ezTypedResourceHandle<class TestResource>;
 
   class TestResource : public ezResource
   {

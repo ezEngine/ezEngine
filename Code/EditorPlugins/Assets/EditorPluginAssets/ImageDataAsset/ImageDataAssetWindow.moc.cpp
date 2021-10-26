@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetWindow.moc.h>

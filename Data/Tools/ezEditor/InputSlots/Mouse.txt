@@ -13,4 +13,4 @@ mouse_button_0_doubleclick
 mouse_button_1_doubleclick
 mouse_button_2_doubleclick
 mouse_position_x
-mouse_position_y"
+mouse_position_y

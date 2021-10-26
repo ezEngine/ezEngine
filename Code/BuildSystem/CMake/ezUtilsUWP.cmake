@@ -15,7 +15,7 @@ function(ez_uwp_mark_import_as_content IMPORT)
   else()
     set_property(SOURCE ${_dll_location_debug} PROPERTY VS_DEPLOYMENT_CONTENT $<CONFIG:Debug>)
 
-    set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT $<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>)
+    set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT $<OR:$<CONFIG:Shipping>,$<CONFIG:Dev>>)
 
     unset (_dll_location_debug)
     unset (_dll_location)
@@ -35,7 +35,10 @@ function(ez_uwp_add_import_to_sources TARGET_NAME IMPORT)
   get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_DEBUG)
   target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
 
-  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION)
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_DEV)
+  target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
+
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_SHIPPING)
   target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
 
   unset (_dll_location)
@@ -46,7 +49,7 @@ endfunction()
 ### ez_uwp_add_default_content(<target>)
 ######################################
 
-function(ez_uwp_fix_library_properties TARGET_NAME SOURCE_FILES)
+function(ez_uwp_fix_library_properties TARGET_NAME ALL_SOURCE_FILES)
   if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     return()
   endif()

@@ -1,4 +1,4 @@
-#include <CorePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/EventMessage.h>
@@ -213,14 +213,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->m_uiStableRandomSeed = GetRandomNumberGenerator().UInt();
   }
 
-  if (pParentData != nullptr)
-  {
-    pTransformationData->UpdateGlobalTransformWithParent();
-  }
-  else
-  {
-    pTransformationData->UpdateGlobalTransform();
-  }
+  pTransformationData->UpdateGlobalTransformNonRecursive();
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_Position;
@@ -238,13 +231,32 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   return ezGameObjectHandle(newId);
 }
 
-void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
+void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDeleteEmptyParents /*= true*/)
 {
   CheckForWriteAccess();
 
   ezGameObject* pObject = nullptr;
-  if (!m_Data.m_Objects.TryGetValue(hObject, pObject))
+  if (!m_Data.m_Objects.TryGetValue(hObject0, pObject))
     return;
+
+  ezGameObjectHandle hObject = hObject0;
+
+  if (bAlsoDeleteEmptyParents)
+  {
+    ezGameObject* pParent = pObject->GetParent();
+
+    while (pParent)
+    {
+      if (pParent->GetChildCount() != 1 || pParent->GetComponents().GetCount() != 0)
+        break;
+
+      pObject = pParent;
+
+      pParent = pParent->GetParent();
+    }
+
+    hObject = pObject->GetHandle();
+  }
 
   // inform external systems that we are about to delete this object
   m_Data.m_ObjectDeletionEvent.Broadcast(pObject);
@@ -255,7 +267,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
-    DeleteObjectNow(it->GetHandle());
+    DeleteObjectNow(it->GetHandle(), false);
   }
 
   // delete attached components
@@ -280,9 +292,10 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
   EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");
 }
 
-void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
+void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents /*= true*/)
 {
   ezMsgDeleteGameObject msg;
+  msg.m_bDeleteEmptyParents = bAlsoDeleteEmptyParents;
   PostMessage(hObject, msg, ezTime::Zero());
 }
 
@@ -472,6 +485,11 @@ void ezWorld::Update()
 
   m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
   m_Data.m_Clock.Update();
+
+  if (m_Data.m_pSpatialSystem != nullptr)
+  {
+    m_Data.m_pSpatialSystem->StartNewFrame();
+  }
 
   // initialize phase
   {
@@ -1033,11 +1051,10 @@ bool ezWorld::ProcessInitializationBatch(ezInternal::WorldData::InitBatch& batch
       if (!TryGetComponent(hComponent, pComponent))
         continue;
 
-      // make sure the object's transform is up to date before the component is initialized
-      if (pComponent->GetOwner())
-      {
-        pComponent->GetOwner()->UpdateGlobalTransform();
-      }
+      EZ_ASSERT_DEBUG(pComponent->GetOwner() != nullptr, "Component must have a valid owner");
+
+      // make sure the object's transform is up to date before the component is initialized.
+      pComponent->GetOwner()->UpdateGlobalTransform();
 
       pComponent->EnsureInitialized();
 
@@ -1297,7 +1314,10 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
   else
   {
     // Explicitly trigger transform AND bounds update, otherwise bounds would be outdated for static objects
-    pObject->UpdateGlobalTransformAndBounds();
+    // Don't call pObject->UpdateGlobalTransformAndBounds() here since that would recursively update the parent global transform which is already up-to-date.
+    pObject->m_pTransformationData->UpdateGlobalTransformNonRecursive();
+
+    pObject->m_pTransformationData->UpdateGlobalBounds(GetSpatialSystem());
   }
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)

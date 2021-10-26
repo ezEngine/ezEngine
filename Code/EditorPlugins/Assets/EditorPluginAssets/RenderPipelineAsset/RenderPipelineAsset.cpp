@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
 #include <Foundation/Serialization/BinarySerializer.h>
@@ -163,12 +163,14 @@ void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObje
 
 void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
+  SUPER::AttachMetaDataBeforeSaving(graph);
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
+  SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
@@ -224,7 +226,7 @@ bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, con
     }
   }
 
-  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(objectGraph);
 
   RestoreMetaDataAfterLoading(objectGraph, true);
 

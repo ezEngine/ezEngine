@@ -127,5 +127,5 @@ protected:
 
   ezInstanceData* m_pExplicitInstanceData = nullptr;
 
-  mutable ezUInt64 m_uiEnqueuedFrame = 0;
+  mutable ezUInt64 m_uiEnqueuedFrame = ezUInt64(-1);
 };

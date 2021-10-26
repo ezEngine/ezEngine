@@ -35,3 +35,4 @@ private:
   QWinTaskbarProgress* m_pWinTaskBarProgress;
 #endif
 };
+

@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 // Include inline file
@@ -12,7 +12,7 @@
 #    error "Process functions are not implemented on current platform"
 #  endif
 
-#  include <Strings/Implementation/StringIterator.h>
+#  include <Foundation/Strings/Implementation/StringIterator.h>
 
 ezProcess::ezProcess(ezProcess&& rhs) = default;
 

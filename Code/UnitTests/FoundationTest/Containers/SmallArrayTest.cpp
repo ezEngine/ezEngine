@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Memory/CommonAllocators.h>
@@ -69,7 +69,7 @@ namespace SmallArrayTestDetail
   static ezSmallArray<T, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset, ezUInt32 uiUserData)
   {
     ezSmallArray<T, 16> a;
-    a.SetCount(uiSize);
+    a.SetCount(static_cast<ezUInt16>(uiSize));
 
     for (ezUInt32 i = 0; i < uiSize; ++i)
     {
@@ -355,7 +355,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
 
     for (ezInt32 i = 0; i < 128; ++i)
     {
-      a1.SetCount(i + 1);
+      a1.SetCount(static_cast<ezUInt16>(i + 1));
       EZ_TEST_INT(a1[i], 0);
       a1[i] = i;
 
@@ -368,7 +368,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
 
     for (ezInt32 i = 128; i >= 0; --i)
     {
-      a1.SetCount(i);
+      a1.SetCount(static_cast<ezUInt16>(i));
 
       EZ_TEST_INT(a1.GetCount(), i);
 

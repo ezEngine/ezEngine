@@ -1,4 +1,4 @@
-#include <TestFrameworkPCH.h>
+#include <TestFramework/TestFrameworkPCH.h>
 
 #include <Foundation/Types/ScopeExit.h>
 #include <TestFramework/Framework/TestResults.h>
@@ -363,11 +363,10 @@ void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
   if (uiTestIndex != -1)
   {
     m_Tests[uiTestIndex].m_Result.AddOutput((ezInt32)m_TestOutput.size());
-  }
-
-  if (iSubTestIndex != -1)
-  {
-    m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result.AddOutput((ezInt32)m_TestOutput.size());
+    if (iSubTestIndex != -1)
+    {
+      m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result.AddOutput((ezInt32)m_TestOutput.size());
+    }
   }
 
   m_TestOutput.push_back(ezTestOutputMessage());

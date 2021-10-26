@@ -7,6 +7,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtOrbitCamViewWidget;
+class ezSelectionContext;
 
 class ezQtSkeletonAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -28,6 +29,13 @@ private:
   void QueryObjectBBox(ezInt32 iPurpose);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+
+  void SendLiveResourcePreview();
+  void RestoreResource();
+
   ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget = nullptr;
 };
+

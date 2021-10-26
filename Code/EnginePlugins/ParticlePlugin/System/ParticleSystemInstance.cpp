@@ -1,4 +1,4 @@
-#include <ParticlePluginPCH.h>
+#include <ParticlePlugin/ParticlePluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
@@ -594,8 +594,6 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
 
 void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
-  ezUInt64 uiExtractedFrame = ezRenderWorld::GetFrameCounter();
-
   for (auto pType : m_Types)
   {
     pType->ExtractTypeRenderData(msg, instanceTransform);

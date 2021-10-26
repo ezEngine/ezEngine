@@ -84,7 +84,7 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimResourceDescriptor : public ezRefCounted
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezTypedResourceHandle<class ezPropertyAnimResource> ezPropertyAnimResourceHandle;
+using ezPropertyAnimResourceHandle = ezTypedResourceHandle<class ezPropertyAnimResource>;
 
 class EZ_GAMEENGINE_DLL ezPropertyAnimResource : public ezResource
 {

@@ -1,5 +1,6 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Application/Application.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringConversion.h>
@@ -12,7 +13,6 @@
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>
 #endif
-#include <Application/Application.h>
 
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];

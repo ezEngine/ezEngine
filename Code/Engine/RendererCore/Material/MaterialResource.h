@@ -7,9 +7,9 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
-typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
-typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 
 struct ezMaterialResourceDescriptor
 {

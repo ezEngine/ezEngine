@@ -4,6 +4,8 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
+struct ezMeshBufferResourceDescriptor;
+
 struct ezMeshNormalPrecision
 {
   typedef ezUInt8 StorageType;
@@ -74,6 +76,12 @@ struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
   static ezResult DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& dest);
   static ezResult DecodeToVec3(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& dest);
   static ezResult DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec4& dest);
+
+  /// \brief Helper function to get the position stream from the given mesh buffer descriptor
+  static ezResult GetPositionStream(const ezMeshBufferResourceDescriptor& meshBufferDesc, const ezVec3*& out_pPositions, ezUInt32& out_uiElementStride);
+
+  /// \brief Helper function to get the position and normal stream from the given mesh buffer descriptor
+  static ezResult GetPositionAndNormalStream(const ezMeshBufferResourceDescriptor& meshBufferDesc, const ezVec3*& out_pPositions, const ezUInt8*& out_pNormals, ezGALResourceFormat::Enum& out_NormalFormat, ezUInt32& out_uiElementStride);
 };
 
 #include <RendererCore/Meshes/Implementation/MeshBufferUtils_inl.h>

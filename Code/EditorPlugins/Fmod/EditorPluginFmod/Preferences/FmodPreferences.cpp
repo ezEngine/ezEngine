@@ -1,4 +1,4 @@
-#include <EditorPluginFmodPCH.h>
+#include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
@@ -18,6 +18,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezFmodProjectPreferences::ezFmodProjectPreferences()
   : ezPreferences(Domain::Project, "Fmod")
 {
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezFmodProjectPreferences::ProcessEventHandler, this));
+}
+
+ezFmodProjectPreferences::~ezFmodProjectPreferences()
+{
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezFmodProjectPreferences::ProcessEventHandler, this));
 }
 
 void ezFmodProjectPreferences::SetMute(bool mute)
@@ -40,7 +46,7 @@ void ezFmodProjectPreferences::SyncCVars()
 
   {
     ezChangeCVarMsgToEngine msg;
-    msg.m_sCVarName = "fmod_Mute";
+    msg.m_sCVarName = "Fmod.Mute";
     msg.m_NewValue = m_bMute;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -48,9 +54,17 @@ void ezFmodProjectPreferences::SyncCVars()
 
   {
     ezChangeCVarMsgToEngine msg;
-    msg.m_sCVarName = "fmod_MasterVolume";
+    msg.m_sCVarName = "Fmod.MasterVolume";
     msg.m_NewValue = m_fMasterVolume;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  }
+}
+
+void ezFmodProjectPreferences::ProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
+{
+  if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessRestarted)
+  {
+    SyncCVars();
   }
 }

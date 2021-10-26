@@ -1,4 +1,4 @@
-#include <EditorPluginPhysXPCH.h>
+#include <EditorPluginPhysX/EditorPluginPhysXPCH.h>
 
 EZ_STATICLINK_LIBRARY(EditorPluginPhysX)
 {

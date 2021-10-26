@@ -2,6 +2,7 @@
 
 #include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
@@ -13,13 +14,13 @@ public:
   ezSceneDocumentManager();
 
 private:
-  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
   void SetupDefaultScene(ezDocument* pDocument);
 
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc2;
+
+  ezStaticArray<ezAssetDocumentTypeDescriptor, 4> m_DocTypeDescs;
 };

@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Duktape/duktape.h>

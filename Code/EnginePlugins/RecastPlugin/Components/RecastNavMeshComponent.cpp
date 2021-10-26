@@ -1,4 +1,4 @@
-#include <RecastPluginPCH.h>
+#include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -12,7 +12,7 @@
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezCVarBool g_AiShowNavMesh("ai_ShowNavMesh", false, ezCVarFlags::Default, "Draws the navmesh, if one is available");
+ezCVarBool cvar_RecastVisNavMeshes("Recast.VisNavMeshes", false, ezCVarFlags::Default, "Draws the navmesh, if one is available");
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@ void ezRcNavMeshComponent::OnActivated()
 
 void ezRcNavMeshComponent::VisualizeNavMesh()
 {
-  if (!m_bShowNavMesh && !g_AiShowNavMesh)
+  if (!m_bShowNavMesh && !cvar_RecastVisNavMeshes)
     return;
 
   auto hNavMesh = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->GetNavMeshResource();
@@ -207,7 +207,7 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
 
 void ezRcNavMeshComponent::VisualizePointsOfInterest()
 {
-  if (!m_bShowNavMesh && !g_AiShowNavMesh)
+  if (!m_bShowNavMesh && !cvar_RecastVisNavMeshes)
     return;
 
   auto pPoiGraph = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->GetNavMeshPointsOfInterestGraph();

@@ -10,6 +10,7 @@ class EZ_EDITORPLUGINFMOD_DLL ezFmodProjectPreferences : public ezPreferences
 
 public:
   ezFmodProjectPreferences();
+  ~ezFmodProjectPreferences();
 
   void SetMute(bool mute);
   bool GetMute() const { return m_bMute; }
@@ -20,6 +21,8 @@ public:
   void SyncCVars();
 
 private:
+  void ProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
+
   bool m_bMute = false;
   float m_fMasterVolume = 1.0f;
 };

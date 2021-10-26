@@ -1,0 +1,13 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/microsoft/DirectXTex",
+                    "commitHash": "47aabe15cb06d979da981df6192430b989342a00"
+                }
+            }
+        }
+    ]
+}

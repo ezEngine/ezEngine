@@ -399,7 +399,7 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetVelocity() const
 
 EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransform()
 {
-  m_pTransformationData->ConditionalUpdateGlobalTransform();
+  m_pTransformationData->UpdateGlobalTransformRecursive();
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::EnableStaticTransformChangesNotifications()
@@ -504,16 +504,6 @@ EZ_ALWAYS_INLINE ezUInt16 ezGameObject::GetComponentVersion() const
   return m_Components.GetUserData<ComponentUserData>().m_uiVersion;
 }
 
-EZ_ALWAYS_INLINE ezTagSet& ezGameObject::GetTags()
-{
-  return m_Tags;
-}
-
-EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
-{
-  return m_Tags;
-}
-
 EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg)
 {
   return SendMessageInternal(msg, false);
@@ -534,10 +524,24 @@ EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
   return SendMessageRecursiveInternal(msg, false);
 }
 
+EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
+{
+  return m_Tags;
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetStableRandomSeed() const
+{
+  return m_pTransformationData->m_uiStableRandomSeed;
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::SetStableRandomSeed(ezUInt32 seed)
+{
+  m_pTransformationData->m_uiStableRandomSeed = seed;
+}
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()
+EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWithoutParent()
 {
   m_globalTransform.m_Position = m_localPosition;
   m_globalTransform.m_Rotation = m_localRotation;
@@ -555,26 +559,6 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
 {
   m_globalBounds = m_localBounds;
   m_globalBounds.Transform(m_globalTransform);
-
-  m_globalBounds.m_BoxHalfExtents.SetW(m_localBounds.m_BoxHalfExtents.w());
-}
-
-EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSytem)
-{
-  ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
-
-  UpdateGlobalBounds();
-
-  ///\todo find a better place for this
-  // Can't use ezSimdBBoxSphere::operator != because we want to include the w component of m_BoxHalfExtents
-  if ((m_globalBounds.m_CenterAndRadius != oldGlobalBounds.m_CenterAndRadius || m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
-        .AnySet<4>())
-  {
-    bool bWasAlwaysVisible = oldGlobalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
-    bool bIsAlwaysVisible = m_globalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
-
-    UpdateSpatialData(spatialSytem, bWasAlwaysVisible, bIsAlwaysVisible);
-  }
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds)

@@ -5,50 +5,76 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Utilities/EnumerableClass.h>
-
-class ezPlugin;
 
 /// \brief The data that is broadcast whenever a plugin is (un-) loaded.
 struct ezPluginEvent
 {
   enum Type
   {
-    BeforeLoading,          ///< Sent shortly before a new plugin is loaded
-    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of
-                            ///< other plugins)
-    AfterLoading,           ///< Sent after a new plugin has been loaded and initialized
-    BeforeUnloading,        ///< Sent before a plugin is going to be unloaded
-    StartupShutdown,        ///< Used by the startup system for automatic shutdown
-    AfterStartupShutdown,
-    AfterUnloading,      ///< Sent after a plugin has been unloaded
-    BeforePluginChanges, ///< Sent (once) before any (group) plugin changes (load/unload) are done.
-    AfterPluginChanges,  ///< Sent (once) after all (group) plugin changes (unload/load/reload) are finished.
+    BeforeLoading,          ///< Sent shortly before a new plugin is loaded.
+    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins).
+    AfterLoading,           ///< Sent after a new plugin has been loaded and initialized.
+    BeforeUnloading,        ///< Sent before a plugin is going to be unloaded.
+    StartupShutdown,        ///< Used by the startup system for automatic shutdown.
+    AfterStartupShutdown,   ///< Used by the ResourceManager to unload now unreferenced resources after the startup system shutdown is through.
+    AfterUnloading,         ///< Sent after a plugin has been unloaded.
+    BeforePluginChanges,    ///< Sent (once) before any (group) plugin changes (load/unload) are done.
+    AfterPluginChanges,     ///< Sent (once) after all (group) plugin changes (unload/load) are finished.
   };
 
-  Type m_EventType;           ///< Which type of event this is.
-  ezPlugin* m_pPluginObject;  ///< Which plugin object is affected. Only available in 'AfterLoading' and 'BeforeUnloading'.
-  const char* m_szPluginFile; ///< The file name in which the plugin that is loaded or unloaded is located.
+  Type m_EventType;                       ///< Which type of event this is.
+  const char* m_szPluginBinary = nullptr; ///< The file name of the affected plugin.
 };
 
-/// \brief ezPlugin allows to manage all dynamically loadable plugins. Each plugin DLL must contain one global instance of ezPlugin.
-///
-/// Put a global instance of ezPlugin somewhere into the source of each dynamic plugin DLL. Certain code depends on such instances
-/// to work correctly with dynamically loaded code. For example ezStartup allows to initialize and deinitialize code from
-/// dynamic DLLs properly (and in the correct order), by listening to events from ezPlugin.
-/// ezPlugin also provides static functions to load and unload DLLs.
-class EZ_FOUNDATION_DLL ezPlugin : public ezEnumerable<ezPlugin>
+/// \brief Flags for loading a plugin.
+struct ezPluginLoadFlags
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezPlugin);
+  using StorageType = ezUInt8;
 
+  enum Enum
+  {
+    LoadCopy = EZ_BIT(0),         ///< Don't load a DLL directly, but create a copy of the file and load that instead. This allows to continue working on (and compiling) the DLL in parallel.
+    PluginIsOptional = EZ_BIT(1), ///< When an optional plugin can't be loaded (missing file usually), no error is logged. LoadPlugin() will still return EZ_FAILURE though.
+
+    Default = 0,
+  };
+
+  struct Bits
+  {
+    StorageType LoadCopy : 1;
+    StorageType PluginIsOptional : 1;
+  };
+};
+
+using ezPluginInitCallback = void (*)();
+
+/// \brief ezPlugin manages all dynamically loadable plugins.
+///
+/// To load a plugin, call ezPlugin::LoadPlugin() with the filename of the plugin (without a path).
+/// The plugin DLL has to be located next to the application binary.
+///
+/// It is not possible to unload individual plugins, but you can unload all plugins. Make sure to only do this when no code and data
+/// from any of the plugins is still referenced somewhere.
+///
+/// When a plugin has a dependency on another plugin, it should contain a call to EZ_PLUGIN_DEPENDENCY() in one of its cpp files.
+/// This instructs the system to load that plugin as well, and makes sure to delay initialization until all (transitive) dependencies are loaded.
+///
+/// A plugin may contain one or multiple EZ_PLUGIN_ON_LOADED() and EZ_PLUGIN_ON_UNLOADED() functions.
+/// These are called automatically once a plugin and all its dependencies are loaded. This can be used to make sure basic things get set up.
+/// For anything more complicated, use ezStartup instead. Once a plugin is loaded, the startup system will initialize new startup code properly.
+class EZ_FOUNDATION_DLL ezPlugin
+{
 public:
-  /// \brief Callback type for when a plugin has just been loaded (not yet initialized). bReloading is true, if the plugin is currently being
-  /// reloaded.
-  using OnPluginLoadedFunction = void (*)(bool bReloading); // [tested]
+  /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
+  static const ezCopyOnBroadcastEvent<const ezPluginEvent&>& Events(); // [tested]
 
-  /// \brief Callback type for when a plugin will be unloaded (after all deinitializations). bReloading is true, if the plugin is currently being
-  /// reloaded.
-  using OnPluginUnloadedFunction = void (*)(bool bReloading); // [tested]
+  /// \brief Calls the EZ_PLUGIN_ON_LOADED() functions for all code that is already linked into the executable at startup.
+  ///
+  /// If code that was meant to be loaded dynamically ends up being statically linked (e.g. on platforms where only static linking is used),
+  /// the EZ_PLUGIN_ON_LOADED() functions should still be called. The application can decide when the best time is.
+  /// Usually a good point in time is right before the app would load the first dynamic plugin.
+  /// If this function is never called manually, but ezPlugin::LoadPlugin() is called, this function will be called automatically before loading the first actual plugin.
+  static void InitializeStaticallyLinkedPlugins(); // [tested]
 
   /// \brief Call this before loading / unloading several plugins in a row, to prevent unnecessary re-initializations.
   static void BeginPluginChanges();
@@ -56,103 +82,83 @@ public:
   /// \brief Must be called to finish what BeginPluginChanges started.
   static void EndPluginChanges();
 
-  /// \brief Creates a new plugin object.
-  ///
-  /// \param bIsReloadable
-  ///   If set to true, 'ReloadPlugins' will reload this plugin (if it was modified).
-  /// \param OnLoadPlugin
-  ///   Will be called right after the plugin is loaded, even before other code is notified of that the plugin is now loaded.
-  /// \param OnUnloadPlugin
-  ///   Will be called shortly before the DLL is finally unloaded. All other code has already been notified that the plugin is being unloaded.
-  /// \param szPluginDependency1
-  ///   Allows to specify other modules that this plugin depends on. These will be automatically loaded and unloaded together with this plugin.
-  ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = nullptr, OnPluginUnloadedFunction OnUnloadPlugin = nullptr,
-    const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr,
-    const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
-
-  /// \brief Returns the name that was used to load the plugin from disk.
-  const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); } // [tested]
-
-  /// \brief Returns whether this plugin supports hot-reloading.
-  bool IsReloadable() const { return m_bIsReloadable; } // [tested]
-
   /// \brief Checks whether a plugin with the given name exists. Does not guarantee that the plugin could be loaded successfully.
   static bool ExistsPluginFile(const char* szPluginFile);
 
   /// \brief Tries to load a DLL dynamically into the program.
   ///
-  /// For every time a plugin is loaded via 'LoadPlugin' it should also get unloaded via 'UnloadPlugin',
-  /// as ezPlugin counts these and only unloads a plugin once its reference count reaches zero.
-  ///
   /// EZ_SUCCESS is returned when the DLL is either successfully loaded or has already been loaded before.
   /// EZ_FAILURE is returned if the DLL cannot be located or it could not be loaded properly.
-  static ezResult LoadPlugin(const char* szPluginFile, bool bLoadCopy = false); // [tested]
-
-  /// \brief Same as LoadPlugin() but checks first whether the plugin exists at all and does not output an error in that case.
   ///
-  /// If the plugin does exist, but cannot be loaded for other reasons (e.g. missing dependencies), it will still log that information as errors.
-  static ezResult LoadOptionalPlugin(const char* szPluginFile, bool bLoadCopy = false); // [tested]
+  /// See ezPluginLoadFlags for additional options.
+  static ezResult LoadPlugin(const char* szPluginFile, ezBitflags<ezPluginLoadFlags> flags = ezPluginLoadFlags::Default); // [tested]
 
-  /// \brief Tries to unload a previously loaded plugin.
+  /// \brief Unloads all previously loaded plugins in the reverse order in which they were loaded.
   ///
-  /// For every time a plugin is loaded via 'LoadPlugin' it should also get unloaded via 'UnloadPlugin',
-  /// as ezPlugin counts these and only unloads a plugin once its reference count reaches zero.
-  /// If a plugin is not unloaded, because its refcount has not yet reached zero, 'UnloadPlugin' still returns EZ_SUCCESS.
-  ///
-  /// EZ_SUCCESS is returned when the DLL is either successfully unloaded are has already been unloaded before (or has even never been loaded before).
-  /// EZ_FAILURE is returned if the DLL cannot be unloaded (at this time).
-  static ezResult UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCount = nullptr); // [tested]
-
-  /// \brief Attempts to unload all previously loaded plugins in the reverse order in which they were loaded.
-  static ezResult UnloadAllPlugins();
-
-  /// \brief Hot-reloads all plugins that are marked as reloadable.
-  ///
-  /// Returns failure or success depending on whether (un-)loading of any of the hot-reloadable plugins failed.
-  /// Even if one fails, it still tries to reload ALL plugins.
-  /// If a reloadable plugin does not exist (anymore), that plugin is not even tried to be reloaded.
-  /// If a plugin can be unloaded but reloading fails, a backup of the previous version is used instead.
-  /// In case that fails as well, the application will probably crash.
-  /// EZ_FAILURE is returned if anything could not be reloaded as desired, independent of whether the system was able
-  /// to recover from it. So 'failure' means that not all reloadable code has been updated.
-  static ezResult ReloadPlugins(bool bForceReload = false); // [tested]
-
-  /// \brief Tries to find an ezPlugin instance by the given name. Returns nullptr if there is no such plugin.
-  /// Can be used to check whether a certain plugin is loaded.
-  static ezPlugin* FindPluginByName(const char* szPluginName); // [tested]
-
-  /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
-  static ezCopyOnBroadcastEvent<const ezPluginEvent&> s_PluginEvents;
-
-  /// \brief Returns the n-th plugin that this one is dependent on, or nullptr if there is no further dependency.
-  const char* GetPluginDependency(ezUInt8 uiDependency) const { return (uiDependency < 5) ? m_szPluginDependencies[uiDependency] : nullptr; }
+  /// Also calls EZ_PLUGIN_ON_UNLOADED() of all statically linked code.
+  static void UnloadAllPlugins(); // [tested]
 
   /// \brief Sets how many tries the system will do to find a free plugin file name.
   ///
-  /// During plugin loading the system creates copies of the plugin DLLs for reloading. This only works if the system can find a
+  /// During plugin loading the system may create copies of the plugin DLLs. This only works if the system can find a
   /// file to write to. If too many instances of the engine are running, no such free file name might be found and plugin loading fails.
   /// This value specifies how often the system tries to find a free file. The default is 32.
   static void SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances);
 
+  /// \internal struct used by ezPlugin macros
+  struct EZ_FOUNDATION_DLL Init
+  {
+    Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad);
+    Init(const char* szAddPluginDependency);
+  };
+
+  /// \brief Contains basic information about a loaded plugin.
+  struct EZ_FOUNDATION_DLL PluginInfo
+  {
+    ezString m_sName;
+    ezHybridArray<ezString, 2> m_sDependencies;
+  };
+
+  /// \brief Returns information about all currently loaded plugins.
+  static void GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos);
+
+  /// \internal Determines the plugin paths.
+  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber);
+
 private:
-  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath, ezUInt8 uiFileNumber);
-
-  const char* m_szPluginDependencies[5];
-  ezString m_sLoadedFromFile;
-
-  OnPluginLoadedFunction m_OnLoadPlugin;
-  OnPluginUnloadedFunction m_OnUnloadPlugin;
-
-  static ezResult UnloadPluginInternal(const char* szPlugin, bool bReloading);
-  static ezResult LoadPluginInternal(const char* szPlugin, bool bLoadCopy, bool bReloading);
-  static void SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReload);
-
-  void Initialize(bool bReloading);
-  void Uninitialize(bool bReloading);
-
-  bool m_bInitialized;
-  bool m_bIsReloadable;
-
-  static ezUInt32 m_uiMaxParallelInstances;
-  static ezInt32 s_iPluginChangeRecursionCounter;
+  ezPlugin() = delete;
 };
+
+/// \brief Adds a dependency on another plugin to the plugin in which this call is located.
+///
+/// If Plugin2 requires Plugin1 to be loaded when Plugin2 is used, insert this into a CPP file of Plugin2:\n
+/// EZ_PLUGIN_DEPENDENCY(Plugin1);
+///
+/// That instructs the ezPlugin system to make sure that Plugin1 gets loaded and initialized before Plugin2 is initialized.
+#define EZ_PLUGIN_DEPENDENCY(PluginName) \
+  ezPlugin::Init EZ_CONCAT(EZ_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
+
+/// \brief Creates a function that is executed when the plugin gets loaded.
+///
+/// Just insert EZ_PLUGIN_ON_LOADED() { /* function body */ } into a CPP file of a plugin to add a function that is called
+/// right after the plugin got loaded.
+/// If the plugin has depenencies (set via EZ_PLUGIN_DEPENDENCY()), it is guaranteed that all ON_LOADED functions of the
+/// dependencies are called first.
+/// If there are multiple such functions defined within the same DLL, there is no guarantee in which order they are called.
+#define EZ_PLUGIN_ON_LOADED()                                \
+  static void plugin_OnLoaded();                             \
+  ezPlugin::Init plugin_OnLoadedInit(plugin_OnLoaded, true); \
+  static void plugin_OnLoaded()
+
+/// \brief Creates a function that is executed when the plugin gets unloaded.
+///
+/// This is typically the case when the application shuts down.
+///
+/// Just insert EZ_PLUGIN_ON_UNLOADED() { /* function body */ } into a CPP file of a plugin to add a function that is called
+/// right before the plugin gets unloaded.
+/// ON_UNLOADED function calls across DLLs are done in reverse order to the ON_LOADED function calls.
+/// If there are multiple such functions defined within the same DLL, there is no guarantee in which order they are called.
+#define EZ_PLUGIN_ON_UNLOADED()                                   \
+  static void plugin_OnUnloaded();                                \
+  ezPlugin::Init plugin_OnUnloadedInit(plugin_OnUnloaded, false); \
+  static void plugin_OnUnloaded()

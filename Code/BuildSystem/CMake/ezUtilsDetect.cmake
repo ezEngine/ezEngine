@@ -4,33 +4,26 @@
 
 function(ez_detect_project_name OUT_NAME)
 
-	set (DETECTED_NAME "ezEngine")
-	
 	# unfortunately this has to be known before the PROJECT command, 
 	# but platform and compiler settings are only detected by CMake AFTER the project command
 	# CMAKE_GENERATOR is the only value available before that, so we have to regex this a bit to
 	# generate a useful name
 	# thus, only VS solutions currently get nice names
 
-	if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
+	cmake_path(IS_PREFIX CMAKE_SOURCE_DIR ${CMAKE_BINARY_DIR} NORMALIZE IS_IN_SOURCE_BUILD)
 
-		set (DETECTED_NAME "ezVs")
-		
-		if (${CMAKE_GENERATOR} MATCHES "Visual Studio 15")
-			set (DETECTED_NAME "${DETECTED_NAME}2017")
-		elseif (${CMAKE_GENERATOR} MATCHES "Visual Studio 16")
-			set (DETECTED_NAME "${DETECTED_NAME}2019")
-		endif()
+	get_filename_component(NAME_REPO ${CMAKE_SOURCE_DIR} NAME)
+	get_filename_component(NAME_DEST ${CMAKE_BINARY_DIR} NAME)
 
-		if (${CMAKE_GENERATOR} MATCHES "64$")
-			set (DETECTED_NAME "${DETECTED_NAME}x64")
-		elseif (${CMAKE_GENERATOR} MATCHES "32$")
-			set (DETECTED_NAME "${DETECTED_NAME}x32")
-		endif()
-		
+	set (DETECTED_NAME "${NAME_REPO}")
+
+	if (NOT ${NAME_REPO} STREQUAL ${NAME_DEST})
+		set (DETECTED_NAME "${DETECTED_NAME}_${NAME_DEST}")
 	endif()
 
 	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
+	
+	message(STATUS "Auto-detected solution name: ${DETECTED_NAME} (Generator = ${CMAKE_GENERATOR})")
 
 endfunction()
 
@@ -62,6 +55,8 @@ function(ez_detect_platform)
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows") # Desktop Windows
 	
 	  message (STATUS "Platform is Windows (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)")
+	  message (STATUS "CMAKE_SYSTEM_VERSION is ${CMAKE_SYSTEM_VERSION}")
+	  message (STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION is ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
 	  
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP ON)
@@ -310,7 +305,7 @@ function(ez_detect_compiler_and_architecture)
 	set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 	try_compile(COMPILE_RESULT
 		${CMAKE_CURRENT_BINARY_DIR}
-		${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/ProbingSrc/ArchitectureDetect.c
+		${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/CMake/ProbingSrc/ArchitectureDetect.c
 		OUTPUT_VARIABLE COMPILE_OUTPUT
 	)
 	if(NOT COMPILE_RESULT)
@@ -391,34 +386,34 @@ function(ez_detect_compiler_and_architecture)
 	
 	if(EZ_DETECTED_ARCH STREQUAL "x86")
 	
-	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  message (STATUS "Architecture is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
 	  
-	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+	  message (STATUS "Architecture is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "x64")
 	
-	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  message (STATUS "Architecture is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
 	  
-	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+	  message (STATUS "Architecture is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "arm32")
 	
-	  message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+	  message (STATUS "Architecture is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
       set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
 	  
-	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+	  message (STATUS "Architecture is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "arm64")
 	
-	  message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+	  message (STATUS "Architecture is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
       set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
 	  
-	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+	  message (STATUS "Architecture is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 	  
 	else()
@@ -476,8 +471,78 @@ macro(ez_pull_all_vars)
 
 	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
+	ez_pull_version()
 	ez_pull_compiler_and_architecture_vars()
 	ez_pull_generator_vars()
 	ez_pull_platform_vars()
+
+endmacro()
+
+######################################
+### ez_get_version(<VERSIONFILE> <OUT_MAJOR> <OUT_MINOR> <OUT_PATCH>)
+######################################
+
+function(ez_get_version VERSIONFILE OUT_MAJOR OUT_MINOR OUT_PATCH)
+
+	file(READ ${VERSIONFILE} VERSION_STRING)
+
+	string(STRIP ${VERSION_STRING} VERSION_STRING)
+
+	if ( VERSION_STRING MATCHES "([0-9]+).([0-9]+).([0-9+])" )
+
+		STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" VERSION_MAJOR "${VERSION_STRING}")
+		STRING(REGEX REPLACE "^[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" VERSION_MINOR "${VERSION_STRING}")
+		STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" VERSION_PATCH "${VERSION_STRING}")
+
+		string(STRIP ${VERSION_MAJOR} VERSION_MAJOR)
+		string(STRIP ${VERSION_MINOR} VERSION_MINOR)
+		string(STRIP ${VERSION_PATCH} VERSION_PATCH)
+
+		set(${OUT_MAJOR} ${VERSION_MAJOR} PARENT_SCOPE)
+		set(${OUT_MINOR} ${VERSION_MINOR} PARENT_SCOPE)
+		set(${OUT_PATCH} ${VERSION_PATCH} PARENT_SCOPE)
+
+	else()
+		message (FATAL_ERROR "Invalid version string '${VERSION_STRING}'")
+	endif()
+
+endfunction()
+######################################
+### ez_detect_version()
+######################################
+
+function(ez_detect_version)
+
+	get_property(VERSION_MAJOR GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MAJOR)
+	get_property(VERSION_MINOR GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MINOR)
+	get_property(VERSION_PATCH GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_PATCH)
+		
+	if (VERSION_MAJOR OR VERSION_MINOR OR VERSION_PATCH)
+		# has already run before and EZ_CMAKE_SDKVERSION_MAJOR is already set
+		return()
+	endif()
+
+	ez_get_version("${CMAKE_SOURCE_DIR}/version.txt" VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+
+	set_property(GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MAJOR "${VERSION_MAJOR}")
+	set_property(GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MINOR "${VERSION_MINOR}")
+	set_property(GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_PATCH "${VERSION_PATCH}")
+
+	message(STATUS "SDK version: Major = '${VERSION_MAJOR}', Minor = '${VERSION_MINOR}', Patch = '${VERSION_PATCH}'")
+
+endfunction()
+
+
+######################################
+### ez_pull_version()
+######################################
+
+macro(ez_pull_version)
+
+	ez_detect_version()
+
+	get_property(EZ_CMAKE_SDKVERSION_MAJOR GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MAJOR)
+	get_property(EZ_CMAKE_SDKVERSION_MINOR GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MINOR)
+	get_property(EZ_CMAKE_SDKVERSION_PATCH GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_PATCH)
 
 endmacro()

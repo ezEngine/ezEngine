@@ -36,7 +36,7 @@ public:
   void Lock();
 
   /// \brief Tries to lock the internal mutex. Recursive locking is allowed.
-  bool TryLock();
+  ezResult TryLock();
 
   /// \brief Unlocks the internal mutex. Must be called as often as it was locked.
   void Unlock();

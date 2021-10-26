@@ -1,4 +1,4 @@
-#include <RtsGamePluginPCH.h>
+#include <RtsGamePlugin/RtsGamePluginPCH.h>
 
 #include <RtsGamePlugin/AI/GuardLocationUtility.h>
 #include <RtsGamePlugin/Components/UnitComponent.h>

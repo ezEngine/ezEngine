@@ -1,4 +1,4 @@
-#include <SharedPluginScenePCH.h>
+#include <SharedPluginScene/SharedPluginScenePCH.h>
 
 #include <SharedPluginScene/Common/Messages.h>
 
@@ -45,6 +45,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPushObjectStateData, ezNoBase, 1, ezRTTIDefault
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("LayerGuid", m_LayerGuid),
     EZ_MEMBER_PROPERTY("Guid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("Pos", m_vPosition),
     EZ_MEMBER_PROPERTY("Rot", m_qRotation)
@@ -63,4 +64,23 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPushObjectStateMsgToEditor, 1, ezRTTIDefaultAl
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActiveLayerChangedMsgToEngine, 1, ezRTTIDefaultAllocator<ezActiveLayerChangedMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ActiveLayer", m_ActiveLayer),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerVisibilityChangedMsgToEngine, 1, ezRTTIDefaultAllocator<ezLayerVisibilityChangedMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("HiddenLayers", m_HiddenLayers),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

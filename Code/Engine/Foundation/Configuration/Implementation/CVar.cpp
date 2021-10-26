@@ -1,4 +1,4 @@
-#include <FoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
@@ -25,7 +25,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezCVar::PluginEventHandler);
+    ezPlugin::Events().AddEventHandler(ezCVar::PluginEventHandler);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -36,7 +36,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     // if it succeeds, the most recent state will be serialized though
     ezCVar::SaveCVars();
 
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezCVar::PluginEventHandler);
+    ezPlugin::Events().RemoveEventHandler(ezCVar::PluginEventHandler);
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
@@ -86,8 +86,7 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new CVars and assign them to that new plugin
-      if (EventData.m_pPluginObject)
-        AssignSubSystemPlugin(EventData.m_pPluginObject->GetPluginName());
+      AssignSubSystemPlugin(EventData.m_szPluginBinary);
 
       // now load the state of all CVars
       LoadCVars();

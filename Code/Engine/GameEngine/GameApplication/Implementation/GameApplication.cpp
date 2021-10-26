@@ -1,9 +1,9 @@
-#include <GameEnginePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ActorSystem/ActorManager.h>
 #include <Core/ActorSystem/ActorPluginWindow.h>
-#include <Core/Console/Console.h>
+#include <Core/Console/QuakeConsole.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
@@ -31,8 +31,8 @@
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 
-ezCVarBool CVarEnableVSync("g_VSync", false, ezCVarFlags::Save, "Enables V-Sync");
-ezCVarBool CVarShowFPS("g_ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
+ezCVarBool cvar_AppVSync("App.VSync", false, ezCVarFlags::Save, "Enables V-Sync");
+ezCVarBool cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
 ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
   : ezGameApplicationBase(szAppName)
@@ -44,7 +44,8 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
 
-  m_pConsole = EZ_DEFAULT_NEW(ezConsole);
+  m_pConsole = EZ_DEFAULT_NEW(ezQuakeConsole);
+  ezConsole::SetMainConsole(m_pConsole.Borrow());
 }
 
 ezGameApplication::~ezGameApplication()
@@ -159,7 +160,7 @@ void ezGameApplication::Run_Present()
         ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
       }
 
-      pOutput->Present(CVarEnableVSync);
+      pOutput->Present(cvar_AppVSync);
     }
   }
 }
@@ -248,16 +249,11 @@ void ezGameApplication::RenderFps()
     uiFrames = 0;
   }
 
-  if (CVarShowFPS)
+  if (cvar_AppShowFPS)
   {
-    if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
+    if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
     {
-      ezStringBuilder sFps;
-      sFps.Format("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4));
-
-      ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
-
-      ezDebugRenderer::Draw2DText(pView->GetHandle(), sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
+      ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugRenderer::ScreenPlacement::BottomLeft, "FPS", ezFmt("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4)));
     }
   }
 }
@@ -305,11 +301,10 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText.GetData(), ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.GetColor());
     }
 
-    ezStringView sInputLine(m_pConsole->GetInputLine());
-    ezDebugRenderer::Draw2DText(hView, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
+    ezDebugRenderer::Draw2DText(hView, m_pConsole->GetInputLine(), ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
 
     if (ezMath::Fraction(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds()) > 0.5)
     {
@@ -387,7 +382,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szShowFpsAction) == ezKeyState::Pressed)
   {
-    CVarShowFPS = !CVarShowFPS;
+    cvar_AppShowFPS = !cvar_AppShowFPS;
   }
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szReloadResourcesAction) == ezKeyState::Pressed)

@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/VarianceTypes.h>
@@ -995,8 +995,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject inline")
   {
-    ezVarianceTypeAngle value = {0.1f, ezAngle::Degree(90.0f)};
-    ezVarianceTypeAngle value2 = {0.2f, ezAngle::Degree(90.0f)};
+    // ezAngle::Degree(90.0f) was replaced with radian as release builds generate a different float then debug.
+    ezVarianceTypeAngle value = {0.1f, ezAngle::Radian(1.57079637f)};
+    ezVarianceTypeAngle value2 = {0.2f, ezAngle::Radian(1.57079637f)};
 
     ezVariant v(value);
     TestVariant<ezVarianceTypeAngle>(v, ezVariantType::TypedObject);
@@ -1019,7 +1020,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezUInt64 uiHash = v.ComputeHash(0);
     EZ_TEST_INT(uiHash, 13667342936068485827ul);
 
-    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::Degree(90.0f)});
+    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::Radian(1.57079637f)});
     ezVariant copy;
     copy.CopyTypedObject(pTypedAngle, ezGetStaticRTTI<ezVarianceTypeAngle>());
     ezVariant move;

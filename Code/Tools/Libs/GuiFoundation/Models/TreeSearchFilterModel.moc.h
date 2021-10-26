@@ -29,3 +29,4 @@ protected:
   QString m_sFilterText;
   ezMap<QModelIndex, bool> m_Visible;
 };
+

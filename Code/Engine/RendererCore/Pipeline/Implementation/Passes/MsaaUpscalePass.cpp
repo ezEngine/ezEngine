@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/Passes/MsaaUpscalePass.h>
 #include <RendererCore/Pipeline/View.h>

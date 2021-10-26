@@ -1,4 +1,4 @@
-#include <RtsGamePluginPCH.h>
+#include <RtsGamePlugin/RtsGamePluginPCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/Utils/Blackboard.h>

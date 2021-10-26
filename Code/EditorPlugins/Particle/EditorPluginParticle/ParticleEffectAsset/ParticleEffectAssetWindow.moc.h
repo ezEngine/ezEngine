@@ -62,3 +62,4 @@ private:
   ezString m_sSelectedSystem;
   ezMap<ezString, ezDocumentObject*> m_ParticleSystems;
 };
+

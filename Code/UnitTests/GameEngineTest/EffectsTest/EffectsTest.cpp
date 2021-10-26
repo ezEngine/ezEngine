@@ -1,4 +1,4 @@
-#include <GameEngineTestPCH.h>
+#include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "EffectsTest.h"
 #include <Core/WorldSerializer/WorldReader.h>
@@ -22,6 +22,7 @@ void ezGameEngineTestEffects::SetupSubTests()
 {
   AddSubTest("Decals", SubTests::Decals);
   AddSubTest("Heightfield", SubTests::Heightfield);
+  AddSubTest("WindClothRopes", SubTests::WindClothRopes);
 }
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
@@ -50,6 +51,15 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_SUCCESS;
   }
 
+  if (iIdentifier == SubTests::WindClothRopes)
+  {
+    m_ImgCompFrames.PushBack(20);
+    m_ImgCompFrames.PushBack(100);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
+
   return EZ_FAILURE;
 }
 
@@ -62,7 +72,7 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
 
   if (m_ImgCompFrames[m_iImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_iImgCompIdx, 250);
+    EZ_TEST_IMAGE(m_iImgCompIdx, iIdentifier == SubTests::WindClothRopes ? 400 : 250);
     ++m_iImgCompIdx;
 
     if (m_iImgCompIdx >= m_ImgCompFrames.GetCount())

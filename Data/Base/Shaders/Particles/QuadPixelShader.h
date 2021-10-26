@@ -24,9 +24,8 @@ float4 main(PS_IN Input) : SV_Target
 
   float opacity = Input.Color0.a * texCol.a * proximityFadeOut;
 
-
   #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
-    if (opacity == 0.0)
+    if (opacity <= 0.01)
     {
       discard;
     }
@@ -46,11 +45,13 @@ float4 main(PS_IN Input) : SV_Target
       finalColor = ApplyFog(finalColor, Input.FogAmount);
     #endif
 
-    if (opacity == 0.0)
+    if (opacity <= 0.01)
     {
       discard;
+      return float4(1, 0, 1, 1);
     }
 
+    //return float4(opacity, opacity, opacity, 1);
     return float4(finalColor, opacity);
 
   #endif

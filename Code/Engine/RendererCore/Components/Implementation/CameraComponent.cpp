@@ -1,4 +1,4 @@
-#include <RendererCorePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -49,7 +49,7 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
       continue;
     }
 
-    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint()))
+    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint(), ezCameraUsageHint::None, GetWorld()))
     {
       pCameraComponent->ApplySettingsToView(pView);
     }
@@ -68,6 +68,17 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
     }
 
     pCameraComponent->UpdateRenderTargetCamera();
+  }
+
+  for (auto it = GetComponents(); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndInitialized() && it->m_bShowStats && it->GetUsageHint() == ezCameraUsageHint::MainView)
+    {
+      if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
+      {
+        it->ShowStats(pView);
+      }
+    }
   }
 }
 
@@ -138,7 +149,7 @@ void ezCameraComponentManager::OnCameraConfigsChanged(void* dummy)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 9, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 10, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -212,6 +223,9 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // Version 8
   s << m_sRenderPipeline;
+
+  // Version 10
+  s << m_bShowStats;
 }
 
 void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
@@ -273,6 +287,11 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_sRenderPipeline;
   }
 
+  if (uiVersion >= 10)
+  {
+    s >> m_bShowStats;
+  }
+
   MarkAsModified();
 }
 
@@ -301,6 +320,41 @@ void ezCameraComponent::UpdateRenderTargetCamera()
 
   m_RenderTargetCamera.LookAt(
     GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(), GetOwner()->GetGlobalDirUp());
+}
+
+void ezCameraComponent::ShowStats(ezView* pView)
+{
+  if (!m_bShowStats)
+    return;
+
+  // draw stats
+  {
+    const char* szName = GetOwner()->GetName();
+
+    ezStringBuilder sb;
+    sb.Format("Camera '{0}':\nEV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
+    ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugRenderer::ScreenPlacement::TopLeft, "CamStats", sb, ezColor::White);
+  }
+
+  // draw frustum
+  {
+    const ezGameObject* pOwner = GetOwner();
+    ezVec3 vPosition = pOwner->GetGlobalPosition();
+    ezVec3 vForward = pOwner->GetGlobalDirForwards();
+    ezVec3 vUp = pOwner->GetGlobalDirUp();
+
+    const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(vPosition, vPosition + vForward, vUp);
+
+    ezMat4 projectionMatrix = pView->GetProjectionMatrix(ezCameraEye::Left); // todo: Stereo support
+    ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+
+    ezFrustum frustum;
+    frustum.SetFrustum(viewProjectionMatrix);
+
+    // TODO: limit far plane to 10 meters
+
+    ezDebugRenderer::DrawLineFrustum(GetWorld(), frustum, ezColor::LimeGreen);
+  }
 }
 
 void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
@@ -515,39 +569,6 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
   pView->m_ExcludeTags.Set(tagEditor);
 
-  if (m_bShowStats)
-  {
-    // draw stats
-    {
-      const char* szName = GetOwner()->GetName();
-
-      ezStringBuilder sb;
-      sb.Format(
-        "Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
-      ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
-    }
-
-    // draw frustum
-    {
-      const ezGameObject* pOwner = GetOwner();
-      ezVec3 vPosition = pOwner->GetGlobalPosition();
-      ezVec3 vForward = pOwner->GetGlobalDirForwards();
-      ezVec3 vUp = pOwner->GetGlobalDirUp();
-
-      const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(vPosition, vPosition + vForward, vUp);
-
-      ezMat4 projectionMatrix = pView->GetProjectionMatrix(ezCameraEye::Left); // todo: Stereo support
-      ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
-
-      ezFrustum frustum;
-      frustum.SetFrustum(viewProjectionMatrix);
-
-      // TODO: limit far plane to 10 meters
-
-      ezDebugRenderer::DrawLineFrustum(GetWorld(), frustum, ezColor::LimeGreen);
-    }
-  }
-
   if (m_hCachedRenderPipeline.IsValid())
   {
     pView->SetRenderPipelineResource(m_hCachedRenderPipeline);
@@ -703,8 +724,8 @@ void ezCameraComponent::OnDeactivated()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezCameraComponentPatch_4_5 : public ezGraphPatch
 {

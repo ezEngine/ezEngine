@@ -26,6 +26,7 @@ private Q_SLOTS:
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
+  static void ProcessTelemetryConsole(void* pUnuseed);
 
   void ResetStats();
 
@@ -39,3 +40,4 @@ private:
   ezMap<ezString, ezCVarWidgetData> m_CVars;
   ezMap<ezString, ezCVarWidgetData> m_CVarsBackup;
 };
+

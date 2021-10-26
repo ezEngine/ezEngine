@@ -1,4 +1,4 @@
-#include <RecastPluginPCH.h>
+#include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <RecastPlugin/RecastInterface.h>
@@ -30,7 +30,3 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Recast, RecastPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-ezPlugin g_Plugin(false);

@@ -1,4 +1,4 @@
-#include <GuiFoundationPCH.h>
+#include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -171,11 +171,11 @@ void ezHelpActions::Execute(const ezVariant& value)
 {
   if (m_ButtonType == ButtonType::OpenDocumentation)
   {
-    QDesktopServices::openUrl(QUrl("http://ezengine.net"));
+    QDesktopServices::openUrl(QUrl("https://ezengine.net"));
   }
   if (m_ButtonType == ButtonType::OpenReleaseNotes)
   {
-    QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/releases/releases.html"));
+    QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/releases"));
   }
   if (m_ButtonType == ButtonType::ReportProblem)
   {

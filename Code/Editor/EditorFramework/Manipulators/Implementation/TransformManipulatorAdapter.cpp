@@ -1,4 +1,4 @@
-#include <EditorFrameworkPCH.h>
+#include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
@@ -10,7 +10,7 @@ ezTransformManipulatorAdapter::~ezTransformManipulatorAdapter() {}
 
 void ezTransformManipulatorAdapter::Finalize()
 {
-  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
   auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
 
@@ -22,13 +22,29 @@ void ezTransformManipulatorAdapter::Finalize()
   m_ScaleGizmo.SetTransformation(GetObjectTransform());
 
   const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+
+  if (!pAttr->GetTranslateProperty().IsEmpty())
+  {
+    m_bHideTranslate = GetProperty(pAttr->GetTranslateProperty())->GetFlags().IsSet(ezPropertyFlags::ReadOnly);
+  }
+
+  if (!pAttr->GetRotateProperty().IsEmpty())
+  {
+    m_bHideRotate = GetProperty(pAttr->GetRotateProperty())->GetFlags().IsSet(ezPropertyFlags::ReadOnly);
+  }
+
+  if (!pAttr->GetScaleProperty().IsEmpty())
+  {
+    m_bHideScale = GetProperty(pAttr->GetScaleProperty())->GetFlags().IsSet(ezPropertyFlags::ReadOnly);
+  }
 
   m_TranslateGizmo.SetOwner(pEngineWindow, nullptr);
-  m_TranslateGizmo.SetVisible(m_bManipulatorIsVisible);
+  m_TranslateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideTranslate);
   m_RotateGizmo.SetOwner(pEngineWindow, nullptr);
-  m_RotateGizmo.SetVisible(m_bManipulatorIsVisible && !pAttr->GetRotateProperty().IsEmpty());
+  m_RotateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideRotate);
   m_ScaleGizmo.SetOwner(pEngineWindow, nullptr);
-  m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !pAttr->GetScaleProperty().IsEmpty());
+  m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideScale);
 
   m_TranslateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTransformManipulatorAdapter::GizmoEventHandler, this));
   m_RotateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTransformManipulatorAdapter::GizmoEventHandler, this));
@@ -91,9 +107,9 @@ void ezTransformManipulatorAdapter::UpdateGizmoTransform()
 {
   const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
 
-  m_TranslateGizmo.SetVisible(m_bManipulatorIsVisible);
-  m_RotateGizmo.SetVisible(m_bManipulatorIsVisible && !pAttr->GetRotateProperty().IsEmpty());
-  m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !pAttr->GetScaleProperty().IsEmpty());
+  m_TranslateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideTranslate);
+  m_RotateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideRotate);
+  m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideScale);
 
   const ezVec3 vPos = GetTranslation();
   const ezQuat vRot = GetRotation();

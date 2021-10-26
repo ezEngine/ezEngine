@@ -1,10 +1,10 @@
-#include <PhysXPluginPCH.h>
+#include <PhysXPlugin/PhysXPluginPCH.h>
 
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <extensions/PxRigidActorExt.h>
 
 using namespace physx;
@@ -60,12 +60,7 @@ void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) con
 
 void ezPxShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
-
-  auto& box = msg.m_pWorldGeometry->m_BoxShapes.ExpandAndGetRef();
-  box.m_vPosition = GetOwner()->GetGlobalPosition();
-  box.m_qRotation = GetOwner()->GetGlobalRotation();
-  box.m_vHalfExtents = m_vExtents.CompMul(vScale) * 0.5f;
+  msg.AddBox(GetOwner()->GetGlobalTransform(), m_vExtents);
 }
 
 void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)

@@ -1,4 +1,4 @@
-#include <TypeScriptPluginPCH.h>
+#include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
@@ -757,7 +757,7 @@ static int __CPP_GameObject_ChangeTags(duk_context* pDuk)
 
   if (uiMagic == 0) // SetTags
   {
-    pGameObject->GetTags().Clear();
+    pGameObject->SetTags(ezTagSet());
   }
 
   for (ezUInt32 i = 1; i < duk.GetNumVarArgFunctionParameters(); ++i)
@@ -770,11 +770,11 @@ static int __CPP_GameObject_ChangeTags(duk_context* pDuk)
       {
         case 0: // SetTags
         case 1: // AddTags
-          pGameObject->GetTags().SetByName(szParam);
+          pGameObject->SetTag(ezTagRegistry::GetGlobalRegistry().RegisterTag(szParam));
           break;
 
         case 2: // RemoveTags
-          pGameObject->GetTags().RemoveByName(szParam);
+          pGameObject->RemoveTag(ezTagRegistry::GetGlobalRegistry().RegisterTag(szParam));
           break;
 
         default:

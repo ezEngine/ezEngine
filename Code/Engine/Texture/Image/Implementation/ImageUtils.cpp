@@ -1,4 +1,4 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #include <Texture/Image/ImageUtils.h>
 
@@ -1517,6 +1517,46 @@ ezResult ezImageUtils::CreateVolumeTextureFromSingleFile(ezImage& dstImg, const 
   return EZ_SUCCESS;
 }
 
+ezColor ezImageUtils::NearestSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv)
+{
+  EZ_ASSERT_DEBUG(image.GetDepth() == 1 && image.GetNumFaces() == 1 && image.GetNumArrayIndices() == 1, "Only 2d images are supported");
+  EZ_ASSERT_DEBUG(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "Unsupported format");
+
+  return NearestSample(image.GetPixelPointer<ezColor>(), image.GetWidth(), image.GetHeight(), addressMode, uv);
+}
+
+ezColor ezImageUtils::NearestSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 uv)
+{
+  const ezInt32 w = uiWidth;
+  const ezInt32 h = uiHeight;
+
+  uv = uv.CompMul(ezVec2(static_cast<float>(w), static_cast<float>(h)));
+  const ezInt32 intX = (ezInt32)ezMath::Floor(uv.x);
+  const ezInt32 intY = (ezInt32)ezMath::Floor(uv.y);
+
+  ezInt32 x = intX;
+  ezInt32 y = intY;
+
+  if (addressMode == ezImageAddressMode::Clamp)
+  {
+    x = ezMath::Clamp(x, 0, w - 1);
+    y = ezMath::Clamp(y, 0, h - 1);
+  }
+  else if (addressMode == ezImageAddressMode::Repeat)
+  {
+    x = x % w;
+    x = x < 0 ? x + w : x;
+    y = y % h;
+    y = y < 0 ? y + w : y;
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return *(pPixelPointer + (y * w) + x);
+}
+
 ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv)
 {
   EZ_ASSERT_DEBUG(image.GetDepth() == 1 && image.GetNumFaces() == 1 && image.GetNumArrayIndices() == 1, "Only 2d images are supported");
@@ -1531,12 +1571,12 @@ ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezU
   ezInt32 h = uiHeight;
 
   uv = uv.CompMul(ezVec2(static_cast<float>(w), static_cast<float>(h))) - ezVec2(0.5f);
-  float floorX = ezMath::Floor(uv.x);
-  float floorY = ezMath::Floor(uv.y);
-  float fractionX = uv.x - floorX;
-  float fractionY = uv.y - floorY;
-  ezInt32 intX = (ezInt32)floorX;
-  ezInt32 intY = (ezInt32)floorY;
+  const float floorX = ezMath::Floor(uv.x);
+  const float floorY = ezMath::Floor(uv.y);
+  const float fractionX = uv.x - floorX;
+  const float fractionY = uv.y - floorY;
+  const ezInt32 intX = (ezInt32)floorX;
+  const ezInt32 intY = (ezInt32)floorY;
 
   ezColor c[4];
   for (ezUInt32 i = 0; i < 4; ++i)
@@ -1549,19 +1589,23 @@ ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezU
       x = ezMath::Clamp(x, 0, w - 1);
       y = ezMath::Clamp(y, 0, h - 1);
     }
-    else
+    else if (addressMode == ezImageAddressMode::Repeat)
     {
       x = x % w;
       x = x < 0 ? x + w : x;
       y = y % h;
       y = y < 0 ? y + w : y;
     }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
 
     c[i] = *(pData + (y * w) + x);
   }
 
-  ezColor cr0 = ezMath::Lerp(c[0], c[1], fractionX);
-  ezColor cr1 = ezMath::Lerp(c[2], c[3], fractionX);
+  const ezColor cr0 = ezMath::Lerp(c[0], c[1], fractionX);
+  const ezColor cr1 = ezMath::Lerp(c[2], c[3], fractionX);
 
   return ezMath::Lerp(cr0, cr1, fractionY);
 }

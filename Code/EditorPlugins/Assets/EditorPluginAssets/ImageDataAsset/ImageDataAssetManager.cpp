@@ -1,4 +1,4 @@
-#include <EditorPluginAssetsPCH.h>
+#include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetManager.h>
@@ -47,7 +47,7 @@ void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezImageDataAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezImageDataAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   ezImageDataAssetDocument* pDoc = new ezImageDataAssetDocument(szPath);
   out_pDocument = pDoc;

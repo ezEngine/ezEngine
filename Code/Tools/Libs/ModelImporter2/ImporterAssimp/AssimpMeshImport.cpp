@@ -1,4 +1,4 @@
-#include <ModelImporterPCH.h>
+#include <ModelImporter2/ModelImporterPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <ModelImporter2/ImporterAssimp/ImporterAssimp.h>
@@ -94,7 +94,7 @@ namespace ezModelImporter2
 
         ezUInt8* pBoneIndices8 = reinterpret_cast<ezUInt8*>(mb.GetVertexData(streams.uiBoneIdx, finalVertIdx).GetPtr());
         ezUInt16* pBoneIndices16 = reinterpret_cast<ezUInt16*>(mb.GetVertexData(streams.uiBoneIdx, finalVertIdx).GetPtr());
-        ezFloat16* pBoneWeights = reinterpret_cast<ezFloat16*>(mb.GetVertexData(streams.uiBoneWgt, finalVertIdx).GetPtr());
+        ezUInt8* pBoneWeights = reinterpret_cast<ezUInt8*>(mb.GetVertexData(streams.uiBoneWgt, finalVertIdx).GetPtr());
 
         ezUInt32 uiLeastWeightIdx = 0;
 
@@ -111,7 +111,7 @@ namespace ezModelImporter2
           // don't ever normalize bone weights, even if we drop bones
           // as that distorts the influence of the bones and breaks meshes
 
-          pBoneWeights[uiLeastWeightIdx] = weight.mWeight;
+          pBoneWeights[uiLeastWeightIdx] = ezMath::ColorFloatToByte(weight.mWeight);
 
           if (b8BitBoneIndices)
             pBoneIndices8[uiLeastWeightIdx] = static_cast<ezUInt8>(uiBoneIndex);
@@ -206,7 +206,7 @@ namespace ezModelImporter2
       else
         streams.uiBoneIdx = mb.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUShort);
 
-      streams.uiBoneWgt = mb.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAHalf);
+      streams.uiBoneWgt = mb.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAUByteNormalized);
     }
 
     bool bTexCoords1 = false;

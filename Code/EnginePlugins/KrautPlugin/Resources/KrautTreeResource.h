@@ -5,10 +5,10 @@
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <KrautPlugin/KrautDeclarations.h>
 
-typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
-typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
-typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
+using ezKrautTreeResourceHandle = ezTypedResourceHandle<class ezKrautTreeResource>;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDetails
 {

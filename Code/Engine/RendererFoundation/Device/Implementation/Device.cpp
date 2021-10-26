@@ -1,4 +1,4 @@
-#include <RendererFoundationPCH.h>
+#include <RendererFoundation/RendererFoundationPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -595,24 +595,24 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
 
 
 // Helper functions for buffers (for common, simple use cases)
-ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData)
+ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData, bool bDataIsMutable /*= false */)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
   desc.m_uiTotalSize = uiVertexSize * uiVertexCount;
   desc.m_BufferType = ezGALBufferType::VertexBuffer;
-  desc.m_ResourceAccess.m_bImmutable = !pInitialData.IsEmpty();
+  desc.m_ResourceAccess.m_bImmutable = !pInitialData.IsEmpty() && !bDataIsMutable;
 
   return CreateBuffer(desc, pInitialData);
 }
 
-ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
+ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData, bool bDataIsMutable /*= false*/)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiIndexCount;
   desc.m_BufferType = ezGALBufferType::IndexBuffer;
-  desc.m_ResourceAccess.m_bImmutable = !pInitialData.IsEmpty();
+  desc.m_ResourceAccess.m_bImmutable = !bDataIsMutable && !pInitialData.IsEmpty();
 
   return CreateBuffer(desc, pInitialData);
 }

@@ -1,8 +1,5 @@
-#ifdef EZ_THREADUTILS_WIN_INL_H_INCLUDED
-#  error "This file must not be included twice."
-#endif
-
-#define EZ_THREADUTILS_WIN_INL_H_INCLUDED
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 // Windows implementation of thread helper functions
 

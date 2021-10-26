@@ -9,9 +9,9 @@ class ezViewRedrawMsgToEngine;
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezEditorRenderPass;
-class ezSelectedObjectsExtractor;
+class ezSelectedObjectsExtractorBase;
 class ezSceneContext;
-typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 class ezViewMarqueePickingMsgToEngine;
 
 struct ObjectData
@@ -27,7 +27,10 @@ public:
   ~ezSceneViewContext();
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
+  virtual void SetupRenderTarget(ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight) override;
+
   bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  void SetInvisibleLayerTags(const ezArrayPtr<ezTag> removeTags, const ezArrayPtr<ezTag> addTags);
 
 protected:
   virtual void Redraw(bool bRenderEditorGizmos) override;

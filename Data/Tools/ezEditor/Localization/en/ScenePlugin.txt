@@ -93,38 +93,44 @@ Scene.Simulation.Speed.3;300%
 Scene.Simulation.Speed.4;400%
 Scene.Simulation.Speed.5;500%
 Scene.Simulation.Speed.10;1000%
+Layer.CreateLayer;Create Layer...
+Layer.DeleteLayer;Delete Layer
+Layer.SaveLayer;Save Layer
+Layer.SaveActiveLayer;Save Active Layer
+Layer.LayerLoaded;Layer Loaded
+Layer.LayerVisible;Layer Visible
 General;General
 Gameplay;Gameplay
 Rendering;Rendering
 Lighting;Lighting
 Settings;Settings
 Transform;Transform
-ezProjectileComponent;Projectile
-ezDecalComponent;Decal
-ezSpawnComponent;Spawn
-ezTimedDeathComponent;Timed Death
-ezInputComponent;Input
-ezPrefabReferenceComponent;Prefab Reference
-ezCameraComponent;Camera
-ezMeshComponent;Mesh
-ezAmbientLightComponent;Ambient Light
-ezDirectionalLightComponent;Directional Light
-ezSpotLightComponent;Spot Light
-ezPointLightComponent;Point Light
-ezSkyLightComponent;Sky Light
+ezProjectileComponent;Projectile;;https://ezengine.net/pages/docs/gameplay/projectile-component.html
+ezDecalComponent;Decal;;https://ezengine.net/pages/docs/effects/decals.html
+ezSpawnComponent;Spawn;;https://ezengine.net/pages/docs/gameplay/spawn-component.html
+ezTimedDeathComponent;Timed Death;;https://ezengine.net/pages/docs/gameplay/timed-death-component.html
+ezInputComponent;Input;;https://ezengine.net/pages/docs/input/input-component.html
+ezPrefabReferenceComponent;Prefab Reference;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
+ezCameraComponent;Camera;;https://ezengine.net/pages/docs/graphics/camera-component.html
+ezMeshComponent;Mesh;;https://ezengine.net/pages/docs/graphics/meshes/mesh-component.html
+ezAmbientLightComponent;Ambient Light;;https://ezengine.net/pages/docs/graphics/lighting/ambient-light-component.html
+ezDirectionalLightComponent;Directional Light;;https://ezengine.net/pages/docs/graphics/lighting/directional-light-component.html
+ezSpotLightComponent;Spot Light;;https://ezengine.net/pages/docs/graphics/lighting/spot-light-component.html
+ezPointLightComponent;Point Light;;https://ezengine.net/pages/docs/graphics/lighting/point-light-component.html
+ezSkyLightComponent;Sky Light;;https://ezengine.net/pages/docs/graphics/lighting/sky-light-component.html
 ezReflectionProbeMode::Static;Static
 ezReflectionProbeMode::Dynamic;Dynamic
-ezSkyBoxComponent;Sky Box
-ezFogComponent;Fog
-ezSpriteComponent;Sprite
-ezRotorComponent;Rotor
-ezHeadBoneComponent;Head Bone
-ezSliderComponent;Slider
-ezCollectionComponent;Collection
-ezLineToComponent;Draw Line To Object
-ezDebugTextComponent;Debug Text
-ezRenderTargetActivatorComponent;Render Target Activator
-ezAlwaysVisibleComponent;Always Visible
+ezSkyBoxComponent;Sky Box;;https://ezengine.net/pages/docs/effects/sky.html
+ezFogComponent;Fog;;https://ezengine.net/pages/docs/effects/fog.html
+ezSpriteComponent;Sprite;;https://ezengine.net/pages/docs/graphics/sprite-component.html
+ezRotorComponent;Rotor;;https://ezengine.net/pages/docs/animation/property-animation/rotor-component.html
+ezHeadBoneComponent;Head Bone;;https://ezengine.net/pages/docs/gameplay/headbone-component.html
+ezSliderComponent;Slider;;https://ezengine.net/pages/docs/animation/property-animation/slider-component.html
+ezCollectionComponent;Collection;;https://ezengine.net/pages/docs/performance/collection-component.html
+ezLineToComponent;Draw Line To Object;;https://ezengine.net/pages/docs/debugging/components/draw-line-component.html
+ezDebugTextComponent;Debug Text;;https://ezengine.net/pages/docs/debugging/components/debug-text-component.html
+ezRenderTargetActivatorComponent;Render Target Activator;;https://ezengine.net/pages/docs/graphics/render-to-texture/render-target-activator-component.html
+ezAlwaysVisibleComponent;Always Visible;;https://ezengine.net/pages/docs/graphics/always-visible-component.html
 Components;Components
 Materials;Materials
 Surfaces;Surfaces
@@ -151,8 +157,8 @@ ezOnComponentFinishedAction2::None;None
 ezOnComponentFinishedAction2::DeleteComponent;Delete Component
 ezOnComponentFinishedAction2::DeleteGameObject;Delete Object
 ezOnComponentFinishedAction2::Restart;Restart
-ezVisualScriptComponent;Visual Script
-ezAreaDamageComponent;Area Damage
+ezVisualScriptComponent;Visual Script;;https://ezengine.net/pages/docs/custom-code/visual-script/visual-script-overview.html
+ezAreaDamageComponent;Area Damage;;https://ezengine.net/pages/docs/gameplay/area-damage-component.html
 ezLogicOperator::Equal;=
 ezLogicOperator::Unequal;<>
 ezLogicOperator::Less;<
@@ -175,7 +181,7 @@ ezGreyBoxShape::StairsY;Stairs Y
 ezGreyBoxShape::ArchX;Arch X
 ezGreyBoxShape::ArchY;Arch Y
 ezGreyBoxShape::SpiralStairs;Spiral Stairs
-ezGreyBoxComponent;Grey Boxing
+ezGreyBoxComponent;Grey Boxing;;https://ezengine.net/pages/docs/scenes/greyboxing.html
 ezSpriteBlendMode::Masked;Masked
 ezSpriteBlendMode::Transparent;Transparent
 ezSpriteBlendMode::Additive;Additive
@@ -185,8 +191,8 @@ ezSrmRenderComponent;Visualize Surface Reconstruction Mesh
 ExposedProperties;Exposed Properties
 ezExposedSceneProperty;Exposed Property
 Parameters;Parameters
-ezSimpleWindComponent;Simple Wind
-ezAnimatedMeshComponent;Animated Mesh
+ezSimpleWindComponent;Simple Wind;;https://ezengine.net/pages/docs/effects/simple-wind-component.html
+ezAnimatedMeshComponent;Animated Mesh;;https://ezengine.net/pages/docs/animation/skeletal-animation/animated-mesh-component.html
 ezMotionMatchingComponent;Motion Matching
 Scene.Utils.Menu;Utilities
 Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ...
@@ -237,12 +243,12 @@ EditorShortcut;Editor Shortcut;Press ALT+Number to jump to this camera.
 Scene.CreateThumbnail;Create Scene Thumbnail
 Scene.GameMode.PlayFromHere;Play From Here
 Scene.GameObject.CreateEmptyHere;Create Empty Object Here
-ezPlayerStartPointComponent;Player Start Point
-ezInstancedMeshComponent;Instanced Mesh
-ezMarkerComponent;Marker
-ezRaycastComponent;Raycast Placement
-ezBeamComponent;Beam
-ezMoveToComponent;Move To
+ezPlayerStartPointComponent;Player Start Point;;https://ezengine.net/pages/docs/gameplay/player-start-point.html
+ezInstancedMeshComponent;Instanced Mesh;;https://ezengine.net/pages/docs/graphics/meshes/instanced-mesh-component.html
+ezMarkerComponent;Marker;;https://ezengine.net/pages/docs/gameplay/marker-component.html
+ezRaycastComponent;Raycast Placement;;https://ezengine.net/pages/docs/gameplay/raycast-placement-component.html
+ezBeamComponent;Beam;;https://ezengine.net/pages/docs/effects/beam-component.html
+ezMoveToComponent;Move To;;https://ezengine.net/pages/docs/animation/property-animation/move-to-component.html
 ezDeviceTrackingComponent;Device Tracking
 ezStageSpaceComponent;Stage Space
 ezXRDeviceType::HMD;HMD
@@ -272,17 +278,21 @@ ezXRStageSpace::Seated;Seated
 ezXRStageSpace::Standing;Standing
 InstanceData;Instance Data
 Scene.Render.PickTransparent;Select Transparent
-ezGrabbableItemComponent;Grabbable Item
+ezGrabbableItemComponent;Grabbable Item;;https://ezengine.net/pages/docs/gameplay/grabbable-item-component.html
 ezVisualizeHandComponent;Visualize Hand
-ezSimpleAnimationComponent;Simple Animation
-ezAnimationControllerComponent;Animation Controller
+ezSimpleAnimationComponent;Simple Animation;;https://ezengine.net/pages/docs/animation/skeletal-animation/simple-animation-component.html
+ezAnimationControllerComponent;Animation Controller;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-controller/animation-controller-component.html
 ezWindStrength::Calm;Calm
 ezWindStrength::LightBreeze;Light Breeze
 ezWindStrength::GentleBreeze;Gentle Breeze
 ezWindStrength::ModerateBreeze;Moderate Breeze
 ezWindStrength::StrongBreeze;Strong Breeze
 ezWindStrength::Storm;Storm
-ezBlackboardComponent;Blackboard
+ezWindStrength::WeakShockwave;Weak Shockwave
+ezWindStrength::MediumShockwave;Medium Shockwave
+ezWindStrength::StrongShockwave;Strong Shockwave
+ezWindStrength::ExtremeShockwave;Extreme Shockwave
+ezBlackboardComponent;Blackboard;;https://ezengine.net/pages/docs/Miscellaneous/blackboard-component.html
 ezBlackboardEntry;Entry
 ezBlackboardEntryFlags::Save;Save
 ezBlackboardEntryFlags::OnChangeEvent;OnChangeEvent
@@ -297,8 +307,8 @@ ezBlackboardEntryFlags::UserFlag7;UserFlag 7
 ezRootMotionMode::Ignore;Ignore
 ezRootMotionMode::ApplyToOwner;Apply To Owner
 ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg
-ezJointOverrideComponent;Joint Override Component
-ezHeightfieldComponent;Heightfield Component
+ezJointOverrideComponent;Joint Override Component;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-override-component.html
+ezHeightfieldComponent;Heightfield Component;;https://ezengine.net/pages/docs/terrain/heightfield-component.html
 ezRenderComponent;Render Component
 ezReflectionProbeMode::Static;Static
 ezReflectionProbeMode::Dynamic;Dynamic
@@ -376,3 +386,22 @@ DepthFade;Depth Fade
 Fresnel;Fresnel
 Refraction;Refraction
 SetColorMode;Set Color Mode
+ezBakedProbesComponent;Baked Probes
+ezBakedProbesVolumeComponent;Baked Probes Volume
+ezRopeRenderComponent;Rope Renderer;;https://ezengine.net/pages/docs/effects/rope-render-component.html
+ezFakeRopeComponent;Fake Rope Simulation;;https://ezengine.net/pages/docs/effects/fake-rope-component.html
+ezClothSheetComponent;Cloth Sheet;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
+ezWindVolumeSphereComponent;Sphere Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezWindVolumeCylinderComponent;Cylinder Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezWindVolumeConeComponent;Cone Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezWindVolumeCylinderMode::Directional;Directional
+ezWindVolumeCylinderMode::Vortex;Vortex
+ezClothSheetFlags::FixedCornerTopLeft;Corner: Top Left
+ezClothSheetFlags::FixedCornerTopRight;Corner: Top Right
+ezClothSheetFlags::FixedCornerBottomRight;Corner: Bottom Right
+ezClothSheetFlags::FixedCornerBottomLeft;Corner: Bottom Left
+ezClothSheetFlags::FixedEdgeTop;Edge: Top
+ezClothSheetFlags::FixedEdgeRight;Edge: Right
+ezClothSheetFlags::FixedEdgeBottom;Edge: Bottom
+ezClothSheetFlags::FixedEdgeLeft;Edge: Left
+ezClothSheetFlags::FixedEdgeLeft;Edge: Left
