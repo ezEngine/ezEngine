@@ -43,5 +43,6 @@ public:
 private:
   virtual ezStatus RemoveNode(ezQtNode* pNode) override;
 
+  bool m_bUpdatingDebugPin = false;
   ezQtProcGenPin* m_pDebugPin = nullptr;
 };
