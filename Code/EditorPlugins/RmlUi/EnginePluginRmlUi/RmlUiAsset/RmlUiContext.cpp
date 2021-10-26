@@ -56,6 +56,8 @@ void ezRmlUiContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 bool ezRmlUiContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
+  EZ_LOCK(m_pMainObject->GetWorld()->GetWriteMarker());
+
   m_pMainObject->UpdateLocalBounds();
   ezBoundingBoxSphere bounds = m_pMainObject->GetGlobalBounds();
 
