@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 #include <Foundation/Types/TagSet.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
-#include <ProcGenPlugin/VM/ExpressionAST.h>
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 
 class ezProcGenNodeBase : public ezReflectedClass

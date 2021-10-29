@@ -3,7 +3,6 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
-#include <ProcGenPlugin/VM/ExpressionVM.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
@@ -20,8 +19,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
     ezProcGenGraphResourceDescriptor desc;
     ezProcGenGraphResourceHandle hResource = ezResourceManager::CreateResource<ezProcGenGraphResource>("ProcGenGraphMissing", std::move(desc), "Fallback for missing ProcGen Graph Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezProcGenGraphResource>(hResource);
-
-    //ezExpressionVM::Test();
   }
 
   ON_CORESYSTEMS_SHUTDOWN

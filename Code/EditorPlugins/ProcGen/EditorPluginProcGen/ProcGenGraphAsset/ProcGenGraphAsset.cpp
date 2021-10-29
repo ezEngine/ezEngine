@@ -2,11 +2,11 @@
 
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionCompiler.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/DGMLWriter.h>
-#include <ProcGenPlugin/VM/ExpressionByteCode.h>
-#include <ProcGenPlugin/VM/ExpressionCompiler.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 

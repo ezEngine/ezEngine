@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
-#include <ProcGenPlugin/Declarations.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 
-class EZ_PROCGENPLUGIN_DLL ezExpressionByteCode
+class EZ_FOUNDATION_DLL ezExpressionByteCode
 {
 public:
   struct OpCode
@@ -26,8 +26,8 @@ public:
 
       Mov_R,
       Mov_C,
-      Mov_I,
-      Mov_O,
+      Load,
+      Store,
 
       LastUnary,
 
@@ -98,4 +98,4 @@ private:
   ezUInt32 m_uiNumTempRegisters;
 };
 
-#include <ProcGenPlugin/VM/Implementation/ExpressionByteCode_inl.h>
+#include <Foundation/CodeUtils/Expression/Implementation/ExpressionByteCode_inl.h>

@@ -1,7 +1,7 @@
 #include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <ProcGenPlugin/Declarations.h>
-#include <ProcGenPlugin/VM/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBinaryOperator, 1)

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Variant.h>
-#include <ProcGenPlugin/Declarations.h>
 
 class ezDGMLGraph;
 
-class EZ_PROCGENPLUGIN_DLL ezExpressionAST
+class EZ_FOUNDATION_DLL ezExpressionAST
 {
 public:
   struct NodeType

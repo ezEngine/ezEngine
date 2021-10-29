@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/CodeUtils/Expression/ExpressionVM.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <ProcGenPlugin/Declarations.h>
-#include <ProcGenPlugin/VM/ExpressionVM.h>
 
 class ezPhysicsWorldModuleInterface;
 class ezVolumeCollection;

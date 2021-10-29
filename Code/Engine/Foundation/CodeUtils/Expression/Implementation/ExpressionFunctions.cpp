@@ -1,9 +1,8 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Containers/HashTable.h>
 #include <Foundation/SimdMath/SimdNoise.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
+#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
 
 // static
 void ezDefaultExpressionFunctions::Random(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)

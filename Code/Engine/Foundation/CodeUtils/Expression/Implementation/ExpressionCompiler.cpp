@@ -1,7 +1,7 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
-#include <ProcGenPlugin/VM/ExpressionByteCode.h>
-#include <ProcGenPlugin/VM/ExpressionCompiler.h>
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionCompiler.h>
 
 namespace
 {
@@ -296,7 +296,7 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
         ++uiNextInputIndex;
       }
 
-      byteCode.PushBack(ezExpressionByteCode::OpCode::Mov_I);
+      byteCode.PushBack(ezExpressionByteCode::OpCode::Load);
       byteCode.PushBack(uiTargetRegister);
       byteCode.PushBack(uiInputIndex);
     }
@@ -313,7 +313,7 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
         ++uiNextOutputIndex;
       }
 
-      byteCode.PushBack(ezExpressionByteCode::OpCode::Mov_O);
+      byteCode.PushBack(ezExpressionByteCode::OpCode::Store);
       byteCode.PushBack(uiOutputIndex);
       byteCode.PushBack(m_NodeToRegisterIndex[pOutput->m_pExpression]);
     }

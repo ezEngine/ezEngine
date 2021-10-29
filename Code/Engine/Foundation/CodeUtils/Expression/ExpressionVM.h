@@ -1,13 +1,13 @@
 #pragma once
 
+#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
 
 class ezExpressionByteCode;
 
 namespace ezExpression
 {
-  struct Stream
+  struct EZ_FOUNDATION_DLL Stream
   {
     struct Type
     {
@@ -41,7 +41,7 @@ namespace ezExpression
     ezHashedString m_sName;
     ezArrayPtr<ezUInt8> m_Data;
     ezEnum<Type> m_Type;
-    ezUInt16 m_uiByteStride;
+    ezUInt32 m_uiByteStride;
   };
 
   template <typename T>
@@ -53,7 +53,7 @@ namespace ezExpression
   }
 } // namespace ezExpression
 
-class EZ_PROCGENPLUGIN_DLL ezExpressionVM
+class EZ_FOUNDATION_DLL ezExpressionVM
 {
 public:
   ezExpressionVM();

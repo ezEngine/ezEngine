@@ -1,7 +1,7 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Utilities/DGMLWriter.h>
-#include <ProcGenPlugin/VM/ExpressionAST.h>
+#include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 
 // static
 bool ezExpressionAST::NodeType::IsUnary(Enum nodeType)

@@ -1,8 +1,8 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/SimdMath/SimdMath.h>
-#include <ProcGenPlugin/VM/ExpressionByteCode.h>
-#include <ProcGenPlugin/VM/ExpressionVM.h>
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionVM.h>
 
 namespace
 {
@@ -429,11 +429,11 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
         VMOperation1_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
         break;
 
-      case ezExpressionByteCode::OpCode::Mov_I:
+      case ezExpressionByteCode::OpCode::Load:
         VMLoadInput(pByteCode, pRegisters, uiNumRegisters, inputs, m_InputMapping);
         break;
 
-      case ezExpressionByteCode::OpCode::Mov_O:
+      case ezExpressionByteCode::OpCode::Store:
         VMStoreOutput(pByteCode, pRegisters, uiNumRegisters, outputs, m_OutputMapping);
         break;
 

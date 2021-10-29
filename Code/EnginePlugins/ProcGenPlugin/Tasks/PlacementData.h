@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
 #include <ProcGenPlugin/Declarations.h>
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
 
 class ezPhysicsWorldModuleInterface;
 class ezVolumeCollection;

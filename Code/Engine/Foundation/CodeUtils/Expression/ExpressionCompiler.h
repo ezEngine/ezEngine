@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ProcGenPlugin/VM/ExpressionAST.h>
+#include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 
 class ezExpressionByteCode;
 
-class EZ_PROCGENPLUGIN_DLL ezExpressionCompiler
+class EZ_FOUNDATION_DLL ezExpressionCompiler
 {
 public:
   ezExpressionCompiler();

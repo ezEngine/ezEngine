@@ -1,8 +1,9 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <ProcGenPlugin/VM/ExpressionByteCode.h>
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
+#include <Foundation/Logging/Log.h>
 
 ezExpressionByteCode::ezExpressionByteCode()
   : m_uiNumInstructions(0)
@@ -29,8 +30,8 @@ namespace
 
     "Mov_R",
     "Mov_C",
-    "Mov_I",
-    "Mov_O",
+    "Load",
+    "Store",
 
     "",
 
@@ -112,11 +113,11 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
       }
       else
       {
-        if (opCode == OpCode::Mov_I)
+        if (opCode == OpCode::Load)
         {
           out_sDisassembly.AppendFormat("{0} r{1} i{2}({3})\n", szOpCode, r, x, m_Inputs[x]);
         }
-        else if (opCode == OpCode::Mov_O)
+        else if (opCode == OpCode::Store)
         {
           out_sDisassembly.AppendFormat("{0} o{1}({3}) r{2}\n", szOpCode, r, x, m_Outputs[r]);
         }
