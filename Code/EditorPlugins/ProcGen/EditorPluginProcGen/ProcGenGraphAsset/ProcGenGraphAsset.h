@@ -3,12 +3,7 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 
-class ezDocumentObjectConverterWriter;
-class ezProcGenNodeBase;
-class ezProcGen_PlacementOutput;
 class ezPin;
-
-class ezProcGenGraphSharedData;
 
 class ezProcGenGraphAssetDocument : public ezAssetDocument
 {
@@ -39,21 +34,12 @@ protected:
 private:
   friend class ezProcGenAction;
 
-  struct CachedNode
-  {
-    ezProcGenNodeBase* m_pPPNode = nullptr;
-  };
-
-  typedef ezHashTable<const ezDocumentObject*, CachedNode> NodeCache;
-
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
 
-  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
-    ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast,
-    ezProcGenNodeBase::GenerateASTContext& context) const;
+  struct GenerateContext;
 
-  ezExpressionAST::Node* GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
-    NodeCache& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const;
+  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName, GenerateContext& context, ezExpressionAST& out_Ast) const;
+  ezExpressionAST::Node* GenerateDebugExpressionAST(GenerateContext& context, ezExpressionAST& out_Ast) const;
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 
