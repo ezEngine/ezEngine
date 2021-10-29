@@ -99,7 +99,7 @@ namespace
   VM_INLINE float ReadInputData(const ezUInt8* pData) { return *reinterpret_cast<const float*>(pData); }
 
   void VMLoadInput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezUInt32> inputMapping)
+    ezArrayPtr<const ezProcessingStream> inputs, ezArrayPtr<ezUInt32> inputMapping)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -107,9 +107,9 @@ namespace
     ezUInt32 uiInputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode, 1);
     uiInputIndex = inputMapping[uiInputIndex];
     auto& input = inputs[uiInputIndex];
-    ezUInt32 uiByteStride = input.m_uiByteStride;
-    const ezUInt8* pInputData = input.m_Data.GetPtr();
-    const ezUInt8* pInputDataEnd = pInputData + input.m_Data.GetCount() - uiByteStride;
+    ezUInt32 uiByteStride = input.GetElementStride();
+    const ezUInt8* pInputData = input.GetData<ezUInt8>();
+    const ezUInt8* pInputDataEnd = pInputData + input.GetDataSize() - uiByteStride;
 
     while (r != re)
     {
@@ -134,14 +134,14 @@ namespace
   VM_INLINE void StoreOutputData(ezUInt8* pData, float fData) { *reinterpret_cast<float*>(pData) = fData; }
 
   void VMStoreOutput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    ezArrayPtr<ezExpression::Stream> outputs, ezArrayPtr<ezUInt32> outputMapping)
+    ezArrayPtr<ezProcessingStream> outputs, ezArrayPtr<ezUInt32> outputMapping)
   {
     ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode, 1);
     uiOutputIndex = outputMapping[uiOutputIndex];
     auto& output = outputs[uiOutputIndex];
-    ezUInt32 uiByteStride = output.m_uiByteStride;
-    ezUInt8* pOutputData = output.m_Data.GetPtr();
-    ezUInt8* pOutputDataEnd = pOutputData + output.m_Data.GetCount() - uiByteStride;
+    ezUInt32 uiByteStride = output.GetElementStride();
+    ezUInt8* pOutputData = output.GetWritableData<ezUInt8>();
+    ezUInt8* pOutputDataEnd = pOutputData + output.GetDataSize() - uiByteStride;
 
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -186,63 +186,6 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezExpression::Stream::Stream()
-  : m_Type(Type::Float)
-  , m_uiByteStride(0)
-{
-}
-
-ezExpression::Stream::Stream(const ezHashedString& sName, Type::Enum type, ezUInt32 uiByteStride)
-  : m_sName(sName)
-  , m_Type(type)
-  , m_uiByteStride(uiByteStride)
-{
-}
-
-ezExpression::Stream::Stream(const ezHashedString& sName, Type::Enum type, ezArrayPtr<ezUInt8> data, ezUInt32 uiByteStride)
-  : m_sName(sName)
-  , m_Data(data)
-  , m_Type(type)
-  , m_uiByteStride(uiByteStride)
-{
-}
-
-ezExpression::Stream::~Stream() = default;
-
-ezUInt32 ezExpression::Stream::GetElementSize() const
-{
-  switch (m_Type)
-  {
-    case Type::Float:
-      // case Type::Int:
-      return 4;
-      /*case Type::Float2:
-      case Type::Int2:
-        return 8;
-      case Type::Float3:
-      case Type::Int3:
-        return 12;
-      case Type::Float4:
-      case Type::Int4:
-        return 16;*/
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED
-  }
-
-  return 0;
-}
-
-void ezExpression::Stream::ValidateDataSize(ezUInt32 uiNumInstances, const char* szDataName) const
-{
-  ezUInt32 uiElementSize = GetElementSize();
-  ezUInt32 uiExpectedSize = m_uiByteStride * (uiNumInstances - 1) + uiElementSize;
-
-  EZ_ASSERT_DEV(m_Data.GetCount() >= uiExpectedSize, "{0} data size must be {1} bytes or more. Only {2} bytes given", szDataName, uiExpectedSize,
-    m_Data.GetCount());
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 ezExpressionVM::ezExpressionVM() = default;
 ezExpressionVM::~ezExpressionVM() = default;
 
@@ -265,8 +208,8 @@ void ezExpressionVM::RegisterDefaultFunctions()
   RegisterFunction("PerlinNoise", &ezDefaultExpressionFunctions::PerlinNoise);
 }
 
-ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs,
-  ezArrayPtr<ezExpression::Stream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData)
+ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs,
+  ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData)
 {
   // Input mapping
   {
@@ -281,9 +224,9 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
 
       for (ezUInt32 i = 0; i < inputs.GetCount(); ++i)
       {
-        if (inputs[i].m_sName == inputName)
+        if (inputs[i].GetName() == inputName)
         {
-          inputs[i].ValidateDataSize(uiNumInstances, "Input");
+          ValidateDataSize(inputs[i], uiNumInstances, "Input");
 
           m_InputMapping.PushBack(i);
           bInputFound = true;
@@ -312,9 +255,9 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
 
       for (ezUInt32 i = 0; i < outputs.GetCount(); ++i)
       {
-        if (outputs[i].m_sName == outputName)
+        if (outputs[i].GetName() == outputName)
         {
-          outputs[i].ValidateDataSize(uiNumInstances, "Output");
+          ValidateDataSize(outputs[i], uiNumInstances, "Output");
 
           m_OutputMapping.PushBack(i);
           bOutputFound = true;
@@ -504,4 +447,14 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
   }
 
   return EZ_SUCCESS;
+}
+
+void ezExpressionVM::ValidateDataSize(const ezProcessingStream& stream, ezUInt32 uiNumInstances, const char* szDataName) const
+{
+  EZ_ASSERT_DEV(stream.GetDataType() == ezProcessingStream::DataType::Float, "Only float stream are supported");
+
+  ezUInt32 uiElementSize = stream.GetElementSize();
+  ezUInt32 uiExpectedSize = stream.GetElementStride() * (uiNumInstances - 1) + uiElementSize;
+
+  EZ_ASSERT_DEV(stream.GetDataSize() >= uiExpectedSize, "{0} data size must be {1} bytes or more. Only {2} bytes given", szDataName, uiExpectedSize, stream.GetDataSize());
 }

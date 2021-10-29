@@ -26,6 +26,11 @@ namespace ezProcGenInternal
     void FindPlacementPoints();
     void ExecuteVM();
 
+    ezProcessingStream MakeInputStream(const ezHashedString& sName, ezUInt32 uiOffset)
+    {
+      return ezProcessingStream(sName, m_InputPoints.GetByteArrayPtr().GetSubArray(uiOffset), ezProcessingStream::DataType::Float, sizeof(PlacementPoint));
+    }
+
     PlacementData* m_pData = nullptr;
 
     ezDynamicArray<PlacementPoint, ezAlignedAllocatorWrapper> m_InputPoints;
