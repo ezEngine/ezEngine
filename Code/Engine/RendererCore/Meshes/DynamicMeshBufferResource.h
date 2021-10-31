@@ -62,9 +62,23 @@ public:
   EZ_ALWAYS_INLINE ezGALBufferHandle GetVertexBuffer() const { return m_hVertexBuffer; }
   EZ_ALWAYS_INLINE ezGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
 
-  ezArrayPtr<ezDynamicMeshVertex> AccessVertexData() { return m_VertexData; }
-  ezArrayPtr<ezUInt16> AccessIndex16Data() { return m_Index16Data; }
-  ezArrayPtr<ezUInt32> AccessIndex32Data() { return m_Index32Data; }
+  ezArrayPtr<ezDynamicMeshVertex> AccessVertexData()
+  {
+    m_bAccessedVB = true;
+    return m_VertexData;
+  }
+
+  ezArrayPtr<ezUInt16> AccessIndex16Data()
+  {
+    m_bAccessedIB = true;
+    return m_Index16Data;
+  }
+
+  ezArrayPtr<ezUInt32> AccessIndex32Data()
+  {
+    m_bAccessedIB = true;
+    return m_Index32Data;
+  }
 
   void SetTopology(ezGALPrimitiveTopology::Enum topology) { m_Descriptor.m_Topology = topology; }
   ezGALPrimitiveTopology::Enum GetTopology() const { return m_Descriptor.m_Topology; }
@@ -80,6 +94,9 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
+
+  bool m_bAccessedVB = false;
+  bool m_bAccessedIB = false;
 
   ezGALBufferHandle m_hVertexBuffer;
   ezGALBufferHandle m_hIndexBuffer;

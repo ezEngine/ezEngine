@@ -142,16 +142,19 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
 
 void ezDynamicMeshBufferResource::UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex, ezUInt32 uiNumVertices, ezUInt32 uiFirstIndex, ezUInt32 uiNumIndices, ezGALUpdateMode::Enum mode /*= ezGALUpdateMode::Discard*/)
 {
-  if (uiNumVertices > 0)
+  if (m_bAccessedVB && uiNumVertices > 0)
   {
     EZ_ASSERT_DEV(uiNumVertices <= m_VertexData.GetCount(), "Can't upload {} vertices, the buffer was allocated to hold a maximum of {} vertices.", uiNumVertices, m_VertexData.GetCount());
 
+    m_bAccessedVB = false;
 
     pGALCommandEncoder->UpdateBuffer(m_hVertexBuffer, sizeof(ezDynamicMeshVertex) * uiFirstVertex, m_VertexData.GetArrayPtr().GetSubArray(uiFirstVertex, uiNumVertices).ToByteArray(), mode);
   }
 
-  if (uiNumIndices > 0 && !m_hIndexBuffer.IsInvalidated())
+  if (m_bAccessedIB && uiNumIndices > 0 && !m_hIndexBuffer.IsInvalidated())
   {
+    m_bAccessedIB = false;
+
     if (!m_Index16Data.IsEmpty())
     {
       EZ_ASSERT_DEV(uiFirstIndex < m_Index16Data.GetCount(), "Invalid first index value {}", uiFirstIndex);
