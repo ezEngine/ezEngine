@@ -1,4 +1,6 @@
+set_property(GLOBAL PROPERTY "GATHER_EXPORT_PROJECTS" TRUE)
 ez_add_all_subdirs()
+set_property(GLOBAL PROPERTY "GATHER_EXPORT_PROJECTS" FALSE)
 
 execute_process(
 	COMMAND git rev-parse --short=12 HEAD

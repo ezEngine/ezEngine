@@ -56,3 +56,6 @@ if(NOT EZ_SUBMODULE_MODE)
 endif()
 
 ez_finalize_projects()
+
+get_property(EXPORT_PROJECTS GLOBAL PROPERTY "EXPORT_PROJECTS")
+export (TARGETS ${EXPORT_PROJECTS} FILE "export.cmake")
