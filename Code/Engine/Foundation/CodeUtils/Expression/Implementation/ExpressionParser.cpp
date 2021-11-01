@@ -5,7 +5,11 @@
 
 using namespace ezTokenParseUtils;
 
-ezExpressionParser::ezExpressionParser() = default;
+ezExpressionParser::ezExpressionParser()
+{
+  RegisterBuiltinFunctions();
+}
+
 ezExpressionParser::~ezExpressionParser() = default;
 
 ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs, ezExpressionAST& out_ast)
@@ -29,6 +33,23 @@ ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<Stream> inputs,
   EZ_SUCCEED_OR_RETURN(CheckOutputs());
 
   return EZ_SUCCESS;
+}
+
+void ezExpressionParser::RegisterBuiltinFunctions()
+{
+  // Unary
+  m_BuiltinFunctions.Insert(ezMakeHashedString("abs"), ezExpressionAST::NodeType::Absolute);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("sqrt"), ezExpressionAST::NodeType::Sqrt);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("sin"), ezExpressionAST::NodeType::Sin);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("cos"), ezExpressionAST::NodeType::Cos);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("tan"), ezExpressionAST::NodeType::Tan);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("asin"), ezExpressionAST::NodeType::ASin);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("acos"), ezExpressionAST::NodeType::ACos);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("atan"), ezExpressionAST::NodeType::ATan);
+
+  //Binary
+  m_BuiltinFunctions.Insert(ezMakeHashedString("min"), ezExpressionAST::NodeType::Min);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("max"), ezExpressionAST::NodeType::Max);
 }
 
 void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs)
@@ -84,8 +105,49 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
 
     if (Accept(m_TokenStream, m_uiCurrentToken, "("))
     {
-      // function call
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      ezHybridArray<ezExpressionAST::Node*, 8> arguments;
+      if (Accept(m_TokenStream, m_uiCurrentToken, ")") == false)
+      {
+        arguments.PushBack(ParseExpression());
+        while (Accept(m_TokenStream, m_uiCurrentToken, ","))
+        {
+          arguments.PushBack(ParseExpression());
+        }
+      }
+      if (Expect(")").Failed())
+        return nullptr;
+
+      ezHashedString sHashedFuncName;
+      sHashedFuncName.Assign(sIdentifier);
+
+      ezEnum<ezExpressionAST::NodeType> builtinType;
+      if (m_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
+      {
+        if (ezExpressionAST::NodeType::IsUnary(builtinType))
+        {
+          if (arguments.GetCount() != 1)
+          {
+            ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Invalid argument count for '{}'. Expected 1 but got {}", sIdentifier, arguments.GetCount()));
+            return nullptr;
+          }
+          return m_pAST->CreateUnaryOperator(builtinType, arguments[0]);
+        }
+        else if (ezExpressionAST::NodeType::IsBinary(builtinType))
+        {
+          if (arguments.GetCount() != 2)
+          {
+            ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Invalid argument count for '{}'. Expected 2 but got {}", sIdentifier, arguments.GetCount()));
+            return nullptr;
+          }
+          return m_pAST->CreateBinaryOperator(builtinType, arguments[0], arguments[1]);
+        }
+      }
+      else
+      {
+        auto pFunctionCall = m_pAST->CreateFunctionCall(sHashedFuncName);
+        pFunctionCall->m_Arguments = std::move(arguments);
+        return pFunctionCall;
+      }
     }
     else
     {
@@ -114,13 +176,12 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
     return pExpression;
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 }
 
 // Parsing the expression - recursive parser using "precedence climbing".
 // http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
-ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /*= 0*/)
+ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /* = s_iLowestPrecedence*/)
 {
   auto pExpression = ParseUnaryExpression();
   if (pExpression == nullptr)
@@ -128,7 +189,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /*= 0
 
   ezExpressionAST::NodeType::Enum binaryOp;
   int iBinaryOpPrecedence = 0;
-  while (AcceptBinaryOperator(binaryOp, iBinaryOpPrecedence) && iBinaryOpPrecedence >= iPrecedence)
+  while (AcceptBinaryOperator(binaryOp, iBinaryOpPrecedence) && iBinaryOpPrecedence <= iPrecedence)
   {
     // Consume token.
     ++m_uiCurrentToken;
@@ -160,9 +221,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseUnaryExpression()
 
 // Does NOT advance the current token beyond the binary operator!
 // Operator precedence according to https://en.cppreference.com/w/cpp/language/operator_precedence,
-// but inverted so that higher values mean higher precedence
-static constexpr int s_iMaxPrecedence = 20;
-
+// lower value means higher precedence
 bool ezExpressionParser::AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence)
 {
   SkipWhitespace(m_TokenStream, m_uiCurrentToken);
@@ -180,24 +239,24 @@ bool ezExpressionParser::AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& o
   {
     case '+':
       out_binaryOp = ezExpressionAST::NodeType::Add;
-      out_iOperatorPrecedence = s_iMaxPrecedence - 6;
+      out_iOperatorPrecedence = 6;
       break;
     case '-':
       out_binaryOp = ezExpressionAST::NodeType::Subtract;
-      out_iOperatorPrecedence = s_iMaxPrecedence - 6;
+      out_iOperatorPrecedence = 6;
       break;
     case '*':
       out_binaryOp = ezExpressionAST::NodeType::Multiply;
-      out_iOperatorPrecedence = s_iMaxPrecedence - 5;
+      out_iOperatorPrecedence = 5;
       break;
     case '/':
       out_binaryOp = ezExpressionAST::NodeType::Divide;
-      out_iOperatorPrecedence = s_iMaxPrecedence - 5;
+      out_iOperatorPrecedence = 5;
       break;
       // Currently not supported
       /*case '%':
       out_binaryOp = ezExpressionAST::NodeType::Modulo;
-      out_iOperatorPrecedence = s_iMaxPrecedence-5;
+      out_iOperatorPrecedence = 5;
       break;*/
 
     default:

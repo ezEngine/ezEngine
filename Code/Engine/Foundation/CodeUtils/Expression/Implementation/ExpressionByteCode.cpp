@@ -5,14 +5,6 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Logging/Log.h>
 
-ezExpressionByteCode::ezExpressionByteCode()
-  : m_uiNumInstructions(0)
-  , m_uiNumTempRegisters(0)
-{
-}
-
-ezExpressionByteCode::~ezExpressionByteCode() {}
-
 namespace
 {
   static const char* s_szOpCodeNames[] = {
@@ -59,6 +51,8 @@ namespace
     "",
 
     "Call",
+
+    "Nop",
   };
 
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szOpCodeNames) == ezExpressionByteCode::OpCode::Count, "OpCode name array size does not match OpCode type count");
@@ -69,6 +63,20 @@ namespace
            opCode == ezExpressionByteCode::OpCode::Min_CR || opCode == ezExpressionByteCode::OpCode::Max_CR;
   }
 } // namespace
+
+ezExpressionByteCode::ezExpressionByteCode() = default;
+ezExpressionByteCode::~ezExpressionByteCode() = default;
+
+void ezExpressionByteCode::Clear()
+{
+  m_ByteCode.Clear();
+  m_Inputs.Clear();
+  m_Outputs.Clear();
+  m_Functions.Clear();
+
+  m_uiNumInstructions = 0;
+  m_uiNumTempRegisters = 0;
+}
 
 void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
 {

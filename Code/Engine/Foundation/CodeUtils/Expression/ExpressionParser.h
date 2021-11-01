@@ -25,11 +25,14 @@ public:
   ezResult Parse(ezStringView code, ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs, ezExpressionAST& out_ast);
 
 private:
+  static constexpr int s_iLowestPrecedence = 20;
+
+  void RegisterBuiltinFunctions();
   void SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs);
   ezResult ParseAssignment();
   
   ezExpressionAST::Node* ParseFactor();
-  ezExpressionAST::Node* ParseExpression(int iPrecedence = 0);
+  ezExpressionAST::Node* ParseExpression(int iPrecedence = s_iLowestPrecedence);
   ezExpressionAST::Node* ParseUnaryExpression();
 
   bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence);
@@ -48,6 +51,7 @@ private:
   ezExpressionAST* m_pAST = nullptr;
 
   ezHashTable<ezHashedString, ezExpressionAST::Node*> m_KnownVariables;
+  ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>> m_BuiltinFunctions;
 };
 
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionParser_inl.h>

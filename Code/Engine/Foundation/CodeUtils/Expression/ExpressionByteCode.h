@@ -56,6 +56,8 @@ public:
 
       Call,
 
+      Nop,
+
       Count
     };
   };
@@ -64,6 +66,9 @@ public:
 
   ezExpressionByteCode();
   ~ezExpressionByteCode();
+
+  void Clear();
+  bool IsEmpty() const { return m_ByteCode.IsEmpty(); }
 
   const StorageType* GetByteCode() const;
   const StorageType* GetByteCodeEnd() const;
@@ -94,8 +99,8 @@ private:
   ezDynamicArray<ezHashedString> m_Outputs;
   ezDynamicArray<ezHashedString> m_Functions;
 
-  ezUInt32 m_uiNumInstructions;
-  ezUInt32 m_uiNumTempRegisters;
+  ezUInt32 m_uiNumInstructions = 0;
+  ezUInt32 m_uiNumTempRegisters = 0;
 };
 
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionByteCode_inl.h>

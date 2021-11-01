@@ -42,7 +42,7 @@ namespace
         return ezExpressionByteCode::OpCode::Max_RR;
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
-        return ezExpressionByteCode::OpCode::FirstUnary;
+        return ezExpressionByteCode::OpCode::Nop;
     }
   }
 } // namespace
@@ -52,6 +52,8 @@ ezExpressionCompiler::~ezExpressionCompiler() = default;
 
 ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode)
 {
+  out_byteCode.Clear();
+
   if (BuildNodeInstructions(ast).Failed())
     return EZ_FAILURE;
 
@@ -186,7 +188,8 @@ ezResult ezExpressionCompiler::AssignRegisters()
   // https://www2.seas.gwu.edu/~hchoi/teaching/cs160d/linearscan.pdf
 
   // Sort register lifetime by start index
-  m_LiveIntervals.Sort([](const LiveInterval& a, const LiveInterval& b) { return a.m_uiStart < b.m_uiStart; });
+  m_LiveIntervals.Sort([](const LiveInterval& a, const LiveInterval& b)
+    { return a.m_uiStart < b.m_uiStart; });
 
   // Assign registers
   ezHybridArray<LiveInterval, 64> activeIntervals;
@@ -248,8 +251,11 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     if (ezExpressionAST::NodeType::IsUnary(nodeType))
     {
       auto pUnary = static_cast<const ezExpressionAST::UnaryOperator*>(pCurrentNode);
+      auto opCode = NodeTypeToOpCode(nodeType);
+      if (opCode == ezExpressionByteCode::OpCode::Nop)
+        return EZ_FAILURE;
 
-      byteCode.PushBack(NodeTypeToOpCode(nodeType));
+      byteCode.PushBack(opCode);
       byteCode.PushBack(uiTargetRegister);
       byteCode.PushBack(m_NodeToRegisterIndex[pUnary->m_pOperand]);
     }
@@ -257,7 +263,10 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     {
       auto pBinary = static_cast<const ezExpressionAST::BinaryOperator*>(pCurrentNode);
       bool bLeftIsConstant = ezExpressionAST::NodeType::IsConstant(pBinary->m_pLeftOperand->m_Type);
-      ezExpressionByteCode::OpCode::Enum opCode = NodeTypeToOpCode(nodeType);
+      auto opCode = NodeTypeToOpCode(nodeType);
+      if (opCode == ezExpressionByteCode::OpCode::Nop)
+        return EZ_FAILURE;
+
       ezUInt32 uiConstantValue = 0;
 
       if (bLeftIsConstant)
