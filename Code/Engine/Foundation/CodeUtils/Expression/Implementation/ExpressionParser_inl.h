@@ -1,16 +1,39 @@
 
-inline ezResult ezExpressionParser::Expect(const char* szToken)
+inline ezResult ezExpressionParser::Expect(const char* szToken, const ezToken** pExpectedToken)
 {
-  if (ezTokenParseUtils::Accept(m_TokenStream, m_uiCurrentToken, szToken) == false)
+  ezUInt32 uiAcceptedToken = 0;
+  if (ezTokenParseUtils::Accept(m_TokenStream, m_uiCurrentToken, szToken, &uiAcceptedToken) == false)
   {
     auto pCurToken = m_TokenStream[m_uiCurrentToken];
     ReportError(pCurToken, ezFmt("Syntax error, expected {} but got {}", szToken, pCurToken->m_DataView));
     return EZ_FAILURE;
   }
 
+  if (pExpectedToken != nullptr)
+  {
+    *pExpectedToken = m_TokenStream[uiAcceptedToken];
+  }
+
   return EZ_SUCCESS;
 }
 
+inline ezResult ezExpressionParser::Expect(ezTokenType::Enum Type, const ezToken** pExpectedToken /*= nullptr*/)
+{
+  ezUInt32 uiAcceptedToken = 0;
+  if (ezTokenParseUtils::Accept(m_TokenStream, m_uiCurrentToken, Type, &uiAcceptedToken) == false)
+  {
+    auto pCurToken = m_TokenStream[m_uiCurrentToken];
+    ReportError(pCurToken, ezFmt("Syntax error, expected token type {} but got {}", ezTokenType::EnumNames[Type], ezTokenType::EnumNames[pCurToken->m_iType]));
+    return EZ_FAILURE;
+  }
+
+  if (pExpectedToken != nullptr)
+  {
+    *pExpectedToken = m_TokenStream[uiAcceptedToken];
+  }
+
+  return EZ_SUCCESS;
+}
 
 inline void ezExpressionParser::ReportError(const ezToken* pToken, const ezFormatString& message0)
 {

@@ -276,8 +276,8 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     }
     else if (ezExpressionAST::NodeType::IsConstant(nodeType))
     {
-      EZ_ASSERT_DEV(nodeType == ezExpressionAST::NodeType::FloatConstant, "Only floats are supported");
       auto pConstant = static_cast<const ezExpressionAST::Constant*>(pCurrentNode);
+      EZ_ASSERT_DEV(pConstant->m_Value.IsA<float>(), "Only floats are supported");
       float fValue = pConstant->m_Value.Get<float>();
 
       byteCode.PushBack(ezExpressionByteCode::OpCode::Mov_C);

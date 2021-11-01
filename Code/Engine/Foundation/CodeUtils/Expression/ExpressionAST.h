@@ -46,7 +46,7 @@ public:
       Select,
 
       // Constant
-      FloatConstant,
+      Constant,
 
       // Input
       Input,
@@ -94,6 +94,7 @@ public:
   struct Constant : public Node
   {
     ezVariant m_Value;
+    ezProcessingStream::DataType m_DataType;
   };
 
   struct Input : public Node

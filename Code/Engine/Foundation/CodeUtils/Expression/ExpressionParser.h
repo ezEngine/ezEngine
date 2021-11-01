@@ -27,11 +27,16 @@ public:
 private:
   void SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs);
   ezResult ParseAssignment();
-  ezExpressionAST::Node* ParseVariable();
+  
+  ezExpressionAST::Node* ParseFactor();
   ezExpressionAST::Node* ParseExpression(int iPrecedence = 0);
+  ezExpressionAST::Node* ParseUnaryExpression();
 
-  ezResult Expect(const char* szToken);
-  ezResult Expect(ezTokenType::Enum Type);
+  bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence);
+  ezExpressionAST::Node* GetVariable(ezStringView sVarName);
+
+  ezResult Expect(const char* szToken, const ezToken** pExpectedToken = nullptr);
+  ezResult Expect(ezTokenType::Enum Type, const ezToken** pExpectedToken = nullptr);
 
   void ReportError(const ezToken* pToken, const ezFormatString& message);
 

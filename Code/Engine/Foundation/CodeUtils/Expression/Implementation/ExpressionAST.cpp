@@ -18,7 +18,7 @@ bool ezExpressionAST::NodeType::IsBinary(Enum nodeType)
 // static
 bool ezExpressionAST::NodeType::IsConstant(Enum nodeType)
 {
-  return nodeType == FloatConstant;
+  return nodeType == Constant;
 }
 
 // static
@@ -78,6 +78,8 @@ ezExpressionAST::~ezExpressionAST() {}
 
 ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::Enum type, Node* pOperand)
 {
+  EZ_ASSERT_DEBUG(NodeType::IsUnary(type), "Type '{}' is not an unary operator", NodeType::GetName(type));
+
   auto pUnaryOperator = EZ_NEW(&m_Allocator, UnaryOperator);
   pUnaryOperator->m_Type = type;
   pUnaryOperator->m_pOperand = pOperand;
@@ -102,8 +104,9 @@ ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& valu
   EZ_ASSERT_DEV(value.IsA<float>(), "value needs to be float");
 
   auto pConstant = EZ_NEW(&m_Allocator, Constant);
-  pConstant->m_Type = NodeType::FloatConstant;
+  pConstant->m_Type = NodeType::Constant;
   pConstant->m_Value = value;
+  pConstant->m_DataType = ezProcessingStream::DataType::Float;
 
   return pConstant;
 }
