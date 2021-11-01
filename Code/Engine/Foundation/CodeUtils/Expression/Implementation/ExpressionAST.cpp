@@ -24,13 +24,13 @@ bool ezExpressionAST::NodeType::IsConstant(Enum nodeType)
 // static
 bool ezExpressionAST::NodeType::IsInput(Enum nodeType)
 {
-  return nodeType == FloatInput;
+  return nodeType == Input;
 }
 
 // static
 bool ezExpressionAST::NodeType::IsOutput(Enum nodeType)
 {
-  return nodeType == FloatOutput;
+  return nodeType == Output;
 }
 
 namespace
@@ -50,15 +50,14 @@ namespace
     "FloatConstant",
 
     // Input
-    "FloatInput",
+    "Input",
 
     // Output
-    "FloatOutput",
+    "Output",
 
     "FunctionCall"};
 
-  EZ_CHECK_AT_COMPILETIME_MSG(
-    EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count, "Node name array size does not match node type count");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count, "Node name array size does not match node type count");
 } // namespace
 
 // static
@@ -88,6 +87,8 @@ ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::E
 
 ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand)
 {
+  EZ_ASSERT_DEBUG(NodeType::IsBinary(type), "Type '{}' is not a binary operator", NodeType::GetName(type));
+
   auto pBinaryOperator = EZ_NEW(&m_Allocator, BinaryOperator);
   pBinaryOperator->m_Type = type;
   pBinaryOperator->m_pLeftOperand = pLeftOperand;
@@ -107,20 +108,22 @@ ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& valu
   return pConstant;
 }
 
-ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezHashedString& sName)
+ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezHashedString& sName, ezProcessingStream::DataType dataType)
 {
   auto pInput = EZ_NEW(&m_Allocator, Input);
-  pInput->m_Type = NodeType::FloatInput;
+  pInput->m_Type = NodeType::Input;
   pInput->m_sName = sName;
+  pInput->m_DataType = dataType;
 
   return pInput;
 }
 
-ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezHashedString& sName, Node* pExpression)
+ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezHashedString& sName, ezProcessingStream::DataType dataType, Node* pExpression)
 {
   auto pOutput = EZ_NEW(&m_Allocator, Output);
-  pOutput->m_Type = NodeType::FloatOutput;
+  pOutput->m_Type = NodeType::Output;
   pOutput->m_sName = sName;
+  pOutput->m_DataType = dataType;
   pOutput->m_pExpression = pExpression;
 
   return pOutput;
@@ -212,7 +215,9 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
     if (pOutputNode == nullptr)
       continue;
 
-    sTmp.Format("{0}: {1}", NodeType::GetName(pOutputNode->m_Type), pOutputNode->m_sName);
+    sTmp = NodeType::GetName(pOutputNode->m_Type);
+    sTmp.Append("(", ezProcessingStream::GetDataTypeName(pOutputNode->m_DataType), ")");
+    sTmp.Append(": ", pOutputNode->m_sName);
 
     ezDGMLGraph::NodeDesc nd;
     nd.m_Color = ezColor::LightBlue;
@@ -243,7 +248,9 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
         }
         else if (NodeType::IsInput(nodeType))
         {
-          sTmp.Append(": ", static_cast<const Input*>(currentNodeInfo.m_pNode)->m_sName);
+          auto pInputNode = static_cast<const Input*>(currentNodeInfo.m_pNode);
+          sTmp.Append("(", ezProcessingStream::GetDataTypeName(pInputNode->m_DataType), ")");
+          sTmp.Append(": ", pInputNode->m_sName);
           color = ezColor::LightGreen;
         }
         else if (nodeType == NodeType::FunctionCall)

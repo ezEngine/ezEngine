@@ -3,7 +3,6 @@
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/HashSet.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>

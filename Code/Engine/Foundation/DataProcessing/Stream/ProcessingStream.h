@@ -83,6 +83,7 @@ public:
   ezUInt16 GetElementStride() const { return m_uiStride; }
 
   static ezUInt16 GetDataTypeSize(DataType Type);
+  static const char* GetDataTypeName(DataType Type);
 
 protected:
   friend class ezProcessingStreamGroup;  

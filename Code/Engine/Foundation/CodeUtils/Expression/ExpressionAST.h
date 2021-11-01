@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/StackAllocator.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Variant.h>
@@ -48,10 +49,10 @@ public:
       FloatConstant,
 
       // Input
-      FloatInput,
+      Input,
 
       // Output
-      FloatOutput,
+      Output,
 
       FunctionCall,
 
@@ -98,11 +99,13 @@ public:
   struct Input : public Node
   {
     ezHashedString m_sName;
+    ezProcessingStream::DataType m_DataType;
   };
 
   struct Output : public Node
   {
     ezHashedString m_sName;
+    ezProcessingStream::DataType m_DataType;
     Node* m_pExpression = nullptr;
   };
 
@@ -120,8 +123,8 @@ public:
   BinaryOperator* CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand);
   Select* CreateSelect(Node* pCondition, Node* pTrueOperand, Node* pFalseOperand);
   Constant* CreateConstant(const ezVariant& value);
-  Input* CreateInput(const ezHashedString& sName);
-  Output* CreateOutput(const ezHashedString& sName, Node* pExpression);
+  Input* CreateInput(const ezHashedString& sName, ezProcessingStream::DataType dataType);
+  Output* CreateOutput(const ezHashedString& sName, ezProcessingStream::DataType dataType, Node* pExpression);
   FunctionCall* CreateFunctionCall(const ezHashedString& sName);
 
   static ezArrayPtr<Node*> GetChildren(Node* pNode);

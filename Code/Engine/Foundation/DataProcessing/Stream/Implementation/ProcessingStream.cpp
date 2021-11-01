@@ -90,29 +90,29 @@ void ezProcessingStream::FreeData()
 
 static ezUInt16 s_TypeSize[] = {
   2, // Half,
-  4, //Half2,
-  6, //Half3,
-  8, //Half4,
+  4, // Half2,
+  6, // Half3,
+  8, // Half4,
 
-  4,  //Float,
-  8,  //Float2,
-  12, //Float3,
-  16, //Float4,
+  4,  // Float,
+  8,  // Float2,
+  12, // Float3,
+  16, // Float4,
 
-  1, //Byte,
-  2, //Byte2,
-  3, //Byte3,
-  4, //Byte4,
+  1, // Byte,
+  2, // Byte2,
+  3, // Byte3,
+  4, // Byte4,
 
-  2, //Short,
-  4, //Short2,
-  6, //Short3,
-  8, //Short4,
+  2, // Short,
+  4, // Short2,
+  6, // Short3,
+  8, // Short4,
 
-  4,  //Int,
-  8,  //Int2,
-  12, //Int3,
-  16, //Int4,
+  4,  // Int,
+  8,  // Int2,
+  12, // Int3,
+  16, // Int4,
 };
 static_assert(EZ_ARRAY_SIZE(s_TypeSize) == (size_t)ezProcessingStream::DataType::Count);
 
@@ -120,6 +120,40 @@ static_assert(EZ_ARRAY_SIZE(s_TypeSize) == (size_t)ezProcessingStream::DataType:
 ezUInt16 ezProcessingStream::GetDataTypeSize(DataType Type)
 {
   return s_TypeSize[(ezUInt32)Type];
+}
+
+static const char* s_TypeName[] = {
+  "Half",  // Half,
+  "Half2", // Half2,
+  "Half3", // Half3,
+  "Half4", // Half4,
+
+  "Float",  // Float,
+  "Float2", // Float2,
+  "Float3", // Float3,
+  "Float4", // Float4,
+
+  "Byte",  // Byte,
+  "Byte2", // Byte2,
+  "Byte3", // Byte3,
+  "Byte4", // Byte4,
+
+  "Short",  // Short,
+  "Short2", // Short2,
+  "Short3", // Short3,
+  "Short4", // Short4,
+
+  "Int",  // Int,
+  "Int2", // Int2,
+  "Int3", // Int3,
+  "Int4", // Int4,
+};
+static_assert(EZ_ARRAY_SIZE(s_TypeName) == (size_t)ezProcessingStream::DataType::Count);
+
+// static
+const char* ezProcessingStream::GetDataTypeName(DataType Type)
+{
+  return s_TypeName[(ezUInt32)Type];
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStream);

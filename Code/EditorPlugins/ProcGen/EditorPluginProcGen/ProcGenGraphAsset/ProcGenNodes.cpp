@@ -33,7 +33,7 @@ namespace
 
   ezExpressionAST::Node* CreateRandom(float fSeed, ezExpressionAST& out_Ast)
   {
-    auto pPointIndex = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPointIndex);
+    auto pPointIndex = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Float);
     auto pSeedConstant = out_Ast.CreateConstant(fSeed);
 
     auto pFunctionCall = out_Ast.CreateFunctionCall(s_sRandom);
@@ -172,7 +172,7 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
       pDensity = out_Ast.CreateConstant(1.0f);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sDensity, pDensity));
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sDensity, ezProcessingStream::DataType::Float, pDensity));
   }
 
   // scale
@@ -183,7 +183,7 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
       pScale = CreateRandom(11.0f, out_Ast);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sScale, pScale));
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sScale, ezProcessingStream::DataType::Float, pScale));
   }
 
   // color index
@@ -194,7 +194,7 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
       pColorIndex = CreateRandom(13.0f, out_Ast);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sColorIndex, pColorIndex));
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sColorIndex, ezProcessingStream::DataType::Float, pColorIndex));
   }
 
   // object index
@@ -205,7 +205,7 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
       pObjectIndex = CreateRandom(17.0f, out_Ast);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sObjectIndex, pObjectIndex));
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezProcGenInternal::ExpressionOutputs::s_sObjectIndex, ezProcessingStream::DataType::Float, pObjectIndex));
   }
 
   return nullptr;
@@ -282,7 +282,7 @@ ezExpressionAST::Node* ezProcGen_VertexColorOutput::GenerateExpressionASTNode(ez
       pInput = out_Ast.CreateConstant(0.0f);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(sOutputNames[i], pInput));
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(sOutputNames[i], ezProcessingStream::DataType::Float, pInput));
   }
 
   return nullptr;
@@ -367,9 +367,9 @@ ezExpressionAST::Node* ezProcGen_PerlinNoise::GenerateExpressionASTNode(ezTempHa
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
-  ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX);
-  ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY);
-  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
+  ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float);
+  ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float);
+  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float);
 
   pPosX = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosX, out_Ast.CreateConstant(m_Scale.x));
   pPosY = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosY, out_Ast.CreateConstant(m_Scale.y));
@@ -473,7 +473,7 @@ ezExpressionAST::Node* ezProcGen_Height::GenerateExpressionASTNode(ezTempHashedS
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
-  auto pHeight = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
+  auto pHeight = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float);
   return CreateRemapTo01WithFadeout(pHeight, m_fMinHeight, m_fMaxHeight, m_fLowerFade, m_fUpperFade, out_Ast);
 }
 
@@ -507,7 +507,7 @@ ezExpressionAST::Node* ezProcGen_Slope::GenerateExpressionASTNode(ezTempHashedSt
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
-  auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ);
+  auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ, ezProcessingStream::DataType::Float);
   // acos explodes for values slightly larger than 1 so make sure to clamp before
   auto pClampedNormalZ = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, out_Ast.CreateConstant(1.0f), pNormalZ);
   auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pClampedNormalZ);
@@ -541,20 +541,20 @@ ezExpressionAST::Node* ezProcGen_MeshVertexColor::GenerateExpressionASTNode(ezTe
 {
   if (sOutputName == "R")
   {
-    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorR);
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorR, ezProcessingStream::DataType::Float);
   }
   else if (sOutputName == "G")
   {
-    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorG);
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorG, ezProcessingStream::DataType::Float);
   }
   else if (sOutputName == "B")
   {
-    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorB);
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorB, ezProcessingStream::DataType::Float);
   }
   else
   {
     EZ_ASSERT_DEBUG(sOutputName == "A", "Implementation error");
-    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorA);
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorA, ezProcessingStream::DataType::Float);
   }
 }
 
@@ -597,9 +597,9 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
     context.m_VolumeTagSetIndices.PushBack(tagSetIndex);
   }
 
-  ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX);
-  ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY);
-  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
+  ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float);
+  ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float);
+  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float);
 
   auto pInput = inputs[0];
   if (pInput == nullptr)
