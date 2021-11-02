@@ -86,14 +86,13 @@ ezResult ezCustomMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool
   return EZ_FAILURE;
 }
 
-ezDynamicMeshBufferResourceHandle ezCustomMeshComponent::CreateMeshResource(ezUInt32 uiNumVertices, ezUInt32 uiNumPrimitives, ezUInt32 uiNumIndices, bool b32BitIndices /*= true*/)
+ezDynamicMeshBufferResourceHandle ezCustomMeshComponent::CreateMeshResource(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiMaxVertices, ezUInt32 uiMaxPrimitives, ezGALIndexType::Enum indexType)
 {
   ezDynamicMeshBufferResourceDescriptor desc;
-  desc.m_Topology = ezGALPrimitiveTopology::Triangles;
-  desc.m_uiNumVertices = uiNumVertices;
-  desc.m_uiNumPrimitives = uiNumPrimitives;
-  desc.m_uiNumIndices16 = b32BitIndices ? 0 : uiNumIndices;
-  desc.m_uiNumIndices32 = b32BitIndices ? uiNumIndices : 0;
+  desc.m_Topology = topology;
+  desc.m_uiMaxVertices = uiMaxVertices;
+  desc.m_uiMaxPrimitives = uiMaxPrimitives;
+  desc.m_IndexType = indexType;
 
   ezStringBuilder sGuid;
   sGuid.Format("CustomMesh_{}", s_iCustomMeshResources.Increment());
@@ -187,14 +186,14 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   ezCustomMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezCustomMeshRenderData>(GetOwner());
   {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform() * pRenderData->m_GlobalTransform;
+    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = m_hDynamicMesh;
     pRenderData->m_hMaterial = m_hMaterial;
     pRenderData->m_Color = m_Color;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
-    pRenderData->m_uiFirstPrimitive = ezMath::Min(m_uiFirstPrimitive, pMesh->GetPrimitiveCount());
-    pRenderData->m_uiNumPrimitives = ezMath::Min(m_uiNumPrimitives, pMesh->GetPrimitiveCount() - pRenderData->m_uiFirstPrimitive);
+    pRenderData->m_uiFirstPrimitive = ezMath::Min(m_uiFirstPrimitive, pMesh->GetDescriptor().m_uiMaxPrimitives);
+    pRenderData->m_uiNumPrimitives = ezMath::Min(m_uiNumPrimitives, pMesh->GetDescriptor().m_uiMaxPrimitives - pRenderData->m_uiFirstPrimitive);
 
     pRenderData->FillBatchIdAndSortingKey();
   }
@@ -227,7 +226,7 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
 }
-//
+
 //void ezCustomMeshComponent::OnActivated()
 //{
 //  ezGeometry geo;
@@ -235,7 +234,7 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 //  geo.TriangulatePolygons();
 //  geo.ComputeTangents();
 //
-//  auto hMesh = CreateMeshResource(geo.GetVertices().GetCount(), geo.GetPolygons().GetCount(), geo.GetPolygons().GetCount() * 3);
+//  auto hMesh = CreateMeshResource(ezGALPrimitiveTopology::Triangles, geo.GetVertices().GetCount(), geo.GetPolygons().GetCount(), ezGALIndexType::UInt);
 //
 //  ezResourceLock<ezDynamicMeshBufferResource> pMesh(hMesh, ezResourceAcquireMode::BlockTillLoaded);
 //
@@ -369,7 +368,7 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
     pInstanceData->UpdateInstanceData(pRenderContext, 1);
 
     const auto& desc = pBuffer->GetDescriptor();
-    pBuffer->UpdateGpuBuffer(pGALCommandEncoder, 0, desc.m_uiNumVertices, 0, desc.m_uiNumIndices32);
+    pBuffer->UpdateGpuBuffer(pGALCommandEncoder);
 
     // redo this after the primitive count has changed
     pRenderContext->BindMeshBuffer(pRenderData->m_hMesh);

@@ -10,10 +10,9 @@ using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicM
 struct ezDynamicMeshBufferResourceDescriptor
 {
   ezGALPrimitiveTopology::Enum m_Topology = ezGALPrimitiveTopology::Triangles;
-  ezUInt32 m_uiNumPrimitives = 0;
-  ezUInt32 m_uiNumVertices = 0;
-  ezUInt32 m_uiNumIndices16 = 0;
-  ezUInt32 m_uiNumIndices32 = 0;
+  ezGALIndexType::Enum m_IndexType = ezGALIndexType::UInt;
+  ezUInt32 m_uiMaxPrimitives = 0;
+  ezUInt32 m_uiMaxVertices = 0;
 };
 
 struct EZ_RENDERERCORE_DLL ezDynamicMeshVertex
@@ -62,33 +61,44 @@ public:
   EZ_ALWAYS_INLINE ezGALBufferHandle GetVertexBuffer() const { return m_hVertexBuffer; }
   EZ_ALWAYS_INLINE ezGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
 
+  /// \brief Grants write access to the vertex data, and flags the data as 'dirty'.
   ezArrayPtr<ezDynamicMeshVertex> AccessVertexData()
   {
     m_bAccessedVB = true;
     return m_VertexData;
   }
 
+  /// \brief Grants write access to the 16 bit index data, and flags the data as 'dirty'.
+  ///
+  /// Accessing this data is only valid, if the buffer was created with 16 bit indices.
   ezArrayPtr<ezUInt16> AccessIndex16Data()
   {
     m_bAccessedIB = true;
     return m_Index16Data;
   }
 
+  /// \brief Grants write access to the 32 bit index data, and flags the data as 'dirty'.
+  ///
+  /// Accessing this data is only valid, if the buffer was created with 32 bit indices.
   ezArrayPtr<ezUInt32> AccessIndex32Data()
   {
     m_bAccessedIB = true;
     return m_Index32Data;
   }
 
-  void SetTopology(ezGALPrimitiveTopology::Enum topology) { m_Descriptor.m_Topology = topology; }
-  ezGALPrimitiveTopology::Enum GetTopology() const { return m_Descriptor.m_Topology; }
-
-  void SetPrimitiveCount(ezUInt32 numPrimitives) { m_Descriptor.m_uiNumPrimitives = numPrimitives; }
-  ezUInt32 GetPrimitiveCount() const { return m_Descriptor.m_uiNumPrimitives; }
-
   const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
 
-  void UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex, ezUInt32 uiNumVertices, ezUInt32 uiFirstIndex, ezUInt32 uiNumIndices, ezGALUpdateMode::Enum mode = ezGALUpdateMode::Discard);
+  /// \brief Uploads the current vertex and index data to the GPU.
+  ///
+  /// If all values are set to default, the entire data is uploaded.
+  /// If \a uiNumVertices or \a uiNumIndices is set to the max value, all vertices or indices (after their start offset) are uploaded.
+  ///
+  /// In all other cases, the number of elements to upload must be within valid bounds.
+  ///
+  /// This function can be used to only upload a subset of the modified data.
+  ///
+  /// Note that this function doesn't do anything, if the vertex or index data wasn't recently accessed through AccessVertexData(), AccessIndex16Data() or AccessIndex32Data(). So if you want to upload multiple pieces of the data to the GPU, you have to call these functions in between to flag the uploaded data as out-of-date.
+  void UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezMath::MaxValue<ezUInt32>(), ezUInt32 uiFirstIndex = 0, ezUInt32 uiNumIndices = ezMath::MaxValue<ezUInt32>(), ezGALUpdateMode::Enum mode = ezGALUpdateMode::Discard);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
