@@ -130,7 +130,7 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
 
 struct ezGALVertexAttributeSemantic
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     Position,
     Normal,

@@ -22,6 +22,7 @@ ezDynamicMeshBufferResource::~ezDynamicMeshBufferResource()
 {
   EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
+  EZ_ASSERT_DEBUG(m_hColorBuffer.IsInvalidated(), "Implementation error");
 }
 
 ezResourceLoadDesc ezDynamicMeshBufferResource::UnloadData(Unload WhatToUnload)
@@ -36,6 +37,12 @@ ezResourceLoadDesc ezDynamicMeshBufferResource::UnloadData(Unload WhatToUnload)
   {
     ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
     m_hIndexBuffer.Invalidate();
+  }
+
+  if (!m_hColorBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hColorBuffer);
+    m_hColorBuffer.Invalidate();
   }
 
   // we cannot compute this in UpdateMemoryUsage(), so we only read the data there, therefore we need to update this information here
@@ -60,7 +67,7 @@ void ezDynamicMeshBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
 {
   // we cannot compute this data here, so we update it wherever we know the memory usage
 
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDynamicMeshBufferResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDynamicMeshBufferResource) + m_VertexData.GetHeapMemoryUsage() + m_Index16Data.GetHeapMemoryUsage() + m_Index32Data.GetHeapMemoryUsage() + m_ColorData.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
@@ -68,6 +75,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
 {
   EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
+  EZ_ASSERT_DEBUG(m_hColorBuffer.IsInvalidated(), "Implementation error");
 
   m_Descriptor = descriptor;
 
@@ -99,6 +107,16 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
     si.m_uiElementSize = sizeof(ezVec4);
     m_VertexDeclaration.m_VertexStreams.PushBack(si);
 
+    if (m_Descriptor.m_bColorStream)
+    {
+      si.m_uiVertexBufferSlot = 1; // separate buffer
+      si.m_uiOffset = 0;
+      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
+      si.m_uiElementSize = sizeof(ezColorLinearUB);
+      m_VertexDeclaration.m_VertexStreams.PushBack(si);
+    }
+
     m_VertexDeclaration.ComputeHash();
   }
 
@@ -111,6 +129,15 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
   pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
   const ezUInt32 uiMaxIndices = ezGALPrimitiveTopology::VerticesPerPrimitive(m_Descriptor.m_Topology) * m_Descriptor.m_uiMaxPrimitives;
+
+  if (m_Descriptor.m_bColorStream)
+  {
+    m_ColorData.SetCountUninitialized(uiMaxIndices);
+    m_hColorBuffer = pDevice->CreateVertexBuffer(sizeof(ezColorLinearUB), m_Descriptor.m_uiMaxVertices /* no initial data -> mutable */);
+
+    sName.Format("{0} - Dynamic Color Buffer", GetResourceDescription());
+    pDevice->GetBuffer(m_hColorBuffer)->SetDebugName(sName);
+  }
 
   if (m_Descriptor.m_IndexType == ezGALIndexType::UInt)
   {
@@ -132,7 +159,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
   }
 
   // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
-  ModifyMemoryUsage().m_uiMemoryGPU = m_VertexData.GetHeapMemoryUsage() + m_Index32Data.GetHeapMemoryUsage();
+  ModifyMemoryUsage().m_uiMemoryGPU = m_VertexData.GetHeapMemoryUsage() + m_Index32Data.GetHeapMemoryUsage() + m_Index16Data.GetHeapMemoryUsage() + m_ColorData.GetHeapMemoryUsage();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -154,6 +181,18 @@ void ezDynamicMeshBufferResource::UpdateGpuBuffer(ezGALCommandEncoder* pGALComma
     m_bAccessedVB = false;
 
     pGALCommandEncoder->UpdateBuffer(m_hVertexBuffer, sizeof(ezDynamicMeshVertex) * uiFirstVertex, m_VertexData.GetArrayPtr().GetSubArray(uiFirstVertex, uiNumVertices).ToByteArray(), mode);
+  }
+
+  if (m_bAccessedCB && uiNumVertices > 0)
+  {
+    if (uiNumVertices == ezMath::MaxValue<ezUInt32>())
+      uiNumVertices = m_ColorData.GetCount() - uiFirstVertex;
+
+    EZ_ASSERT_DEV(uiNumVertices <= m_ColorData.GetCount(), "Can't upload {} vertices, the buffer was allocated to hold a maximum of {} vertices.", uiNumVertices, m_ColorData.GetCount());
+
+    m_bAccessedCB = false;
+
+    pGALCommandEncoder->UpdateBuffer(m_hColorBuffer, sizeof(ezColorLinearUB) * uiFirstVertex, m_ColorData.GetArrayPtr().GetSubArray(uiFirstVertex, uiNumVertices).ToByteArray(), mode);
   }
 
   if (m_bAccessedIB && uiNumIndices > 0 && !m_hIndexBuffer.IsInvalidated())

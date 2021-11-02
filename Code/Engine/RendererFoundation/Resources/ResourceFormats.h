@@ -6,7 +6,7 @@
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {

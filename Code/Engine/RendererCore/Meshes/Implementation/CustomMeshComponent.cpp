@@ -93,6 +93,7 @@ ezDynamicMeshBufferResourceHandle ezCustomMeshComponent::CreateMeshResource(ezGA
   desc.m_uiMaxVertices = uiMaxVertices;
   desc.m_uiMaxPrimitives = uiMaxPrimitives;
   desc.m_IndexType = indexType;
+  desc.m_bColorStream = true;
 
   ezStringBuilder sGuid;
   sGuid.Format("CustomMesh_{}", s_iCustomMeshResources.Increment());
@@ -227,38 +228,44 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
 }
 
-//void ezCustomMeshComponent::OnActivated()
-//{
-//  ezGeometry geo;
-//  geo.AddTorus(1.0f, 1.5f, 32, 16, ezColor::White);
-//  geo.TriangulatePolygons();
-//  geo.ComputeTangents();
-//
-//  auto hMesh = CreateMeshResource(ezGALPrimitiveTopology::Triangles, geo.GetVertices().GetCount(), geo.GetPolygons().GetCount(), ezGALIndexType::UInt);
-//
-//  ezResourceLock<ezDynamicMeshBufferResource> pMesh(hMesh, ezResourceAcquireMode::BlockTillLoaded);
-//
-//  auto verts = pMesh->AccessVertexData();
-//
-//  for (ezUInt32 v = 0; v < verts.GetCount(); ++v)
-//  {
-//    verts[v].m_vPosition = geo.GetVertices()[v].m_vPosition;
-//    verts[v].m_vTexCoord.SetZero();
-//    verts[v].EncodeNormal(geo.GetVertices()[v].m_vNormal);
-//    verts[v].EncodeTangent(geo.GetVertices()[v].m_vTangent, 1.0f);
-//  }
-//
-//  auto ind = pMesh->AccessIndex32Data();
-//
-//  for (ezUInt32 i = 0; i < geo.GetPolygons().GetCount(); ++i)
-//  {
-//    ind[i * 3 + 0] = geo.GetPolygons()[i].m_Vertices[0];
-//    ind[i * 3 + 1] = geo.GetPolygons()[i].m_Vertices[1];
-//    ind[i * 3 + 2] = geo.GetPolygons()[i].m_Vertices[2];
-//  }
-//
-//  SetBounds(ezBoundingSphere(ezVec3::ZeroVector(), 1.5f));
-//}
+void ezCustomMeshComponent::OnActivated()
+{
+  if (false)
+  {
+    ezGeometry geo;
+    geo.AddTorus(1.0f, 1.5f, 32, 16, ezColor::White);
+    geo.TriangulatePolygons();
+    geo.ComputeTangents();
+
+    auto hMesh = CreateMeshResource(ezGALPrimitiveTopology::Triangles, geo.GetVertices().GetCount(), geo.GetPolygons().GetCount(), ezGALIndexType::UInt);
+
+    ezResourceLock<ezDynamicMeshBufferResource> pMesh(hMesh, ezResourceAcquireMode::BlockTillLoaded);
+
+    auto verts = pMesh->AccessVertexData();
+    auto cols = pMesh->AccessColorData();
+
+    for (ezUInt32 v = 0; v < verts.GetCount(); ++v)
+    {
+      verts[v].m_vPosition = geo.GetVertices()[v].m_vPosition;
+      verts[v].m_vTexCoord.SetZero();
+      verts[v].EncodeNormal(geo.GetVertices()[v].m_vNormal);
+      verts[v].EncodeTangent(geo.GetVertices()[v].m_vTangent, 1.0f);
+
+      cols[v] = ezColor::CornflowerBlue;
+    }
+
+    auto ind = pMesh->AccessIndex32Data();
+
+    for (ezUInt32 i = 0; i < geo.GetPolygons().GetCount(); ++i)
+    {
+      ind[i * 3 + 0] = geo.GetPolygons()[i].m_Vertices[0];
+      ind[i * 3 + 1] = geo.GetPolygons()[i].m_Vertices[1];
+      ind[i * 3 + 2] = geo.GetPolygons()[i].m_Vertices[2];
+    }
+
+    SetBounds(ezBoundingSphere(ezVec3::ZeroVector(), 1.5f));
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

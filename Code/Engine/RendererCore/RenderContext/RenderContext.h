@@ -77,7 +77,7 @@ public:
     }
 
     EZ_ALWAYS_INLINE T* operator->() { return m_pGALCommandEncoder; }
-    EZ_ALWAYS_INLINE operator const T*() { return m_pGALCommandEncoder; }
+    EZ_ALWAYS_INLINE operator const T *() { return m_pGALCommandEncoder; }
 
   private:
     friend class ezRenderContext;
@@ -170,7 +170,7 @@ public:
 
   void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer);
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
-  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
+  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hVertexBuffer2 = {}, ezGALBufferHandle hVertexBuffer3 = {}, ezGALBufferHandle hVertexBuffer4 = {});
   EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
   {
     BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, topology, uiPrimitiveCount);
@@ -282,7 +282,7 @@ private:
 
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
 
-  ezGALBufferHandle m_hVertexBuffer;
+  ezGALBufferHandle m_hVertexBuffers[4];
   ezGALBufferHandle m_hIndexBuffer;
   const ezVertexDeclarationInfo* m_pVertexDeclarationInfo;
   ezGALPrimitiveTopology::Enum m_Topology;

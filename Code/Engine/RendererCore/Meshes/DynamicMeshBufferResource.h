@@ -13,6 +13,7 @@ struct ezDynamicMeshBufferResourceDescriptor
   ezGALIndexType::Enum m_IndexType = ezGALIndexType::UInt;
   ezUInt32 m_uiMaxPrimitives = 0;
   ezUInt32 m_uiMaxVertices = 0;
+  bool m_bColorStream = false;
 };
 
 struct EZ_RENDERERCORE_DLL ezDynamicMeshVertex
@@ -60,6 +61,7 @@ public:
   EZ_ALWAYS_INLINE const ezDynamicMeshBufferResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
   EZ_ALWAYS_INLINE ezGALBufferHandle GetVertexBuffer() const { return m_hVertexBuffer; }
   EZ_ALWAYS_INLINE ezGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
+  EZ_ALWAYS_INLINE ezGALBufferHandle GetColorBuffer() const { return m_hColorBuffer; }
 
   /// \brief Grants write access to the vertex data, and flags the data as 'dirty'.
   ezArrayPtr<ezDynamicMeshVertex> AccessVertexData()
@@ -86,6 +88,15 @@ public:
     return m_Index32Data;
   }
 
+  /// \brief Grants write access to the color data, and flags the data as 'dirty'.
+  ///
+  /// Accessing this data is only valid, if creation of the color buffer was enabled.
+  ezArrayPtr<ezColorLinearUB> AccessColorData()
+  {
+    m_bAccessedCB = true;
+    return m_ColorData;
+  }
+
   const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
 
   /// \brief Uploads the current vertex and index data to the GPU.
@@ -107,13 +118,16 @@ private:
 
   bool m_bAccessedVB = false;
   bool m_bAccessedIB = false;
+  bool m_bAccessedCB = false;
 
   ezGALBufferHandle m_hVertexBuffer;
   ezGALBufferHandle m_hIndexBuffer;
+  ezGALBufferHandle m_hColorBuffer;
   ezDynamicMeshBufferResourceDescriptor m_Descriptor;
 
   ezVertexDeclarationInfo m_VertexDeclaration;
   ezDynamicArray<ezDynamicMeshVertex, ezAlignedAllocatorWrapper> m_VertexData;
   ezDynamicArray<ezUInt16, ezAlignedAllocatorWrapper> m_Index16Data;
   ezDynamicArray<ezUInt32, ezAlignedAllocatorWrapper> m_Index32Data;
+  ezDynamicArray<ezColorLinearUB, ezAlignedAllocatorWrapper> m_ColorData;
 };

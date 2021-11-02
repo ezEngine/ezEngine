@@ -405,3 +405,4 @@ ezClothSheetFlags::FixedEdgeRight;Edge: Right
 ezClothSheetFlags::FixedEdgeBottom;Edge: Bottom
 ezClothSheetFlags::FixedEdgeLeft;Edge: Left
 ezClothSheetFlags::FixedEdgeLeft;Edge: Left
+ezCustomMeshComponent;Custom Mesh Component

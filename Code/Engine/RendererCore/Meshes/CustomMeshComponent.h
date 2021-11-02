@@ -95,7 +95,7 @@ protected:
 
   ezDynamicMeshBufferResourceHandle m_hDynamicMesh;
 
-  //virtual void OnActivated() override;
+  virtual void OnActivated() override;
 };
 
 /// \brief Temporary data used to feed the ezCustomMeshRenderer.

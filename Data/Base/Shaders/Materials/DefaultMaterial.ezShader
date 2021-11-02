@@ -133,6 +133,11 @@ float3 GetBaseColor()
 {
   float3 baseColor = BaseColor.rgb * GetInstanceData().Color.rgb;
 
+  // note that the default material actually doesn't support per-vertex colors
+#if defined(USE_COLOR0)  
+  baseColor *= G.Input.Color0;
+#endif
+
   [branch]
   if (UseBaseTexture)
   {
