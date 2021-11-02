@@ -135,6 +135,9 @@ public:
 
   ezHybridArray<Output*, 8> m_OutputNodes;
 
+  // Transforms
+  Node* ReplaceUnsupportedInstructions(Node* pNode);
+
 private:
   ezStackAllocator<> m_Allocator;
 };

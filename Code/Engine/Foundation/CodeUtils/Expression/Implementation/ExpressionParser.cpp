@@ -108,11 +108,10 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
       ezHybridArray<ezExpressionAST::Node*, 8> arguments;
       if (Accept(m_TokenStream, m_uiCurrentToken, ")") == false)
       {
-        arguments.PushBack(ParseExpression());
-        while (Accept(m_TokenStream, m_uiCurrentToken, ","))
+        do 
         {
           arguments.PushBack(ParseExpression());
-        }
+        } while (Accept(m_TokenStream, m_uiCurrentToken, ","));
       }
       if (Expect(")").Failed())
         return nullptr;

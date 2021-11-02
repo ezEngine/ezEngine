@@ -1,5 +1,7 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionCompiler.h>
 #include <Foundation/CodeUtils/Expression/ExpressionParser.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Utilities/DGMLWriter.h>
@@ -46,12 +48,18 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parser")
   {
     ezExpressionParser parser;
+    ezExpressionCompiler compiler;
 
-    ezStringView code = "output = a + b * 2";
+    ezStringView code = "output = -a + b * 2";
 
     ezExpressionAST ast;
     EZ_TEST_BOOL(parser.Parse(code, inputs, outputs, ast).Succeeded());
 
     DumpAST(ast, "ParserTest");
+
+    ezExpressionByteCode byteCode;
+    EZ_TEST_BOOL(compiler.Compile(ast, byteCode).Succeeded());
+
+    DumpAST(ast, "ParserTest_Opt");
   }
 }

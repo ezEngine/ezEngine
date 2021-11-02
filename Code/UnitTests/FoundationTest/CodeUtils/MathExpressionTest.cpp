@@ -60,6 +60,17 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
+    {
+      ezMathExpression expr("min(3, 4)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+    }
+    {
+      ezMathExpression expr("max(3, 4)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
+    }
+
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operator Priority")
