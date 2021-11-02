@@ -31,25 +31,24 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezVisualScriptNode_MathExpression::ezVisualScriptNode_MathExpression() {}
 ezVisualScriptNode_MathExpression::~ezVisualScriptNode_MathExpression() {}
 
-double ezVisualScriptNode_MathExpression::ResolveVariable(const ezStringView& variableString)
-{
-  if (variableString == "a")
-    return m_ValueA;
-  else if (variableString == "b")
-    return m_ValueB;
-  else if (variableString == "c")
-    return m_ValueC;
-  else if (variableString == "d")
-    return m_ValueD;
-  else
-    return ezMath::NaN<double>();
-}
+static ezHashedString s_sA = ezMakeHashedString("a");
+static ezHashedString s_sB = ezMakeHashedString("b");
+static ezHashedString s_sC = ezMakeHashedString("c");
+static ezHashedString s_sD = ezMakeHashedString("d");
 
 void ezVisualScriptNode_MathExpression::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   if (m_bInputValuesChanged)
   {
-    const double result = m_MathExpression.Evaluate([this](const ezStringView& variableString) { return ResolveVariable(variableString); });
+    ezMathExpression::Input inputs[] =
+      {
+        {s_sA, static_cast<float>(m_ValueA)},
+        {s_sB, static_cast<float>(m_ValueB)},
+        {s_sC, static_cast<float>(m_ValueC)},
+        {s_sD, static_cast<float>(m_ValueD)},
+      };
+
+    const float result = m_MathExpression.Evaluate(inputs);
     pInstance->SetOutputPinValue(this, 0, &result);
   }
 }

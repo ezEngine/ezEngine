@@ -82,6 +82,11 @@ void ezMathExpressionAnimNode::Initialize(ezAnimGraph& graph, const ezSkeletonRe
   }
 }
 
+static ezHashedString s_sA = ezMakeHashedString("a");
+static ezHashedString s_sB = ezMakeHashedString("b");
+static ezHashedString s_sC = ezMakeHashedString("c");
+static ezHashedString s_sD = ezMakeHashedString("d");
+
 void ezMathExpressionAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
   if (!m_Expression.IsValid())
@@ -90,23 +95,14 @@ void ezMathExpressionAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSk
     return;
   }
 
-  const double a = m_ValueAPin.GetNumber(graph);
-  const double b = m_ValueBPin.GetNumber(graph);
-  const double c = m_ValueCPin.GetNumber(graph);
-  const double d = m_ValueDPin.GetNumber(graph);
+  ezMathExpression::Input inputs[] =
+    {
+      {s_sA, static_cast<float>(m_ValueAPin.GetNumber(graph))},
+      {s_sB, static_cast<float>(m_ValueBPin.GetNumber(graph))},
+      {s_sC, static_cast<float>(m_ValueCPin.GetNumber(graph))},
+      {s_sD, static_cast<float>(m_ValueDPin.GetNumber(graph))},
+    };
 
-  double result = m_Expression.Evaluate([=](const ezStringView& name) -> double {
-    if (name == "a")
-      return a;
-    if (name == "b")
-      return b;
-    if (name == "c")
-      return c;
-    if (name == "d")
-      return d;
-
-    return 0;
-  });
-
+  float result = m_Expression.Evaluate(inputs);
   m_ResultPin.SetNumber(graph, result);
 }

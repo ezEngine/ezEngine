@@ -4,8 +4,6 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-class ezMathExpression;
-
 /// \brief Computes math expression given by string.
 ///
 /// Expression is evaluated lazily on first execution.
@@ -29,7 +27,5 @@ public:
   double m_ValueD = 3;
 
 private:
-  double ResolveVariable(const ezStringView& variableString);
-
   ezMathExpression m_MathExpression;
 };
