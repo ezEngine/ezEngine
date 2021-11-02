@@ -46,11 +46,6 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
     {
-      ezMathExpression expr("abs -1");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 1.0, 0.0);
-    }
-    {
       ezMathExpression expr("abs(-3)");
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
@@ -89,11 +84,6 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       ezMathExpression expr("1 - 2 / 4");
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 0.5, 0.0);
-    }
-    {
-      ezMathExpression expr("abs -4 + 2");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 6.0, 0.0);
     }
     {
       ezMathExpression expr("abs (-4 + 2)");
@@ -178,6 +168,10 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
     }
     {
       ezMathExpression expr("_va£r + asdf");
+      EZ_TEST_BOOL(!expr.IsValid());
+    }
+    {
+      ezMathExpression expr("sqrt(2, 4)");
       EZ_TEST_BOOL(!expr.IsValid());
     }
   }

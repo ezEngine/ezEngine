@@ -22,7 +22,12 @@ public:
     ezProcessingStream::DataType m_DataType;
   };
 
-  ezResult Parse(ezStringView code, ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs, ezExpressionAST& out_ast);
+  struct Options
+  {
+    bool m_bTreatUnknownVariablesAsInputs = false;
+  };
+
+  ezResult Parse(ezStringView code, ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs, const Options& options, ezExpressionAST& out_ast);
 
 private:
   static constexpr int s_iLowestPrecedence = 20;
@@ -34,6 +39,7 @@ private:
   ezExpressionAST::Node* ParseFactor();
   ezExpressionAST::Node* ParseExpression(int iPrecedence = s_iLowestPrecedence);
   ezExpressionAST::Node* ParseUnaryExpression();
+  ezExpressionAST::Node* ParseFunctionCall(ezStringView sFunctionName);
 
   bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence);
   ezExpressionAST::Node* GetVariable(ezStringView sVarName);
@@ -45,6 +51,8 @@ private:
 
   /// \brief Checks whether all outputs have been written
   ezResult CheckOutputs();
+
+  Options m_Options;
 
   ezTokenParseUtils::TokenStream m_TokenStream;
   ezUInt32 m_uiCurrentToken = 0;

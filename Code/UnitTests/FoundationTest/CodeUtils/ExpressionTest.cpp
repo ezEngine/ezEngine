@@ -53,7 +53,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     ezStringView code = "output = -a + b * 2";
 
     ezExpressionAST ast;
-    EZ_TEST_BOOL(parser.Parse(code, inputs, outputs, ast).Succeeded());
+    EZ_TEST_BOOL(parser.Parse(code, inputs, outputs, {}, ast).Succeeded());
 
     DumpAST(ast, "ParserTest");
 

@@ -30,8 +30,11 @@ void ezMathExpression::Reset(const char* szExpressionString)
   };
 
   ezExpressionParser parser;
+  ezExpressionParser::Options parserOptions;
+  parserOptions.m_bTreatUnknownVariablesAsInputs = true;
+
   ezExpressionAST ast;
-  if (parser.Parse(tmp, ezArrayPtr<ezExpressionParser::Stream>(), outputs, ast).Failed())
+  if (parser.Parse(tmp, ezArrayPtr<ezExpressionParser::Stream>(), outputs, parserOptions, ast).Failed())
     return;
 
   ezExpressionCompiler compiler;

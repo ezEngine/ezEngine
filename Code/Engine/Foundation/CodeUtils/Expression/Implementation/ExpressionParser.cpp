@@ -12,10 +12,12 @@ ezExpressionParser::ezExpressionParser()
 
 ezExpressionParser::~ezExpressionParser() = default;
 
-ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs, ezExpressionAST& out_ast)
+ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs, const Options& options, ezExpressionAST& out_ast)
 {
   if (code.IsEmpty())
     return EZ_FAILURE;
+
+  m_Options = options;
 
   m_pAST = &out_ast;
   SetupInAndOutputs(inputs, outputs);
@@ -28,6 +30,13 @@ ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<Stream> inputs,
   {
     m_uiCurrentToken = 0;
     EZ_SUCCEED_OR_RETURN(ParseAssignment());
+
+    if (m_uiCurrentToken < readTokens)
+    {
+      auto pCurrentToken = m_TokenStream[m_uiCurrentToken];
+      ReportError(pCurrentToken, ezFmt("Unknown token '{}'", pCurrentToken->m_DataView));
+      return EZ_FAILURE;
+    }
   }
 
   EZ_SUCCEED_OR_RETURN(CheckOutputs());
@@ -84,6 +93,8 @@ ezResult ezExpressionParser::ParseAssignment()
 
   EZ_SUCCEED_OR_RETURN(Expect("="));
   ezExpressionAST::Node* pExpression = ParseExpression();
+  if (pExpression == nullptr)
+    return EZ_FAILURE;
 
   if (ezExpressionAST::NodeType::IsOutput(pVarNode->m_Type))
   {
@@ -92,6 +103,7 @@ ezResult ezExpressionParser::ParseAssignment()
     return EZ_SUCCESS;
   }
 
+  ReportError(pIdentifierToken, ezFmt("'{}' is not assignable", sIdentifier));
   return EZ_FAILURE;
 }
 
@@ -105,48 +117,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
 
     if (Accept(m_TokenStream, m_uiCurrentToken, "("))
     {
-      ezHybridArray<ezExpressionAST::Node*, 8> arguments;
-      if (Accept(m_TokenStream, m_uiCurrentToken, ")") == false)
-      {
-        do 
-        {
-          arguments.PushBack(ParseExpression());
-        } while (Accept(m_TokenStream, m_uiCurrentToken, ","));
-      }
-      if (Expect(")").Failed())
-        return nullptr;
-
-      ezHashedString sHashedFuncName;
-      sHashedFuncName.Assign(sIdentifier);
-
-      ezEnum<ezExpressionAST::NodeType> builtinType;
-      if (m_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
-      {
-        if (ezExpressionAST::NodeType::IsUnary(builtinType))
-        {
-          if (arguments.GetCount() != 1)
-          {
-            ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Invalid argument count for '{}'. Expected 1 but got {}", sIdentifier, arguments.GetCount()));
-            return nullptr;
-          }
-          return m_pAST->CreateUnaryOperator(builtinType, arguments[0]);
-        }
-        else if (ezExpressionAST::NodeType::IsBinary(builtinType))
-        {
-          if (arguments.GetCount() != 2)
-          {
-            ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Invalid argument count for '{}'. Expected 2 but got {}", sIdentifier, arguments.GetCount()));
-            return nullptr;
-          }
-          return m_pAST->CreateBinaryOperator(builtinType, arguments[0], arguments[1]);
-        }
-      }
-      else
-      {
-        auto pFunctionCall = m_pAST->CreateFunctionCall(sHashedFuncName);
-        pFunctionCall->m_Arguments = std::move(arguments);
-        return pFunctionCall;
-      }
+      return ParseFunctionCall(sIdentifier);
     }
     else
     {
@@ -188,7 +159,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /* = 
 
   ezExpressionAST::NodeType::Enum binaryOp;
   int iBinaryOpPrecedence = 0;
-  while (AcceptBinaryOperator(binaryOp, iBinaryOpPrecedence) && iBinaryOpPrecedence <= iPrecedence)
+  while (AcceptBinaryOperator(binaryOp, iBinaryOpPrecedence) && iBinaryOpPrecedence < iPrecedence)
   {
     // Consume token.
     ++m_uiCurrentToken;
@@ -216,6 +187,57 @@ ezExpressionAST::Node* ezExpressionParser::ParseUnaryExpression()
   }
 
   return ParseFactor();
+}
+
+ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunctionName)
+{
+  // "(" of the function call
+  const ezToken* pFunctionToken = m_TokenStream[m_uiCurrentToken - 1];
+
+  ezHybridArray<ezExpressionAST::Node*, 8> arguments;
+  if (Accept(m_TokenStream, m_uiCurrentToken, ")") == false)
+  {
+    do
+    {
+      arguments.PushBack(ParseExpression());
+    } while (Accept(m_TokenStream, m_uiCurrentToken, ","));
+  }
+  if (Expect(")").Failed())
+    return nullptr;
+
+  ezHashedString sHashedFuncName;
+  sHashedFuncName.Assign(sFunctionName);
+
+  ezEnum<ezExpressionAST::NodeType> builtinType;
+  if (m_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
+  {
+    if (ezExpressionAST::NodeType::IsUnary(builtinType))
+    {
+      if (arguments.GetCount() != 1)
+      {
+        ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected 1 but got {}", sFunctionName, arguments.GetCount()));
+        return nullptr;
+      }
+      return m_pAST->CreateUnaryOperator(builtinType, arguments[0]);
+    }
+    else if (ezExpressionAST::NodeType::IsBinary(builtinType))
+    {
+      if (arguments.GetCount() != 2)
+      {
+        ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected 2 but got {}", sFunctionName, arguments.GetCount()));
+        return nullptr;
+      }
+      return m_pAST->CreateBinaryOperator(builtinType, arguments[0], arguments[1]);
+    }
+
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return nullptr;
+  }
+
+  // external function
+  auto pFunctionCall = m_pAST->CreateFunctionCall(sHashedFuncName);
+  pFunctionCall->m_Arguments = std::move(arguments);
+  return pFunctionCall;
 }
 
 // Does NOT advance the current token beyond the binary operator!
@@ -271,7 +293,11 @@ ezExpressionAST::Node* ezExpressionParser::GetVariable(ezStringView sVarName)
   sHashedVarName.Assign(sVarName);
 
   ezExpressionAST::Node* pNode = nullptr;
-  m_KnownVariables.TryGetValue(sHashedVarName, pNode);
+  if (m_KnownVariables.TryGetValue(sHashedVarName, pNode) == false && m_Options.m_bTreatUnknownVariablesAsInputs)
+  {
+    pNode = m_pAST->CreateInput(sHashedVarName, ezProcessingStream::DataType::Float);
+    m_KnownVariables.Insert(sHashedVarName, pNode);
+  }
 
   return pNode;
 }
