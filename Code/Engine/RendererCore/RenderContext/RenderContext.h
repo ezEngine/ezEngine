@@ -77,7 +77,7 @@ public:
     }
 
     EZ_ALWAYS_INLINE T* operator->() { return m_pGALCommandEncoder; }
-    EZ_ALWAYS_INLINE operator const T *() { return m_pGALCommandEncoder; }
+    EZ_ALWAYS_INLINE operator const T*() { return m_pGALCommandEncoder; }
 
   private:
     friend class ezRenderContext;
