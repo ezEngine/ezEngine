@@ -11,14 +11,12 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1326239030812853121,5293163528423259737}}
-		u4 %Hash{12746811027349184802}
+		u4 %Hash{14932617890254678192}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-			s{"{ 363d0e0f-3f2d-489c-9691-9d0df031d7a8 }"}
-			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 		}
 	}
@@ -171,33 +169,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3329303612071894669,4998963745217761618}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{16317201028631744957,5090676449016972484}}
-			Uuid{u4{4870748777943906944,5533487980458262359}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00009840,0x00009040,0x0000003F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{3342566294762105780,5083568990220089301}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -225,19 +196,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{16317201028631744957,5090676449016972484}}
-	s %t{"ezAnimatedMeshComponent"}
-	u3 %v{13}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 	}
 }
 o
@@ -372,20 +330,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4870748777943906944,5533487980458262359}}
-	s %t{"ezSimpleAnimationComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %AnimationClip{"{ 363d0e0f-3f2d-489c-9691-9d0df031d7a8 }"}
-		s %AnimationMode{"ezPropertyAnimMode::Loop"}
-		s %RootMotionMode{"ezRootMotionMode::Ignore"}
-		f %Speed{0}
-	}
-}
-o
-{
 	Uuid %id{u4{14833431250670446512,5662297366651680224}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{4}
@@ -478,7 +422,6 @@ o
 		{
 			Uuid{u4{3342566294762105780,5083568990220089301}}
 			Uuid{u4{15947673460242880438,5280515141643604348}}
-			Uuid{u4{3329303612071894669,4998963745217761618}}
 		}
 		Uuid %Settings{u4{3902709431501423783,4948607163808536459}}
 	}
@@ -486,24 +429,6 @@ o
 }
 Types
 {
-o
-{
-	Uuid %id{u4{16492723009378139380,540909537214531894}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{120}
-		u3 %TypeVersion{1}
-	}
-}
 o
 {
 	Uuid %id{u4{6914292285925798136,1108246313736053318}}
@@ -520,24 +445,6 @@ o
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{5752776564527608594,1125183500781470124}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSkinnedMeshComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAnimatedMeshComponent"}
-		u3 %TypeSize{192}
-		u3 %TypeVersion{13}
 	}
 }
 o
@@ -650,24 +557,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7605758958972330253,6687734095884105025}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -700,24 +589,6 @@ o
 		s %TypeName{"ezSceneDocumentSettings"}
 		u3 %TypeSize{40}
 		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{12435145686180634860,8288333427582851889}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPropertyAnimMode"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -830,24 +701,6 @@ o
 }
 o
 {
-	Uuid %id{u4{10022539470489817186,10504778302451670329}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRootMotionMode"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{14700230518358869173,11472901527618371423}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -897,24 +750,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
 		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15557534852353534641,12744853395693213718}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezMeshComponentBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkinnedMeshComponent"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }

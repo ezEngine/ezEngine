@@ -168,7 +168,7 @@ public:
   /// \brief Adds a #define to the preprocessor, even before any file is processed.
   ///
   /// This allows to have global macros that are always defined for all processed files, such as the current platform etc.
-  /// \a szDefinition must be in the form of the test that follows a #define statement. So to define the macro "WIN32", just
+  /// \a szDefinition must be in the form of the text that follows a #define statement. So to define the macro "WIN32", just
   /// pass that string. You can define any macro that could also be defined in the source files.
   ///
   /// If the definition is invalid, EZ_FAILURE is returned. Also the preprocessor might end up in an invalid state, so using it any

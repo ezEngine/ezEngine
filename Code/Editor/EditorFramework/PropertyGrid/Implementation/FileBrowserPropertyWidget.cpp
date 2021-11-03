@@ -43,8 +43,13 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
 
 void ezQtFilePropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(
-    m_pProp->GetAttributeByType<ezFileBrowserAttribute>() != nullptr, "ezQtFilePropertyWidget was created without a ezFileBrowserAttribute!");
+  auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
+  EZ_ASSERT_DEV(pAttr != nullptr, "ezQtFilePropertyWidget was created without a ezFileBrowserAttribute!");
+
+  if (pAttr->GetCustomAction() != nullptr)
+  {
+    m_pButton->menu()->addAction(QIcon(), ezTranslate(pAttr->GetCustomAction()), this, SLOT(OnCustomAction()));
+  }
 }
 
 void ezQtFilePropertyWidget::InternalSetValue(const ezVariant& value)
@@ -87,6 +92,28 @@ void ezQtFilePropertyWidget::OnOpenExplorer()
   ezQtUiServices::OpenInExplorer(sPath, true);
 }
 
+
+void ezQtFilePropertyWidget::OnCustomAction()
+{
+  auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
+
+  if (pAttr->GetCustomAction() == nullptr)
+    return;
+
+  auto it = ezDocumentManager::s_CustomActions.Find(pAttr->GetCustomAction());
+
+  if (!it.IsValid())
+    return;
+
+  ezVariant res = it.Value()(m_pGrid->GetDocument());
+
+  if (!res.IsValid() || !res.IsA<ezString>())
+    return;
+
+  m_pWidget->setText(res.Get<ezString>().GetData());
+  on_TextFinished_triggered();
+}
+
 void ezQtFilePropertyWidget::OnOpenFile()
 {
   ezString sPath = m_pWidget->text().toUtf8().data();
@@ -121,8 +148,7 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
   if (sStartDir.IsEmpty())
     sStartDir = ezToolsProject::GetSingleton()->GetProjectFile();
 
-  QString sResult = QFileDialog::getOpenFileName(
-    this, pFileAttribute->GetDialogTitle(), sStartDir.GetData(), pFileAttribute->GetTypeFilter(), nullptr, QFileDialog::Option::DontResolveSymlinks);
+  QString sResult = QFileDialog::getOpenFileName(this, pFileAttribute->GetDialogTitle(), sStartDir.GetData(), pFileAttribute->GetTypeFilter(), nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sResult.isEmpty())
     return;
