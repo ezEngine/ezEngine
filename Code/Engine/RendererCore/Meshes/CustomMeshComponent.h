@@ -1,0 +1,135 @@
+#pragma once
+
+#include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Pipeline/Renderer.h>
+
+using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
+using ezCustomMeshComponentManager = ezComponentManager<class ezCustomMeshComponent, ezBlockStorageType::Compact>;
+
+/// \brief This component is used to render custom geometry.
+///
+/// Sometimes game code needs to build geometry on the fly to visualize dynamic things.
+/// The ezDynamicMeshBufferResource is an easy to use resource to build geometry and change it frequently.
+/// This component takes such a resource and takes care of rendering it.
+/// The same resource can be set on multiple components to instantiate it in different locations.
+class EZ_RENDERERCORE_DLL ezCustomMeshComponent : public ezRenderComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezCustomMeshComponent, ezRenderComponent, ezCustomMeshComponentManager);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezCustomMeshComponent
+
+public:
+  ezCustomMeshComponent();
+  ~ezCustomMeshComponent();
+
+  /// \brief Creates a new dynamic mesh buffer.
+  ///
+  /// The new buffer can hold the given number of vertices and indices (either 16 bit or 32 bit).
+  ezDynamicMeshBufferResourceHandle CreateMeshResource(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiMaxVertices, ezUInt32 uiMaxPrimitives, ezGALIndexType::Enum indexType);
+
+  /// \brief Returns the currently set mesh resource.
+  ezDynamicMeshBufferResourceHandle GetMeshResource() const { return m_hDynamicMesh; }
+
+  /// \brief Sets which mesh buffer to use.
+  ///
+  /// This can be used to have multiple ezCustomMeshComponent's reference the same mesh buffer,
+  /// such that the object gets instanced in different locations.
+  void SetMeshResource(const ezDynamicMeshBufferResourceHandle& hMesh);
+
+  /// \brief Configures the component to render only a subset of the primitives in the mesh buffer.
+  void SetUsePrimitiveRange(ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiNumPrimitives = ezMath::MaxValue<ezUInt32>());
+
+  /// \brief Sets the bounds that are used for culling.
+  ///
+  /// Note: It is very important that this is called whenever the mesh buffer is modified and the size of
+  /// the mesh has changed, otherwise the object might not appear or be culled incorrectly.
+  void SetBounds(const ezBoundingBoxSphere& bounds);
+
+  /// \brief Sets the material for rendering.
+  void SetMaterial(const ezMaterialResourceHandle& hMaterial);
+
+  /// \brief Returns the material that is used for rendering.
+  ezMaterialResourceHandle GetMaterial() const;
+
+  void SetMaterialFile(const char* szMaterial); // [ property ]
+  const char* GetMaterialFile() const;          // [ property ]
+
+  /// \brief Sets a specific render data category used for rendering.
+  ///
+  /// Typically it is not necessary to change this, but it can be used to render the object in a
+  /// certain render pass.
+  EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category) { m_RenderDataCategory = category; }
+
+  /// \brief Sets the mesh instance color.
+  void SetColor(const ezColor& color); // [ property ]
+
+  /// \brief Returns the mesh instance color.
+  const ezColor& GetColor() const; // [ property ]
+
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg); // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& msg);               // [ msg handler ]
+
+protected:
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+  ezRenderData::Category m_RenderDataCategory = ezInvalidRenderDataCategory;
+  ezMaterialResourceHandle m_hMaterial;
+  ezColor m_Color = ezColor::White;
+  ezUInt32 m_uiFirstPrimitive = 0;
+  ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
+  ezBoundingBoxSphere m_Bounds;
+
+  ezDynamicMeshBufferResourceHandle m_hDynamicMesh;
+
+  virtual void OnActivated() override;
+};
+
+/// \brief Temporary data used to feed the ezCustomMeshRenderer.
+class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezRenderData);
+
+public:
+  virtual void FillBatchIdAndSortingKey();
+
+  ezDynamicMeshBufferResourceHandle m_hMesh;
+  ezMaterialResourceHandle m_hMaterial;
+  ezColor m_Color = ezColor::White;
+
+  ezUInt32 m_uiFlipWinding : 1;
+  ezUInt32 m_uiUniformScale : 1;
+
+  ezUInt32 m_uiFirstPrimitive = 0;
+  ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
+
+  ezUInt32 m_uiUniqueID = 0;
+};
+
+/// \brief A renderer that handles all ezCustomMeshRenderData.
+class EZ_RENDERERCORE_DLL ezCustomMeshRenderer : public ezRenderer
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderer, ezRenderer);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezCustomMeshRenderer);
+
+public:
+  ezCustomMeshRenderer();
+  ~ezCustomMeshRenderer();
+
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+};

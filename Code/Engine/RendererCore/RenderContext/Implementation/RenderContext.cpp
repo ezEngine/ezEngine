@@ -440,10 +440,9 @@ void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuff
 }
 
 void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer,
-  const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
+  const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hVertexBuffer2, ezGALBufferHandle hVertexBuffer3, ezGALBufferHandle hVertexBuffer4)
 {
-  if (m_hVertexBuffer == hVertexBuffer && m_hIndexBuffer == hIndexBuffer && m_pVertexDeclarationInfo == pVertexDeclarationInfo &&
-      m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
+  if (m_hVertexBuffers[0] == hVertexBuffer && m_hVertexBuffers[1] == hVertexBuffer2 && m_hVertexBuffers[2] == hVertexBuffer3 && m_hVertexBuffers[3] == hVertexBuffer4 && m_hIndexBuffer == hIndexBuffer && m_pVertexDeclarationInfo == pVertexDeclarationInfo && m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
   {
     return;
   }
@@ -475,7 +474,10 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
     SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_Topology]);
   }
 
-  m_hVertexBuffer = hVertexBuffer;
+  m_hVertexBuffers[0] = hVertexBuffer;
+  m_hVertexBuffers[1] = hVertexBuffer2;
+  m_hVertexBuffers[2] = hVertexBuffer3;
+  m_hVertexBuffers[3] = hVertexBuffer4;
   m_hIndexBuffer = hIndexBuffer;
   m_pVertexDeclarationInfo = pVertexDeclarationInfo;
   m_uiMeshBufferPrimitiveCount = uiPrimitiveCount;
@@ -486,8 +488,7 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
 void ezRenderContext::BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer)
 {
   ezResourceLock<ezDynamicMeshBufferResource> pMeshBuffer(hDynamicMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
-  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()), pMeshBuffer->GetTopology(),
-    pMeshBuffer->GetPrimitiveCount());
+  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()), pMeshBuffer->GetDescriptor().m_Topology, pMeshBuffer->GetDescriptor().m_uiMaxPrimitives, pMeshBuffer->GetColorBuffer());
 }
 
 ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
@@ -679,7 +680,11 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
     {
       pCommandEncoder->SetPrimitiveTopology(m_Topology);
-      pCommandEncoder->SetVertexBuffer(0, m_hVertexBuffer);
+
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hVertexBuffers); ++i)
+      {
+        pCommandEncoder->SetVertexBuffer(i, m_hVertexBuffers[i]);
+      }
 
       if (!m_hIndexBuffer.IsInvalidated())
         pCommandEncoder->SetIndexBuffer(m_hIndexBuffer);
@@ -690,7 +695,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
       return EZ_FAILURE;
 
     // If there is a vertex buffer we need a valid vertex declaration as well.
-    if (!m_hVertexBuffer.IsInvalidated() && hVertexDeclaration.IsInvalidated())
+    if ((!m_hVertexBuffers[0].IsInvalidated() || !m_hVertexBuffers[1].IsInvalidated() || !m_hVertexBuffers[2].IsInvalidated() || !m_hVertexBuffers[3].IsInvalidated()) && hVertexDeclaration.IsInvalidated())
       return EZ_FAILURE;
 
     pCommandEncoder->SetVertexDeclaration(hVertexDeclaration);
@@ -714,7 +719,11 @@ void ezRenderContext::ResetContextState()
 
   m_hActiveShaderPermutation.Invalidate();
 
-  m_hVertexBuffer.Invalidate();
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hVertexBuffers); ++i)
+  {
+    m_hVertexBuffers[i].Invalidate();
+  }
+
   m_hIndexBuffer.Invalidate();
   m_pVertexDeclarationInfo = nullptr;
   m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
@@ -916,7 +925,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, cons
       gal.m_eFormat = stream.m_Format;
       gal.m_eSemantic = stream.m_Semantic;
       gal.m_uiOffset = stream.m_uiOffset;
-      gal.m_uiVertexBufferSlot = 0;
+      gal.m_uiVertexBufferSlot = stream.m_uiVertexBufferSlot;
       vd.m_VertexAttributes.PushBack(gal);
     }
 

@@ -14,6 +14,7 @@ struct EZ_RENDERERCORE_DLL ezVertexStreamInfo : public ezHashableStruct<ezVertex
   EZ_DECLARE_POD_TYPE();
 
   ezGALVertexAttributeSemantic::Enum m_Semantic;
+  ezUInt8 m_uiVertexBufferSlot = 0;
   ezGALResourceFormat::Enum m_Format;
   ezUInt16 m_uiOffset;      ///< at which byte offset the first element starts
   ezUInt16 m_uiElementSize; ///< the number of bytes for this element type (depends on the format); this is not the stride between elements!

@@ -503,9 +503,6 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
   ezResourceLock<ezDynamicMeshBufferResource> pBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
 
-  auto pVertexData = pBuffer->AccessVertexData();
-  auto pIndexData = pBuffer->AccessIndex16Data();
-
   for (auto it = batch.GetIterator<ezClothSheetRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
     const ezClothSheetRenderData* pRenderData = it;
@@ -525,6 +522,9 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
     pInstanceData->UpdateInstanceData(pRenderContext, 1);
 
     {
+      auto pVertexData = pBuffer->AccessVertexData();
+      auto pIndexData = pBuffer->AccessIndex16Data();
+
       const float fDivU = 1.0f / (pRenderData->m_uiVerticesX - 1);
       const float fDivY = 1.0f / (pRenderData->m_uiVerticesY - 1);
 
@@ -593,13 +593,14 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
       ezMemoryUtils::Copy<ezUInt16>(pIndexData.GetPtr(), pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount());
     }
 
-    pBuffer->SetPrimitiveCount((pRenderData->m_uiVerticesX - 1) * (pRenderData->m_uiVerticesY - 1) * 2);
-    pBuffer->UpdateGpuBuffer(pGALCommandEncoder, 0, pRenderData->m_uiVerticesX * pRenderData->m_uiVerticesY, 0, pBuffer->GetPrimitiveCount() * 3);
+    const ezUInt32 uiNumPrimitives = (pRenderData->m_uiVerticesX - 1) * (pRenderData->m_uiVerticesY - 1) * 2;
+
+    pBuffer->UpdateGpuBuffer(pGALCommandEncoder, 0, pRenderData->m_uiVerticesX * pRenderData->m_uiVerticesY);
 
     // redo this after the primitive count has changed
     pRenderContext->BindMeshBuffer(m_hDynamicMeshBuffer);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(pBuffer->GetPrimitiveCount()).IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumPrimitives).IgnoreResult();
   }
 }
 
@@ -615,8 +616,9 @@ void ezClothSheetRenderer::CreateVertexBuffer()
     const ezUInt32 uiMaxVerts = 32;
 
     ezDynamicMeshBufferResourceDescriptor desc;
-    desc.m_uiNumVertices = uiMaxVerts * uiMaxVerts;
-    desc.m_uiNumIndices16 = ezMath::Square(uiMaxVerts - 1) * 2;
+    desc.m_uiMaxVertices = uiMaxVerts * uiMaxVerts;
+    desc.m_IndexType = ezGALIndexType::UShort;
+    desc.m_uiMaxPrimitives = ezMath::Square(uiMaxVerts - 1) * 2;
 
     m_hDynamicMeshBuffer = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>("ClothSheet", std::move(desc), "Cloth Sheet Buffer");
   }
