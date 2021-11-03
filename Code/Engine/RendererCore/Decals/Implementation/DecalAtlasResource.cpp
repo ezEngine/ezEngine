@@ -32,7 +32,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
   ON_CORESYSTEMS_SHUTDOWN
   {
     ezResourceManager::SetResourceTypeLoadingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
-  ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
+    ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
