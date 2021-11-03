@@ -25,8 +25,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Utilties, ConfigFileResource)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::SetResourceTypeLoader<ezConfigFileResource>(nullptr);
     ezResourceManager::SetResourceTypeMissingFallback<ezConfigFileResource>(ezConfigFileResourceHandle());
+    ezResourceManager::SetResourceTypeLoader<ezConfigFileResource>(nullptr);
+    ezConfigFileResource::CleanupDynamicPluginReferences();
   }
 
   EZ_END_SUBSYSTEM_DECLARATION;

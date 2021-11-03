@@ -49,4 +49,5 @@ private:
   QMetaObject::Connection m_OnButtonDestroyed;
   QMetaObject::Connection m_OnProgressDestroyed;
 #endif
+  QMetaObject::Connection m_OnDialogDestroyed;
 };

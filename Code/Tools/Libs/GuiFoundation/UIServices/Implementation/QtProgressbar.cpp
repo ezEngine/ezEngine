@@ -54,11 +54,17 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
     case ezProgressEvent::Type::ProgressChanged:
     {
       ++m_iNestedProcessEvents;
+
+      // make sure to fire all queued events before EnsureCreated()
+      // because this might delete the progress dialog and then crash
+      QCoreApplication::processEvents();
+
       EnsureCreated();
 
       ezStringBuilder sText(e.m_pProgressbar->GetMainDisplayText(), "\n", e.m_pProgressbar->GetStepDisplayText());
 
       m_pDialog->setLabelText(QString::fromUtf8(sText.GetData()));
+      EZ_ASSERT_DEV(m_pDialog != nullptr, "Progress dialog was destroyed while being in use");
 
       const ezUInt32 uiProMille = ezMath::Clamp<ezUInt32>((ezUInt32)(e.m_pProgressbar->GetCompletion() * 1000.0), 0, 1000);
       m_pDialog->setValue(uiProMille);
@@ -88,8 +94,7 @@ void ezQtProgressbar::EnsureCreated()
   if (m_pDialog)
     return;
 
-  m_pDialog = new QProgressDialog(
-    "                                                                                ", "Cancel", 0, 1000, QApplication::activeWindow());
+  m_pDialog = new QProgressDialog("                                                                                ", "Cancel", 0, 1000, QApplication::activeWindow());
 
   m_pDialog->setWindowModality(Qt::WindowModal);
   m_pDialog->setMinimumDuration((int)500);
@@ -99,6 +104,13 @@ void ezQtProgressbar::EnsureCreated()
 
   if (!m_pProgress->AllowUserCancel())
     m_pDialog->setCancelButton(nullptr);
+
+  auto ClearDialog = [this]() {
+    // this can happen during tests
+    m_pDialog = nullptr;
+  };
+
+  m_OnDialogDestroyed = QObject::connect(m_pDialog, &QObject::destroyed, ClearDialog);
 
   if (QApplication::activeWindow())
   {
