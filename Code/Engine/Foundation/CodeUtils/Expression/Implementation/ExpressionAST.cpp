@@ -15,6 +15,12 @@ bool ezExpressionAST::NodeType::IsBinary(Enum nodeType)
   return nodeType > FirstBinary && nodeType < LastBinary;
 }
 
+// static 
+bool ezExpressionAST::NodeType::IsTernary(Enum nodeType)
+{
+  return nodeType > FirstTernary && nodeType < LastTernary;
+}
+
 // static
 bool ezExpressionAST::NodeType::IsConstant(Enum nodeType)
 {
@@ -38,13 +44,13 @@ namespace
   static const char* s_szNodeTypeNames[] = {"Invalid",
 
     // Unary
-    "", "Negate", "Absolute", "Sqrt", "Sin", "Cos", "Tan", "ASin", "ACos", "ATan", "",
+    "", "Negate", "Absolute", "Saturate", "Sqrt", "Sin", "Cos", "Tan", "ASin", "ACos", "ATan", "",
 
     // Binary
     "", "Add", "Subtract", "Multiply", "Divide", "Min", "Max", "",
 
     // Ternary
-    "Select",
+    "", "Clamp", "Select", "",
 
     // Constant
     "FloatConstant",
@@ -97,6 +103,19 @@ ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryOperator(NodeType:
   pBinaryOperator->m_pRightOperand = pRightOperand;
 
   return pBinaryOperator;
+}
+
+ezExpressionAST::TernaryOperator* ezExpressionAST::CreateTernaryOperator(NodeType::Enum type, Node* pFirstOperand, Node* pSecondOperand, Node* pThirdOperand)
+{
+  EZ_ASSERT_DEBUG(NodeType::IsTernary(type), "Type '{}' is not a ternary operator", NodeType::GetName(type));
+
+  auto pTernaryOperator = EZ_NEW(&m_Allocator, TernaryOperator);
+  pTernaryOperator->m_Type = type;
+  pTernaryOperator->m_pFirstOperand = pFirstOperand;
+  pTernaryOperator->m_pSecondOperand = pSecondOperand;
+  pTernaryOperator->m_pThirdOperand = pThirdOperand;
+
+  return pTernaryOperator;
 }
 
 ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& value)

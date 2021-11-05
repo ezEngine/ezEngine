@@ -80,10 +80,7 @@ namespace
     pUpperValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pUpperValue, pUpperScale);
 
     auto pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, pLowerValue, pUpperValue);
-    pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Max, out_Ast.CreateConstant(0.0f), pValue);
-    pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, out_Ast.CreateConstant(1.0f), pValue);
-
-    return pValue;
+    return out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, pValue);
   }
 } // namespace
 
@@ -433,12 +430,11 @@ ezExpressionAST::Node* ezProcGen_Blend::GenerateExpressionASTNode(ezTempHashedSt
     pInputB = out_Ast.CreateConstant(m_fInputValueB);
   }
 
-  auto pBlend = out_Ast.CreateBinaryOperator(GetOperator(m_Operator), pInputA, pInputB);
+  ezExpressionAST::Node* pBlend = out_Ast.CreateBinaryOperator(GetOperator(m_Operator), pInputA, pInputB);
 
   if (m_bClampOutput)
   {
-    pBlend = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Max, out_Ast.CreateConstant(0.0f), pBlend);
-    pBlend = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, out_Ast.CreateConstant(1.0f), pBlend);
+    pBlend = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, pBlend);
   }
 
   return pBlend;

@@ -52,6 +52,7 @@ void ezExpressionParser::RegisterBuiltinFunctions()
 {
   // Unary
   m_BuiltinFunctions.Insert(ezMakeHashedString("abs"), ezExpressionAST::NodeType::Absolute);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("saturate"), ezExpressionAST::NodeType::Saturate);
   m_BuiltinFunctions.Insert(ezMakeHashedString("sqrt"), ezExpressionAST::NodeType::Sqrt);
   m_BuiltinFunctions.Insert(ezMakeHashedString("sin"), ezExpressionAST::NodeType::Sin);
   m_BuiltinFunctions.Insert(ezMakeHashedString("cos"), ezExpressionAST::NodeType::Cos);
@@ -60,9 +61,12 @@ void ezExpressionParser::RegisterBuiltinFunctions()
   m_BuiltinFunctions.Insert(ezMakeHashedString("acos"), ezExpressionAST::NodeType::ACos);
   m_BuiltinFunctions.Insert(ezMakeHashedString("atan"), ezExpressionAST::NodeType::ATan);
 
-  //Binary
+  // Binary
   m_BuiltinFunctions.Insert(ezMakeHashedString("min"), ezExpressionAST::NodeType::Min);
   m_BuiltinFunctions.Insert(ezMakeHashedString("max"), ezExpressionAST::NodeType::Max);
+
+  // Ternary
+  m_BuiltinFunctions.Insert(ezMakeHashedString("clamp"), ezExpressionAST::NodeType::Clamp);
 }
 
 void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs)
@@ -186,7 +190,7 @@ ezResult ezExpressionParser::ParseAssignment()
   {
     EZ_SUCCEED_OR_RETURN(Expect("="));
   }
-  
+
   ezExpressionAST::Node* pExpression = ParseExpression();
   if (pExpression == nullptr)
     return EZ_FAILURE;
@@ -318,23 +322,36 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
   ezEnum<ezExpressionAST::NodeType> builtinType;
   if (m_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
   {
+    auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult
+    {
+      if (arguments.GetCount() != uiExpectedArgumentCount)
+      {
+        ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected {} but got {}", sFunctionName, uiExpectedArgumentCount, arguments.GetCount()));
+        return EZ_FAILURE;
+      }
+      return EZ_SUCCESS;
+    };
+
     if (ezExpressionAST::NodeType::IsUnary(builtinType))
     {
-      if (arguments.GetCount() != 1)
-      {
-        ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected 1 but got {}", sFunctionName, arguments.GetCount()));
+      if (CheckArgumentCount(1).Failed())
         return nullptr;
-      }
+
       return m_pAST->CreateUnaryOperator(builtinType, arguments[0]);
     }
     else if (ezExpressionAST::NodeType::IsBinary(builtinType))
     {
-      if (arguments.GetCount() != 2)
-      {
-        ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected 2 but got {}", sFunctionName, arguments.GetCount()));
+      if (CheckArgumentCount(2).Failed())
         return nullptr;
-      }
+
       return m_pAST->CreateBinaryOperator(builtinType, arguments[0], arguments[1]);
+    }
+    else if (ezExpressionAST::NodeType::IsTernary(builtinType))
+    {
+      if (CheckArgumentCount(3).Failed())
+        return nullptr;
+
+      return m_pAST->CreateTernaryOperator(builtinType, arguments[0], arguments[1], arguments[2]);
     }
 
     EZ_ASSERT_NOT_IMPLEMENTED;
