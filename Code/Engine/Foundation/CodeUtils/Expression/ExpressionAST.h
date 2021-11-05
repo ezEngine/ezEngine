@@ -142,6 +142,7 @@ public:
 
   // Transforms
   Node* ReplaceUnsupportedInstructions(Node* pNode);
+  Node* FoldConstants(Node* pNode);
 
 private:
   ezStackAllocator<> m_Allocator;

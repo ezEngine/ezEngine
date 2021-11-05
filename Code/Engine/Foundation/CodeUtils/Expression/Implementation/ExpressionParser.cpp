@@ -30,11 +30,11 @@ ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<Stream> inputs,
   {
     m_uiCurrentToken = 0;
 
-    while (m_uiCurrentToken < readTokens)
+    while (m_uiCurrentToken < m_TokenStream.GetCount())
     {
       EZ_SUCCEED_OR_RETURN(ParseStatement());
 
-      if (m_uiCurrentToken < readTokens && Accept(m_TokenStream, m_uiCurrentToken, ";") == false)
+      if (m_uiCurrentToken < m_TokenStream.GetCount() && AcceptStatementTerminator() == false)
       {
         auto pCurrentToken = m_TokenStream[m_uiCurrentToken];
         ReportError(pCurrentToken, ezFmt("Syntax error, unexpected token '{}'", pCurrentToken->m_DataView));
@@ -91,6 +91,12 @@ void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr
 ezResult ezExpressionParser::ParseStatement()
 {
   SkipWhitespace(m_TokenStream, m_uiCurrentToken);
+
+  if (AcceptStatementTerminator())
+  {
+    // empty statement
+    return EZ_SUCCESS;
+  }
 
   if (m_uiCurrentToken >= m_TokenStream.GetCount())
     return EZ_FAILURE;

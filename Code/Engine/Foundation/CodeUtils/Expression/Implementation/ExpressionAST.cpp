@@ -174,6 +174,11 @@ ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
     auto& pChildren = static_cast<BinaryOperator*>(pNode)->m_pLeftOperand;
     return ezMakeArrayPtr(&pChildren, 2);
   }
+  else if (NodeType::IsTernary(nodeType))
+  {
+    auto& pChildren = static_cast<TernaryOperator*>(pNode)->m_pFirstOperand;
+    return ezMakeArrayPtr(&pChildren, 3);
+  }
   else if (NodeType::IsOutput(nodeType))
   {
     auto& pChild = static_cast<Output*>(pNode)->m_pExpression;
@@ -185,6 +190,7 @@ ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
     return args;
   }
 
+  EZ_ASSERT_DEV(NodeType::IsInput(nodeType) || NodeType::IsConstant(nodeType), "Unknown node type");
   return ezArrayPtr<Node*>();
 }
 
@@ -202,6 +208,11 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
     auto& pChildren = static_cast<const BinaryOperator*>(pNode)->m_pLeftOperand;
     return ezMakeArrayPtr((const Node**)&pChildren, 2);
   }
+  else if (NodeType::IsTernary(nodeType))
+  {
+    auto& pChildren = static_cast<const TernaryOperator*>(pNode)->m_pFirstOperand;
+    return ezMakeArrayPtr((const Node**)&pChildren, 3);
+  }
   else if (NodeType::IsOutput(nodeType))
   {
     auto& pChild = static_cast<const Output*>(pNode)->m_pExpression;
@@ -213,6 +224,7 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
     return ezArrayPtr<const Node*>((const Node**)args.GetData(), args.GetCount());
   }
 
+  EZ_ASSERT_DEV(NodeType::IsInput(nodeType) || NodeType::IsConstant(nodeType), "Unknown node type");
   return ezArrayPtr<const Node*>();
 }
 

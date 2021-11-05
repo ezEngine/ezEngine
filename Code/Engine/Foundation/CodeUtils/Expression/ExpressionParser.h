@@ -45,6 +45,7 @@ private:
   ezExpressionAST::Node* ParseUnaryExpression();
   ezExpressionAST::Node* ParseFunctionCall(ezStringView sFunctionName);
 
+  bool AcceptStatementTerminator();
   bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence);
   ezExpressionAST::Node* GetVariable(ezStringView sVarName);
 

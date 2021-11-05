@@ -163,4 +163,51 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     const float b = 3;
     EZ_TEST_FLOAT(Execute(testByteCode, a, b), 10.0f, ezMath::DefaultEpsilon<float>());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constant folding")
+  {
+    ezExpressionByteCode referenceByteCode;
+    {
+      ezStringView code = "output = 42";
+      Compile(code, referenceByteCode);
+    }
+
+    ezExpressionByteCode testByteCode;
+
+    ezStringView code = "var x = abs(-7) + saturate(2) + 2\n"
+                        "var v = (sqrt(25) - 4) * 5\n"
+                        "var m = min(300, 1000) / max(1, 3);"
+                        "var r = m - x * 5 - v - clamp(13, 1, 3);\n"
+                        "output = r";
+
+    Compile(code, testByteCode);
+    EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
+
+    EZ_TEST_FLOAT(Execute(testByteCode), 42.0f, ezMath::DefaultEpsilon<float>());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constant instructions")
+  {
+    // There are special instructions in the vm which take the constant as the first operand in place and
+    // don't require an extra mov for the constant.
+    // This test checks whether the compiler transforms operations with constants as second operands to the preferred form.
+
+    ezExpressionByteCode referenceByteCode;
+    {
+      ezStringView code = "output = (2 + a) + (-1 + b) + (2 * c) + (0.1 * d) + min(1, c) + max(2, d)";
+      Compile(code, referenceByteCode);
+    }
+
+    ezExpressionByteCode testByteCode;
+
+    ezStringView code = "output = (a + 2) + (b - 1) + (c * 2) + (d / 10) + min(c, 1) + max(d, 2)";
+    Compile(code, testByteCode);
+    EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
+
+    const float a = 1;
+    const float b = 2;
+    const float c = 3;
+    const float d = 40;
+    EZ_TEST_FLOAT(Execute(testByteCode, a, b, c, d), 55.0f, ezMath::DefaultEpsilon<float>());
+  }
 }

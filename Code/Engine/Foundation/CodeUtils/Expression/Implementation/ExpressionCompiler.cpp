@@ -66,6 +66,7 @@ ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCod
 ezResult ezExpressionCompiler::TransformAndOptimizeAST(ezExpressionAST& ast)
 {
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ReplaceUnsupportedInstructions, &ast)));
+  EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::FoldConstants, &ast)));
 
   return EZ_SUCCESS;
 }
@@ -415,6 +416,64 @@ ezResult ezExpressionCompiler::TransformASTPreOrder(ezExpressionAST& ast, Transf
         pChild = pNewChild;
         m_NodeStack.PushBack(pChild);
       }
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezExpressionCompiler::TransformASTPostOrder(ezExpressionAST& ast, TransformFunc func)
+{
+  m_NodeStack.Clear();
+  m_NodeInstructions.Clear();
+  auto& nodeStackTemp = m_NodeInstructions;
+
+  for (ezExpressionAST::Node* pOutputNode : ast.m_OutputNodes)
+  {
+    if (pOutputNode == nullptr)
+      continue;
+
+    nodeStackTemp.PushBack(pOutputNode);
+
+    while (!nodeStackTemp.IsEmpty())
+    {
+      auto pParent = nodeStackTemp.PeekBack();
+      nodeStackTemp.PopBack();
+
+      m_NodeStack.PushBack(pParent);
+
+      auto children = ezExpressionAST::GetChildren(pParent);
+      for (auto pChild : children)
+      {
+        if (pChild != nullptr)
+        {
+          nodeStackTemp.PushBack(pChild);
+        }
+      }
+    }
+  }
+
+  m_TransformCache.Clear();
+
+  while (!m_NodeStack.IsEmpty())
+  {
+    auto pParent = m_NodeStack.PeekBack();
+    m_NodeStack.PopBack();
+
+    auto children = ezExpressionAST::GetChildren(pParent);
+    for (auto& pChild : children)
+    {
+      if (pChild == nullptr)
+        continue;
+
+      ezExpressionAST::Node* pNewChild = nullptr;
+      if (m_TransformCache.TryGetValue(pChild, pNewChild) == false)
+      {
+        pNewChild = func(pChild);
+        m_TransformCache.Insert(pChild, pNewChild);
+      }
+
+      pChild = pNewChild;
     }
   }
 

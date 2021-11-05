@@ -1,4 +1,10 @@
 
+inline bool ezExpressionParser::AcceptStatementTerminator()
+{
+  return ezTokenParseUtils::Accept(m_TokenStream, m_uiCurrentToken, ezTokenType::Newline) ||
+         ezTokenParseUtils::Accept(m_TokenStream, m_uiCurrentToken, ";");
+}
+
 inline ezResult ezExpressionParser::Expect(const char* szToken, const ezToken** pExpectedToken)
 {
   ezUInt32 uiAcceptedToken = 0;
