@@ -29,13 +29,17 @@ ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<Stream> inputs,
   while (tokenizer.GetNextLine(readTokens, m_TokenStream).Succeeded())
   {
     m_uiCurrentToken = 0;
-    EZ_SUCCEED_OR_RETURN(ParseAssignment());
 
-    if (m_uiCurrentToken < readTokens)
+    while (m_uiCurrentToken < readTokens)
     {
-      auto pCurrentToken = m_TokenStream[m_uiCurrentToken];
-      ReportError(pCurrentToken, ezFmt("Unknown token '{}'", pCurrentToken->m_DataView));
-      return EZ_FAILURE;
+      EZ_SUCCEED_OR_RETURN(ParseStatement());
+
+      if (m_uiCurrentToken < readTokens && Accept(m_TokenStream, m_uiCurrentToken, ";") == false)
+      {
+        auto pCurrentToken = m_TokenStream[m_uiCurrentToken];
+        ReportError(pCurrentToken, ezFmt("Syntax error, unexpected token '{}'", pCurrentToken->m_DataView));
+        return EZ_FAILURE;
+      }
     }
   }
 
@@ -63,6 +67,8 @@ void ezExpressionParser::RegisterBuiltinFunctions()
 
 void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs)
 {
+  m_KnownVariables.Clear();
+
   for (auto& input : inputs)
   {
     auto pInputNode = m_pAST->CreateInput(input.m_sName, input.m_DataType);
@@ -78,6 +84,74 @@ void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr
   }
 }
 
+ezResult ezExpressionParser::ParseStatement()
+{
+  SkipWhitespace(m_TokenStream, m_uiCurrentToken);
+
+  if (m_uiCurrentToken >= m_TokenStream.GetCount())
+    return EZ_FAILURE;
+
+  const ezToken* pIdentifierToken = m_TokenStream[m_uiCurrentToken];
+  if (pIdentifierToken->m_iType != ezTokenType::Identifier)
+  {
+    ReportError(pIdentifierToken, "Syntax error, expected type or variable");
+  }
+
+  if (ParseType(pIdentifierToken->m_DataView).Succeeded())
+  {
+    return ParseVariableDefinition();
+  }
+
+  return ParseAssignment();
+}
+
+ezResult ezExpressionParser::ParseType(ezStringView sTypeName)
+{
+  if (sTypeName == "var" || sTypeName == "float")
+  {
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezExpressionParser::ParseVariableDefinition()
+{
+  // skip type
+  EZ_SUCCEED_OR_RETURN(Expect(ezTokenType::Identifier));
+
+  const ezToken* pIdentifierToken = nullptr;
+  EZ_SUCCEED_OR_RETURN(Expect(ezTokenType::Identifier, &pIdentifierToken));
+
+  ezHashedString sHashedVarName;
+  sHashedVarName.Assign(pIdentifierToken->m_DataView);
+
+  ezExpressionAST::Node* pNode = nullptr;
+  if (m_KnownVariables.TryGetValue(sHashedVarName, pNode))
+  {
+    const char* szExisting = "a variable";
+    if (ezExpressionAST::NodeType::IsInput(pNode->m_Type))
+    {
+      szExisting = "an input";
+    }
+    else if (ezExpressionAST::NodeType::IsOutput(pNode->m_Type))
+    {
+      szExisting = "an output";
+    }
+
+    ReportError(pIdentifierToken, ezFmt("Local variable '{}' cannot be defined because {} of the same name already exists", pIdentifierToken->m_DataView, szExisting));
+    return EZ_FAILURE;
+  }
+
+  EZ_SUCCEED_OR_RETURN(Expect("="));
+  ezExpressionAST::Node* pExpression = ParseExpression();
+  if (pExpression == nullptr)
+    return EZ_FAILURE;
+
+  m_KnownVariables.Insert(sHashedVarName, pExpression);
+  return EZ_SUCCESS;
+}
+
 ezResult ezExpressionParser::ParseAssignment()
 {
   const ezToken* pIdentifierToken = nullptr;
@@ -87,24 +161,57 @@ ezResult ezExpressionParser::ParseAssignment()
   ezExpressionAST::Node* pVarNode = GetVariable(sIdentifier);
   if (pVarNode == nullptr)
   {
-    ReportError(m_TokenStream[m_uiCurrentToken], "Syntax error, expected a valid variable");
+    ReportError(pIdentifierToken, "Syntax error, expected a valid variable");
     return EZ_FAILURE;
   }
 
-  EZ_SUCCEED_OR_RETURN(Expect("="));
+  ezExpressionAST::NodeType::Enum assignOperator = ezExpressionAST::NodeType::Invalid;
+  if (Accept(m_TokenStream, m_uiCurrentToken, "+", "="))
+  {
+    assignOperator = ezExpressionAST::NodeType::Add;
+  }
+  else if (Accept(m_TokenStream, m_uiCurrentToken, "-", "="))
+  {
+    assignOperator = ezExpressionAST::NodeType::Subtract;
+  }
+  else if (Accept(m_TokenStream, m_uiCurrentToken, "*", "="))
+  {
+    assignOperator = ezExpressionAST::NodeType::Multiply;
+  }
+  else if (Accept(m_TokenStream, m_uiCurrentToken, "/", "="))
+  {
+    assignOperator = ezExpressionAST::NodeType::Divide;
+  }
+  else
+  {
+    EZ_SUCCEED_OR_RETURN(Expect("="));
+  }
+  
   ezExpressionAST::Node* pExpression = ParseExpression();
   if (pExpression == nullptr)
     return EZ_FAILURE;
 
-  if (ezExpressionAST::NodeType::IsOutput(pVarNode->m_Type))
+  if (assignOperator != ezExpressionAST::NodeType::Invalid)
+  {
+    pExpression = m_pAST->CreateBinaryOperator(assignOperator, pVarNode, pExpression);
+  }
+
+  if (ezExpressionAST::NodeType::IsInput(pVarNode->m_Type))
+  {
+    ReportError(pIdentifierToken, ezFmt("Input '{}' is not assignable", sIdentifier));
+    return EZ_FAILURE;
+  }
+  else if (ezExpressionAST::NodeType::IsOutput(pVarNode->m_Type))
   {
     auto pOutput = static_cast<ezExpressionAST::Output*>(pVarNode);
     pOutput->m_pExpression = pExpression;
     return EZ_SUCCESS;
   }
 
-  ReportError(pIdentifierToken, ezFmt("'{}' is not assignable", sIdentifier));
-  return EZ_FAILURE;
+  ezHashedString sHashedVarName;
+  sHashedVarName.Assign(sIdentifier);
+  m_KnownVariables.Insert(sHashedVarName, pExpression);
+  return EZ_SUCCESS;
 }
 
 ezExpressionAST::Node* ezExpressionParser::ParseFactor()

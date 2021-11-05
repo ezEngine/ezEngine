@@ -67,6 +67,9 @@ public:
   ezExpressionByteCode();
   ~ezExpressionByteCode();
 
+  bool operator==(const ezExpressionByteCode& other) const;
+  bool operator!=(const ezExpressionByteCode& other) const { return !(*this == other); }
+
   void Clear();
   bool IsEmpty() const { return m_ByteCode.IsEmpty(); }
 

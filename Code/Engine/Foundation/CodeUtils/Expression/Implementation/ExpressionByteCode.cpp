@@ -67,6 +67,14 @@ namespace
 ezExpressionByteCode::ezExpressionByteCode() = default;
 ezExpressionByteCode::~ezExpressionByteCode() = default;
 
+bool ezExpressionByteCode::operator==(const ezExpressionByteCode& other) const
+{
+  return m_ByteCode == other.m_ByteCode &&
+         m_Inputs == other.m_Inputs &&
+         m_Outputs == other.m_Outputs &&
+         m_Functions == other.m_Functions;
+}
+
 void ezExpressionByteCode::Clear()
 {
   m_ByteCode.Clear();
