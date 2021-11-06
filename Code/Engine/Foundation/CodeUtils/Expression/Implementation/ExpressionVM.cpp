@@ -334,53 +334,43 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
     {
         // unary
       case ezExpressionByteCode::OpCode::Abs_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return x.Abs(); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x.Abs(); });
         break;
 
       case ezExpressionByteCode::OpCode::Sqrt_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return x.GetSqrt(); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x.GetSqrt(); });
         break;
 
       case ezExpressionByteCode::OpCode::Sin_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return ezSimdMath::Sin(x); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::Sin(x); });
         break;
 
       case ezExpressionByteCode::OpCode::Cos_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return ezSimdMath::Cos(x); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::Cos(x); });
         break;
 
       case ezExpressionByteCode::OpCode::Tan_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return ezSimdMath::Tan(x); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::Tan(x); });
         break;
 
       case ezExpressionByteCode::OpCode::ASin_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return ezSimdMath::ASin(x); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::ASin(x); });
         break;
 
       case ezExpressionByteCode::OpCode::ACos_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return ezSimdMath::ACos(x); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::ACos(x); });
         break;
 
       case ezExpressionByteCode::OpCode::ATan_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return ezSimdMath::ATan(x); });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::ATan(x); });
         break;
 
       case ezExpressionByteCode::OpCode::Mov_R:
-        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return x; });
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
         break;
 
       case ezExpressionByteCode::OpCode::Mov_C:
-        VMOperation1_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x)
-          { return x; });
+        VMOperation1_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
         break;
 
       case ezExpressionByteCode::OpCode::Load:
@@ -393,63 +383,51 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
 
         // binary
       case ezExpressionByteCode::OpCode::Add_RR:
-        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a + b; });
+        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a + b; });
         break;
 
       case ezExpressionByteCode::OpCode::Add_CR:
-        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a + b; });
+        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a + b; });
         break;
 
       case ezExpressionByteCode::OpCode::Sub_RR:
-        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a - b; });
+        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a - b; });
         break;
 
       case ezExpressionByteCode::OpCode::Sub_CR:
-        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a - b; });
+        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a - b; });
         break;
 
       case ezExpressionByteCode::OpCode::Mul_RR:
-        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompMul(b); });
+        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMul(b); });
         break;
 
       case ezExpressionByteCode::OpCode::Mul_CR:
-        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompMul(b); });
+        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMul(b); });
         break;
 
       case ezExpressionByteCode::OpCode::Div_RR:
-        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompDiv(b); });
+        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompDiv(b); });
         break;
 
       case ezExpressionByteCode::OpCode::Div_CR:
-        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompDiv(b); });
+        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompDiv(b); });
         break;
 
       case ezExpressionByteCode::OpCode::Min_RR:
-        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompMin(b); });
+        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMin(b); });
         break;
 
       case ezExpressionByteCode::OpCode::Min_CR:
-        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompMin(b); });
+        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMin(b); });
         break;
 
       case ezExpressionByteCode::OpCode::Max_RR:
-        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompMax(b); });
+        VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMax(b); });
         break;
 
       case ezExpressionByteCode::OpCode::Max_CR:
-        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b)
-          { return a.CompMax(b); });
+        VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMax(b); });
         break;
 
         // call
