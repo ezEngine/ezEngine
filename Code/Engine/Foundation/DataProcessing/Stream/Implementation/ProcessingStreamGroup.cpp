@@ -76,7 +76,9 @@ ezProcessingStream* ezProcessingStreamGroup::AddStream(const char* szName, ezPro
   if (GetStreamByName(szName))
     return nullptr;
 
-  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, szName, Type, 64);
+  ezHashedString sName;
+  sName.Assign(szName);
+  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, sName, Type, ezProcessingStream::GetDataTypeSize(Type), 16);
 
   m_DataStreams.PushBack(pStream);
 

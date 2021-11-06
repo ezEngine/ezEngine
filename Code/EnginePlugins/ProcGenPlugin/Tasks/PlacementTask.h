@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/CodeUtils/Expression/ExpressionVM.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <ProcGenPlugin/Declarations.h>
-#include <ProcGenPlugin/VM/ExpressionVM.h>
 
 class ezPhysicsWorldModuleInterface;
 class ezVolumeCollection;
@@ -25,6 +25,11 @@ namespace ezProcGenInternal
 
     void FindPlacementPoints();
     void ExecuteVM();
+
+    ezProcessingStream MakeInputStream(const ezHashedString& sName, ezUInt32 uiOffset)
+    {
+      return ezProcessingStream(sName, m_InputPoints.GetByteArrayPtr().GetSubArray(uiOffset), ezProcessingStream::DataType::Float, sizeof(PlacementPoint));
+    }
 
     PlacementData* m_pData = nullptr;
 

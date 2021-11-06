@@ -1,16 +1,9 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <ProcGenPlugin/VM/ExpressionByteCode.h>
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
-
-ezExpressionByteCode::ezExpressionByteCode()
-  : m_uiNumInstructions(0)
-  , m_uiNumTempRegisters(0)
-{
-}
-
-ezExpressionByteCode::~ezExpressionByteCode() {}
+#include <Foundation/Logging/Log.h>
 
 namespace
 {
@@ -29,8 +22,8 @@ namespace
 
     "Mov_R",
     "Mov_C",
-    "Mov_I",
-    "Mov_O",
+    "Load",
+    "Store",
 
     "",
 
@@ -58,6 +51,8 @@ namespace
     "",
 
     "Call",
+
+    "Nop",
   };
 
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szOpCodeNames) == ezExpressionByteCode::OpCode::Count, "OpCode name array size does not match OpCode type count");
@@ -68,6 +63,28 @@ namespace
            opCode == ezExpressionByteCode::OpCode::Min_CR || opCode == ezExpressionByteCode::OpCode::Max_CR;
   }
 } // namespace
+
+ezExpressionByteCode::ezExpressionByteCode() = default;
+ezExpressionByteCode::~ezExpressionByteCode() = default;
+
+bool ezExpressionByteCode::operator==(const ezExpressionByteCode& other) const
+{
+  return m_ByteCode == other.m_ByteCode &&
+         m_Inputs == other.m_Inputs &&
+         m_Outputs == other.m_Outputs &&
+         m_Functions == other.m_Functions;
+}
+
+void ezExpressionByteCode::Clear()
+{
+  m_ByteCode.Clear();
+  m_Inputs.Clear();
+  m_Outputs.Clear();
+  m_Functions.Clear();
+
+  m_uiNumInstructions = 0;
+  m_uiNumTempRegisters = 0;
+}
 
 void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
 {
@@ -112,11 +129,11 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
       }
       else
       {
-        if (opCode == OpCode::Mov_I)
+        if (opCode == OpCode::Load)
         {
           out_sDisassembly.AppendFormat("{0} r{1} i{2}({3})\n", szOpCode, r, x, m_Inputs[x]);
         }
-        else if (opCode == OpCode::Mov_O)
+        else if (opCode == OpCode::Store)
         {
           out_sDisassembly.AppendFormat("{0} o{1}({3}) r{2}\n", szOpCode, r, x, m_Outputs[r]);
         }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
+#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
 
 class ezVolumeCollection;
 

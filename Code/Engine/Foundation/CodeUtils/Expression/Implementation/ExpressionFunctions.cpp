@@ -1,16 +1,15 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Containers/HashTable.h>
+#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
 #include <Foundation/SimdMath/SimdNoise.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
 
 // static
 void ezDefaultExpressionFunctions::Random(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
 {
   ezArrayPtr<const ezSimdVec4f> positions = inputs[0];
   const ezSimdVec4f* pPositions = positions.GetPtr();
-  const ezSimdVec4f* pPositionsEnd = pPositions + positions.GetCount();
+  const ezSimdVec4f* pPositionsEnd = positions.GetEndPtr();
   ezSimdVec4f* pOutput = output.GetPtr();
 
   if (inputs.GetCount() >= 2)
@@ -55,9 +54,9 @@ void ezDefaultExpressionFunctions::PerlinNoise(ezExpression::Inputs inputs, ezEx
   const ezSimdVec4f* pPosX = inputs[0].GetPtr();
   const ezSimdVec4f* pPosY = inputs[1].GetPtr();
   const ezSimdVec4f* pPosZ = inputs[2].GetPtr();
-  const ezSimdVec4f* pPosXEnd = pPosX + inputs[0].GetCount();
+  const ezSimdVec4f* pPosXEnd = inputs[0].GetEndPtr();
 
-  ezUInt32 uiNumOcataves = ezSimdVec4i::Truncate(inputs[3][0]).x();
+  const ezUInt32 uiNumOcataves = (inputs.GetCount() >= 4) ? ezSimdVec4i::Truncate(inputs[3][0]).x() : 1;
 
   ezSimdVec4f* pOutput = output.GetPtr();
 

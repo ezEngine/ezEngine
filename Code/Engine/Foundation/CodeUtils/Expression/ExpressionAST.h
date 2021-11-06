@@ -1,12 +1,13 @@
 #pragma once
 
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Variant.h>
-#include <ProcGenPlugin/Declarations.h>
 
 class ezDGMLGraph;
 
-class EZ_PROCGENPLUGIN_DLL ezExpressionAST
+class EZ_FOUNDATION_DLL ezExpressionAST
 {
 public:
   struct NodeType
@@ -22,6 +23,7 @@ public:
       FirstUnary,
       Negate,
       Absolute,
+      Saturate,
       Sqrt,
       Sin,
       Cos,
@@ -42,16 +44,19 @@ public:
       LastBinary,
 
       // Ternary
+      FirstTernary,
+      Clamp,
       Select,
+      LastTernary,
 
       // Constant
-      FloatConstant,
+      Constant,
 
       // Input
-      FloatInput,
+      Input,
 
       // Output
-      FloatOutput,
+      Output,
 
       FunctionCall,
 
@@ -60,6 +65,7 @@ public:
 
     static bool IsUnary(Enum nodeType);
     static bool IsBinary(Enum nodeType);
+    static bool IsTernary(Enum nodeType);
     static bool IsConstant(Enum nodeType);
     static bool IsInput(Enum nodeType);
     static bool IsOutput(Enum nodeType);
@@ -83,26 +89,29 @@ public:
     Node* m_pRightOperand = nullptr;
   };
 
-  struct Select : public Node
+  struct TernaryOperator : public Node
   {
-    Node* m_pCondition = nullptr;
-    Node* m_pTrueOperand = nullptr;
-    Node* m_pFalseOperand = nullptr;
+    Node* m_pFirstOperand = nullptr;
+    Node* m_pSecondOperand = nullptr;
+    Node* m_pThirdOperand = nullptr;
   };
 
   struct Constant : public Node
   {
     ezVariant m_Value;
+    ezProcessingStream::DataType m_DataType;
   };
 
   struct Input : public Node
   {
     ezHashedString m_sName;
+    ezProcessingStream::DataType m_DataType;
   };
 
   struct Output : public Node
   {
     ezHashedString m_sName;
+    ezProcessingStream::DataType m_DataType;
     Node* m_pExpression = nullptr;
   };
 
@@ -118,10 +127,10 @@ public:
 
   UnaryOperator* CreateUnaryOperator(NodeType::Enum type, Node* pOperand);
   BinaryOperator* CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand);
-  Select* CreateSelect(Node* pCondition, Node* pTrueOperand, Node* pFalseOperand);
+  TernaryOperator* CreateTernaryOperator(NodeType::Enum type, Node* pFirstOperand, Node* pSecondOperand, Node* pThirdOperand);
   Constant* CreateConstant(const ezVariant& value);
-  Input* CreateInput(const ezHashedString& sName);
-  Output* CreateOutput(const ezHashedString& sName, Node* pExpression);
+  Input* CreateInput(const ezHashedString& sName, ezProcessingStream::DataType dataType);
+  Output* CreateOutput(const ezHashedString& sName, ezProcessingStream::DataType dataType, Node* pExpression);
   FunctionCall* CreateFunctionCall(const ezHashedString& sName);
 
   static ezArrayPtr<Node*> GetChildren(Node* pNode);
@@ -130,6 +139,10 @@ public:
   void PrintGraph(ezDGMLGraph& graph) const;
 
   ezHybridArray<Output*, 8> m_OutputNodes;
+
+  // Transforms
+  Node* ReplaceUnsupportedInstructions(Node* pNode);
+  Node* FoldConstants(Node* pNode);
 
 private:
   ezStackAllocator<> m_Allocator;

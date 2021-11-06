@@ -1,9 +1,13 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
-#include <ProcGenPlugin/Declarations.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/Strings/HashedString.h>
 
-class EZ_PROCGENPLUGIN_DLL ezExpressionByteCode
+class ezStreamWriter;
+class ezStreamReader;
+
+class EZ_FOUNDATION_DLL ezExpressionByteCode
 {
 public:
   struct OpCode
@@ -26,8 +30,8 @@ public:
 
       Mov_R,
       Mov_C,
-      Mov_I,
-      Mov_O,
+      Load,
+      Store,
 
       LastUnary,
 
@@ -56,6 +60,8 @@ public:
 
       Call,
 
+      Nop,
+
       Count
     };
   };
@@ -64,6 +70,12 @@ public:
 
   ezExpressionByteCode();
   ~ezExpressionByteCode();
+
+  bool operator==(const ezExpressionByteCode& other) const;
+  bool operator!=(const ezExpressionByteCode& other) const { return !(*this == other); }
+
+  void Clear();
+  bool IsEmpty() const { return m_ByteCode.IsEmpty(); }
 
   const StorageType* GetByteCode() const;
   const StorageType* GetByteCodeEnd() const;
@@ -94,8 +106,8 @@ private:
   ezDynamicArray<ezHashedString> m_Outputs;
   ezDynamicArray<ezHashedString> m_Functions;
 
-  ezUInt32 m_uiNumInstructions;
-  ezUInt32 m_uiNumTempRegisters;
+  ezUInt32 m_uiNumInstructions = 0;
+  ezUInt32 m_uiNumTempRegisters = 0;
 };
 
-#include <ProcGenPlugin/VM/Implementation/ExpressionByteCode_inl.h>
+#include <Foundation/CodeUtils/Expression/Implementation/ExpressionByteCode_inl.h>

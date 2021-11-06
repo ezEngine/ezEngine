@@ -1,7 +1,7 @@
-#include <ProcGenPlugin/ProcGenPluginPCH.h>
+#include <Foundation/FoundationPCH.h>
 
+#include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 #include <Foundation/Utilities/DGMLWriter.h>
-#include <ProcGenPlugin/VM/ExpressionAST.h>
 
 // static
 bool ezExpressionAST::NodeType::IsUnary(Enum nodeType)
@@ -16,21 +16,27 @@ bool ezExpressionAST::NodeType::IsBinary(Enum nodeType)
 }
 
 // static
+bool ezExpressionAST::NodeType::IsTernary(Enum nodeType)
+{
+  return nodeType > FirstTernary && nodeType < LastTernary;
+}
+
+// static
 bool ezExpressionAST::NodeType::IsConstant(Enum nodeType)
 {
-  return nodeType == FloatConstant;
+  return nodeType == Constant;
 }
 
 // static
 bool ezExpressionAST::NodeType::IsInput(Enum nodeType)
 {
-  return nodeType == FloatInput;
+  return nodeType == Input;
 }
 
 // static
 bool ezExpressionAST::NodeType::IsOutput(Enum nodeType)
 {
-  return nodeType == FloatOutput;
+  return nodeType == Output;
 }
 
 namespace
@@ -38,27 +44,26 @@ namespace
   static const char* s_szNodeTypeNames[] = {"Invalid",
 
     // Unary
-    "", "Negate", "Absolute", "Sqrt", "Sin", "Cos", "Tan", "ASin", "ACos", "ATan", "",
+    "", "Negate", "Absolute", "Saturate", "Sqrt", "Sin", "Cos", "Tan", "ASin", "ACos", "ATan", "",
 
     // Binary
     "", "Add", "Subtract", "Multiply", "Divide", "Min", "Max", "",
 
     // Ternary
-    "Select",
+    "", "Clamp", "Select", "",
 
     // Constant
     "FloatConstant",
 
     // Input
-    "FloatInput",
+    "Input",
 
     // Output
-    "FloatOutput",
+    "Output",
 
     "FunctionCall"};
 
-  EZ_CHECK_AT_COMPILETIME_MSG(
-    EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count, "Node name array size does not match node type count");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count, "Node name array size does not match node type count");
 } // namespace
 
 // static
@@ -79,6 +84,8 @@ ezExpressionAST::~ezExpressionAST() {}
 
 ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::Enum type, Node* pOperand)
 {
+  EZ_ASSERT_DEBUG(NodeType::IsUnary(type), "Type '{}' is not an unary operator", NodeType::GetName(type));
+
   auto pUnaryOperator = EZ_NEW(&m_Allocator, UnaryOperator);
   pUnaryOperator->m_Type = type;
   pUnaryOperator->m_pOperand = pOperand;
@@ -88,6 +95,8 @@ ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::E
 
 ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand)
 {
+  EZ_ASSERT_DEBUG(NodeType::IsBinary(type), "Type '{}' is not a binary operator", NodeType::GetName(type));
+
   auto pBinaryOperator = EZ_NEW(&m_Allocator, BinaryOperator);
   pBinaryOperator->m_Type = type;
   pBinaryOperator->m_pLeftOperand = pLeftOperand;
@@ -96,31 +105,47 @@ ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryOperator(NodeType:
   return pBinaryOperator;
 }
 
+ezExpressionAST::TernaryOperator* ezExpressionAST::CreateTernaryOperator(NodeType::Enum type, Node* pFirstOperand, Node* pSecondOperand, Node* pThirdOperand)
+{
+  EZ_ASSERT_DEBUG(NodeType::IsTernary(type), "Type '{}' is not a ternary operator", NodeType::GetName(type));
+
+  auto pTernaryOperator = EZ_NEW(&m_Allocator, TernaryOperator);
+  pTernaryOperator->m_Type = type;
+  pTernaryOperator->m_pFirstOperand = pFirstOperand;
+  pTernaryOperator->m_pSecondOperand = pSecondOperand;
+  pTernaryOperator->m_pThirdOperand = pThirdOperand;
+
+  return pTernaryOperator;
+}
+
 ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& value)
 {
   EZ_ASSERT_DEV(value.IsA<float>(), "value needs to be float");
 
   auto pConstant = EZ_NEW(&m_Allocator, Constant);
-  pConstant->m_Type = NodeType::FloatConstant;
+  pConstant->m_Type = NodeType::Constant;
   pConstant->m_Value = value;
+  pConstant->m_DataType = ezProcessingStream::DataType::Float;
 
   return pConstant;
 }
 
-ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezHashedString& sName)
+ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezHashedString& sName, ezProcessingStream::DataType dataType)
 {
   auto pInput = EZ_NEW(&m_Allocator, Input);
-  pInput->m_Type = NodeType::FloatInput;
+  pInput->m_Type = NodeType::Input;
   pInput->m_sName = sName;
+  pInput->m_DataType = dataType;
 
   return pInput;
 }
 
-ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezHashedString& sName, Node* pExpression)
+ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezHashedString& sName, ezProcessingStream::DataType dataType, Node* pExpression)
 {
   auto pOutput = EZ_NEW(&m_Allocator, Output);
-  pOutput->m_Type = NodeType::FloatOutput;
+  pOutput->m_Type = NodeType::Output;
   pOutput->m_sName = sName;
+  pOutput->m_DataType = dataType;
   pOutput->m_pExpression = pExpression;
 
   return pOutput;
@@ -149,6 +174,11 @@ ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
     auto& pChildren = static_cast<BinaryOperator*>(pNode)->m_pLeftOperand;
     return ezMakeArrayPtr(&pChildren, 2);
   }
+  else if (NodeType::IsTernary(nodeType))
+  {
+    auto& pChildren = static_cast<TernaryOperator*>(pNode)->m_pFirstOperand;
+    return ezMakeArrayPtr(&pChildren, 3);
+  }
   else if (NodeType::IsOutput(nodeType))
   {
     auto& pChild = static_cast<Output*>(pNode)->m_pExpression;
@@ -160,6 +190,7 @@ ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
     return args;
   }
 
+  EZ_ASSERT_DEV(NodeType::IsInput(nodeType) || NodeType::IsConstant(nodeType), "Unknown node type");
   return ezArrayPtr<Node*>();
 }
 
@@ -177,6 +208,11 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
     auto& pChildren = static_cast<const BinaryOperator*>(pNode)->m_pLeftOperand;
     return ezMakeArrayPtr((const Node**)&pChildren, 2);
   }
+  else if (NodeType::IsTernary(nodeType))
+  {
+    auto& pChildren = static_cast<const TernaryOperator*>(pNode)->m_pFirstOperand;
+    return ezMakeArrayPtr((const Node**)&pChildren, 3);
+  }
   else if (NodeType::IsOutput(nodeType))
   {
     auto& pChild = static_cast<const Output*>(pNode)->m_pExpression;
@@ -188,6 +224,7 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
     return ezArrayPtr<const Node*>((const Node**)args.GetData(), args.GetCount());
   }
 
+  EZ_ASSERT_DEV(NodeType::IsInput(nodeType) || NodeType::IsConstant(nodeType), "Unknown node type");
   return ezArrayPtr<const Node*>();
 }
 
@@ -212,7 +249,9 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
     if (pOutputNode == nullptr)
       continue;
 
-    sTmp.Format("{0}: {1}", NodeType::GetName(pOutputNode->m_Type), pOutputNode->m_sName);
+    sTmp = NodeType::GetName(pOutputNode->m_Type);
+    sTmp.Append("(", ezProcessingStream::GetDataTypeName(pOutputNode->m_DataType), ")");
+    sTmp.Append(": ", pOutputNode->m_sName);
 
     ezDGMLGraph::NodeDesc nd;
     nd.m_Color = ezColor::LightBlue;
@@ -243,7 +282,9 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
         }
         else if (NodeType::IsInput(nodeType))
         {
-          sTmp.Append(": ", static_cast<const Input*>(currentNodeInfo.m_pNode)->m_sName);
+          auto pInputNode = static_cast<const Input*>(currentNodeInfo.m_pNode);
+          sTmp.Append("(", ezProcessingStream::GetDataTypeName(pInputNode->m_DataType), ")");
+          sTmp.Append(": ", pInputNode->m_sName);
           color = ezColor::LightGreen;
         }
         else if (nodeType == NodeType::FunctionCall)
