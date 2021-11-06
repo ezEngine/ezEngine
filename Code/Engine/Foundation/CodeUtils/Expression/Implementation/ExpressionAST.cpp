@@ -1,7 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Utilities/DGMLWriter.h>
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 
 // static
 bool ezExpressionAST::NodeType::IsUnary(Enum nodeType)
@@ -15,7 +15,7 @@ bool ezExpressionAST::NodeType::IsBinary(Enum nodeType)
   return nodeType > FirstBinary && nodeType < LastBinary;
 }
 
-// static 
+// static
 bool ezExpressionAST::NodeType::IsTernary(Enum nodeType)
 {
   return nodeType > FirstTernary && nodeType < LastTernary;

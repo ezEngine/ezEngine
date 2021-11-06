@@ -43,7 +43,7 @@ public:
   ezProcessingStream(const ezHashedString& sName, DataType Type, ezUInt16 uiStride, ezUInt16 uiAlignment);
   ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type, ezUInt16 uiStride);
   ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type);
-  ~ezProcessingStream();  
+  ~ezProcessingStream();
 
   /// \brief Returns a const pointer to the data casted to the type T, note that no type check is done!
   template <typename T>
@@ -86,7 +86,7 @@ public:
   static const char* GetDataTypeName(DataType Type);
 
 protected:
-  friend class ezProcessingStreamGroup;  
+  friend class ezProcessingStreamGroup;
 
   void SetSize(ezUInt64 uiNumElements);
   void FreeData();

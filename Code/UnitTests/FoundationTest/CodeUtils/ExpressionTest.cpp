@@ -85,8 +85,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
   ezExpressionCompiler compiler;
   ezExpressionVM vm;
 
-  auto Compile = [&](ezStringView code, ezExpressionByteCode& out_ByteCode, bool dumpASTs = false)
-  {
+  auto Compile = [&](ezStringView code, ezExpressionByteCode& out_ByteCode, bool dumpASTs = false) {
     ezExpressionParser::Stream inputs[] = {
       ezExpressionParser::Stream(s_sA, ezProcessingStream::DataType::Float),
       ezExpressionParser::Stream(s_sB, ezProcessingStream::DataType::Float),
@@ -114,8 +113,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     }
   };
 
-  auto Execute = [&](const ezExpressionByteCode& byteCode, float a = 0.0f, float b = 0.0f, float c = 0.0f, float d = 0.0f)
-  {
+  auto Execute = [&](const ezExpressionByteCode& byteCode, float a = 0.0f, float b = 0.0f, float c = 0.0f, float d = 0.0f) {
     ezProcessingStream inputs[] = {
       ezProcessingStream(s_sA, ezMakeArrayPtr(&a, 1).ToByteArray(), ezProcessingStream::DataType::Float),
       ezProcessingStream(s_sB, ezMakeArrayPtr(&b, 1).ToByteArray(), ezProcessingStream::DataType::Float),

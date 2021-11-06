@@ -131,8 +131,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
   ezExpressionCompiler compiler;
 
-  auto WriteByteCode = [&](const ezDocumentObject* pOutputNode)
-  {
+  auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) {
     context.m_GraphContext.m_VolumeTagSetIndices.Clear();
 
     ezExpressionAST ast;

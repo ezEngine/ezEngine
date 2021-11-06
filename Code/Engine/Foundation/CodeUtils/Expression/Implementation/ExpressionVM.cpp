@@ -1,8 +1,8 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/SimdMath/SimdMath.h>
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/CodeUtils/Expression/ExpressionVM.h>
+#include <Foundation/SimdMath/SimdMath.h>
 
 namespace
 {

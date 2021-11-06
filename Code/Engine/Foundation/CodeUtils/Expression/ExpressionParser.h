@@ -38,8 +38,8 @@ private:
   ezResult ParseStatement();
   ezResult ParseType(ezStringView sTypeName);
   ezResult ParseVariableDefinition();
-  ezResult ParseAssignment();  
-  
+  ezResult ParseAssignment();
+
   ezExpressionAST::Node* ParseFactor();
   ezExpressionAST::Node* ParseExpression(int iPrecedence = s_iLowestPrecedence);
   ezExpressionAST::Node* ParseUnaryExpression();

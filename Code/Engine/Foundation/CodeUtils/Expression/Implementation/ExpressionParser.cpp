@@ -328,8 +328,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
   ezEnum<ezExpressionAST::NodeType> builtinType;
   if (m_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
   {
-    auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult
-    {
+    auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult {
       if (arguments.GetCount() != uiExpectedArgumentCount)
       {
         ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected {} but got {}", sFunctionName, uiExpectedArgumentCount, arguments.GetCount()));
