@@ -3,7 +3,9 @@
 #include <Foundation/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezProcessingStream) == 32);
+#endif
 
 ezProcessingStream::ezProcessingStream() = default;
 
