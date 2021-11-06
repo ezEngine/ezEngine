@@ -2,6 +2,10 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/Strings/HashedString.h>
+
+class ezStreamWriter;
+class ezStreamReader;
 
 class EZ_FOUNDATION_DLL ezExpressionByteCode
 {

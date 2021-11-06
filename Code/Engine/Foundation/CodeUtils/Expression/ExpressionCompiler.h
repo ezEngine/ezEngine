@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
+#include <Foundation/Types/Delegate.h>
 
 class ezExpressionByteCode;
 

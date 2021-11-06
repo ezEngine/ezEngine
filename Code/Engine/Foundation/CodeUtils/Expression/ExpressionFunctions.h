@@ -1,7 +1,10 @@
 #pragma once
 
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/Variant.h>
 
 namespace ezExpression
 {
