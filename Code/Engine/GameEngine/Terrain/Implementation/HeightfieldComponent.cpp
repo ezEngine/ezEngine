@@ -456,7 +456,7 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
 
     const ezVec3 vSize(m_vHalfExtents.x * 2, m_vHalfExtents.y * 2, m_fHeight);
     const ezVec2 vToNDC = ezVec2(1.0f / (uiNumVerticesX - 1), 1.0f / (uiNumVerticesY - 1));
-    const ezVec3 vPosOffset(-m_vHalfExtents.x, -m_vHalfExtents.y, 0);
+    const ezVec3 vPosOffset(-m_vHalfExtents.x, -m_vHalfExtents.y, -m_fHeight);
 
     const auto texCoordFormat = ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default);
     const auto normalFormat = ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::Default);
@@ -488,10 +488,10 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
 
         const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiVertexDataSize;
 
-        const float fHeightScale = 1.0f - ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, heightTC).r;
+        const float fHeightScale = ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, heightTC).r;
 
         // complicated but faster
-        *reinterpret_cast<ezVec3*>(positionData.GetPtr() + uiByteOffset) = vPosOffset + ezVec3(ndc.x, ndc.y, -fHeightScale).CompMul(vSize);
+        *reinterpret_cast<ezVec3*>(positionData.GetPtr() + uiByteOffset) = vPosOffset + ezVec3(ndc.x, ndc.y, fHeightScale).CompMul(vSize);
         ezMeshBufferUtils::EncodeTexCoord(tc, ezByteArrayPtr(texcoordData.GetPtr() + uiByteOffset, 32), texCoordFormat).IgnoreResult();
 
         // easier to understand, but slower
