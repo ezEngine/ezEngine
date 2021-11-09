@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
+#include <EditorFramework/Dialogs/CppProjectDlg.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/Dialogs/EditorPluginConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
@@ -53,6 +54,8 @@ ezActionDescriptorHandle ezProjectActions::s_hLaunchInspector;
 ezActionDescriptorHandle ezProjectActions::s_hSaveProfiling;
 ezActionDescriptorHandle ezProjectActions::s_hOpenVsCode;
 
+ezActionDescriptorHandle ezProjectActions::s_hSetupCppProject;
+
 void ezProjectActions::RegisterActions()
 {
   s_hEditorMenu = EZ_REGISTER_MENU("Menu.Editor");
@@ -93,6 +96,8 @@ void ezProjectActions::RegisterActions()
   s_hLaunchInspector = EZ_REGISTER_ACTION_1("Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspector);
   s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
   s_hOpenVsCode = EZ_REGISTER_ACTION_1("Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
+
+  s_hSetupCppProject = EZ_REGISTER_ACTION_1("Project.SetupCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::SetupCppProject);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -129,6 +134,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hImportAsset);
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hAssetProfiles);
+  ezActionManager::UnregisterAction(s_hSetupCppProject);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -174,6 +180,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
   pMap->MapAction(s_hAssetProfiles, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
+  pMap->MapAction(s_hSetupCppProject, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 7.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -360,11 +367,14 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::SaveProfiling:
       // no icon
       break;
+    case ezProjectAction::ButtonType::SetupCppProject:
+      //SetIconPath(":/EditorFramework/Icons/AssetProfiles16.png"); // TODO
+      break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig ||
-      m_ButtonType == ButtonType::AssetProfiles)
+      m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
@@ -375,8 +385,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 ezProjectAction::~ezProjectAction()
 {
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
-      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig ||
-      m_ButtonType == ButtonType::AssetProfiles)
+      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
@@ -585,6 +594,13 @@ void ezProjectAction::Execute(const ezVariant& value)
         // makes the scene re-select the current objects, which updates which enum values are shown in the property grid
         ezToolsProject::BroadcastConfigChanged();
       }
+    }
+    break;
+
+    case ezProjectAction::ButtonType::SetupCppProject:
+    {
+      ezQtCppProjectDlg dlg(nullptr);
+      dlg.exec();
     }
     break;
   }

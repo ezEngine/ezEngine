@@ -49,6 +49,8 @@ public:
   static ezActionDescriptorHandle s_hSaveProfiling;
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
+
+  static ezActionDescriptorHandle s_hSetupCppProject;
 };
 
 ///
@@ -109,6 +111,7 @@ public:
     EnginePlugins,
     ImportAsset,
     AssetProfiles,
+    SetupCppProject,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);
