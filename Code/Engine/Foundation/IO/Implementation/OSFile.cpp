@@ -519,7 +519,7 @@ void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList,
   }
 }
 
-ezResult ezOSFile::CopyFolder(const char* szSourceFolder, const char* szDestinationFolder)
+ezResult ezOSFile::CopyFolder(const char* szSourceFolder, const char* szDestinationFolder, ezDynamicArray<ezString>* out_FilesCopied /*= nullptr*/)
 {
   ezDynamicArray<ezFileStats> items;
   GatherAllItemsInFolder(items, szSourceFolder);
@@ -550,6 +550,11 @@ ezResult ezOSFile::CopyFolder(const char* szSourceFolder, const char* szDestinat
     {
       if (ezOSFile::CopyFile(srcPath, dstPath).Failed())
         return EZ_FAILURE;
+
+      if (out_FilesCopied)
+      {
+        out_FilesCopied->PushBack(dstPath);
+      }
     }
 
     // TODO: make sure to remove read-only flags of copied files ?

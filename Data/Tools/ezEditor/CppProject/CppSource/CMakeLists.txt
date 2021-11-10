@@ -24,7 +24,7 @@ ez_build_filter_init()
 
 ez_detect_languages()
 
-project (CppProject VERSION 1.0 LANGUAGES C CXX)
+project (!CppProject! VERSION 1.0 LANGUAGES CXX)
 
 ez_set_build_types()
 

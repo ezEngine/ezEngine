@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-#include <CppProjectPlugin/CppProjectPluginDLL.h>
+#include <!CppProject!Plugin/!CppProject!PluginDLL.h>
 
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Input/InputManager.h>
