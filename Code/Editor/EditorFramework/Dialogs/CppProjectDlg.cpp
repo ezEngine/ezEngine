@@ -82,12 +82,18 @@ void ezQtCppProjectDlg::on_Result_accepted()
 
   // run CMake
   {
-    ezStringBuilder sBuildDir;
+    ezStringBuilder sBuildDir, sSolutionFile;
     sBuildDir.Format("{}/CppSource/Build/Vs2019x64", sTargetDir);
+    sSolutionFile = sBuildDir;
+    sSolutionFile.AppendPath(sProjectName);
+    sSolutionFile.Append(".sln");
+
+    bool bOpenSolution = true;
 
     if (ezOSFile::ExistsDirectory(sBuildDir) && ezOSFile::DeleteFolder(sBuildDir).Failed())
     {
-      ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("Couldn't delete build output directory:\n{}", sBuildDir));
+      bOpenSolution = false;
+      ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("Couldn't delete build output directory:\n{}\n\nProject is probably already open in Visual Studio.", sBuildDir));
     }
 
     ezStringBuilder tmp;
@@ -120,9 +126,11 @@ void ezQtCppProjectDlg::on_Result_accepted()
       return;
     }
 
-    ezQtUiServices::OpenInExplorer(sBuildDir, false);
+    if (!bOpenSolution || !ezQtUiServices::OpenFileInDefaultProgram(sSolutionFile))
+    {
+      ezQtUiServices::OpenInExplorer(sBuildDir, false);
+    }
   }
-
 
   accept();
 }
