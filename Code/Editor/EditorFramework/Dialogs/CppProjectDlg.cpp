@@ -7,6 +7,11 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
+// TODO: Add plugin reference to project
+// TODO: make this work with binary release versions
+// TODO: pass in output bin/lib dir
+// TODO: allow relocating Output dir (?)
+
 ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* parent)
   : QDialog(parent)
 {
@@ -20,9 +25,19 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* parent)
 
 ezResult ezQtCppProjectDlg::GenerateSolution()
 {
+  ezProgressRange progress("Generating Solution", 4, false);
+  progress.SetStepWeighting(0, 0.05f);
+  progress.SetStepWeighting(1, 0.1f);
+  progress.SetStepWeighting(2, 0.1f);
+  progress.SetStepWeighting(3, 1.0f);
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
   OutputLog->clear();
   ezStringBuilder output;
   EZ_SCOPE_EXIT(OutputLog->setText(output.GetData()));
+  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+  EZ_SCOPE_EXIT(UpdateUI());
 
   const ezString sProjectName = ezToolsProject::GetSingleton()->GetProjectName();
   ezStringBuilder sProjectNameUpper = sProjectName;
@@ -36,82 +51,115 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
   ezDynamicArray<ezFileStats> items;
   ezOSFile::GatherAllItemsInFolder(items, sSourceDir, ezFileSystemIteratorFlags::ReportFilesRecursive);
 
-  ezHybridArray<ezString, 32> filesCopied;
-
-  for (const auto& item : items)
+  struct FileToCopy
   {
-    ezStringBuilder srcPath, dstPath;
-    item.GetFullPath(srcPath);
+    ezString m_sSource;
+    ezString m_sDestination;
+  };
 
-    dstPath = srcPath;
-    dstPath.MakeRelativeTo(sSourceDir).IgnoreResult();
+  ezHybridArray<FileToCopy, 32> filesCopied;
 
-    dstPath.ReplaceAll("CppProject", sProjectName);
-    dstPath.Prepend(sTargetDir, "/");
-    dstPath.MakeCleanPath();
-
-    // don't copy files over that already exist (and may have edits)
-    if (ezOSFile::ExistsFile(dstPath))
-      continue;
-
-    if (ezOSFile::CopyFile(srcPath, dstPath).Failed())
-    {
-      output.AppendFormat("Failed to copy the C++ project files.\nSource: '{}'\nDestination: '{}'\n", srcPath, dstPath);
-      return EZ_FAILURE;
-    }
-
-    filesCopied.PushBack(dstPath);
-  }
-
-  for (const auto& filePath : filesCopied)
+  // gather files
   {
-    ezStringBuilder content;
+    progress.BeginNextStep("Gathering source files");
 
+    for (const auto& item : items)
     {
-      ezFileReader file;
-      if (file.Open(filePath).Failed())
+      ezStringBuilder srcPath, dstPath;
+      item.GetFullPath(srcPath);
+
+      dstPath = srcPath;
+      dstPath.MakeRelativeTo(sSourceDir).IgnoreResult();
+
+      dstPath.ReplaceAll("CppProject", sProjectName);
+      dstPath.Prepend(sTargetDir, "/");
+      dstPath.MakeCleanPath();
+
+      // don't copy files over that already exist (and may have edits)
+      if (ezOSFile::ExistsFile(dstPath))
       {
-        output.AppendFormat("Failed to open C++ project file for reading.\nSource: '{}'\n", filePath);
-        return EZ_FAILURE;
+        // if any file already exists, don't copy non-existing (user might have deleted unwanted sample files)
+        filesCopied.Clear();
+        break;
       }
 
-      content.ReadAll(file);
-    }
-
-    content.ReplaceAll("!CppProject!", sProjectName);
-    content.ReplaceAll("!CPPPROJECT!", sProjectNameUpper);
-
-    {
-      ezFileWriter file;
-      if (file.Open(filePath).Failed())
-      {
-        output.AppendFormat("Failed to open C++ project file for writing.\nSource: '{}'\n", filePath);
-        return EZ_FAILURE;
-      }
-
-      file.WriteBytes(content.GetData(), content.GetElementCount()).IgnoreResult();
+      auto& ftc = filesCopied.ExpandAndGetRef();
+      ftc.m_sSource = srcPath;
+      ftc.m_sDestination = dstPath;
     }
   }
 
+  // Copy files
+  {
+    progress.BeginNextStep("Copying sources");
+
+    for (const auto& ftc : filesCopied)
+    {
+      if (ezOSFile::CopyFile(ftc.m_sSource, ftc.m_sDestination).Failed())
+      {
+        output.AppendFormat("Failed to copy a file.\nSource: '{}'\nDestination: '{}'\n", ftc.m_sSource, ftc.m_sDestination);
+        return EZ_FAILURE;
+      }
+    }
+  }
+
+  // Modify sources
+  {
+    progress.BeginNextStep("Modifying sources");
+
+    for (const auto& filePath : filesCopied)
+    {
+      ezStringBuilder content;
+
+      {
+        ezFileReader file;
+        if (file.Open(filePath.m_sDestination).Failed())
+        {
+          output.AppendFormat("Failed to open C++ project file for reading.\nSource: '{}'\n", filePath.m_sDestination);
+          return EZ_FAILURE;
+        }
+
+        content.ReadAll(file);
+      }
+
+      content.ReplaceAll("!CppProject!", sProjectName);
+      content.ReplaceAll("!CPPPROJECT!", sProjectNameUpper);
+
+      {
+        ezFileWriter file;
+        if (file.Open(filePath.m_sDestination).Failed())
+        {
+          output.AppendFormat("Failed to open C++ project file for writing.\nSource: '{}'\n", filePath.m_sDestination);
+          return EZ_FAILURE;
+        }
+
+        file.WriteBytes(content.GetData(), content.GetElementCount()).IgnoreResult();
+      }
+    }
+  }
   // run CMake
   {
+    progress.BeginNextStep("Running CMake");
+
+    const ezString sSdkDir = ezFileSystem::GetSdkRootDirectory();
     const ezString sBuildDir = GetBuildDir();
     const ezString sSolutionFile = GetSolutionFile();
 
-    bool bOpenSolution = true;
-
     if (ezOSFile::ExistsDirectory(sBuildDir) && ezOSFile::DeleteFolder(sBuildDir).Failed())
     {
-      bOpenSolution = false;
-
       output.AppendFormat("Couldn't delete build output directory:\n{}\n\nProject is probably already open in Visual Studio.\n", sBuildDir);
     }
+
+    ezStringBuilder tmp;
 
     QStringList args;
     args << "-S";
     args << GetTargetDir().GetData();
 
     args << "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=OFF";
+
+    tmp.Format("-DEZ_SDK_DIR:PATH={}", sSdkDir);
+    args << tmp.GetData();
 
     args << "-G";
     args << GetGeneratorCMake().GetData();
@@ -125,25 +173,18 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
     ezLogSystemToBuffer log;
 
     ezStatus res = ezQtEditorApp::GetSingleton()->ExecuteTool("cmake/bin/cmake.exe", args, 120, &log, ezLogMsgType::InfoMsg);
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "CMake execution failed");
 
     if (res.Failed())
     {
-      output.AppendFormat("Failure generating solution:\n\n");
+      output.AppendFormat("Solution generation failed:\n\n");
       output.AppendFormat("{}\n", log.m_sBuffer);
       return EZ_FAILURE;
     }
 
     output.AppendFormat("Generated solution successfully.\n\n");
     output.AppendFormat("{}\n", log.m_sBuffer);
-
-    if (!bOpenSolution || !ezQtUiServices::OpenFileInDefaultProgram(sSolutionFile))
-    {
-      on_OpenBuildFolder_clicked();
-    }
   }
 
-  UpdateUI();
   return EZ_SUCCESS;
 }
 
@@ -183,17 +224,9 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
       return;
   }
 
-  // TODO: wait cursor + progress bar popup
-  // TODO: overwrite cpp/h/cmake files ?
-  // TODO: pass in SDK dir
-  // TODO: pass in output bin/lib dir
-  // TODO: patch export file
-  // TODO: allow relocating Output dir (?)
-  // TODO: make this work with binary release versions
-
   if (GenerateSolution().Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("Generating the solution failed. Check the output above for details.");
+    ezQtUiServices::GetSingleton()->MessageBoxWarning("Generating the solution failed. Check the log output for details.");
   }
 }
 

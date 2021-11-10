@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Setup C++ Project</string>
+   <string>Open C++ Project</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
@@ -136,6 +136,12 @@
    </item>
    <item>
     <widget class="QTextEdit" name="OutputLog">
+     <property name="undoRedoEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QTextEdit::NoWrap</enum>
+     </property>
      <property name="readOnly">
       <bool>true</bool>
      </property>
