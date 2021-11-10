@@ -156,6 +156,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   // pMap->MapAction(s_hOpenProject, "Menu.Editor/ProjectCategory", 2.0f);   // use dashboard
   // pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);// use dashboard
   pMap->MapAction(s_hCloseProject, "Menu.Editor/ProjectCategory", 4.0f);
+  pMap->MapAction(s_hSetupCppProject, "Menu.Editor/ProjectCategory", 5.0f);
   pMap->MapAction(s_hProjectSettingsMenu, "Menu.Editor/ProjectCategory", 1000.0f);
 
   pMap->MapAction(s_hSettingsCategory, "Menu.Editor", 3.0f);
@@ -180,7 +181,6 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
   pMap->MapAction(s_hAssetProfiles, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
-  pMap->MapAction(s_hSetupCppProject, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 7.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -368,7 +368,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       // no icon
       break;
     case ezProjectAction::ButtonType::SetupCppProject:
-      //SetIconPath(":/EditorFramework/Icons/AssetProfiles16.png"); // TODO
+      SetIconPath(":/EditorFramework/Icons/VisualStudio.svg");
       break;
   }
 
