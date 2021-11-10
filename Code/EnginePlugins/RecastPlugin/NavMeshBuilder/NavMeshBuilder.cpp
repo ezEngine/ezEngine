@@ -159,15 +159,20 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
       continue;
     }
 
-    ezMat4 transform = object.m_GlobalTransform.GetAsMat4();
+    // convert from ez convention (Z up) to recast convention (Y up)
+    ezMat3 m;
+    m.SetRow(0, ezVec3( 1, 0, 0));
+    m.SetRow(1, ezVec3( 0, 0, 1));
+    m.SetRow(2, ezVec3( 0, 1, 0));
+
+    ezMat4 transform = ezMat4::IdentityMatrix();
+    transform.SetRotationalPart(m);
+    transform = transform * object.m_GlobalTransform.GetAsMat4();
 
     // collect all vertices
     for (ezUInt32 i = 0; i < meshBufferDesc.GetVertexCount(); ++i)
     {
       ezVec3 pos = transform.TransformPosition(*pPositions);
-
-      // convert from ez convention (Z up) to recast convention (Y up)
-      ezMath::Swap(pos.y, pos.z);
 
       m_Vertices.PushBack(pos);
 
@@ -236,11 +241,11 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& 
   cfg.walkableRadius = (int)ceilf(config.m_fAgentRadius / cfg.cs);
   cfg.maxEdgeLen = (int)(config.m_fMaxEdgeLength / cfg.cs);
   cfg.maxSimplificationError = config.m_fMaxSimplificationError;
-  cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize / cfg.cs);
-  cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize / cfg.cs);
+  cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize);
+  cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize);
   cfg.maxVertsPerPoly = 6;
   cfg.detailSampleDist = config.m_fDetailMeshSampleDistanceFactor < 0.9f ? 0 : cfg.cs * config.m_fDetailMeshSampleDistanceFactor;
-  cfg.detailSampleMaxError = cfg.ch * config.m_fDetailMeshSampleDistanceFactor;
+  cfg.detailSampleMaxError = cfg.ch * config.m_fDetailMeshSampleErrorFactor;
 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
