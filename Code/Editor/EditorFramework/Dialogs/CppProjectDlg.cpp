@@ -25,6 +25,11 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* parent)
 
 ezResult ezQtCppProjectDlg::GenerateSolution()
 {
+  if (ezSystemInformation::IsDebuggerAttached())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, CMake can fail with the error that no C/C++ compiler can be found.");
+  }
+
   ezProgressRange progress("Generating Solution", 4, false);
   progress.SetStepWeighting(0, 0.05f);
   progress.SetStepWeighting(1, 0.1f);
@@ -227,6 +232,28 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
   if (GenerateSolution().Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning("Generating the solution failed. Check the log output for details.");
+  }
+  else
+  {
+    ezStringBuilder sPluginName = ezToolsProject::GetSingleton()->GetProjectName();
+    sPluginName.Append("Plugin");
+
+    ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
+
+    bool bExisted;
+    auto plugin = Plugins.m_Plugins.FindOrAdd(sPluginName, &bExisted);
+
+    plugin.Value().m_bLoadCopy = true;
+    plugin.Value().m_bToBeLoaded = true;
+
+    if (!bExisted)
+    {
+      plugin.Value().m_bActive = false;
+      plugin.Value().m_bAvailable = false;
+      plugin.Value().m_LastModification = ezTimestamp::CurrentTimestamp();
+    }
+
+    ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
   }
 }
 
