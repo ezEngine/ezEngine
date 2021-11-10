@@ -48,8 +48,9 @@ void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Even
 {
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentOpened)
   {
-    const char* szDocType = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->GetTypeName();
-    if (ezStringUtils::IsEqual(szDocType, "ezSceneDocument"))
+    const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+    const bool bIsScene = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->IsDerivedFrom(pRttiScene);
+    if (bIsScene)
     {
       CheckAllTypes();
 
@@ -61,8 +62,9 @@ void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Even
 
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
   {
-    const char* szDocType = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->GetTypeName();
-    if (ezStringUtils::IsEqual(szDocType, "ezSceneDocument"))
+    const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+    const bool bIsScene = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->IsDerivedFrom(pRttiScene);
+    if (bIsScene)
     {
       ezLongOpControllerManager::GetSingleton()->CancelAndRemoveAllOpsForDocument(e.m_pDocument->GetGuid());
 
