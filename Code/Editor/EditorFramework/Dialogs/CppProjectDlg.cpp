@@ -80,6 +80,50 @@ void ezQtCppProjectDlg::on_Result_accepted()
     }
   }
 
+  // run CMake
+  {
+    ezStringBuilder sBuildDir;
+    sBuildDir.Format("{}/CppSource/Build/Vs2019x64", sTargetDir);
+
+    if (ezOSFile::ExistsDirectory(sBuildDir) && ezOSFile::DeleteFolder(sBuildDir).Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("Couldn't delete build output directory:\n{}", sBuildDir));
+    }
+
+    ezStringBuilder tmp;
+
+    QStringList args;
+    args << "-S";
+
+    tmp.Format("{}/CppSource", sTargetDir);
+    args << tmp.GetData();
+
+    args << "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=OFF";
+
+    args << "-G";
+    args << "Visual Studio 16 2019";
+
+    args << "-B";
+    args << sBuildDir.GetData();
+
+    args << "-A";
+    args << "x64";
+
+    ezLogSystemToBuffer log;
+
+    ezStatus res = ezQtEditorApp::GetSingleton()->ExecuteTool("cmake/bin/cmake.exe", args, 120, &log, ezLogMsgType::InfoMsg);
+    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "CMake execution failed");
+
+    if (res.Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation(log.m_sBuffer);
+      return;
+    }
+
+    ezQtUiServices::OpenInExplorer(sBuildDir, false);
+  }
+
+
   accept();
 }
 

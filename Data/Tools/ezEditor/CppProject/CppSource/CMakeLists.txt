@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
 set (EZ_SDK_DIR "D:/GitHub/ez/ezEngine")
-set (EZ_BUILD_DIR "D:/GitHub/Build/vs2019")
 
 # fix output directory
 set (EZ_OUTPUT_DIRECTORY_LIB "${EZ_SDK_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
@@ -24,10 +23,10 @@ ez_build_filter_init()
 
 ez_detect_languages()
 
-project (!CppProject! VERSION 1.0 LANGUAGES CXX)
+project (!CppProject! VERSION 1.0 LANGUAGES C CXX)
 
 ez_set_build_types()
 
-include ("${EZ_BUILD_DIR}/export.cmake")
+include ("${EZ_OUTPUT_DIRECTORY_DLL}/ezExport.cmake")
 
 ez_add_all_subdirs()
