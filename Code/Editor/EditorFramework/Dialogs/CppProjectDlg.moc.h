@@ -30,4 +30,3 @@ private:
   ezString GetGeneratorFolder() const;
   ezResult GenerateSolution();
 };
-
