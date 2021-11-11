@@ -90,6 +90,9 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
     cfg.m_sAppDirRelativePath = it.Key();
     bool bToBeLoaded = it.Value().m_bToBeLoaded;
 
+    if (it.Value().m_bLoadCopy)
+      cfg.m_bLoadCopy = true;
+
     // make sure these settings were not manually messed with
     if (cfg.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr)
     {

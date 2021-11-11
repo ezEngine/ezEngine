@@ -54,6 +54,7 @@
     <file>Icons/GitHub.svg</file>
     <file>Icons/GitHub-Light.png</file>
     <file>Icons/ViewLightMenu.png</file>
+	<file>Icons/VisualStudio.svg</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

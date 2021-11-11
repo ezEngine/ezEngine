@@ -239,7 +239,9 @@ public:
   static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 
   /// \brief Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
-  static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder);
+  ///
+  /// If \a out_FilesCopied is provided, the destination path of every successfully copied file is appended to it.
+  static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder, ezDynamicArray<ezString>* out_FilesCopied = nullptr);
 
   /// \brief Deletes all files recursively in \a szFolder.
   ///
