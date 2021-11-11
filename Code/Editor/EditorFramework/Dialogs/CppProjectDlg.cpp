@@ -7,7 +7,6 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-// TODO: Add plugin reference to project
 // TODO: make this work with binary release versions
 // TODO: pass in output bin/lib dir
 // TODO: allow relocating Output dir (?)
