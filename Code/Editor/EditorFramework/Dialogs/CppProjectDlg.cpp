@@ -234,6 +234,14 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
   }
   else
   {
+    ezStringBuilder txt;
+    txt.Format("The solution was generated successfully.\n\nMake sure to compile it with the same build type with which you use the editor.\nYou are currently running a '{}' build.\n\nDo you want to open the solution now?", BUILDSYSTEM_BUILDTYPE);
+
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(txt, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+    {
+      on_OpenSolution_clicked();
+    }
+
     ezStringBuilder sPluginName = ezToolsProject::GetSingleton()->GetProjectName();
     sPluginName.Append("Plugin");
 

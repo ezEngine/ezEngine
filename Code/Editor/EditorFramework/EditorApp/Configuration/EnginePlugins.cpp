@@ -70,7 +70,7 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
     ezFileStats stats;
     if (ezOSFile::GetFileStats(sPath, stats).Succeeded())
     {
-      if (stats.m_LastModificationTime.Compare(data.m_LastModification, ezTimestamp::CompareMode::Newer))
+      if (!data.m_LastModification.IsValid() || stats.m_LastModificationTime.Compare(data.m_LastModification, ezTimestamp::CompareMode::Newer))
       {
         return true;
       }
