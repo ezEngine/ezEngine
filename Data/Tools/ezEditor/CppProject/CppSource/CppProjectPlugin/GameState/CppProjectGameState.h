@@ -2,10 +2,10 @@
 
 #include <Core/Input/Declarations.h>
 #include <Core/World/Declarations.h>
+#include <CppProjectPlugin/CppProjectPluginDLL.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>
 #include <GameEngine/GameState/GameState.h>
-#include <CppProjectPlugin/CppProjectPluginDLL.h>
 
 class CppProjectGameState : public ezFallbackGameState
 {

@@ -3,11 +3,11 @@
 #include <Core/Input/InputManager.h>
 #include <Core/System/Window.h>
 #include <Core/World/World.h>
+#include <CppProjectPlugin/GameState/CppProjectGameState.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Logging/Log.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <CppProjectPlugin/GameState/CppProjectGameState.h>
-#include <Foundation/Configuration/CVar.h>
 
 ezCVarBool cvar_DebugDisplay("CppProject.DebugDisplay", false, ezCVarFlags::Default, "Whether the game should display debug geometry.");
 
@@ -47,7 +47,6 @@ void CppProjectGameState::AfterWorldUpdate()
 void CppProjectGameState::BeforeWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
-
 }
 
 ezGameStatePriority CppProjectGameState::DeterminePriority(ezWorld* pWorld) const

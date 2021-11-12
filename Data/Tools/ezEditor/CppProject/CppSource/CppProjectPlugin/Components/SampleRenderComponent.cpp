@@ -3,10 +3,10 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <CppProjectPlugin/Components/SampleRenderComponent.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <CppProjectPlugin/Components/SampleRenderComponent.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(SampleRenderComponentMask, 1)
