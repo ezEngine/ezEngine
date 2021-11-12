@@ -1,0 +1,185 @@
+#include <CppProjectPlugin/CppProjectPluginPCH.h>
+
+#include <Core/Messages/SetColorMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <CppProjectPlugin/Components/SampleRenderComponent.h>
+#include <Foundation/Math/Rect.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(SampleRenderComponentMask, 1)
+  EZ_BITFLAGS_CONSTANT(SampleRenderComponentMask::Box),
+  EZ_BITFLAGS_CONSTANT(SampleRenderComponentMask::Sphere),
+  EZ_BITFLAGS_CONSTANT(SampleRenderComponentMask::Cross),
+  EZ_BITFLAGS_CONSTANT(SampleRenderComponentMask::Quad)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
+EZ_BEGIN_COMPONENT_TYPE(SampleRenderComponent, 1 /* version */, ezComponentMode::Static)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
+    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
+    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Render", SampleRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(SampleRenderComponentMask::Box)),
+  }
+  EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("CppProject"), // Component menu group
+  }
+  EZ_END_ATTRIBUTES;
+
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor)
+  }
+  EZ_END_MESSAGEHANDLERS;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetRandomColor)
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_COMPONENT_TYPE
+// clang-format on
+
+SampleRenderComponent::SampleRenderComponent() = default;
+SampleRenderComponent::~SampleRenderComponent() = default;
+
+void SampleRenderComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  auto& s = stream.GetStream();
+
+  s << m_fSize;
+  s << m_Color;
+  s << m_hTexture;
+  s << m_RenderTypes;
+}
+
+void SampleRenderComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
+  auto& s = stream.GetStream();
+
+  s >> m_fSize;
+  s >> m_Color;
+  s >> m_hTexture;
+  s >> m_RenderTypes;
+}
+
+void SampleRenderComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
+{
+  m_hTexture = hTexture;
+}
+
+const ezTexture2DResourceHandle& SampleRenderComponent::GetTexture() const
+{
+  return m_hTexture;
+}
+
+void SampleRenderComponent::SetTextureFile(const char* szFile)
+{
+  ezTexture2DResourceHandle hTexture;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
+  }
+
+  SetTexture(hTexture);
+}
+
+const char* SampleRenderComponent::GetTextureFile(void) const
+{
+  if (m_hTexture.IsValid())
+    return m_hTexture.GetResourceID();
+
+  return nullptr;
+}
+
+void SampleRenderComponent::OnSetColor(ezMsgSetColor& msg)
+{
+  m_Color = msg.m_Color;
+}
+
+void SampleRenderComponent::SetRandomColor()
+{
+  ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
+
+  m_Color.r = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
+  m_Color.g = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
+  m_Color.b = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
+}
+
+void SampleRenderComponent::Update()
+{
+  const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
+
+  if (m_RenderTypes.IsSet(SampleRenderComponentMask::Box))
+  {
+    ezBoundingBox bbox;
+    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(m_fSize));
+
+    ezDebugRenderer::DrawLineBox(GetWorld(), bbox, m_Color, ownerTransform);
+  }
+
+  if (m_RenderTypes.IsSet(SampleRenderComponentMask::Cross))
+  {
+    ezDebugRenderer::DrawCross(GetWorld(), ezVec3::ZeroVector(), m_fSize, m_Color, ownerTransform);
+  }
+
+  if (m_RenderTypes.IsSet(SampleRenderComponentMask::Sphere))
+  {
+    ezBoundingSphere sphere;
+    sphere.SetElements(ezVec3::ZeroVector(), m_fSize);
+    ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, ownerTransform);
+  }
+
+  if (m_RenderTypes.IsSet(SampleRenderComponentMask::Quad) && m_hTexture.IsValid())
+  {
+    ezHybridArray<ezDebugRenderer::TexturedTriangle, 16> triangles;
+
+    {
+      auto& t0 = triangles.ExpandAndGetRef();
+
+      t0.m_position[0].Set(0, -m_fSize, +m_fSize);
+      t0.m_position[1].Set(0, +m_fSize, -m_fSize);
+      t0.m_position[2].Set(0, -m_fSize, -m_fSize);
+
+      t0.m_texcoord[0].Set(0.0f, 0.0f);
+      t0.m_texcoord[1].Set(1.0f, 1.0f);
+      t0.m_texcoord[2].Set(0.0f, 1.0f);
+    }
+
+    {
+      auto& t1 = triangles.ExpandAndGetRef();
+
+      t1.m_position[0].Set(0, -m_fSize, +m_fSize);
+      t1.m_position[1].Set(0, +m_fSize, +m_fSize);
+      t1.m_position[2].Set(0, +m_fSize, -m_fSize);
+
+      t1.m_texcoord[0].Set(0.0f, 0.0f);
+      t1.m_texcoord[1].Set(1.0f, 0.0f);
+      t1.m_texcoord[2].Set(1.0f, 1.0f);
+    }
+
+    // move the triangles into our object space
+    for (auto& tri : triangles)
+    {
+      tri.m_position[0] = ownerTransform.TransformPosition(tri.m_position[0]);
+      tri.m_position[1] = ownerTransform.TransformPosition(tri.m_position[1]);
+      tri.m_position[2] = ownerTransform.TransformPosition(tri.m_position[2]);
+    }
+
+    ezDebugRenderer::DrawTexturedTriangles(GetWorld(), triangles, m_Color, m_hTexture);
+  }
+}
