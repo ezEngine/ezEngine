@@ -1,4 +1,4 @@
-#include <!CppProject!Plugin/!CppProject!PluginPCH.h>
+#include <CppProjectPlugin/CppProjectPluginPCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -6,7 +6,7 @@
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <!CppProject!Plugin/Components/SampleRenderComponent.h>
+#include <CppProjectPlugin/Components/SampleRenderComponent.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(SampleRenderComponentMask, 1)
@@ -29,7 +29,7 @@ EZ_BEGIN_COMPONENT_TYPE(SampleRenderComponent, 1 /* version */, ezComponentMode:
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("!CppProject!"), // Component menu group
+    new ezCategoryAttribute("CppProject"), // Component menu group
   }
   EZ_END_ATTRIBUTES;
 

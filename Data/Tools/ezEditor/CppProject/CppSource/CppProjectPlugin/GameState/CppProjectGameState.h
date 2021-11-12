@@ -5,15 +5,15 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>
 #include <GameEngine/GameState/GameState.h>
-#include <!CppProject!Plugin/!CppProject!PluginDLL.h>
+#include <CppProjectPlugin/CppProjectPluginDLL.h>
 
-class !CppProject!GameState : public ezFallbackGameState
+class CppProjectGameState : public ezFallbackGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(!CppProject!GameState, ezFallbackGameState);
+  EZ_ADD_DYNAMIC_REFLECTION(CppProjectGameState, ezFallbackGameState);
 
 public:
-  !CppProject!GameState();
-  ~!CppProject!GameState();
+  CppProjectGameState();
+  ~CppProjectGameState();
 
   virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
 

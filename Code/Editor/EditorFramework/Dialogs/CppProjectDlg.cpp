@@ -126,8 +126,8 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
         content.ReadAll(file);
       }
 
-      content.ReplaceAll("!CppProject!", sProjectName);
-      content.ReplaceAll("!CPPPROJECT!", sProjectNameUpper);
+      content.ReplaceAll("CppProject", sProjectName);
+      content.ReplaceAll("CPPPROJECT", sProjectNameUpper);
 
       {
         ezFileWriter file;

@@ -3,7 +3,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
-#include <!CppProject!Plugin/!CppProject!PluginDLL.h>
+#include <CppProjectPlugin/CppProjectPluginDLL.h>
 
 using SampleBounceComponentManager = ezComponentManagerSimple<class SampleBounceComponent, ezComponentUpdateType::WhenSimulating>;
 

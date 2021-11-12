@@ -1,8 +1,8 @@
-#include <!CppProject!Plugin/!CppProject!PluginPCH.h>
+#include <CppProjectPlugin/CppProjectPluginPCH.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <!CppProject!Plugin/Components/SampleBounceComponent.h>
+#include <CppProjectPlugin/Components/SampleBounceComponent.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(SampleBounceComponent, 1 /* version */, ezComponentMode::Dynamic)
@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(SampleBounceComponent, 1 /* version */, ezComponentMode:
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("!CppProject!"), // Component menu group
+    new ezCategoryAttribute("CppProject"), // Component menu group
   }
   EZ_END_ATTRIBUTES;
 }

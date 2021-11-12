@@ -3,7 +3,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
-#include <!CppProject!Plugin/!CppProject!PluginDLL.h>
+#include <CppProjectPlugin/CppProjectPluginDLL.h>
 
 struct ezMsgSetColor;
 
@@ -38,7 +38,7 @@ struct SampleRenderComponentMask
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_!CPPPROJECT!PLUGIN_DLL, SampleRenderComponentMask);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CPPPROJECTPLUGIN_DLL, SampleRenderComponentMask);
 
 // use ezComponentUpdateType::Always for this component to have 'Update' called even inside the editor when it is not simulating
 // otherwise we would see the debug render output only when simulating the scene

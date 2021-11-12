@@ -1,4 +1,4 @@
-#include <!CppProject!Plugin/!CppProject!PluginPCH.h>
+#include <CppProjectPlugin/CppProjectPluginPCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Core/System/Window.h>
@@ -6,32 +6,32 @@
 #include <Foundation/Logging/Log.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <!CppProject!Plugin/GameState/!CppProject!GameState.h>
+#include <CppProjectPlugin/GameState/CppProjectGameState.h>
 #include <Foundation/Configuration/CVar.h>
 
-ezCVarBool cvar_DebugDisplay("!CppProject!.DebugDisplay", false, ezCVarFlags::Default, "Whether the game should display debug geometry.");
+ezCVarBool cvar_DebugDisplay("CppProject.DebugDisplay", false, ezCVarFlags::Default, "Whether the game should display debug geometry.");
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(!CppProject!GameState, 1, ezRTTIDefaultAllocator<!CppProject!GameState>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(CppProjectGameState, 1, ezRTTIDefaultAllocator<CppProjectGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-!CppProject!GameState::!CppProject!GameState() = default;
-!CppProject!GameState::~!CppProject!GameState() = default;
+CppProjectGameState::CppProjectGameState() = default;
+CppProjectGameState::~CppProjectGameState() = default;
 
-void !CppProject!GameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+void CppProjectGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
   SUPER::OnActivation(pWorld, pStartPosition);
 }
 
-void !CppProject!GameState::OnDeactivation()
+void CppProjectGameState::OnDeactivation()
 {
   EZ_LOG_BLOCK("GameState::Deactivate");
 
   SUPER::OnDeactivation();
 }
 
-void !CppProject!GameState::AfterWorldUpdate()
+void CppProjectGameState::AfterWorldUpdate()
 {
   SUPER::AfterWorldUpdate();
 
@@ -44,18 +44,18 @@ void !CppProject!GameState::AfterWorldUpdate()
   ezDebugRenderer::Draw2DText(m_pMainWorld, "Press 'P' to remove objects", ezVec2I32(10, 30), ezColor::White);
 }
 
-void !CppProject!GameState::BeforeWorldUpdate()
+void CppProjectGameState::BeforeWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
 }
 
-ezGameStatePriority !CppProject!GameState::DeterminePriority(ezWorld* pWorld) const
+ezGameStatePriority CppProjectGameState::DeterminePriority(ezWorld* pWorld) const
 {
   return ezGameStatePriority::Default;
 }
 
-void !CppProject!GameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
+void CppProjectGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 {
   SUPER::ConfigureMainWindowInputDevices(pWindow);
 
@@ -73,21 +73,21 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
   ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
 }
 
-void !CppProject!GameState::ConfigureInputActions()
+void CppProjectGameState::ConfigureInputActions()
 {
   SUPER::ConfigureInputActions();
 
-  RegisterInputAction("!CppProject!Plugin", "SpawnObject", ezInputSlot_KeyO, ezInputSlot_Controller0_ButtonA, ezInputSlot_MouseButton2);
-  RegisterInputAction("!CppProject!Plugin", "DeleteObject", ezInputSlot_KeyP, ezInputSlot_Controller0_ButtonB);
+  RegisterInputAction("CppProjectPlugin", "SpawnObject", ezInputSlot_KeyO, ezInputSlot_Controller0_ButtonA, ezInputSlot_MouseButton2);
+  RegisterInputAction("CppProjectPlugin", "DeleteObject", ezInputSlot_KeyP, ezInputSlot_Controller0_ButtonB);
 }
 
-void !CppProject!GameState::ProcessInput()
+void CppProjectGameState::ProcessInput()
 {
   SUPER::ProcessInput();
 
   ezWorld* pWorld = m_pMainWorld;
 
-  if (ezInputManager::GetInputActionState("!CppProject!Plugin", "SpawnObject") == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState("CppProjectPlugin", "SpawnObject") == ezKeyState::Pressed)
   {
     const ezVec3 pos = GetMainCamera()->GetCenterPosition() + GetMainCamera()->GetCenterDirForwards();
 
@@ -123,7 +123,7 @@ void !CppProject!GameState::ProcessInput()
     pMesh->SetMaterial(0, hMaterial);
   }
 
-  if (ezInputManager::GetInputActionState("!CppProject!Plugin", "DeleteObject") == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState("CppProjectPlugin", "DeleteObject") == ezKeyState::Pressed)
   {
     if (!m_SpawnedObjects.IsEmpty())
     {
@@ -150,7 +150,7 @@ void !CppProject!GameState::ProcessInput()
   }
 }
 
-void !CppProject!GameState::ConfigureMainCamera()
+void CppProjectGameState::ConfigureMainCamera()
 {
   SUPER::ConfigureMainCamera();
 
