@@ -185,7 +185,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   m_LongOpControllerManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
 
-  QCoreApplication::setOrganizationDomain("www.ezEngine.net");
+  QCoreApplication::setOrganizationDomain("www.ezengine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
   QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
   QCoreApplication::setApplicationVersion("1.0.0");
