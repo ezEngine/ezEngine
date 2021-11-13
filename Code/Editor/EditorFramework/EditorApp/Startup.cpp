@@ -273,7 +273,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted);
 
     m_VersionChecker.Initialize();
-    m_VersionChecker.Check(true);
+    m_VersionChecker.Check(false);
   }
 
   LoadEditorPlugins();
