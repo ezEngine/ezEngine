@@ -339,8 +339,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     auto d4 = ezMakeDelegate(&TestType::VirtualMethod, &instance);
     EZ_TEST_BOOL(d4.IsEqualIfComparable(ezMakeDelegate(&TestType::VirtualMethod, &instance)));
 
+    TestType instance2;
+    auto d2_2 = ezMakeDelegate(&TestType::Method, &instance2);
+    EZ_TEST_BOOL(!d2_2.IsEqualIfComparable(d2));
+
     EZ_IGNORE_UNUSED(d1);
     EZ_IGNORE_UNUSED(d2);
+    EZ_IGNORE_UNUSED(d2_2);
     EZ_IGNORE_UNUSED(d3);
     EZ_IGNORE_UNUSED(d4);
   }
