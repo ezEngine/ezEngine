@@ -436,7 +436,12 @@ ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
   if (m_Desc.m_hBaseMaterial.IsValid())
   {
     ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
-    pBaseMaterial->m_ModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
+
+    auto d = ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this);
+    if (pBaseMaterial->m_ModifiedEvent.HasEventHandler(d))
+    {
+      pBaseMaterial->m_ModifiedEvent.RemoveEventHandler(d);
+    }
   }
 
   m_Desc.Clear();
