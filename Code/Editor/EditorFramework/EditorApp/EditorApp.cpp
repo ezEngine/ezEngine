@@ -62,6 +62,9 @@ void ezQtEditorApp::SlotSaveSettings()
 
 void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced)
 {
+  // Close the splash screen so it doesn't become the parent window of our message boxes.
+  CloseSplashScreen();
+
   if (bForced || bNewVersionReleased)
   {
     if (m_VersionChecker.IsLatestNewer())
