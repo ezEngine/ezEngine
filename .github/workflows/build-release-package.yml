@@ -96,10 +96,14 @@ jobs:
 
           xcopy template_repo\package _package /s /y
 
+      - name: Create 7z Archive
+        run: |
+          repo\Data\Tools\Precompiled\7za.exe a ezEngine.Release.${{ steps.sdk-version.outputs.content }}.7z _package\* -mx9
+
       - name: Artifact - Release Package
         if: github.event.inputs.release-artifact == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: ezEngine.Release.${{ steps.sdk-version.outputs.content }}
-          path: _package
+          path: ezEngine.Release.${{ steps.sdk-version.outputs.content }}.7z
           retention-days: 3
