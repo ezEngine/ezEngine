@@ -160,8 +160,6 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
     args << "-S";
     args << GetTargetDir().GetData();
 
-    args << "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=OFF";
-
     tmp.Format("-DEZ_SDK_DIR:PATH={}", sSdkDir);
     args << tmp.GetData();
 
