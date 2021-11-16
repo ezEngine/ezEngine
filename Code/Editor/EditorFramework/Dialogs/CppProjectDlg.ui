@@ -36,6 +36,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="OpenPluginLocation">
+       <property name="toolTip">
+        <string>Open folder in explorer.</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -70,6 +73,9 @@
          <height>0</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string/>
+       </property>
       </widget>
      </item>
     </layout>
@@ -92,6 +98,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="OpenBuildFolder">
+       <property name="toolTip">
+        <string>Open folder in explorer.</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
