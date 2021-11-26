@@ -313,8 +313,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
 
   float4 ref = float4(0, 0, 0, 0);
 
-  [loop]
-  for (uint i = firstItemIndex; i < lastItemIndex; ++i)
+  [loop] for (uint i = firstItemIndex; i < lastItemIndex; ++i)
   {
     const uint itemIndex = clusterItemBuffer[i];
     const uint probeIndex = GET_PROBE_INDEX(itemIndex);
@@ -373,14 +372,14 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
       // Compute falloff alpha
       {
         // Compute min distance from all planes.
-        float3 firstPlaneDist  = (unitary - probeInfluencePosition);
+        float3 firstPlaneDist = (unitary - probeInfluencePosition);
         float3 secondPlaneDist = (unitary + probeInfluencePosition);
 
         float3 positiveFalloff = firstPlaneDist / probeData.PositiveFalloff.xyz;
         float3 negativeFalloff = secondPlaneDist / probeData.NegativeFalloff.xyz;
         alpha = saturate(min(
-            min(negativeFalloff.x, min(negativeFalloff.y, negativeFalloff.z)),
-            min(positiveFalloff.x, min(positiveFalloff.y, positiveFalloff.z))));
+          min(negativeFalloff.x, min(negativeFalloff.y, negativeFalloff.z)),
+          min(positiveFalloff.x, min(positiveFalloff.y, positiveFalloff.z))));
       }
 
       // Box projection taken from: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
@@ -390,10 +389,10 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
         // Transform in local unit parallax cube space (scaled and rotated)
         float3 probeProjectionReflDirection = mul(worldToProbeNormalMatrix, reflDirectionWS);
 
-        float3 firstPlaneDist  = (unitary - probeProjectionPosition);
+        float3 firstPlaneDist = (unitary - probeProjectionPosition);
         float3 secondPlaneDist = (unitary + probeProjectionPosition);
 
-        float3 firstPlaneIntersect  = firstPlaneDist / probeProjectionReflDirection;
+        float3 firstPlaneIntersect = firstPlaneDist / probeProjectionReflDirection;
         float3 secondPlaneIntersect = -secondPlaneDist / probeProjectionReflDirection;
         float3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
         float distance = min(furthestPlane.x, min(furthestPlane.y, furthestPlane.z));

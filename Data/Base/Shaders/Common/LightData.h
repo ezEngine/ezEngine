@@ -108,7 +108,7 @@ struct EZ_ALIGN_16(ezPerDecalData)
 #define REFLECTION_PROBE_INDEX_BITMASK 0x7FFFFFFF
 #define GET_REFLECTION_PROBE_INDEX(index) (index & REFLECTION_PROBE_INDEX_BITMASK)
 
-struct EZ_ALIGN_16(ezPerReflectionProbeData)
+  struct EZ_ALIGN_16(ezPerReflectionProbeData)
   {
     TRANSFORM(WorldToProbeProjectionMatrix);
     FLOAT4(Scale);
@@ -129,24 +129,24 @@ struct EZ_ALIGN_16(ezPerReflectionProbeData)
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerReflectionProbeData) == 160);
 #endif
 
-CONSTANT_BUFFER(ezClusteredDataConstants, 3)
-{
-  FLOAT1(DepthSliceScale);
-  FLOAT1(DepthSliceBias);
-  FLOAT2(InvTileSize);
+  CONSTANT_BUFFER(ezClusteredDataConstants, 3)
+  {
+    FLOAT1(DepthSliceScale);
+    FLOAT1(DepthSliceBias);
+    FLOAT2(InvTileSize);
 
-  UINT1(NumLights);
-  UINT1(NumDecals);
-  UINT1(Padding);
-  
-  UINT1(SkyIrradianceIndex);  
+    UINT1(NumLights);
+    UINT1(NumDecals);
+    UINT1(Padding);
 
-  FLOAT1(FogHeight);
-  FLOAT1(FogHeightFalloff);
-  FLOAT1(FogDensityAtCameraPos);
-  FLOAT1(FogDensity);
-  COLOR4F(FogColor);
-  FLOAT1(FogInvSkyDistance);
+    UINT1(SkyIrradianceIndex);
+
+    FLOAT1(FogHeight);
+    FLOAT1(FogHeightFalloff);
+    FLOAT1(FogDensityAtCameraPos);
+    FLOAT1(FogDensity);
+    COLOR4F(FogColor);
+    FLOAT1(FogInvSkyDistance);
 };
 
 #define NUM_CLUSTERS_X 16
