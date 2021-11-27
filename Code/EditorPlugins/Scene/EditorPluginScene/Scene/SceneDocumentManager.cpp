@@ -198,6 +198,23 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_NewValue = ezVec3(0, 0, 1);
       EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
     }
+
+    {
+      ezRemoveObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "Tags";
+      propCmd.m_Index = 0; // There is only one value in the set, CastShadow.
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    {
+      ezInsertObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "Tags";
+      propCmd.m_Index = 0;
+      propCmd.m_NewValue = "SkyLight";
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
   }
 
   {
@@ -256,7 +273,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
   {
     ezAddObjectCommand cmd;
     cmd.m_Index = -1;
-    cmd.SetType("ezAmbientLightComponent");
+    cmd.SetType("ezSkyLightComponent");
     cmd.m_Parent = lightObjectGuid;
     cmd.m_sParentProperty = "Components";
     EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");

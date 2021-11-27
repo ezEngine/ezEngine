@@ -8,6 +8,17 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
+namespace
+{
+  static ezVariantArray GetDefaultExcludeTags()
+  {
+    ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
+    value.PushBack(ezStringView("SkyLight"));
+    return value;
+  }
+} // namespace
+
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionProbeComponentBase, 2, ezRTTINoAllocator)
 {
@@ -15,7 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionProbeComponentBase, 2, ezRTTINoAlloc
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ReflectionProbeMode", ezReflectionProbeMode, GetReflectionProbeMode, SetReflectionProbeMode)->AddAttributes(new ezDefaultValueAttribute(ezReflectionProbeMode::Static), new ezGroupAttribute("Capture Description")),
     EZ_SET_ACCESSOR_PROPERTY("IncludeTags", GetIncludeTags, InsertIncludeTag, RemoveIncludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_SET_ACCESSOR_PROPERTY("ExcludeTags", GetExcludeTags, InsertExcludeTag, RemoveExcludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+    EZ_SET_ACCESSOR_PROPERTY("ExcludeTags", GetExcludeTags, InsertExcludeTag, RemoveExcludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default"), new ezDefaultValueAttribute(GetDefaultExcludeTags())),
     EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, {}), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
     EZ_ACCESSOR_PROPERTY("CaptureOffset", GetCaptureOffset, SetCaptureOffset),
