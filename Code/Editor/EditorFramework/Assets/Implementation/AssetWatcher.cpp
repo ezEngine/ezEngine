@@ -37,45 +37,46 @@ ezAssetWatcher::ezAssetWatcher(const ezApplicationFileSystemConfig& fileSystemCo
     m_Watchers.PushBack(pWatcher);
   }
 
-  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Update", [this]() {
-    ezHybridArray<WatcherResult, 16> watcherResults;
-    for (ezDirectoryWatcher* pWatcher : m_Watchers)
+  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Update", [this]()
     {
-      pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action) {
-        ezStringBuilder sTemp = pWatcher->GetDirectory();
-        sTemp.AppendPath(szFilename);
-        sTemp.MakeCleanPath();
+      ezHybridArray<WatcherResult, 16> watcherResults;
+      for (ezDirectoryWatcher* pWatcher : m_Watchers)
+      {
+        pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action)
+          {
+            ezStringBuilder sTemp = pWatcher->GetDirectory();
+            sTemp.AppendPath(szFilename);
+            sTemp.MakeCleanPath();
 
-        /*if (sTemp.FindSubString("AssetCache/Thumbnails/") != nullptr)
-        {
-          return;
-        }*/
+            if (action == ezDirectoryWatcherAction::Modified)
+            {
+              if (ezOSFile::ExistsDirectory(sTemp))
+                return;
+            }
 
-        if (action == ezDirectoryWatcherAction::Modified)
-        {
-          if (ezOSFile::ExistsDirectory(sTemp))
-            return;
-        }
-
-        watcherResults.PushBack({sTemp, action});
-      });
-    }
-    for (const WatcherResult& res : watcherResults)
-    {
-      HandleWatcherChange(res);
-    }
-  });
+            watcherResults.PushBack({sTemp, action});
+          });
+      }
+      for (const WatcherResult& res : watcherResults)
+      {
+        HandleWatcherChange(res);
+      }
+    });
 }
 
 
 ezAssetWatcher::~ezAssetWatcher()
 {
+  m_bShutdown = true;
+  ezTaskGroupID watcherGroup;
   {
     EZ_LOCK(m_WatcherMutex);
-
-    ezTaskSystem::WaitForGroup(m_WatcherGroup);
+    watcherGroup = m_WatcherGroup;
+  }
+  ezTaskSystem::WaitForGroup(watcherGroup);
+  {
+    EZ_LOCK(m_WatcherMutex);
     m_pWatcherTask.Clear();
-
     for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
       EZ_DEFAULT_DELETE(pWatcher);
@@ -103,7 +104,7 @@ void ezAssetWatcher::MainThreadTick()
 {
   EZ_PROFILE_SCOPE("ezAssetWatcherTick");
   EZ_LOCK(m_WatcherMutex);
-  if (m_pWatcherTask && ezTaskSystem::IsTaskGroupFinished(m_WatcherGroup))
+  if (!m_bShutdown && m_pWatcherTask && ezTaskSystem::IsTaskGroupFinished(m_WatcherGroup))
   {
     m_WatcherGroup = ezTaskSystem::StartSingleTask(m_pWatcherTask, ezTaskPriority::LongRunningHighPriority);
   }
@@ -127,13 +128,14 @@ void ezAssetWatcher::MainThreadTick()
   {
     PendingUpdate& update = m_UpdateDirectory[i - 1];
     --update.m_uiFrameDelay;
-    if (update.m_uiFrameDelay == 0)
+    if (update.m_uiFrameDelay == 0 && !m_bShutdown)
     {
       ezSharedPtr<ezTask> pTask = EZ_DEFAULT_NEW(ezDirectoryUpdateTask, this, update.sAbsPath);
-      ezTaskGroupID id = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunningHighPriority, [this](ezTaskGroupID id) {
-        EZ_LOCK(m_WatcherMutex);
-        m_DirectoryUpdates.RemoveAndSwap(id);
-      });
+      ezTaskGroupID id = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunningHighPriority, [this](ezTaskGroupID id)
+        {
+          EZ_LOCK(m_WatcherMutex);
+          m_DirectoryUpdates.RemoveAndSwap(id);
+        });
       m_DirectoryUpdates.PushBack(id);
 
       m_UpdateDirectory.RemoveAtAndSwap(i - 1);
