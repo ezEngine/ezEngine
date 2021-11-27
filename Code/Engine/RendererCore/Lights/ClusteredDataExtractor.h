@@ -68,7 +68,7 @@ private:
   ezDynamicArray<ezPerReflectionProbeData, ezAlignedAllocatorWrapper> m_TempReflectionProbeData;
   ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_LIGHT_DATA>> m_TempLightsClusters;
   ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_DECAL_DATA>> m_TempDecalsClusters;
-  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_DECAL_DATA>> m_TempReflectionProbeClusters;
+  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_REFLECTION_PROBE_DATA>> m_TempReflectionProbeClusters;
   ezDynamicArray<ezUInt32> m_TempClusterItemList;
 
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;

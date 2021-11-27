@@ -311,7 +311,7 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizePointLight(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
+  void RasterizeSphere(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
     const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(pointLightSphere, viewMatrix, projectionMatrix);
@@ -391,7 +391,7 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizeDecal(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix, Cluster* clusters,
+  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix, Cluster* clusters,
     ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(transform).GetAsMat4();

@@ -162,7 +162,7 @@ float ezReflectionProbeComponentBase::ComputePriority(ezMsgExtractRenderData& ms
 {
   float fPriority = 0.0f;
   const float fLogVolume = ezMath::Log2(1.0f + fVolume); // +1 to make sure it never goes negative.
-  // This sorting is only by size to make sure the probes in a cluster are iterating from smallest to largest on the GPU. Which probes are actually used is determined below by the GetReflectionProbeIndex call.
+  // This sorting is only by size to make sure the probes in a cluster are iterating from smallest to largest on the GPU. Which probes are actually used is determined below by the returned priority.
   pRenderData->m_uiSortingKey = ezMath::FloatToInt(ezMath::MaxValue<ezUInt32>() * fLogVolume / 40.0f);
 
   //#TODO This is a pretty poor distance / size based score.

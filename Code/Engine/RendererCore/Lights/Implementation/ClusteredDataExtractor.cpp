@@ -203,7 +203,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 
           ezSimdBSphere pointLightSphere =
             ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
-          RasterizePointLight(
+          RasterizeSphere(
             pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           if (false)
@@ -295,7 +295,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         {
           FillDecalData(m_TempDecalData.ExpandAndGetRef(), pDecalRenderData);
 
-          RasterizeDecal(pDecalRenderData->m_GlobalTransform, uiDecalIndex, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeBox(pDecalRenderData->m_GlobalTransform, uiDecalIndex, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
         }
         else
         {
@@ -354,7 +354,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
           {
             ezSimdBSphere pointLightSphere =
               ezSimdBSphere(ezSimdConversion::ToVec3(pReflectionProbeRenderData->m_GlobalTransform.m_vPosition), fMaxRadius);
-            RasterizePointLight(
+            RasterizeSphere(
               pointLightSphere, uiProbeIndex, viewMatrix, projectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
           }
           else
@@ -366,7 +366,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
             //const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
             //ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
 
-            RasterizeDecal(transform, uiProbeIndex, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+            RasterizeBox(transform, uiProbeIndex, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
           }
         }
         else
