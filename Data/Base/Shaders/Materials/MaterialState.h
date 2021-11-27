@@ -1,5 +1,7 @@
 #pragma once
 
+// clang-format off
+
 // rasterizer state
 #if defined(RENDER_PASS) && (RENDER_PASS == RENDER_PASS_WIREFRAME || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
   WireFrame = true
@@ -75,3 +77,5 @@ DepthTestFunc = CompareFunc_LessEqual
   BlendingEnabled0 = false
   DepthWrite = true
 #endif
+
+// clang-format on

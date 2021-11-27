@@ -1,5 +1,7 @@
 #pragma once
 
+// clang-format off
+
 #if SHADING_QUALITY != SHADING_QUALITY_NORMAL
 #error "Functions in LightData.h are only for NORMAL shading quality. Todo: Split up file"
 #endif
@@ -175,3 +177,5 @@ struct ezPerClusterData
   StructuredBuffer<ezPerClusterData> perClusterDataBuffer;
   StructuredBuffer<uint> clusterItemBuffer;
 #endif
+
+// clang-format on

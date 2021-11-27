@@ -1,3 +1,4 @@
+// clang-format off
 #define CUSTOM_INTERPOLATOR float FogAmount : FOG;
 
 #include <Shaders/Particles/ParticleCommonPS.h>
@@ -58,3 +59,4 @@ float4 main(PS_IN Input) : SV_Target
 
   #endif
 }
+// clang-format on
