@@ -8,6 +8,7 @@ ALL
 BlendingEnabled0 = true
 DestBlend0 = Blend_InvSrcAlpha
 SourceBlend0 = Blend_SrcAlpha
+DestBlendAlpha0 = Blend_InvSrcAlpha
 ScissorTest = true
 DepthTest = false
 DepthWrite = false

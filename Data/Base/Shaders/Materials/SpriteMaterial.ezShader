@@ -177,5 +177,8 @@ PS_OUT main(PS_IN Input)
     Output.Coverage = coverage;
   #endif
 
+  #if RENDER_PASS != RENDER_PASS_DEPTH_ONLY && BLEND_MODE == BLEND_MODE_MASKED
+      Output.Color.a = 1.0f;
+  #endif
   return Output;
 }

@@ -67,8 +67,6 @@ void ezReflectionProbeMapping::UpdateProbe(ezReflectionProbeId probe, ezBitflags
 
 void ezReflectionProbeMapping::ProbeUpdateFinished(ezReflectionProbeId probe)
 {
-  //ezLog::Warning("ProbeUpdateFinished {}", (ezUInt32)probe.m_InstanceIndex);
-
   ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_InstanceIndex];
   if (m_SkyLight == probe && probeData.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
   {

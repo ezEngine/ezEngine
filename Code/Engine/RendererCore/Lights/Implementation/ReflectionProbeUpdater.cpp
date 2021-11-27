@@ -72,7 +72,6 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::~ProbeUpdateInfo()
 
 ezReflectionProbeUpdater::ezReflectionProbeUpdater()
 {
-  CreateReflectionViewsAndResources();
 }
 
 ezReflectionProbeUpdater::~ezReflectionProbeUpdater()
@@ -103,8 +102,6 @@ ezUInt32 ezReflectionProbeUpdater::GetFreeUpdateSlots(ezDynamicArray<ezReflectio
 
 ezResult ezReflectionProbeUpdater::StartDynamicUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, const ezTransform& globalTransform, const TargetSlot& target)
 {
-  //ezLog::Warning("StartDynamicUpdate {}, Spec {}, Irr {}", (ezUInt32)probe.m_Id.m_InstanceIndex, target.m_iSpecularOutputIndex, target.m_iIrradianceOutputIndex);
-
   EZ_ASSERT_DEBUG(target.m_hIrradianceOutputTexture.IsInvalidated() == (target.m_iIrradianceOutputIndex == -1), "Invalid irradiance output settings.");
   EZ_ASSERT_DEBUG(!target.m_hSpecularOutputTexture.IsInvalidated() && target.m_iSpecularOutputIndex != -1, "Specular output invalid.");
   for (auto& slot : m_DynamicUpdates)
@@ -128,8 +125,6 @@ ezResult ezReflectionProbeUpdater::StartDynamicUpdate(const ezReflectionProbeRef
 
 ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle sourceTexture, const TargetSlot& target)
 {
-  //ezLog::Warning("StartFilterUpdate {}, Spec {}, Irr {}", (ezUInt32)probe.m_Id.m_InstanceIndex, target.m_iSpecularOutputIndex, target.m_iIrradianceOutputIndex);
-
   EZ_ASSERT_DEBUG(target.m_hIrradianceOutputTexture.IsInvalidated() == (target.m_iIrradianceOutputIndex == -1), "Invalid irradiance output settings.");
   EZ_ASSERT_DEBUG(!target.m_hSpecularOutputTexture.IsInvalidated() && target.m_iSpecularOutputIndex != -1, "Specular output invalid.");
   for (auto& slot : m_DynamicUpdates)
@@ -236,6 +231,9 @@ void ezReflectionProbeUpdater::ScheduleUpdateSteps()
     return;
   }
   m_bUpdateStepsFlushed = true;
+
+  //#TODO: would like to do that in the ctor but then the renderer tests assert that don't have the base asset directory set up.
+  CreateReflectionViewsAndResources();
 
   // Iterate in reverse as ResetProbeUpdateInfo will move the current index to the back of the array.
   for (ezUInt32 uiInfo = m_DynamicUpdates.GetCount(); uiInfo-- > 0;)
