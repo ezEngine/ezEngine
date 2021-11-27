@@ -37,31 +37,29 @@ ezAssetWatcher::ezAssetWatcher(const ezApplicationFileSystemConfig& fileSystemCo
     m_Watchers.PushBack(pWatcher);
   }
 
-  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Update", [this]()
+  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Update", [this]() {
+    ezHybridArray<WatcherResult, 16> watcherResults;
+    for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
-      ezHybridArray<WatcherResult, 16> watcherResults;
-      for (ezDirectoryWatcher* pWatcher : m_Watchers)
-      {
-        pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action)
-          {
-            ezStringBuilder sTemp = pWatcher->GetDirectory();
-            sTemp.AppendPath(szFilename);
-            sTemp.MakeCleanPath();
+      pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action) {
+        ezStringBuilder sTemp = pWatcher->GetDirectory();
+        sTemp.AppendPath(szFilename);
+        sTemp.MakeCleanPath();
 
-            if (action == ezDirectoryWatcherAction::Modified)
-            {
-              if (ezOSFile::ExistsDirectory(sTemp))
-                return;
-            }
+        if (action == ezDirectoryWatcherAction::Modified)
+        {
+          if (ezOSFile::ExistsDirectory(sTemp))
+            return;
+        }
 
-            watcherResults.PushBack({sTemp, action});
-          });
-      }
-      for (const WatcherResult& res : watcherResults)
-      {
-        HandleWatcherChange(res);
-      }
-    });
+        watcherResults.PushBack({sTemp, action});
+      });
+    }
+    for (const WatcherResult& res : watcherResults)
+    {
+      HandleWatcherChange(res);
+    }
+  });
 }
 
 
@@ -131,11 +129,10 @@ void ezAssetWatcher::MainThreadTick()
     if (update.m_uiFrameDelay == 0 && !m_bShutdown)
     {
       ezSharedPtr<ezTask> pTask = EZ_DEFAULT_NEW(ezDirectoryUpdateTask, this, update.sAbsPath);
-      ezTaskGroupID id = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunningHighPriority, [this](ezTaskGroupID id)
-        {
-          EZ_LOCK(m_WatcherMutex);
-          m_DirectoryUpdates.RemoveAndSwap(id);
-        });
+      ezTaskGroupID id = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunningHighPriority, [this](ezTaskGroupID id) {
+        EZ_LOCK(m_WatcherMutex);
+        m_DirectoryUpdates.RemoveAndSwap(id);
+      });
       m_DirectoryUpdates.PushBack(id);
 
       m_UpdateDirectory.RemoveAtAndSwap(i - 1);
