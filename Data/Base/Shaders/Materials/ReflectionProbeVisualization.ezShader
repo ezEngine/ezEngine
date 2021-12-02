@@ -13,7 +13,8 @@ CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
 
 [MATERIALPARAMETER]
 
-int MipLevel @Default(0.0);
+int MipLevel @Default(0);
+int ReflectionProbeIndex @Default(0);
 
 [RENDERSTATE]
 
@@ -44,11 +45,18 @@ float3 GetNormal()
 
 float3 GetDiffuseColor()
 {
+  ezPerInstanceData data = GetInstanceData();
+  float3x3 objectToWorld = TransformToRotation(data.ObjectToWorldNormal);
+
   float3 normal = normalize(G.Input.Normal);
   float3 viewDir = normalize(G.Input.WorldPosition - GetCameraPosition());
-  float3 reflectionDir = CubeMapDirection(reflect(viewDir, normal));
 
-  return ReflectionSpecularTexture.SampleLevel(LinearSampler, float4(reflectionDir, SkyIrradianceIndex), MipLevel).rgb;
+  float3 ReflDirectionWS = reflect(viewDir, normal);
+  ReflDirectionWS = mul(ReflDirectionWS, objectToWorld).xyz;
+
+  float3 reflectionDir = CubeMapDirection(ReflDirectionWS);
+
+  return ReflectionSpecularTexture.SampleLevel(LinearSampler, float4(reflectionDir, ReflectionProbeIndex), MipLevel).rgb;
 }
 
 float3 GetSpecularColor()

@@ -12,17 +12,7 @@ DepthTestFunc = CompareFunc_Less
 DepthWrite = false
 CullMode = CullMode_None
 
-[VERTEXSHADER]
-
-#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
-
-[PIXELSHADER]
-
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
+[COMPUTESHADER]
 
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/BRDF.h>
@@ -32,6 +22,7 @@ struct PS_IN
 #include "ReflectionFilteredSpecularConstants.h"
 
 TextureCube InputCubemap;
+RWTexture2DArray<float4> ReflectionOutput;
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
 float radicalInverse_VdC(uint bits) {
@@ -86,7 +77,7 @@ inline float D_GGX_Divide_Pi (float NdotH, float roughness)
 }
 
 // Ref: Listing 19 in "Moving Frostbite to PBR"
-float3  integrateCubeLDOnly(in float3 V,in float3 N,in float roughness)
+float4  integrateCubeLDOnly(in float3 V,in float3 N,in float roughness)
 {
   uint sampleCount = 64;
   float width, height, mipCount;
@@ -95,7 +86,7 @@ float3  integrateCubeLDOnly(in float3 V,in float3 N,in float roughness)
   float3 tangentX, tangentY;
   GetLocalFrame(N, tangentX, tangentY);
 
-  float3  accBrdf = 0;
+  float4  accBrdf = 0;
   float   accBrdfWeight = 0;
   for (uint i=0; i<sampleCount; ++i)
   {
@@ -133,35 +124,85 @@ float3  integrateCubeLDOnly(in float3 V,in float3 N,in float roughness)
  
       float4  Li = InputCubemap.SampleLevel(LinearSampler, L, mipLevel);
 
-      accBrdf  += Li.rgb * NdotL;
+      accBrdf  += Li * NdotL;
       accBrdfWeight  += NdotL;
     }
   }
   return  accBrdf * (1.0f / accBrdfWeight);
 }
 
-float4 main(PS_IN input) : SV_Target
+float3 GetRayDir(float2 texCoord, uint faceIndex)
 {
+  float3 Forward;
+  float3 Up2;
+  switch (faceIndex)
+  {
+
+    case 0:
+      Forward = float3(1.0f, 0.0f, 0.0f);
+      Up2 = float3(0.0f, 0.0f, 1.0f);
+      break;
+    case 1:
+      Forward = float3(-1.0f, 0.0f, 0.0f);
+      Up2 = float3(0.0f, 0.0f, 1.0f);
+      break;
+    case 2:
+      Forward = float3(0.0f, 0.0f, 1.0f);
+      Up2 = float3(0.0f, 1.0f, 0.0f);
+      break;
+    case 3:
+      Forward = float3(0.0f, 0.0f, -1.0f);
+      Up2 = float3(0.0f, -1.0f, 0.0f);
+      break;
+    case 4:
+      Forward = float3(0.0f, -1.0f, 0.0f);
+      Up2 = float3(0.0f, 0.0f, 1.0f);
+      break;
+    case 5:
+      Forward = float3(0.0f, 1.0f, 0.0f);
+      Up2 = float3(0.0f, 0.0f, 1.0f);
+      break;
+  }
+
   float3 Right = cross(Forward.xyz, Up2.xyz);
-  float3 dir = Right.xyz * (input.TexCoord0.x * -2.0f + 1.0f);
-  dir += Up2.xyz * (input.TexCoord0.y * -2.0f + 1.0f) + Forward.xyz;
+  float3 dir = Right.xyz * (texCoord.x * -2.0f + 1.0f);
+  dir += Up2.xyz * (texCoord.y * -2.0f + 1.0f) + Forward.xyz;
   dir = normalize(dir);
+  return dir;
+}
+
+[numthreads(8, 8, 1)]
+void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
+{
+  const uint faceIndex = groupID.z;
+  const uint2 pixelIndex = uint2(groupID.x * 8 + groupThreadID.x, groupID.y * 8 + groupThreadID.y);
+
+  uint width, height, mipCount;
+  ReflectionOutput.GetDimensions(width, height, mipCount);
+  // Check for out of bounds threads (happens on last 4x4 mip level)
+  if (pixelIndex.x >= width || pixelIndex.y >= height)
+    return;
+
+  // Compute tex coord using centroid sampling.
+  const float2 texCoord = float2(((float)pixelIndex.x + 0.5) / width, ((float)pixelIndex.y + 0.5) / height );
+  const float3 dir = GetRayDir(texCoord, faceIndex);
 
   float roughness = RoughnessFromMipLevel(MipLevel, 6);
 
-  float3 inputColor;
+  float4 inputColor;
   if (MipLevel == 0)
   {
-    inputColor = InputCubemap.Sample(LinearSampler, CubeMapDirection(dir));
+    // We have to manually compute the mip level to sample in the compute shader.
+    float inputWidth, inputHeight, inputMipCount;
+    InputCubemap.GetDimensions(0, inputWidth, inputHeight, inputMipCount);
+    float sampleMipLevel = log2(inputWidth) - log2(width);
+
+    inputColor = InputCubemap.SampleLevel(LinearSampler, CubeMapDirection(dir), sampleMipLevel);
   }
   else
   {
     inputColor = integrateCubeLDOnly(CubeMapDirection(dir), CubeMapDirection(dir), roughness);
   }
 
-  float luminance = GetLuminance(inputColor);
-  inputColor = lerp(luminance, inputColor, Saturation) * Intensity;
-
-  float4 res = float4(inputColor, (float)OutputIndex);
-  return res;
+  ReflectionOutput[uint3(pixelIndex, faceIndex)] = inputColor;
 }

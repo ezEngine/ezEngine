@@ -41,6 +41,17 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     }
 
     {
+      desc.m_uiStructSize = sizeof(ezPerReflectionProbeData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_REFLECTION_PROBE_DATA;
+      desc.m_BufferType = ezGALBufferType::Generic;
+      desc.m_bUseAsStructuredBuffer = true;
+      desc.m_bAllowShaderResourceView = true;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      m_hReflectionProbeDataBuffer = pDevice->CreateBuffer(desc);
+    }
+
+    {
       desc.m_uiStructSize = sizeof(ezPerClusterData);
       desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
 
@@ -88,6 +99,7 @@ ezClusteredDataGPU::~ezClusteredDataGPU()
 
   pDevice->DestroyBuffer(m_hLightDataBuffer);
   pDevice->DestroyBuffer(m_hDecalDataBuffer);
+  pDevice->DestroyBuffer(m_hReflectionProbeDataBuffer);
   pDevice->DestroyBuffer(m_hClusterDataBuffer);
   pDevice->DestroyBuffer(m_hClusterItemBuffer);
   pDevice->DestroySamplerState(m_hShadowSampler);
@@ -103,11 +115,12 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowDataBuffer());
   auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
 
-  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex));
+  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex, m_cameraUsageHint));
   auto hSkyIrradianceTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetSkyIrradianceTexture());
 
   pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
   pRenderContext->BindBuffer("perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
+  pRenderContext->BindBuffer("perPerReflectionProbeDataBuffer", pDevice->GetDefaultResourceView(m_hReflectionProbeDataBuffer));
   pRenderContext->BindBuffer("perClusterDataBuffer", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
   pRenderContext->BindBuffer("clusterItemBuffer", pDevice->GetDefaultResourceView(m_hClusterItemBuffer));
 
@@ -147,6 +160,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
   if (auto pData = extractedData.GetFrameData<ezClusteredDataCPU>())
   {
     m_Data.m_uiSkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
+    m_Data.m_cameraUsageHint = pData->m_cameraUsageHint;
 
     // Update buffer
     if (!pData->m_ClusterItemList.IsEmpty())
@@ -159,6 +173,11 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
       if (!pData->m_DecalData.IsEmpty())
       {
         pGALCommandEncoder->UpdateBuffer(m_Data.m_hDecalDataBuffer, 0, pData->m_DecalData.ToByteArray());
+      }
+
+      if (!pData->m_ReflectionProbeData.IsEmpty())
+      {
+        pGALCommandEncoder->UpdateBuffer(m_Data.m_hReflectionProbeDataBuffer, 0, pData->m_ReflectionProbeData.ToByteArray());
       }
 
       pGALCommandEncoder->UpdateBuffer(m_Data.m_hClusterItemBuffer, 0, pData->m_ClusterItemList.ToByteArray());

@@ -406,3 +406,5 @@ ezClothSheetFlags::FixedEdgeBottom;Edge: Bottom
 ezClothSheetFlags::FixedEdgeLeft;Edge: Left
 ezClothSheetFlags::FixedEdgeLeft;Edge: Left
 ezCustomMeshComponent;Custom Mesh Component
+ezBoxReflectionProbeComponent;Box Reflection Probe;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html
+ezSphereReflectionProbeComponent;Sphere Reflection ProbeezCustomMeshComponent;Custom Mesh Component;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html

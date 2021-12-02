@@ -1021,13 +1021,6 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
     if (pTexture)
     {
       // Is this really platform independent?
-      if (pTexture->GetDescription().m_Type == ezGALTextureType::TextureCube)
-      {
-        ezLog::Error("Can't create unordered access view from cube textures.");
-        return ezGALUnorderedAccessViewHandle();
-      }
-
-      // Is this really platform independent?
       if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
       {
         ezLog::Error("Can't create unordered access view on textures with multisampling.");

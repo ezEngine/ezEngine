@@ -98,6 +98,13 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
         }
         break;
 
+      case ezGALTextureType::TextureCube:
+        DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+        DXUAVDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevelToUse;
+        DXUAVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
+        DXUAVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
+        break;
+
       case ezGALTextureType::Texture3D:
 
         DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;

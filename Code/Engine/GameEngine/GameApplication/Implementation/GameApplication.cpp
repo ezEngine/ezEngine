@@ -100,6 +100,13 @@ bool ezGameApplication::IsGameUpdateEnabled() const
 
 void ezGameApplication::Run_WorldUpdateAndRender()
 {
+  // If multi-threaded rendering is disabled, the same content is updated/extracted and rendered in the same frame.
+  // As ezRenderWorld::BeginFrame applies the render pipeline properties that were set during the update phase, it needs to be done after update/extraction but before rendering.
+  if (!ezRenderWorld::GetUseMultithreadedRendering())
+  {
+    UpdateWorldsAndExtractViews();
+  }
+
   ezRenderWorld::BeginFrame();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -113,10 +120,6 @@ void ezGameApplication::Run_WorldUpdateAndRender()
   if (ezRenderWorld::GetUseMultithreadedRendering())
   {
     updateTaskID = ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::EarlyThisFrame);
-  }
-  else
-  {
-    UpdateWorldsAndExtractViews();
   }
 
   RenderFps();

@@ -34,6 +34,7 @@ void ezSimplifiedDataExtractor::PostSortAndBatch(
   ezSimplifiedDataCPU* pData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezSimplifiedDataCPU);
 
   pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();
+  pData->m_cameraUsageHint = view.GetCameraUsageHint();
 
   extractedRenderData.AddFrameData(pData);
 }

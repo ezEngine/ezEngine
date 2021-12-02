@@ -33,6 +33,7 @@ CAMERA_MODE
 	BlendOp0 = BlendOp_Add
 	DestBlend0 = Blend_InvSrcAlpha
 	SourceBlend0 = Blend_SrcAlpha
+	DestBlendAlpha0 = Blend_InvSrcAlpha
 #endif
 
 [VERTEXSHADER]

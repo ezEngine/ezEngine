@@ -63,7 +63,7 @@ jobs:
       filePath: brew install Caskroom/cask/xquartz
       script: |
         # Brew update takes very long. Only enable if below steps start failing.
-        #brew update
+        brew update
         brew list --versions qt@5
         brew install qt@5
         brew info qt@5

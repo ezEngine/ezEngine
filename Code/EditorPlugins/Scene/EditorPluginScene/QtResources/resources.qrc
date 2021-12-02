@@ -77,6 +77,8 @@
 	<file>ezWindVolumeCylinderComponent.png</file>
 	<file>ezWindVolumeSphereComponent.png</file>
 	<file>ezClothSheetComponent.png</file>
+	<file>ezBoxReflectionProbeComponent.png</file>
+	<file>ezSphereReflectionProbeComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>
