@@ -150,6 +150,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 {
   EZ_PROFILE_SCOPE("StartupEditor");
 
+  QCoreApplication::setOrganizationDomain("www.ezengine.net");
+  QCoreApplication::setOrganizationName("ezEngine Project");
+  QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
+  QCoreApplication::setApplicationVersion("1.0.0");
+
   m_StartupFlags = startupFlags;
 
   auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
@@ -184,11 +189,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   s_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
 
   m_LongOpControllerManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
-
-  QCoreApplication::setOrganizationDomain("www.ezengine.net");
-  QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
-  QCoreApplication::setApplicationVersion("1.0.0");
 
   if (!IsInHeadlessMode())
   {
@@ -416,6 +416,19 @@ void ezQtEditorApp::SetupAndShowSplashScreen()
   EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
 
   if (opt_NoSplashScreen.GetOptionValue(ezCommandLineOption::LogMode::Never))
+    return;
+
+  bool bShowSplashScreen = true;
+
+  // preferences are not yet available here
+  {
+    QSettings s;
+    s.beginGroup("EditorPreferences");
+    bShowSplashScreen = s.value("ShowSplashscreen", true).toBool();
+    s.endGroup();
+  }
+
+  if (!bShowSplashScreen)
     return;
 
   //QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));

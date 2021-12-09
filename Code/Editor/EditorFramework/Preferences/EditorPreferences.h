@@ -21,6 +21,7 @@ public:
   float m_fGizmoScale = 1.0f;
   bool m_bUsePrecompiledTools = true;
   bool m_bLoadLastProjectAtStartup = true;
+  bool m_bShowSplashscreen = true;
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = false;
   bool m_bAssetFilterCombobox = true;

@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
@@ -72,6 +73,16 @@ void ezQtEditorApp::SaveSettings()
   SaveRecentFiles();
 
   ezPreferences::SaveApplicationPreferences();
+
+  // this setting is needed before we have loaded the preferences, so we duplicate it in the QSettings (registry)
+  {
+    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+    QSettings s;
+    s.beginGroup("EditorPreferences");
+    s.setValue("ShowSplashscreen", pPreferences->m_bShowSplashscreen);
+    s.endGroup();
+  }
 
   if (ezToolsProject::IsProjectOpen())
   {
