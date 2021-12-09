@@ -110,9 +110,6 @@ namespace ezModelImporter2
 
         if (pBoneWeights[uiLeastWeightIdx] < uiEncodedWeight)
         {
-          // don't ever normalize bone weights, even if we drop bones
-          // as that distorts the influence of the bones and breaks meshes
-
           pBoneWeights[uiLeastWeightIdx] = uiEncodedWeight;
 
           if (b8BitBoneIndices)
@@ -120,6 +117,33 @@ namespace ezModelImporter2
           else
             pBoneIndices16[uiLeastWeightIdx] = static_cast<ezUInt16>(uiBoneIndex);
         }
+      }
+    }
+
+    // normalize the bone weights
+    // NOTE: This is absolutely crucial for some meshes to work right
+    // On the other hand, it is also possible that some meshes don't like this
+    // if we come across meshes where normalization breaks them, we may need to add a user-option to select whether bone weights should be normalized
+    for (ezUInt32 vtx = 0; vtx < mb.GetVertexCount(); ++vtx)
+    {
+      ezUInt8* pBoneWeights = reinterpret_cast<ezUInt8*>(mb.GetVertexData(streams.uiBoneWgt, vtx).GetPtr());
+
+      const ezUInt32 len = pBoneWeights[0] + pBoneWeights[1] + pBoneWeights[2] + pBoneWeights[3];
+
+      if (len > 255)
+      {
+        ezVec4 wgt;
+        wgt.x = ezMath::ColorByteToFloat(pBoneWeights[0]);
+        wgt.y = ezMath::ColorByteToFloat(pBoneWeights[1]);
+        wgt.z = ezMath::ColorByteToFloat(pBoneWeights[2]);
+        wgt.w = ezMath::ColorByteToFloat(pBoneWeights[3]);
+
+        wgt /= (len / 255.0f);
+
+        pBoneWeights[0] = ezMath::ColorFloatToByte(wgt.x);
+        pBoneWeights[1] = ezMath::ColorFloatToByte(wgt.y);
+        pBoneWeights[2] = ezMath::ColorFloatToByte(wgt.z);
+        pBoneWeights[3] = ezMath::ColorFloatToByte(wgt.w);
       }
     }
   }
