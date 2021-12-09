@@ -47,6 +47,22 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
+  // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
+  {
+    ezStringBuilder sdkDir;
+    if (ezFileSystem::FindFolderWithSubPath(sdkDir, szFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
+    {
+      sdkDir.MakeCleanPath();
+      if (sdkDir != ezFileSystem::GetSdkRootDirectory())
+      {
+        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", ezFileSystem::GetSdkRootDirectory(), szFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        {
+          return EZ_FAILURE;
+        }
+      }
+    }
+  }
+
   EZ_PROFILE_SCOPE("CreateOrOpenProject");
   m_bLoadingProjectInProgress = true;
   EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
