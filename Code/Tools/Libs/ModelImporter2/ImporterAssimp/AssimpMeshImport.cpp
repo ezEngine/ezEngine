@@ -106,12 +106,14 @@ namespace ezModelImporter2
           }
         }
 
-        if (pBoneWeights[uiLeastWeightIdx] < weight.mWeight)
+        const ezUInt8 uiEncodedWeight = ezMath::ColorFloatToByte(weight.mWeight);
+
+        if (pBoneWeights[uiLeastWeightIdx] < uiEncodedWeight)
         {
           // don't ever normalize bone weights, even if we drop bones
           // as that distorts the influence of the bones and breaks meshes
 
-          pBoneWeights[uiLeastWeightIdx] = ezMath::ColorFloatToByte(weight.mWeight);
+          pBoneWeights[uiLeastWeightIdx] = uiEncodedWeight;
 
           if (b8BitBoneIndices)
             pBoneIndices8[uiLeastWeightIdx] = static_cast<ezUInt8>(uiBoneIndex);
