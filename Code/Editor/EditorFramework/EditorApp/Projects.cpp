@@ -51,6 +51,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   m_bLoadingProjectInProgress = true;
   EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 
+  CloseSplashScreen();
+
   ezStringBuilder sFile = szFile;
   sFile.MakeCleanPath();
 
