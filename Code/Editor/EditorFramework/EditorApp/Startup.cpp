@@ -451,4 +451,9 @@ void ezQtEditorApp::CloseSplashScreen()
 
   m_pSplashScreen->deleteLater();
   m_pSplashScreen = nullptr;
+
+  // if the deletion is done 'later', the splashscreen can end up as the parent window of other things
+  // like messageboxes, and then the deletion will make the app crash
+  // therefore, we force a processEvents() here, to ensure the splashscreen is cleaned up right now
+  qApp->processEvents();
 }
