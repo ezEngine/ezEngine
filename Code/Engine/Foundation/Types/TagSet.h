@@ -64,7 +64,7 @@ public:
     Iterator(const ezTagSetTemplate<BlockStorageAllocator>* pSet, bool bEnd = false);
 
     /// \brief Returns a reference to the current tag
-    const ezTag* operator*() const;
+    const ezTag& operator*() const;
 
     /// \brief Returns a pointer to the current tag
     const ezTag* operator->() const;

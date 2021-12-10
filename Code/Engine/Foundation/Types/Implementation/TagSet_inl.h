@@ -65,7 +65,7 @@ public:
     out_keys.Clear();
     for (const auto& value : m_ConstGetter(static_cast<const Class*>(pInstance)))
     {
-      out_keys.PushBack(ezVariant(value->GetTagString()));
+      out_keys.PushBack(ezVariant(value.GetTagString()));
     }
   }
 
@@ -117,8 +117,8 @@ public:
       // this should be decltype(auto) c = ...; but MSVC 16 is too dumb for that (MSVC 15 works fine)
       decltype((static_cast<const Class*>(pInstance)->*m_GetValues)()) c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
       auto it = cbegin(c);
-      const ezTag* value = *it;
-      Remove(pInstance, value->GetTagString());
+      const ezTag& value = *it;
+      Remove(pInstance, value.GetTagString());
     }
   }
 
@@ -144,7 +144,7 @@ public:
     out_keys.Clear();
     for (const auto& value : (static_cast<const Class*>(pInstance)->*m_GetValues)())
     {
-      out_keys.PushBack(ezVariant(value->GetTagString()));
+      out_keys.PushBack(ezVariant(value.GetTagString()));
     }
   }
 
@@ -201,9 +201,9 @@ void ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator++()
 }
 
 template <typename BlockStorageAllocator>
-const ezTag* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() const
+const ezTag& ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() const
 {
-  return ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex);
+  return *ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex);
 }
 
 template <typename BlockStorageAllocator>
@@ -459,9 +459,9 @@ void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
 
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
   {
-    const ezTag* pTag = *it;
+    const ezTag& tag = *it;
 
-    stream << pTag->m_TagString;
+    stream << tag.m_TagString;
   }
 }
 
