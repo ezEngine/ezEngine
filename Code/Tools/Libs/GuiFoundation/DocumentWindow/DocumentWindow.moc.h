@@ -90,7 +90,7 @@ protected:
   virtual void showEvent(QShowEvent* event) override;
   virtual void hideEvent(QHideEvent* event) override;
   virtual bool event(QEvent* event) override;
-  bool eventFilter(QObject* obj, QEvent* e);
+  virtual bool eventFilter(QObject* obj, QEvent* e) override;
 
   void FinishWindowCreation();
 
