@@ -8,13 +8,13 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Texture/Image/Image.h>
-#include <RendererCore/Components/CameraComponent.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
   : m_pDocumentContext(pContext)
@@ -231,7 +231,7 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
     }
   }
-  
+
   if (m_Camera.GetCameraMode() != ezCameraMode::Stereo)
   {
     bool bCameraIsActive = false;

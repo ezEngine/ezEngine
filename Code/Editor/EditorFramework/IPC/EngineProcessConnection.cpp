@@ -22,7 +22,6 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
   m_bClientIsConfigured = false;
 
   m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
-
 }
 
 ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()

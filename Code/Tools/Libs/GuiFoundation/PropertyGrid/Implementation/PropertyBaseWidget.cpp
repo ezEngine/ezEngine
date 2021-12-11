@@ -76,24 +76,23 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
   {
     QAction* pRevert = m.addAction("Revert to Default");
     pRevert->setEnabled(!m_bIsDefault);
-    connect(pRevert, &QAction::triggered, this, [this]()
+    connect(pRevert, &QAction::triggered, this, [this]() {
+      m_pObjectAccessor->StartTransaction("Revert to Default");
+      for (const ezPropertySelection& sel : m_Items)
       {
-        m_pObjectAccessor->StartTransaction("Revert to Default");
-        for (const ezPropertySelection& sel : m_Items)
+        ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_pProp->GetPropertyName());
+        // If the default value of a map entry is invalid, we assume the key should not exist and remove it.
+        if (m_pProp->GetCategory() == ezPropertyCategory::Map && !defaultValue.IsValid())
         {
-          ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_pProp->GetPropertyName());
-          // If the default value of a map entry is invalid, we assume the key should not exist and remove it.
-          if (m_pProp->GetCategory() == ezPropertyCategory::Map && !defaultValue.IsValid())
-          {
-            m_pObjectAccessor->RemoveValue(sel.m_pObject, m_pProp, sel.m_Index);
-          }
-          else
-          {
-            m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
-          }
+          m_pObjectAccessor->RemoveValue(sel.m_pObject, m_pProp, sel.m_Index);
         }
-        m_pObjectAccessor->FinishTransaction();
-      });
+        else
+        {
+          m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
+        }
+      }
+      m_pObjectAccessor->FinishTransaction();
+    });
   }
 
   const char* szMimeType = "application/ezEditor.Property";
@@ -113,27 +112,26 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       pCopy->setToolTip("No common value in selection");
     }
 
-    connect(pCopy, &QAction::triggered, this, [this, szMimeType, commonValue]()
-      {
-        ezPropertyClipboard content;
-        content.m_Type = m_pProp->GetSpecificType()->GetTypeName();
-        content.m_Value = commonValue;
+    connect(pCopy, &QAction::triggered, this, [this, szMimeType, commonValue]() {
+      ezPropertyClipboard content;
+      content.m_Type = m_pProp->GetSpecificType()->GetTypeName();
+      content.m_Value = commonValue;
 
-        // Serialize
-        ezMemoryStreamStorage streamStorage;
-        ezMemoryStreamWriter memoryWriter(&streamStorage);
-        ezReflectionSerializer::WriteObjectToDDL(memoryWriter, ezGetStaticRTTI<ezPropertyClipboard>(), &content);
-        memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
+      // Serialize
+      ezMemoryStreamStorage streamStorage;
+      ezMemoryStreamWriter memoryWriter(&streamStorage);
+      ezReflectionSerializer::WriteObjectToDDL(memoryWriter, ezGetStaticRTTI<ezPropertyClipboard>(), &content);
+      memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
 
-        // Write to clipboard
-        QClipboard* clipboard = QApplication::clipboard();
-        QMimeData* mimeData = new QMimeData();
-        QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
+      // Write to clipboard
+      QClipboard* clipboard = QApplication::clipboard();
+      QMimeData* mimeData = new QMimeData();
+      QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
 
-        mimeData->setData(szMimeType, encodedData);
-        mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
-        clipboard->setMimeData(mimeData);
-      });
+      mimeData->setData(szMimeType, encodedData);
+      mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
+      clipboard->setMimeData(mimeData);
+    });
   }
 
   // Paste
@@ -193,50 +191,48 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
         sTemp.Format("The member property '{}' has an ezClampValueAttribute but ezReflectionUtils::ClampValue failed.", m_pProp->GetPropertyName());
       }
 
-      connect(pPaste, &QAction::triggered, this, [this, content]()
+      connect(pPaste, &QAction::triggered, this, [this, content]() {
+        m_pObjectAccessor->StartTransaction("Paste Value");
+        if (content.m_Value.IsA<ezVariantArray>())
         {
-          m_pObjectAccessor->StartTransaction("Paste Value");
-          if (content.m_Value.IsA<ezVariantArray>())
+          const ezVariantArray& values = content.m_Value.Get<ezVariantArray>();
+          for (const ezPropertySelection& sel : m_Items)
           {
-            const ezVariantArray& values = content.m_Value.Get<ezVariantArray>();
-            for (const ezPropertySelection& sel : m_Items)
+            if (m_pObjectAccessor->Clear(sel.m_pObject, m_pProp->GetPropertyName()).Failed())
             {
-              if (m_pObjectAccessor->Clear(sel.m_pObject, m_pProp->GetPropertyName()).Failed())
-              {
-                m_pObjectAccessor->CancelTransaction();
-                return;
-              }
-              for (const ezVariant& val : values)
-              {
-                if (m_pObjectAccessor->InsertValue(sel.m_pObject, m_pProp, val, -1).Failed())
-                {
-                  m_pObjectAccessor->CancelTransaction();
-                  return;
-                }
-              }
+              m_pObjectAccessor->CancelTransaction();
+              return;
             }
-          }
-          else
-          {
-            for (const ezPropertySelection& sel : m_Items)
+            for (const ezVariant& val : values)
             {
-              if (m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, content.m_Value, sel.m_Index).Failed())
+              if (m_pObjectAccessor->InsertValue(sel.m_pObject, m_pProp, val, -1).Failed())
               {
                 m_pObjectAccessor->CancelTransaction();
                 return;
               }
             }
           }
+        }
+        else
+        {
+          for (const ezPropertySelection& sel : m_Items)
+          {
+            if (m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, content.m_Value, sel.m_Index).Failed())
+            {
+              m_pObjectAccessor->CancelTransaction();
+              return;
+            }
+          }
+        }
 
-          m_pObjectAccessor->FinishTransaction();
-        });
+        m_pObjectAccessor->FinishTransaction();
+      });
     }
   }
 
   // copy internal name
   {
-    auto lambda = [this]()
-    {
+    auto lambda = [this]() {
       QClipboard* clipboard = QApplication::clipboard();
       QMimeData* mimeData = new QMimeData();
       mimeData->setText(m_pProp->GetPropertyName());
@@ -639,8 +635,7 @@ void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStru
         return;
 
       if (std::none_of(cbegin(m_Items), cend(m_Items),
-            [&](const ezPropertySelection& sel)
-            { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }))
+            [&](const ezPropertySelection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }))
         return;
 
       SetSelection(m_Items);
@@ -725,8 +720,7 @@ void ezQtEmbeddedClassPropertyWidget::PropertyEventHandler(const ezDocumentObjec
   if (IsUndead())
     return;
 
-  if (std::none_of(cbegin(m_ResolvedObjects), cend(m_ResolvedObjects), [=](const ezPropertySelection& sel)
-        { return e.m_pObject == sel.m_pObject; }))
+  if (std::none_of(cbegin(m_ResolvedObjects), cend(m_ResolvedObjects), [=](const ezPropertySelection& sel) { return e.m_pObject == sel.m_pObject; }))
     return;
 
   if (!m_QueuedChanges.Contains(e.m_sProperty))
@@ -926,8 +920,7 @@ void ezQtPropertyContainerWidget::dropEvent(QDropEvent* event)
   {
     ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(event->source());
     Element* pDragElement =
-      std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool
-        { return elem.m_pSubGroup == pGroup; });
+      std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool { return elem.m_pSubGroup == pGroup; });
     if (pDragElement)
     {
       const ezAbstractProperty* pProp = pDragElement->m_pWidget->GetProperty();
@@ -1049,8 +1042,7 @@ void ezQtPropertyContainerWidget::OnDragStarted(QMimeData& mimeData)
 {
   ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(sender());
   Element* pDragElement =
-    std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool
-      { return elem.m_pSubGroup == pGroup; });
+    std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool { return elem.m_pSubGroup == pGroup; });
   if (pDragElement)
   {
     mimeData.setData("application/x-groupBoxDragProperty", QByteArray());
@@ -1060,8 +1052,7 @@ void ezQtPropertyContainerWidget::OnDragStarted(QMimeData& mimeData)
 void ezQtPropertyContainerWidget::OnCustomElementContextMenu(const QPoint& pt)
 {
   ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(sender());
-  Element* pElement = std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool
-    { return elem.m_pSubGroup == pGroup; });
+  Element* pElement = std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool { return elem.m_pSubGroup == pGroup; });
 
   if (pElement)
   {
@@ -1192,8 +1183,7 @@ ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
         }
       }
     }
-    m_Keys.Sort([](const ezVariant& a, const ezVariant& b)
-      { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
+    m_Keys.Sort([](const ezVariant& a, const ezVariant& b) { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
     return m_Keys.GetCount();
   }
   else
@@ -1462,8 +1452,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
       if (!url.isEmpty())
       {
         elem.m_pHelpButton->setVisible(true);
-        connect(elem.m_pHelpButton, &QToolButton::clicked, this, [=]()
-          { QDesktopServices::openUrl(QUrl(url)); });
+        connect(elem.m_pHelpButton, &QToolButton::clicked, this, [=]() { QDesktopServices::openUrl(QUrl(url)); });
       }
       else
       {
@@ -1492,8 +1481,7 @@ void ezQtPropertyTypeContainerWidget::StructureEventHandler(const ezDocumentObje
         return;
 
       if (std::none_of(cbegin(m_Items), cend(m_Items),
-            [&](const ezPropertySelection& sel)
-            { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }))
+            [&](const ezPropertySelection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }))
         return;
 
       m_bNeedsUpdate = true;
@@ -1559,8 +1547,7 @@ void ezQtVariantPropertyWidget::ExtendContextMenu(QMenu& menu)
     const ezRTTI* pVariantEnum = ezRTTI::FindTypeByName("ezVariantType");
     ezStringBuilder sName;
     bool res = ezReflectionUtils::EnumerationToString(pVariantEnum, type, sName);
-    QAction* action = ctm->addAction(sName.GetData(), [this, type]()
-      { ChangeVariantType(type); });
+    QAction* action = ctm->addAction(sName.GetData(), [this, type]() { ChangeVariantType(type); });
     if (m_OldValue.GetType() == type)
       action->setChecked(true);
   }

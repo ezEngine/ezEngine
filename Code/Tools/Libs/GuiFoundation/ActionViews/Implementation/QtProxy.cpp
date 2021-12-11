@@ -84,8 +84,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event)
 {
-  auto CheckActions = [](QKeyEvent* event, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> & actions) -> bool
-  {
+  auto CheckActions = [](QKeyEvent* event, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& actions) -> bool {
     for (auto weakActionProxy : actions)
     {
       if (auto pProxy = weakActionProxy.Value().toStrongRef())
@@ -191,8 +190,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       auto it = s_WindowActions.FindOrAdd(context.m_pWindow, &bExisted);
       if (!bExisted)
       {
-        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [=]()
-          { s_WindowActions.Remove(context.m_pWindow); });
+        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
