@@ -421,7 +421,7 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
     const ezUInt32 uiOffset = m_TempClusterItemList.GetCount();
     ezUInt32 uiLightCount = 0;
 
-    // We expand m_TempClusterItemList by the worst case this loop can produce and then cut it down again to the actual size once we have filled the data. This makes sure we do not waste time on boundary checks or out of line calls compared to PushBack or PushBackUnchecked.
+    // We expand m_TempClusterItemList by the worst case this loop can produce and then cut it down again to the actual size once we have filled the data. This makes sure we do not waste time on boundary checks or potential out of line calls like PushBack or PushBackUnchecked.
     m_TempClusterItemList.SetCountUninitialized(uiOffset + uiWorstCase);
     ezUInt32* pTempClusterItemListRange = m_TempClusterItemList.GetData() + uiOffset;
 

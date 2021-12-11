@@ -85,7 +85,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(
 }
 
 template <typename ResourceType, typename DescriptorType>
-static ezTypedResourceHandle<ResourceType>
+ezTypedResourceHandle<ResourceType>
 ezResourceManager::GetOrCreateResource(const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription)
 {
   EZ_LOCK(s_ResourceMutex);
