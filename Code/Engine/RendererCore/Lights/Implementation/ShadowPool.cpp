@@ -193,6 +193,22 @@ namespace
     float fNewFov = ezMath::ATan(fHalfHeight + fPenumbraSize).GetDegree() * 2.0f;
     return fNewFov;
   }
+
+  ezTagSet s_ExcludeTagsWhiteList;
+
+  static void CopyExcludeTagsOnWhiteList(const ezTagSet& referenceTags, ezTagSet& out_TargetTags)
+  {
+    out_TargetTags.Clear();
+    out_TargetTags.SetByName("EditorHidden");
+
+    for (auto& tag : referenceTags)
+    {
+      if (s_ExcludeTagsWhiteList.IsSet(tag))
+      {
+        out_TargetTags.Set(tag);
+      }
+    }
+  }
 } // namespace
 
 // must not be in anonymous namespace
@@ -447,7 +463,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
       pView->SetLodCamera(pReferenceCamera);
-      pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
+      CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
     }
 
     // Setup camera
@@ -565,7 +581,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
     {
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pPointLight->GetWorld()));
-      pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
+      CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
     }
 
     // Setup camera
@@ -610,7 +626,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   {
     pView->SetName("SpotLightView");
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
-    pView->m_ExcludeTags = pReferenceView->m_ExcludeTags;
+    CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
   }
 
   // Setup camera
@@ -644,6 +660,12 @@ ezGALTextureHandle ezShadowPool::GetShadowAtlasTexture()
 ezGALBufferHandle ezShadowPool::GetShadowDataBuffer()
 {
   return s_pData->m_hShadowDataBuffer;
+}
+
+// static
+void ezShadowPool::AddExcludeTagToWhiteList(const ezTag& tag)
+{
+  s_ExcludeTagsWhiteList.Set(tag);
 }
 
 // static

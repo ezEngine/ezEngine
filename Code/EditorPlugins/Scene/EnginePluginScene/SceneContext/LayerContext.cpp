@@ -2,6 +2,7 @@
 
 #include <EnginePluginScene/SceneContext/LayerContext.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 
 
 // clang-format off
@@ -83,6 +84,8 @@ void ezLayerContext::OnInitialize()
   ezStringBuilder sVisibilityTag;
   sVisibilityTag.Format("Layer_{}", uiLayerID);
   m_LayerTag = ezTagRegistry::GetGlobalRegistry().RegisterTag(sVisibilityTag);
+
+  ezShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
 }
 
 void ezLayerContext::OnDeinitialize()

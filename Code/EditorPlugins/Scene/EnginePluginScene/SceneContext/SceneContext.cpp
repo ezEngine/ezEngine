@@ -16,6 +16,7 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
@@ -566,6 +567,8 @@ void ezSceneContext::OnInitialize()
   m_Contexts.PushBack(&m_Context);
 
   m_LayerTag = ezTagRegistry::GetGlobalRegistry().RegisterTag("Layer_Scene");
+
+  ezShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
 }
 
 void ezSceneContext::OnDeinitialize()
