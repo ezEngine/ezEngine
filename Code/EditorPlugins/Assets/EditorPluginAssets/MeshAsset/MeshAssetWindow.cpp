@@ -53,7 +53,7 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("MeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Mesh Properties");
     pPropertyPanel->show();

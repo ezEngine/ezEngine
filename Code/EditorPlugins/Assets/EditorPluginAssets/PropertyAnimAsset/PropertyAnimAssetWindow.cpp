@@ -70,7 +70,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
     pPanel->setObjectName("PropertyAnimAssetDockWidget");
     pPanel->setWindowTitle("Object Properties");
     pPanel->show();
@@ -83,7 +83,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Property Tree View
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
     pPanel->setObjectName("PropertyAnimPropertiesDockWidget");
     pPanel->setWindowTitle("Animated Properties");
     pPanel->show();
@@ -128,7 +128,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Float Curve Panel
   {
-    m_pCurvePanel = new ezQtDocumentPanel(this);
+    m_pCurvePanel = new ezQtDocumentPanel(this, pDocument);
     m_pCurvePanel->setObjectName("PropertyAnimFloatCurveDockWidget");
     m_pCurvePanel->setWindowTitle("Curves");
     m_pCurvePanel->show();
@@ -141,7 +141,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Color Gradient Panel
   {
-    m_pColorGradientPanel = new ezQtDocumentPanel(this);
+    m_pColorGradientPanel = new ezQtDocumentPanel(this, pDocument);
     m_pColorGradientPanel->setObjectName("PropertyAnimColorGradientDockWidget");
     m_pColorGradientPanel->setWindowTitle("Color Gradient");
     m_pColorGradientPanel->show();
@@ -154,7 +154,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(this);
+    m_pEventTrackPanel = new ezQtDocumentPanel(this, pDocument);
     m_pEventTrackPanel->setObjectName("PropertyAnimEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();
@@ -1318,6 +1318,7 @@ void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
 void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
 {
   QMenu m;
+  m.setToolTipsVisible(true);
   QAction* pFrameAction = m.addAction("Frame Curve");
   QAction* pRemoveAction = m.addAction("Remove Track");
   QAction* pBindingAction = m.addAction("Change Binding...");

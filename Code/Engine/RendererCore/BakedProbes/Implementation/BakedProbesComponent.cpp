@@ -146,7 +146,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
       desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
+      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
     }
 
     const char* szMeshResourceName = "IrradianceProbeDebugSphere";
@@ -158,7 +158,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
       desc.AddSubMesh(geom.CalculateTriangleCount(), 0, 0);
       desc.ComputeBounds();
 
-      m_hDebugSphere = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+      m_hDebugSphere = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
     }
   }
 

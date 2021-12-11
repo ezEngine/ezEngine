@@ -161,6 +161,8 @@ ezClusteredDataExtractor::~ezClusteredDataExtractor() {}
 void ezClusteredDataExtractor::PostSortAndBatch(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
+  EZ_PROFILE_SCOPE("PostSortAndBatch");
+
   const ezCamera* pCamera = view.GetCullingCamera();
   const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
 
@@ -178,6 +180,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 
   // Lights
   {
+    EZ_PROFILE_SCOPE("Lights");
     m_TempLightData.Clear();
     ezMemoryUtils::ZeroFill(m_TempLightsClusters.GetData(), NUM_CLUSTERS);
 
@@ -272,6 +275,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 
   // Decals
   {
+    EZ_PROFILE_SCOPE("Decals");
     m_TempDecalData.Clear();
     ezMemoryUtils::ZeroFill(m_TempDecalsClusters.GetData(), NUM_CLUSTERS);
 
@@ -310,6 +314,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 
   // Reflection Probes
   {
+    EZ_PROFILE_SCOPE("Probes");
     m_TempReflectionProbeData.Clear();
     ezMemoryUtils::ZeroFill(m_TempReflectionProbeClusters.GetData(), NUM_CLUSTERS);
 
@@ -398,6 +403,7 @@ namespace
 
 void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pData)
 {
+  EZ_PROFILE_SCOPE("FillItemListAndClusterData");
   m_TempClusterItemList.Clear();
 
   const ezUInt32 uiNumLights = m_TempLightData.GetCount();
@@ -409,10 +415,15 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
   const ezUInt32 uiNumReflectionProbes = m_TempReflectionProbeData.GetCount();
   const ezUInt32 uiMaxReflectionProbeBlockIndex = (uiNumReflectionProbes + 31) / 32;
 
+  const ezUInt32 uiWorstCase = ezMath::Max(uiNumLights, uiNumDecals, uiNumReflectionProbes);
   for (ezUInt32 i = 0; i < NUM_CLUSTERS; ++i)
   {
-    ezUInt32 uiOffset = m_TempClusterItemList.GetCount();
+    const ezUInt32 uiOffset = m_TempClusterItemList.GetCount();
     ezUInt32 uiLightCount = 0;
+
+    // We expand m_TempClusterItemList by the worst case this loop can produce and then cut it down again to the actual size once we have filled the data. This makes sure we do not waste time on boundary checks or out of line calls compared to PushBack or PushBackUnchecked.
+    m_TempClusterItemList.SetCountUninitialized(uiOffset + uiWorstCase);
+    ezUInt32* pTempClusterItemListRange = m_TempClusterItemList.GetData() + uiOffset;
 
     // Lights
     {
@@ -427,7 +438,7 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
           mask &= ~(1 << uiLightIndex);
 
           uiLightIndex += uiBlockIndex * 32;
-          m_TempClusterItemList.PushBack(uiLightIndex);
+          pTempClusterItemListRange[uiLightCount] = uiLightIndex;
           ++uiLightCount;
         }
       }
@@ -451,13 +462,12 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
           if (uiDecalCount < uiLightCount)
           {
-            auto& item = m_TempClusterItemList[uiOffset + uiDecalCount];
+            auto& item = pTempClusterItemListRange[uiDecalCount];
             item = PackIndex(item, uiDecalIndex);
           }
           else
           {
-            auto& item = m_TempClusterItemList.ExpandAndGetRef();
-            item = PackIndex(0, uiDecalIndex);
+            pTempClusterItemListRange[uiDecalCount] = PackIndex(0, uiDecalIndex);
           }
 
           ++uiDecalCount;
@@ -483,19 +493,22 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
           if (uiReflectionProbeCount < uiMaxUsed)
           {
-            auto& item = m_TempClusterItemList[uiOffset + uiReflectionProbeCount];
+            auto& item = pTempClusterItemListRange[uiReflectionProbeCount];
             item = PackReflectionProbeIndex(item, uiReflectionProbeIndex);
           }
           else
           {
-            auto& item = m_TempClusterItemList.ExpandAndGetRef();
-            item = PackReflectionProbeIndex(0, uiReflectionProbeIndex);
+            pTempClusterItemListRange[uiReflectionProbeCount] = PackReflectionProbeIndex(0, uiReflectionProbeIndex);
           }
 
           ++uiReflectionProbeCount;
         }
       }
     }
+
+    // Cut down the array to the actual number of elements we have written.
+    const ezUInt32 uiActualCase = ezMath::Max(uiLightCount, uiDecalCount, uiReflectionProbeCount);
+    m_TempClusterItemList.SetCountUninitialized(uiOffset + uiActualCase);
 
     auto& clusterData = pData->m_ClusterData[i];
     clusterData.offset = uiOffset;

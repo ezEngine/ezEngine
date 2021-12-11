@@ -67,7 +67,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("MaterialAssetDockWidget");
     pPropertyPanel->setWindowTitle("Material Properties");
     pPropertyPanel->show();
@@ -80,7 +80,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   // Visual Shader Editor
   {
-    m_pVsePanel = new ezQtDocumentPanel(this);
+    m_pVsePanel = new ezQtDocumentPanel(this, pDocument);
     m_pVsePanel->setObjectName("VisualShaderDockWidget");
     m_pVsePanel->setWindowTitle("Visual Shader Editor");
 

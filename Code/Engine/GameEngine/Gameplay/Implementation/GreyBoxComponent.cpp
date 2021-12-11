@@ -551,7 +551,7 @@ ezTypedResourceHandle<ResourceType> ezGreyBoxComponent::GenerateMesh() const
 
   desc.ComputeBounds();
 
-  return ezResourceManager::CreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
+  return ezResourceManager::GetOrCreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
 }
 
 

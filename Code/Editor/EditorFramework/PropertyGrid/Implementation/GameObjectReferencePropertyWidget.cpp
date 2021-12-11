@@ -197,6 +197,7 @@ void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
 void ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 {
   QMenu m;
+  m.setToolTipsVisible(true);
   FillContextMenu(m);
 
   m.exec(m_pButton->mapToGlobal(pt));

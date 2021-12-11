@@ -323,7 +323,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
       desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
+      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
     }
 
     const char* szMeshResourceName = "ReflectionProbeDebugSphere";
@@ -335,7 +335,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
       desc.AddSubMesh(geom.CalculateTriangleCount(), 0, 0);
       desc.ComputeBounds();
 
-      m_hDebugSphere = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+      m_hDebugSphere = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
     }
   }
 
@@ -380,7 +380,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
         sMaterialName.Format("ReflectionProbeVisualization - MipLevel {}, Index {}", iMipLevel, iReflectionProbeIndex);
 
         ezMaterialResourceDescriptor desc2 = desc;
-        m_hDebugMaterial[iReflectionProbeIndex * uiMipLevelCount + iMipLevel] = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialName, std::move(desc2));
+        m_hDebugMaterial[iReflectionProbeIndex * uiMipLevelCount + iMipLevel] = ezResourceManager::GetOrCreateResource<ezMaterialResource>(sMaterialName, std::move(desc2));
       }
     }
   }

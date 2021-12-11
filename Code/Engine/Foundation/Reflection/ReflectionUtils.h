@@ -161,4 +161,8 @@ public:
 
   /// \brief Sets all member properties in \a pObject of type \a pRtti to the value returned by ezToolsReflectionUtils::GetDefaultValue()
   static void SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject);
+
+  /// \brief If pAttrib is valid and its min/max values are compatible, value will be clamped to them.
+  /// Returns false if a clamp attribute exists but no clamp code was executed.
+  static ezResult ClampValue(ezVariant& value, const ezClampValueAttribute* pAttrib);
 };

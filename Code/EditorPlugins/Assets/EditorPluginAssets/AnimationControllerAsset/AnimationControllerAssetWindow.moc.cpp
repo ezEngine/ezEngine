@@ -43,7 +43,7 @@ ezQtAnimationControllerAssetDocumentWindow::ezQtAnimationControllerAssetDocument
   setCentralWidget(m_pView);
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("AnimationControllerAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();

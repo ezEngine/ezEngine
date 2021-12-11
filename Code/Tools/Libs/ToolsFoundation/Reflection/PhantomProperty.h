@@ -91,7 +91,7 @@ public:
   virtual void Insert(void* pInstance, const void* pObject) override {}
   virtual void Remove(void* pInstance, const void* pObject) override {}
   virtual bool Contains(const void* pInstance, const void* pObject) const override { return false; }
-  virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override {}
+  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override {}
 
 private:
   ezString m_sPropertyNameStorage;

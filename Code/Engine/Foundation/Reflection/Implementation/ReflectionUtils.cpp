@@ -1599,4 +1599,78 @@ void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, voi
   }
 }
 
+namespace
+{
+  template <class C>
+  struct ezClampCategoryType
+  {
+    enum
+    {
+      value = (ezVariant::TypeDeduction<C>::value >= ezVariantType::Int8 && ezVariant::TypeDeduction<C>::value <= ezVariantType::Double || ezVariant::TypeDeduction<C>::value == ezVariantType::Time || ezVariant::TypeDeduction<C>::value == ezVariantType::Angle) + (ezVariant::TypeDeduction<C>::value >= ezVariantType::Vector2 && ezVariant::TypeDeduction<C>::value <= ezVariantType::Vector4U) * 2
+    };
+  };
+
+  template <typename T, int V = ezClampCategoryType<T>::value>
+  struct ClampVariantFuncImpl
+  {
+    static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      return EZ_FAILURE;
+    }
+  };
+
+  template <typename T>
+  struct ClampVariantFuncImpl<T, 1> // scalar types
+  {
+    static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      if (pAttrib->GetMinValue().CanConvertTo<T>())
+      {
+        value = ezMath::Max(value.ConvertTo<T>(), pAttrib->GetMinValue().ConvertTo<T>());
+      }
+      if (pAttrib->GetMaxValue().CanConvertTo<T>())
+      {
+        value = ezMath::Min(value.ConvertTo<T>(), pAttrib->GetMaxValue().ConvertTo<T>());
+      }
+      return EZ_SUCCESS;
+    }
+  };
+
+  template <typename T>
+  struct ClampVariantFuncImpl<T, 2> // vector types
+  {
+    static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      if (pAttrib->GetMinValue().CanConvertTo<T>())
+      {
+        value = value.ConvertTo<T>().CompMax(pAttrib->GetMinValue().ConvertTo<T>());
+      }
+      if (pAttrib->GetMaxValue().CanConvertTo<T>())
+      {
+        value = value.ConvertTo<T>().CompMin(pAttrib->GetMaxValue().ConvertTo<T>());
+      }
+      return EZ_SUCCESS;
+    }
+  };
+
+  struct ClampVariantFunc
+  {
+    template <typename T>
+    EZ_ALWAYS_INLINE ezResult operator()(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      return ClampVariantFuncImpl<T>::Func(value, pAttrib);
+    }
+  };
+} // namespace
+
+ezResult ezReflectionUtils::ClampValue(ezVariant& value, const ezClampValueAttribute* pAttrib)
+{
+  ezVariantType::Enum type = value.GetType();
+  if (type == ezVariantType::Invalid || pAttrib == nullptr)
+    return EZ_SUCCESS; // If there is nothing to clamp or no clamp attribute we call it a success.
+
+  ClampVariantFunc func;
+  return ezVariant::DispatchTo(func, type, value, pAttrib);
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);

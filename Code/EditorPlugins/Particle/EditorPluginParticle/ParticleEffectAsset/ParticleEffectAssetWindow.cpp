@@ -53,13 +53,13 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   ezDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   // ezQtDocumentPanel* pMainPropertyPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pEffectPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pReactionsPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pSystemsPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pEmitterPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pInitializerPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pBehaviorPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pTypePanel = new ezQtDocumentPanel(this);
+  ezQtDocumentPanel* pEffectPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pReactionsPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pSystemsPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pEmitterPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pInitializerPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pBehaviorPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pTypePanel = new ezQtDocumentPanel(this, pDocument);
 
   // Property Grid
   //{

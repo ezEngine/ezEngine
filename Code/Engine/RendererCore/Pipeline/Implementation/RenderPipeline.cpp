@@ -1053,7 +1053,10 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   renderEvent.m_pPipeline = this;
   renderEvent.m_pRenderViewContext = &renderViewContext;
   renderEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
-  ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  {
+    EZ_PROFILE_SCOPE("BeforePipelineExecution");
+    ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  }
 
   ezGALDevice::GetDefaultDevice()->BeginPipeline(m_sName);
 
@@ -1062,7 +1065,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     auto& pPass = m_Passes[i];
-
+    EZ_PROFILE_SCOPE(pPass->GetName());
     ezLogBlock passBlock("Render Pass", pPass->GetName());
 
     // Create pool textures
@@ -1127,7 +1130,10 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   ezGALDevice::GetDefaultDevice()->EndPipeline();
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
-  ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  {
+    EZ_PROFILE_SCOPE("AfterPipelineExecution");
+    ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  }
 
   pRenderContext->ResetContextState();
 

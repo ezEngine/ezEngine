@@ -6,6 +6,8 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
+struct ezGALDeviceEvent;
+
 /// \brief This class serves as a pool for GPU related resources (e.g. buffers and textures required for rendering).
 /// Note that the functions creating and returning render targets are thread safe (by using a mutex).
 class EZ_RENDERERCORE_DLL ezGPUResourcePool
@@ -36,7 +38,9 @@ public:
 
   /// \brief Tries to free resources which are currently in the pool.
   /// Triggered automatically due to allocation number / size thresholds but can be triggered manually (e.g. after editor window resize)
-  void RunGC();
+  ///
+  /// \param uiMinimumAge How many frames at least the resource needs to have been unused before it will be GCed. 
+  void RunGC(ezUInt32 uiMinimumAge);
 
 
   static ezGPUResourcePool* GetDefaultInstance();
@@ -45,16 +49,32 @@ public:
 protected:
   void CheckAndPotentiallyRunGC();
   void UpdateMemoryStats() const;
+  void GALDeviceEventHandler(const ezGALDeviceEvent& e);
 
-  ezUInt64 m_uiMemoryThresholdForGC;
-  ezUInt64 m_uiCurrentlyAllocatedMemory;
-  ezUInt32 m_uiNumAllocationsThresholdForGC;
-  ezUInt32 m_uiNumAllocationsSinceLastGC;
+  struct TextureHandleWithAge
+  {
+    ezGALTextureHandle m_hTexture;
+    ezUInt64 m_uiLastUsed = 0;
+  };
 
-  ezMap<ezUInt32, ezDynamicArray<ezGALTextureHandle>> m_AvailableTextures;
+  struct BufferHandleWithAge
+  {
+    ezGALBufferHandle m_hBuffer;
+    ezUInt64 m_uiLastUsed = 0;
+  };
+
+  ezEventSubscriptionID m_GALDeviceEventSubscriptionID = 0;
+  ezUInt64 m_uiMemoryThresholdForGC = 256 * 1024 * 1024;
+  ezUInt64 m_uiCurrentlyAllocatedMemory = 0;
+  ezUInt16 m_uiNumAllocationsThresholdForGC = 128;
+  ezUInt16 m_uiNumAllocationsSinceLastGC = 0;
+  ezUInt16 m_uiFramesThresholdSinceLastGC = 60; ///< Every 60 frames resources unused for more than 10 frames in a row are GCed.
+  ezUInt16 m_uiFramesSinceLastGC = 0;
+
+  ezMap<ezUInt32, ezDynamicArray<TextureHandleWithAge>> m_AvailableTextures;
   ezSet<ezGALTextureHandle> m_TexturesInUse;
 
-  ezMap<ezUInt32, ezDynamicArray<ezGALBufferHandle>> m_AvailableBuffers;
+  ezMap<ezUInt32, ezDynamicArray<BufferHandleWithAge>> m_AvailableBuffers;
   ezSet<ezGALBufferHandle> m_BuffersInUse;
 
   ezMutex m_Lock;

@@ -52,7 +52,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("SkeletonAssetDockWidget");
     pPropertyPanel->setWindowTitle("Skeleton Properties");
     pPropertyPanel->show();

@@ -41,7 +41,7 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("ProcGenAssetDockWidget");
     pPropertyPanel->setWindowTitle("Node Properties");
     pPropertyPanel->show();

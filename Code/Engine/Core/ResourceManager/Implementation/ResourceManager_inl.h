@@ -84,6 +84,20 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(
   return hResource;
 }
 
+template <typename ResourceType, typename DescriptorType>
+static ezTypedResourceHandle<ResourceType>
+ezResourceManager::GetOrCreateResource(const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription)
+{
+  EZ_LOCK(s_ResourceMutex);
+  ezTypedResourceHandle<ResourceType> hResource = GetExistingResource<ResourceType>(szResourceID);
+  if (!hResource.IsValid())
+  {
+    hResource = CreateResource<ResourceType, DescriptorType>(szResourceID, std::move(descriptor), szResourceDescription);
+  }
+
+  return hResource;
+}
+
 template <typename ResourceType>
 ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
   const ezTypedResourceHandle<ResourceType>& hFallbackResource, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)

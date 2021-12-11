@@ -56,7 +56,7 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
 
   {
     // Panels
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("PropertyPanel");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();

@@ -54,7 +54,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("AnimationClipAssetDockWidget");
     pPropertyPanel->setWindowTitle("Animation Clip Properties");
     pPropertyPanel->show();
@@ -79,7 +79,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(this);
+    m_pEventTrackPanel = new ezQtDocumentPanel(this, pDocument);
     m_pEventTrackPanel->setObjectName("AnimClipEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();

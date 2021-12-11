@@ -472,7 +472,7 @@ void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 
     desc.ComputeBounds();
 
-    hMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
+    hMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   }
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);

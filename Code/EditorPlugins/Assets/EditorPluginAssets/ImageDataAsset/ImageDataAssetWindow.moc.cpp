@@ -37,7 +37,7 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("ImageDataAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();

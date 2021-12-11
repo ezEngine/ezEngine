@@ -50,7 +50,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("CollisionMeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collision Mesh Properties");
     pPropertyPanel->show();

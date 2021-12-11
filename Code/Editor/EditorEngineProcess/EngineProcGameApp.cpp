@@ -104,13 +104,17 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 ezApplication::Execution ezEngineProcessGameApplication::Run()
 {
   ezRenderWorld::ClearMainViews();
-
-  bool bPendingOpInProgress = ezEngineProcessDocumentContext::PendingOperationsInProgress();
-  if (ProcessIPCMessages(bPendingOpInProgress))
+  bool bPendingOpInProgress = false;
+  do 
   {
-    ezEngineProcessDocumentContext::UpdateDocumentContexts();
-  }
-
+    bPendingOpInProgress = ezEngineProcessDocumentContext::PendingOperationsInProgress();
+    if (ProcessIPCMessages(bPendingOpInProgress))
+    {
+      ezEngineProcessDocumentContext::UpdateDocumentContexts();
+    }
+  } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
+  
+  m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
   return SUPER::Run();
 }
 
@@ -133,6 +137,8 @@ static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const 
 
 bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgress)
 {
+  EZ_PROFILE_SCOPE("ProcessIPCMessages");
+
   if (!m_IPC.IsHostAlive()) // check whether the host crashed
   {
     // The problem here is, that the editor process crashed (or was terminated through Visual Studio),
@@ -163,6 +169,7 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     }
     else
     {
+      EZ_PROFILE_SCOPE("WaitForMessages");
       // Only suspend and wait if no more pending ops need to be done.
       m_IPC.WaitForMessages();
     }
@@ -201,8 +208,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   if (const auto* pMsg = ezDynamicCast<const ezSyncWithProcessMsgToEngine*>(e.m_pMessage))
   {
     ezSyncWithProcessMsgToEditor msg;
-    msg.m_DocumentGuid = pMsg->m_DocumentGuid;
     msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
+    m_uiRedrawCountReceived = msg.m_uiRedrawCount;
     m_IPC.SendMessage(&msg);
     return;
   }

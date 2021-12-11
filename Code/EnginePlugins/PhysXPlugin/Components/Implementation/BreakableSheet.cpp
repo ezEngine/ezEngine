@@ -611,7 +611,7 @@ void ezBreakableSheetComponent::CreateMeshes()
       ezMeshResourceDescriptor desc;
       BuildMeshResourceFromGeometry(g, desc, false /* no skinning data */);
 
-      m_hUnbrokenMesh = ezResourceManager::CreateResource<ezMeshResource>(unbrokenMeshName, std::move(desc));
+      m_hUnbrokenMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(unbrokenMeshName, std::move(desc));
     }
   }
 
@@ -775,7 +775,7 @@ void ezBreakableSheetComponent::CreateMeshes()
           ezMeshResourceDescriptor desc;
           BuildMeshResourceFromGeometry(g, desc, true /* include skinning data */);
 
-          m_hPiecesMesh = ezResourceManager::CreateResource<ezMeshResource>(piecesMeshName, std::move(desc));
+          m_hPiecesMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(piecesMeshName, std::move(desc));
         }
 
         // Build piece bounding boxes

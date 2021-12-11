@@ -21,7 +21,7 @@ public:
   virtual bool SetValue(const char* szProperty, const ezVariant& value, ezVariant index = ezVariant()) override;                   // [tested]
 
   virtual ezInt32 GetCount(const char* szProperty) const override;
-  virtual bool GetKeys(const char* szProperty, ezHybridArray<ezVariant, 16>& out_keys) const override;
+  virtual bool GetKeys(const char* szProperty, ezDynamicArray<ezVariant>& out_keys) const override;
 
   virtual bool InsertValue(const char* szProperty, ezVariant index, const ezVariant& value) override;
   virtual bool RemoveValue(const char* szProperty, ezVariant index) override;

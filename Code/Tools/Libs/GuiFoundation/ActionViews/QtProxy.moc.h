@@ -18,6 +18,7 @@ class QLabel;
 class QSlider;
 class ezAction;
 
+/// \brief Glue class that maps ezActions to QActions. QActions are only created if the ezAction is actually mapped somewhere. Document and Global actions are manually executed and don't solely rely on Qt's ShortcutContext setting to prevent ambiguous action shortcuts.
 class EZ_GUIFOUNDATION_DLL ezQtProxy : public QObject
 {
   Q_OBJECT
@@ -30,6 +31,15 @@ public:
 
   virtual void SetAction(ezAction* pAction);
   ezAction* GetAction() { return m_pAction; }
+
+  /// \brief Converts the QKeyEvent into a shortcut and tries to find a matching action in the document and global action list.
+  ///
+  /// Document actions are not mapped as ShortcutContext::WindowShortcut because docking allows for multiple documents to be mapped into the same window. Instead, ShortcutContext::WidgetWithChildrenShortcut is used to prevent ambiguous action shortcuts and the actions are executed manually via filtering QEvent::ShortcutOverride at the dock widget level. 
+  /// 
+  /// \param pDocument The document for which matching actions should be searched for. If null, only global actions are searched.
+  /// \param event The key event that should be converted into a shortcut.
+  /// \return Whether the key event was consumed and an action executed.
+  static bool TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event);
 
   static ezRttiMappedObjectFactory<ezQtProxy>& GetFactory();
   static QSharedPointer<ezQtProxy> GetProxy(ezActionContext& context, ezActionDescriptorHandle hAction);

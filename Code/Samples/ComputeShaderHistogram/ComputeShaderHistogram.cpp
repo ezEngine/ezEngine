@@ -305,7 +305,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
       }
     }
 
-    m_hHistogramQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{4BEFA142-FEDB-42D0-84DC-58223ADD8C62}", std::move(desc));
+    m_hHistogramQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{4BEFA142-FEDB-42D0-84DC-58223ADD8C62}", std::move(desc));
   }
 }
 

@@ -54,7 +54,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("PropertyPanel");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
@@ -73,7 +73,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   // Exposed Parameters
   if (GetSceneDocument()->IsPrefab())
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
     pPanel->setObjectName("SceneSettingsDockWidget");
     pPanel->setWindowTitle(GetSceneDocument()->IsPrefab() ? "Prefab Settings" : "Scene Settings");
     pPanel->show();

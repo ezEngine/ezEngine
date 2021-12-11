@@ -294,7 +294,7 @@ ezCpuMeshResourceHandle ezPxMeshResource::ConvertToCpuMesh() const
     desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
     desc.ComputeBounds();
 
-    hCpuMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(GetResourceID(), std::move(desc), GetResourceDescription());
+    hCpuMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(GetResourceID(), std::move(desc), GetResourceDescription());
   }
 
   return hCpuMesh;

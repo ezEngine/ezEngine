@@ -82,6 +82,48 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
+bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event)
+{
+  auto CheckActions = [](QKeyEvent* event, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> & actions) -> bool
+  {
+    for (auto weakActionProxy : actions)
+    {
+      if (auto pProxy = weakActionProxy.Value().toStrongRef())
+      {
+        QAction* pQAction = nullptr;
+        if (auto pActionProxy = qobject_cast<ezQtActionProxy*>(pProxy))
+        {
+          pQAction = pActionProxy->GetQAction();
+        }
+        else if (auto pActionProxy = qobject_cast<ezQtDynamicActionAndMenuProxy*>(pProxy))
+        {
+          pQAction = pActionProxy->GetQAction();
+        }
+
+        if (pQAction)
+        {
+          QKeySequence ks = pQAction->shortcut();
+          if (pQAction->isEnabled() && QKeySequence(event->key() | event->modifiers()) == ks)
+          {
+            pQAction->trigger();
+            event->accept();
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
+
+  if (pDocument)
+  {
+    ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& actions = s_DocumentActions[pDocument];
+    if (CheckActions(event, actions))
+      return true;
+  }
+  return CheckActions(event, s_GlobalActions);
+}
+
 ezRttiMappedObjectFactory<ezQtProxy>& ezQtProxy::GetFactory()
 {
   return s_Factory;
@@ -149,7 +191,8 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       auto it = s_WindowActions.FindOrAdd(context.m_pWindow, &bExisted);
       if (!bExisted)
       {
-        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
+        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [=]()
+          { s_WindowActions.Remove(context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
@@ -318,7 +361,7 @@ void SetupQAction(ezAction* pAction, QPointer<QAction>& pQtAction, QObject* pTar
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
         EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
         pQtAction->setParent(pWindow);
-        pQtAction->setShortcutContext(Qt::ShortcutContext::WindowShortcut);
+        pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
       }
       break;
       case ezActionScope::Window:
@@ -356,10 +399,14 @@ void ezQtButtonProxy::StatusUpdateEventHandler(ezAction* pAction)
 void ezQtButtonProxy::OnTriggered()
 {
   // make sure all focus is lost, to trigger pending changes
-  if (QApplication::focusWidget())
+  QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
+  if (pFocusWidget)
     QApplication::focusWidget()->clearFocus();
 
   m_pAction->Execute(m_pQtAction->isChecked());
+
+  if (pFocusWidget)
+    pFocusWidget->setFocus();
 }
 
 void ezQtDynamicMenuProxy::SetAction(ezAction* pAction)
@@ -410,11 +457,15 @@ void ezQtDynamicMenuProxy::SlotMenuEntryTriggered()
     return;
 
   // make sure all focus is lost, to trigger pending changes
-  if (QApplication::focusWidget())
+  QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
+  if (pFocusWidget)
     QApplication::focusWidget()->clearFocus();
 
   ezUInt32 index = pAction->data().toUInt();
   m_pAction->Execute(m_Entries[index].m_UserValue);
+
+  if (pFocusWidget)
+    pFocusWidget->setFocus();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -498,10 +549,14 @@ QAction* ezQtDynamicActionAndMenuProxy::GetQAction()
 void ezQtDynamicActionAndMenuProxy::OnTriggered()
 {
   // make sure all focus is lost, to trigger pending changes
-  if (QApplication::focusWidget())
+  QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
+  if (pFocusWidget)
     QApplication::focusWidget()->clearFocus();
 
   m_pAction->Execute(ezVariant());
+
+  if (pFocusWidget)
+    pFocusWidget->setFocus();
 }
 
 void ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
@@ -674,13 +729,16 @@ QAction* ezQtSliderProxy::GetQAction()
 void ezQtSliderProxy::OnValueChanged(int value)
 {
   // make sure all focus is lost, to trigger pending changes
-  if (QApplication::focusWidget())
+  QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
+  if (pFocusWidget)
     QApplication::focusWidget()->clearFocus();
 
   // make sure all instances of the slider get updated, by setting the new value
   m_pQtAction->setValue(value);
-
   m_pAction->Execute(value);
+
+  if (pFocusWidget)
+    pFocusWidget->setFocus();
 }
 
 void ezQtSliderProxy::StatusUpdateEventHandler(ezAction* pAction)

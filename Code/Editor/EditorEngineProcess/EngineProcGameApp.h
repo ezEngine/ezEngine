@@ -69,4 +69,7 @@ private:
   ezEngineProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
   ezLongOpWorkerManager m_LongOpWorkerManager;
+
+  ezUInt32 m_uiRedrawCountReceived = 0;
+  ezUInt32 m_uiRedrawCountExecuted = 0;
 };

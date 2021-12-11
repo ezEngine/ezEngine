@@ -1293,6 +1293,7 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 void ezGALDevice::BeginFrame()
 {
   {
+    EZ_PROFILE_SCOPE("BeforeBeginFrame");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeBeginFrame;

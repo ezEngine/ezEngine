@@ -46,6 +46,7 @@ bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
 
 void ezEngineProcessDocumentContext::UpdateDocumentContexts()
 {
+  EZ_PROFILE_SCOPE("UpdateDocumentContexts");
   for (auto it = s_DocumentContexts.GetIterator(); it.IsValid(); ++it)
   {
     it.Value()->UpdateDocumentContext();

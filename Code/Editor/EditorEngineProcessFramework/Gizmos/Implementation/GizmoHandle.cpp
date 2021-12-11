@@ -455,7 +455,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   md.SetMaterial(0, szMaterial);
   md.ComputeBounds();
 
-  return ezResourceManager::CreateResource<ezMeshResource>(sIdentifier, std::move(md), pMeshBuffer->GetResourceDescription());
+  return ezResourceManager::GetOrCreateResource<ezMeshResource>(sIdentifier, std::move(md), pMeshBuffer->GetResourceDescription());
 }
 
 ezEngineGizmoHandle::ezEngineGizmoHandle()
