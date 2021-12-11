@@ -39,7 +39,7 @@ public:
   /// \brief Tries to free resources which are currently in the pool.
   /// Triggered automatically due to allocation number / size thresholds but can be triggered manually (e.g. after editor window resize)
   ///
-  /// \param uiMinimumAge How many frames at least the resource needs to have been unused before it will be GCed. 
+  /// \param uiMinimumAge How many frames at least the resource needs to have been unused before it will be GCed.
   void RunGC(ezUInt32 uiMinimumAge);
 
 

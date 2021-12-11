@@ -105,7 +105,7 @@ ezApplication::Execution ezEngineProcessGameApplication::Run()
 {
   ezRenderWorld::ClearMainViews();
   bool bPendingOpInProgress = false;
-  do 
+  do
   {
     bPendingOpInProgress = ezEngineProcessDocumentContext::PendingOperationsInProgress();
     if (ProcessIPCMessages(bPendingOpInProgress))
@@ -113,7 +113,7 @@ ezApplication::Execution ezEngineProcessGameApplication::Run()
       ezEngineProcessDocumentContext::UpdateDocumentContexts();
     }
   } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
-  
+
   m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
   return SUPER::Run();
 }

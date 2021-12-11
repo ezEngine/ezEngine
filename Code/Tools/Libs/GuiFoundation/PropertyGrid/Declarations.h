@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Types/Variant.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
+#include <Foundation/Types/Variant.h>
 
 class ezDocumentObject;
 

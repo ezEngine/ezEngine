@@ -2,10 +2,10 @@
 
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 template <typename T>
 static void SetComponentTest(ezVec2Template<T> vector, T value)
