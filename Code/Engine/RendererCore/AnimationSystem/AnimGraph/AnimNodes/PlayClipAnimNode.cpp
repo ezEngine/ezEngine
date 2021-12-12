@@ -121,7 +121,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
 
   m_State.m_bTriggerActive = m_ActivePin.IsTriggered(graph);
   m_State.m_Duration = pAnimClip->GetDescriptor().GetDuration();
-  m_State.m_DurationOfQueued = m_NextClipDuration;
+  m_State.m_DurationOfQueued = m_State.m_bLoop ? m_NextClipDuration : ezTime::Zero();
   m_State.m_fPlaybackSpeedFactor = static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
 
   m_State.UpdateState(tDiff);

@@ -455,27 +455,26 @@ void ezAnimationControllerAssetDocument::CountPinTypes(const ezDocumentNodeManag
 
 void ezAnimationControllerAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
-  // TODO: THIS MUST BE IMPLEMENTED !
   // without this, changing connections only (no property value) may not result in a different asset document hash and therefore no transform
 
-  // const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
-  // if (pManager->IsNode(pObject))
-  //{
-  //  auto outputs = pManager->GetOutputPins(pObject);
-  //  for (const ezPin* pPinSource : outputs)
-  //  {
-  //    auto inputs = pPinSource->GetConnections();
-  //    for (const ezConnection* pConnection : inputs)
-  //    {
-  //      const ezPin* pPinTarget = pConnection->GetTargetPin();
+   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+   if (pManager->IsNode(pObject))
+  {
+    auto outputs = pManager->GetOutputPins(pObject);
+    for (const ezPin* pPinSource : outputs)
+    {
+      auto inputs = pPinSource->GetConnections();
+      for (const ezConnection* pConnection : inputs)
+      {
+        const ezPin* pPinTarget = pConnection->GetTargetPin();
 
-  //      inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-  //      inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-  //      inout_uiHash = ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
-  //      inout_uiHash = ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
-  //    }
-  //  }
-  //}
+        inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+      }
+    }
+  }
 }
 
 void ezAnimationControllerAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
