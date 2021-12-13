@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -9,30 +11,26 @@
 #  include <Foundation/Utilities/Stats.h>
 #endif
 
-
 ezGPUResourcePool* ezGPUResourcePool::s_pDefaultInstance = nullptr;
 
-
 ezGPUResourcePool::ezGPUResourcePool()
-  : m_uiMemoryThresholdForGC(256 * 1024 * 1024)
-  , m_uiCurrentlyAllocatedMemory(0)
-  , m_uiNumAllocationsThresholdForGC(128)
-  , m_uiNumAllocationsSinceLastGC(0)
 {
   m_pDevice = ezGALDevice::GetDefaultDevice();
+
+  m_GALDeviceEventSubscriptionID = m_pDevice->m_Events.AddEventHandler(ezMakeDelegate(&ezGPUResourcePool::GALDeviceEventHandler, this));
 }
 
 ezGPUResourcePool::~ezGPUResourcePool()
 {
+  m_pDevice->m_Events.RemoveEventHandler(m_GALDeviceEventSubscriptionID);
   if (!m_TexturesInUse.IsEmpty())
   {
     ezLog::SeriousWarning("Destructing a GPU resource pool of which textures are still in use!");
   }
 
   // Free remaining resources
-  RunGC();
+  RunGC(0);
 }
-
 
 ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreationDescription& TextureDesc)
 {
@@ -50,11 +48,11 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   auto it = m_AvailableTextures.Find(uiTextureDescHash);
   if (it.IsValid())
   {
-    ezDynamicArray<ezGALTextureHandle>& textures = it.Value();
+    ezDynamicArray<TextureHandleWithAge>& textures = it.Value();
     if (!textures.IsEmpty())
     {
-      ezGALTextureHandle hTexture = textures[0];
-      textures.RemoveAtAndSwap(0);
+      ezGALTextureHandle hTexture = textures.PeekBack().m_hTexture;
+      textures.PopBack();
 
       EZ_ASSERT_DEV(m_pDevice->GetTexture(hTexture) != nullptr, "Invalid texture in resource pool");
 
@@ -128,10 +126,10 @@ void ezGPUResourcePool::ReturnRenderTarget(ezGALTextureHandle hRenderTarget)
     auto it = m_AvailableTextures.Find(uiTextureDescHash);
     if (!it.IsValid())
     {
-      it = m_AvailableTextures.Insert(uiTextureDescHash, ezDynamicArray<ezGALTextureHandle>());
+      it = m_AvailableTextures.Insert(uiTextureDescHash, ezDynamicArray<TextureHandleWithAge>());
     }
 
-    it.Value().PushBack(hRenderTarget);
+    it.Value().PushBack({hRenderTarget, ezRenderWorld::GetFrameCounter()});
   }
 }
 
@@ -145,11 +143,11 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
   auto it = m_AvailableBuffers.Find(uiBufferDescHash);
   if (it.IsValid())
   {
-    ezDynamicArray<ezGALBufferHandle>& buffers = it.Value();
+    ezDynamicArray<BufferHandleWithAge>& buffers = it.Value();
     if (!buffers.IsEmpty())
     {
-      ezGALBufferHandle hBuffer = buffers[0];
-      buffers.RemoveAtAndSwap(0);
+      ezGALBufferHandle hBuffer = buffers.PeekBack().m_hBuffer;
+      buffers.PopBack();
 
       EZ_ASSERT_DEV(m_pDevice->GetBuffer(hBuffer) != nullptr, "Invalid buffer in resource pool");
 
@@ -206,53 +204,91 @@ void ezGPUResourcePool::ReturnBuffer(ezGALBufferHandle hBuffer)
     auto it = m_AvailableBuffers.Find(uiBufferDescHash);
     if (!it.IsValid())
     {
-      it = m_AvailableBuffers.Insert(uiBufferDescHash, ezDynamicArray<ezGALBufferHandle>());
+      it = m_AvailableBuffers.Insert(uiBufferDescHash, ezDynamicArray<BufferHandleWithAge>());
     }
 
-    it.Value().PushBack(hBuffer);
+    it.Value().PushBack({hBuffer, ezRenderWorld::GetFrameCounter()});
   }
 }
 
-void ezGPUResourcePool::RunGC()
+void ezGPUResourcePool::RunGC(ezUInt32 uiMinimumAge)
 {
   EZ_LOCK(m_Lock);
 
-  // Destroy all available textures
+  EZ_PROFILE_SCOPE("RunGC");
+  ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+  // Destroy all available textures older than uiMinimumAge frames
   {
-    for (auto it = m_AvailableTextures.GetIterator(); it.IsValid(); ++it)
+    for (auto it = m_AvailableTextures.GetIterator(); it.IsValid();)
     {
       auto& textures = it.Value();
-      for (auto hCurrentTexture : textures)
+      for (ezInt32 i = (ezInt32)textures.GetCount() - 1; i >= 0; i--)
       {
-        if (const ezGALTexture* pTexture = m_pDevice->GetTexture(hCurrentTexture))
+        TextureHandleWithAge& texture = textures[i];
+        if (texture.m_uiLastUsed + uiMinimumAge <= uiCurrentFrame)
         {
-          m_uiCurrentlyAllocatedMemory -= m_pDevice->GetMemoryConsumptionForTexture(pTexture->GetDescription());
-        }
+          if (const ezGALTexture* pTexture = m_pDevice->GetTexture(texture.m_hTexture))
+          {
+            m_uiCurrentlyAllocatedMemory -= m_pDevice->GetMemoryConsumptionForTexture(pTexture->GetDescription());
+          }
 
-        m_pDevice->DestroyTexture(hCurrentTexture);
+          m_pDevice->DestroyTexture(texture.m_hTexture);
+          textures.RemoveAtAndCopy(i);
+        }
+        else
+        {
+          // The available textures are used as a stack. Thus they are ordered by last used.
+          break;
+        }
+      }
+      if (textures.IsEmpty())
+      {
+        auto itCopy = it;
+        ++it;
+        m_AvailableTextures.Remove(itCopy);
+      }
+      else
+      {
+        ++it;
       }
     }
-
-    m_AvailableTextures.Clear();
   }
 
-  // Destroy all available buffers
+  // Destroy all available buffers older than uiMinimumAge frames
   {
-    for (auto it = m_AvailableBuffers.GetIterator(); it.IsValid(); ++it)
+    for (auto it = m_AvailableBuffers.GetIterator(); it.IsValid();)
     {
       auto& buffers = it.Value();
-      for (auto hCurrentBuffer : buffers)
+      for (ezInt32 i = (ezInt32)buffers.GetCount() - 1; i >= 0; i--)
       {
-        if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hCurrentBuffer))
+        BufferHandleWithAge& buffer = buffers[i];
+        if (buffer.m_uiLastUsed + uiMinimumAge <= uiCurrentFrame)
         {
-          m_uiCurrentlyAllocatedMemory -= m_pDevice->GetMemoryConsumptionForBuffer(pBuffer->GetDescription());
-        }
+          if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(buffer.m_hBuffer))
+          {
+            m_uiCurrentlyAllocatedMemory -= m_pDevice->GetMemoryConsumptionForBuffer(pBuffer->GetDescription());
+          }
 
-        m_pDevice->DestroyBuffer(hCurrentBuffer);
+          m_pDevice->DestroyBuffer(buffer.m_hBuffer);
+          buffers.RemoveAtAndCopy(i);
+        }
+        else
+        {
+          // The available buffers are used as a stack. Thus they are ordered by last used.
+          break;
+        }
+      }
+      if (buffers.IsEmpty())
+      {
+        auto itCopy = it;
+        ++it;
+        m_AvailableBuffers.Remove(itCopy);
+      }
+      else
+      {
+        ++it;
       }
     }
-
-    m_AvailableBuffers.Clear();
   }
 
   m_uiNumAllocationsSinceLastGC = 0;
@@ -278,7 +314,8 @@ void ezGPUResourcePool::CheckAndPotentiallyRunGC()
 {
   if ((m_uiNumAllocationsSinceLastGC >= m_uiNumAllocationsThresholdForGC) || (m_uiCurrentlyAllocatedMemory >= m_uiMemoryThresholdForGC))
   {
-    RunGC();
+    // Only try to collect resources unused for 3 or more frames. Using a smaller number will result in constant memory thrashing.
+    RunGC(3);
   }
 }
 
@@ -295,6 +332,17 @@ void ezGPUResourcePool::UpdateMemoryStats() const
 #endif
 }
 
-
+void ezGPUResourcePool::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+{
+  if (e.m_Type == ezGALDeviceEvent::AfterEndFrame)
+  {
+    ++m_uiFramesSinceLastGC;
+    if (m_uiFramesSinceLastGC >= m_uiFramesThresholdSinceLastGC)
+    {
+      m_uiFramesSinceLastGC = 0;
+      RunGC(10);
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_GPUResourcePool_Implementation_GPUResourcePool);

@@ -71,7 +71,7 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   // property grid, if needed
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("ColorGradientAssetDockWidget");
     pPropertyPanel->setWindowTitle("ColorGradient Properties");
     pPropertyPanel->show();

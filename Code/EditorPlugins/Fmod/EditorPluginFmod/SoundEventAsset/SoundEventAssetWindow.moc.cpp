@@ -33,7 +33,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("SoundEventAssetDockWidget");
     pPropertyPanel->setWindowTitle("Sound Event Properties");
     pPropertyPanel->show();

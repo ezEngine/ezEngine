@@ -44,9 +44,13 @@ ezQtCVarWidget::~ezQtCVarWidget() {}
 
 void ezQtCVarWidget::Clear()
 {
+  QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
   clearFocus();
   m_pItemModel->BeginResetModel();
   m_pItemModel->EndResetModel();
+
+  if (pFocusWidget)
+    pFocusWidget->setFocus();
 }
 
 void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)

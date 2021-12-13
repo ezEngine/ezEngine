@@ -1,6 +1,7 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
@@ -70,4 +71,15 @@ void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e
     default:
       break;
   }
+}
+
+bool ezQtApplicationPanel::event(QEvent* event)
+{
+  if (event->type() == QEvent::ShortcutOverride)
+  {
+    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+    if (ezQtProxy::TriggerDocumentAction(nullptr, keyEvent))
+      return true;
+  }
+  return ads::CDockWidget::event(event);
 }

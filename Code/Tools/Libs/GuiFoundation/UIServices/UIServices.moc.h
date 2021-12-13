@@ -45,6 +45,22 @@ public:
 
   static ezEvent<const ezQtUiServices::Event&> s_Events;
 
+  struct TickEvent
+  {
+    enum class Type
+    {
+      StartFrame,
+      EndFrame,
+    };
+
+    Type m_Type;
+    ezUInt32 m_uiFrame = 0;
+    ezTime m_Time;
+    double m_fRefreshRate = 60.0;
+  };
+
+  static ezEvent<const ezQtUiServices::TickEvent&> s_TickEvent;
+
 public:
   ezQtUiServices();
 
@@ -119,6 +135,11 @@ public:
   /// \brief Raises the 'CheckForUpdates' event
   static void CheckForUpdates();
 
+  void Init();
+
+private Q_SLOTS:
+  void TickEventHandler();
+
 private:
   ezQtColorDialog* m_pColorDlg;
   QByteArray m_ColorDlgGeometry;
@@ -127,5 +148,7 @@ private:
   static ezMap<ezString, QImage> s_ImagesCache;
   static ezMap<ezString, QPixmap> s_PixmapsCache;
   static bool s_bHeadless;
+  static TickEvent s_LastTickEvent;
+  bool m_bIsDrawingATM = false;
 };
 

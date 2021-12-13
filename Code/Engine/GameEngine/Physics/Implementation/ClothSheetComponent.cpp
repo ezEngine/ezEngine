@@ -620,7 +620,7 @@ void ezClothSheetRenderer::CreateVertexBuffer()
     desc.m_IndexType = ezGALIndexType::UShort;
     desc.m_uiMaxPrimitives = ezMath::Square(uiMaxVerts - 1) * 2;
 
-    m_hDynamicMeshBuffer = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>("ClothSheet", std::move(desc), "Cloth Sheet Buffer");
+    m_hDynamicMeshBuffer = ezResourceManager::GetOrCreateResource<ezDynamicMeshBufferResource>("ClothSheet", std::move(desc), "Cloth Sheet Buffer");
   }
 }
 

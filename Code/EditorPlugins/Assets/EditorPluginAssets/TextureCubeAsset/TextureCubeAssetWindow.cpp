@@ -134,7 +134,7 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("TextureCubeAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();

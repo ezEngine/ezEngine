@@ -348,6 +348,8 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   m_DocumentWindows.PushBack(pDocWindow);
   ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
+  dock->installEventFilter(pDocWindow);
+
   dock->setObjectName(pDocWindow->GetUniqueName());
   EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
   EZ_ASSERT_DEV(!m_DockNames.contains(dock->objectName()), "Dock name must be unique.");

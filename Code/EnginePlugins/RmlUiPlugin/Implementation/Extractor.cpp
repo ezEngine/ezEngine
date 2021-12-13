@@ -155,7 +155,7 @@ namespace ezRmlUiInternal
       desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
-      hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(sTextureName, std::move(desc));
+      hTexture = ezResourceManager::GetOrCreateResource<ezTexture2DResource>(sTextureName, std::move(desc));
     }
 
     texture_handle = m_Textures.Insert(hTexture).ToRml();

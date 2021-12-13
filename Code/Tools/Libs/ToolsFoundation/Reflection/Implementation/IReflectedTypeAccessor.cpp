@@ -2,7 +2,7 @@
 
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 
-bool ezIReflectedTypeAccessor::GetValues(const char* szProperty, ezHybridArray<ezVariant, 16>& out_values) const
+bool ezIReflectedTypeAccessor::GetValues(const char* szProperty, ezDynamicArray<ezVariant>& out_values) const
 {
   ezHybridArray<ezVariant, 16> keys;
   if (!GetKeys(szProperty, keys))

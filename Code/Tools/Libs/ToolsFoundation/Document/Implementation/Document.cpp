@@ -375,7 +375,7 @@ void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDoc
 
 void ezDocument::DeleteSelectedObjects() const
 {
-  auto objects = GetSelectionManager()->GetSelection();
+  auto objects = GetSelectionManager()->GetTopLevelSelection();
 
   // make sure the whole selection is cleared, otherwise each delete command would reduce the selection one by one
   GetSelectionManager()->Clear();

@@ -104,7 +104,7 @@ void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
     desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
     desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
-    hFont = ezResourceManager::CreateResource<ezTexture2DResource>("ImguiFont", std::move(desc));
+    hFont = ezResourceManager::GetOrCreateResource<ezTexture2DResource>("ImguiFont", std::move(desc));
   }
 
   m_hTextures.PushBack(hFont);

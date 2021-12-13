@@ -240,7 +240,7 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
   return -1;
 }
 
-bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezHybridArray<ezVariant, 16>& out_keys) const
+bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezDynamicArray<ezVariant>& out_keys) const
 {
   out_keys.Clear();
 

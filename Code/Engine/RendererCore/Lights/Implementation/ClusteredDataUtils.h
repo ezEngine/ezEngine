@@ -73,6 +73,8 @@ namespace
 
   void FillClusterBoundingSpheres(const ezCamera& camera, float fAspectRatio, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
   {
+    EZ_PROFILE_SCOPE("FillClusterBoundingSpheres");
+
     ///\todo proper implementation for orthographic views
     if (camera.IsOrthographic())
       return;

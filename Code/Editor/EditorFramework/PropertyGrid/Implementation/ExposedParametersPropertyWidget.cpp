@@ -78,7 +78,7 @@ ezStatus ezExposedParameterCommandAccessor::GetCount(const ezDocumentObject* pOb
 }
 
 ezStatus ezExposedParameterCommandAccessor::GetKeys(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys)
+  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
 {
   if (m_pParameterProp == pProp)
   {
@@ -105,7 +105,7 @@ ezStatus ezExposedParameterCommandAccessor::GetKeys(
 }
 
 ezStatus ezExposedParameterCommandAccessor::GetValues(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values)
+  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
 {
   if (m_pParameterProp == pProp)
   {

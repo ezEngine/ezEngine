@@ -66,7 +66,7 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
   setCentralWidget(m_pView);
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("VisualScriptAssetDockWidget");
     pPropertyPanel->setWindowTitle("Node Properties");
     pPropertyPanel->show();

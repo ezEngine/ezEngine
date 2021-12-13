@@ -49,7 +49,7 @@ ezQtRmlUiAssetDocumentWindow::ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDoc
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("RmlUiAssetDockWidget");
     pPropertyPanel->setWindowTitle("RmlUi Properties");
     pPropertyPanel->show();

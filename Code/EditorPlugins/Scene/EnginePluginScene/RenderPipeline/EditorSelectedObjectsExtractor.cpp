@@ -100,7 +100,7 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& v
     d.m_uiWidth = uiWidth;
     d.m_uiHeight = (ezUInt32)(uiWidth * fAspect);
 
-    m_hRenderTarget = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("EditorCameraRT", std::move(d));
+    m_hRenderTarget = ezResourceManager::GetOrCreateResource<ezRenderToTexture2DResource>("EditorCameraRT", std::move(d));
   }
 
   CreateRenderTargetView(view);
@@ -139,18 +139,19 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetView(const ezView& view
 
 void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraComponent* pCamComp)
 {
+  float fFarPlane = ezMath::Max(pCamComp->GetNearPlane() + 0.00001f, pCamComp->GetFarPlane());
   switch (pCamComp->GetCameraMode())
   {
     case ezCameraMode::OrthoFixedHeight:
     case ezCameraMode::OrthoFixedWidth:
-      m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+      m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(), fFarPlane);
       break;
     case ezCameraMode::PerspectiveFixedFovX:
     case ezCameraMode::PerspectiveFixedFovY:
-      m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+      m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), fFarPlane);
       break;
     case ezCameraMode::Stereo:
-      m_RenderTargetCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45, pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+      m_RenderTargetCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45, pCamComp->GetNearPlane(), fFarPlane);
       break;
     default:
       break;

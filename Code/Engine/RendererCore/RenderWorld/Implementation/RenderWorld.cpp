@@ -523,6 +523,8 @@ void ezRenderWorld::ExtractMainViews()
 
 void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
+  EZ_PROFILE_SCOPE("ezRenderWorld::Render");
+
   ezUInt64 uiRenderFrame = GetUseMultithreadedRendering() ? s_uiFrameCounter - 1 : s_uiFrameCounter;
 
   // TODO:
@@ -533,7 +535,10 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   ezRenderWorldRenderEvent renderEvent;
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;
   renderEvent.m_uiFrameCounter = s_uiFrameCounter;
-  s_RenderEvent.Broadcast(renderEvent);
+  {
+    EZ_PROFILE_SCOPE("BeginRender");
+    s_RenderEvent.Broadcast(renderEvent);
+  }
 
   if (!cvar_RenderingMultithreading)
   {
@@ -555,6 +560,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   filteredRenderPipelines.Clear();
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
+  EZ_PROFILE_SCOPE("EndRender");
   s_RenderEvent.Broadcast(renderEvent);
 }
 
@@ -736,6 +742,8 @@ void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline
 // static
 void ezRenderWorld::RebuildPipelines()
 {
+  EZ_PROFILE_SCOPE("RebuildPipelines");
+
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)
   {
     ezView* pView = nullptr;

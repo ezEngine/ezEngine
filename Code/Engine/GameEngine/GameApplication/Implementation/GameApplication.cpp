@@ -100,6 +100,7 @@ bool ezGameApplication::IsGameUpdateEnabled() const
 
 void ezGameApplication::Run_WorldUpdateAndRender()
 {
+  EZ_PROFILE_SCOPE("Run_WorldUpdateAndRender");
   // If multi-threaded rendering is disabled, the same content is updated/extracted and rendered in the same frame.
   // As ezRenderWorld::BeginFrame applies the render pipeline properties that were set during the update phase, it needs to be done after update/extraction but before rendering.
   if (!ezRenderWorld::GetUseMultithreadedRendering())
@@ -141,6 +142,8 @@ void ezGameApplication::Run_Present()
 
   for (ezActor* pActor : allActors)
   {
+    EZ_PROFILE_SCOPE(pActor->GetName());
+
     ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
 
     if (pWindowPlugin == nullptr)
@@ -163,6 +166,7 @@ void ezGameApplication::Run_Present()
         ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
       }
 
+      EZ_PROFILE_SCOPE("Present");
       pOutput->Present(cvar_AppVSync);
     }
   }
@@ -233,6 +237,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
 void ezGameApplication::RenderFps()
 {
+  EZ_PROFILE_SCOPE("RenderFps");
   // Do not use ezClock for this, it smooths and clamps the timestep
 
   static ezTime tAccumTime;
@@ -263,6 +268,8 @@ void ezGameApplication::RenderFps()
 
 void ezGameApplication::RenderConsole()
 {
+  EZ_PROFILE_SCOPE("RenderConsole");
+
   if (!m_bShowConsole || !m_pConsole)
     return;
 

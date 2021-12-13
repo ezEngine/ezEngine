@@ -51,6 +51,11 @@ void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezAssetDocum
 
 void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicationChannel::Event& e)
 {
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEditor>())
+  {
+    const ezSyncWithProcessMsgToEditor* msg = static_cast<const ezSyncWithProcessMsgToEditor*>(e.m_pMessage);
+    m_uiRedrawCountReceived = msg->m_uiRedrawCount;
+  }
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
@@ -69,6 +74,26 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
     ee.m_Type = Event::Type::ProcessMessage;
 
     s_Events.Broadcast(ee);
+  }
+}
+
+void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+{
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  {
+    if (!IsProcessCrashed())
+    {
+      ezSyncWithProcessMsgToEngine sm;
+      sm.m_uiRedrawCount = m_uiRedrawCountSent + 1;
+      SendMessage(&sm);
+
+      if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
+      {
+        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0)).IgnoreResult();
+      }
+
+      ++m_uiRedrawCountSent;
+    }
   }
 }
 
@@ -99,6 +124,9 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     return;
 
   ezLog::Dev("Starting Client Engine Process");
+
+  EZ_ASSERT_DEBUG(m_TickEventSubscriptionID == 0, "A previous subscription is still in place. ShutdownProcess not called?");
+  m_TickEventSubscriptionID = ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::UIServicesTickEventHandler, this));
 
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
@@ -243,6 +271,9 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   ShutdownRemoteProcess();
 
   ezLog::Info("Shutting down Engine Process");
+
+  if (m_TickEventSubscriptionID != 0)
+    ezQtUiServices::s_TickEvent.RemoveEventHandler(m_TickEventSubscriptionID);
 
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;

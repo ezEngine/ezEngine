@@ -43,7 +43,7 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
   setCentralWidget(m_pView);
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("RenderPipelineAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();

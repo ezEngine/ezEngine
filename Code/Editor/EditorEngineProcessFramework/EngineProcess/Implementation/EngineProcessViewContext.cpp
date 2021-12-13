@@ -8,6 +8,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -233,8 +234,20 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   if (m_Camera.GetCameraMode() != ezCameraMode::Stereo)
   {
-    ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
-    m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+    bool bCameraIsActive = false;
+    if (pView && pView->GetWorld())
+    {
+      ezEnum<ezCameraUsageHint> usageHint = pView->GetCameraUsageHint();
+      ezCameraComponent* pComp = pView->GetWorld()->GetOrCreateComponentManager<ezCameraComponentManager>()->GetCameraByUsageHint(usageHint);
+      bCameraIsActive = pComp != nullptr && pComp->IsActive();
+    }
+
+    // Camera mode should be controlled by a matching camera component if one exists.
+    if (!bCameraIsActive)
+    {
+      ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
+      m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+    }
 
     // prevent too large values
     // sometimes this can happen when imported data is badly scaled and thus way too large

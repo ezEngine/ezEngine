@@ -175,7 +175,7 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
 
     desc.ComputeBounds();
 
-    hBoxMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(szResourceName, std::move(desc), szResourceName);
+    hBoxMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(szResourceName, std::move(desc), szResourceName);
   }
 
   auto& meshObject = m_pMeshObjects->ExpandAndGetRef();

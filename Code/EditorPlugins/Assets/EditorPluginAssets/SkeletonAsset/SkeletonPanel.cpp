@@ -8,7 +8,7 @@
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
 ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* pDocument)
-  : ezQtDocumentPanel(pParent)
+  : ezQtDocumentPanel(pParent, pDocument)
 {
   m_pSkeletonDocument = pDocument;
 

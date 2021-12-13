@@ -239,7 +239,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
 
   md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
 
-  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
+  m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
 
   TriggerLocalBoundsUpdate();
 }

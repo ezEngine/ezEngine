@@ -38,7 +38,7 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("TypeScriptAssetDockWidget");
     pPropertyPanel->setWindowTitle("TypeScript Properties");
     pPropertyPanel->show();

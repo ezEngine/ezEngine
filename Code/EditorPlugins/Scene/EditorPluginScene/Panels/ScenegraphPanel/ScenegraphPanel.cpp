@@ -27,7 +27,7 @@ namespace
 } // namespace
 
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-  : ezQtDocumentPanel(pParent)
+  : ezQtDocumentPanel(pParent, pDocument)
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");
@@ -44,7 +44,7 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDoc
 }
 
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pParent)
+  : ezQtDocumentPanel(pParent, pDocument)
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");

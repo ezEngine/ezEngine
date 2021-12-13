@@ -553,6 +553,7 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
 void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt)
 {
   QMenu m;
+  m.setToolTipsVisible(true);
 
   if (TreeFolderFilter->currentItem())
   {
@@ -622,6 +623,7 @@ void ezQtAssetBrowserWidget::OnTreeOpenExplorer()
 void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint& pt)
 {
   QMenu m;
+  m.setToolTipsVisible(true);
 
   if (ListAssets->selectionModel()->hasSelection())
   {

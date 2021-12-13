@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
@@ -15,6 +16,7 @@ static void SetComponentTest(ezVec2Template<T> vector, T value)
   ezReflectionUtils::SetComponent(var, 1, value);
   EZ_TEST_BOOL(var.Get<ezVec2Template<T>>().y == value);
 }
+
 template <typename T>
 static void SetComponentTest(ezVec3Template<T> vector, T value)
 {
@@ -26,6 +28,7 @@ static void SetComponentTest(ezVec3Template<T> vector, T value)
   ezReflectionUtils::SetComponent(var, 2, value);
   EZ_TEST_BOOL(var.Get<ezVec3Template<T>>().z == value);
 }
+
 template <typename T>
 static void SetComponentTest(ezVec4Template<T> vector, T value)
 {
@@ -39,6 +42,31 @@ static void SetComponentTest(ezVec4Template<T> vector, T value)
   ezReflectionUtils::SetComponent(var, 3, value);
   EZ_TEST_BOOL(var.Get<ezVec4Template<T>>().w == value);
 }
+
+template <class T>
+static void ClampValueTest(T tooSmall, T tooBig, T min, T max)
+{
+  ezClampValueAttribute minClamp(min, {});
+  ezClampValueAttribute maxClamp({}, max);
+  ezClampValueAttribute bothClamp(min, max);
+
+  ezVariant value = tooSmall;
+  EZ_TEST_BOOL(ezReflectionUtils::ClampValue(value, &minClamp).Succeeded());
+  EZ_TEST_BOOL(value == min);
+
+  value = tooSmall;
+  EZ_TEST_BOOL(ezReflectionUtils::ClampValue(value, &bothClamp).Succeeded());
+  EZ_TEST_BOOL(value == min);
+
+  value = tooBig;
+  EZ_TEST_BOOL(ezReflectionUtils::ClampValue(value, &maxClamp).Succeeded());
+  EZ_TEST_BOOL(value == max);
+
+  value = tooBig;
+  EZ_TEST_BOOL(ezReflectionUtils::ClampValue(value, &bothClamp).Succeeded());
+  EZ_TEST_BOOL(value == max);
+}
+
 
 EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
 {
@@ -165,5 +193,26 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
     SetComponentTest(ezVec2U32(0, 1), 4u);
     SetComponentTest(ezVec3U32(0, 1, 2), 4u);
     SetComponentTest(ezVec4U32(0, 1, 2, 3), 4u);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClampValue")
+  {
+    ClampValueTest<float>(-1, 1000, 2, 4);
+    ClampValueTest<double>(-1, 1000, 2, 4);
+    ClampValueTest<ezInt32>(-1, 1000, 2, 4);
+    ClampValueTest<ezUInt64>(1, 1000, 2, 4);
+    ClampValueTest<ezTime>(ezTime::Milliseconds(1), ezTime::Milliseconds(1000), ezTime::Milliseconds(2), ezTime::Milliseconds(4));
+    ClampValueTest<ezAngle>(ezAngle::Degree(1), ezAngle::Degree(1000), ezAngle::Degree(2), ezAngle::Degree(4));
+    ClampValueTest<ezVec3>(ezVec3(1), ezVec3(1000), ezVec3(2), ezVec3(4));
+    ClampValueTest<ezVec4I32>(ezVec4I32(1), ezVec4I32(1000), ezVec4I32(2), ezVec4I32(4));
+    ClampValueTest<ezVec4U32>(ezVec4U32(1), ezVec4U32(1000), ezVec4U32(2), ezVec4U32(4));
+
+    ezVarianceTypeFloat vf = {1.0f, 2.0f};
+    ezVariant variance = vf;
+    EZ_TEST_BOOL(ezReflectionUtils::ClampValue(variance, nullptr).Succeeded());
+
+    ezVarianceTypeFloat clamp = {2.0f, 3.0f};
+    ezClampValueAttribute minClamp(clamp, {});
+    EZ_TEST_BOOL(ezReflectionUtils::ClampValue(variance, &minClamp).Failed());
   }
 }

@@ -297,6 +297,17 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
   QDoubleSpinBox::mouseMoveEvent(event);
 }
 
+bool ezQtDoubleSpinBox::event(QEvent* event)
+{
+  if (event->type() == QEvent::ShortcutOverride)
+  {
+    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+    if (keyEvent == QKeySequence::Redo || keyEvent == QKeySequence::Undo)
+      return true;
+  }
+  return QDoubleSpinBox::event(event);
+}
+
 void ezQtDoubleSpinBox::onCustomContextMenuRequested()
 {
   if (!isReadOnly())

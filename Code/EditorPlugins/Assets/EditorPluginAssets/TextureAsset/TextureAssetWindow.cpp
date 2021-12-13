@@ -133,7 +133,7 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("TextureAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();

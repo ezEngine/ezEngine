@@ -60,7 +60,7 @@ public:
     return m_ConstGetter(static_cast<const Class*>(pInstance)).IsSetByName(*static_cast<const RealType*>(pObject));
   }
 
-  virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override
+  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override
   {
     out_keys.Clear();
     for (const auto& value : m_ConstGetter(static_cast<const Class*>(pInstance)))
@@ -139,7 +139,7 @@ public:
     return (static_cast<const Class*>(pInstance)->*m_GetValues)().IsSetByName(*static_cast<const RealType*>(pObject));
   }
 
-  virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override
+  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override
   {
     out_keys.Clear();
     for (const auto& value : (static_cast<const Class*>(pInstance)->*m_GetValues)())

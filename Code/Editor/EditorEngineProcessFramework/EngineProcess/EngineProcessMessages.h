@@ -169,17 +169,17 @@ public:
   double m_fPayload;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezProcessMessage);
 
 public:
   ezUInt32 m_uiRedrawCount;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezEditorEngineDocumentMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezProcessMessage);
 
 public:
   ezUInt32 m_uiRedrawCount;

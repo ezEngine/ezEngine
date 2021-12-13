@@ -177,7 +177,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
 
     if (!lodDst.m_hMesh.IsValid())
     {
-      lodDst.m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
+      lodDst.m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
     }
   }
 

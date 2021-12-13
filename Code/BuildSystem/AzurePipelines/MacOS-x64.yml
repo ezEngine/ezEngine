@@ -27,7 +27,7 @@ jobs:
 - job: Job_1
   displayName: MacOS-x64
   pool:
-    name: Hosted macOS
+    vmImage: 'macOS-latest'
   steps:
   - checkout: self
     submodules: true

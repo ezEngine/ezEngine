@@ -60,7 +60,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("Curve1DAssetDockWidget");
     pPropertyPanel->setWindowTitle("Curve1D Properties");
     pPropertyPanel->show();

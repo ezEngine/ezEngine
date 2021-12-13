@@ -328,7 +328,7 @@ void ezGALCommandEncoder::UpdateBuffer(
       updateMode = ezGALUpdateMode::CopyToTempStorage;
     }
 
-    EZ_ASSERT_DEV(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
+    EZ_ASSERT_DEV(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer {} is too small (or offset {} too big) for {} bytes", pDest->GetSize(), uiDestOffset, pSourceData.GetCount());
     m_CommonImpl.UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, updateMode);
   }
   else

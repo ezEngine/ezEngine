@@ -34,6 +34,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_pButton->setPopupMode(QToolButton::InstantPopup);
 
   QMenu* pMenu = new QMenu();
+  pMenu->setToolTipsVisible(true);
   m_pButton->setMenu(pMenu);
 
   connect(pMenu, &QMenu::aboutToShow, this, &ezQtAssetPropertyWidget::OnShowMenu);

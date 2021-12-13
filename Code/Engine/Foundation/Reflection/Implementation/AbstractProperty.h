@@ -337,7 +337,7 @@ public:
   virtual bool Contains(const void* pInstance, const void* pObject) const = 0;
 
   /// \brief Writes the content of the set to out_keys.
-  virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const = 0;
+  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const = 0;
 };
 
 
