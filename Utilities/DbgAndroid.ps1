@@ -138,24 +138,23 @@ function Adb-Cmd
 	}
 	
 	$result = ""
-	
+	$errorAction = $ErrorActionPreference
 	try
 	{
-		$($result = (& $adb $cmds *>&1)) | Out-Null
+		$ErrorActionPreference = "Continue"
+		$result = (& $adb $cmds *>&1)
 	}
-	catch
+	finally
 	{
-		$callstack = Get-PSCallStack
-		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
-		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f "Failed to execute adb ${$cmds}", ($_.Exception.Message | Out-String), $callstack)
+		$ErrorActionPreference = $errorAction
 	}
 	if ($lastexitcode -ne 0)
 	{
 		$callstack = Get-PSCallStack
 		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
-		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f "Failed to execute adb ${$cmds}", ($result | Out-String), $callstack)		
+		RaiseError ("Failed to execute adb {0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f ($cmds -join " "), ($result -join "`n"), $callstack)	
 	}
-	return $result	
+	return $result -join "`n"
 }
 
 # find the gdb server executable
@@ -347,7 +346,7 @@ else
 			$jdb
 		)
 		Start-Sleep -Seconds 3
-		Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"`"$jdb`" -connect com.sun.jdi.SocketAttach:port=12345,hostname=localhost`"" -WindowStyle Hidden
+		Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"`"$jdb`" -connect com.sun.jdi.SocketAttach:port=12345,hostname=localhost`" && pause"
 	} -ArgumentList $jdb
 
 	# Launch gdb
