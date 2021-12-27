@@ -83,7 +83,8 @@ namespace ezModelImporter2
         m_Options.m_uiNumAnimKeyframes = uiMaxKeyframes;
       }
 
-      const double fOneDivTicksPerSec = 1.0 / pAnim->mTicksPerSecond;
+      const double fOneDivTicksPerSec = 1.0 / 1000.0;
+      //pAnim->mTicksPerSecond;
 
       const ezUInt32 uiNumChannels = pAnim->mNumChannels;
 

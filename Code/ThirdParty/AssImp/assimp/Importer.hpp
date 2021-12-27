@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2020, assimp team
+Copyright (c) 2006-2021, assimp team
 
 
 
@@ -58,6 +58,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Public ASSIMP data structures
 #include <assimp/types.h>
+
+#include <exception>
 
 namespace Assimp {
 // =======================================================================
@@ -244,6 +246,12 @@ public:
     bool SetPropertyMatrix(const char *szName, const aiMatrix4x4 &sValue);
 
     // -------------------------------------------------------------------
+    /** Set a pointer configuration property.
+     * @see SetPropertyInteger()
+     */
+    bool SetPropertyPointer(const char *szName, void *sValue);
+
+    // -------------------------------------------------------------------
     /** Get a configuration property.
      * @param szName Name of the property. All supported properties
      *   are defined in the aiConfig.g header (all constants share the
@@ -284,7 +292,7 @@ public:
      * @see GetPropertyInteger()
      */
     std::string GetPropertyString(const char *szName,
-            const std::string &sErrorReturn = "") const;
+            const std::string &sErrorReturn = std::string()) const;
 
     // -------------------------------------------------------------------
     /** Get a matrix configuration property
@@ -294,6 +302,15 @@ public:
      */
     aiMatrix4x4 GetPropertyMatrix(const char *szName,
             const aiMatrix4x4 &sErrorReturn = aiMatrix4x4()) const;
+
+    // -------------------------------------------------------------------
+    /** Get a pointer configuration property
+     *
+     *  The return value remains valid until the property is modified.
+     * @see GetPropertyInteger()
+     */
+    void* GetPropertyPointer(const char *szName,
+        void *sErrorReturn = nullptr) const;
 
     // -------------------------------------------------------------------
     /** Supplies a custom IO handler to the importer to use to open and
@@ -494,6 +511,15 @@ public:
      * @note The returned function remains valid until one of the
      * following methods is called: #ReadFile(), #FreeScene(). */
     const char *GetErrorString() const;
+
+    // -------------------------------------------------------------------
+    /** Returns an exception if one occurred during import.
+     *
+     * @return The last exception which occurred.
+     *
+     * @note The returned value remains valid until one of the
+     * following methods is called: #ReadFile(), #FreeScene(). */
+    const std::exception_ptr& GetException() const;
 
     // -------------------------------------------------------------------
     /** Returns the scene loaded by the last successful call to ReadFile()

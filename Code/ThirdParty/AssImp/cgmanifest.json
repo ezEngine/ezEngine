@@ -5,7 +5,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/assimp/assimp",
-                    "commitHash": "9ce0671134912fd49010d81b89ae56dc41029c39"
+                    "commitHash": "80b0b897edfc8d97a3071033b95dcd6b799e403b"
                 }
             }
         }

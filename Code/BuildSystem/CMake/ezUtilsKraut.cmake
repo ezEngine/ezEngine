@@ -20,7 +20,7 @@ macro(ez_requires_kraut)
 endmacro()
 
 ######################################
-### ez_link_target_assimp(<target>)
+### ez_link_target_kraut(<target>)
 ######################################
 
 function(ez_link_target_kraut TARGET_NAME)
