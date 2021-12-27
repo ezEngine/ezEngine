@@ -81,7 +81,7 @@ public:
   /// \brief Returns the inverse of this transform.
   const ezTransformTemplate GetInverse() const; // [tested]
 
-  ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
+  ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const;  // [tested]
   ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
 
   void operator+=(const ezVec3Template<Type>& v); // [tested]
