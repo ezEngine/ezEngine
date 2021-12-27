@@ -11,13 +11,13 @@ inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>
 }
 
 template <typename Type>
-void ezTransformTemplate<Type>::SetFromMat4(const ezMat4& mat)
+void ezTransformTemplate<Type>::SetFromMat4(const ezMat4Template<Type>& mat)
 {
-  ezMat3 mRot = mat.GetRotationalPart();
+  ezMat3Template<Type> mRot = mat.GetRotationalPart();
 
   m_vPosition = mat.GetTranslationVector();
   m_vScale = mRot.GetScalingFactors();
-  mRot.SetScalingFactors(ezVec3(1.0f)).IgnoreResult();
+  mRot.SetScalingFactors(ezVec3Template<Type>(1)).IgnoreResult();
   m_qRotation.SetFromMat3(mRot);
 }
 
@@ -39,7 +39,7 @@ inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::IdentityTransf
 template <typename Type>
 EZ_ALWAYS_INLINE Type ezTransformTemplate<Type>::GetMaxScale() const
 {
-  ezVec3 absScale = m_vScale.Abs();
+  auto absScale = m_vScale.Abs();
   return ezMath::Max(absScale.x, ezMath::Max(absScale.y, absScale.z));
 }
 
@@ -71,8 +71,8 @@ inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& 
 template <typename Type>
 inline void ezTransformTemplate<Type>::SetLocalTransform(const ezTransformTemplate<Type>& GlobalTransformParent, const ezTransformTemplate<Type>& GlobalTransformChild)
 {
-  const ezQuat invRot = -GlobalTransformParent.m_qRotation;
-  const ezVec3 invScale = ezVec3(1.0f).CompDiv(GlobalTransformParent.m_vScale);
+  const auto invRot = -GlobalTransformParent.m_qRotation;
+  const auto invScale = ezVec3Template<Type>(1).CompDiv(GlobalTransformParent.m_vScale);
 
   m_vPosition = (invRot * (GlobalTransformChild.m_vPosition - GlobalTransformParent.m_vPosition)).CompMul(invScale);
   m_qRotation = invRot * GlobalTransformChild.m_qRotation;
@@ -88,7 +88,7 @@ inline void ezTransformTemplate<Type>::SetGlobalTransform(const ezTransformTempl
 template <typename Type>
 EZ_ALWAYS_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4() const
 {
-  ezMat4 result = m_qRotation.GetAsMat4();
+  auto result = m_qRotation.GetAsMat4();
 
   result.m_fElementsCM[0] *= m_vScale.x;
   result.m_fElementsCM[1] *= m_vScale.x;
@@ -111,30 +111,30 @@ EZ_ALWAYS_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4
 
 
 template <typename Type>
-void ezTransformTemplate<Type>::operator+=(const ezVec3& v)
+void ezTransformTemplate<Type>::operator+=(const ezVec3Template<Type>& v)
 {
   m_vPosition += v;
 }
 
 template <typename Type>
-void ezTransformTemplate<Type>::operator-=(const ezVec3& v)
+void ezTransformTemplate<Type>::operator-=(const ezVec3Template<Type>& v)
 {
   m_vPosition -= v;
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformPosition(const ezVec3& v) const
+EZ_ALWAYS_INLINE ezVec3Template<Type> ezTransformTemplate<Type>::TransformPosition(const ezVec3Template<Type>& v) const
 {
-  const ezVec3 scaled = m_vScale.CompMul(v);
-  const ezVec3 rotated = m_qRotation * scaled;
+  const auto scaled = m_vScale.CompMul(v);
+  const auto rotated = m_qRotation * scaled;
   return m_vPosition + rotated;
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformDirection(const ezVec3& v) const
+EZ_ALWAYS_INLINE ezVec3Template<Type> ezTransformTemplate<Type>::TransformDirection(const ezVec3Template<Type>& v) const
 {
-  const ezVec3 scaled = m_vScale.CompMul(v);
-  const ezVec3 rotated = m_qRotation * scaled;
+  const auto scaled = m_vScale.CompMul(v);
+  const auto rotated = m_qRotation * scaled;
   return rotated;
 }
 
@@ -213,9 +213,9 @@ EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::Invert()
 template <typename Type>
 inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::GetInverse() const
 {
-  const ezQuat invRot = -m_qRotation;
-  const ezVec3 invScale = ezVec3(1.0f).CompDiv(m_vScale);
-  const ezVec3 invPos = invRot * (invScale.CompMul(-m_vPosition));
+  const auto invRot = -m_qRotation;
+  const auto invScale = ezVec3Template<Type>(1).CompDiv(m_vScale);
+  const auto invPos = invRot * (invScale.CompMul(-m_vPosition));
 
   return ezTransformTemplate<Type>(invPos, invRot, invScale);
 }

@@ -5,7 +5,7 @@
 #  undef EZ_COMPILER_MSVC
 #  define EZ_COMPILER_MSVC EZ_ON
 
-#  ifdef __clang__
+#  if __clang__ || __castxml__
 #    undef EZ_COMPILER_MSVC_CLANG
 #    define EZ_COMPILER_MSVC_CLANG EZ_ON
 #  else

@@ -34,7 +34,7 @@ public:
 
   // *** Data ***
   ezVec3Template<Type> m_vPosition;
-  ezQuat m_qRotation;
+  ezQuatTemplate<Type> m_qRotation;
   ezVec3Template<Type> m_vScale;
 
   // *** Constructors ***
@@ -45,10 +45,10 @@ public:
   /// \brief Sets position and rotation.
   explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition,
     const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(),
-    const ezVec3Template<Type>& vScale = ezVec3(1.0f)); // [tested]
+    const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
 
   /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling and shearing will get lost in the process.
-  void SetFromMat4(const ezMat4& mat);
+  void SetFromMat4(const ezMat4Template<Type>& mat);
 
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
@@ -81,11 +81,11 @@ public:
   /// \brief Returns the inverse of this transform.
   const ezTransformTemplate GetInverse() const; // [tested]
 
-  ezVec3 TransformPosition(const ezVec3& v) const;  // [tested]
-  ezVec3 TransformDirection(const ezVec3& v) const; // [tested]
+  ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
+  ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
 
-  void operator+=(const ezVec3& v); // [tested]
-  void operator-=(const ezVec3& v); // [tested]
+  void operator+=(const ezVec3Template<Type>& v); // [tested]
+  void operator-=(const ezVec3Template<Type>& v); // [tested]
 
   // *** Conversion operations ***
 public:

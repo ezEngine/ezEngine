@@ -47,7 +47,7 @@ enum ezResultEnum
 };
 
 /// \brief Default enum for returning failure or success, instead of using a bool.
-struct [[nodiscard]] ezResult
+struct EZ_FOUNDATION_DLL [[nodiscard]] ezResult
 {
 public:
   ezResult(ezResultEnum res)
@@ -61,9 +61,14 @@ public:
 
   EZ_ALWAYS_INLINE bool Succeeded() const { return e == EZ_SUCCESS; }
   EZ_ALWAYS_INLINE bool Failed() const { return e == EZ_FAILURE; }
+
+  /// \brief Used to silence compiler warnings, when success or failure doesn't matter.
   EZ_ALWAYS_INLINE void IgnoreResult()
   { /* dummy to be called when a return value is [[nodiscard]] but the result is not needed */
   }
+
+  /// \brief Asserts that the function succeeded. In case of failure, the program will terminate.
+  void AssertSuccess(const char* msg = nullptr) const;
 
 private:
   ezResultEnum e;

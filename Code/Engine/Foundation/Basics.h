@@ -9,6 +9,17 @@
 
 #include <Foundation/UserConfig.h>
 
+// Configure the DLL Import/Export Define
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#  ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
+#    define EZ_FOUNDATION_DLL __declspec(dllexport)
+#  else
+#    define EZ_FOUNDATION_DLL __declspec(dllimport)
+#  endif
+#else
+#  define EZ_FOUNDATION_DLL
+#endif
+
 #include <Foundation/FoundationInternal.h>
 
 // include the different headers for the supported platforms
@@ -44,17 +55,6 @@
 #  if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 #    error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
 #  endif
-#endif
-
-// Configure the DLL Import/Export Define
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#  ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-#    define EZ_FOUNDATION_DLL __declspec(dllexport)
-#  else
-#    define EZ_FOUNDATION_DLL __declspec(dllimport)
-#  endif
-#else
-#  define EZ_FOUNDATION_DLL
 #endif
 
 // Finally include the rest of basics
