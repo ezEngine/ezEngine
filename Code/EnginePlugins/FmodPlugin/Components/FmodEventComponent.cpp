@@ -587,7 +587,7 @@ void ezFmodEventComponent::SoundCue()
 {
   if (m_pEventInstance != nullptr && m_pEventInstance->isValid())
   {
-    EZ_FMOD_ASSERT(m_pEventInstance->triggerCue());
+    EZ_FMOD_ASSERT(m_pEventInstance->keyOff());
   }
 }
 
@@ -707,8 +707,7 @@ void ezFmodEventComponent::Update()
       {
         float minDistance = 0.0f;
         float maxDistance = 0.0f;
-        pDesc->getMinimumDistance(&minDistance);
-        pDesc->getMaximumDistance(&maxDistance);
+        pDesc->getMinMaxDistance(&minDistance, &maxDistance);
 
         ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
         ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
@@ -788,6 +787,7 @@ void ezFmodEventComponent::UpdateOcclusion()
     }
 
     float fRadius = 1.0f;
+    float fMaxDist = 0;
     {
       FMOD::Studio::EventDescription* pDesc = nullptr;
       m_pEventInstance->getDescription(&pDesc);
@@ -796,7 +796,7 @@ void ezFmodEventComponent::UpdateOcclusion()
       pDesc->is3D(&is3D);
       if (is3D)
       {
-        pDesc->getMinimumDistance(&fRadius);
+        pDesc->getMinMaxDistance(&fRadius, &fMaxDist);
       }
     }
 
