@@ -88,7 +88,7 @@ jobs:
   - task: CMake@1
     displayName: CMake Step
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qtvs141x64;"$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\FMOD Studio API Windows" -DEZ_QT_DIR="$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qtvs141x64" -DEZ_ENABLE_FOLDER_UNITY_FILES=0 -DEZ_BUILD_OPENXR=1 -DEZ_BUILD_PHYSX=1 -DEZ_BUILD_FMOD=1 -DEZ_BUILD_GAMES=1 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_SYSTEM_VERSION=10.0.18362.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.18362.0 -A "x64" -G "Visual Studio 16 2019" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qtvs141x64; -DEZ_QT_DIR="$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qtvs141x64" -DEZ_ENABLE_FOLDER_UNITY_FILES=0 -DEZ_BUILD_OPENXR=1 -DEZ_BUILD_PHYSX=1 -DEZ_BUILD_FMOD=1 -DEZ_BUILD_GAMES=1 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_SYSTEM_VERSION=10.0.18362.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.18362.0 -A "x64" -G "Visual Studio 16 2019" ../
   - task: MSBuild@1
     displayName: Build solution build/ezVs2019.sln
     inputs:
