@@ -14,9 +14,9 @@ find_path(EZ_ASSIMP_DIR assimp/ai_assert.h
 )
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(ASSIMP_LIB_PATH "${EZ_ASSIMP_DIR}/vc141win64")
+  set(ASSIMP_LIB_PATH "${EZ_ASSIMP_DIR}/vc142win64")
 else()
-  set(ASSIMP_LIB_PATH "${EZ_ASSIMP_DIR}/vc141win32")
+  set(ASSIMP_LIB_PATH "${EZ_ASSIMP_DIR}/vc142win32")
 endif()
 
 include(FindPackageHandleStandardArgs)
@@ -25,8 +25,8 @@ find_package_handle_standard_args(EzAssImp DEFAULT_MSG EZ_ASSIMP_DIR)
 if (EZASSIMP_FOUND)
 
 	add_library(EzAssImp::EzAssImp SHARED IMPORTED)
-	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_LOCATION "${ASSIMP_LIB_PATH}/assimp-vc141-mt.dll")
-	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_IMPLIB "${ASSIMP_LIB_PATH}/assimp-vc141-mt.lib")
+	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_LOCATION "${ASSIMP_LIB_PATH}/assimp-vc142-mt.dll")
+	set_target_properties(EzAssImp::EzAssImp PROPERTIES IMPORTED_IMPLIB "${ASSIMP_LIB_PATH}/assimp-vc142-mt.lib")
 	set_target_properties(EzAssImp::EzAssImp PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_ASSIMP_DIR}")
 
 endif()

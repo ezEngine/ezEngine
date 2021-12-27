@@ -27,7 +27,7 @@ namespace ezModelImporter2
 
   ezResult ImporterAssimp::ProcessAiMesh(aiMesh* pMesh, const ezMat4& transform)
   {
-    if (pMesh->mPrimitiveTypes != aiPrimitiveType::aiPrimitiveType_TRIANGLE)
+    if ((pMesh->mPrimitiveTypes & aiPrimitiveType::aiPrimitiveType_TRIANGLE) == 0) // no triangles in there ?
       return EZ_SUCCESS;
 
     {
