@@ -108,39 +108,6 @@ jobs:
     inputs:
       script: Output\Bin\WinVs2019Dev64\HeaderCheck.exe $(System.DefaultWorkingDirectory)\Code\Engine\Foundation -i $(System.DefaultWorkingDirectory)\Code\Engine -f $(System.DefaultWorkingDirectory)\Code\Engine\Foundation\headerCheckerIgnore.json
   - task: CmdLine@2
-    displayName: FoundationTest
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      script: Output\Bin\WinVs2019Dev64\FoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\FoundationTest
-  - task: CmdLine@2
-    displayName: CoreTest
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      script: Output\Bin\WinVs2019Dev64\CoreTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\CoreTest
-  - task: CmdLine@2
-    displayName: ToolsFoundationTest
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      script: Output\Bin\WinVs2019Dev64\ToolsFoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\ToolsFoundationTest
-  - task: CmdLine@2
-    displayName: RendererTest
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      script: Output\Bin\WinVs2019Dev64\RendererTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
-  - task: CmdLine@2
-    displayName: EditorTest
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      script: >-
-        set QT_PLUGIN_PATH=Output\Bin\WinVs2019Dev64
-
-        Output\Bin\WinVs2019Dev64\EditorTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
-  - task: CmdLine@2
-    displayName: GameEngineTest
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      script: Output\Bin\WinVs2019Dev64\GameEngineTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
-  - task: CmdLine@2
     displayName: List files
     condition: always()
     inputs:
@@ -183,18 +150,6 @@ jobs:
             New-Item -ItemType Directory -Force -Path $targetPath
             Copy-Item $Dir\* -Filter * -Destination $targetPath -Recurse -Force
         }
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: TestResults'
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)\Test
-      ArtifactName: TestResults
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: Bin'
-    condition: failed()
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)\Bin
-      ArtifactName: Bin
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: AssetCache'
     condition: eq(variables['task.MSBuild.status'], 'success')
