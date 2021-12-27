@@ -105,6 +105,7 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Vec4.h>
 
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorBase.h>

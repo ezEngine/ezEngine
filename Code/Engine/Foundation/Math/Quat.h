@@ -75,7 +75,7 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, float fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
   const ezMat3Template<Type> GetAsMat3() const; // [tested]
@@ -94,7 +94,7 @@ public:
   /// Currently it fails when one of the given quaternions is identity (so no rotation, at all), as it tries to
   /// compare rotation axis' and angles, which is undefined for the identity quaternion (also there are infinite
   /// representations for 'identity', so it's difficult to check for it).
-  bool IsEqualRotation(const ezQuatTemplate& qOther, float fEpsilon) const; // [tested]
+  bool IsEqualRotation(const ezQuatTemplate& qOther, Type fEpsilon) const; // [tested]
 
   // *** Operators ***
 public:

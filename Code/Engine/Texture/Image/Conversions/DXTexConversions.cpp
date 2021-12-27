@@ -221,6 +221,7 @@ namespace
 
     /// Get temporary access to the static DeviceAndConversionTable.
     static ScopedAccess getDeviceAndConversionTable() { return s_DeviceAndConversionTable; }
+    static bool IsDeviceAndConversionTableInitialized() { return s_DeviceAndTableInitialized; }
 
     ID3D11Device* getDevice() { return m_pD3dDevice.Get(); }
 
@@ -228,6 +229,8 @@ namespace
 
     void Init()
     {
+      s_DeviceAndTableInitialized = true;
+
       if (!m_supportedConversions.IsEmpty())
         return;
 
@@ -254,6 +257,7 @@ namespace
     {
       m_pD3dDevice = nullptr;
       m_supportedConversions.Clear();
+      s_DeviceAndTableInitialized = false;
     }
 
   private:
@@ -264,6 +268,7 @@ namespace
     static ezImageConversionEntry s_sourceConversions[s_numConversions];
 
     ezMutex m_mutex;
+    static bool s_DeviceAndTableInitialized;
     static DeviceAndConversionTable s_DeviceAndConversionTable;
   };
 
@@ -277,6 +282,7 @@ namespace
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default),
   };
 
+  bool DeviceAndConversionTable::s_DeviceAndTableInitialized = false;
   DeviceAndConversionTable DeviceAndConversionTable::s_DeviceAndConversionTable;
 } // namespace
 
@@ -289,7 +295,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(TexConv, DXTexConversions)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    DeviceAndConversionTable::getDeviceAndConversionTable()->Deinit();
+    if (DeviceAndConversionTable::IsDeviceAndConversionTableInitialized())
+    {
+      DeviceAndConversionTable::getDeviceAndConversionTable()->Deinit();
+    }
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

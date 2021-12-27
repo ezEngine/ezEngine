@@ -230,7 +230,7 @@ inline ezAngle ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>&
   EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized.");
   EZ_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized.");
 
-  return ezMath::ACos(ezMath::Clamp<Type>(this->Dot(rhs), (Type)-1, (Type)1));
+  return ezMath::ACos(static_cast<float>(ezMath::Clamp<Type>(this->Dot(rhs), (Type)-1, (Type)1)));
 }
 
 template <typename Type>

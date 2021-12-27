@@ -43,7 +43,7 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationX(ezRandom& rng,
   const double y = invSqrt * ezMath::Cos(phi);
   const double z = invSqrt * ezMath::Sin(phi);
 
-  return ezVec3((float)x, (float)y, (float)z);
+  return ezVec3Template<Type>((Type)x, (Type)y, (Type)z);
 }
 
 template <typename Type>
@@ -63,7 +63,7 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationZ(ezRandom& rng,
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3& vNormal)
+ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal)
 {
   // If you need to do this very often:
   // *** Pre-compute this once: ***

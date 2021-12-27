@@ -131,7 +131,7 @@ using ezVec2I32 = ezVec2Template<ezInt32>;
 using ezVec2U32 = ezVec2Template<ezUInt32>;
 
 template <typename Type>
-struct ezVec3Template;
+class ezVec3Template;
 
 using ezVec3 = ezVec3Template<float>;
 using ezVec3d = ezVec3Template<double>;
