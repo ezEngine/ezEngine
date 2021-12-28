@@ -201,6 +201,8 @@ inline float ToF(bool b)
 // clang-format off
 void ezStandardInputDevice::UpdateInputSlotValues()
 {
+  ezInputDeviceMouseKeyboard::UpdateInputSlotValues();
+
   m_InputSlotValues[ezInputSlot_KeyA]  = ToF(sf::Keyboard::isKeyPressed(sf::Keyboard::A));
   m_InputSlotValues[ezInputSlot_KeyB]  = ToF(sf::Keyboard::isKeyPressed(sf::Keyboard::B));
   m_InputSlotValues[ezInputSlot_KeyC]  = ToF(sf::Keyboard::isKeyPressed(sf::Keyboard::C));

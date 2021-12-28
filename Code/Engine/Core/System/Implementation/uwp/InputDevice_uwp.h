@@ -33,7 +33,6 @@ private:
   HRESULT UpdateMouseButtonStates(ABI::Windows::UI::Input::IPointerPoint* pointerPoint);
 
   virtual void InitializeDevice() override;
-  virtual void UpdateInputSlotValues() override {}
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;
 

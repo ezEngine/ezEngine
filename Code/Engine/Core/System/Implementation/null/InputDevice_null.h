@@ -16,6 +16,5 @@ public:
 
 private:
   virtual void InitializeDevice() override;
-  virtual void UpdateInputSlotValues() override;
   virtual void RegisterInputSlots() override;
 };

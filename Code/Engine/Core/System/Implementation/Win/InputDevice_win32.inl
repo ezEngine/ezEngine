@@ -21,6 +21,8 @@ ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
     EZ_ASSERT_RELEASE(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
     ezStandardInputDevice::s_bMainWindowUsed = true;
   }
+
+  m_DoubleClickTime = ezTime::Milliseconds(GetDoubleClickTime());
 }
 
 ezStandardInputDevice::~ezStandardInputDevice()
@@ -409,15 +411,20 @@ void ezStandardInputDevice::WindowMessage(
     case WM_CHAR:
       m_LastCharacter = (wchar_t)wParam;
       return;
-    case WM_LBUTTONDBLCLK:
-      m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
-      return;
-    case WM_RBUTTONDBLCLK:
-      m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
-      return;
-    case WM_MBUTTONDBLCLK:
-      m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
-      return;
+
+    // these messages would only arrive, if the window had the flag CS_DBLCLKS
+    // see https://docs.microsoft.com/windows/win32/inputdev/wm-lbuttondblclk
+    // this would add lag and hide single clicks when the user double clicks
+    // therefore it is not used
+    //case WM_LBUTTONDBLCLK:
+    //  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
+    //  return;
+    //case WM_RBUTTONDBLCLK:
+    //  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
+    //  return;
+    //case WM_MBUTTONDBLCLK:
+    //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
+    //  return;
 
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
 
@@ -427,6 +434,12 @@ void ezStandardInputDevice::WindowMessage(
       if (s_iMouseCaptureCount == 0)
         SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
+
+      // TODO: somehow with trackpads it can happen, that when you click fast (double click)
+      // the second down/up message is send such that the state check that inspects m_InputSlotValues
+      // isn't done between down and up, but always after
+      // this doesn't happen for buttons (even on trackpads), though
+      // maybe the messages are queued and delivered within the same frame?
 
       return;
 

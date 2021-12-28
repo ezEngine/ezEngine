@@ -60,7 +60,14 @@ public:
 
 protected:
   ezVec2 m_vMouseScale;
+  ezTime m_DoubleClickTime = ezTime::Milliseconds(500);
 
   static ezInt32 m_iMouseIsOverWindowNumber;
   bool m_bIsFocused = true;
+
+private:
+  virtual void UpdateInputSlotValues() override;
+
+  ezTime m_LastMouseClick[3];
+  bool m_bMouseDown[3] = {false, false, false};
 };
