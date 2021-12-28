@@ -40,7 +40,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="SpinPosition">
+      <widget class="ezQtDoubleSpinBox" name="SpinPosition">
+       <property name="decimals">
+        <number>3</number>
+       </property>
        <property name="minimum">
         <double>-10000.000000000000000</double>
        </property>
@@ -100,7 +103,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="SpinIntensity">
+      <widget class="ezQtDoubleSpinBox" name="SpinIntensity">
+       <property name="decimals">
+        <number>2</number>
+       </property>
        <property name="maximum">
         <double>100000.000000000000000</double>
        </property>
@@ -163,10 +169,14 @@
    <header location="global">GuiFoundation/Widgets/ColorGradientWidget.moc.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>ezQtDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
-
+</ui>
