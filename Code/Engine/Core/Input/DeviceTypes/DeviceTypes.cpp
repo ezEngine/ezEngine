@@ -166,9 +166,39 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   for (ezUInt8 c = 0; c < MaxControllers; ++c)
   {
     for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+    {
       ApplyVibration(c, (Motor::Enum)m, fVibrationToApply[c][m]);
+    }
   }
 }
 
+void ezInputDeviceMouseKeyboard::UpdateInputSlotValues()
+{
+  const char* slots[3] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
+  const char* dlbSlots[3] = {ezInputSlot_MouseDblClick0, ezInputSlot_MouseDblClick1, ezInputSlot_MouseDblClick2};
+
+  const ezTime tNow = ezTime::Now();
+
+  for (int i = 0; i < 3; ++i)
+  {
+    m_InputSlotValues[dlbSlots[i]] = 0.0f;
+
+    const bool bDown = m_InputSlotValues[slots[i]] > 0;
+    if (bDown)
+    {
+      if (!m_bMouseDown[i])
+      {
+        if (tNow - m_LastMouseClick[i] <= m_DoubleClickTime)
+        {
+          m_InputSlotValues[dlbSlots[i]] = 1.0f;
+        }
+
+        m_LastMouseClick[i] = tNow;
+      }
+    }
+
+    m_bMouseDown[i] = bDown;
+  }
+}
 
 EZ_STATICLINK_FILE(Core, Core_Input_DeviceTypes_DeviceTypes);

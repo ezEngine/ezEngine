@@ -19,6 +19,4 @@ ezMouseCursorClipMode::Enum ezStandardInputDevice::GetClipMouseCursor() const
 
 void ezStandardInputDevice::InitializeDevice() {}
 
-void ezStandardInputDevice::UpdateInputSlotValues() {}
-
 void ezStandardInputDevice::RegisterInputSlots() {}
