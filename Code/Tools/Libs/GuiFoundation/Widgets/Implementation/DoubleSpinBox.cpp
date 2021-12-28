@@ -20,6 +20,7 @@ ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
   m_bDragging = false;
   m_fStartDragValue = 0;
   m_iDragDelta = 0;
+  setKeyboardTracking(false); // see https://stackoverflow.com/questions/35608600/qdoublespinbox-signals-valuechanged-before-the-edit-is-completely-done
   setDecimals(6);
   setSingleStep(0.1f);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -295,6 +296,21 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
   }
 
   QDoubleSpinBox::mouseMoveEvent(event);
+}
+
+void ezQtDoubleSpinBox::keyPressEvent(QKeyEvent* event)
+{
+  if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+  {
+    QString t = lineEdit()->text();
+    double val = valueFromText(t);
+    QDoubleSpinBox::setValue(val);
+    Q_EMIT editingFinished();
+    lineEdit()->setText(t);
+    return;
+  }
+
+  QDoubleSpinBox::keyPressEvent(event);
 }
 
 bool ezQtDoubleSpinBox::event(QEvent* event)
