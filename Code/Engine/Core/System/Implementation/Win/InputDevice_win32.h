@@ -46,4 +46,3 @@ private:
   ezUInt8 m_uiMouseButtonReceivedDown[5];
   ezUInt8 m_uiMouseButtonReceivedUp[5];
 };
-
