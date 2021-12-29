@@ -28,11 +28,13 @@ public:
   virtual void SetShowMouseCursor(bool bShow) override;
   virtual bool GetShowMouseCursor() const override;
 
-private:
+protected:
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;
+  virtual void UpdateInputSlotValues() override;
 
+private:
   void ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd);
 
   static bool s_bMainWindowUsed;
@@ -40,4 +42,6 @@ private:
   bool m_bShowCursor = true;
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;
+  ezUInt8 m_uiMouseButtonReceivedDown[5];
+  ezUInt8 m_uiMouseButtonReceivedUp[5];
 };
