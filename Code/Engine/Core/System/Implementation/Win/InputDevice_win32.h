@@ -36,6 +36,7 @@ protected:
 
 private:
   void ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd);
+  void OnFocusLost(ezMinWindows::HWND hWnd);
 
   static bool s_bMainWindowUsed;
   ezUInt32 m_uiWindowNumber = 0;
@@ -45,3 +46,4 @@ private:
   ezUInt8 m_uiMouseButtonReceivedDown[5];
   ezUInt8 m_uiMouseButtonReceivedUp[5];
 };
+
