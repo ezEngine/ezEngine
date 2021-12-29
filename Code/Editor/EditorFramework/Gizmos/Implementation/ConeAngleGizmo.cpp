@@ -15,7 +15,7 @@ ezConeAngleGizmo::ezConeAngleGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_ConeAngle.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), false);
+  m_ConeAngle.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

@@ -14,8 +14,7 @@ ezConeLengthGizmo::ezConeLengthGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_ConeRadius.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), false,
-    true); // this gizmo should be rendered very last so it is always on top
+  m_ConeRadius.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable | ezGizmoFlags::OnTop); // this gizmo should be rendered very last so it is always on top
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

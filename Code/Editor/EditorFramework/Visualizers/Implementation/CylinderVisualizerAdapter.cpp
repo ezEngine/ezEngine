@@ -16,7 +16,7 @@ void ezCylinderVisualizerAdapter::Finalize()
 
   const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Cylinder.Configure(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, false, false, true);
+  m_Cylinder.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_Cylinder);
 

@@ -13,12 +13,12 @@ ezBoxGizmo::ezBoxGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_Corners.Configure(this, ezEngineGizmoHandleType::BoxCorners, ezColorLinearUB(200, 200, 200, 128), false);
+  m_Corners.ConfigureHandle(this, ezEngineGizmoHandleType::BoxCorners, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
 
   for (int i = 0; i < 3; ++i)
   {
-    m_Edges[i].Configure(this, ezEngineGizmoHandleType::BoxEdges, ezColorLinearUB(200, 200, 200, 128), false);
-    m_Faces[i].Configure(this, ezEngineGizmoHandleType::BoxFaces, ezColorLinearUB(200, 200, 200, 128), false);
+    m_Edges[i].ConfigureHandle(this, ezEngineGizmoHandleType::BoxEdges, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
+    m_Faces[i].ConfigureHandle(this, ezEngineGizmoHandleType::BoxFaces, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
   }
 
   SetVisible(false);

@@ -12,9 +12,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRotateGizmo::ezRotateGizmo()
 {
-  m_AxisX.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(128, 0, 0));
-  m_AxisY.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 128, 0));
-  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128));
+  m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

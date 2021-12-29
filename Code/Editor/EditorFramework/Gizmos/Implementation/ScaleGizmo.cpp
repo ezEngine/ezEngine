@@ -11,10 +11,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezScaleGizmo::ezScaleGizmo()
 {
-  m_AxisX.Configure(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(128, 0, 0));
-  m_AxisY.Configure(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 128, 0));
-  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 0, 128));
-  m_AxisXYZ.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 128, 0));
+  m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -216,9 +216,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezManipulatorScaleGizmo::ezManipulatorScaleGizmo()
 {
   // Overwrite axis to be boxes.
-  m_AxisX.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 0, 0));
-  m_AxisY.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 128, 0));
-  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 0, 128));
+  m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 }
 
 void ezManipulatorScaleGizmo::OnTransformationChanged(const ezTransform& transform)
