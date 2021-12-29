@@ -17,7 +17,7 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_Outline.Configure(this, ezEngineGizmoHandleType::LineBox, ezColor::CornflowerBlue, false, false, false, true, false);
+  m_Outline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColor::CornflowerBlue, ezGizmoFlags::ShowInOrtho);
 
   ezColor cols[6] = {
     ezColorGammaUB(255, 200, 200),
@@ -30,7 +30,7 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   for (ezUInt32 i = 0; i < 6; ++i)
   {
-    m_Nobs[i].Configure(this, ezEngineGizmoHandleType::Box, cols[i], true, true, false, true);
+    m_Nobs[i].ConfigureHandle(this, ezEngineGizmoHandleType::Box, cols[i], ezGizmoFlags::ConstantSize | ezGizmoFlags::OnTop | ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Pickable);
   }
 
   SetVisible(false);

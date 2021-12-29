@@ -478,18 +478,18 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop,
-  bool bVisualizer, bool bShowInOrtho, bool bIsPickable)
+void ezEngineGizmoHandle::ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, ezBitflags<ezGizmoFlags> flags)
 {
   SetParentGizmo(pParentGizmo);
 
-  m_bConstantSize = bConstantSize;
-  m_bAlwaysOnTop = bAlwaysOnTop;
-  m_bVisualizer = bVisualizer;
   m_iHandleType = (int)type;
   m_Color = col;
-  m_bShowInOrtho = bShowInOrtho;
-  m_bIsPickable = bIsPickable;
+
+  m_bConstantSize = flags.IsSet(ezGizmoFlags::ConstantSize);
+  m_bAlwaysOnTop = flags.IsSet(ezGizmoFlags::OnTop);
+  m_bVisualizer = flags.IsSet(ezGizmoFlags::Visualizer);
+  m_bShowInOrtho = flags.IsSet(ezGizmoFlags::ShowInOrtho);
+  m_bIsPickable = flags.IsSet(ezGizmoFlags::Pickable);
 }
 
 bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)

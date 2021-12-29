@@ -15,13 +15,13 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_vStartPosition.SetZero();
   m_fCameraSpeed = 0.2f;
 
-  m_AxisX.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
-  m_AxisY.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
-  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
+  m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 
-  m_PlaneXY.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255));
-  m_PlaneXZ.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128));
-  m_PlaneYZ.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128));
+  m_PlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_PlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_PlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

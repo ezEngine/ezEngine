@@ -17,13 +17,13 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
   float l = 0.5f;
   float h = 0.9f;
 
-  m_Bobble.Configure(this, ezEngineGizmoHandleType::Box, ezColor::DodgerBlue);
-  m_AlignPX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(h, b, b));
-  m_AlignNX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(l, b, b));
-  m_AlignPY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, h, b));
-  m_AlignNY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, l, b));
-  m_AlignPZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, h));
-  m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, l / 3));
+  m_Bobble.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColor::DodgerBlue, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AlignPX.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(h, b, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AlignNX.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(l, b, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AlignPY.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, h, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AlignNY.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, l, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AlignPZ.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, h), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_AlignNZ.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, l / 3), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

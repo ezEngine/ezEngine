@@ -15,7 +15,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   m_ManipulateMode = ManipulateMode::None;
 
   m_vLastStartPoint.SetZero();
-  m_Box.Configure(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), false, false, false, true, false);
+  m_Box.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), ezGizmoFlags::ShowInOrtho);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

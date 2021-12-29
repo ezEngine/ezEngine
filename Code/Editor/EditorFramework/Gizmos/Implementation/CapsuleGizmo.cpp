@@ -14,9 +14,9 @@ ezCapsuleGizmo::ezCapsuleGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_Radius.Configure(this, ezEngineGizmoHandleType::CylinderZ, ezColorLinearUB(200, 200, 200, 128), false);
-  m_LengthTop.Configure(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), false);
-  m_LengthBottom.Configure(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), false);
+  m_Radius.ConfigureHandle(this, ezEngineGizmoHandleType::CylinderZ, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
+  m_LengthTop.ConfigureHandle(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
+  m_LengthBottom.ConfigureHandle(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

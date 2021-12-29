@@ -15,7 +15,7 @@ void ezPointLightVisualizerAdapter::Finalize()
   const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
   EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
-  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Sphere, ezColor::White, false, false, true);
+  m_Gizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Sphere, ezColor::White, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_Gizmo);
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);

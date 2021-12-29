@@ -16,7 +16,7 @@ void ezConeVisualizerAdapter::Finalize()
 
   const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Cone, pAttr->m_Color, false, false, true);
+  m_Gizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cone, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_Gizmo);
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);

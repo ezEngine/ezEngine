@@ -15,7 +15,7 @@ void ezBoxVisualizerAdapter::Finalize()
 
   const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, pAttr->m_Color, false, false, true);
+  m_Gizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
 
   pAssetDocument->AddSyncObject(&m_Gizmo);
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);

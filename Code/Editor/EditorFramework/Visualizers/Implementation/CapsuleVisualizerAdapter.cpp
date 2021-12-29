@@ -16,9 +16,9 @@ void ezCapsuleVisualizerAdapter::Finalize()
 
   const ezCapsuleVisualizerAttribute* pAttr = static_cast<const ezCapsuleVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Cylinder.Configure(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, false, false, true);
-  m_SphereTop.Configure(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, false, false, true);
-  m_SphereBottom.Configure(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, false, false, true);
+  m_Cylinder.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_SphereTop.ConfigureHandle(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_SphereBottom.ConfigureHandle(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
 
   pAssetDocument->AddSyncObject(&m_Cylinder);
   pAssetDocument->AddSyncObject(&m_SphereTop);
@@ -82,11 +82,11 @@ void ezCapsuleVisualizerAdapter::UpdateGizmoTransform()
   ezVec3 vOffset = ezVec3::ZeroVector();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
-      vOffset.x -= m_fRadius;
+    vOffset.x -= m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::NegX))
     vOffset.x += m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosY))
-      vOffset.y -= m_fRadius;
+    vOffset.y -= m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::NegY))
     vOffset.y += m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosZ))

@@ -17,10 +17,10 @@ void ezCameraVisualizerAdapter::Finalize()
 
   const ezCameraVisualizerAttribute* pAttr = static_cast<const ezCameraVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_BoxGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::DodgerBlue, false, false, true);
-  m_FrustumGizmo.Configure(nullptr, ezEngineGizmoHandleType::Frustum, ezColor::DodgerBlue, false, false, true);
-  m_NearPlaneGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::LightBlue, false, false, true);
-  m_FarPlaneGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::PaleVioletRed, false, false, true);
+  m_BoxGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::DodgerBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_FrustumGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Frustum, ezColor::DodgerBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_NearPlaneGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::LightBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_FarPlaneGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::PaleVioletRed, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
 
   pAssetDocument->AddSyncObject(&m_BoxGizmo);
   pAssetDocument->AddSyncObject(&m_FrustumGizmo);

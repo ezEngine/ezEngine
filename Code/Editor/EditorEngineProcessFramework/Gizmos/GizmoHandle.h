@@ -56,6 +56,33 @@ enum ezEngineGizmoHandleType
   Frustum,
 };
 
+struct ezGizmoFlags
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Default = 0,
+
+    ConstantSize = EZ_BIT(0),
+    OnTop = EZ_BIT(1),
+    Visualizer = EZ_BIT(2),
+    ShowInOrtho = EZ_BIT(3),
+    Pickable = EZ_BIT(4),
+  };
+
+  struct Bits
+  {
+    StorageType ConstantSize : 1;
+    StorageType OnTop : 1;
+    StorageType Visualizer : 1;
+    StorageType ShowInOrtho : 1;
+    StorageType Pickable : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezGizmoFlags);
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEngineGizmoHandle, ezGizmoHandle);
@@ -64,8 +91,7 @@ public:
   ezEngineGizmoHandle();
   ~ezEngineGizmoHandle();
 
-  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false,
-    bool bVisualizer = false, bool bShowInOrtho = false, bool bIsPickable = true);
+  void ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, ezBitflags<ezGizmoFlags> flags);
 
   virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
   virtual void UpdateForEngine(ezWorld* pWorld) override;
