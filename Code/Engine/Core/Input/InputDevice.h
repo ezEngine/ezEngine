@@ -101,12 +101,6 @@ protected:
   /// The ezInputManager calls RetrieveLastCharacter() to query what the user typed last.
   ezUInt32 m_LastCharacter; // [tested]
 
-private:
-  /// \brief Calls InitializeDevice() when the device is not yet initialized.
-  void Initialize();
-  bool m_bInitialized = false;
-  bool m_bGeneratedInputRecently = false;
-
   /// \brief Override this if you need to do device specific initialization before the first use.
   virtual void InitializeDevice() = 0;
 
@@ -132,4 +126,10 @@ private:
   /// \brief This function is called once after ezInputManager::Update with the same time delta value.
   /// It allows to update hardware state, such as the vibration of gamepad motors.
   virtual void UpdateHardwareState(ezTime tTimeDifference) {}
+
+private:
+  /// \brief Calls InitializeDevice() when the device is not yet initialized.
+  void Initialize();
+  bool m_bInitialized = false;
+  bool m_bGeneratedInputRecently = false;
 };
