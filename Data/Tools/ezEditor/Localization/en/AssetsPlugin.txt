@@ -249,3 +249,6 @@ ezPlaySequenceAnimNode;Play Clip Sequence
 Common;Common
 MiddleClips;Middle Clips
 ezLogAnimNode;Log
+MaterialAsset.Model;Preview Model
+ezMaterialAssetPreview::Sphere;Sphere
+ezMaterialAssetPreview::Box;Box

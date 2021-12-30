@@ -29,5 +29,15 @@ protected:
 
 private:
   ezMaterialResourceHandle m_hMaterial;
-  ezMeshResourceHandle m_hPreviewMeshResource;
+  ezMeshResourceHandle m_hSphereMesh;
+  ezMeshResourceHandle m_hBoxMesh;
+  ezComponentHandle m_hMeshComponent;
+
+  enum class PreviewModel : ezUInt8
+  {
+    Sphere,
+    Box,
+  };
+
+  PreviewModel m_PreviewModel = PreviewModel::Sphere;
 };

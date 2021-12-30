@@ -29,48 +29,119 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     ezResourceManager::RestoreResource(m_hMaterial);
   }
 
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentConfigMsgToEngine>())
+  {
+    const ezDocumentConfigMsgToEngine* pMsg2 = static_cast<const ezDocumentConfigMsgToEngine*>(pMsg);
+
+    if (pMsg2->m_sWhatToDo == "PreviewModel" && m_PreviewModel != (PreviewModel)pMsg2->m_iValue)
+    {
+      m_PreviewModel = (PreviewModel)pMsg2->m_iValue;
+
+      auto pWorld = m_pWorld;
+      EZ_LOCK(pWorld->GetWriteMarker());
+
+      ezMeshComponent* pMesh;
+      if (pWorld->TryGetComponent(m_hMeshComponent, pMesh))
+      {
+        switch (m_PreviewModel)
+        {
+          case PreviewModel::Sphere:
+            pMesh->SetMesh(m_hSphereMesh);
+            break;
+          case PreviewModel::Box:
+            pMesh->SetMesh(m_hBoxMesh);
+            break;
+        }
+      }
+    }
+  }
+
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
 void ezMaterialContext::OnInitialize()
 {
-  const char* szMeshName = "DefaultMaterialPreviewMesh";
-  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
-
-  if (!m_hPreviewMeshResource.IsValid())
   {
-    const char* szMeshBufferName = "DefaultMaterialPreviewMeshBuffer";
+    const char* szSphereMeshName = "SphereMaterialPreviewMesh";
+    m_hSphereMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szSphereMeshName);
 
-    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
-
-    if (!hMeshBuffer.IsValid())
+    if (!m_hSphereMesh.IsValid())
     {
-      // Build geometry
-      ezGeometry geom;
+      const char* szMeshBufferName = "SphereMaterialPreviewMeshBuffer";
 
-      geom.AddSphere(0.1f, 64, 64, ezColor::Red);
-      geom.ComputeTangents();
+      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
 
-      ezMeshBufferResourceDescriptor desc;
-      desc.AddCommonStreams();
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-      desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-      desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+      if (!hMeshBuffer.IsValid())
+      {
+        // Build geometry
+        ezGeometry geom;
 
-      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+        geom.AddSphere(0.1f, 64, 64, ezColor::White);
+        geom.ComputeTangents();
+
+        ezMeshBufferResourceDescriptor desc;
+        desc.AddCommonStreams();
+        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
+        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+        hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      }
+
+      {
+        ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+
+        ezMeshResourceDescriptor md;
+        md.UseExistingMeshBuffer(hMeshBuffer);
+        md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
+        md.SetMaterial(0, "");
+        md.ComputeBounds();
+
+        m_hSphereMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szSphereMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      }
     }
+  }
 
+  {
+    const char* szRectMeshName = "RectMaterialPreviewMesh";
+    m_hBoxMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szRectMeshName);
+
+    if (!m_hBoxMesh.IsValid())
     {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+      const char* szMeshBufferName = "RectMaterialPreviewMeshBuffer";
 
-      ezMeshResourceDescriptor md;
-      md.UseExistingMeshBuffer(hMeshBuffer);
-      md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      md.SetMaterial(0, "");
-      md.ComputeBounds();
+      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
 
-      m_hPreviewMeshResource = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      if (!hMeshBuffer.IsValid())
+      {
+        // Build geometry
+        ezGeometry geom;
+
+        geom.AddTexturedBox(ezVec3(0.12f), ezColor::White);
+        geom.ComputeTangents();
+
+        ezMeshBufferResourceDescriptor desc;
+        desc.AddCommonStreams();
+        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
+        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+        hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      }
+
+      {
+        ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+
+        ezMeshResourceDescriptor md;
+        md.UseExistingMeshBuffer(hMeshBuffer);
+        md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
+        md.SetMaterial(0, "");
+        md.ComputeBounds();
+
+        m_hBoxMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szRectMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      }
     }
   }
 
@@ -87,13 +158,13 @@ void ezMaterialContext::OnInitialize()
     pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;
-    ezMeshComponent::CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(m_hPreviewMeshResource);
+    m_hMeshComponent = ezMeshComponent::CreateComponent(pObj, pMesh);
+    pMesh->SetMesh(m_hSphereMesh);
     ezStringBuilder sMaterialGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);
 
-    // TODO: Once we allow switching the preview mesh, we should be set, 20 material overrides should be enough for everyone.
+    // 20 material overrides should be enough for any mesh.
     for (ezUInt32 i = 0; i < 20; ++i)
     {
       pMesh->SetMaterial(i, m_hMaterial);

@@ -231,18 +231,25 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
 
 void ezMeshComponentBase::SetMesh(const ezMeshResourceHandle& hMesh)
 {
-  m_hMesh = hMesh;
+  if (m_hMesh != hMesh)
+  {
+    m_hMesh = hMesh;
 
-  TriggerLocalBoundsUpdate();
+    TriggerLocalBoundsUpdate();
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezMeshComponentBase::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
 {
   m_Materials.EnsureCount(uiIndex + 1);
 
-  m_Materials[uiIndex] = hMaterial;
+  if (m_Materials[uiIndex] != hMaterial)
+  {
+    m_Materials[uiIndex] = hMaterial;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) const

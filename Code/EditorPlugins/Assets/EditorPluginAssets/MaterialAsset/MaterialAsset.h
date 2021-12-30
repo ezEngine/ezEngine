@@ -36,6 +36,22 @@ struct ezMaterialVisualShaderEvent
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialShaderMode);
 
+struct ezMaterialAssetPreview
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Sphere,
+    Box,
+    // TODO: custom material preview mesh
+    // tesselated quad (for vertex animation tests)
+
+    Default = Sphere
+  };
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialAssetPreview);
+
 class ezMaterialAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetProperties, ezReflectedClass);
@@ -118,6 +134,7 @@ public:
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
 
   ezEvent<const ezMaterialVisualShaderEvent&> m_VisualShaderEvents;
+  ezEnum<ezMaterialAssetPreview> m_PreviewModel;
 
 protected:
   ezUuid GetSeedFromBaseMaterial(const ezAbstractObjectGraph* pBaseGraph);
