@@ -606,7 +606,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* source, s
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable)
 {
-  memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
+  memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
   CopyConstructArray(pDestination, source, uiSourceCount, ezTypeIsClass());
 }
 
