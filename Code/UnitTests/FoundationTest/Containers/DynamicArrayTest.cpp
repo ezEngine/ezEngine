@@ -431,6 +431,58 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "InsertRange")
+  {
+    ezDynamicArray<ezInt32> testRange;
+    ezDynamicArray<ezInt32> a1;
+    a1.Reserve(15);
+
+    ezInt32 temp1[] = {91, 92, 93, 94, 95};
+    ezArrayPtr<ezInt32> range1(temp1);
+
+    ezInt32 temp2[] = {96, 97, 98, 99, 100};
+    ezArrayPtr<ezInt32> range2(temp2);
+
+    ezInt32 temp3[] = {100, 101, 102, 103, 104};
+    ezArrayPtr<ezInt32> range3(temp3);
+
+    {
+      testRange.PushBackRange(range3);
+
+      a1.InsertRange(range3, 0);
+
+      EZ_TEST_INT(a1.GetCount(), 5);
+
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i], testRange[i]);
+    }
+
+    {
+      testRange.Clear();
+      testRange.PushBackRange(range1);
+      testRange.PushBackRange(range3);
+
+      a1.InsertRange(range1, 0);
+
+      EZ_TEST_INT(a1.GetCount(), 10);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i], testRange[i]);
+    }
+
+    {
+      testRange.Clear();
+      testRange.PushBackRange(range1);
+      testRange.PushBackRange(range2);
+      testRange.PushBackRange(range3);
+
+      a1.InsertRange(range2, 5);
+
+      EZ_TEST_INT(a1.GetCount(), 15);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i], testRange[i]);
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAndCopy")
   {
     ezDynamicArray<ezInt32> a1;
