@@ -15,6 +15,7 @@
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
@@ -146,6 +147,9 @@ static void ConfigureMaterialAsset()
     ezDocumentActions::MapActions("MaterialAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("MaterialAssetToolBar", "");
     ezAssetActions::MapActions("MaterialAssetToolBar", true);
+
+    ezMaterialAssetActions::RegisterActions();
+    ezMaterialAssetActions::MapActions("MaterialAssetToolBar", "");
 
     ezVisualShaderActions::RegisterActions();
     ezVisualShaderActions::MapActions("MaterialAssetToolBar");
@@ -537,6 +541,7 @@ void OnUnloadPlugin()
   ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
   ezVisualScriptActions::UnregisterActions();
+  ezMaterialAssetActions::UnregisterActions();
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);

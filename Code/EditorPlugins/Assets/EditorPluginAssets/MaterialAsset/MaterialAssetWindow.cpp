@@ -7,12 +7,65 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+
+////////////////////////////////////////////////////////////////////////
+// ezMaterialModelAction
+////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialModelAction, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezMaterialModelAction::ezMaterialModelAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
+{
+  InitEnumerationType(ezGetStaticRTTI<ezMaterialAssetPreview>());
+}
+
+ezInt64 ezMaterialModelAction::GetValue() const
+{
+  return static_cast<const ezMaterialAssetDocument*>(m_Context.m_pDocument)->m_PreviewModel.GetValue();
+}
+
+void ezMaterialModelAction::Execute(const ezVariant& value)
+{
+  ((ezMaterialAssetDocument*)m_Context.m_pDocument)->m_PreviewModel.SetValue(value.ConvertTo<ezInt32>());
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ezMaterialAssetActions
+//////////////////////////////////////////////////////////////////////////
+
+ezActionDescriptorHandle ezMaterialAssetActions::s_hMaterialModelAction;
+
+void ezMaterialAssetActions::RegisterActions()
+{
+  s_hMaterialModelAction = EZ_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", ezMaterialModelAction, ":/EditorFramework/Icons/RenderMode.png");
+}
+
+void ezMaterialAssetActions::UnregisterActions()
+{
+  ezActionManager::UnregisterAction(s_hMaterialModelAction);
+}
+
+void ezMaterialAssetActions::MapActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+
+  pMap->MapAction(s_hMaterialModelAction, szPath, 45.0f);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// ezQtMaterialAssetDocumentWindow
+//////////////////////////////////////////////////////////////////////////
 
 
 ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
@@ -280,6 +333,16 @@ void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
+
+  {
+    const ezMaterialAssetDocument* pDoc = static_cast<const ezMaterialAssetDocument*>(GetDocument());
+
+    ezDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewModel";
+    msg.m_iValue = pDoc->m_PreviewModel.GetValue();
+
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
 
   for (auto pView : m_ViewWidgets)
   {
