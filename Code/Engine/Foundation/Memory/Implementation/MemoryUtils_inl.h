@@ -621,7 +621,7 @@ inline void ezMemoryUtils::Prepend(T* pDestination, const T* source, size_t uiSo
 
     for (size_t i = uiCount - 1; i-- > 0;)
     {
-      pDestination[i + 1] = std::move(pDestination[i]);
+      pDestination[i + uiSourceCount] = std::move(pDestination[i]);
     }
 
     *pDestination = source;
