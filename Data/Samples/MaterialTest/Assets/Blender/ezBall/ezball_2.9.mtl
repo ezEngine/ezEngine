@@ -1,0 +1,42 @@
+# Blender MTL File: 'ezball_2.9.blend'
+# Material Count: 3
+
+newmtl Black
+Ns 900.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.415875 0.396881 0.420487
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-copper-normal-ogl.png
+map_Ns D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-coppper-roughness.png
+refl D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-copper-metal.png
+
+newmtl Material
+Ns 900.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.988763 0.942508 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-copper-normal-ogl.png
+map_Kd D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-copper-albedo.png
+map_Ns D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-coppper-roughness.png
+refl D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-copper-metal.png
+
+newmtl Metal
+Ns 900.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.415875 0.396881 0.420487
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-copper-normal-ogl.png
+map_Ns D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-coppper-roughness.png
+refl D:\\Dev\\ezEngine\\Data\\Samples\\MaterialTest\\Assets\\Materials\\oxidized-copper-bl\\oxidized-copper-metal.png
