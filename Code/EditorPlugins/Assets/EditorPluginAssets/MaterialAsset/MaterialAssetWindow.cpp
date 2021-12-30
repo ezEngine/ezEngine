@@ -324,8 +324,7 @@ void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
     // delayed execution
-    QTimer::singleShot(1, [this]()
-      { GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject()); });
+    QTimer::singleShot(1, [this]() { GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject()); });
   }
 }
 
@@ -372,8 +371,7 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 
   // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
   // by delaying it a bit, we have the last word
-  QTimer::singleShot(100, this, [this, bCustom]()
-    { m_pVsePanel->setVisible(bCustom); });
+  QTimer::singleShot(100, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
 
   if (m_bVisualShaderEnabled != bCustom)
   {
