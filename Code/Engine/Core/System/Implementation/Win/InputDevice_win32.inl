@@ -276,7 +276,7 @@ void ezStandardInputDevice::UpdateInputSlotValues()
   const char* slotDown[5] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2, ezInputSlot_MouseButton3, ezInputSlot_MouseButton4};
 
   // don't read uninitialized values
-  if (!m_InputSlotValues.Contains(slotDown[0]))
+  if (!m_InputSlotValues.Contains(slotDown[4]))
   {
     for (int i = 0; i < 5; ++i)
     {

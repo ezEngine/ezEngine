@@ -34,6 +34,8 @@ public:
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
+  void UpdateWindSamples();
+
   /// \name Effect Parameters
   ///@{
 public:

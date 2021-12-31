@@ -43,6 +43,6 @@ private:
   bool m_bShowCursor = true;
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;
-  ezUInt8 m_uiMouseButtonReceivedDown[5];
-  ezUInt8 m_uiMouseButtonReceivedUp[5];
+  ezUInt8 m_uiMouseButtonReceivedDown[5] = {0, 0, 0, 0, 0};
+  ezUInt8 m_uiMouseButtonReceivedUp[5] = {0, 0, 0, 0, 0};
 };

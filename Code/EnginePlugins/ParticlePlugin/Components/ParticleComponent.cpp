@@ -408,6 +408,8 @@ void ezParticleComponent::Update()
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
       }
     }
+
+    m_EffectController.UpdateWindSamples();
   }
   else
   {
