@@ -369,7 +369,7 @@ void ezSceneAction::Execute(const ezVariant& value)
 
       if (dlg.m_bRunAfterExport)
       {
-        LaunchPlayer();
+        LaunchPlayer(dlg.m_sApplication);
       }
 
       return;
@@ -505,16 +505,16 @@ void ezSceneAction::Execute(const ezVariant& value)
   }
 }
 
-void ezSceneAction::LaunchPlayer()
+void ezSceneAction::LaunchPlayer(const char* szPlayerApp)
 {
   ezStringBuilder sCmd;
   QStringList arguments = GetPlayerCommandLine(sCmd);
 
-  ezLog::Info("Running: Player.exe {}", sCmd);
-  m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: Player.exe {}", sCmd));
+  ezLog::Info("Running: {} {}", szPlayerApp, sCmd);
+  m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: {} {}", szPlayerApp, sCmd));
 
   QProcess proc;
-  proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
+  proc.startDetached(QString::fromUtf8(szPlayerApp), arguments);
 }
 
 QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine) const
