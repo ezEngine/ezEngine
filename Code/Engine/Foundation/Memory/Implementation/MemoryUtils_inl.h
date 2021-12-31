@@ -1,5 +1,4 @@
 
-
 #define EZ_CHECK_CLASS(T)                                 \
   EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, \
     "POD type is treated as class. Use EZ_DECLARE_POD_TYPE(YourClass) or EZ_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.")
