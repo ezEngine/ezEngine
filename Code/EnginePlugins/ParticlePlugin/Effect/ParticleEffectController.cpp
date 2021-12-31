@@ -123,6 +123,14 @@ void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) 
   }
 }
 
+void ezParticleEffectController::UpdateWindSamples()
+{
+  if (ezParticleEffectInstance* pEffect = GetInstance())
+  {
+    pEffect->UpdateWindSamples();
+  }
+}
+
 void ezParticleEffectController::SetParameter(const ezTempHashedString& name, float value)
 {
   ezParticleEffectInstance* pEffect = GetInstance();

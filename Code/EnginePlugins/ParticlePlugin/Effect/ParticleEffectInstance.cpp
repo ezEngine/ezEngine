@@ -1,5 +1,6 @@
 #include <ParticlePlugin/ParticlePluginPCH.h>
 
+#include <Core/Interfaces/WindWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -519,6 +520,28 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
   m_EventQueue.PushBack(pe);
 }
 
+void ezParticleEffectInstance::UpdateWindSamples()
+{
+  const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForExtraction();
+
+  m_vSampleWindResults[uiDataIdx].Clear();
+
+  if (m_vSampleWindLocations[uiDataIdx].IsEmpty())
+    return;
+
+  m_vSampleWindResults[uiDataIdx].SetCount(m_vSampleWindLocations[uiDataIdx].GetCount(), ezVec3::ZeroVector());
+
+  if (auto pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+  {
+    for (ezUInt32 i = 0; i < m_vSampleWindLocations[uiDataIdx].GetCount(); ++i)
+    {
+      m_vSampleWindResults[uiDataIdx][i] = pWind->GetWindAt(m_vSampleWindLocations[uiDataIdx][i]);
+    }
+  }
+
+  m_vSampleWindLocations[uiDataIdx].Clear();
+}
+
 void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
 {
   m_Transform = transform;
@@ -532,6 +555,31 @@ void ezParticleEffectInstance::SetTransformForNextFrame(const ezTransform& trans
 {
   m_TransformForNextFrame = transform;
   m_vVelocityForNextFrame = vParticleStartVelocity;
+}
+
+ezInt32 ezParticleEffectInstance::AddWindSampleLocation(const ezVec3& pos)
+{
+  const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForRendering();
+
+  if (m_vSampleWindLocations[uiDataIdx].GetCount() < m_vSampleWindLocations[uiDataIdx].GetCapacity())
+  {
+    m_vSampleWindLocations[uiDataIdx].PushBack(pos);
+    return m_vSampleWindLocations[uiDataIdx].GetCount() - 1;
+  }
+
+  return -1;
+}
+
+ezVec3 ezParticleEffectInstance::GetWindSampleResult(ezInt32 idx) const
+{
+  const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForRendering();
+
+  if (idx >= 0 && m_vSampleWindResults[uiDataIdx].GetCount() > (ezUInt32)idx)
+  {
+    return m_vSampleWindResults[uiDataIdx][idx];
+  }
+
+  return ezVec3::ZeroVector();
 }
 
 void ezParticleEffectInstance::PassTransformToSystems()

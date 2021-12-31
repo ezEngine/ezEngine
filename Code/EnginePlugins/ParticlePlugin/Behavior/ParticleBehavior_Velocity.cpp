@@ -11,6 +11,7 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
@@ -47,11 +48,6 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
 
 
   pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
-
-  if (m_fWindInfluence > 0)
-  {
-    pBehavior->m_pWindModule = (ezWindWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezWindWorldModuleInterface>());
-  }
 }
 
 enum class BehaviorVelocityVersion
@@ -113,15 +109,24 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   const ezVec3 vDown = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity().GetNormalized() : ezVec3(0.0f, 0.0f, -1.0f);
   const ezVec3 vRise = vDown * tDiff * -m_fRiseSpeed;
 
+  auto pOwner = GetOwnerEffect();
   ezVec3 vWind(0);
-  if (m_pWindModule != nullptr)
+
+  if (m_iWindSampleIdx >= 0)
   {
-    ezVec3 vCurWind = m_pWindModule->GetWindAt(GetOwnerSystem()->GetTransform().m_vPosition);
+    ezVec3 vCurWind = pOwner->GetWindSampleResult(m_iWindSampleIdx);
     vCurWind = ezMath::Lerp(m_vLastWind, vCurWind, tDiff);
 
     vWind = vCurWind * m_fWindInfluence * tDiff;
 
     m_vLastWind = vCurWind;
+
+    m_iWindSampleIdx = -1;
+  }
+
+  if (m_fWindInfluence > 0)
+  {
+    m_iWindSampleIdx = pOwner->AddWindSampleLocation(GetOwnerSystem()->GetTransform().m_vPosition);
   }
 
   const ezVec3 vAddPos0 = vRise + vWind;
