@@ -433,53 +433,118 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "InsertRange")
   {
-    ezDynamicArray<ezInt32> testRange;
+    // Pod element tests
+    ezDynamicArray<ezInt32> intTestRange;
     ezDynamicArray<ezInt32> a1;
-    a1.Reserve(15);
 
-    ezInt32 temp1[] = {91, 92, 93, 94, 95};
-    ezArrayPtr<ezInt32> range1(temp1);
+    ezInt32 intTemp1[] = {91, 92, 93, 94, 95};
+    ezArrayPtr<ezInt32> intRange1(intTemp1);
 
-    ezInt32 temp2[] = {96, 97, 98, 99, 100};
-    ezArrayPtr<ezInt32> range2(temp2);
+    ezInt32 intTemp2[] = {96, 97, 98, 99, 100};
+    ezArrayPtr<ezInt32> intRange2(intTemp2);
 
-    ezInt32 temp3[] = {100, 101, 102, 103, 104};
-    ezArrayPtr<ezInt32> range3(temp3);
+    ezInt32 intTemp3[] = {100, 101, 102, 103, 104};
+    ezArrayPtr<ezInt32> intRange3(intTemp3);
 
     {
-      testRange.PushBackRange(range3);
+      intTestRange.PushBackRange(intRange3);
 
-      a1.InsertRange(range3, 0);
+      a1.InsertRange(intRange3, 0);
 
       EZ_TEST_INT(a1.GetCount(), 5);
 
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-        EZ_TEST_INT(a1[i], testRange[i]);
+        EZ_TEST_INT(a1[i], intTestRange[i]);
     }
 
     {
-      testRange.Clear();
-      testRange.PushBackRange(range1);
-      testRange.PushBackRange(range3);
+      intTestRange.Clear();
+      intTestRange.PushBackRange(intRange1);
+      intTestRange.PushBackRange(intRange3);
 
-      a1.InsertRange(range1, 0);
+      a1.InsertRange(intRange1, 0);
 
       EZ_TEST_INT(a1.GetCount(), 10);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-        EZ_TEST_INT(a1[i], testRange[i]);
+        EZ_TEST_INT(a1[i], intTestRange[i]);
     }
 
     {
-      testRange.Clear();
-      testRange.PushBackRange(range1);
-      testRange.PushBackRange(range2);
-      testRange.PushBackRange(range3);
+      intTestRange.Clear();
+      intTestRange.PushBackRange(intRange1);
+      intTestRange.PushBackRange(intRange2);
+      intTestRange.PushBackRange(intRange3);
 
-      a1.InsertRange(range2, 5);
+      a1.InsertRange(intRange2, 5);
 
       EZ_TEST_INT(a1.GetCount(), 15);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-        EZ_TEST_INT(a1[i], testRange[i]);
+        EZ_TEST_INT(a1[i], intTestRange[i]);
+    }
+
+    // Class element tests
+    ezDynamicArray<ezDeque<ezString>> classTestRange;
+    ezDynamicArray<ezDeque<ezString>> a2;
+
+    ezDeque<ezString> strTemp1[4];
+    {
+      strTemp1[0].PushBack("One");
+      strTemp1[1].PushBack("Two");
+      strTemp1[2].PushBack("Three");
+      strTemp1[3].PushBack("Four");
+    }
+    ezArrayPtr<ezDeque<ezString>> classRange1(strTemp1);
+
+    ezDeque<ezString> strTemp2[3];
+    {
+      strTemp2[0].PushBack("Five");
+      strTemp2[1].PushBack("Six");
+      strTemp2[2].PushBack("Seven");
+    }
+    ezArrayPtr<ezDeque<ezString>> classRange2(strTemp2);
+
+    ezDeque<ezString> strTemp3[3];
+    {
+      strTemp3[0].PushBack("Eight");
+      strTemp3[1].PushBack("Nine");
+      strTemp3[2].PushBack("Ten");
+    }
+    ezArrayPtr<ezDeque<ezString>> classRange3(strTemp3);
+
+    {
+      classTestRange.PushBackRange(classRange3);
+
+      a2.InsertRange(classRange3, 0);
+
+      EZ_TEST_INT(a2.GetCount(), 3);
+
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_STRING(a2[i].PeekFront(), classTestRange[i].PeekFront());
+    }
+
+    {
+      classTestRange.Clear();
+      classTestRange.PushBackRange(classRange1);
+      classTestRange.PushBackRange(classRange3);
+
+      a2.InsertRange(classRange1, 0);
+
+      EZ_TEST_INT(a2.GetCount(), 7);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_STRING(a2[i].PeekFront(), classTestRange[i].PeekFront());
+    }
+
+    {
+      classTestRange.Clear();
+      classTestRange.PushBackRange(classRange1);
+      classTestRange.PushBackRange(classRange2);
+      classTestRange.PushBackRange(classRange3);
+
+      a2.InsertRange(classRange2, 4);
+
+      EZ_TEST_INT(a2.GetCount(), 10);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_STRING(a2[i].PeekFront(), classTestRange[i].PeekFront());
     }
   }
 

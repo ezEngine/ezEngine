@@ -1,4 +1,5 @@
 
+
 #define EZ_CHECK_CLASS(T)                                 \
   EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, \
     "POD type is treated as class. Use EZ_DECLARE_POD_TYPE(YourClass) or EZ_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.")
@@ -597,38 +598,32 @@ inline void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, 
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount, ezTypeIsPod)
+EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsPod)
 {
   memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
-  CopyConstructArray(pDestination, source, uiSourceCount, ezTypeIsPod());
+  CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsPod());
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable)
+EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable)
 {
   memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
-  CopyConstructArray(pDestination, source, uiSourceCount, ezTypeIsClass());
+  CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
 }
 
 template <typename T>
-inline void ezMemoryUtils::Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount, ezTypeIsClass)
+inline void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
   if (uiCount > 0)
   {
-    MoveConstruct(pDestination + uiCount, std::move(pDestination[uiCount - uiSourceCount]), uiCount);
-
-    for (size_t i = uiCount - 1; i-- > 0;)
-    {
-      pDestination[i + uiSourceCount] = std::move(pDestination[i]);
-    }
-
-    *pDestination = source;
+    MoveConstruct(pDestination + uiSourceCount, pDestination, uiCount);
+    CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
   }
   else
   {
-    CopyConstructArray(pDestination, source, uiSourceCount, ezTypeIsClass());
+    CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
   }
 }
 
