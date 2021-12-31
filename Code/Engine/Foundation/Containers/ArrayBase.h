@@ -73,6 +73,9 @@ public:
   /// \brief Inserts value at index by shifting all following elements.
   void Insert(T&& value, ezUInt32 uiIndex); // [tested]
 
+  /// \brief Inserts all elements in the range starting at the given index, shifting the elements after the index.
+  void InsertRange(const ezArrayPtr<const T>& range, ezUInt32 uiIndex); // [tested]
+
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool RemoveAndCopy(const T& value); // [tested]
 

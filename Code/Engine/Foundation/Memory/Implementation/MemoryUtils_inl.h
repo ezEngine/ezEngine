@@ -159,6 +159,12 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t
 }
 
 template <typename T>
+EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount)
+{
+  Prepend(pDestination, source, uiSourceCount, uiCount, ezGetTypeClass<T>());
+}
+
+template <typename T>
 EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount /*= 1*/)
 {
   return IsEqual(a, b, uiCount, ezIsPodType<T>());
@@ -587,6 +593,36 @@ inline void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, 
   else
   {
     MoveConstruct(pDestination, std::move(source));
+  }
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsPod)
+{
+  memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
+  CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsPod());
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable)
+{
+  memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
+  CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
+}
+
+template <typename T>
+inline void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  if (uiCount > 0)
+  {
+    MoveConstruct(pDestination + uiSourceCount, pDestination, uiCount);
+    CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
+  }
+  else
+  {
+    CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
   }
 }
 

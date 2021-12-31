@@ -202,6 +202,16 @@ void ezArrayBase<T, Derived>::Insert(T&& value, ezUInt32 uiIndex)
 }
 
 template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::InsertRange(const ezArrayPtr<const T>& range, ezUInt32 uiIndex)
+{
+  const ezUInt32 uiRangeCount = range.GetCount();
+  static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
+
+  ezMemoryUtils::Prepend(static_cast<Derived*>(this)->GetElementsPtr() + uiIndex, range.GetPtr(), uiRangeCount, m_uiCount - uiIndex);
+  m_uiCount += uiRangeCount;
+}
+
+template <typename T, typename Derived>
 bool ezArrayBase<T, Derived>::RemoveAndCopy(const T& value)
 {
   ezUInt32 uiIndex = IndexOf(value);
