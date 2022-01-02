@@ -80,21 +80,8 @@
 // registered options.
 // --version displays executable's version.
 
-#include <cstddef>
-#include <string>
-
-#ifdef OZZ_USE_DYNAMIC_LINKING
-    #ifdef OZZ_BUILD_OPTIONS_LIB
-        // export for dynamic linking while building ozz
-        #define OZZ_OPTIONS_DLL __declspec(dllexport)
-    #else
-        // import for dynamic linking when just using ozz
-        #define OZZ_OPTIONS_DLL __declspec(dllimport)
-    #endif()
-#else
-    // static linking
-    #define OZZ_OPTIONS_DLL
-#endif
+#include "ozz/options/export.h"
+#include "ozz/base/containers/string.h"
 
 namespace ozz {
 namespace options {
@@ -121,14 +108,16 @@ enum ParseResult {
 // _version and _usage are not copied, ParseCommandLine caller is in charge of
 // maintaining their allocation during application lifetime.
 // See ParseResult for more details about returned values.
-OZZ_OPTIONS_DLL ParseResult ParseCommandLine(int _argc, const char* const* _argv,
-                             const char* _version, const char* _usage);
+OZZ_OPTIONS_DLL ParseResult ParseCommandLine(int _argc,
+                                             const char* const* _argv,
+                                             const char* _version,
+                                             const char* _usage);
 
 // Get the executable path that was extracted from the last call to
 // ParseCommandLine.
 // If ParseCommandLine has never been called, then ParsedExecutablePath
 // returns a default empty string.
-OZZ_OPTIONS_DLL std::string ParsedExecutablePath();
+OZZ_OPTIONS_DLL ozz::string ParsedExecutablePath();
 
 // Get the executable name that was extracted from the last call to
 // ParseCommandLine.
@@ -209,7 +198,7 @@ class OZZ_OPTIONS_DLL Option {
   void RestoreDefault();
 
   // Outputs default value as a string.
-  virtual std::string FormatDefault() const = 0;
+  virtual ozz::string FormatDefault() const = 0;
 
   // Outputs type of value as a c string.
   virtual const char* FormatType() const = 0;
@@ -259,7 +248,7 @@ class OZZ_OPTIONS_DLL Option {
 
 // Defines a strongly typed option class
 template <typename _Type>
-class TypedOption : public Option {
+class OZZ_OPTIONS_DLL TypedOption : public Option {
  public:
   // Lets the type be known.
   typedef _Type Type;
@@ -290,7 +279,7 @@ class TypedOption : public Option {
   virtual void RestoreDefaultImpl() { value_ = default_; }
 
   // Outputs default value as a string.
-  virtual std::string FormatDefault() const;
+  virtual ozz::string FormatDefault() const;
 
   // Outputs type of value as a string.
   virtual const char* FormatType() const;
@@ -367,7 +356,7 @@ class OZZ_OPTIONS_DLL Parser {
   const char* version() const;
 
   // Returns the path of the executable that was extracted from argument 0.
-  std::string executable_path() const;
+  ozz::string executable_path() const;
 
   // Returns the name of the executable that was extracted from argument 0.
   const char* executable_name() const;

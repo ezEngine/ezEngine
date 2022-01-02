@@ -75,7 +75,9 @@
 #ifndef OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 #define OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 
+#include "ozz/animation/runtime/export.h"
 #include "ozz/base/platform.h"
+
 #ifndef OZZ_INCLUDE_PRIVATE_HEADER
 #error "This header is private, it cannot be included from public headers."
 #endif  // OZZ_INCLUDE_PRIVATE_HEADER
@@ -133,6 +135,19 @@ namespace animation {
 
 Animation::Animation() : duration_(0.f), num_tracks_(0), name_(nullptr) {}
 
+Animation::Animation(Animation&& _other) { *this = std::move(_other); }
+
+Animation& Animation::operator=(Animation&& _other) {
+  std::swap(duration_, _other.duration_);
+  std::swap(num_tracks_, _other.num_tracks_);
+  std::swap(name_, _other.name_);
+  std::swap(translations_, _other.translations_);
+  std::swap(rotations_, _other.rotations_);
+  std::swap(scales_, _other.scales_);
+
+  return *this;
+}
+
 Animation::~Animation() { Deallocate(); }
 
 void Animation::Allocate(size_t _name_len, size_t _translation_count,
@@ -152,7 +167,7 @@ void Animation::Allocate(size_t _name_len, size_t _translation_count,
                              _translation_count * sizeof(Float3Key) +
                              _rotation_count * sizeof(QuaternionKey) +
                              _scale_count * sizeof(Float3Key);
-  span<char> buffer = {static_cast<char*>(memory::default_allocator()->Allocate(
+  span<byte> buffer = {static_cast<byte*>(memory::default_allocator()->Allocate(
                            buffer_size, alignof(Float3Key))),
                        buffer_size};
 
@@ -355,7 +370,9 @@ void Animation::Load(ozz::io::IArchive& _archive, uint32_t _version) {
 #ifndef OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 #define OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 
+#include "ozz/animation/runtime/export.h"
 #include "ozz/base/platform.h"
+
 #ifndef OZZ_INCLUDE_PRIVATE_HEADER
 #error "This header is private, it cannot be included from public headers."
 #endif  // OZZ_INCLUDE_PRIVATE_HEADER
@@ -510,12 +527,12 @@ bool BlendingJob::Validate() const {
 
   // Test for nullptr begin pointers.
   // Blending layers are mandatory, additive aren't.
-  valid &= !bind_pose.empty();
+  valid &= !rest_pose.empty();
   valid &= !output.empty();
 
-  // The bind pose size defines the ranges of transforms to blend, so all
+  // The rest pose size defines the ranges of transforms to blend, so all
   // other buffers should be bigger.
-  const size_t min_range = bind_pose.size();
+  const size_t min_range = rest_pose.size();
   valid &= output.size() >= min_range;
 
   // Validates layers.
@@ -601,7 +618,7 @@ namespace {
 struct ProcessArgs {
   ProcessArgs(const BlendingJob& _job)
       : job(_job),
-        num_soa_joints(_job.bind_pose.size()),
+        num_soa_joints(_job.rest_pose.size()),
         num_passes(0),
         num_partial_passes(0),
         accumulated_weight(0.f) {
@@ -623,7 +640,7 @@ struct ProcessArgs {
   // The job to process.
   const BlendingJob& job;
 
-  // The number of transforms to process as defined by the size of the bind
+  // The number of transforms to process as defined by the size of the rest
   // pose.
   size_t num_soa_joints;
 
@@ -712,24 +729,24 @@ void BlendLayers(ProcessArgs* _args) {
   }
 }
 
-// Blends bind pose to the output if accumulated weight is less than the
+// Blends rest pose to the output if accumulated weight is less than the
 // threshold value.
-void BlendBindPose(ProcessArgs* _args) {
+void BlendRestPose(ProcessArgs* _args) {
   assert(_args);
 
   // Asserts buffer sizes, which must never fail as it has been validated.
-  assert(_args->job.bind_pose.size() >= _args->num_soa_joints);
+  assert(_args->job.rest_pose.size() >= _args->num_soa_joints);
 
   if (_args->num_partial_passes == 0) {
     // No partial blending pass detected, threshold can be tested globally.
     const float bp_weight = _args->job.threshold - _args->accumulated_weight;
 
-    if (bp_weight > 0.f) {  // The bind-pose is needed if it has a weight.
+    if (bp_weight > 0.f) {  // The rest-pose is needed if it has a weight.
       if (_args->num_passes == 0) {
-        // Strictly copying bind-pose.
+        // Strictly copying rest-pose.
         _args->accumulated_weight = 1.f;
         for (size_t i = 0; i < _args->num_soa_joints; ++i) {
-          _args->job.output[i] = _args->job.bind_pose[i];
+          _args->job.output[i] = _args->job.rest_pose[i];
         }
       } else {
         // Updates global accumulated weight, but not per-joint weight any more
@@ -740,7 +757,7 @@ void BlendBindPose(ProcessArgs* _args) {
             math::simd_float4::Load1(bp_weight);
 
         for (size_t i = 0; i < _args->num_soa_joints; ++i) {
-          const math::SoaTransform& src = _args->job.bind_pose[i];
+          const math::SoaTransform& src = _args->job.rest_pose[i];
           math::SoaTransform* dest = _args->job.output.begin() + i;
           OZZ_BLEND_N_PASS(src, simd_bp_weight, dest);
         }
@@ -756,7 +773,7 @@ void BlendBindPose(ProcessArgs* _args) {
     assert(_args->num_passes != 0);
 
     for (size_t i = 0; i < _args->num_soa_joints; ++i) {
-      const math::SoaTransform& src = _args->job.bind_pose[i];
+      const math::SoaTransform& src = _args->job.rest_pose[i];
       math::SoaTransform* dest = _args->job.output.begin() + i;
       const math::SimdFloat4 bp_weight =
           math::Max0(threshold - _args->accumulated_weights[i]);
@@ -883,8 +900,8 @@ bool BlendingJob::Run() const {
   // Blends all layers to the job output buffers.
   BlendLayers(&process_args);
 
-  // Applies bind pose.
-  BlendBindPose(&process_args);
+  // Applies rest pose.
+  BlendRestPose(&process_args);
 
   // Normalizes output.
   Normalize(&process_args);
@@ -1707,7 +1724,9 @@ bool LocalToModelJob::Run() const {
 #ifndef OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 #define OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 
+#include "ozz/animation/runtime/export.h"
 #include "ozz/base/platform.h"
+
 #ifndef OZZ_INCLUDE_PRIVATE_HEADER
 #error "This header is private, it cannot be included from public headers."
 #endif  // OZZ_INCLUDE_PRIVATE_HEADER
@@ -1780,22 +1799,21 @@ bool SamplingJob::Validate() const {
   bool valid = true;
 
   // Test for nullptr pointers.
-  if (!animation || !cache) {
+  if (!animation || !context) {
     return false;
   }
   valid &= !output.empty();
 
   const int num_soa_tracks = animation->num_soa_tracks();
-  valid &= output.size() >= static_cast<size_t>(num_soa_tracks);
 
-  // Tests cache size.
-  valid &= cache->max_soa_tracks() >= num_soa_tracks;
+  // Tests context size.
+  valid &= context->max_soa_tracks() >= num_soa_tracks;
 
   return valid;
 }
 
 namespace {
-// Loops through the sorted key frames and update cache structure.
+// Loops through the sorted key frames and update context structure.
 template <typename _Key>
 void UpdateCacheCursor(float _ratio, int _num_soa_tracks,
                        const ozz::span<const _Key>& _keys, int* _cursor,
@@ -1838,16 +1856,16 @@ void UpdateCacheCursor(float _ratio, int _num_soa_tracks,
   }
 
   // Search for the keys that matches _ratio.
-  // Iterates while the cache is not updated with left and right keys required
+  // Iterates while the context is not updated with left and right keys required
   // for interpolation at time ratio _ratio, for all tracks. Thanks to the
   // keyframe sorting, the loop can end as soon as it finds a key greater that
   // _ratio. It will mean that all the keys lower than _ratio have been
-  // processed, meaning all cache entries are up to date.
+  // processed, meaning all context entries are up to date.
   while (cursor < _keys.end() &&
          _keys[_cache[cursor->track * 2 + 1]].ratio <= _ratio) {
     // Flag this soa entry as outdated.
     _outdated[cursor->track / 32] |= (1 << ((cursor->track & 0x1f) / 4));
-    // Updates cache.
+    // Updates context.
     const int base = cursor->track * 2;
     _cache[base] = _cache[base + 1];
     _cache[base + 1] = static_cast<int>(cursor - _keys.begin());
@@ -2013,7 +2031,7 @@ void Interpolates(float _anim_ratio, int _num_soa_tracks,
 }
 }  // namespace
 
-SamplingJob::SamplingJob() : ratio(0.f), animation(nullptr), cache(nullptr) {}
+SamplingJob::SamplingJob() : ratio(0.f), animation(nullptr), context(nullptr) {}
 
 bool SamplingJob::Run() const {
   if (!Validate()) {
@@ -2028,60 +2046,64 @@ bool SamplingJob::Run() const {
   // Clamps ratio in range [0,duration].
   const float anim_ratio = math::Clamp(0.f, ratio, 1.f);
 
-  // Step the cache to this potentially new animation and ratio.
-  assert(cache->max_soa_tracks() >= num_soa_tracks);
-  cache->Step(*animation, anim_ratio);
+  // Step the context to this potentially new animation and ratio.
+  assert(context->max_soa_tracks() >= num_soa_tracks);
+  context->Step(*animation, anim_ratio);
 
-  // Fetch key frames from the animation to the cache a r = anim_ratio.
+  // Fetch key frames from the animation to the context at r = anim_ratio.
   // Then updates outdated soa hot values.
   UpdateCacheCursor(anim_ratio, num_soa_tracks, animation->translations(),
-                    &cache->translation_cursor_, cache->translation_keys_,
-                    cache->outdated_translations_);
+                    &context->translation_cursor_, context->translation_keys_,
+                    context->outdated_translations_);
   UpdateInterpKeyframes(num_soa_tracks, animation->translations(),
-                        cache->translation_keys_, cache->outdated_translations_,
-                        cache->soa_translations_, &DecompressFloat3);
+                        context->translation_keys_,
+                        context->outdated_translations_,
+                        context->soa_translations_, &DecompressFloat3);
 
   UpdateCacheCursor(anim_ratio, num_soa_tracks, animation->rotations(),
-                    &cache->rotation_cursor_, cache->rotation_keys_,
-                    cache->outdated_rotations_);
+                    &context->rotation_cursor_, context->rotation_keys_,
+                    context->outdated_rotations_);
   UpdateInterpKeyframes(num_soa_tracks, animation->rotations(),
-                        cache->rotation_keys_, cache->outdated_rotations_,
-                        cache->soa_rotations_, &DecompressQuaternion);
+                        context->rotation_keys_, context->outdated_rotations_,
+                        context->soa_rotations_, &DecompressQuaternion);
 
   UpdateCacheCursor(anim_ratio, num_soa_tracks, animation->scales(),
-                    &cache->scale_cursor_, cache->scale_keys_,
-                    cache->outdated_scales_);
-  UpdateInterpKeyframes(num_soa_tracks, animation->scales(), cache->scale_keys_,
-                        cache->outdated_scales_, cache->soa_scales_,
-                        &DecompressFloat3);
+                    &context->scale_cursor_, context->scale_keys_,
+                    context->outdated_scales_);
+  UpdateInterpKeyframes(num_soa_tracks, animation->scales(),
+                        context->scale_keys_, context->outdated_scales_,
+                        context->soa_scales_, &DecompressFloat3);
+
+  // only interp as much as we have output for.
+  const int num_soa_interp_tracks = math::Min(static_cast< int >(output.size()), num_soa_tracks);
 
   // Interpolates soa hot data.
-  Interpolates(anim_ratio, num_soa_tracks, cache->soa_translations_,
-               cache->soa_rotations_, cache->soa_scales_, output.begin());
+  Interpolates(anim_ratio, num_soa_interp_tracks, context->soa_translations_,
+               context->soa_rotations_, context->soa_scales_, output.begin());
 
   return true;
 }
 
-SamplingCache::SamplingCache()
+SamplingJob::Context::Context()
     : max_soa_tracks_(0),
       soa_translations_(
           nullptr) {  // soa_translations_ is the allocation pointer.
   Invalidate();
 }
 
-SamplingCache::SamplingCache(int _max_tracks)
+SamplingJob::Context::Context(int _max_tracks)
     : max_soa_tracks_(0),
       soa_translations_(
           nullptr) {  // soa_translations_ is the allocation pointer.
   Resize(_max_tracks);
 }
 
-SamplingCache::~SamplingCache() {
+SamplingJob::Context::~Context() {
   // Deallocates everything at once.
   memory::default_allocator()->Deallocate(soa_translations_);
 }
 
-void SamplingCache::Resize(int _max_tracks) {
+void SamplingJob::Context::Resize(int _max_tracks) {
   using internal::InterpSoaFloat3;
   using internal::InterpSoaQuaternion;
 
@@ -2092,7 +2114,7 @@ void SamplingCache::Resize(int _max_tracks) {
   // Updates maximum supported soa tracks.
   max_soa_tracks_ = (_max_tracks + 3) / 4;
 
-  // Allocate all cache data at once in a single allocation.
+  // Allocate all context data at once in a single allocation.
   // Alignment is guaranteed because memory is dispatch from the highest
   // alignment requirement (Soa data: SimdFloat4) to the lowest (outdated
   // flag: unsigned char).
@@ -2150,8 +2172,9 @@ void SamplingCache::Resize(int _max_tracks) {
   assert(alloc_cursor == alloc_begin + size);
 }
 
-void SamplingCache::Step(const Animation& _animation, float _ratio) {
-  // The cache is invalidated if animation has changed or if it is being rewind.
+void SamplingJob::Context::Step(const Animation& _animation, float _ratio) {
+  // The context is invalidated if animation has changed or if it is being
+  // rewind.
   if (animation_ != &_animation || _ratio < ratio_) {
     animation_ = &_animation;
     translation_cursor_ = 0;
@@ -2161,7 +2184,7 @@ void SamplingCache::Step(const Animation& _animation, float _ratio) {
   ratio_ = _ratio;
 }
 
-void SamplingCache::Invalidate() {
+void SamplingJob::Context::Invalidate() {
   animation_ = nullptr;
   ratio_ = 0.f;
   translation_cursor_ = 0;
@@ -2216,6 +2239,16 @@ namespace animation {
 
 Skeleton::Skeleton() {}
 
+Skeleton::Skeleton(Skeleton&& _other) { *this = std::move(_other); }
+
+Skeleton& Skeleton::operator=(Skeleton&& _other) {
+  std::swap(joint_rest_poses_, _other.joint_rest_poses_);
+  std::swap(joint_parents_, _other.joint_parents_);
+  std::swap(joint_names_, _other.joint_names_);
+
+  return *this;
+}
+
 Skeleton::~Skeleton() { Deallocate(); }
 
 char* Skeleton::Allocate(size_t _chars_size, size_t _num_joints) {
@@ -2226,7 +2259,7 @@ char* Skeleton::Allocate(size_t _chars_size, size_t _num_joints) {
                     alignof(int16_t) >= alignof(char),
                 "Must serve larger alignment values first)");
 
-  assert(joint_bind_poses_.size() == 0 && joint_names_.size() == 0 &&
+  assert(joint_rest_poses_.size() == 0 && joint_names_.size() == 0 &&
          joint_parents_.size() == 0);
 
   // Early out if no joint.
@@ -2234,23 +2267,23 @@ char* Skeleton::Allocate(size_t _chars_size, size_t _num_joints) {
     return nullptr;
   }
 
-  // Bind poses have SoA format
+  // Rest poses have SoA format
   const size_t num_soa_joints = (_num_joints + 3) / 4;
-  const size_t joint_bind_poses_size =
+  const size_t joint_rest_poses_size =
       num_soa_joints * sizeof(math::SoaTransform);
   const size_t names_size = _num_joints * sizeof(char*);
   const size_t joint_parents_size = _num_joints * sizeof(int16_t);
   const size_t buffer_size =
-      names_size + _chars_size + joint_parents_size + joint_bind_poses_size;
+      names_size + _chars_size + joint_parents_size + joint_rest_poses_size;
 
   // Allocates whole buffer.
-  span<char> buffer = {static_cast<char*>(memory::default_allocator()->Allocate(
+  span<byte> buffer = {static_cast<byte*>(memory::default_allocator()->Allocate(
                            buffer_size, alignof(math::SoaTransform))),
                        buffer_size};
 
   // Serves larger alignment values first.
-  // Bind pose first, biggest alignment.
-  joint_bind_poses_ = fill_span<math::SoaTransform>(buffer, num_soa_joints);
+  // Rest pose first, biggest alignment.
+  joint_rest_poses_ = fill_span<math::SoaTransform>(buffer, num_soa_joints);
 
   // Then names array, second biggest alignment.
   joint_names_ = fill_span<char*>(buffer, _num_joints);
@@ -2261,12 +2294,13 @@ char* Skeleton::Allocate(size_t _chars_size, size_t _num_joints) {
   // Remaning buffer will be used to store joint names.
   assert(buffer.size_bytes() == _chars_size &&
          "Whole buffer should be consumned");
-  return buffer.data();
+  return reinterpret_cast<char*>(buffer.data());
 }
 
 void Skeleton::Deallocate() {
-  memory::default_allocator()->Deallocate(as_writable_bytes(joint_bind_poses_).data());
-  joint_bind_poses_ = {};
+  memory::default_allocator()->Deallocate(
+      as_writable_bytes(joint_rest_poses_).data());
+  joint_rest_poses_ = {};
   joint_names_ = {};
   joint_parents_ = {};
 }
@@ -2289,7 +2323,7 @@ void Skeleton::Save(ozz::io::OArchive& _archive) const {
   _archive << static_cast<int32_t>(chars_count);
   _archive << ozz::io::MakeArray(joint_names_[0], chars_count);
   _archive << ozz::io::MakeArray(joint_parents_);
-  _archive << ozz::io::MakeArray(joint_bind_poses_);
+  _archive << ozz::io::MakeArray(joint_rest_poses_);
 }
 
 void Skeleton::Load(ozz::io::IArchive& _archive, uint32_t _version) {
@@ -2330,7 +2364,7 @@ void Skeleton::Load(ozz::io::IArchive& _archive, uint32_t _version) {
   joint_names_[num_joints - 1] = cursor;
 
   _archive >> ozz::io::MakeArray(joint_parents_);
-  _archive >> ozz::io::MakeArray(joint_bind_poses_);
+  _archive >> ozz::io::MakeArray(joint_rest_poses_);
 }
 }  // namespace animation
 }  // namespace ozz
@@ -2385,14 +2419,14 @@ int FindJoint(const Skeleton& _skeleton, const char* _name) {
   return -1;
 }
 
-// Unpacks skeleton bind pose stored in soa format by the skeleton.
-ozz::math::Transform GetJointLocalBindPose(const Skeleton& _skeleton,
+// Unpacks skeleton rest pose stored in soa format by the skeleton.
+ozz::math::Transform GetJointLocalRestPose(const Skeleton& _skeleton,
                                            int _joint) {
   assert(_joint >= 0 && _joint < _skeleton.num_joints() &&
          "Joint index out of range.");
 
   const ozz::math::SoaTransform& soa_transform =
-      _skeleton.joint_bind_poses()[_joint / 4];
+      _skeleton.joint_rest_poses()[_joint / 4];
 
   // Transpose SoA data to AoS.
   ozz::math::SimdFloat4 translations[4];
@@ -2403,13 +2437,13 @@ ozz::math::Transform GetJointLocalBindPose(const Skeleton& _skeleton,
   ozz::math::Transpose3x4(&soa_transform.scale.x, scales);
 
   // Stores to the Transform object.
-  math::Transform bind_pose;
+  math::Transform rest_pose;
   const int offset = _joint % 4;
-  ozz::math::Store3PtrU(translations[offset], &bind_pose.translation.x);
-  ozz::math::StorePtrU(rotations[offset], &bind_pose.rotation.x);
-  ozz::math::Store3PtrU(scales[offset], &bind_pose.scale.x);
+  ozz::math::Store3PtrU(translations[offset], &rest_pose.translation.x);
+  ozz::math::StorePtrU(rotations[offset], &rest_pose.rotation.x);
+  ozz::math::Store3PtrU(scales[offset], &rest_pose.scale.x);
 
-  return bind_pose;
+  return rest_pose;
 }
 }  // namespace animation
 }  // namespace ozz
@@ -2462,6 +2496,20 @@ template <typename _ValueType>
 Track<_ValueType>::Track() : name_(nullptr) {}
 
 template <typename _ValueType>
+Track<_ValueType>::Track(Track<_ValueType>&& _other) {
+  *this = std::move(_other);
+}
+
+template <typename _ValueType>
+Track<_ValueType>& Track<_ValueType>::operator=(Track<_ValueType>&& _other) {
+  std::swap(ratios_, _other.ratios_);
+  std::swap(values_, _other.values_);
+  std::swap(steps_, _other.steps_);
+  std::swap(name_, _other.name_);
+  return *this;
+}
+
+template <typename _ValueType>
 Track<_ValueType>::~Track() {
   Deallocate();
 }
@@ -2481,7 +2529,7 @@ void Track<_ValueType>::Allocate(size_t _keys_count, size_t _name_len) {
                              _keys_count * sizeof(float) +       // ratios
                              (_keys_count + 7) * sizeof(uint8_t) / 8 +  // steps
                              (_name_len > 0 ? _name_len + 1 : 0);
-  span<char> buffer = {static_cast<char*>(memory::default_allocator()->Allocate(
+  span<byte> buffer = {static_cast<byte*>(memory::default_allocator()->Allocate(
                            buffer_size, alignof(_ValueType))),
                        buffer_size};
 

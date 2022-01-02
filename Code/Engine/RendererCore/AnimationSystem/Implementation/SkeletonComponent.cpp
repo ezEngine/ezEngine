@@ -467,7 +467,7 @@ void ezSkeletonComponent::UpdateSkeletonVis()
 
         {
           ozz::animation::LocalToModelJob job;
-          job.input = pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_bind_poses();
+          job.input = pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_rest_poses();
           job.output = make_span(modelTransforms);
           job.skeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
           job.Run();
