@@ -175,15 +175,26 @@ const ozz::animation::Skeleton& ezSkeleton::GetOzzSkeleton() const
   if (m_pOzzSkeleton)
     return *m_pOzzSkeleton.Borrow();
 
-  ozz::animation::offline::RawSkeleton rawSkeleton;
-  BuildRawOzzSkeleton(*this, ezInvalidJointIndex, rawSkeleton.roots);
+  // caching the skeleton isn't thread-safe
+  static ezMutex cacheSkeletonMutex;
+  EZ_LOCK(cacheSkeletonMutex);
 
-  ozz::animation::offline::SkeletonBuilder skeletonBuilder;
-  const auto pOzzSkeleton = skeletonBuilder(rawSkeleton);
+  // skip this, if the skeleton has been created in the mean-time
+  if (m_pOzzSkeleton == nullptr)
+  {
+    ozz::animation::offline::RawSkeleton rawSkeleton;
+    BuildRawOzzSkeleton(*this, ezInvalidJointIndex, rawSkeleton.roots);
 
-  m_pOzzSkeleton = EZ_DEFAULT_NEW(ozz::animation::Skeleton);
+    ozz::animation::offline::SkeletonBuilder skeletonBuilder;
+    const auto pOzzSkeleton = skeletonBuilder(rawSkeleton);
 
-  ezOzzUtils::CopySkeleton(m_pOzzSkeleton.Borrow(), pOzzSkeleton.get());
+    auto ozzSkeleton = EZ_DEFAULT_NEW(ozz::animation::Skeleton);
+
+    ezOzzUtils::CopySkeleton(ozzSkeleton, pOzzSkeleton.get());
+
+    // since the pointer is read outside the mutex, only assign it, once it is fully ready for use
+    m_pOzzSkeleton = ozzSkeleton;
+  }
 
   return *m_pOzzSkeleton.Borrow();
 }
