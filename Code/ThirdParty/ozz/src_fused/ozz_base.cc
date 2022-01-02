@@ -577,7 +577,7 @@ int MemoryStream::Seek(int _offset, Origin _origin) {
 
   // Exit if seeking before file begin or beyond max file size.
   if (origin < -_offset ||
-      (_offset > 0 && origin > static_cast<int>(kMaxSize - _offset))) {
+      (_offset > 0 && origin > static_cast<int>(kMaxSize) - _offset)) {
     return -1;
   }
 
@@ -599,7 +599,7 @@ bool MemoryStream::Resize(size_t _size) {
         (MemoryStream::kBufferSizeIncrement & (kBufferSizeIncrement - 1)) == 0,
         "kBufferSizeIncrement must be a power of 2");
     const size_t new_size = ozz::Align(_size, kBufferSizeIncrement);
-    char* new_buffer = reinterpret_cast<char*>(
+    byte* new_buffer = reinterpret_cast<byte*>(
         ozz::memory::default_allocator()->Allocate(new_size, 16));
     if (buffer_ != nullptr) {
       std::memcpy(new_buffer, buffer_, alloc_size_);

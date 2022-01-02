@@ -514,7 +514,9 @@ FixedRateSamplingTime::FixedRateSamplingTime(float _duration, float _frequency)
 #ifndef OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 #define OZZ_ANIMATION_RUNTIME_ANIMATION_KEYFRAME_H_
 
+#include "ozz/animation/runtime/export.h"
 #include "ozz/base/platform.h"
+
 #ifndef OZZ_INCLUDE_PRIVATE_HEADER
 #error "This header is private, it cannot be included from public headers."
 #endif  // OZZ_INCLUDE_PRIVATE_HEADER
@@ -686,7 +688,7 @@ void CompressQuat(const ozz::math::Quaternion& _src,
                   ozz::animation::QuaternionKey* _dest) {
   // Finds the largest quaternion component.
   const float quat[4] = {_src.x, _src.y, _src.z, _src.w};
-  const size_t largest = std::max_element(quat, quat + 4, LessAbs) - quat;
+  const ptrdiff_t largest = std::max_element(quat, quat + 4, LessAbs) - quat;
   assert(largest <= 3);
   _dest->largest = largest & 0x3;
 
@@ -792,7 +794,7 @@ unique_ptr<Animation> AnimationBuilder::operator()(
 
   // Declares and preallocates tracks to sort.
   size_t translations = 0, rotations = 0, scales = 0;
-  for (int i = 0; i < num_tracks; ++i) {
+  for (uint16_t i = 0; i < num_tracks; ++i) {
     const RawAnimation::JointTrack& raw_track = _input.tracks[i];
     translations += raw_track.translations.size() + 2;  // +2 because worst case
     rotations += raw_track.rotations.size() + 2;        // needs to add the
@@ -1386,6 +1388,7 @@ bool AdditiveAnimationBuilder::operator()(const RawAnimation& _input,
   }
 
   // Rebuilds output animation.
+  _output->name = _input.name;
   _output->duration = _input.duration;
   _output->tracks.resize(_input.tracks.size());
 
@@ -1440,6 +1443,7 @@ bool AdditiveAnimationBuilder::operator()(
   }
 
   // Rebuilds output animation.
+  _output->name = _input.name;
   _output->duration = _input.duration;
   _output->tracks.resize(_input.tracks.size());
 
@@ -1763,9 +1767,9 @@ unique_ptr<ozz::animation::Skeleton> SkeletonBuilder::operator()(
     }
     // Fills the SoaTransform structure.
     math::Transpose4x3(translations,
-                       &skeleton->joint_bind_poses_[i].translation.x);
-    math::Transpose4x4(rotations, &skeleton->joint_bind_poses_[i].rotation.x);
-    math::Transpose4x3(scales, &skeleton->joint_bind_poses_[i].scale.x);
+                       &skeleton->joint_rest_poses_[i].translation.x);
+    math::Transpose4x4(rotations, &skeleton->joint_rest_poses_[i].rotation.x);
+    math::Transpose4x3(scales, &skeleton->joint_rest_poses_[i].scale.x);
   }
 
   return skeleton;  // Success.

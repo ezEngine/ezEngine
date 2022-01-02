@@ -28,6 +28,7 @@
 #ifndef OZZ_OZZ_ANIMATION_OFFLINE_ANIMATION_OPTIMIZER_H_
 #define OZZ_OZZ_ANIMATION_OFFLINE_ANIMATION_OPTIMIZER_H_
 
+#include "ozz/animation/offline/export.h"
 #include "ozz/base/containers/map.h"
 
 namespace ozz {
@@ -89,7 +90,7 @@ class OZZ_ANIMOFFLINE_DLL AnimationOptimizer {
     float distance;
   };
 
-  // Golbal optimization settings. These settings apply to all joints of the
+  // Global optimization settings. These settings apply to all joints of the
   // hierarchy, unless overriden by joint specific settings.
   Setting setting;
 

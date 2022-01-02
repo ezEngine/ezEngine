@@ -97,7 +97,7 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 
     {
       ozz::animation::LocalToModelJob job;
-      job.input = pOzzSkeleton->joint_bind_poses();
+      job.input = pOzzSkeleton->joint_rest_poses();
       job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
       job.skeleton = pOzzSkeleton;
       job.Run();

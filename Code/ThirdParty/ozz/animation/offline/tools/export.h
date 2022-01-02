@@ -25,23 +25,20 @@
 //                                                                            //
 //----------------------------------------------------------------------------//
 
-#ifndef OZZ_OZZ_ANIMATION_RUNTIME_ANIMATION_UTILS_H_
-#define OZZ_OZZ_ANIMATION_RUNTIME_ANIMATION_UTILS_H_
+#ifndef OZZ_OZZ_ANIMATION_OFFLINE_TOOLS_EXPORT_H_
+#define OZZ_OZZ_ANIMATION_OFFLINE_TOOLS_EXPORT_H_
 
-#include "ozz/animation/runtime/export.h"
-#include "ozz/animation/runtime/animation.h"
+#if defined(_MSC_VER) && defined(OZZ_USE_DYNAMIC_LINKING)
 
-namespace ozz {
-namespace animation {
+#ifdef OZZ_BUILD_ANIMATIONTOOLS_LIB
+// Import/Export for dynamic linking while building ozz
+#define OZZ_ANIMTOOLS_DLL __declspec(dllexport)
+#else
+#define OZZ_ANIMTOOLS_DLL __declspec(dllimport)
+#endif
+#else  // defined(_MSC_VER) && defined(OZZ_USE_DYNAMIC_LINKING)
+// Static or non msvc linking
+#define OZZ_ANIMTOOLS_DLL
+#endif  // defined(_MSC_VER) && defined(OZZ_USE_DYNAMIC_LINKING)
 
-// Count translation, rotation or scale keyframes for a given track number. Use
-// a negative _track value to count all tracks.
-OZZ_ANIMATION_DLL int CountTranslationKeyframes(const Animation& _animation,
-                                                int _track = -1);
-OZZ_ANIMATION_DLL int CountRotationKeyframes(const Animation& _animation,
-                                             int _track = -1);
-OZZ_ANIMATION_DLL int CountScaleKeyframes(const Animation& _animation,
-                                          int _track = -1);
-}  // namespace animation
-}  // namespace ozz
-#endif  // OZZ_OZZ_ANIMATION_RUNTIME_ANIMATION_UTILS_H_
+#endif  // OZZ_OZZ_ANIMATION_OFFLINE_TOOLS_EXPORT_H_
