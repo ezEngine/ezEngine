@@ -381,11 +381,27 @@ QModelIndex ezQtCVarModel::parent(const QModelIndex& index) const
 
   ezQtCVarModel::Entry* p = e->m_pParentEntry;
 
-  for (ezUInt32 row = 0; row < p->m_ChildEntries.GetCount(); ++row)
+  // find the parent entry's row index
+  if (p->m_pParentEntry == nullptr)
   {
-    if (p->m_ChildEntries[row] == e)
+    // if the parent has no parent itself, it is a root entry and we need to search that array
+    for (ezUInt32 row = 0; row < m_RootEntries.GetCount(); ++row)
     {
-      return createIndex(row, index.column(), p);
+      if (m_RootEntries[row] == p)
+      {
+        return createIndex(row, index.column(), p);
+      }
+    }
+  }
+  else
+  {
+    // if the parent has a parent itself, search that array for the row index
+    for (ezUInt32 row = 0; row < p->m_pParentEntry->m_ChildEntries.GetCount(); ++row)
+    {
+      if (p->m_pParentEntry->m_ChildEntries[row] == e)
+      {
+        return createIndex(row, index.column(), p);
+      }
     }
   }
 
