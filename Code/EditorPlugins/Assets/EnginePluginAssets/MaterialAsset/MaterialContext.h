@@ -31,10 +31,12 @@ private:
   ezMaterialResourceHandle m_hMaterial;
   ezMeshResourceHandle m_hSphereMesh;
   ezMeshResourceHandle m_hBoxMesh;
+  ezMeshResourceHandle m_hBallMesh;
   ezComponentHandle m_hMeshComponent;
 
   enum class PreviewModel : ezUInt8
   {
+    Ball,
     Sphere,
     Box,
   };

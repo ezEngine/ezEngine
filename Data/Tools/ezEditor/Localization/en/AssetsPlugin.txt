@@ -250,5 +250,6 @@ Common;Common
 MiddleClips;Middle Clips
 ezLogAnimNode;Log
 MaterialAsset.Model;Preview Model
+ezMaterialAssetPreview::Ball;Ball
 ezMaterialAssetPreview::Sphere;Sphere
 ezMaterialAssetPreview::Box;Box

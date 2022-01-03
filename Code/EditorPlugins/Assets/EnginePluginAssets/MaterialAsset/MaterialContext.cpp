@@ -45,6 +45,9 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       {
         switch (m_PreviewModel)
         {
+          case PreviewModel::Ball:
+            pMesh->SetMesh(m_hBallMesh);
+            break;
           case PreviewModel::Sphere:
             pMesh->SetMesh(m_hSphereMesh);
             break;
@@ -104,12 +107,12 @@ void ezMaterialContext::OnInitialize()
   }
 
   {
-    const char* szRectMeshName = "RectMaterialPreviewMesh";
-    m_hBoxMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szRectMeshName);
+    const char* szBoxMeshName = "BoxMaterialPreviewMesh";
+    m_hBoxMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szBoxMeshName);
 
     if (!m_hBoxMesh.IsValid())
     {
-      const char* szMeshBufferName = "RectMaterialPreviewMeshBuffer";
+      const char* szMeshBufferName = "BoxMaterialPreviewMeshBuffer";
 
       ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
 
@@ -140,9 +143,13 @@ void ezMaterialContext::OnInitialize()
         md.SetMaterial(0, "");
         md.ComputeBounds();
 
-        m_hBoxMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szRectMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+        m_hBoxMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szBoxMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
       }
     }
+  }
+
+  {
+    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezMesh");
   }
 
   auto pWorld = m_pWorld;
@@ -154,7 +161,6 @@ void ezMaterialContext::OnInitialize()
   // Preview Mesh
   {
     obj.m_sName.Assign("MaterialPreview");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
     pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;

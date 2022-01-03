@@ -16,6 +16,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialAssetPreview, 1)
+  EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Ball),
   EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Sphere),
   EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Box),
 EZ_END_STATIC_REFLECTED_ENUM;

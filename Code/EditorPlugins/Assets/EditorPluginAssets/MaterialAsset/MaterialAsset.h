@@ -42,12 +42,13 @@ struct ezMaterialAssetPreview
 
   enum Enum
   {
+    Ball,
     Sphere,
     Box,
     // TODO: custom material preview mesh
     // tesselated quad (for vertex animation tests)
 
-    Default = Sphere
+    Default = Ball
   };
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialAssetPreview);
