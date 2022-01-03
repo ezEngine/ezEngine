@@ -67,6 +67,7 @@ function(ez_prepare_find_qt)
         set (Qt5Gui_DIR "Qt5Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
         set (Qt5Widgets_DIR "Qt5Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
         set (Qt5Network_DIR "Qt5Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        set (Qt5Svg_DIR "Qt5Svg_DIR-NOTFOUND" CACHE PATH "" FORCE)
 
         if (EZ_CMAKE_PLATFORM_WINDOWS)
             set (Qt5WinExtras_DIR "Qt5WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
