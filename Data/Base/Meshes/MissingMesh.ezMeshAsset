@@ -16,7 +16,7 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"Materials/BaseMaterials/MissingMesh.ezMaterial"}
+			s{"Materials/Common/MissingMesh.ezMaterial"}
 		}
 	}
 }
@@ -31,7 +31,7 @@ o
 	p
 	{
 		s %Label{"Default"}
-		s %Resource{"Materials/BaseMaterials/MissingMesh.ezMaterial"}
+		s %Resource{"Materials/Common/MissingMesh.ezMaterial"}
 	}
 }
 o

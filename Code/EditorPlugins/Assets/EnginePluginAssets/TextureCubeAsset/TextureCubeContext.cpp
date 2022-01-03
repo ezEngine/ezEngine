@@ -95,7 +95,7 @@ void ezTextureCubeContext::OnInitialize()
   if (!m_hMaterial.IsValid())
   {
     ezMaterialResourceDescriptor md;
-    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TextureCubePreview.ezMaterial");
+    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/TextureCubePreview.ezMaterial");
 
     auto& tb = md.m_TextureCubeBindings.ExpandAndGetRef();
     tb.m_Name.Assign("BaseTexture");
