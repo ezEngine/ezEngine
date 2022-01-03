@@ -29,9 +29,10 @@ protected:
 
 private:
   ezMaterialResourceHandle m_hMaterial;
+  ezMeshResourceHandle m_hBallMesh;
   ezMeshResourceHandle m_hSphereMesh;
   ezMeshResourceHandle m_hBoxMesh;
-  ezMeshResourceHandle m_hBallMesh;
+  ezMeshResourceHandle m_hPlaneMesh;
   ezComponentHandle m_hMeshComponent;
 
   enum class PreviewModel : ezUInt8
@@ -39,7 +40,8 @@ private:
     Ball,
     Sphere,
     Box,
+    Plane,
   };
 
-  PreviewModel m_PreviewModel = PreviewModel::Sphere;
+  PreviewModel m_PreviewModel = PreviewModel::Ball;
 };

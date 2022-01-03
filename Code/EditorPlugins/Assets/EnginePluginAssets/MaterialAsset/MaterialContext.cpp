@@ -54,6 +54,9 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
           case PreviewModel::Box:
             pMesh->SetMesh(m_hBoxMesh);
             break;
+          case PreviewModel::Plane:
+            pMesh->SetMesh(m_hPlaneMesh);
+            break;
         }
       }
     }
@@ -79,7 +82,9 @@ void ezMaterialContext::OnInitialize()
         // Build geometry
         ezGeometry geom;
 
-        geom.AddSphere(0.1f, 64, 64, ezColor::White);
+        ezMat4 transform;
+        transform.SetRotationMatrixZ(ezAngle::Degree(90));
+        geom.AddSphere(0.1f, 64, 64, ezColor::White, transform);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -149,6 +154,50 @@ void ezMaterialContext::OnInitialize()
   }
 
   {
+    const char* szPlaneMeshName = "PlaneMaterialPreviewMesh";
+    m_hPlaneMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szPlaneMeshName);
+
+    if (!m_hPlaneMesh.IsValid())
+    {
+      const char* szMeshBufferName = "PlaneMaterialPreviewMeshBuffer";
+
+      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+      if (!hMeshBuffer.IsValid())
+      {
+        // Build geometry
+        ezGeometry geom;
+
+        ezMat4 transform;
+        transform.SetRotationMatrixZ(ezAngle::Degree(-90));
+        geom.AddTesselatedRectXY(ezVec2(0.2f), ezColor::White, 64, 64, transform);
+        geom.ComputeTangents();
+
+        ezMeshBufferResourceDescriptor desc;
+        desc.AddCommonStreams();
+        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
+        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+        hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      }
+
+      {
+        ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+
+        ezMeshResourceDescriptor md;
+        md.UseExistingMeshBuffer(hMeshBuffer);
+        md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
+        md.SetMaterial(0, "");
+        md.ComputeBounds();
+
+        m_hPlaneMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szPlaneMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      }
+    }
+  }
+
+  {
     m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezMesh");
   }
 
@@ -165,7 +214,7 @@ void ezMaterialContext::OnInitialize()
 
     ezMeshComponent* pMesh;
     m_hMeshComponent = ezMeshComponent::CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(m_hSphereMesh);
+    pMesh->SetMesh(m_hBallMesh);
     ezStringBuilder sMaterialGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);

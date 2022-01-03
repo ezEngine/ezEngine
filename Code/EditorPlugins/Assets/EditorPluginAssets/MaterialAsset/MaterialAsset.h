@@ -45,8 +45,7 @@ struct ezMaterialAssetPreview
     Ball,
     Sphere,
     Box,
-    // TODO: custom material preview mesh
-    // tesselated quad (for vertex animation tests)
+    Plane,
 
     Default = Ball
   };
