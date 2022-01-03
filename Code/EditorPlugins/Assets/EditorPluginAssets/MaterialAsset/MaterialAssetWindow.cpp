@@ -46,7 +46,7 @@ ezActionDescriptorHandle ezMaterialAssetActions::s_hMaterialModelAction;
 
 void ezMaterialAssetActions::RegisterActions()
 {
-  s_hMaterialModelAction = EZ_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", ezMaterialModelAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hMaterialModelAction = EZ_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", ezMaterialModelAction, ":/EditorFramework/Icons/Perspective.png");
 }
 
 void ezMaterialAssetActions::UnregisterActions()
