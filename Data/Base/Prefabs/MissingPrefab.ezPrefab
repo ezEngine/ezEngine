@@ -29,7 +29,7 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"Materials/BaseMaterials/MissingPrefab.ezMaterial"}
+			s{"Materials/Common/MissingPrefab.ezMaterial"}
 			s{"Meshes/MissingMesh.ezMesh"}
 		}
 	}
@@ -48,7 +48,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"Materials/BaseMaterials/MissingPrefab.ezMaterial"}
+			s{"Materials/Common/MissingPrefab.ezMaterial"}
 		}
 		s %Mesh{"Meshes/MissingMesh.ezMesh"}
 	}

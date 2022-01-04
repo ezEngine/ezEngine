@@ -65,7 +65,7 @@ void ezDecalContext::OnInitialize()
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      md.SetMaterial(0, "Materials/BaseMaterials/TestBricks.ezMaterial");
+      md.SetMaterial(0, "Materials/Common/TestBricks.ezMaterial");
       md.ComputeBounds();
 
       m_hPreviewMeshResource = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());

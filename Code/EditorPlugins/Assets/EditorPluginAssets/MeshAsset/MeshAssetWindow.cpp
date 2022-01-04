@@ -147,7 +147,7 @@ bool ezQtMeshAssetDocumentWindow::UpdatePreview()
       if (uiSlot == m_uiHighlightSlots)
       {
         bHighlighted = true;
-        msg.m_Materials[i] = "Materials/Editor/HighlightMesh.ezMaterial";
+        msg.m_Materials[i] = "Editor/Materials/HighlightMesh.ezMaterial";
       }
 
       ++uiSlot;

@@ -424,7 +424,7 @@ const char* ezMaterialResource::GetDefaultMaterialFileName(DefaultMaterialType M
     case DefaultMaterialType::Sky:
       return "Base/Materials/BaseMaterials/Sky.ezMaterialAsset";
     case DefaultMaterialType::MissingMaterial:
-      return "Base/Materials/BaseMaterials/MissingMaterial.ezMaterialAsset";
+      return "Base/Materials/Common/MissingMaterial.ezMaterialAsset";
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       return "";

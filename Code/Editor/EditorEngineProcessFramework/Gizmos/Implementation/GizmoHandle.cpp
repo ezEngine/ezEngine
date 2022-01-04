@@ -637,15 +637,15 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
 
   if (m_bVisualizer)
   {
-    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/Visualizer.ezMaterial");
+    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/Visualizer.ezMaterial");
   }
   else if (m_bConstantSize)
   {
-    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleConstantSize.ezMaterial");
+    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSize.ezMaterial");
   }
   else
   {
-    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
+    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandle.ezMaterial");
   }
 
   m_pGizmoComponent->SetRenderDataCategory(

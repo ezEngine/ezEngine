@@ -106,7 +106,7 @@ retry:
   {
     if (m_Description.m_bDebugDevice)
     {
-      ezLog::Error("Couldn't initialize D3D11 debug device!");
+      ezLog::Warning("Couldn't initialize D3D11 debug device!");
 
       m_Description.m_bDebugDevice = false;
       goto retry;

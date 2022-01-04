@@ -114,7 +114,7 @@ void ezTextureContext::OnInitialize()
   if (!m_hMaterial.IsValid())
   {
     ezMaterialResourceDescriptor md;
-    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TexturePreview.ezMaterial");
+    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/TexturePreview.ezMaterial");
 
     auto& tb = md.m_Texture2DBindings.ExpandAndGetRef();
     tb.m_Name.Assign("BaseTexture");
