@@ -258,9 +258,9 @@ void ezQtDashboardDlg::on_OpenApiDocs_clicked()
   QDesktopServices::openUrl(QUrl("https://ezengine.github.io/api-docs/"));
 }
 
-void ezQtDashboardDlg::on_OpenReleaseNotes_clicked()
+void ezQtDashboardDlg::on_GitHubDiscussions_clicked()
 {
-  QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/releases"));
+  QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/discussions"));
 }
 
 void ezQtDashboardDlg::on_ReportProblem_clicked()

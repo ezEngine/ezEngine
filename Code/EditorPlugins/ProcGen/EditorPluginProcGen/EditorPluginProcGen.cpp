@@ -22,8 +22,8 @@ void OnLoadPlugin()
     {const char* szMenuBar = "ProcGenAssetMenuBar";
 
   ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
-  ezProjectActions::MapActions(szMenuBar);
   ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+  ezProjectActions::MapActions(szMenuBar);
   ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
   ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
 

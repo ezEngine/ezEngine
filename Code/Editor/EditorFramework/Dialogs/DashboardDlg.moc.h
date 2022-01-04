@@ -39,7 +39,7 @@ private Q_SLOTS:
 
   void on_OpenDocs_clicked();
   void on_OpenApiDocs_clicked();
-  void on_OpenReleaseNotes_clicked();
+  void on_GitHubDiscussions_clicked();
   void on_ReportProblem_clicked();
   void on_OpenDiscord_clicked();
   void on_OpenTwitter_clicked();

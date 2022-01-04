@@ -1,10 +1,16 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 void ezQtEditorApp::GuiOpenDashboard()
 {
   QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDashboard", Qt::ConnectionType::QueuedConnection);
+}
+
+void ezQtEditorApp::GuiOpenDocsAndCommunity()
+{
+  QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDocsAndCommunity", Qt::ConnectionType::QueuedConnection);
 }
 
 bool ezQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
@@ -35,7 +41,14 @@ bool ezQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
 
 void ezQtEditorApp::SlotQueuedGuiOpenDashboard()
 {
-  InternalGuiOpenDashboard();
+  ezQtDashboardDlg dlg(nullptr, ezQtDashboardDlg::DashboardTab::Projects);
+  dlg.exec();
+}
+
+void ezQtEditorApp::SlotQueuedGuiOpenDocsAndCommunity()
+{
+  ezQtDashboardDlg dlg(nullptr, ezQtDashboardDlg::DashboardTab::Documentation);
+  dlg.exec();
 }
 
 void ezQtEditorApp::SlotQueuedGuiCreateOrOpenProject(bool bCreate)

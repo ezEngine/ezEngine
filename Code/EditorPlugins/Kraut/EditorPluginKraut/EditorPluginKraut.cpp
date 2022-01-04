@@ -19,8 +19,8 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar").IgnoreResult();
-      ezProjectActions::MapActions("KrautTreeAssetMenuBar");
       ezStandardMenus::MapActions("KrautTreeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezProjectActions::MapActions("KrautTreeAssetMenuBar");
       ezDocumentActions::MapActions("KrautTreeAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("KrautTreeAssetMenuBar", "Menu.Edit");
     }

@@ -30,6 +30,7 @@ ezActionDescriptorHandle ezProjectActions::s_hCreateProject;
 ezActionDescriptorHandle ezProjectActions::s_hOpenProject;
 ezActionDescriptorHandle ezProjectActions::s_hRecentProjects;
 ezActionDescriptorHandle ezProjectActions::s_hCloseProject;
+ezActionDescriptorHandle ezProjectActions::s_hDocsAndCommunity;
 
 ezActionDescriptorHandle ezProjectActions::s_hSettingsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hEditorSettingsMenu;
@@ -98,6 +99,8 @@ void ezProjectActions::RegisterActions()
   s_hOpenVsCode = EZ_REGISTER_ACTION_1("Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
 
   s_hSetupCppProject = EZ_REGISTER_ACTION_1("Project.SetupCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::SetupCppProject);
+
+  s_hDocsAndCommunity = EZ_REGISTER_ACTION_1("Editor.DocsAndCommunity", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::ShowDocsAndCommunity);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -109,6 +112,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRecentDocuments);
   ezActionManager::UnregisterAction(s_hProjectCategory);
   ezActionManager::UnregisterAction(s_hOpenDashboard);
+  ezActionManager::UnregisterAction(s_hDocsAndCommunity);
   ezActionManager::UnregisterAction(s_hCreateProject);
   ezActionManager::UnregisterAction(s_hOpenProject);
   ezActionManager::UnregisterAction(s_hRecentProjects);
@@ -181,6 +185,8 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
   pMap->MapAction(s_hAssetProfiles, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
+
+  pMap->MapAction(s_hDocsAndCommunity, "Menu.Help", 0.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -369,6 +375,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       break;
     case ezProjectAction::ButtonType::SetupCppProject:
       SetIconPath(":/EditorFramework/Icons/VisualStudio.svg");
+      break;
+    case ezProjectAction::ButtonType::ShowDocsAndCommunity:
+      //SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
       break;
   }
 
@@ -603,5 +612,9 @@ void ezProjectAction::Execute(const ezVariant& value)
       dlg.exec();
     }
     break;
+
+    case ezProjectAction::ButtonType::ShowDocsAndCommunity:
+      ezQtEditorApp::GetSingleton()->GuiOpenDocsAndCommunity();
+      break;
   }
 }
