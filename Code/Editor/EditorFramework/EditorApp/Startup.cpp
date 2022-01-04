@@ -76,8 +76,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezCommonAssetActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar").IgnoreResult();
+    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezProjectActions::MapActions("SettingsTabMenuBar");
-    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels);
 
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
     ezAssetActions::MapActions("AssetBrowserToolBar", false);

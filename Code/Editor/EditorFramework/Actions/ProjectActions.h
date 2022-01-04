@@ -27,6 +27,8 @@ public:
   static ezActionDescriptorHandle s_hRecentProjects;
   static ezActionDescriptorHandle s_hCloseProject;
 
+  static ezActionDescriptorHandle s_hDocsAndCommunity;
+
   static ezActionDescriptorHandle s_hSettingsCategory;
   static ezActionDescriptorHandle s_hEditorSettingsMenu;
   static ezActionDescriptorHandle s_hProjectSettingsMenu;
@@ -112,6 +114,7 @@ public:
     ImportAsset,
     AssetProfiles,
     SetupCppProject,
+    ShowDocsAndCommunity,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

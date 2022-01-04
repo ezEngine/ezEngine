@@ -112,8 +112,8 @@ void OnLoadPlugin()
   for (const char* szMenuBar : MenuBars)
   {
     ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
-    ezProjectActions::MapActions(szMenuBar);
     ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
+    ezProjectActions::MapActions(szMenuBar);
     ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
     ezDocumentActions::MapToolsActions(szMenuBar, "Menu.Tools");
     ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");

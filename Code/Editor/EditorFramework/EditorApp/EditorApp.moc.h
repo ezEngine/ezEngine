@@ -161,6 +161,7 @@ public:
   void GuiOpenDocument();
 
   void GuiOpenDashboard();
+  void GuiOpenDocsAndCommunity();
   bool GuiCreateProject(bool bImmediate = false);
   bool GuiOpenProject(bool bImmediate = false);
 
@@ -206,7 +207,6 @@ Q_SIGNALS:
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
 
-  void InternalGuiOpenDashboard();
   void GuiCreateOrOpenDocument(bool bCreate);
   bool GuiCreateOrOpenProject(bool bCreate);
 
@@ -216,6 +216,7 @@ private Q_SLOTS:
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
   void SlotQueuedGuiOpenDashboard();
+  void SlotQueuedGuiOpenDocsAndCommunity();
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
   void SlotSaveSettings();
   void SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced);

@@ -21,8 +21,8 @@ void OnLoadPlugin()
   {
     // Menu Bar
     ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar").IgnoreResult();
-    ezProjectActions::MapActions("SoundBankAssetMenuBar");
     ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezProjectActions::MapActions("SoundBankAssetMenuBar");
     ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
 

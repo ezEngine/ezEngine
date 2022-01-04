@@ -50,8 +50,6 @@ public:
   static ezActionDescriptorHandle s_hMenuScene;
   static ezActionDescriptorHandle s_hMenuView;
   static ezActionDescriptorHandle s_hMenuHelp;
-  static ezActionDescriptorHandle s_hOpenDocumentation;
-  static ezActionDescriptorHandle s_hOpenReleaseNotes;
   static ezActionDescriptorHandle s_hCheckForUpdates;
   static ezActionDescriptorHandle s_hReportProblem;
 };
@@ -79,8 +77,6 @@ class EZ_GUIFOUNDATION_DLL ezHelpActions : public ezButtonAction
 public:
   enum class ButtonType
   {
-    OpenDocumentation,
-    OpenReleaseNotes,
     CheckForUpdates,
     ReportProblem,
   };
