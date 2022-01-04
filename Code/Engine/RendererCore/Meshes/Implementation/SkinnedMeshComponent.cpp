@@ -65,6 +65,7 @@ ezMeshRenderData* ezSkinnedMeshComponent::CreateRenderData() const
 
   pRenderData->m_hSkinningTransforms = m_hSkinningTransformsBuffer;
   pRenderData->m_pNewSkinningTransformData = m_SkinningTransforms.ToByteArray();
+  m_SkinningTransforms = {}; // reset, so it's not used again next frame, unless there is new data
 
   return pRenderData;
 }

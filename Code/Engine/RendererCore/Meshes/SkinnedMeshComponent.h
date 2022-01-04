@@ -50,5 +50,5 @@ protected:
 
 private:
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezArrayPtr<const ezShaderTransform> m_SkinningTransforms;
+  mutable ezArrayPtr<const ezShaderTransform> m_SkinningTransforms;
 };
