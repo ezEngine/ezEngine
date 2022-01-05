@@ -146,7 +146,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
   }
 
   {
-    chunk.BeginChunk("MeshInfo", 3);
+    chunk.BeginChunk("MeshInfo", 4);
 
     // Number of vertices
     chunk << m_MeshBufferDescriptor.GetVertexCount();
@@ -178,10 +178,16 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     }
 
     // Version 2
-    ComputeBounds();
+    if (!m_Bounds.IsValid())
+    {
+      ComputeBounds();
+    }
+
     chunk << m_Bounds.m_vCenter;
     chunk << m_Bounds.m_vBoxHalfExtends;
     chunk << m_Bounds.m_fSphereRadius;
+    // Version 4
+    chunk << m_fMaxBoneVertexOffset;
 
     chunk.EndChunk();
   }
@@ -362,7 +368,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
     if (ci.m_sChunkName == "MeshInfo")
     {
-      if (ci.m_uiChunkVersion > 3)
+      if (ci.m_uiChunkVersion > 4)
       {
         ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
@@ -429,6 +435,10 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
         chunk >> m_Bounds.m_vCenter;
         chunk >> m_Bounds.m_vBoxHalfExtends;
         chunk >> m_Bounds.m_fSphereRadius;
+      }
+      if (ci.m_uiChunkVersion >= 4)
+      {
+        chunk >> m_fMaxBoneVertexOffset;
       }
     }
 

@@ -91,6 +91,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor)
 
   m_hDefaultSkeleton = descriptor.m_hDefaultSkeleton;
   m_Bones = descriptor.m_Bones;
+  m_fMaxBoneVertexOffset = descriptor.m_fMaxBoneVertexOffset;
 
   // otherwise create a new mesh buffer from the descriptor
   if (!m_hMeshBuffer.IsValid())

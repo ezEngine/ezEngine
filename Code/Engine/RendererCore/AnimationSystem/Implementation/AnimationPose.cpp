@@ -75,18 +75,34 @@ void ezSkinningSpaceAnimationPose::Configure(ezUInt32 uiNumTransforms)
   m_Transforms.SetCountUninitialized(uiNumTransforms);
 }
 
-void ezSkinningSpaceAnimationPose::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms)
+void ezSkinningSpaceAnimationPose::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds)
 {
   Configure(bones.GetCount());
 
-  for (auto itBone : bones)
+  if (bounds)
   {
-    const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+    for (auto itBone : bones)
+    {
+      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
 
-    if (uiJointIdx == ezInvalidJointIndex)
-      continue;
+      if (uiJointIdx == ezInvalidJointIndex)
+        continue;
 
-    m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
+      bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
+      m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
+    }
+  }
+  else
+  {
+    for (auto itBone : bones)
+    {
+      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+
+      if (uiJointIdx == ezInvalidJointIndex)
+        continue;
+
+      m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
+    }
   }
 }
 

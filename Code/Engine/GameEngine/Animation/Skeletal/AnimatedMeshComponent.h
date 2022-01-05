@@ -47,6 +47,7 @@ protected:
 
   ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezSkinningSpaceAnimationPose m_SkinningSpacePose;
+  ezBoundingBox m_MaxBounds;
 };
 
 
