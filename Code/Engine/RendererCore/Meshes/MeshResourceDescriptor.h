@@ -65,6 +65,7 @@ public:
 
   ezSkeletonResourceHandle m_hDefaultSkeleton;
   ezHashTable<ezHashedString, BoneData> m_Bones;
+  float m_fMaxBoneVertexOffset = 0.0f; // the maximum distance between any vertex and its influencing bones, can be used for adjusting the bounding box of a pose
 
 private:
   ezHybridArray<Material, 8> m_Materials;

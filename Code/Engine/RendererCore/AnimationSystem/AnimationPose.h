@@ -25,7 +25,7 @@ public:
 
   ezUInt32 GetTransformCount() const { return m_Transforms.GetCount(); }
 
-  void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms);
+  void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds);
 
   ezDynamicArray<ezShaderTransform, ezAlignedAllocatorWrapper> m_Transforms;
 };
