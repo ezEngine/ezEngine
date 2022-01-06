@@ -17,7 +17,7 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezSkeleton";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()

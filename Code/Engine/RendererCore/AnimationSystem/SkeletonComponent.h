@@ -53,8 +53,14 @@ public:
 protected:
   void Update();
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+
+  void BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingSphere& bsphere);
+  void BuildColliderVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingSphere& bsphere);
+  void BuildJointVisualization(ezMsgAnimationPoseUpdated& msg);
+
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);
   void UpdateSkeletonVis();
+  ezDebugRenderer::Line& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
 
   ezSkeletonResourceHandle m_hSkeleton;
   ezUInt32 m_uiSkeletonChangeCounter = 0;
@@ -67,12 +73,14 @@ protected:
   {
     ezTransform m_Transform;
     ezBoundingSphere m_Shape;
+    ezColor m_Color;
   };
 
   struct BoxShape
   {
     ezTransform m_Transform;
     ezBoundingBox m_Shape;
+    ezColor m_Color;
   };
 
   struct CapsuleShape
@@ -80,6 +88,7 @@ protected:
     ezTransform m_Transform;
     float m_fLength;
     float m_fRadius;
+    ezColor m_Color;
   };
 
   ezDynamicArray<SphereShape> m_SpheresSkeleton;
