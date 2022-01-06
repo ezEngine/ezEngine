@@ -13,7 +13,7 @@
 
 using namespace physx;
 
-/*
+/* TODO
 * angular momentum preservation
 * joint limit config
 * joint limit frame positioning
@@ -21,7 +21,6 @@ using namespace physx;
 * force application
 * mass distribution
 * communication with anim controller
-* dummy poses for bones without shape
 * drive to pose
 * shape scale
 */
@@ -152,7 +151,8 @@ void ezPxRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& pos
 
   if (m_bShapesCreated)
   {
-    // TODO: take poses for all bones for which there are no shapes (link == null) -> to animate leafs (fingers and such)
+    // TODO: if at some point we can layer ragdolls with detail animations, we should
+    // take poses for all bones for which there are no shapes (link == null) -> to animate leafs (fingers and such)
     return;
   }
 
@@ -172,6 +172,9 @@ void ezPxRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& pos
   if (m_bHasFirstState == false && m_Start == ezPxRagdollStart::WaitForPoseAndVelocity)
   {
     m_bHasFirstState = true;
+
+    // TODO: positions are not enough since bones don't really change their position, but mostly their angular momentum
+    // -> probably need to store bone rotations and compute the angular change instead
 
     //m_vLastPos.SetCountUninitialized(poseMsg.m_ModelTransforms.GetCount());
 
@@ -297,6 +300,8 @@ void ezPxRagdollComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& h
     }
   }
 
+  // TODO: need a better way to communicate with other animation producers
+  // probably just move all the ragdoll stuff into an animation graph node and then use different messages to input and forward poses
   poseMsg.m_bContinueAnimating = false;
   AddArticulationToScene();
 }
@@ -355,13 +360,13 @@ void ezPxRagdollComponent::UpdatePose()
 
   for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
   {
-    if (m_ArticulationLinks[i].m_pLink == nullptr)
+    if (m_ArticulationLinks[i] == nullptr)
     {
       // no need to do anything, just pass the original pose through
     }
     else
     {
-      ezTransform pose = ezPxConversionUtils::ToTransform(m_ArticulationLinks[i].m_pLink->getGlobalPose());
+      ezTransform pose = ezPxConversionUtils::ToTransform(m_ArticulationLinks[i]->getGlobalPose());
       pose.m_qRotation = pose.m_qRotation * qTilt;
 
       m_JointPoses[i] = mInv * pose.GetAsMat4() * scale;
@@ -533,7 +538,7 @@ void ezPxRagdollComponent::CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJo
   thisLink.m_pLink = m_pArticulation->createLink(parentLink.m_pLink, ezPxConversionUtils::ToTransform(thisLink.m_GlobalTransform));
   EZ_ASSERT_DEV(thisLink.m_pLink != nullptr, "Ragdoll shape creation failed. Too many bones? (max 64)");
 
-  m_ArticulationLinks[uiBoneIdx].m_pLink = thisLink.m_pLink;
+  m_ArticulationLinks[uiBoneIdx] = thisLink.m_pLink;
   thisLink.m_pLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
   thisLink.m_pLink->setLinearVelocity(ezPxConversionUtils::ToVec3(GetOwner()->GetVelocity()));
   thisLink.m_pLink->userData = pPxUserData;
