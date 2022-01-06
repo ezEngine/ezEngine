@@ -118,13 +118,13 @@ protected:
     ezVec3 m_vImpulse;
   };
 
-
   ezHybridArray<Impulse, 8> m_Impulses;
 
   ezEnum<ezPxRagdollStart> m_Start;
   physx::PxArticulationLink* m_pRootLink = nullptr;
+  ezTransform m_RootLinkLocalTransform;
   ezDynamicArray<ArtLink> m_ArticulationLinks;
-  //ezDynamicArray<ezVec3> m_vLastPos;
+  ezDynamicArray<ezMat4> m_JointPoses;
 
   ezSkeletonResourceHandle m_hSkeleton;
   physx::PxAggregate* m_pAggregate = nullptr;
