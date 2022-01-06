@@ -5,6 +5,7 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton_utils.h>
 #include <ozz/base/containers/vector.h>
@@ -42,8 +43,16 @@ ezSkeletonComponent::~ezSkeletonComponent() = default;
 
 ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  bounds = m_LocalBounds;
-  return EZ_SUCCESS;
+  if (m_MaxBounds.IsValid())
+  {
+    ezBoundingBox bbox = m_MaxBounds;
+    //bbox.Grow(ezVec3(pMesh->m_fMaxBoneVertexOffset));
+    bounds = bbox;
+    bounds.Transform(m_RootTransform.GetAsMat4());
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 void ezSkeletonComponent::Update()
@@ -121,6 +130,7 @@ void ezSkeletonComponent::OnActivated()
 {
   SUPER::OnActivated();
 
+  m_MaxBounds.SetInvalid();
   UpdateSkeletonVis();
 }
 
@@ -151,6 +161,7 @@ void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
   {
     m_hSkeleton = hResource;
 
+    m_MaxBounds.SetInvalid();
     UpdateSkeletonVis();
   }
 }
@@ -179,26 +190,34 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   m_BoxesSkeleton.Clear();
   m_CapsulesSkeleton.Clear();
 
-  ezBoundingSphere bsphere;
-  bsphere.SetInvalid();
-  bsphere.m_fRadius = 0.0f;
+  m_RootTransform = *msg.m_pRootTransform;
 
-  BuildSkeletonVisualization(msg, bsphere);
-  BuildColliderVisualization(msg, bsphere);
+  ezBoundingBox poseBounds;
+  poseBounds.SetInvalid();
+
+  BuildSkeletonVisualization(msg, poseBounds);
+  BuildColliderVisualization(msg);
   BuildJointVisualization(msg);
 
-  // if the existing bounds are big enough, don't update them
-  if (!m_LocalBounds.IsValid() || !m_LocalBounds.GetSphere().Contains(bsphere))
+  if (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds))
   {
-    m_LocalBounds.SetInvalid();
-    m_LocalBounds.ExpandToInclude(bsphere);
-
+    m_MaxBounds.ExpandToInclude(poseBounds);
+    TriggerLocalBoundsUpdate();
+  }
+  else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
+  {
+    m_MaxBounds = poseBounds;
     TriggerLocalBoundsUpdate();
   }
 }
 
-void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingSphere& bsphere)
+void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingBox& bounds)
 {
+  for (const auto& bone : msg.m_ModelTransforms)
+  {
+    bounds.ExpandToInclude(bone.GetTranslationVector());
+  }
+
   if (!m_bVisualizeSkeleton || !msg.m_pSkeleton)
     return;
 
@@ -229,8 +248,6 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
     const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].GetTranslationVector();
 
     ezVec3 dirToBone = (v1 - v0);
-
-    bsphere.ExpandToInclude(v0);
 
     auto& bone = bones[currentBone];
     bone.pos = v1;
@@ -358,7 +375,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
   }
 }
 
-void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingSphere& bsphere)
+void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& msg)
 {
   if (!m_bVisualizeColliders || !msg.m_pSkeleton || !m_hSkeleton.IsValid())
     return;
@@ -426,8 +443,6 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
       shape.m_fRadius = geo.m_Transform.m_vScale.z;
       shape.m_Color = hlS;
     }
-
-    bsphere.ExpandToInclude(st.m_vPosition);
   }
 }
 
@@ -513,8 +528,6 @@ void ezSkeletonComponent::UpdateSkeletonVis()
   m_SpheresSkeleton.Clear();
   m_BoxesSkeleton.Clear();
   m_CapsulesSkeleton.Clear();
-
-  m_LocalBounds.SetInvalid();
   m_uiSkeletonChangeCounter = 0;
 
   if (m_hSkeleton.IsValid())

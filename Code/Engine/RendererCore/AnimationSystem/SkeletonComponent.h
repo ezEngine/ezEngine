@@ -54,8 +54,8 @@ protected:
   void Update();
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
 
-  void BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingSphere& bsphere);
-  void BuildColliderVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingSphere& bsphere);
+  void BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& msg, ezBoundingBox& bsphere);
+  void BuildColliderVisualization(ezMsgAnimationPoseUpdated& msg);
   void BuildJointVisualization(ezMsgAnimationPoseUpdated& msg);
 
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);
@@ -63,10 +63,11 @@ protected:
   ezDebugRenderer::Line& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
 
   ezSkeletonResourceHandle m_hSkeleton;
+  ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezUInt32 m_uiSkeletonChangeCounter = 0;
   ezString m_sBonesToHighlight;
 
-  ezBoundingBoxSphere m_LocalBounds;
+  ezBoundingBox m_MaxBounds;
   ezDynamicArray<ezDebugRenderer::Line> m_LinesSkeleton;
 
   struct SphereShape
