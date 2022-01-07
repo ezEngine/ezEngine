@@ -21,7 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezAntialiasingPass::ezAntialiasingPass()
-  : ezRenderPipelinePass("AntialiasingPass")
+  : ezRenderPipelinePass("AntialiasingPass", true)
 {
   {
     // Load shader.
@@ -90,10 +90,13 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, c
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MSAA_SAMPLES", m_sMsaaSampleCount);
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
+  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
+
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
-  renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+  renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
 }
 
 

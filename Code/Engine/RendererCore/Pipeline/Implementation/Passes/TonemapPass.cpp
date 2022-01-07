@@ -35,7 +35,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezTonemapPass::ezTonemapPass()
-  : ezRenderPipelinePass("TonemapPass")
+  : ezRenderPipelinePass("TonemapPass", true)
 {
   m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
@@ -78,6 +78,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
       //}
 
       outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(pColorInput->m_uiWidth, pColorInput->m_uiHeight, desc.m_Format);
+      outputs[m_PinOutput.m_uiOutputIndex].m_uiArraySize = pColorInput->m_uiArraySize;
     }
     else
     {
@@ -155,6 +156,8 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
     hBloomTextureView = pDevice->GetDefaultResourceView(pBloomInput->m_TextureHandle);
   }
 
+  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
+
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezTonemapConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
@@ -168,7 +171,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
 
-  renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+  renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
 }
 
 void ezTonemapPass::SetVignettingTextureFile(const char* szFile)

@@ -35,6 +35,7 @@ void ezGALPassDX11::EndRenderingPlatform(ezGALRenderCommandEncoder* pCommandEnco
 
 ezGALComputeCommandEncoder* ezGALPassDX11::BeginComputePlatform(const char* szName)
 {
+  m_pCommandEncoderImpl->BeginCompute();
   return m_pComputeCommandEncoder.Borrow();
 }
 

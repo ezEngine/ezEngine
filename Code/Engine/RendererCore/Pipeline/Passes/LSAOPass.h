@@ -66,10 +66,10 @@ public:
 protected:
   /// Destroys all GPU data that might have been created in in SetupLineSweepData
   void DestroyLineSweepData();
-  void SetupLineSweepData(const ezVec2I32& imageResolution);
+  void SetupLineSweepData(const ezVec3I32& imageResolution);
 
 
-  void AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples);
+  void AddLinesForDirection(const ezVec3I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples);
 
   ezRenderPipelineNodeInputPin m_PinDepthInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;

@@ -5,8 +5,9 @@ ALL
 
 PARTICLE_RENDER_MODE
 PARTICLE_QUAD_MODE
-SHADING_QUALITY=SHADING_QUALITY_NORMAL
+SHADING_QUALITY
 CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -36,9 +37,14 @@ CullMode = CullMode_None
   DestBlendAlpha0 = Blend_InvSrcAlpha
 #endif
 
-[VERTEXSHADER]
+[SHADER]
 
 #define CUSTOM_INTERPOLATOR float FogAmount : FOG;
+#define CUSTOM_INTERPOLATOR_NAME FogAmount
+#define USE_TEXCOORD0
+#define USE_COLOR0
+
+[VERTEXSHADER]
 
 #include <Shaders/Particles/ParticleCommonVS.h>
 
@@ -48,10 +54,18 @@ CullMode = CullMode_None
   #include <Shaders/Particles/TangentQuadParticleShaderData.h>
 #endif
 
-VS_OUT main(uint VertexID : SV_VertexID)
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
   VS_OUT ret;
-  ret.InstanceID = 0;
+#if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+  ret.RenderTargetArrayIndex = InstanceID;
+#endif
+
+  ret.InstanceID = InstanceID;
 
   uint dataIndex = CalcQuadParticleDataIndex(VertexID);
   uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
@@ -86,6 +100,9 @@ VS_OUT main(uint VertexID : SV_VertexID)
   return ret;
 }
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 

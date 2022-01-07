@@ -28,8 +28,20 @@ namespace
       return;
 
     float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
-    float fTanFovX = ezMath::Tan(pCamera->GetFovX(fAspectRatio) * 0.5f) * 2.0f;
-    float fTanFovY = ezMath::Tan(pCamera->GetFovY(fAspectRatio) * 0.5f) * 2.0f;
+
+    ezMat4 mProj;
+    pCamera->GetProjectionMatrix(view.GetViewport().width / (float)view.GetViewport().height, mProj);
+
+    ezAngle fFovLeft;
+    ezAngle fFovRight;
+    ezAngle fFovBottom;
+    ezAngle fFovTop;
+    ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fFovLeft, fFovRight, fFovBottom, fFovTop);
+
+    const float fTanLeft = ezMath::Tan(fFovLeft);
+    const float fTanRight = ezMath::Tan(fFovRight);
+    const float fTanBottom = ezMath::Tan(fFovBottom);
+    const float fTanTop = ezMath::Tan(fFovTop);
 
     ezColor lineColor = ezColor(1.0f, 1.0f, 1.0f, 0.1f);
 
@@ -59,11 +71,11 @@ namespace
             }
 
             ezVec3 cc[8];
-            GetClusterCornerPoints(*pCamera, fZf, fZn, fTanFovX, fTanFovY, x, y, z, cc);
+            GetClusterCornerPoints(*pCamera, fZf, fZn, fTanLeft, fTanRight, fTanBottom, fTanTop, x, y, z, cc);
 
             float lightCount = (float)GET_LIGHT_INDEX(clusterData.counts);
             float decalCount = (float)GET_DECAL_INDEX(clusterData.counts);
-            float r = ezMath::Clamp(lightCount / 16.0f, 0.0f, 1.0f);
+            float r = lightCount == 0 ? 0 : 0.5f; // ezMath::Clamp(lightCount / 16.0f, 0.0f, 1.0f);
             float g = ezMath::Clamp(decalCount / 16.0f, 0.0f, 1.0f);
 
             ezDebugRenderer::Triangle tris[12];
@@ -110,14 +122,16 @@ namespace
       }
 
       {
-        ezVec3 halfWidth = pCamera->GetDirRight() * fZf * fTanFovX * 0.5f;
-        ezVec3 halfHeight = pCamera->GetDirUp() * fZf * fTanFovY * 0.5f;
+        ezVec3 leftWidth = pCamera->GetDirRight() * fZf * fTanLeft;
+        ezVec3 rightWidth = pCamera->GetDirRight() * fZf * fTanRight;
+        ezVec3 bottomHeight = pCamera->GetDirUp() * fZf * fTanBottom;
+        ezVec3 topHeight = pCamera->GetDirUp() * fZf * fTanTop;
 
         ezVec3 depthFar = pCamera->GetPosition() + pCamera->GetDirForwards() * fZf;
-        ezVec3 p0 = depthFar + halfWidth + halfHeight;
-        ezVec3 p1 = depthFar + halfWidth - halfHeight;
-        ezVec3 p2 = depthFar - halfWidth - halfHeight;
-        ezVec3 p3 = depthFar - halfWidth + halfHeight;
+        ezVec3 p0 = depthFar + rightWidth + topHeight;
+        ezVec3 p1 = depthFar + rightWidth + bottomHeight;
+        ezVec3 p2 = depthFar + leftWidth + bottomHeight;
+        ezVec3 p3 = depthFar + leftWidth + topHeight;
 
         ezDebugRenderer::Line lines[4];
         lines[0] = ezDebugRenderer::Line(p0, p1);

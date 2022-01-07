@@ -3,7 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -16,22 +17,25 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 
-Texture2DMS<float> DepthTexture;
+Texture2DMSArray<float> DepthTexture;
 
 float main(PS_IN Input) : SV_Depth
 {
-  int2 coords = Input.Position.xy;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  int3 coords = int3(Input.Position.xy, s_ActiveCameraEyeIndex);
   float depth = 0.0f;
 
   for (uint i = 0; i < NumMsaaSamples; ++i)

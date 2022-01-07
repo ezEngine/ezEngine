@@ -274,8 +274,6 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
   m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hDepthRT));
 
   pView->SetRenderTargetSetup(m_RenderTargetSetup);
-  pView->SetRenderPassProperty("ColorSource", "MSAA_Mode", (ezInt32)msaaCount);
-  pView->SetRenderPassProperty("DepthStencil", "MSAA_Mode", (ezInt32)msaaCount);
 
   pView->SetViewport(ezRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
 

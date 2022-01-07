@@ -28,7 +28,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBloomPass::ezBloomPass()
-  : ezRenderPipelinePass("BloomPass")
+  : ezRenderPipelinePass("BloomPass", true)
   , m_fRadius(0.2f)
   , m_fThreshold(1.0f)
   , m_fIntensity(0.3f)
@@ -131,6 +131,9 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezBloomConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
+  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
+
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
 
   // Downscale passes
@@ -165,7 +168,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
       renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
 
@@ -224,7 +227,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       renderViewContext.m_pRenderContext->BindTexture2D("NextColorTexture", pDevice->GetDefaultResourceView(hNextInput));
       renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
     }

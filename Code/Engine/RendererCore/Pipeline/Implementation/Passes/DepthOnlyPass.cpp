@@ -21,7 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezDepthOnlyPass::ezDepthOnlyPass(const char* szName)
-  : ezRenderPipelinePass(szName)
+  : ezRenderPipelinePass(szName, true)
 {
 }
 

@@ -4,7 +4,8 @@ ALL
 [PERMUTATIONS]
 
 BLOOM_PASS_MODE
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -16,23 +17,22 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include "BloomConstants.h"
 
 #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
-  Texture2D NextColorTexture;
+  Texture2DArray NextColorTexture;
 #endif
 
-Texture2D ColorTexture;
+Texture2DArray ColorTexture;
 
 #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
   #define NUM_SAMPLES 9
@@ -46,6 +46,10 @@ Texture2D ColorTexture;
 
 float4 main(PS_IN Input) : SV_Target
 {
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+  #endif
+
   #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
     float3 offsetAndWeights[NUM_SAMPLES] =
     {
@@ -60,7 +64,7 @@ float4 main(PS_IN Input) : SV_Target
       float3( 1.0f, -1.0f, 1.0f / 16.0f)
     };
 
-    float3 color = NextColorTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb * TintColor.rgb;
+    float3 color = NextColorTexture.SampleLevel(LinearClampSampler, float3(Input.TexCoord0.xy, s_ActiveCameraEyeIndex), 0.0).rgb * TintColor.rgb;
 
   #elif BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE_FAST || BLOOM_PASS_MODE == BLOOM_PASS_MODE_DOWNSCALE_FAST
     float3 offsetAndWeights[NUM_SAMPLES] =
@@ -105,7 +109,7 @@ float4 main(PS_IN Input) : SV_Target
   {
     float2 texCoord = offsetAndWeights[i].xy * PixelSize + Input.TexCoord0.xy;
 
-    float3 sampleColor = ColorTexture.SampleLevel(LinearClampSampler, texCoord, 0.0).rgb;
+    float3 sampleColor = ColorTexture.SampleLevel(LinearClampSampler, float3(texCoord, s_ActiveCameraEyeIndex), 0.0).rgb;
     float weight = offsetAndWeights[i].z;
 
     #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE || BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE_FAST

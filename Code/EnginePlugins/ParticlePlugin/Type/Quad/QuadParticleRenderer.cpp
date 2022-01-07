@@ -95,7 +95,7 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
       }
 
       // do one drawcall
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * 2).IgnoreResult();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * 2, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1).IgnoreResult();
     }
   }
 }

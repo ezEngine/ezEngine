@@ -16,6 +16,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
+#include <GameEngine/XR/DummyXR.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRRemotingInterface.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -65,6 +66,8 @@ void ezGameState::OnDeactivation()
         ezLog::Error("Failed to deinitialize ezXRRemotingInterface, make sure all actors are destroyed and ezXRInterface deinitialized.");
       }
     }
+
+    m_dummyXR = nullptr;
   }
 
   ezRenderWorld::DeleteView(m_hMainView);
@@ -89,8 +92,10 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
   ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
   if (!pXRInterface)
   {
-    ezLog::Error("No ezXRInterface interface found. Please load a XR plugin to enable XR.");
-    return nullptr;
+    ezLog::Warning("No ezXRInterface interface found. Please load a XR plugin to enable XR. Loading dummyXR interface.");
+    m_dummyXR = EZ_DEFAULT_NEW(ezDummyXR);
+    pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
+    EZ_ASSERT_DEV(pXRInterface, "Creating dummyXR did not register the ezXRInterface.");
   }
 
   ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>();
@@ -346,7 +351,8 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   }
 
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
-  pWindow->ResetOnClickClose([this]() { this->RequestQuit(); });
+  pWindow->ResetOnClickClose([this]()
+    { this->RequestQuit(); });
   if (pWindow->GetInputDevice())
     pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 

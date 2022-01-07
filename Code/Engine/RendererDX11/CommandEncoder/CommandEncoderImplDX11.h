@@ -87,6 +87,7 @@ public:
 
   // ezGALCommandEncoderRenderPlatformInterface
   void BeginRendering(const ezGALRenderingSetup& renderingSetup);
+  void BeginCompute();
 
   // Draw functions
 

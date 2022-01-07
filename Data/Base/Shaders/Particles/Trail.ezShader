@@ -6,8 +6,9 @@ ALL
 TWO_SIDED
 PARTICLE_RENDER_MODE
 PARTICLE_TRAIL_POINTS
-SHADING_QUALITY=SHADING_QUALITY_NORMAL
+SHADING_QUALITY
 CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -33,18 +34,30 @@ CullMode = CullMode_None
   DestBlendAlpha0 = Blend_InvSrcAlpha
 #endif
 
-[VERTEXSHADER]
+[SHADER]
 
 #define CUSTOM_INTERPOLATOR float FogAmount : FOG;
+#define CUSTOM_INTERPOLATOR_NAME FogAmount
+#define USE_TEXCOORD0
+#define USE_COLOR0
+
+[VERTEXSHADER]
 
 #include <Shaders/Particles/ParticleCommonVS.h>
 #include <Shaders/Particles/TrailShaderData.h>
 
 #define TRAIL_SEGMENTS (PARTICLE_TRAIL_POINTS - 1)
 
-VS_OUT main(uint VertexID : SV_VertexID)
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
   VS_OUT ret;
+#if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+  ret.RenderTargetArrayIndex = InstanceID;
+#endif
 
   int trailIndexOffset[6] = { 0, 1, 1, 0, 1, 0 };
 
@@ -118,6 +131,10 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
   return ret;
 }
+
+[GEOMETRYSHADER]
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 

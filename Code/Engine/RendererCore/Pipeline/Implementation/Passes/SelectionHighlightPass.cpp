@@ -29,7 +29,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName)
-  : ezRenderPipelinePass(szName)
+  : ezRenderPipelinePass(szName, true)
 {
   // Load shader.
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SelectionHighlight.ezShader");
@@ -121,7 +121,8 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     renderViewContext.m_pRenderContext->BindTexture2D("SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
     renderViewContext.m_pRenderContext->BindTexture2D("SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
 
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hDepthTexture);
   }

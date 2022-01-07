@@ -953,6 +953,12 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     {
       m_Capabilities.m_bConservativeRasterization = (featureOpts2.ConservativeRasterizationTier != D3D11_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED);
     }
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureOpts3;
+    if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureOpts3, sizeof(featureOpts3))))
+    {
+      m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = featureOpts3.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer != 0;
+    }
   }
 }
 

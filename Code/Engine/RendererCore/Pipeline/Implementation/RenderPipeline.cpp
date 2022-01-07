@@ -1035,12 +1035,21 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
   static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
 
+  static ezHashedString sVSRTAI = ezMakeHashedString("VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX");
+  static ezHashedString sTrue = ezMakeHashedString("TRUE");
+  static ezHashedString sFalse = ezMakeHashedString("FALSE");
+
   if (pCamera->IsOrthographic())
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sOrtho);
   else if (pCamera->IsStereoscopic())
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sStereo);
   else
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
+
+  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
+    pRenderContext->SetShaderPermutationVariable(sVSRTAI, sTrue);
+  else
+    pRenderContext->SetShaderPermutationVariable(sVSRTAI, sFalse);
 
   // Also set pipeline specific permutation vars
   for (auto& var : m_PermutationVars)

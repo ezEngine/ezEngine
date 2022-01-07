@@ -3,7 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -16,24 +17,27 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include "BlurConstants.h"
 
-Texture2D Input;
+Texture2DArray Input;
 
 float4 main(PS_IN input) : SV_Target
 {
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+  #endif
+
   float width, height, levels;
   Input.GetDimensions(0, width, height, levels);
   float2 vPixelSize = float2(1.0f / width, 1.0f / height);
@@ -43,7 +47,7 @@ float4 main(PS_IN input) : SV_Target
   float fWeight = 1.0f / (BlurRadius * 2 + 1);
   for (int i = -BlurRadius; i <= BlurRadius; ++i )
   {
-    res += Input.Sample(LinearClampSampler, input.TexCoord0 + float2(i* 1.5f * vPixelSize.x, 0.0f)) * fWeight;
+    res += Input.Sample(LinearClampSampler, float3(input.TexCoord0 + float2(i* 1.5f * vPixelSize.x, 0.0f), s_ActiveCameraEyeIndex)) * fWeight;
   }
 
   return res;

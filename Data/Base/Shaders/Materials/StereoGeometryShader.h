@@ -2,53 +2,9 @@
 
 // This geometry shader is a pass-through that leaves the geometry unmodified and sets the render target array index.
 
-#if CAMERA_MODE == CAMERA_MODE_STEREO
+#if CAMERA_MODE == CAMERA_MODE_STEREO && !defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX)
 
 #  include "MaterialInterpolator.h"
-
-#  if defined(CUSTOM_INTERPOLATOR)
-#    error "Stereo geometry shader does not support custom interpolators!"
-#  endif
-
-// TODO: Can we do this without copy pasting the VS_OUT struct from MaterialInterpolator?
-// DX doesn't like it if we pretend that VS_OUT had
-struct GS_OUT
-{
-  float4 Position : SV_Position;
-
-#  if defined(USE_WORLDPOS)
-  float3 WorldPosition : WORLDPOS;
-#  endif
-
-#  if defined(USE_NORMAL)
-  float3 Normal : NORMAL;
-#  endif
-
-#  if defined(USE_TANGENT)
-  float3 Tangent : TANGENT;
-  float3 BiTangent : BITANGENT;
-#  endif
-
-#  if defined(USE_TEXCOORD0)
-  float2 TexCoord0 : TEXCOORD0;
-
-#    if defined(USE_TEXCOORD1)
-  float2 TexCoord1 : TEXCOORD1;
-#    endif
-#  endif
-
-#  if defined(USE_COLOR0)
-  float4 Color0 : COLOR0;
-
-#    if defined(USE_COLOR1)
-  float4 Color1 : COLOR1;
-#    endif
-#  endif
-
-  // If CAMERA_MODE is CAMERA_MODE_STEREO, every even instance is for the left eye and every odd is for the right eye.
-  uint InstanceID : SV_InstanceID;
-  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
-};
 
 #  if defined(TOPOLOGY)
 #    if TOPOLOGY == TOPOLOGY_LINES
@@ -98,8 +54,22 @@ struct GS_OUT
     output.Color1 = input[i].Color1;
 #  endif
 
+#if defined(USE_DEBUG_INTERPOLATOR)
+  output.DebugInterpolator = input[i].DebugInterpolator;
+#endif
+
+#if defined(CUSTOM_INTERPOLATOR)
+  output.CUSTOM_INTERPOLATOR_NAME = input[i].CUSTOM_INTERPOLATOR_NAME;
+#endif
+
     output.InstanceID = input[i].InstanceID;
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
+
+#if defined(TWO_SIDED)
+  #if TWO_SIDED == TRUE
+    output.FrontFace : input[i].FrontFace;
+  #endif
+#endif
 
     outStream.Append(output);
   }

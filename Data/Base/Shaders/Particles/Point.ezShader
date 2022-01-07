@@ -3,6 +3,9 @@ ALL
 
 [PERMUTATIONS]
 
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+
 [RENDERSTATE]
 
 BlendingEnabled0 = false
@@ -10,17 +13,26 @@ BlendingEnabled0 = false
 DepthTest = true
 DepthWrite = true
 
-[VERTEXSHADER]
+[SHADER]
 
 #define USE_COLOR0
+
+[VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Particles/BillboardQuadParticleShaderData.h>
 
-VS_OUT main(uint VertexID : SV_VertexID)
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
   VS_OUT ret;
+#if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+  ret.RenderTargetArrayIndex = InstanceID;
+#endif
 
   uint dataIndex = VertexID;
 
@@ -38,10 +50,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
   return ret;
 }
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
-
-#define USE_COLOR0
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 

@@ -79,7 +79,7 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       pParticleBillboardData += uiNumParticlesInBatch;
 
       // do one drawcall
-      pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch).IgnoreResult();
+      pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1).IgnoreResult();
     }
   }
 }

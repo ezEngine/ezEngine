@@ -42,28 +42,38 @@ namespace
 
   // in order: tlf, trf, blf, brf, tln, trn, bln, brn
   EZ_FORCE_INLINE void GetClusterCornerPoints(
-    const ezCamera& camera, float fZf, float fZn, float fTanFovX, float fTanFovY, ezInt32 x, ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
+    const ezCamera& camera, float fZf, float fZn, float fTanLeft, float fTanRight, float fTanBottom, float fTanTop, ezInt32 x, ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
   {
     const ezVec3& pos = camera.GetPosition();
     const ezVec3& dirForward = camera.GetDirForwards();
     const ezVec3& dirRight = camera.GetDirRight();
     const ezVec3& dirUp = camera.GetDirUp();
 
-    float fStepXf = (fZf * fTanFovX) / NUM_CLUSTERS_X;
-    float fStepYf = (fZf * fTanFovY) / NUM_CLUSTERS_Y;
+    const float fStartXf = fZf * fTanLeft;
+    const float fStartYf = fZf * fTanBottom;
+    const float fEndXf = fZf * fTanRight;
+    const float fEndYf = fZf * fTanTop;
 
-    float fXf = (x - (NUM_CLUSTERS_X / 2)) * fStepXf;
-    float fYf = (y - (NUM_CLUSTERS_Y / 2)) * fStepYf;
+    float fStepXf = (fEndXf - fStartXf) / NUM_CLUSTERS_X;
+    float fStepYf = (fEndYf - fStartYf) / NUM_CLUSTERS_Y;
+
+    float fXf = fStartXf + x * fStepXf;
+    float fYf = fStartYf + y * fStepYf;
 
     out_pCorners[0] = pos + dirForward * fZf + dirRight * fXf - dirUp * fYf;
     out_pCorners[1] = out_pCorners[0] + dirRight * fStepXf;
     out_pCorners[2] = out_pCorners[0] - dirUp * fStepYf;
     out_pCorners[3] = out_pCorners[2] + dirRight * fStepXf;
 
-    float fStepXn = (fZn * fTanFovX) / NUM_CLUSTERS_X;
-    float fStepYn = (fZn * fTanFovY) / NUM_CLUSTERS_Y;
-    float fXn = (x - (NUM_CLUSTERS_X / 2)) * fStepXn;
-    float fYn = (y - (NUM_CLUSTERS_Y / 2)) * fStepYn;
+    const float fStartXn = fZn * fTanLeft;
+    const float fStartYn = fZn * fTanBottom;
+    const float fEndXn = fZn * fTanRight;
+    const float fEndYn = fZn * fTanTop;
+
+    float fStepXn = (fEndXn - fStartXn) / NUM_CLUSTERS_X;
+    float fStepYn = (fEndYn - fStartYn) / NUM_CLUSTERS_Y;
+    float fXn = fStartXn + x * fStepXn;
+    float fYn = fStartYn + y * fStepYn;
 
     out_pCorners[4] = pos + dirForward * fZn + dirRight * fXn - dirUp * fYn;
     out_pCorners[5] = out_pCorners[4] + dirRight * fStepXn;
@@ -79,18 +89,35 @@ namespace
     if (camera.IsOrthographic())
       return;
 
-    float fTanFovX = ezMath::Tan(camera.GetFovX(fAspectRatio) * 0.5f);
-    float fTanFovY = ezMath::Tan(camera.GetFovY(fAspectRatio) * 0.5f);
-    ezSimdVec4f fov = ezSimdVec4f(fTanFovX, fTanFovY, fTanFovX, fTanFovY);
+    ezMat4 mProj;
+    camera.GetProjectionMatrix(fAspectRatio, mProj);
+
+    ezSimdVec4f stepScale;
+    ezSimdVec4f tanLBLB;
+    {
+      ezAngle fFovLeft;
+      ezAngle fFovRight;
+      ezAngle fFovBottom;
+      ezAngle fFovTop;
+      ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fFovLeft, fFovRight, fFovBottom, fFovTop);
+
+      const float fTanLeft = ezMath::Tan(fFovLeft);
+      const float fTanRight = ezMath::Tan(fFovRight);
+      const float fTanBottom = ezMath::Tan(fFovBottom);
+      const float fTanTop = ezMath::Tan(fFovTop);
+
+      float fStepXf = (fTanRight - fTanLeft) / NUM_CLUSTERS_X;
+      float fStepYf = (fTanTop - fTanBottom) / NUM_CLUSTERS_Y;
+
+      stepScale = ezSimdVec4f(fStepXf, fStepYf, fStepXf, fStepYf);
+      tanLBLB = ezSimdVec4f(fTanLeft, fTanBottom, fTanLeft, fTanBottom);
+    }
 
     ezSimdVec4f pos = ezSimdConversion::ToVec3(camera.GetPosition());
     ezSimdVec4f dirForward = ezSimdConversion::ToVec3(camera.GetDirForwards());
     ezSimdVec4f dirRight = ezSimdConversion::ToVec3(camera.GetDirRight());
     ezSimdVec4f dirUp = ezSimdConversion::ToVec3(camera.GetDirUp());
 
-    ezSimdVec4f numClusters = ezSimdVec4f(NUM_CLUSTERS_X, NUM_CLUSTERS_Y, NUM_CLUSTERS_X, NUM_CLUSTERS_Y);
-    ezSimdVec4f halfNumClusters = numClusters * 0.5f;
-    ezSimdVec4f stepScale = fov.CompDiv(halfNumClusters);
 
     ezSimdVec4f fZn = ezSimdVec4f::ZeroVector();
     ezSimdVec4f cc[8];
@@ -104,12 +131,14 @@ namespace
       ezSimdVec4f depthF = pos + dirForward * fZf.x();
       ezSimdVec4f depthN = pos + dirForward * fZn.x();
 
+      ezSimdVec4f startLBLB = zff_znn.CompMul(tanLBLB);
+
       for (ezInt32 y = 0; y < NUM_CLUSTERS_Y; y++)
       {
         for (ezInt32 x = 0; x < NUM_CLUSTERS_X; x++)
         {
           ezSimdVec4f xyxy = ezSimdVec4i(x, y, x, y).ToFloat();
-          ezSimdVec4f xfyf = (xyxy - halfNumClusters).CompMul(steps);
+          ezSimdVec4f xfyf = startLBLB + (xyxy).CompMul(steps);
 
           cc[0] = depthF + dirRight * xfyf.x() - dirUp * xfyf.y();
           cc[1] = cc[0] + dirRight * steps.x();
@@ -322,7 +351,8 @@ namespace
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
     FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters,
-      [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
+      [&](ezUInt32 uiClusterIndex)
+      { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
   }
 
   struct BoundingCone
@@ -363,21 +393,22 @@ namespace
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
-      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
-      ezSimdFloat clusterRadius = clusterSphere.GetRadius();
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
+      {
+        ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+        ezSimdFloat clusterRadius = clusterSphere.GetRadius();
 
-      ezSimdVec4f toConePos = clusterSphere.m_CenterAndRadius - position;
-      ezSimdFloat projected = forwardDir.Dot<3>(toConePos);
-      ezSimdFloat distToConeSq = toConePos.Dot<3>(toConePos);
-      ezSimdFloat distClosestP = cosAngle * (distToConeSq - projected * projected).GetSqrt() - projected * sinAngle;
+        ezSimdVec4f toConePos = clusterSphere.m_CenterAndRadius - position;
+        ezSimdFloat projected = forwardDir.Dot<3>(toConePos);
+        ezSimdFloat distToConeSq = toConePos.Dot<3>(toConePos);
+        ezSimdFloat distClosestP = cosAngle * (distToConeSq - projected * projected).GetSqrt() - projected * sinAngle;
 
-      bool angleCull = distClosestP > clusterRadius;
-      bool frontCull = projected > clusterRadius + range;
-      bool backCull = projected < -clusterRadius;
+        bool angleCull = distClosestP > clusterRadius;
+        bool frontCull = projected > clusterRadius + range;
+        bool backCull = projected < -clusterRadius;
 
-      return !(angleCull || frontCull || backCull);
-    });
+        return !(angleCull || frontCull || backCull);
+      });
   }
 
   template <typename Cluster>
@@ -432,11 +463,12 @@ namespace
     const ezUInt32 uiBlockIndex = uiDecalIndex / 32;
     const ezUInt32 uiMask = 1 << (uiDecalIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
-      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
-      clusterSphere.Transform(worldToDecal);
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
+      {
+        ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+        clusterSphere.Transform(worldToDecal);
 
-      return localDecalBounds.Overlaps(clusterSphere);
-    });
+        return localDecalBounds.Overlaps(clusterSphere);
+      });
   }
 } // namespace

@@ -95,7 +95,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
         const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
 
-        unsigned int uiRenderedInstances = uiFilteredCount;
+        ezUInt32 uiRenderedInstances = uiFilteredCount;
         if (renderViewContext.m_pCamera->IsStereoscopic())
           uiRenderedInstances *= 2;
 

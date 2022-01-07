@@ -33,7 +33,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezAOPass::ezAOPass()
-  : ezRenderPipelinePass("AOPass")
+  : ezRenderPipelinePass("AOPass", true)
   , m_fRadius(1.0f)
   , m_fMaxScreenSpaceRadius(1.0f)
   , m_fContrast(2.0f)
@@ -180,6 +180,8 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None, pOutput->m_Desc.m_uiArraySize);
   }
 
+  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
+
   // Mip map passes
   {
     CreateSamplerState();
@@ -219,7 +221,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
     }
@@ -259,7 +261,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
   }
 
   // Blur pass
@@ -275,7 +277,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
   }
 
   // Return temp targets

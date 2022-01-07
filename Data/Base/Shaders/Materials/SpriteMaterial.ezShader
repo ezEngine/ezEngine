@@ -9,13 +9,14 @@ MSAA
 TWO_SIDED = FALSE
 FLIP_WINDING = FALSE
 CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
 WireFrame = false
 
-[VERTEXSHADER]
+[SHADER]
 
 #define USE_TEXCOORD0
 #define USE_COLOR0
@@ -26,7 +27,10 @@ WireFrame = false
 
 #if defined(USE_GAME_OBJECT_ID)
   #define CUSTOM_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
+  #define CUSTOM_INTERPOLATOR_NAME GameObjectID
 #endif
+
+[VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -47,8 +51,12 @@ struct SpriteData
 
 StructuredBuffer<SpriteData> spriteData;
 
-VS_OUT main(uint VertexID : SV_VertexID)
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
   float2 vertexPositions[6] =
   {
     float2(0.0, 0.0),
@@ -58,6 +66,13 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float2(1.0, 1.0),
     float2(1.0, 0.0),
   };
+
+  VS_OUT Output;
+  #if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+    Output.RenderTargetArrayIndex = InstanceID;
+  #else
+    Output.InstanceID = InstanceID;
+  #endif
 
   uint index = VertexID / 6;
   uint vertexIndex = VertexID % 6;
@@ -88,7 +103,6 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float2 texCoordScale = RG16FToFloat2(data.texCoordScale);
   float2 texCoordOffset = RG16FToFloat2(data.texCoordOffset);
 
-  VS_OUT Output;
   Output.Position = screenPosition;
   Output.TexCoord0 = texCoords * texCoordScale + texCoordOffset;
   Output.Color0 = RGBA16FToFloat4(data.colorRG, data.colorBA);
@@ -100,18 +114,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
   return Output;
 }
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
 [PIXELSHADER]
-
-#define USE_TEXCOORD0
-#define USE_COLOR0
-
-#if (RENDER_PASS == RENDER_PASS_EDITOR) || (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
-  #define USE_GAME_OBJECT_ID
-#endif
-
-#if defined(USE_GAME_OBJECT_ID)
-  #define CUSTOM_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
-#endif
 
 #if BLEND_MODE == BLEND_MODE_MASKED && MSAA
   #define USE_ALPHA_TEST_SUPER_SAMPLING
@@ -146,6 +153,10 @@ float GetOpacity()
 
 PS_OUT main(PS_IN Input)
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
   G.Input = Input;
 
   uint coverage = CalculateCoverage();

@@ -58,7 +58,7 @@ namespace
 } // namespace
 
 ezLSAOPass::ezLSAOPass()
-  : ezRenderPipelinePass("LSAOPass")
+  : ezRenderPipelinePass("LSAOPass", true)
   , m_uiLineToLinePixelOffset(2)
   , m_uiLineSamplePixelOffsetFactor(1)
   , m_bSweepDataDirty(true)
@@ -102,7 +102,12 @@ bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   }
   if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_bAllowShaderResourceView)
   {
-    ezLog::Error("All ssao pass inputs must allow shader resoure view.");
+    ezLog::Error("All ssao pass inputs must allow shader resource view.");
+    return false;
+  }
+  if (inputs[m_PinDepthInput.m_uiInputIndex]->m_SampleCount != ezGALMSAASampleCount::None)
+  {
+    ezLog::Error("'{0}' input must be resolved", GetName());
     return false;
   }
 
@@ -116,24 +121,26 @@ bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
 void ezLSAOPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   // Todo: Support half resolution.
-  SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
+  const ezGALTextureCreationDescription& desc = inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc;
+  SetupLineSweepData(ezVec3I32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiArraySize));
 }
 
 void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (m_bSweepDataDirty)
-    SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
-
+  {
+    const ezGALTextureCreationDescription& desc = inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc;
+    SetupLineSweepData(ezVec3I32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiArraySize));
+  }
   if (outputs[m_PinOutput.m_uiOutputIndex] == nullptr)
     return;
+
+  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALPass* pGALPass = pDevice->BeginPass(GetName());
   EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#if 0
-  // Set rendertarget immediately to ensure that depth buffer is no longer bound (we need it right away in the sweeping part)
   ezGALRenderingSetup renderingSetup;
   ezGALTextureHandle tempTexture;
   if (m_bDistributedGathering)
@@ -148,33 +155,25 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   {
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
   }
-  renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
-
-
-  // Constant buffer for both passes.
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
-  // Depth buffer for both passes.
-  {
-    ezGALResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", hDepthInputView);
-  }
-
 
   // Line Sweep part (compute)
   {
-    EZ_PROFILE_AND_MARKER(pGALContext, "Line Sweep");
-
+    EZ_PROFILE_SCOPE("Line Sweep");
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginComputeScope(pGALPass, renderViewContext, "Line Sweep");
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
+    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
     renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
     renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
-    renderViewContext.m_pRenderContext->Dispatch(m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0)).IgnoreResult();
+
+    const ezUInt32 dispatchSize = m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
+    renderViewContext.m_pRenderContext->Dispatch(dispatchSize, uiRenderedInstances).IgnoreResult();
   }
 
   // Gather samples.
   {
-    EZ_PROFILE_AND_MARKER(pGALContext, "Gather");
+    EZ_PROFILE_SCOPE("Gather");
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Gather Samples");
 
     if (m_bDistributedGathering)
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("DISTRIBUTED_SSAO_GATHERING", "TRUE");
@@ -194,22 +193,19 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         break;
     }
 
-    // Manually unbind UAV. TODO, this should be done automatically.
-    pGALContext->SetUnorderedAccessView(0, ezGALUnorderedAccessViewHandle());
-
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
+    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->BindShader(m_hShaderGather);
-
     renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
     renderViewContext.m_pRenderContext->BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputSRV);
-
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
   }
 
   // If enabled, average distributed gather samples and write to output.
   if (m_bDistributedGathering)
   {
-    EZ_PROFILE_AND_MARKER(pGALContext, "Averaging");
+    EZ_PROFILE_SCOPE("Averaging");
 
     switch (m_DepthCompareFunction)
     {
@@ -224,25 +220,21 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         break;
     }
 
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
 
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Averaging");
+
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
+    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->BindShader(m_hShaderAverage);
-
-    {
-      ezGALResourceViewCreationDescription rvcd;
-      rvcd.m_hTexture = tempTexture;
-      ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-      renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", hTempTextureRView);
-    }
+    renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", pDevice->GetDefaultResourceView(tempTexture));
 
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
 
     // Give back temp texture.
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(tempTexture);
   }
-#endif
 }
 
 void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
@@ -320,8 +312,9 @@ void ezLSAOPass::DestroyLineSweepData()
   m_hLineInfoBuffer.Invalidate();
 }
 
-void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
+void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
 {
+  // imageResolution.z defines the number of render layers (1 for mono, 2 for stereo rendering).
   DestroyLineSweepData();
 
   ezDynamicArray<LineInstruction> lineInstructions;
@@ -375,7 +368,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
   }
   m_numSweepLines = lineInstructions.GetCount();
   cb->TotalLineNumber = m_numSweepLines;
-
+  cb->TotalNumberOfSamples = totalNumberOfSamples;
   // Allocate and upload data structures to GPU
   {
     ezGALDevice* device = ezGALDevice::GetDefaultDevice();
@@ -386,7 +379,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
     {
       ezGALBufferCreationDescription bufferDesc;
       bufferDesc.m_uiStructSize = 4;
-      bufferDesc.m_uiTotalSize = 2 * totalNumberOfSamples;
+      bufferDesc.m_uiTotalSize = imageResolution.z * 2 * totalNumberOfSamples;
       bufferDesc.m_BufferType = ezGALBufferType::Generic;
       bufferDesc.m_bUseForIndirectArguments = false;
       bufferDesc.m_bUseAsStructuredBuffer = false;
@@ -403,7 +396,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
       uavDesc.m_hBuffer = m_hLineSweepOutputBuffer;
       uavDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
       uavDesc.m_uiFirstElement = 0;
-      uavDesc.m_uiNumElements = totalNumberOfSamples / 2;
+      uavDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
       uavDesc.m_bRawView = false;
       uavDesc.m_bAppend = false;
       m_hLineSweepOutputUAV = device->CreateUnorderedAccessView(uavDesc);
@@ -412,7 +405,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
       srvDesc.m_hBuffer = m_hLineSweepOutputBuffer;
       srvDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
       srvDesc.m_uiFirstElement = 0;
-      srvDesc.m_uiNumElements = totalNumberOfSamples / 2;
+      srvDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
       srvDesc.m_bRawView = false;
       m_hLineSweepOutputSRV = device->CreateResourceView(srvDesc);
     }
@@ -441,7 +434,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
   m_bSweepDataDirty = false;
 }
 
-void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples)
+void ezLSAOPass::AddLinesForDirection(const ezVec3I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples)
 {
   EZ_ASSERT_DEBUG(sampleDir.x != 0 || sampleDir.y != 0, "Sample direction is null (not pointing anywhere)");
 
@@ -494,7 +487,7 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
 
     // Add a pseudo random offset to distributed the samples a bit.
     // We still want to go from discrete pixel to discrete pixel so we have to round which can mess up our line placement.
-    // So this is introducing some error. Visual comparision clearly shows that it's worth it though.
+    // So this is introducing some error. Visual comparison clearly shows that it's worth it though.
     float offset = HaltonSequence(lineIndex, sec + lineIndex);
     newLine.FirstSamplePos.DOM += ezMath::Round(offset * walkDir.DOM);
     newLine.FirstSamplePos.SEC += ezMath::Round(offset * walkDir.SEC);

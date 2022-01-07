@@ -85,7 +85,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
       pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_spriteData.GetByteArrayPtr());
 
       pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
-      pContext->DrawMeshBuffer().IgnoreResult();
+      pContext->DrawMeshBuffer(uiCount * 2, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1).IgnoreResult();
     }
 
     uiStartIndex += uiCount;

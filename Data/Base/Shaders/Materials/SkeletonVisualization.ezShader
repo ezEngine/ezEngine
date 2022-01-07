@@ -11,7 +11,7 @@ TWO_SIDED = FALSE
 FLIP_WINDING = FALSE
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
 SHADING_QUALITY = SHADING_QUALITY_NORMAL
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
 
 [RENDERSTATE]
 
@@ -49,6 +49,9 @@ struct GS_OUT
   float3 Normal : NORMAL;
   float3 Barycentric : TEXCOORD0;
   uint InstanceID : SV_InstanceID;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+#endif
 };
 
 [maxvertexcount(3)]
@@ -67,7 +70,8 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.Normal = normal;
     output.Barycentric = float3(i==0, i==1, i==2);
     output.InstanceID = input[i].InstanceID;
-
+    output.RenderTargetArrayIndex = input[i].InstanceID % 2;
+    
     outputStream.Append(output);
   }
 
@@ -83,6 +87,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 #endif
 
 #define CUSTOM_INTERPOLATOR float3 Barycentric : TEXCOORD0;
+#define CUSTOM_INTERPOLATOR_NAME Barycentric
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>

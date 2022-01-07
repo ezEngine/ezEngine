@@ -3,7 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -15,20 +16,19 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Pipeline/Utils.h>
 #include "SSAOConstants.h"
 
-Texture2D DepthTexture;
-Texture2D LowResDepthTexture;
+Texture2DArray DepthTexture;
+Texture2DArray LowResDepthTexture;
 SamplerState DepthSampler;
 
 Texture2D NoiseTexture;
@@ -38,16 +38,16 @@ Texture2D NoiseTexture;
 
 float SampleDepth(float2 texCoords)
 {
-  return DepthTexture.SampleLevel(DepthSampler, texCoords, 0).r;
+  return DepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r;
 }
 
 float SampleLowResDepth(float2 texCoords, float mipLevel)
 {
 #if 0
-  return LinearizeZBufferDepth(DepthTexture.SampleLevel(DepthSampler, texCoords, 0).r);
+  return LinearizeZBufferDepth(DepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r);
 #else
   texCoords = texCoords * TexCoordsScale;
-  return LowResDepthTexture.SampleLevel(DepthSampler, texCoords, mipLevel).r;
+  return LowResDepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), mipLevel).r;
 #endif
 }
 
@@ -102,6 +102,10 @@ float2 OcclusionSample(float2 normalizedCoords, float2 offset, float3 invFovCorr
 
 float4 main(PS_IN Input) : SV_Target
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
   const float2 offsets[NUM_AO_SAMPLES]=
   {
     float2(0.000, 0.200),

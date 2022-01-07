@@ -174,6 +174,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 4).Succeeded());
 }
 
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/XR/ezProject", 4).Succeeded());
+}
+
 #endif
 
 

@@ -149,6 +149,7 @@ void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ezMat4& inout_Matrix, ez
 
 void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovX, ezAngle& out_fFovY)
 {
+
   const ezVec3 row0 = ProjectionMatrix.GetRow(0).GetAsVec3();
   const ezVec3 row1 = ProjectionMatrix.GetRow(1).GetAsVec3();
   const ezVec3 row3 = ProjectionMatrix.GetRow(3).GetAsVec3();
@@ -160,6 +161,46 @@ void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& Projecti
 
   out_fFovX = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(leftPlane.Dot(rightPlane));
   out_fFovY = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
+}
+
+void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovLeft, ezAngle& out_fFovRight, ezAngle& out_fFovBottom, ezAngle& out_fFovTop, ezClipSpaceYMode::Enum yRange)
+{
+  const ezVec3 row0 = ProjectionMatrix.GetRow(0).GetAsVec3();
+  const ezVec3 row1 = ProjectionMatrix.GetRow(1).GetAsVec3();
+  const ezVec3 row3 = ProjectionMatrix.GetRow(3).GetAsVec3();
+
+  const ezVec3 leftPlane = (row3 + row0).GetNormalized();
+  const ezVec3 rightPlane = (row3 - row0).GetNormalized();
+  const ezVec3 bottomPlane = (row3 + row1).GetNormalized();
+  const ezVec3 topPlane = (row3 - row1).GetNormalized();
+
+  out_fFovLeft = -ezMath::ACos(leftPlane.Dot(ezVec3(1.0f, 0, 0)));
+  out_fFovRight = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(rightPlane.Dot(ezVec3(1.0f, 0, 0)));
+  out_fFovBottom = -ezMath::ACos(bottomPlane.Dot(ezVec3(0, 1.0f, 0)));
+  out_fFovTop = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(ezVec3(0, 1.0f, 0)));
+
+  if (yRange == ezClipSpaceYMode::Flipped)
+    ezMath::Swap(out_fFovBottom, out_fFovTop);
+}
+
+ezResult ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange)
+{
+  float fNear, fFar;
+  EZ_SUCCEED_OR_RETURN(ExtractNearAndFarClipPlaneDistances(fNear, fFar, ProjectionMatrix, DepthRange));
+  // Compensate for inverse-Z.
+  const float fMinDepth = ezMath::Min(fNear, fFar);
+
+  ezAngle fFovLeft;
+  ezAngle fFovRight;
+  ezAngle fFovBottom;
+  ezAngle fFovTop;
+  ExtractPerspectiveMatrixFieldOfView(ProjectionMatrix, fFovLeft, fFovRight, fFovBottom, fFovTop, yRange);
+
+  out_fLeft = ezMath::Tan(fFovLeft) * fMinDepth;
+  out_fRight = ezMath::Tan(fFovRight) * fMinDepth;
+  out_fBottom = ezMath::Tan(fFovBottom) * fMinDepth;
+  out_fTop = ezMath::Tan(fFovTop) * fMinDepth;
+  return EZ_SUCCESS;
 }
 
 ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
@@ -185,7 +226,7 @@ ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, 
   }
 
   out_fNear = ezMath::Abs(nearPlane.w / nearLength);
-  out_fFar = farPlane.w / farLength;
+  out_fFar = ezMath::Abs(farPlane.w / farLength);
 
   return EZ_SUCCESS;
 }

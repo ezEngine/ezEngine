@@ -21,7 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezMsaaResolvePass::ezMsaaResolvePass()
-  : ezRenderPipelinePass("MsaaResolvePass")
+  : ezRenderPipelinePass("MsaaResolvePass", true)
   , m_bIsDepth(false)
   , m_MsaaSampleCount(ezGALMSAASampleCount::None)
 {
@@ -87,11 +87,13 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
     globals.NumMsaaSamples = m_MsaaSampleCount;
 
+    const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
+
     renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
   }
   else
   {
@@ -102,6 +104,12 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     subresource.m_uiArraySlice = 0;
 
     pCommandEncoder->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+
+    if (renderViewContext.m_pCamera->IsStereoscopic())
+    {
+      subresource.m_uiArraySlice = 1;
+      pCommandEncoder->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+    }
   }
 }
 

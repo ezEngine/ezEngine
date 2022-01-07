@@ -5,7 +5,8 @@ ALL
 
 LSAO_DEPTH_COMPARE
 DISTRIBUTED_SSAO_GATHERING
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -18,20 +19,19 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Pipeline/Utils.h>
 #include "LSAOConstants.h"
 
-Texture2D<float> DepthBuffer : register(t0);
+Texture2DArray<float> DepthBuffer : register(t0);
 
 StructuredBuffer<LineInstruction> LineInstructions : register(t1);
 Buffer<uint> LineSweepOutputBuffer : register(t2);
@@ -53,9 +53,9 @@ Buffer<uint> LineSweepOutputBuffer : register(t2);
 #define ASSERT(condition)
 
 // Unpacks the sample at sampleIndex and returns the occlusion a its point.
-float GetLineSample(uint sampleIndex)
+float GetLineSample(uint sampleIndex, uint offset)
 {
-  uint rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
+  uint rawSample = LineSweepOutputBuffer.Load(offset + sampleIndex/2);
   uint sample = rawSample >> (16 * (sampleIndex % 2 == 0));
   sample &= 0xFFFF;
   return f16tof32(sample);
@@ -63,7 +63,7 @@ float GetLineSample(uint sampleIndex)
 
 float SampleDepth(float2 texCoords)
 {
-  return DepthBuffer.SampleLevel(PointClampSampler, texCoords, 0).r;
+  return DepthBuffer.SampleLevel(PointClampSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r;
 }
 
 // View-space normal at the given location.
@@ -100,7 +100,7 @@ float ComputeDistanceWeight(float2 centerPixelPos, float2 samplePixelPos, float 
 // I hope the compiler is smart enough to remove the unused variables.
 float ComputeSampleWeight(float2 centerPixelPos, float3 centerPos, float3 viewSpaceNormal, float2 samplePixelPos, float sampleDistanceInv)
 {
-  float sampleLinearDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePixelPos, 0)));
+  float sampleLinearDepth = LinearizeZBufferDepth(DepthBuffer.Load(int4(samplePixelPos, s_ActiveCameraEyeIndex, 0)));
 #if LSAO_DEPTH_COMPARE == LSAO_DEPTH_COMPARE_DEPTH
   return ComputeDistanceCutOffWeight(centerPos.z, sampleLinearDepth);
 #else
@@ -121,6 +121,11 @@ float ComputeSampleWeight(float2 centerPixelPos, float3 centerPos, float3 viewSp
 
 float4 main(PS_IN input) : SV_Target
 {
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
+  #endif
+  uint bufferArrayOffset = (s_ActiveCameraEyeIndex * TotalNumberOfSamples) / 2;
+
   float2 screenSize = ViewportSize.xy;
   float2 screenSizeSubOne = screenSize - float2(1.0f, 1.0f);
   float2 centerPixelPos = input.TexCoord0 * screenSize;
@@ -195,7 +200,7 @@ float4 main(PS_IN input) : SV_Target
     // Any conditional here will only make it slower as the number of pixels that would be discarded
     // is generally really small unless your image only contains noise and no structure.
     {
-      float sample = GetLineSample(sampleIndex);
+      float sample = GetLineSample(sampleIndex, bufferArrayOffset);
       occlusionAccum += sample * weight;
       totalWeight += weight;
     }
@@ -206,7 +211,7 @@ float4 main(PS_IN input) : SV_Target
     weight = ComputeSampleWeight(centerPixelPos, centerPos, viewSpaceNormal, samplePixelPos, sampleDistanceInv);
     {
       ++sampleIndex;
-      float sample = GetLineSample(sampleIndex);
+      float sample = GetLineSample(sampleIndex, bufferArrayOffset);
       occlusionAccum += sample * weight;
       totalWeight += weight;
     }
