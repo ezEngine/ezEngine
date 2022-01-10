@@ -19,6 +19,7 @@ public:
 
   float m_fPerspectiveFieldOfView = 70.0f;
   float m_fGizmoScale = 1.0f;
+  bool m_bExperimentalGizmos = false;
   bool m_bUsePrecompiledTools = true;
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bShowSplashscreen = true;

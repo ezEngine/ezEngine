@@ -11,7 +11,7 @@ CAMERA_MODE
 [RENDERSTATE]
 
 #if GIZMO_CONSTANT_SIZE == 1
-  CullMode = CullMode_None
+  CullMode = CullMode_Back
 #else
   CullMode = CullMode_Back
 #endif
@@ -40,6 +40,10 @@ CAMERA_MODE
 
 #define USE_COLOR0
 
+#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+#define USE_NORMAL
+#endif
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -59,11 +63,16 @@ VS_OUT main(VS_IN Input)
 		float scale = 1.0f;
 	#endif
 
+#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4((Input.Position + (Input.Normal * 2 - 1) * 0.04) * scale, 1.0f));
+#else
 	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position * scale, 1.0f));
+#endif
 
 	VS_OUT RetVal;
 	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);
 	RetVal.Color0 = GizmoColor;
+	//RetVal.Normal = float3(0, 1, 0);
 
 	return RetVal;
 }

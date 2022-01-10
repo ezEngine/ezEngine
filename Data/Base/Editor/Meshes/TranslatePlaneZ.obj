@@ -1,0 +1,10 @@
+# Blender v3.0.0 OBJ File: 'TranslateRotate.blend'
+# www.blender.org
+o ZPlane_Plane.003
+v 0.311045 0.400518 -0.000000
+v 0.311045 0.300518 -0.000000
+v 0.411045 0.400518 -0.000000
+v 0.411045 0.300518 -0.000000
+s off
+f 3 2 1
+f 3 4 2

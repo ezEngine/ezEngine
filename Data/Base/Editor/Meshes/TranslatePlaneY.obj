@@ -1,0 +1,10 @@
+# Blender v3.0.0 OBJ File: 'TranslateRotate.blend'
+# www.blender.org
+o YPlane_Plane.006
+v 0.311045 0.000000 0.400518
+v 0.311045 0.000000 0.300518
+v 0.411045 0.000000 0.400518
+v 0.411045 0.000000 0.300518
+s off
+f 2 3 1
+f 2 4 3

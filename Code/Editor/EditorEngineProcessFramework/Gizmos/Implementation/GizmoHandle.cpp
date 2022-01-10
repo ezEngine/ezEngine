@@ -3,6 +3,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
+#include <Utilities/FileFormats/OBJLoader.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator)
@@ -21,6 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
+    EZ_MEMBER_PROPERTY("HandleMesh", m_sGizmoHandleMesh),
     EZ_MEMBER_PROPERTY("Color", m_Color),
     EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
     EZ_MEMBER_PROPERTY("AlwaysOnTop", m_bAlwaysOnTop),
@@ -35,10 +37,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGizmoHandle::ezGizmoHandle()
 {
-  m_bVisible = false;
   m_Transformation.SetIdentity();
   m_Transformation.m_vScale.SetZero(); // make sure it is different from anything valid
-  m_pParentGizmo = nullptr;
 }
 
 void ezGizmoHandle::SetVisible(bool bVisible)
@@ -67,12 +67,15 @@ void ezGizmoHandle::SetTransformation(const ezMat4& m)
   SetTransformation(t);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferResource(
-  const ezGeometry& geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
+static ezMeshBufferResourceHandle CreateMeshBufferResource(ezGeometry& geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
 {
+  geom.ComputeFaceNormals();
+  geom.ComputeSmoothVertexNormals();
+
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+  desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
   desc.AllocateStreamsFromGeometry(geom, topology);
   desc.ComputeBounds();
 
@@ -438,6 +441,41 @@ static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", ezGALPrimitiveTopology::Lines);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferFromFile(const char* szFile)
+{
+  const char* szResourceName = szFile;
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezOBJLoader obj;
+  obj.LoadOBJ(szFile, true).AssertSuccess("Couldn't load gizmo model '{}'", szFile);
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+  for (ezUInt32 v = 0; v < obj.m_Positions.GetCount(); ++v)
+  {
+    geom.AddVertex(obj.m_Positions[v], ezVec3::ZeroVector(), ezVec2::ZeroVector(), ezColor::White);
+  }
+
+  ezStaticArray<ezUInt32, 3> triangle;
+  triangle.SetCount(3);
+  for (ezUInt32 f = 0; f < obj.m_Faces.GetCount(); ++f)
+  {
+    triangle[0] = obj.m_Faces[f].m_Vertices[0].m_uiPositionID;
+    triangle[1] = obj.m_Faces[f].m_Vertices[1].m_uiPositionID;
+    triangle[2] = obj.m_Faces[f].m_Vertices[2].m_uiPositionID;
+
+    geom.AddPolygon(triangle, false);
+  }
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_FromFile", ezGALPrimitiveTopology::Triangles);
+}
+
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   const ezStringBuilder sIdentifier(szMeshResourceName, "-with-", szMaterial);
@@ -458,17 +496,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   return ezResourceManager::GetOrCreateResource<ezMeshResource>(sIdentifier, std::move(md), pMeshBuffer->GetResourceDescription());
 }
 
-ezEngineGizmoHandle::ezEngineGizmoHandle()
-{
-  m_iHandleType = -1;
-  m_pGizmoComponent = nullptr;
-  m_bConstantSize = true;
-  m_bAlwaysOnTop = false;
-  m_bVisualizer = false;
-  m_bShowInOrtho = false;
-  m_Color = ezColor::CornflowerBlue; /* The Original! */
-  m_pWorld = nullptr;
-}
+ezEngineGizmoHandle::ezEngineGizmoHandle() = default;
 
 ezEngineGizmoHandle::~ezEngineGizmoHandle()
 {
@@ -478,11 +506,12 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, ezBitflags<ezGizmoFlags> flags)
+void ezEngineGizmoHandle::ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, ezBitflags<ezGizmoFlags> flags, const char* szCustomMesh)
 {
   SetParentGizmo(pParentGizmo);
 
   m_iHandleType = (int)type;
+  m_sGizmoHandleMesh = szCustomMesh;
   m_Color = col;
 
   m_bConstantSize = flags.IsSet(ezGizmoFlags::ConstantSize);
@@ -598,6 +627,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     {
       szMeshGuid = "{22EC5D48-E8BE-410B-8EAD-51B7775BA058}";
       hMeshBuffer = CreateMeshBufferFrustum();
+    }
+    break;
+    case ezEngineGizmoHandleType::FromFile:
+    {
+      szMeshGuid = m_sGizmoHandleMesh;
+      hMeshBuffer = CreateMeshBufferFromFile(m_sGizmoHandleMesh);
     }
     break;
     default:
