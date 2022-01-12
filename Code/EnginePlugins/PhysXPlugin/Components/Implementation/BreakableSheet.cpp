@@ -605,7 +605,7 @@ void ezBreakableSheetComponent::CreateMeshes()
     {
       ezGeometry g;
 
-      g.AddTexturedBox(m_vExtents, ezColor::White);
+      g.AddBox(m_vExtents, true);
       g.ComputeTangents();
 
       ezMeshResourceDescriptor desc;

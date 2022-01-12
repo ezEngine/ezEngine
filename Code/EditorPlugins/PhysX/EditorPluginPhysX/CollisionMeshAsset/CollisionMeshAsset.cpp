@@ -89,15 +89,15 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
     {
       const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
-      // TODO verify
       xMesh.m_bFlipNormals = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
 
       ezGeometry geom;
-      const ezMat4 mTrans(mTransformation, ezVec3::ZeroVector());
+      ezGeometry::GeoOptions opt;
+      opt.m_Transform = ezMat4(mTransformation, ezVec3::ZeroVector());
 
       if (pProp->m_ConvexMeshType == ezConvexCollisionMeshType::Cylinder)
       {
-        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
+        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), opt);
       }
 
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));

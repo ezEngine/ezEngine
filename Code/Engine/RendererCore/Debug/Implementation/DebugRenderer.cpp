@@ -1450,7 +1450,7 @@ void ezDebugRenderer::OnEngineStartup()
 {
   {
     ezGeometry geom;
-    geom.AddLineBox(ezVec3(2.0f), ezColor::White);
+    geom.AddLineBox(ezVec3(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -1461,7 +1461,7 @@ void ezDebugRenderer::OnEngineStartup()
 
   {
     ezGeometry geom;
-    geom.AddBox(ezVec3(2.0f), ezColor::White);
+    geom.AddBox(ezVec3(2.0f), false);
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
