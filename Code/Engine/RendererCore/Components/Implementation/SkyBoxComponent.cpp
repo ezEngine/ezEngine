@@ -45,7 +45,7 @@ void ezSkyBoxComponent::Initialize()
   if (!hMeshBuffer.IsValid())
   {
     ezGeometry geom;
-    geom.AddRectXY(ezVec2(2.0f), ezColor::White);
+    geom.AddRectXY(ezVec2(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);

@@ -91,7 +91,7 @@ void ezParticleContext::OnInitialize()
       // Build geometry
       ezGeometry geom;
 
-      geom.AddTexturedBox(ezVec3(4, 4, 4), ezColor::White, ezMat4::IdentityMatrix());
+      geom.AddBox(ezVec3(4, 4, 4), true);
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;

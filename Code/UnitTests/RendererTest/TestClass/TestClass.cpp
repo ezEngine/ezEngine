@@ -254,11 +254,8 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float fRadius)
 {
-  ezMat4 mTrans;
-  mTrans.SetIdentity();
-
   ezGeometry geom;
-  geom.AddGeodesicSphere(fRadius, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
+  geom.AddGeodesicSphere(fRadius, iSubDivs);
 
   ezStringBuilder sName;
   sName.Format("Sphere_{0}", iSubDivs);
@@ -268,11 +265,8 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float 
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius)
 {
-  ezMat4 mTrans;
-  mTrans.SetIdentity();
-
   ezGeometry geom;
-  geom.AddTorus(fInnerRadius, fOuterRadius, iSubDivs, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
+  geom.AddTorus(fInnerRadius, fOuterRadius, iSubDivs, iSubDivs, true);
 
   ezStringBuilder sName;
   sName.Format("Torus_{0}", iSubDivs);
@@ -282,11 +276,8 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float f
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight, float fDepth)
 {
-  ezMat4 mTrans;
-  mTrans.SetIdentity();
-
   ezGeometry geom;
-  geom.AddBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
+  geom.AddBox(ezVec3(fWidth, fHeight, fDepth), false);
 
   ezStringBuilder sName;
   sName.Format("Box_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
@@ -296,11 +287,8 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateLineBox(float fWidth, float fHeight, float fDepth)
 {
-  ezMat4 mTrans;
-  mTrans.SetIdentity();
-
   ezGeometry geom;
-  geom.AddLineBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
+  geom.AddLineBox(ezVec3(fWidth, fHeight, fDepth));
 
   ezStringBuilder sName;
   sName.Format("LineBox_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));

@@ -82,9 +82,9 @@ void ezMaterialContext::OnInitialize()
         // Build geometry
         ezGeometry geom;
 
-        ezMat4 transform;
-        transform.SetRotationMatrixZ(ezAngle::Degree(90));
-        geom.AddSphere(0.1f, 64, 64, ezColor::White, transform);
+        ezGeometry::GeoOptions opt;
+        opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(90));
+        geom.AddSphere(0.1f, 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -126,7 +126,7 @@ void ezMaterialContext::OnInitialize()
         // Build geometry
         ezGeometry geom;
 
-        geom.AddTexturedBox(ezVec3(0.12f), ezColor::White);
+        geom.AddBox(ezVec3(0.12f), true);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -168,9 +168,9 @@ void ezMaterialContext::OnInitialize()
         // Build geometry
         ezGeometry geom;
 
-        ezMat4 transform;
-        transform.SetRotationMatrixZ(ezAngle::Degree(-90));
-        geom.AddTesselatedRectXY(ezVec2(0.2f), ezColor::White, 64, 64, transform);
+        ezGeometry::GeoOptions opt;
+        opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90));
+        geom.AddRectXY(ezVec2(0.2f), 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;

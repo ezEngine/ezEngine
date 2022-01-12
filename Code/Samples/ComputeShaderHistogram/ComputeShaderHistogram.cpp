@@ -276,8 +276,10 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
     const float sizeScreen = 0.8f;
 
     ezGeometry geom;
-    ezMat4 transform(ezMat3::IdentityMatrix(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
-    geom.AddRectXY(ezVec2(sizeScreen, sizeScreen), ezColor::Black, transform);
+    ezGeometry::GeoOptions opt;
+    opt.m_Color = ezColor::Black;
+    opt.m_Transform = ezMat4(ezMat3::IdentityMatrix(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
+    geom.AddRectXY(ezVec2(sizeScreen, sizeScreen), 1, 1, opt);
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
