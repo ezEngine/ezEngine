@@ -11,10 +11,28 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezScaleGizmo::ezScaleGizmo()
 {
-  m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_AxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  m_bUseExperimentalGizmo = pPreferences->m_bExperimentalGizmos;
+
+  if (m_bUseExperimentalGizmo)
+  {
+    const ezColor colr = ezColorGammaUB(206, 0, 46);
+    const ezColor colg = ezColorGammaUB(101, 206, 0);
+    const ezColor colb = ezColorGammaUB(0, 125, 206);
+    const ezColor coly = ezColorGammaUB(128, 128, 0);
+
+    m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowX.obj");
+    m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowY.obj");
+    m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowZ.obj");
+    m_AxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, coly, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleXYZ.obj");
+  }
+  else
+  {
+    m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_AxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  }
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -44,21 +62,31 @@ void ezScaleGizmo::OnVisibleChanged(bool bVisible)
 
 void ezScaleGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezTransform t;
-  t.SetIdentity();
+  if (m_bUseExperimentalGizmo)
+  {
+    m_AxisX.SetTransformation(transform);
+    m_AxisY.SetTransformation(transform);
+    m_AxisZ.SetTransformation(transform);
+    m_AxisXYZ.SetTransformation(transform);
+  }
+  else
+  {
+    ezTransform t;
+    t.SetIdentity();
 
-  t.m_vScale.Set(2.0f);
-  m_AxisX.SetTransformation(transform * t);
+    t.m_vScale.Set(2.0f);
+    m_AxisX.SetTransformation(transform * t);
 
-  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-  m_AxisY.SetTransformation(transform * t);
+    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+    m_AxisY.SetTransformation(transform * t);
 
-  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-  m_AxisZ.SetTransformation(transform * t);
+    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+    m_AxisZ.SetTransformation(transform * t);
 
-  t.SetIdentity();
-  t.m_vScale = ezVec3(0.2f);
-  m_AxisXYZ.SetTransformation(transform * t);
+    t.SetIdentity();
+    t.m_vScale = ezVec3(0.2f);
+    m_AxisXYZ.SetTransformation(transform * t);
+  }
 }
 
 void ezScaleGizmo::DoFocusLost(bool bCancel)
@@ -111,13 +139,6 @@ ezEditorInput ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
-
-  // m_AxisX.SetVisible(false);
-  // m_AxisY.SetVisible(false);
-  // m_AxisZ.SetVisible(false);
-  // m_AxisXYZ.SetVisible(false);
-
-  // m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vScalingResult.Set(1.0f);
   m_vScaleMouseMove.SetZero();
