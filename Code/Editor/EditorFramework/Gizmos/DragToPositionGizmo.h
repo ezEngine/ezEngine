@@ -45,4 +45,5 @@ protected:
   bool m_bModifiesRotation;
   ezTime m_LastInteraction;
   ezVec3 m_vStartPosition;
+  ezQuat m_qStartOrientation;
 };
