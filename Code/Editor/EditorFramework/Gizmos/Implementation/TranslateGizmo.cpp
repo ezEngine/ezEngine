@@ -5,8 +5,8 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
