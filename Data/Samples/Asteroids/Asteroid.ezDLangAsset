@@ -1,0 +1,233 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{2172653856127003019,5267570834756430016}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"DLang"}
+		VarArray %Dependencies
+		{
+			s{"Asteroid.d"}
+		}
+		Uuid %DocumentID{u4{2172653856127003019,5267570834756430016}}
+		u4 %Hash{6356549377741508079}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{951179356171356431,6585044553125702121}}
+		}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{951179356171356431,6585044553125702121}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{18366926827398910902,5672776465414569199}}
+	s %t{"ezDLangAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		VarArray %BoolParameters{}
+		VarArray %ColorParameters{}
+		VarArray %NumberParameters{}
+		s %ScriptFile{"Asteroid.d"}
+		VarArray %StringParameters{}
+		VarArray %Vec3Parameters{}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{18366926827398910902,5672776465414569199}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{18220852505659228627,567434033144580984}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDLangParameter"}
+		s %PluginName{"ezEditorPluginDLang"}
+		VarArray %Properties{}
+		s %TypeName{"ezDLangParameterString"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18209730334201506083,2262847332432551501}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDLangParameter"}
+		s %PluginName{"ezEditorPluginDLang"}
+		VarArray %Properties{}
+		s %TypeName{"ezDLangParameterVec3"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9092716369676236469,4541515509692268626}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDLangParameter"}
+		s %PluginName{"ezEditorPluginDLang"}
+		VarArray %Properties{}
+		s %TypeName{"ezDLangParameterBool"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7896263812648331146,6973288106268504276}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDLangParameter"}
+		s %PluginName{"ezEditorPluginDLang"}
+		VarArray %Properties{}
+		s %TypeName{"ezDLangParameterColor"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6186846267647503757,8379600481317997272}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginDLang"}
+		VarArray %Properties{}
+		s %TypeName{"ezDLangAssetProperties"}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2424091934140654646,8677973754499144562}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDLangParameter"}
+		s %PluginName{"ezEditorPluginDLang"}
+		VarArray %Properties{}
+		s %TypeName{"ezDLangParameterNumber"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4187227032547654375,9508100763821366617}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginDLang"}
+		VarArray %Properties{}
+		s %TypeName{"ezDLangParameter"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}

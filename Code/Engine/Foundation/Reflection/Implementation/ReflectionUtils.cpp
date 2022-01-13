@@ -1606,7 +1606,7 @@ namespace
   {
     enum
     {
-      value = (ezVariant::TypeDeduction<C>::value >= ezVariantType::Int8 && ezVariant::TypeDeduction<C>::value <= ezVariantType::Double || ezVariant::TypeDeduction<C>::value == ezVariantType::Time || ezVariant::TypeDeduction<C>::value == ezVariantType::Angle) + (ezVariant::TypeDeduction<C>::value >= ezVariantType::Vector2 && ezVariant::TypeDeduction<C>::value <= ezVariantType::Vector4U) * 2
+      value = (((ezVariant::TypeDeduction<C>::value >= ezVariantType::Int8) && (ezVariant::TypeDeduction<C>::value <= ezVariantType::Double)) || (ezVariant::TypeDeduction<C>::value == ezVariantType::Time) || (ezVariant::TypeDeduction<C>::value == ezVariantType::Angle)) + (((ezVariant::TypeDeduction<C>::value >= ezVariantType::Vector2) && (ezVariant::TypeDeduction<C>::value <= ezVariantType::Vector4U)) * 2)
     };
   };
 

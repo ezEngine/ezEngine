@@ -1,0 +1,207 @@
+module ez.foundation.math.color;
+
+public import ez.foundation.math.vec3;
+
+extern(C++, class) struct ezColor
+{
+  // CODEGEN-BEGIN: Struct("ezColor")
+  // Operator: %
+  extern export static __gshared const(ezColor) AliceBlue;
+  extern export static __gshared const(ezColor) AntiqueWhite;
+  extern export static __gshared const(ezColor) Aqua;
+  extern export static __gshared const(ezColor) Aquamarine;
+  extern export static __gshared const(ezColor) Azure;
+  extern export static __gshared const(ezColor) Beige;
+  extern export static __gshared const(ezColor) Bisque;
+  extern export static __gshared const(ezColor) Black;
+  extern export static __gshared const(ezColor) BlanchedAlmond;
+  extern export static __gshared const(ezColor) Blue;
+  extern export static __gshared const(ezColor) BlueViolet;
+  extern export static __gshared const(ezColor) Brown;
+  extern export static __gshared const(ezColor) BurlyWood;
+  extern export static __gshared const(ezColor) CadetBlue;
+  extern export static __gshared const(ezColor) Chartreuse;
+  extern export static __gshared const(ezColor) Chocolate;
+  extern export static __gshared const(ezColor) Coral;
+  extern export static __gshared const(ezColor) CornflowerBlue;
+  extern export static __gshared const(ezColor) Cornsilk;
+  extern export static __gshared const(ezColor) Crimson;
+  extern export static __gshared const(ezColor) Cyan;
+  extern export static __gshared const(ezColor) DarkBlue;
+  extern export static __gshared const(ezColor) DarkCyan;
+  extern export static __gshared const(ezColor) DarkGoldenRod;
+  extern export static __gshared const(ezColor) DarkGray;
+  extern export static __gshared const(ezColor) DarkGrey;
+  extern export static __gshared const(ezColor) DarkGreen;
+  extern export static __gshared const(ezColor) DarkKhaki;
+  extern export static __gshared const(ezColor) DarkMagenta;
+  extern export static __gshared const(ezColor) DarkOliveGreen;
+  extern export static __gshared const(ezColor) DarkOrange;
+  extern export static __gshared const(ezColor) DarkOrchid;
+  extern export static __gshared const(ezColor) DarkRed;
+  extern export static __gshared const(ezColor) DarkSalmon;
+  extern export static __gshared const(ezColor) DarkSeaGreen;
+  extern export static __gshared const(ezColor) DarkSlateBlue;
+  extern export static __gshared const(ezColor) DarkSlateGray;
+  extern export static __gshared const(ezColor) DarkSlateGrey;
+  extern export static __gshared const(ezColor) DarkTurquoise;
+  extern export static __gshared const(ezColor) DarkViolet;
+  extern export static __gshared const(ezColor) DeepPink;
+  extern export static __gshared const(ezColor) DeepSkyBlue;
+  extern export static __gshared const(ezColor) DimGray;
+  extern export static __gshared const(ezColor) DimGrey;
+  extern export static __gshared const(ezColor) DodgerBlue;
+  extern export static __gshared const(ezColor) FireBrick;
+  extern export static __gshared const(ezColor) FloralWhite;
+  extern export static __gshared const(ezColor) ForestGreen;
+  extern export static __gshared const(ezColor) Fuchsia;
+  extern export static __gshared const(ezColor) Gainsboro;
+  extern export static __gshared const(ezColor) GhostWhite;
+  extern export static __gshared const(ezColor) Gold;
+  extern export static __gshared const(ezColor) GoldenRod;
+  extern export static __gshared const(ezColor) Gray;
+  extern export static __gshared const(ezColor) Grey;
+  extern export static __gshared const(ezColor) Green;
+  extern export static __gshared const(ezColor) GreenYellow;
+  extern export static __gshared const(ezColor) HoneyDew;
+  extern export static __gshared const(ezColor) HotPink;
+  extern export static __gshared const(ezColor) IndianRed;
+  extern export static __gshared const(ezColor) Indigo;
+  extern export static __gshared const(ezColor) Ivory;
+  extern export static __gshared const(ezColor) Khaki;
+  extern export static __gshared const(ezColor) Lavender;
+  extern export static __gshared const(ezColor) LavenderBlush;
+  extern export static __gshared const(ezColor) LawnGreen;
+  extern export static __gshared const(ezColor) LemonChiffon;
+  extern export static __gshared const(ezColor) LightBlue;
+  extern export static __gshared const(ezColor) LightCoral;
+  extern export static __gshared const(ezColor) LightCyan;
+  extern export static __gshared const(ezColor) LightGoldenRodYellow;
+  extern export static __gshared const(ezColor) LightGray;
+  extern export static __gshared const(ezColor) LightGrey;
+  extern export static __gshared const(ezColor) LightGreen;
+  extern export static __gshared const(ezColor) LightPink;
+  extern export static __gshared const(ezColor) LightSalmon;
+  extern export static __gshared const(ezColor) LightSeaGreen;
+  extern export static __gshared const(ezColor) LightSkyBlue;
+  extern export static __gshared const(ezColor) LightSlateGray;
+  extern export static __gshared const(ezColor) LightSlateGrey;
+  extern export static __gshared const(ezColor) LightSteelBlue;
+  extern export static __gshared const(ezColor) LightYellow;
+  extern export static __gshared const(ezColor) Lime;
+  extern export static __gshared const(ezColor) LimeGreen;
+  extern export static __gshared const(ezColor) Linen;
+  extern export static __gshared const(ezColor) Magenta;
+  extern export static __gshared const(ezColor) Maroon;
+  extern export static __gshared const(ezColor) MediumAquaMarine;
+  extern export static __gshared const(ezColor) MediumBlue;
+  extern export static __gshared const(ezColor) MediumOrchid;
+  extern export static __gshared const(ezColor) MediumPurple;
+  extern export static __gshared const(ezColor) MediumSeaGreen;
+  extern export static __gshared const(ezColor) MediumSlateBlue;
+  extern export static __gshared const(ezColor) MediumSpringGreen;
+  extern export static __gshared const(ezColor) MediumTurquoise;
+  extern export static __gshared const(ezColor) MediumVioletRed;
+  extern export static __gshared const(ezColor) MidnightBlue;
+  extern export static __gshared const(ezColor) MintCream;
+  extern export static __gshared const(ezColor) MistyRose;
+  extern export static __gshared const(ezColor) Moccasin;
+  extern export static __gshared const(ezColor) NavajoWhite;
+  extern export static __gshared const(ezColor) Navy;
+  extern export static __gshared const(ezColor) OldLace;
+  extern export static __gshared const(ezColor) Olive;
+  extern export static __gshared const(ezColor) OliveDrab;
+  extern export static __gshared const(ezColor) Orange;
+  extern export static __gshared const(ezColor) OrangeRed;
+  extern export static __gshared const(ezColor) Orchid;
+  extern export static __gshared const(ezColor) PaleGoldenRod;
+  extern export static __gshared const(ezColor) PaleGreen;
+  extern export static __gshared const(ezColor) PaleTurquoise;
+  extern export static __gshared const(ezColor) PaleVioletRed;
+  extern export static __gshared const(ezColor) PapayaWhip;
+  extern export static __gshared const(ezColor) PeachPuff;
+  extern export static __gshared const(ezColor) Peru;
+  extern export static __gshared const(ezColor) Pink;
+  extern export static __gshared const(ezColor) Plum;
+  extern export static __gshared const(ezColor) PowderBlue;
+  extern export static __gshared const(ezColor) Purple;
+  extern export static __gshared const(ezColor) RebeccaPurple;
+  extern export static __gshared const(ezColor) Red;
+  extern export static __gshared const(ezColor) RosyBrown;
+  extern export static __gshared const(ezColor) RoyalBlue;
+  extern export static __gshared const(ezColor) SaddleBrown;
+  extern export static __gshared const(ezColor) Salmon;
+  extern export static __gshared const(ezColor) SandyBrown;
+  extern export static __gshared const(ezColor) SeaGreen;
+  extern export static __gshared const(ezColor) SeaShell;
+  extern export static __gshared const(ezColor) Sienna;
+  extern export static __gshared const(ezColor) Silver;
+  extern export static __gshared const(ezColor) SkyBlue;
+  extern export static __gshared const(ezColor) SlateBlue;
+  extern export static __gshared const(ezColor) SlateGray;
+  extern export static __gshared const(ezColor) SlateGrey;
+  extern export static __gshared const(ezColor) Snow;
+  extern export static __gshared const(ezColor) SpringGreen;
+  extern export static __gshared const(ezColor) SteelBlue;
+  extern export static __gshared const(ezColor) Tan;
+  extern export static __gshared const(ezColor) Teal;
+  extern export static __gshared const(ezColor) Thistle;
+  extern export static __gshared const(ezColor) Tomato;
+  extern export static __gshared const(ezColor) Turquoise;
+  extern export static __gshared const(ezColor) Violet;
+  extern export static __gshared const(ezColor) Wheat;
+  extern export static __gshared const(ezColor) White;
+  extern export static __gshared const(ezColor) WhiteSmoke;
+  extern export static __gshared const(ezColor) Yellow;
+  extern export static __gshared const(ezColor) YellowGreen;
+  extern export static __gshared const(ezColor)[32] s_PaletteColors;
+  float r;
+  float g;
+  float b;
+  float a;
+  static ezColor GetPaletteColor(uint colorIndex, ubyte alpha = 255);
+  static ezColor ZeroColor();
+  this(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);
+  // constructor - unsupported argument 'cc'
+  // constructor - unsupported argument 'cc'
+  void SetRGB(float fLinearRed, float fLinearGreen, float fLinearBlue);
+  void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);
+  void SetZero();
+  void SetHSV(float hue, float sat, float val);
+  void GetHSV(ref float hue, ref float sat, ref float val) const;
+  const(float)* GetData() const;
+  float* GetData();
+  const(ezVec4Template!(float)) GetAsVec4() const;
+  static float GammaToLinear(float gamma);
+  static float LinearToGamma(float gamma);
+  static ezVec3Template!(float) GammaToLinear(ref const(ezVec3Template!(float)) gamma);
+  static ezVec3Template!(float) LinearToGamma(ref const(ezVec3Template!(float)) gamma);
+  bool IsNormalized() const;
+  float CalcAverageRGB() const;
+  float GetSaturation() const;
+  float GetLuminance() const;
+  ezColor GetInvertedColor() const;
+  ezColor GetComplementaryColor() const;
+  void ScaleRGB(float factor);
+  float ComputeHdrMultiplier() const;
+  float ComputeHdrExposureValue() const;
+  void ApplyHdrExposureValue(float ev);
+  void NormalizeToLdrRange();
+  bool IsNaN() const;
+  bool IsValid() const;
+  // Operator: =
+  // Operator: =
+  // Operator: +=
+  // Operator: -=
+  // Operator: *=
+  // Operator: *=
+  // Operator: /=
+  // Operator: *=
+  bool IsIdenticalRGB(ref const(ezColor) rhs) const;
+  bool IsIdenticalRGBA(ref const(ezColor) rhs) const;
+  bool IsEqualRGB(ref const(ezColor) rhs, float fEpsilon) const;
+  bool IsEqualRGBA(ref const(ezColor) rhs, float fEpsilon) const;
+  ezColor WithAlpha(float alpha) const;
+  // Operator: =
+  // CODEGEN-END
+}

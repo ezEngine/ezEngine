@@ -354,3 +354,5 @@ AssetCache
 /build/
 /buildUWP/
 Code/Engine/ezBuildInfo.h
+Code/Tools/DLangCodeGenTool/CppExtraction/ez.xml
+Code/Tools/DLangCodeGenTool/CppExtraction/generated/ez.d

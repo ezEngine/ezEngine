@@ -1,5 +1,11 @@
 Plugin
 {
+	string %Path{"ezDLangPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>","EditorPluginDLang"}
+}
+Plugin
+{
 	string %Path{"ezEnginePluginAssets"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginAssets"}
