@@ -24,7 +24,7 @@ namespace physx
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-using ezPxRagdollComponentManager = ezComponentManagerSimple<class ezPxRagdollComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+//using ezPxRagdollComponentManager = ezComponentManagerSimple<class ezPxRagdollComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
 struct ezPxRagdollStart
 {
@@ -41,6 +41,25 @@ struct ezPxRagdollStart
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxRagdollStart);
+
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PHYSXPLUGIN_DLL ezPxRagdollComponentManager : public ezComponentManager<ezPxRagdollComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezPxRagdollComponentManager(ezWorld* pWorld);
+  ~ezPxRagdollComponentManager();
+
+  virtual void Initialize() override;
+
+private:
+  friend class ezPhysXWorldModule;
+
+  void UpdateRagdolls(const ezWorldModule::UpdateContext& context);
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_PHYSXPLUGIN_DLL ezPxRagdollComponent : public ezPxComponent
 {
@@ -93,8 +112,8 @@ protected:
   void Update();
   void CreateShapesFromBindPose();
   void AddArticulationToScene();
-  void CreateBoneShape(const ezTransform& rootTransform, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const physx::PxMaterial& pxMaterial, const physx::PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
-  void CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
+  void CreateBoneShape(const ezTransform& rootTransform, ezBasisAxis::Enum srcBoneDir, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const physx::PxMaterial& pxMaterial, const physx::PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
+  void CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezBasisAxis::Enum srcBoneDir, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
 
   physx::PxMaterial* GetPxMaterial();
   physx::PxFilterData CreateFilterData();

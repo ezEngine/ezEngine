@@ -229,8 +229,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
         pJoint->CopyPropertiesFrom(it.Value());
       }
 
-      origin.SetGlobalTransform(origin, pJoint->m_Transform);
-      pJoint->m_vJointPosGlobal = tRoot.TransformPosition(origin.m_vPosition);
+      origin.SetGlobalTransform(origin, pJoint->m_LocalTransform);
+      pJoint->m_vGlobalJointPosition = tRoot.TransformPosition(origin.m_vPosition);
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
