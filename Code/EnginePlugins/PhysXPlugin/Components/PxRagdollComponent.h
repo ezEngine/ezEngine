@@ -45,7 +45,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxRagdollStart);
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PHYSXPLUGIN_DLL ezPxRagdollComponentManager : public ezComponentManager<ezPxRagdollComponent, ezBlockStorageType::FreeList>
+class EZ_PHYSXPLUGIN_DLL ezPxRagdollComponentManager : public ezComponentManager<class ezPxRagdollComponent, ezBlockStorageType::FreeList>
 {
 public:
   ezPxRagdollComponentManager(ezWorld* pWorld);
