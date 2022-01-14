@@ -38,7 +38,7 @@ void ezSkeletonBuilder::SetJointLimit(ezUInt32 uiJointIndex, const ezQuat& local
 
 void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& skeleton) const
 {
-  EZ_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
+  //EZ_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
 
   const ezUInt32 numJoints = m_Joints.GetCount();
 

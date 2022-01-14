@@ -93,7 +93,7 @@ public:
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;
   void CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt32 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& rootTransform) const;
 
-  ezString m_sAnimationFile;
+  ezString m_sSourceFile;
   ezString m_sSurfaceFile;
   ezUInt8 m_uiCollisionLayer = 0;
 

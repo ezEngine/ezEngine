@@ -154,8 +154,10 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezEditableSkeleton* pProp = GetProperties();
 
+  ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
+
+  if (!sAbsFilename.IsEmpty())
   {
-    ezStringBuilder sAbsFilename = pProp->m_sAnimationFile;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
     {
       return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
@@ -180,10 +182,10 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     // synchronize the old data (collision geometry etc.) with the new hierarchy
     MergeWithNewSkeleton(newSkeleton);
-  }
 
-  // merge the new data with the actual asset document
-  ApplyNativePropertyChangesToObjectManager(true);
+    // merge the new data with the actual asset document
+    ApplyNativePropertyChangesToObjectManager(true);
+  }
 
   range.BeginNextStep("Writing Result");
 
@@ -205,7 +207,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // map all old joints by name
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void
+    {
       prevJoints[pJoint->GetName()] = pJoint;
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
@@ -222,7 +225,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void
+    {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {
