@@ -415,6 +415,9 @@ void ezQtEditorApp::SetupAndShowSplashScreen()
 {
   EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
 
+  if (m_StartupFlags.IsAnySet(ezQtEditorApp::StartupFlags::UnitTest))
+    return;
+
   if (opt_NoSplashScreen.GetOptionValue(ezCommandLineOption::LogMode::Never))
     return;
 
