@@ -57,8 +57,8 @@ struct VS_IN
 #  if defined(CAMERA_MODE)
 #    if CAMERA_MODE == CAMERA_MODE_STEREO && defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX)
 #      define RENDER_TARGET_ARRAY_INDEX
+#    endif
 #endif
-  #endif
 #  define STAGE_TEMPLATE VS_OUT
 #  include <Shaders/Materials/MaterialInterpolatorTemplate.h>
 #  undef STAGE_TEMPLATE
@@ -74,15 +74,15 @@ struct VS_IN
 #      define STAGE_TEMPLATE GS_OUT
 #      include <Shaders/Materials/MaterialInterpolatorTemplate.h>
 #      undef STAGE_TEMPLATE
+#    endif
 #endif
-  #endif
 
 #elif defined(PIXEL_SHADER)
 #  if defined(CAMERA_MODE)
-#if CAMERA_MODE == CAMERA_MODE_STEREO
+#    if CAMERA_MODE == CAMERA_MODE_STEREO
 #      define RENDER_TARGET_ARRAY_INDEX
+#    endif
 #endif
-  #endif
 #  define STAGE_TEMPLATE PS_IN
 #  include <Shaders/Materials/MaterialInterpolatorTemplate.h>
 #  undef STAGE_TEMPLATE
