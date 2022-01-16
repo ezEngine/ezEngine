@@ -381,10 +381,16 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
+  const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
+  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+
   ezStringBuilder bonesToHighlight(";", m_sBonesToHighlight, ";");
   ezStringBuilder boneName;
   if (m_sBonesToHighlight == "*")
     bonesToHighlight.Clear();
+
+  ezQuat qRotZtoX; // the capsule should extend along X, but the debug renderer draws them along Z
+  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {
@@ -399,10 +405,12 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
     const bool bHighlight = bonesToHighlight.IsEmpty() || bonesToHighlight.FindLastSubString(boneName) != nullptr;
     const ezColor hlS = ezMath::Lerp(ezColor::DimGray, ezColor::Yellow, bHighlight ? 1 : 0.2f);
 
+    const ezQuat qFinalBoneRot = boneRot * qBoneDirAdjustment;
+
     ezTransform st;
     st.SetIdentity();
-    st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * geo.m_Transform.m_vPosition);
-    st.m_qRotation = boneRot * geo.m_Transform.m_qRotation;
+    st.m_vPosition = boneTrans.GetTranslationVector() + qFinalBoneRot * geo.m_Transform.m_vPosition;
+    st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
 
     if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
     {
@@ -417,11 +425,12 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
       auto& shape = m_BoxesSkeleton.ExpandAndGetRef();
 
       ezVec3 ext;
-      ext.x = geo.m_Transform.m_vScale.y * 0.5f;
-      ext.y = geo.m_Transform.m_vScale.x * 0.5f;
+      ext.x = geo.m_Transform.m_vScale.x * 0.5f;
+      ext.y = geo.m_Transform.m_vScale.y * 0.5f;
       ext.z = geo.m_Transform.m_vScale.z * 0.5f;
 
-      st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * (geo.m_Transform.m_vPosition + ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0)));
+      // TODO: if offset desired
+      st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
       shape.m_Transform = st;
       shape.m_Shape.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
@@ -430,14 +439,13 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
 
     if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
     {
-      ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+      st.m_qRotation = st.m_qRotation * qRotZtoX;
 
-      st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * (geo.m_Transform.m_vPosition + ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0)));
+      // TODO: if offset desired
+      st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
       auto& shape = m_CapsulesSkeleton.ExpandAndGetRef();
       shape.m_Transform = st;
-      shape.m_Transform.m_qRotation = shape.m_Transform.m_qRotation * qRot;
       shape.m_fLength = geo.m_Transform.m_vScale.x;
       shape.m_fRadius = geo.m_Transform.m_vScale.z;
       shape.m_Color = hlS;
@@ -471,49 +479,49 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     const bool bHighlight = bonesToHighlight.IsEmpty() || bonesToHighlight.FindSubString(boneName) != nullptr;
 
     ezMat4 parentTrans;
-    ezQuat parentRot;
+    ezQuat parentRot; // contains root transform
     msg.ComputeFullBoneTransform(uiParentIdx, parentTrans, parentRot);
 
-    ezMat4 thisTrans;
+    ezMat4 thisTrans; // contains root transform
     msg.ComputeFullBoneTransform(uiJointIdx, thisTrans);
 
     const ezVec3 vJointPos = thisTrans.GetTranslationVector();
-    const ezQuat qLimitRot = parentRot * thisJoint.GetLimitRotation();
+    const ezQuat qLimitRot = parentRot * thisJoint.GetLocalOrientation();
 
     // main direction
     {
       const ezColor hlM = ezMath::Lerp(ezColor::BlueViolet, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
-      AddLine(vJointPos, vJointPos + qLimitRot * ezVec3(0, 0, 0.12), hlM);
+      AddLine(vJointPos, vJointPos + qLimitRot * ezVec3(0.12f, 0, 0), hlM);
     }
 
     // swing limit
     {
-      ezQuat qRotX, qRotY;
-      qRotX.SetFromAxisAndAngle(ezVec3::UnitXAxis(), thisJoint.GetHalfSwingLimitX());
+      ezQuat qRotY, qRotZ;
       qRotY.SetFromAxisAndAngle(ezVec3::UnitYAxis(), thisJoint.GetHalfSwingLimitY());
+      qRotZ.SetFromAxisAndAngle(ezVec3::UnitZAxis(), thisJoint.GetHalfSwingLimitZ());
 
-      const ezVec3 endX1 = vJointPos + qLimitRot * qRotX * ezVec3(0, 0, 0.1f);
-      const ezVec3 endX2 = vJointPos + qLimitRot * -qRotX * ezVec3(0, 0, 0.1f);
-      const ezVec3 endY1 = vJointPos + qLimitRot * qRotY * ezVec3(0, 0, 0.1f);
-      const ezVec3 endY2 = vJointPos + qLimitRot * -qRotY * ezVec3(0, 0, 0.1f);
+      const ezVec3 endY1 = vJointPos + qLimitRot * qRotY * ezVec3(0.1f, 0, 0);
+      const ezVec3 endY2 = vJointPos + qLimitRot * -qRotY * ezVec3(0.1f, 0, 0);
+      const ezVec3 endZ1 = vJointPos + qLimitRot * qRotZ * ezVec3(0.1f, 0, 0);
+      const ezVec3 endZ2 = vJointPos + qLimitRot * -qRotZ * ezVec3(0.1f, 0, 0);
 
-      const ezColor hlX = ezMath::Lerp(ezColor::Red, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
       const ezColor hlY = ezMath::Lerp(ezColor::Lime, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
+      const ezColor hlZ = ezMath::Lerp(ezColor::Blue, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
 
-      AddLine(vJointPos, endX1, hlX);
-      AddLine(vJointPos, endX2, hlX);
       AddLine(vJointPos, endY1, hlY);
       AddLine(vJointPos, endY2, hlY);
+      AddLine(vJointPos, endZ1, hlZ);
+      AddLine(vJointPos, endZ2, hlZ);
 
-      AddLine(endX1, ezMath::Lerp(endX1, endY1, 0.5f), hlX);
-      AddLine(endX1, ezMath::Lerp(endX1, endY2, 0.5f), hlX);
-      AddLine(endX2, ezMath::Lerp(endX2, endY1, 0.5f), hlX);
-      AddLine(endX2, ezMath::Lerp(endX2, endY2, 0.5f), hlX);
+      AddLine(endZ1, ezMath::Lerp(endZ1, endY1, 0.5f), hlZ);
+      AddLine(endZ1, ezMath::Lerp(endZ1, endY2, 0.5f), hlZ);
+      AddLine(endZ2, ezMath::Lerp(endZ2, endY1, 0.5f), hlZ);
+      AddLine(endZ2, ezMath::Lerp(endZ2, endY2, 0.5f), hlZ);
 
-      AddLine(endY1, ezMath::Lerp(endY1, endX1, 0.5f), hlY);
-      AddLine(endY1, ezMath::Lerp(endY1, endX2, 0.5f), hlY);
-      AddLine(endY2, ezMath::Lerp(endY2, endX1, 0.5f), hlY);
-      AddLine(endY2, ezMath::Lerp(endY2, endX2, 0.5f), hlY);
+      AddLine(endY1, ezMath::Lerp(endY1, endZ1, 0.5f), hlY);
+      AddLine(endY1, ezMath::Lerp(endY1, endZ2, 0.5f), hlY);
+      AddLine(endY2, ezMath::Lerp(endY2, endZ1, 0.5f), hlY);
+      AddLine(endY2, ezMath::Lerp(endY2, endZ2, 0.5f), hlY);
     }
   }
 }

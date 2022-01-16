@@ -4,6 +4,7 @@
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
@@ -115,7 +116,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
   {
     // If we request an engine connection but the mirror is not set up yet we are still
     // creating the document and TransformAsset will most likely fail.
-    if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_Mirror.GetIPC())
+    if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_pEngineConnection)
     {
       /// \todo Should only be done for platform agnostic assets
       auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);

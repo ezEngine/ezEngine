@@ -32,12 +32,12 @@ public:
   bool IsRootJoint() const { return m_uiParentIndex == ezInvalidJointIndex; }
   const ezHashedString& GetName() const { return m_sName; }
 
-  ezAngle GetHalfSwingLimitX() const { return m_HalfSwingLimitX; }
   ezAngle GetHalfSwingLimitY() const { return m_HalfSwingLimitY; }
+  ezAngle GetHalfSwingLimitZ() const { return m_HalfSwingLimitZ; }
   ezAngle GetTwistLimitLow() const { return m_TwistLimitLow; }
   ezAngle GetTwistLimitHigh() const { return m_TwistLimitHigh; }
 
-  ezQuat GetLimitRotation() const { return m_LimitRotation; }
+  ezQuat GetLocalOrientation() const { return m_qLocalJointOrientation; }
 
 protected:
   friend ezSkeleton;
@@ -47,9 +47,9 @@ protected:
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 
-  ezQuat m_LimitRotation = ezQuat::IdentityQuaternion();
-  ezAngle m_HalfSwingLimitX;
+  ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
   ezAngle m_HalfSwingLimitY;
+  ezAngle m_HalfSwingLimitZ;
   ezAngle m_TwistLimitLow;
   ezAngle m_TwistLimitHigh;
 };

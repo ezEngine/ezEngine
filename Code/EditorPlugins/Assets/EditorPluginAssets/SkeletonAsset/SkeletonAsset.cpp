@@ -154,8 +154,10 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezEditableSkeleton* pProp = GetProperties();
 
+  ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
+
+  if (!sAbsFilename.IsEmpty())
   {
-    ezStringBuilder sAbsFilename = pProp->m_sAnimationFile;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
     {
       return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
@@ -180,10 +182,10 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     // synchronize the old data (collision geometry etc.) with the new hierarchy
     MergeWithNewSkeleton(newSkeleton);
-  }
 
-  // merge the new data with the actual asset document
-  ApplyNativePropertyChangesToObjectManager(true);
+    // merge the new data with the actual asset document
+    ApplyNativePropertyChangesToObjectManager(true);
+  }
 
   range.BeginNextStep("Writing Result");
 
@@ -229,8 +231,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
         pJoint->CopyPropertiesFrom(it.Value());
       }
 
-      origin.SetGlobalTransform(origin, pJoint->m_Transform);
-      pJoint->m_vJointPosGlobal = tRoot.TransformPosition(origin.m_vPosition);
+      origin.SetGlobalTransform(origin, pJoint->m_LocalTransform);
+      pJoint->m_vGlobalJointPosition = tRoot.TransformPosition(origin.m_vPosition);
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {

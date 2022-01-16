@@ -41,9 +41,9 @@ void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, 
   fullTransform = m_pRootTransform->GetAsMat4() * m_ModelTransforms[uiJointIndex];
 }
 
-void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const
+void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(const ezMat4& rootTransform, const ezMat4& modelTransform, ezMat4& fullTransform, ezQuat& rotationOnly)
 {
-  fullTransform = m_pRootTransform->GetAsMat4() * m_ModelTransforms[uiJointIndex];
+  fullTransform = rootTransform * modelTransform;
 
   // the bone might contain (non-uniform) scaling and mirroring, which the quaternion can't represent
   // so reconstruct a representable rotation matrix
@@ -59,6 +59,11 @@ void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, 
 
     rotationOnly.SetFromMat3(m);
   }
+}
+
+void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const
+{
+  ComputeFullBoneTransform(m_pRootTransform->GetAsMat4(), m_ModelTransforms[uiJointIndex], fullTransform, rotationOnly);
 }
 
 ezSkinningSpaceAnimationPose::ezSkinningSpaceAnimationPose() = default;
