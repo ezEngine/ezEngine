@@ -2,16 +2,16 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Core/World/World.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <GameEngineTest/StereoTest/StereoTest.h>
-#include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/Device.h>
+#  include <Core/World/World.h>
+#  include <Core/WorldSerializer/WorldReader.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
+#  include <Foundation/IO/FileSystem/FileWriter.h>
+#  include <Foundation/Profiling/Profiling.h>
+#  include <GameEngineTest/StereoTest/StereoTest.h>
+#  include <RendererCore/Components/CameraComponent.h>
+#  include <RendererCore/Pipeline/View.h>
+#  include <RendererCore/RenderWorld/RenderWorld.h>
+#  include <RendererFoundation/Device/Device.h>
 
 static ezStereoTest s_StereoTest;
 
