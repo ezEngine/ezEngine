@@ -116,7 +116,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
   {
     // If we request an engine connection but the mirror is not set up yet we are still
     // creating the document and TransformAsset will most likely fail.
-    if (m_EngineConnectionType != ezAssetDocEngineConnection::FullObjectMirroring || m_Mirror.GetIPC())
+    if (m_EngineConnectionType == ezAssetDocEngineConnection::None|| m_pEngineConnection)
     {
       /// \todo Should only be done for platform agnostic assets
       auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);
@@ -618,11 +618,6 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
 
   if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
   {
-    if (ezQtEditorApp::GetSingleton()->IsInUnitTestMode())
-    {
-      return ezStatus(EZ_SUCCESS);
-    }
-
     return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed, engine not started or crashed.", GetDocumentTypeName(), GetDocumentPath()));
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
