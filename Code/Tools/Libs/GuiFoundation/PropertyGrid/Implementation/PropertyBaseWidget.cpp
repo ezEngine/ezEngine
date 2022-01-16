@@ -299,7 +299,7 @@ bool ezQtPropertyWidget::GetCommonVariantSubType(
 
 ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty)
 {
-  if (m_pProp->GetCategory() == ezPropertyCategory::Array || m_pProp->GetCategory() == ezPropertyCategory::Set)
+  if (!items[0].m_Index.IsValid() && (m_pProp->GetCategory() == ezPropertyCategory::Array || m_pProp->GetCategory() == ezPropertyCategory::Set))
   {
     ezVariantArray values;
     // check if we have multiple values
