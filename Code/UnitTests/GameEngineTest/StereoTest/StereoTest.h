@@ -4,6 +4,8 @@
 
 #include <GameEngineTest/TestClass/TestClass.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 class ezStereoTestGameState : public ezGameEngineTestGameState
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStereoTestGameState, ezGameEngineTestGameState);
@@ -50,3 +52,5 @@ protected:
   ezUInt32 m_iImgCompIdx = 0;
   ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
 };
+
+#endif

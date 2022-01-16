@@ -267,6 +267,8 @@ ezXRDeviceID ezDummyXRInput::GetDeviceIDByType(ezXRDeviceType::Enum type) const
     case ezXRDeviceType::HMD:
       deviceID = 0;
       break;
+    default:
+      deviceID = -1;
   }
 
   return deviceID;

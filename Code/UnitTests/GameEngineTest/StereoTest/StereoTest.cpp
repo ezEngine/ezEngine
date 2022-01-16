@@ -1,5 +1,7 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 #include <Core/World/World.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -132,3 +134,5 @@ ezTestAppRun ezStereoTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocation
 
   return ezTestAppRun::Continue;
 }
+
+#endif
